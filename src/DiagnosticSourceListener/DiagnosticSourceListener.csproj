@@ -36,21 +36,28 @@
     <Content Include="ApplicationInsights.config.uninstall.xdt" />
   </ItemGroup>
 
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.11.0-beta1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.2">
-      <PrivateAssets>all</PrivateAssets>
+  <ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
+    <!--Analyzers-->
+    <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
+      <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.2">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microbuild.Core" Version="0.3.0">
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--Build Infrastructure-->
+    <PackageReference Include="MicroBuild.Core" Version="0.3.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.11.0-beta1" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.0" />
   </ItemGroup>
 
