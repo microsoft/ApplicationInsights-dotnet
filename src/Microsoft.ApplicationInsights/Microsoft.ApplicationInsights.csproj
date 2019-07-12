@@ -19,20 +19,21 @@
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
-    <!--Analyzers and Build Infrastructure-->
+    <!--Analyzers-->
     <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.2">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="MicroBuild.Core" Version="0.3.0">
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.2">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="PublicApiAnalyzer" Version="1.0.0-alpha001">
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--Build Infrastructure-->
+    <PackageReference Include="MicroBuild.Core" Version="0.3.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
