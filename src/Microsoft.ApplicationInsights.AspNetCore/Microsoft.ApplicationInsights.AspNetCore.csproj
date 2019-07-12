@@ -8,7 +8,6 @@
     <Description>Application Insights for ASP.NET Core web applications. See https://azure.microsoft.com/documentation/articles/app-insights-asp-net-five/ for more information. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/Microsoft/ApplicationInsights-aspnetcore.git</RepositoryUrl>
-    
     <TargetFrameworks>net451;net46;netstandard1.6;netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard1.6;netstandard2.0</TargetFrameworks>
     
@@ -52,9 +51,6 @@
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="MicroBuild.Core" Version="0.3.0">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
   </ItemGroup>
   
   <ItemGroup>
@@ -66,6 +62,9 @@
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="1.0.2" />           
     <PackageReference Include="System.Text.Encodings.Web" Version="4.3.1" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.0" />
+    <PackageReference Include="MicroBuild.Core" Version="0.3.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard2.0' ">
@@ -90,9 +89,7 @@
   </ItemGroup>
 
   <ImportGroup Condition=" '$(OS)' == 'Windows_NT' ">
-    <!--3 files are required for signing in this order: Signing.props, MicroBuild.Core.props, and MicroBuild.Core.targets-->
+    <!-- 1 file is required for signing: Signing.props -->
     <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Signing.props'))\Signing.props" />
-    <Import Project="..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.props" Condition="Exists('..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.props')" />
-    <Import Project="..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.targets" Condition="Exists('..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.targets')" />
   </ImportGroup>
 </Project>
