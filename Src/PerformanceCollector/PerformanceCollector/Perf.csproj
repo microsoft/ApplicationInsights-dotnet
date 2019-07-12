@@ -1,7 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.props" /> <!--manual workaround: needed for net45 dll-->
-  <Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\buildCrossTargeting\MicroBuild.Core.props" /> <!--manual workaround: needed for nupkg-->
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\Product.props" />
 
   <PropertyGroup>
@@ -20,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
-    <!--Analyzers and Build Infrastructure-->
+    <!--Analyzers-->
     <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
@@ -30,11 +27,15 @@
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.2">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--Build Infrastructure-->
     <PackageReference Include="MicroBuild.Core" Version="0.3.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-  
+
   <ItemGroup>
     <!--Common Dependencies-->
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.11.0-beta1" />
@@ -76,8 +77,6 @@
   <Import Project="..\Perf.Shared.NetStandard.Stubs\Perf.Shared.NetStandard.Stubs.projitems" Label="Shared" Condition="'$(TargetFramework)' == 'netstandard1.6' OR '$(TargetFramework)' == 'netstandard2.0'" />
   <Import Project="..\Perf.Shared.NetStandard16.Stubs\Perf.Shared.NetStandard16.Stubs.projitems" Label="Shared" Condition="'$(TargetFramework)' == 'netstandard1.6'" />
   <Import Project="..\Perf.Shared.NetStandard20\Perf.Shared.NetStandard20.projitems" Label="Shared" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
+  
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
-
-  <Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.targets" /> <!--manual workaround: needed for net45 dll-->
-  <Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\buildCrossTargeting\MicroBuild.Core.targets" /> <!--manual workaround: needed for nupkg-->
 </Project>
