@@ -173,6 +173,16 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             this.WriteEvent(17, errorMessage, this.ApplicationName);
         }
 
+        [Event(
+            18,
+            Keywords = Keywords.Diagnostics,
+            Message = "Telemetry item was sampled out at head, OperationId: '{0}'",
+            Level = EventLevel.Verbose)]
+        public void TelemetryItemWasSampledOutAtHead(string operationId, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(18, operationId, this.ApplicationName);
+        }
+
         /// <summary>
         /// Keywords for the AspNetEventSource.
         /// </summary>
