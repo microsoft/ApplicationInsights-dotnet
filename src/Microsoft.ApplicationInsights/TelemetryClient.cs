@@ -485,13 +485,6 @@
 
             if (!sampledOut)
             {
-                string instrumentationKey = this.Context.InstrumentationKey;
-
-                if (string.IsNullOrEmpty(instrumentationKey))
-                {
-                    instrumentationKey = this.configuration.InstrumentationKey;
-                }
-
                 var telemetryWithProperties = telemetry as ISupportProperties;
                 if (telemetryWithProperties != null)
                 {
@@ -518,6 +511,13 @@
                 if (this.Context.GlobalPropertiesValue != null)
                 {
                     Utils.CopyDictionary(this.Context.GlobalProperties, telemetry.Context.GlobalProperties);
+                }
+
+                string instrumentationKey = this.Context.InstrumentationKey;
+
+                if (string.IsNullOrEmpty(instrumentationKey))
+                {
+                    instrumentationKey = this.configuration.InstrumentationKey;
                 }
 
                 telemetry.Context.Initialize(this.Context, instrumentationKey);
