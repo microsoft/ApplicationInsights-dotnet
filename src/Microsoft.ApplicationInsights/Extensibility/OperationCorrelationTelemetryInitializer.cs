@@ -50,11 +50,13 @@
                         }
                     }
 
-                    string operationName = currentActivity.GetOperationName();
-
-                    if (string.IsNullOrEmpty(itemContext.Name) && !string.IsNullOrEmpty(operationName))
+                    if (string.IsNullOrEmpty(itemContext.Name))
                     {
-                        itemContext.Name = operationName;
+                        string operationName = currentActivity.GetOperationName();
+                        if (!string.IsNullOrEmpty(operationName))
+                        {
+                            itemContext.Name = operationName;
+                        }
                     }
                 }
             });
