@@ -6,12 +6,20 @@
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
 
     /// <summary>
     /// <see cref="IStartupFilter"/> implementation that initialized ApplicationInsights services on application startup
     /// </summary>
     internal class ApplicationInsightsStartupFilter : IStartupFilter
     {
+        private readonly ILogger<ApplicationInsightsStartupFilter> logger;
+        
+        public ApplicationInsightsStartupFilter(ILogger<ApplicationInsightsStartupFilter> logger)
+        {
+            this.logger = logger;
+        }
+        
         /// <inheritdoc/>
         public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
         {
@@ -26,6 +34,7 @@
                 }
                 catch (Exception ex)
                 {
+                    this.logger.LogWarning(0, ex, "Failed to resolve TelemetryConfiguration.");
                     AspNetCoreEventSource.Instance.LogWarning(ex.Message);
                 }
 
