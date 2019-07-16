@@ -478,13 +478,6 @@
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void Initialize(ITelemetry telemetry)
         {
-            string instrumentationKey = this.Context.InstrumentationKey;
-
-            if (string.IsNullOrEmpty(instrumentationKey))
-            {
-                instrumentationKey = this.configuration.InstrumentationKey;
-            }
-
             ISupportAdvancedSampling telemetryWithSampling = telemetry as ISupportAdvancedSampling;
 
             // Telemetry can be already sampled out if that decision was made before calling Track()
@@ -518,6 +511,13 @@
                 if (this.Context.GlobalPropertiesValue != null)
                 {
                     Utils.CopyDictionary(this.Context.GlobalProperties, telemetry.Context.GlobalProperties);
+                }
+
+                string instrumentationKey = this.Context.InstrumentationKey;
+
+                if (string.IsNullOrEmpty(instrumentationKey))
+                {
+                    instrumentationKey = this.configuration.InstrumentationKey;
                 }
 
                 telemetry.Context.Initialize(this.Context, instrumentationKey);
