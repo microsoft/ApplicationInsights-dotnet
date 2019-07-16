@@ -170,29 +170,28 @@
 
                 parent.Stop();
 
-                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200", false, parent);
+                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200", false, true, parent);
 
                 Assert.AreEqual("k=v", request.Headers.GetValues(RequestResponseHeaders.CorrelationContextHeader).Single());
             }
         }
 
         /// <summary>
-        /// Tests dependency collection when request procession causes exception (DNS issue).
-        /// On .netcore1.1 and before, such dependencies are ot collected
-        /// On .netcore2.0 they are collected, but there is no build infra to support it (https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/572)
-        /// TODO: add tests for 2.0
+        /// Tests dependency collection when request procession causes exception (DNS issue).              
         /// </summary>
         [TestMethod]
-        [Timeout(10000)]
+        
         public async Task TestDependencyCollectionDnsIssue()
         {
             using (var module = new DependencyTrackingTelemetryModule())
             {
                 module.Initialize(this.config);
 
-                var request = new HttpRequestMessage(HttpMethod.Get, $"http://{Guid.NewGuid()}");
+                var url = $"http://{Guid.NewGuid()}:5050";
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
                 await new HttpClient().SendAsync(request).ContinueWith(t => { });
-                Assert.IsFalse(this.sentTelemetry.Any());
+                // As DNS Resolution itself failed, no response expected
+                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), new Uri(url), request, false, "Faulted", false, responseExpected: false);
             }
         }
 
@@ -346,7 +345,7 @@
             }
         }
 
-        private void ValidateTelemetryForDiagnosticSource(DependencyTelemetry item, Uri url, HttpRequestMessage request, bool success, string resultCode, bool expectLegacyHeaders, Activity parent = null)
+        private void ValidateTelemetryForDiagnosticSource(DependencyTelemetry item, Uri url, HttpRequestMessage request, bool success, string resultCode, bool expectLegacyHeaders, bool responseExpected = true, Activity parent = null)
         {
             Assert.AreEqual(url, item.Data);
             Assert.AreEqual($"{url.Host}:{url.Port}", item.Target);
@@ -397,7 +396,7 @@
             }
 
             // Validate the http request was captured
-            this.operationDetailsInitializer.ValidateOperationDetailsCore(item);
+            this.operationDetailsInitializer.ValidateOperationDetailsCore(item, responseExpected);
         }
 
         private sealed class LocalServer : IDisposable

@@ -31,7 +31,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryDiagnosticSourceListenerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OperationDetailsInitializer.cs" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' != 'netcoreapp1.0' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'NET45' ">
     <Compile Include="$(MSBuildThisFileDirectory)DependencyTrackingTelemetryModuleTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HeaderCollectionManipulationTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ClientServerDependencyTrackerTests.cs" />

@@ -5,11 +5,15 @@
     <RootNamespace>Microsoft.ApplicationInsights.DependencyCollector</RootNamespace>
     <AssemblyName>Microsoft.AI.DependencyCollector</AssemblyName>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).XML</DocumentationFile>
-    <TargetFrameworks>net45;netstandard1.6</TargetFrameworks>
+    <TargetFrameworks>net45;netstandard1.6;netstandard2.0</TargetFrameworks>
     <Prefer32Bit>false</Prefer32Bit> <!-- net45 -->
     <DefineConstants>$(DefineConstants);DEPENDENCY_COLLECTOR;ALLOW_AGGRESSIVE_INLIGNING_ATTRIBUTE;</DefineConstants>
   </PropertyGroup>
 
+   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.6' OR '$(TargetFramework)' == 'netstandard2.0'">
+    <DefineConstants>$(DefineConstants);NETSTANDARD;</DefineConstants>
+  </PropertyGroup>
+  
   <PropertyGroup>
     <!--Nupkg properties-->
     <PackageId>Microsoft.ApplicationInsights.DependencyCollector</PackageId>
@@ -48,7 +52,8 @@
     <PackageReference Include="Microsoft.ApplicationInsights.Agent.Intercept" Version="2.4.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.6'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.6' OR '$(TargetFramework)' == 'netstandard2.0'">
+
     <PackageReference Include="Microsoft.Extensions.DiagnosticAdapter" Version="1.1.0" />
     <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
     <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />

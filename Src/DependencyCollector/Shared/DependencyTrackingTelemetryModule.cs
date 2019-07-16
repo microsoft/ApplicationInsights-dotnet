@@ -10,7 +10,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.W3C;
-#if NETSTANDARD1_6
+#if NETSTANDARD
     using System.Reflection;
     using System.Runtime.Versioning;
 #else
@@ -35,7 +35,7 @@
         private TelemetryDiagnosticSourceListener telemetryDiagnosticSourceListener;
         private SqlClientDiagnosticSourceListener sqlClientDiagnosticSourceListener;
 
-#if !NETSTANDARD1_6
+#if !NETSTANDARD
         private ProfilerSqlCommandProcessing sqlCommandProcessing;
         private ProfilerSqlConnectionProcessing sqlConnectionProcessing;
         private ProfilerHttpProcessing httpProcessing;
@@ -117,7 +117,7 @@
                             ClientServerDependencyTracker.IsW3CEnabled = this.EnableW3CHeadersInjection;
 #endif
 
-#if !NETSTANDARD1_6
+#if !NETSTANDARD
                             // Net40 only supports runtime instrumentation
                             // Net45 supports either but not both to avoid duplication
                             this.InitializeForRuntimeInstrumentationOrFramework();
@@ -146,7 +146,7 @@
                         catch (Exception exc)
                         {
                             string clrVersion;
-#if NETSTANDARD1_6                            
+#if NETSTANDARD                            
                             clrVersion = System.Reflection.Assembly.GetEntryAssembly().GetCustomAttribute<TargetFrameworkAttribute>().FrameworkName;
 #else
                             clrVersion = Environment.Version.ToString();
@@ -162,7 +162,7 @@
             }
         }
 
-#if !NETSTANDARD1_6
+#if !NETSTANDARD
         internal virtual void InitializeForRuntimeProfiler()
         {
             // initialize instrumentation extension
@@ -260,7 +260,7 @@
             activity.Stop();
         }
 
-#if !NETSTANDARD1_6
+#if !NETSTANDARD
         /// <summary>
         /// Initialize for framework event source (not supported for Net40).
         /// </summary>
