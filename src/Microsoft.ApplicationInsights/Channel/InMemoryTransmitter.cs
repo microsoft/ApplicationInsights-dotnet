@@ -8,6 +8,7 @@ namespace Microsoft.ApplicationInsights.Channel
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
+    using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -138,9 +139,38 @@ namespace Microsoft.ApplicationInsights.Channel
                     // send request
                     this.Send(telemetryItems, timeout).Wait();
                 }
-                catch (Exception e)
+                catch (AggregateException aex)
                 {
-                    CoreEventSource.Log.FailedToSend(e.Message);
+                    aex.Handle(ex =>
+                    {
+
+                        if (ex is HttpRequestException httpRequestException)
+                        {
+                            // get all Inner Exceptions
+
+
+
+                            ex.ToString();
+                        }
+                        else
+                        {
+
+                        }
+
+
+
+
+                        CoreEventSource.Log.FailedToSend(string.Format(CultureInfo.InvariantCulture, ex.GetType().ToString() + ": " + ex.Message + "; " + ex.StackTrace));
+                        return true;
+                    });
+
+
+
+
+                }
+                catch (Exception ex)
+                {
+                    CoreEventSource.Log.FailedToSend(ex.Message);
                 }
             }
         }
