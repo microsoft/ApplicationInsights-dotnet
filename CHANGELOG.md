@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 2.11.0-beta2
+ - [Add NetStandard2.0 Target for WindowsServerPackage](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1212)
  - [Add NetStandard2.0 Target for DependencyCollector](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1212)
 
 ## Version 2.11.0-beta1
