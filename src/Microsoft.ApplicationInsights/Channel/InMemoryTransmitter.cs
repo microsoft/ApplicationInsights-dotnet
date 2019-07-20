@@ -14,6 +14,7 @@ namespace Microsoft.ApplicationInsights.Channel
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensions;
 
     /// <summary>
     /// A transmitter that will immediately send telemetry over HTTP. 
@@ -143,30 +144,19 @@ namespace Microsoft.ApplicationInsights.Channel
                 {
                     aex.Handle(ex =>
                     {
-
                         if (ex is HttpRequestException httpRequestException)
                         {
-                            // get all Inner Exceptions
-
-
-
-                            ex.ToString();
+                            string msg = "Type: '{0}' Message: '{1}'";
+                            CoreEventSource.Log.FailedToSend(string.Format(CultureInfo.InvariantCulture, msg, ex.GetType().ToString(), ex.FlattenMessages()));
                         }
                         else
                         {
-
+                            string msg = "Type: '{0}' Message: '{1}' StackTrace: {2}";
+                            CoreEventSource.Log.FailedToSend(string.Format(CultureInfo.InvariantCulture, msg, ex.GetType().ToString(), ex.Message, ex.StackTrace));
                         }
 
-
-
-
-                        CoreEventSource.Log.FailedToSend(string.Format(CultureInfo.InvariantCulture, ex.GetType().ToString() + ": " + ex.Message + "; " + ex.StackTrace));
                         return true;
                     });
-
-
-
-
                 }
                 catch (Exception ex)
                 {
