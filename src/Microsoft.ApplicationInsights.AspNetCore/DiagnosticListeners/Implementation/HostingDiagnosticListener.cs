@@ -202,7 +202,7 @@
         }
 
         /// <summary>
-        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.HttpRequestIn.Start' event.
+        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.HttpRequestIn.Start' event. This is from 2.XX runtime.
         /// </summary>
         public void OnHttpRequestInStart(HttpContext httpContext)
         {
@@ -241,26 +241,8 @@
                     }
                 }
 
-                // x-ms-*
-                if (originalParentId == null &&
-                         httpContext.Request.Headers.TryGetValue(RequestResponseHeaders.StandardRootIdHeader, out StringValues alternativeRootIdValues) &&
-                         alternativeRootIdValues != StringValues.Empty)
-                {
-                    newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener)
-                        .SetParentId(StringUtilities.EnforceMaxLength(
-                            alternativeRootIdValues.First(),
-                            InjectionGuardConstants.RequestHeaderMaxLength));
-
-                    if (httpContext.Request.Headers.TryGetValue(RequestResponseHeaders.StandardParentIdHeader, out StringValues parentId))
-                    {
-                        originalParentId = StringUtilities.EnforceMaxLength(
-                            parentId.First(),
-                            InjectionGuardConstants.RequestHeaderMaxLength);
-                    }
-                }
-
                 // no headers
-                else if (originalParentId == null)
+                if (originalParentId == null)
                 {
                     // As a first step in supporting W3C protocol in ApplicationInsights,
                     // we want to generate Activity Ids in the W3C compatible format.
@@ -302,7 +284,7 @@
         }
 
         /// <summary>
-        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.HttpRequestIn.Stop' event.
+        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.HttpRequestIn.Stop' event. This is from 2.XX runtime.
         /// </summary>
         public void OnHttpRequestInStop(HttpContext httpContext)
         {
@@ -310,7 +292,7 @@
         }
 
         /// <summary>
-        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.BeginRequest' event.
+        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.BeginRequest' event. This is from 1.XX runtime.
         /// </summary>
         public void OnBeginRequest(HttpContext httpContext, long timestamp)
         {
@@ -361,22 +343,6 @@
                         originalParentId = requestId;
                     }
                 }
-
-                // x-ms-request-id
-                else if (requestHeaders.TryGetValue(RequestResponseHeaders.StandardRootIdHeader, out StringValues alternativeRootIdValues) &&
-                         alternativeRootIdValues != StringValues.Empty)
-                {
-                    string alternativeRootId = StringUtilities.EnforceMaxLength(alternativeRootIdValues.First(), InjectionGuardConstants.RequestHeaderMaxLength);
-                    activity.SetParentId(alternativeRootId);
-
-                    if (originalParentId == null && requestHeaders.TryGetValue(RequestResponseHeaders.StandardParentIdHeader, out StringValues parentId))
-                    {
-                        originalParentId = StringUtilities.EnforceMaxLength(
-                            parentId.First(),
-                            InjectionGuardConstants.RequestHeaderMaxLength);
-                    }
-                }
-
                 // no headers
                 else if (originalParentId == null)
                 {
@@ -416,7 +382,7 @@
         }
 
         /// <summary>
-        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.EndRequest' event.
+        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.EndRequest' event. This is from 1.XX runtime.
         /// </summary>
         public void OnEndRequest(HttpContext httpContext, long timestamp)
         {
@@ -586,6 +552,7 @@
 
                 if (telemetry == null)
                 {
+                    // Log we are not tracking this request as it cannot be found in context.
                     return;
                 }
 
@@ -615,7 +582,8 @@
 
                 this.client.TrackRequest(telemetry);
 
-                var activity = httpContext?.Features.Get<Activity>();
+                // Stop what we started.
+                var activity = Activity.Current; 
                 if (activity != null && activity.OperationName == ActivityCreatedByHostingDiagnosticListener)
                 {
                     activity.Stop();
