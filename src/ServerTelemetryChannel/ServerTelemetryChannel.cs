@@ -6,7 +6,6 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
-    using TelemetryBuffer = Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation.TelemetryBuffer;
 
     /// <summary>
     /// Represents a communication channel for sending telemetry to Application Insights via HTTP/S.

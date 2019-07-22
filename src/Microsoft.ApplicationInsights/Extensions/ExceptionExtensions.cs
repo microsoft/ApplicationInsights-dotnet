@@ -2,9 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Globalization;
 
-    internal static class ExceptionExtensions
+    /// <summary>
+    /// Provides a set of extension methods for tracing.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static class ExceptionExtensions
     {
         public static string FlattenMessages(this Exception ex)
         {
