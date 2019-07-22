@@ -6,7 +6,7 @@
     using System.Globalization;
 
     /// <summary>
-    /// Provides a set of extension methods for tracing.
+    /// Provides a set of extension methods for <see cref="Exception"/>.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static class ExceptionExtensions
