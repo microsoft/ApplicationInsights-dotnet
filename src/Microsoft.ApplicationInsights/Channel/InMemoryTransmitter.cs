@@ -140,13 +140,9 @@ namespace Microsoft.ApplicationInsights.Channel
                     // send request
                     this.Send(telemetryItems, timeout).GetAwaiter().GetResult();
                 }
-                catch (HttpRequestException ex)
-                {
-                    CoreEventSource.Log.FailedToSend(ex.ToLogString());
-                }
                 catch (Exception ex)
                 {
-                    CoreEventSource.Log.FailedToSend(ex.ToLogString(includeStackTrace: true));
+                    CoreEventSource.Log.FailedToSend(ex.ToLogString());
                 }
             }
         }

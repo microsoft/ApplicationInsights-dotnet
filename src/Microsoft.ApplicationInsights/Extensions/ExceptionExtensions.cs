@@ -23,18 +23,10 @@
             return string.Join(" | ", list);
         }
 
-        public static string ToLogString(this Exception ex, bool includeStackTrace = false)
+        public static string ToLogString(this Exception ex)
         {
             string msg = "Type: '{0}' Message: '{1}'";
-
-            var log = string.Format(CultureInfo.InvariantCulture, msg, ex.GetType().ToString(), ex.FlattenMessages());
-
-            if (includeStackTrace)
-            {
-                log = string.Concat(log, "StackTrace: ", ex.StackTrace);
-            }
-
-            return log;
+            return string.Format(CultureInfo.InvariantCulture, msg, ex.GetType().ToString(), ex.FlattenMessages());
         }
     }
 }
