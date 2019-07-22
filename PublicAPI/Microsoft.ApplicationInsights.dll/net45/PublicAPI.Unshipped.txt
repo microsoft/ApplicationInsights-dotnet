@@ -54,4 +54,3 @@ Microsoft.ApplicationInsights.Extensibility.SequencePropertyInitializer.Sequence
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.OperationTelemetry() -> void
 Microsoft.ApplicationInsights.Extensibility.OperationCorrelationTelemetryInitializer.OperationCorrelationTelemetryInitializer() -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.DictionaryApplicationIdProvider() -> void
-

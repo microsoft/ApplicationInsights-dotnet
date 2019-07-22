@@ -46,8 +46,6 @@ Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.IsSampl
 Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.IsSampledOutAtHead.set -> void
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.IsSampledOutAtHead.set -> void
 
-
-
 Microsoft.ApplicationInsights.Extensibility.Implementation.TaskTimer.TaskTimer() -> void
 Microsoft.ApplicationInsights.Extensibility.W3C.W3COperationCorrelationTelemetryInitializer.W3COperationCorrelationTelemetryInitializer() -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryDebugWriter.TelemetryDebugWriter() -> void
