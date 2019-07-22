@@ -45,3 +45,14 @@ Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.IsSampledOutAtHea
 Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.IsSampledOutAtHead.set -> void
 Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.IsSampledOutAtHead.set -> void
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.IsSampledOutAtHead.set -> void
+
+
+
+Microsoft.ApplicationInsights.Extensibility.Implementation.TaskTimer.TaskTimer() -> void
+Microsoft.ApplicationInsights.Extensibility.W3C.W3COperationCorrelationTelemetryInitializer.W3COperationCorrelationTelemetryInitializer() -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryDebugWriter.TelemetryDebugWriter() -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.HttpWebResponseWrapper.HttpWebResponseWrapper() -> void
+Microsoft.ApplicationInsights.Extensibility.SequencePropertyInitializer.SequencePropertyInitializer() -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.OperationTelemetry() -> void
+Microsoft.ApplicationInsights.Extensibility.OperationCorrelationTelemetryInitializer.OperationCorrelationTelemetryInitializer() -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.DictionaryApplicationIdProvider() -> void
