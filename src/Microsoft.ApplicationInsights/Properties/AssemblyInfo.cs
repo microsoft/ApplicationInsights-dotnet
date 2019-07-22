@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.netcoreapp11.Tests" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.netcoreapp20.Tests" + AssemblyInfo.PublicKey)]
 
+[assembly: InternalsVisibleTo("Microsoft.AI.ServerTelemetryChannel" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.TelemetryChannel.Net45.Tests" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.TelemetryChannel.NetCore.Tests" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.TelemetryChannel.NetCore20.Tests" + AssemblyInfo.PublicKey)]
