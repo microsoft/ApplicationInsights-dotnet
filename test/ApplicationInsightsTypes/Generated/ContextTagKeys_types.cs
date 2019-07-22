@@ -115,7 +115,7 @@ namespace AI
         [global::Bond.Id(505)]
         public string UserAccountId { get; set; }
 
-        [global::Bond.Attribute("Description", "The browser's user agent string as reported by the browser. This property will be used to extract informaiton regarding the customer's browser but will not be stored. Use custom properties to store the original user agent.")]
+        [global::Bond.Attribute("Description", "The browser's user agent string as reported by the browser. This property will be used to extract information regarding the customer's browser but will not be stored. Use custom properties to store the original user agent.")]
         [global::Bond.Attribute("MaxStringLength", "2048")]
         [global::Bond.Id(510)]
         public string UserAgent { get; set; }
@@ -135,7 +135,7 @@ namespace AI
         [global::Bond.Id(705)]
         public string CloudRole { get; set; }
 
-        [global::Bond.Attribute("Description", "Name of the instance where the application is running. Computer name for on-premisis, instance name for Azure.")]
+        [global::Bond.Attribute("Description", "Name of the instance where the application is running. Computer name for on-premises, instance name for Azure.")]
         [global::Bond.Attribute("MaxStringLength", "256")]
         [global::Bond.Id(715)]
         public string CloudRoleInstance { get; set; }
