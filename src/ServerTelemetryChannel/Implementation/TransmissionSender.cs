@@ -10,6 +10,7 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensions;
 
     internal class TransmissionSender
     {
@@ -165,7 +166,7 @@
                     int currentCapacity = Interlocked.Decrement(ref this.transmissionCount);
                     if (exception != null)
                     {
-                        TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(acceptedTransmission.Id, exception.ToString());
+                        TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(acceptedTransmission.Id, exception.ToLogString());
                     }
                     else
                     {

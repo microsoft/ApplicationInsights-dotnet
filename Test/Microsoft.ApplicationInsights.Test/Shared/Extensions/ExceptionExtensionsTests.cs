@@ -15,7 +15,7 @@
             var ex3 = new Exception("c", ex2);
 
             var test = ex3.FlattenMessages();
-            Assert.AreEqual("c;b;a", test);
+            Assert.AreEqual("c | b | a", test);
         }
 
         [TestMethod]

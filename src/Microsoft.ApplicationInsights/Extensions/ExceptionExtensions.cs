@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
 
     internal static class ExceptionExtensions
     {
@@ -14,7 +15,21 @@
                 list.Add(exWalk.Message);
             }
 
-            return string.Join(";", list);
+            return string.Join(" | ", list);
+        }
+
+        public static string ToLogString(this Exception ex, bool includeStackTrace = false)
+        {
+            string msg = "Type: '{0}' Message: '{1}'";
+
+            var log = string.Format(CultureInfo.InvariantCulture, msg, ex.GetType().ToString(), ex.FlattenMessages());
+
+            if (includeStackTrace)
+            {
+                log = string.Concat(log, "StackTrace: ", ex.StackTrace);
+            }
+
+            return log;
         }
     }
 }

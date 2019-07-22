@@ -138,29 +138,15 @@ namespace Microsoft.ApplicationInsights.Channel
                 try
                 {
                     // send request
-                    this.Send(telemetryItems, timeout).Wait();
+                    this.Send(telemetryItems, timeout).GetAwaiter().GetResult();
                 }
-                catch (AggregateException aex)
+                catch (HttpRequestException ex)
                 {
-                    aex.Handle(ex =>
-                    {
-                        if (ex is HttpRequestException httpRequestException)
-                        {
-                            string msg = "Type: '{0}' Message: '{1}'";
-                            CoreEventSource.Log.FailedToSend(string.Format(CultureInfo.InvariantCulture, msg, ex.GetType().ToString(), ex.FlattenMessages()));
-                        }
-                        else
-                        {
-                            string msg = "Type: '{0}' Message: '{1}' StackTrace: {2}";
-                            CoreEventSource.Log.FailedToSend(string.Format(CultureInfo.InvariantCulture, msg, ex.GetType().ToString(), ex.Message, ex.StackTrace));
-                        }
-
-                        return true;
-                    });
+                    CoreEventSource.Log.FailedToSend(ex.ToLogString());
                 }
                 catch (Exception ex)
                 {
-                    CoreEventSource.Log.FailedToSend(ex.Message);
+                    CoreEventSource.Log.FailedToSend(ex.ToLogString(includeStackTrace: true));
                 }
             }
         }
