@@ -13,8 +13,8 @@ namespace Microsoft.ApplicationInsights.Channel
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Internal;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.Extensions;
 
     /// <summary>
     /// A transmitter that will immediately send telemetry over HTTP. 

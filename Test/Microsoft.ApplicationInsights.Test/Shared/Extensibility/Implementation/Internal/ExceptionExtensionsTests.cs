@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensions
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Internal
 {
     using System;
 

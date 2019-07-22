@@ -10,7 +10,7 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensions;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Internal;
 
     internal class TransmissionSender
     {
