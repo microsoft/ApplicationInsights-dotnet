@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Internal
+﻿namespace Microsoft.ApplicationInsights.Common.Extensions
 {
     using System;
     using System.Collections.Generic;
@@ -8,8 +8,7 @@
     /// <summary>
     /// Provides a set of extension methods for <see cref="Exception"/>.
     /// </summary>
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static class ExceptionExtensions
+    internal static class ExceptionExtensions
     {
         /// <summary>
         /// Concatenate the Message property of an Exception and any InnerExceptions.

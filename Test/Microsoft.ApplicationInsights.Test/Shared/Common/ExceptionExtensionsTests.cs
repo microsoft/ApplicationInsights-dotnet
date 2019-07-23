@@ -1,7 +1,7 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Internal
+﻿namespace Microsoft.ApplicationInsights.Common
 {
     using System;
-
+    using Microsoft.ApplicationInsights.Common.Extensions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]

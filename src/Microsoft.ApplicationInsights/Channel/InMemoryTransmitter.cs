@@ -11,9 +11,9 @@ namespace Microsoft.ApplicationInsights.Channel
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.Common.Extensions;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Internal;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
