@@ -33,14 +33,32 @@ Read more:
 See [this](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/tree/develop/src/ILogger/Readme.md).
 
 ## NLog
-Application Insights NLog Target nuget package adds ApplicationInsights target in your web.config (If you use application type that does not have web.config you can install the package but you need to configure ApplicationInsights programmatically; see below). 
 
-For more information, see [NLog Documentation](https://github.com/nlog/NLog/wiki/Configuration-API) 
+Application Insights NLog Target nuget package adds ApplicationInsights target in your web.config.
 
-- If you configure NLog though web config then you just need do the following:
+If your application does not have web.config then it can also be configured manually.
+
+ * **Configure ApplicationInsightsTarget using NLog.config** :
+
+```xml
+<nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <extensions>
+		<add assembly="Microsoft.ApplicationInsights.NLogTarget" />
+    </extensions>
+	<targets>
+		<target xsi:type="ApplicationInsightsTarget" name="aiTarget">
+			<instrumentationKey>Your_Resource_Key</instrumentationKey>	<!-- Only required if not using ApplicationInsights.config -->
+			<contextproperty name="threadid" layout="${threadid}" />	<!-- Can be repeated with more context -->
+		</target>
+	</targets>
+	<rules>
+		<logger name="*" minlevel="Trace" writeTo="aiTarget" />
+	</rules>
+</nlog>
+```
 
 ```csharp
-// You need this only if you did not define InstrumentationKey in ApplicationInsights.config
+// You need this only if you did not define InstrumentationKey in ApplicationInsights.config (Or in the NLog.config)
 TelemetryConfiguration.Active.InstrumentationKey = "Your_Resource_Key";
 
 Logger logger = LogManager.GetLogger("Example");
@@ -48,7 +66,8 @@ Logger logger = LogManager.GetLogger("Example");
 logger.Trace("trace log message");
 ```
 
-- If you configure NLog programmatically than create Application Insights target in code and add it to your other targets:
+* **Configure ApplicationInsightsTarget using NLog Config API** :
+If you configure NLog programmatically with the [NLog Config API](https://github.com/nlog/NLog/wiki/Configuration-API), then create Application Insights target in code and add it to your other targets:
 
 ```csharp
 var config = new LoggingConfiguration();
@@ -66,8 +85,6 @@ Logger logger = LogManager.GetLogger("Example");
 
 logger.Trace("trace log message");
 ``` 
-
-
 
 ## Log4Net
 
