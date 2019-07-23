@@ -8,6 +8,7 @@
     using System.Threading.Tasks;
 
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Common.Extensions;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
@@ -165,7 +166,7 @@
                     int currentCapacity = Interlocked.Decrement(ref this.transmissionCount);
                     if (exception != null)
                     {
-                        TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(acceptedTransmission.Id, exception.ToString());
+                        TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(acceptedTransmission.Id, exception.ToLogString());
                     }
                     else
                     {

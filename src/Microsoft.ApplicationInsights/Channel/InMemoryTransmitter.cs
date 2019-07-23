@@ -8,8 +8,10 @@ namespace Microsoft.ApplicationInsights.Channel
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
+    using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.Common.Extensions;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -136,11 +138,11 @@ namespace Microsoft.ApplicationInsights.Channel
                 try
                 {
                     // send request
-                    this.Send(telemetryItems, timeout).Wait();
+                    this.Send(telemetryItems, timeout).GetAwaiter().GetResult();
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    CoreEventSource.Log.FailedToSend(e.Message);
+                    CoreEventSource.Log.FailedToSend(ex.ToLogString());
                 }
             }
         }
