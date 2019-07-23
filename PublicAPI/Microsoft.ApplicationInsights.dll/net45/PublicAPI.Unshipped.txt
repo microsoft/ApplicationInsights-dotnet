@@ -54,6 +54,3 @@ Microsoft.ApplicationInsights.Extensibility.SequencePropertyInitializer.Sequence
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.OperationTelemetry() -> void
 Microsoft.ApplicationInsights.Extensibility.OperationCorrelationTelemetryInitializer.OperationCorrelationTelemetryInitializer() -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.DictionaryApplicationIdProvider() -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.Internal.ExceptionExtensions
-static Microsoft.ApplicationInsights.Extensibility.Implementation.Internal.ExceptionExtensions.FlattenMessages(this System.Exception ex) -> string
-static Microsoft.ApplicationInsights.Extensibility.Implementation.Internal.ExceptionExtensions.ToLogString(this System.Exception ex) -> string
