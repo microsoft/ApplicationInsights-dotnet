@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 2.8.0-beta2
+- [Correct names for Asp.Net Core EventCounters.](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/945)
 - [Obsolete extension methods on IWebHostBuilder in favor of AddApplicationInsights extension method on IServiceCollection.](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/919)
 - [Remove support for deprecated x-ms based correlation headers.](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/939)
 - [Uri for multiple hosts headers is set to "Multiple-Host".](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/862)
