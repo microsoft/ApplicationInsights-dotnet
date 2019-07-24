@@ -137,8 +137,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             14,
             Keywords = Keywords.Diagnostics,
             Message = "An error has occured which may prevent application insights from functioning. Error message: '{0}' ",
-            Level = EventLevel.Warning)]
-        public void LogWarning(string errorMessage, string appDomainName = "Incorrect")
+            Level = EventLevel.Error)]
+        public void LogError(string errorMessage, string appDomainName = "Incorrect")
         {
             this.WriteEvent(14, errorMessage, this.ApplicationName);
         }

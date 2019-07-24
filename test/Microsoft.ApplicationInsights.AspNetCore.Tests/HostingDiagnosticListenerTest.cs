@@ -261,10 +261,9 @@
         [Fact]
         public void OnBeginRequestCreateNewActivityAndInitializeRequestTelemetryFromRequestIdHeader()
         {
+            // This tests 1.XX scenario where SDK is responsible for reading Correlation-Context and populate Activity.Baggage
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
             var requestId = Guid.NewGuid().ToString();
-            var standardRequestId = Guid.NewGuid().ToString();
-            var standardRequestRootId = Guid.NewGuid().ToString();
             context.Request.Headers[RequestResponseHeaders.RequestIdHeader] = requestId;
             context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "prop1=value1, prop2=value2";
 
@@ -280,9 +279,7 @@
                 Assert.NotNull(requestTelemetry);
                 Assert.Equal(requestTelemetry.Id, Activity.Current.Id);
                 Assert.Equal(requestTelemetry.Context.Operation.Id, Activity.Current.RootId);
-                Assert.NotEqual(requestTelemetry.Context.Operation.Id, standardRequestRootId);
                 Assert.Equal(requestTelemetry.Context.Operation.ParentId, requestId);
-                Assert.NotEqual(requestTelemetry.Context.Operation.ParentId, standardRequestId);
                 Assert.Equal("value1", requestTelemetry.Properties["prop1"]);
                 Assert.Equal("value2", requestTelemetry.Properties["prop2"]);
             }
@@ -358,15 +355,12 @@
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "GET");
             TelemetryConfiguration config = TelemetryConfiguration.CreateDefault();
-            config.ExperimentalFeatures.Add("conditionalAppId");
 
             using (var hostingListener = CreateHostingListener(isAspNetCore2, config))
             {
                 HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
 
                 Assert.NotNull(context.Features.Get<RequestTelemetry>());
-                Assert.Null(HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers,
-                        RequestResponseHeaders.RequestContextTargetKey));
 
                 HandleRequestEnd(hostingListener, context, 0, isAspNetCore2);
             }
