@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     internal class QuickPulseThreadModuleScheduler : IQuickPulseModuleScheduler
     {
@@ -47,7 +48,23 @@
 
             private void Worker(object state)
             {
-                (state as Action<CancellationToken>)?.Invoke(this.cancellationTokenSource.Token);
+                try
+                {
+                    (state as Action<CancellationToken>)?.Invoke(this.cancellationTokenSource.Token);
+                }
+                catch (Exception ex)
+                {
+                    // This is a Thread, and we don't want any exception thrown ever from this part as this would cause application crash.
+                    try
+                    {
+                        QuickPulseEventSource.Log.UnknownErrorEvent(ex.ToInvariantString());
+                    }
+                    catch (Exception)
+                    {
+                        // Intentionally empty. If EventSource writing itself is failing as well, there is nothing more to be done here.
+                        // The best that can be done is atleast prevent application crash due to unhandledexception from Thread.
+                    }
+                }
             }
         }
     }
