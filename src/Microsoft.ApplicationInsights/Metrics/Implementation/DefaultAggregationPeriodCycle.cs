@@ -3,6 +3,7 @@
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
     internal class DefaultAggregationPeriodCycle
@@ -141,22 +142,38 @@
         /// </summary>
         private void Run()
         {
-            while (true)
+            try
             {
-                DateTimeOffset now = DateTimeOffset.Now;
-                TimeSpan waitPeriod = GetNextCycleTargetTime(now) - now;
-
-                Thread.Sleep(waitPeriod);
-
-                int shouldBeRunning = Volatile.Read(ref this.runningState);
-                if (shouldBeRunning != RunningState_Running)
+                while (true)
                 {
-                    this.aggregationThread = null;
-                    this.workerTaskCompletionControl.TrySetResult(true);
-                    return;
-                }
+                    DateTimeOffset now = DateTimeOffset.Now;
+                    TimeSpan waitPeriod = GetNextCycleTargetTime(now) - now;
 
-                this.FetchAndTrackMetrics();
+                    Thread.Sleep(waitPeriod);
+
+                    int shouldBeRunning = Volatile.Read(ref this.runningState);
+                    if (shouldBeRunning != RunningState_Running)
+                    {
+                        this.aggregationThread = null;
+                        this.workerTaskCompletionControl.TrySetResult(true);
+                        return;
+                    }
+
+                    this.FetchAndTrackMetrics();
+                }
+            }
+            catch (Exception ex)
+            {
+                // This is a Thread, and we don't want any exception thrown ever from this part as this would cause application crash.
+                try
+                {
+                    CoreEventSource.Log.LogError(ex.ToInvariantString());
+                }
+                catch (Exception)
+                {
+                    // Intentionally empty. If EventSource writing itself is failing as well, there is nothing more to be done here.
+                    // The best that can be done is atleast prevent application crash due to unhandledexception from Thread.
+                }
             }
         }
     }
