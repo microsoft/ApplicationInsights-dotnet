@@ -185,6 +185,7 @@
             operation.Dispose();
         }
 
+#pragma warning disable CS3001 // Argument type is not CLS-compliant
         /// <summary>
         /// Creates an operation object with a respective telemetry item using <see cref="Activity"/> instance that holds tracing context. 
         /// </summary>
@@ -218,6 +219,7 @@
         /// <param name="activity">Activity to get tracing context and telemetry properties from.</param>
         /// <returns>Operation item object with a new telemetry item having current start time and timestamp.</returns>
         public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient, Activity activity) where T : OperationTelemetry, new()
+#pragma warning restore CS3001 // Argument type is not CLS-compliant
         {
             if (telemetryClient == null)
             {
