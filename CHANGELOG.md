@@ -7,7 +7,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 - [Minor perf improvement by reading Actity.Tag only if required.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1170)
 - [Fix: Channels not handling AggregateException, not logging full HttpRequestException.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1173)
 - [Metric Aggregator background thread safeguards added to never throw unhandled exception.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1179)
-- Updated version of System.Diagnostics.DiagnosticSource to 4.6.0-preview7.19362.9. This will be updated to 4.6.0 stable when it releases, and before 2.11.0 stable release.
+- [Updated version of System.Diagnostics.DiagnosticSource to 4.6.0-preview7.19362.9. Also remove marking SDK as CLS-Compliant](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1183)
 
 ## Version 2.11.0-beta1
 - [Performance fixes: Support Head Sampling; Remove NewGuid(); Sampling Flags; etc... ](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1158)
