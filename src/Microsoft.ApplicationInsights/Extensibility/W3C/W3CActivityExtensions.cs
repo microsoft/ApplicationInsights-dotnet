@@ -29,11 +29,7 @@
         /// <param name="activity">Activity to generate W3C context on.</param>
         /// <returns>The same Activity for chaining.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-#pragma warning disable CS3001 // Argument type is not CLS-compliant
-#pragma warning disable CS3002 // Return type is not CLS-compliant
         public static Activity GenerateW3CContext(this Activity activity)
-#pragma warning restore CS3002 // Return type is not CLS-compliant
-#pragma warning restore CS3001 // Argument type is not CLS-compliant
         {
             activity.SetVersion(W3CConstants.DefaultVersion);
             activity.SetSampled(W3CConstants.TraceFlagRecordedAndNotRequested);
@@ -52,9 +48,7 @@
         /// <param name="activity">Activity to check.</param>
         /// <returns>True if Activity has W3C properties, false otherwise.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-#pragma warning disable CS3001 // Argument type is not CLS-compliant
         public static bool IsW3CActivity(this Activity activity)
-#pragma warning restore CS3001 // Argument type is not CLS-compliant
         {
             return activity != null && activity.Tags.Any(t => t.Key == W3CConstants.TraceIdTag);
         }
@@ -65,11 +59,7 @@
         /// <param name="activity">Activity to update W3C context on.</param>
         /// <returns>The same Activity for chaining.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-#pragma warning disable CS3001 // Argument type is not CLS-compliant
-#pragma warning disable CS3002 // Return type is not CLS-compliant
         public static Activity UpdateContextOnActivity(this Activity activity)
-#pragma warning restore CS3002 // Return type is not CLS-compliant
-#pragma warning restore CS3001 // Argument type is not CLS-compliant
         {
             if (activity == null || activity.Tags.Any(t => t.Key == W3CConstants.TraceIdTag))
             {
@@ -89,9 +79,7 @@
         /// <param name="activity">Activity to read W3C context from.</param>
         /// <returns>traceparent header value.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-#pragma warning disable CS3001 // Argument type is not CLS-compliant
         public static string GetTraceparent(this Activity activity)
-#pragma warning restore CS3001 // Argument type is not CLS-compliant
         {
             string version = null, traceId = null, spanId = null, sampled = null;
             foreach (var tag in activity.Tags)
@@ -127,9 +115,7 @@
         /// <param name="activity">Activity to set W3C context on.</param>
         /// <param name="value">Valid traceparent header like 00-0af7651916cd43dd8448eb211c80319c-b9c7c989f97918e1-01.</param>
         [EditorBrowsable(EditorBrowsableState.Never)]
-#pragma warning disable CS3001 // Argument type is not CLS-compliant
         public static void SetTraceparent(this Activity activity, string value)
-#pragma warning restore CS3001 // Argument type is not CLS-compliant
         {
             if (activity.IsW3CActivity())
             {
@@ -189,9 +175,7 @@
         /// <param name="activity">Activity to get tracestate from.</param>
         /// <returns>tracestate header value.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-#pragma warning disable CS3001 // Argument type is not CLS-compliant
         public static string GetTracestate(this Activity activity) =>
-#pragma warning restore CS3001 // Argument type is not CLS-compliant
             activity.Tags.FirstOrDefault(t => t.Key == W3CConstants.TracestateTag).Value;
 
         /// <summary>
@@ -200,9 +184,7 @@
         /// <param name="activity">Activity to set tracestate on.</param>
         /// <param name="value">tracestate header value.</param>
         [EditorBrowsable(EditorBrowsableState.Never)]
-#pragma warning disable CS3001 // Argument type is not CLS-compliant
         public static void SetTracestate(this Activity activity, string value) =>
-#pragma warning restore CS3001 // Argument type is not CLS-compliant
             activity.AddTag(W3CConstants.TracestateTag, value);
 
         /// <summary>
@@ -212,9 +194,7 @@
         /// <param name="activity">Activity to get traceId from.</param>
         /// <returns>TraceId value or null if it does not exist.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-#pragma warning disable CS3001 // Argument type is not CLS-compliant
         public static string GetTraceId(this Activity activity) => activity.Tags.FirstOrDefault(t => t.Key == W3CConstants.TraceIdTag).Value;
-#pragma warning restore CS3001 // Argument type is not CLS-compliant
 
         /// <summary>
         /// Gets SpanId from the Activity.
@@ -223,9 +203,7 @@
         /// <param name="activity">Activity to get spanId from.</param>
         /// <returns>SpanId value or null if it does not exist.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-#pragma warning disable CS3001 // Argument type is not CLS-compliant
         public static string GetSpanId(this Activity activity) => activity.Tags.FirstOrDefault(t => t.Key == W3CConstants.SpanIdTag).Value;
-#pragma warning restore CS3001 // Argument type is not CLS-compliant
 
         /// <summary>
         /// Gets ParentSpanId from the Activity.
@@ -234,9 +212,7 @@
         /// <param name="activity">Activity to get ParentSpanId from.</param>
         /// <returns>ParentSpanId value or null if it does not exist.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-#pragma warning disable CS3001 // Argument type is not CLS-compliant
         public static string GetParentSpanId(this Activity activity) => activity.Tags.FirstOrDefault(t => t.Key == W3CConstants.ParentSpanIdTag).Value;
-#pragma warning restore CS3001 // Argument type is not CLS-compliant
 
         /// <summary>
         /// Sets Activity W3C context on the telemetry.
@@ -247,9 +223,7 @@
         [EditorBrowsable(EditorBrowsableState.Never)]
         [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification =
             "This method has different code for Net45/NetCore")]
-#pragma warning disable CS3001 // Argument type is not CLS-compliant
         public static void UpdateTelemetry(this Activity activity, ITelemetry telemetry, bool forceUpdate)
-#pragma warning restore CS3001 // Argument type is not CLS-compliant
         {
             if (activity == null)
             {
