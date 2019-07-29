@@ -21,7 +21,7 @@ namespace SomeCustomerNamespace
         public void Metrics_DefaultPipeline()
         {
             TelemetryConfiguration defaultTelemetryPipeline = TelemetryConfiguration.Active;
-            //using (defaultTelemetryPipeline)
+            // using (defaultTelemetryPipeline)
             {
                 Metrics_SpecifiedPipeline(defaultTelemetryPipeline);
                 TestUtil.CompleteDefaultAggregationCycle(defaultTelemetryPipeline.GetMetricManager());
