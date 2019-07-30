@@ -52,7 +52,7 @@
         {
             try
             {
-                Assembly.Load(new AssemblyName("System.Diagnostics.DiagnosticSource, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51"));
+                Assembly.Load(new AssemblyName("System.Diagnostics.DiagnosticSource, Version=4.0.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51"));
                 return true;
             }
             catch (System.IO.FileNotFoundException)

@@ -7,6 +7,8 @@
     using Microsoft.CodeAnalysis.CSharp;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
+    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.DataContracts;
 
     [TestClass]
     public class AppInsightsStandaloneTests
@@ -31,24 +33,32 @@
         [TestMethod]
         public void AppInsightsDllCouldRunStandalone()
         {
-            var dependencyId = RunTestApplication(false, "guid");
+            // This tests if ApplicationInsights.dll can work standalone without System.DiagnosticSource (for uses like in a powershell script)
+            // Its hard to mock this with plain unit tests, so we spin up a dummy application, copy just ApplicationInsights.dll
+            // and run it.
+            var dependencyId = RunTestApplication("guid");
             Assert.IsFalse(dependencyId.Contains("guid"));
         }
 
         [TestMethod]
         public void AppInsightsUsesActivityWhenDiagnosticSourceIsAvailable()
         {
-            var dependencyId = RunTestApplication(true, "guid");
-            Assert.IsTrue(dependencyId.StartsWith("|guid."));
+            // Regular use case - System.DiagnosticSource is available. Regular unit test can cover this scenario.
+            var config = new TelemetryConfiguration();
+            config.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
+            var tc = new TelemetryClient(config);
+            using (var requestOperation = tc.StartOperation<RequestTelemetry>("request", "guid"))
+            {
+                using (var dependencyOperation = tc.StartOperation<DependencyTelemetry>("dependency", "guid"))
+                {
+                    Assert.IsTrue(dependencyOperation.Telemetry.Id.StartsWith("|guid."));
+                    tc.TrackTrace("Hello World!");
+                }
+            }
         }
 
-        private string RunTestApplication(bool withDiagnosticSource, string operationId)
+        private string RunTestApplication(string operationId)
         {
-            if (withDiagnosticSource)
-            {
-                File.Copy("System.Diagnostics.DiagnosticSource.dll", $"{this.tempPath}\\System.Diagnostics.DiagnosticSource.dll");
-            }
-
             var fileName = $"{this.tempPath}\\ActivityTest.exe";
 
             Assert.IsTrue(CreateTestApplication(fileName));
@@ -68,7 +78,10 @@
             p.Start();
 
             Assert.IsTrue(p.WaitForExit(10000));
+            Trace.WriteLine(p.StandardOutput.ReadToEnd());
+            Trace.WriteLine(p.StandardError.ReadToEnd());
             Assert.AreEqual(0, p.ExitCode);
+           
 
             return p.StandardOutput.ReadToEnd();
         }
