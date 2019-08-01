@@ -6,10 +6,10 @@
 
     using Microsoft.ApplicationInsights.Common.Extensions;
 
-    public class EndpointThing
+    public class EndpointProvider
     {
         private string connectionString;
-        private Dictionary<string, string> connectionStringParsed;
+        private Dictionary<string, string> connectionStringParsed = new Dictionary<string, string>(0);
 
         public string ConnectionString
         {
@@ -28,23 +28,25 @@
         /// 
         /// </summary>
         /// <remarks>key1=value1;key2=value2;key3=value3</remarks>
-        /// <param name="value"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException">Thrown if there are duplicate keys.</exception>
         /// <exception cref="IndexOutOfRangeException">Thrown if the input string is in the wrong format.</exception>
         internal static Dictionary<string, string> ParseConnectionString(string value)
         {
+            if (string.IsNullOrEmpty(value))
+            {
+                return new Dictionary<string, string>(0);
+            }
+
+
             return value
                 .Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(part => part.Split('='))
                 .ToDictionary(split => split[0], split => split[1]);
         }
 
-        public string InstrumentationKey { get; set; }
-
         public Uri GetEndpoint(EndpointName endpointName)
         {
-            // todo
             // 1. check for explicit endpoint
             //    1a. then check for location
             // 2. check for endpoint suffix
@@ -55,7 +57,7 @@
 
             if (this.connectionStringParsed.TryGetValue(endpointMeta.ExplicitName, out string endpoint))
             {
-                var builder = new EndpointBuilder
+                var builder = new EndpointUriBuilder
                 {
                     Location = GetLocation(),
                     Host = endpoint,
@@ -65,7 +67,7 @@
             }
             else if (this.connectionStringParsed.TryGetValue("EndpointSuffix", out string endpointSuffix))
             {
-                var builder = new EndpointBuilder
+                var builder = new EndpointUriBuilder
                 {
                     Location = GetLocation(),
                     Prefix = endpointMeta.EndpointPrefix,

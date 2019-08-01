@@ -4,18 +4,17 @@
 
     public enum EndpointName
     {
-        [EndpointMeta(ExplicitName = "IngestionEndpoint", EndpointPrefix = EndpointConstants.BreezePrefix, Default = EndpointConstants.Breeze )]
+        [EndpointMeta(ExplicitName = "IngestionEndpoint", EndpointPrefix = Constants.BreezePrefix, Default = Constants.BreezeEndpoint )]
         Breeze,
 
-        [EndpointMeta(ExplicitName = "LiveEndpoint", EndpointPrefix = EndpointConstants.LiveMetricsPrefix, Default = EndpointConstants.LiveMetrics)]
+        [EndpointMeta(ExplicitName = "LiveEndpoint", EndpointPrefix = Constants.LiveMetricsPrefix, Default = Constants.LiveMetricsEndpoint)]
         LiveMetrics,
 
-        [EndpointMeta(ExplicitName = "ProfilerEndpoint", EndpointPrefix = EndpointConstants.ProfilerPrefix, Default = EndpointConstants.Profiler)]
+        [EndpointMeta(ExplicitName = "ProfilerEndpoint", EndpointPrefix = Constants.ProfilerPrefix, Default = Constants.ProfilerEndpoint)]
         Profiler,
 
-        [EndpointMeta(ExplicitName = "SnapshotEndpoint", EndpointPrefix = EndpointConstants.SnapshotPrefix, Default = EndpointConstants.Snapshot)]
+        [EndpointMeta(ExplicitName = "SnapshotEndpoint", EndpointPrefix = Constants.SnapshotPrefix, Default = Constants.SnapshotEndpoint)]
         Snapshot,
-
     }
 
     public class EndpointMetaAttribute : Attribute
