@@ -9,6 +9,7 @@
     <Import_RootNamespace>Microsoft.ApplicationInsights.Common</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\EnumExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\ExceptionExtensions.cs" />
   </ItemGroup>
 </Project>
