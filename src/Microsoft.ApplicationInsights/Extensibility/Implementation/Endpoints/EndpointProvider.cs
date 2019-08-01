@@ -38,43 +38,60 @@
                 return new Dictionary<string, string>(0);
             }
 
-
             return value
                 .Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(part => part.Split('='))
-                .ToDictionary(split => split[0], split => split[1]);
+                .ToDictionary(split => split[0], split => split[1], StringComparer.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// location.prefix.suffix
+        /// https:// westus2.dc.applicationinsights.azure.cn/
+        /// </remarks>
+        /// <returns></returns>
+        internal static Uri BuildUri(string prefix, string suffix, string location = null)
+        {
+            // Location and Host are user input fields and need to be checked for extra periods.
+            var trimPeriod = new char[] { '.' };
+
+            // Location value is optional
+            string locationSanitized = null;
+            if (!string.IsNullOrEmpty(location))
+            {
+                locationSanitized = location.TrimEnd(trimPeriod);
+            }
+
+            string suffixSanitized = suffix.TrimStart(trimPeriod);
+
+            var uriString = string.Concat("https://"
+                + (locationSanitized == null ? string.Empty : locationSanitized + ".")
+                + prefix + "."
+                + suffixSanitized);
+
+            return new Uri(uriString);
         }
 
         public Uri GetEndpoint(EndpointName endpointName)
         {
-            // 1. check for explicit endpoint
-            //    1a. then check for location
-            // 2. check for endpoint suffix
-            //    2a. then check for location
+            // 1. check for explicit endpoint (location is ignored)
+            // 2. check for endpoint suffix (location is optional)
             // 3. use classic endpoint
 
             var endpointMeta = endpointName.GetAttribute<EndpointMetaAttribute>();
 
-            if (this.connectionStringParsed.TryGetValue(endpointMeta.ExplicitName, out string endpoint))
+            if (this.connectionStringParsed.TryGetValue(endpointMeta.ExplicitName, out string explicitEndpoint))
             {
-                var builder = new EndpointUriBuilder
-                {
-                    Location = GetLocation(),
-                    Host = endpoint,
-                };
-
-                return builder.ToUri();
+                return new Uri(explicitEndpoint);
             }
             else if (this.connectionStringParsed.TryGetValue("EndpointSuffix", out string endpointSuffix))
             {
-                var builder = new EndpointUriBuilder
-                {
-                    Location = GetLocation(),
-                    Prefix = endpointMeta.EndpointPrefix,
-                    Host = endpointSuffix,
-                };
-
-                return builder.ToUri();
+                return BuildUri(
+                    prefix: endpointMeta.EndpointPrefix, 
+                    suffix: endpointSuffix, 
+                    location: GetLocation());
             }
             else
             {

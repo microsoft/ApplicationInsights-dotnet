@@ -4,7 +4,7 @@
 
     [TestClass]
     [TestCategory("Endpoints")]
-    public class EndpointUriBuilderTests
+    public class EndpointProviderBuildUriTests
     {
         /// <summary>
         /// Location and Endpoint are user input fields (via connection string).
@@ -13,42 +13,33 @@
         [TestMethod]
         public void VerifyCanHandleExtraPeriods()
         {
-            var test = new EndpointUriBuilder
-            {
-                Location = "westus2.",
-                Prefix = "dc",
-                Host = ".applicationinsights.azure.cn",
-            };
+            var uri = EndpointProvider.BuildUri(
+                location: "westus2.",
+                prefix: "dc",
+                suffix: ".applicationinsights.azure.cn");
 
-            var uri = test.ToUri();
             Assert.AreEqual("https://westus2.dc.applicationinsights.azure.cn/", uri.AbsoluteUri);
         }
 
         [TestMethod]
         public void VerifyGoodAddress_WithLocation()
         {
-            var test = new EndpointUriBuilder
-            {
-                Location = "westus2",
-                Prefix = "dc",
-                Host = "applicationinsights.azure.cn",
-            };
+            var uri = EndpointProvider.BuildUri(
+                location: "westus2",
+                prefix: "dc",
+                suffix: "applicationinsights.azure.cn");
 
-            var uri = test.ToUri();
             Assert.AreEqual("https://westus2.dc.applicationinsights.azure.cn/", uri.AbsoluteUri);
         }
 
         [TestMethod]
         public void VerifyGoodAddress_WithoutLocation()
         {
-            var test = new EndpointUriBuilder
-            {
-                Location = null,
-                Prefix = "dc",
-                Host = "applicationinsights.azure.cn",
-            };
+            var uri = EndpointProvider.BuildUri(
+                location: null,
+                prefix: "dc",
+                suffix: "applicationinsights.azure.cn");
 
-            var uri = test.ToUri();
             Assert.AreEqual("https://dc.applicationinsights.azure.cn/", uri.AbsoluteUri);
         }
     }

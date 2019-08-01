@@ -10,35 +10,6 @@
     public class EndpointProviderTests
     {
         [TestMethod]
-        public void TestParseConnectionString()
-        {
-            var test = EndpointProvider.ParseConnectionString("key1=value1;key2=value2;key3=value3");
-
-            var expected = new Dictionary<string, string>
-            {
-                {"key1", "value1" },
-                {"key2", "value2" },
-                {"key3", "value3" }
-            };
-
-            CollectionAssert.AreEqual(expected, test);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void TestParseConnectionString_DuplaceKeys()
-        {
-            var test = EndpointProvider.ParseConnectionString("key1=value1;key2=value2;key3=value3");
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(IndexOutOfRangeException))]
-        public void TestParseConnectionString_InvalidString()
-        {
-            var test = EndpointProvider.ParseConnectionString("key1;value1=key2=value2=key3=value3");
-        }
-
-        [TestMethod]
         public void TestDefaultEndpoints()
         {
             var endpointThing = new EndpointProvider()
