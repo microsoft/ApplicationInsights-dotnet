@@ -78,7 +78,7 @@
         {
             // 1. check for explicit endpoint (location is ignored)
             // 2. check for endpoint suffix (location is optional)
-            // 3. use classic endpoint
+            // 3. use classic endpoint (location is ignored)
 
             var endpointMeta = endpointName.GetAttribute<EndpointMetaAttribute>();
 
@@ -98,6 +98,8 @@
                 return new Uri(endpointMeta.Default);
             }
         }
+
+        public string GetInstrumentationKey() => this.connectionStringParsed.TryGetValue("InstrumentationKey", out string ikey) ? ikey : null;
 
         private string GetLocation() => this.connectionStringParsed.TryGetValue("Location", out string location) ? location : null;
     }

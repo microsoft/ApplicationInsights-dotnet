@@ -16,9 +16,9 @@
             var uri = EndpointProvider.BuildUri(
                 location: "westus2.",
                 prefix: "dc",
-                suffix: ".applicationinsights.azure.cn");
+                suffix: ".applicationinsights.azure.com");
 
-            Assert.AreEqual("https://westus2.dc.applicationinsights.azure.cn/", uri.AbsoluteUri);
+            Assert.AreEqual("https://westus2.dc.applicationinsights.azure.com/", uri.AbsoluteUri);
         }
 
         [TestMethod]
@@ -27,9 +27,9 @@
             var uri = EndpointProvider.BuildUri(
                 location: "westus2",
                 prefix: "dc",
-                suffix: "applicationinsights.azure.cn");
+                suffix: "applicationinsights.azure.com");
 
-            Assert.AreEqual("https://westus2.dc.applicationinsights.azure.cn/", uri.AbsoluteUri);
+            Assert.AreEqual("https://westus2.dc.applicationinsights.azure.com/", uri.AbsoluteUri);
         }
 
         [TestMethod]
@@ -38,9 +38,9 @@
             var uri = EndpointProvider.BuildUri(
                 location: null,
                 prefix: "dc",
-                suffix: "applicationinsights.azure.cn");
+                suffix: "applicationinsights.azure.com");
 
-            Assert.AreEqual("https://dc.applicationinsights.azure.cn/", uri.AbsoluteUri);
+            Assert.AreEqual("https://dc.applicationinsights.azure.com/", uri.AbsoluteUri);
         }
     }
 }

@@ -26,6 +26,7 @@
 
         /// <summary>
         /// Users can input unexpected casing in their connection strings.
+        /// Verify that we can fetch any value from the dictionary regardless of the casing.
         /// </summary>
         [TestMethod]
         public void VerifyConnectionStringDictionaryIsCaseInsensitive()
