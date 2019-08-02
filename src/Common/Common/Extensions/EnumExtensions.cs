@@ -2,8 +2,6 @@
 {
     using System;
     using System.Reflection;
-    using System.Collections.Generic;
-    using System.Text;
 
     internal static class EnumExtensions
     {

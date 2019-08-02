@@ -10,6 +10,16 @@
     public class EndpointProviderParseConnectionStringTests
     {
         [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void TestMaliciousConnectionString()
+        {
+            var endpoint = new EndpointProvider()
+            {
+                ConnectionString = new string('*', EndpointProvider.ConnectionStringMaxLength + 1)
+            };
+        }
+
+        [TestMethod]
         public void TestParseConnectionString()
         {
             var test = EndpointProvider.ParseConnectionString("key1=value1;key2=value2;key3=value3");
