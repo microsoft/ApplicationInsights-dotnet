@@ -244,7 +244,17 @@
         /// <summary>
         /// Gets or sets the Endpoint Controller responsible for making service endpoints available.
         /// </summary>
-        public EndpointController Endpoint { get; set; }
+        public EndpointController Endpoint { get; private set; } = new EndpointController();
+
+        /// <summary>
+        /// Gets or sets the connection string.
+        /// </summary>
+        public string ConnectionString
+        {
+            get { return this.Endpoint.ConnectionString;  }
+
+            set { this.Endpoint.ConnectionString = value; }
+        }
 
         /// <summary>
         /// Gets a collection of strings indicating if an experimental feature should be enabled.
