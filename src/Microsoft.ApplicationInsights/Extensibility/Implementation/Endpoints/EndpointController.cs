@@ -9,11 +9,25 @@
     /// </summary>
     public class EndpointController
     {
-        private readonly EndpointProvider endpointProvider = new EndpointProvider();
+        private readonly IEndpointProvider endpointProvider = new EndpointProvider();
 
         private Uri breeze, liveMetrics, profiler, snapshot;
         private bool breezeInitialized, liveMetricsInitialized, profilerInitialized, snapshotInitialized;
         private object syncObject;
+
+        /// <summary>
+        /// Creates a new instance of <see cref="EndpointController" /> for Unit Testing.
+        /// </summary>
+        public EndpointController()
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new instance of <see cref="EndpointController" /> for Unit Testing.
+        /// </summary>
+        /// <param name="endpointProvider">Provide an implementation of endpoint provider for unit testing.</param>
+        internal EndpointController(IEndpointProvider endpointProvider) => this.endpointProvider = endpointProvider;
 
         /// <summary>
         /// Gets or sets the connection string (key1=value1;key2=value2;key3=value3). 

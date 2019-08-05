@@ -9,7 +9,7 @@
     /// <summary>
     /// This class encapsulates parsing a connection string and returning an Endpoint's Uri.
     /// </summary>
-    internal class EndpointProvider
+    internal class EndpointProvider : IEndpointProvider
     {
         /// <summary>
         /// Maximum allowed length connection string.
@@ -22,7 +22,7 @@
         /// </remarks>
         internal const int ConnectionStringMaxLength = 4096;
 
-        private static char[] trimPeriod = new char[] { '.' };
+        private static readonly char[] trimPeriod = new char[] { '.' };
 
         private string connectionString;
         private Dictionary<string, string> connectionStringParsed = new Dictionary<string, string>(0);
