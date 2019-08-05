@@ -9,6 +9,7 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Sampling;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Metrics;
@@ -239,6 +240,11 @@
         /// This feature is opt-in and must be configured to be enabled.
         /// </remarks>
         public IApplicationIdProvider ApplicationIdProvider { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Endpoint Controller responsible for making service endpoints available.
+        /// </summary>
+        public EndpointController Endpoint { get; set; }
 
         /// <summary>
         /// Gets a collection of strings indicating if an experimental feature should be enabled.

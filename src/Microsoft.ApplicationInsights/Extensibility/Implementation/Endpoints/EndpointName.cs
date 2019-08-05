@@ -5,9 +5,9 @@
     /// <summary>
     /// These enums represent all possible endpoints within application insights infrastructure.
     /// </summary>
-    public enum EndpointName
+    internal enum EndpointName
     {
-        /// <summary>Breeze is the telemetr ingestion service.</summary>
+        /// <summary>Breeze is the telemetry ingestion service.</summary>
         [EndpointMeta(ExplicitName = "IngestionEndpoint", EndpointPrefix = Constants.BreezePrefix, Default = Constants.BreezeEndpoint)]
         Breeze,
 
@@ -27,7 +27,7 @@
     /// <summary>
     /// Defines meta data for possible endpoints.
     /// </summary>
-    public class EndpointMetaAttribute : Attribute
+    internal class EndpointMetaAttribute : Attribute
     {
         /// <summary>Gets or sets the explicit name for overriding an endpoint within a connection string.</summary>
         public string ExplicitName { get; set; }

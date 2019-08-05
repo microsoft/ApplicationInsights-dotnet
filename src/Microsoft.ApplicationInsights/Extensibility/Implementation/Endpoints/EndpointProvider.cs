@@ -9,7 +9,7 @@
     /// <summary>
     /// This class encapsulates parsing a connection string and returning an Endpoint's Uri.
     /// </summary>
-    public class EndpointProvider
+    internal class EndpointProvider
     {
         /// <summary>
         /// Maximum allowed length connection string.
@@ -21,6 +21,8 @@
         /// Setting an over-exaggerated max length to protect against malicious injections (2^12 = 4096).
         /// </remarks>
         internal const int ConnectionStringMaxLength = 4096;
+
+        private static char[] trimPeriod = new char[] { '.' };
 
         private string connectionString;
         private Dictionary<string, string> connectionStringParsed = new Dictionary<string, string>(0);
@@ -127,7 +129,6 @@
         internal static Uri BuildUri(string prefix, string suffix, string location = null)
         {
             // Location and Host are user input fields and need to be checked for extra periods.
-            var trimPeriod = new char[] { '.' };
 
             var uriString = string.Concat("https://"
                 + (string.IsNullOrEmpty(location) ? string.Empty : (location.TrimEnd(trimPeriod) + "."))
