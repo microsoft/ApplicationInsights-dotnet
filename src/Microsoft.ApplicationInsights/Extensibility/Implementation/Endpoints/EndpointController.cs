@@ -9,19 +9,16 @@
     /// </summary>
     public class EndpointController
     {
-        private readonly IEndpointProvider endpointProvider = new EndpointProvider();
+        internal readonly IEndpointProvider endpointProvider;
 
         private Uri breeze, liveMetrics, profiler, snapshot;
         private bool breezeInitialized, liveMetricsInitialized, profilerInitialized, snapshotInitialized;
         private object syncObject;
 
         /// <summary>
-        /// Creates a new instance of <see cref="EndpointController" /> for Unit Testing.
+        /// Creates a new instance of <see cref="EndpointController" />.
         /// </summary>
-        public EndpointController()
-        {
-
-        }
+        internal EndpointController() => this.endpointProvider = new EndpointProvider();
 
         /// <summary>
         /// Creates a new instance of <see cref="EndpointController" /> for Unit Testing.

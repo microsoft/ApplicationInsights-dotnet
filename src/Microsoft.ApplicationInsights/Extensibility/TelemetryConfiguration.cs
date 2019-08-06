@@ -242,7 +242,7 @@
         public IApplicationIdProvider ApplicationIdProvider { get; set; }
 
         /// <summary>
-        /// Gets or sets the Endpoint Controller responsible for making service endpoints available.
+        /// Gets the Endpoint Controller responsible for making service endpoints available.
         /// </summary>
         public EndpointController Endpoint { get; private set; } = new EndpointController();
 
@@ -253,7 +253,12 @@
         {
             get { return this.Endpoint.ConnectionString;  }
 
-            set { this.Endpoint.ConnectionString = value; }
+            set
+            {
+                this.Endpoint.ConnectionString = value;
+                this.InstrumentationKey = this.Endpoint.endpointProvider.GetInstrumentationKey();
+            }
+            // TODO: WHAT HAPPENS WHEN CONNECTION STRING IS SET AFTER INSTRUMENTATION KEY IS SET?
         }
 
         /// <summary>

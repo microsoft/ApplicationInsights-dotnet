@@ -77,10 +77,30 @@
                     }
                 }
 
+
+                // Evaluate InstrumentationKey vs ConnectionString
+                if (configuration.ConnectionString != null)
+                {
+                    var connectionStringIkey = configuration.Endpoint.endpointProvider.GetInstrumentationKey();
+                    if (connectionStringIkey != null)
+                    {
+                        if (configuration.InstrumentationKey != null)
+                        {
+                            // TODO: ETW CONFIG WARNING
+                        }
+                        configuration.InstrumentationKey = connectionStringIkey;
+                    }
+                }
+
+
                 // If an environment variable exists with an instrumentation key then use it (instead) for the "blackfield" scenario.
                 string environmentInstrumentationKey = PlatformSingleton.Current.GetEnvironmentVariable(InstrumentationKeyWebSitesEnvironmentVariable);
                 if (!string.IsNullOrEmpty(environmentInstrumentationKey))
                 {
+                    if (configuration.InstrumentationKey != null)
+                    {
+                        // TODO: ETW CONFIG WARNING
+                    }
                     configuration.InstrumentationKey = environmentInstrumentationKey;
                 }
 

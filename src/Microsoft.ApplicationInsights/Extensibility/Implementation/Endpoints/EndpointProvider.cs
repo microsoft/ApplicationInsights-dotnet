@@ -22,7 +22,7 @@
         /// </remarks>
         internal const int ConnectionStringMaxLength = 4096;
 
-        private static readonly char[] trimPeriod = new char[] { '.' };
+        private static readonly char[] TrimPeriod = new char[] { '.' };
 
         private string connectionString;
         private Dictionary<string, string> connectionStringParsed = new Dictionary<string, string>(0);
@@ -131,9 +131,9 @@
             // Location and Host are user input fields and need to be checked for extra periods.
 
             var uriString = string.Concat("https://"
-                + (string.IsNullOrEmpty(location) ? string.Empty : (location.TrimEnd(trimPeriod) + "."))
+                + (string.IsNullOrEmpty(location) ? string.Empty : (location.TrimEnd(TrimPeriod) + "."))
                 + prefix 
-                + "." + suffix.TrimStart(trimPeriod));
+                + "." + suffix.TrimStart(TrimPeriod));
 
             return new Uri(uriString);
         }
