@@ -27,6 +27,9 @@
         // Read environment variable.
         string GetEnvironmentVariable(string name);
 
+        // Read environment variable. Returns false if variable is not found or empty.
+        bool TryGetEnvironmentVariable(string name, out string value);
+
         /// <summary>
         /// Returns the machine name.
         /// </summary>

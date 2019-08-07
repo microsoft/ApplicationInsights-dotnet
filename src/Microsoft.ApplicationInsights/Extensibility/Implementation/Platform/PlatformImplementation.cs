@@ -110,6 +110,18 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
             return resultObj != null ? resultObj.ToString() : null;
         }
 
+        public bool TryGetEnvironmentVariable(string name, out string value)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            object resultObj = this.environmentVariables?[name];
+            value = resultObj?.ToString();
+            return !string.IsNullOrEmpty(value);
+        }
+
         /// <summary>
         /// Returns the machine name.
         /// </summary>
@@ -184,6 +196,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
         public string GetEnvironmentVariable(string name)
         {
             return Environment.GetEnvironmentVariable(name);
+        }
+
+        public bool TryGetEnvironmentVariable(string name, out string value)
+        {
+            value = Environment.GetEnvironmentVariable(name);
+            return !string.IsNullOrEmpty(value);
         }
 
         /// <summary>

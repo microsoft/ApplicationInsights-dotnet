@@ -20,7 +20,8 @@
         private const string AddElementName = "Add";
         private const string TypeAttributeName = "Type";
         private const string NameAttributeName = "Name";
-        private const string InstrumentationKeyWebSitesEnvironmentVariable = "APPINSIGHTS_INSTRUMENTATIONKEY";
+        private const string InstrumentationKeyEnvironmentVariable = "APPINSIGHTS_INSTRUMENTATIONKEY";
+        private const string ConnectionStringEnvironmentVariable = "APPLICATIONINSIGHTS_CONNECTION_STRING";
         private static readonly MethodInfo LoadInstancesDefinition = typeof(TelemetryConfigurationFactory).GetRuntimeMethods().First(m => m.Name == "LoadInstances");
         private static readonly XNamespace XmlNamespace = "http://schemas.microsoft.com/ApplicationInsights/2013/Settings";
 
@@ -77,32 +78,7 @@
                     }
                 }
 
-
-                // Evaluate InstrumentationKey vs ConnectionString
-                if (configuration.ConnectionString != null)
-                {
-                    var connectionStringIkey = configuration.Endpoint.endpointProvider.GetInstrumentationKey();
-                    if (connectionStringIkey != null)
-                    {
-                        if (configuration.InstrumentationKey != null)
-                        {
-                            // TODO: ETW CONFIG WARNING
-                        }
-                        configuration.InstrumentationKey = connectionStringIkey;
-                    }
-                }
-
-
-                // If an environment variable exists with an instrumentation key then use it (instead) for the "blackfield" scenario.
-                string environmentInstrumentationKey = PlatformSingleton.Current.GetEnvironmentVariable(InstrumentationKeyWebSitesEnvironmentVariable);
-                if (!string.IsNullOrEmpty(environmentInstrumentationKey))
-                {
-                    if (configuration.InstrumentationKey != null)
-                    {
-                        // TODO: ETW CONFIG WARNING
-                    }
-                    configuration.InstrumentationKey = environmentInstrumentationKey;
-                }
+                SelectInstrumentationKey(configuration);
 
                 // Creating the processor chain with default processor (transmissionprocessor) if none configured
                 if (configuration.TelemetryProcessors == null)
@@ -125,6 +101,38 @@
             finally
             {
                 SdkInternalOperationsMonitor.Exit();
+            }
+        }
+
+        private void SelectInstrumentationKey(TelemetryConfiguration configuration)
+        {
+            if (PlatformSingleton.Current.TryGetEnvironmentVariable(ConnectionStringEnvironmentVariable, out string connectionStringEnVar))
+            {
+                // TODO: ETW INFORMATION. Connection String Environment Variable detected. 
+                configuration.ConnectionString = connectionStringEnVar;
+                // NOTE: Connection String setter will overwrite Instrumentation Key.
+            }
+            else if (PlatformSingleton.Current.TryGetEnvironmentVariable(InstrumentationKeyEnvironmentVariable, out string instrumentationKeyEnVar))
+            {
+                // TODO: ETW INFORMATION. Instrumentation Key Environment Variable detected. 
+                configuration.InstrumentationKey = instrumentationKeyEnVar;
+            }
+            else if (configuration.ConnectionString != null)
+            {
+                if (configuration.Endpoint.endpointProvider.TryGetInstrumentationKey(out string connectionStringIkey))
+                {
+                    if (configuration.InstrumentationKey != null)
+                    {
+                        // TODO: ETW CONFIG WARNING: Connection String in config will overwrite InstrumentationKey from config.
+                    }
+                    configuration.InstrumentationKey = connectionStringIkey;
+                }
+            }
+
+            // SANITY CHECK
+            if (configuration.InstrumentationKey == null)
+            {
+                // TODO: ETW CONFIG WARNING: NO INSTRUMENTATION KEY FOUND.
             }
         }
 

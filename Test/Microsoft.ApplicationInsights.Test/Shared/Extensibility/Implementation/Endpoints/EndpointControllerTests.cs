@@ -59,7 +59,7 @@
 
             public string ConnectionString { get; set; }
 
-            public string GetInstrumentationKey() => throw new NotImplementedException();
+            public bool TryGetInstrumentationKey(out string value) => throw new NotImplementedException();
 
             public Uri GetEndpoint(EndpointName endpointName)
             {

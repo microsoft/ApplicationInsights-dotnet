@@ -131,12 +131,7 @@
 
             set
             {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
-
-                this.instrumentationKey = value;
+                this.instrumentationKey = value ?? throw new ArgumentNullException(nameof(this.InstrumentationKey));
             }
         }
 
@@ -247,7 +242,7 @@
         public EndpointController Endpoint { get; private set; } = new EndpointController();
 
         /// <summary>
-        /// Gets or sets the connection string.
+        /// Gets or sets the connection string. If the connection string contains an instrumentationkKey, TelemetryConfiguration.InstrumentationKey will also be set.
         /// </summary>
         public string ConnectionString
         {
@@ -255,10 +250,13 @@
 
             set
             {
-                this.Endpoint.ConnectionString = value;
-                this.InstrumentationKey = this.Endpoint.endpointProvider.GetInstrumentationKey();
+                this.Endpoint.ConnectionString = value ?? throw new ArgumentNullException(nameof(this.ConnectionString));
+
+                if (this.Endpoint.endpointProvider.TryGetInstrumentationKey(out string connectionStringIkey))
+                {
+                    this.InstrumentationKey = connectionStringIkey;
+                }
             }
-            // TODO: WHAT HAPPENS WHEN CONNECTION STRING IS SET AFTER INSTRUMENTATION KEY IS SET?
         }
 
         /// <summary>

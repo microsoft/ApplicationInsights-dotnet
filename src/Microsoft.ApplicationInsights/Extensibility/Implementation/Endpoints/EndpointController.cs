@@ -13,7 +13,7 @@
 
         private Uri breeze, liveMetrics, profiler, snapshot;
         private bool breezeInitialized, liveMetricsInitialized, profilerInitialized, snapshotInitialized;
-        private object syncObject;
+        private object syncObject = new object();
 
         /// <summary>
         /// Creates a new instance of <see cref="EndpointController" />.
@@ -41,7 +41,7 @@
                 lock (this.syncObject)
                 {
                     // set new connection string and reset all the initialized booleans.
-                    this.endpointProvider.ConnectionString = value;
+                    this.endpointProvider.ConnectionString = value ?? throw new ArgumentNullException(nameof(this.ConnectionString));
 
                     this.breezeInitialized = this.liveMetricsInitialized = this.profilerInitialized = this.snapshotInitialized = false;
                 }

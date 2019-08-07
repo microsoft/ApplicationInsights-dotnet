@@ -42,13 +42,13 @@
 
             set
             {
-                if (value.Length > ConnectionStringMaxLength)
+                if (value != null && value.Length > ConnectionStringMaxLength)
                 {
                     // TODO: LOG TO ETW
                     throw new ArgumentOutOfRangeException($"Values greater than {ConnectionStringMaxLength} characters are not allowed.", nameof(this.ConnectionString));
                 }
 
-                this.connectionString = value;
+                this.connectionString = value ?? throw new ArgumentNullException(nameof(this.ConnectionString));
                 this.connectionStringParsed = ParseConnectionString(value);
             }
         }
@@ -95,7 +95,15 @@
         /// Will evaluate connection string and return the requested instrumentation key.
         /// </summary>
         /// <returns>Returns the instrumentation key from the connection string.</returns>
-        public string GetInstrumentationKey() => this.connectionStringParsed.TryGetValue("InstrumentationKey", out string ikey) ? ikey : null;
+        public bool TryGetInstrumentationKey(out string value)
+        {
+            if (this.connectionStringParsed.TryGetValue("InstrumentationKey", out value))
+            {
+                return !string.IsNullOrEmpty(value);
+            }
+
+            return false;
+        }
 
         /// <summary>
         /// Parse a string connection string and return a Dictionary.
