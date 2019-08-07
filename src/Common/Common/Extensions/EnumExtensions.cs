@@ -8,10 +8,12 @@
         public static TAttribute GetAttribute<TAttribute>(this Enum value) where TAttribute : Attribute
         {
 #if NETSTANDARD1_3
-            throw new NotImplementedException();
+            Type type = value.GetType();
+            string name = Enum.GetName(type, value);
+            return type.GetRuntimeField(name).GetCustomAttribute<TAttribute>();
 #else
-            var type = value.GetType();
-            var name = Enum.GetName(type, value);
+            Type type = value.GetType();
+            string name = Enum.GetName(type, value);
             return type.GetField(name).GetCustomAttribute<TAttribute>();
 #endif
         }
