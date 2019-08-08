@@ -21,11 +21,6 @@
             return this.OnGetDebugOutput();
         }
 
-        public string GetEnvironmentVariable(string name)
-        {
-            return Environment.GetEnvironmentVariable(name);
-        }
-
         public bool TryGetEnvironmentVariable(string name, out string value)
         {
             value = Environment.GetEnvironmentVariable(name);
