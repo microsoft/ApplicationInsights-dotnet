@@ -254,6 +254,7 @@
 
                 if (this.Endpoint.endpointProvider.TryGetInstrumentationKey(out string connectionStringIkey))
                 {
+                    // TODO: ETW LOG INFORMATION: Instrumentation Key found in Connection String and will set TelemetryConfiguration.InstrumentationKey
                     this.InstrumentationKey = connectionStringIkey;
                 }
             }

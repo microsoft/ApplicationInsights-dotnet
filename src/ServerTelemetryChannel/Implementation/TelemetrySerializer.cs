@@ -10,7 +10,7 @@
     {
         internal readonly Transmitter Transmitter;
 
-        private const string DefaultEndpointAddress = "https://dc.services.visualstudio.com/v2/track";
+        private const string DefaultEndpointAddress = "https://dc.services.visualstudio.com/v2/track"; // TODO: REMOVE
         private Uri endpointAddress = new Uri(DefaultEndpointAddress);
 
         public TelemetrySerializer(Transmitter transmitter)
