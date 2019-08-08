@@ -55,7 +55,6 @@
             {
                 permission.PermitOnly();
                 PlatformImplementation platform = new PlatformImplementation();
-
                 Assert.IsFalse(platform.TryGetEnvironmentVariable("PATH", out string value));
                 Assert.IsNull(value);
                 permission = null;
