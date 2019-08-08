@@ -71,6 +71,38 @@
 
             AssertEx.IsType<InMemoryChannel>(configuration.TelemetryChannel);
         }
+        
+        [TestMethod]
+        public void InitializesInstanceWithEmptyInstrumentationKey()
+        {
+            string configFileContents = Configuration("<InstrumentationKey></InstrumentationKey>");
+
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
+            using (var testableTelemetryModules = new TestableTelemetryModules())
+            {
+                new TestableTelemetryConfigurationFactory().Initialize(configuration, testableTelemetryModules, configFileContents);
+
+                // Assume that LoadFromXml method is called, tested separately
+                Assert.AreEqual(string.Empty, configuration.InstrumentationKey);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionString")]
+        public void InitializesInstanceWithEmptyConnectionString()
+        {
+            string configFileContents = Configuration($"<ConnectionString></ConnectionString>");
+
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
+            using (var testableTelemetryModules = new TestableTelemetryModules())
+            {
+                new TestableTelemetryConfigurationFactory().Initialize(configuration, testableTelemetryModules, configFileContents);
+
+                // Assume that LoadFromXml method is called, tested separately
+                Assert.AreEqual(null, configuration.ConnectionString);
+                Assert.AreEqual(string.Empty, configuration.InstrumentationKey);
+            }
+        }
 
         [TestMethod]
         public void InitializesInstanceWithInformationFromConfigurationFileWhenItExists()
@@ -86,7 +118,6 @@
                 Assert.IsFalse(string.IsNullOrEmpty(configuration.InstrumentationKey));
             }
         }
-
 
         [TestMethod]
         [TestCategory("ConnectionString")]
