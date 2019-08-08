@@ -61,6 +61,20 @@
                 expectedSnapshotEndpoint: "https://westus2.snapshot.ai.contoso.com/");
         }
 
+
+        [TestMethod]
+        public void TestEndpointProvider_NoInstrumentationKey()
+        {
+            var endpoint = new EndpointProvider()
+            {
+                ConnectionString = "key1=value1;key2=value2;key3=value3"
+            };
+
+            var testBool = endpoint.TryGetInstrumentationKey(out string testValue);
+            Assert.AreEqual(false, testBool);
+            Assert.AreEqual(null, testValue);
+        }
+
         private void RunTest(string connectionString, string expectedBreezeEndpoint, string expectedLiveMetricsEndpoint, string expectedProfilerEndpoint, string expectedSnapshotEndpoint)
         {
             var endpoint = new EndpointProvider()

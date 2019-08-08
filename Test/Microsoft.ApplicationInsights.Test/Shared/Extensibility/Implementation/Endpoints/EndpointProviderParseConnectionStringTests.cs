@@ -20,9 +20,38 @@
         }
 
         [TestMethod]
+        public void TestParseConnectionString_Null()
+        {
+            var test = EndpointProvider.ParseConnectionString(null);
+            Assert.AreEqual(0, test.Count);
+        }
+
+        [TestMethod]
+        public void TestParseConnectionString_Empty()
+        {
+            var test = EndpointProvider.ParseConnectionString("");
+            Assert.AreEqual(0, test.Count);
+        }
+
+        [TestMethod]
         public void TestParseConnectionString()
         {
             var test = EndpointProvider.ParseConnectionString("key1=value1;key2=value2;key3=value3");
+
+            var expected = new Dictionary<string, string>
+            {
+                {"key1", "value1" },
+                {"key2", "value2" },
+                {"key3", "value3" }
+            };
+
+            CollectionAssert.AreEqual(expected, test);
+        }
+
+        [TestMethod]
+        public void TestParseConnectionString_WithTrailingSemicolon()
+        {
+            var test = EndpointProvider.ParseConnectionString("key1=value1;key2=value2;key3=value3;");
 
             var expected = new Dictionary<string, string>
             {
@@ -39,7 +68,7 @@
         /// Verify that we can fetch any value from the dictionary regardless of the casing.
         /// </summary>
         [TestMethod]
-        public void VerifyConnectionStringDictionaryIsCaseInsensitive()
+        public void VerifyConnectionStringDictionary_IsCaseInsensitive()
         {
             var test = EndpointProvider.ParseConnectionString("UPPERCASE=value1;lowercase=value2;MixedCase=value3");
 
@@ -61,15 +90,15 @@
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [ExpectedException(typeof(ConnectionStringDuplicateKeyException))]
         public void TestParseConnectionString_DuplaceKeys()
         {
             var test = EndpointProvider.ParseConnectionString("key1=value1;key1=value2");
         }
 
         [TestMethod]
-        [ExpectedException(typeof(IndexOutOfRangeException))]
-        public void TestParseConnectionString_InvalidString()
+        [ExpectedException(typeof(ConnectionStringInvalidDelimiterException))]
+        public void TestParseConnectionString_InvalidDelimiters()
         {
             var test = EndpointProvider.ParseConnectionString("key1;value1=key2=value2=key3=value3");
         }
