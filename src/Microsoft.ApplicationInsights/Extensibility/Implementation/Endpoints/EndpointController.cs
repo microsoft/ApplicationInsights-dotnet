@@ -9,7 +9,7 @@
     /// </summary>
     public class EndpointController
     {
-        internal readonly IEndpointProvider endpointProvider;
+        internal readonly IEndpointProvider EndpointProvider;
 
         private Uri breeze, liveMetrics, profiler, snapshot;
         private bool breezeInitialized, liveMetricsInitialized, profilerInitialized, snapshotInitialized;
@@ -18,22 +18,22 @@
         /// <summary>
         /// Creates a new instance of <see cref="EndpointController" />.
         /// </summary>
-        internal EndpointController() => this.endpointProvider = new EndpointProvider();
+        internal EndpointController() => this.EndpointProvider = new EndpointProvider();
 
         /// <summary>
         /// Creates a new instance of <see cref="EndpointController" /> for Unit Testing.
         /// </summary>
         /// <param name="endpointProvider">Provide an implementation of endpoint provider for unit testing.</param>
-        internal EndpointController(IEndpointProvider endpointProvider) => this.endpointProvider = endpointProvider;
+        internal EndpointController(IEndpointProvider endpointProvider) => this.EndpointProvider = endpointProvider;
 
         /// <summary>
         /// Gets or sets the connection string (key1=value1;key2=value2;key3=value3). 
         /// </summary>
-        public string ConnectionString
+        internal string ConnectionString
         {
             get
             {
-                return this.endpointProvider.ConnectionString;
+                return this.EndpointProvider.ConnectionString;
             }
 
             set
@@ -41,7 +41,7 @@
                 lock (this.syncObject)
                 {
                     // set new connection string and reset all the initialized booleans.
-                    this.endpointProvider.ConnectionString = value ?? throw new ArgumentNullException(nameof(this.ConnectionString));
+                    this.EndpointProvider.ConnectionString = value ?? throw new ArgumentNullException(nameof(this.ConnectionString));
 
                     this.breezeInitialized = this.liveMetricsInitialized = this.profilerInitialized = this.snapshotInitialized = false;
                 }
@@ -51,25 +51,25 @@
         /// <summary>Gets the endpoint for Breeze (ingestion) service.</summary>
         public Uri Breeze
         {
-            get { return LazyInitializer.EnsureInitialized(ref this.breeze, ref this.breezeInitialized, ref this.syncObject, () => this.endpointProvider.GetEndpoint(EndpointName.Breeze)); }
+            get { return LazyInitializer.EnsureInitialized(ref this.breeze, ref this.breezeInitialized, ref this.syncObject, () => this.EndpointProvider.GetEndpoint(EndpointName.Breeze)); }
         }
 
         /// <summary>Gets the endpoint for Live Metrics (aka QuickPulse) service.</summary>
         public Uri LiveMetrics
         {
-            get { return LazyInitializer.EnsureInitialized(ref this.liveMetrics, ref this.liveMetricsInitialized, ref this.syncObject, () => this.endpointProvider.GetEndpoint(EndpointName.LiveMetrics)); }
+            get { return LazyInitializer.EnsureInitialized(ref this.liveMetrics, ref this.liveMetricsInitialized, ref this.syncObject, () => this.EndpointProvider.GetEndpoint(EndpointName.LiveMetrics)); }
         }
 
         /// <summary>Gets the endpoint for the Profiler service.</summary>
         public Uri Profiler
         {
-            get { return LazyInitializer.EnsureInitialized(ref this.profiler, ref this.profilerInitialized, ref this.syncObject, () => this.endpointProvider.GetEndpoint(EndpointName.Profiler)); }
+            get { return LazyInitializer.EnsureInitialized(ref this.profiler, ref this.profilerInitialized, ref this.syncObject, () => this.EndpointProvider.GetEndpoint(EndpointName.Profiler)); }
         }
 
         /// <summary>Gets the endpoint for the Snapshot service.</summary>
         public Uri Snapshot
         {
-            get { return LazyInitializer.EnsureInitialized(ref this.snapshot, ref this.snapshotInitialized, ref this.syncObject, () => this.endpointProvider.GetEndpoint(EndpointName.Snapshot)); }
+            get { return LazyInitializer.EnsureInitialized(ref this.snapshot, ref this.snapshotInitialized, ref this.syncObject, () => this.EndpointProvider.GetEndpoint(EndpointName.Snapshot)); }
         }
     }
 }

@@ -78,7 +78,7 @@
                     }
                 }
 
-                SelectInstrumentationKey(configuration);
+                this.SelectInstrumentationKey(configuration);
 
                 // Creating the processor chain with default processor (transmissionprocessor) if none configured
                 if (configuration.TelemetryProcessors == null)
@@ -101,38 +101,6 @@
             finally
             {
                 SdkInternalOperationsMonitor.Exit();
-            }
-        }
-
-        private void SelectInstrumentationKey(TelemetryConfiguration configuration)
-        {
-            if (PlatformSingleton.Current.TryGetEnvironmentVariable(ConnectionStringEnvironmentVariable, out string connectionStringEnVar))
-            {
-                // TODO: ETW INFORMATION. Connection String Environment Variable detected. 
-                configuration.ConnectionString = connectionStringEnVar;
-                // NOTE: Connection String setter will overwrite Instrumentation Key.
-            }
-            else if (PlatformSingleton.Current.TryGetEnvironmentVariable(InstrumentationKeyEnvironmentVariable, out string instrumentationKeyEnVar))
-            {
-                // TODO: ETW INFORMATION. Instrumentation Key Environment Variable detected. 
-                configuration.InstrumentationKey = instrumentationKeyEnVar;
-            }
-            else if (configuration.ConnectionString != null)
-            {
-                if (configuration.Endpoint.endpointProvider.TryGetInstrumentationKey(out string connectionStringIkey))
-                {
-                    if (configuration.InstrumentationKey != null)
-                    {
-                        // TODO: ETW CONFIG WARNING: Connection String in config will overwrite InstrumentationKey from config.
-                    }
-                    configuration.InstrumentationKey = connectionStringIkey;
-                }
-            }
-
-            // SANITY CHECK
-            if (configuration.InstrumentationKey == null)
-            {
-                // TODO: ETW CONFIG WARNING: NO INSTRUMENTATION KEY FOUND.
             }
         }
 
@@ -493,6 +461,39 @@
                 .Where(e => e.Name.LocalName != AddElementName);
 
             return attributeDefinitions.Concat(elementDefinitions);
+        }
+
+        private void SelectInstrumentationKey(TelemetryConfiguration configuration)
+        {
+            if (PlatformSingleton.Current.TryGetEnvironmentVariable(ConnectionStringEnvironmentVariable, out string connectionStringEnVar))
+            {
+                // TODO: ETW INFORMATION. Connection String Environment Variable detected. 
+                configuration.ConnectionString = connectionStringEnVar;
+                // NOTE: Connection String setter will overwrite Instrumentation Key.
+            }
+            else if (PlatformSingleton.Current.TryGetEnvironmentVariable(InstrumentationKeyEnvironmentVariable, out string instrumentationKeyEnVar))
+            {
+                // TODO: ETW INFORMATION. Instrumentation Key Environment Variable detected. 
+                configuration.InstrumentationKey = instrumentationKeyEnVar;
+            }
+            else if (configuration.ConnectionString != null)
+            {
+                if (configuration.Endpoint.EndpointProvider.TryGetInstrumentationKey(out string connectionStringIkey))
+                {
+                    if (configuration.InstrumentationKey != null)
+                    {
+                        // TODO: ETW CONFIG WARNING: Connection String in config will overwrite InstrumentationKey from config.
+                    }
+
+                    configuration.InstrumentationKey = connectionStringIkey;
+                }
+            }
+
+            // SANITY CHECK
+            if (configuration.InstrumentationKey == null)
+            {
+                // TODO: ETW CONFIG WARNING: NO INSTRUMENTATION KEY FOUND.
+            }
         }
     }
 }

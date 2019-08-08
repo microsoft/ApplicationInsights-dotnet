@@ -246,13 +246,16 @@
         /// </summary>
         public string ConnectionString
         {
-            get { return this.Endpoint.ConnectionString;  }
+            get
+            {
+                return this.Endpoint.ConnectionString;
+            }
 
             set
             {
                 this.Endpoint.ConnectionString = value ?? throw new ArgumentNullException(nameof(this.ConnectionString));
 
-                if (this.Endpoint.endpointProvider.TryGetInstrumentationKey(out string connectionStringIkey))
+                if (this.Endpoint.EndpointProvider.TryGetInstrumentationKey(out string connectionStringIkey))
                 {
                     // TODO: ETW LOG INFORMATION: Instrumentation Key found in Connection String and will set TelemetryConfiguration.InstrumentationKey
                     this.InstrumentationKey = connectionStringIkey;
