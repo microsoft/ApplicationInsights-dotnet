@@ -107,11 +107,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
                 throw new ArgumentNullException(nameof(name));
             }
 
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-
             object resultObj = this.environmentVariables?[name];
             value = resultObj?.ToString();
             return !string.IsNullOrEmpty(value);
