@@ -13,7 +13,7 @@
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestMaliciousConnectionString()
         {
-            var endpoint = new EndpointProvider()
+            new EndpointProvider()
             {
                 ConnectionString = new string('*', EndpointProvider.ConnectionStringMaxLength + 1)
             };
@@ -93,14 +93,14 @@
         [ExpectedException(typeof(ConnectionStringDuplicateKeyException))]
         public void TestParseConnectionString_DuplaceKeys()
         {
-            var test = EndpointProvider.ParseConnectionString("key1=value1;key1=value2");
+            EndpointProvider.ParseConnectionString("key1=value1;key1=value2");
         }
 
         [TestMethod]
         [ExpectedException(typeof(ConnectionStringInvalidDelimiterException))]
         public void TestParseConnectionString_InvalidDelimiters()
         {
-            var test = EndpointProvider.ParseConnectionString("key1;value1=key2=value2=key3=value3");
+            EndpointProvider.ParseConnectionString("key1;value1=key2=value2=key3=value3");
         }
     }
 }
