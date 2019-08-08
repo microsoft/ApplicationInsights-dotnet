@@ -1,11 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.TestFramework
 {
     using System;
-    using System.Collections.Generic;
-    using Microsoft.ApplicationInsights.Channel;
+
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     internal class StubPlatform : IPlatform
     {
@@ -23,9 +21,10 @@
             return this.OnGetDebugOutput();
         }
 
-        public string GetEnvironmentVariable(string name)
+        public bool TryGetEnvironmentVariable(string name, out string value)
         {
-            return Environment.GetEnvironmentVariable(name);
+            value = Environment.GetEnvironmentVariable(name);
+            return !string.IsNullOrEmpty(value);
         }
 
         public string GetMachineName()
