@@ -53,6 +53,9 @@
 
         private class TestProvider : IEndpointProvider
         {
+            /// <summary>
+            /// using this to record what endpoint was passed in through GetEndpoint()
+            /// </summary>
             public EndpointName endpointName { get; private set; }
 
             public string TestEndpoint { get; set; } = "https://127.0.0.1";
