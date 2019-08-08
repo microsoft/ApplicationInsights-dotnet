@@ -119,10 +119,23 @@
                 return new Dictionary<string, string>(0);
             }
 
-            return value
-                .Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(part => part.Split('='))
-                .ToDictionary(split => split[0], split => split[1], StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                return value
+                    .Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(part => part.Split('='))
+                    .ToDictionary(split => split[0], split => split[1], StringComparer.OrdinalIgnoreCase);
+            }
+            catch (ArgumentException ex) when (ex.Message.StartsWith("An item with the same key has already been added.", StringComparison.Ordinal))
+            {
+                // TODO: LOG TO ETW
+                throw new ConnectionStringDuplicateKeyException("The Connection String has duplicate keys.", ex);
+            }
+            catch (IndexOutOfRangeException ex) when (ex.Message.StartsWith("Index was outside the bounds of the array.", StringComparison.Ordinal))
+            {
+                // TODO: LOG TO ETW
+                throw new ConnectionStringInvalidDelimiterException("The Connection String has invalid delimiters. Expected: 'key1=value1;key2=value2;key3=value3'", ex);
+            }
         }
 
         /// <summary>
