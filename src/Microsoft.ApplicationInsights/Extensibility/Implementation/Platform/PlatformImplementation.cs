@@ -99,15 +99,22 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
             return this.debugOutput ?? (this.debugOutput = new TelemetryDebugWriter());
         }
 
-        public string GetEnvironmentVariable(string name)
+        /// <inheritdoc />
+        public bool TryGetEnvironmentVariable(string name, out string value)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
                 throw new ArgumentNullException(nameof(name));
             }
 
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
             object resultObj = this.environmentVariables?[name];
-            return resultObj != null ? resultObj.ToString() : null;
+            value = resultObj?.ToString();
+            return !string.IsNullOrEmpty(value);
         }
 
         /// <summary>
@@ -181,9 +188,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
             return this.debugOutput;
         }
 
-        public string GetEnvironmentVariable(string name)
+        /// <inheritdoc />
+        public bool TryGetEnvironmentVariable(string name, out string value)
         {
-            return Environment.GetEnvironmentVariable(name);
+            value = Environment.GetEnvironmentVariable(name);
+            return !string.IsNullOrEmpty(value);
         }
 
         /// <summary>

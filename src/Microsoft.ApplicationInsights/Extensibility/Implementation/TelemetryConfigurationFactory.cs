@@ -78,8 +78,7 @@
                 }
 
                 // If an environment variable exists with an instrumentation key then use it (instead) for the "blackfield" scenario.
-                string environmentInstrumentationKey = PlatformSingleton.Current.GetEnvironmentVariable(InstrumentationKeyWebSitesEnvironmentVariable);
-                if (!string.IsNullOrEmpty(environmentInstrumentationKey))
+                if (PlatformSingleton.Current.TryGetEnvironmentVariable(InstrumentationKeyWebSitesEnvironmentVariable, out string environmentInstrumentationKey))
                 {
                     configuration.InstrumentationKey = environmentInstrumentationKey;
                 }
