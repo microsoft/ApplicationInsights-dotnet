@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints
 {
     using System;
+    using System.Reflection;
 
     /// <summary>
     /// These enums represent all possible endpoints within application insights infrastructure.
@@ -37,5 +38,18 @@
 
         /// <summary>Gets or sets the default classic endpoint.</summary>
         public string Default { get; set; }
+
+        public static EndpointMetaAttribute GetAttribute(EndpointName enumValue)
+        {
+#if NETSTANDARD1_3
+            Type type = enumValue.GetType();
+            string name = Enum.GetName(type, enumValue);
+            return type.GetRuntimeField(name).GetCustomAttribute<EndpointMetaAttribute>();
+#else
+            Type type = enumValue.GetType();
+            string name = Enum.GetName(type, enumValue);
+            return type.GetField(name).GetCustomAttribute<EndpointMetaAttribute>();
+#endif
+        }
     }
 }

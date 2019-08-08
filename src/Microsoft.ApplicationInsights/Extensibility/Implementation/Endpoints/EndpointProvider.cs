@@ -64,7 +64,7 @@
             // 2. check for endpoint suffix (location is optional)
             // 3. use classic endpoint (location is ignored)
 
-            var endpointMeta = endpointName.GetAttribute<EndpointMetaAttribute>();
+            var endpointMeta = EndpointMetaAttribute.GetAttribute(endpointName);
 
             try
             {
