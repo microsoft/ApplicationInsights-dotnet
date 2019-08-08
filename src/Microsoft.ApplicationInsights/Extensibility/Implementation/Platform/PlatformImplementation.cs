@@ -190,12 +190,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
             return !string.IsNullOrEmpty(value);
         }
 
-        public bool TryGetEnvironmentVariable(string name, out string value)
-        {
-            value = Environment.GetEnvironmentVariable(name);
-            return !string.IsNullOrEmpty(value);
-        }
-
         /// <summary>
         /// Returns the machine name.
         /// </summary>
