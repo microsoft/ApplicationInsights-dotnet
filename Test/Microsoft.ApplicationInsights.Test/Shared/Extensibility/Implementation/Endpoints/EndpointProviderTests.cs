@@ -61,6 +61,42 @@
                 expectedSnapshotEndpoint: "https://westus2.snapshot.ai.contoso.com/");
         }
 
+        [TestMethod]
+        public void TestExpliticOverride_PreservesSchema()
+        {
+            RunTest(
+                connectionString: "InstrumentationKey=00000000-0000-0000-0000-000000000000;ProfilerEndpoint=http://custom.profiler.contoso.com:444/",
+                expectedBreezeEndpoint: Constants.BreezeEndpoint,
+                expectedLiveMetricsEndpoint: Constants.LiveMetricsEndpoint,
+                expectedProfilerEndpoint: "http://custom.profiler.contoso.com:444/",
+                expectedSnapshotEndpoint: Constants.SnapshotEndpoint);
+        }
+
+        [TestMethod]
+        public void TestExpliticOverride_InvalidValue()
+        {
+            // TODO: SHOULD THIS BE HANDLED DIFFERENTLY? this is swallowing a UriFormatException
+
+            RunTest(
+                connectionString: "InstrumentationKey=00000000-0000-0000-0000-000000000000;ProfilerEndpoint=https:////custom.profiler.contoso.com",
+                expectedBreezeEndpoint: Constants.BreezeEndpoint,
+                expectedLiveMetricsEndpoint: Constants.LiveMetricsEndpoint,
+                expectedProfilerEndpoint: Constants.ProfilerEndpoint,
+                expectedSnapshotEndpoint: Constants.SnapshotEndpoint);
+        }
+
+        [TestMethod]
+        public void TestExpliticOverride_InvalidValue2()
+        {
+            // TODO: SHOULD THIS BE HANDLED DIFFERENTLY? this is swallowing a UriFormatException
+
+            RunTest(
+                connectionString: "InstrumentationKey=00000000-0000-0000-0000-000000000000;ProfilerEndpoint=https://www.~!@#$%&^*()_{}{}><?<?>:L\":\"_+_+_",
+                expectedBreezeEndpoint: Constants.BreezeEndpoint,
+                expectedLiveMetricsEndpoint: Constants.LiveMetricsEndpoint,
+                expectedProfilerEndpoint: Constants.ProfilerEndpoint,
+                expectedSnapshotEndpoint: Constants.SnapshotEndpoint);
+        }
 
         [TestMethod]
         public void TestEndpointProvider_NoInstrumentationKey()
