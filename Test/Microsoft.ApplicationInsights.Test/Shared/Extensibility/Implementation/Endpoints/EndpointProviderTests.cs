@@ -73,10 +73,9 @@
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ConnectionStringInvalidEndpointException))]
         public void TestExpliticOverride_InvalidValue()
         {
-            // TODO: SHOULD THIS BE HANDLED DIFFERENTLY? this is swallowing a UriFormatException
-
             RunTest(
                 connectionString: "InstrumentationKey=00000000-0000-0000-0000-000000000000;ProfilerEndpoint=https:////custom.profiler.contoso.com",
                 expectedBreezeEndpoint: Constants.BreezeEndpoint,
@@ -86,10 +85,9 @@
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ConnectionStringInvalidEndpointException))]
         public void TestExpliticOverride_InvalidValue2()
         {
-            // TODO: SHOULD THIS BE HANDLED DIFFERENTLY? this is swallowing a UriFormatException
-
             RunTest(
                 connectionString: "InstrumentationKey=00000000-0000-0000-0000-000000000000;ProfilerEndpoint=https://www.~!@#$%&^*()_{}{}><?<?>:L\":\"_+_+_",
                 expectedBreezeEndpoint: Constants.BreezeEndpoint,
@@ -99,6 +97,7 @@
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ConnectionStringMissingInstrumentationKeyException))]
         public void TestEndpointProvider_NoInstrumentationKey()
         {
             var endpoint = new EndpointProvider()
@@ -106,9 +105,18 @@
                 ConnectionString = "key1=value1;key2=value2;key3=value3"
             };
 
-            var testBool = endpoint.TryGetInstrumentationKey(out string testValue);
-            Assert.AreEqual(false, testBool);
-            Assert.AreEqual(null, testValue);
+            endpoint.GetInstrumentationKey();
+        }
+
+        [TestMethod]
+        public void TestEndpointProvider_NoConnectionStringShouldReturnDefaultEndpoints()
+        {
+            var endpoint = new EndpointProvider();
+
+            Assert.AreEqual(Constants.BreezeEndpoint, endpoint.GetEndpoint(EndpointName.Breeze).AbsoluteUri);
+            Assert.AreEqual(Constants.LiveMetricsEndpoint, endpoint.GetEndpoint(EndpointName.LiveMetrics).AbsoluteUri);
+            Assert.AreEqual(Constants.ProfilerEndpoint, endpoint.GetEndpoint(EndpointName.Profiler).AbsoluteUri);
+            Assert.AreEqual(Constants.SnapshotEndpoint, endpoint.GetEndpoint(EndpointName.Snapshot).AbsoluteUri);
         }
 
         private void RunTest(string connectionString, string expectedBreezeEndpoint, string expectedLiveMetricsEndpoint, string expectedProfilerEndpoint, string expectedSnapshotEndpoint)

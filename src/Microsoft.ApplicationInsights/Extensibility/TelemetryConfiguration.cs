@@ -124,15 +124,9 @@
         /// </remarks>
         public string InstrumentationKey
         {
-            get
-            {
-                return this.instrumentationKey;
-            }
+            get { return this.instrumentationKey; }
 
-            set
-            {
-                this.instrumentationKey = value ?? throw new ArgumentNullException(nameof(this.InstrumentationKey));
-            }
+            set { this.instrumentationKey = value ?? throw new ArgumentNullException(nameof(this.InstrumentationKey)); }
         }
 
         /// <summary>
@@ -239,27 +233,39 @@
         /// <summary>
         /// Gets the Endpoint Controller responsible for making service endpoints available.
         /// </summary>
-        public EndpointController Endpoint { get; private set; } = new EndpointController();
+        public EndpointContainer Endpoint { get; private set; } = new EndpointContainer(new EndpointProvider());
 
         /// <summary>
-        /// Gets or sets the connection string. If the connection string contains an instrumentationkKey, TelemetryConfiguration.InstrumentationKey will also be set.
+        /// Gets the connection string.
         /// </summary>
-        public string ConnectionString
+        public string ConnectionString { get; private set; }
+
+        /// <summary>
+        /// This method will set the connection string, parse the required instrumentation key, and validate the endpoints.
+        /// </summary>
+        /// <param name="connectionString"></param>
+        /// <exception cref="ConnectionStringDuplicateKeyException"></exception>
+        /// <exception cref="ConnectionStringInvalidDelimiterException"></exception>
+        /// <exception cref="ConnectionStringInvalidEndpoint"></exception>
+        /// <exception cref="ConnectionStringMissingInstrumentationKey"></exception>
+        public void SetConnectionString(string connectionString)
         {
-            get
+            try
             {
-                return this.Endpoint.ConnectionString;
-            }
+                this.ConnectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
 
-            set
-            {
-                this.Endpoint.ConnectionString = value ?? throw new ArgumentNullException(nameof(this.ConnectionString));
-
-                if (this.Endpoint.EndpointProvider.TryGetInstrumentationKey(out string connectionStringIkey))
+                var endpointProvider = new EndpointProvider
                 {
-                    // TODO: ETW LOG INFORMATION: Instrumentation Key found in Connection String and will set TelemetryConfiguration.InstrumentationKey
-                    this.InstrumentationKey = connectionStringIkey;
-                }
+                    ConnectionString = connectionString
+                };
+
+                this.InstrumentationKey = endpointProvider.GetInstrumentationKey();
+
+                this.Endpoint = new EndpointContainer(endpointProvider);
+            }
+            catch (Exception ex)
+            {
+                // TODO: LOG ETW
             }
         }
 

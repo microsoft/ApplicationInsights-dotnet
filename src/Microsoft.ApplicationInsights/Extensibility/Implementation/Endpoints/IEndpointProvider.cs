@@ -8,6 +8,6 @@
 
         Uri GetEndpoint(EndpointName endpointName);
 
-        bool TryGetInstrumentationKey(out string value);
+        string GetInstrumentationKey();
     }
 }

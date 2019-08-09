@@ -465,10 +465,13 @@
 
         private void SelectInstrumentationKey(TelemetryConfiguration configuration)
         {
+            // TODO: NEED TEST CASES FOR EACH OF THESE SCENARIOS
+
+
             if (PlatformSingleton.Current.TryGetEnvironmentVariable(ConnectionStringEnvironmentVariable, out string connectionStringEnVar))
             {
                 // TODO: ETW INFORMATION. Connection String Environment Variable detected. 
-                configuration.ConnectionString = connectionStringEnVar;
+                configuration.SetConnectionString(connectionStringEnVar);
                 // NOTE: Connection String setter will overwrite Instrumentation Key.
             }
             else if (PlatformSingleton.Current.TryGetEnvironmentVariable(InstrumentationKeyEnvironmentVariable, out string instrumentationKeyEnVar))
@@ -478,21 +481,15 @@
             }
             else if (configuration.ConnectionString != null)
             {
-                if (configuration.Endpoint.EndpointProvider.TryGetInstrumentationKey(out string connectionStringIkey))
-                {
-                    if (configuration.InstrumentationKey != null)
-                    {
-                        // TODO: ETW CONFIG WARNING: Connection String in config will overwrite InstrumentationKey from config.
-                    }
-
-                    configuration.InstrumentationKey = connectionStringIkey;
-                }
+                // A set ConnectionSTring will have come from parsing the config file.
+                // Call Set() to force the connection string to be parsed.
+                configuration.SetConnectionString(configuration.ConnectionString);
             }
 
             // SANITY CHECK
             if (configuration.InstrumentationKey == null)
             {
-                // TODO: ETW CONFIG WARNING: NO INSTRUMENTATION KEY FOUND.
+                // TODO: ETW CONFIG WARNING: NO INSTRUMENTATION KEY FOUND. NEEDS TO BE MANUALLY SET
             }
         }
     }

@@ -70,14 +70,28 @@
             {
                 if (this.connectionStringParsed.TryGetValue(endpointMeta.ExplicitName, out string explicitEndpoint))
                 {
-                    return new Uri(explicitEndpoint);
+                    try
+                    {
+                        return new Uri(explicitEndpoint);
+                    }
+                    catch(UriFormatException ex)
+                    {
+                        throw new ConnectionStringInvalidEndpointException(); // TODO: NEED TO FORMAT EXCEPTION
+                    }
                 }
                 else if (this.connectionStringParsed.TryGetValue("EndpointSuffix", out string endpointSuffix))
                 {
-                    return BuildUri(
-                        prefix: endpointMeta.EndpointPrefix,
-                        suffix: endpointSuffix,
-                        location: this.GetLocation());
+                    try
+                    {
+                        return BuildUri(
+                            prefix: endpointMeta.EndpointPrefix,
+                            suffix: endpointSuffix,
+                            location: this.GetLocation());
+                    }
+                    catch(UriFormatException ex)
+                    {
+                        throw new ConnectionStringInvalidEndpointException(); // TODO: NEED TO FORMAT EXCEPTION
+                    }
                 }
                 else
                 {
@@ -87,7 +101,8 @@
             catch (Exception ex)
             {
                 // TODO: LOG TO ETW
-                return new Uri(endpointMeta.Default);
+                //return new Uri(endpointMeta.Default);
+                throw;
             }
         }
 
@@ -95,14 +110,16 @@
         /// Will evaluate connection string and return the requested instrumentation key.
         /// </summary>
         /// <returns>Returns the instrumentation key from the connection string.</returns>
-        public bool TryGetInstrumentationKey(out string value)
+        public string GetInstrumentationKey()
         {
-            if (this.connectionStringParsed.TryGetValue("InstrumentationKey", out value))
+            if (this.connectionStringParsed.TryGetValue("InstrumentationKey", out string value))
             {
-                return !string.IsNullOrEmpty(value);
+                return value;
             }
-
-            return false;
+            else
+            {
+                throw new ConnectionStringMissingInstrumentationKeyException();
+            }
         }
 
         /// <summary>
