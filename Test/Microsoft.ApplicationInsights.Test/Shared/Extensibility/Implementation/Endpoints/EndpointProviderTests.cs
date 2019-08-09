@@ -76,24 +76,36 @@
         [ExpectedException(typeof(ConnectionStringInvalidEndpointException))]
         public void TestExpliticOverride_InvalidValue()
         {
-            RunTest(
-                connectionString: "InstrumentationKey=00000000-0000-0000-0000-000000000000;ProfilerEndpoint=https:////custom.profiler.contoso.com",
-                expectedBreezeEndpoint: Constants.BreezeEndpoint,
-                expectedLiveMetricsEndpoint: Constants.LiveMetricsEndpoint,
-                expectedProfilerEndpoint: Constants.ProfilerEndpoint,
-                expectedSnapshotEndpoint: Constants.SnapshotEndpoint);
+            var endpoint = new EndpointProvider()
+            {
+                ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https:////custom.profiler.contoso.com"
+            };
+
+            endpoint.GetEndpoint(EndpointName.Ingestion);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ConnectionStringInvalidEndpointException))]
         public void TestExpliticOverride_InvalidValue2()
         {
-            RunTest(
-                connectionString: "InstrumentationKey=00000000-0000-0000-0000-000000000000;ProfilerEndpoint=https://www.~!@#$%&^*()_{}{}><?<?>:L\":\"_+_+_",
-                expectedBreezeEndpoint: Constants.BreezeEndpoint,
-                expectedLiveMetricsEndpoint: Constants.LiveMetricsEndpoint,
-                expectedProfilerEndpoint: Constants.ProfilerEndpoint,
-                expectedSnapshotEndpoint: Constants.SnapshotEndpoint);
+            var endpoint = new EndpointProvider()
+            {
+                ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://www.~!@#$%&^*()_{}{}><?<?>:L\":\"_+_+_"
+            };
+
+            endpoint.GetEndpoint(EndpointName.Ingestion);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ConnectionStringInvalidEndpointException))]
+        public void TestExpliticOverride_InvalidValue3()
+        {
+            var endpoint = new EndpointProvider()
+            {
+                ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000;EndpointSuffix=~!@#$%&^*()_{}{}><?<?>:L\":\"_+_+_"
+            };
+
+            endpoint.GetEndpoint(EndpointName.Ingestion);
         }
 
         [TestMethod]
@@ -113,8 +125,8 @@
         {
             var endpoint = new EndpointProvider();
 
-            Assert.AreEqual(Constants.BreezeEndpoint, endpoint.GetEndpoint(EndpointName.Breeze).AbsoluteUri);
-            Assert.AreEqual(Constants.LiveMetricsEndpoint, endpoint.GetEndpoint(EndpointName.LiveMetrics).AbsoluteUri);
+            Assert.AreEqual(Constants.BreezeEndpoint, endpoint.GetEndpoint(EndpointName.Ingestion).AbsoluteUri);
+            Assert.AreEqual(Constants.LiveMetricsEndpoint, endpoint.GetEndpoint(EndpointName.Live).AbsoluteUri);
             Assert.AreEqual(Constants.ProfilerEndpoint, endpoint.GetEndpoint(EndpointName.Profiler).AbsoluteUri);
             Assert.AreEqual(Constants.SnapshotEndpoint, endpoint.GetEndpoint(EndpointName.Snapshot).AbsoluteUri);
         }
@@ -126,10 +138,10 @@
                 ConnectionString = connectionString
             };
 
-            var breezeTest = endpoint.GetEndpoint(EndpointName.Breeze);
+            var breezeTest = endpoint.GetEndpoint(EndpointName.Ingestion);
             Assert.AreEqual(expectedBreezeEndpoint, breezeTest.AbsoluteUri);
 
-            var liveMetricsTest = endpoint.GetEndpoint(EndpointName.LiveMetrics);
+            var liveMetricsTest = endpoint.GetEndpoint(EndpointName.Live);
             Assert.AreEqual(expectedLiveMetricsEndpoint, liveMetricsTest.AbsoluteUri);
 
             var profilerTest = endpoint.GetEndpoint(EndpointName.Profiler);

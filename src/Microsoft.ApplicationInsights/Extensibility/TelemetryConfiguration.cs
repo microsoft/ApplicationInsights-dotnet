@@ -246,8 +246,8 @@
         /// <param name="connectionString"></param>
         /// <exception cref="ConnectionStringDuplicateKeyException"></exception>
         /// <exception cref="ConnectionStringInvalidDelimiterException"></exception>
-        /// <exception cref="ConnectionStringInvalidEndpoint"></exception>
-        /// <exception cref="ConnectionStringMissingInstrumentationKey"></exception>
+        /// <exception cref="ConnectionStringInvalidEndpointException"></exception>
+        /// <exception cref="ConnectionStringMissingInstrumentationKeyException"></exception>
         public void SetConnectionString(string connectionString)
         {
             try
