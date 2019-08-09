@@ -76,7 +76,10 @@
                     }
                     catch(UriFormatException ex)
                     {
-                        throw new ConnectionStringInvalidEndpointException(); // TODO: NEED TO FORMAT EXCEPTION
+                        throw new ConnectionStringInvalidEndpointException(
+                            endpointName: endpointName.ToString(), 
+                            endpointProperty: endpointMeta.ExplicitName, 
+                            innerException: ex);
                     }
                 }
                 else if (this.connectionStringParsed.TryGetValue("EndpointSuffix", out string endpointSuffix))
@@ -90,7 +93,11 @@
                     }
                     catch(UriFormatException ex)
                     {
-                        throw new ConnectionStringInvalidEndpointException(); // TODO: NEED TO FORMAT EXCEPTION
+                        throw new ConnectionStringInvalidEndpointException(
+                            endpointName: endpointName.ToString(),
+                            endpointProperty: "Either EndpointSuffix or Location.",
+                            innerException: ex
+                            );
                     }
                 }
                 else

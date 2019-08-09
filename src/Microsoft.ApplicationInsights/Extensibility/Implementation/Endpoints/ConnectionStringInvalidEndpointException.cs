@@ -24,6 +24,13 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionStringInvalidEndpointException"/> class.
         /// </summary>
+        public ConnectionStringInvalidEndpointException(string endpointName, string endpointProperty, Exception innerException) : base ($"The connection string endpoint is invalid. EndpointName: {endpointName} EndpointProperty: {endpointProperty}", innerException)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionStringInvalidEndpointException"/> class.
+        /// </summary>
         /// <param name="message">The message that describes the error.</param>
         public ConnectionStringInvalidEndpointException(string message) : base(message)
         {

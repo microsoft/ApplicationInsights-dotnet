@@ -472,7 +472,6 @@
             {
                 // TODO: ETW INFORMATION. Connection String Environment Variable detected. 
                 configuration.SetConnectionString(connectionStringEnVar);
-                // NOTE: Connection String setter will overwrite Instrumentation Key.
             }
             else if (PlatformSingleton.Current.TryGetEnvironmentVariable(InstrumentationKeyEnvironmentVariable, out string instrumentationKeyEnVar))
             {
@@ -481,7 +480,7 @@
             }
             else if (configuration.ConnectionString != null)
             {
-                // A set ConnectionSTring will have come from parsing the config file.
+                // A set ConnectionString will have come from parsing the config file.
                 // Call Set() to force the connection string to be parsed.
                 configuration.SetConnectionString(configuration.ConnectionString);
             }
