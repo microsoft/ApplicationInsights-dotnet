@@ -18,14 +18,6 @@
         /// </summary>
         public ConnectionStringInvalidEndpointException()
         {
-            //this.Message = $"The value for {name} is invalid."; // TODO NEED TO DESCRIBE WHICH ENDPOINT IS INVALID
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ConnectionStringInvalidEndpointException"/> class.
-        /// </summary>
-        public ConnectionStringInvalidEndpointException(string endpointName, string endpointProperty, Exception innerException) : base ($"The connection string endpoint is invalid. EndpointName: {endpointName} EndpointProperty: {endpointProperty}", innerException)
-        {
         }
 
         /// <summary>

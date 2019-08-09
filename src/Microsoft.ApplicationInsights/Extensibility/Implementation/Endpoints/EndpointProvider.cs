@@ -44,7 +44,7 @@
             {
                 if (value != null && value.Length > ConnectionStringMaxLength)
                 {
-                    // TODO: LOG TO ETW
+                    // TODO: LOG TO ETW, Malicious injection guard
                     throw new ArgumentOutOfRangeException($"Values greater than {ConnectionStringMaxLength} characters are not allowed.", nameof(this.ConnectionString));
                 }
 
@@ -76,10 +76,7 @@
                     }
                     catch(UriFormatException ex)
                     {
-                        throw new ConnectionStringInvalidEndpointException(
-                            endpointName: endpointName.ToString(), 
-                            endpointProperty: endpointMeta.ExplicitName, 
-                            innerException: ex);
+                        throw new ConnectionStringInvalidEndpointException($"The connection string endpoint is invalid. EndpointName: {endpointName} EndpointProperty: {endpointMeta.ExplicitName}", ex);
                     }
                 }
                 else if (this.connectionStringParsed.TryGetValue("EndpointSuffix", out string endpointSuffix))
@@ -93,11 +90,7 @@
                     }
                     catch(UriFormatException ex)
                     {
-                        throw new ConnectionStringInvalidEndpointException(
-                            endpointName: endpointName.ToString(),
-                            endpointProperty: "Either EndpointSuffix or Location.",
-                            innerException: ex
-                            );
+                        throw new ConnectionStringInvalidEndpointException($"The connection string endpoint is invalid. EndpointName: {endpointName} Either EndpointSuffix or Location.", ex);
                     }
                 }
                 else
@@ -107,8 +100,7 @@
             }
             catch (Exception ex)
             {
-                // TODO: LOG TO ETW
-                //return new Uri(endpointMeta.Default);
+                // TODO: LOG TO ETW, unknown exception trying to get endpointName
                 throw;
             }
         }
@@ -134,8 +126,6 @@
         /// </summary>
         /// <remarks>Example: "key1=value1;key2=value2;key3=value3".</remarks>
         /// <returns>A dictionary parsed from the input connection string.</returns>
-        /// <exception cref="ArgumentException">Thrown if there are duplicate keys.</exception>
-        /// <exception cref="IndexOutOfRangeException">Thrown if the input string is in the wrong format.</exception>
         internal static Dictionary<string, string> ParseConnectionString(string value)
         {
             if (string.IsNullOrEmpty(value))
@@ -152,13 +142,13 @@
             }
             catch (ArgumentException ex) when (ex.Message.StartsWith("An item with the same key has already been added.", StringComparison.Ordinal))
             {
-                // TODO: LOG TO ETW
+                // TODO: LOG TO ETW, duplicate keys
                 throw new ConnectionStringDuplicateKeyException("The Connection String has duplicate keys.", ex);
             }
             catch (IndexOutOfRangeException ex) when (ex.Message.StartsWith("Index was outside the bounds of the array.", StringComparison.Ordinal))
             {
-                // TODO: LOG TO ETW
-                throw new ConnectionStringInvalidDelimiterException("The Connection String has invalid delimiters. Expected: 'key1=value1;key2=value2;key3=value3'", ex);
+                // TODO: LOG TO ETW, connection string invalid format
+                throw new ConnectionStringInvalidDelimiterException("The Connection String has invalid formatting and cannot be parsed. Expected: 'key1=value1;key2=value2;key3=value3'", ex);
             }
         }
 
