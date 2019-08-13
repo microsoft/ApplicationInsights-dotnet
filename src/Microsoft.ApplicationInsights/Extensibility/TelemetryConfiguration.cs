@@ -241,41 +241,6 @@
         public string ConnectionString { get; private set; }
 
         /// <summary>
-        /// This method will set the connection string, set the instrumentation key, validate the endpoints, and set the TelemetryChannel.Endpoint
-        /// </summary>
-        /// <param name="connectionString"></param>
-        /// <exception cref="ConnectionStringDuplicateKeyException"></exception>
-        /// <exception cref="ConnectionStringInvalidDelimiterException"></exception>
-        /// <exception cref="ConnectionStringInvalidEndpointException"></exception>
-        /// <exception cref="ConnectionStringMissingInstrumentationKeyException"></exception>
-        public void SetConnectionString(string connectionString)
-        {
-            try
-            {
-                this.ConnectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
-
-                var endpointProvider = new EndpointProvider
-                {
-                    ConnectionString = connectionString
-                };
-
-                this.InstrumentationKey = endpointProvider.GetInstrumentationKey();
-
-                this.Endpoint = new EndpointContainer(endpointProvider);
-
-                foreach (var tSink in this.TelemetrySinks)
-                {
-                    tSink.TelemetryChannel.EndpointAddress = this.Endpoint.Ingestion.AbsoluteUri + "v2/track";
-                }
-            }
-            catch (Exception ex)
-            {
-                // TODO: LOG TO ETW ERROR: Could not set Connection String. Log Inner Exception.
-                throw;
-            }
-        }
-
-        /// <summary>
         /// Gets a collection of strings indicating if an experimental feature should be enabled.
         /// The presence of a string in this collection will be evaluated as 'true'.
         /// </summary>
@@ -320,6 +285,41 @@
                 }
 
                 this.telemetryProcessorChain = value;
+            }
+        }
+
+        /// <summary>
+        /// This method will set the connection string, set the instrumentation key, validate the endpoints, and set the TelemetryChannel.Endpoint.
+        /// </summary>
+        /// <param name="connectionString">Users unique connection string. This must include the Instrumentation Key. Format: "key1=value1;key2=value2;key3=value3".</param>
+        /// <exception cref="ConnectionStringDuplicateKeyException">Thrown when the connection string has duplicate keys.</exception>
+        /// <exception cref="ConnectionStringInvalidDelimiterException">Thrown when the connection string is formatted incorrectly.</exception>
+        /// <exception cref="ConnectionStringInvalidEndpointException">Thrown when the endpoint that was provided is invalid. Exception contains more information.</exception>
+        /// <exception cref="ConnectionStringMissingInstrumentationKeyException">Thrown when the connection string does not contain an instrumentation key (required).</exception>
+        public void SetConnectionString(string connectionString)
+        {
+            try
+            {
+                this.ConnectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+
+                var endpointProvider = new EndpointProvider
+                {
+                    ConnectionString = connectionString,
+                };
+
+                this.InstrumentationKey = endpointProvider.GetInstrumentationKey();
+
+                this.Endpoint = new EndpointContainer(endpointProvider);
+
+                foreach (var tSink in this.TelemetrySinks)
+                {
+                    tSink.TelemetryChannel.EndpointAddress = this.Endpoint.Ingestion.AbsoluteUri + "v2/track";
+                }
+            }
+            catch (Exception ex)
+            {
+                // TODO: LOG TO ETW ERROR: Could not set Connection String. Log Inner Exception.
+                throw;
             }
         }
 

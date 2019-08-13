@@ -74,7 +74,7 @@
                     {
                         return new Uri(explicitEndpoint);
                     }
-                    catch(UriFormatException ex)
+                    catch (UriFormatException ex)
                     {
                         throw new ConnectionStringInvalidEndpointException($"The connection string endpoint is invalid. EndpointName: {endpointName} EndpointProperty: {endpointMeta.ExplicitName}", ex);
                     }
@@ -88,7 +88,7 @@
                             suffix: endpointSuffix,
                             location: this.GetLocation());
                     }
-                    catch(UriFormatException ex)
+                    catch (UriFormatException ex)
                     {
                         throw new ConnectionStringInvalidEndpointException($"The connection string endpoint is invalid. EndpointName: {endpointName} Either EndpointSuffix or Location.", ex);
                     }
