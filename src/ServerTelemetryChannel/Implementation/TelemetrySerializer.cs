@@ -4,24 +4,12 @@
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     internal class TelemetrySerializer
     {
         internal readonly Transmitter Transmitter;
 
-        private const string DefaultEndpointAddress = "https://dc.services.visualstudio.com/v2/track"; // TODO: REMOVE
-        private Uri endpointAddress = new Uri(DefaultEndpointAddress);
-
-        public TelemetrySerializer(Transmitter transmitter)
-        {
-            if (transmitter == null)
-            {
-                throw new ArgumentNullException(nameof(transmitter));
-            }
-
-            this.Transmitter = transmitter;
-        }
+        public TelemetrySerializer(Transmitter transmitter) => this.Transmitter = transmitter ?? throw new ArgumentNullException(nameof(transmitter));
 
         protected TelemetrySerializer()
         {
@@ -31,21 +19,7 @@
         /// <summary>
         /// Gets or sets the endpoint address.  
         /// </summary>
-        /// <remarks>
-        /// If endpoint address is set to null, the default endpoint address will be used. 
-        /// </remarks>
-        public Uri EndpointAddress 
-        {
-            get 
-            { 
-                return this.endpointAddress; 
-            }
-
-            set
-            {
-                this.endpointAddress = value ?? throw new ArgumentNullException(nameof(value), nameof(this.EndpointAddress) + " cannot be Null");
-            }
-        }
+        public Uri EndpointAddress { get; set; }
 
         public virtual void Serialize(ICollection<ITelemetry> items)
         {
@@ -59,7 +33,12 @@
                 throw new ArgumentException("One or more telemetry item is expected", nameof(items));
             }
 
-            var transmission = new Transmission(this.endpointAddress, items);
+            if (this.EndpointAddress == null)
+            {
+                throw new Exception("TelemetrySerializer.EndpointAddress was not set.");
+            }
+
+            var transmission = new Transmission(this.EndpointAddress, items);
             this.Transmitter.Enqueue(transmission);
         }
     }

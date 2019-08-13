@@ -304,6 +304,8 @@
         {
             this.Transmitter.Initialize();
 
+            this.EndpointAddress = configuration.Endpoint.Ingestion.AbsoluteUri + "v2/track";
+
             // ApplyPolicies will synchronously get list of file names from disk and calculate size
             // Creating task to improve application startup time
             ExceptionHandler.Start(() => { return Task.Run(() => this.Transmitter.ApplyPolicies()); });
