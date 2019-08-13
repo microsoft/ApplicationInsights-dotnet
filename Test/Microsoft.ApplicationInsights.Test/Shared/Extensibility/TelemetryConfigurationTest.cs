@@ -9,7 +9,8 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
+    using Microsoft.ApplicationInsights.Channel;
+
     [TestClass]
     public class TelemetryConfigurationTest
     {
@@ -259,6 +260,85 @@
             var configuration = new TelemetryConfiguration();
             configuration.InstrumentationKey = "99C6A712-B2B5-46E3-97F4-F83F69999324";
             Assert.AreEqual("99C6A712-B2B5-46E3-97F4-F83F69999324", configuration.InstrumentationKey);
+        }
+
+        #endregion
+
+        #region Connection String
+        [TestMethod]
+        [TestCategory("ConnectionString")]
+        public void VerifySetConnectionString_ShouldSetConnectionString()
+        {
+            var ikey = Guid.NewGuid().ToString();
+            var connectionString = $"InstrumentationKey={ikey}";
+
+            var configuration = new TelemetryConfiguration();
+            configuration.SetConnectionString(connectionString);
+
+            Assert.AreEqual(connectionString, configuration.ConnectionString);
+            Assert.AreEqual(ikey, configuration.InstrumentationKey);
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionString")]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void VerifySetConnectionString_ThrowsNullException()
+        {
+            var configuration = new TelemetryConfiguration();
+            configuration.SetConnectionString(null);
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionString")]
+        public void VerifySetConnectionString_SetsEndpoint()
+        {
+            var explicitEndpoint = "https://127.0.0.1/";
+            var connectionString = $"InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint={explicitEndpoint}";
+
+            var configuration = new TelemetryConfiguration();
+            configuration.SetConnectionString(connectionString);
+
+            
+            Assert.AreEqual(explicitEndpoint, configuration.Endpoint.Ingestion.AbsoluteUri);
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionString")]
+        public void VerifySetConnectionString_SetsChannelDefaultEndpoint()
+        {
+            var connectionString = $"InstrumentationKey=00000000-0000-0000-0000-000000000000";
+
+            var channel = new InMemoryChannel();
+
+            var configuration = new TelemetryConfiguration
+            {
+                TelemetryChannel = channel
+            };
+
+            configuration.SetConnectionString(connectionString);
+
+            Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.Endpoint.Ingestion.AbsoluteUri);
+            Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", channel.EndpointAddress);
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionString")]
+        public void VerifySetConnectionString_SetsChannelExpliticEndpoint()
+        {
+            var explicitEndpoint = "https://127.0.0.1/";
+            var connectionString = $"InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint={explicitEndpoint}";
+
+            var channel = new InMemoryChannel();
+
+            var configuration = new TelemetryConfiguration
+            {
+                TelemetryChannel = channel
+            };
+
+            configuration.SetConnectionString(connectionString);
+
+            Assert.AreEqual(explicitEndpoint, configuration.Endpoint.Ingestion.AbsoluteUri);
+            Assert.AreEqual(explicitEndpoint + "v2/track", channel.EndpointAddress);
         }
 
         #endregion
