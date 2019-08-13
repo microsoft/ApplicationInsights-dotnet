@@ -44,7 +44,7 @@
             {
                 if (value != null && value.Length > ConnectionStringMaxLength)
                 {
-                    // TODO: LOG TO ETW, Malicious injection guard
+                    // TODO: LOG TO ETW ERROR: Malicious injection guard
                     throw new ArgumentOutOfRangeException($"Values greater than {ConnectionStringMaxLength} characters are not allowed.", nameof(this.ConnectionString));
                 }
 
@@ -100,8 +100,8 @@
             }
             catch (Exception ex)
             {
-                // TODO: LOG TO ETW, exception trying to get endpointName
-                throw;
+                // TODO: LOG TO ETW ERROR: exception trying to get endpointName
+                throw; // Re-throw original exception
             }
         }
 
@@ -142,12 +142,12 @@
             }
             catch (ArgumentException ex) when (ex.Message.StartsWith("An item with the same key has already been added.", StringComparison.Ordinal))
             {
-                // TODO: LOG TO ETW, duplicate keys
+                // TODO: LOG TO ETW ERROR: duplicate keys
                 throw new ConnectionStringDuplicateKeyException("The Connection String has duplicate keys.", ex);
             }
             catch (IndexOutOfRangeException ex) when (ex.Message.StartsWith("Index was outside the bounds of the array.", StringComparison.Ordinal))
             {
-                // TODO: LOG TO ETW, connection string invalid format
+                // TODO: LOG TO ETW ERROR: connection string invalid format
                 throw new ConnectionStringInvalidDelimiterException("The Connection String has invalid formatting and cannot be parsed. Expected: 'key1=value1;key2=value2;key3=value3'", ex);
             }
         }

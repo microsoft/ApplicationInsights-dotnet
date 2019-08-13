@@ -467,12 +467,12 @@
         {
             if (PlatformSingleton.Current.TryGetEnvironmentVariable(ConnectionStringEnvironmentVariable, out string connectionStringEnVar))
             {
-                // TODO: ETW INFORMATION. Connection String Environment Variable detected. 
+                // TODO: LOG TO ETW INFORMATION: Connection String Environment Variable detected. 
                 configuration.SetConnectionString(connectionStringEnVar);
             }
             else if (PlatformSingleton.Current.TryGetEnvironmentVariable(InstrumentationKeyEnvironmentVariable, out string instrumentationKeyEnVar))
             {
-                // TODO: ETW INFORMATION. Instrumentation Key Environment Variable detected. 
+                // TODO: LOG TO ETW INFORMATION: Instrumentation Key Environment Variable detected. 
                 configuration.InstrumentationKey = instrumentationKeyEnVar;
             }
             else if (configuration.ConnectionString != null)
@@ -485,7 +485,7 @@
             // SANITY CHECK
             if (configuration.InstrumentationKey == null)
             {
-                // TODO: ETW CONFIG WARNING: NO INSTRUMENTATION KEY FOUND. NEEDS TO BE MANUALLY SET
+                // TODO: LOG TO ETW WARNING: No Instrumentation Key found. Needs to be manually set.
             }
         }
     }
