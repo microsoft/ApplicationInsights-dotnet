@@ -100,7 +100,7 @@
             }
             catch (Exception ex)
             {
-                // TODO: LOG TO ETW ERROR: exception trying to get endpointName
+                // TODO: LOG TO ETW ERROR: exception trying to get endpointName. Log Inner Exception.
                 throw; // Re-throw original exception
             }
         }

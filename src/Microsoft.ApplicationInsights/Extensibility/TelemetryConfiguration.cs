@@ -263,14 +263,14 @@
 
                 this.Endpoint = new EndpointContainer(endpointProvider);
 
-                foreach (var tSink in this.TelemetrySinks) // TODO: NEED TEST CASES
+                foreach (var tSink in this.TelemetrySinks)
                 {
                     tSink.TelemetryChannel.EndpointAddress = this.Endpoint.Ingestion.AbsoluteUri + "v2/track";
                 }
             }
             catch (Exception ex)
             {
-                // TODO: LOG TO ETW ERROR: Could not set Connection String. See Inner Exception.
+                // TODO: LOG TO ETW ERROR: Could not set Connection String. Log Inner Exception.
                 throw;
             }
         }
