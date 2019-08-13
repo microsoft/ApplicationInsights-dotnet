@@ -241,7 +241,7 @@
         public string ConnectionString { get; private set; }
 
         /// <summary>
-        /// This method will set the connection string, parse the required instrumentation key, and validate the endpoints.
+        /// This method will set the connection string, set the instrumentation key, validate the endpoints, and set the TelemetryChannel.Endpoint
         /// </summary>
         /// <param name="connectionString"></param>
         /// <exception cref="ConnectionStringDuplicateKeyException"></exception>
@@ -262,6 +262,11 @@
                 this.InstrumentationKey = endpointProvider.GetInstrumentationKey();
 
                 this.Endpoint = new EndpointContainer(endpointProvider);
+
+                foreach(var tSink in this.TelemetrySinks) // TODO: NEED TEST CASES
+                {
+                    tSink.TelemetryChannel.EndpointAddress = this.Endpoint.Ingestion.AbsoluteUri; // TODO: NEED TO INCLUDE /V2
+                }
             }
             catch (Exception ex)
             {

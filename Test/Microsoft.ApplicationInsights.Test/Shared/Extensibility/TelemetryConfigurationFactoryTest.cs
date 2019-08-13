@@ -22,11 +22,13 @@
     public class TelemetryConfigurationFactoryTest
     {
         private const string EnvironmentVariableName = "APPINSIGHTS_INSTRUMENTATIONKEY";
+        private const string EnvironmentVariableConnectionString = "APPLICATIONINSIGHTS_CONNECTION_STRING";
 
         [TestCleanup]
         public void TestCleanup()
         {
             Environment.SetEnvironmentVariable(EnvironmentVariableName, null);
+            Environment.SetEnvironmentVariable(EnvironmentVariableConnectionString, null);
             PlatformSingleton.Current = null; // Force reinitialization in future tests so that new environment variables will be loaded.
         }
 
@@ -121,58 +123,105 @@
 
         [TestMethod]
         [TestCategory("ConnectionString")]
-        public void InitializesInstrumentationKeyWhenConnectionStringExists()
+        public void VerifySelectInstrumentationKeyChooses_EnVarConnectionString()
         {
-            string ikey = "F8474271-D231-45B6-8DD4-D344C309AE69";
+            // SETUP
+            string ikeyEnVarConnectionString = Guid.NewGuid().ToString();
+            Environment.SetEnvironmentVariable(EnvironmentVariableConnectionString, $"InstrumentationKey={ikeyEnVarConnectionString}");
 
-            string configFileContents = Configuration($"<ConnectionString>InstrumentationKey={ikey}</ConnectionString>");
+            string ikeyEnVar = Guid.NewGuid().ToString();
+            Environment.SetEnvironmentVariable(EnvironmentVariableName, ikeyEnVar);
+
+            string ikeyConfig = "e6f55001-f7d1-4242-b9f4-83660d0487f9";
+            string ikeyConfigConnectionString = "F8474271-D231-45B6-8DD4-D344C309AE69";
+
+            string configFileContents = Configuration($"<InstrumentationKey>{ikeyConfig}</InstrumentationKey><ConnectionString>InstrumentationKey={ikeyConfigConnectionString}</ConnectionString>");
 
             TelemetryConfiguration configuration = new TelemetryConfiguration();
-            using (var testableTelemetryModules = new TestableTelemetryModules())
-            {
-                new TestableTelemetryConfigurationFactory().Initialize(configuration, testableTelemetryModules, configFileContents);
 
-                Assert.IsFalse(string.IsNullOrEmpty(configuration.InstrumentationKey));
-                Assert.AreEqual(ikey, configuration.InstrumentationKey);
-            }
+            // ACT
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            // ASSERT
+            Assert.AreEqual(ikeyEnVarConnectionString, configuration.InstrumentationKey);
         }
 
         [TestMethod]
         [TestCategory("ConnectionString")]
-        public void InitializeUsesConnectionStringInsteadOfInstrumentationKey()
+        public void VerifySelectInstrumentationKeyChooses_EnVar()
         {
-            string ikey = "e6f55001-f7d1-4242-b9f4-83660d0487f9";
-            string connectionStringIkey = "F8474271-D231-45B6-8DD4-D344C309AE69";
+            // SETUP
+            string ikeyEnVar = Guid.NewGuid().ToString();
+            Environment.SetEnvironmentVariable(EnvironmentVariableName, ikeyEnVar);
 
-            string configFileContents = Configuration($"<InstrumentationKey>{ikey}</InstrumentationKey><ConnectionString>InstrumentationKey={connectionStringIkey}</ConnectionString>");
+            string ikeyConfig = "e6f55001-f7d1-4242-b9f4-83660d0487f9";
+            string ikeyConfigConnectionString = "F8474271-D231-45B6-8DD4-D344C309AE69";
+
+            string configFileContents = Configuration($"<InstrumentationKey>{ikeyConfig}</InstrumentationKey><ConnectionString>InstrumentationKey={ikeyConfigConnectionString}</ConnectionString>");
 
             TelemetryConfiguration configuration = new TelemetryConfiguration();
-            using (var testableTelemetryModules = new TestableTelemetryModules())
-            {
-                new TestableTelemetryConfigurationFactory().Initialize(configuration, testableTelemetryModules, configFileContents);
 
-                Assert.IsFalse(string.IsNullOrEmpty(configuration.InstrumentationKey));
-                Assert.AreEqual(connectionStringIkey, configuration.InstrumentationKey);
-            }
+            // ACT
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            // ASSERT
+            Assert.AreEqual(ikeyEnVar, configuration.InstrumentationKey);
         }
 
         [TestMethod]
         [TestCategory("ConnectionString")]
-        public void InitializeUsesConnectionStringInsteadOfInstrumentationKey_Reverse()
+        public void VerifySelectInstrumentationKeyChooses_ConfigConnectionString()
         {
-            string ikey = "e6f55001-f7d1-4242-b9f4-83660d0487f9";
-            string connectionStringIkey = "F8474271-D231-45B6-8DD4-D344C309AE69";
+            // SETUP
+            string ikeyConfig = "e6f55001-f7d1-4242-b9f4-83660d0487f9";
+            string ikeyConfigConnectionString = "F8474271-D231-45B6-8DD4-D344C309AE69";
 
-            string configFileContents = Configuration($"<ConnectionString>InstrumentationKey={connectionStringIkey}</ConnectionString><InstrumentationKey>{ikey}</InstrumentationKey>");
+            string configFileContents = Configuration($"<InstrumentationKey>{ikeyConfig}</InstrumentationKey><ConnectionString>InstrumentationKey={ikeyConfigConnectionString}</ConnectionString>");
 
             TelemetryConfiguration configuration = new TelemetryConfiguration();
-            using (var testableTelemetryModules = new TestableTelemetryModules())
-            {
-                new TestableTelemetryConfigurationFactory().Initialize(configuration, testableTelemetryModules, configFileContents);
 
-                Assert.IsFalse(string.IsNullOrEmpty(configuration.InstrumentationKey));
-                Assert.AreEqual(connectionStringIkey, configuration.InstrumentationKey);
-            }
+            // ACT
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            // ASSERT
+            Assert.AreEqual(ikeyConfigConnectionString, configuration.InstrumentationKey);
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionString")]
+        public void VerifySelectInstrumentationKeyChooses_ConfigConnectionString_Reverse()
+        {
+            // SETUP
+            string ikeyConfig = "e6f55001-f7d1-4242-b9f4-83660d0487f9";
+            string ikeyConfigConnectionString = "F8474271-D231-45B6-8DD4-D344C309AE69";
+
+            string configFileContents = Configuration($"<ConnectionString>InstrumentationKey={ikeyConfigConnectionString}</ConnectionString><InstrumentationKey>{ikeyConfig}</InstrumentationKey>");
+
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
+
+            // ACT
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            // ASSERT
+            Assert.AreEqual(ikeyConfigConnectionString, configuration.InstrumentationKey);
+        }
+        
+        [TestMethod]
+        [TestCategory("ConnectionString")]
+        public void VerifySelectInstrumentationKeyChooses_ConfigIKey()
+        {
+            // SETUP
+            string ikeyConfig = "e6f55001-f7d1-4242-b9f4-83660d0487f9";
+
+            string configFileContents = Configuration($"<InstrumentationKey>{ikeyConfig}</InstrumentationKey>");
+
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
+
+            // ACT
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            // ASSERT
+            Assert.AreEqual(ikeyConfig, configuration.InstrumentationKey);
         }
 
         [TestMethod]

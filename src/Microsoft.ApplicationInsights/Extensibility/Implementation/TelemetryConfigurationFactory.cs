@@ -78,8 +78,6 @@
                     }
                 }
 
-                this.SelectInstrumentationKey(configuration);
-
                 // Creating the processor chain with default processor (transmissionprocessor) if none configured
                 if (configuration.TelemetryProcessors == null)
                 {
@@ -95,6 +93,8 @@
                         telemetrySink.TelemetryProcessorChainBuilder.Build();
                     }
                 }
+
+                this.SelectInstrumentationKey(configuration);
 
                 InitializeComponents(configuration, modules);
             }
@@ -465,9 +465,6 @@
 
         private void SelectInstrumentationKey(TelemetryConfiguration configuration)
         {
-            // TODO: NEED TEST CASES FOR EACH OF THESE SCENARIOS
-
-
             if (PlatformSingleton.Current.TryGetEnvironmentVariable(ConnectionStringEnvironmentVariable, out string connectionStringEnVar))
             {
                 // TODO: ETW INFORMATION. Connection String Environment Variable detected. 
