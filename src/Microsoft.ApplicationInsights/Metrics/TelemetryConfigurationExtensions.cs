@@ -3,12 +3,13 @@
     using System;
     using Microsoft.ApplicationInsights.Extensibility;
 
-    /// <summary>@ToDo: Complete documentation before stable release. {737}.</summary>
+    /// <summary>Container for extension methods on <c>TelemetryConfiguration</c>.</summary>
     public static class TelemetryConfigurationExtensions
     {
-        /// <summary>@ToDo: Complete documentation before stable release. {923}.</summary>
-        /// <param name="telemetryPipeline">@ToDo: Complete documentation before stable release. {456}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {580}.</returns>
+        /// <summary><c>TelemetryConfiguration.GetMetricManager(..)</c> is a internal method to avoid puluting the public surface.
+        /// You can use the namespace <c>Microsoft.ApplicationInsights.Extensibility</c> to get access to the <c>MetricManager</c> via this extension method.</summary>
+        /// <param name="telemetryPipeline">A <c>TelemetryConfiguration</c>.</param>
+        /// <returns>The <c>MetricManager</c> instscne assiciated with the specified telemetry pipeline.</returns>
         public static MetricManager GetMetricManager(this TelemetryConfiguration telemetryPipeline)
         {
             return telemetryPipeline?.GetMetricManager(createIfNotExists: true);
