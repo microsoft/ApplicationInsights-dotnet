@@ -22,6 +22,8 @@
         /// </remarks>
         internal const int ConnectionStringMaxLength = 4096;
 
+        private static readonly char[] SplitSemicolon = new char[] { ';' };
+
         private static readonly char[] TrimPeriod = new char[] { '.' };
 
         private string connectionString;
@@ -136,7 +138,7 @@
             try
             {
                 return value
-                    .Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Split(SplitSemicolon, StringSplitOptions.RemoveEmptyEntries)
                     .Select(part => part.Split('='))
                     .ToDictionary(split => split[0], split => split[1], StringComparer.OrdinalIgnoreCase);
             }

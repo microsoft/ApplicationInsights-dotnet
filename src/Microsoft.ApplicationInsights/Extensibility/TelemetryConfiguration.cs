@@ -313,7 +313,7 @@
 
                 foreach (var tSink in this.TelemetrySinks)
                 {
-                    tSink.TelemetryChannel.EndpointAddress = this.Endpoint.Ingestion.AbsoluteUri + "v2/track";
+                    tSink.TelemetryChannel.EndpointAddress = new Uri(this.Endpoint.Ingestion, "v2/track").AbsoluteUri;
                 }
             }
             catch (Exception ex)
