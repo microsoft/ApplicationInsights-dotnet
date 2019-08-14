@@ -455,9 +455,10 @@
 
             [TestMethod]
             [TestCategory("ConnectionString")]
-            public void VerifyEndpointConnectionString_SetFromConfiguration_ExplicitEndpoint()
+            public void VerifyEndpointConnectionString_SetFromConfiguration_ExplicitEndpoint_WithTrailingSlash()
             {
                 var explicitEndpoint = "https://127.0.0.1/";
+                
                 var connectionString = $"InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint={explicitEndpoint}";
 
                 var channel = new ServerTelemetryChannel();
@@ -469,14 +470,35 @@
 
                 configuration.SetConnectionString(connectionString);
 
-                Assert.AreEqual(explicitEndpoint, configuration.Endpoint.Ingestion.AbsoluteUri);
-                Assert.AreEqual(explicitEndpoint + "v2/track", channel.EndpointAddress);
+                Assert.AreEqual("https://127.0.0.1/", configuration.Endpoint.Ingestion.AbsoluteUri);
+                Assert.AreEqual("https://127.0.0.1/v2/track", channel.EndpointAddress);
             }
 
             [TestMethod]
             [TestCategory("ConnectionString")]
-            public void VerifyEndpointConnectionString_SetFromInitialize_ExplicitEndpoint()
+            public void VerifyEndpointConnectionString_SetFromConfiguration_ExplicitEndpoint_WithoutTrailingSlash()
             {
+                var explicitEndpoint = "https://127.0.0.1";
+                var connectionString = $"InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint={explicitEndpoint}";
+
+                var channel = new ServerTelemetryChannel();
+
+                var configuration = new TelemetryConfiguration
+                {
+                    TelemetryChannel = channel
+                };
+
+                configuration.SetConnectionString(connectionString);
+
+                Assert.AreEqual("https://127.0.0.1/", configuration.Endpoint.Ingestion.AbsoluteUri);
+                Assert.AreEqual("https://127.0.0.1/v2/track", channel.EndpointAddress);
+            }
+
+            [TestMethod]
+            [TestCategory("ConnectionString")]
+            public void VerifyEndpointConnectionString_SetFromInitialize_ExplicitEndpoint_WithTrailingSlash()
+            {
+                
                 var explicitEndpoint = "https://127.0.0.1/";
                 var connectionString = $"InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint={explicitEndpoint}";
 
@@ -484,10 +506,29 @@
 
                 var configuration = new TelemetryConfiguration();
                 configuration.SetConnectionString(connectionString);
-                Assert.AreEqual(explicitEndpoint, configuration.Endpoint.Ingestion.AbsoluteUri);
+                Assert.AreEqual("https://127.0.0.1/", configuration.Endpoint.Ingestion.AbsoluteUri);
 
                 channel.Initialize(configuration);
-                Assert.AreEqual(explicitEndpoint + "v2/track", channel.EndpointAddress);
+                Assert.AreEqual("https://127.0.0.1/v2/track", channel.EndpointAddress);
+            }
+
+
+            [TestMethod]
+            [TestCategory("ConnectionString")]
+            public void VerifyEndpointConnectionString_SetFromInitialize_ExplicitEndpoint_WithoutTrailingSlash()
+            {
+
+                var explicitEndpoint = "https://127.0.0.1";
+                var connectionString = $"InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint={explicitEndpoint}";
+
+                var channel = new ServerTelemetryChannel();
+
+                var configuration = new TelemetryConfiguration();
+                configuration.SetConnectionString(connectionString);
+                Assert.AreEqual("https://127.0.0.1/", configuration.Endpoint.Ingestion.AbsoluteUri);
+
+                channel.Initialize(configuration);
+                Assert.AreEqual("https://127.0.0.1/v2/track", channel.EndpointAddress);
             }
 
             [TestMethod]
