@@ -11,10 +11,10 @@
         {
             RunTest(
                 connectionString: "InstrumentationKey=00000000-0000-0000-0000-000000000000",
-                expectedBreezeEndpoint: Constants.BreezeEndpoint,
-                expectedLiveMetricsEndpoint: Constants.LiveMetricsEndpoint,
-                expectedProfilerEndpoint: Constants.ProfilerEndpoint,
-                expectedSnapshotEndpoint: Constants.SnapshotEndpoint);
+                expectedBreezeEndpoint: Constants.DefaultIngestionEndpoint,
+                expectedLiveMetricsEndpoint: Constants.DefaultLiveMetricsEndpoint,
+                expectedProfilerEndpoint: Constants.DefaultProfilerEndpoint,
+                expectedSnapshotEndpoint: Constants.DefaultSnapshotEndpoint);
         }
 
         [TestMethod]
@@ -66,10 +66,10 @@
         {
             RunTest(
                 connectionString: "InstrumentationKey=00000000-0000-0000-0000-000000000000;ProfilerEndpoint=http://custom.profiler.contoso.com:444/",
-                expectedBreezeEndpoint: Constants.BreezeEndpoint,
-                expectedLiveMetricsEndpoint: Constants.LiveMetricsEndpoint,
+                expectedBreezeEndpoint: Constants.DefaultIngestionEndpoint,
+                expectedLiveMetricsEndpoint: Constants.DefaultLiveMetricsEndpoint,
                 expectedProfilerEndpoint: "http://custom.profiler.contoso.com:444/",
-                expectedSnapshotEndpoint: Constants.SnapshotEndpoint);
+                expectedSnapshotEndpoint: Constants.DefaultSnapshotEndpoint);
         }
 
         [TestMethod]
@@ -125,10 +125,10 @@
         {
             var endpoint = new EndpointProvider();
 
-            Assert.AreEqual(Constants.BreezeEndpoint, endpoint.GetEndpoint(EndpointName.Ingestion).AbsoluteUri);
-            Assert.AreEqual(Constants.LiveMetricsEndpoint, endpoint.GetEndpoint(EndpointName.Live).AbsoluteUri);
-            Assert.AreEqual(Constants.ProfilerEndpoint, endpoint.GetEndpoint(EndpointName.Profiler).AbsoluteUri);
-            Assert.AreEqual(Constants.SnapshotEndpoint, endpoint.GetEndpoint(EndpointName.Snapshot).AbsoluteUri);
+            Assert.AreEqual(Constants.DefaultIngestionEndpoint, endpoint.GetEndpoint(EndpointName.Ingestion).AbsoluteUri);
+            Assert.AreEqual(Constants.DefaultLiveMetricsEndpoint, endpoint.GetEndpoint(EndpointName.Live).AbsoluteUri);
+            Assert.AreEqual(Constants.DefaultProfilerEndpoint, endpoint.GetEndpoint(EndpointName.Profiler).AbsoluteUri);
+            Assert.AreEqual(Constants.DefaultSnapshotEndpoint, endpoint.GetEndpoint(EndpointName.Snapshot).AbsoluteUri);
         }
 
         private void RunTest(string connectionString, string expectedBreezeEndpoint, string expectedLiveMetricsEndpoint, string expectedProfilerEndpoint, string expectedSnapshotEndpoint)

@@ -4,8 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using Microsoft.ApplicationInsights.Common.Extensions;
-
     /// <summary>
     /// This class encapsulates parsing a connection string and returning an Endpoint's URI.
     /// </summary>
@@ -44,7 +42,11 @@
 
             set
             {
-                if (value != null && value.Length > ConnectionStringMaxLength)
+                if (value == null)
+                {
+                    throw new ArgumentNullException(nameof(this.ConnectionString));
+                }
+                else if (value.Length > ConnectionStringMaxLength)
                 {
                     // TODO: LOG TO ETW ERROR: Malicious injection guard
                     throw new ArgumentOutOfRangeException($"Values greater than {ConnectionStringMaxLength} characters are not allowed.", nameof(this.ConnectionString));

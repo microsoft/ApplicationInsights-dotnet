@@ -6,19 +6,19 @@
     internal enum EndpointName
     {
         /// <summary>Telemetry ingestion service (aka Breeze).</summary>
-        [EndpointMeta(ExplicitName = "IngestionEndpoint", EndpointPrefix = Constants.BreezePrefix, Default = Constants.BreezeEndpoint)]
+        [EndpointMeta(ExplicitName = "IngestionEndpoint", EndpointPrefix = Constants.IngestionPrefix, Default = Constants.DefaultIngestionEndpoint)]
         Ingestion,
 
         /// <summary>Live Metrics service (aka QuickPulse).</summary>
-        [EndpointMeta(ExplicitName = "LiveEndpoint", EndpointPrefix = Constants.LiveMetricsPrefix, Default = Constants.LiveMetricsEndpoint)]
+        [EndpointMeta(ExplicitName = "LiveEndpoint", EndpointPrefix = Constants.LiveMetricsPrefix, Default = Constants.DefaultLiveMetricsEndpoint)]
         Live,
 
         /// <summary>Application Insights Profiler service.</summary>
-        [EndpointMeta(ExplicitName = "ProfilerEndpoint", EndpointPrefix = Constants.ProfilerPrefix, Default = Constants.ProfilerEndpoint)]
+        [EndpointMeta(ExplicitName = "ProfilerEndpoint", EndpointPrefix = Constants.ProfilerPrefix, Default = Constants.DefaultProfilerEndpoint)]
         Profiler,
 
         /// <summary>Snapshot debugger service.</summary>
-        [EndpointMeta(ExplicitName = "SnapshotEndpoint", EndpointPrefix = Constants.SnapshotPrefix, Default = Constants.SnapshotEndpoint)]
+        [EndpointMeta(ExplicitName = "SnapshotEndpoint", EndpointPrefix = Constants.SnapshotPrefix, Default = Constants.DefaultSnapshotEndpoint)]
         Snapshot,
     }
 }
