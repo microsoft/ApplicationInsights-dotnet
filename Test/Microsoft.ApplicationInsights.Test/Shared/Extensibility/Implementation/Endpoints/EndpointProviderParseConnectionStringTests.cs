@@ -20,17 +20,17 @@
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
         public void TestParseConnectionString_Null()
         {
-            var test = EndpointProvider.ParseConnectionString(null);
-            Assert.AreEqual(0, test.Count);
+            EndpointProvider.ParseConnectionString(null);
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
         public void TestParseConnectionString_Empty()
         {
-            var test = EndpointProvider.ParseConnectionString("");
-            Assert.AreEqual(0, test.Count);
+            EndpointProvider.ParseConnectionString("");
         }
 
         [TestMethod]
@@ -100,7 +100,14 @@
         [ExpectedException(typeof(ConnectionStringInvalidDelimiterException))]
         public void TestParseConnectionString_InvalidDelimiters()
         {
-            EndpointProvider.ParseConnectionString("key1;value1=key2=value2=key3=value3");
+            EndpointProvider.ParseConnectionString("key1;key2=value2");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ConnectionStringInvalidDelimiterException))]
+        public void TestParseConnectionString_InvalidCharInValue()
+        {
+            EndpointProvider.ParseConnectionString("key1=value1=value2");
         }
     }
 }

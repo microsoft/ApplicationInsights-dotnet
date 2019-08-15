@@ -130,30 +130,43 @@
         /// </summary>
         /// <remarks>Example: "key1=value1;key2=value2;key3=value3".</remarks>
         /// <returns>A dictionary parsed from the input connection string.</returns>
-        internal static Dictionary<string, string> ParseConnectionString(string value)
+        internal static Dictionary<string, string> ParseConnectionString(string connectionString)
         {
-            if (string.IsNullOrEmpty(value))
+            if (connectionString == null)
             {
-                return new Dictionary<string, string>(0);
+                // TODO: LOG TO ETW ERROR: connection string null
+                throw new ArgumentNullException(nameof(connectionString));
             }
 
-            try
+            var keyValuePairs = connectionString.Split(SplitSemicolon, StringSplitOptions.RemoveEmptyEntries);
+
+            if (keyValuePairs.Length == 0)
             {
-                return value
-                    .Split(SplitSemicolon, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(part => part.Split('='))
-                    .ToDictionary(split => split[0], split => split[1], StringComparer.OrdinalIgnoreCase);
+                // TODO: LOG TO ETW ERROR: connection string empty
+                throw new ArgumentException("Connection string cannot be empty.");
             }
-            catch (ArgumentException ex) when (ex.Message.StartsWith("An item with the same key has already been added.", StringComparison.Ordinal))
+
+            var dictionary = new Dictionary<string, string>(keyValuePairs.Length, StringComparer.OrdinalIgnoreCase);
+
+            foreach(var pair in keyValuePairs)
             {
-                // TODO: LOG TO ETW ERROR: duplicate keys
-                throw new ConnectionStringDuplicateKeyException("The Connection String has duplicate keys.", ex);
+                var keyAndValue = pair.Split('=');
+                if (keyAndValue.Length != 2)
+                {
+                    // TODO: LOG TO ETW ERROR: connection string invalid format
+                    throw new ConnectionStringInvalidDelimiterException("The Connection String has invalid formatting and cannot be parsed. Expected: 'key1=value1;key2=value2;key3=value3'");
+                }
+
+                if (dictionary.ContainsKey(keyAndValue[0]))
+                {
+                    // TODO: LOG TO ETW ERROR: connection string duplicate key
+                    throw new ConnectionStringDuplicateKeyException($"The Connection String has a duplicate key '{keyAndValue[0]}'.");
+                }
+
+                dictionary.Add(keyAndValue[0], keyAndValue[1]);
             }
-            catch (IndexOutOfRangeException ex) when (ex.Message.StartsWith("Index was outside the bounds of the array.", StringComparison.Ordinal))
-            {
-                // TODO: LOG TO ETW ERROR: connection string invalid format
-                throw new ConnectionStringInvalidDelimiterException("The Connection String has invalid formatting and cannot be parsed. Expected: 'key1=value1;key2=value2;key3=value3'", ex);
-            }
+
+            return dictionary;
         }
 
         /// <summary>
