@@ -182,10 +182,22 @@
         {
             // Location and Host are user input fields and need to be checked for extra periods.
 
-            var uriString = string.Concat("https://"
-                + (string.IsNullOrEmpty(location) ? string.Empty : (location.TrimEnd(TrimPeriod) + "."))
-                + prefix 
-                + "." + suffix.TrimStart(TrimPeriod));
+            if (location != null)
+            {
+                location = location.Trim().TrimEnd(TrimPeriod);
+
+                // Location names are expected to match Azure region names. No special characters allowed.
+                if (!location.All(x => char.IsLetterOrDigit(x)))
+                {
+                    throw new ArgumentException("Location in connection string must not contain special characters.");
+                }
+            }
+
+            var uriString = string.Concat("https://",
+                (string.IsNullOrEmpty(location) ? string.Empty : (location + ".")),
+                prefix,
+                ".",
+                suffix.Trim().TrimStart(TrimPeriod));
 
             return new Uri(uriString);
         }

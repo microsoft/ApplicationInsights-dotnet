@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints
 {
+    using System;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
@@ -41,6 +42,28 @@
                 suffix: "applicationinsights.azure.com");
 
             Assert.AreEqual("https://dc.applicationinsights.azure.com/", uri.AbsoluteUri);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void VerifyGoodAddress_InvalidCharInLocation()
+        {
+            var uri = EndpointProvider.BuildUri(
+                location: "westus2/",
+                prefix: "dc",
+                suffix: "applicationinsights.azure.com");
+        }
+
+
+        [TestMethod]
+        public void VerifyGoodAddress_CanHandleExtraSpaces()
+        {
+            var uri = EndpointProvider.BuildUri(
+                location: " westus2 ",
+                prefix: "dc",
+                suffix: "   applicationinsights.azure.com   ");
+
+            Assert.AreEqual("https://westus2.dc.applicationinsights.azure.com/", uri.AbsoluteUri);
         }
     }
 }
