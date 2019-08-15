@@ -17,7 +17,7 @@
         /// <summary>Default endpoint for Snapshot Debugger.</summary>
         internal const string SnapshotEndpoint = "https://agent.azureserviceprofiler.net/";
 
-        /// <summary>Sub-domain for Breeze endpoint. (https:// dc.applicationinsights.azure.com/).</summary>
+        /// <summary>Sub-domain for Breeze endpoint. (https://dc.applicationinsights.azure.com/).</summary>
         internal const string BreezePrefix = "dc";
 
         /// <summary>Sub-domain for Breeze endpoint. (https:// live.applicationinsights.azure.com/).</summary>
