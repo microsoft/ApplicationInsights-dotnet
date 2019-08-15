@@ -124,7 +124,7 @@
         }
 
         /// <summary>
-        /// Parse a string connection string and return a Dictionary.
+        /// Parse a connection string and return a Dictionary.
         /// </summary>
         /// <remarks>Example: "key1=value1;key2=value2;key3=value3".</remarks>
         /// <returns>A dictionary parsed from the input connection string.</returns>
