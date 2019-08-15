@@ -126,7 +126,7 @@
         }
 
         /// <summary>
-        /// Parse a string connection string and return a Dictionary.
+        /// Parse a connection string and return a Dictionary.
         /// </summary>
         /// <remarks>Example: "key1=value1;key2=value2;key3=value3".</remarks>
         /// <returns>A dictionary parsed from the input connection string.</returns>
@@ -162,7 +162,7 @@
         /// </summary>
         /// <remarks>
         /// Format: "location.prefix.suffix".
-        /// Example: "https:// westus2.dc.applicationinsights.azure.cn/".
+        /// Example: "https://westus2.dc.applicationinsights.azure.cn/".
         /// </remarks>
         /// <returns>Returns a <see cref="Uri"/> built from the inputs.</returns>
         internal static Uri BuildUri(string prefix, string suffix, string location = null)
