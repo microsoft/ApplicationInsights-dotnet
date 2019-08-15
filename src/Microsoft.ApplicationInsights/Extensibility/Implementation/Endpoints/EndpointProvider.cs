@@ -7,7 +7,7 @@
     using Microsoft.ApplicationInsights.Common.Extensions;
 
     /// <summary>
-    /// This class encapsulates parsing a connection string and returning an Endpoint's Uri.
+    /// This class encapsulates parsing a connection string and returning an Endpoint's URI.
     /// </summary>
     internal class EndpointProvider : IEndpointProvider
     {
