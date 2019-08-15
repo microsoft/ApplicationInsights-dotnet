@@ -160,7 +160,7 @@
         /// </summary>
         /// <remarks>
         /// Format: "location.prefix.suffix".
-        /// Example: "https:// westus2.dc.applicationinsights.azure.cn/".
+        /// Example: "https://westus2.dc.applicationinsights.azure.cn/".
         /// </remarks>
         /// <returns>Returns a <see cref="Uri"/> built from the inputs.</returns>
         internal static Uri BuildUri(string prefix, string suffix, string location = null)
