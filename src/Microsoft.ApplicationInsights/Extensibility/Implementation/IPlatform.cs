@@ -1,10 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
-    using System;
-    using System.Collections.Generic;
-    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
     /// Encapsulates platform-specific functionality required by the API.
@@ -24,8 +20,13 @@
         /// </summary>
         IDebugOutput GetDebugOutput();
 
-        // Read environment variable.
-        string GetEnvironmentVariable(string name);
+        /// <summary>
+        /// Find an environment variable by name. Will evaluate if that variable is empty.
+        /// </summary>
+        /// <param name="name">Name of environment variable.</param>
+        /// <param name="value">Contains the value of the specified name.</param>
+        /// <returns>Returns true if a non-empty value was found.</returns>
+        bool TryGetEnvironmentVariable(string name, out string value);
 
         /// <summary>
         /// Returns the machine name.
