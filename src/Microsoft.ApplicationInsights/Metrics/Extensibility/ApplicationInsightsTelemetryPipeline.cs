@@ -6,15 +6,15 @@
 
     using static System.FormattableString;
 
-    /// <summary>@ToDo: Complete documentation before stable release. {628}.</summary>
+    /// <summary>An adapter that represents the Application Insights SDK pipelie towards the Metrics Aggregation SDK subsystem.</summary>
     /// @PublicExposureCandidate
     internal class ApplicationInsightsTelemetryPipeline : IMetricTelemetryPipeline
     {
         private readonly ApplicationInsights.TelemetryClient trackingClient;
         private readonly Task completedTask = Task.FromResult(true);
 
-        /// <summary>@ToDo: Complete documentation before stable release. {763}.</summary>
-        /// <param name="telemetryPipeline">@ToDo: Complete documentation before stable release. {887}.</param>
+        /// <summary>Creaes a new Application Insights telemetry pipeline adapter.</summary>
+        /// <param name="telemetryPipeline">The Application Insights telemetry pipeline to be adapted.</param>
         public ApplicationInsightsTelemetryPipeline(ApplicationInsights.Extensibility.TelemetryConfiguration telemetryPipeline)
         {
             Util.ValidateNotNull(telemetryPipeline, nameof(telemetryPipeline));
@@ -22,8 +22,8 @@
             this.trackingClient = new ApplicationInsights.TelemetryClient(telemetryPipeline);
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {253}.</summary>
-        /// <param name="telemetryClient">@ToDo: Complete documentation before stable release. {017}.</param>
+        /// <summary>Creaes a new Application Insights telemetry pipeline adapter.</summary>
+        /// <param name="telemetryClient">The Application Insights telemetry pipeline to be adapted.</param>
         public ApplicationInsightsTelemetryPipeline(ApplicationInsights.TelemetryClient telemetryClient)
         {
             Util.ValidateNotNull(telemetryClient, nameof(telemetryClient));
@@ -31,10 +31,16 @@
             this.trackingClient = telemetryClient;
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {017}.</summary>
-        /// <param name="metricAggregate">@ToDo: Complete documentation before stable release. {043}.</param>
-        /// <param name="cancelToken">@ToDo: Complete documentation before stable release. {921}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {373}.</returns>
+        /// <summary>
+        /// Send a metric aggregate to the cloud using the local Application Insights pipeline.
+        /// </summary>
+        /// <param name="metricAggregate">The aggregate.</param>
+        /// <param name="cancelToken">Cancellation is not supported by the underlying pipeline, but it is respected be this method.</param>
+        /// <exception cref="ArgumentNullException">The specified <c>metricAggregate</c> is null.</exception>
+        /// <exception cref="ArgumentException">The runtime class of the specified <c>metricAggregate</c> does not match the
+        ///     telemetry destination type represented by this instance of <c>IMetricTelemetryPipeline</c>.</exception>
+        /// <exception cref="OperationCanceledException">The specified <c>cancelToken</c> has had cancellation requested.</exception>
+        /// <returns>The task representing the Track operation.</returns>
         public Task TrackAsync(MetricAggregate metricAggregate, CancellationToken cancelToken)
         {
             Util.ValidateNotNull(metricAggregate, nameof(metricAggregate));
@@ -63,9 +69,9 @@
             return this.completedTask;
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {935}.</summary>
-        /// <param name="cancelToken">@ToDo: Complete documentation before stable release. {490}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {817}.</returns>
+        /// <summary>Flushes the Application Insights pipeline used by this adaptor.</summary>
+        /// <param name="cancelToken">Cancellation is not supported by the underlying pipeline, but it is respected be this method.</param>
+        /// <returns>The task representing the Flush operation.</returns>
         public Task FlushAsync(CancellationToken cancelToken)
         {
             cancelToken.ThrowIfCancellationRequested();

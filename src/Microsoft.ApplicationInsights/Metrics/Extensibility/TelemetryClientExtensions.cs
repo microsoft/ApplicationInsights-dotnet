@@ -9,15 +9,27 @@
 
     using static System.FormattableString;
 
-    /// <summary>@ToDo: Complete documentation before stable release. {526}.</summary>
+    /// <summary>Metric related extension methods for the <c>TelemetryClient</c>.
+    /// Note that these APIs are in the ...Extensibility namespace and do not pollute the API surfact for users who do not import it.</summary>
     public static class TelemetryClientExtensions
     {
         private static ConditionalWeakTable<TelemetryClient, MetricManager> metricManagersForTelemetryClients;
 
-        /// <summary>@ToDo: Complete documentation before stable release. {811}.</summary>
-        /// <param name="telemetryClient">@ToDo: Complete documentation before stable release. {225}.</param>
-        /// <param name="aggregationScope">@ToDo: Complete documentation before stable release. {281}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {736}.</returns>
+        /// <summary>Gets the <c>MetricManager</c> for this <c>TelemetryClient</c> at the specified scope.
+        /// Of a metric manager does not exist at the specified scope, it is created.</summary>
+        /// <param name="telemetryClient">The telemetry client for which to get the metric manager.</param>
+        /// <param name="aggregationScope">If <c>MetricAggregationScope.TelemetryClient</c> is specified,
+        /// the metric manager specific to this client is returned. Such manager aggregates metrics for this
+        /// client object only. Two metrics with exactly the same id, namespace and dimensions would be aggregated
+        /// separately for different telemetry client objects when this scope is used.<br />
+        /// If <c>MetricAggregationScope.TelemetryConfiguration</c> is specified,
+        /// the metric manager for the telemetry configuration of this client is returned. Such manager aggregates
+        /// metrics for all clients that use that telemetry configuration. Two metrics with exactly the same id,
+        /// namespace and dimensions would be aggregated together for different telemetry client objects that use
+        /// the same telemetry configuration when this scope is used. <br/>
+        /// <seealso cref="MetricAggregationScope"/>
+        /// </param>
+        /// <returns>The metric manager for this telemetry client at the specified scope.</returns>
         public static MetricManager GetMetricManager(this TelemetryClient telemetryClient, MetricAggregationScope aggregationScope)
         {
             Util.ValidateNotNull(telemetryClient, nameof(telemetryClient));

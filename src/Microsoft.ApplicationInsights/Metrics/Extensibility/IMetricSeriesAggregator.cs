@@ -2,42 +2,46 @@
 {
     using System;
 
-    /// <summary>@ToDo: Complete documentation before stable release. {558}.</summary>
+    /// <summary>The abstraction for a metric aggregator.
+    /// An aggregator is a data processing type that inspects all values tracked for a metric series across an aggregation
+    /// period and creates an aggregate that summarizes the period when it is completed. The most common aggregator is
+    /// the <see cref="MeasurementAggregator"/>, which produces aggregates that contain the Min, Max, Sum and
+    /// Count of values tracked over the aggregation time period.</summary>
     public interface IMetricSeriesAggregator
     {
-        /// <summary>Gets @ToDo: Complete documentation before stable release. {969}.</summary>
+        /// <summary>Data seres aggregated by this aggregator.</summary>
         MetricSeries DataSeries { get; }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {792}.</summary>
-        /// <returns>@ToDo: Complete documentation before stable release. {235}.</returns>
+        /// <summary>Attempts to reset this aggregator so it ban be reused for a new aggregation period.</summary>
+        /// <returns>Whether the reset was successful (if not, this aggregator may not be reused).</returns>
         bool TryRecycle();
 
-        /// <summary>@ToDo: Complete documentation before stable release. {246}.</summary>
-        /// <param name="periodStart">@ToDo: Complete documentation before stable release. {781}.</param>
-        /// <param name="valueFilter">@ToDo: Complete documentation before stable release. {567}.</param>
+        /// <summary>Resets this aggregator and prepares it for a new aggregation period.</summary>
+        /// <param name="periodStart">The start of the new aggregation period.</param>
+        /// <param name="valueFilter">The filter for the values to be used.</param>
         /// @PublicExposureCandidate
         void Reset(DateTimeOffset periodStart, IMetricValueFilter valueFilter);
 
-        /// <summary>@ToDo: Complete documentation before stable release. {734}.</summary>
-        /// <param name="periodStart">@ToDo: Complete documentation before stable release. {299}.</param>
+        /// <summary>Resets this aggregator and prepares it for a new aggregation period.</summary>
+        /// <param name="periodStart">The start of the new aggregation period.</param>
         void Reset(DateTimeOffset periodStart);
 
-        /// <summary>@ToDo: Complete documentation before stable release. {099}.</summary>
-        /// <param name="periodEnd">@ToDo: Complete documentation before stable release. {193}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {573}.</returns>
+        /// <summary>Wraps up the ongping aggregation period and procudes the resulting aggregate.</summary>
+        /// <param name="periodEnd">The end timestamp of the period.</param>
+        /// <returns>The aggregate containing the sumary of the completed period.</returns>
         MetricAggregate CompleteAggregation(DateTimeOffset periodEnd);
 
-        /// <summary>@ToDo: Complete documentation before stable release. {221}.</summary>
-        /// <param name="periodEnd">@ToDo: Complete documentation before stable release. {203}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {615}.</returns>
+        /// <summary>Creates the aggregate for the ongoing aggregation period without completing the period. May not be thread safe.</summary>
+        /// <param name="periodEnd">The ent timestamp for the aggregate.</param>
+        /// <returns>An aggregate representing the ongoing period so far.</returns>
         MetricAggregate CreateAggregateUnsafe(DateTimeOffset periodEnd);
 
-        /// <summary>@ToDo: Complete documentation before stable release. {574}.</summary>
-        /// <param name="metricValue">@ToDo: Complete documentation before stable release. {887}.</param>
+        /// <summary>Adds a value to the aggregation.</summary>
+        /// <param name="metricValue">Metric value to be tracked.</param>
         void TrackValue(double metricValue);
 
-        /// <summary>@ToDo: Complete documentation before stable release. {206}.</summary>
-        /// <param name="metricValue">@ToDo: Complete documentation before stable release. {266}.</param>
+        /// <summary>Adds a value to the aggregation.</summary>
+        /// <param name="metricValue">Metric value to be tracked.</param>
         void TrackValue(object metricValue);
     }
 }

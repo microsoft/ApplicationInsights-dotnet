@@ -8,7 +8,7 @@
 
     using static System.FormattableString;
 
-    /// <summary>@ToDo: Complete documentation before stable release. {574}.</summary>
+    /// <summary>A very fast, lock free, unordered collection to which items can be added, but never removed.</summary>
     /// <typeparam name="T">Type of collection elements.</typeparam>
     internal class GrowingCollection<T> : IEnumerable<T>
     {
@@ -16,13 +16,13 @@
 
         private Segment dataHead;
 
-        /// <summary>@ToDo: Complete documentation before stable release. {371}.</summary>
+        /// <summary>Creates a new <c>GrowingCollection</c>.</summary>
         public GrowingCollection()
         {
             this.dataHead = new Segment(null);
         }
 
-        /// <summary>Gets @ToDo: Complete documentation before stable release. {072}.</summary>
+        /// <summary>Gets the current number of items in the collection.</summary>
         public int Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -33,8 +33,8 @@
             }
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {146}.</summary>
-        /// <param name="item">@ToDo: Complete documentation before stable release. {688}.</param>
+        /// <summary>Adds an item to the collection.</summary>
+        /// <param name="item">Item to be added.</param>
         public void Add(T item)
         {
             Segment currHead = Volatile.Read(ref this.dataHead);
@@ -50,8 +50,9 @@
             }
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {508}.</summary>
-        /// <returns>@ToDo: Complete documentation before stable release. {325}.</returns>
+        /// <summary>Gets an enumerator over this colletion. No particular element order is guaranteed.
+        /// The enumerator is resilient to concurrent additions to the collection.</summary>
+        /// <returns>A new enumerator that will cover all items already in the collection.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public GrowingCollection<T>.Enumerator GetEnumerator()
         {
@@ -59,14 +60,18 @@
             return enumerator;
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {563}.</summary>
-        /// <returns>@ToDo: Complete documentation before stable release. {016}.</returns>
+        /// <summary>Gets an enumerator over this colletion. No particular element order is guaranteed.
+        /// The enumerator is resilient to concurrent additions to the collection.</summary>
+        /// <returns>A new enumerator that will cover all items already in the collection.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
         }
 
+        /// <summary>Gets an enumerator over this colletion. No particular element order is guaranteed.
+        /// The enumerator is resilient to concurrent additions to the collection.</summary>
+        /// <returns>A new enumerator that will cover all items already in the collection.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
@@ -75,7 +80,9 @@
 
         #region class Enumerator 
 
-        /// <summary>@ToDo: Complete documentation before stable release. {671}.</summary>
+        /// <summary>An enumerator implementation for a <see cref="GrowingCollection{T}"/>.
+        /// The enumerator is resilient to concurrent additions to the collection.
+        /// No particular element order is guaranteed.</summary>
         public class Enumerator : IEnumerator<T>
         {
             private readonly Segment head;
@@ -93,7 +100,7 @@
                 this.count = this.headOffset + (this.head.NextSegment == null ? 0 : this.head.NextSegment.GlobalCount);
             }
 
-            /// <summary>Gets @ToDo: Complete documentation before stable release. {648}.</summary>
+            /// <summary>Gets the total number of elements returned by this enumerator.</summary>
             public int Count
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -103,7 +110,7 @@
                 }
             }
 
-            /// <summary>Gets @ToDo: Complete documentation before stable release. {314}.</summary>
+            /// <summary>Gets the current element.</summary>
             public T Current
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -122,7 +129,7 @@
                 }
             }
 
-            /// <summary>@ToDo: Complete documentation before stable release. {941}.</summary>
+            /// <summary>DIsposes this enumerator.</summary>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Dispose()
             {
@@ -130,8 +137,8 @@
                 GC.SuppressFinalize(this);
             }
 
-            /// <summary>@ToDo: Complete documentation before stable release. {168}.</summary>
-            /// <returns>@ToDo: Complete documentation before stable release. {185}.</returns>
+            /// <summary>Move to the next element in the underlying colection.</summary>
+            /// <returns>The next element in the underlying collection.</returns>
             public bool MoveNext()
             {
                 if (this.currentSegmentOffset == 0)
@@ -154,7 +161,7 @@
                 }
             }
 
-            /// <summary>@ToDo: Complete documentation before stable release. {307}.</summary>
+            /// <summary>Restarts this enumerator to the same state as it was created in.</summary>
             public void Reset()
             {
                 this.currentSegment = this.head;

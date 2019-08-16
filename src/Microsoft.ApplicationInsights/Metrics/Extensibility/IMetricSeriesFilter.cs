@@ -2,14 +2,14 @@
 {
     using System;
 
-    /// <summary>@ToDo: Complete documentation before stable release. {339}.</summary>
+    /// <summary>A filter that determines whether a series is being tracked.</summary>
     /// @PublicExposureCandidate
     internal interface IMetricSeriesFilter
     {
-        /// <summary>@ToDo: Complete documentation before stable release. {600}.</summary>
-        /// <param name="dataSeries">@ToDo: Complete documentation before stable release. {025}.</param>
-        /// <param name="valueFilter">@ToDo: Complete documentation before stable release. {050}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {100}.</returns>
+        /// <summary>Determine if a series is being tracked and fetch the rspective value filter.</summary>
+        /// <param name="dataSeries">A metric data series.</param>
+        /// <param name="valueFilter">A values filter used for this series (if any) or <c>null</c>.</param>
+        /// <returns>WHether a series is being tracked.</returns>
         bool WillConsume(MetricSeries dataSeries, out IMetricValueFilter valueFilter);
     }
 }
