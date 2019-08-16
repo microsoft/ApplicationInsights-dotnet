@@ -4,6 +4,7 @@
     using System.Diagnostics;
     using System.Globalization;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
 
     /// <summary>
     /// Operation class that holds the telemetry item and the corresponding telemetry client.
@@ -68,7 +69,9 @@
                         isActivityAvailable = ActivityExtensions.TryRun(() =>
                         {
                             var currentActivity = Activity.Current;
-                            if (currentActivity == null || operationTelemetry.Id != currentActivity.Id)
+                            if (currentActivity == null 
+                            || (Activity.DefaultIdFormat != ActivityIdFormat.W3C && operationTelemetry.Id != currentActivity.Id) 
+                            || (Activity.DefaultIdFormat == ActivityIdFormat.W3C && operationTelemetry.Id != W3CActivityExtensions.FormatTelemetryId(currentActivity.TraceId.ToHexString(), currentActivity.SpanId.ToHexString()) ))
                             {
                                 // W3COperationCorrelationTelemetryInitializer changes Id
                                 // but keeps an original one in 'ai_legacyRequestId' property

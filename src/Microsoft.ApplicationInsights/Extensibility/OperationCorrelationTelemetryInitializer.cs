@@ -1,61 +1,94 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
+    using System;
     using System.Diagnostics;
 
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
 
+    /// <summary>
+    /// Telemetry initializer that populates OperationContext for the telemetry item from Activity.
+    /// </summary>
 #if NET45
-    /// <summary>
-    /// Telemetry initializer that populates OperationContext for the telemetry item based on context stored in CallContext.
-    /// </summary>
+    /// <remarks>
+    /// Internally based on context stored in CallContext.
+    /// </remarks>        
 #else
-    /// <summary>
-    /// Telemetry initializer that populates OperationContext for the telemetry item based on context stored in an AsyncLocal variable.
-    /// </summary>
+    /// <remarks>
+    /// Internally based on context stored in an AsyncLocal variable.
+    /// <remarks>
 #endif
     public class OperationCorrelationTelemetryInitializer : ITelemetryInitializer
     {
         /// <summary>
-        /// Initializes/Adds operation id to the existing telemetry item.
+        /// Initializes/Adds operation context to the existing telemetry item.
         /// </summary>
-        /// <param name="telemetryItem">Target telemetry item to add operation id.</param>
+        /// <param name="telemetryItem">Target telemetry item to add operation context.</param>
         public void Initialize(ITelemetry telemetryItem)
         {
-            var itemContext = telemetryItem.Context.Operation;
-            var telemetryProp = telemetryItem as ISupportProperties;
+            var itemOperationContext = telemetryItem.Context.Operation;
+            var telemetryProp = telemetryItem as ISupportProperties;            
+
             bool isActivityAvailable = false;
             isActivityAvailable = ActivityExtensions.TryRun(() =>
-            { 
+            {
                 var currentActivity = Activity.Current;
                 if (currentActivity != null)
                 {
-                    if (string.IsNullOrEmpty(itemContext.Id))
+                    if (currentActivity.IdFormat == ActivityIdFormat.W3C)
                     {
-                        itemContext.Id = currentActivity.RootId;
-
-                        if (string.IsNullOrEmpty(itemContext.ParentId))
+                        if (string.IsNullOrEmpty(itemOperationContext.Id))
                         {
-                            itemContext.ParentId = currentActivity.Id;
-                        }
+                            // Set OperationID to Activity.TraceId
+                            // itemOperationContext.Id = currentActivity.RootId; // heck if this can be used
+                            itemOperationContext.Id = currentActivity.TraceId.ToHexString();
 
-                        foreach (var baggage in currentActivity.Baggage)
-                        {
-                            if (telemetryProp != null && !telemetryProp.Properties.ContainsKey(baggage.Key))
+                            // Set OperationParentID to ID of parent constructed from traceid, spand id.
+                            // ID for auto collected Request,Dependency are made from trace id + span id, so parentid must be set to the same format.
+                            if (string.IsNullOrEmpty(itemOperationContext.ParentId))
                             {
-                                telemetryProp.Properties.Add(baggage);
+                                itemOperationContext.ParentId = W3CActivityExtensions.FormatTelemetryId(itemOperationContext.Id, currentActivity.SpanId.ToHexString());
+                            }
+
+                            foreach (var baggage in currentActivity.Baggage)
+                            {
+                                if (telemetryProp != null && !telemetryProp.Properties.ContainsKey(baggage.Key))
+                                {
+                                    telemetryProp.Properties.Add(baggage);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (string.IsNullOrEmpty(itemOperationContext.Id))
+                        {
+                            itemOperationContext.Id = currentActivity.RootId;
+
+                            if (string.IsNullOrEmpty(itemOperationContext.ParentId))
+                            {
+                                itemOperationContext.ParentId = currentActivity.Id;
+                            }
+
+                            foreach (var baggage in currentActivity.Baggage)
+                            {
+                                if (telemetryProp != null && !telemetryProp.Properties.ContainsKey(baggage.Key))
+                                {
+                                    telemetryProp.Properties.Add(baggage);
+                                }
                             }
                         }
                     }
 
-                    if (string.IsNullOrEmpty(itemContext.Name))
+                    if (string.IsNullOrEmpty(itemOperationContext.Name))
                     {
                         string operationName = currentActivity.GetOperationName();
                         if (!string.IsNullOrEmpty(operationName))
                         {
-                            itemContext.Name = operationName;
+                            itemOperationContext.Name = operationName;
                         }
                     }
                 }
@@ -63,27 +96,27 @@
 
             if (!isActivityAvailable)
             {
-                if (string.IsNullOrEmpty(itemContext.ParentId) || string.IsNullOrEmpty(itemContext.Id) || string.IsNullOrEmpty(itemContext.Name))
+                if (string.IsNullOrEmpty(itemOperationContext.ParentId) || string.IsNullOrEmpty(itemOperationContext.Id) || string.IsNullOrEmpty(itemOperationContext.Name))
                 {
                     var parentContext = CallContextHelpers.GetCurrentOperationContext();
                     if (parentContext != null)
                     {
-                        if (string.IsNullOrEmpty(itemContext.ParentId)
+                        if (string.IsNullOrEmpty(itemOperationContext.ParentId)
                             && !string.IsNullOrEmpty(parentContext.ParentOperationId))
                         {
-                            itemContext.ParentId = parentContext.ParentOperationId;
+                            itemOperationContext.ParentId = parentContext.ParentOperationId;
                         }
 
-                        if (string.IsNullOrEmpty(itemContext.Id)
+                        if (string.IsNullOrEmpty(itemOperationContext.Id)
                             && !string.IsNullOrEmpty(parentContext.RootOperationId))
                         {
-                            itemContext.Id = parentContext.RootOperationId;
+                            itemOperationContext.Id = parentContext.RootOperationId;
                         }
 
-                        if (string.IsNullOrEmpty(itemContext.Name)
+                        if (string.IsNullOrEmpty(itemOperationContext.Name)
                             && !string.IsNullOrEmpty(parentContext.RootOperationName))
                         {
-                            itemContext.Name = parentContext.RootOperationName;
+                            itemOperationContext.Name = parentContext.RootOperationName;
                         }
 
                         if (parentContext.CorrelationContext != null)

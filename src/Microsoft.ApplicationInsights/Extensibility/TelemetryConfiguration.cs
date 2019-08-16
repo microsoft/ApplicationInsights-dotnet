@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
@@ -27,6 +28,7 @@
 
         private static object syncRoot = new object();
         private static TelemetryConfiguration active;
+        private bool enableW3c;
 
         private readonly SnapshottingList<ITelemetryInitializer> telemetryInitializers = new SnapshottingList<ITelemetryInitializer>();
         private readonly TelemetrySinkCollection telemetrySinks = new TelemetrySinkCollection();
@@ -74,6 +76,7 @@
             var defaultSink = new TelemetrySink(this, channel);
             defaultSink.Name = "default";
             this.telemetrySinks.Add(defaultSink);
+            this.EnableW3CCorrelation = true;            
         }
 
         /// <summary>
@@ -166,6 +169,34 @@
                 }
 
                 this.disableTelemetry = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a flag indicating whether W3C based correlation is enabled.
+        /// </summary>
+        public bool EnableW3CCorrelation
+        {
+            get
+            {
+                return enableW3c;
+            }
+            set
+            {
+                enableW3c = value;
+                ActivityExtensions.TryRun(() =>
+                {
+                    if (enableW3c)
+                    {
+                        Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+                        Activity.ForceDefaultIdFormat = true;
+                    }
+                    else
+                    {
+                        Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+                        Activity.ForceDefaultIdFormat = true;
+                    }
+                });
             }
         }
 

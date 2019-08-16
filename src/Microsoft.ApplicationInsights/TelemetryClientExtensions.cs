@@ -7,6 +7,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
 
     /// <summary>
     /// Extension class to telemetry client that creates operation object with the respective fields initialized.
@@ -53,6 +54,10 @@
 
             if (string.IsNullOrEmpty(operationTelemetry.Context.Operation.Id) && !string.IsNullOrEmpty(operationId))
             {
+                if (Activity.DefaultIdFormat == ActivityIdFormat.W3C && !W3CActivityExtensions.IsCompatibleW3CTraceID(operationId))
+                {
+                        operationTelemetry.Properties.Add(W3CConstants.LegacyRootIdProperty, operationId);
+                }
                 operationTelemetry.Context.Operation.Id = operationId;
             }
 
@@ -133,11 +138,29 @@
                 if (parentActivity == null)
                 {
                     // telemetryContext.Id is always set: if it was null, it is set to opTelemetry.Id and opTelemetry.Id is never null
-                    operationActivity.SetParentId(telemetryContext.Id);
+                    if (Activity.DefaultIdFormat == ActivityIdFormat.W3C) //w3c and telemetryContext.Id is w3c compatible)
+                    {
+                        if(W3CActivityExtensions.IsCompatibleW3CTraceID(telemetryContext.Id))
+                        {
+                            operationActivity.SetParentId(ActivityTraceId.CreateFromString(telemetryContext.Id.AsSpan()), ActivitySpanId.CreateRandom());
+                        }
+                    }
+                    else
+                    {
+                        operationActivity.SetParentId(telemetryContext.Id);
+                    }
                 }
 
                 operationActivity.Start();
-                operationTelemetry.Id = operationActivity.Id;
+                if (operationActivity.IdFormat == ActivityIdFormat.W3C)
+                {
+                    operationTelemetry.Id = W3CActivityExtensions.FormatTelemetryId(operationActivity.TraceId.ToHexString(), operationActivity.SpanId.ToHexString());
+                    operationTelemetry.Context.Operation.Id = operationActivity.TraceId.ToHexString();
+                }
+                else
+                {
+                    operationTelemetry.Id = operationActivity.Id;
+                }
             });
 
             var operationHolder = new OperationHolder<T>(telemetryClient, operationTelemetry);

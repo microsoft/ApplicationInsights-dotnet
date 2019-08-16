@@ -285,17 +285,17 @@
                     return;
                 }
 #endif
-                opTelemetry.Id = FormatRequestId(telemetry.Context.Operation.Id, spanId);
+                opTelemetry.Id = FormatTelemetryId(telemetry.Context.Operation.Id, spanId);
                 if (parentSpanId != null)
                 {
                     telemetry.Context.Operation.ParentId =
-                        FormatRequestId(telemetry.Context.Operation.Id, parentSpanId);
+                        FormatTelemetryId(telemetry.Context.Operation.Id, parentSpanId);
                 }
             }
             else
             {
                 telemetry.Context.Operation.ParentId =
-                    FormatRequestId(telemetry.Context.Operation.Id, spanId);
+                    FormatTelemetryId(telemetry.Context.Operation.Id, spanId);
             }
 
             if (opTelemetry != null)
@@ -377,9 +377,14 @@
         }
 #endif
 
-        private static string FormatRequestId(string traceId, string spanId)
+        public static string FormatTelemetryId(string traceId, string spanId)
         {
             return string.Concat("|", traceId, ".", spanId, ".");
+        }
+
+        public static bool IsCompatibleW3CTraceID(string traceId)
+        {
+            return TraceIdRegex.IsMatch(traceId);
         }
     }
 }

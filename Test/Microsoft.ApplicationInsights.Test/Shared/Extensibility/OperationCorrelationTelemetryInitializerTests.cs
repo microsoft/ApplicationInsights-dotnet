@@ -1,44 +1,182 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
     using System.Diagnostics;
+    using System.Linq;
     using Implementation;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class OperationCorrelationTelemetryInitializerTests
     {
+        private static TelemetryConfiguration tc;
+
+        [ClassInitialize]
+        public static void Init(TestContext ctx)
+        {
+            // Constructor on TelemetryConfiguration forces Activity.IDFormat to be W3C
+            // OperationCorrelationTelemetryInitializer has no responsibility to set the Activity Format.
+            // It expects Activity to use W3CFormat, but falls back to use Hierrarchial Id.
+            tc = new TelemetryConfiguration();
+        }
+
+        [TestInitialize]
+        public void TestInit()
+        {
+            tc.EnableW3CCorrelation = true;
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            while (Activity.Current != null)
+            {
+                Activity.Current.Stop();
+            }
+        }
+
         [TestMethod]
         public void InitializerDoesNotFailOnNullCurrentActivity()
         {
+            // Arrange
+            // Does not start Activity.
+            
             var telemetry = new DependencyTelemetry();
+
+            // Act
             (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
+
+            // Validate
+            // Initialize is a no-op, and no exceptions thrown.
+            Assert.IsNull(telemetry.Context.Operation.Id);
             Assert.IsNull(telemetry.Context.Operation.ParentId);
+            Assert.IsFalse(telemetry.Properties.Any());
         }
 
         [TestMethod]
-        public void TelemetryContextIsUpdatedWithOperationIdForDependencyTelemetry()
+        public void InitializePopulatesOperationContextFromActivity()
         {
-            Activity parent = new Activity("parent").SetParentId("ParentOperationId").Start();
+            // Arrange
+            Activity activity = new Activity("somename");
+            activity.Start();
+            var telemetry = new DependencyTelemetry();
+            var originalTelemetryId = telemetry.Id;
+
+            // Act
+            var initializer = new OperationCorrelationTelemetryInitializer();            
+            initializer.Initialize(telemetry);
+
+            // Validate
+            Assert.AreEqual(activity.TraceId.ToHexString(), telemetry.Context.Operation.Id, "OperationCorrelationTelemetryInitializer is expected to populate OperationID from Activity");
+            Assert.AreEqual(W3CActivityExtensions.FormatTelemetryId(activity.TraceId.ToHexString(), activity.SpanId.ToHexString()), 
+                telemetry.Context.Operation.ParentId,
+                "OperationCorrelationTelemetryInitializer is expected to populate Operation ParentID as |traceID.SpanId. from Activity");
+            Assert.AreEqual(originalTelemetryId, telemetry.Id, "OperationCorrelationTelemetryInitializer is not expected to modify Telemetry ID");
+            activity.Stop();
+        }
+
+        [TestMethod]
+        public void InitializePopulatesOperationContextFromActivityWhenW3CIsDisabled()
+        {
+            // Arrange
+            tc.EnableW3CCorrelation = false;            
+            Activity parent = new Activity("parent");
+
+            // Setting parentid like this forces Activity to use Hierrachial ID Format
+            parent.SetParentId("parent");
+            parent.Start();
 
             var telemetry = new DependencyTelemetry();
-            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
+            var initializer = new OperationCorrelationTelemetryInitializer();
 
-            Assert.AreEqual("ParentOperationId", telemetry.Context.Operation.Id);
+            // Act
+            initializer.Initialize(telemetry);
+
+            // Validate
+            Assert.AreEqual("parent", telemetry.Context.Operation.Id);
             Assert.AreEqual(parent.Id, telemetry.Context.Operation.ParentId);
-            parent.Stop();
+            parent.Stop();            
         }
 
         [TestMethod]
-        public void InitializeDoesNotUpdateOperationIdIfItExists()
+        public void InitializeDoesNotOverrideOperationIdIfItExists()
         {
-            Activity parent = new Activity("parent").SetParentId("ParentOperationId").Start();
-
+            // Arrange
             var telemetry = new DependencyTelemetry();
             telemetry.Context.Operation.ParentId = "OldParentOperationId";
-            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
+            telemetry.Context.Operation.Id = "OldOperationId";
+            var initializer = new OperationCorrelationTelemetryInitializer();
+            Activity parent = new Activity("parent");
+            parent.Start();
+
+            // Act
+            initializer.Initialize(telemetry);
+
+            // Validate
             Assert.AreEqual("OldParentOperationId", telemetry.Context.Operation.ParentId);
+            Assert.AreEqual("OldOperationId", telemetry.Context.Operation.Id);            
             parent.Stop();
+        }
+
+        [TestMethod]
+        public void InitializeDoesNotOverrideEmptyParentIdIfOperationIdExists()
+        {
+            // Arrange
+            var telemetry = new DependencyTelemetry();
+            telemetry.Context.Operation.Id = "OldOperationId";
+            // Does not set parentid and hence it'll be empty
+            var initializer = new OperationCorrelationTelemetryInitializer();
+            Activity parent = new Activity("parent");
+            parent.Start();
+
+            initializer.Initialize(telemetry);
+
+            Assert.IsNull(telemetry.Context.Operation.ParentId, "Operation.ParentID should not be overwritten when Operation.ID is already present");
+            Assert.AreEqual("OldOperationId", telemetry.Context.Operation.Id, "Operation should not be overwritten");
+            parent.Stop();
+        }
+
+        [TestMethod]
+        public void InitializeDoesntOverrideContextIfOperationIdSet()
+        {
+            var currentActivity = new Activity("test");
+            currentActivity.AddTag("OperationName", "operation");
+            currentActivity.AddBaggage("k1", "v1");
+            currentActivity.AddBaggage("k2", "v2");
+            currentActivity.Start();
+            var telemetry = new RequestTelemetry();
+            telemetry.Context.Operation.Id = "operationId";
+            telemetry.Context.Operation.ParentId = null;
+            telemetry.Context.Operation.Name = "operation";
+            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
+
+            Assert.AreEqual("operationId", telemetry.Context.Operation.Id);
+            Assert.IsNull(telemetry.Context.Operation.ParentId);
+            Assert.AreEqual("operation", telemetry.Context.Operation.Name);
+            Assert.AreEqual(0, telemetry.Properties.Count);
+            currentActivity.Stop();
+        }
+
+        [TestMethod]
+        public void InitializeOverridesContextIfOperationIdIsNotSet()
+        {
+            var currentActivity = new Activity("test");
+            currentActivity.AddTag("OperationName", "operation");
+            currentActivity.AddBaggage("k1", "v1");
+            currentActivity.Start();
+            var telemetry = new TraceTelemetry();
+
+            telemetry.Context.Operation.ParentId = "parentId";
+            telemetry.Context.Operation.Name = "operation";
+            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
+
+            Assert.AreEqual(currentActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+            Assert.AreEqual("parentId", telemetry.Context.Operation.ParentId);
+            Assert.AreEqual("operation", telemetry.Context.Operation.Name);
+            Assert.AreEqual(1, telemetry.Properties.Count);
+            Assert.AreEqual("v1", telemetry.Properties["k1"]);
+            currentActivity.Stop();
         }
 
         [TestMethod]
@@ -55,7 +193,7 @@
         }
 
         [TestMethod]
-        public void InitilaizeWithActivityWithoutOperationName()
+        public void InitializeWithActivityWithoutOperationName()
         {
             var currentActivity = new Activity("test");
             currentActivity.Start();
@@ -64,6 +202,20 @@
             (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
 
             Assert.IsNull(telemetry.Context.Operation.Name);
+            currentActivity.Stop();
+        }
+
+        [TestMethod]
+        public void InitializeWithActivityWithOperationName()
+        {
+            var currentActivity = new Activity("test");
+            currentActivity.AddTag("OperationName", "OperationName");
+            currentActivity.Start();
+            var telemetry = new RequestTelemetry();
+
+            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
+
+            Assert.AreEqual("OperationName", telemetry.Context.Operation.Name);
             currentActivity.Stop();
         }
 
@@ -78,32 +230,31 @@
             telemetry.Context.Operation.Name = "OldOperationName";
             (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
 
-            Assert.AreEqual(telemetry.Context.Operation.Name, "OldOperationName");
+            Assert.AreEqual("OldOperationName",telemetry.Context.Operation.Name);
             parent.Stop();
         }
 
         [TestMethod]
-        public void InitilaizeWithActivitySetsOperationContext()
+        public void InitializeSetsBaggage()
         {
             var currentActivity = new Activity("test");
-            currentActivity.SetParentId("parent");
             currentActivity.AddTag("OperationName", "operation");
             currentActivity.AddBaggage("k1", "v1");
             currentActivity.AddBaggage("k2", "v2");
+            currentActivity.AddBaggage("existingkey", "exitingvalue");
             currentActivity.Start();
             var telemetry = new RequestTelemetry();
+            telemetry.Properties.Add("existingkey", "exitingvalue");
             (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
 
-            Assert.AreEqual("parent", telemetry.Context.Operation.Id);
-            Assert.AreEqual(currentActivity.Id, telemetry.Context.Operation.ParentId);
-            Assert.IsTrue(telemetry.Context.Operation.ParentId.StartsWith("|parent."));
+            Assert.AreEqual(currentActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+            Assert.AreEqual(W3CActivityExtensions.FormatTelemetryId(currentActivity.TraceId.ToHexString(), currentActivity.SpanId.ToHexString()), telemetry.Context.Operation.ParentId);
             Assert.AreEqual("operation", telemetry.Context.Operation.Name);
 
-#pragma warning disable CS0618 // Type or member is obsolete
-            Assert.AreEqual(2, telemetry.Context.Properties.Count);
-            Assert.AreEqual("v1", telemetry.Context.Properties["k1"]);
-            Assert.AreEqual("v2", telemetry.Context.Properties["k2"]);
-#pragma warning restore CS0618 // Type or member is obsolete
+            Assert.AreEqual(3, telemetry.Properties.Count);
+            Assert.AreEqual("v1", telemetry.Properties["k1"]);
+            Assert.AreEqual("v2", telemetry.Properties["k2"]);
+            Assert.AreEqual("exitingvalue", telemetry.Properties["existingkey"], "OperationCorrelationTelemetryInitializer should not override existing telemetry property bag");
             currentActivity.Stop();
         }
 
@@ -112,61 +263,15 @@
         {
             CallContextHelpers.SaveOperationContext(new OperationContextForCallContext { RootOperationId = "callContextRoot" });
             var currentActivity = new Activity("test");
-            currentActivity.SetParentId("activityRoot");
             currentActivity.AddTag("OperationName", "operation");
             currentActivity.AddBaggage("k1", "v1");
             currentActivity.Start();
             var telemetry = new RequestTelemetry();
             (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
 
-            Assert.AreEqual("activityRoot", telemetry.Context.Operation.Id);
-            Assert.AreEqual(currentActivity.Id, telemetry.Context.Operation.ParentId);
-            Assert.IsTrue(telemetry.Context.Operation.ParentId.StartsWith("|activityRoot."));
+            Assert.AreEqual(currentActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+            Assert.AreEqual(W3CActivityExtensions.FormatTelemetryId(currentActivity.TraceId.ToHexString(), currentActivity.SpanId.ToHexString()), telemetry.Context.Operation.ParentId);
 
-            Assert.AreEqual("operation", telemetry.Context.Operation.Name);
-            Assert.AreEqual(1, telemetry.Properties.Count);
-            Assert.AreEqual("v1", telemetry.Properties["k1"]);
-            currentActivity.Stop();
-        }
-
-        [TestMethod]
-        public void InitilaizeWithActivityDoesntOverrideContextIfRootIsSet()
-        {
-            var currentActivity = new Activity("test");
-            currentActivity.SetParentId("activityRoot");
-            currentActivity.AddTag("OperationName", "test");
-            currentActivity.AddBaggage("k1", "v1");
-            currentActivity.Start();
-            var telemetry = new TraceTelemetry();
-
-            telemetry.Context.Operation.Id = "rootId";
-            telemetry.Context.Operation.ParentId = null;
-            telemetry.Context.Operation.Name = "operation";
-            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
-
-            Assert.AreEqual("rootId", telemetry.Context.Operation.Id);
-            Assert.IsNull(telemetry.Context.Operation.ParentId);
-            Assert.AreEqual("operation", telemetry.Context.Operation.Name);
-            Assert.AreEqual(0, telemetry.Properties.Count);
-            currentActivity.Stop();
-        }
-
-        [TestMethod]
-        public void InitilaizeWithActivityOverridesContextIfRootIsNotSet()
-        {
-            var currentActivity = new Activity("test");
-            currentActivity.SetParentId("activityRoot");
-            currentActivity.AddTag("OperationName", "test");
-            currentActivity.AddBaggage("k1", "v1");
-            currentActivity.Start();
-            var telemetry = new TraceTelemetry();
-
-            telemetry.Context.Operation.ParentId = "parentId";
-            telemetry.Context.Operation.Name = "operation";
-            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
-
-            Assert.AreEqual("activityRoot", telemetry.Context.Operation.Id);
-            Assert.AreEqual("parentId", telemetry.Context.Operation.ParentId);
             Assert.AreEqual("operation", telemetry.Context.Operation.Name);
             Assert.AreEqual(1, telemetry.Properties.Count);
             Assert.AreEqual("v1", telemetry.Properties["k1"]);

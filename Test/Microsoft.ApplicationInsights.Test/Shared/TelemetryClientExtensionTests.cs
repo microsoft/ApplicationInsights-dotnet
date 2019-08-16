@@ -10,22 +10,24 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Extensibility.Implementation;
     using TestFramework;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
 
     [TestClass]
     public class TelemetryClientExtensionTests
     {
         private TelemetryClient telemetryClient;
+        private TelemetryConfiguration telemetryConfiguration;
         private List<ITelemetry> sendItems;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            var configuration = new TelemetryConfiguration();
+            this.telemetryConfiguration = new TelemetryConfiguration();
             this.sendItems = new List<ITelemetry>();
-            configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
-            configuration.InstrumentationKey = Guid.NewGuid().ToString();
-            configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
-            this.telemetryClient = new TelemetryClient(configuration);
+            telemetryConfiguration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
+            telemetryConfiguration.InstrumentationKey = Guid.NewGuid().ToString();
+            telemetryConfiguration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
+            this.telemetryClient = new TelemetryClient(telemetryConfiguration);
             CallContextHelpers.RestoreOperationContext(null);
         }
 
@@ -225,8 +227,10 @@
         }
 
         [TestMethod]
-        public void StartOperationCanOverrideOperationId()
+        public void StartOperationCanOverrideOperationIdNonW3C()
         {
+            this.telemetryConfiguration.EnableW3CCorrelation = false;
+
             using (this.telemetryClient.StartOperation<RequestTelemetry>("Request", "HOME"))
             {
             }
@@ -236,6 +240,34 @@
             var requestTelemetry = (RequestTelemetry)this.sendItems[0];
             Assert.IsNull(requestTelemetry.Context.Operation.ParentId);
             Assert.AreEqual("HOME", requestTelemetry.Context.Operation.Id);
+        }
+
+        [TestMethod]
+        public void StartOperationOperationIdIsIgnoredIfNotW3cCompatible()
+        {
+            using (this.telemetryClient.StartOperation<RequestTelemetry>("Request", "HOME"))
+            {
+            }
+
+            Assert.AreEqual(1, this.sendItems.Count);
+
+            var requestTelemetry = (RequestTelemetry)this.sendItems[0];
+            Assert.IsNull(requestTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual("HOME", requestTelemetry.Properties[W3CConstants.LegacyRootIdProperty]);
+        }
+
+        [TestMethod]
+        public void StartOperationOperationIdIsUsedIfW3cCompatible()
+        {
+            using (this.telemetryClient.StartOperation<RequestTelemetry>("Request", "8ee8641cbdd8dd280d239fa2121c7e4e"))
+            {
+            }
+
+            Assert.AreEqual(1, this.sendItems.Count);
+
+            var requestTelemetry = (RequestTelemetry)this.sendItems[0];
+            Assert.IsNull(requestTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual("8ee8641cbdd8dd280d239fa2121c7e4e", requestTelemetry.Context.Operation.Id);
         }
 
         [TestMethod]

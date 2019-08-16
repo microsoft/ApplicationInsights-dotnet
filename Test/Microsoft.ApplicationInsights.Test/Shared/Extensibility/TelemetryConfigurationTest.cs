@@ -9,10 +9,38 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
+    using System.Diagnostics;
+
     [TestClass]
     public class TelemetryConfigurationTest
     {
+        #region W3C
+        [TestMethod]
+        public void TelemetryConfigurationConstructorSetsW3CToTrueByDefault()
+        {
+            var tc = new TelemetryConfiguration();
+            Assert.IsTrue(tc.EnableW3CCorrelation);
+        }
+
+        [TestMethod]
+        public void TelemetryConfigurationEnableW3CCorrelationSetsActivityDefaultFormatToW3C()
+        {
+            var original = Activity.DefaultIdFormat;
+            var tc = new TelemetryConfiguration();
+            tc.EnableW3CCorrelation = true;
+            Assert.AreEqual(ActivityIdFormat.W3C, Activity.DefaultIdFormat);
+        }
+
+        [TestMethod]
+        public void TelemetryConfigurationDisableW3CCorrelationRestoresActivityDefaultFormat()
+        {
+            var original = Activity.DefaultIdFormat;
+            var tc = new TelemetryConfiguration();
+            tc.EnableW3CCorrelation = false;
+            Assert.AreEqual(original, Activity.DefaultIdFormat);
+        }
+        #endregion
+
         [TestMethod]
         public void TelemetryConfigurationIsPublicToAllowUsersManipulateConfigurationProgrammatically()
         {
