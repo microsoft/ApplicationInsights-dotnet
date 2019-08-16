@@ -138,7 +138,7 @@
                 if (parentActivity == null)
                 {
                     // telemetryContext.Id is always set: if it was null, it is set to opTelemetry.Id and opTelemetry.Id is never null
-                    if (Activity.DefaultIdFormat == ActivityIdFormat.W3C) //w3c and telemetryContext.Id is w3c compatible)
+                    if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
                     {
                         if(W3CActivityExtensions.IsCompatibleW3CTraceID(telemetryContext.Id))
                         {
