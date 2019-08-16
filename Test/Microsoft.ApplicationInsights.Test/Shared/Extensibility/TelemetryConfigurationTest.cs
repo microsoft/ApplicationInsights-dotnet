@@ -25,7 +25,6 @@
         [TestMethod]
         public void TelemetryConfigurationEnableW3CCorrelationSetsActivityDefaultFormatToW3C()
         {
-            var original = Activity.DefaultIdFormat;
             var tc = new TelemetryConfiguration();
             tc.EnableW3CCorrelation = true;
             Assert.AreEqual(ActivityIdFormat.W3C, Activity.DefaultIdFormat);
@@ -34,10 +33,11 @@
         [TestMethod]
         public void TelemetryConfigurationDisableW3CCorrelationRestoresActivityDefaultFormat()
         {
-            var original = Activity.DefaultIdFormat;
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
             var tc = new TelemetryConfiguration();
+            // DisablingW3C should reset default id format to Hierrachical
             tc.EnableW3CCorrelation = false;
-            Assert.AreEqual(original, Activity.DefaultIdFormat);
+            Assert.AreEqual(ActivityIdFormat.Hierarchical, Activity.DefaultIdFormat);
         }
         #endregion
 

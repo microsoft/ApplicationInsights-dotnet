@@ -11,6 +11,7 @@
 
     /// <summary>
     /// Telemetry initializer that populates OperationContext for the telemetry item from Activity.
+    /// This initializer is responsible for correlation of telemetry items within the same process.
     /// </summary>
 #if NET45
     /// <remarks>
@@ -43,22 +44,16 @@
                         if (string.IsNullOrEmpty(itemOperationContext.Id))
                         {
                             // Set OperationID to Activity.TraceId
-                            // itemOperationContext.Id = currentActivity.RootId; // heck if this can be used
+                            // itemOperationContext.Id = currentActivity.RootId; // check if this can be used
                             itemOperationContext.Id = currentActivity.TraceId.ToHexString();
 
-                            // Set OperationParentID to ID of parent constructed from traceid, spand id.
-                            // ID for auto collected Request,Dependency are made from trace id + span id, so parentid must be set to the same format.
+                            // Set OperationParentID to ID of parent, constructed as !traceid.spanid.
+                            // ID for auto collected Request,Dependency are constructed as !traceid.spanid, so parentid must be set to the same format.
+                            // While it is possible to set SpanID as the ID for auto collected Request,Dependency we have to stick to this format
+                            // to maintain compatibility. This limitation may go away in the future.
                             if (string.IsNullOrEmpty(itemOperationContext.ParentId))
                             {
                                 itemOperationContext.ParentId = W3CActivityExtensions.FormatTelemetryId(itemOperationContext.Id, currentActivity.SpanId.ToHexString());
-                            }
-
-                            foreach (var baggage in currentActivity.Baggage)
-                            {
-                                if (telemetryProp != null && !telemetryProp.Properties.ContainsKey(baggage.Key))
-                                {
-                                    telemetryProp.Properties.Add(baggage);
-                                }
                             }
                         }
                     }
@@ -71,15 +66,15 @@
                             if (string.IsNullOrEmpty(itemOperationContext.ParentId))
                             {
                                 itemOperationContext.ParentId = currentActivity.Id;
-                            }
+                            }                            
+                        }
+                    }
 
-                            foreach (var baggage in currentActivity.Baggage)
-                            {
-                                if (telemetryProp != null && !telemetryProp.Properties.ContainsKey(baggage.Key))
-                                {
-                                    telemetryProp.Properties.Add(baggage);
-                                }
-                            }
+                    foreach (var baggage in currentActivity.Baggage)
+                    {
+                        if (telemetryProp != null && !telemetryProp.Properties.ContainsKey(baggage.Key))
+                        {
+                            telemetryProp.Properties.Add(baggage);
                         }
                     }
 
