@@ -37,36 +37,30 @@
             isActivityAvailable = ActivityExtensions.TryRun(() =>
             {
                 var currentActivity = Activity.Current;
-                if (currentActivity != null)
+                if (currentActivity != null && string.IsNullOrEmpty(itemOperationContext.Id))
                 {
                     if (currentActivity.IdFormat == ActivityIdFormat.W3C)
                     {
-                        if (string.IsNullOrEmpty(itemOperationContext.Id))
-                        {
-                            // Set OperationID to Activity.TraceId
-                            // itemOperationContext.Id = currentActivity.RootId; // check if this can be used
-                            itemOperationContext.Id = currentActivity.TraceId.ToHexString();
+                        // Set OperationID to Activity.TraceId
+                        // itemOperationContext.Id = currentActivity.RootId; // check if this can be used
+                        itemOperationContext.Id = currentActivity.TraceId.ToHexString();
 
-                            // Set OperationParentID to ID of parent, constructed as !traceid.spanid.
-                            // ID for auto collected Request,Dependency are constructed as !traceid.spanid, so parentid must be set to the same format.
-                            // While it is possible to set SpanID as the ID for auto collected Request,Dependency we have to stick to this format
-                            // to maintain compatibility. This limitation may go away in the future.
-                            if (string.IsNullOrEmpty(itemOperationContext.ParentId))
-                            {
-                                itemOperationContext.ParentId = W3CActivityExtensions.FormatTelemetryId(itemOperationContext.Id, currentActivity.SpanId.ToHexString());
-                            }
+                        // Set OperationParentID to ID of parent, constructed as !traceid.spanid.
+                        // ID for auto collected Request,Dependency are constructed as !traceid.spanid, so parentid must be set to the same format.
+                        // While it is possible to set SpanID as the ID for auto collected Request,Dependency we have to stick to this format
+                        // to maintain compatibility. This limitation may go away in the future.
+                        if (string.IsNullOrEmpty(itemOperationContext.ParentId))
+                        {
+                            itemOperationContext.ParentId = W3CUtilities.FormatTelemetryId(itemOperationContext.Id, currentActivity.SpanId.ToHexString());
                         }
                     }
                     else
                     {
-                        if (string.IsNullOrEmpty(itemOperationContext.Id))
-                        {
-                            itemOperationContext.Id = currentActivity.RootId;
+                        itemOperationContext.Id = currentActivity.RootId;
 
-                            if (string.IsNullOrEmpty(itemOperationContext.ParentId))
-                            {
-                                itemOperationContext.ParentId = currentActivity.Id;
-                            }                            
+                        if (string.IsNullOrEmpty(itemOperationContext.ParentId))
+                        {
+                            itemOperationContext.ParentId = currentActivity.Id;
                         }
                     }
 

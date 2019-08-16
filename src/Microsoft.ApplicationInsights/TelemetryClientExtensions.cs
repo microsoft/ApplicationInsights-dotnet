@@ -54,7 +54,7 @@
 
             if (string.IsNullOrEmpty(operationTelemetry.Context.Operation.Id) && !string.IsNullOrEmpty(operationId))
             {
-                if (Activity.DefaultIdFormat == ActivityIdFormat.W3C && !W3CActivityExtensions.IsCompatibleW3CTraceID(operationId))
+                if (Activity.DefaultIdFormat == ActivityIdFormat.W3C && !W3CUtilities.IsCompatibleW3CTraceID(operationId))
                 {
                         operationTelemetry.Properties.Add(W3CConstants.LegacyRootIdProperty, operationId);
                 }
@@ -140,7 +140,7 @@
                     // telemetryContext.Id is always set: if it was null, it is set to opTelemetry.Id and opTelemetry.Id is never null
                     if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
                     {
-                        if(W3CActivityExtensions.IsCompatibleW3CTraceID(telemetryContext.Id))
+                        if(W3CUtilities.IsCompatibleW3CTraceID(telemetryContext.Id))
                         {
                             operationActivity.SetParentId(ActivityTraceId.CreateFromString(telemetryContext.Id.AsSpan()), ActivitySpanId.CreateRandom());
                         }
@@ -154,7 +154,7 @@
                 operationActivity.Start();
                 if (operationActivity.IdFormat == ActivityIdFormat.W3C)
                 {
-                    operationTelemetry.Id = W3CActivityExtensions.FormatTelemetryId(operationActivity.TraceId.ToHexString(), operationActivity.SpanId.ToHexString());
+                    operationTelemetry.Id = W3CUtilities.FormatTelemetryId(operationActivity.TraceId.ToHexString(), operationActivity.SpanId.ToHexString());
                     operationTelemetry.Context.Operation.Id = operationActivity.TraceId.ToHexString();
                 }
                 else

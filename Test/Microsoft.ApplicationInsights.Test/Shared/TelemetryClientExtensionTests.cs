@@ -128,12 +128,12 @@
         {
             var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("OperationName") as OperationHolder<DependencyTelemetry>;
             var currentActivity = Activity.Current;
-            Assert.AreEqual(operation.Telemetry.Id, W3CActivityExtensions.FormatTelemetryId(currentActivity.TraceId.ToHexString(), currentActivity.SpanId.ToHexString()));
+            Assert.AreEqual(operation.Telemetry.Id, W3CUtilities.FormatTelemetryId(currentActivity.TraceId.ToHexString(), currentActivity.SpanId.ToHexString()));
             Assert.AreEqual(operation.Telemetry.Context.Operation.Name, this.GetOperationName(currentActivity));
 
             var childOperation = this.telemetryClient.StartOperation<DependencyTelemetry>("OperationName") as OperationHolder<DependencyTelemetry>;
             var childActivity = Activity.Current;
-            Assert.AreEqual(childOperation.Telemetry.Id, W3CActivityExtensions.FormatTelemetryId(childActivity.TraceId.ToHexString(), childActivity.SpanId.ToHexString()));
+            Assert.AreEqual(childOperation.Telemetry.Id, W3CUtilities.FormatTelemetryId(childActivity.TraceId.ToHexString(), childActivity.SpanId.ToHexString()));
             Assert.AreEqual(childOperation.Telemetry.Context.Operation.Name, this.GetOperationName(currentActivity));
 
             Assert.IsNull(currentActivity.Parent);
@@ -400,7 +400,7 @@
 
             if (isW3C)
             {
-                Assert.IsTrue(W3CActivityExtensions.IsCompatibleW3CTraceID(operationTelemetry.Context.Operation.Id));
+                Assert.IsTrue(W3CUtilities.IsCompatibleW3CTraceID(operationTelemetry.Context.Operation.Id));
             }
             Assert.IsNotNull(operationTelemetry.Id);
             // ID is shaped like |TraceID.SpanID.
