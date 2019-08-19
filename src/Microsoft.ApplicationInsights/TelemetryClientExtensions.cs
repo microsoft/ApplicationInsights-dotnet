@@ -290,10 +290,18 @@
             var telemetry = new T { Name = activity.OperationName };
 
             OperationContext operationContext = telemetry.Context.Operation;
-            operationContext.Name = activity.GetOperationName();
-            operationContext.Id = activity.RootId;
+            operationContext.Name = activity.GetOperationName();            
             operationContext.ParentId = activity.ParentId;
-            telemetry.Id = activity.Id;
+            if (activity.IdFormat == ActivityIdFormat.W3C)
+            {
+                operationContext.Id = activity.TraceId.ToHexString();                
+                telemetry.Id = W3CUtilities.FormatTelemetryId(activity.TraceId.ToHexString(), activity.SpanId.ToHexString());
+            }
+            else
+            {
+                operationContext.Id = activity.RootId;
+                telemetry.Id = activity.Id;
+            }
 
             foreach (var item in activity.Baggage)
             {
