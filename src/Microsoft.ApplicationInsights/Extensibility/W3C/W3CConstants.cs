@@ -1,8 +1,8 @@
-﻿using System;
-using System.Diagnostics;
-
-namespace Microsoft.ApplicationInsights.Extensibility.W3C
+﻿namespace Microsoft.ApplicationInsights.Extensibility.W3C
 {
+    using System;
+    using System.Diagnostics;
+
     /// <summary>
     /// W3C constants.
     /// </summary>
@@ -18,19 +18,19 @@ namespace Microsoft.ApplicationInsights.Extensibility.W3C
         /// </summary>
         internal const string LegacyRequestIdProperty = "ai_legacyRequestId";
 
-        /// <summary>	
-        /// Default version value.	
-        /// </summary>	
+        /// <summary>
+        /// Default version value.
+        /// </summary>
         internal const string DefaultVersion = "00";
 
-        /// <summary>	
-        /// Default trace flag value.	
-        /// </summary>	
+        /// <summary>
+        /// Default trace flag value.
+        /// </summary>
         internal const string DefaultTraceFlag = "00";
 
-        /// <summary>	
+        /// <summary>
         /// String representation of the invalid spanid of all zeroes.
-        /// </summary>	
+        /// </summary>
         internal const string InvalidSpanID = "0000000000000000";
     }
 }

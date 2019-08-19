@@ -15,6 +15,20 @@
         private static readonly uint[] Lookup32 = CreateLookup32();
         private static readonly Regex TraceIdRegex = new Regex("^[a-f0-9]{32}$", RegexOptions.Compiled);
 
+                /// <summary>
+        /// Generates random trace Id as per W3C Distributed tracing specification.
+        /// https://github.com/w3c/distributed-tracing/blob/master/trace_context/HTTP_HEADER_FORMAT.md#trace-id .
+        /// </summary>
+        /// <returns>Random 16 bytes array encoded as hex string.</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static string GenerateTraceId()
+        {
+            byte[] firstHalf = BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next());
+            byte[] secondHalf = BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next());
+
+            return GenerateId(firstHalf, secondHalf, 0, 16);
+        }
+
         /// <summary>
         /// Constructs a Telemetry ID from given traceid and span id in the format |traceid.spanid.
         /// This is the format used by Application Insights.        
@@ -33,20 +47,6 @@
         internal static bool IsCompatibleW3CTraceID(string traceId)
         {
             return TraceIdRegex.IsMatch(traceId);
-        }
-
-        /// <summary>
-        /// Generates random trace Id as per W3C Distributed tracing specification.
-        /// https://github.com/w3c/distributed-tracing/blob/master/trace_context/HTTP_HEADER_FORMAT.md#trace-id .
-        /// </summary>
-        /// <returns>Random 16 bytes array encoded as hex string.</returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static string GenerateTraceId()
-        {
-            byte[] firstHalf = BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next());
-            byte[] secondHalf = BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next());
-
-            return GenerateId(firstHalf, secondHalf, 0, 16);
         }
 
         /// <summary>

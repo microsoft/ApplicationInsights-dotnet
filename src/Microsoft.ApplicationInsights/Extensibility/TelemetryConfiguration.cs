@@ -27,8 +27,7 @@
         internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
 
         private static object syncRoot = new object();
-        private static TelemetryConfiguration active;
-        private bool enableW3c;
+        private static TelemetryConfiguration active;        
 
         private readonly SnapshottingList<ITelemetryInitializer> telemetryInitializers = new SnapshottingList<ITelemetryInitializer>();
         private readonly TelemetrySinkCollection telemetrySinks = new TelemetrySinkCollection();
@@ -36,6 +35,7 @@
         private TelemetryProcessorChain telemetryProcessorChain;
         private string instrumentationKey = string.Empty;
         private bool disableTelemetry = false;
+        private bool enableW3c;
         private TelemetryProcessorChainBuilder builder;
         private MetricManager metricManager = null;
 
@@ -173,20 +173,21 @@
         }
 
         /// <summary>
-        /// Gets or sets a flag indicating whether W3C based correlation is enabled.
+        /// Gets or sets a value indicating whether W3C based correlation is enabled.
         /// </summary>
         public bool EnableW3CCorrelation
         {
             get
             {
-                return enableW3c;
+                return this.enableW3c;
             }
+
             set
             {
-                enableW3c = value;
+                this.enableW3c = value;
                 ActivityExtensions.TryRun(() =>
                 {
-                    if (enableW3c)
+                    if (this.enableW3c)
                     {
                         Activity.DefaultIdFormat = ActivityIdFormat.W3C;
                         Activity.ForceDefaultIdFormat = true;

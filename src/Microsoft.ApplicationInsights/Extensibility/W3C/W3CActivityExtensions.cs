@@ -18,12 +18,6 @@
     [Obsolete("Activity from System.Diagnostics.DiagnosticSource 4.6.0 onwards natively support W3C making extension methods in this class no longer required.")]
     public static class W3CActivityExtensions
     {
-        private const string RddDiagnosticSourcePrefix = "rdddsc";
-        private const string SqlRemoteDependencyType = "SQL";
-
-        private static readonly Regex TraceIdRegex = new Regex("^[a-f0-9]{32}$", RegexOptions.Compiled);
-        private static readonly Regex SpanIdRegex = new Regex("^[a-f0-9]{16}$", RegexOptions.Compiled);
-
         /// <summary>
         /// Generate new W3C context.
         /// </summary>
@@ -122,7 +116,6 @@
             activity.TraceStateString = value;
         }
 
-
         /// <summary>
         /// Gets TraceId from the Activity.
         /// </summary>
@@ -176,7 +169,7 @@
         [Obsolete("Activity from System.Diagnostics.DiagnosticSource 4.6.0 onwards natively support W3C.")]
         internal static void SetParentSpanId(this Activity activity, string value)
         {
-            //no-op
+            // no-op
         }        
     }
 }

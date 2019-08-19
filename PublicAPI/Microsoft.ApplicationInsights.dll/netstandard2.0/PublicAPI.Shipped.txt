@@ -1,3 +1,5 @@
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.EnableW3CCorrelation.set -> void
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.EnableW3CCorrelation.get -> bool
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Duration.get -> System.TimeSpan

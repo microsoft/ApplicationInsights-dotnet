@@ -56,7 +56,7 @@
             {
                 if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
                 {
-                    if(W3CUtilities.IsCompatibleW3CTraceID(operationId))
+                    if (W3CUtilities.IsCompatibleW3CTraceID(operationId))
                     {
                         // If the user provided operationid is W3C Compatible, use it.
                         operationTelemetry.Context.Operation.Id = operationId;
@@ -73,7 +73,6 @@
                 {
                     operationTelemetry.Context.Operation.Id = operationId;
                 }
-
             }
 
             if (string.IsNullOrEmpty(operationTelemetry.Context.Operation.ParentId) && !string.IsNullOrEmpty(parentOperationId))
