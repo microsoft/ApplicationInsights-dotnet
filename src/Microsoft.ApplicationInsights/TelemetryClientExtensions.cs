@@ -77,7 +77,7 @@
                     }
                 });
 
-                if(!isActivityAvailable)
+                if (!isActivityAvailable)
                 {
                     operationTelemetry.Context.Operation.Id = operationId;
                 }
