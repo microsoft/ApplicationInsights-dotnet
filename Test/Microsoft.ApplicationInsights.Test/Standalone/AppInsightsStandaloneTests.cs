@@ -41,7 +41,25 @@
         }
 
         [TestMethod]
-        public void AppInsightsUsesActivityWhenDiagnosticSourceIsAvailable()
+        public void AppInsightsUsesActivityWhenDiagnosticSourceIsAvailableNonW3C()
+        {
+            // Regular use case - System.DiagnosticSource is available. Regular unit test can cover this scenario.
+            var config = new TelemetryConfiguration();
+            config.EnableW3CCorrelation = false;
+            config.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
+            var tc = new TelemetryClient(config);
+            using (var requestOperation = tc.StartOperation<RequestTelemetry>("request", "guid"))
+            {
+                using (var dependencyOperation = tc.StartOperation<DependencyTelemetry>("dependency", "guid"))
+                {
+                    Assert.IsTrue(dependencyOperation.Telemetry.Id.StartsWith("|guid."));
+                    tc.TrackTrace("Hello World!");
+                }
+            }
+        }
+
+        [TestMethod]
+        public void AppInsightsUsesActivityWhenDiagnosticSourceIsAvailableW3C()
         {
             // Regular use case - System.DiagnosticSource is available. Regular unit test can cover this scenario.
             var config = new TelemetryConfiguration();
@@ -51,7 +69,10 @@
             {
                 using (var dependencyOperation = tc.StartOperation<DependencyTelemetry>("dependency", "guid"))
                 {
-                    Assert.IsTrue(dependencyOperation.Telemetry.Id.StartsWith("|guid."));
+                    // "guid" is not w3c compatible. Ignored
+                    Assert.IsFalse(dependencyOperation.Telemetry.Id.StartsWith("|guid."));
+                    // but "guid" will be stored in custom properties
+                    Assert.AreEqual("guid",dependencyOperation.Telemetry.Properties["ai_legacyRootId"]);
                     tc.TrackTrace("Hello World!");
                 }
             }

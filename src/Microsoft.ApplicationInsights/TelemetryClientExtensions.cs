@@ -54,26 +54,35 @@
 
             if (string.IsNullOrEmpty(operationTelemetry.Context.Operation.Id) && !string.IsNullOrEmpty(operationId))
             {
-                if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
+                var isActivityAvailable = ActivityExtensions.TryRun(() =>
                 {
-                    if (W3CUtilities.IsCompatibleW3CTraceID(operationId))
+                    if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
                     {
-                        // If the user provided operationid is W3C Compatible, use it.
-                        operationTelemetry.Context.Operation.Id = operationId;
+                        if (W3CUtilities.IsCompatibleW3CTraceID(operationId))
+                        {
+                            // If the user provided operationid is W3C Compatible, use it.
+                            operationTelemetry.Context.Operation.Id = operationId;
+                        }
+                        else
+                        {
+                            // If user provided operationid is not W3C compatible, generate a new one instead.
+                            // and store supplied value inside customproperty.
+                            operationTelemetry.Context.Operation.Id = W3CUtilities.GenerateTraceId();
+                            operationTelemetry.Properties.Add(W3CConstants.LegacyRootIdProperty, operationId);
+                        }
                     }
                     else
                     {
-                        // If user provided operationid is not W3C compatible, generate a new one instead.
-                        // and store supplied value inside customproperty.
-                        operationTelemetry.Context.Operation.Id = W3CUtilities.GenerateTraceId();
-                        operationTelemetry.Properties.Add(W3CConstants.LegacyRootIdProperty, operationId);
+                        operationTelemetry.Context.Operation.Id = operationId;
                     }
-                }
-                else
+                });
+
+                if(!isActivityAvailable)
                 {
                     operationTelemetry.Context.Operation.Id = operationId;
                 }
             }
+
 
             if (string.IsNullOrEmpty(operationTelemetry.Context.Operation.ParentId) && !string.IsNullOrEmpty(parentOperationId))
             {
