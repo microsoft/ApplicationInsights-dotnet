@@ -83,7 +83,6 @@
                 }
             }
 
-
             if (string.IsNullOrEmpty(operationTelemetry.Context.Operation.ParentId) && !string.IsNullOrEmpty(parentOperationId))
             {
                 operationTelemetry.Context.Operation.ParentId = parentOperationId;
