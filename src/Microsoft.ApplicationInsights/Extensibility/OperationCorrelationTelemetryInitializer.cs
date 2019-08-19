@@ -13,15 +13,6 @@
     /// Telemetry initializer that populates OperationContext for the telemetry item from Activity.
     /// This initializer is responsible for correlation of telemetry items within the same process.
     /// </summary>
-#if NET45
-    /// <remarks>
-    /// Internally based on context stored in CallContext.
-    /// </remarks>        
-#else
-    /// <remarks>
-    /// Internally based on context stored in an AsyncLocal variable.
-    /// <remarks>
-#endif
     public class OperationCorrelationTelemetryInitializer : ITelemetryInitializer
     {
         /// <summary>

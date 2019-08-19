@@ -363,7 +363,6 @@
             Assert.AreEqual("ROOT", traceTelemetry.Context.Operation.Id);
         }
 
-        //
         [TestMethod]
         public void StartOperationPopulatesContextCorrectlyW3C()
         {            
@@ -387,32 +386,7 @@
             // The generated EventTelemetry should become the child of the root RequestTelemetry
             var eventTelemetry = (TraceTelemetry)this.sendItems.Single(t => t is TraceTelemetry);
             ValidateChildTelemetry(requestTelemetry, eventTelemetry);
-        }
-
-        private void ValidateRootTelemetry(OperationTelemetry operationTelemetry, string expectedOperationId = "", string expectedOperationParentId = null, bool isW3C = true)
-        {
-            Assert.AreEqual(expectedOperationParentId, operationTelemetry.Context.Operation.ParentId);
-            Assert.IsNotNull(operationTelemetry.Context.Operation.Id);
-
-            if (!string.IsNullOrEmpty(expectedOperationId))
-            {
-                Assert.AreEqual(expectedOperationId, operationTelemetry.Context.Operation.Id);
-            }
-
-            if (isW3C)
-            {
-                Assert.IsTrue(W3CUtilities.IsCompatibleW3CTraceID(operationTelemetry.Context.Operation.Id));
-            }
-            Assert.IsNotNull(operationTelemetry.Id);
-            // ID is shaped like |TraceID.SpanID.
-            Assert.IsTrue(operationTelemetry.Id.Contains(operationTelemetry.Context.Operation.Id));
-        }
-
-        private void ValidateChildTelemetry(OperationTelemetry rootOperationTelemetry, ITelemetry childTelemetry)
-        {
-            Assert.AreEqual(rootOperationTelemetry.Id, childTelemetry.Context.Operation.ParentId);
-            Assert.AreEqual(rootOperationTelemetry.Context.Operation.Id, childTelemetry.Context.Operation.Id, "OperationID should be same for all operations in same context");
-        }
+        }       
 
         [TestMethod]
         public void StartOperationPopulatesContextCorrectlyNonW3C()
@@ -638,6 +612,30 @@
             Assert.AreEqual(1, this.sendItems.Count);
         }
 
+        private void ValidateRootTelemetry(OperationTelemetry operationTelemetry, string expectedOperationId = "", string expectedOperationParentId = null, bool isW3C = true)
+        {
+            Assert.AreEqual(expectedOperationParentId, operationTelemetry.Context.Operation.ParentId);
+            Assert.IsNotNull(operationTelemetry.Context.Operation.Id);
+
+            if (!string.IsNullOrEmpty(expectedOperationId))
+            {
+                Assert.AreEqual(expectedOperationId, operationTelemetry.Context.Operation.Id);
+            }
+
+            if (isW3C)
+            {
+                Assert.IsTrue(W3CUtilities.IsCompatibleW3CTraceID(operationTelemetry.Context.Operation.Id));
+            }
+            Assert.IsNotNull(operationTelemetry.Id);
+            // ID is shaped like |TraceID.SpanID.
+            Assert.IsTrue(operationTelemetry.Id.Contains(operationTelemetry.Context.Operation.Id));
+        }
+
+        private void ValidateChildTelemetry(OperationTelemetry rootOperationTelemetry, ITelemetry childTelemetry)
+        {
+            Assert.AreEqual(rootOperationTelemetry.Id, childTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual(rootOperationTelemetry.Context.Operation.Id, childTelemetry.Context.Operation.Id, "OperationID should be same for all operations in same context");
+        }
         private string GetOperationName(Activity activity)
         {
             return activity.Tags.FirstOrDefault(tag => tag.Key == "OperationName").Value;
