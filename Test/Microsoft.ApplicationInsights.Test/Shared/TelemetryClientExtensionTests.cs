@@ -62,14 +62,14 @@
         }
 
         [TestMethod]
-        public void StartDependencyTrackingReturnsOperationWithInitializedOperationId()
+        public void StartDependencyTrackingReturnsOperationWithInitializedOperationTelemetryId()
         {
             var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("TestOperationName");
-            Assert.IsNotNull(operation.Telemetry.Context.Operation.Id);
+            Assert.IsNotNull(operation.Telemetry.Id);
         }
 
         [TestMethod]
-        public void StartDependencyTrackingReturnsOperationWithInitializedOperationRootId()
+        public void StartDependencyTrackingReturnsOperationWithInitializedOperationId()
         {
             var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("TestOperationName");
             Assert.IsNotNull(operation.Telemetry.Context.Operation.Id);
@@ -96,6 +96,7 @@
             Assert.IsNull(Activity.Current);
             var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(operationName: null);
             Assert.IsNotNull(Activity.Current);
+            Assert.AreEqual(ActivityIdFormat.W3C, Activity.Current.IdFormat);
         }
 
         [TestMethod]

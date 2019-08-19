@@ -20,7 +20,7 @@
         /// This is the format used by Application Insights.        
         /// </summary>
         /// <returns>constructed Telemetry ID.</returns>
-        public static string FormatTelemetryId(string traceId, string spanId)
+        internal static string FormatTelemetryId(string traceId, string spanId)
         {
             return string.Concat("|", traceId, ".", spanId, ".");
         }
@@ -30,7 +30,7 @@
         /// https://github.com/w3c/distributed-tracing/blob/master/trace_context/HTTP_HEADER_FORMAT.md#trace-id .
         /// </summary>
         /// <returns>true if valid w3c trace id, otherwise false.</returns>
-        public static bool IsCompatibleW3CTraceID(string traceId)
+        internal static bool IsCompatibleW3CTraceID(string traceId)
         {
             return TraceIdRegex.IsMatch(traceId);
         }

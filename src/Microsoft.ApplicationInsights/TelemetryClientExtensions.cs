@@ -3,7 +3,7 @@
     using System;
     using System.ComponentModel;
     using System.Diagnostics;
-
+    using System.Runtime.InteropServices;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -54,11 +54,26 @@
 
             if (string.IsNullOrEmpty(operationTelemetry.Context.Operation.Id) && !string.IsNullOrEmpty(operationId))
             {
-                if (Activity.DefaultIdFormat == ActivityIdFormat.W3C && !W3CUtilities.IsCompatibleW3CTraceID(operationId))
+                if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
                 {
+                    if(W3CUtilities.IsCompatibleW3CTraceID(operationId))
+                    {
+                        // If the user provided operationid is W3C Compatible, use it.
+                        operationTelemetry.Context.Operation.Id = operationId;
+                    }
+                    else
+                    {
+                        // If user provided operationid is not W3C compatible, generate a new one instead.
+                        // and store supplied value inside customproperty.
+                        operationTelemetry.Context.Operation.Id = W3CUtilities.GenerateTraceId();
                         operationTelemetry.Properties.Add(W3CConstants.LegacyRootIdProperty, operationId);
+                    }
                 }
-                operationTelemetry.Context.Operation.Id = operationId;
+                else
+                {
+                    operationTelemetry.Context.Operation.Id = operationId;
+                }
+
             }
 
             if (string.IsNullOrEmpty(operationTelemetry.Context.Operation.ParentId) && !string.IsNullOrEmpty(parentOperationId))
@@ -108,10 +123,10 @@
             }
 
             // If the operation is not executing in the context of any other operation
-            // set its name and id as a context (root) operation name and id
+            // set its name and id as a context (root) operation name and generate new W3C compatible id
             if (string.IsNullOrEmpty(telemetryContext.Id))
-            {
-                telemetryContext.Id = operationTelemetry.Id;
+            {                
+                telemetryContext.Id = W3CUtilities.GenerateTraceId();
             }
 
             if (string.IsNullOrEmpty(telemetryContext.Name))
@@ -137,13 +152,12 @@
 
                 if (parentActivity == null)
                 {
-                    // telemetryContext.Id is always set: if it was null, it is set to opTelemetry.Id and opTelemetry.Id is never null
+                    // telemetryContext.Id is always set: if it was null, it is set to newly generated W3C compatible TraceID
                     if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
                     {
-                        if(W3CUtilities.IsCompatibleW3CTraceID(telemetryContext.Id))
-                        {
-                            operationActivity.SetParentId(ActivityTraceId.CreateFromString(telemetryContext.Id.AsSpan()), ActivitySpanId.CreateRandom());
-                        }
+                        // There is no need of checking if TelemetryContext.ID is W3C Compatible. It is always set to 
+                        // W3C compatible id. Even user supplied non-compatible ID is ignored.                                                
+                        operationActivity.SetParentId(string.Join("-", W3CConstants.DefaultVersion, telemetryContext.Id, W3CConstants.InvalidSpanID, W3CConstants.DefaultTraceFlag));                        
                     }
                     else
                     {
@@ -155,7 +169,6 @@
                 if (operationActivity.IdFormat == ActivityIdFormat.W3C)
                 {
                     operationTelemetry.Id = W3CUtilities.FormatTelemetryId(operationActivity.TraceId.ToHexString(), operationActivity.SpanId.ToHexString());
-                    operationTelemetry.Context.Operation.Id = operationActivity.TraceId.ToHexString();
                 }
                 else
                 {
