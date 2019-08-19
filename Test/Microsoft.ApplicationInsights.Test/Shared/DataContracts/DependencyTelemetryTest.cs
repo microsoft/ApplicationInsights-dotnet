@@ -30,7 +30,7 @@
             Assert.IsNotNull(defaultDependencyTelemetry.ResultCode);            
             Assert.IsNotNull(defaultDependencyTelemetry.Type);
             Assert.IsNotNull(defaultDependencyTelemetry.Id);
-            Assert.IsFalse(defaultDependencyTelemetry.IsSampledOutAtHead);
+            Assert.AreEqual(SamplingDecision.None, defaultDependencyTelemetry.ProactiveSamplingDecision);
             Assert.AreEqual(SamplingTelemetryItemTypes.RemoteDependency, defaultDependencyTelemetry.ItemTypeFlag);
             Assert.IsTrue(defaultDependencyTelemetry.Id.Length >= 1);
         }

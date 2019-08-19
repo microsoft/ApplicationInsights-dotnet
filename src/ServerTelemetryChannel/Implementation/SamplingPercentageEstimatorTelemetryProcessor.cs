@@ -4,8 +4,8 @@
     using System.Threading;
 
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
 
     /// <summary>
     /// Represents a method that is invoked every time sampling percentage is evaluated
@@ -43,6 +43,11 @@
         /// Average telemetry item counter.
         /// </summary>
         private ExponentialMovingAverageCounter itemCount;
+
+        /// <summary>
+        /// Average proactively SampledIn telemetry item counter.
+        /// </summary>
+        private ExponentialMovingAverageCounter proactivelySampledInCount;
 
         /// <summary>
         /// Evaluation timer.
@@ -104,8 +109,10 @@
             this.next = next;
 
             this.currenSamplingRate = settings.EffectiveInitialSamplingRate;
+            this.CurrentProactiveSamplingRate = settings.EffectiveInitialSamplingRate;
 
             this.itemCount = new ExponentialMovingAverageCounter(settings.EffectiveMovingAverageRatio);
+            this.proactivelySampledInCount = new ExponentialMovingAverageCounter(settings.EffectiveMovingAverageRatio);
 
             this.samplingPercentageLastChangeDateTime = DateTimeOffset.UtcNow;
 
@@ -130,6 +137,11 @@
         }
 
         /// <summary>
+        /// Gets current proactive sampling rate sampling rate.
+        /// </summary>
+        internal double CurrentProactiveSamplingRate { get; private set; }
+
+        /// <summary>
         /// Processes telemetry item.
         /// </summary>
         /// <param name="item">Telemetry item to process.</param>
@@ -137,6 +149,12 @@
         {
             // increment post-sampling telemetry item counter
             this.itemCount.Increment();
+
+            if (item is ISupportAdvancedSampling advancedSamplingItem &&
+                advancedSamplingItem.ProactiveSamplingDecision == SamplingDecision.SampledIn)
+            {
+                this.proactivelySampledInCount.Increment();
+            }
 
             // continue processing telemetry item with the next telemetry processor
             this.next.Process(item);
@@ -182,8 +200,14 @@
             // get observed after-sampling eps
             double observedEps = this.itemCount.StartNewInterval() / this.evaluationInterval.TotalSeconds;
 
+            // get observed after-sampling eps
+            double observedProactiveEps = this.proactivelySampledInCount.StartNewInterval() / this.evaluationInterval.TotalSeconds;
+
             // we see events post sampling, so get pre-sampling eps
             double beforeSamplingEps = observedEps * this.currenSamplingRate;
+
+            // we see events post sampling, so get pre-sampling eps
+            double beforeProactiveSamplingEps = observedProactiveEps * this.CurrentProactiveSamplingRate;
 
             // calculate suggested sampling rate
             int suggestedSamplingRate = (int)Math.Ceiling(beforeSamplingEps / this.settings.EffectiveMaxTelemetryItemsPerSecond);
@@ -198,6 +222,8 @@
             {
                 suggestedSamplingRate = this.settings.EffectiveMinSamplingRate;
             }
+
+            int suggestedProactiveSamplingRate = (int)Math.Ceiling(beforeProactiveSamplingEps / this.settings.EffectiveMaxTelemetryItemsPerSecond);
 
             // see if evaluation interval was changed and apply change
             if (this.evaluationInterval != this.settings.EffectiveEvaluationInterval)
@@ -246,6 +272,7 @@
                 // apply sampling percentage change
                 this.samplingPercentageLastChangeDateTime = DateTimeOffset.UtcNow;
                 this.currenSamplingRate = suggestedSamplingRate;
+                this.CurrentProactiveSamplingRate = suggestedProactiveSamplingRate;
             }
 
             if (samplingPercentageChangeNeeded || 
@@ -254,6 +281,8 @@
                 // since we're observing event count post sampling and we're about
                 // to change sampling rate or change coefficient, reset counter
                 this.itemCount = new ExponentialMovingAverageCounter(this.settings.EffectiveMovingAverageRatio);
+                this.proactivelySampledInCount =
+                    new ExponentialMovingAverageCounter(this.settings.EffectiveMovingAverageRatio);
             }
         }
     }

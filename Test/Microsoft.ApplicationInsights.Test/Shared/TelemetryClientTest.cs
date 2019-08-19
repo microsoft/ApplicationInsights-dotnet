@@ -1182,10 +1182,10 @@
             var client = new TelemetryClient(configuration);
 
             var telemetry = new RequestTelemetry();
-            telemetry.IsSampledOutAtHead = true;
+            telemetry.ProactiveSamplingDecision = SamplingDecision.SampledOut;
             client.Track(telemetry);
 
-            Assert.IsTrue(telemetry.IsSampledOutAtHead);
+            Assert.AreEqual(SamplingDecision.SampledOut, telemetry.ProactiveSamplingDecision);
             Assert.AreEqual(0, initializedTelemetry.Count);
             Assert.IsNull(telemetry.Context.Internal.SdkVersion);
             Assert.IsNull(telemetry.Context.Internal.NodeName);            

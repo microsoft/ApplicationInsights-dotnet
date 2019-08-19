@@ -65,6 +65,207 @@
         }
 
         [TestMethod]
+        public void ProactivelySampledInTelemetryCapturedWhenProactiveSamplingRateIsLowerThanTarget()
+        {
+            var precision = 0.25;
+            var (proactivelySampledInAndSentCount, sentCount) = ProactiveSamplingTest(
+                proactivelySampledInRatePerSec: 5,
+                beforeSamplingRatePerSec: 10,
+                targetAfterSamplingRatePerSec: 5.1,
+                precision: precision,
+                testDurationInSec:20); //plus warm up
+
+            Trace.WriteLine($"'Ideal' proactively sampled in telemetry item count: {sentCount}");
+            Trace.WriteLine($"Expected range: from {sentCount - precision * sentCount} to {sentCount + precision * sentCount}");
+            Trace.WriteLine(
+                $"Actual proactively sampled in  telemetry item count: {proactivelySampledInAndSentCount} ({100.0 * proactivelySampledInAndSentCount / sentCount:##.##}% of ideal)");
+
+            // all proactively sampled in should be sent assuming we have perfect algo
+            // as they happen with rate 5 items per sec and we want 5.1 rate of sent telemetry
+            // but our algo needs time to stabilize so we'll compare proactively sampled count
+            // portion in all sent telemetry and expect proactivelySampledInAndSentCount / sentTelemetry.Count ~1
+            Assert.IsTrue(proactivelySampledInAndSentCount / sentCount >= 1 - precision,
+                $"Expected {proactivelySampledInAndSentCount} to be almost {sentCount}");
+
+            Assert.IsTrue(proactivelySampledInAndSentCount / sentCount <= 1,
+                $"Expected {proactivelySampledInAndSentCount} to be almost {sentCount}, but never more than that");
+        }
+
+        [TestMethod]
+        public void ProactivelySampledInTelemetryCapturedWhenProactiveSamplingRateIsWaaayLowerThanTarget()
+        {
+            var testDurationSec = 20;
+            var proactivelySampledInRatePerSec = 5;
+            var targetProactiveCount = proactivelySampledInRatePerSec * testDurationSec;
+            var precision = 0.25;
+            var (proactivelySampledInAndSentCount, sentCount) = ProactiveSamplingTest(
+                proactivelySampledInRatePerSec: proactivelySampledInRatePerSec,
+                beforeSamplingRatePerSec: proactivelySampledInRatePerSec * 3,
+                targetAfterSamplingRatePerSec: proactivelySampledInRatePerSec * 2,
+                precision: precision,
+                testDurationInSec: testDurationSec); // plus warm up 
+
+            Trace.WriteLine($"'Ideal' proactively sampled in telemetry item count: {targetProactiveCount}");
+            Trace.WriteLine($"Expected range: from {targetProactiveCount - precision * targetProactiveCount} to {targetProactiveCount + precision * targetProactiveCount}");
+            Trace.WriteLine(
+                $"Actual proactively sampled in  telemetry item count: {proactivelySampledInAndSentCount} ({100.0 * proactivelySampledInAndSentCount / targetProactiveCount:##.##}% of ideal)");
+
+            // all proactively sampled in should be sent assuming we have perfect algo
+            // as they happen with rate 5 items per sec and we want 10 rate of sent telemetry
+            Assert.IsTrue(proactivelySampledInAndSentCount / (double)targetProactiveCount > 1 - precision,
+                $"Expected {proactivelySampledInAndSentCount} to be between {targetProactiveCount} +/- {targetProactiveCount * precision}");
+            Assert.IsTrue(proactivelySampledInAndSentCount / (double)targetProactiveCount < 1 + precision,
+                $"Expected {proactivelySampledInAndSentCount} to be between {targetProactiveCount} +/- {targetProactiveCount * precision}");
+        }
+
+        [TestMethod]
+        public void ProactivelySampledInTelemetryCapturedWhenProactiveSamplingRateIsWaaayHigherThanTarget()
+        {
+            var targetRate = 5;
+            var testDuration = 20;
+            var targetItemCount = targetRate * testDuration;
+            var precision = 0.25;
+            var (proactivelySampledInAndSentCount, sentCount) = ProactiveSamplingTest(
+                proactivelySampledInRatePerSec: targetRate * 2,
+                beforeSamplingRatePerSec: targetRate * 4,
+                targetAfterSamplingRatePerSec: targetRate,
+                precision: precision,
+                testDurationInSec: testDuration); //plus warm up
+
+            Trace.WriteLine($"'Ideal' proactively sampled in telemetry item count: {targetItemCount}");
+            Trace.WriteLine($"Expected range: from {targetItemCount - precision * targetItemCount} to {targetItemCount + precision * targetItemCount}");
+            Trace.WriteLine(
+                $"Actual proactively sampled in  telemetry item count: {proactivelySampledInAndSentCount} ({100.0 * proactivelySampledInAndSentCount / targetItemCount:##.##}% of ideal)");
+
+            // half of proactively sampled in should be sent assuming we have perfect algo
+            // as they happen with rate 10 items per sec and we want 5 rate of sent telemetry
+            // and all that sent should be sampled In proactively
+            Assert.IsTrue(proactivelySampledInAndSentCount / (double)targetItemCount > 1 - precision,
+                $"Expected {proactivelySampledInAndSentCount} to be around {sentCount} +/- {precision * sentCount}");
+
+            Assert.IsTrue(proactivelySampledInAndSentCount / (double)targetItemCount < 1 + precision,
+                $"Expected {proactivelySampledInAndSentCount} to be around {sentCount} +/- {precision * sentCount}");
+        }
+
+        [TestMethod]
+        public void ProactivelySampledInTelemetryCapturedWhenProactiveSamplingRateIsHigherThanTarget()
+        {
+            var testDuration = 20;
+            var precision = 0.25;
+            var (proactivelySampledInAndSentCount, sentCount) = ProactiveSamplingTest(
+                proactivelySampledInRatePerSec: 5,
+                beforeSamplingRatePerSec: 10,
+                targetAfterSamplingRatePerSec: 4.9,
+                precision: precision,
+                testDurationInSec: testDuration); //plus warm up
+
+            // almost all proactively sampled in should be sent assuming we have perfect algo
+            // as they happen with rate 5 items per sec and we want 4.9 rate of sent telemetry
+            // and all that sent should be sampled In proactively
+
+            Trace.WriteLine($"'Ideal' proactively sampled in telemetry item count: {sentCount}");
+            Trace.WriteLine($"Expected range: from {sentCount - precision * sentCount} to {sentCount + precision * sentCount}");
+            Trace.WriteLine(
+                $"Actual proactively sampled in  telemetry item count: {proactivelySampledInAndSentCount} ({100.0 * proactivelySampledInAndSentCount / sentCount:##.##}% of ideal)");
+
+            Assert.IsTrue(proactivelySampledInAndSentCount / (double)sentCount > 1 - precision,
+                $"Expected {proactivelySampledInAndSentCount} to be around {sentCount} - {precision * sentCount}");
+
+            Assert.IsTrue(proactivelySampledInAndSentCount / sentCount < 1,
+                $"Expected {proactivelySampledInAndSentCount} to be almost {sentCount}, but never more than that");
+        }
+
+        public (int proactivelySampledInAndSentCount, double sentCount) ProactiveSamplingTest(
+            int proactivelySampledInRatePerSec, 
+            int beforeSamplingRatePerSec, 
+            double targetAfterSamplingRatePerSec,
+            double precision,
+            int testDurationInSec)
+        {
+            // we'll ignore telemetry reported during first few percentage evaluations
+            int warmUpInSec = 16;
+
+            // we'll produce proactively  sampled in items and also 'normal' items with the same rate
+            // but allow only proactively sampled in + a bit more
+
+            // number of items produced should be close to target
+            int targetItemCount = (int)(testDurationInSec * targetAfterSamplingRatePerSec);
+
+            var sentTelemetry = new List<ITelemetry>();
+
+            using (var tc = new TelemetryConfiguration() { TelemetryChannel = new StubTelemetryChannel() })
+            {
+                var chainBuilder = new TelemetryProcessorChainBuilder(tc);
+
+                // set up adaptive sampling that evaluates and changes sampling % frequently
+                chainBuilder
+                    .UseAdaptiveSampling(
+                        new Channel.Implementation.SamplingPercentageEstimatorSettings()
+                        {
+                            MaxTelemetryItemsPerSecond = targetAfterSamplingRatePerSec,
+                            EvaluationInterval = TimeSpan.FromSeconds(2),
+                            SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(4),
+                            SamplingPercentageIncreaseTimeout = TimeSpan.FromSeconds(4),
+                        },
+                        this.TraceSamplingPercentageEvaluation)
+                    .Use((next) => new StubTelemetryProcessor(next) { OnProcess = (t) => sentTelemetry.Add(t) });
+
+                chainBuilder.Build();
+
+                var sw = Stopwatch.StartNew();
+                var productionTimer = new Timer(
+                    (state) =>
+                    {
+                        var requests = new RequestTelemetry[beforeSamplingRatePerSec];
+
+                        for (int i = 0; i < beforeSamplingRatePerSec; i++)
+                        {
+                            requests[i] = new RequestTelemetry()
+                            {
+                                ProactiveSamplingDecision = i < proactivelySampledInRatePerSec ? SamplingDecision.SampledIn : SamplingDecision.None
+                            };
+                        }
+
+                        foreach (var request in requests)
+                        {
+                            if (((Stopwatch) state).Elapsed.TotalSeconds < warmUpInSec)
+                            {
+                                // let's ignore telemetry from first few rate evaluations - it does not make sense
+                                request.Properties["ignore"] = "true";
+                            }
+
+                            tc.TelemetryProcessorChain.Process(request);
+                        }
+                    },
+                    sw,
+                    0,
+                    1000);
+
+                Thread.Sleep(TimeSpan.FromSeconds(testDurationInSec + warmUpInSec));
+
+                // dispose timer and wait for callbacks to complete
+                DisposeTimer(productionTimer);
+            }
+
+            var notIgnoredSent = sentTelemetry.Where(i => i is ISupportProperties propItem && !propItem.Properties.ContainsKey("ignore")).ToArray();
+
+            var proactivelySampledInAndSentCount = notIgnoredSent.Count(i =>
+                i is ISupportAdvancedSampling advSamplingItem &&
+                advSamplingItem.ProactiveSamplingDecision == SamplingDecision.SampledIn);
+
+            // check that normal sampling requirements still apply (we generated as much items as expected)
+            Trace.WriteLine($"'Ideal' telemetry item count: {targetItemCount}");
+            Trace.WriteLine($"Expected range: from {targetItemCount - precision * targetItemCount} to {targetItemCount + precision * targetItemCount}");
+            Trace.WriteLine(
+                $"Actual telemetry item count: {notIgnoredSent.Length} ({100.0 * notIgnoredSent.Length / targetItemCount:##.##}% of ideal)");
+
+            Assert.IsTrue(notIgnoredSent.Length / (double)targetItemCount > 1 - precision);
+            Assert.IsTrue(notIgnoredSent.Length / (double)targetItemCount < 1 + precision);
+
+            return (proactivelySampledInAndSentCount, notIgnoredSent.Length);
+        }
+
+        [TestMethod]
         public void SamplingPercentageAdjustsAccordingToConstantHighProductionRate()
         {
             var sentTelemetry = new List<ITelemetry>();
@@ -112,7 +313,7 @@
             // number of items produced should be close to target of 5/second
             int targetItemCount = 25 * 5;
 
-            // tolrance +-
+            // tolerance +- 50%!
             int tolerance = targetItemCount / 2;
 
             Trace.WriteLine(string.Format("'Ideal' telemetry item count: {0}", targetItemCount));

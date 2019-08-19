@@ -71,6 +71,13 @@
                             itemOperationContext.Name = operationName;
                         }
                     }
+
+                    if (currentActivity.Recorded && 
+                        telemetryItem is ISupportAdvancedSampling supportSamplingTelemetry && 
+                        supportSamplingTelemetry.ProactiveSamplingDecision == SamplingDecision.None)
+                    {
+                        supportSamplingTelemetry.ProactiveSamplingDecision = SamplingDecision.SampledIn;
+                    }
                 }
             });
 

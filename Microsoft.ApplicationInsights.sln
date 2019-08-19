@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29102.190
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Microsoft.ApplicationInsights.Tests", "Microsoft.ApplicationInsights.Tests", "{C2FEEDE5-8CAE-41A4-8932-42D284A86EA7}"
 EndProject
@@ -64,15 +64,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel.netcoreapp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights.netcoreapp20.Tests", "Test\Microsoft.ApplicationInsights.Test\netcoreapp20\Microsoft.ApplicationInsights.netcoreapp20.Tests.csproj", "{29FACF83-351A-44D2-B2AD-3BD37A0A3CCA}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common", "src\Common\Common\Common.shproj", "{936AF739-4297-4016-9D70-4280042709BE}"
-EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Test\Microsoft.ApplicationInsights.Test\Shared\Microsoft.ApplicationInsights.Shared.Tests.projitems*{0927e682-4a56-45b6-8125-94fa066b2f57}*SharedItemsImports = 4
 		Test\TestFramework\Shared\TestFramework.Shared.projitems*{0927e682-4a56-45b6-8125-94fa066b2f57}*SharedItemsImports = 4
 		Test\Microsoft.ApplicationInsights.Test\Shared\Microsoft.ApplicationInsights.Shared.Tests.projitems*{0927e682-4a56-46b6-8125-94fa066b2f57}*SharedItemsImports = 4
 		Test\TestFramework\Shared\TestFramework.Shared.projitems*{0927e682-4a56-46b6-8125-94fa066b2f57}*SharedItemsImports = 4
-		src\Common\Common\Common.projitems*{936af739-4297-4016-9d70-4280042709be}*SharedItemsImports = 13
 		Test\Microsoft.ApplicationInsights.Test\Shared\Microsoft.ApplicationInsights.Shared.Tests.projitems*{c4a0db5b-0988-4e04-b9b8-bcf3b0842000}*SharedItemsImports = 13
 		Test\ServerTelemetryChannel.Test\Shared.Tests\Shared.Tests.projitems*{c5a3f18f-1426-4941-9d81-d21062a2b8f2}*SharedItemsImports = 13
 		Test\ServerTelemetryChannel.Test\Shared.Tests\Shared.Tests.projitems*{dd9659be-7c0f-4298-82b2-5e957f95977a}*SharedItemsImports = 4

@@ -4,7 +4,6 @@
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
     /// <summary>
@@ -60,6 +59,7 @@
             this.samplingProcessor = new SamplingTelemetryProcessor(next, this.estimatorProcessor)
             {
                 SamplingPercentage = this.estimatorSettings.InitialSamplingPercentage,
+                CurrentProactiveSampledInRatioToTarget = null,
             };
         }
 
@@ -280,6 +280,8 @@
             if (isSamplingPercentageChanged)
             {
                 this.samplingProcessor.SamplingPercentage = newSamplingPercentage;
+                this.samplingProcessor.CurrentProactiveSampledInRatioToTarget = this.estimatorProcessor.CurrentProactiveSamplingRate / 
+                                                                                   settings.MaxTelemetryItemsPerSecond;
                 TelemetryChannelEventSource.Log.SamplingChanged(newSamplingPercentage);
             }
 

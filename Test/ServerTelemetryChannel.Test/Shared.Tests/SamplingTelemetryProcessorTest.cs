@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -15,10 +16,10 @@
     [TestClass]
     public class SamplingTelemetryProcessorTest
     {
-        Random random = new Random();
+        readonly Random random = new Random();
 
         [TestMethod]
-        public void ThrowsAgrumentNullExceptionWithoutNextPocessor()
+        public void ThrowsArgumentNullExceptionWithoutNextProcessor()
         {
             AssertEx.Throws<ArgumentNullException>(() => new SamplingTelemetryProcessor(null));
         }
@@ -28,7 +29,8 @@
         {
             var processor = new SamplingTelemetryProcessor(new StubTelemetryProcessor(null));
 
-            Assert.AreEqual(processor.SamplingPercentage, 100.0, 12);
+            Assert.AreEqual(processor.SamplingPercentage, 100.0);
+            Assert.IsNull(processor.CurrentProactiveSampledInRatioToTarget);
         }
 
         [TestMethod]
@@ -394,7 +396,7 @@
                                                                                     sentTelemetry,
                                                                                     100);
             var sampledOutTelemetry = new RequestTelemetry();
-            sampledOutTelemetry.IsSampledOutAtHead = true;
+            sampledOutTelemetry.ProactiveSamplingDecision = SamplingDecision.SampledOut;
 
             telemetryProcessorChainWithSampling.Process(sampledOutTelemetry);
             telemetryProcessorChainWithSampling.Dispose();
@@ -412,7 +414,7 @@
             for (int i = 0; i < 100; i++)
             {
                 var sampledOutTelemetry = new RequestTelemetry();
-                sampledOutTelemetry.IsSampledOutAtHead = true;
+                sampledOutTelemetry.ProactiveSamplingDecision = SamplingDecision.SampledOut;
 
                 telemetryProcessorChainWithSampling.Process(sampledOutTelemetry);
             }
@@ -438,7 +440,7 @@
                 var sampledOutTelemetry = new RequestTelemetry();
 
                 // This makes those items proactively sampled out
-                sampledOutTelemetry.IsSampledOutAtHead = true;
+                sampledOutTelemetry.ProactiveSamplingDecision = SamplingDecision.SampledOut;
 
                 // This operation ID hash is lower than 25, so every item in this batch is sampled in
                 sampledOutTelemetry.Context.Operation.Id = "abcdfeghijk";
@@ -467,6 +469,110 @@
             // Sampled out items are supposed to be cleared, no more gain up:
             sentTelemetry.RemoveAt(0);
             sentTelemetry.ForEach((item) => Assert.AreEqual(50, ((ISupportSampling)item).SamplingPercentage));
+        }
+
+        [TestMethod]
+        public void ProactivelySampledInItemsAreNotGivenPriorityIfRatesAreNotSet()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            TelemetryProcessorChain telemetryProcessorChainWithSampling = CreateTelemetryProcessorChainWithSampling(
+                sentTelemetry,
+                50);
+
+            for (int i = 0; i < 1000; i++)
+            {
+                var item = new RequestTelemetry();
+                item.Context.Operation.Id = ActivityTraceId.CreateRandom().ToHexString();
+
+                // proactively sample in items with big score, so they should not be sampled in
+                if (SamplingScoreGenerator.GetSamplingScore(item.Context.Operation.Id) > 50)
+                {
+                    item.ProactiveSamplingDecision = SamplingDecision.SampledIn;
+                }
+
+                telemetryProcessorChainWithSampling.Process(item);
+            }
+
+            Assert.AreEqual(0, sentTelemetry.Count(i => ((ISupportAdvancedSampling)i).ProactiveSamplingDecision == SamplingDecision.SampledIn));
+        }
+
+        [TestMethod]
+        public void ProactivelySampledInItemsPassIfCurrentRateIsLowerThanExpected()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+
+            var tc = new TelemetryConfiguration
+            {
+                TelemetryChannel = new StubTelemetryChannel(),
+                InstrumentationKey = Guid.NewGuid().ToString("D")
+            };
+
+            var channelBuilder = new TelemetryProcessorChainBuilder(tc);
+            channelBuilder.Use(next => new SamplingTelemetryProcessor(next)
+            {
+                SamplingPercentage = 50,
+                CurrentProactiveSampledInRatioToTarget = 0.5
+            });
+            channelBuilder.Use(next => new StubTelemetryProcessor(next) { OnProcess = t => sentTelemetry.Add(t) });
+            channelBuilder.Build();
+
+            int sampledInCount = 0;
+            for (int i = 0; i < 1000; i++)
+            {
+                var item = new RequestTelemetry();
+                item.Context.Operation.Id = ActivityTraceId.CreateRandom().ToHexString();
+
+                // sample in random items - they all should  pass through regardless of the score
+                if (i % 2 == 0)
+                {
+                    item.ProactiveSamplingDecision = SamplingDecision.SampledIn;
+                    sampledInCount++;
+                }
+
+                tc.TelemetryProcessorChain.Process(item);
+            }
+
+            // all proactively sampled in items passed through regardless of their score.
+            Assert.AreEqual(sampledInCount, sentTelemetry.Count(i => ((ISupportAdvancedSampling)i).ProactiveSamplingDecision == SamplingDecision.SampledIn));
+        }
+
+        [TestMethod]
+        public void ProactivelySampledInItemsPassAccordingToScoreIfCurrentRateIsHigherThanExpected()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+
+            var tc = new TelemetryConfiguration
+            {
+                TelemetryChannel = new StubTelemetryChannel(),
+                InstrumentationKey = Guid.NewGuid().ToString("D")
+            };
+
+            var channelBuilder = new TelemetryProcessorChainBuilder(tc);
+            channelBuilder.Use(next => new SamplingTelemetryProcessor(next)
+            {
+                SamplingPercentage = 50,
+                CurrentProactiveSampledInRatioToTarget = 2, // actual value does not matter
+            });
+            channelBuilder.Use(next => new StubTelemetryProcessor(next) { OnProcess = t => sentTelemetry.Add(t) });
+            channelBuilder.Build();
+
+            for (int i = 0; i < 1000; i++)
+            {
+                var item = new RequestTelemetry();
+                item.Context.Operation.Id = ActivityTraceId.CreateRandom().ToHexString();
+
+                // generate a lot sampled-in items, only part of them should pass through and
+                // none of the sampled out items
+                if (SamplingScoreGenerator.GetSamplingScore(item.Context.Operation.Id) < 70)
+                {
+                    item.ProactiveSamplingDecision = SamplingDecision.SampledIn;
+                }
+
+                tc.TelemetryProcessorChain.Process(item);
+            }
+
+            Assert.AreEqual(0, sentTelemetry.Count(i => ((ISupportAdvancedSampling)i).ProactiveSamplingDecision == SamplingDecision.None));
+            Assert.AreEqual(500, sentTelemetry.Count(i => ((ISupportAdvancedSampling)i).ProactiveSamplingDecision == SamplingDecision.SampledIn), 50);
         }
 
         private static void TelemetryTypeDoesNotSupportSampling(Func<TelemetryProcessorChain, int> sendAction, string excludedTypes = null, string includedTypes = null)
@@ -531,8 +637,10 @@
 
         private static TelemetryProcessorChain CreateTelemetryProcessorChainWithSampling(IList<ITelemetry> sentTelemetry, double samplingPercentage, string excludedTypes = null, string includedTypes = null)
         {
-            var tc = new TelemetryConfiguration {TelemetryChannel = new StubTelemetryChannel()};
-            tc.InstrumentationKey = Guid.NewGuid().ToString("D");
+            var tc = new TelemetryConfiguration
+            {
+                TelemetryChannel = new StubTelemetryChannel(), InstrumentationKey = Guid.NewGuid().ToString("D")
+            };
 
             var channelBuilder = new TelemetryProcessorChainBuilder(tc);            
             channelBuilder.UseSampling(samplingPercentage, excludedTypes, includedTypes);
@@ -544,8 +652,7 @@
 
             foreach (ITelemetryProcessor processor in processors.TelemetryProcessors)
             {
-                ITelemetryModule m = processor as ITelemetryModule;
-                if (m != null)
+                if (processor is ITelemetryModule m)
                 {
                     m.Initialize(tc);
                 }

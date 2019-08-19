@@ -1,6 +1,4 @@
-﻿#pragma warning disable 612, 618  // obsolete TelemetryConfigration.Active
-
-using System;
+﻿using System;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -20,8 +18,8 @@ namespace SomeCustomerNamespace
         [TestMethod]
         public void Metrics_DefaultPipeline()
         {
-            TelemetryConfiguration defaultTelemetryPipeline = TelemetryConfiguration.Active;
-            // using (defaultTelemetryPipeline)
+            TelemetryConfiguration defaultTelemetryPipeline = TelemetryConfiguration.CreateDefault();
+            using (defaultTelemetryPipeline)
             {
                 Metrics_SpecifiedPipeline(defaultTelemetryPipeline);
                 TestUtil.CompleteDefaultAggregationCycle(defaultTelemetryPipeline.GetMetricManager());
@@ -33,8 +31,8 @@ namespace SomeCustomerNamespace
         [TestMethod]
         public void Metrics_CustomPipeline()
         {
-            TelemetryConfiguration defaultTelemetryPipeline = TelemetryConfiguration.Active;
-            //using (defaultTelemetryPipeline)
+            TelemetryConfiguration defaultTelemetryPipeline = TelemetryConfiguration.CreateDefault();
+            using (defaultTelemetryPipeline)
             using (TelemetryConfiguration customTelemetryPipeline1 = TestUtil.CreateAITelemetryConfig())
             using (TelemetryConfiguration customTelemetryPipeline2 = TestUtil.CreateAITelemetryConfig())
             {
@@ -136,4 +134,3 @@ namespace SomeCustomerNamespace
         //}
     }
 }
-#pragma warning restore 612, 618  // obsolete TelemetryConfigration.Active
