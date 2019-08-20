@@ -2,6 +2,7 @@
 {
     using System;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Globalization;
     using System.Text.RegularExpressions;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -15,7 +16,7 @@
         private static readonly uint[] Lookup32 = CreateLookup32();
         private static readonly Regex TraceIdRegex = new Regex("^[a-f0-9]{32}$", RegexOptions.Compiled);
 
-                /// <summary>
+        /// <summary>
         /// Generates random trace Id as per W3C Distributed tracing specification.
         /// https://github.com/w3c/distributed-tracing/blob/master/trace_context/HTTP_HEADER_FORMAT.md#trace-id .
         /// </summary>
@@ -23,10 +24,22 @@
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static string GenerateTraceId()
         {
-            byte[] firstHalf = BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next());
-            byte[] secondHalf = BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next());
+            string generatedId = string.Empty;
 
-            return GenerateId(firstHalf, secondHalf, 0, 16);
+            var isActivityAvailable = ActivityExtensions.TryRun(() =>
+            {
+                generatedId = ActivityTraceId.CreateRandom().ToHexString();
+            });
+
+            if (!isActivityAvailable)
+            {
+                byte[] firstHalf = BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next());
+                byte[] secondHalf = BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next());
+
+                generatedId = GenerateId(firstHalf, secondHalf, 0, 16);
+            }
+
+            return generatedId;
         }
 
         /// <summary>
@@ -57,7 +70,19 @@
         [EditorBrowsable(EditorBrowsableState.Never)]
         internal static string GenerateSpanId()
         {
-            return GenerateId(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()), 0, 8);
+            string generatedId = string.Empty;
+
+            var isActivityAvailable = ActivityExtensions.TryRun(() =>
+            {
+                generatedId = ActivitySpanId.CreateRandom().ToHexString();
+            });
+
+            if (!isActivityAvailable)
+            {
+                generatedId = GenerateId(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()), 0, 8);
+            }
+
+            return generatedId;
         }
 
         /// <summary>

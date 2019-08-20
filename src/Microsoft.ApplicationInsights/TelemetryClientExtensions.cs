@@ -16,6 +16,7 @@
     public static class TelemetryClientExtensions
     {
         private const string ChildActivityName = "Microsoft.ApplicationInsights.OperationContext";
+        private static readonly ActivitySpanId AllZeroSpanId = new Activity("none").SpanId;
 
         /// <summary>
         /// Start operation creates an operation object with a respective telemetry item. 
@@ -132,7 +133,7 @@
             // If the operation is not executing in the context of any other operation
             // set its name and id as a context (root) operation name and generate new W3C compatible id
             if (string.IsNullOrEmpty(telemetryContext.Id))
-            {                
+            {
                 telemetryContext.Id = W3CUtilities.GenerateTraceId();
             }
 
@@ -164,7 +165,8 @@
                     {
                         // There is no need of checking if TelemetryContext.ID is W3C Compatible. It is always set to 
                         // W3C compatible id. Even user supplied non-compatible ID is ignored.                                                
-                        operationActivity.SetParentId(string.Join("-", W3CConstants.DefaultVersion, telemetryContext.Id, W3CConstants.InvalidSpanID, W3CConstants.DefaultTraceFlag));                        
+                        operationActivity.SetParentId(string.Join("-", W3CConstants.DefaultVersion, telemetryContext.Id, W3CConstants.InvalidSpanID, W3CConstants.DefaultTraceFlag));
+                        operationActivity.SetParentId(ActivityTraceId.CreateFromString(telemetryContext.Id.AsSpan()), AllZeroSpanId, ActivityTraceFlags.None);
                     }
                     else
                     {
@@ -175,7 +177,9 @@
                 operationActivity.Start();
                 if (operationActivity.IdFormat == ActivityIdFormat.W3C)
                 {
-                    operationTelemetry.Id = W3CUtilities.FormatTelemetryId(operationActivity.TraceId.ToHexString(), operationActivity.SpanId.ToHexString());
+                    // ID takes the form !TraceID.SpanId. 
+                    // TelemetryContext.Id used instead of TraceID.ToHexString() for perf.
+                    operationTelemetry.Id = W3CUtilities.FormatTelemetryId(telemetryContext.Id, operationActivity.SpanId.ToHexString());
                 }
                 else
                 {
@@ -303,7 +307,7 @@
             if (activity.IdFormat == ActivityIdFormat.W3C)
             {
                 operationContext.Id = activity.TraceId.ToHexString();                
-                telemetry.Id = W3CUtilities.FormatTelemetryId(activity.TraceId.ToHexString(), activity.SpanId.ToHexString());
+                telemetry.Id = W3CUtilities.FormatTelemetryId(operationContext.Id, activity.SpanId.ToHexString());
             }
             else
             {

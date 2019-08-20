@@ -39,8 +39,8 @@
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("Activity from System.Diagnostics.DiagnosticSource 4.6.0 onwards natively support W3C.")]
         public static bool IsW3CActivity(this Activity activity)
-        {            
-            return activity != null && Activity.DefaultIdFormat.Equals(ActivityIdFormat.W3C);
+        {
+            return activity != null && activity.IdFormat.Equals(ActivityIdFormat.W3C);
         }
 
         /// <summary>
@@ -65,19 +65,8 @@
         [Obsolete("Activity from System.Diagnostics.DiagnosticSource 4.6.0 onwards natively support W3C.")]
         public static string GetTraceparent(this Activity activity)
         {
-            // no-op as there is no native way to obtain TraceParent from Activity. 
-            return string.Empty;
-
-            /* OR //TODO decide if we want to keep this no-op
-            var traceId = activity.TraceId.ToHexString();
-            var spanId = activity.SpanId.ToHexString();
-            if (traceId.Equals("00000000000000000000000000000000") || spanId.Equals("0000000000000000"))
-            {
-                return null;
-            }
-
-           return string.Join("-", W3CConstants.DefaultVersion, traceId, spanId, activity.Recorded ? "00" : "01");
-           */
+            // returning activity id as there is no native way to obtain exact TraceParent header from Activity.
+            return activity.Id;
         }
 
         /// <summary>

@@ -31,6 +31,6 @@
         /// <summary>
         /// String representation of the invalid spanid of all zeroes.
         /// </summary>
-        internal const string InvalidSpanID = "0000000000000000";
+        internal const string InvalidSpanID = "0000000000000000";        
     }
 }
