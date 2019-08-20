@@ -133,8 +133,7 @@
             // set its name and id as a context (root) operation name and generate new W3C compatible id
             if (string.IsNullOrEmpty(telemetryContext.Id))
             {
-
-                bool isTraceIDSet =  ActivityExtensions.TryRun(() =>
+                bool isTraceIDSet = ActivityExtensions.TryRun(() =>
                         {
                             telemetryContext.Id = ActivityTraceId.CreateRandom().ToHexString();
                         });
