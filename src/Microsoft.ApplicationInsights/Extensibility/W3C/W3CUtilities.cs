@@ -17,32 +17,6 @@
         private static readonly Regex TraceIdRegex = new Regex("^[a-f0-9]{32}$", RegexOptions.Compiled);
 
         /// <summary>
-        /// Generates random trace Id as per W3C Distributed tracing specification.
-        /// https://github.com/w3c/distributed-tracing/blob/master/trace_context/HTTP_HEADER_FORMAT.md#trace-id .
-        /// </summary>
-        /// <returns>Random 16 bytes array encoded as hex string.</returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static string GenerateTraceId()
-        {
-            string generatedId = string.Empty;
-
-            var isActivityAvailable = ActivityExtensions.TryRun(() =>
-            {
-                generatedId = ActivityTraceId.CreateRandom().ToHexString();
-            });
-
-            if (!isActivityAvailable)
-            {
-                byte[] firstHalf = BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next());
-                byte[] secondHalf = BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next());
-
-                generatedId = GenerateId(firstHalf, secondHalf, 0, 16);
-            }
-
-            return generatedId;
-        }
-
-        /// <summary>
         /// Constructs a Telemetry ID from given traceid and span id in the format |traceid.spanid.
         /// This is the format used by Application Insights.        
         /// </summary>
@@ -96,25 +70,6 @@
             for (int i = start; i < start + length; i++)
             {
                 var val = Lookup32[bytes[i]];
-                result[2 * i] = (char)val;
-                result[(2 * i) + 1] = (char)(val >> 16);
-            }
-
-            return new string(result);
-        }
-
-        /// <summary>
-        /// Converts byte arrays to hex lower case string.
-        /// </summary>
-        /// <returns>Array encoded as hex string.</returns>
-        private static string GenerateId(byte[] firstHalf, byte[] secondHalf, int start, int length)
-        {
-            // See https://stackoverflow.com/questions/311165/how-do-you-convert-a-byte-array-to-a-hexadecimal-string-and-vice-versa/24343727#24343727
-            var result = new char[length * 2];
-            int arrayBorder = length / 2;
-            for (int i = start; i < start + length; i++)
-            {
-                var val = Lookup32[i < arrayBorder ? firstHalf[i] : secondHalf[i - arrayBorder]];
                 result[2 * i] = (char)val;
                 result[(2 * i) + 1] = (char)(val >> 16);
             }

@@ -67,7 +67,7 @@
                         {
                             // If user provided operationid is not W3C compatible, generate a new one instead.
                             // and store supplied value inside customproperty.
-                            operationTelemetry.Context.Operation.Id = W3CUtilities.GenerateTraceId();
+                            operationTelemetry.Context.Operation.Id = ActivityTraceId.CreateRandom().ToHexString();
                             operationTelemetry.Properties.Add(W3CConstants.LegacyRootIdProperty, operationId);
                         }
                     }
@@ -133,7 +133,16 @@
             // set its name and id as a context (root) operation name and generate new W3C compatible id
             if (string.IsNullOrEmpty(telemetryContext.Id))
             {
-                telemetryContext.Id = W3CUtilities.GenerateTraceId();
+
+                bool isTraceIDSet =  ActivityExtensions.TryRun(() =>
+                        {
+                            telemetryContext.Id = ActivityTraceId.CreateRandom().ToHexString();
+                        });
+
+                if (!isTraceIDSet)
+                {
+                    telemetryContext.Id = operationTelemetry.Id;
+                }
             }
 
             if (string.IsNullOrEmpty(telemetryContext.Name))
