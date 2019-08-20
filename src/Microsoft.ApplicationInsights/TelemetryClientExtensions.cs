@@ -15,8 +15,7 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static class TelemetryClientExtensions
     {
-        private const string ChildActivityName = "Microsoft.ApplicationInsights.OperationContext";
-        private static readonly ActivitySpanId AllZeroSpanId = new Activity("none").SpanId;
+        private const string ChildActivityName = "Microsoft.ApplicationInsights.OperationContext";        
 
         /// <summary>
         /// Start operation creates an operation object with a respective telemetry item. 
@@ -166,7 +165,7 @@
                         // There is no need of checking if TelemetryContext.ID is W3C Compatible. It is always set to 
                         // W3C compatible id. Even user supplied non-compatible ID is ignored.                                                
                         operationActivity.SetParentId(string.Join("-", W3CConstants.DefaultVersion, telemetryContext.Id, W3CConstants.InvalidSpanID, W3CConstants.DefaultTraceFlag));
-                        operationActivity.SetParentId(ActivityTraceId.CreateFromString(telemetryContext.Id.AsSpan()), AllZeroSpanId, ActivityTraceFlags.None);
+                        // operationActivity.SetParentId(ActivityTraceId.CreateFromString(telemetryContext.Id.AsSpan()), AllZeroSpanId, ActivityTraceFlags.None);
                     }
                     else
                     {
