@@ -130,20 +130,7 @@
             }
 
             // If the operation is not executing in the context of any other operation
-            // set its name and id as a context (root) operation name and generate new W3C compatible id
-            if (string.IsNullOrEmpty(telemetryContext.Id))
-            {
-                bool isTraceIDSet = ActivityExtensions.TryRun(() =>
-                        {
-                            telemetryContext.Id = ActivityTraceId.CreateRandom().ToHexString();
-                        });
-
-                if (!isTraceIDSet)
-                {
-                    telemetryContext.Id = operationTelemetry.Id;
-                }
-            }
-
+            // set its name as a context (root) operation name.
             if (string.IsNullOrEmpty(telemetryContext.Name))
             {
                 telemetryContext.Name = operationTelemetry.Name;
@@ -151,6 +138,13 @@
 
             var isActivityAvailable = ActivityExtensions.TryRun(() =>
             {
+                // If the operation is not executing in the context of any other operation
+                // set its id to newly generated W3C Compatible Trace ID
+                if (string.IsNullOrEmpty(telemetryContext.Id))
+                {
+                    telemetryContext.Id = ActivityTraceId.CreateRandom().ToHexString();
+                }
+
                 var parentActivity = Activity.Current;
                 var operationActivity = new Activity(ChildActivityName);
 
@@ -171,9 +165,8 @@
                     if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
                     {
                         // There is no need of checking if TelemetryContext.ID is W3C Compatible. It is always set to 
-                        // W3C compatible id. Even user supplied non-compatible ID is ignored.                                                
-                        operationActivity.SetParentId(string.Join("-", W3CConstants.DefaultVersion, telemetryContext.Id, W3CConstants.InvalidSpanID, W3CConstants.DefaultTraceFlag));
-                        // operationActivity.SetParentId(ActivityTraceId.CreateFromString(telemetryContext.Id.AsSpan()), AllZeroSpanId, ActivityTraceFlags.None);
+                        // W3C compatible id. Even user supplied non-compatible ID is ignored.
+                        operationActivity.SetParentId(ActivityTraceId.CreateFromString(telemetryContext.Id.AsSpan()), default(ActivitySpanId), ActivityTraceFlags.None);
                     }
                     else
                     {
@@ -199,6 +192,7 @@
             {
                 // Parent context store is assigned to operation that is used to restore call context.
                 operationHolder.ParentContext = CallContextHelpers.GetCurrentOperationContext();
+                telemetryContext.Id = operationTelemetry.Id;
             }
 
             operationTelemetry.Start();

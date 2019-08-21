@@ -56,19 +56,7 @@
         [EditorBrowsable(EditorBrowsableState.Never)]
         internal static string GenerateSpanId()
         {
-            string generatedId = string.Empty;
-
-            var isActivityAvailable = ActivityExtensions.TryRun(() =>
-            {
-                generatedId = ActivitySpanId.CreateRandom().ToHexString();
-            });
-
-            if (!isActivityAvailable)
-            {
-                generatedId = GenerateId(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()), 0, 8);
-            }
-
-            return generatedId;
+            return GenerateId(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()), 0, 8);
         }
 
         /// <summary>

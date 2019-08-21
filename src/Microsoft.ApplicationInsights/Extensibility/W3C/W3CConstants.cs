@@ -17,20 +17,5 @@
         /// Legacy root Id tag name.
         /// </summary>
         internal const string LegacyRequestIdProperty = "ai_legacyRequestId";
-
-        /// <summary>
-        /// Default version value.
-        /// </summary>
-        internal const string DefaultVersion = "00";
-
-        /// <summary>
-        /// Default trace flag value.
-        /// </summary>
-        internal const string DefaultTraceFlag = "00";
-
-        /// <summary>
-        /// String representation of the invalid spanid of all zeroes.
-        /// </summary>
-        internal const string InvalidSpanID = "0000000000000000";        
     }
 }
