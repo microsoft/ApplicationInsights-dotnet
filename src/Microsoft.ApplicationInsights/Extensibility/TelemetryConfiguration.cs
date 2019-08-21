@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
@@ -26,7 +27,7 @@
         internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
 
         private static object syncRoot = new object();
-        private static TelemetryConfiguration active;
+        private static TelemetryConfiguration active;        
 
         private readonly SnapshottingList<ITelemetryInitializer> telemetryInitializers = new SnapshottingList<ITelemetryInitializer>();
         private readonly TelemetrySinkCollection telemetrySinks = new TelemetrySinkCollection();
@@ -34,6 +35,7 @@
         private TelemetryProcessorChain telemetryProcessorChain;
         private string instrumentationKey = string.Empty;
         private bool disableTelemetry = false;
+        private bool enableW3c;
         private TelemetryProcessorChainBuilder builder;
         private MetricManager metricManager = null;
 
@@ -74,6 +76,7 @@
             var defaultSink = new TelemetrySink(this, channel);
             defaultSink.Name = "default";
             this.telemetrySinks.Add(defaultSink);
+            this.EnableW3CCorrelation = true;            
         }
 
         /// <summary>
@@ -166,6 +169,35 @@
                 }
 
                 this.disableTelemetry = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether W3C based correlation is enabled.
+        /// </summary>
+        public bool EnableW3CCorrelation
+        {
+            get
+            {
+                return this.enableW3c;
+            }
+
+            set
+            {
+                this.enableW3c = value;
+                ActivityExtensions.TryRun(() =>
+                {
+                    if (this.enableW3c)
+                    {
+                        Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+                        Activity.ForceDefaultIdFormat = true;
+                    }
+                    else
+                    {
+                        Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+                        Activity.ForceDefaultIdFormat = true;
+                    }
+                });
             }
         }
 
