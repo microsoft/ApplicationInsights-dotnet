@@ -12,10 +12,5 @@
         /// Legacy root Id tag name.
         /// </summary>
         internal const string LegacyRootIdProperty = "ai_legacyRootId";
-
-        /// <summary>
-        /// Legacy root Id tag name.
-        /// </summary>
-        internal const string LegacyRequestIdProperty = "ai_legacyRequestId";
     }
 }

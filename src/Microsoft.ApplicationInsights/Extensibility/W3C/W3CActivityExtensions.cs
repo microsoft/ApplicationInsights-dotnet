@@ -40,7 +40,7 @@
         [Obsolete("Activity from System.Diagnostics.DiagnosticSource 4.6.0 onwards natively support W3C.")]
         public static bool IsW3CActivity(this Activity activity)
         {
-            return activity != null && activity.IdFormat.Equals(ActivityIdFormat.W3C);
+            return activity != null && activity.IdFormat == ActivityIdFormat.W3C;
         }
 
         /// <summary>
@@ -65,7 +65,7 @@
         [Obsolete("Activity from System.Diagnostics.DiagnosticSource 4.6.0 onwards natively support W3C.")]
         public static string GetTraceparent(this Activity activity)
         {
-            // returning activity id as there is no native way to obtain exact TraceParent header from Activity.
+            // Activity.ID is the trasceparent header.
             return activity.Id;
         }
 
