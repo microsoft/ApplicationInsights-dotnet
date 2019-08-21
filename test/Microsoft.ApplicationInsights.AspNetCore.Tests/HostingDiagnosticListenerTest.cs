@@ -71,7 +71,7 @@
         private ConcurrentQueue<ITelemetry> sentTelemetry = new ConcurrentQueue<ITelemetry>();
         private ActiveSubsciptionManager subscriptionManager; 
 
-        private HostingDiagnosticListener CreateHostingListener(bool aspNetCore2, TelemetryConfiguration config = null)
+        private HostingDiagnosticListener CreateHostingListener(AspNetCoreMajorVersion aspNetCoreMajorVersion, TelemetryConfiguration config = null)
         {
             HostingDiagnosticListener hostingListener;
             if (config != null)
@@ -83,7 +83,7 @@
                     injectResponseHeaders: true,
                     trackExceptions: true,
                     enableW3CHeaders: false,
-                    enableNewDiagnosticEvents: aspNetCore2);
+                    enableNewDiagnosticEvents: (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two));
             }
             else
             {
@@ -93,7 +93,7 @@
                     injectResponseHeaders: true,
                     trackExceptions: true,
                     enableW3CHeaders: false,
-                    enableNewDiagnosticEvents: aspNetCore2);
+                    enableNewDiagnosticEvents: (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two));
             }
 
             hostingListener.OnSubscribe();
@@ -101,9 +101,9 @@
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void TestConditionalAppIdFlagIsRespected(bool isAspNetCore2)
+        [InlineData(AspNetCoreMajorVersion.One)]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        public void TestConditionalAppIdFlagIsRespected(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
             TelemetryConfiguration config = TelemetryConfiguration.CreateDefault();
@@ -111,9 +111,9 @@
             // For tests, no incoming headers is add, so the response should not have app id as well.
             config.ExperimentalFeatures.Add("conditionalAppId");
 
-            using (var hostingListener = CreateHostingListener(isAspNetCore2, config))
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion, config))
             {
-                HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 Assert.NotNull(context.Features.Get<RequestTelemetry>());
 
@@ -121,7 +121,7 @@
                 Assert.Null(HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers,
                         RequestResponseHeaders.RequestContextTargetKey));
 
-                HandleRequestEnd(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
             }
 
             Assert.Single(sentTelemetry);
@@ -138,19 +138,19 @@
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void TestSdkVersionIsPopulatedByMiddleware(bool isAspNetCore2)
+        [InlineData(AspNetCoreMajorVersion.One)]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        public void TestSdkVersionIsPopulatedByMiddleware(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
             TelemetryConfiguration config = TelemetryConfiguration.CreateDefault();
 
-            using (var hostingListener = CreateHostingListener(isAspNetCore2, config))
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion, config))
             {
-                HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 Assert.NotNull(context.Features.Get<RequestTelemetry>());
-                HandleRequestEnd(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
             }
 
             Assert.Single(sentTelemetry);
@@ -167,21 +167,21 @@
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void TestRequestUriIsPopulatedByMiddleware(bool isAspNetCore2)
+        [InlineData(AspNetCoreMajorVersion.One)]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        public void TestRequestUriIsPopulatedByMiddleware(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, HttpRequestPath, HttpRequestQueryString);
 
-            using (var hostingListener = CreateHostingListener(isAspNetCore2))
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion))
             {
-                HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 Assert.NotNull(context.Features.Get<RequestTelemetry>());
                 Assert.Equal(CommonMocks.TestApplicationId,
                     HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey));
 
-                HandleRequestEnd(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
             }
 
             Assert.Single(sentTelemetry);
@@ -198,22 +198,22 @@
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void RequestWillBeMarkedAsFailedForRunawayException(bool isAspNetCore2)
+        [InlineData(AspNetCoreMajorVersion.One)]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        public void RequestWillBeMarkedAsFailedForRunawayException(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
 
-            using (var hostingListener = CreateHostingListener(isAspNetCore2))
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion))
             {
-                HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 Assert.NotNull(context.Features.Get<RequestTelemetry>());
                 Assert.Equal(CommonMocks.TestApplicationId,
                     HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey));
 
                 hostingListener.OnDiagnosticsUnhandledException(context, null);
-                HandleRequestEnd(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
             }
 
             var telemetries = sentTelemetry.ToArray();
@@ -232,15 +232,15 @@
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void OnBeginRequestCreateNewActivityAndInitializeRequestTelemetry(bool isAspNetCore2)
+        [InlineData(AspNetCoreMajorVersion.One)]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        public void OnBeginRequestCreateNewActivityAndInitializeRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
 
-            using (var hostingListener = CreateHostingListener(isAspNetCore2))
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion))
             {
-                HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 Assert.NotNull(Activity.Current);
                 Assert.Equal(ActivityCreatedByHostingDiagnosticListener, Activity.Current.OperationName);
@@ -277,9 +277,9 @@
             context.Request.Headers[RequestResponseHeaders.RequestIdHeader] = requestId;
             context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "prop1=value1, prop2=value2";
 
-            using (var hostingListener = CreateHostingListener(false))
+            using (var hostingListener = CreateHostingListener(AspNetCoreMajorVersion.One))
             {
-                HandleRequestBegin(hostingListener, context, 0, false);
+                HandleRequestBegin(hostingListener, context, 0, AspNetCoreMajorVersion.One);
 
                 Assert.NotNull(Activity.Current);
                 Assert.Single(Activity.Current.Baggage.Where(b => b.Key == "prop1" && b.Value == "value1"));
@@ -306,10 +306,10 @@
 
             activity.Start();
 
-            using (var hostingListener = CreateHostingListener(true))
+            using (var hostingListener = CreateHostingListener(AspNetCoreMajorVersion.Two))
             {
-                HandleRequestBegin(hostingListener, context, 0, true);
-                HandleRequestEnd(hostingListener, context, 0, true);
+                HandleRequestBegin(hostingListener, context, 0, AspNetCoreMajorVersion.Two);
+                HandleRequestEnd(hostingListener, context, 0, AspNetCoreMajorVersion.Two);
             }
 
             Assert.Single(sentTelemetry);
@@ -328,21 +328,21 @@
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void OnEndRequestSetsRequestNameToMethodAndPathForPostRequest(bool isAspNetCore2)
+        [InlineData(AspNetCoreMajorVersion.One)]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        public void OnEndRequestSetsRequestNameToMethodAndPathForPostRequest(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
 
-            using (var hostingListener = CreateHostingListener(isAspNetCore2))
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion))
             {
-                HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 Assert.NotNull(context.Features.Get<RequestTelemetry>());
                 Assert.Equal(CommonMocks.TestApplicationId,
                     HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey));
 
-                HandleRequestEnd(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
             }
 
             Assert.Single(sentTelemetry);
@@ -359,20 +359,20 @@
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void OnEndRequestSetsRequestNameToMethodAndPath(bool isAspNetCore2)
+        [InlineData(AspNetCoreMajorVersion.One)]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        public void OnEndRequestSetsRequestNameToMethodAndPath(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "GET");
             TelemetryConfiguration config = TelemetryConfiguration.CreateDefault();
 
-            using (var hostingListener = CreateHostingListener(isAspNetCore2, config))
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion, config))
             {
-                HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 Assert.NotNull(context.Features.Get<RequestTelemetry>());
 
-                HandleRequestEnd(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
             }
 
             Assert.NotNull(this.sentTelemetry);
@@ -389,22 +389,22 @@
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void OnEndRequestFromSameInstrumentationKey(bool isAspNetCore2)
+        [InlineData(AspNetCoreMajorVersion.One)]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        public void OnEndRequestFromSameInstrumentationKey(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "GET");
             HttpHeadersUtilities.SetRequestContextKeyValue(context.Request.Headers, RequestResponseHeaders.RequestContextSourceKey, CommonMocks.TestApplicationId);            
 
-            using (var hostingListener = CreateHostingListener(isAspNetCore2))
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion))
             {
-                HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 Assert.NotNull(context.Features.Get<RequestTelemetry>());
                 Assert.Equal(CommonMocks.TestApplicationId,
                     HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey));                
 
-                HandleRequestEnd(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
             }
 
             Assert.NotNull(this.sentTelemetry);
@@ -421,23 +421,23 @@
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void OnEndRequestFromDifferentInstrumentationKey(bool isAspNetCore2)
+        [InlineData(AspNetCoreMajorVersion.One)]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        public void OnEndRequestFromDifferentInstrumentationKey(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "GET");
             HttpHeadersUtilities.SetRequestContextKeyValue(context.Request.Headers, RequestResponseHeaders.RequestContextSourceKey, "DIFFERENT_INSTRUMENTATION_KEY_HASH");
 
-            using (var hostingListener = CreateHostingListener(isAspNetCore2))
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion))
             {
-                HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 Assert.NotNull(context.Features.Get<RequestTelemetry>());
                 Assert.Equal(CommonMocks.TestApplicationId,
                     HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers,
                         RequestResponseHeaders.RequestContextTargetKey));
 
-                HandleRequestEnd(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
             }
 
             Assert.Single(sentTelemetry);
@@ -454,9 +454,9 @@
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async void SimultaneousRequestsGetDifferentIds(bool isAspNetCore2)
+        [InlineData(AspNetCoreMajorVersion.One)]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        public async void SimultaneousRequestsGetDifferentIds(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             var context1 = new DefaultHttpContext();
             context1.Request.Scheme = HttpRequestScheme;
@@ -470,22 +470,22 @@
             context2.Request.Method = "GET";
             context2.Request.Path = "/Test?id=2";
 
-            using (var hostingListener = CreateHostingListener(isAspNetCore2))
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion))
             {
                 var task1 = Task.Run(() =>
                 {
                     var act = new Activity("operation1");
                     act.Start();
-                    HandleRequestBegin(hostingListener, context1, 0, isAspNetCore2);
-                    HandleRequestEnd(hostingListener, context1, 0, isAspNetCore2);
+                    HandleRequestBegin(hostingListener, context1, 0, aspNetCoreMajorVersion);
+                    HandleRequestEnd(hostingListener, context1, 0, aspNetCoreMajorVersion);
                 });
 
                 var task2 = Task.Run(() =>
                 {
                     var act = new Activity("operation2");
                     act.Start();
-                    HandleRequestBegin(hostingListener, context2, 0, isAspNetCore2);
-                    HandleRequestEnd(hostingListener, context2, 0, isAspNetCore2);
+                    HandleRequestBegin(hostingListener, context2, 0, aspNetCoreMajorVersion);
+                    HandleRequestEnd(hostingListener, context2, 0, aspNetCoreMajorVersion);
                 });
 
                 await Task.WhenAll(task1, task2);
@@ -519,12 +519,12 @@
             long startTime = Stopwatch.GetTimestamp();
             long simulatedSeconds = Stopwatch.Frequency;
 
-            using (var hostingListener = CreateHostingListener(false))
+            using (var hostingListener = CreateHostingListener(AspNetCoreMajorVersion.One))
             {
-                HandleRequestBegin(hostingListener, context1, startTime, false);
-                HandleRequestBegin(hostingListener, context2, startTime + simulatedSeconds, false);
-                HandleRequestEnd(hostingListener, context1, startTime + simulatedSeconds * 5, false);
-                HandleRequestEnd(hostingListener, context2, startTime + simulatedSeconds * 10, false);
+                HandleRequestBegin(hostingListener, context1, startTime, AspNetCoreMajorVersion.One);
+                HandleRequestBegin(hostingListener, context2, startTime + simulatedSeconds, AspNetCoreMajorVersion.One);
+                HandleRequestEnd(hostingListener, context1, startTime + simulatedSeconds * 5, AspNetCoreMajorVersion.One);
+                HandleRequestEnd(hostingListener, context2, startTime + simulatedSeconds * 10, AspNetCoreMajorVersion.One);
             }
 
             var telemetries = this.sentTelemetry.ToArray();
@@ -543,14 +543,14 @@
             context.Request.Path = "/Test?id=1";
 
             long startTime = Stopwatch.GetTimestamp();
-            using (var hostingListener = CreateHostingListener(false))
+            using (var hostingListener = CreateHostingListener(AspNetCoreMajorVersion.One))
             {
-                HandleRequestBegin(hostingListener, context, startTime, false);
+                HandleRequestBegin(hostingListener, context, startTime, AspNetCoreMajorVersion.One);
 
                 var expectedDuration = TimeSpan.Parse("00:00:01.2345670");
                 double durationInStopwatchTicks = Stopwatch.Frequency * expectedDuration.TotalSeconds;
 
-                HandleRequestEnd(hostingListener, context, startTime + (long) durationInStopwatchTicks, false);
+                HandleRequestEnd(hostingListener, context, startTime + (long) durationInStopwatchTicks, AspNetCoreMajorVersion.One);
 
                 Assert.Single(sentTelemetry);
                 Assert.Equal(Math.Round(expectedDuration.TotalMilliseconds, 3),
@@ -559,17 +559,17 @@
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void SetsSourceProvidedInHeaders(bool isAspNetCore2)
+        [InlineData(AspNetCoreMajorVersion.One)]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        public void SetsSourceProvidedInHeaders(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
             HttpHeadersUtilities.SetRequestContextKeyValue(context.Request.Headers, RequestResponseHeaders.RequestContextTargetKey, "someAppId");
 
-            using (var hostingListener = CreateHostingListener(isAspNetCore2))
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion))
             {
-                HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
-                HandleRequestEnd(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
             }
 
             Assert.Single(sentTelemetry);
@@ -580,9 +580,9 @@
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void ResponseHeadersAreNotInjectedWhenDisabled(bool isAspNetCore2)
+        [InlineData(AspNetCoreMajorVersion.One)]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        public void ResponseHeadersAreNotInjectedWhenDisabled(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
 
@@ -592,14 +592,14 @@
                 injectResponseHeaders: false,
                 trackExceptions: true,
                 enableW3CHeaders: false,
-                enableNewDiagnosticEvents: isAspNetCore2))
+                enableNewDiagnosticEvents: (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two)))
             {
                 noHeadersMiddleware.OnSubscribe();
 
-                HandleRequestBegin(noHeadersMiddleware, context, 0, isAspNetCore2);
+                HandleRequestBegin(noHeadersMiddleware, context, 0, aspNetCoreMajorVersion);
                 Assert.False(context.Response.Headers.ContainsKey(RequestResponseHeaders.RequestContextHeader));
 
-                HandleRequestEnd(noHeadersMiddleware, context, 0, isAspNetCore2);
+                HandleRequestEnd(noHeadersMiddleware, context, 0, aspNetCoreMajorVersion);
                 Assert.False(context.Response.Headers.ContainsKey(RequestResponseHeaders.RequestContextHeader));
 
                 Assert.Single(sentTelemetry);
@@ -608,9 +608,9 @@
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void ExceptionsAreNotTrackedInjectedWhenDisabled(bool isAspNetCore2)
+        [InlineData(AspNetCoreMajorVersion.One)]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        public void ExceptionsAreNotTrackedInjectedWhenDisabled(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
             using (var noExceptionsMiddleware = new HostingDiagnosticListener(
@@ -619,7 +619,7 @@
                 injectResponseHeaders: true,
                 trackExceptions: false,
                 enableW3CHeaders: false,
-                enableNewDiagnosticEvents: isAspNetCore2))
+                enableNewDiagnosticEvents: (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two)))
             {
                 noExceptionsMiddleware.OnSubscribe();
                 noExceptionsMiddleware.OnHostingException(context, new Exception("HostingException"));
@@ -632,16 +632,16 @@
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void DoesntAddSourceIfRequestHeadersDontHaveSource(bool isAspNetCore2)
+        [InlineData(AspNetCoreMajorVersion.One)]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        public void DoesntAddSourceIfRequestHeadersDontHaveSource(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
 
-            using (var hostingListener = CreateHostingListener(isAspNetCore2))
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion))
             {
-                HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
-                HandleRequestEnd(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
             }
 
             Assert.Single(sentTelemetry);
@@ -652,9 +652,9 @@
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void OnBeginRequestWithW3CHeadersIsTrackedCorrectly(bool isAspNetCore2)
+        [InlineData(AspNetCoreMajorVersion.One)]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        public void OnBeginRequestWithW3CHeadersIsTrackedCorrectly(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             var configuration = TelemetryConfiguration.CreateDefault();
             configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
@@ -664,7 +664,7 @@
                 injectResponseHeaders: true,
                 trackExceptions: true,
                 enableW3CHeaders: true,
-                enableNewDiagnosticEvents: isAspNetCore2))
+                enableNewDiagnosticEvents: (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two)))
             {
                 hostingListener.OnSubscribe();
                 var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
@@ -675,7 +675,7 @@
                 context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "k=v";
                 context.Request.Headers[RequestResponseHeaders.RequestContextHeader] = "appId=something";
 
-                HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 var activityInitializedByW3CHeader = Activity.Current;
                 Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", activityInitializedByW3CHeader.GetTraceId());
@@ -684,7 +684,7 @@
                 Assert.Equal("state=some", activityInitializedByW3CHeader.GetTracestate());
                 Assert.Equal("v", activityInitializedByW3CHeader.Baggage.Single(t => t.Key == "k").Value);
 
-                HandleRequestEnd(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 Assert.Single(sentTelemetry);
                 var requestTelemetry = (RequestTelemetry) this.sentTelemetry.Single();
@@ -702,9 +702,9 @@
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void OnBeginRequestWithW3CHeadersAndRequestIdIsTrackedCorrectly(bool isAspNetCore2)
+        [InlineData(AspNetCoreMajorVersion.One)]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        public void OnBeginRequestWithW3CHeadersAndRequestIdIsTrackedCorrectly(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             var configuration = TelemetryConfiguration.CreateDefault();
             configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
@@ -714,7 +714,7 @@
                 injectResponseHeaders: true,
                 trackExceptions: true,
                 enableW3CHeaders: true,
-                enableNewDiagnosticEvents: isAspNetCore2))
+                enableNewDiagnosticEvents: aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two))
             {
                 hostingListener.OnSubscribe();
                 var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
@@ -726,11 +726,11 @@
                 context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "k=v";
                 context.Request.Headers[RequestResponseHeaders.RequestContextHeader] = "appId=something";
 
-                HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 var activityInitializedByW3CHeader = Activity.Current;
 
-                if (isAspNetCore2)
+                if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two)
                 {
                     Assert.Equal("|abc.1.2.3.", activityInitializedByW3CHeader.ParentId);
                 }
@@ -741,7 +741,7 @@
                 Assert.Equal("state=some", activityInitializedByW3CHeader.GetTracestate());
                 Assert.Equal("v", activityInitializedByW3CHeader.Baggage.Single(t => t.Key == "k").Value);
 
-                HandleRequestEnd(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 Assert.Single(sentTelemetry);
                 var requestTelemetry = (RequestTelemetry) this.sentTelemetry.Single();
@@ -756,7 +756,7 @@
                     out var appId));
                 Assert.Equal($"appId={CommonMocks.TestApplicationId}", appId);
 
-                if (isAspNetCore2)
+                if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two)
                 {
                     Assert.Equal("abc", requestTelemetry.Properties["ai_legacyRootId"]);
                     Assert.StartsWith("|abc.1.2.3.", requestTelemetry.Properties["ai_legacyRequestId"]);
@@ -765,9 +765,9 @@
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void OnBeginRequestWithNoW3CHeadersAndRequestIdIsTrackedCorrectly(bool isAspNetCore2)
+        [InlineData(AspNetCoreMajorVersion.One)]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        public void OnBeginRequestWithNoW3CHeadersAndRequestIdIsTrackedCorrectly(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             var configuration = TelemetryConfiguration.CreateDefault();
             configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
@@ -777,7 +777,7 @@
                 injectResponseHeaders: true,
                 trackExceptions: true,
                 enableW3CHeaders: true,
-                enableNewDiagnosticEvents: isAspNetCore2))
+                enableNewDiagnosticEvents: aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two))
             {
                 hostingListener.OnSubscribe();
                 var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
@@ -785,12 +785,12 @@
                 context.Request.Headers[RequestResponseHeaders.RequestIdHeader] = "|abc.1.2.3.";
                 context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "k=v";
 
-                HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 var activityInitializedByW3CHeader = Activity.Current;
 
                 Assert.Equal("|abc.1.2.3.", activityInitializedByW3CHeader.ParentId);
-                HandleRequestEnd(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 Assert.Single(sentTelemetry);
                 var requestTelemetry = (RequestTelemetry) this.sentTelemetry.Single();
@@ -807,9 +807,9 @@
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void OnBeginRequestWithW3CSupportAndNoHeadersIsTrackedCorrectly(bool isAspNetCore2)
+        [InlineData(AspNetCoreMajorVersion.One)]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        public void OnBeginRequestWithW3CSupportAndNoHeadersIsTrackedCorrectly(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             var configuration = TelemetryConfiguration.CreateDefault();
             configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
@@ -819,14 +819,14 @@
                 injectResponseHeaders: true,
                 trackExceptions: true,
                 enableW3CHeaders: true,
-                enableNewDiagnosticEvents: isAspNetCore2))
+                enableNewDiagnosticEvents: aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two))
             {
                 hostingListener.OnSubscribe();
 
                 var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
                 context.Request.Headers[RequestResponseHeaders.RequestContextHeader] = "appId=something";
 
-                HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 var activityInitializedByW3CHeader = Activity.Current;
 
@@ -839,7 +839,7 @@
                 Assert.Null(activityInitializedByW3CHeader.GetTracestate());
                 Assert.Empty(activityInitializedByW3CHeader.Baggage);
 
-                HandleRequestEnd(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 Assert.Single(sentTelemetry);
                 var requestTelemetry = (RequestTelemetry) this.sentTelemetry.Single();
@@ -857,9 +857,9 @@
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void OnBeginRequestWithW3CHeadersAndAppIdInState(bool isAspNetCore2)
+        [InlineData(AspNetCoreMajorVersion.One)]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        public void OnBeginRequestWithW3CHeadersAndAppIdInState(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             var configuration = TelemetryConfiguration.CreateDefault();
             configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
@@ -869,7 +869,7 @@
                 injectResponseHeaders: true,
                 trackExceptions: true,
                 enableW3CHeaders: true,
-                enableNewDiagnosticEvents: isAspNetCore2))
+                enableNewDiagnosticEvents: aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two))
             {
                 hostingListener.OnSubscribe();
 
@@ -880,12 +880,12 @@
                 context.Request.Headers[W3C.W3CConstants.TraceStateHeader] =
                     $"state=some,{W3C.W3CConstants.AzureTracestateNamespace}={ExpectedAppId}";
 
-                HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
                 var activityInitializedByW3CHeader = Activity.Current;
 
                 Assert.Equal("state=some", activityInitializedByW3CHeader.GetTracestate());
 
-                HandleRequestEnd(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 Assert.Single(sentTelemetry);
                 var requestTelemetry = (RequestTelemetry) this.sentTelemetry.Single();
@@ -899,9 +899,9 @@
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void RequestTelemetryIsProactivelySampledOutIfFeatureFlagIsOn(bool isAspNetCore2)
+        [InlineData(AspNetCoreMajorVersion.One)]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        public void RequestTelemetryIsProactivelySampledOutIfFeatureFlagIsOn(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             TelemetryConfiguration config = TelemetryConfiguration.CreateDefault();
             config.ExperimentalFeatures.Add("proactiveSampling");
@@ -909,9 +909,9 @@
 
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
 
-            using (var hostingListener = CreateHostingListener(isAspNetCore2, config))
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion, config))
             {
-                HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 Assert.NotNull(Activity.Current);
 
@@ -925,18 +925,18 @@
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void RequestTelemetryIsNotProactivelySampledOutIfFeatureFlasIfOff(bool isAspNetCore2)
+        [InlineData(AspNetCoreMajorVersion.One)]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        public void RequestTelemetryIsNotProactivelySampledOutIfFeatureFlasIfOff(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             TelemetryConfiguration config = TelemetryConfiguration.CreateDefault();            
             config.SetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Request, 0);
 
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
 
-            using (var hostingListener = CreateHostingListener(isAspNetCore2, config))
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion, config))
             {
-                HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 Assert.NotNull(Activity.Current);
 
@@ -949,9 +949,9 @@
             }
         }
 
-        private void HandleRequestBegin(HostingDiagnosticListener hostingListener, HttpContext context, long timestamp, bool isAspNetCore2)
+        private void HandleRequestBegin(HostingDiagnosticListener hostingListener, HttpContext context, long timestamp, AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
-            if (isAspNetCore2)
+            if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two)
             {
                 if (Activity.Current == null)
                 {
@@ -977,9 +977,9 @@
             }
         }
 
-        private void HandleRequestEnd(HostingDiagnosticListener hostingListener, HttpContext context, long timestamp, bool isAspNetCore2)
+        private void HandleRequestEnd(HostingDiagnosticListener hostingListener, HttpContext context, long timestamp, AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
-            if (isAspNetCore2)
+            if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two)
             {
                 hostingListener.OnHttpRequestInStop(context);
             }

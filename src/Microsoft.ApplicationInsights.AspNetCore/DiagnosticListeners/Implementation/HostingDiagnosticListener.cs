@@ -17,6 +17,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental;
     using Microsoft.ApplicationInsights.Extensibility.W3C;
+    using Microsoft.ApplicationInsights.W3C;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Primitives;
 
@@ -29,7 +30,6 @@
         private const string ProactiveSamplingFeatureFlagName = "proactiveSampling";
         private const string ConditionalAppIdFeatureFlagName = "conditionalAppId";
         private static readonly Regex TraceIdRegex = new Regex("^[a-f0-9]{32}$", RegexOptions.Compiled);
-        private static readonly ActivitySpanId AllZeroSpanID = new Activity("ignore").SpanId;
 
         /// <summary>
         /// Determine whether the running AspNetCore Hosting version is 2.0 or higher. This will affect what DiagnosticSource events we receive.
@@ -73,6 +73,8 @@
 
         private string lastIKeyLookedUp;
         private string lastAppIdUsed;
+
+        internal const string LegacyRootIdProperty = "ai_legacyRootId";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HostingDiagnosticListener"/> class.
@@ -230,6 +232,7 @@
                 Activity newActivity = null;
                 string sourceAppId = null;
                 string originalParentId = currentActivity.ParentId;
+                string legacyRootId = null;
 
                 // 3 posibilities when TelemetryConfiguration.EnableW3CCorrelation = true
                 // 1. No incoming headers. originalParentId will be null. Simply use the Activity as such.
@@ -266,11 +269,12 @@
                         if (IsCompatibleW3CTraceID(rootIdFromOriginalParentId))
                         {
                             newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
-                            newActivity.SetParentId(ActivityTraceId.CreateFromString(rootIdFromOriginalParentId.AsSpan()), AllZeroSpanID, ActivityTraceFlags.None);
+                            newActivity.SetParentId(ActivityTraceId.CreateFromString(rootIdFromOriginalParentId.AsSpan()), default(ActivitySpanId), ActivityTraceFlags.None);
                         }
                         else
                         {
                             // store rootIdFromOriginalParentId in custom Property
+                            legacyRootId = rootIdFromOriginalParentId;
                         }
                     }
                 }
@@ -282,27 +286,13 @@
                     newActivity.SetParentId(originalParentId);
                 }
 
-                // W3C
-                if (this.enableW3CHeaders)
-                {
-                    this.SetW3CContext(httpContext.Request.Headers, currentActivity, out sourceAppId);
-
-                    var parentSpanId = currentActivity.GetParentSpanId();
-                    if (parentSpanId != null)
-                    {
-                        originalParentId = $"|{currentActivity.GetTraceId()}.{parentSpanId}.";
-                    }
-                }
-
-                
-
                 if (newActivity != null)
                 {
                     newActivity.Start();
                     currentActivity = newActivity;
                 }
 
-                var requestTelemetry = this.InitializeRequestTelemetry(httpContext, currentActivity, Stopwatch.GetTimestamp());
+                var requestTelemetry = this.InitializeRequestTelemetry(httpContext, currentActivity, Stopwatch.GetTimestamp(), legacyRootId);
                 if (this.enableW3CHeaders && sourceAppId != null)
                 {
                     requestTelemetry.Source = sourceAppId;
@@ -346,67 +336,50 @@
                     return;
                 }
 
+                // 1.XX does not create Activity and SDK is responsible for creating Activity.
                 var activity = new Activity(ActivityCreatedByHostingDiagnosticListener);
-
                 string sourceAppId = null;
-
                 IHeaderDictionary requestHeaders = httpContext.Request.Headers;
-
                 string originalParentId = null;
+                string legacyRootId = null;
 
-                // W3C
-                if (this.enableW3CHeaders)
+                // W3C-TraceParent
+                if (Activity.DefaultIdFormat == ActivityIdFormat.W3C && 
+                    requestHeaders.TryGetValue(W3C.W3CConstants.TraceParentHeader, out StringValues traceParentValues) &&
+                    traceParentValues != StringValues.Empty)
                 {
-                    this.SetW3CContext(httpContext.Request.Headers, activity, out sourceAppId);
-                    var parentSpanId = activity.GetParentSpanId();
-                    if (parentSpanId != null)
-                    {
-                        originalParentId = $"|{activity.GetTraceId()}.{parentSpanId}.";
-                    }
-
-                    // length enforced in SetW3CContext
+                    var parentTraceParent = StringUtilities.EnforceMaxLength(traceParentValues.First(), InjectionGuardConstants.TraceParentHeaderMaxLength);
+                    originalParentId = parentTraceParent;
+                    activity.SetParentId(originalParentId);
                 }
-
                 // Request-Id
-                if (requestHeaders.TryGetValue(RequestResponseHeaders.RequestIdHeader, out StringValues requestIdValues) &&
+                else if (requestHeaders.TryGetValue(RequestResponseHeaders.RequestIdHeader, out StringValues requestIdValues) &&
                     requestIdValues != StringValues.Empty)
                 {
                     var requestId = StringUtilities.EnforceMaxLength(requestIdValues.First(), InjectionGuardConstants.RequestHeaderMaxLength);
-                    activity.SetParentId(requestId);
-
-                    ReadCorrelationContext(requestHeaders, activity);
-
-                    if (originalParentId == null)
+                    originalParentId = requestId;
+                    var rootIdFromOriginalRequestId = ExtractOperationIdFromRequestId(requestId);
+                    if (IsCompatibleW3CTraceID(rootIdFromOriginalRequestId))
                     {
-                        originalParentId = requestId;
-                    }
-                }
-                // no headers
-                else if (originalParentId == null)
-                {
-                    // As a first step in supporting W3C protocol in ApplicationInsights,
-                    // we want to generate Activity Ids in the W3C compatible format.
-                    // While .NET changes to Activity are pending, we want to ensure trace starts with W3C compatible Id
-                    // as early as possible, so that everyone has a chance to upgrade and have compatibility with W3C systems once they arrive.
-                    // So if there is no current Activity (i.e. there were no Request-Id header in the incoming request), we'll override ParentId on
-                    // the current Activity by the properly formatted one. This workaround should go away
-                    // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331
-                    if (this.enableW3CHeaders)
-                    {
-                        activity.GenerateW3CContext();
-                        activity.SetParentId(activity.GetTraceId());
+                        activity.SetParentId(ActivityTraceId.CreateFromString(rootIdFromOriginalRequestId.AsSpan()), default(ActivitySpanId), ActivityTraceFlags.None);
                     }
                     else
                     {
-                        activity.SetParentId(W3CUtilities.GenerateTraceId());
+                        legacyRootId = rootIdFromOriginalRequestId;
+                        // store rootIdFromOriginalParentId in custom Property inside RequestTelemetry
                     }
 
-                    // end of workaround
+                    ReadCorrelationContext(requestHeaders, activity);
+                }
+                // no headers
+                else
+                {
+                    // No need of doing anything. When Activity starts, it'll generate IDs in W3C or Hierrachial format as configured,
                 }
 
                 activity.Start();
 
-                var requestTelemetry = this.InitializeRequestTelemetry(httpContext, activity, timestamp);
+                var requestTelemetry = this.InitializeRequestTelemetry(httpContext, activity, timestamp, legacyRootId);
                 if (this.enableW3CHeaders && sourceAppId != null)
                 {
                     requestTelemetry.Source = sourceAppId;
@@ -492,7 +465,7 @@
             return TraceIdRegex.IsMatch(traceId);
         }
 
-        private RequestTelemetry InitializeRequestTelemetry(HttpContext httpContext, Activity activity, long timestamp)
+        private RequestTelemetry InitializeRequestTelemetry(HttpContext httpContext, Activity activity, long timestamp, string legacyRootId = null)
         {
             var requestTelemetry = new RequestTelemetry();
 
@@ -527,6 +500,11 @@
                     {
                         requestTelemetry.Properties[prop.Key] = prop.Value;
                     }
+                }
+
+                if(!string.IsNullOrEmpty(legacyRootId))
+                {
+                    requestTelemetry.Properties[LegacyRootIdProperty] = legacyRootId;
                 }
             }
 
@@ -672,6 +650,7 @@
             }
         }
 
+        /*
         private void SetW3CContext(IHeaderDictionary requestHeaders, Activity activity, out string sourceAppId)
         {
             sourceAppId = null;
@@ -714,7 +693,7 @@
             }
 
             ReadCorrelationContext(requestHeaders, activity);
-        }
+        }*/
 
         private void ReadCorrelationContext(IHeaderDictionary requestHeaders, Activity activity)
         {
