@@ -247,9 +247,19 @@
 
                 var requestTelemetry = context.Features.Get<RequestTelemetry>();
                 Assert.NotNull(requestTelemetry);
-                Assert.Equal(requestTelemetry.Id, Activity.Current.Id);
-                Assert.Equal(requestTelemetry.Context.Operation.Id, Activity.Current.RootId);
-                Assert.Null(requestTelemetry.Context.Operation.ParentId);
+
+                if(true)
+                {
+                    Assert.Equal(requestTelemetry.Id, FormatTelemetryId(Activity.Current.TraceId.ToHexString(), Activity.Current.SpanId.ToHexString()));
+                    Assert.Equal(requestTelemetry.Context.Operation.Id, Activity.Current.TraceId.ToHexString());
+                    Assert.Null(requestTelemetry.Context.Operation.ParentId);
+                }
+                else
+                {
+                    Assert.Equal(requestTelemetry.Id, Activity.Current.Id);
+                    Assert.Equal(requestTelemetry.Context.Operation.Id, Activity.Current.RootId);
+                    Assert.Null(requestTelemetry.Context.Operation.ParentId);
+                }
 
                 // W3C compatible-Id ( should go away when W3C is implemented in .NET https://github.com/dotnet/corefx/issues/30331)
                 Assert.Equal(32, requestTelemetry.Context.Operation.Id.Length);
@@ -977,6 +987,11 @@
             {
                 hostingListener.OnEndRequest(context, timestamp);
             }
+        }
+
+        private static string FormatTelemetryId(string traceId, string spanId)
+        {
+            return string.Concat("|", traceId, ".", spanId, ".");
         }
 
         public void Dispose()
