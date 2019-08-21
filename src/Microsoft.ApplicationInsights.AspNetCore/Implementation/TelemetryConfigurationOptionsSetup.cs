@@ -205,7 +205,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private void EnableW3CHeaders(TelemetryConfiguration configuration)
         {
-            configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
+            // configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
         }
     }
 }

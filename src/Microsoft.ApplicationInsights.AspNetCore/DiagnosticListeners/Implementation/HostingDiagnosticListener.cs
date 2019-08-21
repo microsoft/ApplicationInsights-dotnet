@@ -6,6 +6,7 @@
     using System.Globalization;
     using System.Linq;
     using System.Text;
+    using System.Text.RegularExpressions;
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.Implementation;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
@@ -27,6 +28,8 @@
         private const string ActivityCreatedByHostingDiagnosticListener = "ActivityCreatedByHostingDiagnosticListener";
         private const string ProactiveSamplingFeatureFlagName = "proactiveSampling";
         private const string ConditionalAppIdFeatureFlagName = "conditionalAppId";
+        private static readonly Regex TraceIdRegex = new Regex("^[a-f0-9]{32}$", RegexOptions.Compiled);
+        private static readonly ActivitySpanId AllZeroSpanID = new Activity("ignore").SpanId;
 
         /// <summary>
         /// Determine whether the running AspNetCore Hosting version is 2.0 or higher. This will affect what DiagnosticSource events we receive.
@@ -224,10 +227,60 @@
                 }
 
                 var currentActivity = Activity.Current;
+                Activity newActivity = null;
                 string sourceAppId = null;
                 string originalParentId = currentActivity.ParentId;
 
-                Activity newActivity = null;
+                // 3 posibilities when TelemetryConfiguration.EnableW3CCorrelation = true
+                // 1. No incoming headers. originalParentId will be null. Simply use the Activity as such.
+                // 2. Incoming Request-ID Headers. originalParentId will be request-id, but Activity ignores this for ID calculations.
+                //    If incoming ID is W3C compatible, ignore current Activity. Create new one with parent set to incoming W3C compatible rootid.  
+                //    If incoming ID is not W3C compatible, we can use Activity as such, but need to store originalParentID in custom property 'legacyRootId'
+                // 3. Incoming TraceParent header. Need to ignore current Activity, and create new from incoming W3C TraceParent header.
+
+                // Another 3 posibilities when TelemetryConfiguration.EnableW3CCorrelation = false
+                // 1. No incoming headers. originalParentId will be null. Simply use the Activity as such.
+                // 2. Incoming Request-ID Headers. originalParentId will be request-id, Activity uses this for ID calculations.
+                // 3. Incoming TraceParent header. Will simply Ignore W3C headers, and Current Activity used as such.
+
+                // Attempt to find parent from incoming W3C Headers which 2.XX Hosting is unaware of.
+                if (currentActivity.IdFormat == ActivityIdFormat.W3C && httpContext.Request.Headers.TryGetValue(W3C.W3CConstants.TraceParentHeader, out StringValues traceParentValues))
+                {
+                    var parentTraceParent = StringUtilities.EnforceMaxLength(
+                        traceParentValues.First(),
+                        InjectionGuardConstants.TraceParentHeaderMaxLength);
+                    originalParentId = parentTraceParent;                    
+                }
+
+                // Scenario #1. No incoming correlation headers.
+                if (originalParentId == null)
+                {
+                    // Nothing to do here. 
+                }
+                else if(originalParentId.StartsWith("|"))
+                {
+                    if (currentActivity.IdFormat == ActivityIdFormat.W3C)
+                    {
+                        // Scenario #2. RequestID
+                        var rootIdFromOriginalParentId = ExtractOperationIdFromRequestId(originalParentId);
+                        if (IsCompatibleW3CTraceID(rootIdFromOriginalParentId))
+                        {
+                            newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
+                            newActivity.SetParentId(ActivityTraceId.CreateFromString(rootIdFromOriginalParentId.AsSpan()), AllZeroSpanID, ActivityTraceFlags.None);
+                        }
+                        else
+                        {
+                            // store rootIdFromOriginalParentId in custom Property
+                        }
+                    }
+                }
+                else
+                {
+                    // Scenario #3. W3C-TraceParent
+                    // We need to ignore the Activity created by Hosting, as it did not take W3CTraceParent into consideration.
+                    newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
+                    newActivity.SetParentId(originalParentId);
+                }
 
                 // W3C
                 if (this.enableW3CHeaders)
@@ -241,29 +294,7 @@
                     }
                 }
 
-                // no headers
-                if (originalParentId == null)
-                {
-                    // As a first step in supporting W3C protocol in ApplicationInsights,
-                    // we want to generate Activity Ids in the W3C compatible format.
-                    // While .NET changes to Activity are pending, we want to ensure trace starts with W3C compatible Id
-                    // as early as possible, so that everyone has a chance to upgrade and have compatibility with W3C systems once they arrive.
-                    // So if there is no current Activity (i.e. there were no Request-Id header in the incoming request), we'll override ParentId on
-                    // the current Activity by the properly formatted one. This workaround should go away
-                    // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331
-                    newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
-                    if (this.enableW3CHeaders)
-                    {
-                        newActivity.GenerateW3CContext();
-                        newActivity.SetParentId(newActivity.GetTraceId());
-                    }
-                    else
-                    {
-                        newActivity.SetParentId(W3CUtilities.GenerateTraceId());
-                    }
-
-                    // end of workaround
-                }
+                
 
                 if (newActivity != null)
                 {
@@ -281,6 +312,13 @@
 
                 this.AddAppIdToResponseIfRequired(httpContext, requestTelemetry);
             }
+        }
+
+        private string ExtractOperationIdFromRequestId(string originalParentId)
+        {
+            int indexPipe = originalParentId.IndexOf('|');
+            int indexDot = originalParentId.IndexOf('.');
+            return originalParentId.Substring(indexPipe + 1, (indexDot - indexPipe) - 1); 
         }
 
         /// <summary>
@@ -439,18 +477,34 @@
             }
         }
 
+        private static string FormatTelemetryId(string traceId, string spanId)
+        {
+            return string.Concat("|", traceId, ".", spanId, ".");
+        }
+
+        /// <summary>
+        /// Checks if the given string is a valid trace-id as per W3C Specs.
+        /// https://github.com/w3c/distributed-tracing/blob/master/trace_context/HTTP_HEADER_FORMAT.md#trace-id .
+        /// </summary>
+        /// <returns>true if valid w3c trace id, otherwise false.</returns>
+        private static bool IsCompatibleW3CTraceID(string traceId)
+        {
+            return TraceIdRegex.IsMatch(traceId);
+        }
+
         private RequestTelemetry InitializeRequestTelemetry(HttpContext httpContext, Activity activity, long timestamp)
         {
             var requestTelemetry = new RequestTelemetry();
 
-            if (!this.enableW3CHeaders)
+            if (activity.IdFormat == ActivityIdFormat.W3C)
             {
-                requestTelemetry.Context.Operation.Id = activity.RootId;
-                requestTelemetry.Id = activity.Id;
+                requestTelemetry.Id = FormatTelemetryId(activity.TraceId.ToHexString(), activity.SpanId.ToHexString());
+                requestTelemetry.Context.Operation.Id = activity.TraceId.ToHexString();                
             }
             else
             {
-                activity.UpdateTelemetry(requestTelemetry, false);
+                requestTelemetry.Context.Operation.Id = activity.RootId;
+                requestTelemetry.Id = activity.Id;
             }
 
             if (this.proactiveSamplingEnabled

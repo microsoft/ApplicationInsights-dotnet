@@ -19,7 +19,7 @@
 #else
             this.TrackExceptions = true;
 #endif
-            this.EnableW3CDistributedTracing = false;
+            this.EnableW3CDistributedTracing = true;
         }
 
         /// <summary>
