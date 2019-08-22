@@ -3,7 +3,6 @@
     using System;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-
     /// <summary>
     /// Extension of <see cref="ExpectedExceptionAttribute"/> class to validate a test based on both the exception type and message.
     /// </summary>
