@@ -453,6 +453,51 @@
         [InlineData(AspNetCoreMajorVersion.Two, true)]
         [InlineData(AspNetCoreMajorVersion.One, false)]
         [InlineData(AspNetCoreMajorVersion.Two, false)]
+        public void RequestWithW3CTraceParentButInvalidEntryCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
+        {
+            // Tests Request correlation when incoming request has only Request-ID headers.
+            HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
+            // Trace Parent which does not follow w3c spec.
+            var traceParent = "004e3083444c10254ba40513c7316332eb-e2a5f830c0ee2c4600";
+            context.Request.Headers[W3C.W3CConstants.TraceParentHeader] = traceParent;
+            context.Request.Headers[W3C.W3CConstants.TraceStateHeader] = "prop1=value1, prop2=value2";
+
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion, isW3C: IsW3C))
+            {
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
+                var activity = Activity.Current;
+                Assert.NotNull(activity);
+                Assert.NotEqual(traceParent, activity.Id);
+
+                if (IsW3C)
+                {
+                    Assert.Equal("prop1=value1, prop2=value2", activity.TraceStateString);
+                }
+
+                Assert.NotNull(context.Features.Get<RequestTelemetry>());
+
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
+
+                Assert.Single(sentTelemetry);
+                var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
+
+                if (IsW3C)
+                {
+                    // parentid populated only in W3C mode
+                    ValidateRequestTelemetry(requestTelemetry, activity, IsW3C, expectedParentId: traceParent, expectedSource: null);
+                }
+                else
+                {
+                    ValidateRequestTelemetry(requestTelemetry, activity, IsW3C, expectedParentId: null, expectedSource: null);
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData(AspNetCoreMajorVersion.One, true)]
+        [InlineData(AspNetCoreMajorVersion.Two, true)]
+        [InlineData(AspNetCoreMajorVersion.One, false)]
+        [InlineData(AspNetCoreMajorVersion.Two, false)]
         public void RequestWithBothW3CAndRequestIdCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
         {
             // Tests Request correlation when incoming request has both W3C TraceParent and Request-ID headers,
