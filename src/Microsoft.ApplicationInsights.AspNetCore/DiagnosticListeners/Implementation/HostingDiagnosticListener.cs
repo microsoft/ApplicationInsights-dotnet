@@ -526,7 +526,44 @@
                     }
                 }
 
-                if(!string.IsNullOrEmpty(legacyRootId))
+
+                if(!string.IsNullOrEmpty(activity.TraceStateString))
+                {
+                    string[] traceStates = activity.TraceStateString.Split(',');
+                    foreach(var state in traceStates)
+                    {
+                        var parts = state.Split('=');
+                        if (parts.Length == 2)
+                        {
+                            var itemName = StringUtilities.EnforceMaxLength(parts[0], InjectionGuardConstants.ContextHeaderKeyMaxLength);
+                            var itemValue = StringUtilities.EnforceMaxLength(parts[1], InjectionGuardConstants.ContextHeaderValueMaxLength);
+                            if (!requestTelemetry.Properties.ContainsKey(itemName))
+                            {
+                                requestTelemetry.Properties[itemName.Trim()] = itemValue.Trim();
+                            }
+                        }
+                    }
+                }
+
+               
+
+                string[] baggage = httpContext.Request.Headers.GetCommaSeparatedValues(W3CConstants.TraceStateHeader);
+                if (baggage != StringValues.Empty)
+                {
+                    foreach (var item in baggage)
+                    {
+                        var parts = item.Split('=');
+                        if (parts.Length == 2)
+                        {
+                            var itemName = StringUtilities.EnforceMaxLength(parts[0], InjectionGuardConstants.ContextHeaderKeyMaxLength);
+                            var itemValue = StringUtilities.EnforceMaxLength(parts[1], InjectionGuardConstants.ContextHeaderValueMaxLength);
+                            activity.AddBaggage(itemName, itemValue);
+                        }
+                    }
+                }
+
+
+                if (!string.IsNullOrEmpty(legacyRootId))
                 {
                     requestTelemetry.Properties[LegacyRootIdProperty] = legacyRootId;
                 }
@@ -674,7 +711,7 @@
             }
         }
 
-        /*
+        
         private void SetW3CContext(IHeaderDictionary requestHeaders, Activity activity, out string sourceAppId)
         {
             sourceAppId = null;
@@ -683,7 +720,7 @@
                 var parentTraceParent = StringUtilities.EnforceMaxLength(
                     traceParentValues.First(),
                     InjectionGuardConstants.TraceParentHeaderMaxLength);
-                activity.SetTraceparent(parentTraceParent);
+              //  activity.SetTraceparent(parentTraceParent);
             }
 
             string[] traceStateValues = HttpHeadersUtilities.SafeGetCommaSeparatedHeaderValues(
@@ -712,13 +749,13 @@
                 {
                     // remove last comma
                     var tracestateStr = pairsExceptAz.ToString(0, pairsExceptAz.Length - 1);
-                    activity.SetTracestate(StringUtilities.EnforceMaxLength(tracestateStr, InjectionGuardConstants.TraceStateHeaderMaxLength));
+                  //  activity.SetTracestate(StringUtilities.EnforceMaxLength(tracestateStr, InjectionGuardConstants.TraceStateHeaderMaxLength));
                 }
             }
 
             ReadCorrelationContext(requestHeaders, activity);
-        }*/
-
+        }
+        
         private void ReadCorrelationContext(IHeaderDictionary requestHeaders, Activity activity)
         {
             string[] baggage = requestHeaders.GetCommaSeparatedValues(RequestResponseHeaders.CorrelationContextHeader);
@@ -739,19 +776,9 @@
 
         private void ReadTraceState(IHeaderDictionary requestHeaders, Activity activity)
         {
-            string[] baggage = requestHeaders.GetCommaSeparatedValues(W3CConstants.TraceStateHeader);
-            if (baggage != StringValues.Empty)
+            if (requestHeaders.TryGetValue(W3CConstants.TraceStateHeader, out var traceState))
             {
-                foreach (var item in baggage)
-                {
-                    var parts = item.Split('=');
-                    if (parts.Length == 2)
-                    {
-                        var itemName = StringUtilities.EnforceMaxLength(parts[0], InjectionGuardConstants.ContextHeaderKeyMaxLength);
-                        var itemValue = StringUtilities.EnforceMaxLength(parts[1], InjectionGuardConstants.ContextHeaderValueMaxLength);
-                        activity.AddBaggage(itemName, itemValue);
-                    }
-                }
+                activity.TraceStateString = traceState;
             }
         }
 

@@ -442,8 +442,7 @@
 
                 if (IsW3C)
                 {
-                    Assert.Single(activity.Baggage.Where(b => b.Key == "prop1" && b.Value == "value1"));
-                    Assert.Single(activity.Baggage.Where(b => b.Key == "prop2" && b.Value == "value2"));
+                    Assert.Equal("prop1=value1, prop2=value2", activity.TraceStateString);
                 }
 
                 Assert.NotNull(context.Features.Get<RequestTelemetry>());
@@ -957,48 +956,6 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
-        public void OnBeginRequestWithNoW3CHeadersAndRequestIdIsTrackedCorrectly(AspNetCoreMajorVersion aspNetCoreMajorVersion)
-        {
-            var configuration = TelemetryConfiguration.CreateDefault();
-            configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
-            using (var hostingListener = new HostingDiagnosticListener(
-                CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry.Enqueue(telemetry), configuration),
-                CommonMocks.GetMockApplicationIdProvider(),
-                injectResponseHeaders: true,
-                trackExceptions: true,
-                enableW3CHeaders: true,
-                enableNewDiagnosticEvents: aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two))
-            {
-                hostingListener.OnSubscribe();
-                var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
-
-                context.Request.Headers[RequestResponseHeaders.RequestIdHeader] = "|abc.1.2.3.";
-                context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "k=v";
-
-                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
-
-                var activityInitializedByW3CHeader = Activity.Current;
-
-                Assert.Equal("|abc.1.2.3.", activityInitializedByW3CHeader.ParentId);
-                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
-
-                Assert.Single(sentTelemetry);
-                var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
-
-                Assert.Equal(
-                    $"|{activityInitializedByW3CHeader.GetTraceId()}.{activityInitializedByW3CHeader.GetSpanId()}.",
-                    requestTelemetry.Id);
-                Assert.Equal(activityInitializedByW3CHeader.GetTraceId(), requestTelemetry.Context.Operation.Id);
-                Assert.Equal("|abc.1.2.3.", requestTelemetry.Context.Operation.ParentId);
-
-                Assert.Equal("abc", requestTelemetry.Properties["ai_legacyRootId"]);
-                Assert.StartsWith("|abc.1.2.3.", requestTelemetry.Properties["ai_legacyRequestId"]);
-            }
-        }
-
-        [Theory]
-        [InlineData(AspNetCoreMajorVersion.One)]
-        [InlineData(AspNetCoreMajorVersion.Two)]
         public void OnBeginRequestWithW3CSupportAndNoHeadersIsTrackedCorrectly(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             var configuration = TelemetryConfiguration.CreateDefault();
@@ -1073,7 +1030,7 @@
                 HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
                 var activityInitializedByW3CHeader = Activity.Current;
 
-                Assert.Equal("state=some", activityInitializedByW3CHeader.GetTracestate());
+                Assert.Equal("state=some", activityInitializedByW3CHeader.TraceStateString);
 
                 HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
 
