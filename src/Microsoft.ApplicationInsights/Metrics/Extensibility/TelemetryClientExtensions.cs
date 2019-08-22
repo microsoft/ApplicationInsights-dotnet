@@ -16,7 +16,7 @@
         private static ConditionalWeakTable<TelemetryClient, MetricManager> metricManagersForTelemetryClients;
 
         /// <summary>Gets the <c>MetricManager</c> for this <c>TelemetryClient</c> at the specified scope.
-        /// Of a metric manager does not exist at the specified scope, it is created.</summary>
+        /// If a metric manager does not exist at the specified scope, it is created.</summary>
         /// <param name="telemetryClient">The telemetry client for which to get the metric manager.</param>
         /// <param name="aggregationScope">If <c>MetricAggregationScope.TelemetryClient</c> is specified,
         /// the metric manager specific to this client is returned. Such manager aggregates metrics for this

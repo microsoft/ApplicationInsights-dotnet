@@ -8,7 +8,7 @@
     /// @PublicExposureCandidate
     internal sealed class MetricAggregateToTelemetryPipelineConverters 
     {
-        /// <summary>Default singelton</summary>
+        /// <summary>Default singelton.</summary>
         public static readonly MetricAggregateToTelemetryPipelineConverters Registry = new MetricAggregateToTelemetryPipelineConverters();
 
         private ConcurrentDictionary<Type, ConcurrentDictionary<string, IMetricAggregateToTelemetryPipelineConverter>> pipelineTable
@@ -16,7 +16,7 @@
 
         /// <summary>Adds a converter to the registry.</summary>
         /// <param name="pipelineType">Type of the data output pipeline.</param>
-        /// <param name="aggregationKindMoniker">Aggregation kind moniker</param>
+        /// <param name="aggregationKindMoniker">Aggregation kind moniker.</param>
         /// <param name="converter">The converter being registered.</param>
         public void Add(Type pipelineType, string aggregationKindMoniker, IMetricAggregateToTelemetryPipelineConverter converter)
         {

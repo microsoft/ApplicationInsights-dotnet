@@ -9,7 +9,7 @@
     /// Count of values tracked over the aggregation time period.</summary>
     public interface IMetricSeriesAggregator
     {
-        /// <summary>Data seres aggregated by this aggregator.</summary>
+        /// <summary>Gets the data series aggregated by this aggregator.</summary>
         MetricSeries DataSeries { get; }
 
         /// <summary>Attempts to reset this aggregator so it ban be reused for a new aggregation period.</summary>

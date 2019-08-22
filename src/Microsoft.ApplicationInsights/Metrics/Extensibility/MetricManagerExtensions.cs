@@ -30,7 +30,7 @@
         /// <summary>If the specified aggragation cycle is not active, it is started.
         /// If is is already active, it is completed, and a new cycle is started.</summary>
         /// <param name="metricManager">The metric manager that owns the aggregation cycle.</param>
-        /// <param name="aggregationCycleKind">The kind of the aggregation cycle to start or cycle</param>
+        /// <param name="aggregationCycleKind">The kind of the aggregation cycle to start or cycle.</param>
         /// <param name="tactTimestamp">Timestamp to b used as cycle sart for all respective aggregators.</param>
         /// <param name="futureFilter">Filter to be used for the new cycle.</param>
         /// <returns>A holder containing aggregates for the previous cycle, if any.</returns>

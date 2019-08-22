@@ -6,7 +6,12 @@
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
-    /// <summary>@ToDo: Complete documentation before stable release. {529}.</summary>
+    /// <summary>A metric manager coordinates metrics aggregation at a specific scope.
+    /// It keeps track of the known metrics and is ultimataly respnsibe for correctly
+    /// initializeing metric data time series.
+    /// Note that a metric manager deals with zero dimensional time series.
+    /// Metric objects are multidimensional collections of such series and the manager 
+    /// merely holds a collection of such containers for its scope.</summary>
     public sealed class MetricManager
     {
         private readonly MetricAggregationManager aggregationManager;
@@ -14,8 +19,8 @@
         private readonly IMetricTelemetryPipeline telemetryPipeline;
         private readonly MetricsCollection metrics;
 
-        /// <summary>@ToDo: Complete documentation before stable release. {599}.</summary>
-        /// <param name="telemetryPipeline">@ToDo: Complete documentation before stable release. {795}.</param>
+        /// <summary>Initializes a new metric manager.</summary>
+        /// <param name="telemetryPipeline">The destination where aggregates will be sent.</param>
         public MetricManager(IMetricTelemetryPipeline telemetryPipeline)
         {
             Util.ValidateNotNull(telemetryPipeline, nameof(telemetryPipeline));
@@ -41,7 +46,7 @@
             }
         }
 
-        /// <summary>Gets @ToDo: Complete documentation before stable release. {328}.</summary>
+        /// <summary>Gets the collection of metrics available the this manager's scope.</summary>
         public MetricsCollection Metrics
         {
             get { return this.metrics; }
@@ -57,11 +62,11 @@
             get { return this.aggregationCycle; }
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {362}.</summary>
-        /// <param name="metricNamespace">@ToDo: Complete documentation before stable release. {953}.</param>
-        /// <param name="metricId">@ToDo: Complete documentation before stable release. {176}.</param>
-        /// <param name="config">@ToDo: Complete documentation before stable release. {016}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {996}.</returns>
+        /// <summary>Creates and initilizes a new metric data time series.</summary>
+        /// <param name="metricNamespace">Namespace of the metric to whcih the series belongs.</param>
+        /// <param name="metricId">Id (name) if the metric to which the series belongs.</param>
+        /// <param name="config">Configuration of the series, including the aggregatio kind and other aspects.</param>
+        /// <returns>A new metric data time series.</returns>
         public MetricSeries CreateNewSeries(string metricNamespace, string metricId, IMetricSeriesConfiguration config)
         {
             return this.CreateNewSeries(
@@ -71,12 +76,12 @@
                             config: config);
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {064}.</summary>
-        /// <param name="metricNamespace">@ToDo: Complete documentation before stable release. {831}.</param>
-        /// <param name="metricId">@ToDo: Complete documentation before stable release. {381}.</param>
-        /// <param name="dimensionNamesAndValues">@ToDo: Complete documentation before stable release. {374}.</param>
-        /// <param name="config">@ToDo: Complete documentation before stable release. {303}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {866}.</returns>
+        /// <summary>Creates and initilizes a new metric data time series.</summary>
+        /// <param name="metricNamespace">Namespace of the metric to whcih the series belongs.</param>
+        /// <param name="metricId">Id (name) if the metric to which the series belongs.</param>
+        /// <param name="dimensionNamesAndValues">The dimension names and values of the series within its metric.</param>
+        /// <param name="config">Configuration of the series, including the aggregatio kind and other aspects.</param>
+        /// <returns>A new metric data time series.</returns>
         public MetricSeries CreateNewSeries(
                                     string metricNamespace, 
                                     string metricId, 
@@ -100,11 +105,11 @@
             return this.CreateNewSeries(metricIdentifier, dimensionNamesAndValues, config);
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {569}.</summary>
-        /// <param name="metricIdentifier">@ToDo: Complete documentation before stable release. {108}.</param>
-        /// <param name="dimensionNamesAndValues">@ToDo: Complete documentation before stable release. {785}.</param>
-        /// <param name="config">@ToDo: Complete documentation before stable release. {275}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {908}.</returns>
+        /// <summary>Creates and initilizes a new metric data time series.</summary>
+        /// <param name="metricIdentifier">THe identify of the metric to whcih the series belongs.</param>
+        /// <param name="dimensionNamesAndValues">The dimension names and values of the series within its metric.</param>
+        /// <param name="config">Configuration of the series, including the aggregatio kind and other aspects.</param>
+        /// <returns>A new metric data time series.</returns>
         public MetricSeries CreateNewSeries(MetricIdentifier metricIdentifier, IEnumerable<KeyValuePair<string, string>> dimensionNamesAndValues, IMetricSeriesConfiguration config)
         {
             Util.ValidateNotNull(metricIdentifier, nameof(metricIdentifier));
@@ -114,7 +119,7 @@
             return dataSeries;
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {134}.</summary>
+        /// <summary>Flushes cached metric data. The default aggregation cycle will be completed/restarted if required.</summary>
         public void Flush()
         {
             this.Flush(flushDownstreamPipeline: true);
