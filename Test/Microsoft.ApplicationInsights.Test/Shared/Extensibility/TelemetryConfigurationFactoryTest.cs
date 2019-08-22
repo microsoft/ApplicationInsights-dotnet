@@ -203,7 +203,7 @@
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
 
             // ASSERT
-            Assert.AreEqual(ikeyConfigConnectionString, configuration.InstrumentationKey);
+            Assert.AreEqual(ikeyConfig, configuration.InstrumentationKey);
         }
         
         [TestMethod]

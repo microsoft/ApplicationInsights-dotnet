@@ -475,12 +475,6 @@
                 // TODO: LOG TO ETW INFORMATION: Instrumentation Key Environment Variable detected. 
                 configuration.InstrumentationKey = instrumentationKeyEnVar;
             }
-            else if (configuration.ConnectionString != null)
-            {
-                // A set ConnectionString will have come from parsing the config file.
-                // Call Set() to force the connection string to be parsed.
-                // configuration.SetConnectionString(configuration.ConnectionString);
-            }
 
             // SANITY CHECK
             if (configuration.InstrumentationKey == null)
