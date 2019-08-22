@@ -7,7 +7,6 @@
     public static class CommonMocks
     {
         public const string InstrumentationKey = "REQUIRED";
-        public const string InstrumentationKeyHash = "0KNjBVW77H/AWpjTEcI7AP0atNgpasSkEll22AtqaVk=";
         public const string TestApplicationId = nameof(TestApplicationId);
 
         public static TelemetryClient MockTelemetryClient(Action<ITelemetry> onSendCallback, bool isW3C = true)

@@ -233,6 +233,7 @@
                 string sourceAppId = null;
                 string originalParentId = currentActivity.ParentId;
                 string legacyRootId = null;
+                bool traceParentPresent = false;
 
                 // 3 posibilities when TelemetryConfiguration.EnableW3CCorrelation = true
                 // 1. No incoming headers. originalParentId will be null. Simply use the Activity as such.
@@ -247,12 +248,14 @@
                 // 3. Incoming TraceParent header. Will simply Ignore W3C headers, and Current Activity used as such.
 
                 // Attempt to find parent from incoming W3C Headers which 2.XX Hosting is unaware of.
-                if (currentActivity.IdFormat == ActivityIdFormat.W3C && httpContext.Request.Headers.TryGetValue(W3CConstants.TraceParentHeader, out StringValues traceParentValues))
+                if (currentActivity.IdFormat == ActivityIdFormat.W3C && httpContext.Request.Headers.TryGetValue(W3CConstants.TraceParentHeader, out StringValues traceParentValues)
+                     && traceParentValues != StringValues.Empty)
                 {
                     var parentTraceParent = StringUtilities.EnforceMaxLength(
                         traceParentValues.First(),
                         InjectionGuardConstants.TraceParentHeaderMaxLength);
-                    originalParentId = parentTraceParent;                    
+                    originalParentId = parentTraceParent;
+                    traceParentPresent = true;
                 }
 
                 // Scenario #1. No incoming correlation headers.
@@ -260,11 +263,21 @@
                 {
                     // Nothing to do here. 
                 }
-                else if(originalParentId.StartsWith("|"))
+                else if(traceParentPresent)
                 {
+                    // Scenario #3. W3C-TraceParent
+                    // We need to ignore the Activity created by Hosting, as it did not take W3CTraceParent into consideration.
+                    newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
+                    newActivity.SetParentId(originalParentId);
+
+                    // set baggage from tracestate
+                    ReadTraceState(httpContext.Request.Headers, newActivity);
+                }
+                else 
+                {
+                    // Scenario #2. RequestID
                     if (currentActivity.IdFormat == ActivityIdFormat.W3C)
                     {
-                        // Scenario #2. RequestID
                         var rootIdFromOriginalParentId = ExtractOperationIdFromRequestId(originalParentId);
                         if (IsCompatibleW3CTraceID(rootIdFromOriginalParentId))
                         {
@@ -283,16 +296,6 @@
                         }
                     }
                 }
-                else
-                {
-                    // Scenario #3. W3C-TraceParent
-                    // We need to ignore the Activity created by Hosting, as it did not take W3CTraceParent into consideration.
-                    newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
-                    newActivity.SetParentId(originalParentId);
-
-                    // set baggage from tracestate
-                    ReadTraceState(httpContext.Request.Headers, newActivity);
-                }
 
                 if (newActivity != null)
                 {
@@ -301,11 +304,6 @@
                 }
 
                 var requestTelemetry = this.InitializeRequestTelemetry(httpContext, currentActivity, Stopwatch.GetTimestamp(), legacyRootId);
-                if (this.enableW3CHeaders && sourceAppId != null)
-                {
-                    requestTelemetry.Source = sourceAppId;
-                }
-
                 requestTelemetry.Context.Operation.ParentId = originalParentId;
 
                 this.AddAppIdToResponseIfRequired(httpContext, requestTelemetry);
@@ -525,43 +523,6 @@
                         requestTelemetry.Properties[prop.Key] = prop.Value;
                     }
                 }
-
-
-                if(!string.IsNullOrEmpty(activity.TraceStateString))
-                {
-                    string[] traceStates = activity.TraceStateString.Split(',');
-                    foreach(var state in traceStates)
-                    {
-                        var parts = state.Split('=');
-                        if (parts.Length == 2)
-                        {
-                            var itemName = StringUtilities.EnforceMaxLength(parts[0], InjectionGuardConstants.ContextHeaderKeyMaxLength);
-                            var itemValue = StringUtilities.EnforceMaxLength(parts[1], InjectionGuardConstants.ContextHeaderValueMaxLength);
-                            if (!requestTelemetry.Properties.ContainsKey(itemName))
-                            {
-                                requestTelemetry.Properties[itemName.Trim()] = itemValue.Trim();
-                            }
-                        }
-                    }
-                }
-
-               
-
-                string[] baggage = httpContext.Request.Headers.GetCommaSeparatedValues(W3CConstants.TraceStateHeader);
-                if (baggage != StringValues.Empty)
-                {
-                    foreach (var item in baggage)
-                    {
-                        var parts = item.Split('=');
-                        if (parts.Length == 2)
-                        {
-                            var itemName = StringUtilities.EnforceMaxLength(parts[0], InjectionGuardConstants.ContextHeaderKeyMaxLength);
-                            var itemValue = StringUtilities.EnforceMaxLength(parts[1], InjectionGuardConstants.ContextHeaderValueMaxLength);
-                            activity.AddBaggage(itemName, itemValue);
-                        }
-                    }
-                }
-
 
                 if (!string.IsNullOrEmpty(legacyRootId))
                 {

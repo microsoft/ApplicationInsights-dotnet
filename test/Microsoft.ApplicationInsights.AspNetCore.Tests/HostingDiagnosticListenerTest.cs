@@ -118,7 +118,7 @@
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
             TelemetryConfiguration config = TelemetryConfiguration.CreateDefault();
             // This flag tells sdk to not add app id in response header, unless its received in incoming headers.
-            // For tests, no incoming headers is add, so the response should not have app id as well.
+            // For this test, no incoming headers is add, so the response should not have app id as well.
             config.ExperimentalFeatures.Add("conditionalAppId");
 
             using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion, config))
@@ -138,10 +138,10 @@
             Assert.IsType<RequestTelemetry>(this.sentTelemetry.First());
 
             RequestTelemetry requestTelemetry = this.sentTelemetry.First() as RequestTelemetry;
+            Assert.True(string.IsNullOrEmpty(requestTelemetry.Source));
             Assert.True(requestTelemetry.Duration.TotalMilliseconds >= 0);
             Assert.True(requestTelemetry.Success);
-            Assert.Equal(CommonMocks.InstrumentationKey, requestTelemetry.Context.InstrumentationKey);
-            Assert.True(string.IsNullOrEmpty(requestTelemetry.Source));
+            Assert.Equal(CommonMocks.InstrumentationKey, requestTelemetry.Context.InstrumentationKey);            
             Assert.Equal(CreateUri(HttpRequestScheme, HttpRequestHost), requestTelemetry.Url);
             Assert.NotEmpty(requestTelemetry.Context.GetInternalContext().SdkVersion);
             Assert.Contains(SdkVersionTestUtils.VersionPrefix, requestTelemetry.Context.GetInternalContext().SdkVersion);
@@ -270,18 +270,7 @@
                 Assert.Single(sentTelemetry);
                 var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
 
-                if (IsW3C)
-                {
-                    Assert.Equal(requestTelemetry.Id, FormatTelemetryId(activity.TraceId.ToHexString(), activity.SpanId.ToHexString()));
-                    Assert.Equal(requestTelemetry.Context.Operation.Id, activity.TraceId.ToHexString());
-                    Assert.Null(requestTelemetry.Context.Operation.ParentId);
-                }
-                else
-                {
-                    Assert.Equal(requestTelemetry.Id, activity.Id);
-                    Assert.Equal(requestTelemetry.Context.Operation.Id, activity.RootId);
-                    Assert.Null(requestTelemetry.Context.Operation.ParentId);
-                }
+                ValidateRequestTelemetry(requestTelemetry, activity, IsW3C, expectedParentId: null, expectedSource: null);
             }
         }
 
@@ -314,9 +303,8 @@
 
                 Assert.Single(sentTelemetry);
                 var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
-                ValidateRequestTelemetry(requestTelemetry, activity, IsW3C);
+                ValidateRequestTelemetry(requestTelemetry, activity, IsW3C, expectedParentId: requestId, expectedSource: null);
                 Assert.Equal("40d1a5a08a68c0998e4a3b7c91915ca6", requestTelemetry.Context.Operation.Id);
-                Assert.Equal(requestId, requestTelemetry.Context.Operation.ParentId);          
                 Assert.Equal("value1", requestTelemetry.Properties["prop1"]);
                 Assert.Equal("value2", requestTelemetry.Properties["prop2"]);
             }
@@ -351,72 +339,20 @@
 
                 Assert.Single(sentTelemetry);
                 var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
-                ValidateRequestTelemetry(requestTelemetry, activity, IsW3C);
-                Assert.Equal(requestId, requestTelemetry.Context.Operation.ParentId);
+                ValidateRequestTelemetry(requestTelemetry, activity, IsW3C, expectedParentId: requestId, expectedSource: null);
 
                 if(IsW3C)
                 {
                     Assert.Equal("noncompatible", requestTelemetry.Properties[HostingDiagnosticListener.LegacyRootIdProperty]);
+                    Assert.NotEqual("noncompatible", requestTelemetry.Context.Operation.Id);
+                }
+                else
+                {
+                    Assert.Equal("noncompatible", requestTelemetry.Context.Operation.Id);
                 }
 
                 Assert.Equal("value1", requestTelemetry.Properties["prop1"]);
                 Assert.Equal("value2", requestTelemetry.Properties["prop2"]);
-            }
-        }
-
-        [Theory]
-        [InlineData(AspNetCoreMajorVersion.One, true)]
-        [InlineData(AspNetCoreMajorVersion.Two, true)]
-        [InlineData(AspNetCoreMajorVersion.One, false)]
-        [InlineData(AspNetCoreMajorVersion.Two, false)]
-        public void RequestWithBothW3CAndRequestIdCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
-        {
-            // Tests Request correlation when incoming request has both W3C TraceParent and Request-ID headers,
-            HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
-            // Trace Parent
-            var traceParent = "00-4e3083444c10254ba40513c7316332eb-e2a5f830c0ee2c46-00";
-            context.Request.Headers[W3C.W3CConstants.TraceParentHeader] = traceParent;
-            context.Request.Headers[W3C.W3CConstants.TraceStateHeader] = "w3cprop1=value1, w3cprop2=value2";
-
-            // And Request ID
-            var requestId = "|40d1a5a08a68c0998e4a3b7c91915ca6.b9e41c35_1.";
-            context.Request.Headers[RequestResponseHeaders.RequestIdHeader] = requestId;
-            context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "prop1=value1, prop2=value2";
-
-            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion, isW3C: IsW3C))
-            {
-                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
-                var activity = Activity.Current;
-                Assert.NotNull(activity);
-                
-                if (IsW3C)
-                {
-                    Assert.Single(activity.Baggage.Where(b => b.Key == "w3cprop1" && b.Value == "value1"));
-                    Assert.Single(activity.Baggage.Where(b => b.Key == "w3cprop2" && b.Value == "value2"));
-                }
-
-                Assert.NotNull(context.Features.Get<RequestTelemetry>());
-
-                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
-
-                Assert.Single(sentTelemetry);
-                var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
-
-                ValidateRequestTelemetry(requestTelemetry, activity, IsW3C);
-                
-                if (IsW3C)
-                {
-                    Assert.Equal("4e3083444c10254ba40513c7316332eb", requestTelemetry.Context.Operation.Id);
-                    // tracestate read only in W3C Mode
-                    Assert.Equal("value1", requestTelemetry.Properties["w3cprop1"]);
-                    Assert.Equal("value2", requestTelemetry.Properties["w3cprop2"]);
-                }
-                else
-                {
-                    Assert.Equal("40d1a5a08a68c0998e4a3b7c91915ca6", requestTelemetry.Context.Operation.Id);
-                    Assert.Equal("value1", requestTelemetry.Properties["prop1"]);
-                    Assert.Equal("value2", requestTelemetry.Properties["prop2"]);
-                }
             }
         }
 
@@ -452,33 +388,67 @@
                 Assert.Single(sentTelemetry);
                 var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
 
-                ValidateRequestTelemetry(requestTelemetry, activity, IsW3C);
+                
 
                 if (IsW3C)
                 {
                     // parentid populated only in W3C mode
-                    Assert.Equal(traceParent, requestTelemetry.Context.Operation.ParentId);
-                    // tracestate read only in W3C Mode
-                    Assert.Equal("value1", requestTelemetry.Properties["prop1"]);
-                    Assert.Equal("value2", requestTelemetry.Properties["prop2"]);
+                    ValidateRequestTelemetry(requestTelemetry, activity, IsW3C, expectedParentId: traceParent, expectedSource: null);
+                }
+                else
+                {
+                    ValidateRequestTelemetry(requestTelemetry, activity, IsW3C, expectedParentId: null, expectedSource: null);
                 }
             }
         }
 
-        private void ValidateRequestTelemetry(RequestTelemetry requestTelemetry, Activity activity, bool IsW3C)
+        [Theory]
+        [InlineData(AspNetCoreMajorVersion.One, true)]
+        [InlineData(AspNetCoreMajorVersion.Two, true)]
+        [InlineData(AspNetCoreMajorVersion.One, false)]
+        [InlineData(AspNetCoreMajorVersion.Two, false)]
+        public void RequestWithBothW3CAndRequestIdCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
         {
-            Assert.NotNull(requestTelemetry);
-            if(IsW3C)
+            // Tests Request correlation when incoming request has both W3C TraceParent and Request-ID headers,
+            HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
+            // Trace Parent
+            var traceParent = "00-4e3083444c10254ba40513c7316332eb-e2a5f830c0ee2c46-00";
+            context.Request.Headers[W3C.W3CConstants.TraceParentHeader] = traceParent;
+
+            // And Request ID
+            var requestId = "|40d1a5a08a68c0998e4a3b7c91915ca6.b9e41c35_1.";
+            context.Request.Headers[RequestResponseHeaders.RequestIdHeader] = requestId;
+            context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "prop1=value1, prop2=value2";
+
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion, isW3C: IsW3C))
             {
-                Assert.Equal(requestTelemetry.Id, FormatTelemetryId(activity.TraceId.ToHexString(), activity.SpanId.ToHexString()));
-                Assert.Equal(requestTelemetry.Context.Operation.Id, activity.TraceId.ToHexString());
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
+                var activity = Activity.Current;
+                Assert.NotNull(activity);
+                
+                Assert.NotNull(context.Features.Get<RequestTelemetry>());
+
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
+
+                Assert.Single(sentTelemetry);
+                var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
+
+                
+                
+                if (IsW3C)
+                {
+                    Assert.Equal("4e3083444c10254ba40513c7316332eb", requestTelemetry.Context.Operation.Id);
+                    ValidateRequestTelemetry(requestTelemetry, activity, IsW3C, expectedParentId: traceParent, expectedSource:null);
+                }
+                else
+                {
+                    Assert.Equal("40d1a5a08a68c0998e4a3b7c91915ca6", requestTelemetry.Context.Operation.Id);
+                    ValidateRequestTelemetry(requestTelemetry, activity, IsW3C, expectedParentId: requestId, expectedSource: null);
+                    Assert.Equal("value1", requestTelemetry.Properties["prop1"]);
+                    Assert.Equal("value2", requestTelemetry.Properties["prop2"]);
+                }
             }
-            else
-            {
-                Assert.Equal(requestTelemetry.Id, activity.Id);
-                Assert.Equal(requestTelemetry.Context.Operation.Id, activity.RootId);
-            }
-        }
+        }        
 
         [Theory]
         [InlineData(true)]
@@ -486,26 +456,29 @@
         public void OnHttpRequestInStartInitializeTelemetryIfActivityParentIdIsNotNull(bool IsW3C)
         {
             var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
+            string parentId = "00-4e3083444c10254ba40513c7316332eb-e2a5f830c0ee2c46-00";
             Activity activity;
             Activity activityBySDK;
 
             using (var hostingListener = CreateHostingListener(AspNetCoreMajorVersion.Two, isW3C: IsW3C))
             {
                 activity = new Activity("operation");
-                activity.SetParentId("00-4e3083444c10254ba40513c7316332eb-e2a5f830c0ee2c46-00");
+                activity.SetParentId(parentId);
                 activity.AddBaggage("item1", "value1");
                 activity.AddBaggage("item2", "value2");
 
                 activity.Start();
                 HandleRequestBegin(hostingListener, context, 0, AspNetCoreMajorVersion.Two);
                 activityBySDK = Activity.Current;
+                this.output.WriteLine(activityBySDK.Id);
+                this.output.WriteLine(activity.Id);
                 HandleRequestEnd(hostingListener, context, 0, AspNetCoreMajorVersion.Two);
             }
 
             Assert.Single(sentTelemetry);
             var requestTelemetry = this.sentTelemetry.First() as RequestTelemetry;
 
-            ValidateRequestTelemetry(requestTelemetry, activityBySDK, IsW3C);
+            ValidateRequestTelemetry(requestTelemetry, activityBySDK, IsW3C, expectedParentId: parentId);
             Assert.Equal(requestTelemetry.Context.Operation.ParentId, activity.ParentId);
             Assert.Equal(requestTelemetry.Properties.Count, activity.Baggage.Count());
 
@@ -615,7 +588,7 @@
         public void OnEndRequestFromDifferentInstrumentationKey(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "GET");
-            HttpHeadersUtilities.SetRequestContextKeyValue(context.Request.Headers, RequestResponseHeaders.RequestContextSourceKey, "DIFFERENT_INSTRUMENTATION_KEY_HASH");
+            HttpHeadersUtilities.SetRequestContextKeyValue(context.Request.Headers, RequestResponseHeaders.RequestContextSourceKey, "DIFFERENT_APP_ID");
 
             using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion))
             {
@@ -635,7 +608,7 @@
             Assert.True(requestTelemetry.Duration.TotalMilliseconds >= 0);
             Assert.True(requestTelemetry.Success);
             Assert.Equal(CommonMocks.InstrumentationKey, requestTelemetry.Context.InstrumentationKey);
-            Assert.Equal("DIFFERENT_INSTRUMENTATION_KEY_HASH", requestTelemetry.Source);            
+            Assert.Equal("DIFFERENT_APP_ID", requestTelemetry.Source);            
             Assert.Equal(CreateUri(HttpRequestScheme, HttpRequestHost, "/Test"), requestTelemetry.Url);
             Assert.NotEmpty(requestTelemetry.Context.GetInternalContext().SdkVersion);
             Assert.Contains(SdkVersionTestUtils.VersionPrefix, requestTelemetry.Context.GetInternalContext().SdkVersion);
@@ -843,211 +816,6 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
-        public void OnBeginRequestWithW3CHeadersIsTrackedCorrectly(AspNetCoreMajorVersion aspNetCoreMajorVersion)
-        {
-            var configuration = TelemetryConfiguration.CreateDefault();
-            configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
-            using (var hostingListener = new HostingDiagnosticListener(
-                CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry.Enqueue(telemetry), configuration),
-                CommonMocks.GetMockApplicationIdProvider(),
-                injectResponseHeaders: true,
-                trackExceptions: true,
-                enableW3CHeaders: true,
-                enableNewDiagnosticEvents: (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two)))
-            {
-                hostingListener.OnSubscribe();
-                var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
-
-                context.Request.Headers[W3C.W3CConstants.TraceParentHeader] =
-                    "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01";
-                context.Request.Headers[W3C.W3CConstants.TraceStateHeader] = "state=some";
-                context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "k=v";
-                context.Request.Headers[RequestResponseHeaders.RequestContextHeader] = "appId=something";
-
-                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
-
-                var activityInitializedByW3CHeader = Activity.Current;
-                Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", activityInitializedByW3CHeader.GetTraceId());
-                Assert.Equal("00f067aa0ba902b7", activityInitializedByW3CHeader.GetParentSpanId());
-                Assert.Equal(16, activityInitializedByW3CHeader.GetSpanId().Length);
-                Assert.Equal("state=some", activityInitializedByW3CHeader.GetTracestate());
-                Assert.Equal("v", activityInitializedByW3CHeader.Baggage.Single(t => t.Key == "k").Value);
-
-                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
-
-                Assert.Single(sentTelemetry);
-                var requestTelemetry = (RequestTelemetry) this.sentTelemetry.Single();
-
-                Assert.Equal($"|4bf92f3577b34da6a3ce929d0e0e4736.{activityInitializedByW3CHeader.GetSpanId()}.",
-                    requestTelemetry.Id);
-                Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", requestTelemetry.Context.Operation.Id);
-                Assert.Equal("|4bf92f3577b34da6a3ce929d0e0e4736.00f067aa0ba902b7.",
-                    requestTelemetry.Context.Operation.ParentId);
-
-                Assert.True(context.Response.Headers.TryGetValue(RequestResponseHeaders.RequestContextHeader,
-                    out var appId));
-                Assert.Equal($"appId={CommonMocks.TestApplicationId}", appId);
-            }
-        }
-
-        [Theory]
-        [InlineData(AspNetCoreMajorVersion.One)]
-        [InlineData(AspNetCoreMajorVersion.Two)]
-        public void OnBeginRequestWithW3CHeadersAndRequestIdIsTrackedCorrectly(AspNetCoreMajorVersion aspNetCoreMajorVersion)
-        {
-            var configuration = TelemetryConfiguration.CreateDefault();
-            configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
-            using (var hostingListener = new HostingDiagnosticListener(
-                CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry.Enqueue(telemetry), configuration),
-                CommonMocks.GetMockApplicationIdProvider(),
-                injectResponseHeaders: true,
-                trackExceptions: true,
-                enableW3CHeaders: true,
-                enableNewDiagnosticEvents: aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two))
-            {
-                hostingListener.OnSubscribe();
-                var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
-
-                context.Request.Headers[RequestResponseHeaders.RequestIdHeader] = "|abc.1.2.3.";
-                context.Request.Headers[W3C.W3CConstants.TraceParentHeader] =
-                    "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01";
-                context.Request.Headers[W3C.W3CConstants.TraceStateHeader] = "state=some";
-                context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "k=v";
-                context.Request.Headers[RequestResponseHeaders.RequestContextHeader] = "appId=something";
-
-                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
-
-                var activityInitializedByW3CHeader = Activity.Current;
-
-                if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two)
-                {
-                    Assert.Equal("|abc.1.2.3.", activityInitializedByW3CHeader.ParentId);
-                }
-
-                Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", activityInitializedByW3CHeader.GetTraceId());
-                Assert.Equal("00f067aa0ba902b7", activityInitializedByW3CHeader.GetParentSpanId());
-                Assert.Equal(16, activityInitializedByW3CHeader.GetSpanId().Length);
-                Assert.Equal("state=some", activityInitializedByW3CHeader.GetTracestate());
-                Assert.Equal("v", activityInitializedByW3CHeader.Baggage.Single(t => t.Key == "k").Value);
-
-                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
-
-                Assert.Single(sentTelemetry);
-                var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
-
-                Assert.Equal($"|4bf92f3577b34da6a3ce929d0e0e4736.{activityInitializedByW3CHeader.GetSpanId()}.",
-                    requestTelemetry.Id);
-                Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", requestTelemetry.Context.Operation.Id);
-                Assert.Equal("|4bf92f3577b34da6a3ce929d0e0e4736.00f067aa0ba902b7.",
-                    requestTelemetry.Context.Operation.ParentId);
-
-                Assert.True(context.Response.Headers.TryGetValue(RequestResponseHeaders.RequestContextHeader,
-                    out var appId));
-                Assert.Equal($"appId={CommonMocks.TestApplicationId}", appId);
-
-                if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two)
-                {
-                    Assert.Equal("abc", requestTelemetry.Properties["ai_legacyRootId"]);
-                    Assert.StartsWith("|abc.1.2.3.", requestTelemetry.Properties["ai_legacyRequestId"]);
-                }
-            }
-        }
-
-        [Theory]
-        [InlineData(AspNetCoreMajorVersion.One)]
-        [InlineData(AspNetCoreMajorVersion.Two)]
-        public void OnBeginRequestWithW3CSupportAndNoHeadersIsTrackedCorrectly(AspNetCoreMajorVersion aspNetCoreMajorVersion)
-        {
-            var configuration = TelemetryConfiguration.CreateDefault();
-            configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
-            using (var hostingListener = new HostingDiagnosticListener(
-                CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry.Enqueue(telemetry), configuration),
-                CommonMocks.GetMockApplicationIdProvider(),
-                injectResponseHeaders: true,
-                trackExceptions: true,
-                enableW3CHeaders: true,
-                enableNewDiagnosticEvents: aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two))
-            {
-                hostingListener.OnSubscribe();
-
-                var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
-                context.Request.Headers[RequestResponseHeaders.RequestContextHeader] = "appId=something";
-
-                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
-
-                var activityInitializedByW3CHeader = Activity.Current;
-
-                Assert.NotNull(activityInitializedByW3CHeader.GetTraceId());
-                Assert.Equal(32, activityInitializedByW3CHeader.GetTraceId().Length);
-                Assert.Equal(16, activityInitializedByW3CHeader.GetSpanId().Length);
-                Assert.Equal(
-                    $"00-{activityInitializedByW3CHeader.GetTraceId()}-{activityInitializedByW3CHeader.GetSpanId()}-02",
-                    activityInitializedByW3CHeader.GetTraceparent());
-                Assert.Null(activityInitializedByW3CHeader.GetTracestate());
-                Assert.Empty(activityInitializedByW3CHeader.Baggage);
-
-                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
-
-                Assert.Single(sentTelemetry);
-                var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
-
-                Assert.Equal(
-                    $"|{activityInitializedByW3CHeader.GetTraceId()}.{activityInitializedByW3CHeader.GetSpanId()}.",
-                    requestTelemetry.Id);
-                Assert.Equal(activityInitializedByW3CHeader.GetTraceId(), requestTelemetry.Context.Operation.Id);
-                Assert.Null(requestTelemetry.Context.Operation.ParentId);
-
-                Assert.True(context.Response.Headers.TryGetValue(RequestResponseHeaders.RequestContextHeader,
-                    out var appId));
-                Assert.Equal($"appId={CommonMocks.TestApplicationId}", appId);
-            }
-        }
-
-        [Theory]
-        [InlineData(AspNetCoreMajorVersion.One)]
-        [InlineData(AspNetCoreMajorVersion.Two)]
-        public void OnBeginRequestWithW3CHeadersAndAppIdInState(AspNetCoreMajorVersion aspNetCoreMajorVersion)
-        {
-            var configuration = TelemetryConfiguration.CreateDefault();
-            configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
-            using (var hostingListener = new HostingDiagnosticListener(
-                CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry.Enqueue(telemetry), configuration),
-                CommonMocks.GetMockApplicationIdProvider(),
-                injectResponseHeaders: true,
-                trackExceptions: true,
-                enableW3CHeaders: true,
-                enableNewDiagnosticEvents: aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two))
-            {
-                hostingListener.OnSubscribe();
-
-                var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
-
-                context.Request.Headers[W3C.W3CConstants.TraceParentHeader] =
-                    "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-00";
-                context.Request.Headers[W3C.W3CConstants.TraceStateHeader] =
-                    $"state=some,{W3C.W3CConstants.AzureTracestateNamespace}={ExpectedAppId}";
-
-                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
-                var activityInitializedByW3CHeader = Activity.Current;
-
-                Assert.Equal("state=some", activityInitializedByW3CHeader.TraceStateString);
-
-                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
-
-                Assert.Single(sentTelemetry);
-                var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
-
-                Assert.Equal(ExpectedAppId, requestTelemetry.Source);
-
-                Assert.True(context.Response.Headers.TryGetValue(RequestResponseHeaders.RequestContextHeader,
-                    out var appId));
-                Assert.Equal($"appId={CommonMocks.TestApplicationId}", appId);
-            }
-        }
-
-        [Theory]
-        [InlineData(AspNetCoreMajorVersion.One)]
-        [InlineData(AspNetCoreMajorVersion.Two)]
         public void RequestTelemetryIsProactivelySampledOutIfFeatureFlagIsOn(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             TelemetryConfiguration config = TelemetryConfiguration.CreateDefault();
@@ -1063,11 +831,10 @@
                 Assert.NotNull(Activity.Current);
 
                 var requestTelemetry = context.Features.Get<RequestTelemetry>();
-                Assert.NotNull(requestTelemetry);
-                Assert.Equal(requestTelemetry.Id, Activity.Current.Id);
-                Assert.Equal(requestTelemetry.Context.Operation.Id, Activity.Current.RootId);
-                Assert.Null(requestTelemetry.Context.Operation.ParentId);
+                Assert.NotNull(requestTelemetry);               
                 Assert.True(requestTelemetry.IsSampledOutAtHead);
+                ValidateRequestTelemetry(requestTelemetry, Activity.Current, true);
+                Assert.Null(requestTelemetry.Context.Operation.ParentId);
             }
         }
 
@@ -1090,6 +857,8 @@
                 var requestTelemetry = context.Features.Get<RequestTelemetry>();
                 Assert.NotNull(requestTelemetry);
                 Assert.False(requestTelemetry.IsSampledOutAtHead);
+                ValidateRequestTelemetry(requestTelemetry, Activity.Current, true);
+                Assert.Null(requestTelemetry.Context.Operation.ParentId);
             }
         }
 
@@ -1148,6 +917,23 @@
         private static string FormatTelemetryId(string traceId, string spanId)
         {
             return string.Concat("|", traceId, ".", spanId, ".");
+        }
+
+        private void ValidateRequestTelemetry(RequestTelemetry requestTelemetry, Activity activity, bool IsW3C, string expectedParentId = null, string expectedSource = null)
+        {
+            Assert.NotNull(requestTelemetry);
+            Assert.Equal(expectedParentId, requestTelemetry.Context.Operation.ParentId);
+            Assert.Equal(expectedSource, requestTelemetry.Source);
+            if (IsW3C)
+            {
+                Assert.Equal(requestTelemetry.Id, FormatTelemetryId(activity.TraceId.ToHexString(), activity.SpanId.ToHexString()));
+                Assert.Equal(requestTelemetry.Context.Operation.Id, activity.TraceId.ToHexString());
+            }
+            else
+            {
+                Assert.Equal(requestTelemetry.Id, activity.Id);
+                Assert.Equal(requestTelemetry.Context.Operation.Id, activity.RootId);
+            }
         }
 
         public void Dispose()
