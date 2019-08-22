@@ -97,14 +97,14 @@
         }
 
         [TestMethod]
-        [ExpectedExceptionWithMessage(typeof(ArgumentException), "Connection String Invalid: Delimiter can not be parsed. Expected: 'key1=value1;key2=value2;key3=value3'")]
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "Connection String Invalid: Unexpected delimiter can not be parsed. Expected: 'key1=value1;key2=value2;key3=value3'")]
         public void TestParseConnectionString_InvalidDelimiters()
         {
             EndpointProvider.ParseConnectionString("key1;key2=value2");
         }
 
         [TestMethod]
-        [ExpectedExceptionWithMessage(typeof(ArgumentException), "Connection String Invalid: Delimiter can not be parsed. Expected: 'key1=value1;key2=value2;key3=value3'")]
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "Connection String Invalid:  Unexpected delimiter can not be parsed. Expected: 'key1=value1;key2=value2;key3=value3'")]
         public void TestParseConnectionString_InvalidCharInValue()
         {
             EndpointProvider.ParseConnectionString("key1=value1=value2");

@@ -14,33 +14,39 @@
         [TestMethod]
         public void VerifyCanHandleExtraPeriods()
         {
-            var uri = EndpointProvider.BuildUri(
+            var result = EndpointProvider.TryBuildUri(
                 location: "westus2.",
                 prefix: "dc",
-                suffix: ".applicationinsights.azure.com");
+                suffix: ".applicationinsights.azure.com",
+                uri: out Uri uri);
 
+            Assert.IsTrue(result);
             Assert.AreEqual("https://westus2.dc.applicationinsights.azure.com/", uri.AbsoluteUri);
         }
 
         [TestMethod]
         public void VerifyGoodAddress_WithLocation()
         {
-            var uri = EndpointProvider.BuildUri(
+            var result = EndpointProvider.TryBuildUri(
                 location: "westus2",
                 prefix: "dc",
-                suffix: "applicationinsights.azure.com");
+                suffix: "applicationinsights.azure.com",
+                uri: out Uri uri);
 
+            Assert.IsTrue(result);
             Assert.AreEqual("https://westus2.dc.applicationinsights.azure.com/", uri.AbsoluteUri);
         }
 
         [TestMethod]
         public void VerifyGoodAddress_WithoutLocation()
         {
-            var uri = EndpointProvider.BuildUri(
+            var result = EndpointProvider.TryBuildUri(
                 location: null,
                 prefix: "dc",
-                suffix: "applicationinsights.azure.com");
+                suffix: "applicationinsights.azure.com",
+                uri: out Uri uri);
 
+            Assert.IsTrue(result);
             Assert.AreEqual("https://dc.applicationinsights.azure.com/", uri.AbsoluteUri);
         }
 
@@ -48,21 +54,24 @@
         [ExpectedException(typeof(ArgumentException))]
         public void VerifyGoodAddress_InvalidCharInLocation()
         {
-            var uri = EndpointProvider.BuildUri(
+            EndpointProvider.TryBuildUri(
                 location: "westus2/",
                 prefix: "dc",
-                suffix: "applicationinsights.azure.com");
+                suffix: "applicationinsights.azure.com",
+                uri: out Uri uri);
         }
 
 
         [TestMethod]
         public void VerifyGoodAddress_CanHandleExtraSpaces()
         {
-            var uri = EndpointProvider.BuildUri(
+            var result = EndpointProvider.TryBuildUri(
                 location: " westus2 ",
                 prefix: "dc",
-                suffix: "   applicationinsights.azure.com   ");
+                suffix: "   applicationinsights.azure.com   ",
+                uri: out Uri uri);
 
+            Assert.IsTrue(result);
             Assert.AreEqual("https://westus2.dc.applicationinsights.azure.com/", uri.AbsoluteUri);
         }
     }

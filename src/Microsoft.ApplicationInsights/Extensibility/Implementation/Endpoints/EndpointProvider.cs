@@ -74,27 +74,24 @@
             {
                 if (this.connectionStringParsed.TryGetValue(endpointMeta.ExplicitName, out string explicitEndpoint))
                 {
-                    try
+                    if (Uri.TryCreate(explicitEndpoint, UriKind.Absolute, out var uri))
                     {
-                        return new Uri(explicitEndpoint);
+                        return uri;
                     }
-                    catch (UriFormatException ex)
+                    else
                     {
-                        throw new ArgumentException($"The connection string endpoint is invalid. EndpointName: {endpointName} EndpointProperty: {endpointMeta.ExplicitName}", ex);
+                        throw new ArgumentException($"Connection String Invalid: The value for {endpointMeta.ExplicitName} is invalid.");
                     }
                 }
                 else if (this.connectionStringParsed.TryGetValue("EndpointSuffix", out string endpointSuffix))
                 {
-                    try
+                    if (TryBuildUri(prefix: endpointMeta.EndpointPrefix, suffix: endpointSuffix, location: this.GetLocation(), uri: out var uri))
                     {
-                        return BuildUri(
-                            prefix: endpointMeta.EndpointPrefix,
-                            suffix: endpointSuffix,
-                            location: this.GetLocation());
+                        return uri;
                     }
-                    catch (UriFormatException ex)
+                    else
                     {
-                        throw new ArgumentException($"The connection string endpoint is invalid. EndpointName: {endpointName} Either EndpointSuffix or Location.", ex);
+                        throw new ArgumentException($"Connection String Invalid: Either the value for EndpointSuffix is invalid.");
                     }
                 }
                 else
@@ -154,7 +151,7 @@
                 if (keyAndValue.Length != 2)
                 {
                     // TODO: LOG TO ETW ERROR: connection string invalid format
-                    throw new ArgumentException("Connection String Invalid: Delimiter can not be parsed. Expected: 'key1=value1;key2=value2;key3=value3'");
+                    throw new ArgumentException("Connection String Invalid: Unexpected delimiter can not be parsed. Expected: 'key1=value1;key2=value2;key3=value3'");
                 }
 
                 if (dictionary.ContainsKey(keyAndValue[0]))
@@ -178,7 +175,7 @@
         /// Example: "https://westus2.dc.applicationinsights.azure.cn/".
         /// </remarks>
         /// <returns>Returns a <see cref="Uri"/> built from the inputs.</returns>
-        internal static Uri BuildUri(string prefix, string suffix, string location = null)
+        internal static bool TryBuildUri(string prefix, string suffix, out Uri uri, string location = null)
         {
             // Location and Host are user input fields and need to be checked for extra periods.
 
@@ -189,7 +186,7 @@
                 // Location names are expected to match Azure region names. No special characters allowed.
                 if (!location.All(x => char.IsLetterOrDigit(x)))
                 {
-                    throw new ArgumentException("Location in connection string must not contain special characters.");
+                    throw new ArgumentException("Connection String Invalid: Location must not contain special characters.");
                 }
             }
 
@@ -199,7 +196,7 @@
                 ".",
                 suffix.Trim().TrimStart(TrimPeriod));
 
-            return new Uri(uriString);
+            return Uri.TryCreate(uriString, UriKind.Absolute, out uri);
         }
 
         private string GetLocation() => this.connectionStringParsed.TryGetValue("Location", out string location) ? location : null;

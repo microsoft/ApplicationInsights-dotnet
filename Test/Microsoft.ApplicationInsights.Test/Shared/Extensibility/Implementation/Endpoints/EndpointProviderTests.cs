@@ -75,7 +75,7 @@
         }
 
         [TestMethod]
-        [ExpectedExceptionWithMessage(typeof(ArgumentException), "The connection string endpoint is invalid. EndpointName: Ingestion EndpointProperty: IngestionEndpoint")]
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "Connection String Invalid: The value for IngestionEndpoint is invalid.")]
         public void TestExpliticOverride_InvalidValue()
         {
             var endpoint = new EndpointProvider()
@@ -87,7 +87,7 @@
         }
 
         [TestMethod]
-        [ExpectedExceptionWithMessage(typeof(ArgumentException), "The connection string endpoint is invalid. EndpointName: Ingestion EndpointProperty: IngestionEndpoint")]
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "Connection String Invalid: The value for IngestionEndpoint is invalid.")]
         public void TestExpliticOverride_InvalidValue2()
         {
             var endpoint = new EndpointProvider()
@@ -99,12 +99,25 @@
         }
 
         [TestMethod]
-        [ExpectedExceptionWithMessage(typeof(ArgumentException), "The connection string endpoint is invalid. EndpointName: Ingestion Either EndpointSuffix or Location.")]
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "Connection String Invalid: The value for EndpointSuffix is invalid.")]
         public void TestExpliticOverride_InvalidValue3()
         {
             var endpoint = new EndpointProvider()
             {
                 ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000;EndpointSuffix=~!@#$%&^*()_{}{}><?<?>:L\":\"_+_+_"
+            };
+
+            endpoint.GetEndpoint(EndpointName.Ingestion);
+        }
+
+
+        [TestMethod]
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "Connection String Invalid: Location must not contain special characters.")]
+        public void TestExpliticOverride_InvalidLocation()
+        {
+            var endpoint = new EndpointProvider()
+            {
+                ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000;Location=~!@#$%&^*()_{}{}><?<?>:L\":\"_+_+_"
             };
 
             endpoint.GetEndpoint(EndpointName.Ingestion);
