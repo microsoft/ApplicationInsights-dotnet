@@ -388,10 +388,10 @@
                 HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
                 var activity = Activity.Current;
                 Assert.NotNull(activity);
-
+                
                 if (IsW3C)
                 {
-                    Assert.Single(activity.Baggage.Where(b => b.Key == "wc3prop1" && b.Value == "value1"));
+                    Assert.Single(activity.Baggage.Where(b => b.Key == "w3cprop1" && b.Value == "value1"));
                     Assert.Single(activity.Baggage.Where(b => b.Key == "w3cprop2" && b.Value == "value2"));
                 }
 
