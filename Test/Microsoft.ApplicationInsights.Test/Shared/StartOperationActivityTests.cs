@@ -11,9 +11,10 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Extensibility.Implementation;
     using TestFramework;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
 
     /// <summary>
-    /// This class tests TelemetryClientEzxtensions.StartOperation<T>(TelemetryClient c, Activity a) overload
+    /// This class tests TelemetryClientExtensions.StartOperation<T>(TelemetryClient c, Activity a) overload
     /// </summary>
     [TestClass]
     public class StartOperationActivityTests
@@ -272,10 +273,18 @@
             return telemetry;
         }
 
-        private void ValidateTelemetry<T>(T telemetry, Activity activity) where T : OperationTelemetry
+        private void ValidateTelemetry<T>(T telemetry, Activity activity, bool isW3C = true) where T : OperationTelemetry
         {
             Assert.AreEqual(activity.OperationName, telemetry.Name);
-            Assert.AreEqual(activity.Id, telemetry.Id);
+            if (isW3C)
+            {
+                Assert.AreEqual(W3CUtilities.FormatTelemetryId(activity.TraceId.ToHexString(), activity.SpanId.ToHexString()), telemetry.Id);
+            }
+            else
+            {
+                Assert.AreEqual(activity.Id, telemetry.Id);
+            }
+            
             Assert.AreEqual(activity.ParentId, telemetry.Context.Operation.ParentId);
             Assert.AreEqual(activity.RootId, telemetry.Context.Operation.Id);
 
