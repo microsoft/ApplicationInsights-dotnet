@@ -1,5 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints
 {
+    using System;
+    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
@@ -73,7 +75,7 @@
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ConnectionStringInvalidEndpointException))]
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "The connection string endpoint is invalid. EndpointName: Ingestion EndpointProperty: IngestionEndpoint")]
         public void TestExpliticOverride_InvalidValue()
         {
             var endpoint = new EndpointProvider()
@@ -85,7 +87,7 @@
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ConnectionStringInvalidEndpointException))]
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "The connection string endpoint is invalid. EndpointName: Ingestion EndpointProperty: IngestionEndpoint")]
         public void TestExpliticOverride_InvalidValue2()
         {
             var endpoint = new EndpointProvider()
@@ -97,7 +99,7 @@
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ConnectionStringInvalidEndpointException))]
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "The connection string endpoint is invalid. EndpointName: Ingestion Either EndpointSuffix or Location.")]
         public void TestExpliticOverride_InvalidValue3()
         {
             var endpoint = new EndpointProvider()
@@ -109,7 +111,7 @@
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ConnectionStringMissingInstrumentationKeyException))]
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "Connection String Invalid: InstrumentationKey is required.")]
         public void TestEndpointProvider_NoInstrumentationKey()
         {
             var endpoint = new EndpointProvider()

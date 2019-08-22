@@ -272,11 +272,13 @@
             var ikey = Guid.NewGuid().ToString();
             var connectionString = $"InstrumentationKey={ikey}";
 
-            var configuration = new TelemetryConfiguration();
-            configuration.SetConnectionString(connectionString);
+            var configuration = new TelemetryConfiguration
+            {
+                ConnectionString = connectionString
+            };
 
-            Assert.AreEqual(connectionString, configuration.ConnectionString);
-            Assert.AreEqual(ikey, configuration.InstrumentationKey);
+            Assert.AreEqual(connectionString, configuration.ConnectionString, "connection string was not set.");
+            Assert.AreEqual(ikey, configuration.InstrumentationKey, "instrumentation key was not set.");
         }
 
         [TestMethod]
@@ -284,8 +286,10 @@
         [ExpectedException(typeof(ArgumentNullException))]
         public void VerifySetConnectionString_ThrowsNullException()
         {
-            var configuration = new TelemetryConfiguration();
-            configuration.SetConnectionString(null);
+            var configuration = new TelemetryConfiguration
+            {
+                ConnectionString = null
+            };
         }
 
         [TestMethod]
@@ -295,9 +299,10 @@
             var explicitEndpoint = "https://127.0.0.1/";
             var connectionString = $"InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint={explicitEndpoint}";
 
-            var configuration = new TelemetryConfiguration();
-            configuration.SetConnectionString(connectionString);
-
+            var configuration = new TelemetryConfiguration
+            {
+                ConnectionString = connectionString
+            };
             
             Assert.AreEqual(explicitEndpoint, configuration.Endpoint.Ingestion.AbsoluteUri);
         }
@@ -312,10 +317,9 @@
 
             var configuration = new TelemetryConfiguration
             {
-                TelemetryChannel = channel
+                TelemetryChannel = channel,
+                ConnectionString = connectionString,
             };
-
-            configuration.SetConnectionString(connectionString);
 
             Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.Endpoint.Ingestion.AbsoluteUri);
             Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", channel.EndpointAddress);
@@ -332,13 +336,42 @@
 
             var configuration = new TelemetryConfiguration
             {
-                TelemetryChannel = channel
+                TelemetryChannel = channel,
+                ConnectionString = connectionString,
             };
-
-            configuration.SetConnectionString(connectionString);
 
             Assert.AreEqual(explicitEndpoint, configuration.Endpoint.Ingestion.AbsoluteUri);
             Assert.AreEqual(explicitEndpoint + "v2/track", channel.EndpointAddress);
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionString")]
+        public void E2E_DefaultScenario()
+        {
+            var tConfig = new TelemetryConfiguration();
+
+            Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", tConfig.DefaultTelemetrySink.TelemetryChannel.EndpointAddress);
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionString")]
+        public void E2E_DefaultScenario2()
+        {
+            var tConfig = new TelemetryConfiguration
+            {
+                ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://127.0.0.1/"
+            };
+
+            Assert.AreEqual("https://127.0.0.1/v2/track", tConfig.DefaultTelemetrySink.TelemetryChannel.EndpointAddress);
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionString")]
+        public void E2E_ConfigConstructor()
+        {
+            var tConfig = new TelemetryConfiguration(new InMemoryChannel(), "https://127.0.0.1/");
+
+            Assert.AreEqual("https://127.0.0.1/v2/track", tConfig.DefaultTelemetrySink.TelemetryChannel.EndpointAddress);
         }
 
         #endregion

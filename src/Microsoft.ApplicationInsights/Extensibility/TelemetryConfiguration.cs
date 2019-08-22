@@ -34,6 +34,7 @@
         
         private TelemetryProcessorChain telemetryProcessorChain;
         private string instrumentationKey = string.Empty;
+        private string connectionString;
         private bool disableTelemetry = false;
         private TelemetryProcessorChainBuilder builder;
         private MetricManager metricManager = null;
@@ -57,6 +58,11 @@
         /// <param name="instrumentationKey">The instrumentation key this configuration instance will provide.</param>
         public TelemetryConfiguration(string instrumentationKey) : this(instrumentationKey, null)
         {
+        }
+
+        public TelemetryConfiguration(ITelemetryChannel channel, string connectionString)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -236,9 +242,47 @@
         public EndpointContainer Endpoint { get; private set; } = new EndpointContainer(new EndpointProvider());
 
         /// <summary>
-        /// Gets the connection string.
+        /// Gets or sets the connection string. Setting this value will also set the Instrumentation Key, validate the endpoints, and set the TelemetryChannel.Endpoint.
         /// </summary>
-        public string ConnectionString { get; private set; }
+        public string ConnectionString
+        {
+            get
+            {
+                return this.connectionString;
+            }
+
+            set
+            {
+                try
+                {
+                    this.connectionString = value ?? throw new ArgumentNullException(nameof(this.ConnectionString));
+
+                    var endpointProvider = new EndpointProvider
+                    {
+                        ConnectionString = value,
+                    };
+
+                    this.InstrumentationKey = endpointProvider.GetInstrumentationKey();
+
+                    this.Endpoint = new EndpointContainer(endpointProvider);
+
+                    foreach (var tSink in this.TelemetrySinks)
+                    {
+                        if (tSink.TelemetryChannel is InMemoryChannel || tSink.TelemetryChannel.GetType().FullName == "Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel")
+                        {
+                            tSink.TelemetryChannel.EndpointAddress = new Uri(this.Endpoint.Ingestion, "v2/track").AbsoluteUri;
+                        }
+                    }
+
+                    // TODO: NEED TO UPDATE ApplicationIdProvider's Endpoint
+                }
+                catch (Exception ex)
+                {
+                    // TODO: LOG TO ETW ERROR: Could not set Connection String. Log Inner Exception.
+                    throw;
+                }
+            }
+        }
 
         /// <summary>
         /// Gets a collection of strings indicating if an experimental feature should be enabled.
@@ -285,41 +329,6 @@
                 }
 
                 this.telemetryProcessorChain = value;
-            }
-        }
-
-        /// <summary>
-        /// This method will set the connection string, set the instrumentation key, validate the endpoints, and set the TelemetryChannel.Endpoint.
-        /// </summary>
-        /// <param name="connectionString">Users unique connection string. This must include the Instrumentation Key. Format: "key1=value1;key2=value2;key3=value3".</param>
-        /// <exception cref="ConnectionStringDuplicateKeyException">Thrown when the connection string has duplicate keys.</exception>
-        /// <exception cref="ConnectionStringInvalidDelimiterException">Thrown when the connection string is formatted incorrectly.</exception>
-        /// <exception cref="ConnectionStringInvalidEndpointException">Thrown when the endpoint that was provided is invalid. Exception contains more information.</exception>
-        /// <exception cref="ConnectionStringMissingInstrumentationKeyException">Thrown when the connection string does not contain an instrumentation key (required).</exception>
-        public void SetConnectionString(string connectionString)
-        {
-            try
-            {
-                this.ConnectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
-
-                var endpointProvider = new EndpointProvider
-                {
-                    ConnectionString = connectionString,
-                };
-
-                this.InstrumentationKey = endpointProvider.GetInstrumentationKey();
-
-                this.Endpoint = new EndpointContainer(endpointProvider);
-
-                foreach (var tSink in this.TelemetrySinks)
-                {
-                    tSink.TelemetryChannel.EndpointAddress = new Uri(this.Endpoint.Ingestion, "v2/track").AbsoluteUri;
-                }
-            }
-            catch (Exception ex)
-            {
-                // TODO: LOG TO ETW ERROR: Could not set Connection String. Log Inner Exception.
-                throw;
             }
         }
 

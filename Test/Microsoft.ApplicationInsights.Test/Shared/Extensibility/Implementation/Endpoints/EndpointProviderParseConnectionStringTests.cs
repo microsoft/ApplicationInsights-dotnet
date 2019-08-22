@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-
+    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
@@ -90,21 +90,21 @@
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ConnectionStringDuplicateKeyException))]
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "Connection String Invalid: Contains duplicate key: 'key1'.")]
         public void TestParseConnectionString_DuplaceKeys()
         {
             EndpointProvider.ParseConnectionString("key1=value1;key1=value2");
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ConnectionStringInvalidDelimiterException))]
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "Connection String Invalid: Delimiter can not be parsed. Expected: 'key1=value1;key2=value2;key3=value3'")]
         public void TestParseConnectionString_InvalidDelimiters()
         {
             EndpointProvider.ParseConnectionString("key1;key2=value2");
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ConnectionStringInvalidDelimiterException))]
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "Connection String Invalid: Delimiter can not be parsed. Expected: 'key1=value1;key2=value2;key3=value3'")]
         public void TestParseConnectionString_InvalidCharInValue()
         {
             EndpointProvider.ParseConnectionString("key1=value1=value2");

@@ -444,10 +444,9 @@
 
                 var configuration = new TelemetryConfiguration
                 {
-                    TelemetryChannel = channel
+                    TelemetryChannel = channel,
+                    ConnectionString = connectionstring,
                 };
-
-                configuration.SetConnectionString(connectionstring);
 
                 Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.Endpoint.Ingestion.AbsoluteUri);
                 Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", channel.EndpointAddress);
@@ -458,17 +457,15 @@
             public void VerifyEndpointConnectionString_SetFromConfiguration_ExplicitEndpoint_WithTrailingSlash()
             {
                 var explicitEndpoint = "https://127.0.0.1/";
-                
                 var connectionString = $"InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint={explicitEndpoint}";
 
                 var channel = new ServerTelemetryChannel();
 
                 var configuration = new TelemetryConfiguration
                 {
-                    TelemetryChannel = channel
+                    TelemetryChannel = channel,
+                    ConnectionString = connectionString
                 };
-
-                configuration.SetConnectionString(connectionString);
 
                 Assert.AreEqual("https://127.0.0.1/", configuration.Endpoint.Ingestion.AbsoluteUri);
                 Assert.AreEqual("https://127.0.0.1/v2/track", channel.EndpointAddress);
@@ -485,10 +482,9 @@
 
                 var configuration = new TelemetryConfiguration
                 {
-                    TelemetryChannel = channel
+                    TelemetryChannel = channel,
+                    ConnectionString = connectionString,
                 };
-
-                configuration.SetConnectionString(connectionString);
 
                 Assert.AreEqual("https://127.0.0.1/", configuration.Endpoint.Ingestion.AbsoluteUri);
                 Assert.AreEqual("https://127.0.0.1/v2/track", channel.EndpointAddress);
@@ -504,8 +500,11 @@
 
                 var channel = new ServerTelemetryChannel();
 
-                var configuration = new TelemetryConfiguration();
-                configuration.SetConnectionString(connectionString);
+                var configuration = new TelemetryConfiguration
+                {
+                    ConnectionString = connectionString,
+                };
+
                 Assert.AreEqual("https://127.0.0.1/", configuration.Endpoint.Ingestion.AbsoluteUri);
 
                 channel.Initialize(configuration);
@@ -523,8 +522,11 @@
 
                 var channel = new ServerTelemetryChannel();
 
-                var configuration = new TelemetryConfiguration();
-                configuration.SetConnectionString(connectionString);
+                var configuration = new TelemetryConfiguration
+                {
+                    ConnectionString = connectionString,
+                };
+
                 Assert.AreEqual("https://127.0.0.1/", configuration.Endpoint.Ingestion.AbsoluteUri);
 
                 channel.Initialize(configuration);

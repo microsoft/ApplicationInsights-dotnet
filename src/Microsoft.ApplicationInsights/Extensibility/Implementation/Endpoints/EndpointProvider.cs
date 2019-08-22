@@ -80,7 +80,7 @@
                     }
                     catch (UriFormatException ex)
                     {
-                        throw new ConnectionStringInvalidEndpointException($"The connection string endpoint is invalid. EndpointName: {endpointName} EndpointProperty: {endpointMeta.ExplicitName}", ex);
+                        throw new ArgumentException($"The connection string endpoint is invalid. EndpointName: {endpointName} EndpointProperty: {endpointMeta.ExplicitName}", ex);
                     }
                 }
                 else if (this.connectionStringParsed.TryGetValue("EndpointSuffix", out string endpointSuffix))
@@ -94,7 +94,7 @@
                     }
                     catch (UriFormatException ex)
                     {
-                        throw new ConnectionStringInvalidEndpointException($"The connection string endpoint is invalid. EndpointName: {endpointName} Either EndpointSuffix or Location.", ex);
+                        throw new ArgumentException($"The connection string endpoint is invalid. EndpointName: {endpointName} Either EndpointSuffix or Location.", ex);
                     }
                 }
                 else
@@ -121,7 +121,7 @@
             }
             else
             {
-                throw new ConnectionStringMissingInstrumentationKeyException();
+                throw new ArgumentException("Connection String Invalid: InstrumentationKey is required.");
             }
         }
 
@@ -154,13 +154,13 @@
                 if (keyAndValue.Length != 2)
                 {
                     // TODO: LOG TO ETW ERROR: connection string invalid format
-                    throw new ConnectionStringInvalidDelimiterException("The Connection String has invalid formatting and cannot be parsed. Expected: 'key1=value1;key2=value2;key3=value3'");
+                    throw new ArgumentException("Connection String Invalid: Delimiter can not be parsed. Expected: 'key1=value1;key2=value2;key3=value3'");
                 }
 
                 if (dictionary.ContainsKey(keyAndValue[0]))
                 {
                     // TODO: LOG TO ETW ERROR: connection string duplicate key
-                    throw new ConnectionStringDuplicateKeyException($"The Connection String has a duplicate key '{keyAndValue[0]}'.");
+                    throw new ArgumentException($"Connection String Invalid: Contains duplicate key: '{keyAndValue[0]}'.");
                 }
 
                 dictionary.Add(keyAndValue[0], keyAndValue[1]);
