@@ -70,7 +70,7 @@
             var precision = 0.25;
             var (proactivelySampledInAndSentCount, sentCount) = ProactiveSamplingTest(
                 proactivelySampledInRatePerSec: 5,
-                beforeSamplingRatePerSec: 10,
+                beforeSamplingRatePerSec: 7,
                 targetAfterSamplingRatePerSec: 5.1,
                 precision: precision,
                 testDurationInSec:20); //plus warm up
@@ -121,7 +121,7 @@
         [TestMethod]
         public void ProactivelySampledInTelemetryCapturedWhenProactiveSamplingRateIsWaaayHigherThanTarget()
         {
-            var targetRate = 5;
+            var targetRate = 3;
             var testDuration = 20;
             var targetItemCount = targetRate * testDuration;
             var precision = 0.25;
@@ -150,7 +150,7 @@
         [TestMethod]
         public void ProactivelySampledInTelemetryCapturedWhenProactiveSamplingRateIsHigherThanTarget()
         {
-            var testDuration = 15;
+            var testDuration = 20;
             var precision = 0.25;
             var (proactivelySampledInAndSentCount, sentCount) = ProactiveSamplingTest(
                 proactivelySampledInRatePerSec: 5,
