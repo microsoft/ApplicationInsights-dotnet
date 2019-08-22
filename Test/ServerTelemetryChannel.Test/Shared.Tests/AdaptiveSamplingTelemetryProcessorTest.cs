@@ -127,7 +127,7 @@
             var precision = 0.25;
             var (proactivelySampledInAndSentCount, sentCount) = ProactiveSamplingTest(
                 proactivelySampledInRatePerSec: targetRate * 2,
-                beforeSamplingRatePerSec: targetRate * 4,
+                beforeSamplingRatePerSec: targetRate * 2 + 1,
                 targetAfterSamplingRatePerSec: targetRate,
                 precision: precision,
                 testDurationInSec: testDuration); //plus warm up
@@ -141,16 +141,16 @@
             // as they happen with rate 10 items per sec and we want 5 rate of sent telemetry
             // and all that sent should be sampled In proactively
             Assert.IsTrue(proactivelySampledInAndSentCount / (double)targetItemCount > 1 - precision,
-                $"Expected {proactivelySampledInAndSentCount} to be around {sentCount} +/- {precision * sentCount}");
+                $"Expected {proactivelySampledInAndSentCount} to be around {targetItemCount} +/- {precision * targetItemCount}");
 
             Assert.IsTrue(proactivelySampledInAndSentCount / (double)targetItemCount < 1 + precision,
-                $"Expected {proactivelySampledInAndSentCount} to be around {sentCount} +/- {precision * sentCount}");
+                $"Expected {proactivelySampledInAndSentCount} to be around {targetItemCount} +/- {precision * targetItemCount}");
         }
 
         [TestMethod]
         public void ProactivelySampledInTelemetryCapturedWhenProactiveSamplingRateIsHigherThanTarget()
         {
-            var testDuration = 20;
+            var testDuration = 15;
             var precision = 0.25;
             var (proactivelySampledInAndSentCount, sentCount) = ProactiveSamplingTest(
                 proactivelySampledInRatePerSec: 5,
@@ -183,7 +183,7 @@
             int testDurationInSec)
         {
             // we'll ignore telemetry reported during first few percentage evaluations
-            int warmUpInSec = 16;
+            int warmUpInSec = 20;
 
             // we'll produce proactively  sampled in items and also 'normal' items with the same rate
             // but allow only proactively sampled in + a bit more
