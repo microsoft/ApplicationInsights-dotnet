@@ -3,20 +3,21 @@
     using System;
     using System.Collections.Concurrent;
 
-    /// <summary>@ToDo: Complete documentation before stable release. {573}.</summary>
+    /// <summary>A registry for injecting converters from <c>MetricAggregate</c> items to data exchange
+    /// types employed by the respective data ingestion/processing/sink mechanism. </summary>
     /// @PublicExposureCandidate
     internal sealed class MetricAggregateToTelemetryPipelineConverters 
     {
-        /// <summary>@ToDo: Complete documentation before stable release. {097}.</summary>
+        /// <summary>Default singelton.</summary>
         public static readonly MetricAggregateToTelemetryPipelineConverters Registry = new MetricAggregateToTelemetryPipelineConverters();
 
         private ConcurrentDictionary<Type, ConcurrentDictionary<string, IMetricAggregateToTelemetryPipelineConverter>> pipelineTable
                                                         = new ConcurrentDictionary<Type, ConcurrentDictionary<string, IMetricAggregateToTelemetryPipelineConverter>>();
 
-        /// <summary>@ToDo: Complete documentation before stable release. {109}.</summary>
-        /// <param name="pipelineType">@ToDo: Complete documentation before stable release. {517}.</param>
-        /// <param name="aggregationKindMoniker">@ToDo: Complete documentation before stable release. {274}.</param>
-        /// <param name="converter">@ToDo: Complete documentation before stable release. {912}.</param>
+        /// <summary>Adds a converter to the registry.</summary>
+        /// <param name="pipelineType">Type of the data output pipeline.</param>
+        /// <param name="aggregationKindMoniker">Aggregation kind moniker.</param>
+        /// <param name="converter">The converter being registered.</param>
         public void Add(Type pipelineType, string aggregationKindMoniker, IMetricAggregateToTelemetryPipelineConverter converter)
         {
             ValidateKeys(pipelineType, aggregationKindMoniker);
@@ -29,11 +30,11 @@
             converters[aggregationKindMoniker] = converter;
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {076}.</summary>
-        /// <param name="pipelineType">@ToDo: Complete documentation before stable release. {807}.</param>
-        /// <param name="aggregationKindMoniker">@ToDo: Complete documentation before stable release. {677}.</param>
-        /// <param name="converter">@ToDo: Complete documentation before stable release. {420}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {143}.</returns>
+        /// <summary>Attempts to get a metric aggregate converter from the registry.</summary>
+        /// <param name="pipelineType">Type of the target pipeline.</param>
+        /// <param name="aggregationKindMoniker">Aggregation kind.</param>
+        /// <param name="converter">The registered converter, or <c>null</c>.</param>
+        /// <returns><c>true</c> if a comverter was retrieved, <c>false</c> otherwise.</returns>
         public bool TryGet(Type pipelineType, string aggregationKindMoniker, out IMetricAggregateToTelemetryPipelineConverter converter)
         {
             ValidateKeys(pipelineType, aggregationKindMoniker);

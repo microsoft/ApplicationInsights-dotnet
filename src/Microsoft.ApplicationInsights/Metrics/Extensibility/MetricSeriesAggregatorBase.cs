@@ -5,11 +5,12 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    using static System.FormattableString;
+    using static System.FormattableString;  
 
-    /// <summary>@ToDo: Complete documentation before stable release. {562}.</summary>
+    /// <summary>The abstract base contain functionaity shared by most aggregators.</summary>
+    /// <seealso cref="IMetricSeriesAggregator"/>
     /// <typeparam name="TBufferedValue">The actual type of the metric values. For most common metrics it's <c>double</c>.
-    /// However, for example a metric collecting strings to dount the number of distinct entities might have <c>string</c>.</typeparam>
+    /// However, for example a metric collecting strings to d-count the number of distinct entities might have <c>string</c>.</typeparam>
     /// @PublicExposureCandidate
     internal abstract class MetricSeriesAggregatorBase<TBufferedValue> : IMetricSeriesAggregator
     {
@@ -24,11 +25,11 @@
         private volatile MetricValuesBufferBase<TBufferedValue> metricValuesBuffer;
         private volatile MetricValuesBufferBase<TBufferedValue> metricValuesBufferRecycle = null;
 
-        /// <summary>@ToDo: Complete documentation before stable release. {683}.</summary>
-        /// <param name="metricValuesBufferFactory">@ToDo: Complete documentation before stable release. {573}.</param>
-        /// <param name="configuration">@ToDo: Complete documentation before stable release. {343}.</param>
-        /// <param name="dataSeries">@ToDo: Complete documentation before stable release. {725}.</param>
-        /// <param name="aggregationCycleKind">@ToDo: Complete documentation before stable release. {361}.</param>
+        /// <summary>Initializes an aggregator instance.</summary>
+        /// <param name="metricValuesBufferFactory">Creates a values buffer appropriate for this aggregator.</param>
+        /// <param name="configuration">Configuration of the metric series ggregated by this aggregator.</param>
+        /// <param name="dataSeries">The metric series ggregated by this aggregator.</param>
+        /// <param name="aggregationCycleKind">The kind of the aggregation cycle that uses this aggregator.</param>
         protected MetricSeriesAggregatorBase(
                                         Func<MetricValuesBufferBase<TBufferedValue>> metricValuesBufferFactory,
                                         IMetricSeriesConfiguration configuration,
@@ -48,15 +49,15 @@
             this.Reset(default(DateTimeOffset), default(IMetricValueFilter));
         }
 
-        /// <summary>Gets @ToDo: Complete documentation before stable release. {182}.</summary>
+        /// <summary>Gets the data series aggregated by this aggregator.</summary>
         public MetricSeries DataSeries
         {
             get { return this.dataSeries; }
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {895}.</summary>
-        /// <param name="periodEnd">@ToDo: Complete documentation before stable release. {406}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {839}.</returns>
+        /// <summary>Finishes the aggregation cycle.</summary>
+        /// <param name="periodEnd">Cycle end timestamp.</param>
+        /// <returns>The aggregate summarizing the completed cycle.</returns>
         public MetricAggregate CompleteAggregation(DateTimeOffset periodEnd)
         {
             if (!this.isPersistent)
@@ -68,8 +69,8 @@
             return aggregate;
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {121}.</summary>
-        /// <param name="periodStart">@ToDo: Complete documentation before stable release. {513}.</param>
+        /// <summary>Clear the state of this aggregator to allow it to be reused for a new aggregation cycle.</summary>
+        /// <param name="periodStart">start time of the new cycle.</param>
         public void Reset(DateTimeOffset periodStart)
         {
             this.periodStart = periodStart;
@@ -79,17 +80,17 @@
             this.ResetAggregate();
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {674}.</summary>
-        /// <param name="periodStart">@ToDo: Complete documentation before stable release. {632}.</param>
-        /// <param name="valueFilter">@ToDo: Complete documentation before stable release. {637}.</param>
+        /// <summary>Clear the state of this aggregator to allow it to be reused for a new aggregation cycle.</summary>
+        /// <param name="periodStart">Start time of the new cycle.</param>
+        /// <param name="valueFilter">Values filter for the new cycle.</param>
         public void Reset(DateTimeOffset periodStart, IMetricValueFilter valueFilter)
         {
             this.valueFilter = valueFilter;
             this.Reset(periodStart);
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {461}.</summary>
-        /// <param name="metricValue">@ToDo: Complete documentation before stable release. {786}.</param>
+        /// <summary>Track a metric va,ue for inclusion into the current cycle.</summary>
+        /// <param name="metricValue">The metric value.</param>
         public void TrackValue(double metricValue)
         {
             if (Double.IsNaN(metricValue))
@@ -109,8 +110,8 @@
             this.TrackFilteredConvertedValue(value);
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {415}.</summary>
-        /// <param name="metricValue">@ToDo: Complete documentation before stable release. {635}.</param>
+        /// <summary>Track a metric va,ue for inclusion into the current cycle.</summary>
+        /// <param name="metricValue">The metric value.</param>
         public void TrackValue(object metricValue)
         {
             if (metricValue == null)
@@ -129,8 +130,8 @@
             this.TrackFilteredConvertedValue(value);
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {040}.</summary>
-        /// <returns>@ToDo: Complete documentation before stable release. {556}.</returns>
+        /// <summary>Clear the state of this aggregator to allow it to be reused for a new aggregation cycle.</summary>
+        /// <returns><c>true</c> if this aggregator supports reseting and was reset, or <c>false</c> otherwise.</returns>
         public bool TryRecycle()
         {
             if (this.isPersistent)
@@ -142,9 +143,10 @@
             return true;
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {017}.</summary>
-        /// <param name="periodEnd">@ToDo: Complete documentation before stable release. {120}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {390}.</returns>
+        /// <summary>Get an aggregate of the values tracked so far without completing the ongoing aggregation cycle.
+        /// May not be thread-safe.</summary>
+        /// <param name="periodEnd">Timestamp to use as period end for the returned aggregate.</param>
+        /// <returns>Metric aggregate containng the summary of the values tracked so far during the current cycle.</returns>
         public MetricAggregate CreateAggregateUnsafe(DateTimeOffset periodEnd)
         {
             this.UpdateAggregate(this.metricValuesBuffer);
@@ -154,22 +156,24 @@
 
         #region Abstract Methods
 
-        /// <summary>@ToDo: Complete documentation before stable release. {238}.</summary>
-        /// <param name="periodEnd">@ToDo: Complete documentation before stable release. {096}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {421}.</returns>
+        /// <summary>Concrete aggregator imlemenations override this to actually create an aggregate form the tracked matric values.</summary>
+        /// <param name="periodEnd">Timestamp of the aggregation period end.</param>
+        /// <returns>A new metric aggregate.</returns>
         protected abstract MetricAggregate CreateAggregate(DateTimeOffset periodEnd);
 
-        /// <summary>@ToDo: Complete documentation before stable release. {896}.</summary>
+        /// <summary>Concrete aggregator imlemenations override this to actually reset the aggregator.</summary>
         protected abstract void ResetAggregate();
 
-        /// <summary>@ToDo: Complete documentation before stable release. {878}.</summary>
-        /// <param name="metricValue">@ToDo: Complete documentation before stable release. {128}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {270}.</returns>
+        /// <summary>Concrete aggregator imlemenations override this to convert the metric value passed to the
+        /// public <c>TrackValue(..)</c> method to the typed used by the internal buffer.</summary>
+        /// <param name="metricValue">Value to convert..</param>
+        /// <returns>Converted value.</returns>
         protected abstract TBufferedValue ConvertMetricValue(double metricValue);
 
-        /// <summary>@ToDo: Complete documentation before stable release. {928}.</summary>
-        /// <param name="metricValue">@ToDo: Complete documentation before stable release. {941}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {657}.</returns>
+        /// <summary>Concrete aggregator imlemenations override this to convert the metric value passed to the
+        /// public <c>TrackValue(..)</c> method to the typed used by the internal buffer.</summary>
+        /// <param name="metricValue">Value to convert..</param>
+        /// <returns>Converted value.</returns>
         protected abstract TBufferedValue ConvertMetricValue(object metricValue);
 
         /// <summary>
@@ -178,10 +182,10 @@
         /// a lock on the <c>metric values buffer</c> (e.g. extracting a summary from the buffer). Stage 2 is the part of the update
         /// that does not need such a lock.
         /// </summary>
-        /// <param name="buffer">@ToDo: Complete documentation before stable release. {580}.</param>
-        /// <param name="minFlushIndex">@ToDo: Complete documentation before stable release. {764}.</param>
-        /// <param name="maxFlushIndex">@ToDo: Complete documentation before stable release. {497}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {788}.</returns>
+        /// <param name="buffer">Interval values buffer.</param>
+        /// <param name="minFlushIndex">Buffer index start to process. {764}.</param>
+        /// <param name="maxFlushIndex">Buffer index end to process.</param>
+        /// <returns>State for passing data from stage 1 to stage 2.</returns>
         protected abstract object UpdateAggregate_Stage1(MetricValuesBufferBase<TBufferedValue> buffer, int minFlushIndex, int maxFlushIndex);
 
         /// <summary>
@@ -190,14 +194,14 @@
         /// a lock on the <c>metric values buffer</c> (e.g. extracting a summary from the buffer). Stage 2 is the part of the update
         /// that does not need such a lock.
         /// </summary>
-        /// <param name="stage1Result">@ToDo: Complete documentation before stable release. {551}.</param>
+        /// <param name="stage1Result">State for passing data from stage 1 to stage 2.</param>
         protected abstract void UpdateAggregate_Stage2(object stage1Result);
 
         #endregion Abstract Methods
 
-        /// <summary>@ToDo: Complete documentation before stable release. {203}.</summary>
-        /// <param name="aggregate">@ToDo: Complete documentation before stable release. {570}.</param>
-        /// <param name="periodEnd">@ToDo: Complete documentation before stable release. {632}.</param>
+        /// <summary>Populate common fields of just-constructed metric aggregate.</summary>
+        /// <param name="aggregate">Aggregate being initialized.</param>
+        /// <param name="periodEnd">End of the cycle represented by the aggregate.</param>
         protected void AddInfo_Timing_Dimensions_Context(MetricAggregate aggregate, DateTimeOffset periodEnd)
         {
             if (aggregate == null)
@@ -372,7 +376,7 @@
         /// <summary>
         /// Flushes the values buffer to update the aggregate state held by subclasses.
         /// </summary>
-        /// <param name="buffer">@ToDo: Complete documentation before stable release. {208}.</param>
+        /// <param name="buffer">Buffer to process.</param>
         private void UpdateAggregate(MetricValuesBufferBase<TBufferedValue> buffer)
         {
             if (buffer == null)

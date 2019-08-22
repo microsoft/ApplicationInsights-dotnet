@@ -103,20 +103,19 @@
             this.aggregatorCustom = null;
         }
 
-        /// <summary>Gets @ToDo: Complete documentation before stable release. {380}.</summary>
+        /// <summary>Gets a table that describes the names and values of the dimensions that describe this metric time series.</summary>
         public IReadOnlyDictionary<string, string> DimensionNamesAndValues
         {
             get { return this.dimensionNamesAndValues; }
         }
 
-        /// <summary>Gets @ToDo: Complete documentation before stable release. {255}.</summary>
+        /// <summary>Gets the identifier of the metric that contains this metric time series.</summary>
         public MetricIdentifier MetricIdentifier { get; }
 
         /// <summary>
-        /// Tracks the specified value.<br />
+        /// Includes the specified value into the current aggregate of this metric time series.<br />
         /// An aggregate representing tracked values will be automatically sent to the cloud ingestion endpoint at the end of each aggregation period.<br />
-        /// <para>When non-default aggregation cycles are active, additional aggregates may be obtained by cycling respective aggregators.
-        /// See @ToDo to learn more about this advanced use case.</para>
+        /// <para>(Advanced note: When non-default aggregation cycles are active, additional aggregates may be obtained by cycling respective aggregators.)</para>
         /// </summary>
         /// <param name="metricValue">The value to be aggregated.</param>
         public void TrackValue(double metricValue)
@@ -155,10 +154,10 @@
         }
 
         /// <summary>
-        /// Tracks the specified value.<br />
+        /// Includes the specified value into the current aggregate of this metric time series.<br />
         /// An aggregate representing tracked values will be automatically sent to the cloud ingestion endpoint at the end of each aggregation period.<br />
-        /// <para>When non-default aggregation cycles are active, additional aggregates may be obtained by cycling respective aggregators.
-        /// See @ToDo to learn more about this advanced use case.</para>
+        /// This overload allows creating aggregators that can aggregate non-numeric values (e.g. a distinct count of strings aggregator).
+        /// <para>(Advanced note: When non-default aggregation cycles are active, additional aggregates may be obtained by cycling respective aggregators.)</para>
         /// </summary>
         /// <param name="metricValue">The value to be aggregated.</param>
         public void TrackValue(object metricValue)
@@ -196,16 +195,13 @@
             }
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {218}.</summary>
-        /// @PublicExposureCandidate
+        // @PublicExposureCandidate
         internal void ResetAggregation()
         {
             this.ResetAggregation(periodStart: DateTimeOffset.Now);
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {174}.</summary>
-        /// <param name="periodStart">@ToDo: Complete documentation before stable release. {837}.</param>
-        /// @PublicExposureCandidate
+        // @PublicExposureCandidate
         internal void ResetAggregation(DateTimeOffset periodStart)
         {
             periodStart = Util.RoundDownToSecond(periodStart);
@@ -234,19 +230,13 @@
             }
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {036}.</summary>
-        /// <returns>@ToDo: Complete documentation before stable release. {909}.</returns>
-        /// @PublicExposureCandidate
+        // @PublicExposureCandidate
         internal MetricAggregate GetCurrentAggregateUnsafe()
         {
             return this.GetCurrentAggregateUnsafe(CycleKind.Default, DateTimeOffset.Now);
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {313}.</summary>
-        /// <param name="aggregationCycleKind">@ToDo: Complete documentation before stable release. {621}.</param>
-        /// <param name="dateTime">@ToDo: Complete documentation before stable release. {851}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {437}.</returns>
-        /// @PublicExposureCandidate
+        // @PublicExposureCandidate
         internal MetricAggregate GetCurrentAggregateUnsafe(MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset dateTime)
         {
             IMetricSeriesAggregator aggregator = null;
@@ -470,8 +460,8 @@
         /// Aggregator implementations which believe that they are too expensive to recycle for this, can opt out of this strategy by returning FALSE from
         /// their CanRecycle property.
         /// </summary>
-        /// <param name="aggregationCycleKind">@ToDo: Complete documentation before stable release. {489}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {036}.</returns>
+        /// <param name="aggregationCycleKind">The kind of the metric aggregation cycle.</param>
+        /// <returns>An empty aggregator.</returns>
         private IMetricSeriesAggregator GetRecycledAggregatorInstance(MetricAggregationCycleKind aggregationCycleKind)
         {
             if (this.requiresPersistentAggregator)
