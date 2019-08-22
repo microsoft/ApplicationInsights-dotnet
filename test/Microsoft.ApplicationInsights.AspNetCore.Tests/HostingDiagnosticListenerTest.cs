@@ -317,7 +317,7 @@
         [InlineData(AspNetCoreMajorVersion.Two, false)]
         public void RequestWithNonW3CCompatibleRequestIdCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
         {
-            // Tests Request correlation when incoming request has only Request-ID headers.
+            // Tests Request correlation when incoming request has only Request-ID headers and is not compatible w3c trace id
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
             // requestid with rootid part NOT compatible with W3C TraceID
             var requestId = "|noncompatible.b9e41c35_1.";
@@ -349,6 +349,52 @@
                 else
                 {
                     Assert.Equal("noncompatible", requestTelemetry.Context.Operation.Id);
+                }
+
+                Assert.Equal("value1", requestTelemetry.Properties["prop1"]);
+                Assert.Equal("value2", requestTelemetry.Properties["prop2"]);
+            }
+        }
+
+        [Theory]
+        [InlineData(AspNetCoreMajorVersion.One, true)]
+        [InlineData(AspNetCoreMajorVersion.Two, true)]
+        [InlineData(AspNetCoreMajorVersion.One, false)]
+        [InlineData(AspNetCoreMajorVersion.Two, false)]
+        public void RequestWithNonW3CCompatibleNonHierrchicalRequestIdCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
+        {
+            // Tests Request correlation when incoming request has only Request-ID headers and is not compatible w3c trace id and not a hierrachical id either.
+            HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
+            // requestid with rootid part NOT compatible with W3C TraceID, and not a Hierrarchical id either.
+            var requestId = "somerequestidsomeformat";
+            context.Request.Headers[RequestResponseHeaders.RequestIdHeader] = requestId;
+            context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "prop1=value1, prop2=value2";
+
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion, isW3C: IsW3C))
+            {
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
+
+                var activity = Activity.Current;
+                Assert.NotNull(activity);
+                Assert.Single(activity.Baggage.Where(b => b.Key == "prop1" && b.Value == "value1"));
+                Assert.Single(activity.Baggage.Where(b => b.Key == "prop2" && b.Value == "value2"));
+
+                Assert.NotNull(context.Features.Get<RequestTelemetry>());
+
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
+
+                Assert.Single(sentTelemetry);
+                var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
+                ValidateRequestTelemetry(requestTelemetry, activity, IsW3C, expectedParentId: requestId, expectedSource: null);
+
+                if (IsW3C)
+                {
+                    Assert.Equal("somerequestidsomeformat", requestTelemetry.Properties[HostingDiagnosticListener.LegacyRootIdProperty]);
+                    Assert.NotEqual("somerequestidsomeformat", requestTelemetry.Context.Operation.Id);
+                }
+                else
+                {
+                    Assert.Equal("somerequestidsomeformat", requestTelemetry.Context.Operation.Id);
                 }
 
                 Assert.Equal("value1", requestTelemetry.Properties["prop1"]);

@@ -270,7 +270,7 @@
                     newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
                     newActivity.SetParentId(originalParentId);
 
-                    // set baggage from tracestate
+                    // read and populate tracestate
                     ReadTraceState(httpContext.Request.Headers, newActivity);
                 }
                 else 
@@ -672,51 +672,6 @@
             }
         }
 
-        
-        private void SetW3CContext(IHeaderDictionary requestHeaders, Activity activity, out string sourceAppId)
-        {
-            sourceAppId = null;
-            if (requestHeaders.TryGetValue(W3C.W3CConstants.TraceParentHeader, out StringValues traceParentValues))
-            {
-                var parentTraceParent = StringUtilities.EnforceMaxLength(
-                    traceParentValues.First(),
-                    InjectionGuardConstants.TraceParentHeaderMaxLength);
-              //  activity.SetTraceparent(parentTraceParent);
-            }
-
-            string[] traceStateValues = HttpHeadersUtilities.SafeGetCommaSeparatedHeaderValues(
-                requestHeaders,
-                W3C.W3CConstants.TraceStateHeader,
-                InjectionGuardConstants.TraceStateHeaderMaxLength,
-                InjectionGuardConstants.TraceStateMaxPairs);
-
-            if (traceStateValues != null && traceStateValues.Any())
-            {
-                var pairsExceptAz = new StringBuilder();
-                foreach (var t in traceStateValues)
-                {
-                    if (t.StartsWith(W3C.W3CConstants.AzureTracestateNamespace + "=", StringComparison.Ordinal))
-                    {
-                        // start after 'az='
-                        TryExtractAppIdFromAzureTracestate(t.Substring(3), out sourceAppId);
-                    }
-                    else
-                    {
-                        pairsExceptAz.Append(t).Append(',');
-                    }
-                }
-
-                if (pairsExceptAz.Length > 0)
-                {
-                    // remove last comma
-                    var tracestateStr = pairsExceptAz.ToString(0, pairsExceptAz.Length - 1);
-                  //  activity.SetTracestate(StringUtilities.EnforceMaxLength(tracestateStr, InjectionGuardConstants.TraceStateHeaderMaxLength));
-                }
-            }
-
-            ReadCorrelationContext(requestHeaders, activity);
-        }
-        
         private void ReadCorrelationContext(IHeaderDictionary requestHeaders, Activity activity)
         {
             string[] baggage = requestHeaders.GetCommaSeparatedValues(RequestResponseHeaders.CorrelationContextHeader);
@@ -739,24 +694,12 @@
         {
             if (requestHeaders.TryGetValue(W3CConstants.TraceStateHeader, out var traceState))
             {
+                // SDK is not relying on anything from tracestate.
+                // It simply sets activity tracestate, so that outbound calls
+                // make in the request context can continue propogation
+                // of tracestate.
                 activity.TraceStateString = traceState;
             }
-        }
-
-        private static bool TryExtractAppIdFromAzureTracestate(string azTracestate, out string appId)
-        {
-            appId = null;
-            var parts = azTracestate.Split(W3C.W3CConstants.TracestateAzureSeparator);
-
-            var appIds = parts.Where(p => p.StartsWith(W3C.W3CConstants.ApplicationIdTraceStateField, StringComparison.Ordinal)).ToArray();
-
-            if (appIds.Length != 1)
-            {
-                return false;
-            }
-
-            appId = appIds[0];
-            return true;
         }
 
         public void Dispose()
