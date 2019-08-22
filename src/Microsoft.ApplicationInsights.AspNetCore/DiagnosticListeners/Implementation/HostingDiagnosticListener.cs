@@ -375,15 +375,22 @@
                 {
                     var requestId = StringUtilities.EnforceMaxLength(requestIdValues.First(), InjectionGuardConstants.RequestHeaderMaxLength);
                     originalParentId = requestId;
-                    var rootIdFromOriginalRequestId = ExtractOperationIdFromRequestId(requestId);
-                    if (IsCompatibleW3CTraceID(rootIdFromOriginalRequestId))
+                    if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
                     {
-                        activity.SetParentId(ActivityTraceId.CreateFromString(rootIdFromOriginalRequestId.AsSpan()), default(ActivitySpanId), ActivityTraceFlags.None);
+                        var rootIdFromOriginalRequestId = ExtractOperationIdFromRequestId(requestId);
+                        if (IsCompatibleW3CTraceID(rootIdFromOriginalRequestId))
+                        {
+                            activity.SetParentId(ActivityTraceId.CreateFromString(rootIdFromOriginalRequestId.AsSpan()), default(ActivitySpanId), ActivityTraceFlags.None);
+                        }
+                        else
+                        {
+                            // store rootIdFromOriginalParentId in custom Property inside RequestTelemetry
+                            legacyRootId = rootIdFromOriginalRequestId;                           
+                        }
                     }
                     else
                     {
-                        legacyRootId = rootIdFromOriginalRequestId;
-                        // store rootIdFromOriginalParentId in custom Property inside RequestTelemetry
+                        activity.SetParentId(requestId);
                     }
 
                     ReadCorrelationContext(requestHeaders, activity);

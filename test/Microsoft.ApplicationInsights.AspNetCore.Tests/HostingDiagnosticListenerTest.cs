@@ -246,7 +246,7 @@
         [InlineData(AspNetCoreMajorVersion.Two,true)]
         [InlineData(AspNetCoreMajorVersion.One, false)]
         [InlineData(AspNetCoreMajorVersion.Two, false)]
-        public void OnBeginRequestWithNoHeadersCreateNewActivityAndInitializeRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
+        public void RequestWithNoHeadersCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
         {
             // Tests Request correlation when incoming request has no correlation headers.
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
@@ -255,25 +255,31 @@
             {
                 HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
 
-                Assert.NotNull(Activity.Current);
+                var activity = Activity.Current;
+                Assert.NotNull(activity);
+                
                 if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.One)
                 {
                     Assert.Equal(ActivityCreatedByHostingDiagnosticListener, Activity.Current.OperationName);
                 }
 
-                var requestTelemetry = context.Features.Get<RequestTelemetry>();
-                Assert.NotNull(requestTelemetry);
+                Assert.NotNull(context.Features.Get<RequestTelemetry>());
 
-                if(IsW3C)
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
+
+                Assert.Single(sentTelemetry);
+                var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
+
+                if (IsW3C)
                 {
-                    Assert.Equal(requestTelemetry.Id, FormatTelemetryId(Activity.Current.TraceId.ToHexString(), Activity.Current.SpanId.ToHexString()));
-                    Assert.Equal(requestTelemetry.Context.Operation.Id, Activity.Current.TraceId.ToHexString());
+                    Assert.Equal(requestTelemetry.Id, FormatTelemetryId(activity.TraceId.ToHexString(), activity.SpanId.ToHexString()));
+                    Assert.Equal(requestTelemetry.Context.Operation.Id, activity.TraceId.ToHexString());
                     Assert.Null(requestTelemetry.Context.Operation.ParentId);
                 }
                 else
                 {
-                    Assert.Equal(requestTelemetry.Id, Activity.Current.Id);
-                    Assert.Equal(requestTelemetry.Context.Operation.Id, Activity.Current.RootId);
+                    Assert.Equal(requestTelemetry.Id, activity.Id);
+                    Assert.Equal(requestTelemetry.Context.Operation.Id, activity.RootId);
                     Assert.Null(requestTelemetry.Context.Operation.ParentId);
                 }
             }
@@ -284,7 +290,7 @@
         [InlineData(AspNetCoreMajorVersion.Two, true)]
         [InlineData(AspNetCoreMajorVersion.One, false)]
         [InlineData(AspNetCoreMajorVersion.Two, false)]
-        public void OnBeginRequestWithW3CCompatibleRequestIDHeadersCreateNewActivityAndInitializeRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
+        public void RequestWithW3CCompatibleRequestIdCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
         {
             // Tests Request correlation when incoming request has only Request-ID headers.
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
@@ -297,13 +303,19 @@
             {
                 HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
 
-                Assert.NotNull(Activity.Current);
-                Assert.Single(Activity.Current.Baggage.Where(b => b.Key == "prop1" && b.Value == "value1"));
-                Assert.Single(Activity.Current.Baggage.Where(b => b.Key == "prop2" && b.Value == "value2"));
+                var activity = Activity.Current;
+                Assert.NotNull(activity);
+                Assert.Single(activity.Baggage.Where(b => b.Key == "prop1" && b.Value == "value1"));
+                Assert.Single(activity.Baggage.Where(b => b.Key == "prop2" && b.Value == "value2"));
 
-                var requestTelemetry = context.Features.Get<RequestTelemetry>();
+                Assert.NotNull(context.Features.Get<RequestTelemetry>());
 
-                ValidateRequestTelemetry(requestTelemetry, Activity.Current, IsW3C);
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
+
+                Assert.Single(sentTelemetry);
+                var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
+                ValidateRequestTelemetry(requestTelemetry, activity, IsW3C);
+                Assert.Equal("40d1a5a08a68c0998e4a3b7c91915ca6", requestTelemetry.Context.Operation.Id);
                 Assert.Equal(requestId, requestTelemetry.Context.Operation.ParentId);          
                 Assert.Equal("value1", requestTelemetry.Properties["prop1"]);
                 Assert.Equal("value2", requestTelemetry.Properties["prop2"]);
@@ -315,7 +327,7 @@
         [InlineData(AspNetCoreMajorVersion.Two, true)]
         [InlineData(AspNetCoreMajorVersion.One, false)]
         [InlineData(AspNetCoreMajorVersion.Two, false)]
-        public void OnBeginRequestWithNonW3CCompatibleRequestIDHeadersCreateNewActivityAndInitializeRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
+        public void RequestWithNonW3CCompatibleRequestIdCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
         {
             // Tests Request correlation when incoming request has only Request-ID headers.
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
@@ -328,13 +340,18 @@
             {
                 HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
 
-                Assert.NotNull(Activity.Current);
-                Assert.Single(Activity.Current.Baggage.Where(b => b.Key == "prop1" && b.Value == "value1"));
-                Assert.Single(Activity.Current.Baggage.Where(b => b.Key == "prop2" && b.Value == "value2"));
+                var activity = Activity.Current;
+                Assert.NotNull(activity);
+                Assert.Single(activity.Baggage.Where(b => b.Key == "prop1" && b.Value == "value1"));
+                Assert.Single(activity.Baggage.Where(b => b.Key == "prop2" && b.Value == "value2"));
 
-                var requestTelemetry = context.Features.Get<RequestTelemetry>();
+                Assert.NotNull(context.Features.Get<RequestTelemetry>());
 
-                ValidateRequestTelemetry(requestTelemetry, Activity.Current, IsW3C);
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
+
+                Assert.Single(sentTelemetry);
+                var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
+                ValidateRequestTelemetry(requestTelemetry, activity, IsW3C);
                 Assert.Equal(requestId, requestTelemetry.Context.Operation.ParentId);
 
                 if(IsW3C)
@@ -352,7 +369,7 @@
         [InlineData(AspNetCoreMajorVersion.Two, true)]
         [InlineData(AspNetCoreMajorVersion.One, false)]
         [InlineData(AspNetCoreMajorVersion.Two, false)]
-        public void OnBeginRequestWithW3CTraceParentHeadersCreateNewActivityAndInitializeRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
+        public void RequestWithBothW3CAndRequestIdCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
         {
             // Tests Request correlation when incoming request has both W3C TraceParent and Request-ID headers,
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
@@ -369,21 +386,26 @@
             using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion, isW3C: IsW3C))
             {
                 HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
+                var activity = Activity.Current;
+                Assert.NotNull(activity);
 
-                Assert.NotNull(Activity.Current);
                 if (IsW3C)
                 {
-                    Assert.Single(Activity.Current.Baggage.Where(b => b.Key == "wc3prop1" && b.Value == "value1"));
-                    Assert.Single(Activity.Current.Baggage.Where(b => b.Key == "w3cprop2" && b.Value == "value2"));
+                    Assert.Single(activity.Baggage.Where(b => b.Key == "wc3prop1" && b.Value == "value1"));
+                    Assert.Single(activity.Baggage.Where(b => b.Key == "w3cprop2" && b.Value == "value2"));
                 }
 
-                var requestTelemetry = context.Features.Get<RequestTelemetry>();
+                Assert.NotNull(context.Features.Get<RequestTelemetry>());
 
-                ValidateRequestTelemetry(requestTelemetry, Activity.Current, IsW3C);
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
+
+                Assert.Single(sentTelemetry);
+                var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
+
+                ValidateRequestTelemetry(requestTelemetry, activity, IsW3C);
                 
                 if (IsW3C)
                 {
-                    // parentid populated only in W3C mode
                     Assert.Equal("4e3083444c10254ba40513c7316332eb", requestTelemetry.Context.Operation.Id);
                     // tracestate read only in W3C Mode
                     Assert.Equal("value1", requestTelemetry.Properties["w3cprop1"]);
@@ -392,8 +414,8 @@
                 else
                 {
                     Assert.Equal("40d1a5a08a68c0998e4a3b7c91915ca6", requestTelemetry.Context.Operation.Id);
-                    Assert.Equal("value1", requestTelemetry.Properties["w3cprop1"]);
-                    Assert.Equal("value2", requestTelemetry.Properties["w3cprop2"]);
+                    Assert.Equal("value1", requestTelemetry.Properties["prop1"]);
+                    Assert.Equal("value2", requestTelemetry.Properties["prop2"]);
                 }
             }
         }
@@ -403,7 +425,7 @@
         [InlineData(AspNetCoreMajorVersion.Two, true)]
         [InlineData(AspNetCoreMajorVersion.One, false)]
         [InlineData(AspNetCoreMajorVersion.Two, false)]
-        public void OnBeginRequestWithW3CAndRequestIDHeadersCreateNewActivityAndInitializeRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
+        public void RequestWithW3CTraceParentCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
         {
             // Tests Request correlation when incoming request has only Request-ID headers.
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
@@ -415,17 +437,23 @@
             using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion, isW3C: IsW3C))
             {
                 HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
+                var activity = Activity.Current;
+                Assert.NotNull(activity);
 
-                Assert.NotNull(Activity.Current);
                 if (IsW3C)
                 {
-                    Assert.Single(Activity.Current.Baggage.Where(b => b.Key == "prop1" && b.Value == "value1"));
-                    Assert.Single(Activity.Current.Baggage.Where(b => b.Key == "prop2" && b.Value == "value2"));
+                    Assert.Single(activity.Baggage.Where(b => b.Key == "prop1" && b.Value == "value1"));
+                    Assert.Single(activity.Baggage.Where(b => b.Key == "prop2" && b.Value == "value2"));
                 }
 
-                var requestTelemetry = context.Features.Get<RequestTelemetry>();
+                Assert.NotNull(context.Features.Get<RequestTelemetry>());
 
-                ValidateRequestTelemetry(requestTelemetry, Activity.Current, IsW3C);
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
+
+                Assert.Single(sentTelemetry);
+                var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
+
+                ValidateRequestTelemetry(requestTelemetry, activity, IsW3C);
 
                 if (IsW3C)
                 {
@@ -1110,8 +1138,6 @@
 
         private void HandleRequestBegin(HostingDiagnosticListener hostingListener, HttpContext context, long timestamp, AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
-            this.output.WriteLine(context.Request.Headers["traceparent"]);
-
             if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two)
             {
                 if (Activity.Current == null)
