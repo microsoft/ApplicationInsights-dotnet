@@ -275,6 +275,7 @@
         }
 
         [TestMethod]
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "Failed to parse configuration value. Property: 'TimeSpanProperty' Reason: String was not recognized as a valid TimeSpan.")]
         public void LoadInstanceSetsInstancePropertiesOfTimeSpanTypeFromChildElementValuesOfDefinitionWithInvalidFormatThrowsException()
         {
             var definition = new XElement(
@@ -282,7 +283,7 @@
                 new XAttribute("Type", typeof(StubClassWithProperties).AssemblyQualifiedName),
                 new XElement("TimeSpanProperty", "TestValue"));
 
-            AssertEx.Throws<FormatException>(() => TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), null, null));
+            TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), null, null);
         }
 
         [TestMethod]
@@ -913,6 +914,23 @@
             TestableTelemetryConfigurationFactory.LoadProperties(definition, instance, null);
 
             Assert.AreEqual(42, instance.Int32Property);
+        }
+
+        [TestMethod]
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "Failed to parse configuration value. Property: 'IntegerProperty' Reason: Input string was not in a correct format.")]
+        public void LoadPropertiesThrowsExceptionWithPropertyName()
+        {
+            // parsing this integer will throw "System.FormatException: Input string was not in a correct format."
+            // This is not useful without also specifying the errant property name.
+
+            XElement definition = XDocument.Parse(Configuration(
+                @"<TelemetryChannel Type=""" + typeof(StubTelemetryChannel).AssemblyQualifiedName + @""">
+                    <IntegerProperty>123a</IntegerProperty>
+                 </TelemetryChannel>")).Root;
+
+            var instance = new TelemetryConfiguration();
+
+            TestableTelemetryConfigurationFactory.LoadProperties(definition, instance, null);
         }
 
         [TestMethod]
