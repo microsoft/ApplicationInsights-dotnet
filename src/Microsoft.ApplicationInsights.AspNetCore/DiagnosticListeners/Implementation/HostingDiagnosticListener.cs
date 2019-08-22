@@ -247,7 +247,7 @@
                 // 3. Incoming TraceParent header. Will simply Ignore W3C headers, and Current Activity used as such.
 
                 // Attempt to find parent from incoming W3C Headers which 2.XX Hosting is unaware of.
-                if (currentActivity.IdFormat == ActivityIdFormat.W3C && httpContext.Request.Headers.TryGetValue(W3C.W3CConstants.TraceParentHeader, out StringValues traceParentValues))
+                if (currentActivity.IdFormat == ActivityIdFormat.W3C && httpContext.Request.Headers.TryGetValue(W3CConstants.TraceParentHeader, out StringValues traceParentValues))
                 {
                     var parentTraceParent = StringUtilities.EnforceMaxLength(
                         traceParentValues.First(),
@@ -270,6 +270,11 @@
                         {
                             newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
                             newActivity.SetParentId(ActivityTraceId.CreateFromString(rootIdFromOriginalParentId.AsSpan()), default(ActivitySpanId), ActivityTraceFlags.None);
+
+                            foreach(var bag in currentActivity.Baggage)
+                            {
+                                newActivity.AddBaggage(bag.Key, bag.Value);
+                            }
                         }
                         else
                         {
@@ -284,6 +289,9 @@
                     // We need to ignore the Activity created by Hosting, as it did not take W3CTraceParent into consideration.
                     newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
                     newActivity.SetParentId(originalParentId);
+
+                    // set baggage from tracestate
+                    ReadTraceState(httpContext.Request.Headers, newActivity);
                 }
 
                 if (newActivity != null)
@@ -308,7 +316,14 @@
         {
             int indexPipe = originalParentId.IndexOf('|');
             int indexDot = originalParentId.IndexOf('.');
-            return originalParentId.Substring(indexPipe + 1, (indexDot - indexPipe) - 1); 
+            if (indexPipe>=0 && indexDot >=0)
+            {
+                return originalParentId.Substring(indexPipe + 1, (indexDot - indexPipe) - 1);
+            }
+            else
+            {
+                return string.Empty;
+            }
         }
 
         /// <summary>
@@ -351,6 +366,8 @@
                     var parentTraceParent = StringUtilities.EnforceMaxLength(traceParentValues.First(), InjectionGuardConstants.TraceParentHeaderMaxLength);
                     originalParentId = parentTraceParent;
                     activity.SetParentId(originalParentId);
+
+                    ReadTraceState(requestHeaders, activity);
                 }
                 // Request-Id
                 else if (requestHeaders.TryGetValue(RequestResponseHeaders.RequestIdHeader, out StringValues requestIdValues) &&
@@ -699,6 +716,24 @@
         {
             string[] baggage = requestHeaders.GetCommaSeparatedValues(RequestResponseHeaders.CorrelationContextHeader);
             if (baggage != StringValues.Empty && !activity.Baggage.Any())
+            {
+                foreach (var item in baggage)
+                {
+                    var parts = item.Split('=');
+                    if (parts.Length == 2)
+                    {
+                        var itemName = StringUtilities.EnforceMaxLength(parts[0], InjectionGuardConstants.ContextHeaderKeyMaxLength);
+                        var itemValue = StringUtilities.EnforceMaxLength(parts[1], InjectionGuardConstants.ContextHeaderValueMaxLength);
+                        activity.AddBaggage(itemName, itemValue);
+                    }
+                }
+            }
+        }
+
+        private void ReadTraceState(IHeaderDictionary requestHeaders, Activity activity)
+        {
+            string[] baggage = requestHeaders.GetCommaSeparatedValues(W3CConstants.TraceStateHeader);
+            if (baggage != StringValues.Empty)
             {
                 foreach (var item in baggage)
                 {
