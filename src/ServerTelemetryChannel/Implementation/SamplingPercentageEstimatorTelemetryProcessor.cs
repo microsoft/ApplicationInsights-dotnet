@@ -114,7 +114,7 @@
             this.itemCount = new ExponentialMovingAverageCounter(settings.EffectiveMovingAverageRatio);
             this.proactivelySampledInCount = new ExponentialMovingAverageCounter(settings.EffectiveMovingAverageRatio);
 
-            this.samplingPercentageLastChangeDateTime = DateTimeOffset.UtcNow;
+            this.samplingPercentageLastChangeDateTime = PreciseTimestamp.GetUtcNow();
 
             // set evaluation interval to default value if it is negative or zero
             this.evaluationInterval = this.settings.EffectiveEvaluationInterval;
@@ -238,7 +238,7 @@
             if (samplingPercentageChangeNeeded)
             {
                 // check to see if enough time passed since last sampling % change
-                if ((DateTimeOffset.UtcNow - this.samplingPercentageLastChangeDateTime) <
+                if ((PreciseTimestamp.GetUtcNow() - this.samplingPercentageLastChangeDateTime) <
                     (suggestedSamplingRate > this.currenSamplingRate
                         ? this.settings.EffectiveSamplingPercentageDecreaseTimeout
                         : this.settings.EffectiveSamplingPercentageIncreaseTimeout))
@@ -270,7 +270,7 @@
             if (samplingPercentageChangeNeeded)
             { 
                 // apply sampling percentage change
-                this.samplingPercentageLastChangeDateTime = DateTimeOffset.UtcNow;
+                this.samplingPercentageLastChangeDateTime = PreciseTimestamp.GetUtcNow();
                 this.currenSamplingRate = suggestedSamplingRate;
                 this.CurrentProactiveSamplingRate = suggestedProactiveSamplingRate;
             }
