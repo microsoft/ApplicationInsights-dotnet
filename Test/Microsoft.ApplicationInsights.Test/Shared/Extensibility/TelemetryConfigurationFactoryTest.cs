@@ -934,6 +934,18 @@
         }
 
         [TestMethod]
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "Failed to parse configuration value. Property: 'IntegerProperty' Reason: Input string was not in a correct format.")]
+        public void LoadProperties_TelemetryClientThrowsException()
+        {
+            string testConfig = Configuration(
+                @"<TelemetryChannel Type=""" + typeof(StubTelemetryChannel).AssemblyQualifiedName + @""">
+                    <IntegerProperty>123a</IntegerProperty>
+                 </TelemetryChannel>");
+
+            new TelemetryClient(TelemetryConfiguration.CreateFromConfiguration(testConfig));
+        }
+
+        [TestMethod]
         public void LoadPropertiesIgnoresNamespaceDeclarationWhenLoadingFromAttributes()
         {
             var definition = new XElement("Definition", new XAttribute("xmlns", "http://somenamespace"));
