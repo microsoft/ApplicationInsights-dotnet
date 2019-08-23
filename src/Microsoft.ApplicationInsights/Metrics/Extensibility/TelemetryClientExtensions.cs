@@ -10,11 +10,9 @@
     using static System.FormattableString;
 
     /// <summary>Metric related extension methods for the <c>TelemetryClient</c>.
-    /// Note that these APIs are in the ...Extensibility namespace and do not pollute the API surfact for users who do not import it.</summary>
+    /// Note that these APIs are in the ...Extensibility namespace and do not pollute the API surface for users who do not import it.</summary>
     public static class TelemetryClientExtensions
     {
-        private static ConditionalWeakTable<TelemetryClient, MetricManager> metricManagersForTelemetryClients;
-
         /// <summary>Gets the <c>MetricManager</c> for this <c>TelemetryClient</c> at the specified scope.
         /// If a metric manager does not exist at the specified scope, it is created.</summary>
         /// <param name="telemetryClient">The telemetry client for which to get the metric manager.</param>
@@ -41,61 +39,15 @@
                     return pipeline.GetMetricManager();
 
                 case MetricAggregationScope.TelemetryClient:
-                    MetricManager manager = GetOrCreateMetricManager(telemetryClient);
+                    MetricManager manager = telemetryClient.GetOrCreateMetricManager();
                     return manager;
 
                 default:
-                    throw new ArgumentException(Invariant($"Invalid value of {nameof(aggregationScope)} ({aggregationScope}). Only the following values are supported:")
+                    throw new ArgumentException(Invariant($"Invalid value of {nameof(aggregationScope)} ({aggregationScope}).")
+                                              + Invariant($" Only the following values are supported:")
                                               + Invariant($" ['{nameof(MetricAggregationScope)}.{MetricAggregationScope.TelemetryClient.ToString()}',")
                                               + Invariant($" '{nameof(MetricAggregationScope)}.{MetricAggregationScope.TelemetryConfiguration.ToString()}']."));
             }
-        }
-
-        internal static bool TryGetMetricManager(this TelemetryClient telemetryClient, out MetricManager metricManager)
-        {
-            if (telemetryClient == null)
-            {
-                metricManager = null;
-                return false;
-            }
-
-            ConditionalWeakTable<TelemetryClient, MetricManager> metricManagers = metricManagersForTelemetryClients;
-            if (metricManagers == null)
-            {
-                metricManager = null;
-                return false;
-            }
-
-            return metricManagers.TryGetValue(telemetryClient, out metricManager);
-        }
-
-        private static MetricManager GetOrCreateMetricManager(TelemetryClient telemetryClient)
-        {
-            ConditionalWeakTable<TelemetryClient, MetricManager> metricManagers = metricManagersForTelemetryClients;
-            if (metricManagers == null)
-            {
-                ConditionalWeakTable<TelemetryClient, MetricManager> newTable = new ConditionalWeakTable<TelemetryClient, MetricManager>();
-                ConditionalWeakTable<TelemetryClient, MetricManager> prevTable = Interlocked.CompareExchange(ref metricManagersForTelemetryClients, newTable, null);
-                metricManagers = prevTable ?? newTable;
-            }
-
-            // Get the manager from the table:
-            MetricManager createdManager = null;
-            MetricManager chosenManager = metricManagers.GetValue(
-                                                            telemetryClient,
-                                                            (tc) =>
-                                                            {
-                                                                createdManager = new MetricManager(new ApplicationInsightsTelemetryPipeline(tc));
-                                                                return createdManager;
-                                                            });
-
-            // If there was a race and we did not end up returning the manager we just created, we will notify it to give up its agregation cycle thread.
-            if (createdManager != null && false == Object.ReferenceEquals(createdManager, chosenManager))
-            {
-                Task fireAndForget = createdManager.StopDefaultAggregationCycleAsync();
-            }
-
-            return chosenManager;
         }
     }
 }

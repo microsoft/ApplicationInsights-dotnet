@@ -3,7 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Globalization;    
+    using System.Globalization;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -27,6 +29,8 @@
         private readonly TelemetryConfiguration configuration;
 
         private string sdkVersion;
+
+        private MetricManager metricManager = null;
 
 #pragma warning disable 612, 618 // TelemetryConfiguration.Active
         /// <summary>
@@ -1225,6 +1229,37 @@
                         aggregationScope,
                         metricIdentifier,
                         metricConfiguration);
+        }
+
+        internal MetricManager GetOrCreateMetricManager()
+        {
+            MetricManager thisManager = this.metricManager;
+
+            if (thisManager == null)
+            {
+                TelemetryConfiguration thisTelemetryPipeline = this.TelemetryConfiguration;
+                var createdManager = new MetricManager(new ApplicationInsightsTelemetryPipeline(thisTelemetryPipeline));
+
+                MetricManager existingManager = Interlocked.CompareExchange(ref this.metricManager, createdManager, null);
+                if (existingManager != null)
+                {
+                    // If there was a race and we did not end up installing the manager we just created, we will notify it to give up its agregation cycle thread.
+                    Task fireAndForget = createdManager.StopDefaultAggregationCycleAsync();
+                    thisManager = existingManager;
+                }
+                else
+                {
+                    thisManager = createdManager;
+                }
+            }
+
+            return thisManager;
+        }
+
+        internal bool TryGetMetricManager(out MetricManager metricManager)
+        {
+            metricManager = this.metricManager;
+            return metricManager != null;
         }
 
         private Metric GetOrCreateMetric(
