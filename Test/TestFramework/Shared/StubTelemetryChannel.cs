@@ -33,6 +33,11 @@
         /// Gets or sets a value indicating whether to throw an error.
         /// </summary>
         public bool ThrowError { get; set; }
+
+        /// <summary>
+        /// Gets or sets an integer value. This field exists to test config parsing.
+        /// </summary>
+        public int IntegerProperty { get; set; }
     
         /// <summary>
         /// Gets or sets the callback invoked by the <see cref="Send"/> method.
