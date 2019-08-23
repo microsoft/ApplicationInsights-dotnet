@@ -94,6 +94,20 @@
         [TestMethod]
         public void ProactivelySampledInTelemetryCapturedWhenProactiveSamplingRateIsHigherThanTarget()
         {
+#if NET45
+            Trace.WriteLine("NET45");
+#elif NETCOREAPP1_1
+            Trace.WriteLine("NETCORE11");
+#elif NETCOREAPP2_0
+            Trace.WriteLine("NETCORE20");
+#else
+        var framework = Assembly
+            .GetEntryAssembly()?
+            .GetCustomAttribute<TargetFrameworkAttribute>()?
+            .FrameworkName;
+            Trace.WriteLine("undefined" + framework);
+#endif
+
             var testDuration = 20;
             var precision = 0.3;
             var (proactivelySampledInAndSentCount, sentCount) = ProactiveSamplingTest(
