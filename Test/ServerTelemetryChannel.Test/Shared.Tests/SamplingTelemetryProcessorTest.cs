@@ -551,19 +551,20 @@
             channelBuilder.Use(next => new SamplingTelemetryProcessor(next)
             {
                 SamplingPercentage = 50,
-                CurrentProactiveSampledInRatioToTarget = 2, // actual value does not matter
+                CurrentProactiveSampledInRatioToTarget = 2, // > 1
             });
             channelBuilder.Use(next => new StubTelemetryProcessor(next) { OnProcess = t => sentTelemetry.Add(t) });
             channelBuilder.Build();
 
-            for (int i = 0; i < 1000; i++)
+            int count = 5000;
+            for (int i = 0; i < count; i++)
             {
                 var item = new RequestTelemetry();
                 item.Context.Operation.Id = ActivityTraceId.CreateRandom().ToHexString();
 
-                // generate a lot sampled-in items, only part of them should pass through and
-                // none of the sampled out items
-                if (SamplingScoreGenerator.GetSamplingScore(item.Context.Operation.Id) < 70)
+                // generate a lot sampled-in items, only 1/CurrentProactiveSampledInRatioToTarget of them should pass through 
+                // and SamplingPercentage of sampled-out items
+                if (SamplingScoreGenerator.GetSamplingScore(item.Context.Operation.Id) < 80)
                 {
                     item.ProactiveSamplingDecision = SamplingDecision.SampledIn;
                 }
@@ -572,7 +573,7 @@
             }
 
             Assert.AreEqual(0, sentTelemetry.Count(i => ((ISupportAdvancedSampling)i).ProactiveSamplingDecision == SamplingDecision.None));
-            Assert.AreEqual(500, sentTelemetry.Count(i => ((ISupportAdvancedSampling)i).ProactiveSamplingDecision == SamplingDecision.SampledIn), 50);
+            Assert.AreEqual(count / 2, sentTelemetry.Count(i => ((ISupportAdvancedSampling)i).ProactiveSamplingDecision == SamplingDecision.SampledIn), count / 2 / 10);
         }
 
         private static void TelemetryTypeDoesNotSupportSampling(Func<TelemetryProcessorChain, int> sendAction, string excludedTypes = null, string includedTypes = null)
