@@ -117,7 +117,7 @@
         {
             var endpoint = new EndpointProvider()
             {
-                ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000;Location=~!@#$%&^*()_{}{}><?<?>:L\":\"_+_+_"
+                ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000;EndpointSuffix=contoso.com;Location=~!@#$%&^*()_{}{}><?<?>:L\":\"_+_+_"
             };
 
             endpoint.GetEndpoint(EndpointName.Ingestion);

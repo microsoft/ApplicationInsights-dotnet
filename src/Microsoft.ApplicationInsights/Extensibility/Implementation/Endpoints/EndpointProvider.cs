@@ -91,7 +91,7 @@
                     }
                     else
                     {
-                        throw new ArgumentException($"Connection String Invalid: Either the value for EndpointSuffix is invalid.");
+                        throw new ArgumentException($"Connection String Invalid: The value for EndpointSuffix is invalid.");
                     }
                 }
                 else
