@@ -95,7 +95,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 if (applicationInsightsServiceOptions.RequestCollectionOptions.EnableW3CDistributedTracing)
                 {
-                    this.EnableW3CHeaders(configuration);
+                    configuration.EnableW3CCorrelation = true;
+                }
+                else
+                {
+                    configuration.EnableW3CCorrelation = false;
                 }
 
                 configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder.Build();
@@ -201,11 +205,6 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
                 }
             }
-        }
-
-        private void EnableW3CHeaders(TelemetryConfiguration configuration)
-        {
-            // configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
         }
     }
 }
