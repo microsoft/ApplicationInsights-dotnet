@@ -3,10 +3,11 @@
     using System;
     using System.ComponentModel;
     using System.Diagnostics;
-
+    using System.Runtime.InteropServices;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
 
     /// <summary>
     /// Extension class to telemetry client that creates operation object with the respective fields initialized.
@@ -14,7 +15,7 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static class TelemetryClientExtensions
     {
-        private const string ChildActivityName = "Microsoft.ApplicationInsights.OperationContext";
+        private const string ChildActivityName = "Microsoft.ApplicationInsights.OperationContext";        
 
         /// <summary>
         /// Start operation creates an operation object with a respective telemetry item. 
@@ -53,7 +54,33 @@
 
             if (string.IsNullOrEmpty(operationTelemetry.Context.Operation.Id) && !string.IsNullOrEmpty(operationId))
             {
-                operationTelemetry.Context.Operation.Id = operationId;
+                var isActivityAvailable = ActivityExtensions.TryRun(() =>
+                {
+                    if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
+                    {
+                        if (W3CUtilities.IsCompatibleW3CTraceID(operationId))
+                        {
+                            // If the user provided operationid is W3C Compatible, use it.
+                            operationTelemetry.Context.Operation.Id = operationId;
+                        }
+                        else
+                        {
+                            // If user provided operationid is not W3C compatible, generate a new one instead.
+                            // and store supplied value inside customproperty.
+                            operationTelemetry.Context.Operation.Id = ActivityTraceId.CreateRandom().ToHexString();
+                            operationTelemetry.Properties.Add(W3CConstants.LegacyRootIdProperty, operationId);
+                        }
+                    }
+                    else
+                    {
+                        operationTelemetry.Context.Operation.Id = operationId;
+                    }
+                });
+
+                if (!isActivityAvailable)
+                {
+                    operationTelemetry.Context.Operation.Id = operationId;
+                }
             }
 
             if (string.IsNullOrEmpty(operationTelemetry.Context.Operation.ParentId) && !string.IsNullOrEmpty(parentOperationId))
@@ -103,12 +130,7 @@
             }
 
             // If the operation is not executing in the context of any other operation
-            // set its name and id as a context (root) operation name and id
-            if (string.IsNullOrEmpty(telemetryContext.Id))
-            {
-                telemetryContext.Id = operationTelemetry.Id;
-            }
-
+            // set its name as a context (root) operation name.
             if (string.IsNullOrEmpty(telemetryContext.Name))
             {
                 telemetryContext.Name = operationTelemetry.Name;
@@ -116,6 +138,13 @@
 
             var isActivityAvailable = ActivityExtensions.TryRun(() =>
             {
+                // If the operation is not executing in the context of any other operation
+                // set its id to newly generated W3C Compatible Trace ID
+                if (string.IsNullOrEmpty(telemetryContext.Id))
+                {
+                    telemetryContext.Id = ActivityTraceId.CreateRandom().ToHexString();
+                }
+
                 var parentActivity = Activity.Current;
                 var operationActivity = new Activity(ChildActivityName);
 
@@ -132,12 +161,30 @@
 
                 if (parentActivity == null)
                 {
-                    // telemetryContext.Id is always set: if it was null, it is set to opTelemetry.Id and opTelemetry.Id is never null
-                    operationActivity.SetParentId(telemetryContext.Id);
+                    // telemetryContext.Id is always set: if it was null, it is set to newly generated W3C compatible TraceID
+                    if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
+                    {
+                        // There is no need of checking if TelemetryContext.ID is W3C Compatible. It is always set to 
+                        // W3C compatible id. Even user supplied non-compatible ID is ignored.
+                        operationActivity.SetParentId(ActivityTraceId.CreateFromString(telemetryContext.Id.AsSpan()), default(ActivitySpanId), ActivityTraceFlags.None);
+                    }
+                    else
+                    {
+                        operationActivity.SetParentId(telemetryContext.Id);
+                    }
                 }
 
                 operationActivity.Start();
-                operationTelemetry.Id = operationActivity.Id;
+                if (operationActivity.IdFormat == ActivityIdFormat.W3C)
+                {
+                    // ID takes the form !TraceID.SpanId. 
+                    // TelemetryContext.Id used instead of TraceID.ToHexString() for perf.
+                    operationTelemetry.Id = W3CUtilities.FormatTelemetryId(telemetryContext.Id, operationActivity.SpanId.ToHexString());
+                }
+                else
+                {
+                    operationTelemetry.Id = operationActivity.Id;
+                }
             });
 
             var operationHolder = new OperationHolder<T>(telemetryClient, operationTelemetry);
@@ -145,6 +192,7 @@
             {
                 // Parent context store is assigned to operation that is used to restore call context.
                 operationHolder.ParentContext = CallContextHelpers.GetCurrentOperationContext();
+                telemetryContext.Id = operationTelemetry.Id;
             }
 
             operationTelemetry.Start();
@@ -255,10 +303,18 @@
             var telemetry = new T { Name = activity.OperationName };
 
             OperationContext operationContext = telemetry.Context.Operation;
-            operationContext.Name = activity.GetOperationName();
-            operationContext.Id = activity.RootId;
+            operationContext.Name = activity.GetOperationName();            
             operationContext.ParentId = activity.ParentId;
-            telemetry.Id = activity.Id;
+            if (activity.IdFormat == ActivityIdFormat.W3C)
+            {
+                operationContext.Id = activity.TraceId.ToHexString();                
+                telemetry.Id = W3CUtilities.FormatTelemetryId(operationContext.Id, activity.SpanId.ToHexString());
+            }
+            else
+            {
+                operationContext.Id = activity.RootId;
+                telemetry.Id = activity.Id;
+            }
 
             foreach (var item in activity.Baggage)
             {

@@ -7,19 +7,23 @@
 
     using static System.FormattableString;
 
-    /// <summary>@ToDo: Complete documentation before stable release. {533}.</summary>
+    /// <summary>Converts the Metrics-Aggregation-SDK exchange type for aggregates (<c>MetricAggregate</c>) to
+    /// the Application Insights exchange type for the same (<c>MetricTelemetry</c>). This abstract base class provides
+    /// common functionality between aggregates for different aggregation kinds.
+    /// </summary>
     /// @PublicExposureCandidate
     internal abstract class MetricAggregateToApplicationInsightsPipelineConverterBase : IMetricAggregateToTelemetryPipelineConverter
     {
-        /// <summary>@ToDo: Complete documentation before stable release. {918}.</summary>
+        /// <summary>Property name for storing the aggregation interval length.</summary>
         public const string AggregationIntervalMonikerPropertyKey = "_MS.AggregationIntervalMs";
 
-        /// <summary>Gets @ToDo: Complete documentation before stable release. {692}.</summary>s
+        /// <summary>Gets the name for the aggregation kind sopported by this converter (e.g. <c>Microsoft.Azure.Measurement</c>).</summary>
         public abstract string AggregationKindMoniker { get; }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {200}.</summary>
-        /// <param name="aggregate">@ToDo: Complete documentation before stable release. {793}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {084}.</returns>
+        /// <summary>Converts a <c>Microsoft.ApplicationInsights.Metrics.MetricAggregate</c> to
+        /// a <c>Microsoft.ApplicationInsights.DataContracts.MetricTelemetry</c>. </summary>
+        /// <param name="aggregate">A metric aggregate.</param>
+        /// <returns>A metric telemetry item representing the aggregate.</returns>
         public object Convert(MetricAggregate aggregate)
         {
             this.ValidateAggregate(aggregate);
@@ -28,9 +32,10 @@
             return telemetryItem;
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {632}.</summary>
-        /// <param name="telemetryItem">@ToDo: Complete documentation before stable release. {469}.</param>
-        /// <param name="aggregate">@ToDo: Complete documentation before stable release. {380}.</param>
+        /// <summary>Subclasses need to override this method to actually send the metric telemetry item's properties
+        /// based on the cntents of the aggregate and the aggregation kind.</summary>
+        /// <param name="telemetryItem">A metric telemetry item representing the aggregate.</param>
+        /// <param name="aggregate">A metric aggregate.</param>
         protected abstract void PopulateDataValues(MetricTelemetry telemetryItem, MetricAggregate aggregate);
 
         private static void PopulateTelemetryContext(

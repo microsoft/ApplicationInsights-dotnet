@@ -423,6 +423,10 @@
             {
                 CoreEventSource.Log.LoadInstanceFromValueConfigurationError(definition.Name.LocalName, definition.Value, e.Message);
             }
+            catch (Exception ex)
+            {
+                throw new ArgumentException($"Failed to parse configuration value. Property: '{definition.Name.LocalName}' Reason: {ex.Message}", ex);
+            }
         }
 
         private static Type GetType(string typeName)

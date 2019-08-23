@@ -4,7 +4,7 @@
     using System.Runtime.CompilerServices;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
-    internal sealed class MeasurementAggregator : MetricSeriesAggregatorBase<double>
+    internal sealed class MeasurementAggregator : MetricSeriesAggregatorBase<double>, IMetricSeriesAggregator
     {
         private static readonly Func<MetricValuesBufferBase<double>> MetricValuesBufferFactory = () => new MetricValuesBuffer_Double(capacity: 500);
 

@@ -6,12 +6,15 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    /// <summary>@ToDo: Complete documentation before stable release. {079}.</summary>
+    /// <summary>A <c>IMetricTelemetryPipeline</c> that holds aggregates in memory instead of sending them anywhere for processing.
+    /// This is useful for local testing and debugging scenarios.
+    /// An instance of this class holds up to <see cref="CountLimit"/> aggregates in memory. WHen additional aggregates are written,
+    /// the oldest ones get discarded.</summary>
     /// @PublicExposureCandidate
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001: Types that own disposable fields should be disposable", Justification = "OK not to explicitly dispose a released SemaphoreSlim.")]
     internal class MemoryMetricTelemetryPipeline : IMetricTelemetryPipeline, IReadOnlyList<MetricAggregate>
     {
-        /// <summary>@ToDo: Complete documentation before stable release. {529}.</summary>
+        /// <summary>Default setting for how many items to hold in memory.</summary>
         public const int CountLimitDefault = 1000;
 
         // private readonly Task completedTask = Task.FromResult(true);
@@ -19,14 +22,14 @@
 
         private readonly IList<MetricAggregate> metricAgregates = new List<MetricAggregate>();
 
-        /// <summary>@ToDo: Complete documentation before stable release. {846}.</summary>
+        /// <summary>Creates a new <c>MemoryMetricTelemetryPipeline</c> that holds up to <c>CountLimitDefault</c> aggregates in memory.</summary>
         public MemoryMetricTelemetryPipeline()
             : this(CountLimitDefault)
         {
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {195}.</summary>
-        /// <param name="countLimit">@ToDo: Complete documentation before stable release. {153}.</param>
+        /// <summary>Creates a new <c>MemoryMetricTelemetryPipeline</c> that holds up to the specified number of aggregates in memory.</summary>
+        /// <param name="countLimit">Max number of most recent aggregates to hold in memory.</param>
         public MemoryMetricTelemetryPipeline(int countLimit)
         {
             if (countLimit <= 0)
@@ -37,10 +40,10 @@
             this.CountLimit = countLimit;
         }
 
-        /// <summary>Gets @ToDo: Complete documentation before stable release. {953}.</summary>
+        /// <summary>Gets the max buffer size.</summary>
         public int CountLimit { get; }
 
-        /// <summary>Gets @ToDo: Complete documentation before stable release. {917}.</summary>
+        /// <summary>Gets the current number of metric aggregates in the buffer.</summary>
         public int Count
         {
             get
@@ -60,9 +63,9 @@
             }
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {823}.</summary>
-        /// <param name="index">@ToDo: Complete documentation before stable release. {470}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {699}.</returns>
+        /// <summary>Provides access to the metric aggregates that have been written to this pipeline.</summary>
+        /// <param name="index">Index of the aggregate in the buffer.</param>
+        /// <returns>Metric aggregate at the specified index.</returns>
         public MetricAggregate this[int index]
         {
             get
@@ -82,7 +85,7 @@
             }
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {169}.</summary>
+        /// <summary>Clears the buffer.</summary>
         public void Clear()
         {
             this.updateLock.WaitAsync().GetAwaiter().GetResult();
@@ -96,10 +99,12 @@
             }
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {319}.</summary>
-        /// <param name="metricAggregate">@ToDo: Complete documentation before stable release. {915}.</param>
-        /// <param name="cancelToken">@ToDo: Complete documentation before stable release. {929}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {190}.</returns>
+        /// <summary>Stores a metric aggregate in a memory buffer. The aggregate is not further processed,
+        /// but it can be accessed from the buffer. If the buffer already contains <see cref="CountLimit"/> items,
+        /// the oldest item (the one at index 0) gets discarded before adding the new item at the end of the buffer.</summary>
+        /// <param name="metricAggregate">Aggregate to keep.</param>
+        /// <param name="cancelToken">To signal cancellation of the track-operation.</param>
+        /// <returns>A task representing the completion of this operation.</returns>
         public async Task TrackAsync(MetricAggregate metricAggregate, CancellationToken cancelToken)
         {
             Util.ValidateNotNull(metricAggregate, nameof(metricAggregate));
@@ -120,9 +125,9 @@
             }
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {094}.</summary>
-        /// <param name="cancelToken">@ToDo: Complete documentation before stable release. {776}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {084}.</returns>
+        /// <summary>No-op.</summary>
+        /// <param name="cancelToken">Ignored.</param>
+        /// <returns>A completed task.</returns>
         public Task FlushAsync(CancellationToken cancelToken)
         {
             return Task.FromResult(true);
