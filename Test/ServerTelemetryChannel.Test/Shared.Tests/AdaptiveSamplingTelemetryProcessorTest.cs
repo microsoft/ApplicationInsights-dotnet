@@ -94,7 +94,7 @@
         [TestMethod]
         public void ProactivelySampledInTelemetryCapturedWhenProactiveSamplingRateIsHigherThanTarget()
         {
-            var testDuration = 20;
+            var testDuration = 30;
             var beforeSamplingRate = 8;
             var proactiveRate = beforeSamplingRate - 2;
             var precision = 0.3;
