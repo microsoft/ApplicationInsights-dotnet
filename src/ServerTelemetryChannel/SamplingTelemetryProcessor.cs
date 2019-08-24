@@ -1,4 +1,6 @@
-﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel
+﻿using System.Diagnostics;
+
+namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel
 {
     using System;
 
@@ -197,6 +199,7 @@
                     // if current rate of sampled-in telemetry is less that configured
                     // we'll sample in all items with proactive SampledIn decision.
                     isSampledIn = true;
+                    Debug.WriteLine("************");
                 }
                 else
                 {
@@ -204,6 +207,7 @@
                     // we'll sample in items that are sampled in proactively and their sampling score is on the lower side
                     // so that we still keep target rate
                     isSampledIn = SamplingScoreGenerator.GetSamplingScore(item) < 100.0 / this.CurrentProactiveSampledInRatioToTarget;
+                    Debug.WriteLine("!!!!!!!!!" + this.CurrentProactiveSampledInRatioToTarget);
                 }
             }
             else
