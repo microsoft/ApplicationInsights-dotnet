@@ -67,7 +67,7 @@
         [TestMethod]
         public void ProactivelySampledInTelemetryCapturedWhenProactiveSamplingRateIsLowerThanTarget()
         {
-            var testDurationSec = 20;
+            var testDurationSec = 30;
             var proactivelySampledInRatePerSec = 5;
             var targetProactiveCount = proactivelySampledInRatePerSec * testDurationSec;
             var precision = 0.2;
@@ -123,7 +123,7 @@
             int testDurationInSec)
         {
             // we'll ignore telemetry reported during first few percentage evaluations
-            int warmUpInSec = 20;
+            int warmUpInSec = 15;
 
             // we'll produce proactively  sampled in items and also 'normal' items with the same rate
             // but allow only proactively sampled in + a bit more
