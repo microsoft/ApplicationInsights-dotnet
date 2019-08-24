@@ -100,7 +100,7 @@
             var precision = 0.3;
             var (proactivelySampledInAndSentCount, sentCount) = ProactiveSamplingTest(
                 proactivelySampledInRatePerSec: beforeSamplingRate,
-                beforeSamplingRatePerSec: beforeSamplingRate,
+                beforeSamplingRatePerSec: beforeSamplingRate + 1,
                 targetAfterSamplingRatePerSec: beforeSamplingRate / 2,
                 precision: precision,
                 testDurationInSec: testDuration); //plus warm up
