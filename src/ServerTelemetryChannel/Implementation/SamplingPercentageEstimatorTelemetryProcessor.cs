@@ -259,7 +259,6 @@
                 Debug.WriteLine("old rate: " + this.CurrentProactiveSamplingRate);
                 Debug.WriteLine("suggested proactive rate: " + suggestedProactiveSamplingRate);
                 this.CurrentProactiveSamplingRate = suggestedProactiveSamplingRate;
-
             }
 
             if (samplingPercentageChangeNeeded || 
