@@ -70,7 +70,7 @@
             var testDurationSec = 20;
             var proactivelySampledInRatePerSec = 5;
             var targetProactiveCount = proactivelySampledInRatePerSec * testDurationSec;
-            var precision = 0.3;
+            var precision = 0.2;
             var (proactivelySampledInAndSentCount, sentCount) = ProactiveSamplingTest(
                 proactivelySampledInRatePerSec: proactivelySampledInRatePerSec,
                 beforeSamplingRatePerSec: proactivelySampledInRatePerSec * 3,
@@ -96,29 +96,23 @@
         {
             var testDuration = 20;
             var beforeSamplingRate = 8;
-            var beforeSamplingEventCount = beforeSamplingRate * testDuration;
+            var proactiveRate = beforeSamplingRate - 2;
             var precision = 0.3;
             var (proactivelySampledInAndSentCount, sentCount) = ProactiveSamplingTest(
-                proactivelySampledInRatePerSec: beforeSamplingRate,
-                beforeSamplingRatePerSec: beforeSamplingRate + 2,
-                targetAfterSamplingRatePerSec: beforeSamplingRate / 2,
+                proactivelySampledInRatePerSec: proactiveRate,
+                beforeSamplingRatePerSec: beforeSamplingRate,
+                targetAfterSamplingRatePerSec: proactiveRate / 2,
                 precision: precision,
                 testDurationInSec: testDuration); //plus warm up
 
-            // half of proactively sampled in should be sent assuming we have perfect algo
-            // as they happen with rate 4 items per sec and we want 2 as a rate of sent telemetry
+            // most of of sent should be proactively sampled in 
+            // as proactive happen with rate >> than target
             Trace.WriteLine($"'Ideal' proactively sampled in telemetry item count: {sentCount}");
             Trace.WriteLine(
                 $"Expected range: from {sentCount - sentCount * precision} to {sentCount + sentCount * precision}");
             Trace.WriteLine(
                 $"Actual proactively sampled in  telemetry item count: {proactivelySampledInAndSentCount} ({100.0 * proactivelySampledInAndSentCount / sentCount:##.##}% of ideal)");
             Assert.AreEqual(proactivelySampledInAndSentCount, sentCount, sentCount * precision);
-
-            Assert.IsTrue(proactivelySampledInAndSentCount / (double)beforeSamplingEventCount > 0.4,
-                $"Expected {proactivelySampledInAndSentCount} to be around {beforeSamplingEventCount / 2} +/- 10%");
-
-            Assert.IsTrue(proactivelySampledInAndSentCount / (double)beforeSamplingEventCount < 0.6,
-                $"Expected {proactivelySampledInAndSentCount} to be around {beforeSamplingEventCount / 2} +/- 10%");
         }
 
         public (int proactivelySampledInAndSentCount, double sentCount) ProactiveSamplingTest(
