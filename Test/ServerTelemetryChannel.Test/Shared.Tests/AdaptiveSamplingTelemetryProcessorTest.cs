@@ -94,26 +94,14 @@
         [TestMethod]
         public void ProactivelySampledInTelemetryCapturedWhenProactiveSamplingRateIsHigherThanTarget()
         {
-#if NET45
-            Trace.WriteLine("NET45");
-#elif NETCOREAPP1_1
-            Trace.WriteLine("NETCORE11");
-#elif NETCOREAPP2_0
-            Trace.WriteLine("NETCORE20");
-#else
-        var framework = Assembly
-            .GetEntryAssembly()?
-            .GetCustomAttribute<TargetFrameworkAttribute>()?
-            .FrameworkName;
-            Trace.WriteLine("undefined" + framework);
-#endif
-
             var testDuration = 20;
+            var beforeSamplingRate = 4;
+            var beforeSamplingEventCount = beforeSamplingRate * testDuration;
             var precision = 0.3;
             var (proactivelySampledInAndSentCount, sentCount) = ProactiveSamplingTest(
-                proactivelySampledInRatePerSec: 6,
-                beforeSamplingRatePerSec: 7,
-                targetAfterSamplingRatePerSec: 3,
+                proactivelySampledInRatePerSec: beforeSamplingRate,
+                beforeSamplingRatePerSec: beforeSamplingRate,
+                targetAfterSamplingRatePerSec: beforeSamplingRate / 2,
                 precision: precision,
                 testDurationInSec: testDuration); //plus warm up
 
@@ -124,13 +112,14 @@
                 $"Actual proactively sampled in  telemetry item count: {proactivelySampledInAndSentCount} ({100.0 * proactivelySampledInAndSentCount / sentCount:##.##}% of ideal)");
 
             // half of proactively sampled in should be sent assuming we have perfect algo
-            // as they happen with rate 6 items per sec and we want3 rate of sent telemetry
-            // and all that sent should be sampled In proactively
-            Assert.IsTrue(proactivelySampledInAndSentCount / (double) sentCount > 1 - precision,
-                $"Expected {proactivelySampledInAndSentCount} to be around {sentCount} +/- {precision * sentCount}");
+            // as they happen with rate 4 items per sec and we want 2 as a rate of sent telemetry
+            Assert.AreEqual(proactivelySampledInAndSentCount, sentCount, 0.1);
 
-            Assert.IsTrue(proactivelySampledInAndSentCount / (double) sentCount < 1 + precision,
-                $"Expected {proactivelySampledInAndSentCount} to be around {sentCount} +/- {precision * sentCount}");
+            Assert.IsTrue(proactivelySampledInAndSentCount / (double)beforeSamplingEventCount > 0.4,
+                $"Expected {proactivelySampledInAndSentCount} to be around {beforeSamplingEventCount} +/- {0.1 * beforeSamplingEventCount}");
+
+            Assert.IsTrue(proactivelySampledInAndSentCount / (double)beforeSamplingEventCount < 0.6,
+                $"Expected {proactivelySampledInAndSentCount} to be around {beforeSamplingEventCount} +/- {0.1 * beforeSamplingEventCount}");
         }
 
         public (int proactivelySampledInAndSentCount, double sentCount) ProactiveSamplingTest(
@@ -162,8 +151,8 @@
                         {
                             MaxTelemetryItemsPerSecond = targetAfterSamplingRatePerSec,
                             EvaluationInterval = TimeSpan.FromSeconds(2),
-                            SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(4),
-                            SamplingPercentageIncreaseTimeout = TimeSpan.FromSeconds(4),
+                            SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(2),
+                            SamplingPercentageIncreaseTimeout = TimeSpan.FromSeconds(2),
                         },
                         this.TraceSamplingPercentageEvaluation)
                     .Use((next) => new StubTelemetryProcessor(next) { OnProcess = (t) => sentTelemetry.Add(t) });
