@@ -95,7 +95,7 @@
         public void ProactivelySampledInTelemetryCapturedWhenProactiveSamplingRateIsHigherThanTarget()
         {
             var testDuration = 30;
-            var beforeSamplingRate = 8;
+            var beforeSamplingRate = 10;
             var proactiveRate = beforeSamplingRate - 2;
             var precision = 0.3;
             var (proactivelySampledInAndSentCount, sentCount) = ProactiveSamplingTest(
@@ -123,7 +123,7 @@
             int testDurationInSec)
         {
             // we'll ignore telemetry reported during first few percentage evaluations
-            int warmUpInSec = 15;
+            int warmUpInSec = 10;
 
             // we'll produce proactively  sampled in items and also 'normal' items with the same rate
             // but allow only proactively sampled in + a bit more
@@ -143,7 +143,7 @@
                         new Channel.Implementation.SamplingPercentageEstimatorSettings()
                         {
                             // help algo get to stabilize earlier
-                            InitialSamplingPercentage = targetAfterSamplingRatePerSec / beforeSamplingRatePerSec * 100,
+                            InitialSamplingPercentage = targetAfterSamplingRatePerSec / (double)beforeSamplingRatePerSec * 100,
                             MaxTelemetryItemsPerSecond = targetAfterSamplingRatePerSec,
                             EvaluationInterval = TimeSpan.FromSeconds(2),
                             SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(4),
@@ -200,6 +200,8 @@
             Trace.WriteLine($"Expected range: from {targetItemCount - precision * targetItemCount} to {targetItemCount + precision * targetItemCount}");
             Trace.WriteLine(
                 $"Actual telemetry item count: {notIgnoredSent.Length} ({100.0 * notIgnoredSent.Length / targetItemCount:##.##}% of ideal)");
+            Trace.WriteLine(
+                $"Actual proactive sampled in and sent: {proactivelySampledInAndSentCount}");
 
             Assert.IsTrue(notIgnoredSent.Length / (double)targetItemCount > 1 - precision);
             Assert.IsTrue(notIgnoredSent.Length / (double)targetItemCount < 1 + precision);

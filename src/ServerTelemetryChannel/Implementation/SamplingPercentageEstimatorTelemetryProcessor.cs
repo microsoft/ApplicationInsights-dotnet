@@ -207,6 +207,11 @@
 
             int suggestedProactiveSamplingRate = (int)Math.Ceiling(beforeProactiveSamplingEps / this.settings.EffectiveMaxTelemetryItemsPerSecond);
 
+            if (suggestedProactiveSamplingRate < this.settings.EffectiveMinSamplingRate)
+            {
+                suggestedProactiveSamplingRate = this.settings.EffectiveMinSamplingRate;
+            }
+
             // see if evaluation interval was changed and apply change
             if (this.evaluationInterval != this.settings.EffectiveEvaluationInterval)
             {

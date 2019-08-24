@@ -192,14 +192,13 @@
                 advancedSamplingSupportingTelemetry != null &&
                 advancedSamplingSupportingTelemetry.ProactiveSamplingDecision == SamplingDecision.SampledIn)
             {
-                /*if (this.CurrentProactiveSampledInRatioToTarget <= 1)
+                if (this.CurrentProactiveSampledInRatioToTarget <= 1)
                 {
                     // if current rate of sampled-in telemetry is less that configured
                     // we'll sample in all items with proactive SampledIn decision.
                     isSampledIn = true;
-                    //Debug.WriteLine("************");
                 }
-                else*/
+                else
                 {
                     // if current rate of sampled-in telemetry is too high,
                     // we'll sample in items that are sampled in proactively and their sampling score is on the lower side
