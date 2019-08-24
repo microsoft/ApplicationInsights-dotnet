@@ -259,10 +259,11 @@
                 // apply sampling percentage change
                 this.samplingPercentageLastChangeDateTime = PreciseTimestamp.GetUtcNow();
                 this.CurrentSamplingRate = suggestedSamplingRate;
-
-                Debug.WriteLine("proactive count: " + beforeProactiveSamplingEps);
-                Debug.WriteLine("old rate: " + this.CurrentProactiveSamplingRate);
-                Debug.WriteLine("suggested proactive rate: " + suggestedProactiveSamplingRate);
+#if NET45 || NETSTANDARD2_0
+                Trace.WriteLine("proactive count: " + beforeProactiveSamplingEps);
+                Trace.WriteLine("old rate: " + this.CurrentProactiveSamplingRate);
+                Trace.WriteLine("suggested proactive rate: " + suggestedProactiveSamplingRate);
+#endif
                 this.CurrentProactiveSamplingRate = suggestedProactiveSamplingRate;
             }
 
