@@ -205,7 +205,6 @@
                     // we'll sample in items that are sampled in proactively and their sampling score is on the lower side
                     // so that we still keep target rate
                     isSampledIn = SamplingScoreGenerator.GetSamplingScore(item) < 100.0 / this.CurrentProactiveSampledInRatioToTarget;
-                    //Debug.WriteLine("!!!!!!!!!" + this.CurrentProactiveSampledInRatioToTarget);
                 }
             }
             else
