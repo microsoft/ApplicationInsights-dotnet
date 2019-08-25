@@ -30,7 +30,7 @@
             var processor = new SamplingTelemetryProcessor(new StubTelemetryProcessor(null));
 
             Assert.AreEqual(processor.SamplingPercentage, 100.0);
-            Assert.IsNull(processor.CurrentProactiveSampledInRatioToTarget);
+            Assert.IsNull(processor.ProactiveSamplingPercentage);
         }
 
         [TestMethod]
@@ -511,7 +511,7 @@
             channelBuilder.Use(next => new SamplingTelemetryProcessor(next)
             {
                 SamplingPercentage = 50,
-                CurrentProactiveSampledInRatioToTarget = 0.5
+                ProactiveSamplingPercentage = 100
             });
             channelBuilder.Use(next => new StubTelemetryProcessor(next) { OnProcess = t => sentTelemetry.Add(t) });
             channelBuilder.Build();
@@ -551,7 +551,7 @@
             channelBuilder.Use(next => new SamplingTelemetryProcessor(next)
             {
                 SamplingPercentage = 50,
-                CurrentProactiveSampledInRatioToTarget = 2, // > 1
+                ProactiveSamplingPercentage = 50
             });
             channelBuilder.Use(next => new StubTelemetryProcessor(next) { OnProcess = t => sentTelemetry.Add(t) });
             channelBuilder.Build();

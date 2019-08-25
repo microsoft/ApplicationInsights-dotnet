@@ -94,10 +94,10 @@
         [TestMethod]
         public void ProactivelySampledInTelemetryCapturedWhenProactiveSamplingRateIsHigherThanTarget()
         {
-            var testDuration = 40;
+            var testDuration = 30;
             var beforeSamplingRate = 40;
             var proactiveRate = beforeSamplingRate - 2;
-            var precision = 0.3;
+            var precision = 0.2;
             var (proactivelySampledInAndSentCount, sentCount) = ProactiveSamplingTest(
                 proactivelySampledInRatePerSec: proactiveRate,
                 beforeSamplingRatePerSec: beforeSamplingRate,
@@ -123,7 +123,7 @@
             int testDurationInSec)
         {
             // we'll ignore telemetry reported during first few percentage evaluations
-            int warmUpInSec = 0;
+            int warmUpInSec = 8;
 
             // we'll produce proactively  sampled in items and also 'normal' items with the same rate
             // but allow only proactively sampled in + a bit more
@@ -215,8 +215,13 @@
         public void SamplingPercentageAdjustsAccordingToConstantHighProductionRate()
         {
             var sentTelemetry = new List<ITelemetry>();
-            int itemsProduced = 0;
 
+            int testDurationSec = 30;
+
+            // we'll ignore telemetry reported during first few percentage evaluations
+            int warmUpInSec = 8;
+
+            var sw = Stopwatch.StartNew();
             using (var tc = new TelemetryConfiguration() { TelemetryChannel = new StubTelemetryChannel() })
             {
                 var chainBuilder = new TelemetryProcessorChainBuilder(tc);
@@ -226,54 +231,55 @@
                     .UseAdaptiveSampling(
                         new Channel.Implementation.SamplingPercentageEstimatorSettings()
                         {
-                            EvaluationInterval = TimeSpan.FromSeconds(1),
-                            SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(2),
-                            SamplingPercentageIncreaseTimeout = TimeSpan.FromSeconds(2),
+                            EvaluationInterval = TimeSpan.FromSeconds(2),
+                            SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(4),
+                            SamplingPercentageIncreaseTimeout = TimeSpan.FromSeconds(4),
                         },
                         this.TraceSamplingPercentageEvaluation)
                     .Use((next) => new StubTelemetryProcessor(next) { OnProcess = (t) => sentTelemetry.Add(t) });
 
                 chainBuilder.Build();
 
-                const int productionFrequencyMs = 100;
-
                 var productionTimer = new Timer(
                     (state) =>
                     {
-                        for (int i = 0; i < 2; i++)
+                        for (int i = 0; i < 20; i++)
                         {
-                            tc.TelemetryProcessorChain.Process(new RequestTelemetry());
-                            itemsProduced++;
+                            var request = new RequestTelemetry();
+                            if (((Stopwatch)state).Elapsed.TotalSeconds < warmUpInSec)
+                            {
+                                // let's ignore telemetry from first few rate evaluations - it does not make sense
+                                request.Properties["ignore"] = "true";
+                            }
+
+                            tc.TelemetryProcessorChain.Process(request);
                         }
                     },
-                    null,
+                    sw,
                     0,
-                    productionFrequencyMs);
+                    1000);
 
-                Thread.Sleep(25000);
+                Thread.Sleep(TimeSpan.FromSeconds(testDurationSec + warmUpInSec));
                 
                 // dispose timer and wait for callbacks to complete
                 DisposeTimer(productionTimer);
             }
 
             // number of items produced should be close to target of 5/second
-            int targetItemCount = 25 * 5;
+            int targetItemCount = testDurationSec * 5;
 
-            // tolerance +- 50%!
-            int tolerance = targetItemCount / 2;
+            // tolerance +- 30%
+            double tolerance = 0.3;
 
-            Trace.WriteLine(string.Format("'Ideal' telemetry item count: {0}", targetItemCount));
-            Trace.WriteLine(string.Format(
-                "Expected range: from {0} to {1}",
-                targetItemCount - tolerance,
-                targetItemCount + tolerance));
-            Trace.WriteLine(string.Format(
-                "Actual telemetry item count: {0} ({1:##.##}% of ideal)", 
-                sentTelemetry.Count,
-                100.0 * sentTelemetry.Count / targetItemCount));
+            var notIgnoredSent = sentTelemetry.Where(i => i is ISupportProperties propItem && !propItem.Properties.ContainsKey("ignore")).ToArray();
 
-            Assert.IsTrue(sentTelemetry.Count > targetItemCount - tolerance);
-            Assert.IsTrue(sentTelemetry.Count < targetItemCount + tolerance);
+            Trace.WriteLine($"'Ideal' telemetry item count: {targetItemCount}");
+            Trace.WriteLine($"Expected range: from {targetItemCount - tolerance * targetItemCount} to {targetItemCount + tolerance * targetItemCount}");
+            Trace.WriteLine(
+                $"Actual telemetry item count: {notIgnoredSent.Length} ({100.0 * notIgnoredSent.Length / targetItemCount:##.##}% of ideal)");
+
+            Assert.IsTrue(notIgnoredSent.Length > targetItemCount - tolerance * targetItemCount);
+            Assert.IsTrue(notIgnoredSent.Length < targetItemCount + tolerance * targetItemCount);
         }
 
         [TestMethod]

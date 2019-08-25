@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
-    using System.Diagnostics;
     using System.Threading;
 
     using Microsoft.ApplicationInsights.Channel;
@@ -259,11 +258,6 @@
                 // apply sampling percentage change
                 this.samplingPercentageLastChangeDateTime = PreciseTimestamp.GetUtcNow();
                 this.CurrentSamplingRate = suggestedSamplingRate;
-#if NET45 || NETSTANDARD2_0
-                Trace.WriteLine("proactive count: " + beforeProactiveSamplingEps);
-                Trace.WriteLine("old rate: " + this.CurrentProactiveSamplingRate);
-                Trace.WriteLine("suggested proactive rate: " + suggestedProactiveSamplingRate);
-#endif
                 this.CurrentProactiveSamplingRate = suggestedProactiveSamplingRate;
             }
 

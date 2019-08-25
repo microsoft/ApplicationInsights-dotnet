@@ -59,7 +59,7 @@
             this.samplingProcessor = new SamplingTelemetryProcessor(next, this.estimatorProcessor)
             {
                 SamplingPercentage = this.estimatorSettings.InitialSamplingPercentage,
-                CurrentProactiveSampledInRatioToTarget = null,
+                ProactiveSamplingPercentage = null,
             };
         }
 
@@ -280,7 +280,7 @@
             if (isSamplingPercentageChanged)
             {
                 this.samplingProcessor.SamplingPercentage = newSamplingPercentage;
-                this.samplingProcessor.CurrentProactiveSampledInRatioToTarget = this.estimatorProcessor.CurrentProactiveSamplingRate;
+                this.samplingProcessor.ProactiveSamplingPercentage = 100 / this.estimatorProcessor.CurrentProactiveSamplingRate;
                 TelemetryChannelEventSource.Log.SamplingChanged(newSamplingPercentage);
             }
 

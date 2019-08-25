@@ -31,7 +31,7 @@
             return builder.Use(next => new SamplingTelemetryProcessor(next)
             {
                 SamplingPercentage = samplingPercentage,
-                CurrentProactiveSampledInRatioToTarget = null,
+                ProactiveSamplingPercentage = null,
                 ExcludedTypes = excludedTypes,
                 IncludedTypes = includedTypes,
             });
