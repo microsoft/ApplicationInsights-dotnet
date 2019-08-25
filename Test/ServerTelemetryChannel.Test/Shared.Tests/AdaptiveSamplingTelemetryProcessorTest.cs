@@ -68,7 +68,7 @@
         public void ProactivelySampledInTelemetryCapturedWhenProactiveSamplingRateIsLowerThanTarget()
         {
             var testDurationSec = 30;
-            var proactivelySampledInRatePerSec = 5;
+            var proactivelySampledInRatePerSec = 25;
             var targetProactiveCount = proactivelySampledInRatePerSec * testDurationSec;
             var precision = 0.2;
             var (proactivelySampledInAndSentCount, sentCount) = ProactiveSamplingTest(
@@ -95,7 +95,7 @@
         public void ProactivelySampledInTelemetryCapturedWhenProactiveSamplingRateIsHigherThanTarget()
         {
             var testDuration = 40;
-            var beforeSamplingRate = 8;
+            var beforeSamplingRate = 40;
             var proactiveRate = beforeSamplingRate - 2;
             var precision = 0.3;
             var (proactivelySampledInAndSentCount, sentCount) = ProactiveSamplingTest(
@@ -166,6 +166,8 @@
                             {
                                 ProactiveSamplingDecision = i < proactivelySampledInRatePerSec ? SamplingDecision.SampledIn : SamplingDecision.None
                             };
+
+                            requests[i].Context.Operation.Id = ActivityTraceId.CreateRandom().ToHexString();
                         }
 
                         foreach (var request in requests)

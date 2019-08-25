@@ -280,8 +280,7 @@
             if (isSamplingPercentageChanged)
             {
                 this.samplingProcessor.SamplingPercentage = newSamplingPercentage;
-                this.samplingProcessor.CurrentProactiveSampledInRatioToTarget = this.estimatorProcessor.CurrentProactiveSamplingRate / 
-                                                                                   settings.MaxTelemetryItemsPerSecond;
+                this.samplingProcessor.CurrentProactiveSampledInRatioToTarget = this.estimatorProcessor.CurrentProactiveSamplingRate;
                 TelemetryChannelEventSource.Log.SamplingChanged(newSamplingPercentage);
             }
 
