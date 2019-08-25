@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
+    using System.Diagnostics;
     using System.Threading;
 
     using Microsoft.ApplicationInsights.Channel;
@@ -204,7 +205,7 @@
                 suggestedSamplingRate = this.settings.EffectiveMinSamplingRate;
             }
 
-            int suggestedProactiveSamplingRate = (int)Math.Ceiling(beforeProactiveSamplingEps / this.settings.EffectiveMaxTelemetryItemsPerSecond);
+            double suggestedProactiveSamplingRate = beforeProactiveSamplingEps / this.settings.EffectiveMaxTelemetryItemsPerSecond;
 
             if (suggestedProactiveSamplingRate < this.settings.EffectiveMinSamplingRate)
             {
