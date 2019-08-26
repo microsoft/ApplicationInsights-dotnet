@@ -343,7 +343,7 @@
 
                 if(IsW3C)
                 {
-                    Assert.Equal(requestId, requestTelemetry.Properties[HostingDiagnosticListener.LegacyRootIdProperty]);
+                    Assert.Equal("noncompatible", requestTelemetry.Properties[HostingDiagnosticListener.LegacyRootIdProperty]);
                     Assert.NotEqual("noncompatible", requestTelemetry.Context.Operation.Id);
                 }
                 else

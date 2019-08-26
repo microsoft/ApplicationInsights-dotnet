@@ -290,7 +290,7 @@
                         else
                         {
                             // store rootIdFromOriginalParentId in custom Property
-                            legacyRootId = originalParentId;
+                            legacyRootId = ExtractOperationIdFromRequestId(originalParentId);
                         }
                     }
                 }
@@ -305,6 +305,20 @@
                 requestTelemetry.Context.Operation.ParentId = originalParentId;
 
                 this.AddAppIdToResponseIfRequired(httpContext, requestTelemetry);
+            }
+        }
+
+        private string ExtractOperationIdFromRequestId(string originalParentId)
+        {
+            int indexPipe = originalParentId.IndexOf('|');
+            int indexDot = originalParentId.IndexOf('.');
+            if (indexPipe >= 0 && indexDot >= 0)
+            {
+                return originalParentId.Substring(indexPipe + 1, (indexDot - indexPipe) - 1);
+            }
+            else
+            {
+                return originalParentId;
             }
         }
 
@@ -396,7 +410,7 @@
                         else
                         {
                             // store rootIdFromOriginalParentId in custom Property
-                            legacyRootId = originalParentId;
+                            legacyRootId = ExtractOperationIdFromRequestId(originalParentId);
                         }
                     }
                     else
