@@ -75,7 +75,7 @@
                 this.DebugTelemetryItems(actual);
 
                 // Expect 1 item1.
-                Assert.Equal(1, actual.Count());
+                Assert.Single(actual);
 
                 ValidateMessage(actual[0], new string[] { "error"});                
             }

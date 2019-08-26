@@ -141,7 +141,7 @@
                 expectedRequestTelemetry.Success = true;
                 expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
 
-                this.ValidateRequestWithHeaders(server, RequestPath, expectedRequestTelemetry, false, requestHeaders: null);
+                this.ValidateRequestWithHeaders(server, RequestPath, null, expectedRequestTelemetry, false);
             }
         }
 
