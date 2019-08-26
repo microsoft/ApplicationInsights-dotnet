@@ -595,8 +595,11 @@
                 {
                     if (this.lastIKeyLookedUp != requestTelemetry.Context.InstrumentationKey)
                     {
-                        this.lastIKeyLookedUp = requestTelemetry.Context.InstrumentationKey;
-                        this.applicationIdProvider?.TryGetApplicationId(requestTelemetry.Context.InstrumentationKey, out this.lastAppIdUsed);
+                        var appIdResolved = this.applicationIdProvider?.TryGetApplicationId(requestTelemetry.Context.InstrumentationKey, out this.lastAppIdUsed);
+                        if (appIdResolved.HasValue && appIdResolved.Value)
+                        {
+                            this.lastIKeyLookedUp = requestTelemetry.Context.InstrumentationKey;
+                        }
                     }
 
                     HttpHeadersUtilities.SetRequestContextKeyValue(responseHeaders, 
