@@ -5,6 +5,7 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
+    using System.Runtime.InteropServices;
     using System.Text;
     using System.Text.RegularExpressions;
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.Implementation;
@@ -29,7 +30,6 @@
         private const string ActivityCreatedByHostingDiagnosticListener = "ActivityCreatedByHostingDiagnosticListener";
         private const string ProactiveSamplingFeatureFlagName = "proactiveSampling";
         private const string ConditionalAppIdFeatureFlagName = "conditionalAppId";
-        private static readonly Regex TraceIdRegex = new Regex("^[a-f0-9]{32}$", RegexOptions.Compiled);
 
         /// <summary>
         /// Determine whether the running AspNetCore Hosting version is 2.0 or higher. This will affect what DiagnosticSource events we receive.
@@ -230,7 +230,6 @@
 
                 var currentActivity = Activity.Current;
                 Activity newActivity = null;
-                string sourceAppId = null;
                 string originalParentId = currentActivity.ParentId;
                 string legacyRootId = null;
                 bool traceParentPresent = false;
@@ -278,13 +277,12 @@
                     // Scenario #2. RequestID
                     if (currentActivity.IdFormat == ActivityIdFormat.W3C)
                     {
-                        var rootIdFromOriginalParentId = ExtractOperationIdFromRequestId(originalParentId);
-                        if (IsCompatibleW3CTraceID(rootIdFromOriginalParentId))
+                        if(TryGetW3CCompatibleTraceId(originalParentId, out var traceId))
                         {
                             newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
-                            newActivity.SetParentId(ActivityTraceId.CreateFromString(rootIdFromOriginalParentId.AsSpan()), default(ActivitySpanId), ActivityTraceFlags.None);
+                            newActivity.SetParentId(ActivityTraceId.CreateFromString(traceId), default(ActivitySpanId), ActivityTraceFlags.None);
 
-                            foreach(var bag in currentActivity.Baggage)
+                            foreach (var bag in currentActivity.Baggage)
                             {
                                 newActivity.AddBaggage(bag.Key, bag.Value);
                             }
@@ -292,7 +290,7 @@
                         else
                         {
                             // store rootIdFromOriginalParentId in custom Property
-                            legacyRootId = rootIdFromOriginalParentId;
+                            legacyRootId = originalParentId;
                         }
                     }
                 }
@@ -310,17 +308,34 @@
             }
         }
 
-        private string ExtractOperationIdFromRequestId(string originalParentId)
+        private bool TryGetW3CCompatibleTraceId(string requestId, out ReadOnlySpan<char> result)
         {
-            int indexPipe = originalParentId.IndexOf('|');
-            int indexDot = originalParentId.IndexOf('.');
-            if (indexPipe>=0 && indexDot >=0)
+            if(requestId[0] == '|')
             {
-                return originalParentId.Substring(indexPipe + 1, (indexDot - indexPipe) - 1);
+                if(requestId.Length > 33 && requestId[33] == '.')
+                {
+                    for(int i = 1; i < 33; i++)
+                    {
+                        if(!char.IsLetterOrDigit(requestId[i]))
+                        {
+                            result = null;
+                            return false;
+                        }
+                    }
+
+                    result = requestId.AsSpan().Slice(1, 32);
+                    return true;
+                }
+                else
+                {
+                    result = null;
+                    return false;
+                }
             }
             else
             {
-                return string.Empty;
+                result = null;
+                return false;
             }
         }
 
@@ -371,24 +386,22 @@
                 else if (requestHeaders.TryGetValue(RequestResponseHeaders.RequestIdHeader, out StringValues requestIdValues) &&
                     requestIdValues != StringValues.Empty)
                 {
-                    var requestId = StringUtilities.EnforceMaxLength(requestIdValues.First(), InjectionGuardConstants.RequestHeaderMaxLength);
-                    originalParentId = requestId;
+                    originalParentId = StringUtilities.EnforceMaxLength(requestIdValues.First(), InjectionGuardConstants.RequestHeaderMaxLength);
                     if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
                     {
-                        var rootIdFromOriginalRequestId = ExtractOperationIdFromRequestId(requestId);
-                        if (IsCompatibleW3CTraceID(rootIdFromOriginalRequestId))
+                        if (TryGetW3CCompatibleTraceId(originalParentId, out var traceId))
                         {
-                            activity.SetParentId(ActivityTraceId.CreateFromString(rootIdFromOriginalRequestId.AsSpan()), default(ActivitySpanId), ActivityTraceFlags.None);
+                            activity.SetParentId(ActivityTraceId.CreateFromString(traceId), default(ActivitySpanId), ActivityTraceFlags.None);
                         }
                         else
                         {
-                            // store rootIdFromOriginalParentId in custom Property inside RequestTelemetry
-                            legacyRootId = rootIdFromOriginalRequestId;                           
+                            // store rootIdFromOriginalParentId in custom Property
+                            legacyRootId = originalParentId;
                         }
                     }
                     else
                     {
-                        activity.SetParentId(requestId);
+                        activity.SetParentId(originalParentId);
                     }
 
                     ReadCorrelationContext(requestHeaders, activity);
@@ -396,7 +409,7 @@
                 // no headers
                 else
                 {
-                    // No need of doing anything. When Activity starts, it'll generate IDs in W3C or Hierrachial format as configured,
+                    // No need of doing anything. When Activity starts, it'll generate IDs in W3C or Hierarchical format as configured,
                 }
 
                 activity.Start();
@@ -475,16 +488,6 @@
         private static string FormatTelemetryId(string traceId, string spanId)
         {
             return string.Concat("|", traceId, ".", spanId, ".");
-        }
-
-        /// <summary>
-        /// Checks if the given string is a valid trace-id as per W3C Specs.
-        /// https://github.com/w3c/distributed-tracing/blob/master/trace_context/HTTP_HEADER_FORMAT.md#trace-id .
-        /// </summary>
-        /// <returns>true if valid w3c trace id, otherwise false.</returns>
-        private static bool IsCompatibleW3CTraceID(string traceId)
-        {
-            return TraceIdRegex.IsMatch(traceId);
         }
 
         private RequestTelemetry InitializeRequestTelemetry(HttpContext httpContext, Activity activity, long timestamp, string legacyRootId = null)

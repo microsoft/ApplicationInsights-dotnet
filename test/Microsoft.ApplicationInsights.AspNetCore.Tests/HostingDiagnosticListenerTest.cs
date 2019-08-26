@@ -343,7 +343,7 @@
 
                 if(IsW3C)
                 {
-                    Assert.Equal("noncompatible", requestTelemetry.Properties[HostingDiagnosticListener.LegacyRootIdProperty]);
+                    Assert.Equal(requestId, requestTelemetry.Properties[HostingDiagnosticListener.LegacyRootIdProperty]);
                     Assert.NotEqual("noncompatible", requestTelemetry.Context.Operation.Id);
                 }
                 else
@@ -547,7 +547,7 @@
         public void OnHttpRequestInStartInitializeTelemetryIfActivityParentIdIsNotNull(bool IsW3C)
         {
             var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
-            string parentId = "00-4e3083444c10254ba40513c7316332eb-e2a5f830c0ee2c46-00";
+            string parentId = "|8ee8641cbdd8dd280d239fa2121c7e4e.df07da90a5b27d93.";
             Activity activity;
             Activity activityBySDK;
 
@@ -570,6 +570,7 @@
             var requestTelemetry = this.sentTelemetry.First() as RequestTelemetry;
 
             ValidateRequestTelemetry(requestTelemetry, activityBySDK, IsW3C, expectedParentId: parentId);
+            Assert.Equal("8ee8641cbdd8dd280d239fa2121c7e4e", requestTelemetry.Context.Operation.Id);
             Assert.Equal(requestTelemetry.Context.Operation.ParentId, activity.ParentId);
             Assert.Equal(requestTelemetry.Properties.Count, activity.Baggage.Count());
 
