@@ -2,6 +2,7 @@
 
 ## Version 2.8.0-beta2
 - [Make W3C Correlation default and leverage native W3C support from Activity.](https://github.com/microsoft/ApplicationInsights-aspnetcore/pull/958)
+- [Fixes Azure Functions performance degradation when W3C enabled.](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/900)
 - [Fix: AppId is never set is Response Headers.](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/956)
 - [Correct names for Asp.Net Core EventCounters.](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/945)
 - [Obsolete extension methods on IWebHostBuilder in favor of AddApplicationInsights extension method on IServiceCollection.](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/919)

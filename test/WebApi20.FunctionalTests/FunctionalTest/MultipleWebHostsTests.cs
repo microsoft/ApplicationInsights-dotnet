@@ -8,7 +8,7 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace WebApi20.FunctionalTests20.FunctionalTest
+namespace WebApi20.FuncTests
 {
     public class MultipleWebHostsTests : TelemetryTestsBase
     {

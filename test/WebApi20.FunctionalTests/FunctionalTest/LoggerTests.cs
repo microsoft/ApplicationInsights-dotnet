@@ -1,4 +1,4 @@
-﻿namespace FunctionalTests
+﻿namespace WebApi20.FuncTests
 {
     using System;
     using System.Collections.Generic;
