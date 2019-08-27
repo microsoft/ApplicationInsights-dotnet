@@ -35,7 +35,6 @@
         private TelemetryProcessorChain telemetryProcessorChain;
         private string instrumentationKey = string.Empty;
         private bool disableTelemetry = false;
-        private bool enableW3c;
         private TelemetryProcessorChainBuilder builder;
         private MetricManager metricManager = null;
 
@@ -43,6 +42,25 @@
         /// Indicates if this instance has been disposed of.
         /// </summary>
         private bool isDisposed = false;
+
+        /// <summary>
+        /// Static Constructor which sets ActivityID Format to W3C if Format not enforced.
+        /// This ensures SDK operates in W3C mode, unless turned off explicitily with the following 2 lines
+        /// in user code in application startup.
+        /// Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical
+        /// Activity.ForceDefaultIdFormat = true.
+        /// </summary>
+        static TelemetryConfiguration()
+        {
+            ActivityExtensions.TryRun(() =>
+            {
+                if (!Activity.ForceDefaultIdFormat)
+                {
+                    Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+                    Activity.ForceDefaultIdFormat = true;
+                }                
+            });
+        }
 
         /// <summary>
         /// Initializes a new instance of the TelemetryConfiguration class.
@@ -76,7 +94,6 @@
             var defaultSink = new TelemetrySink(this, channel);
             defaultSink.Name = "default";
             this.telemetrySinks.Add(defaultSink);
-            this.EnableW3CCorrelation = true;            
         }
 
         /// <summary>
@@ -169,35 +186,6 @@
                 }
 
                 this.disableTelemetry = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether W3C based correlation is enabled.
-        /// </summary>
-        public bool EnableW3CCorrelation
-        {
-            get
-            {
-                return this.enableW3c;
-            }
-
-            set
-            {
-                this.enableW3c = value;
-                ActivityExtensions.TryRun(() =>
-                {
-                    if (this.enableW3c)
-                    {
-                        Activity.DefaultIdFormat = ActivityIdFormat.W3C;
-                        Activity.ForceDefaultIdFormat = true;
-                    }
-                    else
-                    {
-                        Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
-                        Activity.ForceDefaultIdFormat = true;
-                    }
-                });
             }
         }
 

@@ -5,6 +5,7 @@
     using Implementation;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.W3C;
+    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
@@ -23,8 +24,8 @@
 
         [TestInitialize]
         public void TestInit()
-        {
-            tc.EnableW3CCorrelation = true;
+        {            
+            ActivityFormatHelper.EnableW3CFormatInActivity();
         }
 
         [TestCleanup]
@@ -80,23 +81,30 @@
         public void InitializePopulatesOperationContextFromActivityWhenW3CIsDisabled()
         {
             // Arrange
-            tc.EnableW3CCorrelation = false;            
-            Activity parent = new Activity("parent");
+            ActivityFormatHelper.DisableW3CFormatInActivity();
+            try
+            {
+                Activity parent = new Activity("parent");
 
-            // Setting parentid like this forces Activity to use Hierrachial ID Format
-            parent.SetParentId("parent");
-            parent.Start();
+                // Setting parentid like this forces Activity to use Hierrachial ID Format
+                parent.SetParentId("parent");
+                parent.Start();
 
-            var telemetry = new DependencyTelemetry();
-            var initializer = new OperationCorrelationTelemetryInitializer();
+                var telemetry = new DependencyTelemetry();
+                var initializer = new OperationCorrelationTelemetryInitializer();
 
-            // Act
-            initializer.Initialize(telemetry);
+                // Act
+                initializer.Initialize(telemetry);
 
-            // Validate
-            Assert.AreEqual("parent", telemetry.Context.Operation.Id);
-            Assert.AreEqual(parent.Id, telemetry.Context.Operation.ParentId);
-            parent.Stop();            
+                // Validate
+                Assert.AreEqual("parent", telemetry.Context.Operation.Id);
+                Assert.AreEqual(parent.Id, telemetry.Context.Operation.ParentId);
+                parent.Stop();
+            }
+            finally
+            {
+                ActivityFormatHelper.EnableW3CFormatInActivity();
+            }
         }
 
         [TestMethod]
