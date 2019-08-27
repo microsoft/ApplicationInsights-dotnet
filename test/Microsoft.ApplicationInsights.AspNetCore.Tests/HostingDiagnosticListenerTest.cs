@@ -414,7 +414,8 @@
             // Trace Parent
             var traceParent = "00-4e3083444c10254ba40513c7316332eb-e2a5f830c0ee2c46-00";
             context.Request.Headers[W3C.W3CConstants.TraceParentHeader] = traceParent;
-            context.Request.Headers[W3C.W3CConstants.TraceStateHeader] = "prop1=value1, prop2=value2";
+            context.Request.Headers[W3C.W3CConstants.TraceStateHeader] = "w3cprop1=value1, w3cprop2=value2";
+            context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "prop1=value1, prop2=value2";
 
             using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion, isW3C: IsW3C))
             {
@@ -424,7 +425,7 @@
 
                 if (IsW3C)
                 {
-                    Assert.Equal("prop1=value1, prop2=value2", activity.TraceStateString);
+                    Assert.Equal("w3cprop1=value1, w3cprop2=value2", activity.TraceStateString);
                 }
 
                 Assert.NotNull(context.Features.Get<RequestTelemetry>());
@@ -434,17 +435,17 @@
                 Assert.Single(sentTelemetry);
                 var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
 
-                
-
                 if (IsW3C)
                 {
                     // parentid populated only in W3C mode
                     ValidateRequestTelemetry(requestTelemetry, activity, IsW3C, expectedParentId: traceParent, expectedSource: null);
+                    Assert.Equal("value1", requestTelemetry.Properties["prop1"]);
+                    Assert.Equal("value2", requestTelemetry.Properties["prop2"]);
                 }
                 else
                 {
                     ValidateRequestTelemetry(requestTelemetry, activity, IsW3C, expectedParentId: null, expectedSource: null);
-                }
+                }                
             }
         }
 
@@ -523,8 +524,6 @@
 
                 Assert.Single(sentTelemetry);
                 var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
-
-                
                 
                 if (IsW3C)
                 {
@@ -534,10 +533,11 @@
                 else
                 {
                     Assert.Equal("40d1a5a08a68c0998e4a3b7c91915ca6", requestTelemetry.Context.Operation.Id);
-                    ValidateRequestTelemetry(requestTelemetry, activity, IsW3C, expectedParentId: requestId, expectedSource: null);
-                    Assert.Equal("value1", requestTelemetry.Properties["prop1"]);
-                    Assert.Equal("value2", requestTelemetry.Properties["prop2"]);
+                    ValidateRequestTelemetry(requestTelemetry, activity, IsW3C, expectedParentId: requestId, expectedSource: null);                    
                 }
+
+                Assert.Equal("value1", requestTelemetry.Properties["prop1"]);
+                Assert.Equal("value2", requestTelemetry.Properties["prop2"]);
             }
         }        
 

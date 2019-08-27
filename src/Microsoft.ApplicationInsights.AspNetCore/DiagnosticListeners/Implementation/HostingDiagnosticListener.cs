@@ -264,7 +264,7 @@
                 {
                     // Nothing to do here. 
                 }
-                else if(traceParentPresent)
+                else if (traceParentPresent)
                 {
                     // Scenario #3. W3C-TraceParent
                     // We need to ignore the Activity created by Hosting, as it did not take W3CTraceParent into consideration.
@@ -272,14 +272,19 @@
                     newActivity.SetParentId(originalParentId);
 
                     // read and populate tracestate
-                    ReadTraceState(httpContext.Request.Headers, newActivity);
+                    this.ReadTraceState(httpContext.Request.Headers, newActivity);
+
+                    // If W3C headers are present then Hosting will not read correlation-context.
+                    // SDK needs to do that.
+                    // This is in line with what Hosting 3.xx will do.
+                    this.ReadCorrelationContext(httpContext.Request.Headers, newActivity);
                 }
-                else 
+                else
                 {
                     // Scenario #2. RequestID
                     if (currentActivity.IdFormat == ActivityIdFormat.W3C)
                     {
-                        if(TryGetW3CCompatibleTraceId(originalParentId, out var traceId))
+                        if (this.TryGetW3CCompatibleTraceId(originalParentId, out var traceId))
                         {
                             newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
                             newActivity.SetParentId(ActivityTraceId.CreateFromString(traceId), default(ActivitySpanId), ActivityTraceFlags.None);
@@ -292,7 +297,7 @@
                         else
                         {
                             // store rootIdFromOriginalParentId in custom Property
-                            legacyRootId = ExtractOperationIdFromRequestId(originalParentId);
+                            legacyRootId = this.ExtractOperationIdFromRequestId(originalParentId);
                         }
                     }
                 }
@@ -326,13 +331,13 @@
 
         private bool TryGetW3CCompatibleTraceId(string requestId, out ReadOnlySpan<char> result)
         {
-            if(requestId[0] == '|')
+            if (requestId[0] == '|')
             {
-                if(requestId.Length > 33 && requestId[33] == '.')
+                if (requestId.Length > 33 && requestId[33] == '.')
                 {
-                    for(int i = 1; i < 33; i++)
+                    for (int i = 1; i < 33; i++)
                     {
-                        if(!char.IsLetterOrDigit(requestId[i]))
+                        if (!char.IsLetterOrDigit(requestId[i]))
                         {
                             result = null;
                             return false;
@@ -396,8 +401,10 @@
                     originalParentId = parentTraceParent;
                     activity.SetParentId(originalParentId);
 
-                    ReadTraceState(requestHeaders, activity);
+                    this.ReadTraceState(requestHeaders, activity);
+                    this.ReadCorrelationContext(requestHeaders, activity);
                 }
+
                 // Request-Id
                 else if (requestHeaders.TryGetValue(RequestResponseHeaders.RequestIdHeader, out StringValues requestIdValues) &&
                     requestIdValues != StringValues.Empty)
@@ -405,14 +412,14 @@
                     originalParentId = StringUtilities.EnforceMaxLength(requestIdValues.First(), InjectionGuardConstants.RequestHeaderMaxLength);
                     if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
                     {
-                        if (TryGetW3CCompatibleTraceId(originalParentId, out var traceId))
+                        if (this.TryGetW3CCompatibleTraceId(originalParentId, out var traceId))
                         {
                             activity.SetParentId(ActivityTraceId.CreateFromString(traceId), default(ActivitySpanId), ActivityTraceFlags.None);
                         }
                         else
                         {
                             // store rootIdFromOriginalParentId in custom Property
-                            legacyRootId = ExtractOperationIdFromRequestId(originalParentId);
+                            legacyRootId = this.ExtractOperationIdFromRequestId(originalParentId);
                         }
                     }
                     else
@@ -420,8 +427,9 @@
                         activity.SetParentId(originalParentId);
                     }
 
-                    ReadCorrelationContext(requestHeaders, activity);
+                    this.ReadCorrelationContext(requestHeaders, activity);
                 }
+
                 // no headers
                 else
                 {
