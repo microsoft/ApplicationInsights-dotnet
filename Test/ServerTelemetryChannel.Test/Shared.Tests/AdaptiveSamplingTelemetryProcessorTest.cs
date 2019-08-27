@@ -233,9 +233,9 @@
                         new Channel.Implementation.SamplingPercentageEstimatorSettings()
                         {
                             MaxTelemetryItemsPerSecond = afterSamplingRate,
-                            EvaluationInterval = TimeSpan.FromSeconds(2),
-                            SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(4),
-                            SamplingPercentageIncreaseTimeout = TimeSpan.FromSeconds(4),
+                            EvaluationInterval = TimeSpan.FromSeconds(1),
+                            SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(2),
+                            SamplingPercentageIncreaseTimeout = TimeSpan.FromSeconds(2),
                         },
                         this.TraceSamplingPercentageEvaluation)
                     .Use((next) => new StubTelemetryProcessor(next) { OnProcess = (t) => sentTelemetry.Add(t) });
