@@ -215,7 +215,8 @@
         public void SamplingPercentageAdjustsAccordingToConstantHighProductionRate()
         {
             var sentTelemetry = new List<ITelemetry>();
-
+            int beforeSamplingRate = 40;
+            int afterSamplingRate = 5;
             int testDurationSec = 30;
 
             // we'll ignore telemetry reported during first few percentage evaluations
@@ -231,6 +232,7 @@
                     .UseAdaptiveSampling(
                         new Channel.Implementation.SamplingPercentageEstimatorSettings()
                         {
+                            MaxTelemetryItemsPerSecond = afterSamplingRate,
                             EvaluationInterval = TimeSpan.FromSeconds(2),
                             SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(4),
                             SamplingPercentageIncreaseTimeout = TimeSpan.FromSeconds(4),
@@ -243,7 +245,7 @@
                 var productionTimer = new Timer(
                     (state) =>
                     {
-                        for (int i = 0; i < 20; i++)
+                        for (int i = 0; i < beforeSamplingRate; i++)
                         {
                             var request = new RequestTelemetry();
                             if (((Stopwatch)state).Elapsed.TotalSeconds < warmUpInSec)
@@ -266,7 +268,7 @@
             }
 
             // number of items produced should be close to target of 5/second
-            int targetItemCount = testDurationSec * 5;
+            int targetItemCount = testDurationSec * afterSamplingRate;
 
             // tolerance +- 30%
             double tolerance = 0.3;
