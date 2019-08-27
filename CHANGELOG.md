@@ -5,7 +5,6 @@
 - [Fixes Azure Functions performance degradation when W3C enabled.](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/900)
 - [Fix: AppId is never set is Response Headers.](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/956)
 
-
 ## Version 2.8.0-beta2
 - [Fix MVCBeforeAction property fetcher to work with .NET Core 3.0 changes.](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/936)
 - [Catch generic exception from DiagnosticSourceListeners and log instead of failing user request.](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/957)
