@@ -215,12 +215,14 @@
         public void SamplingPercentageAdjustsAccordingToConstantHighProductionRate()
         {
             var sentTelemetry = new List<ITelemetry>();
-            int beforeSamplingRate = 40;
+
+            // more is better as it increases test stability
+            int beforeSamplingRate = 80;
             int afterSamplingRate = 5;
             int testDurationSec = 30;
 
             // we'll ignore telemetry reported during first few percentage evaluations
-            int warmUpInSec = 8;
+            int warmUpInSec = 12;
 
             var sw = Stopwatch.StartNew();
             using (var tc = new TelemetryConfiguration() { TelemetryChannel = new StubTelemetryChannel() })
@@ -233,9 +235,9 @@
                         new Channel.Implementation.SamplingPercentageEstimatorSettings()
                         {
                             MaxTelemetryItemsPerSecond = afterSamplingRate,
-                            EvaluationInterval = TimeSpan.FromSeconds(1),
-                            SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(2),
-                            SamplingPercentageIncreaseTimeout = TimeSpan.FromSeconds(2),
+                            EvaluationInterval = TimeSpan.FromSeconds(2),
+                            SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(4),
+                            SamplingPercentageIncreaseTimeout = TimeSpan.FromSeconds(4),
                         },
                         this.TraceSamplingPercentageEvaluation)
                     .Use((next) => new StubTelemetryProcessor(next) { OnProcess = (t) => sentTelemetry.Add(t) });
@@ -245,15 +247,14 @@
                 var productionTimer = new Timer(
                     (state) =>
                     {
+                        bool ignored = ((Stopwatch)state).Elapsed.TotalSeconds < warmUpInSec;
                         for (int i = 0; i < beforeSamplingRate; i++)
                         {
                             var request = new RequestTelemetry();
-                            if (((Stopwatch)state).Elapsed.TotalSeconds < warmUpInSec)
+                            if (ignored)
                             {
-                                // let's ignore telemetry from first few rate evaluations - it does not make sense
-                                request.Properties["ignore"] = "true";
+                                request.Properties["ignore"] ="true";
                             }
-
                             tc.TelemetryProcessorChain.Process(request);
                         }
                     },

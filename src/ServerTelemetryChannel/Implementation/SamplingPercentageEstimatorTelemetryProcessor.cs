@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
-    using System.Diagnostics;
     using System.Threading;
 
     using Microsoft.ApplicationInsights.Channel;
