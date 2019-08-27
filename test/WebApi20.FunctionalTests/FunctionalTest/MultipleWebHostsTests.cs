@@ -19,7 +19,7 @@ namespace WebApi20.FuncTests
         {
         }
 
-        [Fact(Skip = "Re-Enable once DependencyTrackingModule is updated to latest DiagnosticSource.")]
+        [Fact]
         public void TwoWebHostsCreatedSequentially()
         {
             using (var server1 = new InProcessServer(assemblyName, this.output))
@@ -51,7 +51,7 @@ namespace WebApi20.FuncTests
             }
         }
 
-        [Fact(Skip = "Re-Enable once DependencyTrackingModule is updated to latest DiagnosticSource.")]
+        [Fact]
         public void TwoWebHostsCreatedInParallel()
         {
             using (var server1 = new InProcessServer(assemblyName, this.output))
