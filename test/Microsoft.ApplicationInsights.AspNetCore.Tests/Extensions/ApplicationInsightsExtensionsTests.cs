@@ -1050,7 +1050,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             [Fact]
-            public static void W3CIsEnabledByDefault()
+            public static void W3CIsDisabledByDefault()
             {
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/");
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -1066,19 +1066,21 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.Single(requestTracking);
                 Assert.Single(dependencyTracking);
 
-                Assert.True(requestTracking.Single().CollectionOptions.EnableW3CDistributedTracing);
-                Assert.True(dependencyTracking.Single().EnableW3CHeadersInjection);
+                Assert.False(requestTracking.Single().CollectionOptions.EnableW3CDistributedTracing);
+                Assert.False(dependencyTracking.Single().EnableW3CHeadersInjection);
             }
 
             [Fact]
-            public static void W3CIsDisabledWhenConfiguredInOptions()
+            public static void W3CIsEnabledWhenConfiguredInOptions()
             {
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, 
                     "http://localhost:1234/v2/track/", 
-                    o => o.RequestCollectionOptions.EnableW3CDistributedTracing = false);
+                    o => o.RequestCollectionOptions.EnableW3CDistributedTracing = true);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                
+
+                Assert.Contains(telemetryConfiguration.TelemetryInitializers, t => t is W3COperationCorrelationTelemetryInitializer);
+
                 var modules = serviceProvider.GetServices<ITelemetryModule>().ToList();
 
                 var requestTracking = modules.OfType<RequestTrackingTelemetryModule>().ToList();
@@ -1086,9 +1088,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.Single(requestTracking);
                 Assert.Single(dependencyTracking);
 
-                Assert.False(requestTracking.Single().CollectionOptions.EnableW3CDistributedTracing);
-                Assert.False(dependencyTracking.Single().EnableW3CHeadersInjection);
-                Assert.False(telemetryConfiguration.EnableW3CCorrelation);
+                Assert.True(requestTracking.Single().CollectionOptions.EnableW3CDistributedTracing);
+                Assert.True(dependencyTracking.Single().EnableW3CHeadersInjection);
             }
 
             private static int GetTelemetryProcessorsCountInConfiguration<T>(TelemetryConfiguration telemetryConfiguration)

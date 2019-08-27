@@ -93,7 +93,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 this.AddSampling(configuration);
                 this.DisableHeartBeatIfConfigured();
 
-                configuration.EnableW3CCorrelation = this.applicationInsightsServiceOptions.RequestCollectionOptions.EnableW3CDistributedTracing;
+                if (applicationInsightsServiceOptions.RequestCollectionOptions.EnableW3CDistributedTracing)
+                {
+                    this.EnableW3CHeaders(configuration);
+                }
+
                 configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder.Build();
                 configuration.TelemetryProcessorChainBuilder.Build();
 
@@ -197,6 +201,11 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
                 }
             }
+        }
+
+        private void EnableW3CHeaders(TelemetryConfiguration configuration)
+        {
+            configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
         }
     }
 }

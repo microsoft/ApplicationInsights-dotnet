@@ -14,7 +14,9 @@
     using Xunit;
     using Xunit.Abstractions;
     using Microsoft.ApplicationInsights.Extensibility;
+#if NET451 || NET461
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
+#endif
 
     public abstract class TelemetryTestsBase
     {
@@ -107,6 +109,7 @@
             return (requestTelemetry, dependencyTelemetry);
         }
 
+#if NET451 || NET461
         public void ValidatePerformanceCountersAreCollected(string assemblyName)
         {
             using (var server = new InProcessServer(assemblyName, this.output))
@@ -123,6 +126,7 @@
                 Assert.True(actual.Length > 0);
             }
         }
+#endif
 
         protected HttpResponseMessage ExecuteRequest(string requestPath, Dictionary<string, string> headers = null)
         {

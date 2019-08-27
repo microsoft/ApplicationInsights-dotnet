@@ -1,4 +1,4 @@
-﻿namespace MVC20.FuncTests
+﻿namespace MVCFramework20.FunctionalTests.FunctionalTest
 {
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;

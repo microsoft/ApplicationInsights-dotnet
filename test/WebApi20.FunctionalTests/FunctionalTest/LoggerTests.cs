@@ -1,4 +1,4 @@
-﻿namespace WebApi20.FuncTests
+﻿namespace FunctionalTests
 {
     using System;
     using System.Collections.Generic;
@@ -75,7 +75,7 @@
                 this.DebugTelemetryItems(actual);
 
                 // Expect 1 item1.
-                Assert.Single(actual);
+                Assert.Equal(1, actual.Count());
 
                 ValidateMessage(actual[0], new string[] { "error"});                
             }

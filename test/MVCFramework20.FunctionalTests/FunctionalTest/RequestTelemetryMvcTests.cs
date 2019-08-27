@@ -1,4 +1,4 @@
-﻿namespace MVC20.FuncTests
+﻿namespace MVCFramework20.FunctionalTests.FunctionalTest
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -87,7 +87,7 @@
             }
         }
 
-        [Fact(Skip = "Re-Enable once DependencyTrackingModule is updated to latest DiagnosticSource.")]
+        [Fact]
         public void TestMixedTelemetryItemsReceived()
         {
             using (var server = new InProcessServer(assemblyName, this.output))

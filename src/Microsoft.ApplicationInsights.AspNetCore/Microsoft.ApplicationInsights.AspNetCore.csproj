@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Microsoft.ApplicationInsights.AspNetCore</AssemblyName>
-    <VersionPrefix>2.8.0-beta3</VersionPrefix>
-    <LangVersion>7.2</LangVersion>
+    <VersionPrefix>2.8.0-beta2</VersionPrefix>
+    
     <TargetFrameworks>net451;net46;netstandard1.6;netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard1.6;netstandard2.0</TargetFrameworks>
     
@@ -73,14 +73,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.11.0-beta1-build12825" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.11.0-beta1" />
     <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.11.0-beta1" />
     <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.11.0-beta1" />
     <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.11.0-beta1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.11.0-beta1-build12825" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.11.0-beta1" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="1.0.2" />           
     <PackageReference Include="System.Text.Encodings.Web" Version="4.3.1" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.6.0-preview7.19362.9" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard2.0' ">

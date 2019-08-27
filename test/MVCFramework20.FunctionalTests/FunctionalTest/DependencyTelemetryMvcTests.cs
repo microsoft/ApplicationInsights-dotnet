@@ -1,5 +1,5 @@
-﻿namespace MVC20.FuncTests
-{
+﻿namespace MVCFramework20.FunctionalTests.FunctionalTest
+{   
     using System;
     using System.Linq;
     using System.Net.Http;

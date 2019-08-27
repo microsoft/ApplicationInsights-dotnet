@@ -85,7 +85,7 @@
             Assert.NotEmpty(actual.Context.Operation.Name);
             Assert.NotEmpty(actual.Context.Operation.Id);
         }
-        
+
         public void ValidateBasicDependency(string assemblyName, string requestPath, Func<IWebHostBuilder, IWebHostBuilder> configureHost = null)
         {
             DependencyTelemetry expected = new DependencyTelemetry();

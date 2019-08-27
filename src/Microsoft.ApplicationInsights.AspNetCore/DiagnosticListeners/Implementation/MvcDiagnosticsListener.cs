@@ -9,20 +9,20 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
     using Microsoft.AspNetCore.Http;
 
     /// <summary>
-    /// <see cref="IApplicationInsightDiagnosticListener"/> implementation that listens for events specific to AspNetCore Mvc layer.
+    /// <see cref="IApplicationInsightDiagnosticListener"/> implementation that listens for evens specific to AspNetCore Mvc layer
     /// </summary>
     [Obsolete("This class was merged with HostingDiagnosticsListener to optimize Diagnostics Source subscription performance")]
     public class MvcDiagnosticsListener : IApplicationInsightDiagnosticListener
     {
+        /// <inheritdoc />
+        public string ListenerName { get; } = "Microsoft.AspNetCore";
+
         private readonly PropertyFetcher httpContextFetcher = new PropertyFetcher("httpContext");
         private readonly PropertyFetcher routeDataFetcher = new PropertyFetcher("routeData");
         private readonly PropertyFetcher routeValuesFetcher = new PropertyFetcher("Values");
 
-        /// <inheritdoc />
-        public string ListenerName { get; } = "Microsoft.AspNetCore";
-
         /// <summary>
-        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Mvc.BeforeAction' event.
+        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Mvc.BeforeAction' event
         /// </summary>
         public void OnBeforeAction(HttpContext httpContext, IDictionary<string, object> routeValues)
         {
@@ -38,49 +38,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
                     telemetry.Name = name;
                 }
             }
-        }
-
-        /// <inheritdoc />
-        public void OnSubscribe()
-        {
-        }
-
-        /// <inheritdoc />
-        public void OnNext(KeyValuePair<string, object> value)
-        {
-            try
-            {
-                if (value.Key == "Microsoft.AspNetCore.Mvc.BeforeAction")
-                {
-                    var context = this.httpContextFetcher.Fetch(value.Value) as HttpContext;
-                    var routeData = this.routeDataFetcher.Fetch(value.Value);
-                    var routeValues = this.routeValuesFetcher.Fetch(routeData) as IDictionary<string, object>;
-
-                    if (context != null && routeValues != null)
-                    {
-                        this.OnBeforeAction(context, routeValues);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                AspNetCoreEventSource.Instance.DiagnosticListenerWarning("MvcDiagnosticsListener", value.Key, ex.Message);
-            }
-        }
-
-        /// <inheritdoc />
-        public void OnError(Exception error)
-        {
-        }
-
-        /// <inheritdoc />
-        public void OnCompleted()
-        {
-        }
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
         }
 
         private string GetNameFromRouteContext(IDictionary<string, object> routeValues)
@@ -137,6 +94,49 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
             }
 
             return name;
+        }
+
+        /// <inheritdoc />
+        public void OnSubscribe()
+        {
+        }
+
+        /// <inheritdoc />
+        public void OnNext(KeyValuePair<string, object> value)
+        {
+            try
+            {
+                if (value.Key == "Microsoft.AspNetCore.Mvc.BeforeAction")
+                {
+                    var context = this.httpContextFetcher.Fetch(value.Value) as HttpContext;
+                    var routeData = routeDataFetcher.Fetch(value.Value);
+                    var routeValues = routeValuesFetcher.Fetch(routeData) as IDictionary<string, object>;
+
+                    if (context != null && routeValues != null)
+                    {
+                        this.OnBeforeAction(context, routeValues);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                AspNetCoreEventSource.Instance.DiagnosticListenerWarning("MvcDiagnosticsListener", value.Key, ex.Message);
+            }
+        }
+
+        /// <inheritdoc />
+        public void OnError(Exception error)
+        {
+        }
+
+        /// <inheritdoc />
+        public void OnCompleted()
+        {
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
         }
     }
 }
