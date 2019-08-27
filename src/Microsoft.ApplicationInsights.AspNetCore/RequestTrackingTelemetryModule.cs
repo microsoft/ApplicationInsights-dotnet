@@ -31,7 +31,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestTrackingTelemetryModule"/> class.
         /// </summary>
-        public RequestTrackingTelemetryModule() 
+        public RequestTrackingTelemetryModule()
             : this(null)
         {
             this.CollectionOptions = new RequestCollectionOptions();
@@ -89,6 +89,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore
 
                             this.subscriptions?.Add(DiagnosticListener.AllListeners.Subscribe(this));
 
+                            // Questionable to modify the configuration here.
+                            configuration.EnableW3CCorrelation = this.CollectionOptions.EnableW3CDistributedTracing;
                             this.isInitialized = true;
                         }
                     }

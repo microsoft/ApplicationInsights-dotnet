@@ -111,18 +111,27 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             this.WriteEvent(9, this.ApplicationName);
         }
 
+        /// <summary>
+        /// Logs an event when a TelemetryModule is not found to configure.
+        /// </summary>
         [Event(11, Message = "Unable to configure module {0} as it is not found in service collection.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
         public void UnableToFindModuleToConfigure(string moduleType, string appDomainName = "Incorrect")
         {
             this.WriteEvent(11, moduleType, this.ApplicationName);
         }
 
+        /// <summary>
+        /// Logs an event when QuickPulseTelemetryModule is not found in service collection.
+        /// </summary>
         [Event(12, Message = "Unable to find QuickPulseTelemetryModule in service collection. LiveMetrics feature will not be available. Please add QuickPulseTelemetryModule to services collection in the ConfigureServices method of your application Startup class.", Level = EventLevel.Error, Keywords = Keywords.Diagnostics)]
         public void UnableToFindQuickPulseModuleInDI(string appDomainName = "Incorrect")
         {
             this.WriteEvent(12, this.ApplicationName);
         }
 
+        /// <summary>
+        /// Logs an event when telemetry is not tracked as the Listener is not active.
+        /// </summary>
         [Event(
             13,
             Keywords = Keywords.Diagnostics,
@@ -133,6 +142,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             this.WriteEvent(13, evntName, activityId, this.ApplicationName);
         }
 
+        /// <summary>
+        /// Logs an event for when generic error occur within the SDK.
+        /// </summary>
         [Event(
             14,
             Keywords = Keywords.Diagnostics,
@@ -143,6 +155,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             this.WriteEvent(14, errorMessage, this.ApplicationName);
         }
 
+        /// <summary>
+        /// Logs an event when RequestTrackingModule failed to initialize.
+        /// </summary>
         [Event(
             15,
             Keywords = Keywords.Diagnostics,
@@ -153,6 +168,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             this.WriteEvent(15, errorMessage, this.ApplicationName);
         }
 
+        /// <summary>
+        /// Logs an event when any error occurs within DiagnosticListener callback.
+        /// </summary>
         [Event(
             16,
             Keywords = Keywords.Diagnostics,
@@ -163,6 +181,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             this.WriteEvent(16, callback, errorMessage, this.ApplicationName);
         }
 
+        /// <summary>
+        /// Logs an event when TelemetryConfiguration configure has failed.
+        /// </summary>
         [Event(
             17,
             Keywords = Keywords.Diagnostics,
@@ -172,7 +193,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         {
             this.WriteEvent(17, errorMessage, this.ApplicationName);
         }
-
+        
+        /// <summary>
+        /// Logs an event when a telemetry item is sampled out at head.
+        /// </summary>
         [Event(
             18,
             Keywords = Keywords.Diagnostics,
@@ -181,6 +205,42 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         public void TelemetryItemWasSampledOutAtHead(string operationId, string appDomainName = "Incorrect")
         {
             this.WriteEvent(18, operationId, this.ApplicationName);
+        }
+
+        /// <summary>
+        /// Logs an informational event from Hosting listeners.
+        /// </summary>
+        [Event(
+            19,
+            Message = "Hosting Major Version: '{0}'. Informational Message: '{1}'.",
+            Level = EventLevel.Informational)]
+        public void HostingListenerInformational(string hostingVersion, string message, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(19, hostingVersion, message, this.ApplicationName);
+        }
+
+        /// <summary>
+        /// Logs a verbose event.
+        /// </summary>
+        [Event(
+            20,
+            Message = "Message: '{0}'.",
+            Level = EventLevel.Verbose)]
+        public void HostingListenerVerboe(string message, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(20, message, this.ApplicationName);
+        }
+
+        /// <summary>
+        /// Logs an event for RequestTelemetry created.
+        /// </summary>
+        [Event(
+            21,
+            Message = "RequestTelemetry created. CorrelationFormat: '{0}', RequestID: '{1}', OperationId : '{2}' ",
+            Level = EventLevel.Informational)]
+        public void RequestTelemetryCreated(string correlationFormat, string requestId, string requestOperationId, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(21, correlationFormat, requestId, requestOperationId, this.ApplicationName);
         }
 
         /// <summary>

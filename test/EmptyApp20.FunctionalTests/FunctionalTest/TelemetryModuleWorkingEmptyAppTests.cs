@@ -14,7 +14,7 @@
 
         // The NET451 conditional check is wrapped inside the test to make the tests visible in the test explorer. We can move them to the class level once if the issue is resolved.
 
-        [Fact]
+        [Fact(Skip = "Re-Enable once DependencyTrackingModule is updated to latest DiagnosticSource.")]
         public void TestBasicDependencyPropertiesAfterRequestingBasicPage()
         {
             const string RequestPath = "/";
@@ -34,9 +34,7 @@
         [Fact]
         public void TestIfPerformanceCountersAreCollected()
         {
-#if NET451 || NET461
             ValidatePerformanceCountersAreCollected(assemblyName);
-#endif
         }
     }
 }
