@@ -16,8 +16,6 @@ static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.Set
 static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.UpdateContextOnActivity(this System.Diagnostics.Activity activity) -> System.Diagnostics.Activity
 static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.UpdateTelemetry(this System.Diagnostics.Activity activity, Microsoft.ApplicationInsights.Channel.ITelemetry telemetry, bool forceUpdate) -> void
 Microsoft.ApplicationInsights.TelemetryClient.InitializeInstrumentationKey(Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> void
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ExperimentalFeatures.get -> System.Collections.Generic.IList<string>
-static Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental.ExperimentalFeaturesExtension.EvaluateExperimentalFeature(this Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration telemetryConfiguration, string featureName) -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryConfigurationExtensions
 static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryConfigurationExtensions.GetLastObservedSamplingPercentage(this Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration configuration, Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes samplingItemType) -> double
 static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryConfigurationExtensions.SetLastObservedSamplingPercentage(this Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration configuration, Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes samplingItemType, double value) -> void
