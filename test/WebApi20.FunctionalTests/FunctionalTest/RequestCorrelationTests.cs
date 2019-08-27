@@ -216,9 +216,9 @@
                 Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", actualRequest.tags["ai.operation.id"]);
                 Assert.Contains("00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01", actualRequest.tags["ai.operation.parentId"]);
 
-                // Correlation-Context will be ignored unless Request-Id is available and used.
-                Assert.False(actualRequest.data.baseData.properties.ContainsKey("k1"));
-                Assert.False(actualRequest.data.baseData.properties.ContainsKey("k2"));
+                // Correlation-Context will be read if either Request-Id or TraceParent available.
+                Assert.True(actualRequest.data.baseData.properties.ContainsKey("k1"));
+                Assert.True(actualRequest.data.baseData.properties.ContainsKey("k2"));
 
                 // TraceState is simply set to Activity, and not added to Telemetry.
                 Assert.False(actualRequest.data.baseData.properties.ContainsKey("some"));
@@ -263,9 +263,9 @@
                 Assert.NotEqual("8ee8641cbdd8dd280d239fa2121c7e4e", actualRequest.tags["ai.operation.id"]);
                 Assert.Contains("00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01", actualRequest.tags["ai.operation.parentId"]);
 
-                // Correlation-Context will be ignored unless Request-Id is available and used.
-                Assert.False(actualRequest.data.baseData.properties.ContainsKey("k1"));
-                Assert.False(actualRequest.data.baseData.properties.ContainsKey("k2"));
+                // Correlation-Context will be read if either Request-Id or traceparent is present.
+                Assert.True(actualRequest.data.baseData.properties.ContainsKey("k1"));
+                Assert.True(actualRequest.data.baseData.properties.ContainsKey("k2"));
 
                 // TraceState is simply set to Activity, and not added to Telemetry.
                 Assert.False(actualRequest.data.baseData.properties.ContainsKey("some"));
