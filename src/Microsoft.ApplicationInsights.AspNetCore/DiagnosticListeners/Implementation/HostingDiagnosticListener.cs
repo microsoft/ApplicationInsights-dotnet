@@ -15,6 +15,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Primitives;
@@ -51,7 +52,8 @@
 
         // fetch is unique per event and per property
         private readonly PropertyFetcher httpContextFetcherOnBeforeAction = new PropertyFetcher("httpContext");
-        private readonly PropertyFetcher routeDataFetcher = new PropertyFetcher("routeData");
+        private readonly PropertyFetcher routeDataFetcher = new PropertyFetcher("routeData");        
+        private readonly PropertyFetcher routeDataFetcher30 = new PropertyFetcher("RouteData");
         private readonly PropertyFetcher routeValuesFetcher = new PropertyFetcher("Values");
         private readonly PropertyFetcher httpContextFetcherStart = new PropertyFetcher("HttpContext");
         private readonly PropertyFetcher httpContextFetcherStop = new PropertyFetcher("HttpContext");
@@ -707,81 +709,94 @@
             Exception exception = null;
             long? timestamp = null;
 
-            //// Top messages in if-else are the most often used messages.
-            //// It starts with ASP.NET Core 2.0 events, then 1.0 events, then exception events.
-            //// Switch is compiled into GetHashCode() and binary search, if-else without GetHashCode() is faster if 2.0 events are used.
-            if (value.Key == "Microsoft.AspNetCore.Hosting.HttpRequestIn.Start")
+            try
             {
-                httpContext = this.httpContextFetcherStart.Fetch(value.Value) as HttpContext;
-                if (httpContext != null)
+                //// Top messages in if-else are the most often used messages.
+                //// It starts with ASP.NET Core 2.0 events, then 1.0 events, then exception events.
+                //// Switch is compiled into GetHashCode() and binary search, if-else without GetHashCode() is faster if 2.0 events are used.
+                if (value.Key == "Microsoft.AspNetCore.Hosting.HttpRequestIn.Start")
                 {
-                    this.OnHttpRequestInStart(httpContext);
+                    httpContext = this.httpContextFetcherStart.Fetch(value.Value) as HttpContext;
+                    if (httpContext != null)
+                    {
+                        this.OnHttpRequestInStart(httpContext);
+                    }
                 }
-            }
-            else if (value.Key == "Microsoft.AspNetCore.Hosting.HttpRequestIn.Stop")
-            {
-                httpContext = this.httpContextFetcherStop.Fetch(value.Value) as HttpContext;
-                if (httpContext != null)
+                else if (value.Key == "Microsoft.AspNetCore.Hosting.HttpRequestIn.Stop")
                 {
-                    this.OnHttpRequestInStop(httpContext);
+                    httpContext = this.httpContextFetcherStop.Fetch(value.Value) as HttpContext;
+                    if (httpContext != null)
+                    {
+                        this.OnHttpRequestInStop(httpContext);
+                    }
                 }
-            }
-            else if (value.Key == "Microsoft.AspNetCore.Mvc.BeforeAction")
-            {
-                var context = this.httpContextFetcherOnBeforeAction.Fetch(value.Value) as HttpContext;
-                var routeData = this.routeDataFetcher.Fetch(value.Value);
-                var routeValues = this.routeValuesFetcher.Fetch(routeData) as IDictionary<string, object>;
+                else if (value.Key == "Microsoft.AspNetCore.Mvc.BeforeAction")
+                {
+                    var context = this.httpContextFetcherOnBeforeAction.Fetch(value.Value) as HttpContext;
+                    
+                    // Asp.Net Core 3.0 changed the field name to "RouteData" from "routeData
+                    var routeData = this.routeDataFetcher.Fetch(value.Value);
+                    if (routeData == null)
+                    {
+                        routeData = this.routeDataFetcher30.Fetch(value.Value);
+                    }
 
-                if (context != null && routeValues != null)
-                {
-                    this.OnBeforeAction(context, routeValues);
-                }
+                    var routeValues = this.routeValuesFetcher.Fetch(routeData) as IDictionary<string, object>;
 
-            }
-            else if (value.Key == "Microsoft.AspNetCore.Hosting.BeginRequest")
-            {
-                httpContext = this.httpContextFetcherBeginRequest.Fetch(value.Value) as HttpContext;
-                timestamp = this.timestampFetcherBeginRequest.Fetch(value.Value) as long?;
-                if (httpContext != null && timestamp.HasValue)
-                {
-                    this.OnBeginRequest(httpContext, timestamp.Value);
+                    if (context != null && routeValues != null)
+                    {
+                        this.OnBeforeAction(context, routeValues);
+                    }
+
                 }
-            }
-            else if (value.Key == "Microsoft.AspNetCore.Hosting.EndRequest")
-            {
-                httpContext = this.httpContextFetcherEndRequest.Fetch(value.Value) as HttpContext;
-                timestamp = this.timestampFetcherEndRequest.Fetch(value.Value) as long?;
-                if (httpContext != null && timestamp.HasValue)
+                else if (value.Key == "Microsoft.AspNetCore.Hosting.BeginRequest")
                 {
-                    this.OnEndRequest(httpContext, timestamp.Value);
+                    httpContext = this.httpContextFetcherBeginRequest.Fetch(value.Value) as HttpContext;
+                    timestamp = this.timestampFetcherBeginRequest.Fetch(value.Value) as long?;
+                    if (httpContext != null && timestamp.HasValue)
+                    {
+                        this.OnBeginRequest(httpContext, timestamp.Value);
+                    }
                 }
-            }
-            else if (value.Key == "Microsoft.AspNetCore.Diagnostics.UnhandledException")
-            {
-                httpContext = this.httpContextFetcherDiagExceptionUnhandled.Fetch(value.Value) as HttpContext;
-                exception = this.exceptionFetcherDiagExceptionUnhandled.Fetch(value.Value) as Exception;
-                if (httpContext != null && exception != null)
+                else if (value.Key == "Microsoft.AspNetCore.Hosting.EndRequest")
                 {
-                    this.OnDiagnosticsUnhandledException(httpContext, exception);
+                    httpContext = this.httpContextFetcherEndRequest.Fetch(value.Value) as HttpContext;
+                    timestamp = this.timestampFetcherEndRequest.Fetch(value.Value) as long?;
+                    if (httpContext != null && timestamp.HasValue)
+                    {
+                        this.OnEndRequest(httpContext, timestamp.Value);
+                    }
                 }
-            }
-            else if (value.Key == "Microsoft.AspNetCore.Diagnostics.HandledException")
-            {
-                httpContext = this.httpContextFetcherDiagExceptionHandled.Fetch(value.Value) as HttpContext;
-                exception = this.exceptionFetcherDiagExceptionHandled.Fetch(value.Value) as Exception;
-                if (httpContext != null && exception != null)
+                else if (value.Key == "Microsoft.AspNetCore.Diagnostics.UnhandledException")
                 {
-                    this.OnDiagnosticsHandledException(httpContext, exception);
+                    httpContext = this.httpContextFetcherDiagExceptionUnhandled.Fetch(value.Value) as HttpContext;
+                    exception = this.exceptionFetcherDiagExceptionUnhandled.Fetch(value.Value) as Exception;
+                    if (httpContext != null && exception != null)
+                    {
+                        this.OnDiagnosticsUnhandledException(httpContext, exception);
+                    }
                 }
-            }
-            else if (value.Key == "Microsoft.AspNetCore.Hosting.UnhandledException")
-            {
-                httpContext = this.httpContextFetcherHostingExceptionUnhandled.Fetch(value.Value) as HttpContext;
-                exception = this.exceptionFetcherHostingExceptionUnhandled.Fetch(value.Value) as Exception;
-                if (httpContext != null && exception != null)
+                else if (value.Key == "Microsoft.AspNetCore.Diagnostics.HandledException")
                 {
-                    this.OnHostingException(httpContext, exception);
+                    httpContext = this.httpContextFetcherDiagExceptionHandled.Fetch(value.Value) as HttpContext;
+                    exception = this.exceptionFetcherDiagExceptionHandled.Fetch(value.Value) as Exception;
+                    if (httpContext != null && exception != null)
+                    {
+                        this.OnDiagnosticsHandledException(httpContext, exception);
+                    }
                 }
+                else if (value.Key == "Microsoft.AspNetCore.Hosting.UnhandledException")
+                {
+                    httpContext = this.httpContextFetcherHostingExceptionUnhandled.Fetch(value.Value) as HttpContext;
+                    exception = this.exceptionFetcherHostingExceptionUnhandled.Fetch(value.Value) as Exception;
+                    if (httpContext != null && exception != null)
+                    {
+                        this.OnHostingException(httpContext, exception);
+                    }
+                }
+            } catch (Exception ex)
+            {
+                AspNetCoreEventSource.Instance.DiagnosticListenerWarning(value.Key, ex.ToInvariantString());
             }
         }
 
