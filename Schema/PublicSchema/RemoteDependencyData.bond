@@ -26,7 +26,7 @@ struct RemoteDependencyData
     [ActAsRequired("Renaming value to duration.")]
     61: required string 	 duration;
     
-    [Description("Indication of successfull or unsuccessfull call.")]
+    [Description("Indication of successful or unsuccessful call.")]
     120: bool	 success = true;
     
     [MaxStringLength("8192")]

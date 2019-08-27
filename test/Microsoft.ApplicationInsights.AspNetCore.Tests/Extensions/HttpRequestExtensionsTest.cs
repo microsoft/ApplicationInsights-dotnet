@@ -2,7 +2,6 @@
 {
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Http.Internal;
     using System;
     using System.Globalization;
     using Xunit;
@@ -12,6 +11,7 @@
         const string ExpectedSchema = "http";
         const string ExpectedHostName = "randomhost";
         const string ExpectedDefaultHostName = "unknown-host";
+        const string ExpectedMulltipleHostName = "multiple-host";
         const string ExpectedPath = "/path/path/";
         const string ExpectedQueryString = "?queryType=1";
 
@@ -48,6 +48,20 @@
             var uri = HttpRequestExtensions.GetUri(request);
             Assert.Equal(
                 new Uri(string.Format(CultureInfo.InvariantCulture, "{0}://{1}", ExpectedSchema, ExpectedDefaultHostName)),
+                uri);
+        }
+
+        [Fact]
+        public void TestGetUriUsesMultipleHostNameOnRequestWithManyHostsSpecified()
+        {
+            var request = new DefaultHttpContext().Request;
+            request.Scheme = ExpectedSchema;
+            request.Host = new HostString("host1,host2");
+
+            var uri = HttpRequestExtensions.GetUri(request);
+
+            Assert.Equal(
+                new Uri(string.Format(CultureInfo.InvariantCulture, "{0}://{1}", ExpectedSchema, ExpectedMulltipleHostName)),
                 uri);
         }
 

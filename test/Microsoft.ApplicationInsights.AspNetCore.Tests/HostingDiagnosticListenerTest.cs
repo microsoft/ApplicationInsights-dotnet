@@ -22,6 +22,7 @@
     {
         private const string HttpRequestScheme = "http";
         private const string ExpectedAppId = "cid-v1:some-app-id";
+        private const string ActivityCreatedByHostingDiagnosticListener = "ActivityCreatedByHostingDiagnosticListener";
 
         private static readonly HostString HttpRequestHost = new HostString("testHost");
         private static readonly PathString HttpRequestPath = new PathString("/path/path");
@@ -102,10 +103,12 @@
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void TestSdkVersionIsPopulatedByMiddleware(bool isAspNetCore2)
+        public void TestConditionalAppIdFlagIsRespected(bool isAspNetCore2)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
             TelemetryConfiguration config = TelemetryConfiguration.CreateDefault();
+            // This flag tells sdk to not add app id in response header, unless its received in incoming headers.
+            // For tests, no incoming headers is add, so the response should not have app id as well.
             config.ExperimentalFeatures.Add("conditionalAppId");
 
             using (var hostingListener = CreateHostingListener(isAspNetCore2, config))
@@ -114,9 +117,39 @@
 
                 Assert.NotNull(context.Features.Get<RequestTelemetry>());
 
+                // VALIDATE
                 Assert.Null(HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers,
                         RequestResponseHeaders.RequestContextTargetKey));
 
+                HandleRequestEnd(hostingListener, context, 0, isAspNetCore2);
+            }
+
+            Assert.Single(sentTelemetry);
+            Assert.IsType<RequestTelemetry>(this.sentTelemetry.First());
+
+            RequestTelemetry requestTelemetry = this.sentTelemetry.First() as RequestTelemetry;
+            Assert.True(requestTelemetry.Duration.TotalMilliseconds >= 0);
+            Assert.True(requestTelemetry.Success);
+            Assert.Equal(CommonMocks.InstrumentationKey, requestTelemetry.Context.InstrumentationKey);
+            Assert.True(string.IsNullOrEmpty(requestTelemetry.Source));
+            Assert.Equal(CreateUri(HttpRequestScheme, HttpRequestHost), requestTelemetry.Url);
+            Assert.NotEmpty(requestTelemetry.Context.GetInternalContext().SdkVersion);
+            Assert.Contains(SdkVersionTestUtils.VersionPrefix, requestTelemetry.Context.GetInternalContext().SdkVersion);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void TestSdkVersionIsPopulatedByMiddleware(bool isAspNetCore2)
+        {
+            HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
+            TelemetryConfiguration config = TelemetryConfiguration.CreateDefault();
+
+            using (var hostingListener = CreateHostingListener(isAspNetCore2, config))
+            {
+                HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
+
+                Assert.NotNull(context.Features.Get<RequestTelemetry>());
                 HandleRequestEnd(hostingListener, context, 0, isAspNetCore2);
             }
 
@@ -186,7 +219,7 @@
             var telemetries = sentTelemetry.ToArray();
             Assert.Equal(2, sentTelemetry.Count);
             Assert.IsType<ExceptionTelemetry>(telemetries[0]);
-
+            
             Assert.IsType<RequestTelemetry>(telemetries[1]);
             RequestTelemetry requestTelemetry = telemetries[1] as RequestTelemetry;
             Assert.True(requestTelemetry.Duration.TotalMilliseconds >= 0);
@@ -210,6 +243,7 @@
                 HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
 
                 Assert.NotNull(Activity.Current);
+                Assert.Equal(ActivityCreatedByHostingDiagnosticListener, Activity.Current.OperationName);
 
                 var requestTelemetry = context.Features.Get<RequestTelemetry>();
                 Assert.NotNull(requestTelemetry);
@@ -224,41 +258,13 @@
             }
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void OnBeginRequestCreateNewActivityAndInitializeRequestTelemetryFromStandardHeader(bool isAspNetCore2)
-        {
-            HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
-            var standardRequestId = Guid.NewGuid().ToString();
-            var standardRequestRootId = Guid.NewGuid().ToString();
-            context.Request.Headers[RequestResponseHeaders.StandardParentIdHeader] = standardRequestId;
-            context.Request.Headers[RequestResponseHeaders.StandardRootIdHeader] = standardRequestRootId;
-
-            using (var hostingListener = CreateHostingListener(isAspNetCore2))
-            {
-                HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
-
-                Assert.NotNull(Activity.Current);
-
-                var requestTelemetry = context.Features.Get<RequestTelemetry>();
-                Assert.NotNull(requestTelemetry);
-                Assert.Equal(requestTelemetry.Id, Activity.Current.Id);
-                Assert.Equal(requestTelemetry.Context.Operation.Id, standardRequestRootId);
-                Assert.Equal(requestTelemetry.Context.Operation.ParentId, standardRequestId);
-            }
-        }
-
         [Fact]
         public void OnBeginRequestCreateNewActivityAndInitializeRequestTelemetryFromRequestIdHeader()
         {
+            // This tests 1.XX scenario where SDK is responsible for reading Correlation-Context and populate Activity.Baggage
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
             var requestId = Guid.NewGuid().ToString();
-            var standardRequestId = Guid.NewGuid().ToString();
-            var standardRequestRootId = Guid.NewGuid().ToString();
             context.Request.Headers[RequestResponseHeaders.RequestIdHeader] = requestId;
-            context.Request.Headers[RequestResponseHeaders.StandardParentIdHeader] = standardRequestId;
-            context.Request.Headers[RequestResponseHeaders.StandardRootIdHeader] = standardRequestRootId;
             context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "prop1=value1, prop2=value2";
 
             using (var hostingListener = CreateHostingListener(false))
@@ -273,11 +279,9 @@
                 Assert.NotNull(requestTelemetry);
                 Assert.Equal(requestTelemetry.Id, Activity.Current.Id);
                 Assert.Equal(requestTelemetry.Context.Operation.Id, Activity.Current.RootId);
-                Assert.NotEqual(requestTelemetry.Context.Operation.Id, standardRequestRootId);
                 Assert.Equal(requestTelemetry.Context.Operation.ParentId, requestId);
-                Assert.NotEqual(requestTelemetry.Context.Operation.ParentId, standardRequestId);
-                Assert.Equal("value1", requestTelemetry.Context.Properties["prop1"]);
-                Assert.Equal("value2", requestTelemetry.Context.Properties["prop2"]);
+                Assert.Equal("value1", requestTelemetry.Properties["prop1"]);
+                Assert.Equal("value2", requestTelemetry.Properties["prop2"]);
             }
         }
 
@@ -310,39 +314,6 @@
             {
                 Assert.True(requestTelemetry.Properties.ContainsKey(prop.Key));
                 Assert.Equal(requestTelemetry.Properties[prop.Key], prop.Value);
-            }
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void OnHttpRequestInStartCreateNewActivityIfParentIdIsNullAndHasStandardHeader(bool isAspNetCore2)
-        {
-            var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
-            var standardRequestId = Guid.NewGuid().ToString();
-            var standardRequestRootId = Guid.NewGuid().ToString();
-            context.Request.Headers[RequestResponseHeaders.StandardParentIdHeader] = standardRequestId;
-            context.Request.Headers[RequestResponseHeaders.StandardRootIdHeader] = standardRequestRootId;
-
-            var activity = new Activity("operation");
-            activity.Start();
-
-            using (var hostingListener = CreateHostingListener(isAspNetCore2))
-            {
-                HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
-
-                var activityInitializedByStandardHeader = Activity.Current;
-                Assert.NotEqual(activityInitializedByStandardHeader, activity);
-                Assert.Equal(activityInitializedByStandardHeader.ParentId, standardRequestRootId);
-
-                HandleRequestEnd(hostingListener, context, 0, isAspNetCore2);
-
-                Assert.Single(sentTelemetry);
-                var requestTelemetry = this.sentTelemetry.First() as RequestTelemetry;
-
-                Assert.Equal(requestTelemetry.Id, activityInitializedByStandardHeader.Id);
-                Assert.Equal(requestTelemetry.Context.Operation.Id, standardRequestRootId);
-                Assert.Equal(requestTelemetry.Context.Operation.ParentId, standardRequestId);
             }
         }
 
@@ -384,15 +355,12 @@
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "GET");
             TelemetryConfiguration config = TelemetryConfiguration.CreateDefault();
-            config.ExperimentalFeatures.Add("conditionalAppId");
 
             using (var hostingListener = CreateHostingListener(isAspNetCore2, config))
             {
                 HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
 
                 Assert.NotNull(context.Features.Get<RequestTelemetry>());
-                Assert.Null(HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers,
-                        RequestResponseHeaders.RequestContextTargetKey));
 
                 HandleRequestEnd(hostingListener, context, 0, isAspNetCore2);
             }
@@ -979,6 +947,8 @@
                 {
                     var activity = new Activity("operation");
 
+                    // Simulating the behaviour of Hosting layer in 2.xx, which parses Request-Id Header and 
+                    // set Activity parent.
                     if (context.Request.Headers.TryGetValue("Request-Id", out var requestId))
                     {
                         activity.SetParentId(requestId);

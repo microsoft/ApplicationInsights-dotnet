@@ -70,7 +70,7 @@ struct ContextTagKeys
     [MaxStringLength("1024")]
     505: string 	 UserAccountId = "ai.user.accountId";
     
-    [Description("The browser's user agent string as reported by the browser. This property will be used to extract informaiton regarding the customer's browser but will not be stored. Use custom properties to store the original user agent.")]
+    [Description("The browser's user agent string as reported by the browser. This property will be used to extract information regarding the customer's browser but will not be stored. Use custom properties to store the original user agent.")]
     [MaxStringLength("2048")]
     510: string 	 UserAgent = "ai.user.userAgent";
     
@@ -86,7 +86,7 @@ struct ContextTagKeys
     [MaxStringLength("256")]
     705: string 	 CloudRole = "ai.cloud.role";
     
-    [Description("Name of the instance where the application is running. Computer name for on-premisis, instance name for Azure.")]
+    [Description("Name of the instance where the application is running. Computer name for on-premises, instance name for Azure.")]
     [MaxStringLength("256")]
     715: string 	 CloudRoleInstance = "ai.cloud.roleInstance";
     

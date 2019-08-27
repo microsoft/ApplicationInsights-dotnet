@@ -135,7 +135,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
             catch (Exception ex)
             {
-                AspNetCoreEventSource.Instance.TelemetryConfigurationSetupFailure(ex.Message);
+                AspNetCoreEventSource.Instance.TelemetryConfigurationSetupFailure(ex.ToInvariantString());
             }
         }
 

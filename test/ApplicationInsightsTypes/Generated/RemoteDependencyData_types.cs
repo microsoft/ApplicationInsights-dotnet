@@ -59,7 +59,7 @@ namespace AI
         [global::Bond.Id(61), global::Bond.Required]
         public string duration { get; set; }
 
-        [global::Bond.Attribute("Description", "Indication of successfull or unsuccessfull call.")]
+        [global::Bond.Attribute("Description", "Indication of successful or unsuccessful call.")]
         [global::Bond.Id(120)]
         public bool success { get; set; }
 

@@ -18,6 +18,7 @@
     using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
 #endif
     using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
     using Microsoft.ApplicationInsights.WindowsServer;
@@ -201,6 +202,7 @@
                     services.AddSingleton<ITelemetryModule, EventCounterCollectionModule>();
                     services.ConfigureTelemetryModule<EventCounterCollectionModule>((eventCounterModule, options) =>
                     {
+                        // Ref this code for actual names. https://github.com/dotnet/coreclr/blob/dbc5b56c48ce30635ee8192c9814c7de998043d5/src/System.Private.CoreLib/src/System/Diagnostics/Eventing/RuntimeEventSource.cs
                         eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "cpu-usage"));
                         eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "working-set"));
                         eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "gc-heap-size"));
@@ -221,10 +223,11 @@
                         eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "threadpool-completed-items-count"));
                         eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "active-timer-count"));
 
-                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("Microsoft.AspNetCore", "requests-per-second"));
-                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("Microsoft.AspNetCore", "total-requests"));
-                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("Microsoft.AspNetCore", "current-requests"));
-                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("Microsoft.AspNetCore", "failed-requests"));
+                        // Ref this code for actual names. https://github.com/aspnet/AspNetCore/blob/f3f9a1cdbcd06b298035b523732b9f45b1408461/src/Hosting/Hosting/src/Internal/HostingEventSource.cs
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("Microsoft.AspNetCore.Hosting", "requests-per-second"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("Microsoft.AspNetCore.Hosting", "total-requests"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("Microsoft.AspNetCore.Hosting", "current-requests"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("Microsoft.AspNetCore.Hosting", "failed-requests"));
                     });
 #endif
                     services.AddSingleton<TelemetryConfiguration>(provider =>
@@ -287,7 +290,7 @@
             }
             catch (Exception e)
             {
-                AspNetCoreEventSource.Instance.LogWarning(e.Message);
+                AspNetCoreEventSource.Instance.LogError(e.ToInvariantString());
                 return services;
             }
         }
