@@ -28,9 +28,14 @@
     /// </summary>
     internal class HostingDiagnosticListener : IApplicationInsightDiagnosticListener
     {
+        // Name of custom property to store the legacy RootId when operating in W3C mode. Backend/UI understands this property.
+        internal const string LegacyRootIdProperty = "ai_legacyRootId";
+
         private const string ActivityCreatedByHostingDiagnosticListener = "ActivityCreatedByHostingDiagnosticListener";
         private const string ProactiveSamplingFeatureFlagName = "proactiveSampling";
         private const string ConditionalAppIdFeatureFlagName = "conditionalAppId";
+
+        private static readonly ActiveSubsciptionManager SubscriptionManager = new ActiveSubsciptionManager();
 
         /// <summary>
         /// Determine whether the running AspNetCore Hosting version is 2.0 or higher. This will affect what DiagnosticSource events we receive.
@@ -49,13 +54,12 @@
         private readonly bool injectResponseHeaders;
         private readonly bool trackExceptions;
         private readonly bool enableW3CHeaders;
-        private static readonly ActiveSubsciptionManager SubscriptionManager = new ActiveSubsciptionManager();
 
         #region fetchers
 
         // fetch is unique per event and per property
         private readonly PropertyFetcher httpContextFetcherOnBeforeAction = new PropertyFetcher("httpContext");
-        private readonly PropertyFetcher routeDataFetcher = new PropertyFetcher("routeData");        
+        private readonly PropertyFetcher routeDataFetcher = new PropertyFetcher("routeData");
         private readonly PropertyFetcher routeDataFetcher30 = new PropertyFetcher("RouteData");
         private readonly PropertyFetcher routeValuesFetcher = new PropertyFetcher("Values");
         private readonly PropertyFetcher httpContextFetcherStart = new PropertyFetcher("HttpContext");
@@ -76,8 +80,6 @@
         private string lastIKeyLookedUp;
         private string lastAppIdUsed;
 
-        internal const string LegacyRootIdProperty = "ai_legacyRootId";
-
         /// <summary>
         /// Initializes a new instance of the <see cref="HostingDiagnosticListener"/> class.
         /// </summary>
@@ -86,7 +88,7 @@
         /// <param name="injectResponseHeaders">Flag that indicates that response headers should be injected.</param>
         /// <param name="trackExceptions">Flag that indicates that exceptions should be tracked.</param>
         /// <param name="enableW3CHeaders">Flag that indicates that W3C header parsing should be enabled.</param>
-        /// <param name="enableNewDiagnosticEvents">Flag that indicates that new diagnostic events are supported by AspNetCore</param>
+        /// <param name="enableNewDiagnosticEvents">Flag that indicates that new diagnostic events are supported by AspNetCore.</param>
         public HostingDiagnosticListener(
             TelemetryClient client,
             IApplicationIdProvider applicationIdProvider,
@@ -112,7 +114,7 @@
         /// <param name="injectResponseHeaders">Flag that indicates that response headers should be injected.</param>
         /// <param name="trackExceptions">Flag that indicates that exceptions should be tracked.</param>
         /// <param name="enableW3CHeaders">Flag that indicates that W3C header parsing should be enabled.</param>
-        /// <param name="enableNewDiagnosticEvents">Flag that indicates that new diagnostic events are supported by AspNetCore</param>
+        /// <param name="enableNewDiagnosticEvents">Flag that indicates that new diagnostic events are supported by AspNetCore.</param>
         public HostingDiagnosticListener(
             TelemetryConfiguration configuration,
             TelemetryClient client,
@@ -128,17 +130,17 @@
             this.conditionalAppIdEnabled = this.configuration.EvaluateExperimentalFeature(ConditionalAppIdFeatureFlagName);
         }
 
+        /// <inheritdoc/>
+        public string ListenerName { get; } = "Microsoft.AspNetCore";
+
         /// <inheritdoc />
         public void OnSubscribe()
         {
             SubscriptionManager.Attach(this);
         }
 
-        /// <inheritdoc/>
-        public string ListenerName { get; } = "Microsoft.AspNetCore";
-
         /// <summary>
-        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Mvc.BeforeAction' event
+        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Mvc.BeforeAction' event.
         /// </summary>
         public void OnBeforeAction(HttpContext httpContext, IDictionary<string, object> routeValues)
         {
@@ -154,58 +156,6 @@
                     telemetry.Name = name;
                 }
             }
-        }
-
-        private string GetNameFromRouteContext(IDictionary<string, object> routeValues)
-        {
-            string name = null;
-
-            if (routeValues.Count > 0)
-            {
-                object controller;
-                routeValues.TryGetValue("controller", out controller);
-                string controllerString = (controller == null) ? string.Empty : controller.ToString();
-
-                if (!string.IsNullOrEmpty(controllerString))
-                {
-                    name = controllerString;
-
-                    if (routeValues.TryGetValue("action", out var action) && action != null)
-                    {
-                        name += "/" + action.ToString();
-                    }
-
-                    if (routeValues.Keys.Count > 2)
-                    {
-                        // Add parameters
-                        var sortedKeys = routeValues.Keys
-                            .Where(key =>
-                                !string.Equals(key, "controller", StringComparison.OrdinalIgnoreCase) &&
-                                !string.Equals(key, "action", StringComparison.OrdinalIgnoreCase) &&
-                                !string.Equals(key, "!__route_group", StringComparison.OrdinalIgnoreCase))
-                            .OrderBy(key => key, StringComparer.OrdinalIgnoreCase)
-                            .ToArray();
-
-                        if (sortedKeys.Length > 0)
-                        {
-                            string arguments = string.Join(@"/", sortedKeys);
-                            name += " [" + arguments + "]";
-                        }
-                    }
-                }
-                else
-                {
-                    object page;
-                    routeValues.TryGetValue("page", out page);
-                    string pageString = (page == null) ? string.Empty : page.ToString();
-                    if (!string.IsNullOrEmpty(pageString))
-                    {
-                        name = pageString;
-                    }
-                }
-            }
-
-            return name;
         }
 
         /// <summary>
@@ -239,7 +189,7 @@
                 // 3 posibilities when TelemetryConfiguration.EnableW3CCorrelation = true
                 // 1. No incoming headers. originalParentId will be null. Simply use the Activity as such.
                 // 2. Incoming Request-ID Headers. originalParentId will be request-id, but Activity ignores this for ID calculations.
-                //    If incoming ID is W3C compatible, ignore current Activity. Create new one with parent set to incoming W3C compatible rootid.  
+                //    If incoming ID is W3C compatible, ignore current Activity. Create new one with parent set to incoming W3C compatible rootid.
                 //    If incoming ID is not W3C compatible, we can use Activity as such, but need to store originalParentID in custom property 'legacyRootId'
                 // 3. Incoming TraceParent header. Need to ignore current Activity, and create new from incoming W3C TraceParent header.
 
@@ -262,7 +212,7 @@
                 // Scenario #1. No incoming correlation headers.
                 if (originalParentId == null)
                 {
-                    // Nothing to do here. 
+                    // Nothing to do here.
                 }
                 else if (traceParentPresent)
                 {
@@ -272,19 +222,19 @@
                     newActivity.SetParentId(originalParentId);
 
                     // read and populate tracestate
-                    this.ReadTraceState(httpContext.Request.Headers, newActivity);
+                    ReadTraceState(httpContext.Request.Headers, newActivity);
 
                     // If W3C headers are present then Hosting will not read correlation-context.
                     // SDK needs to do that.
                     // This is in line with what Hosting 3.xx will do.
-                    this.ReadCorrelationContext(httpContext.Request.Headers, newActivity);
+                    ReadCorrelationContext(httpContext.Request.Headers, newActivity);
                 }
                 else
                 {
                     // Scenario #2. RequestID
                     if (currentActivity.IdFormat == ActivityIdFormat.W3C)
                     {
-                        if (this.TryGetW3CCompatibleTraceId(originalParentId, out var traceId))
+                        if (TryGetW3CCompatibleTraceId(originalParentId, out var traceId))
                         {
                             newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
                             newActivity.SetParentId(ActivityTraceId.CreateFromString(traceId), default(ActivitySpanId), ActivityTraceFlags.None);
@@ -297,7 +247,7 @@
                         else
                         {
                             // store rootIdFromOriginalParentId in custom Property
-                            legacyRootId = this.ExtractOperationIdFromRequestId(originalParentId);
+                            legacyRootId = ExtractOperationIdFromRequestId(originalParentId);
                         }
                     }
                 }
@@ -315,57 +265,12 @@
             }
         }
 
-        private string ExtractOperationIdFromRequestId(string originalParentId)
-        {
-            int indexPipe = originalParentId.IndexOf('|');
-            int indexDot = originalParentId.IndexOf('.');
-            if (indexPipe >= 0 && indexDot >= 0)
-            {
-                return originalParentId.Substring(indexPipe + 1, (indexDot - indexPipe) - 1);
-            }
-            else
-            {
-                return originalParentId;
-            }
-        }
-
-        private bool TryGetW3CCompatibleTraceId(string requestId, out ReadOnlySpan<char> result)
-        {
-            if (requestId[0] == '|')
-            {
-                if (requestId.Length > 33 && requestId[33] == '.')
-                {
-                    for (int i = 1; i < 33; i++)
-                    {
-                        if (!char.IsLetterOrDigit(requestId[i]))
-                        {
-                            result = null;
-                            return false;
-                        }
-                    }
-
-                    result = requestId.AsSpan().Slice(1, 32);
-                    return true;
-                }
-                else
-                {
-                    result = null;
-                    return false;
-                }
-            }
-            else
-            {
-                result = null;
-                return false;
-            }
-        }
-
         /// <summary>
         /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.HttpRequestIn.Stop' event. This is from 2.XX runtime.
         /// </summary>
         public void OnHttpRequestInStop(HttpContext httpContext)
         {
-            EndRequest(httpContext, Stopwatch.GetTimestamp());
+            this.EndRequest(httpContext, Stopwatch.GetTimestamp());
         }
 
         /// <summary>
@@ -393,7 +298,7 @@
                 string legacyRootId = null;
 
                 // W3C-TraceParent
-                if (Activity.DefaultIdFormat == ActivityIdFormat.W3C && 
+                if (Activity.DefaultIdFormat == ActivityIdFormat.W3C &&
                     requestHeaders.TryGetValue(W3C.W3CConstants.TraceParentHeader, out StringValues traceParentValues) &&
                     traceParentValues != StringValues.Empty)
                 {
@@ -401,8 +306,8 @@
                     originalParentId = parentTraceParent;
                     activity.SetParentId(originalParentId);
 
-                    this.ReadTraceState(requestHeaders, activity);
-                    this.ReadCorrelationContext(requestHeaders, activity);
+                    ReadTraceState(requestHeaders, activity);
+                    ReadCorrelationContext(requestHeaders, activity);
                 }
 
                 // Request-Id
@@ -412,14 +317,14 @@
                     originalParentId = StringUtilities.EnforceMaxLength(requestIdValues.First(), InjectionGuardConstants.RequestHeaderMaxLength);
                     if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
                     {
-                        if (this.TryGetW3CCompatibleTraceId(originalParentId, out var traceId))
+                        if (TryGetW3CCompatibleTraceId(originalParentId, out var traceId))
                         {
                             activity.SetParentId(ActivityTraceId.CreateFromString(traceId), default(ActivitySpanId), ActivityTraceFlags.None);
                         }
                         else
                         {
                             // store rootIdFromOriginalParentId in custom Property
-                            legacyRootId = this.ExtractOperationIdFromRequestId(originalParentId);
+                            legacyRootId = ExtractOperationIdFromRequestId(originalParentId);
                         }
                     }
                     else
@@ -427,7 +332,7 @@
                         activity.SetParentId(originalParentId);
                     }
 
-                    this.ReadCorrelationContext(requestHeaders, activity);
+                    ReadCorrelationContext(requestHeaders, activity);
                 }
 
                 // no headers
@@ -493,6 +398,256 @@
             this.OnException(httpContext, exception);
         }
 
+        public void Dispose()
+        {
+            SubscriptionManager.Detach(this);
+        }
+
+        public void OnNext(KeyValuePair<string, object> value)
+        {
+            HttpContext httpContext = null;
+            Exception exception = null;
+            long? timestamp = null;
+
+            try
+            {
+                //// Top messages in if-else are the most often used messages.
+                //// It starts with ASP.NET Core 2.0 events, then 1.0 events, then exception events.
+                //// Switch is compiled into GetHashCode() and binary search, if-else without GetHashCode() is faster if 2.0 events are used.
+                if (value.Key == "Microsoft.AspNetCore.Hosting.HttpRequestIn.Start")
+                {
+                    httpContext = this.httpContextFetcherStart.Fetch(value.Value) as HttpContext;
+                    if (httpContext != null)
+                    {
+                        this.OnHttpRequestInStart(httpContext);
+                    }
+                }
+                else if (value.Key == "Microsoft.AspNetCore.Hosting.HttpRequestIn.Stop")
+                {
+                    httpContext = this.httpContextFetcherStop.Fetch(value.Value) as HttpContext;
+                    if (httpContext != null)
+                    {
+                        this.OnHttpRequestInStop(httpContext);
+                    }
+                }
+                else if (value.Key == "Microsoft.AspNetCore.Mvc.BeforeAction")
+                {
+                    var context = this.httpContextFetcherOnBeforeAction.Fetch(value.Value) as HttpContext;
+
+                    // Asp.Net Core 3.0 changed the field name to "RouteData" from "routeData
+                    var routeData = this.routeDataFetcher.Fetch(value.Value);
+                    if (routeData == null)
+                    {
+                        routeData = this.routeDataFetcher30.Fetch(value.Value);
+                    }
+
+                    var routeValues = this.routeValuesFetcher.Fetch(routeData) as IDictionary<string, object>;
+
+                    if (context != null && routeValues != null)
+                    {
+                        this.OnBeforeAction(context, routeValues);
+                    }
+                }
+                else if (value.Key == "Microsoft.AspNetCore.Hosting.BeginRequest")
+                {
+                    httpContext = this.httpContextFetcherBeginRequest.Fetch(value.Value) as HttpContext;
+                    timestamp = this.timestampFetcherBeginRequest.Fetch(value.Value) as long?;
+                    if (httpContext != null && timestamp.HasValue)
+                    {
+                        this.OnBeginRequest(httpContext, timestamp.Value);
+                    }
+                }
+                else if (value.Key == "Microsoft.AspNetCore.Hosting.EndRequest")
+                {
+                    httpContext = this.httpContextFetcherEndRequest.Fetch(value.Value) as HttpContext;
+                    timestamp = this.timestampFetcherEndRequest.Fetch(value.Value) as long?;
+                    if (httpContext != null && timestamp.HasValue)
+                    {
+                        this.OnEndRequest(httpContext, timestamp.Value);
+                    }
+                }
+                else if (value.Key == "Microsoft.AspNetCore.Diagnostics.UnhandledException")
+                {
+                    httpContext = this.httpContextFetcherDiagExceptionUnhandled.Fetch(value.Value) as HttpContext;
+                    exception = this.exceptionFetcherDiagExceptionUnhandled.Fetch(value.Value) as Exception;
+                    if (httpContext != null && exception != null)
+                    {
+                        this.OnDiagnosticsUnhandledException(httpContext, exception);
+                    }
+                }
+                else if (value.Key == "Microsoft.AspNetCore.Diagnostics.HandledException")
+                {
+                    httpContext = this.httpContextFetcherDiagExceptionHandled.Fetch(value.Value) as HttpContext;
+                    exception = this.exceptionFetcherDiagExceptionHandled.Fetch(value.Value) as Exception;
+                    if (httpContext != null && exception != null)
+                    {
+                        this.OnDiagnosticsHandledException(httpContext, exception);
+                    }
+                }
+                else if (value.Key == "Microsoft.AspNetCore.Hosting.UnhandledException")
+                {
+                    httpContext = this.httpContextFetcherHostingExceptionUnhandled.Fetch(value.Value) as HttpContext;
+                    exception = this.exceptionFetcherHostingExceptionUnhandled.Fetch(value.Value) as Exception;
+                    if (httpContext != null && exception != null)
+                    {
+                        this.OnHostingException(httpContext, exception);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                AspNetCoreEventSource.Instance.DiagnosticListenerWarning(value.Key, ex.ToInvariantString());
+            }
+        }
+
+        /// <inheritdoc />
+        public void OnError(Exception error)
+        {
+        }
+
+        /// <inheritdoc />
+        public void OnCompleted()
+        {
+        }
+
+        private static string ExtractOperationIdFromRequestId(string originalParentId)
+        {
+            if (originalParentId[0] == '|')
+            {
+                int indexDot = originalParentId.IndexOf('.');
+                if (indexDot > 1)
+                {
+                    return originalParentId.Substring(1, indexDot - 1);
+                }
+                else
+                {
+                    return originalParentId;
+                }
+            }
+            else
+            {
+                return originalParentId;
+            }
+        }
+
+        private static bool TryGetW3CCompatibleTraceId(string requestId, out ReadOnlySpan<char> result)
+        {
+            if (requestId[0] == '|')
+            {
+                if (requestId.Length > 33 && requestId[33] == '.')
+                {
+                    for (int i = 1; i < 33; i++)
+                    {
+                        if (!char.IsLetterOrDigit(requestId[i]))
+                        {
+                            result = null;
+                            return false;
+                        }
+                    }
+
+                    result = requestId.AsSpan().Slice(1, 32);
+                    return true;
+                }
+                else
+                {
+                    result = null;
+                    return false;
+                }
+            }
+            else
+            {
+                result = null;
+                return false;
+            }
+        }
+
+        private static string FormatTelemetryId(string traceId, string spanId)
+        {
+            return string.Concat("|", traceId, ".", spanId, ".");
+        }
+
+        private static void ReadCorrelationContext(IHeaderDictionary requestHeaders, Activity activity)
+        {
+            string[] baggage = requestHeaders.GetCommaSeparatedValues(RequestResponseHeaders.CorrelationContextHeader);
+            if (baggage != StringValues.Empty && !activity.Baggage.Any())
+            {
+                foreach (var item in baggage)
+                {
+                    var parts = item.Split('=');
+                    if (parts.Length == 2)
+                    {
+                        var itemName = StringUtilities.EnforceMaxLength(parts[0], InjectionGuardConstants.ContextHeaderKeyMaxLength);
+                        var itemValue = StringUtilities.EnforceMaxLength(parts[1], InjectionGuardConstants.ContextHeaderValueMaxLength);
+                        activity.AddBaggage(itemName, itemValue);
+                    }
+                }
+            }
+        }
+
+        private static void ReadTraceState(IHeaderDictionary requestHeaders, Activity activity)
+        {
+            if (requestHeaders.TryGetValue(W3CConstants.TraceStateHeader, out var traceState))
+            {
+                // SDK is not relying on anything from tracestate.
+                // It simply sets activity tracestate, so that outbound calls
+                // make in the request context can continue propogation
+                // of tracestate.
+                activity.TraceStateString = traceState;
+            }
+        }
+
+        private string GetNameFromRouteContext(IDictionary<string, object> routeValues)
+        {
+            string name = null;
+
+            if (routeValues.Count > 0)
+            {
+                object controller;
+                routeValues.TryGetValue("controller", out controller);
+                string controllerString = (controller == null) ? string.Empty : controller.ToString();
+
+                if (!string.IsNullOrEmpty(controllerString))
+                {
+                    name = controllerString;
+
+                    if (routeValues.TryGetValue("action", out var action) && action != null)
+                    {
+                        name += "/" + action.ToString();
+                    }
+
+                    if (routeValues.Keys.Count > 2)
+                    {
+                        // Add parameters
+                        var sortedKeys = routeValues.Keys
+                            .Where(key =>
+                                !string.Equals(key, "controller", StringComparison.OrdinalIgnoreCase) &&
+                                !string.Equals(key, "action", StringComparison.OrdinalIgnoreCase) &&
+                                !string.Equals(key, "!__route_group", StringComparison.OrdinalIgnoreCase))
+                            .OrderBy(key => key, StringComparer.OrdinalIgnoreCase)
+                            .ToArray();
+
+                        if (sortedKeys.Length > 0)
+                        {
+                            string arguments = string.Join(@"/", sortedKeys);
+                            name += " [" + arguments + "]";
+                        }
+                    }
+                }
+                else
+                {
+                    object page;
+                    routeValues.TryGetValue("page", out page);
+                    string pageString = (page == null) ? string.Empty : page.ToString();
+                    if (!string.IsNullOrEmpty(pageString))
+                    {
+                        name = pageString;
+                    }
+                }
+            }
+
+            return name;
+        }
+
         private void AddAppIdToResponseIfRequired(HttpContext httpContext, RequestTelemetry requestTelemetry)
         {
             if (this.conditionalAppIdEnabled)
@@ -509,19 +664,15 @@
             }
         }
 
-        private static string FormatTelemetryId(string traceId, string spanId)
-        {
-            return string.Concat("|", traceId, ".", spanId, ".");
-        }
-
         private RequestTelemetry InitializeRequestTelemetry(HttpContext httpContext, Activity activity, long timestamp, string legacyRootId = null)
         {
             var requestTelemetry = new RequestTelemetry();
 
             if (activity.IdFormat == ActivityIdFormat.W3C)
             {
-                requestTelemetry.Id = FormatTelemetryId(activity.TraceId.ToHexString(), activity.SpanId.ToHexString());
-                requestTelemetry.Context.Operation.Id = activity.TraceId.ToHexString();                
+                var traceId = activity.TraceId.ToHexString();
+                requestTelemetry.Id = FormatTelemetryId(traceId, activity.SpanId.ToHexString());
+                requestTelemetry.Context.Operation.Id = traceId;
             }
             else
             {
@@ -558,7 +709,7 @@
             }
 
             this.client.InitializeInstrumentationKey(requestTelemetry);
-            requestTelemetry.Source = GetAppIdFromRequestHeader(httpContext.Request.Headers, requestTelemetry.Context.InstrumentationKey);
+            requestTelemetry.Source = this.GetAppIdFromRequestHeader(httpContext.Request.Headers, requestTelemetry.Context.InstrumentationKey);
 
             requestTelemetry.Start(timestamp);
             httpContext.Features.Set(requestTelemetry);
@@ -612,7 +763,8 @@
                         }
                     }
 
-                    HttpHeadersUtilities.SetRequestContextKeyValue(responseHeaders, 
+                    HttpHeadersUtilities.SetRequestContextKeyValue(
+                        responseHeaders,
                         RequestResponseHeaders.RequestContextTargetKey, this.lastAppIdUsed);
                 }
             }
@@ -667,7 +819,7 @@
                 this.client.TrackRequest(telemetry);
 
                 // Stop what we started.
-                var activity = Activity.Current; 
+                var activity = Activity.Current;
                 if (activity != null && activity.OperationName == ActivityCreatedByHostingDiagnosticListener)
                 {
                     activity.Stop();
@@ -701,148 +853,5 @@
                 this.client.Track(exceptionTelemetry);
             }
         }
-
-        private void ReadCorrelationContext(IHeaderDictionary requestHeaders, Activity activity)
-        {
-            string[] baggage = requestHeaders.GetCommaSeparatedValues(RequestResponseHeaders.CorrelationContextHeader);
-            if (baggage != StringValues.Empty && !activity.Baggage.Any())
-            {
-                foreach (var item in baggage)
-                {
-                    var parts = item.Split('=');
-                    if (parts.Length == 2)
-                    {
-                        var itemName = StringUtilities.EnforceMaxLength(parts[0], InjectionGuardConstants.ContextHeaderKeyMaxLength);
-                        var itemValue = StringUtilities.EnforceMaxLength(parts[1], InjectionGuardConstants.ContextHeaderValueMaxLength);
-                        activity.AddBaggage(itemName, itemValue);
-                    }
-                }
-            }
-        }
-
-        private void ReadTraceState(IHeaderDictionary requestHeaders, Activity activity)
-        {
-            if (requestHeaders.TryGetValue(W3CConstants.TraceStateHeader, out var traceState))
-            {
-                // SDK is not relying on anything from tracestate.
-                // It simply sets activity tracestate, so that outbound calls
-                // make in the request context can continue propogation
-                // of tracestate.
-                activity.TraceStateString = traceState;
-            }
-        }
-
-        public void Dispose()
-        {
-            SubscriptionManager.Detach(this);
-        }
-
-        public void OnNext(KeyValuePair<string, object> value)
-        {
-            HttpContext httpContext = null;
-            Exception exception = null;
-            long? timestamp = null;
-
-            try
-            {
-                //// Top messages in if-else are the most often used messages.
-                //// It starts with ASP.NET Core 2.0 events, then 1.0 events, then exception events.
-                //// Switch is compiled into GetHashCode() and binary search, if-else without GetHashCode() is faster if 2.0 events are used.
-                if (value.Key == "Microsoft.AspNetCore.Hosting.HttpRequestIn.Start")
-                {
-                    httpContext = this.httpContextFetcherStart.Fetch(value.Value) as HttpContext;
-                    if (httpContext != null)
-                    {
-                        this.OnHttpRequestInStart(httpContext);
-                    }
-                }
-                else if (value.Key == "Microsoft.AspNetCore.Hosting.HttpRequestIn.Stop")
-                {
-                    httpContext = this.httpContextFetcherStop.Fetch(value.Value) as HttpContext;
-                    if (httpContext != null)
-                    {
-                        this.OnHttpRequestInStop(httpContext);
-                    }
-                }
-                else if (value.Key == "Microsoft.AspNetCore.Mvc.BeforeAction")
-                {
-                    var context = this.httpContextFetcherOnBeforeAction.Fetch(value.Value) as HttpContext;
-                    
-                    // Asp.Net Core 3.0 changed the field name to "RouteData" from "routeData
-                    var routeData = this.routeDataFetcher.Fetch(value.Value);
-                    if (routeData == null)
-                    {
-                        routeData = this.routeDataFetcher30.Fetch(value.Value);
-                    }
-
-                    var routeValues = this.routeValuesFetcher.Fetch(routeData) as IDictionary<string, object>;
-
-                    if (context != null && routeValues != null)
-                    {
-                        this.OnBeforeAction(context, routeValues);
-                    }
-
-                }
-                else if (value.Key == "Microsoft.AspNetCore.Hosting.BeginRequest")
-                {
-                    httpContext = this.httpContextFetcherBeginRequest.Fetch(value.Value) as HttpContext;
-                    timestamp = this.timestampFetcherBeginRequest.Fetch(value.Value) as long?;
-                    if (httpContext != null && timestamp.HasValue)
-                    {
-                        this.OnBeginRequest(httpContext, timestamp.Value);
-                    }
-                }
-                else if (value.Key == "Microsoft.AspNetCore.Hosting.EndRequest")
-                {
-                    httpContext = this.httpContextFetcherEndRequest.Fetch(value.Value) as HttpContext;
-                    timestamp = this.timestampFetcherEndRequest.Fetch(value.Value) as long?;
-                    if (httpContext != null && timestamp.HasValue)
-                    {
-                        this.OnEndRequest(httpContext, timestamp.Value);
-                    }
-                }
-                else if (value.Key == "Microsoft.AspNetCore.Diagnostics.UnhandledException")
-                {
-                    httpContext = this.httpContextFetcherDiagExceptionUnhandled.Fetch(value.Value) as HttpContext;
-                    exception = this.exceptionFetcherDiagExceptionUnhandled.Fetch(value.Value) as Exception;
-                    if (httpContext != null && exception != null)
-                    {
-                        this.OnDiagnosticsUnhandledException(httpContext, exception);
-                    }
-                }
-                else if (value.Key == "Microsoft.AspNetCore.Diagnostics.HandledException")
-                {
-                    httpContext = this.httpContextFetcherDiagExceptionHandled.Fetch(value.Value) as HttpContext;
-                    exception = this.exceptionFetcherDiagExceptionHandled.Fetch(value.Value) as Exception;
-                    if (httpContext != null && exception != null)
-                    {
-                        this.OnDiagnosticsHandledException(httpContext, exception);
-                    }
-                }
-                else if (value.Key == "Microsoft.AspNetCore.Hosting.UnhandledException")
-                {
-                    httpContext = this.httpContextFetcherHostingExceptionUnhandled.Fetch(value.Value) as HttpContext;
-                    exception = this.exceptionFetcherHostingExceptionUnhandled.Fetch(value.Value) as Exception;
-                    if (httpContext != null && exception != null)
-                    {
-                        this.OnHostingException(httpContext, exception);
-                    }
-                }
-            } catch (Exception ex)
-            {
-                AspNetCoreEventSource.Instance.DiagnosticListenerWarning(value.Key, ex.ToInvariantString());
-            }
-        }
-
-        /// <inheritdoc />
-        public void OnError(Exception error)
-        {
-        }
-
-        /// <inheritdoc />
-        public void OnCompleted()
-        {
-        }
-
     }
 }
