@@ -31,7 +31,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestTrackingTelemetryModule"/> class.
         /// </summary>
-        public RequestTrackingTelemetryModule() 
+        public RequestTrackingTelemetryModule()
             : this(null)
         {
             this.CollectionOptions = new RequestCollectionOptions();

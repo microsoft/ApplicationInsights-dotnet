@@ -193,7 +193,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         {
             this.WriteEvent(17, errorMessage, this.ApplicationName);
         }
-
+        
         /// <summary>
         /// Logs an event when a telemetry item is sampled out at head.
         /// </summary>
@@ -205,6 +205,42 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         public void TelemetryItemWasSampledOutAtHead(string operationId, string appDomainName = "Incorrect")
         {
             this.WriteEvent(18, operationId, this.ApplicationName);
+        }
+
+        /// <summary>
+        /// Logs an informational event from Hosting listeners.
+        /// </summary>
+        [Event(
+            19,
+            Message = "Hosting Major Version: '{0}'. Informational Message: '{1}'.",
+            Level = EventLevel.Informational)]
+        public void HostingListenerInformational(string hostingVersion, string message, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(19, hostingVersion, message, this.ApplicationName);
+        }
+
+        /// <summary>
+        /// Logs a verbose event.
+        /// </summary>
+        [Event(
+            20,
+            Message = "Message: '{0}'.",
+            Level = EventLevel.Verbose)]
+        public void HostingListenerVerboe(string message, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(20, message, this.ApplicationName);
+        }
+
+        /// <summary>
+        /// Logs an event for RequestTelemetry created.
+        /// </summary>
+        [Event(
+            21,
+            Message = "RequestTelemetry created. CorrelationFormat: '{0}', RequestID: '{1}', OperationId : '{2}' ",
+            Level = EventLevel.Informational)]
+        public void RequestTelemetryCreated(string correlationFormat, string requestId, string requestOperationId, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(21, correlationFormat, requestId, requestOperationId, this.ApplicationName);
         }
 
         /// <summary>

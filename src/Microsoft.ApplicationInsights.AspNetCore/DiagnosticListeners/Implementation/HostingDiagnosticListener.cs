@@ -207,12 +207,14 @@
                         InjectionGuardConstants.TraceParentHeaderMaxLength);
                     originalParentId = parentTraceParent;
                     traceParentPresent = true;
+                    AspNetCoreEventSource.Instance.HostingListenerInformational("2", "Retrieved trace parent from headers.");
                 }
 
                 // Scenario #1. No incoming correlation headers.
                 if (originalParentId == null)
                 {
                     // Nothing to do here.
+                    AspNetCoreEventSource.Instance.HostingListenerInformational("2", "OriginalParentId is null.");
                 }
                 else if (traceParentPresent)
                 {
@@ -220,6 +222,7 @@
                     // We need to ignore the Activity created by Hosting, as it did not take W3CTraceParent into consideration.
                     newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
                     newActivity.SetParentId(originalParentId);
+                    AspNetCoreEventSource.Instance.HostingListenerInformational("2", "Ignoring original Activity from Hosting to create new one using traceparent header retrieved by sdk.");
 
                     // read and populate tracestate
                     ReadTraceState(httpContext.Request.Headers, newActivity);
@@ -238,6 +241,7 @@
                         {
                             newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
                             newActivity.SetParentId(ActivityTraceId.CreateFromString(traceId), default(ActivitySpanId), ActivityTraceFlags.None);
+                            AspNetCoreEventSource.Instance.HostingListenerInformational("2", "Ignoring original Activity from Hosting to create new one using w3c compatible request-id.");
 
                             foreach (var bag in currentActivity.Baggage)
                             {
@@ -248,6 +252,7 @@
                         {
                             // store rootIdFromOriginalParentId in custom Property
                             legacyRootId = ExtractOperationIdFromRequestId(originalParentId);
+                            AspNetCoreEventSource.Instance.HostingListenerInformational("2", "Incoming Request-ID is not W3C Compatible, and hence will be ignored for ID generation, but stored in custom property legacy_rootID.");
                         }
                     }
                 }
@@ -581,6 +586,8 @@
                         activity.AddBaggage(itemName, itemValue);
                     }
                 }
+
+                AspNetCoreEventSource.Instance.HostingListenerVerboe("Correlation-Context retrived from header and stored into activity baggage.");
             }
         }
 
@@ -593,6 +600,7 @@
                 // make in the request context can continue propogation
                 // of tracestate.
                 activity.TraceStateString = traceState;
+                AspNetCoreEventSource.Instance.HostingListenerVerboe("TraceState retrived from header and stored into activity.TraceState");
             }
         }
 
@@ -673,11 +681,13 @@
                 var traceId = activity.TraceId.ToHexString();
                 requestTelemetry.Id = FormatTelemetryId(traceId, activity.SpanId.ToHexString());
                 requestTelemetry.Context.Operation.Id = traceId;
+                AspNetCoreEventSource.Instance.RequestTelemetryCreated("W3C", requestTelemetry.Id, traceId);
             }
             else
             {
                 requestTelemetry.Context.Operation.Id = activity.RootId;
                 requestTelemetry.Id = activity.Id;
+                AspNetCoreEventSource.Instance.RequestTelemetryCreated("Hierrarchical", requestTelemetry.Id, requestTelemetry.Context.Operation.Id);
             }
 
             if (this.proactiveSamplingEnabled
