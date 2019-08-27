@@ -68,7 +68,7 @@ namespace MVCFramework.FunctionalTests.FunctionalTest
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Re-Enable once DependencyTrackingModule is updated to latest DiagnosticSource.")]
         public void TestMixedTelemetryItemsReceived()
         {
             InProcessServer server;
