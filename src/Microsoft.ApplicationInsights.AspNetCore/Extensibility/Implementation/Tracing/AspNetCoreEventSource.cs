@@ -156,11 +156,11 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         [Event(
             16,
             Keywords = Keywords.Diagnostics,
-            Message = "An error has occured in DiagnosticSource listener. Listener: '{0}' Callback: '{1}'. Error message: '{2}' ",
+            Message = "An error has occured in DiagnosticSource listener. Callback: '{0}'. Error message: '{1}' ",
             Level = EventLevel.Warning)]
-        public void DiagnosticListenerWarning(string listener, string callback, string errorMessage, string appDomainName = "Incorrect")
+        public void DiagnosticListenerWarning(string callback, string errorMessage, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(16, listener, callback, errorMessage, this.ApplicationName);
+            this.WriteEvent(16, callback, errorMessage, this.ApplicationName);
         }
 
         [Event(
