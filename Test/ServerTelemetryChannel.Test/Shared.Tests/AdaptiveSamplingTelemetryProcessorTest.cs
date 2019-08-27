@@ -215,16 +215,8 @@
         public void SamplingPercentageAdjustsAccordingToConstantHighProductionRate()
         {
             var sentTelemetry = new List<ITelemetry>();
+            int itemsProduced = 0;
 
-            // more is better as it increases test stability
-            int beforeSamplingRate = 80;
-            int afterSamplingRate = 5;
-            int testDurationSec = 30;
-
-            // we'll ignore telemetry reported during first few percentage evaluations
-            int warmUpInSec = 12;
-
-            var sw = Stopwatch.StartNew();
             using (var tc = new TelemetryConfiguration() { TelemetryChannel = new StubTelemetryChannel() })
             {
                 var chainBuilder = new TelemetryProcessorChainBuilder(tc);
@@ -234,55 +226,54 @@
                     .UseAdaptiveSampling(
                         new Channel.Implementation.SamplingPercentageEstimatorSettings()
                         {
-                            MaxTelemetryItemsPerSecond = afterSamplingRate,
-                            EvaluationInterval = TimeSpan.FromSeconds(2),
-                            SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(4),
-                            SamplingPercentageIncreaseTimeout = TimeSpan.FromSeconds(4),
+                            EvaluationInterval = TimeSpan.FromSeconds(1),
+                            SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(2),
+                            SamplingPercentageIncreaseTimeout = TimeSpan.FromSeconds(2),
                         },
                         this.TraceSamplingPercentageEvaluation)
                     .Use((next) => new StubTelemetryProcessor(next) { OnProcess = (t) => sentTelemetry.Add(t) });
 
                 chainBuilder.Build();
 
+                const int productionFrequencyMs = 100;
+
                 var productionTimer = new Timer(
                     (state) =>
                     {
-                        bool ignored = ((Stopwatch)state).Elapsed.TotalSeconds < warmUpInSec;
-                        for (int i = 0; i < beforeSamplingRate; i++)
+                        for (int i = 0; i < 2; i++)
                         {
-                            var request = new RequestTelemetry();
-                            if (ignored)
-                            {
-                                request.Properties["ignore"] ="true";
-                            }
-                            tc.TelemetryProcessorChain.Process(request);
+                            tc.TelemetryProcessorChain.Process(new RequestTelemetry());
+                            itemsProduced++;
                         }
                     },
-                    sw,
+                    null,
                     0,
-                    1000);
+                    productionFrequencyMs);
 
-                Thread.Sleep(TimeSpan.FromSeconds(testDurationSec + warmUpInSec));
-                
+                Thread.Sleep(25000);
+
                 // dispose timer and wait for callbacks to complete
                 DisposeTimer(productionTimer);
             }
 
             // number of items produced should be close to target of 5/second
-            int targetItemCount = testDurationSec * afterSamplingRate;
+            int targetItemCount = 25 * 5;
 
-            // tolerance +- 30%
-            double tolerance = 0.3;
+            // tolrance +-
+            int tolerance = targetItemCount / 2;
 
-            var notIgnoredSent = sentTelemetry.Where(i => i is ISupportProperties propItem && !propItem.Properties.ContainsKey("ignore")).ToArray();
+            Trace.WriteLine(string.Format("'Ideal' telemetry item count: {0}", targetItemCount));
+            Trace.WriteLine(string.Format(
+                "Expected range: from {0} to {1}",
+                targetItemCount - tolerance,
+                targetItemCount + tolerance));
+            Trace.WriteLine(string.Format(
+                "Actual telemetry item count: {0} ({1:##.##}% of ideal)",
+                sentTelemetry.Count,
+                100.0 * sentTelemetry.Count / targetItemCount));
 
-            Trace.WriteLine($"'Ideal' telemetry item count: {targetItemCount}");
-            Trace.WriteLine($"Expected range: from {targetItemCount - tolerance * targetItemCount} to {targetItemCount + tolerance * targetItemCount}");
-            Trace.WriteLine(
-                $"Actual telemetry item count: {notIgnoredSent.Length} ({100.0 * notIgnoredSent.Length / targetItemCount:##.##}% of ideal)");
-
-            Assert.IsTrue(notIgnoredSent.Length > targetItemCount - tolerance * targetItemCount);
-            Assert.IsTrue(notIgnoredSent.Length < targetItemCount + tolerance * targetItemCount);
+            Assert.IsTrue(sentTelemetry.Count > targetItemCount - tolerance);
+            Assert.IsTrue(sentTelemetry.Count < targetItemCount + tolerance);
         }
 
         [TestMethod]
