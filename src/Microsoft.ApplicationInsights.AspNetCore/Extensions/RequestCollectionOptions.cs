@@ -6,7 +6,8 @@
     public class RequestCollectionOptions
     {
         /// <summary>
-        /// Creates new instance of <see cref="RequestCollectionOptions"/> class and fills default values.
+        /// Initializes a new instance of the <see cref="RequestCollectionOptions"/> class
+        /// and populates default values.
         /// </summary>
         public RequestCollectionOptions()
         {
@@ -19,21 +20,23 @@
 #else
             this.TrackExceptions = true;
 #endif
-            this.EnableW3CDistributedTracing = false;
+            this.EnableW3CDistributedTracing = true;
         }
 
         /// <summary>
-        /// Get or sets value indicating whether Request-Context header is injected into the response.
+        /// Gets or sets a value indicating whether Request-Context header is injected into the response.
         /// </summary>
         public bool InjectResponseHeaders { get; set; }
 
         /// <summary>
-        /// Get or sets value indicating whether exceptions are be tracked.
+        /// Gets or sets a value indicating whether exceptions are be tracked by the RequestCOllectionModule.
+        /// Exceptions could be tracked by ApplicationInsightsLoggerProvider as well which is not affected by
+        /// this setting.
         /// </summary>
         public bool TrackExceptions { get; set; }
 
         /// <summary>
-        /// Get or sets value indicating whether W3C distributed tracing standard is enabled.
+        /// Gets or sets a value indicating whether W3C distributed tracing standard is enabled.
         /// </summary>
         public bool EnableW3CDistributedTracing { get; set; }
     }
