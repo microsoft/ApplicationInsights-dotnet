@@ -755,14 +755,19 @@
             else if (value.Key == "Microsoft.AspNetCore.Mvc.BeforeAction")
             {
                 var context = this.httpContextFetcherOnBeforeAction.Fetch(value.Value) as HttpContext;
-                var routeData = this.routeDataFetcher.Fetch(value.Value);
-                var routeValues = this.routeValuesFetcher.Fetch(routeData) as IDictionary<string, object>;
-
-                if (context != null && routeValues != null)
+                if (context != null)
                 {
-                    this.OnBeforeAction(context, routeValues);
-                }
+                    var routeData = this.routeDataFetcher.Fetch(value.Value);
+                    if (routeData != null)
+                    {
+                        var routeValues = this.routeValuesFetcher.Fetch(routeData) as IDictionary<string, object>;
 
+                        if (routeValues != null)
+                        {
+                            this.OnBeforeAction(context, routeValues);
+                        }
+                    }
+                }
             }
             else if (value.Key == "Microsoft.AspNetCore.Hosting.BeginRequest")
             {
