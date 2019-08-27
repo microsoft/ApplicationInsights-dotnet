@@ -50,12 +50,11 @@
         /// Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical
         /// Activity.ForceDefaultIdFormat = true.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
         static TelemetryConfiguration()
         {
             ActivityExtensions.TryRun(() =>
             {
-                if (Activity.ForceDefaultIdFormat == false)
+                if (!Activity.ForceDefaultIdFormat)
                 {
                     Activity.DefaultIdFormat = ActivityIdFormat.W3C;
                     Activity.ForceDefaultIdFormat = true;
