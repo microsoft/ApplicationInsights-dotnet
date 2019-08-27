@@ -16,29 +16,23 @@
     {
         #region W3C
         [TestMethod]
-        public void TelemetryConfigurationConstructorSetsW3CToTrueByDefault()
+        public void TelemetryConfigurationStaticConstructorSetsW3CToTrueIfNotEnforced()
         {
-            var tc = new TelemetryConfiguration();
-            Assert.IsTrue(tc.EnableW3CCorrelation);
+            try
+            {
+                // Accessing TelemetryConfiguration trigger static constructor
+                var tc = new TelemetryConfiguration();
+
+                Assert.IsTrue(Activity.ForceDefaultIdFormat);
+                Assert.AreEqual(ActivityIdFormat.W3C, Activity.DefaultIdFormat);
+            }
+            finally
+            {
+                Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+                Activity.ForceDefaultIdFormat = false;
+            }
         }
 
-        [TestMethod]
-        public void TelemetryConfigurationEnableW3CCorrelationSetsActivityDefaultFormatToW3C()
-        {
-            var tc = new TelemetryConfiguration();
-            tc.EnableW3CCorrelation = true;
-            Assert.AreEqual(ActivityIdFormat.W3C, Activity.DefaultIdFormat);
-        }
-
-        [TestMethod]
-        public void TelemetryConfigurationDisableW3CCorrelationRestoresActivityDefaultFormat()
-        {
-            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
-            var tc = new TelemetryConfiguration();
-            // DisablingW3C should reset default id format to Hierrachical
-            tc.EnableW3CCorrelation = false;
-            Assert.AreEqual(ActivityIdFormat.Hierarchical, Activity.DefaultIdFormat);
-        }
         #endregion
 
         [TestMethod]

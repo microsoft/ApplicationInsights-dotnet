@@ -1,5 +1,3 @@
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.EnableW3CCorrelation.set -> void
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.EnableW3CCorrelation.get -> bool
 Microsoft.ApplicationInsights.Extensibility.W3C.W3CUtilities
 static Microsoft.ApplicationInsights.Extensibility.W3C.W3CUtilities.GenerateTraceId() -> string
 Microsoft.ApplicationInsights.Extensibility.W3C.W3COperationCorrelationTelemetryInitializer
