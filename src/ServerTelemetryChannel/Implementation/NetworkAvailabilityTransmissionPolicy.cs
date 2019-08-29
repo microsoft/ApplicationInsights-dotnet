@@ -98,6 +98,10 @@
             {
                 TelemetryChannelEventSource.Log.SubscribeToNetworkFailureWarning(nie.ToString());
             }
+            catch (Exception ex)
+            {
+                TelemetryChannelEventSource.Log.SubscribeToNetworkFailureWarning(ex.ToString());
+            }
 
             return result;
         }
