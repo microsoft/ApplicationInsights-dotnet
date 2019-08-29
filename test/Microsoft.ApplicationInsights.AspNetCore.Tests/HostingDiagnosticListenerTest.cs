@@ -1,13 +1,15 @@
-﻿namespace Microsoft.ApplicationInsights.AspNetCore.Tests
+﻿namespace UnitTests
 {
     using System;
     using System.Collections.Concurrent;
+    using System.ComponentModel;
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
+    using Microsoft.ApplicationInsights.AspNetCore.Tests;
     using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Common;
@@ -79,7 +81,6 @@
         }
 
         private ConcurrentQueue<ITelemetry> sentTelemetry = new ConcurrentQueue<ITelemetry>();
-        private ActiveSubsciptionManager subscriptionManager; 
 
         private HostingDiagnosticListener CreateHostingListener(AspNetCoreMajorVersion aspNetCoreMajorVersion, TelemetryConfiguration config = null, bool isW3C = true)
         {
@@ -93,7 +94,7 @@
                     injectResponseHeaders: true,
                     trackExceptions: true,
                     enableW3CHeaders: false,
-                    enableNewDiagnosticEvents: (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two));
+                    aspNetCoreMajorVersion: GetAspNetCoreMajorVersion(aspNetCoreMajorVersion));
             }
             else
             {
@@ -103,7 +104,7 @@
                     injectResponseHeaders: true,
                     trackExceptions: true,
                     enableW3CHeaders: false,
-                    enableNewDiagnosticEvents: (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two));
+                    aspNetCoreMajorVersion: GetAspNetCoreMajorVersion(aspNetCoreMajorVersion));
             }
 
             hostingListener.OnSubscribe();
@@ -113,6 +114,7 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
+        [InlineData(AspNetCoreMajorVersion.Three)]
         public void TestConditionalAppIdFlagIsRespected(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
@@ -150,6 +152,7 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
+        [InlineData(AspNetCoreMajorVersion.Three)]
         public void TestSdkVersionIsPopulatedByMiddleware(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
@@ -179,6 +182,7 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
+        [InlineData(AspNetCoreMajorVersion.Three)]
         public void TestRequestUriIsPopulatedByMiddleware(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, HttpRequestPath, HttpRequestQueryString);
@@ -210,6 +214,7 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
+        [InlineData(AspNetCoreMajorVersion.Three)]
         public void RequestWillBeMarkedAsFailedForRunawayException(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
@@ -244,8 +249,10 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One,true)]
         [InlineData(AspNetCoreMajorVersion.Two,true)]
+        [InlineData(AspNetCoreMajorVersion.Three, true)]
         [InlineData(AspNetCoreMajorVersion.One, false)]
         [InlineData(AspNetCoreMajorVersion.Two, false)]
+        [InlineData(AspNetCoreMajorVersion.Three, false)]
         public void RequestWithNoHeadersCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
         {
             // Tests Request correlation when incoming request has no correlation headers.
@@ -277,8 +284,10 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One, true)]
         [InlineData(AspNetCoreMajorVersion.Two, true)]
+        [InlineData(AspNetCoreMajorVersion.Three, true)]
         [InlineData(AspNetCoreMajorVersion.One, false)]
         [InlineData(AspNetCoreMajorVersion.Two, false)]
+        [InlineData(AspNetCoreMajorVersion.Three, false)]
         public void RequestWithW3CCompatibleRequestIdCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
         {
             // Tests Request correlation when incoming request has only Request-ID headers.
@@ -294,6 +303,20 @@
 
                 var activity = Activity.Current;
                 Assert.NotNull(activity);
+                if(aspNetCoreMajorVersion == AspNetCoreMajorVersion.One)
+                {
+                    Assert.Equal(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
+                }
+                else
+                {
+                    // Hosting in 2,3 creates Activity which are ignored by SDK in W3C Mode to use the w3c compatbile traceid from Request-Id
+                    // Validate that activity is the one created by SDK HostingListener
+                    if (IsW3C)
+                    {
+                        Assert.Equal(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
+                    }
+                }
+
                 Assert.Single(activity.Baggage.Where(b => b.Key == "prop1" && b.Value == "value1"));
                 Assert.Single(activity.Baggage.Where(b => b.Key == "prop2" && b.Value == "value2"));
 
@@ -313,8 +336,10 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One, true)]
         [InlineData(AspNetCoreMajorVersion.Two, true)]
+        [InlineData(AspNetCoreMajorVersion.Three, true)]
         [InlineData(AspNetCoreMajorVersion.One, false)]
         [InlineData(AspNetCoreMajorVersion.Two, false)]
+        [InlineData(AspNetCoreMajorVersion.Three, false)]
         public void RequestWithNonW3CCompatibleRequestIdCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
         {
             // Tests Request correlation when incoming request has only Request-ID headers and is not compatible w3c trace id
@@ -330,6 +355,18 @@
 
                 var activity = Activity.Current;
                 Assert.NotNull(activity);
+                if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.One)
+                {
+                    Assert.Equal(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
+                }
+                else
+                {
+                    // Hosting in 2,3 creates Activity ignoring the request-id. The request-id is not w3c compatible
+                    // hence SDK also ignores them, and just uses Activity from Hosting. 
+                    // Validate that activity is Not created by SDK Hosting
+                    Assert.NotEqual(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
+                }
+
                 Assert.Single(activity.Baggage.Where(b => b.Key == "prop1" && b.Value == "value1"));
                 Assert.Single(activity.Baggage.Where(b => b.Key == "prop2" && b.Value == "value2"));
 
@@ -359,8 +396,10 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One, true)]
         [InlineData(AspNetCoreMajorVersion.Two, true)]
+        [InlineData(AspNetCoreMajorVersion.Three, true)]
         [InlineData(AspNetCoreMajorVersion.One, false)]
         [InlineData(AspNetCoreMajorVersion.Two, false)]
+        [InlineData(AspNetCoreMajorVersion.Three, false)]
         public void RequestWithNonW3CCompatibleNonHierrchicalRequestIdCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
         {
             // Tests Request correlation when incoming request has only Request-ID headers and is not compatible w3c trace id and not a hierrachical id either.
@@ -376,6 +415,17 @@
 
                 var activity = Activity.Current;
                 Assert.NotNull(activity);
+                if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.One)
+                {
+                    Assert.Equal(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
+                }
+                else
+                {
+                    // Hosting in 2,3 creates Activity ignoring the request-id. The request-id is not w3c compatible
+                    // hence SDK also ignores them, and just uses Activity from Hosting. 
+                    // Validate that activity is Not created by SDK Hosting
+                    Assert.NotEqual(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
+                }
                 Assert.Single(activity.Baggage.Where(b => b.Key == "prop1" && b.Value == "value1"));
                 Assert.Single(activity.Baggage.Where(b => b.Key == "prop2" && b.Value == "value2"));
 
@@ -405,16 +455,18 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One, true)]
         [InlineData(AspNetCoreMajorVersion.Two, true)]
+        [InlineData(AspNetCoreMajorVersion.Three, true)]
         [InlineData(AspNetCoreMajorVersion.One, false)]
         [InlineData(AspNetCoreMajorVersion.Two, false)]
+        [InlineData(AspNetCoreMajorVersion.Three, false)]
         public void RequestWithW3CTraceParentCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
         {
             // Tests Request correlation when incoming request has only Request-ID headers.
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
             // Trace Parent
             var traceParent = "00-4e3083444c10254ba40513c7316332eb-e2a5f830c0ee2c46-00";
-            context.Request.Headers[W3C.W3CConstants.TraceParentHeader] = traceParent;
-            context.Request.Headers[W3C.W3CConstants.TraceStateHeader] = "w3cprop1=value1, w3cprop2=value2";
+            context.Request.Headers[Microsoft.ApplicationInsights.W3C.W3CConstants.TraceParentHeader] = traceParent;
+            context.Request.Headers[Microsoft.ApplicationInsights.W3C.W3CConstants.TraceStateHeader] = "w3cprop1=value1, w3cprop2=value2";
             context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "prop1=value1, prop2=value2";
 
             using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion, isW3C: IsW3C))
@@ -422,6 +474,20 @@
                 HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
                 var activity = Activity.Current;
                 Assert.NotNull(activity);
+
+                if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.One)
+                {
+                    Assert.Equal(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
+                }
+                else if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two && IsW3C)
+                {
+                    Assert.Equal(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
+                }
+                else if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Three)
+                {
+                        // in W3C Mode, SDK Hosting simply uses Activity from Hosting. Validate the same.
+                        Assert.NotEqual(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
+                }
 
                 if (IsW3C)
                 {
@@ -452,16 +518,18 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One, true)]
         [InlineData(AspNetCoreMajorVersion.Two, true)]
+        [InlineData(AspNetCoreMajorVersion.Three, true)]
         [InlineData(AspNetCoreMajorVersion.One, false)]
         [InlineData(AspNetCoreMajorVersion.Two, false)]
+        [InlineData(AspNetCoreMajorVersion.Three, false)]
         public void RequestWithW3CTraceParentButInvalidEntryCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
         {
             // Tests Request correlation when incoming request has only Request-ID headers.
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
             // Trace Parent which does not follow w3c spec.
             var traceParent = "004e3083444c10254ba40513c7316332eb-e2a5f830c0ee2c4600";
-            context.Request.Headers[W3C.W3CConstants.TraceParentHeader] = traceParent;
-            context.Request.Headers[W3C.W3CConstants.TraceStateHeader] = "prop1=value1, prop2=value2";
+            context.Request.Headers[Microsoft.ApplicationInsights.W3C.W3CConstants.TraceParentHeader] = traceParent;
+            context.Request.Headers[Microsoft.ApplicationInsights.W3C.W3CConstants.TraceStateHeader] = "prop1=value1, prop2=value2";
 
             using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion, isW3C: IsW3C))
             {
@@ -497,15 +565,17 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One, true)]
         [InlineData(AspNetCoreMajorVersion.Two, true)]
+        [InlineData(AspNetCoreMajorVersion.Three, true)]
         [InlineData(AspNetCoreMajorVersion.One, false)]
         [InlineData(AspNetCoreMajorVersion.Two, false)]
+        // Commenting out unsupported scenario. We may support this in future. [InlineData(AspNetCoreMajorVersion.Three, false)]
         public void RequestWithBothW3CAndRequestIdCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
         {
             // Tests Request correlation when incoming request has both W3C TraceParent and Request-ID headers,
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
             // Trace Parent
             var traceParent = "00-4e3083444c10254ba40513c7316332eb-e2a5f830c0ee2c46-00";
-            context.Request.Headers[W3C.W3CConstants.TraceParentHeader] = traceParent;
+            context.Request.Headers[Microsoft.ApplicationInsights.W3C.W3CConstants.TraceParentHeader] = traceParent;
 
             // And Request ID
             var requestId = "|40d1a5a08a68c0998e4a3b7c91915ca6.b9e41c35_1.";
@@ -584,6 +654,7 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
+        [InlineData(AspNetCoreMajorVersion.Three)]
         public void OnEndRequestSetsRequestNameToMethodAndPathForPostRequest(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
@@ -615,6 +686,7 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
+        [InlineData(AspNetCoreMajorVersion.Three)]
         public void OnEndRequestSetsRequestNameToMethodAndPath(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "GET");
@@ -645,6 +717,7 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
+        [InlineData(AspNetCoreMajorVersion.Three)]
         public void OnEndRequestFromSameInstrumentationKey(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "GET");
@@ -677,6 +750,7 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
+        [InlineData(AspNetCoreMajorVersion.Three)]
         public void OnEndRequestFromDifferentInstrumentationKey(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "GET");
@@ -710,6 +784,7 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
+        [InlineData(AspNetCoreMajorVersion.Three)]
         public async void SimultaneousRequestsGetDifferentIds(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             var context1 = new DefaultHttpContext();
@@ -815,6 +890,7 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
+        [InlineData(AspNetCoreMajorVersion.Three)]
         public void SetsSourceProvidedInHeaders(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
@@ -836,6 +912,7 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
+        [InlineData(AspNetCoreMajorVersion.Three)]
         public void ResponseHeadersAreNotInjectedWhenDisabled(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
@@ -846,7 +923,7 @@
                 injectResponseHeaders: false,
                 trackExceptions: true,
                 enableW3CHeaders: false,
-                enableNewDiagnosticEvents: (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two)))
+                aspNetCoreMajorVersion: GetAspNetCoreMajorVersion(aspNetCoreMajorVersion)))
             {
                 noHeadersMiddleware.OnSubscribe();
 
@@ -864,6 +941,7 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
+        [InlineData(AspNetCoreMajorVersion.Three)]
         public void ExceptionsAreNotTrackedInjectedWhenDisabled(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
@@ -873,7 +951,7 @@
                 injectResponseHeaders: true,
                 trackExceptions: false,
                 enableW3CHeaders: false,
-                enableNewDiagnosticEvents: (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two)))
+                aspNetCoreMajorVersion: GetAspNetCoreMajorVersion(aspNetCoreMajorVersion)))
             {
                 noExceptionsMiddleware.OnSubscribe();
                 noExceptionsMiddleware.OnHostingException(context, new Exception("HostingException"));
@@ -888,6 +966,7 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
+        [InlineData(AspNetCoreMajorVersion.Three)]
         public void DoesntAddSourceIfRequestHeadersDontHaveSource(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
@@ -908,6 +987,7 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
+        [InlineData(AspNetCoreMajorVersion.Three)]
         public void RequestTelemetryIsProactivelySampledOutIfFeatureFlagIsOn(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             TelemetryConfiguration config = TelemetryConfiguration.CreateDefault();
@@ -933,6 +1013,7 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
+        [InlineData(AspNetCoreMajorVersion.Three)]
         public void RequestTelemetryIsNotProactivelySampledOutIfFeatureFlasIfOff(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             TelemetryConfiguration config = TelemetryConfiguration.CreateDefault();            
@@ -988,6 +1069,45 @@
                 }
                 hostingListener.OnHttpRequestInStart(context);
             }
+            else if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Three)
+            {
+                if (Activity.Current == null)
+                {
+                    var activity = new Activity("operation");
+
+                    // Simulating the behaviour of Hosting layer in 3.xx, which parses TraceParent if available, or Request-Id Header and 
+                    // set Activity parent.
+                    if (context.Request.Headers.TryGetValue("traceparent", out var requestId)
+                        || context.Request.Headers.TryGetValue("Request-Id", out requestId))
+                    {
+                        activity.SetParentId(requestId);
+
+                        if (context.Request.Headers.TryGetValue("tracestate", out var traceState))
+                        {
+                            activity.TraceStateString = traceState;
+                        }
+
+                        string[] baggage = context.Request.Headers.GetCommaSeparatedValues(RequestResponseHeaders.CorrelationContextHeader);
+                        if (baggage != StringValues.Empty && !activity.Baggage.Any())
+                        {
+                            foreach (var item in baggage)
+                            {
+                                var parts = item.Split('=');
+                                if (parts.Length == 2)
+                                {
+                                    var itemName = StringUtilities.EnforceMaxLength(parts[0], InjectionGuardConstants.ContextHeaderKeyMaxLength);
+                                    var itemValue = StringUtilities.EnforceMaxLength(parts[1], InjectionGuardConstants.ContextHeaderValueMaxLength);
+                                    activity.AddBaggage(itemName, itemValue);
+                                }
+                            }
+                        }
+                    }
+                    activity.Start();
+                    this.output.WriteLine("Test code created and started Activity to simulate HostingLayer behaviour");
+
+                }
+                hostingListener.OnHttpRequestInStart(context);
+            }
             else
             {
                 hostingListener.OnBeginRequest(context, timestamp);
@@ -996,7 +1116,7 @@
 
         private void HandleRequestEnd(HostingDiagnosticListener hostingListener, HttpContext context, long timestamp, AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
-            if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two)
+            if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two || aspNetCoreMajorVersion == AspNetCoreMajorVersion.Three)
             {
                 hostingListener.OnHttpRequestInStop(context);
             }
@@ -1025,6 +1145,20 @@
             {
                 Assert.Equal(requestTelemetry.Id, activity.Id);
                 Assert.Equal(requestTelemetry.Context.Operation.Id, activity.RootId);
+            }
+        }
+
+        private Microsoft.ApplicationInsights.AspNetCore.Implementation.AspNetCoreMajorVersion GetAspNetCoreMajorVersion(Microsoft.ApplicationInsights.AspNetCore.Tests.AspNetCoreMajorVersion testVersion)
+        {
+            switch (testVersion)
+            {
+                case Microsoft.ApplicationInsights.AspNetCore.Tests.AspNetCoreMajorVersion.One:
+                        return Microsoft.ApplicationInsights.AspNetCore.Implementation.AspNetCoreMajorVersion.One;
+                case Microsoft.ApplicationInsights.AspNetCore.Tests.AspNetCoreMajorVersion.Two:
+                    return Microsoft.ApplicationInsights.AspNetCore.Implementation.AspNetCoreMajorVersion.Two;
+                case Microsoft.ApplicationInsights.AspNetCore.Tests.AspNetCoreMajorVersion.Three:
+                    return Microsoft.ApplicationInsights.AspNetCore.Implementation.AspNetCoreMajorVersion.Three;
+                default: throw new ArgumentOutOfRangeException(nameof(testVersion));
             }
         }
 

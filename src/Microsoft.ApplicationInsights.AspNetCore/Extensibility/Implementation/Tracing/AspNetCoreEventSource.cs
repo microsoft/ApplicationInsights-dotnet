@@ -6,6 +6,7 @@
 
 namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing
 {
+    using Microsoft.ApplicationInsights.AspNetCore.Implementation;
     using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
@@ -214,7 +215,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             19,
             Message = "Hosting Major Version: '{0}'. Informational Message: '{1}'.",
             Level = EventLevel.Informational)]
-        public void HostingListenerInformational(string hostingVersion, string message, string appDomainName = "Incorrect")
+        public void HostingListenerInformational(AspNetCoreMajorVersion hostingVersion, string message, string appDomainName = "Incorrect")
         {
             this.WriteEvent(19, hostingVersion, message, this.ApplicationName);
         }

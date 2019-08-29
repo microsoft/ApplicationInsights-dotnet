@@ -11,6 +11,7 @@
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.Implementation;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.ApplicationInsights.AspNetCore.Implementation;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -38,11 +39,13 @@
         private static readonly ActiveSubsciptionManager SubscriptionManager = new ActiveSubsciptionManager();
 
         /// <summary>
-        /// Determine whether the running AspNetCore Hosting version is 2.0 or higher. This will affect what DiagnosticSource events we receive.
-        /// To support AspNetCore 1.0 and 2.0, we listen to both old and new events.
-        /// If the running AspNetCore version is 2.0, both old and new events will be sent. In this case, we will ignore the old events.
+        /// This class need to be aware of the AspNetCore major version. 
+        /// This will affect what DiagnosticSource events we receive.
+        /// To support AspNetCore 1.0,2.0,3.0 we listen to both old and new events.
+        /// If the running AspNetCore version is 2.0 or 3.0, both old and new events will be sent. In this case, we will ignore the old events.
+        /// Also 3.0 is W3C Tracing Aware (i.e it populates Activity from traceparent headers) and hence SDK need to be aware.
         /// </summary>
-        private readonly bool enableNewDiagnosticEvents;
+        private readonly AspNetCoreMajorVersion aspNetCoreMajorVersion;
 
         private readonly bool proactiveSamplingEnabled = false;
         private readonly bool conditionalAppIdEnabled = false;
@@ -88,21 +91,22 @@
         /// <param name="injectResponseHeaders">Flag that indicates that response headers should be injected.</param>
         /// <param name="trackExceptions">Flag that indicates that exceptions should be tracked.</param>
         /// <param name="enableW3CHeaders">Flag that indicates that W3C header parsing should be enabled.</param>
-        /// <param name="enableNewDiagnosticEvents">Flag that indicates that new diagnostic events are supported by AspNetCore.</param>
+        /// <param name="aspNetCoreMajorVersion">Major version of AspNetCore.</param>
         public HostingDiagnosticListener(
             TelemetryClient client,
             IApplicationIdProvider applicationIdProvider,
             bool injectResponseHeaders,
             bool trackExceptions,
             bool enableW3CHeaders,
-            bool enableNewDiagnosticEvents = true)
+            AspNetCoreMajorVersion aspNetCoreMajorVersion )
         {
-            this.enableNewDiagnosticEvents = enableNewDiagnosticEvents;
+            this.aspNetCoreMajorVersion = aspNetCoreMajorVersion;
             this.client = client ?? throw new ArgumentNullException(nameof(client));
             this.applicationIdProvider = applicationIdProvider;
             this.injectResponseHeaders = injectResponseHeaders;
             this.trackExceptions = trackExceptions;
             this.enableW3CHeaders = enableW3CHeaders;
+            AspNetCoreEventSource.Instance.HostingListenerInformational(this.aspNetCoreMajorVersion, "HostingDiagnosticListener constructed.");
         }
 
         /// <summary>
@@ -114,7 +118,7 @@
         /// <param name="injectResponseHeaders">Flag that indicates that response headers should be injected.</param>
         /// <param name="trackExceptions">Flag that indicates that exceptions should be tracked.</param>
         /// <param name="enableW3CHeaders">Flag that indicates that W3C header parsing should be enabled.</param>
-        /// <param name="enableNewDiagnosticEvents">Flag that indicates that new diagnostic events are supported by AspNetCore.</param>
+        /// <param name="aspNetCoreMajorVersion">Major version of AspNetCore.</param>
         public HostingDiagnosticListener(
             TelemetryConfiguration configuration,
             TelemetryClient client,
@@ -122,8 +126,8 @@
             bool injectResponseHeaders,
             bool trackExceptions,
             bool enableW3CHeaders,
-            bool enableNewDiagnosticEvents = true)
-            : this(client, applicationIdProvider, injectResponseHeaders, trackExceptions, enableW3CHeaders, enableNewDiagnosticEvents)
+            AspNetCoreMajorVersion aspNetCoreMajorVersion)
+            : this(client, applicationIdProvider, injectResponseHeaders, trackExceptions, enableW3CHeaders, aspNetCoreMajorVersion)
         {
             this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             this.proactiveSamplingEnabled = this.configuration.EvaluateExperimentalFeature(ProactiveSamplingFeatureFlagName);
@@ -185,13 +189,16 @@
                 string originalParentId = currentActivity.ParentId;
                 string legacyRootId = null;
                 bool traceParentPresent = false;
+                var headers = httpContext.Request.Headers;
 
                 // 3 posibilities when TelemetryConfiguration.EnableW3CCorrelation = true
                 // 1. No incoming headers. originalParentId will be null. Simply use the Activity as such.
                 // 2. Incoming Request-ID Headers. originalParentId will be request-id, but Activity ignores this for ID calculations.
                 //    If incoming ID is W3C compatible, ignore current Activity. Create new one with parent set to incoming W3C compatible rootid.
                 //    If incoming ID is not W3C compatible, we can use Activity as such, but need to store originalParentID in custom property 'legacyRootId'
-                // 3. Incoming TraceParent header. Need to ignore current Activity, and create new from incoming W3C TraceParent header.
+                // 3. Incoming TraceParent header. 
+                //    3a - 2.XX Need to ignore current Activity, and create new from incoming W3C TraceParent header.
+                //    3b - 3.XX Use Activity as such because 3.XX is W3C Aware. 
 
                 // Another 3 posibilities when TelemetryConfiguration.EnableW3CCorrelation = false
                 // 1. No incoming headers. originalParentId will be null. Simply use the Activity as such.
@@ -199,7 +206,7 @@
                 // 3. Incoming TraceParent header. Will simply Ignore W3C headers, and Current Activity used as such.
 
                 // Attempt to find parent from incoming W3C Headers which 2.XX Hosting is unaware of.
-                if (currentActivity.IdFormat == ActivityIdFormat.W3C && httpContext.Request.Headers.TryGetValue(W3CConstants.TraceParentHeader, out StringValues traceParentValues)
+                if (this.aspNetCoreMajorVersion != AspNetCoreMajorVersion.Three && currentActivity.IdFormat == ActivityIdFormat.W3C && headers.TryGetValue(W3CConstants.TraceParentHeader, out StringValues traceParentValues)
                      && traceParentValues != StringValues.Empty)
                 {
                     var parentTraceParent = StringUtilities.EnforceMaxLength(
@@ -207,14 +214,14 @@
                         InjectionGuardConstants.TraceParentHeaderMaxLength);
                     originalParentId = parentTraceParent;
                     traceParentPresent = true;
-                    AspNetCoreEventSource.Instance.HostingListenerInformational("2", "Retrieved trace parent from headers.");
+                    AspNetCoreEventSource.Instance.HostingListenerInformational(this.aspNetCoreMajorVersion, "Retrieved trace parent from headers.");
                 }
 
                 // Scenario #1. No incoming correlation headers.
                 if (originalParentId == null)
                 {
                     // Nothing to do here.
-                    AspNetCoreEventSource.Instance.HostingListenerInformational("2", "OriginalParentId is null.");
+                    AspNetCoreEventSource.Instance.HostingListenerInformational(this.aspNetCoreMajorVersion, "OriginalParentId is null.");
                 }
                 else if (traceParentPresent)
                 {
@@ -222,15 +229,25 @@
                     // We need to ignore the Activity created by Hosting, as it did not take W3CTraceParent into consideration.
                     newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
                     newActivity.SetParentId(originalParentId);
-                    AspNetCoreEventSource.Instance.HostingListenerInformational("2", "Ignoring original Activity from Hosting to create new one using traceparent header retrieved by sdk.");
+                    AspNetCoreEventSource.Instance.HostingListenerInformational(this.aspNetCoreMajorVersion, "Ignoring original Activity from Hosting to create new one using traceparent header retrieved by sdk.");
 
                     // read and populate tracestate
                     ReadTraceState(httpContext.Request.Headers, newActivity);
 
-                    // If W3C headers are present then Hosting will not read correlation-context.
+                    // If only W3C headers are present then 2.XX Hosting will not read correlation-context. (it is read only if request-id is present)
                     // SDK needs to do that.
-                    // This is in line with what Hosting 3.xx will do.
+                    // This is in line with what Hosting 3.xx will do which will read corr context if either traceparent or request-id is present
                     ReadCorrelationContext(httpContext.Request.Headers, newActivity);
+                }
+                else if (this.aspNetCoreMajorVersion == AspNetCoreMajorVersion.Three && headers.ContainsKey(W3CConstants.TraceParentHeader))
+                {
+                    AspNetCoreEventSource.Instance.HostingListenerInformational(this.aspNetCoreMajorVersion, "Incoming request has traceparent. Using Activity created from Hosting.");
+                    // scenario #3b Use Activity created by Hosting layer when W3C Headers Present.
+                    // but ignore parent if user disabled w3c.
+                    if (currentActivity.IdFormat != ActivityIdFormat.W3C)
+                    {
+                        originalParentId = null;
+                    }
                 }
                 else
                 {
@@ -241,7 +258,7 @@
                         {
                             newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
                             newActivity.SetParentId(ActivityTraceId.CreateFromString(traceId), default(ActivitySpanId), ActivityTraceFlags.None);
-                            AspNetCoreEventSource.Instance.HostingListenerInformational("2", "Ignoring original Activity from Hosting to create new one using w3c compatible request-id.");
+                            AspNetCoreEventSource.Instance.HostingListenerInformational(this.aspNetCoreMajorVersion, "Ignoring original Activity from Hosting to create new one using w3c compatible request-id.");
 
                             foreach (var bag in currentActivity.Baggage)
                             {
@@ -252,7 +269,7 @@
                         {
                             // store rootIdFromOriginalParentId in custom Property
                             legacyRootId = ExtractOperationIdFromRequestId(originalParentId);
-                            AspNetCoreEventSource.Instance.HostingListenerInformational("2", "Incoming Request-ID is not W3C Compatible, and hence will be ignored for ID generation, but stored in custom property legacy_rootID.");
+                            AspNetCoreEventSource.Instance.HostingListenerInformational(this.aspNetCoreMajorVersion, "Incoming Request-ID is not W3C Compatible, and hence will be ignored for ID generation, but stored in custom property legacy_rootID.");
                         }
                     }
                 }
@@ -283,7 +300,7 @@
         /// </summary>
         public void OnBeginRequest(HttpContext httpContext, long timestamp)
         {
-            if (this.client.IsEnabled() && !this.enableNewDiagnosticEvents)
+            if (this.client.IsEnabled() && this.aspNetCoreMajorVersion == AspNetCoreMajorVersion.One)
             {
                 // It's possible to host multiple apps (ASP.NET Core or generic hosts) in the same process
                 // Each of this apps has it's own HostingDiagnosticListener and corresponding Http listener.
@@ -366,7 +383,7 @@
         /// </summary>
         public void OnEndRequest(HttpContext httpContext, long timestamp)
         {
-            if (!this.enableNewDiagnosticEvents)
+            if (this.aspNetCoreMajorVersion == AspNetCoreMajorVersion.One)
             {
                 this.EndRequest(httpContext, timestamp);
             }
@@ -381,7 +398,7 @@
 
             // In AspNetCore 1.0, when an exception is unhandled it will only send the UnhandledException event, but not the EndRequest event, so we need to call EndRequest here.
             // In AspNetCore 2.0, after sending UnhandledException, it will stop the created activity, which will send HttpRequestIn.Stop event, so we will just end the request there.
-            if (!this.enableNewDiagnosticEvents)
+            if (this.aspNetCoreMajorVersion == AspNetCoreMajorVersion.One)
             {
                 this.EndRequest(httpContext, Stopwatch.GetTimestamp());
             }
@@ -439,11 +456,24 @@
                 {
                     var context = this.httpContextFetcherOnBeforeAction.Fetch(value.Value) as HttpContext;
 
+                    object routeData = null;
+
                     // Asp.Net Core 3.0 changed the field name to "RouteData" from "routeData
-                    var routeData = this.routeDataFetcher.Fetch(value.Value);
-                    if (routeData == null)
+                    if (this.aspNetCoreMajorVersion == AspNetCoreMajorVersion.Three)
                     {
                         routeData = this.routeDataFetcher30.Fetch(value.Value);
+                        if (routeData == null)
+                        {
+                            routeData = this.routeDataFetcher.Fetch(value.Value);
+                        }
+                    }
+                    else
+                    {
+                        routeData = this.routeDataFetcher.Fetch(value.Value);
+                        if (routeData == null)
+                        {
+                            routeData = this.routeDataFetcher30.Fetch(value.Value);
+                        }
                     }
 
                     var routeValues = this.routeValuesFetcher.Fetch(routeData) as IDictionary<string, object>;

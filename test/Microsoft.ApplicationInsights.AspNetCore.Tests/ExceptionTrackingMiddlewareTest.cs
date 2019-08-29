@@ -1,4 +1,5 @@
 ﻿using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
+using Microsoft.ApplicationInsights.AspNetCore.Implementation;
 using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
@@ -21,7 +22,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
                 injectResponseHeaders: true,
                 trackExceptions: true,
                 enableW3CHeaders: false,
-                enableNewDiagnosticEvents: true))
+                aspNetCoreMajorVersion: Microsoft.ApplicationInsights.AspNetCore.Implementation.AspNetCoreMajorVersion.Two))
             {
                 hostingListener.OnSubscribe();
                 hostingListener.OnHostingException(null, null);
@@ -41,7 +42,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
                 injectResponseHeaders: true,
                 trackExceptions: true,
                 enableW3CHeaders: false,
-                enableNewDiagnosticEvents: true))
+                aspNetCoreMajorVersion: Microsoft.ApplicationInsights.AspNetCore.Implementation.AspNetCoreMajorVersion.Two))
             {
                 hostingListener.OnSubscribe();
                 hostingListener.OnHostingException(null, null);
