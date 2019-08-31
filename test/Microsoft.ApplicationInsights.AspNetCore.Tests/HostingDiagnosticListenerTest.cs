@@ -400,7 +400,7 @@
         [InlineData(AspNetCoreMajorVersion.One, false)]
         [InlineData(AspNetCoreMajorVersion.Two, false)]
         [InlineData(AspNetCoreMajorVersion.Three, false)]
-        public void RequestWithNonW3CCompatibleNonHierrchicalRequestIdCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
+        public void RequestWithNonW3CCompatibleNonHierarchicalRequestIdCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
         {
             // Tests Request correlation when incoming request has only Request-ID headers and is not compatible w3c trace id and not a hierrachical id either.
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
@@ -485,8 +485,8 @@
                 }
                 else if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Three)
                 {
-                        // in W3C Mode, SDK Hosting simply uses Activity from Hosting. Validate the same.
-                        Assert.NotEqual(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
+                    // in W3C Mode, SDK Hosting simply uses Activity from Hosting. Validate the same.
+                    Assert.NotEqual(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
                 }
 
                 if (IsW3C)
@@ -1153,7 +1153,7 @@
             switch (testVersion)
             {
                 case Microsoft.ApplicationInsights.AspNetCore.Tests.AspNetCoreMajorVersion.One:
-                        return Microsoft.ApplicationInsights.AspNetCore.Implementation.AspNetCoreMajorVersion.One;
+                    return Microsoft.ApplicationInsights.AspNetCore.Implementation.AspNetCoreMajorVersion.One;
                 case Microsoft.ApplicationInsights.AspNetCore.Tests.AspNetCoreMajorVersion.Two:
                     return Microsoft.ApplicationInsights.AspNetCore.Implementation.AspNetCoreMajorVersion.Two;
                 case Microsoft.ApplicationInsights.AspNetCore.Tests.AspNetCoreMajorVersion.Three:

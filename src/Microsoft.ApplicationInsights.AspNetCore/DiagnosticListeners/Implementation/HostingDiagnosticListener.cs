@@ -8,6 +8,7 @@
     using System.Runtime.InteropServices;
     using System.Text;
     using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.Implementation;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
@@ -857,6 +858,8 @@
                 }
 
                 this.client.TrackRequest(telemetry);
+
+                
 
                 // Stop what we started.
                 var activity = Activity.Current;

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <VersionPrefix>2.0.0</VersionPrefix>
-    <TargetFrameworks>netcoreapp2.0;net46;netcoreapp1.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0;net46</TargetFrameworks>
 	<TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp2.0</TargetFrameworks>
     <DelaySign Condition=" '$(OS)' == 'Windows_NT' ">true</DelaySign>
     <PreserveCompilationContext>true</PreserveCompilationContext>

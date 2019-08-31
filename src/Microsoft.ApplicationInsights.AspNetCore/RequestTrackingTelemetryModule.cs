@@ -69,7 +69,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore
                         {
                             this.telemetryClient = new TelemetryClient(configuration);
 
-                            AspNetCoreMajorVersion aspNetCoreMajorVersion = AspNetCoreMajorVersion.Two;
+                            // Assume default = 3, as its possible that IWebHostBuilder be removed in future and we hit exception.
+                            AspNetCoreMajorVersion aspNetCoreMajorVersion = AspNetCoreMajorVersion.Three;
 
                             try
                             {
