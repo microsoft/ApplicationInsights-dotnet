@@ -43,7 +43,7 @@
 
         private static void UpdateRequestTelemetryFromPlatformContext(RequestTelemetry requestTelemetry, HttpContext platformContext)
         {
-            if (platformContext.Request.Cookies != null && platformContext.Request.Cookies.ContainsKey(WebUserCookieName))
+            if (platformContext.Request?.Cookies != null && platformContext.Request.Cookies.ContainsKey(WebUserCookieName))
             {
                 var userCookieValue = platformContext.Request.Cookies[WebUserCookieName];
                 if (!string.IsNullOrEmpty(userCookieValue))
