@@ -64,6 +64,9 @@
             Assert.AreEqual(itemsProduced, sentTelemetry.Count);
         }
 
+#if !NETCOREAPP1_1 
+// Sampling tests are not stable on linux  Azure pipelines agent on .NET Core 1.1. 
+// considering .NET Core 1.1 is no longer supported, let's not run sampling tests there at all
         [TestMethod]
         public void ProactivelySampledInTelemetryCapturedWhenProactiveSamplingRateIsLowerThanTarget()
         {
@@ -354,6 +357,7 @@
             Assert.IsTrue(sentTelemetry.Count > targetItemCount - tolerance);
             Assert.IsTrue(sentTelemetry.Count < targetItemCount + tolerance);
         }
+#endif
 
         private class AdaptiveTesterMessageSink : ITelemetryProcessor
         {
