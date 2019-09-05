@@ -35,7 +35,7 @@
             Assert.IsNotNull(item.Properties);
             AssertEx.IsEmpty(item.Message);
             Assert.IsNull(item.SeverityLevel);
-            Assert.IsFalse(item.IsSampledOutAtHead);
+            Assert.AreEqual(SamplingDecision.None, item.ProactiveSamplingDecision);
             Assert.AreEqual(SamplingTelemetryItemTypes.Message, item.ItemTypeFlag);
         }
 
@@ -47,7 +47,7 @@
             Assert.IsNotNull(item.Properties);
             Assert.AreEqual("TestMessage", item.Message);
             Assert.IsNull(item.SeverityLevel);
-            Assert.IsFalse(item.IsSampledOutAtHead);
+            Assert.AreEqual(SamplingDecision.None, item.ProactiveSamplingDecision);
             Assert.AreEqual(SamplingTelemetryItemTypes.Message, item.ItemTypeFlag);
         }
 
@@ -59,7 +59,7 @@
             Assert.IsNotNull(trace.Properties);
             Assert.AreEqual("TestMessage", trace.Message);
             Assert.AreEqual(SeverityLevel.Critical, trace.SeverityLevel);
-            Assert.IsFalse(trace.IsSampledOutAtHead);
+            Assert.AreEqual(SamplingDecision.None, trace.ProactiveSamplingDecision);
             Assert.AreEqual(SamplingTelemetryItemTypes.Message, trace.ItemTypeFlag);
         }
 

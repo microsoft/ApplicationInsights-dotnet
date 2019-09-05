@@ -70,18 +70,39 @@
     }
 
     /// <summary>
+    /// Represents sampling decision.
+    /// </summary>
+    public enum SamplingDecision
+    {
+        /// <summary>
+        /// Sampling decision has not been made.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// Item is sampled in. This may change as item flows through the pipeline.
+        /// </summary>
+        SampledIn = 1,
+
+        /// <summary>
+        /// Item is sampled out. This may not change.
+        /// </summary>
+        SampledOut = 2,
+    }
+
+    /// <summary>
     /// Represent objects that support  advanced sampling features.
     /// </summary>
     public interface ISupportAdvancedSampling : ISupportSampling
     {
         /// <summary>
-        /// Gets os sets the flag indicating item's telemetry type to consider in sampling evaluation.
+        /// Gets the flag indicating item's telemetry type to consider in sampling evaluation.
         /// </summary>
         SamplingTelemetryItemTypes ItemTypeFlag { get; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether item was sampled out at head.
+        /// Gets or sets a value indicating whether item sampling decision was made pro-actively and result of this decision.
         /// </summary>
-        bool IsSampledOutAtHead { get; set; }
+        SamplingDecision ProactiveSamplingDecision { get; set; }
     }
 }

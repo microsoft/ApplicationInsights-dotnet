@@ -21,7 +21,7 @@
         public void VerifyExpectedDefaultValue()
         {
             var pageViewTelemetry = new PageViewTelemetry();
-            Assert.IsFalse(pageViewTelemetry.IsSampledOutAtHead);
+            Assert.AreEqual(SamplingDecision.None, pageViewTelemetry.ProactiveSamplingDecision);
             Assert.AreEqual(SamplingTelemetryItemTypes.PageView, pageViewTelemetry.ItemTypeFlag);
         }
 

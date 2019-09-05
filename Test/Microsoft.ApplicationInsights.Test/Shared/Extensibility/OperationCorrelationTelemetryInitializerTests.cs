@@ -267,7 +267,7 @@
         }
 
         [TestMethod]
-        public void InitilaizeWithActivityWinsOverCallContext()
+        public void InitializeWithActivityWinsOverCallContext()
         {
             CallContextHelpers.SaveOperationContext(new OperationContextForCallContext { RootOperationId = "callContextRoot" });
             var currentActivity = new Activity("test");
@@ -283,6 +283,68 @@
             Assert.AreEqual("operation", telemetry.Context.Operation.Name);
             Assert.AreEqual(1, telemetry.Properties.Count);
             Assert.AreEqual("v1", telemetry.Properties["k1"]);
+            currentActivity.Stop();
+        }
+
+        [TestMethod]
+        public void InitializeWithActivityRecorded()
+        {
+            var currentActivity = new Activity("test");
+            currentActivity.ActivityTraceFlags |= ActivityTraceFlags.Recorded;
+            currentActivity.Start();
+            var request = new RequestTelemetry();
+
+            (new OperationCorrelationTelemetryInitializer()).Initialize(request);
+
+            Assert.AreEqual(SamplingDecision.SampledIn, request.ProactiveSamplingDecision);
+            currentActivity.Stop();
+        }
+
+        [TestMethod]
+        public void InitializeWithActivityNotRecorded()
+        {
+            var currentActivity = new Activity("test");
+            currentActivity.ActivityTraceFlags &= ~ActivityTraceFlags.Recorded;
+            currentActivity.Start();
+            var telemetry = new RequestTelemetry();
+
+            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
+
+            Assert.AreEqual(SamplingDecision.None, telemetry.ProactiveSamplingDecision);
+            currentActivity.Stop();
+        }
+
+        [TestMethod]
+        public void InitializeWithActivityRecordedDoesNotOverrideSampledInIfSet()
+        {
+            var currentActivity = new Activity("test");
+            currentActivity.ActivityTraceFlags |= ActivityTraceFlags.Recorded;
+            currentActivity.Start();
+            var request = new RequestTelemetry
+            {
+                ProactiveSamplingDecision = SamplingDecision.SampledOut
+            };
+            (new OperationCorrelationTelemetryInitializer()).Initialize(request);
+
+            Assert.AreEqual(SamplingDecision.SampledOut, request.ProactiveSamplingDecision);
+            currentActivity.Stop();
+        }
+
+        [TestMethod]
+        public void InitializeWithActivityNotRecordedDoesNotOverrideSampledInIfSet()
+        {
+            var currentActivity = new Activity("test");
+            currentActivity.ActivityTraceFlags &= ~ActivityTraceFlags.Recorded;
+            currentActivity.Start();
+            var request = new RequestTelemetry
+            {
+                ProactiveSamplingDecision = SamplingDecision.SampledIn
+            };
+
+
+            (new OperationCorrelationTelemetryInitializer()).Initialize(request);
+
+            Assert.AreEqual(SamplingDecision.SampledIn, request.ProactiveSamplingDecision);
             currentActivity.Stop();
         }
     }
