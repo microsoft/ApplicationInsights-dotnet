@@ -1,7 +1,5 @@
 ﻿using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -65,7 +63,7 @@ namespace TestApp30.Tests
             Assert.NotNull(trace);
 
             Assert.Equal("4e3083444c10254ba40513c7316332eb", req.Context.Operation.Id);
-            Assert.Equal("00-4e3083444c10254ba40513c7316332eb-e2a5f830c0ee2c46-00", req.Context.Operation.ParentId);
+            Assert.Equal("|4e3083444c10254ba40513c7316332eb.e2a5f830c0ee2c46.", req.Context.Operation.ParentId);
             Assert.Equal("4e3083444c10254ba40513c7316332eb", trace.Context.Operation.Id);
             Assert.Contains("|4e3083444c10254ba40513c7316332eb.", req.Id);
             Assert.Equal(req.Id, trace.Context.Operation.ParentId);
@@ -111,7 +109,7 @@ namespace TestApp30.Tests
 
             Assert.Equal("4e3083444c10254ba40513c7316332eb", req.Context.Operation.Id);
             Assert.Equal("4e3083444c10254ba40513c7316332eb", exception.Context.Operation.Id);
-            Assert.Equal("00-4e3083444c10254ba40513c7316332eb-e2a5f830c0ee2c46-00", req.Context.Operation.ParentId);
+            Assert.Equal("|4e3083444c10254ba40513c7316332eb.e2a5f830c0ee2c46.", req.Context.Operation.ParentId);
             Assert.Equal(req.Id, exception.Context.Operation.ParentId);
             Assert.Contains("|4e3083444c10254ba40513c7316332eb.", req.Id);
 
