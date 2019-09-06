@@ -79,6 +79,7 @@
         /// </summary>
         public QuickPulseTelemetryModule()
         {
+            this.ServerId = Environment.MachineName;
         }
 
         /// <summary>
@@ -132,6 +133,12 @@
         /// </summary>
         /// <remarks>Loaded from configuration.</remarks>
         public string AuthenticationApiKey { get; set; }
+
+        /// <summary>
+        /// Gets or sets QuickPulse ServiceId that is used to distinguish servers.
+        /// </summary>
+        /// <remarks>Loaded from configuration and defaults to Environment.MachineName.</remarks>
+        public string ServerId { get; set; }
 
         /// <summary>
         /// Disposes resources allocated by this type.
@@ -355,7 +362,6 @@
             // create the default production implementation of the service client with the best service endpoint we could get
             string instanceName = GetInstanceName(configuration);
             string streamId = GetStreamId();
-            string machineName = Environment.MachineName;
             var assemblyVersion = SdkVersionUtils.GetSdkVersion(null);
             bool isWebApp = PerformanceCounterUtility.IsWebAppRunningInAzure();
             int? processorCount = PerformanceCounterUtility.GetProcessorCount();
@@ -363,7 +369,7 @@
                 serviceEndpointUri,
                 instanceName,
                 streamId,
-                machineName,
+                ServerId,
                 assemblyVersion,
                 this.timeProvider,
                 isWebApp,
@@ -505,7 +511,7 @@
                 catch (OperationCanceledException)
                 {
                 }
-           }
+            }
         }
         
         private void InitializeCollectionThread()

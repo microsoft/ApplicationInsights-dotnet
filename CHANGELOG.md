@@ -4,6 +4,7 @@
  - [Add NetStandard2.0 Target for WindowsServerPackage](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1212)
  - [Add NetStandard2.0 Target for DependencyCollector](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1212)
  - [QuickPulse/LiveMetrics background thread safeguards added to never throw unhandled exception.](https://github.com/microsoft/ApplicationInsights-dotnet-server/issues/1088)
+ - [Make QuickPulse server id configurable to distinguish multiple role instances running on the same host](https://github.com/microsoft/ApplicationInsights-dotnet-server/issues/1253)
 
 ## Version 2.11.0-beta1
  - [Add support for Event Counter collection.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1222)

@@ -40,7 +40,8 @@
                 this.Dispose();
                 if (wait)
                 {
-                    this.task.Wait();
+                    // wait and ignore all exceptions
+                    this.task.ContinueWith(_ => { }).Wait();
                 }
             }
 
