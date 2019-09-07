@@ -18,6 +18,8 @@
 
         private readonly TelemetryClient telemetryClient;
 
+        private readonly Activity originalActivity = null;
+
         /// <summary>
         /// Indicates if this instance has been disposed of.
         /// </summary>
@@ -29,10 +31,14 @@
         /// </summary>
         /// <param name="telemetryClient">Initializes telemetry client object.</param>
         /// <param name="telemetry">Operation telemetry item that is assigned to the telemetry associated to the current operation item.</param>
-        public OperationHolder(TelemetryClient telemetryClient, T telemetry)
+        /// <param name="originalActivity">Original activity to restore after operation stops. Provide it if Activity created for the operation
+        /// is detached from the scope it was created in because custom Ids were provided by user. Null indicates that Activity was not detached
+        /// and no explicit restore is needed </param>
+        public OperationHolder(TelemetryClient telemetryClient, T telemetry, Activity originalActivity = null)
         {
             this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
             this.Telemetry = telemetry ?? throw new ArgumentNullException(nameof(telemetry));
+            this.originalActivity = originalActivity; // it's ok if it's null
         }
 
         /// <summary>
@@ -96,7 +102,12 @@
 
                             this.telemetryClient.Track(operationTelemetry);
 
-                            currentActivity.Stop();
+                            currentActivity?.Stop();
+
+                            if (this.originalActivity != null && Activity.Current != this.originalActivity)
+                            {
+                                Activity.Current = this.originalActivity;
+                            }
                         });
 
                         if (!isActivityAvailable)
