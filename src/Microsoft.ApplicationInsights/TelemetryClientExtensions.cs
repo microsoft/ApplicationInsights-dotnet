@@ -202,7 +202,7 @@
                 // Parent context store is assigned to operation that is used to restore call context.
                 operationHolder = new OperationHolder<T>(telemetryClient, operationTelemetry)
                 {
-                    ParentContext = CallContextHelpers.GetCurrentOperationContext()
+                    ParentContext = CallContextHelpers.GetCurrentOperationContext(),
                 };
                 telemetryContext.Id = operationTelemetry.Id;
             }

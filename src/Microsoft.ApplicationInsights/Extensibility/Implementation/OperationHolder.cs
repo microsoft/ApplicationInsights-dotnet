@@ -34,7 +34,7 @@
         /// <param name="originalActivity">Original activity to restore after operation stops. Provide it if Activity created for the operation
         /// is detached from the scope it was created in because custom Ids were provided by user. Null indicates that Activity was not detached
         /// and no explicit restore is needed. It's passed around as object to allow ApplicationInsights.dll to be used in standalone mode
-        /// for backward compatibility </param>
+        /// for backward compatibility. </param>
         public OperationHolder(TelemetryClient telemetryClient, T telemetry, object originalActivity = null)
         {
             this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
