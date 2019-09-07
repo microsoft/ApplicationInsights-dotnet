@@ -1,4 +1,6 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
+﻿using System.Diagnostics;
+
+namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -38,5 +40,51 @@
         {
             var operationItem = new OperationHolder<DependencyTelemetry>(new TelemetryClient(TelemetryConfiguration.CreateDefault()), new DependencyTelemetry());
         }
+
+        [TestMethod]
+        public void CreatingOperationHolderWithDetachedOriginalActivityRestoresIt()
+        {
+            var client = new TelemetryClient(TelemetryConfiguration.CreateDefault());
+
+            var originalActivity = new Activity("original").Start();
+            var operation = new OperationHolder<DependencyTelemetry>(client, new DependencyTelemetry(), originalActivity);
+
+            var newActivity = new Activity("new").SetParentId("detached-parent").Start();
+            operation.Telemetry.Id = $"|{newActivity.TraceId.ToHexString()}.{newActivity.SpanId.ToHexString()}.";
+
+            operation.Dispose();
+            Assert.AreEqual(Activity.Current, originalActivity);
+        }
+
+        [TestMethod]
+        public void CreatingOperationHolderWithNullOriginalActivityDoesNotRestoreIt()
+        {
+            var client = new TelemetryClient(TelemetryConfiguration.CreateDefault());
+
+            var originalActivity = new Activity("original").Start();
+            var operation = new OperationHolder<DependencyTelemetry>(client, new DependencyTelemetry(), null);
+
+            var newActivity = new Activity("new").SetParentId("detached-parent").Start();
+            operation.Telemetry.Id = $"|{newActivity.TraceId.ToHexString()}.{newActivity.SpanId.ToHexString()}.";
+
+            operation.Dispose();
+            Assert.IsNull(Activity.Current);
+        }
+
+        [TestMethod]
+        public void CreatingOperationHolderWithParentActivityRestoresIt()
+        {
+            var client = new TelemetryClient(TelemetryConfiguration.CreateDefault());
+
+            var originalActivity = new Activity("original").Start();
+            var operation = new OperationHolder<DependencyTelemetry>(client, new DependencyTelemetry(), originalActivity);
+
+            // child of original
+            var newActivity = new Activity("new").Start();
+            operation.Telemetry.Id = $"|{newActivity.TraceId.ToHexString()}.{newActivity.SpanId.ToHexString()}.";
+            operation.Dispose();
+            Assert.AreEqual(Activity.Current, originalActivity);
+        }
+
     }
 }
