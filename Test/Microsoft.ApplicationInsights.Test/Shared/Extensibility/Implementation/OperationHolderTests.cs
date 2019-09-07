@@ -1,9 +1,9 @@
-﻿using System.Diagnostics;
-
-namespace Microsoft.ApplicationInsights.Extensibility.Implementation
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
+    using System.Diagnostics;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>
@@ -12,6 +12,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     [TestClass]
     public class OperationHolderTests
     {
+        [TestInitialize]
+        public void Initialize()
+        {
+            ActivityFormatHelper.EnableW3CFormatInActivity();
+        }
+
         /// <summary>
         /// Tests the scenario if OperationItem throws ArgumentNullException with null telemetry client.
         /// </summary>
