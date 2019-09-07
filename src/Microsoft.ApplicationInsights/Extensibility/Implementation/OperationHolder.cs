@@ -18,7 +18,7 @@
 
         private readonly TelemetryClient telemetryClient;
 
-        private readonly Activity originalActivity = null;
+        private readonly object originalActivity = null;
 
         /// <summary>
         /// Indicates if this instance has been disposed of.
@@ -33,8 +33,9 @@
         /// <param name="telemetry">Operation telemetry item that is assigned to the telemetry associated to the current operation item.</param>
         /// <param name="originalActivity">Original activity to restore after operation stops. Provide it if Activity created for the operation
         /// is detached from the scope it was created in because custom Ids were provided by user. Null indicates that Activity was not detached
-        /// and no explicit restore is needed </param>
-        public OperationHolder(TelemetryClient telemetryClient, T telemetry, Activity originalActivity = null)
+        /// and no explicit restore is needed. It's passed around as object to allow ApplicationInsights.dll to be used in standalone mode
+        /// for backward compatibility </param>
+        public OperationHolder(TelemetryClient telemetryClient, T telemetry, object originalActivity = null)
         {
             this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
             this.Telemetry = telemetry ?? throw new ArgumentNullException(nameof(telemetry));
@@ -104,9 +105,11 @@
 
                             currentActivity?.Stop();
 
-                            if (this.originalActivity != null && Activity.Current != this.originalActivity)
+                            if (this.originalActivity != null && 
+                                Activity.Current != this.originalActivity && 
+                                this.originalActivity is Activity activity)
                             {
-                                Activity.Current = this.originalActivity;
+                                Activity.Current = activity;
                             }
                         });
 

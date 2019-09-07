@@ -199,11 +199,11 @@
 
             if (!isActivityAvailable)
             {
+                // Parent context store is assigned to operation that is used to restore call context.
                 operationHolder = new OperationHolder<T>(telemetryClient, operationTelemetry)
                 {
                     ParentContext = CallContextHelpers.GetCurrentOperationContext()
                 };
-                // Parent context store is assigned to operation that is used to restore call context.
                 telemetryContext.Id = operationTelemetry.Id;
             }
 

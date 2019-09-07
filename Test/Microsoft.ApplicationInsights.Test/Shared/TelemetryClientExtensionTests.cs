@@ -315,6 +315,32 @@
         }
 
         [TestMethod]
+        public void StartStopRespectsUserProvidedIdsInScopeOfAnotherActivityExplicitOperationIdOnly()
+        {
+            var activity = new Activity("foo").Start();
+
+            var customOperationId = ActivityTraceId.CreateRandom().ToHexString();
+
+            using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("name", customOperationId))
+            {
+                Assert.IsNotNull(Activity.Current);
+                Assert.AreNotEqual(activity, Activity.Current.Parent);
+                Assert.AreEqual(customOperationId, Activity.Current.TraceId.ToHexString());
+                Assert.AreEqual(customOperationId, operation.Telemetry.Context.Operation.Id);
+                Assert.IsNull(operation.Telemetry.Context.Operation.ParentId);
+            }
+
+            Assert.AreEqual(activity, Activity.Current);
+            Assert.AreEqual(1, this.sendItems.Count);
+            Assert.IsTrue(this.sendItems.Single() is DependencyTelemetry);
+
+            var dependency = this.sendItems.Single() as DependencyTelemetry;
+
+            Assert.AreEqual(customOperationId, dependency.Context.Operation.Id);
+            Assert.IsNull(dependency.Context.Operation.ParentId);
+        }
+
+        [TestMethod]
         public void StartStopRespectsUserProvidedIdsInScopeOfAnotherActivityExplicitIdsW3COff()
         {
             ActivityFormatHelper.DisableW3CFormatInActivity();
