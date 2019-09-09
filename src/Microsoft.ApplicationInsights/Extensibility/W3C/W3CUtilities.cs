@@ -43,7 +43,7 @@
         /// https://github.com/w3c/distributed-tracing/blob/master/trace_context/HTTP_HEADER_FORMAT.md#trace-id .
         /// </summary>
         /// <returns>true if valid w3c trace id, otherwise false.</returns>
-        internal static bool IsCompatibleW3CTraceID(string traceId)
+        internal static bool IsCompatibleW3CTraceId(string traceId)
         {
             return TraceIdRegex.IsMatch(traceId);
         }
