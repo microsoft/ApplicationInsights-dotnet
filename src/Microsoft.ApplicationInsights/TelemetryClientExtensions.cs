@@ -157,11 +157,8 @@
 
                 if (idsAssignedByUser)
                 {
-                    // telemetryContext.Id is always set: if it was null, it is set to newly generated W3C compatible TraceID
                     if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
                     {
-                        // There is no need of checking if TelemetryContext.ID is W3C Compatible. It is always set to 
-                        // W3C compatible id. Even user supplied non-compatible ID is ignored.
                         if (W3CUtilities.IsCompatibleW3CTraceId(telemetryContext.Id))
                         {
                             // If the user provided operationId is W3C Compatible, use it.
