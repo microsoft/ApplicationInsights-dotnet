@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
-    using System;
     using System.Diagnostics;
 
     using Microsoft.ApplicationInsights;
@@ -15,6 +14,8 @@
     /// </summary>
     public class OperationCorrelationTelemetryInitializer : ITelemetryInitializer
     {
+        private const string TracestatePropertyKey = "tracestate";
+
         /// <summary>
         /// Initializes/Adds operation context to the existing telemetry item.
         /// </summary>
@@ -43,6 +44,15 @@
                         if (string.IsNullOrEmpty(itemOperationContext.ParentId))
                         {
                             itemOperationContext.ParentId = W3CUtilities.FormatTelemetryId(itemOperationContext.Id, currentActivity.SpanId.ToHexString());
+                        }
+
+                        // we are going to set tracestate property on requests and dependencies only
+                        if (!string.IsNullOrEmpty(currentActivity.TraceStateString) &&
+                            telemetryItem is OperationTelemetry &&
+                            telemetryProp != null &&
+                            !telemetryProp.Properties.ContainsKey(TracestatePropertyKey))
+                        {
+                            telemetryProp.Properties.Add(TracestatePropertyKey, currentActivity.TraceStateString);
                         }
                     }
                     else
