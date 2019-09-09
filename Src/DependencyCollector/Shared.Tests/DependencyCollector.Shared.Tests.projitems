@@ -14,8 +14,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)HttpDependenciesParsingTelemetryInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpWebRequestUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationInsightsUrlFilterTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorDiagnosticListenerTests.Netcore30.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorDiagnosticListenerTests.Netstandard16.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorDiagnosticListenerTests.Netstandard20.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorDiagnosticListenerTests.Netcore20.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyTargetNameHelperTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\EnumerableAssert.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpHeadersUtilitiesTests.cs" />
@@ -27,18 +28,18 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\MockTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\ObjectInstanceBasedOperationHolderTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ServiceBusDiagnosticListenerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\EventHubsDiagnosticListenerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\SqlClientDiagnosticSourceListenerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryDiagnosticSourceListenerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OperationDetailsInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorEventSourceTest.cs" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'NET45' ">
+  <ItemGroup Condition=" '$(TargetFrameworkVersion)' == 'v4.5.1' OR '$(TargetFrameworkVersion)' == 'v4.5.2'">
     <Compile Include="$(MSBuildThisFileDirectory)DependencyTrackingTelemetryModuleTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HeaderCollectionManipulationTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ClientServerDependencyTrackerTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorEventSourceTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorTestHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DesktopDiagnosticSourceHttpProcessingTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\EventHubsDiagnosticListenerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkHttpProcessingTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkSqlProcessingTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\CacheBasedOperationHolderTests.cs" />

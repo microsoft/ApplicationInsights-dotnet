@@ -16,7 +16,34 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.Extensibility.W3C;
+    using Microsoft.ApplicationInsights.W3C;
+    using Microsoft.ApplicationInsights.W3C.Internal;
+
+    /// <summary>
+    /// Version of the HttpClient instrumentation.
+    /// </summary>
+    internal enum HttpInstrumentationVersion
+    {
+        /// <summary>
+        /// Version is not identified.
+        /// </summary>
+        Unknown = 0,
+
+        /// <summary>
+        /// NET Core 1.* - deprecated events
+        /// </summary>
+        V1 = 1,
+
+        /// <summary>
+        /// .NET Core 2.* - Activity and new events
+        /// </summary>
+        V2 = 2,
+
+        /// <summary>
+        /// .NET Core 3.* - W3C
+        /// </summary>
+        V3 = 3,
+    }
 
     internal class HttpCoreDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>, IDisposable
     {
@@ -52,46 +79,43 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         #endregion
 
-        private readonly ConditionalWeakTable<HttpRequestMessage, IOperationHolder<DependencyTelemetry>> pendingTelemetry = 
-            new ConditionalWeakTable<HttpRequestMessage, IOperationHolder<DependencyTelemetry>>();
-
         private readonly ConcurrentDictionary<string, Exception> pendingExceptions =
             new ConcurrentDictionary<string, Exception>();
 
-        private readonly bool isNetCore20HttpClient;
+        private readonly HttpInstrumentationVersion httpInstrumentationVersion = HttpInstrumentationVersion.Unknown;
         private readonly bool injectLegacyHeaders = false;
-        private readonly bool injectW3CHeaders = false;
+        private readonly bool injectRequestIdInW3CMode = true;
 
         public HttpCoreDiagnosticSourceListener(
             TelemetryConfiguration configuration, 
             bool setComponentCorrelationHttpHeaders, 
             IEnumerable<string> correlationDomainExclusionList,
             bool injectLegacyHeaders,
-            bool injectW3CHeaders)
+            bool injectRequestIdInW3CMode,
+            HttpInstrumentationVersion instrumentationVersion)
         {
             this.client = new TelemetryClient(configuration);
             this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("rdd" + RddSource.DiagnosticSourceCore + ":");
-
-            var httpClientVersion = typeof(HttpClient).GetTypeInfo().Assembly.GetName().Version;
-            this.isNetCore20HttpClient = httpClientVersion.CompareTo(new Version(4, 2)) >= 0;
 
             this.configuration = configuration;
             this.applicationInsightsUrlFilter = new ApplicationInsightsUrlFilter(configuration);
             this.setComponentCorrelationHttpHeaders = setComponentCorrelationHttpHeaders;
             this.correlationDomainExclusionList = correlationDomainExclusionList ?? Enumerable.Empty<string>();
             this.injectLegacyHeaders = injectLegacyHeaders;
-            this.injectW3CHeaders = injectW3CHeaders;
-
+            this.httpInstrumentationVersion = instrumentationVersion != HttpInstrumentationVersion.Unknown ? 
+                instrumentationVersion :
+                this.GetInstrumentationVersion();
+            this.injectRequestIdInW3CMode = injectRequestIdInW3CMode;
             this.subscriber = new HttpCoreDiagnosticSourceSubscriber(
                 this,
                 this.applicationInsightsUrlFilter,
-                this.isNetCore20HttpClient);
+                this.httpInstrumentationVersion);
         }
 
         /// <summary>
         /// Gets the DependencyTelemetry objects that are still waiting for a response from the dependency. This will most likely only be used for testing purposes.
         /// </summary>
-        internal ConditionalWeakTable<HttpRequestMessage, IOperationHolder<DependencyTelemetry>> PendingDependencyTelemetry => this.pendingTelemetry;
+        internal ConditionalWeakTable<HttpRequestMessage, IOperationHolder<DependencyTelemetry>> PendingDependencyTelemetry { get; } = new ConditionalWeakTable<HttpRequestMessage, IOperationHolder<DependencyTelemetry>>();
 
         /// <summary>
         /// Notifies the observer that the provider has finished sending push-based notifications.
@@ -199,9 +223,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                     case DeprecatedRequestEventName:
                         {
-                            if (this.isNetCore20HttpClient)
+                            if (this.httpInstrumentationVersion != HttpInstrumentationVersion.V1)
                             {
-                                // 2.0 publishes new events, and this should be just ignored to prevent duplicates.
+                                // 2.0+ publishes new events, and this should be just ignored to prevent duplicates.
                                 break;
                             }
 
@@ -228,9 +252,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                     case DeprecatedResponseEventName:
                         {
-                            if (this.isNetCore20HttpClient)
+                            if (this.httpInstrumentationVersion != HttpInstrumentationVersion.V1)
                             {
-                                // 2.0 publishes new events, and this should be just ignored to prevent duplicates.
+                                // 2.0+ publishes new events, and this should be just ignored to prevent duplicates.
                                 break;
                             }
 
@@ -268,7 +292,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             GC.SuppressFinalize(this);
         }
 
-        //// netcoreapp 2.0 event
+        //// netcoreapp 2.0+ event
 
         /// <summary>
         /// Handler for Exception event, it is sent when request processing cause an exception (e.g. because of DNS or network issues)
@@ -317,20 +341,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 return;
             }
 
-            // As a first step in supporting W3C protocol in ApplicationInsights,
-            // we want to generate Activity Ids in the W3C compatible format.
-            // While .NET changes to Activity are pending, we want to ensure trace starts with W3C compatible Id
-            // as early as possible, so that everyone has a chance to upgrade and have compatibility with W3C systems once they arrive.
-            // So if there is no parent Activity (i.e. this request has happened in the background, without parent scope), we'll override 
-            // the current Activity with the one with properly formatted Id. This workaround should go away
-            // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331 (TODO)
-            if (currentActivity.Parent == null && currentActivity.ParentId == null)
-            {
-                currentActivity.UpdateParent(W3CUtilities.GenerateTraceId());
-            }
-
-            // end of workaround
-
             DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerStart(currentActivity.Id);
 
             this.InjectRequestHeaders(request, this.configuration.InstrumentationKey);
@@ -366,9 +376,24 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             telemetry.SetOperationDetail(RemoteDependencyConstants.HttpRequestOperationDetailName, request);
 
             // properly fill dependency telemetry operation context: OperationCorrelationTelemetryInitializer initializes child telemetry
-            telemetry.Context.Operation.Id = currentActivity.RootId;
-            telemetry.Context.Operation.ParentId = currentActivity.ParentId;
-            telemetry.Id = currentActivity.Id;
+            if (currentActivity.IdFormat == ActivityIdFormat.W3C)
+            {
+                var traceId = currentActivity.TraceId.ToHexString();
+                telemetry.Context.Operation.Id = traceId;
+                if (currentActivity.ParentSpanId != default)
+                {
+                    telemetry.Context.Operation.ParentId = W3CUtilities.FormatTelemetryId(traceId, currentActivity.ParentSpanId.ToHexString());
+                }
+
+                telemetry.Id = W3CUtilities.FormatTelemetryId(traceId, currentActivity.SpanId.ToHexString());
+            }
+            else
+            {
+                telemetry.Context.Operation.Id = currentActivity.RootId;
+                telemetry.Context.Operation.ParentId = currentActivity.ParentId;
+                telemetry.Id = currentActivity.Id;
+            }
+
             foreach (var item in currentActivity.Baggage)
             {
                 if (!telemetry.Properties.ContainsKey(item.Key))
@@ -376,7 +401,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     telemetry.Properties[item.Key] = item.Value;
                 }
             }
-            
+
+            // TODO[tracestate]: remove, this is done in base SDK
+            if (!string.IsNullOrEmpty(currentActivity.TraceStateString) && !telemetry.Properties.ContainsKey(W3CConstants.TracestatePropertyKey))
+            {
+                telemetry.Properties.Add(W3CConstants.TracestatePropertyKey, currentActivity.TraceStateString);
+            }
+
             this.client.Initialize(telemetry);
 
             // If we started auxiliary Activity before to override the Id with W3C compatible one,
@@ -408,11 +439,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 telemetry.Success = false;
             }
 
-            if (this.injectW3CHeaders)
-            {
-                // this.SetLegacyId(telemetry, request);
-            }
-
             this.client.TrackDependency(telemetry);
         }
 
@@ -431,17 +457,22 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 Uri requestUri = request.RequestUri;
                 var resourceName = request.Method.Method + " " + requestUri.AbsolutePath;
 
-                var dependency = Activity.Current != null ?
-                    this.client.StartOperation<DependencyTelemetry>(resourceName) :
-                    this.client.StartOperation<DependencyTelemetry>(resourceName, W3CUtilities.GenerateTraceId());
+                var dependency = this.client.StartOperation<DependencyTelemetry>(resourceName);
+
+                // TODO[tracestate]: remove, this is done in base SDK
+                var tracestate = Activity.Current?.TraceStateString;
+                if (!string.IsNullOrEmpty(tracestate) && !dependency.Telemetry.Properties.ContainsKey(W3CConstants.TracestatePropertyKey))
+                {
+                    dependency.Telemetry.Properties.Add(W3CConstants.TracestatePropertyKey, tracestate);
+                }
 
                 dependency.Telemetry.Target = DependencyTargetNameHelper.GetDependencyTargetName(requestUri);
                 dependency.Telemetry.Type = RemoteDependencyConstants.HTTP;
                 dependency.Telemetry.Data = requestUri.OriginalString;
                 dependency.Telemetry.SetOperationDetail(RemoteDependencyConstants.HttpRequestOperationDetailName, request);
-                this.pendingTelemetry.AddIfNotExists(request, dependency);
+                this.PendingDependencyTelemetry.AddIfNotExists(request, dependency);
 
-                this.InjectRequestHeaders(request, dependency.Telemetry.Context.InstrumentationKey, true);
+                this.InjectRequestHeaders(request, dependency.Telemetry.Context.InstrumentationKey);
             }
         }
 
@@ -458,14 +489,14 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerResponse(loggingRequestId);
                 var request = response.RequestMessage;
 
-                if (this.pendingTelemetry.TryGetValue(request, out IOperationHolder<DependencyTelemetry> dependency))
+                if (this.PendingDependencyTelemetry.TryGetValue(request, out IOperationHolder<DependencyTelemetry> dependency))
                 {
                     dependency.Telemetry.SetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, response);
                     if (request != null)
                     {
                         this.ParseResponse(response, dependency.Telemetry);
                         this.client.StopOperation(dependency);
-                        this.pendingTelemetry.Remove(request);
+                        this.PendingDependencyTelemetry.Remove(request);
                     }
                 }
             }
@@ -494,7 +525,32 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             }
         }
 
-        private void InjectRequestHeaders(HttpRequestMessage request, string instrumentationKey, bool isLegacyEvent = false)
+        private static void InjectW3CHeaders(Activity currentActivity, HttpRequestHeaders requestHeaders)
+        {
+            if (!requestHeaders.Contains(W3C.W3CConstants.TraceParentHeader))
+            {
+                requestHeaders.Add(W3C.W3CConstants.TraceParentHeader, currentActivity.Id);
+            }
+
+            if (!requestHeaders.Contains(W3C.W3CConstants.TraceStateHeader) &&
+                currentActivity.TraceStateString != null)
+            {
+                requestHeaders.Add(W3C.W3CConstants.TraceStateHeader,
+                    currentActivity.TraceStateString);
+            }
+        }
+
+        private static void InjectBackCompatibleRequestId(Activity currentActivity, HttpRequestHeaders requestHeaders)
+        {
+            if (!requestHeaders.Contains(RequestResponseHeaders.RequestIdHeader))
+            {
+                requestHeaders.Add(RequestResponseHeaders.RequestIdHeader,
+                    W3CUtilities.FormatTelemetryId(currentActivity.TraceId.ToHexString(),
+                            currentActivity.SpanId.ToHexString()));
+            }
+        }
+
+        private void InjectRequestHeaders(HttpRequestMessage request, string instrumentationKey)
         {
             try
             {
@@ -517,19 +573,63 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     }
 
                     var currentActivity = Activity.Current;
-                    if (isLegacyEvent)
-                    {
-                        if (!requestHeaders.Contains(RequestResponseHeaders.RequestIdHeader))
-                        {
-                            requestHeaders.Add(RequestResponseHeaders.RequestIdHeader, currentActivity.Id);
-                        }
 
-                        InjectCorrelationContext(requestHeaders, currentActivity);
+                    switch (this.httpInstrumentationVersion)
+                    {
+                        case HttpInstrumentationVersion.V1:
+                            // HttpClient does not add any headers
+                            // add W3C or Request-Id depending on Activity format
+                            // add correlation-context anyway
+                            if (currentActivity.IdFormat == ActivityIdFormat.W3C)
+                            {
+                                InjectW3CHeaders(currentActivity, requestHeaders);
+                                if (this.injectRequestIdInW3CMode)
+                                {
+                                    InjectBackCompatibleRequestId(currentActivity, requestHeaders);
+                                }
+                            }
+                            else
+                            {
+                                if (!requestHeaders.Contains(RequestResponseHeaders.RequestIdHeader))
+                                {
+                                    requestHeaders.Add(RequestResponseHeaders.RequestIdHeader, currentActivity.Id);
+                                }
+                            }
+
+                            InjectCorrelationContext(requestHeaders, currentActivity);
+                            break;
+                        case HttpInstrumentationVersion.V2:
+                            // On V2, HttpClient adds Request-Id and Correlation-Context
+                            // but not W3C
+                            if (currentActivity.IdFormat == ActivityIdFormat.W3C)
+                            {
+                                // we are going to add W3C and Request-Id (in W3C-compatible format)
+                                // as a result HttpClient will not add Request-Id AND Correlation-Context
+                                InjectW3CHeaders(currentActivity, requestHeaders);
+                                if (this.injectRequestIdInW3CMode)
+                                {
+                                    InjectBackCompatibleRequestId(currentActivity, requestHeaders);
+                                }
+
+                                InjectCorrelationContext(requestHeaders, currentActivity);
+                            }
+
+                            break;
+                        case HttpInstrumentationVersion.V3:
+                            // on V3, HttpClient adds either W3C or Request-Id depending on Activity format
+                            // and adds Correlation-Context
+                            if (currentActivity.IdFormat == ActivityIdFormat.W3C && this.injectRequestIdInW3CMode)
+                            {
+                                // we are going to override Request-Id to be in W3C compatible mode
+                                InjectBackCompatibleRequestId(currentActivity, requestHeaders);
+                            }
+
+                            break;
                     }
 
                     if (this.injectLegacyHeaders)
                     {
-                        // Add the root ID
+                        // Add the root ID (Activity.RootId works with W3C and Hierarchical format)
                         string rootId = currentActivity.RootId;
                         if (!string.IsNullOrEmpty(rootId) && !requestHeaders.Contains(RequestResponseHeaders.StandardRootIdHeader))
                         {
@@ -537,44 +637,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         }
 
                         // Add the parent ID
-                        string parentId = currentActivity.Id;
+                        string parentId = currentActivity.IdFormat == ActivityIdFormat.W3C ? 
+                            W3CUtilities.FormatTelemetryId(rootId, currentActivity.SpanId.ToHexString()) :
+                            currentActivity.Id;
+
                         if (!string.IsNullOrEmpty(parentId) && !requestHeaders.Contains(RequestResponseHeaders.StandardParentIdHeader))
                         {
                             requestHeaders.Add(RequestResponseHeaders.StandardParentIdHeader, parentId);
-                        }
-                    }
-
-                    if (this.injectW3CHeaders)
-                    {
-                        currentActivity.UpdateContextOnActivity();
-                        string traceParent = currentActivity.GetTraceparent();
-                        if (traceParent != null && !requestHeaders.Contains(W3C.W3CConstants.TraceParentHeader))
-                        {
-                            requestHeaders.Add(W3C.W3CConstants.TraceParentHeader, traceParent);
-                        }
-
-                        string traceState = currentActivity.GetTracestate();
-                        if (!requestHeaders.Contains(W3C.W3CConstants.TraceStateHeader))
-                        {
-                            if (sourceApplicationId != null)
-                            {
-                                // TODO: there could be another az in the state.
-                                // last updated state should appear first in the tracestate
-                                string appIdPair = StringUtilities.FormatAzureTracestate(sourceApplicationId);
-                                if (traceState == null)
-                                {
-                                    traceState = appIdPair;
-                                }
-                                else
-                                {
-                                    traceState = appIdPair + "," + traceState;
-                                }
-                            }
-
-                            if (traceState != null)
-                            {
-                                requestHeaders.Add(W3C.W3CConstants.TraceStateHeader, traceState);
-                            }
                         }
                     }
                 }
@@ -625,6 +694,45 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             }
         }
 
+        private HttpInstrumentationVersion GetInstrumentationVersion()
+        {
+            HttpInstrumentationVersion version = HttpInstrumentationVersion.Unknown;
+
+            var httpClientAssembly = typeof(HttpClient).GetTypeInfo().Assembly;
+            var httpClientVersion = httpClientAssembly.GetName().Version;
+            string httpClientInformationalVersion =
+                httpClientAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ??
+                string.Empty;
+
+            if (httpClientInformationalVersion.StartsWith("3.", StringComparison.Ordinal))
+            {
+                version = HttpInstrumentationVersion.V3;
+            }
+            else if (httpClientVersion.Major == 4 && httpClientVersion.Minor == 2)
+            {
+                // .NET Core 3.0 has the same version of http client lib as 2.*
+                // but AssemblyInformationalVersionAttribute is different.
+                version = HttpInstrumentationVersion.V2;
+            }
+            else if (httpClientVersion.Major == 4 && httpClientVersion.Minor < 2)
+            {
+                version = HttpInstrumentationVersion.V1;
+            }
+            else
+            {
+                // fallback to V3 assuming unknown SDKs are from future versions
+                version = HttpInstrumentationVersion.V3;
+            }
+
+            DependencyCollectorEventSource.Log.HttpCoreDiagnosticListenerInstrumentationVersion(
+                (int)version,
+                httpClientVersion.Major,
+                httpClientVersion.Minor,
+                httpClientInformationalVersion);
+
+            return version;
+        }
+
         /// <summary>
         /// Diagnostic listener implementation that listens for events specific to outgoing dependency requests.
         /// </summary>
@@ -633,19 +741,19 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             private readonly HttpCoreDiagnosticSourceListener httpDiagnosticListener;
             private readonly IDisposable listenerSubscription;
             private readonly ApplicationInsightsUrlFilter applicationInsightsUrlFilter;
-            private readonly bool isNetCore20HttpClient;
+            private readonly HttpInstrumentationVersion httpInstrumentationVersion;
 
             private IDisposable eventSubscription;
 
             internal HttpCoreDiagnosticSourceSubscriber(
                 HttpCoreDiagnosticSourceListener listener,
                 ApplicationInsightsUrlFilter applicationInsightsUrlFilter,
-                bool isNetCore20HttpClient)
+                HttpInstrumentationVersion httpInstrumentationVersion)
             {
                 this.httpDiagnosticListener = listener;
                 this.applicationInsightsUrlFilter = applicationInsightsUrlFilter;
 
-                this.isNetCore20HttpClient = isNetCore20HttpClient;
+                this.httpInstrumentationVersion = httpInstrumentationVersion;
 
                 try
                 {
@@ -680,7 +788,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             this.httpDiagnosticListener,
                             (evnt, r, _) =>
                             {
-                                if (this.isNetCore20HttpClient)
+                                if (this.httpInstrumentationVersion != HttpInstrumentationVersion.V1)
                                 {
                                     if (evnt == HttpExceptionEventName)
                                     {

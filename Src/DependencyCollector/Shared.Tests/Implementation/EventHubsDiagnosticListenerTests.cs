@@ -4,18 +4,13 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-#if !NETCORE
     using Microsoft.ApplicationInsights.Web.TestFramework;
-#else
-    using Microsoft.ApplicationInsights.Tests;
-#endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
@@ -27,6 +22,7 @@
         [TestInitialize]
         public void TestInitialize()
         {
+            Activity.ForceDefaultIdFormat = false;
             this.configuration = new TelemetryConfiguration();
             this.sentItems = new List<ITelemetry>();
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sentItems.Add(item), EndpointAddress = "https://dc.services.visualstudio.com/v2/track" };
@@ -74,8 +70,56 @@
                 module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.EventHubs");
                 module.Initialize(this.configuration);
 
+                Activity sendActivity = null;
                 Activity parentActivity = new Activity("parent").AddBaggage("k1", "v1").Start();
-                var telemetry = this.TrackOperation<DependencyTelemetry>(listener, "Microsoft.Azure.EventHubs.Send", TaskStatus.RanToCompletion);
+                parentActivity.TraceStateString = "state=some";
+                var telemetry = this.TrackOperation<DependencyTelemetry>(
+                    listener, 
+                    "Microsoft.Azure.EventHubs.Send", 
+                    TaskStatus.RanToCompletion,
+                    null,
+                    () => sendActivity = Activity.Current);
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("Send", telemetry.Name);
+                Assert.AreEqual(RemoteDependencyConstants.AzureEventHubs, telemetry.Type);
+                Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ | ehname", telemetry.Target);
+                Assert.IsTrue(telemetry.Success.Value);
+
+                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.ParentSpanId.ToHexString()}.", telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
+
+                Assert.AreEqual("v1", telemetry.Properties["k1"]);
+                Assert.AreEqual("eventhubname.servicebus.windows.net", telemetry.Properties["peer.hostname"]);
+                Assert.AreEqual("ehname", telemetry.Properties["eh.event_hub_name"]);
+                Assert.AreEqual("SomePartitionKeyHere", telemetry.Properties["eh.partition_key"]);
+                Assert.AreEqual("EventHubClient1(ehname)", telemetry.Properties["eh.client_id"]);
+
+                Assert.IsTrue(telemetry.Properties.TryGetValue("tracestate", out var tracestate));
+                Assert.AreEqual("state=some", tracestate);
+            }
+        }
+
+        [TestMethod]
+        public void EventHubsSuccessfulSendIsHandledW3COff()
+        {
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
+            using (var listener = new DiagnosticListener("Microsoft.Azure.EventHubs"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.EventHubs");
+                module.Initialize(this.configuration);
+
+                Activity sendActivity = null;
+                Activity parentActivity = new Activity("parent").AddBaggage("k1", "v1").Start();
+                var telemetry = this.TrackOperation<DependencyTelemetry>(
+                    listener,
+                    "Microsoft.Azure.EventHubs.Send",
+                    TaskStatus.RanToCompletion,
+                    null,
+                    () => sendActivity = Activity.Current);
 
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Send", telemetry.Name);
@@ -85,6 +129,8 @@
 
                 Assert.AreEqual(parentActivity.Id, telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(parentActivity.RootId, telemetry.Context.Operation.Id);
+                Assert.AreEqual(sendActivity.Id, telemetry.Id);
+
                 Assert.AreEqual("v1", telemetry.Properties["k1"]);
                 Assert.AreEqual("eventhubname.servicebus.windows.net", telemetry.Properties["peer.hostname"]);
                 Assert.AreEqual("ehname", telemetry.Properties["eh.event_hub_name"]);
@@ -102,7 +148,13 @@
                 module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.EventHubs");
                 module.Initialize(this.configuration);
 
-                var telemetry = this.TrackOperation<DependencyTelemetry>(listener, "Microsoft.Azure.EventHubs.Send", TaskStatus.RanToCompletion);
+                Activity sendActivity = null;
+                var telemetry = this.TrackOperation<DependencyTelemetry>(
+                    listener, 
+                    "Microsoft.Azure.EventHubs.Send", 
+                    TaskStatus.RanToCompletion,
+                    null,
+                    () => sendActivity = Activity.Current);
 
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Send", telemetry.Name);
@@ -110,10 +162,9 @@
                 Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ | ehname", telemetry.Target);
                 Assert.IsTrue(telemetry.Success.Value);
 
-                // W3C compatible-Id ( should go away when W3C is implemented in .NET https://github.com/dotnet/corefx/issues/30331 TODO)
-                Assert.AreEqual(32, telemetry.Context.Operation.Id.Length);
-                Assert.IsTrue(Regex.Match(telemetry.Context.Operation.Id, @"[a-z][0-9]").Success);
-                // end of workaround test
+                Assert.IsNull(telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
 
                 Assert.AreEqual("eventhubname.servicebus.windows.net", telemetry.Properties["peer.hostname"]);
                 Assert.AreEqual("ehname", telemetry.Properties["eh.event_hub_name"]);
@@ -130,8 +181,14 @@
             {
                 module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.EventHubs");
                 module.Initialize(this.configuration);
-                var telemetry = this.TrackOperation<DependencyTelemetry>(listener, "Microsoft.Azure.EventHubs.Send",
-                    TaskStatus.RanToCompletion, "parent");
+
+                Activity sendActivity = null;
+                var telemetry = this.TrackOperation<DependencyTelemetry>(
+                    listener,
+                    "Microsoft.Azure.EventHubs.Send",
+                    TaskStatus.RanToCompletion,
+                    "parent",
+                    () => sendActivity = Activity.Current);
 
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Send", telemetry.Name);
@@ -140,7 +197,8 @@
                 Assert.IsTrue(telemetry.Success.Value);
 
                 Assert.AreEqual("parent", telemetry.Context.Operation.ParentId);
-                Assert.AreEqual("parent", telemetry.Context.Operation.Id);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
 
                 Assert.AreEqual("eventhubname.servicebus.windows.net", telemetry.Properties["peer.hostname"]);
                 Assert.AreEqual("ehname", telemetry.Properties["eh.event_hub_name"]);
@@ -158,9 +216,14 @@
                 module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.EventHubs");
                 module.Initialize(this.configuration);
 
+                Activity sendActivity = null;
                 Activity parentActivity = new Activity("parent").AddBaggage("k1", "v1").Start();
-                var telemetry = this.TrackOperation<DependencyTelemetry>(listener, "Microsoft.Azure.EventHubs.Send",
-                    TaskStatus.Faulted);
+                var telemetry = this.TrackOperation<DependencyTelemetry>(
+                    listener,
+                    "Microsoft.Azure.EventHubs.Send",
+                    TaskStatus.Faulted,
+                    null,
+                    () => sendActivity = Activity.Current);
 
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Send", telemetry.Name);
@@ -168,8 +231,10 @@
                 Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ | ehname", telemetry.Target);
                 Assert.IsFalse(telemetry.Success.Value);
 
-                Assert.AreEqual(parentActivity.Id, telemetry.Context.Operation.ParentId);
-                Assert.AreEqual(parentActivity.RootId, telemetry.Context.Operation.Id);
+                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.ParentSpanId.ToHexString()}.", telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
+
                 Assert.AreEqual("v1", telemetry.Properties["k1"]);
                 Assert.AreEqual("eventhubname.servicebus.windows.net", telemetry.Properties["peer.hostname"]);
                 Assert.AreEqual("ehname", telemetry.Properties["eh.event_hub_name"]);
@@ -198,7 +263,12 @@
             }
         }
 
-        private T TrackOperation<T>(DiagnosticListener listener, string activityName, TaskStatus status, string parentId = null) where T : OperationTelemetry
+        private T TrackOperation<T>(
+            DiagnosticListener listener, 
+            string activityName,
+            TaskStatus status,
+            string parentId = null,
+            Action operation = null) where T : OperationTelemetry
         {
             Activity activity = null;
             int itemCountBefore = this.sentItems.Count;
@@ -232,6 +302,8 @@
                     activity.Start();
                 }
             }
+
+            operation?.Invoke();
 
             if (activity != null)
             {

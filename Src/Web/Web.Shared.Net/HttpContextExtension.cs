@@ -15,12 +15,7 @@
         /// <returns>Request telemetry instance or null.</returns>
         public static RequestTelemetry GetRequestTelemetry(this HttpContext context)
         {
-            if (context == null)
-            {
-                return null;
-            }
-
-            return context.Items[RequestTrackingConstants.RequestTelemetryItemName] as RequestTelemetry;
+            return context?.Items[RequestTrackingConstants.RequestTelemetryItemName] as RequestTelemetry;
         }
     }
 }

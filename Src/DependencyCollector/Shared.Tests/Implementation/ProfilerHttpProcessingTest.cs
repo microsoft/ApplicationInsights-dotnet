@@ -19,7 +19,6 @@
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -48,6 +47,7 @@
         {
             this.sendItems = new List<ITelemetry>();
 
+            Activity.ForceDefaultIdFormat = false;
             this.configuration = new TelemetryConfiguration()
             {
                 TelemetryChannel = new StubTelemetryChannel
@@ -212,7 +212,7 @@
         /// Ensures that the parent id header is added when request is sent.
         /// </summary>
         [TestMethod]
-        public void RddTestHttpProcessingProfilerOnBeginAddsRequestIdHeader()
+        public void RddTestHttpProcessingProfilerOnBegin()
         {
             var request = WebRequest.Create(this.testUrl);
 
@@ -223,11 +223,83 @@
             {
                 this.httpProcessingProfiler.OnBeginForGetResponse(request);
 
-                Assert.IsNull(request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
-                Assert.IsNull(request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
                 var actualRequestIdHeader = request.Headers[RequestResponseHeaders.RequestIdHeader];
-                Assert.IsTrue(actualRequestIdHeader.StartsWith(Activity.Current.Id, StringComparison.Ordinal));
-                Assert.AreNotEqual(Activity.Current.Id, actualRequestIdHeader);
+                var actualTraceparentHeader = request.Headers[W3C.W3CConstants.TraceParentHeader];
+
+                Assert.IsNull(request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
+                Assert.IsNull(request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
+                Assert.IsNull(request.Headers[W3C.W3CConstants.TraceStateHeader]);
+                Assert.IsNull(request.Headers[RequestResponseHeaders.CorrelationContextHeader]);
+
+                var parentActivity = Activity.Current;
+                Assert.IsTrue(actualTraceparentHeader.StartsWith($"00-{parentActivity.TraceId.ToHexString()}-", StringComparison.Ordinal));
+                var spanId = actualTraceparentHeader.Split('-')[2];
+                Assert.AreEqual($"|{parentActivity.TraceId.ToHexString()}.{spanId}.", actualRequestIdHeader);
+
+                Assert.AreNotEqual(parentActivity.Id, actualTraceparentHeader);
+            }
+        }
+
+        [TestMethod]
+        public void RddTestHttpProcessingProfilerOnBeginW3COff()
+        {
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
+            var request = WebRequest.Create(this.testUrl);
+
+            var client = new TelemetryClient(this.configuration);
+            using (var op = client.StartOperation<RequestTelemetry>("request"))
+            {
+                this.httpProcessingProfiler.OnBegin(request);
+
+                var actualRequestIdHeader = request.Headers[RequestResponseHeaders.RequestIdHeader];
+
+                Assert.IsNull(request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
+                Assert.IsNull(request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
+                Assert.IsNull(request.Headers[W3C.W3CConstants.TraceParentHeader]);
+                Assert.IsNull(request.Headers[W3C.W3CConstants.TraceStateHeader]);
+                Assert.IsNull(request.Headers[RequestResponseHeaders.CorrelationContextHeader]);
+
+                var parentActivity = Activity.Current;
+                Assert.IsTrue(actualRequestIdHeader.StartsWith(parentActivity.Id, StringComparison.Ordinal));
+                Assert.AreNotEqual(parentActivity.Id, actualRequestIdHeader);
+            }
+        }
+
+        [TestMethod]
+        public void RddTestHttpProcessingProfilerOnBeginW3COnRequestIdOffIsIgnored()
+        {
+            var request = WebRequest.Create(this.testUrl);
+
+            Assert.IsNull(request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
+
+            var client = new TelemetryClient(this.configuration);
+            using (var op = client.StartOperation<RequestTelemetry>("request"))
+            {
+                var httpDesktopProcessingFrameworkRequestIdOff = new DesktopDiagnosticSourceHttpProcessing(
+                    this.configuration,
+                    new CacheBasedOperationHolder("testCache", 100 * 1000),
+                    setCorrelationHeaders: true,
+                    correlationDomainExclusionList: new List<string>(),
+                    injectLegacyHeaders: false,
+                    injectRequestIdInW3cMode: false);
+
+                httpDesktopProcessingFrameworkRequestIdOff.OnBegin(request);
+
+                var actualRequestIdHeader = request.Headers[RequestResponseHeaders.RequestIdHeader];
+                var actualTraceparentHeader = request.Headers[W3C.W3CConstants.TraceParentHeader];
+
+                Assert.IsNull(request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
+                Assert.IsNull(request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
+                Assert.IsNull(request.Headers[W3C.W3CConstants.TraceStateHeader]);
+                Assert.IsNull(request.Headers[RequestResponseHeaders.CorrelationContextHeader]);
+
+                var parentActivity = Activity.Current;
+                Assert.IsTrue(actualTraceparentHeader.StartsWith($"00-{parentActivity.TraceId.ToHexString()}-", StringComparison.Ordinal));
+                var spanId = actualTraceparentHeader.Split('-')[2];
+                Assert.AreEqual($"|{parentActivity.TraceId.ToHexString()}.{spanId}.", actualRequestIdHeader);
+
+                Assert.AreNotEqual(parentActivity.Id, actualTraceparentHeader);
             }
         }
 
@@ -248,44 +320,23 @@
             Assert.IsTrue(actualCorrelationContextHeader == "Key2=Value2,Key1=Value1" || actualCorrelationContextHeader == "Key1=Value1,Key2=Value2");
         }
 
-        /// <summary>
-        /// Ensures that the source request header is added when request is sent.
-        /// </summary>
         [TestMethod]
-        public void RddTestHttpProcessingProfilerOnBeginAddsW3CHeadersWhenEnabled()
+        public void RddTestHttpProcessingProfilerOnBeginOnEnd()
         {
             var request = WebRequest.Create(this.testUrl);
 
-            this.configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
-            var httpProcessingW3C = new ProfilerHttpProcessing(
-                this.configuration,
-                null,
-                new ObjectInstanceBasedOperationHolder(),
-                setCorrelationHeaders: true,
-                correlationDomainExclusionList: new List<string>(),
-                injectLegacyHeaders: true,
-                injectW3CHeaders: true);
-            ClientServerDependencyTracker.IsW3CEnabled = true;
-
             var client = new TelemetryClient(this.configuration);
-            RequestTelemetry requestTelemetry;
-
-            Activity dependencyActivity;
             using (var op = client.StartOperation<RequestTelemetry>("request"))
             {
                 Activity.Current.AddBaggage("k", "v");
-                Activity.Current.AddTag(W3C.W3CConstants.TracestateTag, "some=state");
-                httpProcessingW3C.OnBeginForGetResponse(request);
+                Activity.Current.TraceStateString = "some=state";
+                this.httpProcessingProfiler.OnBeginForGetResponse(request);
 
                 Assert.AreEqual("k=v", request.Headers[RequestResponseHeaders.CorrelationContextHeader]);
-                Assert.AreEqual($"{W3C.W3CConstants.AzureTracestateNamespace}={TestApplicationId},some=state", request.Headers[W3C.W3CConstants.TraceStateHeader]);
-
-                requestTelemetry = op.Telemetry;
-
-                dependencyActivity = Activity.Current;
+                Assert.AreEqual("some=state", request.Headers[W3C.W3CConstants.TraceStateHeader]);
 
                 var returnObjectPassed = TestUtils.GenerateHttpWebResponse(HttpStatusCode.OK);
-                httpProcessingW3C.OnEndForEndGetResponse(null, returnObjectPassed, request, null);
+                this.httpProcessingProfiler.OnEndForEndGetResponse(null, returnObjectPassed, request, null);
             }
 
             Assert.AreEqual(2, this.sendItems.Count);
@@ -299,8 +350,49 @@
             Assert.AreEqual(4, dependencyIdParts.Length);
 
             var traceParent = request.Headers[W3C.W3CConstants.TraceParentHeader];
-            Assert.AreEqual($"{W3C.W3CConstants.DefaultVersion}-{dependencyIdParts[1]}-{dependencyIdParts[2]}-{W3C.W3CConstants.TraceFlagRecordedAndNotRequested}",
-                traceParent);
+            Assert.AreEqual($"00-{dependencyIdParts[1]}-{dependencyIdParts[2]}-00", traceParent);
+
+            Assert.AreEqual(2, dependency.Properties.Count);
+            Assert.IsTrue(dependency.Properties.TryGetValue("tracestate", out var tracestate));
+            Assert.AreEqual("some=state", tracestate);
+
+            Assert.IsTrue(dependency.Properties.TryGetValue("k", out var baggageK));
+            Assert.AreEqual("v", baggageK);
+        }
+
+        [TestMethod]
+        public void RddTestHttpProcessingProfilerOnBeginOnEndW3COff()
+        {
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
+            var request = WebRequest.Create(this.testUrl);
+
+            Activity parentActivity = null;
+            
+            var client = new TelemetryClient(this.configuration);
+            using (var op = client.StartOperation<RequestTelemetry>("request"))
+            {
+                parentActivity = Activity.Current;
+                parentActivity.AddBaggage("k", "v");
+                this.httpProcessingProfiler.OnBeginForGetResponse(request);
+
+                Assert.AreEqual("k=v", request.Headers[RequestResponseHeaders.CorrelationContextHeader]);
+
+                var returnObjectPassed = TestUtils.GenerateHttpWebResponse(HttpStatusCode.OK);
+                this.httpProcessingProfiler.OnEndForEndGetResponse(null, returnObjectPassed, request, null);
+            }
+
+            Assert.AreEqual(2, this.sendItems.Count);
+            var dependencies = this.sendItems.OfType<DependencyTelemetry>().ToArray();
+
+            Assert.AreEqual(1, dependencies.Length);
+            var dependency = dependencies.Single();
+            Assert.IsNotNull(dependency);
+
+            Assert.IsNull(request.Headers[W3C.W3CConstants.TraceParentHeader]);
+            Assert.IsTrue(dependency.Id.StartsWith(parentActivity.Id));
+            Assert.AreEqual(parentActivity.RootId, dependency.Context.Operation.Id);
+            Assert.AreEqual(parentActivity.Id, dependency.Context.Operation.ParentId);
         }
 
         /// <summary>

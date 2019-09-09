@@ -65,7 +65,7 @@
         /// <param name="eventData">The event arguments that describe the event.</param>
         protected override void OnEventWritten(EventWrittenEventArgs eventData)
         {
-            if (eventData == null || eventData.Payload == null)
+            if (eventData?.Payload == null)
             {
                 return;
             }
@@ -114,10 +114,7 @@
                 // the id identifies the unique identifier for HttpWebRequest
                 long id = Convert.ToInt64(eventData.Payload[0], CultureInfo.InvariantCulture);
                 string uri = Convert.ToString(eventData.Payload[1], CultureInfo.InvariantCulture);
-                if (this.HttpProcessingFramework != null)
-                {
-                    this.HttpProcessingFramework.OnBeginHttpCallback(id, uri);
-                }
+                this.HttpProcessingFramework?.OnBeginHttpCallback(id, uri);
             }
         }
 
@@ -150,10 +147,7 @@
                     // This case is for .NET 4.5.1-4.5.2
                 }
 
-                if (this.HttpProcessingFramework != null)
-                {                    
-                    this.HttpProcessingFramework.OnEndHttpCallback(id, statusCode);
-                }
+                this.HttpProcessingFramework?.OnEndHttpCallback(id, statusCode);
             }
         }
 
@@ -163,17 +157,12 @@
         /// <param name="eventData">The event arguments that describe the event.</param>
         private void OnBeginGetRequestStream(EventWrittenEventArgs eventData)
         {
-            //// ToDo: In BeginGetRequestStream callback it is possible to get incoming HTTP web request context which will allow to correlate 
-            //// incoming webreqeusts with outbound web requests. We need to leverage this correlation when UI scenarious will be ready
             if (eventData.Payload.Count >= 2)
             {
                 long id = Convert.ToInt64(eventData.Payload[0], CultureInfo.InvariantCulture);
                 string uri = Convert.ToString(eventData.Payload[1], CultureInfo.InvariantCulture);
 
-                if (this.HttpProcessingFramework != null)
-                {
-                    this.HttpProcessingFramework.OnBeginHttpCallback(id, uri);
-                }
+                this.HttpProcessingFramework?.OnBeginHttpCallback(id, uri);
             }
         }
     }

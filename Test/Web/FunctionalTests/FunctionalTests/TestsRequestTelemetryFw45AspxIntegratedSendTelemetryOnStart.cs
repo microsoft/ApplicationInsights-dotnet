@@ -40,7 +40,7 @@ namespace Functional
             UpdateAppConfigSettings(
                 new Dictionary<string, string>
                 {
-                    { "TestApp.SendTelemetyIntemOnAppStart", "true" }
+                    { "TestApp.SendTelemetryItemOnAppStart", "true" }
                 },
                 Path.Combine(applicationDirectory, "Web.config"));
 

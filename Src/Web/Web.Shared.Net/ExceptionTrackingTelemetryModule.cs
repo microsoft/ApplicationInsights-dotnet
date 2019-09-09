@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Web
 {
     using System;
+    using System.Diagnostics;
     using System.Web;
 
     using Microsoft.ApplicationInsights.Common;

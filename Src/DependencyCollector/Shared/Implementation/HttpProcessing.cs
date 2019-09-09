@@ -12,7 +12,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.Extensibility.W3C;
 
     /// <summary>
     /// Concrete class with all processing logic to generate RDD data from the callbacks
@@ -26,12 +25,18 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         private readonly ICollection<string> correlationDomainExclusionList;
         private readonly bool setCorrelationHeaders;
         private readonly bool injectLegacyHeaders;
-        private readonly bool injectW3CHeaders;
+        private readonly bool injectRequestIdInW3CMode;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpProcessing"/> class.
         /// </summary>
-        protected HttpProcessing(TelemetryConfiguration configuration, string sdkVersion, string agentVersion, bool setCorrelationHeaders, ICollection<string> correlationDomainExclusionList, bool injectLegacyHeaders, bool injectW3CHeaders)
+        protected HttpProcessing(TelemetryConfiguration configuration,
+            string sdkVersion, 
+            string agentVersion, 
+            bool setCorrelationHeaders, 
+            ICollection<string> correlationDomainExclusionList, 
+            bool injectLegacyHeaders,
+            bool injectRequestIdInW3CMode)
         {
             this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             this.applicationInsightsUrlFilter = new ApplicationInsightsUrlFilter(configuration);
@@ -47,7 +52,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             }
 
             this.injectLegacyHeaders = injectLegacyHeaders;
-            this.injectW3CHeaders = injectW3CHeaders;
+            this.injectRequestIdInW3CMode = injectRequestIdInW3CMode;
         }
 
         /// <summary>
@@ -117,31 +122,22 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 // be the starting point for the outbound call.
                 DependencyTelemetry telemetry = null;
                 var telemetryTuple = this.GetTupleForWebDependencies(webRequest);
-                if (telemetryTuple != null)
+                if (telemetryTuple?.Item1 != null)
                 {
-                    if (telemetryTuple.Item1 != null)
-                    {
-                        telemetry = telemetryTuple.Item1;
-                        DependencyCollectorEventSource.Log.TrackingAnExistingTelemetryItemVerbose();
-                        return null;
-                    }
+                    DependencyCollectorEventSource.Log.TrackingAnExistingTelemetryItemVerbose();
+                    return null;
                 }
 
-                // Create and initialize a new telemetry object if needed
-                if (telemetry == null)
+                // Create and initialize a new telemetry object
+                telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
+
+                this.AddTupleForWebDependencies(webRequest, telemetry, false);
+
+                if (string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
                 {
-                    bool isCustomCreated = false;
-
-                    telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
-
-                    this.AddTupleForWebDependencies(webRequest, telemetry, isCustomCreated);
-
-                    if (string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
-                    {
-                        // Instrumentation key is probably empty, because the context has not yet had a chance to associate the requestTelemetry to the telemetry client yet.
-                        // and get they instrumentation key from all possible sources in the process. Let's do that now.
-                        this.telemetryClient.InitializeInstrumentationKey(telemetry);
-                    }
+                    // Instrumentation key is probably empty, because the context has not yet had a chance to associate the requestTelemetry to the telemetry client yet.
+                    // and get they instrumentation key from all possible sources in the process. Let's do that now.
+                    this.telemetryClient.InitializeInstrumentationKey(telemetry);
                 }
 
                 telemetry.Name = resourceName;
@@ -150,6 +146,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 telemetry.Data = url.OriginalString;
                 telemetry.SetOperationDetail(RemoteDependencyConstants.HttpRequestOperationDetailName, webRequest);
 
+                Activity currentActivity = Activity.Current;
                 // Add the source instrumentation key header if collection is enabled, the request host is not in the excluded list and the same header doesn't already exist
                 if (this.setCorrelationHeaders && !this.correlationDomainExclusionList.Contains(url.Host))
                 {
@@ -193,53 +190,51 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         }
                     }
 
-                    Activity currentActivity = Activity.Current;
+                    if (currentActivity != null)
+                    {
+                        // ApplicationInsights only needs to inject W3C, potentially Request-Id and Correlation-Context
+                        // headers for profiler instrumentation.
+                        // in case of Http Desktop DiagnosticSourceListener they are injected in
+                        // DiagnosticSource (with the System.Net.Http.Desktop.HttpRequestOut.Start event)
+                        if (injectCorrelationHeaders)
+                        {
+                            if (currentActivity.IdFormat == ActivityIdFormat.W3C)
+                            {
+                                if (webRequest.Headers[W3C.W3CConstants.TraceParentHeader] == null)
+                                {
+                                    webRequest.Headers.Add(W3C.W3CConstants.TraceParentHeader, currentActivity.Id);
+                                }
 
-                    // ApplicationInsights only need to inject Request-Id and Correlation-Context headers 
-                    // for profiler instrumentation, in case of Http Desktop DiagnosticSourceListener
-                    // they are injected in DiagnosticSource (with the System.Net.Http.Desktop.HttpRequestOut.Start event)
-                    if (injectCorrelationHeaders)
+                                if (webRequest.Headers[W3C.W3CConstants.TraceStateHeader] == null &&
+                                    !string.IsNullOrEmpty(currentActivity.TraceStateString))
+                                {
+                                    webRequest.Headers.Add(W3C.W3CConstants.TraceStateHeader,
+                                        currentActivity.TraceStateString);
+                                }
+                            }
+                            else
+                            {
+                                // Request-Id format
+                                if (webRequest.Headers[RequestResponseHeaders.RequestIdHeader] == null)
+                                {
+                                    webRequest.Headers.Add(RequestResponseHeaders.RequestIdHeader, telemetry.Id);
+                                }
+                            }
+
+                            InjectCorrelationContext(webRequest.Headers, currentActivity);
+                        }
+                    }
+                }
+
+                // Active bug in .NET Fx diagnostics hook: https://github.com/dotnet/corefx/pull/40777
+                // Application Insights has to inject Request-Id to work it around
+                if (currentActivity?.IdFormat == ActivityIdFormat.W3C)
+                {
+                    // if (this.injectRequestIdInW3CMode)
                     {
                         if (webRequest.Headers[RequestResponseHeaders.RequestIdHeader] == null)
                         {
                             webRequest.Headers.Add(RequestResponseHeaders.RequestIdHeader, telemetry.Id);
-                        }
-
-                        if (currentActivity != null)
-                        {
-                            InjectCorrelationContext(webRequest.Headers, currentActivity);
-                        }
-                    }
-
-                    if (this.injectW3CHeaders && currentActivity != null)
-                    {
-                        string traceParent = currentActivity.GetTraceparent();
-                        if (traceParent != null && webRequest.Headers[W3C.W3CConstants.TraceParentHeader] == null)
-                        {
-                            webRequest.Headers.Add(W3C.W3CConstants.TraceParentHeader, traceParent);
-                        }
-
-                        string traceState = currentActivity.GetTracestate();
-                        if (webRequest.Headers[W3C.W3CConstants.TraceStateHeader] == null)
-                        {
-                            if (applicationId != null)
-                            {
-                                // TODO: there could be another az in the state.
-                                string appIdPair = StringUtilities.FormatAzureTracestate(applicationId);
-                                if (traceState == null)
-                                {
-                                    traceState = appIdPair;
-                                }
-                                else
-                                {
-                                    traceState = appIdPair + "," + traceState;
-                                }
-                            }
-
-                            if (traceState != null)
-                            {
-                                webRequest.Headers.Add(W3C.W3CConstants.TraceStateHeader, traceState);
-                            }
                         }
                     }
                 }
@@ -323,10 +318,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         {
                             statusCode = (int)responseObj.StatusCode;
                             this.SetTarget(telemetry, responseObj.Headers);
-                            if (this.injectW3CHeaders && request is HttpWebRequest httpRequest)
-                            {
-                                // this.SetLegacyId(telemetry, httpRequest.Headers);
-                            }
 
                             // Set the operation details for the response
                             telemetry.SetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, responseObj);
@@ -376,10 +367,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     }
 
                     this.SetTarget(telemetry, (WebHeaderCollection)responseHeaders);
-                    if (this.injectW3CHeaders && request is HttpWebRequest httpRequest)
-                    {
-                        // this.SetLegacyId(telemetry, httpRequest.Headers);
-                    }
 
                     telemetry.SetOperationDetail(RemoteDependencyConstants.HttpResponseHeadersOperationDetailName, responseHeaders);
 

@@ -11,7 +11,6 @@
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -24,6 +23,7 @@
         [TestInitialize]
         public void TestInitialize()
         {
+            Activity.ForceDefaultIdFormat = false;
             this.configuration = new TelemetryConfiguration();
             this.sentItems = new List<ITelemetry>();
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sentItems.Add(item), EndpointAddress = "https://dc.services.visualstudio.com/v2/track" };
@@ -70,6 +70,44 @@
                 module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.ServiceBus");
                 module.Initialize(this.configuration);
 
+                Activity sendActivity = null;
+                Activity parentActivity = new Activity("parent").AddBaggage("k1", "v1").Start();
+                parentActivity.TraceStateString = "state=some";
+                var telemetry = this.TrackOperation<DependencyTelemetry>(listener,
+                    "Microsoft.Azure.ServiceBus.Send", 
+                    TaskStatus.RanToCompletion,
+                    null,
+                    () => sendActivity = Activity.Current);
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("Send", telemetry.Name);
+                Assert.AreEqual(RemoteDependencyConstants.AzureServiceBus, telemetry.Type);
+                Assert.AreEqual("sb://queuename.myservicebus.com/ | queueName", telemetry.Target);
+                Assert.IsTrue(telemetry.Success.Value);
+
+                Assert.AreEqual($"|{parentActivity.TraceId.ToHexString()}.{parentActivity.SpanId.ToHexString()}.", telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(parentActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
+
+                Assert.AreEqual("v1", telemetry.Properties["k1"]);
+                Assert.AreEqual("messageId", telemetry.Properties["MessageId"]);
+
+                Assert.IsTrue(telemetry.Properties.TryGetValue("tracestate", out var tracestate));
+                Assert.AreEqual("state=some", tracestate);
+            }
+        }
+
+        [TestMethod]
+        public void ServiceBusSendHandingW3COff()
+        {
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
+            using (var listener = new DiagnosticListener("Microsoft.Azure.ServiceBus"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.ServiceBus");
+                module.Initialize(this.configuration);
+
                 Activity parentActivity = new Activity("parent").AddBaggage("k1", "v1").Start();
                 var telemetry = this.TrackOperation<DependencyTelemetry>(listener,
                     "Microsoft.Azure.ServiceBus.Send", TaskStatus.RanToCompletion);
@@ -82,6 +120,7 @@
 
                 Assert.AreEqual(parentActivity.Id, telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(parentActivity.RootId, telemetry.Context.Operation.Id);
+
                 Assert.AreEqual("v1", telemetry.Properties["k1"]);
                 Assert.AreEqual("messageId", telemetry.Properties["MessageId"]);
             }
@@ -96,8 +135,13 @@
                 module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.ServiceBus");
                 module.Initialize(this.configuration);
 
-                var telemetry = this.TrackOperation<DependencyTelemetry>(listener,
-                    "Microsoft.Azure.ServiceBus.Send", TaskStatus.RanToCompletion);
+                Activity sendActivity = null;
+                var telemetry = this.TrackOperation<DependencyTelemetry>(
+                    listener,
+                    "Microsoft.Azure.ServiceBus.Send",
+                    TaskStatus.RanToCompletion,
+                    null,
+                    () => sendActivity = Activity.Current);
 
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Send", telemetry.Name);
@@ -105,10 +149,9 @@
                 Assert.AreEqual("sb://queuename.myservicebus.com/ | queueName", telemetry.Target);
                 Assert.IsTrue(telemetry.Success.Value);
 
-                // W3C compatible-Id ( should go away when W3C is implemented in .NET https://github.com/dotnet/corefx/issues/30331)
-                Assert.AreEqual(32, telemetry.Context.Operation.Id.Length);
-                Assert.IsTrue(Regex.Match(telemetry.Context.Operation.Id, @"[a-z][0-9]").Success);
-                // end of workaround test
+                Assert.IsNull(telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
 
                 Assert.AreEqual("messageId", telemetry.Properties["MessageId"]);
             }
@@ -123,9 +166,13 @@
                 module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.ServiceBus");
                 module.Initialize(this.configuration);
 
+                Activity sendActivity = null;
                 Activity parentActivity = new Activity("parent").AddBaggage("k1", "v1").Start();
                 var telemetry = this.TrackOperation<DependencyTelemetry>(listener,
-                    "Microsoft.Azure.ServiceBus.Send", TaskStatus.Faulted);
+                    "Microsoft.Azure.ServiceBus.Send",
+                    TaskStatus.Faulted,
+                    null,
+                    () => sendActivity = Activity.Current);
 
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Send", telemetry.Name);
@@ -133,8 +180,10 @@
                 Assert.AreEqual("sb://queuename.myservicebus.com/ | queueName", telemetry.Target);
                 Assert.IsFalse(telemetry.Success.Value);
 
-                Assert.AreEqual(parentActivity.Id, telemetry.Context.Operation.ParentId);
-                Assert.AreEqual(parentActivity.RootId, telemetry.Context.Operation.Id);
+                Assert.AreEqual($"|{parentActivity.TraceId.ToHexString()}.{parentActivity.SpanId.ToHexString()}.", telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(parentActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
+
                 Assert.AreEqual("v1", telemetry.Properties["k1"]);
                 Assert.AreEqual("messageId", telemetry.Properties["MessageId"]);
             }
@@ -144,7 +193,63 @@
         public void ServiceBusProcessHanding()
         {
             var tc = new TelemetryClient(this.configuration);
-            void TrackTraceDuringProcessing() => tc.TrackTrace("trace");
+
+            Activity messageActivity = null;
+            void TrackTraceDuringProcessing()
+            {
+                messageActivity = Activity.Current;
+                tc.TrackTrace("trace");
+            }
+
+            using (var listener = new DiagnosticListener("Microsoft.Azure.ServiceBus"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.ServiceBus");
+                module.Initialize(this.configuration);
+
+                var parent = new Activity("foo").AddBaggage("k1", "v1").Start();
+                var requestTelemetry = this.TrackOperation<RequestTelemetry>(
+                    listener,
+                    "Microsoft.Azure.ServiceBus.Process",
+                    TaskStatus.RanToCompletion,
+                    operation: TrackTraceDuringProcessing);
+
+                Assert.IsNotNull(requestTelemetry);
+                Assert.AreEqual("Process", requestTelemetry.Name);
+                Assert.AreEqual(
+                    $"type:{RemoteDependencyConstants.AzureServiceBus} | name:queueName | endpoint:sb://queuename.myservicebus.com/",
+                    requestTelemetry.Source);
+                Assert.IsTrue(requestTelemetry.Success.Value);
+
+                Assert.AreEqual($"|{messageActivity.TraceId.ToHexString()}.{messageActivity.ParentSpanId.ToHexString()}.", requestTelemetry.Context.Operation.ParentId);
+                Assert.AreEqual(messageActivity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
+                Assert.AreEqual($"|{messageActivity.TraceId.ToHexString()}.{messageActivity.SpanId.ToHexString()}.", requestTelemetry.Id);
+
+                Assert.AreEqual("v1", requestTelemetry.Properties["k1"]);
+
+                Assert.AreEqual("messageId", requestTelemetry.Properties["MessageId"]);
+
+                var traceTelemetry = this.sentItems.OfType<TraceTelemetry>();
+                Assert.AreEqual(1, traceTelemetry.Count());
+
+                Assert.AreEqual(requestTelemetry.Context.Operation.Id, traceTelemetry.Single().Context.Operation.Id);
+                Assert.AreEqual(requestTelemetry.Id, traceTelemetry.Single().Context.Operation.ParentId);
+            }
+        }
+
+        [TestMethod]
+        public void ServiceBusProcessHandingW3COff()
+        {
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
+            var tc = new TelemetryClient(this.configuration);
+
+            Activity messageActivity = null;
+            void TrackTraceDuringProcessing()
+            {
+                messageActivity = Activity.Current;
+                tc.TrackTrace("trace");
+            }
 
             using (var listener = new DiagnosticListener("Microsoft.Azure.ServiceBus"))
             using (var module = new DependencyTrackingTelemetryModule())
@@ -168,6 +273,7 @@
 
                 Assert.AreEqual(parentActivity.Id, requestTelemetry.Context.Operation.ParentId);
                 Assert.AreEqual(parentActivity.RootId, requestTelemetry.Context.Operation.Id);
+                Assert.AreEqual(messageActivity.Id, requestTelemetry.Id);
                 Assert.AreEqual("v1", requestTelemetry.Properties["k1"]);
 
                 Assert.AreEqual("messageId", requestTelemetry.Properties["MessageId"]);
@@ -181,10 +287,16 @@
         }
 
         [TestMethod]
-        public void ServiceBusProcessHandingExternalParent()
+        public void ServiceBusProcessHandingExternalHierarchicalParent()
         {
             var tc = new TelemetryClient(this.configuration);
-            void TrackTraceDuringProcessing() => tc.TrackTrace("trace");
+
+            Activity messageActivity = null;
+            void TrackTraceDuringProcessing()
+            {
+                messageActivity = Activity.Current;
+                tc.TrackTrace("trace");
+            }
 
             using (var listener = new DiagnosticListener("Microsoft.Azure.ServiceBus"))
             using (var module = new DependencyTrackingTelemetryModule())
@@ -196,7 +308,7 @@
                     listener,
                     "Microsoft.Azure.ServiceBus.Process", 
                     TaskStatus.RanToCompletion, 
-                    "parent",
+                    "|hierarchical-parent.",
                     TrackTraceDuringProcessing);
 
                 Assert.IsNotNull(requestTelemetry);
@@ -206,8 +318,106 @@
                     requestTelemetry.Source);
                 Assert.IsTrue(requestTelemetry.Success.Value);
 
-                Assert.AreEqual("parent", requestTelemetry.Context.Operation.ParentId);
-                Assert.AreEqual("parent", requestTelemetry.Context.Operation.Id);
+                Assert.IsTrue(requestTelemetry.Properties.TryGetValue("ai_legacyRootId", out var legacyRoot));
+                Assert.AreEqual("hierarchical-parent", legacyRoot);
+                Assert.AreEqual("|hierarchical-parent.", requestTelemetry.Context.Operation.ParentId);
+                Assert.AreEqual($"|{messageActivity.TraceId.ToHexString()}.{messageActivity.SpanId.ToHexString()}.", requestTelemetry.Id);
+                Assert.AreEqual(messageActivity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
+                Assert.AreEqual("messageId", requestTelemetry.Properties["MessageId"]);
+
+                var traceTelemetry = this.sentItems.OfType<TraceTelemetry>();
+                Assert.AreEqual(1, traceTelemetry.Count());
+
+                Assert.AreEqual(requestTelemetry.Context.Operation.Id, traceTelemetry.Single().Context.Operation.Id);
+                Assert.AreEqual(requestTelemetry.Id, traceTelemetry.Single().Context.Operation.ParentId);
+            }
+        }
+
+        [TestMethod]
+        public void ServiceBusProcessHandingExternalHierarchicalW3CCompatibleParent()
+        {
+            var tc = new TelemetryClient(this.configuration);
+
+            Activity messageActivity = null;
+            void TrackTraceDuringProcessing()
+            {
+                messageActivity = Activity.Current;
+                tc.TrackTrace("trace");
+            }
+
+            using (var listener = new DiagnosticListener("Microsoft.Azure.ServiceBus"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.ServiceBus");
+                module.Initialize(this.configuration);
+
+                var parentId = $"|{ActivityTraceId.CreateRandom().ToHexString()}.";
+                var requestTelemetry = this.TrackOperation<RequestTelemetry>(
+                    listener,
+                    "Microsoft.Azure.ServiceBus.Process",
+                    TaskStatus.RanToCompletion,
+                    parentId,
+                    TrackTraceDuringProcessing);
+
+                Assert.IsNotNull(requestTelemetry);
+                Assert.AreEqual("Process", requestTelemetry.Name);
+                Assert.AreEqual(
+                    $"type:{RemoteDependencyConstants.AzureServiceBus} | name:queueName | endpoint:sb://queuename.myservicebus.com/",
+                    requestTelemetry.Source);
+                Assert.IsTrue(requestTelemetry.Success.Value);
+
+                Assert.IsFalse(requestTelemetry.Properties.TryGetValue("ai_legacyRootId", out _));
+                Assert.AreEqual(parentId, requestTelemetry.Context.Operation.ParentId);
+                Assert.AreEqual($"|{messageActivity.TraceId.ToHexString()}.{messageActivity.SpanId.ToHexString()}.", requestTelemetry.Id);
+                Assert.AreEqual(messageActivity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
+
+                Assert.AreEqual("messageId", requestTelemetry.Properties["MessageId"]);
+
+                var traceTelemetry = this.sentItems.OfType<TraceTelemetry>();
+                Assert.AreEqual(1, traceTelemetry.Count());
+
+                Assert.AreEqual(requestTelemetry.Context.Operation.Id, traceTelemetry.Single().Context.Operation.Id);
+                Assert.AreEqual(requestTelemetry.Id, traceTelemetry.Single().Context.Operation.ParentId);
+            }
+        }
+
+        [TestMethod]
+        public void ServiceBusProcessHandingExternalMalformedParent()
+        {
+            var tc = new TelemetryClient(this.configuration);
+
+            Activity messageActivity = null;
+            void TrackTraceDuringProcessing()
+            {
+                messageActivity = Activity.Current;
+                tc.TrackTrace("trace");
+            }
+
+            using (var listener = new DiagnosticListener("Microsoft.Azure.ServiceBus"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.ServiceBus");
+                module.Initialize(this.configuration);
+
+                var requestTelemetry = this.TrackOperation<RequestTelemetry>(
+                    listener,
+                    "Microsoft.Azure.ServiceBus.Process",
+                    TaskStatus.RanToCompletion,
+                    "malformed-parent",
+                    TrackTraceDuringProcessing);
+
+                Assert.IsNotNull(requestTelemetry);
+                Assert.AreEqual("Process", requestTelemetry.Name);
+                Assert.AreEqual(
+                    $"type:{RemoteDependencyConstants.AzureServiceBus} | name:queueName | endpoint:sb://queuename.myservicebus.com/",
+                    requestTelemetry.Source);
+                Assert.IsTrue(requestTelemetry.Success.Value);
+
+                Assert.IsTrue(requestTelemetry.Properties.TryGetValue("ai_legacyRootId", out var legacyRoot));
+                Assert.AreEqual("malformed-parent", legacyRoot);
+                Assert.AreEqual("malformed-parent", requestTelemetry.Context.Operation.ParentId);
+                Assert.AreEqual($"|{messageActivity.TraceId.ToHexString()}.{messageActivity.SpanId.ToHexString()}.", requestTelemetry.Id);
+                Assert.AreEqual(messageActivity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
                 Assert.AreEqual("messageId", requestTelemetry.Properties["MessageId"]);
 
                 var traceTelemetry = this.sentItems.OfType<TraceTelemetry>();
@@ -222,7 +432,12 @@
         public void ServiceBusProcessHandingWithoutParent()
         {
             var tc = new TelemetryClient(this.configuration);
-            void TrackTraceDuringProcessing() => tc.TrackTrace("trace");
+            Activity messageActivity = null;
+            void TrackTraceDuringProcessing()
+            {
+                messageActivity = Activity.Current;
+                tc.TrackTrace("trace");
+            }
 
             using (var module = new DependencyTrackingTelemetryModule())
             using (var listener = new DiagnosticListener("Microsoft.Azure.ServiceBus"))
@@ -243,10 +458,9 @@
                     requestTelemetry.Source);
                 Assert.IsTrue(requestTelemetry.Success.Value);
 
-                // W3C compatible-Id ( should go away when W3C is implemented in .NET https://github.com/dotnet/corefx/issues/30331 TODO)
-                Assert.AreEqual(32, requestTelemetry.Context.Operation.Id.Length);
-                Assert.IsTrue(Regex.Match(requestTelemetry.Context.Operation.Id, @"[a-z][0-9]").Success);
-                // end of workaround test
+                Assert.AreEqual(messageActivity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
+                Assert.IsNull(requestTelemetry.Context.Operation.ParentId);
+                Assert.AreEqual($"|{messageActivity.TraceId.ToHexString()}.{messageActivity.SpanId.ToHexString()}.", requestTelemetry.Id);
 
                 Assert.AreEqual("messageId", requestTelemetry.Properties["MessageId"]);
 
@@ -259,58 +473,22 @@
         }
 
         [TestMethod]
-        public void ServiceBusProcessHandingW3C()
+        public void ServiceBusProcessHandingExternalParentW3COff()
         {
-            this.configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
+
             var tc = new TelemetryClient(this.configuration);
-            void TrackTraceDuringProcessing() => tc.TrackTrace("trace");
-
-            using (var listener = new DiagnosticListener("Microsoft.Azure.ServiceBus"))
-            using (var module = new DependencyTrackingTelemetryModule())
+            Activity messageActivity = null;
+            void TrackTraceDuringProcessing()
             {
-                module.EnableW3CHeadersInjection = true;
-                module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.ServiceBus");
-                module.Initialize(this.configuration);
-
-                Activity parentActivity = new Activity("parent").AddBaggage("k1", "v1").Start();
-                var requestTelemetry = this.TrackOperation<RequestTelemetry>(
-                    listener,
-                    "Microsoft.Azure.ServiceBus.Process",
-                    TaskStatus.RanToCompletion,
-                    operation: TrackTraceDuringProcessing);
-
-                Assert.IsNotNull(requestTelemetry);
-                Assert.AreEqual("Process", requestTelemetry.Name);
-                Assert.AreEqual(
-                    $"type:{RemoteDependencyConstants.AzureServiceBus} | name:queueName | endpoint:sb://queuename.myservicebus.com/",
-                    requestTelemetry.Source);
-                Assert.IsTrue(requestTelemetry.Success.Value);
-
-                Assert.AreEqual($"|{parentActivity.GetTraceId()}.{parentActivity.GetSpanId()}.", requestTelemetry.Context.Operation.ParentId);
-                Assert.AreEqual(parentActivity.GetTraceId(), requestTelemetry.Context.Operation.Id);
-                Assert.AreEqual("v1", requestTelemetry.Properties["k1"]);
-
-                Assert.AreEqual("messageId", requestTelemetry.Properties["MessageId"]);
-
-                var traceTelemetry = this.sentItems.OfType<TraceTelemetry>();
-                Assert.AreEqual(1, traceTelemetry.Count());
-
-                Assert.AreEqual(requestTelemetry.Context.Operation.Id, traceTelemetry.Single().Context.Operation.Id);
-                Assert.AreEqual(requestTelemetry.Id, traceTelemetry.Single().Context.Operation.ParentId);
+                messageActivity = Activity.Current;
+                tc.TrackTrace("trace");
             }
-        }
-
-        [TestMethod]
-        public void ServiceBusProcessHandingExternalParentW3C()
-        {
-            this.configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
-            var tc = new TelemetryClient(this.configuration);
-            void TrackTraceDuringProcessing() => tc.TrackTrace("trace");
 
             using (var listener = new DiagnosticListener("Microsoft.Azure.ServiceBus"))
             using (var module = new DependencyTrackingTelemetryModule())
             {
-                module.EnableW3CHeadersInjection = true;
                 module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.ServiceBus");
                 module.Initialize(this.configuration);
 
@@ -329,48 +507,8 @@
                 Assert.IsTrue(requestTelemetry.Success.Value);
 
                 Assert.AreEqual("parent", requestTelemetry.Context.Operation.ParentId);
-                Assert.AreEqual("parent", requestTelemetry.Properties[W3C.W3CConstants.LegacyRootIdProperty]);
-                Assert.AreEqual("messageId", requestTelemetry.Properties["MessageId"]);
-
-                var traceTelemetry = this.sentItems.OfType<TraceTelemetry>();
-                Assert.AreEqual(1, traceTelemetry.Count());
-
-                Assert.AreEqual(requestTelemetry.Context.Operation.Id, traceTelemetry.Single().Context.Operation.Id);
-                Assert.AreEqual(requestTelemetry.Id, traceTelemetry.Single().Context.Operation.ParentId);
-            }
-        }
-
-        [TestMethod]
-        public void ServiceBusProcessHandingWithoutParentW3C()
-        {
-            this.configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
-            var tc = new TelemetryClient(this.configuration);
-            void TrackTraceDuringProcessing() => tc.TrackTrace("trace");
-
-            using (var module = new DependencyTrackingTelemetryModule())
-            using (var listener = new DiagnosticListener("Microsoft.Azure.ServiceBus"))
-            {
-                module.EnableW3CHeadersInjection = true;
-                module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.ServiceBus");
-                module.Initialize(this.configuration);
-
-                var requestTelemetry = this.TrackOperation<RequestTelemetry>(
-                    listener,
-                    "Microsoft.Azure.ServiceBus.Process",
-                    TaskStatus.RanToCompletion,
-                    operation: TrackTraceDuringProcessing);
-
-                Assert.IsNotNull(requestTelemetry);
-                Assert.AreEqual("Process", requestTelemetry.Name);
-                Assert.AreEqual(
-                    $"type:{RemoteDependencyConstants.AzureServiceBus} | name:queueName | endpoint:sb://queuename.myservicebus.com/",
-                    requestTelemetry.Source);
-                Assert.IsTrue(requestTelemetry.Success.Value);
-
-                // W3C compatible-Id ( should go away when W3C is implemented in .NET https://github.com/dotnet/corefx/issues/30331 TODO)
-                Assert.AreEqual(32, requestTelemetry.Context.Operation.Id.Length);
-                Assert.IsTrue(Regex.Match(requestTelemetry.Context.Operation.Id, @"[a-z][0-9]").Success);
-                // end of workaround test
+                Assert.AreEqual("parent", requestTelemetry.Context.Operation.Id);
+                Assert.AreEqual(messageActivity.Id, requestTelemetry.Id);
 
                 Assert.AreEqual("messageId", requestTelemetry.Properties["MessageId"]);
 
@@ -379,35 +517,6 @@
 
                 Assert.AreEqual(requestTelemetry.Context.Operation.Id, traceTelemetry.Single().Context.Operation.Id);
                 Assert.AreEqual(requestTelemetry.Id, traceTelemetry.Single().Context.Operation.ParentId);
-            }
-        }
-
-        public void ServiceBusProcessHandingExternalParentW3CCompatibleRequestId()
-        {
-            this.configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
-            using (var listener = new DiagnosticListener("Microsoft.Azure.ServiceBus"))
-            using (var module = new DependencyTrackingTelemetryModule())
-            {
-                module.EnableW3CHeadersInjection = true;
-                module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.ServiceBus");
-                module.Initialize(this.configuration);
-
-                var telemetry = this.TrackOperation<RequestTelemetry>(
-                    listener,
-                    "Microsoft.Azure.ServiceBus.Process", 
-                    TaskStatus.RanToCompletion,
-                    "|4bf92f3577b34da6a3ce929d0e0e4736.");
-
-                Assert.IsNotNull(telemetry);
-                Assert.AreEqual("Process", telemetry.Name);
-                Assert.AreEqual(
-                    $"type:{RemoteDependencyConstants.AzureServiceBus} | name:queueName | endpoint:sb://queuename.myservicebus.com/",
-                    telemetry.Source);
-                Assert.IsTrue(telemetry.Success.Value);
-
-                Assert.AreEqual("|4bf92f3577b34da6a3ce929d0e0e4736.", telemetry.Context.Operation.ParentId);
-                Assert.AreEqual("4bf92f3577b34da6a3ce929d0e0e4736", telemetry.Context.Operation.Id);
-                Assert.AreEqual("messageId", telemetry.Properties["MessageId"]);
             }
         }
 

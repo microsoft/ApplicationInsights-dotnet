@@ -64,8 +64,6 @@
             // Check that instrumentation key is correct
             Assert.AreEqual(0, items.Count(i => !i.iKey.Equals(DiagnosticsInstrumentationKey)), "Some item does not have DiagnosticsInstrumentationKey");
 
-           
-
             // There should be one custom actionable event about incorrect timeout of session expiration
             var actionableEventCount = items.Count(i => i.data.baseData.message.StartsWith("AI: "));
             Assert.IsTrue(actionableEventCount >= 1, "AI actionable event was not received");

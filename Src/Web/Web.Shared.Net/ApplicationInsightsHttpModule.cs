@@ -17,7 +17,6 @@
     public sealed class ApplicationInsightsHttpModule : IHttpModule
     {
         private readonly RequestTrackingTelemetryModule requestModule;
-        private readonly ExceptionTrackingTelemetryModule exceptionModule;
 
         // Delegate preferred over Invoke to gain performance, only in NET45 or above as ISubscriptionToken is not available in Net40
         private Func<HttpResponse, Action<HttpContext>, ISubscriptionToken> openDelegateForInvokingAddOnSendingHeadersMethod;
@@ -45,13 +44,6 @@
                     if (module is RequestTrackingTelemetryModule)
                     {
                         this.requestModule = (RequestTrackingTelemetryModule)module;
-                    }
-                    else
-                    {
-                        if (module is ExceptionTrackingTelemetryModule)
-                        {
-                            this.exceptionModule = (ExceptionTrackingTelemetryModule)module;
-                        }
                     }
                 }
                 

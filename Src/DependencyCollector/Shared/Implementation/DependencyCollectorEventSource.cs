@@ -476,11 +476,21 @@
         [Event(
             46,
             Keywords = Keywords.RddEventKeywords,
-            Message = "Not tracking operation for event = '{0}', id = '{1}', lisener is not active.",
+            Message = "Not tracking operation for event = '{0}', id = '{1}', listener is not active.",
             Level = EventLevel.Verbose)]
         public void NotActiveListenerNoTracking(string evntName, string activityId, string appDomainName = "Incorrect")
         {
             this.WriteEvent(46, evntName, activityId, this.applicationNameProvider.Name);
+        }
+
+        [Event(
+            47,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "Detected Http Client instrumentation version {0} on for HttpClient version {1}.{2} with informational version {3}.",
+            Level = EventLevel.Verbose)]
+        public void HttpCoreDiagnosticListenerInstrumentationVersion(int httpInstrumentationVersion, int httpClientMajorVersion, int httpClientMinorVersion, string infoVersion, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(47, httpInstrumentationVersion, httpClientMajorVersion, httpClientMinorVersion, infoVersion, this.applicationNameProvider.Name);
         }
 
         /// <summary>

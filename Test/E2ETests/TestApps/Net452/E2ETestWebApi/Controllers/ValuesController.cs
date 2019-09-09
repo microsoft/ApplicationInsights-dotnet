@@ -53,7 +53,7 @@ namespace E2ETestWebApi.Controllers
             response.Headers.Add(".NetRelease", Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full", "Release", null)?.ToString());
             response.Headers.Add("AspNetAssemblyVersion", objectAssemblyFileVer.Version);
 
-            var restoredActivity = (Activity) HttpContext.Current.Items["__AspnetActivityRestored__"];
+            var restoredActivity = Activity.Current;
             if (restoredActivity != null)
             {
                 response.Headers.Add("RestoredActivityId", restoredActivity.Id);

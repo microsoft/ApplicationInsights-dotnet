@@ -38,7 +38,7 @@
 
   <ItemGroup>
     <!--Common Dependencies-->
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.11.0-beta1" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.11.0-beta1-build12825" />
   </ItemGroup>
 
   <Import Project="..\..\..\Src\Common\Common.projitems" Label="Shared" />

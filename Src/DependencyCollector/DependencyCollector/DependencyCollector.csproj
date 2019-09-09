@@ -44,8 +44,8 @@
   
   <ItemGroup>
     <!--Common Dependencies-->
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.11.0-beta1" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.11.0-beta1-build12825" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.6.0-preview8.19405.3" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">

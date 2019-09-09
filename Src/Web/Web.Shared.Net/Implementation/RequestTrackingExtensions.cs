@@ -6,7 +6,6 @@
     using System.Web;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.ApplicationInsights.W3C.Internal;
     using Microsoft.AspNet.TelemetryCorrelation;
 
@@ -20,104 +19,106 @@
                 throw new ArgumentNullException(nameof(platformContext));
             }
 
-            var result = new RequestTelemetry();
             var currentActivity = Activity.Current;
+
+            var result = new RequestTelemetry();
             var requestContext = result.Context.Operation;
+            string legacyParentId = null;
+            string legacyRootId = null;
 
             if (currentActivity == null)
             {
-                // if there was no BeginRequest, ASP.NET HttpModule did not have a chance to set current activity (and will never do it).
+                // if there was no BeginRequest, ASP.NET HttpModule did not have a chance to set current activity yet
+                // this could happen if ASP.NET TelemetryCorrelation module is not the first in the pipeline
+                // and some module before it tracks telemetry.
+                // The ASP.NET module will be invoked later with proper correlation ids.
+                // But we only get one chance to create request telemetry and we have to create it when method is called to avoid breaking changes 
+                // The correlation will be BROKEN anyway as telemetry reported before ASP.NET TelemetryCorrelation HttpModule is called
+                // will not be correlated  properly to telemetry reported within the request 
+                // Here we simply maintaining backward compatibility with this behavior...
+
                 currentActivity = new Activity(ActivityHelpers.RequestActivityItemName);
-
-                if (ActivityHelpers.IsW3CTracingEnabled)
+                if (!currentActivity.Extract(platformContext.Request.Headers) &&
+                    ActivityHelpers.ParentOperationIdHeaderName != null &&
+                    ActivityHelpers.RootOperationIdHeaderName != null)
                 {
-                    ActivityHelpers.ExtractW3CContext(platformContext.Request, currentActivity);
-                    ActivityHelpers.ExtractTracestate(platformContext.Request, currentActivity, result);
-                    // length enforced in SetW3CContext
-                    currentActivity.SetParentId(currentActivity.GetTraceId());
-                    currentActivity.UpdateTelemetry(result, true);
-
-                    SetLegacyContextIds(platformContext.Request, result);
-                }
-                else if (currentActivity.Extract(platformContext.Request.Headers))
-                {
-                    requestContext.ParentId = currentActivity.ParentId;
-                }
-                else if (ActivityHelpers.TryParseCustomHeaders(platformContext.Request, out var rootId, out var parentId))
-                {
-                    currentActivity.SetParentId(rootId);
-                    if (!string.IsNullOrEmpty(parentId))
-                    {
-                        currentActivity.SetParentId(rootId);
-                        if (!string.IsNullOrEmpty(parentId))
-                        {
-                            requestContext.ParentId = parentId;
-                        }
-                    }
-                }
-                else
-                {
-                    // As a first step in supporting W3C protocol in ApplicationInsights,
-                    // we want to generate Activity Ids in the W3C compatible format.
-                    // While .NET changes to Activity are pending, we want to ensure trace starts with W3C compatible Id
-                    // as early as possible, so that everyone has a chance to upgrade and have compatibility with W3C systems once they arrive.
-                    // So if there is no current Activity (i.e. there were no Request-Id header in the incoming request), we'll override ParentId on 
-                    // the current Activity by the properly formatted one. This workaround should go away
-                    // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331
-                    currentActivity.SetParentId(W3CUtilities.GenerateTraceId());
-                    // end of workaround
+                    legacyRootId = StringUtilities.EnforceMaxLength(platformContext.Request.UnvalidatedGetHeader(ActivityHelpers.RootOperationIdHeaderName), InjectionGuardConstants.RequestHeaderMaxLength);
+                    legacyParentId = StringUtilities.EnforceMaxLength(platformContext.Request.UnvalidatedGetHeader(ActivityHelpers.ParentOperationIdHeaderName), InjectionGuardConstants.RequestHeaderMaxLength);
+                    currentActivity.SetParentId(legacyRootId);
                 }
 
                 currentActivity.Start();
             }
-            else
+
+            if (currentActivity.IdFormat == ActivityIdFormat.W3C && 
+                currentActivity.ParentId != null 
+                && !currentActivity.ParentId.StartsWith("00-", StringComparison.Ordinal))
             {
-                // currentActivity != null
-                if (ActivityHelpers.IsW3CTracingEnabled)
+                if (W3CUtilities.TryGetTraceId(currentActivity.ParentId, out var traceId))
                 {
-                    if (!currentActivity.IsW3CActivity())
-                    {
-                        ActivityHelpers.ExtractW3CContext(platformContext.Request, currentActivity);
-                    }
-
-                    ActivityHelpers.ExtractTracestate(platformContext.Request, currentActivity, result);
-
-                    currentActivity.UpdateTelemetry(result, true);
-                    SetLegacyContextIds(platformContext.Request, result);
+                    legacyParentId = currentActivity.ParentId;
+                    
+                    currentActivity = CreateSubstituteActivityFromCompatibleRootId(currentActivity, traceId);
                 }
-                else if (ActivityHelpers.IsHierarchicalRequestId(currentActivity.ParentId))
+                else
                 {
-                    requestContext.ParentId = currentActivity.ParentId;
-                }
-                else if (ActivityHelpers.ParentOperationIdHeaderName != null)
-                {
-                    var parentId = platformContext.Request.UnvalidatedGetHeader(ActivityHelpers.ParentOperationIdHeaderName);
-                    if (!string.IsNullOrEmpty(parentId))
-                    {
-                        requestContext.ParentId = parentId;
-                    }
+                    legacyRootId = W3CUtilities.GetRootId(currentActivity.ParentId);
+                    legacyParentId = legacyParentId ?? GetLegacyParentId(currentActivity.ParentId, platformContext.Request);
                 }
             }
+            else if (currentActivity.IdFormat == ActivityIdFormat.Hierarchical &&
+                     currentActivity.ParentId != null)
+            {
+                legacyParentId = GetLegacyParentId(currentActivity.ParentId, platformContext.Request);
+            }
 
-            if (!ActivityHelpers.IsW3CTracingEnabled)
+            if (currentActivity.IdFormat == ActivityIdFormat.W3C)
             {
                 // we have Activity.Current, we need to properly initialize request telemetry and store it in HttpContext
-                if (string.IsNullOrEmpty(requestContext.Id))
+                requestContext.Id = currentActivity.TraceId.ToHexString();
+
+                if (currentActivity.ParentSpanId != default && legacyParentId == null)
                 {
-                    requestContext.Id = currentActivity.RootId;
-                    foreach (var item in currentActivity.Baggage)
+                    requestContext.ParentId = W3CUtilities.FormatTelemetryId(requestContext.Id, currentActivity.ParentSpanId.ToHexString());
+                }
+                else
+                {
+                    requestContext.ParentId = legacyParentId;
+                    if (legacyRootId != null)
                     {
-                        result.Properties[item.Key] = item.Value;
+                        result.Properties[W3CConstants.LegacyRootPropertyIdKey] = legacyRootId;
                     }
                 }
+
+                // TODO[tracestate]: remove, this is done in base SDK
+                if (!string.IsNullOrEmpty(currentActivity.TraceStateString))
+                {
+                    result.Properties[W3CConstants.TracestatePropertyKey] = currentActivity.TraceStateString;
+                }
+
+                result.Id = W3CUtilities.FormatTelemetryId(requestContext.Id, currentActivity.SpanId.ToHexString());
+            }
+            else
+            {
+                // we have Activity.Current, we need to properly initialize request telemetry and store it in HttpContext
+                requestContext.Id = currentActivity.RootId;
+                requestContext.ParentId = legacyParentId ?? currentActivity.ParentId;
 
                 result.Id = currentActivity.Id;
             }
 
-            // save current activity in case it will be lost - we will use it in Web.OperationCorrelationTelemetryIntitalizer
-            platformContext.Items[ActivityHelpers.RequestActivityItemName] = currentActivity;
+            foreach (var item in currentActivity.Baggage)
+            {
+                if (!result.Properties.ContainsKey(item.Key))
+                {
+                    result.Properties.Add(item);
+                }
+            }
 
-            platformContext.Items.Add(RequestTrackingConstants.RequestTelemetryItemName, result);
+            // save current activity in case it will be lost (under the same name TelemetryCorrelation stores it)
+            // TelemetryCorrelation will restore it when possible.
+            platformContext.Items[ActivityHelpers.RequestActivityItemName] = currentActivity;
+            platformContext.Items[RequestTrackingConstants.RequestTelemetryItemName] = result;
             WebEventSource.Log.WebTelemetryModuleRequestTelemetryCreated();
 
             return result;
@@ -131,10 +132,8 @@
                 throw new ArgumentNullException(nameof(platformContext));
             }
 
-            var result = platformContext.GetRequestTelemetry() ??
-                         CreateRequestTelemetryPrivate(platformContext);
-
-            return result;
+            return platformContext.GetRequestTelemetry() ?? 
+                   CreateRequestTelemetryPrivate(platformContext);
         }
 
         /// <summary>
@@ -146,42 +145,36 @@
             var request = platformContext.Request;
             string name = request.UnvalidatedGetPath();
 
-            if (request.RequestContext != null &&
-                request.RequestContext.RouteData != null)
+            var routeValues = request.RequestContext?.RouteData?.Values;
+
+            if (routeValues != null && routeValues.Count > 0)
             {
-                var routeValues = request.RequestContext.RouteData.Values;
+                routeValues.TryGetValue("controller", out var controller);
+                string controllerString = (controller == null) ? string.Empty : controller.ToString();
 
-                if (routeValues != null && routeValues.Count > 0)
+                if (!string.IsNullOrEmpty(controllerString))
                 {
-                    object controller;                    
-                    routeValues.TryGetValue("controller", out controller);
-                    string controllerString = (controller == null) ? string.Empty : controller.ToString();
+                    routeValues.TryGetValue("action", out var action);
+                    string actionString = (action == null) ? string.Empty : action.ToString();
 
-                    if (!string.IsNullOrEmpty(controllerString))
+                    name = controllerString;
+                    if (!string.IsNullOrEmpty(actionString))
                     {
-                        object action;
-                        routeValues.TryGetValue("action", out action);
-                        string actionString = (action == null) ? string.Empty : action.ToString();
-
-                        name = controllerString;
-                        if (!string.IsNullOrEmpty(actionString))
+                        name += "/" + actionString;
+                    }
+                    else
+                    {
+                        if (routeValues.Keys.Count > 1)
                         {
-                            name += "/" + actionString;
-                        }
-                        else
-                        {
-                            if (routeValues.Keys.Count > 1)
-                            {
-                                // We want to include arguments because in WebApi action is usually null 
-                                // and action is resolved by controller, http method and number of arguments
-                                var sortedKeys = routeValues.Keys
-                                    .Where(key => !string.Equals(key, "controller", StringComparison.OrdinalIgnoreCase))
-                                    .OrderBy(key => key, StringComparer.OrdinalIgnoreCase)
-                                    .ToArray();
+                            // We want to include arguments because in WebApi action is usually null 
+                            // and action is resolved by controller, http method and number of arguments
+                            var sortedKeys = routeValues.Keys
+                                .Where(key => !string.Equals(key, "controller", StringComparison.OrdinalIgnoreCase))
+                                .OrderBy(key => key, StringComparer.OrdinalIgnoreCase)
+                                .ToArray();
 
-                                string arguments = string.Join(@"/", sortedKeys);
-                                name += " [" + arguments + "]";
-                            }
+                            string arguments = string.Join(@"/", sortedKeys);
+                            name += " [" + arguments + "]";
                         }
                     }
                 }
@@ -197,24 +190,31 @@
             return name;
         }
 
-        private static void SetLegacyContextIds(HttpRequest request, RequestTelemetry requestTelemetry)
+        private static Activity CreateSubstituteActivityFromCompatibleRootId(Activity currentActivity, ReadOnlySpan<char> traceId)
         {
-            if (request.UnvalidatedGetHeader(W3CConstants.TraceParentHeader) != null)
+            var activity = new Activity(currentActivity.OperationName);
+            activity.SetParentId(ActivityTraceId.CreateFromString(traceId), default, ActivityTraceFlags.None);
+
+            foreach (var baggage in currentActivity.Baggage)
             {
-                return;
+                activity.AddBaggage(baggage.Key, baggage.Value);
             }
 
-            var requestId = request.UnvalidatedGetHeader(RequestResponseHeaders.RequestIdHeader);
-            if (requestId != null)
+            return activity.Start();
+        }
+
+        private static string GetLegacyParentId(string activityParent, HttpRequest request)
+        {
+            if (ActivityHelpers.IsHierarchicalRequestId(activityParent))
             {
-                var parentId = StringUtilities.EnforceMaxLength(requestId, InjectionGuardConstants.RequestHeaderMaxLength);
-                requestTelemetry.Context.Operation.ParentId = parentId;
+                return activityParent;
             }
-            else if (ActivityHelpers.TryParseCustomHeaders(request, out var _, out var parentId))
-            {
-                parentId = StringUtilities.EnforceMaxLength(parentId, InjectionGuardConstants.RequestHeaderMaxLength);
-                requestTelemetry.Context.Operation.ParentId = parentId;
-            }
+
+            return ActivityHelpers.ParentOperationIdHeaderName != null ?
+                    StringUtilities.EnforceMaxLength(
+                        request.UnvalidatedGetHeader(ActivityHelpers.ParentOperationIdHeaderName),
+                        InjectionGuardConstants.RequestHeaderMaxLength) :
+                    activityParent;
         }
     }
 }

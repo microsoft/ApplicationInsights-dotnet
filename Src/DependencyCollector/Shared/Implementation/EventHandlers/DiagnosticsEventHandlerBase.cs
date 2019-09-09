@@ -8,6 +8,8 @@
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.W3C;
+    using Microsoft.ApplicationInsights.W3C.Internal;
 
     /// <summary>
     /// Base implementation of diagnostic event handler.
@@ -41,11 +43,41 @@
             telemetry.Name = this.GetOperationName(eventName, eventPayload, activity);
             telemetry.Duration = activity.Duration;
             telemetry.Timestamp = activity.StartTimeUtc;
-            telemetry.Id = activity.Id;
-            telemetry.Context.Operation.Id = activity.RootId;
-            telemetry.Context.Operation.ParentId = activity.ParentId;
 
-            foreach (var item in activity.Baggage)
+            if (activity.IdFormat == ActivityIdFormat.W3C)
+            {
+                var traceId = activity.TraceId.ToHexString();
+                telemetry.Context.Operation.Id = traceId;
+
+                if (string.IsNullOrEmpty(telemetry.Context.Operation.ParentId))
+                {
+                    if (activity.ParentSpanId != default)
+                    {
+                        telemetry.Context.Operation.ParentId = W3CUtilities.FormatTelemetryId(traceId, activity.ParentSpanId.ToHexString());
+                    }
+                    else if (!string.IsNullOrEmpty(activity.ParentId))
+                    {
+                        // W3C activity with non-W3C parent must keep parentId
+                        telemetry.Context.Operation.ParentId = activity.ParentId;
+                    }
+                }
+
+                telemetry.Id = W3CUtilities.FormatTelemetryId(traceId, activity.SpanId.ToHexString());
+
+                // TODO[tracestate]: remove, this is done in base SDK
+                if (!string.IsNullOrEmpty(activity.TraceStateString) && !telemetry.Properties.ContainsKey(W3CConstants.TracestatePropertyKey))
+                {
+                    telemetry.Properties.Add(W3CConstants.TracestatePropertyKey, activity.TraceStateString);
+                }
+            }
+            else
+            {
+                telemetry.Id = activity.Id;
+                telemetry.Context.Operation.Id = activity.RootId;
+                telemetry.Context.Operation.ParentId = activity.ParentId;
+            }
+
+            foreach (var item in activity.Tags)
             {
                 if (!telemetry.Properties.ContainsKey(item.Key))
                 {
@@ -53,7 +85,7 @@
                 }
             }
 
-            foreach (var item in activity.Tags)
+            foreach (var item in activity.Baggage)
             {
                 if (!telemetry.Properties.ContainsKey(item.Key))
                 {

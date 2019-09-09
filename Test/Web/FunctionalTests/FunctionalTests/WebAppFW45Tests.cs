@@ -69,7 +69,7 @@
         }
 
         [TestMethod]        
-        public void WebApi200RequestFW45BasicRequestValidationAndHeaders()
+        public void WebApi200RequestFW45BasicRequestValidationAndW3CHeaders()
         {
             const string requestPath = "api/products";
             const string expectedRequestName = "GET products";
@@ -77,7 +77,7 @@
 
             DateTimeOffset testStart = DateTimeOffset.UtcNow;
 
-            //Call an applicaiton page
+            //Call an application page
             var client = new HttpClient();
             var requestMessage = new HttpRequestMessage {
                 RequestUri = new Uri(expectedRequestUrl),
@@ -85,7 +85,8 @@
             };
             
             requestMessage.Headers.Add("x-forwarded-for", "1.2.3.4:54321");
-            requestMessage.Headers.Add("Request-Id", "|guid.");
+            requestMessage.Headers.Add("traceparent", "00-9d2341f8070895468dbdffb599cf49fc-0895468dbdffb519-00");
+            requestMessage.Headers.Add("tracestate", "some=state");
             requestMessage.Headers.Add("Correlation-Context", "k1=v1,k2=v2");
 
             var responseTask = client.SendAsync(requestMessage);
@@ -102,9 +103,14 @@
             Assert.AreEqual("1.2.3.4", request.tags[new ContextTagKeys().LocationIp]);
 
             // Check that request has operation Id, parentId and Id are set from headers
-            Assert.AreEqual("guid", request.tags[new ContextTagKeys().OperationId], "Request Operation Id is not parsed from header");
-            Assert.AreEqual("|guid.", request.tags[new ContextTagKeys().OperationParentId], "Request Parent Id is not parsed from header");
-            Assert.IsTrue(request.data.baseData.id.StartsWith("|guid."), "Request Id is not properly set");
+            Assert.AreEqual("9d2341f8070895468dbdffb599cf49fc", request.tags[new ContextTagKeys().OperationId], "Request Operation Id is not parsed from header");
+            Assert.AreEqual("|9d2341f8070895468dbdffb599cf49fc.0895468dbdffb519.", request.tags[new ContextTagKeys().OperationParentId], "Request Parent Id is not parsed from header");
+            Assert.IsTrue(request.data.baseData.id.StartsWith("|9d2341f8070895468dbdffb599cf49fc."), "Request Id is not properly set");
+
+            Assert.IsTrue(request.data.baseData.properties.TryGetValue("tracestate", out var tracestate));
+            Assert.AreEqual("some=state", tracestate);
+            Assert.IsTrue(request.data.baseData.properties.TryGetValue("k1", out var v1));
+            Assert.AreEqual("v1", v1);
         }
 
         [TestMethod]
@@ -142,7 +148,7 @@
         }
 
         [TestMethod]        
-        public void WebApi200RequestFW45BasicRequestValidationAndLegacyIdHeaders()
+        public void WebApi200RequestFW45BasicRequestValidationAndRequestIdHeader()
         {
             const string requestPath = "api/products";
             string expectedRequestUrl = this.Config.ApplicationUri + "/" + requestPath;
@@ -168,9 +174,12 @@
             var request = Listener.ReceiveItemsOfType<TelemetryItem<RequestData>>(1, TimeoutInMs)[0];
 
             // Check that request has operation Id, parentId and Id are set from headers
-            Assert.AreEqual("guid2", request.tags[new ContextTagKeys().OperationId], "Request Operation Id is not parsed from header");
+            var operationId = request.tags[new ContextTagKeys().OperationId];
+            Assert.IsNotNull(operationId, "Request Operation Id is not parsed from header");
             Assert.AreEqual("|guid2.guid1.", request.tags[new ContextTagKeys().OperationParentId], "Request Parent Id is not parsed from header");
-            Assert.IsTrue(request.data.baseData.id.StartsWith("|guid2.guid1."), "Request Id is not properly set");
+            Assert.IsTrue(request.data.baseData.id.StartsWith($"|{operationId}."), "Request Id is not properly set");
+            Assert.IsTrue(request.data.baseData.properties.TryGetValue("ai_legacyRootId", out var legacyRootId));
+            Assert.AreEqual("guid2", legacyRootId);
         }
 
         [TestMethod]        
@@ -182,7 +191,7 @@
 
             DateTimeOffset testStart = DateTimeOffset.UtcNow;
 
-            //Call an applicaiton page
+            //Call an application page
             var client = new HttpClient();
             var requestMessage = new HttpRequestMessage
             {
@@ -424,7 +433,7 @@
             
             Assert.AreEqual(HttpStatusCode.NotFound, postTask.Result.StatusCode, "Request failed with incorrect status code");
 
-            // Obtains items with web prefix only so as to eliminate firstchance exceptions.
+            // Obtains items with web prefix only so as to eliminate first chance exceptions.
             var items = Listener.ReceiveItemsOfTypesWithWebPrefix<TelemetryItem<RequestData>, TelemetryItem<ExceptionData>>(2, TimeoutInMs);
             var requestItem = (TelemetryItem<RequestData>)items.Single(r => r is TelemetryItem<RequestData>);
             var exceptionItem = (TelemetryItem<ExceptionData>)items.Single(r => r is TelemetryItem<ExceptionData>);

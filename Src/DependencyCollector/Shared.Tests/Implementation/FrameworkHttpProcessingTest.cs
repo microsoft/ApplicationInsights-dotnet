@@ -39,6 +39,8 @@
         [TestInitialize]
         public void TestInitialize()
         {
+            Activity.ForceDefaultIdFormat = false;
+
             this.configuration = new TelemetryConfiguration()
             {
                 TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) },
@@ -52,6 +54,7 @@
         [TestCleanup]
         public void Cleanup()
         {
+            Activity.Current = null;
             DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = false;
         }
 #endregion //TestInitiliaze
@@ -81,7 +84,7 @@
         /// </summary>
         [TestMethod]
         [Description("Validates HttpProcessingFramework sends correct telemetry on calling OnEndHttpCallback for success.")]
-        public void RddTestHttpProcessingFrameworkOnEndHttpCallbackSucess()
+        public void RddTestHttpProcessingFrameworkOnEndHttpCallbackSuccess()
         {
             var id = 100;
             Stopwatch stopwatch = Stopwatch.StartNew();
@@ -92,7 +95,94 @@
             stopwatch.Stop();
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacketForOnBeginHttpCallback(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, true, stopwatch.Elapsed.TotalMilliseconds, "200");
+            ValidateTelemetryPacketForOnBeginHttpCallback(
+                this.sendItems[0] as DependencyTelemetry,
+                this.testUrl,
+                RemoteDependencyConstants.HTTP, 
+                true, 
+                stopwatch.Elapsed.TotalMilliseconds,
+                "200",
+                null);
+        }
+
+        [TestMethod]
+        public void RddTestHttpProcessingFrameworkOnEndHttpCallbackSuccessParentActivity()
+        {
+            var parentActivity = new Activity("parent").Start();
+            parentActivity.AddBaggage("k", "v");
+            parentActivity.TraceStateString = "state=some";
+
+            var id = 100;
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            this.httpProcessingFramework.OnBeginHttpCallback(id, this.testUrl.OriginalString);
+            Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
+            Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
+            this.httpProcessingFramework.OnEndHttpCallback(id, 200);
+            stopwatch.Stop();
+
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+            ValidateTelemetryPacketForOnBeginHttpCallback(
+                this.sendItems[0] as DependencyTelemetry,
+                this.testUrl,
+                RemoteDependencyConstants.HTTP,
+                true,
+                stopwatch.Elapsed.TotalMilliseconds,
+                "200",
+                parentActivity);
+        }
+
+        [TestMethod]
+        public void RddTestHttpProcessingFrameworkOnEndHttpCallbackSuccessParentActivityW3COff()
+        {
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
+
+            var parentActivity = new Activity("parent").Start();
+            parentActivity.AddBaggage("k", "v");
+            parentActivity.TraceStateString = "state=some";
+
+            var id = 100;
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            this.httpProcessingFramework.OnBeginHttpCallback(id, this.testUrl.OriginalString);
+            Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
+            Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
+            this.httpProcessingFramework.OnEndHttpCallback(id, 200);
+            stopwatch.Stop();
+
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+            ValidateTelemetryPacketForOnBeginHttpCallback(
+                this.sendItems[0] as DependencyTelemetry,
+                this.testUrl,
+                RemoteDependencyConstants.HTTP,
+                true,
+                stopwatch.Elapsed.TotalMilliseconds,
+                "200",
+                parentActivity);
+        }
+
+        [TestMethod]
+        [Description("Validates HttpProcessingFramework sends correct telemetry on calling OnEndHttpCallback for success when W3C is off.")]
+        public void RddTestHttpProcessingFrameworkOnEndHttpCallbackSuccessW3COff()
+        {
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
+            var id = 100;
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            this.httpProcessingFramework.OnBeginHttpCallback(id, this.testUrl.OriginalString);
+            Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
+            Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
+            this.httpProcessingFramework.OnEndHttpCallback(id, 200);
+            stopwatch.Stop();
+
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+            ValidateTelemetryPacketForOnBeginHttpCallback(
+                this.sendItems[0] as DependencyTelemetry,
+                this.testUrl,
+                RemoteDependencyConstants.HTTP,
+                true,
+                stopwatch.Elapsed.TotalMilliseconds,
+                "200",
+                null);
         }
 
         /// <summary>
@@ -111,7 +201,14 @@
             stopwatch.Stop();
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacketForOnBeginHttpCallback(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, false, stopwatch.Elapsed.TotalMilliseconds, "500");
+            ValidateTelemetryPacketForOnBeginHttpCallback(
+                this.sendItems[0] as DependencyTelemetry,
+                this.testUrl, 
+                RemoteDependencyConstants.HTTP, 
+                false,
+                stopwatch.Elapsed.TotalMilliseconds,
+                "500",
+                null);
         }
 
         [TestMethod]
@@ -299,7 +396,14 @@
             stopwatch.Stop();
 
             Assert.AreEqual(1, this.sendItems.Count, "Exactly one telemetry item should be sent");
-            ValidateTelemetryPacketForOnBeginHttpCallback(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, true, stopwatch.Elapsed.TotalMilliseconds, "200");
+            ValidateTelemetryPacketForOnBeginHttpCallback(
+                this.sendItems[0] as DependencyTelemetry, 
+                this.testUrl,
+                RemoteDependencyConstants.HTTP, 
+                true,
+                stopwatch.Elapsed.TotalMilliseconds,
+                "200",
+                null);
         }        
 
 #endregion AsyncScenarios
@@ -314,15 +418,28 @@
 
 #region Helpers
         private static void ValidateTelemetryPacketForOnBeginHttpCallback(
-            DependencyTelemetry remoteDependencyTelemetryActual, Uri url, string kind, bool? success, double valueMin, string statusCode)
+            DependencyTelemetry remoteDependencyTelemetryActual,
+            Uri url, 
+            string kind,
+            bool? success, 
+            double valueMin, 
+            string statusCode,
+            Activity parentActivity)
         {
             Assert.AreEqual(url.AbsolutePath, remoteDependencyTelemetryActual.Name, true, "Resource name in the sent telemetry is wrong");
             string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModule), prefix: "rddf:");
-            ValidateTelemetryPacket(remoteDependencyTelemetryActual, url, kind, success, valueMin, statusCode, expectedVersion);
+            ValidateTelemetryPacket(remoteDependencyTelemetryActual, url, kind, success, valueMin, statusCode, expectedVersion, parentActivity);
         }
 
         private static void ValidateTelemetryPacket(
-            DependencyTelemetry remoteDependencyTelemetryActual, Uri url, string kind, bool? success, double valueMin, string statusCode, string expectedVersion)
+            DependencyTelemetry remoteDependencyTelemetryActual,
+            Uri url,
+            string kind,
+            bool? success, 
+            double valueMin, 
+            string statusCode,
+            string expectedVersion,
+            Activity parentActivity)
         {
             Assert.AreEqual(url.Host, remoteDependencyTelemetryActual.Target, true, "Resource target in the sent telemetry is wrong");
             Assert.AreEqual(url.OriginalString, remoteDependencyTelemetryActual.Data, true, "Resource data in the sent telemetry is wrong");
@@ -341,8 +458,36 @@
                 string.Format(CultureInfo.InvariantCulture, "Value (dependency duration = {0}) in the sent telemetry should not be signigficantly bigger then the time duration between start and end", remoteDependencyTelemetryActual.Duration));
 
             Assert.AreEqual(expectedVersion, remoteDependencyTelemetryActual.Context.GetInternalContext().SdkVersion);
+
+            if (parentActivity != null)
+            {
+                if (parentActivity.IdFormat == ActivityIdFormat.W3C)
+                {
+                    Assert.AreEqual(parentActivity.TraceId.ToHexString(), remoteDependencyTelemetryActual.Context.Operation.Id);
+                    Assert.AreEqual($"|{parentActivity.TraceId.ToHexString()}.{parentActivity.SpanId.ToHexString()}.", remoteDependencyTelemetryActual.Context.Operation.ParentId);
+                    if (parentActivity.TraceStateString != null)
+                    {
+                        Assert.IsTrue(remoteDependencyTelemetryActual.Properties.ContainsKey("tracestate"));
+                        Assert.AreEqual(parentActivity.TraceStateString, remoteDependencyTelemetryActual.Properties["tracestate"]);
+                    }
+                    else
+                    {
+                        Assert.IsFalse(remoteDependencyTelemetryActual.Properties.ContainsKey("tracestate"));
+                    }
+                }
+                else
+                {
+                    Assert.AreEqual(parentActivity.RootId, remoteDependencyTelemetryActual.Context.Operation.Id);
+                    Assert.AreEqual(parentActivity.Id, remoteDependencyTelemetryActual.Context.Operation.ParentId);
+                }
+            }
+            else
+            {
+                Assert.IsNotNull(remoteDependencyTelemetryActual.Context.Operation.Id);
+                Assert.IsNull(remoteDependencyTelemetryActual.Context.Operation.ParentId);
+            }
         }
 
-#endregion Helpers
+        #endregion Helpers
     }
 }

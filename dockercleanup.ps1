@@ -14,6 +14,7 @@ Write-Host "Stopping E2E Containers"
 & docker stop e2etests_ingestionservice_1
 & docker stop e2etests_e2etestwebapi_1
 & docker stop e2etests_e2etestwebappcore20_1
+& docker stop e2etests_e2etestwebappcore30_1
 & docker stop e2etests_e2etestwebapp_1
 & docker stop e2etests_sql-server_1
 & docker stop e2etests_azureemulator_1
@@ -22,6 +23,7 @@ Write-Host "Removing E2E Containers"
 & docker rm e2etests_ingestionservice_1
 & docker rm e2etests_e2etestwebapi_1
 & docker rm e2etests_e2etestwebappcore20_1
+& docker rm e2etests_e2etestwebappcore30_1
 & docker rm e2etests_e2etestwebapp_1
 & docker rm e2etests_sql-server_1
 & docker rm e2etests_azureemulator_1
@@ -30,6 +32,7 @@ Write-Host "Removing E2E Images"
 & docker rmi -f e2etests_ingestionservice
 & docker rmi -f e2etests_e2etestwebapi
 & docker rmi -f e2etests_e2etestwebappcore20
+& docker rmi -f e2etests_e2etestwebappcore30
 & docker rmi -f e2etests_e2etestwebapp
 & docker rmi -f e2etests_azureemulator
 

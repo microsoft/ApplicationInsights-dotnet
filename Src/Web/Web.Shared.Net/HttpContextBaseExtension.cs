@@ -13,6 +13,7 @@
         /// </summary>
         /// <param name="context">HttpContextBase instance.</param>
         /// <returns>Request telemetry instance or null.</returns>
+        [Obsolete("Use HttpContextExtension.GetRequestTelemetry instead")]
         public static RequestTelemetry GetRequestTelemetry(this HttpContextBase context)
         {
             if (context == null || context.ApplicationInstance == null || context.ApplicationInstance.Context == null)

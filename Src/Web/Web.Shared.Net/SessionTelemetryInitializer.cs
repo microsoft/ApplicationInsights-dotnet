@@ -18,7 +18,7 @@
         {
             if (sessionCookie == null)
             {
-                WebEventSource.Log.WebSessionTrackingSessionCookieIsNotSecifiedInRequest();
+                WebEventSource.Log.WebSessionTrackingSessionCookieIsNotSpecifiedInRequest();
                 return;
             }
 

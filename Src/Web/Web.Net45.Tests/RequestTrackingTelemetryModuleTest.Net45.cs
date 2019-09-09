@@ -4,15 +4,12 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using System.Web;
 
-    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.W3C;
-    using Microsoft.ApplicationInsights.W3C.Internal;
     using Microsoft.ApplicationInsights.Web.Helpers;
+    using Microsoft.AspNet.TelemetryCorrelation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Assert = Xunit.Assert;
@@ -23,7 +20,7 @@
     public partial class RequestTrackingTelemetryModuleTest
     {
         [TestMethod]
-        public void OnBeginSetsOperationContextWithStandardHeaders()
+        public void OnBeginSetsOperationContextWithStandardHeadersW3COff()
         {
             var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
             {
@@ -31,6 +28,8 @@
                 ["Correlation-Context"] = "k=v"
             });
             var module = this.RequestTrackingTelemetryModuleFactory(this.CreateDefaultConfig(context));
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
 
             module.OnBeginRequest(context);
             var requestTelemetry = context.GetRequestTelemetry();
@@ -58,15 +57,15 @@
             var module = this.RequestTrackingTelemetryModuleFactory(this.CreateDefaultConfig(context));
 
             module.OnBeginRequest(context);
+            var activity = Activity.Current;
             var requestTelemetry = context.GetRequestTelemetry();
             module.OnEndRequest(context);
 
-            Assert.Equal("guid1", requestTelemetry.Context.Operation.Id);
+            Assert.Equal(activity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
+            Assert.Equal($"|{activity.TraceId.ToHexString()}.{activity.SpanId.ToHexString()}.", requestTelemetry.Id);
             Assert.Equal("guid1", requestTelemetry.Context.Operation.ParentId);
-
-            Assert.True(requestTelemetry.Id.StartsWith("|guid1.", StringComparison.Ordinal));
-            Assert.NotEqual("|guid1.1.", requestTelemetry.Id);
-            Assert.Equal("guid1", this.GetActivityRootId(requestTelemetry.Id));
+            Assert.True(requestTelemetry.Properties.TryGetValue("ai_legacyRootId", out var legacyRootId));
+            Assert.Equal("guid1", legacyRootId);
 
             // will initialize telemetry
             module.OnEndRequest(context);
@@ -80,32 +79,34 @@
             var module = this.RequestTrackingTelemetryModuleFactory(this.CreateDefaultConfig(context));
 
             module.OnBeginRequest(context);
+            var activity = Activity.Current;
+            Assert.NotNull(activity);
+
             var requestTelemetry = context.GetRequestTelemetry();
             module.OnEndRequest(context);
 
-            var operationId = requestTelemetry.Context.Operation.Id;
-            Assert.NotNull(operationId);
             Assert.Null(requestTelemetry.Context.Operation.ParentId);
-            Assert.True(requestTelemetry.Id.StartsWith('|' + operationId + '.', StringComparison.Ordinal));
-            Assert.NotEqual(operationId, requestTelemetry.Id);
-
-            // W3C compatible-Id ( should go away when W3C is implemented in .NET https://github.com/dotnet/corefx/issues/30331 TODO)
-            Assert.Equal(32, operationId.Length);
-            Assert.True(Regex.Match(operationId, @"[a-z][0-9]").Success);
-            // end of workaround test
+            Assert.Equal(activity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
+            Assert.Equal($"|{activity.TraceId.ToHexString()}.{activity.SpanId.ToHexString()}.", requestTelemetry.Id);
         }
 
         [TestMethod]
-        public void InitializeFromStandardHeadersAlwaysWinsCustomHeaders()
+        public void InitializeFromStandardHeadersAlwaysWinsCustomHeadersW3COff()
         {
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
+
             var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
             {
                 ["Request-Id"] = "|standard-id.",
                 ["x-ms-request-id"] = "legacy-id",
-                ["x-ms-request-rooit-id"] = "legacy-root-id"
+                ["x-ms-request-root-id"] = "legacy-root-id"
             });
 
             var module = this.RequestTrackingTelemetryModuleFactory(this.CreateDefaultConfig(context));
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
+
             module.OnBeginRequest(context);
 
             var requestTelemetry = context.GetRequestTelemetry();
@@ -130,13 +131,15 @@
             var module = this.RequestTrackingTelemetryModuleFactory(this.CreateDefaultConfig(context, "x-ms-request-root-id", "x-ms-request-id"));
 
             module.OnBeginRequest(context);
+            var activity = Activity.Current;
             var requestTelemetry = context.GetRequestTelemetry();
             module.OnEndRequest(context);
 
-            Assert.Equal("guid2", requestTelemetry.Context.Operation.Id);
+            Assert.Equal(activity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
+            Assert.Equal($"|{activity.TraceId.ToHexString()}.{activity.SpanId.ToHexString()}.", requestTelemetry.Id);
             Assert.Equal("guid1", requestTelemetry.Context.Operation.ParentId);
-
-            Assert.True(requestTelemetry.Id.StartsWith("|guid2.", StringComparison.Ordinal));
+            Assert.True(requestTelemetry.Properties.TryGetValue("ai_legacyRootId", out var legacyRootId));
+            Assert.Equal("guid2", legacyRootId);
         }
 
         [TestMethod]
@@ -174,80 +177,13 @@
         [TestMethod]
         public void TrackRequestWithW3CEnabledAndNoHeaders()
         {
-            this.TestRequestTrackingWithW3CSupportEnabledAndNoW3CHeaders(
-                startActivity: true,
-                addRequestId: false);
-        }
-
-        [TestMethod]
-        public void TrackRequestWithW3CEnabledAndNoHeadersAndNoParentActivity()
-        {
-            this.TestRequestTrackingWithW3CSupportEnabledAndNoW3CHeaders(
-                startActivity: false,
-                addRequestId: false);
+            this.TestRequestTrackingWithW3CSupportEnabledAndNoW3CHeaders(addRequestId: false);
         }
 
         [TestMethod]
         public void TrackRequestWithW3CEnabledAndRequestIdHeader()
         {
-            this.TestRequestTrackingWithW3CSupportEnabledAndNoW3CHeaders(
-                startActivity: true,
-                addRequestId: true);
-        }
-
-        [TestMethod]
-        public void TrackRequestWithW3CEnabledAndRequestIdHeaderAndNoParentActivity()
-        {
-            this.TestRequestTrackingWithW3CSupportEnabledAndNoW3CHeaders(
-                startActivity: false,
-                addRequestId: true);
-        }
-
-        [TestMethod]
-        public void TrackRequestWithW3CEnabledAndAppIdInState()
-        {
-            string expectedAppId = "cid-v1:some-app-id";
-            var headers = new Dictionary<string, string>
-            {
-                ["traceparent"] = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
-                ["tracestate"] = $"state=some,{W3CConstants.AzureTracestateNamespace}={expectedAppId}",
-            };
-
-            var context = HttpModuleHelper.GetFakeHttpContext(headers);
-            var module = this.RequestTrackingTelemetryModuleFactory(this.CreateDefaultConfig(context), enableW3CTracing: true);
-
-            module.OnBeginRequest(context);
-            var activityInitializedByW3CHeader = Activity.Current;
-            Assert.Equal("state=some", activityInitializedByW3CHeader.GetTracestate());
-
-            var requestTelemetry = context.GetRequestTelemetry();
-            module.OnEndRequest(context);
-
-            Assert.Equal(expectedAppId, requestTelemetry.Source);
-        }
-
-        [TestMethod]
-        public void TrackRequestWithW3CEnabledAndRequestContextAndAppIdInState()
-        {
-            string expectedAppId = "cid-v1:some-app-id";
-            var headers = new Dictionary<string, string>
-            {
-                ["traceparent"] = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
-                ["tracestate"] = $"state=some,{W3CConstants.AzureTracestateNamespace}={expectedAppId}",
-                ["Request-Context"] = "cid-v1:dummy"
-            };
-
-            var context = HttpModuleHelper.GetFakeHttpContext(headers);
-            var module = this.RequestTrackingTelemetryModuleFactory(this.CreateDefaultConfig(context), enableW3CTracing: true);
-
-            module.OnBeginRequest(context);
-            var activityInitializedByW3CHeader = Activity.Current;
-            Assert.Equal("state=some", activityInitializedByW3CHeader.GetTracestate());
-
-            var requestTelemetry = context.GetRequestTelemetry();
-            module.OnEndRequest(context);
-
-            Assert.Equal(expectedAppId, requestTelemetry.Source);
+            this.TestRequestTrackingWithW3CSupportEnabledAndNoW3CHeaders(addRequestId: true);
         }
 
         [TestMethod]
@@ -259,14 +195,21 @@
                 ["x-ms-request-root-id"] = "guid2"
             });
 
-            var module = this.RequestTrackingTelemetryModuleFactory(this.CreateDefaultConfig(context));
+            var module = this.RequestTrackingTelemetryModuleFactory(this.CreateDefaultConfig(context, 
+                "x-ms-request-root-id",
+                "x-ms-request-id"));
 
             module.OnBeginRequest(context);
+            var activity = Activity.Current;
+
             var requestTelemetry = context.GetRequestTelemetry();
             module.OnEndRequest(context);
 
-            Assert.NotNull(requestTelemetry.Context.Operation.Id);
-            Assert.Null(requestTelemetry.Context.Operation.ParentId);
+            Assert.Equal(activity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
+            Assert.Equal($"|{activity.TraceId.ToHexString()}.{activity.SpanId.ToHexString()}.", requestTelemetry.Id);
+            Assert.Equal("guid1", requestTelemetry.Context.Operation.ParentId);
+            Assert.True(requestTelemetry.Properties.TryGetValue("ai_legacyRootId", out var legacyRootId));
+            Assert.Equal("guid2", legacyRootId);
         }
 
         [TestMethod]
@@ -282,28 +225,30 @@
             var module = this.RequestTrackingTelemetryModuleFactory(config);
                       
             module.OnBeginRequest(context);
+            var activity = Activity.Current;
 
             var requestTelemetry = context.GetRequestTelemetry();
 
             Assert.Equal("ParentId", requestTelemetry.Context.Operation.ParentId);
 
-            Assert.Equal("RootId", requestTelemetry.Context.Operation.Id);
-            Assert.NotEqual("RootId", requestTelemetry.Id);
-            Assert.Equal("RootId", this.GetActivityRootId(requestTelemetry.Id));
+            Assert.Equal(activity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
+            Assert.NotEqual($"|{activity.TraceId.ToHexString()}.{activity.SpanId.ToHexString()}", requestTelemetry.Id);
+            Assert.True(requestTelemetry.Properties.TryGetValue("ai_legacyRootId", out var legacyRootId));
+            Assert.Equal("RootId", legacyRootId);
         }
 
         [TestMethod]
-        public void OnBeginTelemetryCreatedWithinRequestScopeIsRequestChild()
+        public void OnBeginTelemetryCreatedWithinRequestScopeIsRequestChildW3COff()
         {
-            var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
-            {
-                ["Request-Id"] = "|guid1.1",
-                ["Correlation-Context"] = "k=v"
-            });
+            var context = HttpModuleHelper.GetFakeHttpContext();
             var config = this.CreateDefaultConfig(context);
             var module = this.RequestTrackingTelemetryModuleFactory(this.CreateDefaultConfig(context));
 
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
+
             module.OnBeginRequest(context);
+            var activity = Activity.Current;
 
             var requestTelemetry = context.GetRequestTelemetry();
             var telemetryClient = new TelemetryClient(config);
@@ -312,33 +257,25 @@
 
             module.OnEndRequest(context);
 
-            Assert.Equal("guid1", exceptionTelemetry.Context.Operation.Id);
+            Assert.Equal(activity.RootId, exceptionTelemetry.Context.Operation.Id);
+            Assert.Equal(requestTelemetry.Context.Operation.Id, exceptionTelemetry.Context.Operation.Id);
             Assert.Equal(requestTelemetry.Id, exceptionTelemetry.Context.Operation.ParentId);
-            Assert.Equal("v", exceptionTelemetry.Properties["k"]);
         }
 
         [TestMethod]
         public async Task OnPreHandlerTelemetryCreatedWithinRequestScopeIsRequestChild()
         {
-            var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
-            {
-                ["Request-Id"] = "|guid1.1",
-                ["Correlation-Context"] = "k=v"
-            });
+            var context = HttpModuleHelper.GetFakeHttpContext();
             var config = this.CreateDefaultConfig(context);
             var module = this.RequestTrackingTelemetryModuleFactory(config);
             var telemetryClient = new TelemetryClient(config);
 
             module.OnBeginRequest(context);
 
-            // simulate losing call context by cleaning up activity
-            Assert.NotNull(Activity.Current);
             var activity = Activity.Current;
-            activity.Stop();
-            Assert.Null(Activity.Current);
 
-            // CallContext was lost after OnBegin, so Asp.NET Http Module will restore it in OnPreRequestHandlerExecute
-            new Activity("restored").SetParentId(activity.Id).AddBaggage("k", "v").Start();
+            // simulate losing call context by cleaning up activity
+            Activity.Current = null;
 
             var trace = new TraceTelemetry();
 
@@ -346,6 +283,9 @@
             // telemetry is not initialized from it.
             await Task.Run(() =>
             {
+                // CallContext was lost after OnBegin, so Asp.NET Http Module will restore it in OnPreRequestHandlerExecute
+                Activity.Current = activity;
+
                 // if OnPreRequestHandlerExecute set a CallContext, child telemetry will be properly filled
                 telemetryClient.TrackTrace(trace);
             });
@@ -353,14 +293,7 @@
             var requestTelemetry = context.GetRequestTelemetry();
 
             Assert.Equal(requestTelemetry.Context.Operation.Id, trace.Context.Operation.Id);
-
-            // we created Activity for request and assigned Id for the request like guid1.1.12345_
-            // then we lost it and restored (started a new child activity), so the Id is guid1.1.12345_abc_
-            // so the request is grand parent to the trace
-            Assert.Equal(Activity.Current.ParentId, requestTelemetry.Id);
-            Assert.True(trace.Context.Operation.ParentId.StartsWith(requestTelemetry.Id, StringComparison.Ordinal));
-            Assert.Equal(Activity.Current.Id, trace.Context.Operation.ParentId);
-            Assert.Equal("v", trace.Properties["k"]);
+            Assert.Equal(trace.Context.Operation.ParentId, requestTelemetry.Id);
         }
 
         [TestMethod]
@@ -368,7 +301,7 @@
         {
             var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
             {
-                ["Request-Id"] = "|guid1.1",
+                ["traceparent"] = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
                 ["Correlation-Context"] = "k=v"
             });
             var config = this.CreateDefaultConfig(context);
@@ -379,7 +312,7 @@
 
             // simulate losing call context by cleaning up activity
             Assert.NotNull(Activity.Current);
-            Activity.Current.Stop();
+            Activity.Current = null;
             Assert.Null(Activity.Current);
 
             var trace = new TraceTelemetry();
@@ -465,13 +398,15 @@
                 ["traceparent"] = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"
             });
             var config = this.CreateDefaultConfig(context);
-            var module = this.RequestTrackingTelemetryModuleFactory(config, enableW3CTracing: true);
+            var module = this.RequestTrackingTelemetryModuleFactory(config);
             var client = new TelemetryClient(config);
 
+            // will not be correlated to request
             client.TrackTrace("test1");
 
             module.OnBeginRequest(context);
 
+            // will be correlated to request
             client.TrackTrace("test2");
 
             // initialize telemetry
@@ -496,13 +431,15 @@
         {
             var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>());
             var config = this.CreateDefaultConfig(context);
-            var module = this.RequestTrackingTelemetryModuleFactory(config, enableW3CTracing: true);
+            var module = this.RequestTrackingTelemetryModuleFactory(config);
             var client = new TelemetryClient(config);
 
+            // will not be correlated to request
             client.TrackTrace("test1");
 
             module.OnBeginRequest(context);
 
+            // will be correlated to request
             client.TrackTrace("test2");
 
             // initialize telemetry
@@ -515,8 +452,8 @@
             Assert.Equal(trace1.Context.Operation.Id, request.Context.Operation.Id);
             Assert.Equal(trace2.Context.Operation.Id, request.Context.Operation.Id);
 
-            Assert.Equal(trace2.Context.Operation.ParentId, request.Id);
             Assert.Equal(trace1.Context.Operation.ParentId, request.Id);
+            Assert.Equal(trace2.Context.Operation.ParentId, request.Id);
         }
 
         private void TestRequestTrackingWithW3CSupportEnabled(bool startActivity, bool addRequestId)
@@ -534,34 +471,34 @@
             }
 
             var context = HttpModuleHelper.GetFakeHttpContext(headers);
-            var module = this.RequestTrackingTelemetryModuleFactory(this.CreateDefaultConfig(context), enableW3CTracing: true);
+            var module = this.RequestTrackingTelemetryModuleFactory(this.CreateDefaultConfig(context));
 
             if (startActivity)
             {
                 var activity = new Activity("operation");
+                activity.Extract(context.Request.Headers);
                 activity.Start();
             }
 
             module.OnBeginRequest(context);
             var activityInitializedByW3CHeader = Activity.Current;
             
-            Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", activityInitializedByW3CHeader.GetTraceId());
-            Assert.Equal("00f067aa0ba902b7", activityInitializedByW3CHeader.GetParentSpanId());
-            Assert.Equal(16, activityInitializedByW3CHeader.GetSpanId().Length);
-            Assert.Equal("state=some", activityInitializedByW3CHeader.GetTracestate());
+            Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", activityInitializedByW3CHeader.TraceId.ToHexString());
+            Assert.Equal("00f067aa0ba902b7", activityInitializedByW3CHeader.ParentSpanId.ToHexString());
+            Assert.Equal("state=some", activityInitializedByW3CHeader.TraceStateString);
             Assert.Equal("v", activityInitializedByW3CHeader.Baggage.Single(t => t.Key == "k").Value);
 
             var requestTelemetry = context.GetRequestTelemetry();
             module.OnEndRequest(context);
 
-            Assert.Equal($"|4bf92f3577b34da6a3ce929d0e0e4736.{activityInitializedByW3CHeader.GetSpanId()}.", requestTelemetry.Id);
+            Assert.Equal($"|4bf92f3577b34da6a3ce929d0e0e4736.{activityInitializedByW3CHeader.SpanId.ToHexString()}.", requestTelemetry.Id);
             Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", requestTelemetry.Context.Operation.Id);
             Assert.Equal("|4bf92f3577b34da6a3ce929d0e0e4736.00f067aa0ba902b7.", requestTelemetry.Context.Operation.ParentId);
 
-            Assert.Equal("state=some", requestTelemetry.Properties[W3CConstants.TracestateTag]);
+            Assert.Equal("state=some", requestTelemetry.Properties["tracestate"]);
         }
 
-        private void TestRequestTrackingWithW3CSupportEnabledAndNoW3CHeaders(bool startActivity, bool addRequestId)
+        private void TestRequestTrackingWithW3CSupportEnabledAndNoW3CHeaders(bool addRequestId)
         {
             var headers = new Dictionary<string, string>();
 
@@ -572,33 +509,22 @@
 
             var context = HttpModuleHelper.GetFakeHttpContext(headers);
 
-            var module = this.RequestTrackingTelemetryModuleFactory(this.CreateDefaultConfig(context), enableW3CTracing: true);
-
-            if (startActivity)
-            {
-                var activity = new Activity("operation");
-                activity.Start();
-            }
+            var module = this.RequestTrackingTelemetryModuleFactory(this.CreateDefaultConfig(context));
 
             module.OnBeginRequest(context);
             var activityInitializedByW3CHeader = Activity.Current;
 
-            Assert.Equal(32, activityInitializedByW3CHeader.GetTraceId().Length);
-            Assert.Equal(16, activityInitializedByW3CHeader.GetSpanId().Length);
-            Assert.Null(activityInitializedByW3CHeader.GetParentSpanId());
-
-            Assert.Null(activityInitializedByW3CHeader.GetTracestate());
-            Assert.False(activityInitializedByW3CHeader.Baggage.Any());
-
             var requestTelemetry = context.GetRequestTelemetry();
             module.OnEndRequest(context);
 
-            Assert.Equal($"|{activityInitializedByW3CHeader.GetTraceId()}.{activityInitializedByW3CHeader.GetSpanId()}.", requestTelemetry.Id);
-            Assert.Equal(activityInitializedByW3CHeader.GetTraceId(), requestTelemetry.Context.Operation.Id);
+            Assert.Equal($"|{activityInitializedByW3CHeader.TraceId.ToHexString()}.{activityInitializedByW3CHeader.SpanId.ToHexString()}.", requestTelemetry.Id);
+            Assert.Equal(activityInitializedByW3CHeader.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
 
             if (addRequestId)
             {
                 Assert.Equal("|abc.1.2.3.", requestTelemetry.Context.Operation.ParentId);
+                Assert.Contains("ai_legacyRootId", requestTelemetry.Properties.Keys);
+                Assert.Equal("abc", requestTelemetry.Properties["ai_legacyRootId"]);
             }
             else
             {

@@ -116,9 +116,9 @@
         [Event(
             10,
             Keywords = Keywords.VerboseFailure,
-            Message = "[msg=WebSessionTrackingSessionCookieIsNotSecifiedInRequest];",
+            Message = "[msg=WebSessionTrackingSessionCookieIsNotSpecifiedInRequest];",
             Level = EventLevel.Verbose)]
-        public void WebSessionTrackingSessionCookieIsNotSecifiedInRequest(string appDomainName = "Incorrect")
+        public void WebSessionTrackingSessionCookieIsNotSpecifiedInRequest(string appDomainName = "Incorrect")
         {
             this.WriteEvent(10, this.applicationNameProvider.Name);
         }
@@ -205,7 +205,7 @@
 
         [Event(
             19,
-            Message = "[msg=WebSetLocationIdSkiped];[headerName={0}];",
+            Message = "[msg=WebSetLocationIdSkipped];[headerName={0}];",
             Level = EventLevel.Verbose)]
         public void WebLocationIdHeaderFound(string headerName, string appDomainName = "Incorrect")
         {
@@ -469,12 +469,12 @@
         }
 
         [Event(48,
-            Keywords = Keywords.Diagnostics,
-            Message = "Activity is null for event = '{0}'",
+            Keywords = Keywords.Diagnostics | Keywords.UserActionable,
+            Message = "Microsoft.AspNet.TelemetryCorrelation.TelemetryCorrelationHttpModule is not first in the HTTP modules list.",
             Level = EventLevel.Error)]
-        public void ActivityIsNull(string diagnosticsSourceEventName, string appDomainName = "Incorrect")
+        public void RequestTelemetryCreatedBeforeTelemetryCorrelationModuleRuns(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(48, diagnosticsSourceEventName, this.applicationNameProvider.Name);
+            this.WriteEvent(48, this.applicationNameProvider.Name);
         }
 
         [Event(49,

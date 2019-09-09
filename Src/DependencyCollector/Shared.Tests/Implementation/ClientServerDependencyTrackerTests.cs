@@ -11,9 +11,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-#pragma warning disable 618
-
+    
     /// <summary>
     /// Tests for client server dependency tracker.
     /// </summary>
@@ -43,6 +41,9 @@
         [TestCleanup]
         public void TestCleanUp()
         {
+            Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+            Activity.ForceDefaultIdFormat = false;
+
             while (Activity.Current != null)
             {
                 Activity.Current.Stop();
@@ -63,7 +64,7 @@
             Assert.IsNull(telemetry.Context.Operation.ParentId);
             Assert.IsNotNull(telemetry.Context.Operation.Id);
             Assert.IsTrue(telemetry.Id.StartsWith('|' + telemetry.Context.Operation.Id, StringComparison.Ordinal));
-            Assert.AreEqual(0, telemetry.Context.Properties.Count);
+            Assert.AreEqual(0, telemetry.Properties.Count);
         }
 
         /// <summary>
@@ -72,6 +73,52 @@
         [TestMethod]
         public void BeginWebTrackingWithParentActivityReturnsOperationItemWithTelemetryItem()
         {
+            var parentActivity = new Activity("test");
+            parentActivity.AddBaggage("k", "v");
+            parentActivity.TraceStateString = "state=some";
+            parentActivity.Start();
+
+            var telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
+            var currentActivity = Activity.Current;
+
+            Assert.IsNotNull(Activity.Current);
+            Assert.AreNotEqual(parentActivity, currentActivity);
+            Assert.AreEqual(parentActivity, currentActivity.Parent);
+
+            Assert.AreEqual($"|{currentActivity.TraceId.ToHexString()}.{currentActivity.SpanId.ToHexString()}.", telemetry.Id);
+            Assert.AreEqual(currentActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+            Assert.AreEqual($"|{currentActivity.TraceId.ToHexString()}.{currentActivity.ParentSpanId.ToHexString()}.", telemetry.Context.Operation.ParentId);
+
+            var properties = telemetry.Properties;
+            Assert.AreEqual(2, properties.Count);
+            Assert.AreEqual("v", properties["k"]);
+            Assert.AreEqual("state=some", properties["tracestate"]);
+            parentActivity.Stop();
+        }
+
+        [TestMethod]
+        public void BeginWebTrackingWithParentActivityReturnsOperationItemWithTelemetryItemNoParent()
+        {
+            var telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
+            var currentActivity = Activity.Current;
+
+            Assert.IsNotNull(Activity.Current);
+            Assert.IsNull(currentActivity.Parent);
+
+            Assert.AreEqual($"|{currentActivity.TraceId.ToHexString()}.{currentActivity.SpanId.ToHexString()}.", telemetry.Id);
+            Assert.AreEqual(currentActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+            Assert.IsNull(telemetry.Context.Operation.ParentId);
+
+            var properties = telemetry.Properties;
+            Assert.AreEqual(0, properties.Count);
+        }
+
+        [TestMethod]
+        public void BeginWebTrackingWithParentActivityReturnsOperationItemWithTelemetryItemW3COff()
+        {
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
+
             var parentActivity = new Activity("test");
             parentActivity.SetParentId("|guid.1234_");
             parentActivity.AddBaggage("k", "v");
@@ -84,7 +131,7 @@
             Assert.IsTrue(telemetry.Id.StartsWith(parentActivity.Id, StringComparison.Ordinal));
             Assert.AreNotEqual(parentActivity.Id, telemetry.Id);
 
-            var properties = telemetry.Context.Properties;
+            var properties = telemetry.Properties;
             Assert.AreEqual(1, properties.Count);
             Assert.AreEqual("v", properties["k"]);
             parentActivity.Stop();
@@ -97,6 +144,29 @@
         [TestMethod]
         public void BeginWebTrackingWithDesktopParentActivityReturnsOperationItemWithTelemetryItem()
         {
+            var activity = new Activity("System.Net.Http.Desktop.HttpRequestOut");
+            activity.SetParentId(ActivityTraceId.CreateRandom(), ActivitySpanId.CreateRandom(), ActivityTraceFlags.None);
+            activity.AddBaggage("k", "v");
+
+            activity.Start();
+
+            var telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
+
+            Assert.AreEqual($"|{activity.TraceId.ToHexString()}.{activity.SpanId.ToHexString()}.", telemetry.Id);
+            Assert.AreEqual(activity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+            Assert.AreEqual($"|{activity.TraceId.ToHexString()}.{activity.ParentSpanId.ToHexString()}.", telemetry.Context.Operation.ParentId);
+
+            var properties = telemetry.Properties;
+            Assert.AreEqual(1, properties.Count);
+            Assert.AreEqual("v", properties["k"]);
+            activity.Stop();
+        }
+
+        [TestMethod]
+        public void BeginWebTrackingWithDesktopParentActivityReturnsOperationItemWithTelemetryItemW3COff()
+        {
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
             var parentActivity = new Activity("System.Net.Http.Desktop.HttpRequestOut");
             parentActivity.SetParentId("|guid.1234_");
             parentActivity.AddBaggage("k", "v");
@@ -108,7 +178,7 @@
             Assert.AreEqual(parentActivity.RootId, telemetry.Context.Operation.Id);
             Assert.AreEqual(parentActivity.ParentId, telemetry.Context.Operation.ParentId);
 
-            var properties = telemetry.Context.Properties;
+            var properties = telemetry.Properties;
             Assert.AreEqual(1, properties.Count);
             Assert.AreEqual("v", properties["k"]);
             parentActivity.Stop();
@@ -211,7 +281,7 @@
         }
 
         [TestMethod]
-        public void AddTupleForWebDependenciesAddsTelemteryTupleToTheTable()
+        public void AddTupleForWebDependenciesAddsTelemetryTupleToTheTable()
         {
             var telemetry = new DependencyTelemetry();
             ClientServerDependencyTracker.AddTupleForWebDependencies(this.webRequest, telemetry, false);
@@ -229,7 +299,7 @@
         }
 
         [TestMethod]
-        public void AddTupleForSqlDependenciesAddsTelemteryTupleToTheTable()
+        public void AddTupleForSqlDependenciesAddsTelemetryTupleToTheTable()
         {
             var telemetry = new DependencyTelemetry();
             ClientServerDependencyTracker.AddTupleForSqlDependencies(this.sqlRequest, telemetry, false);

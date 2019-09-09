@@ -24,7 +24,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.11.0-beta1" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.11.0-beta1-build12825" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="1.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.1.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.1.0" />

@@ -4,10 +4,9 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
-    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.W3C;
+    using Microsoft.ApplicationInsights.W3C.Internal;
 
     /// <summary>
     /// Implements ServiceBus DiagnosticSource events handling.
@@ -33,43 +32,57 @@
 
             switch (evnt.Key)
             {
+                case "Microsoft.Azure.ServiceBus.ProcessSession.Start":
+                case "Microsoft.Azure.ServiceBus.Process.Start":
+                    // if Activity is W3C, but there is a parent id which is not W3C.
+                    if (currentActivity.IdFormat == ActivityIdFormat.W3C && !string.IsNullOrEmpty(currentActivity.ParentId) && currentActivity.ParentSpanId == default)
+                    {
+                        // if hierarchical parent has compatible rootId, reuse it and keep legacy parentId
+                        if (W3CUtilities.TryGetTraceId(currentActivity.ParentId, out var traceId))
+                        {
+                            var backCompatActivity = new Activity(currentActivity.OperationName);
+                            backCompatActivity.SetParentId(ActivityTraceId.CreateFromString(traceId), default, currentActivity.ActivityTraceFlags);
+                            backCompatActivity.Start();
+                            backCompatActivity.AddTag("__legacyParentId", currentActivity.ParentId);
+                            foreach (var tag in currentActivity.Tags)
+                            {
+                                backCompatActivity.AddTag(tag.Key, tag.Value);
+                            }
+
+                            foreach (var baggage in currentActivity.Baggage)
+                            {
+                                backCompatActivity.AddBaggage(baggage.Key, baggage.Value);
+                            }
+                        }
+                        else
+                        {
+                            currentActivity.AddTag(W3C.W3CConstants.LegacyRootPropertyIdKey, W3CUtilities.GetRootId(currentActivity.ParentId));
+                        }
+                    }
+
+                    break;
                 case "Microsoft.Azure.ServiceBus.ProcessSession.Stop":
                 case "Microsoft.Azure.ServiceBus.Process.Stop":
-                    // If we started auxiliary Activity before to override the Id with W3C compatible one,
-                    // now it's time to set end time on it
+                    bool isBackCompatActivity = false;
                     if (currentActivity.Duration == TimeSpan.Zero)
                     {
+                        isBackCompatActivity = true;
                         currentActivity.SetEndTime(DateTime.UtcNow);
                     }
 
                     this.OnRequest(evnt.Key, evnt.Value, currentActivity);
+
+                    if (isBackCompatActivity)
+                    {
+                        currentActivity.Stop();
+                    }
+
                     break;
                 case "Microsoft.Azure.ServiceBus.Exception":
                     break;
                 default:
-                    if (evnt.Key.EndsWith(TelemetryDiagnosticSourceListener.ActivityStartNameSuffix, StringComparison.Ordinal))
+                    if (evnt.Key.EndsWith(TelemetryDiagnosticSourceListener.ActivityStopNameSuffix, StringComparison.Ordinal))
                     {
-                        // As a first step in supporting W3C protocol in ApplicationInsights,
-                        // we want to generate Activity Ids in the W3C compatible format.
-                        // While .NET changes to Activity are pending, we want to ensure trace starts with W3C compatible Id
-                        // as early as possible, so that everyone has a chance to upgrade and have compatibility with W3C systems once they arrive.
-                        // So if there is no parent Activity (i.e. this request has happened in the background, without parent scope), we'll override 
-                        // the current Activity with the one with properly formatted Id. This workaround should go away
-                        // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331 (TODO)
-                        if (currentActivity.Parent == null && currentActivity.ParentId == null)
-                        {
-                            currentActivity.UpdateParent(W3CUtilities.GenerateTraceId());
-                        }
-                    }
-                    else if (evnt.Key.EndsWith(TelemetryDiagnosticSourceListener.ActivityStopNameSuffix, StringComparison.Ordinal))
-                    {
-                        // If we started auxiliary Activity before to override the Id with W3C compatible one,
-                        // now it's time to set end time on it
-                        if (currentActivity.Duration == TimeSpan.Zero)
-                        {
-                            currentActivity.SetEndTime(DateTime.UtcNow);
-                        }
-
                         this.OnDependency(evnt.Key, evnt.Value, currentActivity);
                     }
 
@@ -98,6 +111,15 @@
         private void OnRequest(string name, object payload, Activity activity)
         {
             RequestTelemetry telemetry = new RequestTelemetry();
+
+            foreach (var tag in activity.Tags)
+            {
+                if (tag.Key == "__legacyParentId")
+                {
+                    telemetry.Context.Operation.ParentId = tag.Value;
+                    break;
+                }
+            }
 
             this.SetCommonProperties(name, payload, activity, telemetry);
 
