@@ -15,8 +15,8 @@
     [TestClass]
     public class TelemetryClientExtensionTests
     {
-        const string NonW3CCompatileOperationId = "NonCompliantRootId";
-        const string W3CCompatileOperationId = "8ee8641cbdd8dd280d239fa2121c7e4e";
+        const string NonW3CCompatibleOperationId = "NonCompliantRootId";
+        const string W3CCompatibleOperationId = "8ee8641cbdd8dd280d239fa2121c7e4e";
         const string AnyRootId = "ANYID";
         const string AnyParentId = "ANYParentID";
 
@@ -34,6 +34,7 @@
             telemetryConfiguration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
             this.telemetryClient = new TelemetryClient(telemetryConfiguration);
             CallContextHelpers.RestoreOperationContext(null);
+            ActivityFormatHelper.EnableW3CFormatInActivity();
         }
 
         [TestCleanup]
@@ -287,6 +288,170 @@
         }
 
         [TestMethod]
+        public void StartStopRespectsUserProvidedIdsInScopeOfAnotherActivityExplicitIds()
+        {
+            var activity = new Activity("foo").Start();
+
+            var customOperationId = ActivityTraceId.CreateRandom().ToHexString();
+            var customParentId = ActivitySpanId.CreateRandom().ToHexString();
+
+            using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("name", customOperationId, customParentId))
+            {
+                Assert.IsNotNull(Activity.Current);
+                Assert.AreNotEqual(activity, Activity.Current.Parent);
+                Assert.AreEqual(customOperationId, Activity.Current.TraceId.ToHexString());
+                Assert.AreEqual(customOperationId, operation.Telemetry.Context.Operation.Id);
+                Assert.AreEqual(customParentId, operation.Telemetry.Context.Operation.ParentId);
+            }
+
+            Assert.AreEqual(activity, Activity.Current);
+            Assert.AreEqual(1, this.sendItems.Count);
+            Assert.IsTrue(this.sendItems.Single() is DependencyTelemetry);
+
+            var dependency = this.sendItems.Single() as DependencyTelemetry;
+
+            Assert.AreEqual(customOperationId, dependency.Context.Operation.Id);
+            Assert.AreEqual(customParentId, dependency.Context.Operation.ParentId);
+        }
+
+        [TestMethod]
+        public void StartStopRespectsUserProvidedIdsInScopeOfAnotherActivityExplicitOperationIdOnly()
+        {
+            var activity = new Activity("foo").Start();
+
+            var customOperationId = ActivityTraceId.CreateRandom().ToHexString();
+
+            using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("name", customOperationId))
+            {
+                Assert.IsNotNull(Activity.Current);
+                Assert.AreNotEqual(activity, Activity.Current.Parent);
+                Assert.AreEqual(customOperationId, Activity.Current.TraceId.ToHexString());
+                Assert.AreEqual(customOperationId, operation.Telemetry.Context.Operation.Id);
+                Assert.IsNull(operation.Telemetry.Context.Operation.ParentId);
+            }
+
+            Assert.AreEqual(activity, Activity.Current);
+            Assert.AreEqual(1, this.sendItems.Count);
+            Assert.IsTrue(this.sendItems.Single() is DependencyTelemetry);
+
+            var dependency = this.sendItems.Single() as DependencyTelemetry;
+
+            Assert.AreEqual(customOperationId, dependency.Context.Operation.Id);
+            Assert.IsNull(dependency.Context.Operation.ParentId);
+        }
+
+        [TestMethod]
+        public void StartStopRespectsUserProvidedIdsInScopeOfAnotherActivityExplicitIdsW3COff()
+        {
+            ActivityFormatHelper.DisableW3CFormatInActivity();
+            var activity = new Activity("foo").Start();
+
+            var customOperationId = ActivityTraceId.CreateRandom().ToHexString();
+            var customParentId = ActivitySpanId.CreateRandom().ToHexString();
+
+            using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("name", customOperationId, customParentId))
+            {
+                Assert.IsNotNull(Activity.Current);
+                Assert.AreNotEqual(activity, Activity.Current.Parent);
+                Assert.AreEqual(customOperationId, Activity.Current.RootId);
+                Assert.AreEqual(customOperationId, operation.Telemetry.Context.Operation.Id);
+                Assert.AreEqual(customParentId, operation.Telemetry.Context.Operation.ParentId);
+            }
+
+            Assert.AreEqual(activity, Activity.Current);
+            Assert.AreEqual(1, this.sendItems.Count);
+            Assert.IsTrue(this.sendItems.Single() is DependencyTelemetry);
+
+            var dependency = this.sendItems.Single() as DependencyTelemetry;
+
+            Assert.AreEqual(customOperationId, dependency.Context.Operation.Id);
+            Assert.AreEqual(customParentId, dependency.Context.Operation.ParentId);
+        }
+
+        [TestMethod]
+        public void StartStopRespectsUserProvidedIdsInScopeOfAnotherActivityTelemetry()
+        {
+            var activity = new Activity("foo").Start();
+
+            var customOperationId = ActivityTraceId.CreateRandom().ToHexString();
+            var customParentId = ActivitySpanId.CreateRandom().ToHexString();
+            var dependency = new DependencyTelemetry();
+            dependency.Context.Operation.Id = customOperationId;
+            dependency.Context.Operation.ParentId = customParentId;
+
+            using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(dependency))
+            {
+                Assert.IsNotNull(Activity.Current);
+                Assert.AreNotEqual(activity, Activity.Current.Parent);
+                Assert.AreEqual(customOperationId, Activity.Current.TraceId.ToHexString());
+                Assert.AreEqual(customOperationId, operation.Telemetry.Context.Operation.Id);
+                Assert.AreEqual(customParentId, operation.Telemetry.Context.Operation.ParentId);
+            }
+
+            Assert.AreEqual(activity, Activity.Current);
+            Assert.AreEqual(1, this.sendItems.Count);
+            Assert.IsTrue(this.sendItems.Single() is DependencyTelemetry);
+
+            Assert.AreEqual(customOperationId, dependency.Context.Operation.Id);
+            Assert.AreEqual(customParentId, dependency.Context.Operation.ParentId);
+        }
+
+        [TestMethod]
+        public void StartStopRespectsUserProvidedIdsInScopeOfAnotherActivityTelemetryInvalidOperationId()
+        {
+            var activity = new Activity("foo").Start();
+
+            var customOperationId = "customOperationId";
+            var customParentId = "customParentId";
+            var dependency = new DependencyTelemetry();
+            dependency.Context.Operation.Id = customOperationId;
+            dependency.Context.Operation.ParentId = customParentId;
+
+            using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(dependency))
+            {
+                Assert.IsNotNull(Activity.Current);
+                Assert.AreEqual(activity, Activity.Current.Parent);
+                Assert.IsTrue(W3CUtilities.IsCompatibleW3CTraceId(Activity.Current.TraceId.ToHexString()));
+                Assert.AreEqual(customParentId, operation.Telemetry.Context.Operation.ParentId);
+            }
+
+            Assert.AreEqual(activity, Activity.Current);
+            Assert.AreEqual(1, this.sendItems.Count);
+            Assert.IsTrue(this.sendItems.Single() is DependencyTelemetry);
+
+            Assert.AreNotEqual(customOperationId, dependency.Context.Operation.Id);
+            Assert.AreEqual(customParentId, dependency.Context.Operation.ParentId);
+
+            Assert.IsTrue(dependency.Properties.TryGetValue("ai_legacyRootId", out var actualLegacyRootId));
+            Assert.AreEqual(customOperationId, actualLegacyRootId);
+        }
+
+        [TestMethod]
+        public void StartStopRespectsUserProvidedIdsInvalidOperationId()
+        {
+            var customOperationId = "customOperationId";
+            var customParentId = "customParentId";
+            var dependency = new DependencyTelemetry();
+            dependency.Context.Operation.Id = customOperationId;
+            dependency.Context.Operation.ParentId = customParentId;
+
+            using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(dependency))
+            {
+                Assert.IsNotNull(Activity.Current);
+                Assert.IsTrue(W3CUtilities.IsCompatibleW3CTraceId(Activity.Current.TraceId.ToHexString()));
+                Assert.AreEqual(customParentId, operation.Telemetry.Context.Operation.ParentId);
+            }
+
+            Assert.AreEqual(1, this.sendItems.Count);
+            Assert.IsTrue(this.sendItems.Single() is DependencyTelemetry);
+
+            Assert.AreNotEqual(customOperationId, dependency.Context.Operation.Id);
+            Assert.AreEqual(customParentId, dependency.Context.Operation.ParentId);
+
+            Assert.IsTrue(dependency.Properties.TryGetValue("ai_legacyRootId", out var actualLegacyRootId));
+            Assert.AreEqual(customOperationId, actualLegacyRootId);
+        }
+        [TestMethod]
         public void StartOperationCanOverrideOperationIdNonW3C()
         {
             ActivityFormatHelper.DisableW3CFormatInActivity();
@@ -454,7 +619,7 @@
         public void StartOperationPopulatesContextCorrectlyWithOverridingNonW3CCompatibleRootIdW3C()
         {            
             // Act - start an operation, supply operation ID which is NOT W3C compatible, and generate a telemetry inside it.
-            using (this.telemetryClient.StartOperation<RequestTelemetry>("Request", operationId: NonW3CCompatileOperationId))
+            using (this.telemetryClient.StartOperation<RequestTelemetry>("Request", operationId: NonW3CCompatibleOperationId))
             {
                 this.telemetryClient.TrackTrace("child trace");
                 this.telemetryClient.TrackEvent("child event");
@@ -469,8 +634,8 @@
             ValidateRootTelemetry(requestTelemetry);
 
             // Additional Validations.            
-            Assert.AreNotEqual(NonW3CCompatileOperationId, requestTelemetry.Context.Operation.Id, "Non compatible operation id supplied by user should be ignored in W3C mode.");
-            Assert.AreEqual(NonW3CCompatileOperationId, requestTelemetry.Properties[W3CConstants.LegacyRootIdProperty], "Non compatible operation id supplied by user should be stored in custom property");
+            Assert.AreNotEqual(NonW3CCompatibleOperationId, requestTelemetry.Context.Operation.Id, "Non compatible operation id supplied by user should be ignored in W3C mode.");
+            Assert.AreEqual(NonW3CCompatibleOperationId, requestTelemetry.Properties[W3CConstants.LegacyRootIdProperty], "Non compatible operation id supplied by user should be stored in custom property");
 
             // The generated TraceTelemetry should become the child of the root RequestTelemetry
             var traceTelemetry = (TraceTelemetry)this.sendItems.Single(t => t is TraceTelemetry);
@@ -485,7 +650,7 @@
         public void StartOperationPopulatesContextCorrectlyWithOverridingW3CCompatibleRootIdW3C()
         {
             // Act - start an operation, supply operation ID which is NOT W3C compatible, and generate a telemetry inside it.
-            using (this.telemetryClient.StartOperation<RequestTelemetry>("Request", operationId: W3CCompatileOperationId))
+            using (this.telemetryClient.StartOperation<RequestTelemetry>("Request", operationId: W3CCompatibleOperationId))
             {
                 this.telemetryClient.TrackTrace("child trace");
                 this.telemetryClient.TrackEvent("child event");
@@ -496,8 +661,8 @@
             // The RequestTelemetry is the root operation here.
             // The user provided operationid will be used as it is W3C compatible.
             var requestTelemetry = (RequestTelemetry)this.sendItems.Single(t => t is RequestTelemetry);
-            ValidateRootTelemetry(requestTelemetry, expectedOperationId:W3CCompatileOperationId);
-            Assert.AreEqual(W3CCompatileOperationId, requestTelemetry.Context.Operation.Id, "W3C compatible operation id supplied by user should be used.");
+            ValidateRootTelemetry(requestTelemetry, expectedOperationId:W3CCompatibleOperationId);
+            Assert.AreEqual(W3CCompatibleOperationId, requestTelemetry.Context.Operation.Id, "W3C compatible operation id supplied by user should be used.");
 
             // The generated TraceTelemetry should become the child of the root RequestTelemetry
             var traceTelemetry = (TraceTelemetry)this.sendItems.Single(t => t is TraceTelemetry);
@@ -551,7 +716,7 @@
         public void StartOperationPopulatesContextCorrectlyWithAnyOverridingParentIdW3C()
         {
             // Act - start an operation, supply ANY parent operation ID, and generate a telemetry inside it.
-            using (this.telemetryClient.StartOperation<RequestTelemetry>("Request", operationId: W3CCompatileOperationId, parentOperationId: AnyParentId))
+            using (this.telemetryClient.StartOperation<RequestTelemetry>("Request", operationId: W3CCompatibleOperationId, parentOperationId: AnyParentId))
             {
                 this.telemetryClient.TrackTrace("child trace");
                 this.telemetryClient.TrackEvent("child event");
@@ -674,7 +839,7 @@
 
             if (isW3C)
             {
-                Assert.IsTrue(W3CUtilities.IsCompatibleW3CTraceID(operationTelemetry.Context.Operation.Id));
+                Assert.IsTrue(W3CUtilities.IsCompatibleW3CTraceId(operationTelemetry.Context.Operation.Id));
             }
             Assert.IsNotNull(operationTelemetry.Id);
             // ID is shaped like |TraceID.SpanID.

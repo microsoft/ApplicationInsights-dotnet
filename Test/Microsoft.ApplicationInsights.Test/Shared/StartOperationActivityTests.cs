@@ -32,6 +32,8 @@
             configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
             this.telemetryClient = new TelemetryClient(configuration);
             CallContextHelpers.RestoreOperationContext(null);
+
+            ActivityFormatHelper.EnableW3CFormatInActivity();
         }
 
         [TestCleanup]
@@ -62,6 +64,63 @@
             Assert.AreEqual(telemetry, this.sendItems.Single());
         }
 
+        [TestMethod]
+        public void BasicStartOperationWithActivityInScopeOfUnrelatedActivity()
+        {
+            var outerActivity = new Activity("foo").Start();
+
+            var activity = new Activity("name").SetParentId("parentId").AddBaggage("b1", "v1").AddTag("t1", "v1");
+
+            RequestTelemetry telemetry;
+            using (var operation = this.telemetryClient.StartOperation<RequestTelemetry>(activity))
+            {
+                telemetry = operation.Telemetry;
+                Assert.AreEqual(activity, Activity.Current);
+                Assert.AreNotEqual(outerActivity, Activity.Current.Parent);
+                Assert.IsNotNull(activity.Id);
+            }
+
+            this.ValidateTelemetry(telemetry, activity);
+
+            Assert.AreEqual(telemetry, this.sendItems.Single());
+            Assert.AreEqual(outerActivity, Activity.Current);
+
+            var request = this.sendItems.Single() as RequestTelemetry;
+            Assert.IsNotNull(request);
+            Assert.AreEqual(activity.TraceId.ToHexString(), request.Context.Operation.Id);
+            Assert.AreEqual($"|{activity.TraceId.ToHexString()}.{activity.SpanId.ToHexString()}.", request.Id);
+            Assert.AreEqual("parentId", request.Context.Operation.ParentId);
+        }
+
+        [TestMethod]
+        public void BasicStartOperationWithStartedActivityInScopeOfUnrelatedActivity()
+        {
+            var outerActivity = new Activity("foo").Start();
+
+            // this is not right to give started Activity to StartOperation, but nothing terrible should happen
+            // except it won't be possible to restore original context after StartOperation completes
+            var activity = new Activity("name").SetParentId("parentId").AddBaggage("b1", "v1").AddTag("t1", "v1").Start();
+
+            RequestTelemetry telemetry;
+            using (var operation = this.telemetryClient.StartOperation<RequestTelemetry>(activity))
+            {
+                telemetry = operation.Telemetry;
+                Assert.AreEqual(activity, Activity.Current);
+                Assert.AreNotEqual(outerActivity, Activity.Current.Parent);
+                Assert.IsNotNull(activity.Id);
+            }
+
+            this.ValidateTelemetry(telemetry, activity);
+
+            Assert.AreEqual(telemetry, this.sendItems.Single());
+            Assert.IsNull(Activity.Current);
+
+            var request = this.sendItems.Single() as RequestTelemetry;
+            Assert.IsNotNull(request);
+            Assert.AreEqual(activity.TraceId.ToHexString(), request.Context.Operation.Id);
+            Assert.AreEqual($"|{activity.TraceId.ToHexString()}.{activity.SpanId.ToHexString()}.", request.Id);
+            Assert.AreEqual("parentId", request.Context.Operation.ParentId);
+        }
 
         /// <summary>
         /// Invalid Usage! Tests that if Activity is started, StartOperation still works and does not crash.
