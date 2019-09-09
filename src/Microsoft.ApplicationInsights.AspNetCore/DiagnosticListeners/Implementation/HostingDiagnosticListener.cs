@@ -192,7 +192,7 @@
                 bool traceParentPresent = false;
                 var headers = httpContext.Request.Headers;
 
-                // 3 posibilities when TelemetryConfiguration.EnableW3CCorrelation = true
+                // 3 possibilities when TelemetryConfiguration.EnableW3CCorrelation = true
                 // 1. No incoming headers. originalParentId will be null. Simply use the Activity as such.
                 // 2. Incoming Request-ID Headers. originalParentId will be request-id, but Activity ignores this for ID calculations.
                 //    If incoming ID is W3C compatible, ignore current Activity. Create new one with parent set to incoming W3C compatible rootid.
@@ -201,13 +201,15 @@
                 //    3a - 2.XX Need to ignore current Activity, and create new from incoming W3C TraceParent header.
                 //    3b - 3.XX Use Activity as such because 3.XX is W3C Aware. 
 
-                // Another 3 posibilities when TelemetryConfiguration.EnableW3CCorrelation = false
+                // Another 3 possibilities when TelemetryConfiguration.EnableW3CCorrelation = false
                 // 1. No incoming headers. originalParentId will be null. Simply use the Activity as such.
                 // 2. Incoming Request-ID Headers. originalParentId will be request-id, Activity uses this for ID calculations.
                 // 3. Incoming TraceParent header. Will simply Ignore W3C headers, and Current Activity used as such.
 
                 // Attempt to find parent from incoming W3C Headers which 2.XX Hosting is unaware of.
-                if (this.aspNetCoreMajorVersion != AspNetCoreMajorVersion.Three && currentActivity.IdFormat == ActivityIdFormat.W3C && headers.TryGetValue(W3CConstants.TraceParentHeader, out StringValues traceParentValues)
+                if (this.aspNetCoreMajorVersion != AspNetCoreMajorVersion.Three
+                     && currentActivity.IdFormat == ActivityIdFormat.W3C
+                     && headers.TryGetValue(W3CConstants.TraceParentHeader, out StringValues traceParentValues)
                      && traceParentValues != StringValues.Empty)
                 {
                     var parentTraceParent = StringUtilities.EnforceMaxLength(
@@ -282,7 +284,9 @@
                 }
 
                 var requestTelemetry = this.InitializeRequestTelemetry(httpContext, currentActivity, Stopwatch.GetTimestamp(), legacyRootId);
-                requestTelemetry.Context.Operation.ParentId = originalParentId;
+
+                requestTelemetry.Context.Operation.ParentId =
+                    GetParentId(currentActivity, originalParentId, requestTelemetry.Context.Operation.Id);
 
                 this.AddAppIdToResponseIfRequired(httpContext, requestTelemetry);
             }
@@ -315,7 +319,6 @@
 
                 // 1.XX does not create Activity and SDK is responsible for creating Activity.
                 var activity = new Activity(ActivityCreatedByHostingDiagnosticListener);
-                string sourceAppId = null;
                 IHeaderDictionary requestHeaders = httpContext.Request.Headers;
                 string originalParentId = null;
                 string legacyRootId = null;
@@ -326,8 +329,8 @@
                     traceParentValues != StringValues.Empty)
                 {
                     var parentTraceParent = StringUtilities.EnforceMaxLength(traceParentValues.First(), InjectionGuardConstants.TraceParentHeaderMaxLength);
+                    activity.SetParentId(parentTraceParent);
                     originalParentId = parentTraceParent;
-                    activity.SetParentId(originalParentId);
 
                     ReadTraceState(requestHeaders, activity);
                     ReadCorrelationContext(requestHeaders, activity);
@@ -367,13 +370,9 @@
                 activity.Start();
 
                 var requestTelemetry = this.InitializeRequestTelemetry(httpContext, activity, timestamp, legacyRootId);
-                if (this.enableW3CHeaders && sourceAppId != null)
-                {
-                    requestTelemetry.Source = sourceAppId;
-                }
 
-                // fix parent that may be modified by non-W3C operation correlation
-                requestTelemetry.Context.Operation.ParentId = originalParentId;
+                requestTelemetry.Context.Operation.ParentId =
+                    GetParentId(activity, originalParentId, requestTelemetry.Context.Operation.Id);
 
                 this.AddAppIdToResponseIfRequired(httpContext, requestTelemetry);
             }
@@ -544,6 +543,20 @@
         /// <inheritdoc />
         public void OnCompleted()
         {
+        }
+
+        private string GetParentId(Activity activity, string originalParentId, string operationId)
+        {
+            if (activity.IdFormat == ActivityIdFormat.W3C && activity.ParentSpanId != default)
+            {
+                var parentSpanId = activity.ParentSpanId.ToHexString();
+                if (parentSpanId != "0000000000000000")
+                {
+                    return FormatTelemetryId(operationId, parentSpanId);
+                }
+            }
+
+            return originalParentId;
         }
 
         private static string ExtractOperationIdFromRequestId(string originalParentId)
@@ -718,10 +731,11 @@
             {
                 requestTelemetry.Context.Operation.Id = activity.RootId;
                 requestTelemetry.Id = activity.Id;
-                AspNetCoreEventSource.Instance.RequestTelemetryCreated("Hierrarchical", requestTelemetry.Id, requestTelemetry.Context.Operation.Id);
+                AspNetCoreEventSource.Instance.RequestTelemetryCreated("Hierarchical", requestTelemetry.Id, requestTelemetry.Context.Operation.Id);
             }
 
             if (this.proactiveSamplingEnabled
+                && !activity.Recorded
                 && this.configuration != null
                 && !string.IsNullOrEmpty(requestTelemetry.Context.Operation.Id)
                 && SamplingScoreGenerator.GetSamplingScore(requestTelemetry.Context.Operation.Id) >= this.configuration.GetLastObservedSamplingPercentage(requestTelemetry.ItemTypeFlag))
