@@ -3,10 +3,11 @@
     using System;
     using System.ComponentModel;
     using System.Diagnostics;
-
+    using System.Runtime.InteropServices;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
 
     /// <summary>
     /// Extension class to telemetry client that creates operation object with the respective fields initialized.
@@ -14,7 +15,7 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static class TelemetryClientExtensions
     {
-        private const string ChildActivityName = "Microsoft.ApplicationInsights.OperationContext";
+        private const string ChildActivityName = "Microsoft.ApplicationInsights.OperationContext";        
 
         /// <summary>
         /// Start operation creates an operation object with a respective telemetry item. 
@@ -53,7 +54,33 @@
 
             if (string.IsNullOrEmpty(operationTelemetry.Context.Operation.Id) && !string.IsNullOrEmpty(operationId))
             {
-                operationTelemetry.Context.Operation.Id = operationId;
+                var isActivityAvailable = ActivityExtensions.TryRun(() =>
+                {
+                    if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
+                    {
+                        if (W3CUtilities.IsCompatibleW3CTraceId(operationId))
+                        {
+                            // If the user provided operationid is W3C Compatible, use it.
+                            operationTelemetry.Context.Operation.Id = operationId;
+                        }
+                        else
+                        {
+                            // If user provided operationid is not W3C compatible, generate a new one instead.
+                            // and store supplied value inside customproperty.
+                            operationTelemetry.Context.Operation.Id = ActivityTraceId.CreateRandom().ToHexString();
+                            operationTelemetry.Properties.Add(W3CConstants.LegacyRootIdProperty, operationId);
+                        }
+                    }
+                    else
+                    {
+                        operationTelemetry.Context.Operation.Id = operationId;
+                    }
+                });
+
+                if (!isActivityAvailable)
+                {
+                    operationTelemetry.Context.Operation.Id = operationId;
+                }
             }
 
             if (string.IsNullOrEmpty(operationTelemetry.Context.Operation.ParentId) && !string.IsNullOrEmpty(parentOperationId))
@@ -83,6 +110,9 @@
                 throw new ArgumentNullException(nameof(operationTelemetry));
             }
 
+            var telemetryContext = operationTelemetry.Context.Operation;
+            bool idsAssignedByUser = !string.IsNullOrEmpty(telemetryContext.Id);
+
             // We initialize telemetry here AND in Track method because of RichPayloadEventSource.
             // It sends Start and Stop events for OperationTelemetry. During Start event telemetry
             // has to contain essential telemetry properties such as correlations ids and ikey.
@@ -94,8 +124,6 @@
             //    and does not require other properties in telemetry
             telemetryClient.Initialize(operationTelemetry);
 
-            var telemetryContext = operationTelemetry.Context.Operation;
-
             // Initialize operation id if it wasn't initialized by telemetry initializers
             if (string.IsNullOrEmpty(operationTelemetry.Id))
             {
@@ -103,16 +131,13 @@
             }
 
             // If the operation is not executing in the context of any other operation
-            // set its name and id as a context (root) operation name and id
-            if (string.IsNullOrEmpty(telemetryContext.Id))
-            {
-                telemetryContext.Id = operationTelemetry.Id;
-            }
-
+            // set its name as a context (root) operation name.
             if (string.IsNullOrEmpty(telemetryContext.Name))
             {
                 telemetryContext.Name = operationTelemetry.Name;
             }
+
+            OperationHolder<T> operationHolder = null;
 
             var isActivityAvailable = ActivityExtensions.TryRun(() =>
             {
@@ -130,21 +155,64 @@
                     operationActivity.SetOperationName(operationName);
                 }
 
-                if (parentActivity == null)
+                if (idsAssignedByUser)
                 {
-                    // telemetryContext.Id is always set: if it was null, it is set to opTelemetry.Id and opTelemetry.Id is never null
-                    operationActivity.SetParentId(telemetryContext.Id);
+                    if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
+                    {
+                        if (W3CUtilities.IsCompatibleW3CTraceId(telemetryContext.Id))
+                        {
+                            // If the user provided operationId is W3C Compatible, use it.
+                            operationActivity.SetParentId(ActivityTraceId.CreateFromString(telemetryContext.Id.AsSpan()),
+                                default(ActivitySpanId), ActivityTraceFlags.None);
+                        }
+                        else
+                        {
+                            // If user provided operationId is not W3C compatible, generate a new one instead.
+                            // and store supplied value inside custom property.
+                            operationTelemetry.Properties.Add(W3CConstants.LegacyRootIdProperty, telemetryContext.Id);
+                            telemetryContext.Id = null;
+                        }
+                    }
+                    else
+                    {
+                        operationActivity.SetParentId(telemetryContext.Id);
+                    }
                 }
 
                 operationActivity.Start();
-                operationTelemetry.Id = operationActivity.Id;
+
+                if (operationActivity.IdFormat == ActivityIdFormat.W3C)
+                {
+                    if (string.IsNullOrEmpty(telemetryContext.Id))
+                    {
+                        telemetryContext.Id = operationActivity.TraceId.ToHexString();
+                    }
+
+                    // ID takes the form |TraceID.SpanId. 
+                    // TelemetryContext.Id used instead of TraceID.ToHexString() for perf.
+                    operationTelemetry.Id = W3CUtilities.FormatTelemetryId(telemetryContext.Id, operationActivity.SpanId.ToHexString());
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(telemetryContext.Id))
+                    {
+                        telemetryContext.Id = operationActivity.RootId;
+                    }
+
+                    operationTelemetry.Id = operationActivity.Id;
+                }
+
+                operationHolder = new OperationHolder<T>(telemetryClient, operationTelemetry, parentActivity == operationActivity.Parent ? null : parentActivity);
             });
 
-            var operationHolder = new OperationHolder<T>(telemetryClient, operationTelemetry);
             if (!isActivityAvailable)
             {
                 // Parent context store is assigned to operation that is used to restore call context.
-                operationHolder.ParentContext = CallContextHelpers.GetCurrentOperationContext();
+                operationHolder = new OperationHolder<T>(telemetryClient, operationTelemetry)
+                {
+                    ParentContext = CallContextHelpers.GetCurrentOperationContext(),
+                };
+                telemetryContext.Id = operationTelemetry.Id;
             }
 
             operationTelemetry.Start();
@@ -229,6 +297,14 @@
                 throw new ArgumentNullException(nameof(activity));
             }
 
+            Activity originalActivity = null;
+            
+            // not started activity, default case
+            if (activity.Id == null)
+            {
+                originalActivity = Activity.Current;
+            }
+
             activity.Start();
             T operationTelemetry = ActivityToTelemetry<T>(activity);
 
@@ -245,7 +321,7 @@
 
             operationTelemetry.Start();
 
-            return new OperationHolder<T>(telemetryClient, operationTelemetry);
+            return new OperationHolder<T>(telemetryClient, operationTelemetry, originalActivity);
         }
 
         private static T ActivityToTelemetry<T>(Activity activity) where T : OperationTelemetry, new()
@@ -255,10 +331,18 @@
             var telemetry = new T { Name = activity.OperationName };
 
             OperationContext operationContext = telemetry.Context.Operation;
-            operationContext.Name = activity.GetOperationName();
-            operationContext.Id = activity.RootId;
+            operationContext.Name = activity.GetOperationName();            
             operationContext.ParentId = activity.ParentId;
-            telemetry.Id = activity.Id;
+            if (activity.IdFormat == ActivityIdFormat.W3C)
+            {
+                operationContext.Id = activity.TraceId.ToHexString();                
+                telemetry.Id = W3CUtilities.FormatTelemetryId(operationContext.Id, activity.SpanId.ToHexString());
+            }
+            else
+            {
+                operationContext.Id = activity.RootId;
+                telemetry.Id = activity.Id;
+            }
 
             foreach (var item in activity.Baggage)
             {

@@ -4,17 +4,20 @@
     using System.Threading.Tasks;
 
     /// <summary>
-    /// There are some methods on that MetricManager needs to forward to its encapsulated MetricAggregationManager that need to be public.
-    /// However, in order not to pulute the API surface shown by Intellisense, we redirect them through this class, which is located in a more specialized namespace.
+    /// Some methods on <c>MetricManager.AggregationManager</c> need public access.
+    /// However, the property <c>AggregationManager</c> on <c>MetricManager</c> is not public,
+    /// nor is the type of that property (<c>MetricAggregationManager</c>).
+    /// This class exposes the necesary APIs in a specialized namespace, while avoiding polluting
+    /// the API surface shown by Intellisense for users who do not import the ...Extensibility namespace.
     /// </summary>
     /// @PublicExposureCandidate
     internal static class MetricManagerExtensions
     {
-        /// <summary>@ToDo: Complete documentation before stable release. {989}.</summary>
-        /// <param name="metricManager">@ToDo: Complete documentation before stable release. {335}.</param>
-        /// <param name="aggregationCycleKind">@ToDo: Complete documentation before stable release. {001}.</param>
-        /// <param name="tactTimestamp">@ToDo: Complete documentation before stable release. {687}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {620}.</returns>
+        /// <summary>Stop the specified aggregation cycle for the specified manager and return the aggregates.</summary>
+        /// <param name="metricManager">The metric manager.</param>
+        /// <param name="aggregationCycleKind">The kind of the cycle to stop.</param>
+        /// <param name="tactTimestamp">Timestamp that will be the end of the astopped aggregation cycle for all respective aggregators.</param>
+        /// <returns>A holder that contains all the stopped aggregaors.</returns>
         public static AggregationPeriodSummary StopAggregators(
                                                         this MetricManager metricManager,
                                                         MetricAggregationCycleKind aggregationCycleKind,
@@ -24,12 +27,13 @@
             return metricManager.AggregationManager.StopAggregators(aggregationCycleKind, tactTimestamp);
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {396}.</summary>
-        /// <param name="metricManager">@ToDo: Complete documentation before stable release. {784}.</param>
-        /// <param name="aggregationCycleKind">@ToDo: Complete documentation before stable release. {805}.</param>
-        /// <param name="tactTimestamp">@ToDo: Complete documentation before stable release. {879}.</param>
-        /// <param name="futureFilter">@ToDo: Complete documentation before stable release. {735}.</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {762}.</returns>
+        /// <summary>If the specified aggragation cycle is not active, it is started.
+        /// If is is already active, it is completed, and a new cycle is started.</summary>
+        /// <param name="metricManager">The metric manager that owns the aggregation cycle.</param>
+        /// <param name="aggregationCycleKind">The kind of the aggregation cycle to start or cycle.</param>
+        /// <param name="tactTimestamp">Timestamp to b used as cycle sart for all respective aggregators.</param>
+        /// <param name="futureFilter">Filter to be used for the new cycle.</param>
+        /// <returns>A holder containing aggregates for the previous cycle, if any.</returns>
         public static AggregationPeriodSummary StartOrCycleAggregators(
                                                         this MetricManager metricManager,
                                                         MetricAggregationCycleKind aggregationCycleKind,

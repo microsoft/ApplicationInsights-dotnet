@@ -4,7 +4,8 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
-    /// <summary>@ToDo: Complete documentation before stable release. {951}.</summary>
+    /// <summary>A specific realization of a <see cref="MetricAggregateToApplicationInsightsPipelineConverterBase"/> 
+    /// for aggregations of kind "measurement".</summary>
     internal class MeasurementAggregateToApplicationInsightsPipelineConverter : MetricAggregateToApplicationInsightsPipelineConverterBase
     {
         public override string AggregationKindMoniker

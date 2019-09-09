@@ -88,7 +88,7 @@
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
-            this.IsSampledOutAtHead = source.IsSampledOutAtHead;
+            this.ProactiveSamplingDecision = source.ProactiveSamplingDecision;
 
             if (!this.isCreatedFromExceptionInfo)
             {
@@ -280,7 +280,7 @@
         public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.Exception;
 
         /// <inheritdoc/>
-        public bool IsSampledOutAtHead { get; set; } = false;
+        public SamplingDecision ProactiveSamplingDecision { get; set; }
 
         internal IList<ExceptionDetails> Exceptions
         {

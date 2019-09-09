@@ -2,7 +2,7 @@
 {
     using System;
 
-    /// <summary>@ToDo: Complete documentation before stable release. {447}.</summary>
+    /// <summary>The kind (aka purpose/target/...) of the aggregation cycle.</summary>
     public enum MetricAggregationCycleKind : Int32
     {
         /// <summary>

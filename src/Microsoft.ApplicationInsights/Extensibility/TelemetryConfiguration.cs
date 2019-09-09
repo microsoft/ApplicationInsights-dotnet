@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
@@ -26,7 +27,7 @@
         internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
 
         private static object syncRoot = new object();
-        private static TelemetryConfiguration active;
+        private static TelemetryConfiguration active;        
 
         private readonly SnapshottingList<ITelemetryInitializer> telemetryInitializers = new SnapshottingList<ITelemetryInitializer>();
         private readonly TelemetrySinkCollection telemetrySinks = new TelemetrySinkCollection();
@@ -41,6 +42,25 @@
         /// Indicates if this instance has been disposed of.
         /// </summary>
         private bool isDisposed = false;
+
+        /// <summary>
+        /// Static Constructor which sets ActivityID Format to W3C if Format not enforced.
+        /// This ensures SDK operates in W3C mode, unless turned off explicitily with the following 2 lines
+        /// in user code in application startup.
+        /// Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical
+        /// Activity.ForceDefaultIdFormat = true.
+        /// </summary>
+        static TelemetryConfiguration()
+        {
+            ActivityExtensions.TryRun(() =>
+            {
+                if (!Activity.ForceDefaultIdFormat)
+                {
+                    Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+                    Activity.ForceDefaultIdFormat = true;
+                }                
+            });
+        }
 
         /// <summary>
         /// Initializes a new instance of the TelemetryConfiguration class.

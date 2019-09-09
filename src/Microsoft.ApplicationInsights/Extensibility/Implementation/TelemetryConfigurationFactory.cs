@@ -78,8 +78,7 @@
                 }
 
                 // If an environment variable exists with an instrumentation key then use it (instead) for the "blackfield" scenario.
-                string environmentInstrumentationKey = PlatformSingleton.Current.GetEnvironmentVariable(InstrumentationKeyWebSitesEnvironmentVariable);
-                if (!string.IsNullOrEmpty(environmentInstrumentationKey))
+                if (PlatformSingleton.Current.TryGetEnvironmentVariable(InstrumentationKeyWebSitesEnvironmentVariable, out string environmentInstrumentationKey))
                 {
                     configuration.InstrumentationKey = environmentInstrumentationKey;
                 }
@@ -426,6 +425,10 @@
             catch (InvalidCastException e)
             {
                 CoreEventSource.Log.LoadInstanceFromValueConfigurationError(definition.Name.LocalName, definition.Value, e.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new ArgumentException($"Failed to parse configuration value. Property: '{definition.Name.LocalName}' Reason: {ex.Message}", ex);
             }
         }
 

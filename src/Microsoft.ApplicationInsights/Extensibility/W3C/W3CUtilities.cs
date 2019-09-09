@@ -2,7 +2,9 @@
 {
     using System;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Globalization;
+    using System.Text.RegularExpressions;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     /// <summary>
@@ -12,6 +14,7 @@
     public static class W3CUtilities
     {
         private static readonly uint[] Lookup32 = CreateLookup32();
+        private static readonly Regex TraceIdRegex = new Regex("^[a-f0-9]{32}$", RegexOptions.Compiled);
 
         /// <summary>
         /// Generates random trace Id as per W3C Distributed tracing specification.
@@ -19,12 +22,30 @@
         /// </summary>
         /// <returns>Random 16 bytes array encoded as hex string.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Use ActivityTraceId.CreateRandom().ToHexString() instead.")]
         public static string GenerateTraceId()
         {
-            byte[] firstHalf = BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next());
-            byte[] secondHalf = BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next());
+            return ActivityTraceId.CreateRandom().ToHexString();
+        }
 
-            return GenerateId(firstHalf, secondHalf, 0, 16);
+        /// <summary>
+        /// Constructs a Telemetry ID from given traceid and span id in the format |traceid.spanid.
+        /// This is the format used by Application Insights.        
+        /// </summary>
+        /// <returns>constructed Telemetry ID.</returns>
+        internal static string FormatTelemetryId(string traceId, string spanId)
+        {
+            return string.Concat("|", traceId, ".", spanId, ".");
+        }
+
+        /// <summary>
+        /// Checks if the given string is a valid trace-id as per W3C Specs.
+        /// https://github.com/w3c/distributed-tracing/blob/master/trace_context/HTTP_HEADER_FORMAT.md#trace-id .
+        /// </summary>
+        /// <returns>true if valid w3c trace id, otherwise false.</returns>
+        internal static bool IsCompatibleW3CTraceId(string traceId)
+        {
+            return TraceIdRegex.IsMatch(traceId);
         }
 
         /// <summary>
@@ -49,25 +70,6 @@
             for (int i = start; i < start + length; i++)
             {
                 var val = Lookup32[bytes[i]];
-                result[2 * i] = (char)val;
-                result[(2 * i) + 1] = (char)(val >> 16);
-            }
-
-            return new string(result);
-        }
-
-        /// <summary>
-        /// Converts byte arrays to hex lower case string.
-        /// </summary>
-        /// <returns>Array encoded as hex string.</returns>
-        private static string GenerateId(byte[] firstHalf, byte[] secondHalf, int start, int length)
-        {
-            // See https://stackoverflow.com/questions/311165/how-do-you-convert-a-byte-array-to-a-hexadecimal-string-and-vice-versa/24343727#24343727
-            var result = new char[length * 2];
-            int arrayBorder = length / 2;
-            for (int i = start; i < start + length; i++)
-            {
-                var val = Lookup32[i < arrayBorder ? firstHalf[i] : secondHalf[i - arrayBorder]];
                 result[2 * i] = (char)val;
                 result[(2 * i) + 1] = (char)(val >> 16);
             }

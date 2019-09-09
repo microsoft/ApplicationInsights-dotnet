@@ -40,6 +40,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\NetworkAvailabilityTransmissionPolicyTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\PartialSuccessTransmissionPolicyTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\PlatformFileTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\SamplingInternals\SamplingIncludesUtilityTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\SamplingPercentageEstimatorSettingsTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\SamplingScoreGeneratorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryBufferTest.cs" />

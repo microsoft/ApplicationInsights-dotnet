@@ -9,10 +9,32 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
+    using System.Diagnostics;
+
     [TestClass]
     public class TelemetryConfigurationTest
     {
+        #region W3C
+        [TestMethod]
+        public void TelemetryConfigurationStaticConstructorSetsW3CToTrueIfNotEnforced()
+        {
+            try
+            {
+                // Accessing TelemetryConfiguration trigger static constructor
+                var tc = new TelemetryConfiguration();
+
+                Assert.IsTrue(Activity.ForceDefaultIdFormat);
+                Assert.AreEqual(ActivityIdFormat.W3C, Activity.DefaultIdFormat);
+            }
+            finally
+            {
+                Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+                Activity.ForceDefaultIdFormat = false;
+            }
+        }
+
+        #endregion
+
         [TestMethod]
         public void TelemetryConfigurationIsPublicToAllowUsersManipulateConfigurationProgrammatically()
         {

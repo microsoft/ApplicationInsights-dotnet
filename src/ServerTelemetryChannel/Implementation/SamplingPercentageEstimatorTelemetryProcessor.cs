@@ -4,8 +4,8 @@
     using System.Threading;
 
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
 
     /// <summary>
     /// Represents a method that is invoked every time sampling percentage is evaluated
@@ -45,6 +45,11 @@
         private ExponentialMovingAverageCounter itemCount;
 
         /// <summary>
+        /// Average proactively SampledIn telemetry item counter.
+        /// </summary>
+        private ExponentialMovingAverageCounter proactivelySampledInCount;
+
+        /// <summary>
         /// Evaluation timer.
         /// </summary>
         private Timer evaluationTimer;
@@ -53,11 +58,6 @@
         /// Current evaluation interval.
         /// </summary>
         private TimeSpan evaluationInterval;
-
-        /// <summary>
-        /// Current sampling rate.
-        /// </summary>
-        private int currenSamplingRate;
 
         /// <summary>
         /// Last date and time sampling percentage was changed.
@@ -89,25 +89,17 @@
             Channel.Implementation.AdaptiveSamplingPercentageEvaluatedCallback callback, 
             ITelemetryProcessor next)
         {
-            if (settings == null)
-            {
-                throw new ArgumentNullException(nameof(settings));
-            }
-
-            if (next == null)
-            {
-                throw new ArgumentNullException(nameof(next));
-            }
-
             this.evaluationCallback = callback;
-            this.settings = settings;
-            this.next = next;
+            this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            this.next = next ?? throw new ArgumentNullException(nameof(next));
 
-            this.currenSamplingRate = settings.EffectiveInitialSamplingRate;
+            this.CurrentSamplingRate = settings.EffectiveInitialSamplingRate;
+            this.CurrentProactiveSamplingRate = settings.EffectiveInitialSamplingRate;
 
             this.itemCount = new ExponentialMovingAverageCounter(settings.EffectiveMovingAverageRatio);
+            this.proactivelySampledInCount = new ExponentialMovingAverageCounter(settings.EffectiveMovingAverageRatio);
 
-            this.samplingPercentageLastChangeDateTime = DateTimeOffset.UtcNow;
+            this.samplingPercentageLastChangeDateTime = PreciseTimestamp.GetUtcNow();
 
             // set evaluation interval to default value if it is negative or zero
             this.evaluationInterval = this.settings.EffectiveEvaluationInterval;
@@ -123,11 +115,12 @@
         /// <summary>
         /// Gets or sets current sampling rate.
         /// </summary>
-        internal int CurrentSamplingRate
-        {
-            get => this.currenSamplingRate;
-            set => this.currenSamplingRate = value;
-        }
+        internal int CurrentSamplingRate { get; set; }
+
+        /// <summary>
+        /// Gets current proactive sampling rate sampling rate.
+        /// </summary>
+        internal double CurrentProactiveSamplingRate { get; private set; }
 
         /// <summary>
         /// Processes telemetry item.
@@ -137,6 +130,12 @@
         {
             // increment post-sampling telemetry item counter
             this.itemCount.Increment();
+
+            if (item is ISupportAdvancedSampling advancedSamplingItem &&
+                advancedSamplingItem.ProactiveSamplingDecision == SamplingDecision.SampledIn)
+            {
+                this.proactivelySampledInCount.Increment();
+            }
 
             // continue processing telemetry item with the next telemetry processor
             this.next.Process(item);
@@ -182,8 +181,14 @@
             // get observed after-sampling eps
             double observedEps = this.itemCount.StartNewInterval() / this.evaluationInterval.TotalSeconds;
 
+            // get observed after-sampling eps
+            double observedProactiveEps = this.proactivelySampledInCount.StartNewInterval() / this.evaluationInterval.TotalSeconds;
+
             // we see events post sampling, so get pre-sampling eps
-            double beforeSamplingEps = observedEps * this.currenSamplingRate;
+            double beforeSamplingEps = observedEps * this.CurrentSamplingRate;
+
+            // we see events post sampling, so get pre-sampling eps
+            double beforeProactiveSamplingEps = observedProactiveEps * this.CurrentProactiveSamplingRate;
 
             // calculate suggested sampling rate
             int suggestedSamplingRate = (int)Math.Ceiling(beforeSamplingEps / this.settings.EffectiveMaxTelemetryItemsPerSecond);
@@ -199,6 +204,13 @@
                 suggestedSamplingRate = this.settings.EffectiveMinSamplingRate;
             }
 
+            double suggestedProactiveSamplingRate = beforeProactiveSamplingEps / this.settings.EffectiveMaxTelemetryItemsPerSecond;
+
+            if (suggestedProactiveSamplingRate < this.settings.EffectiveMinSamplingRate)
+            {
+                suggestedProactiveSamplingRate = this.settings.EffectiveMinSamplingRate;
+            }
+
             // see if evaluation interval was changed and apply change
             if (this.evaluationInterval != this.settings.EffectiveEvaluationInterval)
             {
@@ -207,13 +219,13 @@
             }
 
             // check to see if sampling rate needs changes
-            bool samplingPercentageChangeNeeded = suggestedSamplingRate != this.currenSamplingRate;
+            bool samplingPercentageChangeNeeded = suggestedSamplingRate != this.CurrentSamplingRate;
 
             if (samplingPercentageChangeNeeded)
             {
                 // check to see if enough time passed since last sampling % change
-                if ((DateTimeOffset.UtcNow - this.samplingPercentageLastChangeDateTime) <
-                    (suggestedSamplingRate > this.currenSamplingRate
+                if ((PreciseTimestamp.GetUtcNow() - this.samplingPercentageLastChangeDateTime) <
+                    (suggestedSamplingRate > this.CurrentSamplingRate
                         ? this.settings.EffectiveSamplingPercentageDecreaseTimeout
                         : this.settings.EffectiveSamplingPercentageIncreaseTimeout))
                 {
@@ -230,7 +242,7 @@
                 {
                     this.evaluationCallback(
                         observedEps,
-                        100.0 / this.currenSamplingRate,
+                        100.0 / this.CurrentSamplingRate,
                         100.0 / suggestedSamplingRate,
                         samplingPercentageChangeNeeded,
                         this.settings);
@@ -244,8 +256,9 @@
             if (samplingPercentageChangeNeeded)
             { 
                 // apply sampling percentage change
-                this.samplingPercentageLastChangeDateTime = DateTimeOffset.UtcNow;
-                this.currenSamplingRate = suggestedSamplingRate;
+                this.samplingPercentageLastChangeDateTime = PreciseTimestamp.GetUtcNow();
+                this.CurrentSamplingRate = suggestedSamplingRate;
+                this.CurrentProactiveSamplingRate = suggestedProactiveSamplingRate;
             }
 
             if (samplingPercentageChangeNeeded || 
@@ -254,6 +267,8 @@
                 // since we're observing event count post sampling and we're about
                 // to change sampling rate or change coefficient, reset counter
                 this.itemCount = new ExponentialMovingAverageCounter(this.settings.EffectiveMovingAverageRatio);
+                this.proactivelySampledInCount =
+                    new ExponentialMovingAverageCounter(this.settings.EffectiveMovingAverageRatio);
             }
         }
     }

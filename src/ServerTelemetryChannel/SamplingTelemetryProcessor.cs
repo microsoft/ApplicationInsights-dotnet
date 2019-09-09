@@ -1,14 +1,13 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel
 {
     using System;
-    using System.Collections.Generic;
-    using System.Threading;
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation.SamplingInternals;
 
     /// <summary>
     /// Represents a telemetry processor for sampling telemetry at a fixed-rate before sending to Application Insights.
@@ -16,19 +15,8 @@
     /// </summary>
     public sealed class SamplingTelemetryProcessor : ITelemetryProcessor
     {
-        private const string DependencyTelemetryName = "DEPENDENCY";
-        private const string EventTelemetryName = "EVENT";
-        private const string ExceptionTelemetryName = "EXCEPTION";
-        private const string PageViewTelemetryName = "PAGEVIEW";
-        private const string RequestTelemetryName = "REQUEST";
-        private const string TraceTelemetryName = "TRACE";
-
-        private readonly char[] listSeparators = { ';' };
-        private readonly IDictionary<string, Type> allowedTypes;
-
         private readonly AtomicSampledItemsCounter proactivelySampledOutCounters = new AtomicSampledItemsCounter();
 
-        private SamplingTelemetryItemTypes excludedTypesFlags;
         private string excludedTypesString;
 
         private SamplingTelemetryItemTypes includedTypesFlags;
@@ -40,24 +28,10 @@
         /// </summary>
         public SamplingTelemetryProcessor(ITelemetryProcessor next)
         {
-            if (next == null)
-            {
-                throw new ArgumentNullException(nameof(next));
-            }
-
             this.SamplingPercentage = 100.0;
-            this.SampledNext = next;
+            this.ProactiveSamplingPercentage = null;
+            this.SampledNext = next ?? throw new ArgumentNullException(nameof(next));
             this.UnsampledNext = next;
-            
-            this.allowedTypes = new Dictionary<string, Type>(6, StringComparer.OrdinalIgnoreCase)
-            {
-                { DependencyTelemetryName, typeof(DependencyTelemetry) },
-                { EventTelemetryName, typeof(EventTelemetry) },
-                { ExceptionTelemetryName, typeof(ExceptionTelemetry) },
-                { PageViewTelemetryName, typeof(PageViewTelemetry) },
-                { RequestTelemetryName, typeof(RequestTelemetry) },
-                { TraceTelemetryName, typeof(TraceTelemetry) },
-            };
         }
 
         internal SamplingTelemetryProcessor(ITelemetryProcessor unsampledNext, ITelemetryProcessor sampledNext) : this(sampledNext)
@@ -69,6 +43,7 @@
         /// Gets or sets a semicolon separated list of telemetry types that should not be sampled.
         /// Allowed type names: Dependency, Event, Exception, PageView, Request, Trace. 
         /// Types listed are excluded even if they are set in IncludedTypes.
+        /// Do not set both ExcludedTypes and IncludedTypes. ExcludedTypes will take precedence over IncludedTypes. 
         /// </summary>
         public string ExcludedTypes
         {
@@ -80,14 +55,27 @@
             set
             {
                 this.excludedTypesString = value;
-                this.excludedTypesFlags = this.PopulateSamplingFlagsFromTheInput(value);
+
+                if (value != null)
+                {
+                    var newIncludesFlags = SamplingIncludesUtility.CalculateFromExcludes(value);
+                    this.includedTypesFlags = newIncludesFlags;
+
+                    if (this.includedTypesString != null)
+                    {
+                        // excluded will always overwrite included. Log a "Configuration Error".
+                        TelemetryChannelEventSource.Log.SamplingConfigErrorBothTypes();
+                    }
+                }
             }
         }
 
         /// <summary>
         /// Gets or sets a semicolon separated list of telemetry types that should be sampled. 
+        /// Allowed type names: Dependency, Event, Exception, PageView, Request, Trace. 
         /// If left empty all types are included implicitly. 
         /// Types are not included if they are set in ExcludedTypes.
+        /// Do not set both ExcludedTypes and IncludedTypes. ExcludedTypes will take precedence over IncludedTypes. 
         /// </summary>
         public string IncludedTypes
         {
@@ -99,7 +87,20 @@
             set
             {
                 this.includedTypesString = value;
-                this.includedTypesFlags = this.PopulateSamplingFlagsFromTheInput(value);
+
+                if (value != null)
+                {
+                    if (this.excludedTypesString != null)
+                    {
+                        // included cannot overwrite excluded. Log a "Configuration Error".
+                        TelemetryChannelEventSource.Log.SamplingConfigErrorBothTypes();
+                    }
+                    else
+                    {
+                        var newIncludesFlags = SamplingIncludesUtility.CalculateFromIncludes(value);
+                        this.includedTypesFlags = newIncludesFlags;
+                    }
+                }
             }
         }
 
@@ -112,6 +113,11 @@
         /// Failure to follow this pattern can result in unexpected / incorrect computation of values in the portal.
         /// </remarks>
         public double SamplingPercentage { get; set; }
+
+        /// <summary>
+        /// Gets or sets current proactive-sampling percentage of telemetry items.
+        /// </summary>
+        internal double? ProactiveSamplingPercentage { get; set; }
 
         /// <summary>
         /// Gets or sets the next TelemetryProcessor in call chain to send evaluated (sampled) telemetry items to.
@@ -177,7 +183,26 @@
             //// Ok, now we can actually sample:
 
             samplingSupportingTelemetry.SamplingPercentage = samplingPercentage;
-            bool isSampledIn = SamplingScoreGenerator.GetSamplingScore(item) < samplingPercentage;
+
+            bool isSampledIn;
+
+            // if this is executed in adaptive sampling processor (rate ratio has value), 
+            // and item supports proactive sampling and was sampled in before, we'll give it more weight
+            if (this.ProactiveSamplingPercentage.HasValue &&
+                advancedSamplingSupportingTelemetry != null &&
+                advancedSamplingSupportingTelemetry.ProactiveSamplingDecision == SamplingDecision.SampledIn)
+            {
+                // if current rate of proactively sampled-in telemetry is too high, ProactiveSamplingPercentage is low:
+                // we'll sample in as much proactively sampled in items as we can (based on their sampling score)
+                // so that we still keep target rate.
+                // if current rate of proactively sampled-in telemetry is less that configured, ProactiveSamplingPercentage
+                // is high - it could be > 100 - and we'll sample in all items with proactive SampledIn decision (plus some more in else branch).
+                isSampledIn = SamplingScoreGenerator.GetSamplingScore(item) < this.ProactiveSamplingPercentage;
+            }
+            else
+            {
+                isSampledIn = SamplingScoreGenerator.GetSamplingScore(item) < samplingPercentage;
+            }
 
             if (isSampledIn)
             {
@@ -201,52 +226,13 @@
             }
         }
 
-        private SamplingTelemetryItemTypes PopulateSamplingFlagsFromTheInput(string input)
-        {
-            SamplingTelemetryItemTypes samplingTypeFlags = SamplingTelemetryItemTypes.None;
-
-            if (!string.IsNullOrEmpty(input))
-            {
-                string[] splitList = input.Split(this.listSeparators, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string item in splitList)
-                {
-                    if (this.allowedTypes.ContainsKey(item))
-                    {
-                        switch (item.ToUpperInvariant())
-                        {
-                            case RequestTelemetryName:
-                                samplingTypeFlags |= SamplingTelemetryItemTypes.Request;
-                                break;
-                            case DependencyTelemetryName:
-                                samplingTypeFlags |= SamplingTelemetryItemTypes.RemoteDependency;
-                                break;
-                            case ExceptionTelemetryName:
-                                samplingTypeFlags |= SamplingTelemetryItemTypes.Exception;
-                                break;
-                            case PageViewTelemetryName:
-                                samplingTypeFlags |= SamplingTelemetryItemTypes.PageView;
-                                break;
-                            case TraceTelemetryName:
-                                samplingTypeFlags |= SamplingTelemetryItemTypes.Message;
-                                break;
-                            case EventTelemetryName:
-                                samplingTypeFlags |= SamplingTelemetryItemTypes.Event;
-                                break;
-                        }
-                    }
-                }
-            }
-
-            return samplingTypeFlags;
-        }
-
         private void HandlePossibleProactiveSampling(ITelemetry item, double currentSamplingPercentage, ISupportAdvancedSampling samplingSupportingTelemetry = null)
         {
             var advancedSamplingSupportingTelemetry = samplingSupportingTelemetry ?? item as ISupportAdvancedSampling;
 
             if (advancedSamplingSupportingTelemetry != null)
             {
-                if (advancedSamplingSupportingTelemetry.IsSampledOutAtHead)
+                if (advancedSamplingSupportingTelemetry.ProactiveSamplingDecision == SamplingDecision.SampledOut)
                 {
                     // Item is sampled in but was proactively sampled out: store the amount of items it represented and drop it
                     this.proactivelySampledOutCounters.AddItems(advancedSamplingSupportingTelemetry.ItemTypeFlag, Convert.ToInt64(100 / currentSamplingPercentage));
@@ -281,17 +267,15 @@
 
         private bool IsSamplingApplicable(SamplingTelemetryItemTypes telemetryItemTypeFlag)
         {
-            if (this.excludedTypesFlags.HasFlag(telemetryItemTypeFlag))
+            if (this.includedTypesFlags == SamplingTelemetryItemTypes.None)
             {
-                return false;
+                // default value
+                return true;
             }
-
-            if (this.includedTypesFlags != SamplingTelemetryItemTypes.None && !this.includedTypesFlags.HasFlag(telemetryItemTypeFlag))
+            else
             {
-                return false;
+                return this.includedTypesFlags.HasFlag(telemetryItemTypeFlag);
             }
-
-            return true;
         }
     }
 }

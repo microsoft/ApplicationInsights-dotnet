@@ -3,7 +3,9 @@
     using System;
     using System.Collections.Generic;
 
-    /// <summary>@ToDo: Complete documentation before stable release. {218}.</summary>
+    /// <summary>A configuration for a metric that uses the Measurement aggregation kind.
+    /// A measurement contains the Min, Max, Sum and Count of the values tracked over any given
+    /// aggregation time period.</summary>
     public sealed class MetricConfigurationForMeasurement : MetricConfiguration
     {
         /// <summary>Creates a new instance of <c>MetricConfigurationForMeasurement</c>.</summary>

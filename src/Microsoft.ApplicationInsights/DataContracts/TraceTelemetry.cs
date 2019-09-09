@@ -59,7 +59,7 @@
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
-            this.IsSampledOutAtHead = source.IsSampledOutAtHead;
+            this.ProactiveSamplingDecision = source.ProactiveSamplingDecision;
             this.extension = source.extension?.DeepClone();
         }
 
@@ -139,7 +139,7 @@
         public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.Message;
 
         /// <inheritdoc/>
-        public bool IsSampledOutAtHead { get; set; } = false;
+        public SamplingDecision ProactiveSamplingDecision { get; set; }
 
         /// <summary>
         /// Deeply clones a <see cref="TraceTelemetry"/> object.

@@ -4,6 +4,7 @@
     using System.Diagnostics;
     using System.Globalization;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
 
     /// <summary>
     /// Operation class that holds the telemetry item and the corresponding telemetry client.
@@ -17,6 +18,8 @@
 
         private readonly TelemetryClient telemetryClient;
 
+        private readonly object originalActivity = null;
+
         /// <summary>
         /// Indicates if this instance has been disposed of.
         /// </summary>
@@ -28,10 +31,15 @@
         /// </summary>
         /// <param name="telemetryClient">Initializes telemetry client object.</param>
         /// <param name="telemetry">Operation telemetry item that is assigned to the telemetry associated to the current operation item.</param>
-        public OperationHolder(TelemetryClient telemetryClient, T telemetry)
+        /// <param name="originalActivity">Original activity to restore after operation stops. Provide it if Activity created for the operation
+        /// is detached from the scope it was created in because custom Ids were provided by user. Null indicates that Activity was not detached
+        /// and no explicit restore is needed. It's passed around as object to allow ApplicationInsights.dll to be used in standalone mode
+        /// for backward compatibility. </param>
+        public OperationHolder(TelemetryClient telemetryClient, T telemetry, object originalActivity = null)
         {
             this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
             this.Telemetry = telemetry ?? throw new ArgumentNullException(nameof(telemetry));
+            this.originalActivity = originalActivity; // it's ok if it's null
         }
 
         /// <summary>
@@ -68,7 +76,9 @@
                         isActivityAvailable = ActivityExtensions.TryRun(() =>
                         {
                             var currentActivity = Activity.Current;
-                            if (currentActivity == null || operationTelemetry.Id != currentActivity.Id)
+                            if (currentActivity == null 
+                            || (Activity.DefaultIdFormat != ActivityIdFormat.W3C && operationTelemetry.Id != currentActivity.Id) 
+                            || (Activity.DefaultIdFormat == ActivityIdFormat.W3C && operationTelemetry.Id != W3CUtilities.FormatTelemetryId(currentActivity.TraceId.ToHexString(), currentActivity.SpanId.ToHexString())))
                             {
                                 // W3COperationCorrelationTelemetryInitializer changes Id
                                 // but keeps an original one in 'ai_legacyRequestId' property
@@ -93,7 +103,14 @@
 
                             this.telemetryClient.Track(operationTelemetry);
 
-                            currentActivity.Stop();
+                            currentActivity?.Stop();
+
+                            if (this.originalActivity != null && 
+                                Activity.Current != this.originalActivity && 
+                                this.originalActivity is Activity activity)
+                            {
+                                Activity.Current = activity;
+                            }
                         });
 
                         if (!isActivityAvailable)
