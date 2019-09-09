@@ -86,7 +86,7 @@
             {
                 Activity parent = new Activity("parent");
 
-                // Setting parentid like this forces Activity to use Hierrachial ID Format
+                // Setting parentid like this forces Activity to use Hierarchical ID Format
                 parent.SetParentId("parent");
                 parent.Start();
 
@@ -346,6 +346,72 @@
 
             Assert.AreEqual(SamplingDecision.SampledIn, request.ProactiveSamplingDecision);
             currentActivity.Stop();
+        }
+
+        [TestMethod]
+        public void InitializeOnActivityWithTracestate()
+        {
+            Activity parent = new Activity("parent")
+            {
+                TraceStateString = "some=state"
+            };
+            parent.Start();
+
+            var telemetry = new DependencyTelemetry();
+            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
+
+            Assert.IsTrue(telemetry.Properties.ContainsKey("tracestate"));
+            Assert.AreEqual("some=state", telemetry.Properties["tracestate"]);
+        }
+
+        [TestMethod]
+        public void InitializeOnActivityWithTracestateW3COff()
+        {
+            ActivityFormatHelper.DisableW3CFormatInActivity();
+
+            Activity parent = new Activity("parent")
+            {
+                TraceStateString = "some=state"
+            };
+            parent.Start();
+
+            var telemetry = new DependencyTelemetry();
+            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
+
+            Assert.IsFalse(telemetry.Properties.ContainsKey("tracestate"));
+        }
+
+        [TestMethod]
+        public void InitializeOnActivityWithTracestateWhenPropertyAlreadyExists()
+        {
+            Activity parent = new Activity("parent")
+            {
+                TraceStateString = "some=state"
+            };
+            parent.Start();
+
+            var telemetry = new DependencyTelemetry();
+            telemetry.Properties.Add("tracestate", "123");
+            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
+
+            Assert.IsTrue(telemetry.Properties.ContainsKey("tracestate"));
+            Assert.AreEqual("123", telemetry.Properties["tracestate"]);
+        }
+
+
+        [TestMethod]
+        public void InitializeOnActivityWithTracestateNotOperationTelemetry()
+        {
+            Activity parent = new Activity("parent")
+            {
+                TraceStateString = "some=state"
+            };
+            parent.Start();
+
+            var telemetry = new TraceTelemetry();
+
+            // does not throw
+            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
         }
     }
 }
