@@ -7,12 +7,6 @@
     using System;
     using System.Diagnostics;
     using System.Globalization;
-    using Microsoft.ApplicationInsights.Extensibility.W3C;
-#if DEPENDENCY_COLLECTOR
-    using Microsoft.ApplicationInsights.W3C;
-#else
-    using Microsoft.ApplicationInsights.W3C.Internal;
-#endif
 
     /// <summary>
     /// Generic functions to perform common operations on a string.
@@ -46,10 +40,10 @@
         /// https://github.com/w3c/distributed-tracing/blob/master/trace_context/HTTP_HEADER_FORMAT.md#trace-id .
         /// </summary>
         /// <returns>Random 16 bytes array encoded as hex string.</returns>
-        [Obsolete("Use Microsoft.ApplicationInsights.Extensibility.W3C.W3CUtilities.GenerateTraceId in Microsoft.ApplicationInsights package instead.")]
+        [Obsolete("Use System.Diagnostics.ActivityTraceId.CreateRandom().ToHexString() instead.")]
         public static string GenerateTraceId()
         {
-            return W3CUtilities.GenerateTraceId();
+            return ActivityTraceId.CreateRandom().ToHexString();
         }
 
         /// <summary>
@@ -57,10 +51,10 @@
         /// https://github.com/w3c/distributed-tracing/blob/master/trace_context/HTTP_HEADER_FORMAT.md#span-id .
         /// </summary>
         /// <returns>Random 8 bytes array encoded as hex string.</returns>
-        [Obsolete("Use Microsoft.ApplicationInsights.Extensibility.W3C.W3CUtilities.GenerateTraceId in Microsoft.ApplicationInsights package instead.")]
+        [Obsolete("Use System.Diagnostics.ActivitySpanId.CreateRandom().ToHexString() instead.")]
         public static string GenerateSpanId()
         {
-            return W3CUtilities.GenerateTraceId().Substring(0, 16);
+            return ActivitySpanId.CreateRandom().ToHexString();
         }
 
         /// <summary>
@@ -73,11 +67,6 @@
         public static string FormatRequestId(string traceId, string spanId)
         {
             return string.Concat("|", traceId, ".", spanId, ".");
-        }
-
-        internal static string FormatAzureTracestate(string appId)
-        {
-            return string.Concat(W3CConstants.AzureTracestateNamespace, "=", appId);
         }
     }
 }

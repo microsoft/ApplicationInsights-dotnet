@@ -3,11 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Globalization;
-    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.W3C;
 
     /// <summary>
     /// Implements EventHubs DiagnosticSource events handling.
@@ -35,29 +32,9 @@
             {
                 case "Microsoft.Azure.EventHubs.Send.Start":
                 case "Microsoft.Azure.EventHubs.Receive.Start":
-
-                    // As a first step in supporting W3C protocol in ApplicationInsights,
-                    // we want to generate Activity Ids in the W3C compatible format.
-                    // While .NET changes to Activity are pending, we want to ensure trace starts with W3C compatible Id
-                    // as early as possible, so that everyone has a chance to upgrade and have compatibility with W3C systems once they arrive.
-                    // So if there is no parent Activity (i.e. this request has happened in the background, without parent scope), we'll override 
-                    // the current Activity with the one with properly formatted Id. This workaround should go away
-                    // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331 (TODO)
-                    if (currentActivity.Parent == null && currentActivity.ParentId == null)
-                    {
-                        currentActivity.UpdateParent(W3CUtilities.GenerateTraceId());
-                    }
-
                     break;
                 case "Microsoft.Azure.EventHubs.Send.Stop":
                 case "Microsoft.Azure.EventHubs.Receive.Stop":
-                    // If we started auxiliary Activity before to override the Id with W3C compatible one,
-                    // now it's time to set end time on it
-                    if (currentActivity.Duration == TimeSpan.Zero)
-                    {
-                        currentActivity.SetEndTime(DateTime.UtcNow);
-                    }
-
                     this.OnDependency(evnt.Key, evnt.Value, currentActivity);
                     break;
             }

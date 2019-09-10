@@ -8,7 +8,6 @@
     using System.Web;
 
     using Microsoft.ApplicationInsights.Common;
-    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental;
@@ -21,10 +20,6 @@
     /// </summary>
     public class RequestTrackingTelemetryModule : ITelemetryModule
     {
-        private const string IntermediateRequestHttpContextKey = "IntermediateRequest";
-        // if HttpApplicaiton.OnRequestExecute is available, we don't attempt to detect any correlation issues
-        private static bool correlationIssuesDetectionComplete = typeof(HttpApplication).GetMethod("OnExecuteRequestStep") != null;
-
         /// <summary>Tracks if given type should be included in telemetry. ConcurrentDictionary is used as a concurrent hashset.</summary>
         private readonly ConcurrentDictionary<Type, bool> includedHttpHandlerTypes = new ConcurrentDictionary<Type, bool>();
 
@@ -74,7 +69,8 @@
         /// <summary>
         /// Gets or sets a value indicating whether to enable W3C distributed tracing headers support.
         /// </summary>
-        public bool EnableW3CHeadersExtraction { get; set; } = false;
+        [Obsolete("This flag is obsolete and noop. Use System.Diagnostics.Activity.DefaultIdFormat (along with ForceDefaultIdFormat) flags instead.")] 
+        public bool EnableW3CHeadersExtraction { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the endpoint that is to be used to get the application insights resource's profile (appId etc.).
@@ -190,19 +186,7 @@
 
             if (this.childRequestTrackingSuppressionModule?.OnEndRequest_ShouldLog(context) ?? true)
             {
-                var intermediateRequest = (RequestTelemetry)context.Items[IntermediateRequestHttpContextKey];
-                if (intermediateRequest != null)
-                {
-                    this.telemetryClient.TrackRequest(intermediateRequest);
-                }
-
                 this.telemetryClient.TrackRequest(requestTelemetry);
-
-                if (!correlationIssuesDetectionComplete && context.Request.ContentLength > 0)
-                {
-                    WebEventSource.Log.CorrelationIssueIsDetectedForRequestWithBody();
-                    correlationIssuesDetectionComplete = true;
-                }
             }
             else
             {
@@ -279,68 +263,6 @@
             {
                 this.childRequestTrackingSuppressionModule = new ChildRequestTrackingSuppressionModule(maxRequestsTracked: this.ChildRequestTrackingInternalDictionarySize);
             }
-
-            ActivityHelpers.IsW3CTracingEnabled = this.EnableW3CHeadersExtraction;
-        }
-
-        /// <summary>
-        /// Tracks intermediate request if Activity was lost on the way to ASP.NET.
-        /// This request ensures we can correlate high-level request and dependency call.
-        /// This method should be removed with DiagnosticSource released along with .NET Core 2.2.
-        /// </summary>
-        /// <param name="context">Current HttpContext.</param>
-        /// <param name="activity">Restored activity.</param>
-        internal void TrackIntermediateRequest(HttpContext context, Activity activity)
-        {
-            // See https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/797
-            if (this.telemetryClient == null)
-            {
-                if (!this.initializationErrorReported)
-                {
-                    this.initializationErrorReported = true;
-                    WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetError();
-                }
-                else
-                {
-                    WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetVerbose();
-                }
-
-                return;
-            }
-
-            if (!this.NeedProcessRequest(context))
-            {
-                return;
-            }
-
-            var initialRequest = context.GetRequestTelemetry();
-            if (initialRequest == null)
-            {
-                // Begin_Request was not called and no telemetry has been 
-                // reported in scope of this request, there is no point in reporting intermediate request.
-                return;
-            }
-
-            var handlerNamespace = context.CurrentHandler?.GetType().Namespace;
-            if (handlerNamespace != null && handlerNamespace.StartsWith("System.ServiceModel", StringComparison.Ordinal))
-            {
-                // no point in reporting WCF intermediate requests, there is no correlation for WCF anyway
-                return;
-            }
-
-            var intermediateRequest = new RequestTelemetry
-            {
-                Name = string.Format(CultureInfo.InvariantCulture, "Execute request handler ({0})", context.CreateRequestNamePrivate()),
-                Id = activity.Id,
-                Timestamp = activity.StartTimeUtc,
-                Duration = activity.Duration,
-            };
-
-            intermediateRequest.Context.Operation.Id = activity.RootId;
-            intermediateRequest.Context.Operation.ParentId = activity.ParentId;
-            intermediateRequest.ResponseCode = null;
-            intermediateRequest.Properties.Add("AI internal", "Execute request handler step");
-            context.Items[IntermediateRequestHttpContextKey] = intermediateRequest;
         }
 
         /// <summary>

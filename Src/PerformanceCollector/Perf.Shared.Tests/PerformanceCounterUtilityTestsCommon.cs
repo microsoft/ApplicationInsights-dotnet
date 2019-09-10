@@ -37,6 +37,7 @@
         {
             try
             {
+                PerformanceCounterUtility.isAzureWebApp = null;
                 Environment.SetEnvironmentVariable("WEBSITE_SITE_NAME", "something");
                 var actual = PerformanceCounterUtility.GetPerformanceCollector();
                 Assert.AreEqual("WebAppPerformanceCollector", actual.GetType().Name);

@@ -2,8 +2,10 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="$(OS) == 'Windows_NT'">
     <!-- Including this file will generate both the *.nupkg and *.symbols.nupkg -->
+    <!--https://docs.microsoft.com/en-us/nuget/create-packages/symbol-packages-snupkg-->
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <IncludeSymbols>True</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <PropertyGroup>

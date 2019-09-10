@@ -19,7 +19,6 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
-    using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -45,6 +44,9 @@
         [TestInitialize]
         public void Initialize()
         {
+            Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+            Activity.ForceDefaultIdFormat = true;
+
             ServicePointManager.DefaultConnectionLimit = 1000;
             this.sentTelemetry = new List<ITelemetry>();
             this.channel = new StubTelemetryChannel
@@ -87,14 +89,55 @@
         [Timeout(5000)]
         public void TestBasicDependencyCollectionDiagnosticSource()
         {
-            this.TestCollectionSuccessfulResponse(true, LocalhostUrlDiagSource, 200);
+            this.TestCollectionSuccessfulResponse(
+                enableDiagnosticSource: true,
+                url: LocalhostUrlDiagSource,
+                statusCode: 200,
+                enableW3C: true,
+                enableRequestIdInW3CMode: true,
+                injectLegacyHeaders: false);
         }
 
         [TestMethod]
         [Timeout(5000)]
         public void TestBasicDependencyCollectionDiagnosticSourceLegacyHeaders()
         {
-            this.TestCollectionSuccessfulResponse(true, LocalhostUrlDiagSource, 200, true);
+            this.TestCollectionSuccessfulResponse(
+                enableDiagnosticSource: true,
+                url: LocalhostUrlDiagSource,
+                statusCode: 200,
+                enableW3C: true,
+                enableRequestIdInW3CMode: true,
+                injectLegacyHeaders: true);
+        }
+
+        [TestMethod]
+        [Ignore]
+        // Active bug in .NET Fx diagnostics hook: https://github.com/dotnet/corefx/pull/40777
+        // Application Insights has to inject Request-Id to work it around
+        [Timeout(5000)]
+        public void TestBasicDependencyCollectionW3COnRequestIdOffDiagnosticSource()
+        {
+            this.TestCollectionSuccessfulResponse(
+                enableDiagnosticSource: true,
+                url: LocalhostUrlDiagSource,
+                statusCode: 200,
+                enableW3C: true,
+                enableRequestIdInW3CMode: false,
+                injectLegacyHeaders: true);
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public void TestBasicDependencyCollectionW3COffLegacyOnDiagnosticSource()
+        {
+            this.TestCollectionSuccessfulResponse(
+                enableDiagnosticSource: true,
+                url: LocalhostUrlDiagSource,
+                statusCode: 200,
+                enableW3C: false,
+                enableRequestIdInW3CMode: true,
+                injectLegacyHeaders: true);
         }
 
         [TestMethod]
@@ -106,7 +149,7 @@
                 statusCode: 200, 
                 contentLength: 0,
                 expectResponse: false,
-                expectHeaders: true);
+                expectHeadersDetail: true);
         }
 
         [TestMethod]
@@ -118,19 +161,38 @@
 
         [TestMethod]
         [Timeout(5000)]
-        public void TestDependencyCollectionDiagnosticSourceWithParentActivity()
+        public void TestDependencyCollectionDiagnosticSourceWithParentActivityAndTracestateAndCc()
         {
-            var parent = new Activity("parent").AddBaggage("k", "v").SetParentId("|guid.").Start();
-            this.TestCollectionSuccessfulResponse(true, LocalhostUrlDiagSource, 200);
+            var parent = new Activity("parent").AddBaggage("k", "v").Start();
+            parent.TraceStateString = "state=some";
+
+            this.TestCollectionSuccessfulResponse(
+                enableDiagnosticSource: true,
+                url: LocalhostUrlDiagSource,
+                statusCode: 200,
+                enableW3C: true,
+                enableRequestIdInW3CMode: true,
+                injectLegacyHeaders: false);
             parent.Stop();
         }
 
         [TestMethod]
         [Timeout(5000)]
-        public void TestDependencyCollectionEventSourceWithParentActivity()
+        public void TestDependencyCollectionW3COffDiagnosticSourceWithParentActivityAndTracestateAndCc()
         {
-            var parent = new Activity("parent").AddBaggage("k", "v").SetParentId("|guid.").Start();
-            this.TestCollectionSuccessfulResponse(false, LocalhostUrlEventSource, 200);
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
+
+            var parent = new Activity("parent").AddBaggage("k", "v").Start();
+            parent.TraceStateString = "state=some";
+            this.TestCollectionSuccessfulResponse(
+                enableDiagnosticSource: true,
+                url: LocalhostUrlDiagSource,
+                statusCode: 200,
+                enableW3C: false,
+                enableRequestIdInW3CMode: true,
+                injectLegacyHeaders: false);
+
             parent.Stop();
         }
 
@@ -139,6 +201,35 @@
         public void TestBasicDependencyCollectionEventSource()
         {
             this.TestCollectionSuccessfulResponse(false, LocalhostUrlEventSource, 200);
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public void TestBasicDependencyCollectionW3COffEventSource()
+        {
+            this.TestCollectionSuccessfulResponse(
+                enableDiagnosticSource: false, 
+                url: LocalhostUrlEventSource,
+                statusCode: 200,
+                enableW3C: false);
+        }
+
+        [TestMethod]
+        [Timeout(500000)]
+        public void TestBasicDependencyCollectionEventSourceWithParentActivityTracestateAndCc()
+        {
+            var parent = new Activity("parent").AddBaggage("k", "v").Start();
+            parent.TraceStateString = "state=some";
+
+            this.TestCollectionSuccessfulResponse(
+                enableDiagnosticSource: true,
+                url: LocalhostUrlDiagSource,
+                statusCode: 200,
+                enableW3C: true,
+                enableRequestIdInW3CMode: true,
+                injectLegacyHeaders: false);
+
+            parent.Stop();
         }
 
         [TestMethod]
@@ -159,7 +250,11 @@
         [Timeout(5000)]
         public void TestNoDependencyCollectionDiagnosticSourceNoResponseClose()
         {
-            using (this.CreateDependencyTrackingModule(true))
+            using (this.CreateDependencyTrackingModule(
+                enableDiagnosticSource: true,
+                enableW3C: true,
+                enableRequestIdInW3CMode: true, 
+                injectLegacyHeaders: false))
             {
                 HttpWebRequest request = WebRequest.CreateHttp(LocalhostUrlDiagSource);
 
@@ -191,7 +286,11 @@
             }
 
             // initialize dependency collector
-            using (this.CreateDependencyTrackingModule(true))
+            using (this.CreateDependencyTrackingModule(
+                enableDiagnosticSource: true,
+                enableW3C: true,
+                enableRequestIdInW3CMode: true,
+                injectLegacyHeaders: false))
             {
                 HttpWebRequest request2 = WebRequest.CreateHttp(LocalhostUrlEventSource);
 
@@ -300,152 +399,13 @@
             this.TestCollectionResponseWithRedirects(false, LocalhostUrlEventSource);
         }
 
-        /// <summary>
-        /// Tests that outgoing requests emit W3C headers and telemetry is initialized accordingly when configured so.
-        /// </summary>
-        [TestMethod]
-        [Timeout(5000)]
-        public void TestDependencyCollectionWithW3CHeadersDiagnosticSource()
-        {
-            using (var module = new DependencyTrackingTelemetryModule())
-            {
-                module.EnableW3CHeadersInjection = true;
-                this.config.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
-                module.Initialize(this.config);
-
-                var parent = new Activity("parent")
-                    .AddBaggage("k", "v")
-                    .SetParentId("|guid.")
-                    .Start()
-                    .GenerateW3CContext();
-                parent.SetTracestate("state=some");
-
-                var url = new Uri(LocalhostUrlDiagSource);
-                HttpWebRequest request = WebRequest.CreateHttp(LocalhostUrlDiagSource);
-                using (new LocalServer(LocalhostUrlDiagSource))
-                {
-                    using (request.GetResponse())
-                    {
-                    }
-                }
-
-                // DiagnosticSource Response event is fired after SendAsync returns on netcoreapp1.*
-                // let's wait until dependency is collected
-                Assert.IsTrue(SpinWait.SpinUntil(() => this.sentTelemetry != null, TimeSpan.FromSeconds(1)));
-
-                parent.Stop();
-
-                string expectedTraceId = parent.GetTraceId();
-                string expectedParentId = parent.GetSpanId();
-
-                DependencyTelemetry dependency = (DependencyTelemetry)this.sentTelemetry.Single();
-                Assert.AreEqual(expectedTraceId, dependency.Context.Operation.Id);
-                Assert.AreEqual($"|{expectedTraceId}.{expectedParentId}.", dependency.Context.Operation.ParentId);
-
-                var dependencyIdParts = dependency.Id.Split('.', '|');
-                Assert.AreEqual(4, dependencyIdParts.Length);
-                Assert.AreEqual(expectedTraceId, dependencyIdParts[1]);
-                Assert.AreEqual($"00-{expectedTraceId}-{dependencyIdParts[2]}-02", request.Headers[W3C.W3CConstants.TraceParentHeader]);
-
-                Assert.AreEqual($"{W3C.W3CConstants.AzureTracestateNamespace}={expectedAppId},state=some", request.Headers[W3C.W3CConstants.TraceStateHeader]);
-
-                Assert.AreEqual("k=v", request.Headers[RequestResponseHeaders.CorrelationContextHeader]);
-                Assert.AreEqual("v", dependency.Properties["k"]);
-                Assert.AreEqual("state=some", dependency.Properties[W3C.W3CConstants.TracestateTag]);
-
-                Assert.IsTrue(dependency.Properties.ContainsKey(W3C.W3CConstants.LegacyRequestIdProperty));
-                Assert.IsTrue(dependency.Properties[W3C.W3CConstants.LegacyRequestIdProperty].StartsWith("|guid."));
-
-                Assert.IsTrue(dependency.Properties.ContainsKey(W3C.W3CConstants.LegacyRootIdProperty));
-                Assert.AreEqual("guid", dependency.Properties[W3C.W3CConstants.LegacyRootIdProperty]);
-            }
-        }
-
-        /// <summary>
-        /// Tests that outgoing requests emit W3C headers and telemetry is initialized accordingly when configured so.
-        /// </summary>
-        [TestMethod]
-        [Timeout(5000)]
-        public void TestDependencyCollectionWithW3CHeadersDiagnosticSourceAndStartParentOperation()
-        {
-            var telemetryClient = new TelemetryClient(this.config);
-            using (var module = new DependencyTrackingTelemetryModule())
-            {
-                module.EnableW3CHeadersInjection = true;
-                this.config.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
-                module.Initialize(this.config);
-
-                Activity operationActvity;
-                using (telemetryClient.StartOperation<RequestTelemetry>("foo"))
-                {
-                    operationActvity = Activity.Current;
-                    HttpWebRequest httpRequest = WebRequest.CreateHttp(LocalhostUrlDiagSource);
-                    using (new LocalServer(LocalhostUrlDiagSource))
-                    {
-                        using (httpRequest.GetResponse())
-                        {
-                        }
-                    }
-                }
-
-                // DiagnosticSource Response event is fired after SendAsync returns on netcoreapp1.*
-                // let's wait until dependency is collected
-                Assert.IsTrue(SpinWait.SpinUntil(() => this.sentTelemetry.Count >= 2, TimeSpan.FromSeconds(1)));
-
-                RequestTelemetry requestTelemetry = this.sentTelemetry.OfType<RequestTelemetry>().Single();
-                DependencyTelemetry dependencyTelemetry = this.sentTelemetry.OfType<DependencyTelemetry>().Single();
-
-                Assert.AreEqual(requestTelemetry.Context.Operation.Id, dependencyTelemetry.Context.Operation.Id);
-                Assert.AreEqual(requestTelemetry.Id, dependencyTelemetry.Context.Operation.ParentId);
-
-                Assert.AreEqual(operationActvity.RootId, dependencyTelemetry.Properties[W3C.W3CConstants.LegacyRootIdProperty]);
-                Assert.IsTrue(dependencyTelemetry.Properties[W3C.W3CConstants.LegacyRequestIdProperty].StartsWith(operationActvity.Id));
-            }
-        }
-
-        /// <summary>
-        /// Tests that outgoing requests emit W3C headers and telemetry is initialized accordingly when configured so.
-        /// </summary>
-        [TestMethod]
-        [Timeout(5000)]
-        public void TestDependencyCollectionWithW3CHeadersAndStateDiagnosticSource()
-        {
-            using (var module = new DependencyTrackingTelemetryModule())
-            {
-                module.EnableW3CHeadersInjection = true;
-                this.config.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
-                module.Initialize(this.config);
-
-                var parent = new Activity("parent")
-                    .Start()
-                    .GenerateW3CContext();
-
-                parent.SetTracestate("some=state");
-
-                var url = new Uri(LocalhostUrlDiagSource);
-                HttpWebRequest request = WebRequest.CreateHttp(LocalhostUrlDiagSource);
-                using (new LocalServer(LocalhostUrlDiagSource))
-                {
-                    using (request.GetResponse())
-                    {
-                    }
-                }
-
-                // DiagnosticSource Response event is fired after SendAsync returns on netcoreapp1.*
-                // let's wait until dependency is collected
-                Assert.IsTrue(SpinWait.SpinUntil(() => this.sentTelemetry != null, TimeSpan.FromSeconds(1)));
-
-                parent.Stop();
-
-                Assert.IsTrue(request.Headers[W3C.W3CConstants.TraceStateHeader].Contains($"{W3C.W3CConstants.AzureTracestateNamespace}={expectedAppId}"));
-                Assert.IsTrue(request.Headers[W3C.W3CConstants.TraceStateHeader].Contains("some=state"));
-                Assert.AreEqual(2, request.Headers[W3C.W3CConstants.TraceStateHeader].Split(',').Length);
-            }
-        }
-
         private void TestCollectionPostRequests(bool enableDiagnosticSource, string url)
         {
-            using (this.CreateDependencyTrackingModule(enableDiagnosticSource))
+            using (this.CreateDependencyTrackingModule(
+                enableDiagnosticSource: enableDiagnosticSource,
+                enableW3C: true,
+                enableRequestIdInW3CMode: true,
+                injectLegacyHeaders: false))
             {
                 HttpWebRequest request = WebRequest.CreateHttp(url);
                 request.Method = "POST";
@@ -464,13 +424,28 @@
                     }
                 }
 
-                this.ValidateTelemetry(enableDiagnosticSource, (DependencyTelemetry)this.sentTelemetry.Single(), new Uri(url), request, true, "200");
+                this.ValidateTelemetry(
+                    diagnosticSource: enableDiagnosticSource,
+                    item: (DependencyTelemetry)this.sentTelemetry.Single(),
+                    url: new Uri(url), 
+                    requestMsg: request, 
+                    success: true,
+                    resultCode: "200",
+                    w3CHeadersExpected: true,
+                    responseExpected: true,
+                    headersDetailExpected: false,
+                    legacyHeadersExpected: false,
+                    requestIdHeaderExpected: true);
             }
         }
 
         private void TestCollectionResponseWithRedirects(bool enableDiagnosticSource, string url)
         {
-            using (this.CreateDependencyTrackingModule(enableDiagnosticSource))
+            using (this.CreateDependencyTrackingModule(
+                enableDiagnosticSource: enableDiagnosticSource,
+                enableW3C: true,
+                enableRequestIdInW3CMode: true,
+                injectLegacyHeaders: false))
             {
                 HttpWebRequest request = WebRequest.CreateHttp(url);
 
@@ -497,13 +472,30 @@
                     }
                 }
 
-                this.ValidateTelemetry(enableDiagnosticSource, (DependencyTelemetry)this.sentTelemetry.Single(), new Uri(url), request, true, "200");
+                this.ValidateTelemetry(
+                    diagnosticSource: enableDiagnosticSource,
+                    item: (DependencyTelemetry)this.sentTelemetry.Single(),
+                    url: new Uri(url), 
+                    requestMsg: request, 
+                    success: true,
+                    resultCode: "200",
+                    w3CHeadersExpected: true,
+                    responseExpected: true,
+                    headersDetailExpected: false,
+                    legacyHeadersExpected: false,
+                    requestIdHeaderExpected: true);
             }
         }
 
-        private void TestCollectionSuccessfulResponse(bool enableDiagnosticSource, string url, int statusCode, bool injectLegacyHeaders = false)
+        private void TestCollectionSuccessfulResponse(
+            bool enableDiagnosticSource, 
+            string url, 
+            int statusCode, 
+            bool enableW3C = true,
+            bool enableRequestIdInW3CMode = true,
+            bool injectLegacyHeaders = false)
         {
-            using (this.CreateDependencyTrackingModule(enableDiagnosticSource, injectLegacyHeaders))
+            using (this.CreateDependencyTrackingModule(enableDiagnosticSource, enableW3C, enableRequestIdInW3CMode, injectLegacyHeaders))
             {
                 HttpWebRequest request = WebRequest.CreateHttp(url);
 
@@ -514,7 +506,7 @@
                         if (!enableDiagnosticSource && statusCode != 200)
                         {
                             // https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/548
-                            // for quick unsuccesfull response OnEnd is fired too fast after begin (before it's completed)
+                            // for quick unsuccessful response OnEnd is fired too fast after begin (before it's completed)
                             // first begin may take a while because of lazy initializations and jit compiling
                             // let's wait a bit here.
                             Thread.Sleep(20);
@@ -535,7 +527,18 @@
                     }
                 }
 
-                this.ValidateTelemetry(enableDiagnosticSource, (DependencyTelemetry)this.sentTelemetry.Single(), new Uri(url), request, statusCode >= 200 && statusCode < 300, statusCode.ToString(CultureInfo.InvariantCulture), expectLegacyHeaders: injectLegacyHeaders);
+                this.ValidateTelemetry(
+                    diagnosticSource: enableDiagnosticSource,
+                    item: (DependencyTelemetry)this.sentTelemetry.Single(),
+                    url: new Uri(url),
+                    requestMsg: request,
+                    success: statusCode >= 200 && statusCode < 300,
+                    resultCode: statusCode.ToString(CultureInfo.InvariantCulture),
+                    w3CHeadersExpected: enableW3C,
+                    responseExpected: true,
+                    headersDetailExpected: false,
+                    legacyHeadersExpected: injectLegacyHeaders,
+                    requestIdHeaderExpected: enableRequestIdInW3CMode);
             }
         }
 
@@ -544,9 +547,13 @@
             int contentLength,
             bool injectLegacyHeaders = false,
             bool expectResponse = true,
-            bool expectHeaders = false)
+            bool expectHeadersDetail = false)
         {
-            using (this.CreateDependencyTrackingModule(true))
+            using (this.CreateDependencyTrackingModule(
+                enableDiagnosticSource: true,
+                enableW3C: true,
+                enableRequestIdInW3CMode: true,
+                injectLegacyHeaders: false))
             {
                 using (HttpClient client = new HttpClient())
                 using (new LocalServer(
@@ -577,15 +584,21 @@
                     requestMsg: null,
                     success: statusCode >= 200 && statusCode < 300,
                     resultCode: statusCode.ToString(CultureInfo.InvariantCulture),
+                    w3CHeadersExpected: true,
                     responseExpected: expectResponse,
-                    headersExpected: expectHeaders, 
-                    expectLegacyHeaders: injectLegacyHeaders);
+                    headersDetailExpected: expectHeadersDetail,
+                    legacyHeadersExpected: injectLegacyHeaders,
+                    requestIdHeaderExpected: true);
             }
         }
 
         private async Task TestZeroContentResponseAfterNonZeroResponse(string url, int statusCode)
         {
-            using (this.CreateDependencyTrackingModule(true))
+            using (this.CreateDependencyTrackingModule(
+                enableDiagnosticSource: true,
+                enableW3C: true,
+                enableRequestIdInW3CMode: true,
+                injectLegacyHeaders: false))
             {
                 using (HttpClient client = new HttpClient())
                 {
@@ -643,14 +656,21 @@
                     requestMsg: null,
                     success: statusCode >= 200 && statusCode < 300,
                     resultCode: statusCode.ToString(CultureInfo.InvariantCulture),
+                    w3CHeadersExpected: true,
                     responseExpected: false,
-                    headersExpected: true);
+                    headersDetailExpected: true,
+                    legacyHeadersExpected: false,
+                    requestIdHeaderExpected: true);
             }
         }
 
         private async Task TestCollectionCanceledRequest(bool enableDiagnosticSource, string url)
         {
-            using (this.CreateDependencyTrackingModule(enableDiagnosticSource))
+            using (this.CreateDependencyTrackingModule(
+                enableDiagnosticSource: enableDiagnosticSource,
+                enableW3C: true,
+                enableRequestIdInW3CMode: true,
+                injectLegacyHeaders: false))
             {
                 CancellationTokenSource cts = new CancellationTokenSource();
                 HttpClient httpClient = new HttpClient();
@@ -674,13 +694,28 @@
                     await httpClient.GetAsync(url, cts.Token).ContinueWith(t => { });
                 }
 
-                this.ValidateTelemetry(enableDiagnosticSource, (DependencyTelemetry)this.sentTelemetry.Single(), new Uri(url), null, false, string.Empty, responseExpected: false);
+                this.ValidateTelemetry(
+                    diagnosticSource: enableDiagnosticSource,
+                    item: (DependencyTelemetry)this.sentTelemetry.Single(),
+                    url: new Uri(url),
+                    requestMsg: null,
+                    success: false,
+                    resultCode: string.Empty,
+                    w3CHeadersExpected: true,
+                    responseExpected: false,
+                    headersDetailExpected: false,
+                    legacyHeadersExpected: false,
+                    requestIdHeaderExpected: true);
             }
         }
 
         private async Task TestCollectionDnsIssue(bool enableDiagnosticSource)
         {
-            using (this.CreateDependencyTrackingModule(enableDiagnosticSource))
+            using (this.CreateDependencyTrackingModule(
+                enableDiagnosticSource: enableDiagnosticSource,
+                enableW3C: true,
+                enableRequestIdInW3CMode: true,
+                injectLegacyHeaders: false))
             {
                 var url = new Uri($"http://{Guid.NewGuid()}/");
                 HttpClient client = new HttpClient();
@@ -691,7 +726,18 @@
                     // here the start of dependency is tracked with HttpDesktopDiagnosticSourceListener, 
                     // so the expected SDK version should have DiagnosticSource 'rdddsd' prefix. 
                     // however the end is tracked by FrameworkHttpEventListener
-                    this.ValidateTelemetry(true, (DependencyTelemetry)this.sentTelemetry.Single(), url, null, false, string.Empty, responseExpected: false);
+                    this.ValidateTelemetry(
+                        diagnosticSource: true,
+                        item: (DependencyTelemetry)this.sentTelemetry.Single(),
+                        url: url, 
+                        requestMsg: null, 
+                        success: false,
+                        resultCode: string.Empty,
+                        w3CHeadersExpected: true,
+                        responseExpected: false,
+                        headersDetailExpected: false,
+                        legacyHeadersExpected: false,
+                        requestIdHeaderExpected: true);
                 }
                 else
                 {
@@ -702,7 +748,18 @@
             }
         }
 
-        private void ValidateTelemetry(bool diagnosticSource, DependencyTelemetry item, Uri url, WebRequest requestMsg, bool success, string resultCode, bool responseExpected = true, bool headersExpected = false, bool expectLegacyHeaders = false)
+        private void ValidateTelemetry(
+            bool diagnosticSource, 
+            DependencyTelemetry item, 
+            Uri url, 
+            WebRequest requestMsg, 
+            bool success, 
+            string resultCode, 
+            bool w3CHeadersExpected,
+            bool responseExpected = true, 
+            bool headersDetailExpected = false, 
+            bool legacyHeadersExpected = false,
+            bool requestIdHeaderExpected = true)
         {
             Assert.AreEqual(url, item.Data);
 
@@ -728,13 +785,41 @@
             Assert.AreEqual(resultCode, item.ResultCode);
             Assert.AreEqual(success, item.Success);
 
-            Assert.AreEqual(Activity.Current?.Id, item.Context.Operation.ParentId);
+            var parentActivity = Activity.Current;
+            if (parentActivity != null)
+            {
+                if (parentActivity.IdFormat == ActivityIdFormat.W3C)
+                {
+                    Assert.AreEqual(parentActivity.TraceId.ToHexString(), item.Context.Operation.Id);
+                    Assert.AreEqual($"|{parentActivity.TraceId.ToHexString()}.{parentActivity.SpanId.ToHexString()}.", item.Context.Operation.ParentId);
+                    if (parentActivity.TraceStateString != null)
+                    {
+                        Assert.IsTrue(item.Properties.ContainsKey("tracestate"));
+                        Assert.AreEqual(parentActivity.TraceStateString, item.Properties["tracestate"]);
+                    }
+                    else
+                    {
+                        Assert.IsFalse(item.Properties.ContainsKey("tracestate"));
+                    }
+                }
+                else
+                {
+                    Assert.AreEqual(parentActivity.RootId, item.Context.Operation.Id);
+                    Assert.AreEqual(parentActivity.Id, item.Context.Operation.ParentId);
+                }
+            }
+            else
+            {
+                Assert.IsNotNull(item.Context.Operation.Id);
+                Assert.IsNull(item.Context.Operation.ParentId);
+            }
+
             Assert.IsTrue(item.Id.StartsWith('|' + item.Context.Operation.Id + '.'));
 
             if (diagnosticSource)
             {
-                this.operationDetailsInitializer.ValidateOperationDetailsDesktop(item, responseExpected, headersExpected);
-                this.ValidateTelemetryForDiagnosticSource(item, url, requestMsg, expectLegacyHeaders);
+                this.operationDetailsInitializer.ValidateOperationDetailsDesktop(item, responseExpected, headersDetailExpected);
+                this.ValidateTelemetryForDiagnosticSource(item, url, requestMsg, legacyHeadersExpected, w3CHeadersExpected, requestIdHeaderExpected);
             }
             else
             {
@@ -742,7 +827,13 @@
             }
         }
 
-        private void ValidateTelemetryForDiagnosticSource(DependencyTelemetry item, Uri url, WebRequest requestMsg, bool expectLegacyHeaders)
+        private void ValidateTelemetryForDiagnosticSource(
+            DependencyTelemetry item, 
+            Uri url, 
+            WebRequest requestMsg, 
+            bool expectLegacyHeaders, 
+            bool expectW3CHeaders,
+            bool expectRequestId)
         {
             var expectedMethod = requestMsg != null ? requestMsg.Method : "GET";
             Assert.AreEqual(expectedMethod + " " + url.AbsolutePath, item.Name);
@@ -755,7 +846,29 @@
 
             if (requestMsg != null)
             {
-                Assert.AreEqual(requestId, requestMsg.Headers[RequestResponseHeaders.RequestIdHeader]);
+                if (expectW3CHeaders)
+                {
+                    var traceId = item.Context.Operation.Id;
+                    var spanId = requestId.Substring(34, 16);
+                    var expectedTraceparent = $"00-{traceId}-{spanId}-00";
+
+                    Assert.AreEqual(expectedTraceparent, requestMsg.Headers[W3C.W3CConstants.TraceParentHeader]);
+                    Assert.AreEqual(Activity.Current?.TraceStateString, requestMsg.Headers[W3C.W3CConstants.TraceStateHeader]);
+                }
+                else
+                {
+                    Assert.IsNull(requestMsg.Headers[W3C.W3CConstants.TraceParentHeader]);
+                    Assert.IsNull(requestMsg.Headers[W3C.W3CConstants.TraceStateHeader]);
+                }
+
+                if (expectRequestId)
+                {
+                    Assert.AreEqual(requestId, requestMsg.Headers[RequestResponseHeaders.RequestIdHeader]);
+                }
+                else
+                {
+                    Assert.IsNull(requestMsg.Headers[RequestResponseHeaders.RequestIdHeader]);
+                }
 
                 if (expectLegacyHeaders)
                 {
@@ -805,8 +918,15 @@
             }
         }
 
-        private DependencyTrackingTelemetryModule CreateDependencyTrackingModule(bool enableDiagnosticSource, bool injectLegacyHeaders = false)
+        private DependencyTrackingTelemetryModule CreateDependencyTrackingModule(
+            bool enableDiagnosticSource,
+            bool enableW3C,
+            bool enableRequestIdInW3CMode,
+            bool injectLegacyHeaders)
         {
+            Activity.DefaultIdFormat = enableW3C ? ActivityIdFormat.W3C : ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
+
             var module = new DependencyTrackingTelemetryModule();
 
             if (!enableDiagnosticSource)
@@ -815,6 +935,7 @@
             }
 
             module.EnableLegacyCorrelationHeadersInjection = injectLegacyHeaders;
+            module.EnableRequestIdHeaderInjectionInW3CMode = enableRequestIdInW3CMode;
 
             module.Initialize(this.config);
             Assert.AreEqual(enableDiagnosticSource, DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated);

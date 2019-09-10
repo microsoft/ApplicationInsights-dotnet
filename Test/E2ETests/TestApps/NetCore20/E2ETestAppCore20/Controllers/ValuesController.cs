@@ -11,11 +11,17 @@ namespace E2ETestAppCore20.Controllers
     [Route("api/[controller]")]
     public class ValuesController : Controller
     {
+        private readonly TelemetryConfiguration configuration;
+        public ValuesController(TelemetryConfiguration configuration)
+        {
+            this.configuration = configuration;
+        }
+
         // GET api/values
         [HttpGet]
         public IEnumerable<string> Get()
         {            
-            return new string[] { "value1", "value2", TelemetryConfiguration.Active.TelemetryChannel.EndpointAddress};
+            return new string[] { "value1", "value2", configuration.TelemetryChannel.EndpointAddress};
         }
 
         // GET api/values/5

@@ -5,18 +5,17 @@
     using System.Diagnostics;
     using System.Net;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.W3C;
+    using Microsoft.ApplicationInsights.W3C;
+    using Microsoft.ApplicationInsights.W3C.Internal;
 
     internal static class ClientServerDependencyTracker
     {
         internal const string DependencyActivityName = "Microsoft.ApplicationInsights.Web.Dependency";
 
-        internal static bool IsW3CEnabled { get; set; } = false;
-
         /// <summary>
         /// Gets or sets a value indicating whether pretending the profiler is attached or not.
         /// </summary>
-        internal static bool PretendProfilerIsAttached { get; set; } 
+        internal static bool PretendProfilerIsAttached { get; set; }
 
         /// <summary>
         /// The function that needs to be called before sending a request to the server. Creates and initializes dependency telemetry item.
@@ -35,66 +34,55 @@
             if (currentActivity != null && currentActivity.OperationName == "System.Net.Http.Desktop.HttpRequestOut")
             {
                 activity = currentActivity;
-
-                // OperationCorrelationTelemetryInitializer will initialize telemetry as a child of current activity:
-                // But we need to initialize dependency telemetry from the current Activity:
-                // Activity was created for this dependency in the Http Desktop DiagnosticSource
-                var context = telemetry.Context;
-                context.Operation.Id = activity.RootId;
-                context.Operation.ParentId = activity.ParentId;
-                foreach (var item in activity.Baggage)
-                {
-                    if (!telemetry.Properties.ContainsKey(item.Key))
-                    {
-                        telemetry.Properties.Add(item);
-                    }
-                }
-
-                telemetryClient.Initialize(telemetry);
             }
             else
             {
-                telemetryClient.Initialize(telemetry);
-
                 // Every operation must have its own Activity
                 // if dependency is tracked with profiler of event source, we need to generate a proper Id for it
                 // in case of HTTP it will be propagated into the request header.
                 // So, we will create a new Activity for the dependency, just to generate an Id.
                 activity = new Activity(DependencyActivityName);
-
-                // As a first step in supporting W3C protocol in ApplicationInsights,
-                // we want to generate Activity Ids in the W3C compatible format.
-                // While .NET changes to Activity are pending, we want to ensure trace starts with W3C compatible Id
-                // as early as possible, so that everyone has a chance to upgrade and have compatibility with W3C systems once they arrive.
-                // So if there is no parent Activity (i.e. this request has happened in the background, without parent scope), we'll override 
-                // the current Activity with the one with properly formatted Id. This workaround should go away
-                // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331 (TODO)
-                if (currentActivity == null)
-                {
-                    activity.SetParentId(W3CUtilities.GenerateTraceId());
-                }
-
-                // end of workaround
-
                 activity.Start();
             }
 
-            if (IsW3CEnabled)
+            // OperationCorrelationTelemetryInitializer will initialize telemetry as a child of current activity:
+            // But we need to initialize dependency telemetry from the current Activity:
+            // Activity was created for this dependency in the Http Desktop DiagnosticSource
+            if (activity.IdFormat == ActivityIdFormat.W3C)
             {
-                activity.UpdateTelemetry(telemetry, true);
+                var context = telemetry.Context;
+                context.Operation.Id = activity.TraceId.ToHexString();
+
+                if (activity.Parent != null || activity.ParentSpanId != default)
+                {
+                    context.Operation.ParentId = W3CUtilities.FormatTelemetryId(context.Operation.Id, activity.ParentSpanId.ToHexString());
+                }
+
+                telemetry.Id = W3CUtilities.FormatTelemetryId(context.Operation.Id, activity.SpanId.ToHexString());
+
+                // TODO[tracestate]: remove, this is done in base SDK
+                if (activity.TraceStateString != null && !telemetry.Properties.ContainsKey(W3CConstants.TracestatePropertyKey))
+                {
+                    telemetry.Properties.Add(W3CConstants.TracestatePropertyKey, activity.TraceStateString);
+                }
             }
             else
             {
-                // telemetry is initialized from current Activity (root and parent Id, but not the Id)
+                var context = telemetry.Context;
+                context.Operation.Id = activity.RootId;
+                context.Operation.ParentId = activity.ParentId;
                 telemetry.Id = activity.Id;
+            }
 
-                // set operation root Id in case there was no parent activity (e.g. HttpRequest in background thread)
-                if (string.IsNullOrEmpty(telemetry.Context.Operation.Id))
+            foreach (var item in activity.Baggage)
+            {
+                if (!telemetry.Properties.ContainsKey(item.Key))
                 {
-                    telemetry.Context.Operation.Id = activity.RootId;
+                    telemetry.Properties.Add(item);
                 }
             }
 
+            telemetryClient.Initialize(telemetry);
             PretendProfilerIsAttached = false;
             return telemetry;
         }

@@ -16,15 +16,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     {
         private readonly CacheBasedOperationHolder telemetryTable;
 
-        internal DesktopDiagnosticSourceHttpProcessing(TelemetryConfiguration configuration, CacheBasedOperationHolder telemetryTupleHolder, bool setCorrelationHeaders, ICollection<string> correlationDomainExclusionList, bool injectLegacyHeaders, bool enableW3CHeaders)
-            : base(configuration, SdkVersionUtils.GetSdkVersion("rdd" + RddSource.DiagnosticSourceDesktop + ":"), null, setCorrelationHeaders, correlationDomainExclusionList, injectLegacyHeaders, enableW3CHeaders)
+        internal DesktopDiagnosticSourceHttpProcessing(TelemetryConfiguration configuration, CacheBasedOperationHolder telemetryTupleHolder, bool setCorrelationHeaders, ICollection<string> correlationDomainExclusionList, bool injectLegacyHeaders, bool injectRequestIdInW3cMode)
+            : base(configuration, SdkVersionUtils.GetSdkVersion("rdd" + RddSource.DiagnosticSourceDesktop + ":"), null, setCorrelationHeaders, correlationDomainExclusionList, injectLegacyHeaders, injectRequestIdInW3cMode)
         {
-            if (telemetryTupleHolder == null)
-            {
-                throw new ArgumentNullException(nameof(telemetryTupleHolder));
-            }
-
-            this.telemetryTable = telemetryTupleHolder;
+            this.telemetryTable = telemetryTupleHolder ?? throw new ArgumentNullException(nameof(telemetryTupleHolder));
         }
 
         /// <summary>

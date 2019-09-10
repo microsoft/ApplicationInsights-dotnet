@@ -47,7 +47,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)SanitizedHostList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryDiagnosticSourceListener.cs" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard1.6' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ClientServerDependencyTracker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyTableStore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkHttpEventListener.cs" />

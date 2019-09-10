@@ -71,6 +71,15 @@
             }
         }
 
+        [TestMethod]
+        public void RequestIdInjectionInW3CModeIsTrueByDefault()
+        {
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                Assert.IsTrue(module.EnableRequestIdHeaderInjectionInW3CMode);
+            }
+        }
+
         internal class TestableDependencyTrackingTelemetryModule : DependencyTrackingTelemetryModule
         {
             public TestableDependencyTrackingTelemetryModule()

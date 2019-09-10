@@ -76,11 +76,11 @@ namespace E2ETests
 
             DockerUtils.RemoveDockerImage(Apps[AppNameBeingTested].imageName, true);
             DockerUtils.RemoveDockerContainer(Apps[AppNameBeingTested].containerName, true);
-
             // Deploy the docker cluster using Docker-Compose
             DockerUtils.ExecuteDockerComposeCommand("up -d --force-recreate --build", DockerComposeFileName);
-            
+
             //DockerUtils.ExecuteDockerComposeCommand("up -d --build", DockerComposeFileName);
+
             Thread.Sleep(5000);
             DockerUtils.PrintDockerProcessStats("Docker-Compose -build");
 
@@ -271,14 +271,14 @@ namespace E2ETests
         /// <returns></returns>
         public async Task TestHttpDependencyCorrelationInPostRequest()
         {
-            var operationId = Guid.NewGuid().ToString();
+            var operationId = ActivityTraceId.CreateRandom().ToHexString();
             bool supportsOnRequestExecute = false;
             string restoredActivityId = null;
             using (var httpClient = new HttpClient())
             {
                 // The POST controller method will manually track dependency through the StartOperation 
                 var request = new HttpRequestMessage(HttpMethod.Post, string.Format($"http://{Apps[TestConstants.WebApiName].ipAddress}/api/values"));
-                request.Headers.Add("Request-Id", $"|{operationId}.");
+                request.Headers.Add("traceparent", $"00-{operationId}-{ActivitySpanId.CreateRandom()}-01");
 
                 request.Content = new StringContent($"\"{new string('1', 1024*1024)}\"", Encoding.UTF8, "application/json");
 
@@ -304,38 +304,25 @@ namespace E2ETests
             PrintDependencies(dependencies);
             Assert.AreEqual(1, dependencies.Count);
 
-            var requests = WaitForReceiveRequestItemsFromDataIngestion(Apps[TestConstants.WebApiName].ipAddress, Apps[TestConstants.WebApiName].ikey, expectNumberOfItems:2);
+            var requests = WaitForReceiveRequestItemsFromDataIngestion(Apps[TestConstants.WebApiName].ipAddress, Apps[TestConstants.WebApiName].ikey, expectNumberOfItems:1);
             Trace.WriteLine("Requests count for WebApp:" + requests.Count);
             PrintRequests(requests);
+            Assert.AreEqual(1, requests.Count);
 
             var dependency = dependencies[0];
 
             // if the App runs on ASP.NET 4.7.1+ version that supports OnExecuteRequestStep
-            // depednency should be correlated to the request, false otherwise
+            // dependency should be correlated to the request, false otherwise
             if (supportsOnRequestExecute)
             {
+                var spanId = restoredActivityId.Split('-')[2];
                 Assert.AreEqual(operationId, dependency.tags["ai.operation.id"]);
+                Assert.AreEqual($"|{operationId}.{spanId}.", dependency.tags["ai.operation.parentId"]);
+                Assert.AreEqual(requests[0].data.baseData.id, dependency.tags["ai.operation.parentId"]);
             }
             else
             {
                 Assert.AreNotEqual(operationId, dependency.tags["ai.operation.id"]);
-            }
-
-            // if Activity was restored by TelemetryCorrelation module
-            // we should have 2 requests, otherwise just one request
-            // in any case, if supportsOnRequestExecute is true, we must have correct parentId
-            if (restoredActivityId != null)
-            {
-                Assert.AreEqual(2, requests.Count);
-                Assert.AreEqual(restoredActivityId, dependency.tags["ai.operation.parentId"]);
-            }
-            else
-            {
-                Assert.AreEqual(1, requests.Count);
-                if (supportsOnRequestExecute)
-                {
-                    Assert.AreEqual(requests[0].data.baseData.id, dependency.tags["ai.operation.parentId"]);
-                }
             }
         }
 
@@ -1203,7 +1190,7 @@ namespace E2ETests
 
             ReadApplicationTraces(targetInstanceIp, "/Dependencies.aspx?type=etwlogs");
 
-            Assert.IsTrue(dependenciesWebApp.Count >= minCount, string.Format("Dependeny count is incorrect. Actual: {0} Expected minimum: {1}", dependenciesWebApp.Count, minCount));
+            Assert.IsTrue(dependenciesWebApp.Count >= minCount, string.Format("Dependency count is incorrect. Actual: {0} Expected minimum: {1}", dependenciesWebApp.Count, minCount));
             var dependency = dependenciesWebApp[0];
 
             ValidateDependency(expectedDependencyTelemetry, dependency, expectedPrefix);

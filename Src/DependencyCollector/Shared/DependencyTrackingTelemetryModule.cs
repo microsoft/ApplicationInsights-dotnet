@@ -9,8 +9,7 @@
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlClientDiagnostics;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.W3C;
-#if NETSTANDARD1_6
+#if NETSTANDARD
     using System.Reflection;
     using System.Runtime.Versioning;
 #else
@@ -25,7 +24,6 @@
         private readonly object lockObject = new object();
 
 #if NET45
-        // Net40 does not support framework event source
         private HttpDesktopDiagnosticSourceListener httpDesktopDiagnosticSourceListener;
         private FrameworkHttpEventListener httpEventListener;
         private FrameworkSqlEventListener sqlEventListener;
@@ -35,7 +33,7 @@
         private TelemetryDiagnosticSourceListener telemetryDiagnosticSourceListener;
         private SqlClientDiagnosticSourceListener sqlClientDiagnosticSourceListener;
 
-#if !NETSTANDARD1_6
+#if !NETSTANDARD
         private ProfilerSqlCommandProcessing sqlCommandProcessing;
         private ProfilerSqlConnectionProcessing sqlConnectionProcessing;
         private ProfilerHttpProcessing httpProcessing;
@@ -62,7 +60,13 @@
         /// <summary>
         /// Gets or sets a value indicating whether to enable W3C distributed tracing headers injection.
         /// </summary>
+        [Obsolete("This field has been deprecated. Please set Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical; Activity.ForceDefaultIdFormat = true;")]
         public bool EnableW3CHeadersInjection { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to enable Request-Id correlation headers injection.
+        /// </summary>
+        public bool EnableRequestIdHeaderInjectionInW3CMode { get; set; } = true;
 
         /// <summary>
         /// Gets the component correlation configuration.
@@ -113,11 +117,7 @@
                         {
                             this.telemetryConfiguration = configuration;
 
-#if NET45
-                            ClientServerDependencyTracker.IsW3CEnabled = this.EnableW3CHeadersInjection;
-#endif
-
-#if !NETSTANDARD1_6
+#if !NETSTANDARD
                             // Net40 only supports runtime instrumentation
                             // Net45 supports either but not both to avoid duplication
                             this.InitializeForRuntimeInstrumentationOrFramework();
@@ -129,7 +129,8 @@
                                 this.SetComponentCorrelationHttpHeaders,
                                 this.ExcludeComponentCorrelationHttpHeadersOnDomains,
                                 this.EnableLegacyCorrelationHeadersInjection,
-                                this.EnableW3CHeadersInjection);
+                                this.EnableRequestIdHeaderInjectionInW3CMode,
+                                HttpInstrumentationVersion.Unknown);
 
                             if (this.IncludeDiagnosticSourceActivities != null && this.IncludeDiagnosticSourceActivities.Count > 0)
                             {
@@ -146,7 +147,7 @@
                         catch (Exception exc)
                         {
                             string clrVersion;
-#if NETSTANDARD1_6                            
+#if NETSTANDARD                            
                             clrVersion = System.Reflection.Assembly.GetEntryAssembly().GetCustomAttribute<TargetFrameworkAttribute>().FrameworkName;
 #else
                             clrVersion = Environment.Version.ToString();
@@ -162,7 +163,7 @@
             }
         }
 
-#if !NETSTANDARD1_6
+#if !NETSTANDARD
         internal virtual void InitializeForRuntimeProfiler()
         {
             // initialize instrumentation extension
@@ -184,7 +185,7 @@
                 this.SetComponentCorrelationHttpHeaders,
                 this.ExcludeComponentCorrelationHttpHeadersOnDomains,
                 this.EnableLegacyCorrelationHeadersInjection,
-                this.EnableW3CHeadersInjection);
+                this.EnableRequestIdHeaderInjectionInW3CMode);
             this.sqlCommandProcessing = new ProfilerSqlCommandProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.SqlRequestConditionalHolder);
             this.sqlConnectionProcessing = new ProfilerSqlConnectionProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.SqlRequestConditionalHolder);
 
@@ -260,7 +261,7 @@
             activity.Stop();
         }
 
-#if !NETSTANDARD1_6
+#if !NETSTANDARD
         /// <summary>
         /// Initialize for framework event source (not supported for Net40).
         /// </summary>
@@ -274,7 +275,7 @@
                     this.SetComponentCorrelationHttpHeaders,
                     this.ExcludeComponentCorrelationHttpHeadersOnDomains,
                     this.EnableLegacyCorrelationHeadersInjection,
-                    this.EnableW3CHeadersInjection);
+                    this.EnableRequestIdHeaderInjectionInW3CMode);
                 this.httpDesktopDiagnosticSourceListener = new HttpDesktopDiagnosticSourceListener(desktopHttpProcessing, new ApplicationInsightsUrlFilter(this.telemetryConfiguration));
             }
 

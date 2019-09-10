@@ -5,7 +5,6 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Net.Http;
-    using System.Text.RegularExpressions;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Common;
@@ -15,7 +14,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
-    using Microsoft.ApplicationInsights.Extensibility.W3C;
+
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.AspNetCore.Builder;
@@ -46,6 +45,8 @@
         [TestInitialize]
         public void Initialize()
         {
+            Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+            Activity.ForceDefaultIdFormat = true;
             this.sentTelemetry = new List<DependencyTelemetry>();
             this.channel = new StubTelemetryChannel
             {
@@ -113,7 +114,15 @@
                 // let's wait until dependency is collected
                 Assert.IsTrue(SpinWait.SpinUntil(() => this.sentTelemetry != null, TimeSpan.FromSeconds(1)));
 
-                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200", true);
+                this.ValidateTelemetryForDiagnosticSource(
+                    this.sentTelemetry.Single(), 
+                    url, 
+                    request, 
+                    true, 
+                    "200", 
+                    true,
+                    true,
+                    true);
             }
         }
 
@@ -140,7 +149,15 @@
                 // let's wait until dependency is collected
                 Assert.IsTrue(SpinWait.SpinUntil(() => this.sentTelemetry != null, TimeSpan.FromSeconds(1)));
 
-                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200", false);
+                this.ValidateTelemetryForDiagnosticSource(
+                    this.sentTelemetry.Single(), 
+                    url, 
+                    request, 
+                    true, 
+                    "200", 
+                    false,
+                    true,
+                    true);
             }
         }
 
@@ -168,31 +185,47 @@
                 // let's wait until dependency is collected
                 Assert.IsTrue(SpinWait.SpinUntil(() => this.sentTelemetry != null, TimeSpan.FromSeconds(1)));
 
+                this.ValidateTelemetryForDiagnosticSource(
+                    this.sentTelemetry.Single(), 
+                    url, 
+                    request, 
+                    true, 
+                    "200", 
+                    false, 
+                    true,
+                    true,
+                    true, 
+                    parent);
+
                 parent.Stop();
-
-                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200", false, parent);
-
-                Assert.AreEqual("k=v", request.Headers.GetValues(RequestResponseHeaders.CorrelationContextHeader).Single());
             }
         }
 
         /// <summary>
-        /// Tests dependency collection when request procession causes exception (DNS issue).
-        /// On .netcore1.1 and before, such dependencies are ot collected
-        /// On .netcore2.0 they are collected, but there is no build infra to support it (https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/572)
-        /// TODO: add tests for 2.0
+        /// Tests dependency collection when request procession causes exception (DNS issue).              
         /// </summary>
         [TestMethod]
-        [Timeout(10000)]
+        
         public async Task TestDependencyCollectionDnsIssue()
         {
             using (var module = new DependencyTrackingTelemetryModule())
             {
                 module.Initialize(this.config);
 
-                var request = new HttpRequestMessage(HttpMethod.Get, $"http://{Guid.NewGuid()}");
+                var url = $"http://{Guid.NewGuid()}:5050";
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
                 await new HttpClient().SendAsync(request).ContinueWith(t => { });
-                Assert.IsFalse(this.sentTelemetry.Any());
+                // As DNS Resolution itself failed, no response expected
+                this.ValidateTelemetryForDiagnosticSource(
+                    this.sentTelemetry.Single(), 
+                    new Uri(url),
+                    request,
+                    false, 
+                    "Faulted", 
+                    false,
+                    true,
+                    true,
+                    responseExpected: false);
             }
         }
 
@@ -201,20 +234,18 @@
         /// </summary>
         [TestMethod]
         [Timeout(5000)]
-        public async Task TestDependencyCollectionWithW3CHeadersAndRequestId()
+        public async Task TestDependencyCollectionW3COff()
         {
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
             using (var module = new DependencyTrackingTelemetryModule())
             {
-                module.EnableW3CHeadersInjection = true;
-                this.config.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
                 module.Initialize(this.config);
 
                 var parent = new Activity("parent")
                     .AddBaggage("k", "v")
-                    .SetParentId("|guid.")
-                    .Start()
-                    .GenerateW3CContext();
-                parent.SetTracestate("state=some");
+                    .Start();
+                parent.TraceStateString = "state=some";
                 var url = new Uri(localhostUrl);
                 var request = new HttpRequestMessage(HttpMethod.Get, url);
                 using (new LocalServer(localhostUrl))
@@ -226,34 +257,19 @@
                 // let's wait until dependency is collected
                 Assert.IsTrue(SpinWait.SpinUntil(() => this.sentTelemetry.Count > 0, TimeSpan.FromSeconds(1)));
 
+                this.ValidateTelemetryForDiagnosticSource(
+                    this.sentTelemetry.Single(),
+                    url,
+                    request,
+                    true,
+                    "200",
+                    false,
+                    false,
+                    true,
+                    responseExpected: true,
+                    parent);
+
                 parent.Stop();
-
-                string expectedTraceId = parent.GetTraceId();
-                string expectedParentId = parent.GetSpanId();
-
-                DependencyTelemetry dependency = this.sentTelemetry.Single();
-                Assert.AreEqual(expectedTraceId, dependency.Context.Operation.Id);
-                Assert.AreEqual($"|{expectedTraceId}.{expectedParentId}.", dependency.Context.Operation.ParentId);
-
-                Assert.IsTrue(request.Headers.Contains(W3C.W3CConstants.TraceParentHeader));
-
-                var dependencyIdParts = dependency.Id.Split('.', '|');
-                Assert.AreEqual(4, dependencyIdParts.Length);
-
-                Assert.AreEqual(expectedTraceId, dependencyIdParts[1]);
-                Assert.AreEqual($"00-{expectedTraceId}-{dependencyIdParts[2]}-02", request.Headers.GetValues(W3C.W3CConstants.TraceParentHeader).Single());
-
-                Assert.IsTrue(request.Headers.Contains(W3C.W3CConstants.TraceStateHeader));
-                Assert.AreEqual($"{W3C.W3CConstants.AzureTracestateNamespace}={expectedAppId},state=some", request.Headers.GetValues(W3C.W3CConstants.TraceStateHeader).Single());
-
-                Assert.IsTrue(request.Headers.Contains(RequestResponseHeaders.CorrelationContextHeader));
-                Assert.AreEqual("k=v", request.Headers.GetValues(RequestResponseHeaders.CorrelationContextHeader).Single());
-
-                Assert.AreEqual("v", dependency.Properties["k"]);
-                Assert.AreEqual("state=some", dependency.Properties[W3C.W3CConstants.TracestateTag]);
-
-                Assert.IsTrue(dependency.Properties.ContainsKey(W3C.W3CConstants.LegacyRequestIdProperty));
-                Assert.IsTrue(dependency.Properties[W3C.W3CConstants.LegacyRequestIdProperty].StartsWith("|guid."));
             }
         }
 
@@ -262,12 +278,11 @@
         /// </summary>
         [TestMethod]
         [Timeout(5000)]
-        public async Task TestDependencyCollectionWithW3CHeadersAndNoParentContext()
+        public async Task TestDependencyCollectionWithW3COnRequestIdOff()
         {
             using (var module = new DependencyTrackingTelemetryModule())
             {
-                module.EnableW3CHeadersInjection = true;
-                this.config.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
+                module.EnableRequestIdHeaderInjectionInW3CMode = false;
                 module.Initialize(this.config);
 
                 var parent = new Activity("parent")
@@ -284,28 +299,19 @@
                 // let's wait until dependency is collected
                 Assert.IsTrue(SpinWait.SpinUntil(() => this.sentTelemetry != null, TimeSpan.FromSeconds(1)));
 
+                this.ValidateTelemetryForDiagnosticSource(
+                    this.sentTelemetry.Single(),
+                    url,
+                    request,
+                    true,
+                    "200",
+                    false,
+                    true,
+                    false,
+                    responseExpected: true,
+                    parent);
+
                 parent.Stop();
-
-                string expectedTraceId = parent.GetTraceId();
-                string expectedParentId = parent.GetSpanId();
-
-                DependencyTelemetry dependency = this.sentTelemetry.Single();
-                Assert.AreEqual(expectedTraceId, dependency.Context.Operation.Id);
-                Assert.AreEqual($"|{expectedTraceId}.{expectedParentId}.", dependency.Context.Operation.ParentId);
-
-                Assert.IsTrue(request.Headers.Contains(W3C.W3CConstants.TraceParentHeader));
-
-                var dependencyIdParts = dependency.Id.Split('.', '|');
-                Assert.AreEqual(4, dependencyIdParts.Length);
-
-                Assert.AreEqual(expectedTraceId, dependencyIdParts[1]);
-                Assert.AreEqual($"00-{expectedTraceId}-{dependencyIdParts[2]}-02", request.Headers.GetValues(W3C.W3CConstants.TraceParentHeader).Single());
-
-                Assert.IsTrue(request.Headers.Contains(W3C.W3CConstants.TraceStateHeader));
-                Assert.AreEqual($"{W3C.W3CConstants.AzureTracestateNamespace}={expectedAppId}", request.Headers.GetValues(W3C.W3CConstants.TraceStateHeader).Single());
-
-                Assert.IsTrue(dependency.Properties.ContainsKey(W3C.W3CConstants.LegacyRequestIdProperty));
-                Assert.IsTrue(dependency.Properties[W3C.W3CConstants.LegacyRequestIdProperty].StartsWith(parent.Id));
             }
         }
 
@@ -318,15 +324,12 @@
         {
             using (var module = new DependencyTrackingTelemetryModule())
             {
-                module.EnableW3CHeadersInjection = true;
-                this.config.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
                 module.Initialize(this.config);
 
                 var parent = new Activity("parent")
-                    .Start()
-                    .GenerateW3CContext();
+                    .Start();
 
-                parent.SetTracestate("some=state");
+                parent.TraceStateString = "some=state";
 
                 var url = new Uri(localhostUrl);
                 var request = new HttpRequestMessage(HttpMethod.Get, url);
@@ -339,14 +342,33 @@
                 // let's wait until dependency is collected
                 Assert.IsTrue(SpinWait.SpinUntil(() => this.sentTelemetry != null, TimeSpan.FromSeconds(1)));
 
-                parent.Stop();
+                this.ValidateTelemetryForDiagnosticSource(
+                    this.sentTelemetry.Single(),
+                    url,
+                    request,
+                    true,
+                    "200",
+                    false,
+                    true,
+                    true,
+                    responseExpected: true,
+                    parent);
 
-                var traceState = HttpHeadersUtilities.GetHeaderValues(request.Headers, W3C.W3CConstants.TraceStateHeader).First();
-                Assert.AreEqual($"{W3C.W3CConstants.AzureTracestateNamespace}={expectedAppId},some=state", traceState);
+                parent.Stop();
             }
         }
 
-        private void ValidateTelemetryForDiagnosticSource(DependencyTelemetry item, Uri url, HttpRequestMessage request, bool success, string resultCode, bool expectLegacyHeaders, Activity parent = null)
+        private void ValidateTelemetryForDiagnosticSource(
+            DependencyTelemetry item, 
+            Uri url,
+            HttpRequestMessage request, 
+            bool success, 
+            string resultCode,
+            bool expectLegacyHeaders,
+            bool expectW3CHeaders,
+            bool expectRequestId,
+            bool responseExpected = true, 
+            Activity parentActivity = null)
         {
             Assert.AreEqual(url, item.Data);
             Assert.AreEqual($"{url.Host}:{url.Port}", item.Target);
@@ -354,7 +376,7 @@
             Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
             Assert.AreEqual(RemoteDependencyConstants.HTTP, item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
             Assert.IsTrue(
-                item.Timestamp.UtcDateTime < DateTime.UtcNow.AddMilliseconds(20), // DateTime.UtcNow precesion is ~16ms
+                item.Timestamp.UtcDateTime < DateTime.UtcNow.AddMilliseconds(20), // DateTime.UtcNow precision is ~16ms
                 "timestamp < now");
             Assert.IsTrue(
                 item.Timestamp.UtcDateTime > DateTime.UtcNow.AddSeconds(-5),
@@ -369,35 +391,100 @@
             var requestId = item.Id;
             Assert.IsTrue(requestId.StartsWith('|' + item.Context.Operation.Id + '.'));
 
-            if (parent == null)
+            if (parentActivity != null)
             {
-                // W3C compatible-Id ( should go away when W3C is implemented in .NET https://github.com/dotnet/corefx/issues/30331 TODO)
-                Assert.AreEqual(32, item.Context.Operation.Id.Length);
-                Assert.IsTrue(Regex.Match(item.Context.Operation.Id, @"[a-z][0-9]").Success);
-                // end of workaround test
+                if (parentActivity.IdFormat == ActivityIdFormat.W3C)
+                {
+                    Assert.AreEqual(parentActivity.TraceId.ToHexString(), item.Context.Operation.Id);
+                    Assert.AreEqual($"|{parentActivity.TraceId.ToHexString()}.{parentActivity.SpanId.ToHexString()}.", item.Context.Operation.ParentId);
+                    if (parentActivity.TraceStateString != null)
+                    {
+                        Assert.IsTrue(item.Properties.ContainsKey("tracestate"));
+                        Assert.AreEqual(parentActivity.TraceStateString, item.Properties["tracestate"]);
+                    }
+                    else
+                    {
+                        Assert.IsFalse(item.Properties.ContainsKey("tracestate"));
+                    }
+                }
+                else
+                {
+                    Assert.AreEqual(parentActivity.RootId, item.Context.Operation.Id);
+                    Assert.AreEqual(parentActivity.Id, item.Context.Operation.ParentId);
+                }
             }
             else
             {
-                Assert.AreEqual(parent.RootId, item.Context.Operation.Id);
+                Assert.IsNotNull(item.Context.Operation.Id);
+                Assert.IsNull(item.Context.Operation.ParentId);
             }
 
             if (request != null)
             {
-                Assert.AreEqual(requestId, request.Headers.GetValues(RequestResponseHeaders.RequestIdHeader).Single());
-                if (expectLegacyHeaders)
+                if (expectW3CHeaders)
                 {
-                    Assert.AreEqual(item.Context.Operation.Id, request.Headers.GetValues(RequestResponseHeaders.StandardRootIdHeader).Single());
-                    Assert.AreEqual(requestId, request.Headers.GetValues(RequestResponseHeaders.StandardParentIdHeader).Single());
+                    var traceId = item.Context.Operation.Id;
+                    var spanId = requestId.Substring(34, 16);
+                    var expectedTraceparent = $"00-{traceId}-{spanId}-00";
+
+                    Assert.AreEqual(expectedTraceparent, request.Headers.GetValues(W3C.W3CConstants.TraceParentHeader).Single());
+                    if (parentActivity?.TraceStateString != null)
+                    {
+                        Assert.AreEqual(parentActivity.TraceStateString, request.Headers.GetValues(W3C.W3CConstants.TraceStateHeader).Single());
+                    }
+
+                    if (expectRequestId)
+                    {
+                        Assert.AreEqual(requestId, request.Headers.GetValues(RequestResponseHeaders.RequestIdHeader).Single());
+                    }
+                    else
+                    {
+                        // even though we don't inject back-compatible request-id, .NET Core 2.0 will inject one
+                        // that will look like traceparent
+                        var traceparent = request.Headers.GetValues(W3C.W3CConstants.TraceParentHeader).Single();
+                        Assert.AreEqual(traceparent, request.Headers.GetValues(RequestResponseHeaders.RequestIdHeader).Single());
+                    }
                 }
                 else
                 {
+                    Assert.IsFalse(request.Headers.Contains(W3C.W3CConstants.TraceParentHeader));
+                    Assert.IsFalse(request.Headers.Contains(W3C.W3CConstants.TraceStateHeader));
+                    Assert.AreEqual(requestId, request.Headers.GetValues(RequestResponseHeaders.RequestIdHeader).Single());
+                }
+
+                if (expectLegacyHeaders)
+                {
+                    Assert.AreEqual(requestId, request.Headers.GetValues(RequestResponseHeaders.StandardParentIdHeader).Single());
+                    Assert.AreEqual(item.Context.Operation.Id, request.Headers.GetValues(RequestResponseHeaders.StandardRootIdHeader).Single());
+                }
+                else
+                {
+                    Assert.IsFalse(request.Headers.Contains(RequestResponseHeaders.StandardParentIdHeader));
                     Assert.IsFalse(request.Headers.Contains(RequestResponseHeaders.StandardRootIdHeader));
-                    Assert.IsFalse(request.Headers.Contains(RequestResponseHeaders.StandardParentIdHeader));   
+                }
+
+                if (parentActivity != null && parentActivity.Baggage.Any())
+                {
+                    var correlationContextHeader = request.Headers.GetValues(RequestResponseHeaders.CorrelationContextHeader)
+                        .Single()
+                        .Split(',')
+                        .ToArray();
+                    var baggage = Activity.Current.Baggage.Select(kvp => $"{kvp.Key}={kvp.Value}").ToArray();
+                    Assert.AreEqual(baggage.Length, correlationContextHeader.Length);
+
+                    foreach (var baggageItem in baggage)
+                    {
+                        Assert.IsTrue(correlationContextHeader.Contains(baggageItem));
+                    }
+                }
+                else
+                {
+                    Assert.IsFalse(request.Headers.Contains(RequestResponseHeaders.CorrelationContextHeader));
                 }
             }
 
             // Validate the http request was captured
-            this.operationDetailsInitializer.ValidateOperationDetailsCore(item);
+            this.operationDetailsInitializer.ValidateOperationDetailsCore(item, responseExpected);
         }
 
         private sealed class LocalServer : IDisposable
