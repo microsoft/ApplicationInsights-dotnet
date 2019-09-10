@@ -46,7 +46,7 @@ namespace Microsoft.ApplicationInsights.Tests
         public void Initialize()
         {
             Activity.DefaultIdFormat = ActivityIdFormat.W3C;
-            Activity.ForceDefaultIdFormat = false;
+            Activity.ForceDefaultIdFormat = true;
 
             this.telemetryChannel = new StubTelemetryChannel
             {
@@ -266,7 +266,9 @@ namespace Microsoft.ApplicationInsights.Tests
         [TestMethod]
         public void OnRequestInjectsLegacyHeadersW3COff()
         {
-            this.configuration.EnableW3CCorrelation = false;
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
+
             var listenerWithLegacyHeaders = new HttpCoreDiagnosticSourceListener(
                 this.configuration,
                 setComponentCorrelationHttpHeaders: true,

@@ -33,7 +33,7 @@
             var stubTelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
 
             Activity.DefaultIdFormat = ActivityIdFormat.W3C;
-            Activity.ForceDefaultIdFormat = false;
+            Activity.ForceDefaultIdFormat = true;
             this.configuration = new TelemetryConfiguration
             {
                 InstrumentationKey = Guid.NewGuid().ToString(),

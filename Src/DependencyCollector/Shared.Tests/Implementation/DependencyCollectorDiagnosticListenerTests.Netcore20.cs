@@ -212,7 +212,9 @@ namespace Microsoft.ApplicationInsights.Tests
         [TestMethod]
         public async Task OnActivityStopTracksTelemetryW3COff()
         {
-            this.configuration.EnableW3CCorrelation = false;
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
+
             var activity = new Activity("System.Net.Http.HttpRequestOut")
                 .AddBaggage("k", "v")
                 .Start();
@@ -512,7 +514,9 @@ namespace Microsoft.ApplicationInsights.Tests
         [TestMethod]
         public void OnStartActivityWithUriInExcludedDomainListW3COff()
         {
-            this.configuration.EnableW3CCorrelation = false;
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
+
             HttpRequestMessage requestMsg = new HttpRequestMessage(HttpMethod.Post, "http://excluded.host.com/path/to/file.html");
             using (var listener = new HttpCoreDiagnosticSourceListener(
                 this.configuration,

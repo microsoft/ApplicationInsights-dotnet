@@ -39,7 +39,8 @@
         [TestInitialize]
         public void TestInitialize()
         {
-            Activity.ForceDefaultIdFormat = false;
+            Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+            Activity.ForceDefaultIdFormat = true;
 
             this.configuration = new TelemetryConfiguration()
             {

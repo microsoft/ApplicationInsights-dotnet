@@ -29,7 +29,9 @@
         [TestInitialize]
         public void TestInitialize()
         {
-            Activity.ForceDefaultIdFormat = false;
+            Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+            Activity.ForceDefaultIdFormat = true;
+
             this.configuration = new TelemetryConfiguration();
             this.sendItems = new List<ITelemetry>(); 
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };

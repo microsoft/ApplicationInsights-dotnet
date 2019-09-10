@@ -22,7 +22,8 @@
         [TestInitialize]
         public void TestInitialize()
         {
-            Activity.ForceDefaultIdFormat = false;
+            Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+            Activity.ForceDefaultIdFormat = true;
             this.configuration = new TelemetryConfiguration();
             this.sentItems = new List<ITelemetry>();
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sentItems.Add(item), EndpointAddress = "https://dc.services.visualstudio.com/v2/track" };

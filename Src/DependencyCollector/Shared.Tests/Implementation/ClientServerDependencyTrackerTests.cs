@@ -42,7 +42,7 @@
         public void TestCleanUp()
         {
             Activity.DefaultIdFormat = ActivityIdFormat.W3C;
-            Activity.ForceDefaultIdFormat = false;
+            Activity.ForceDefaultIdFormat = true;
 
             while (Activity.Current != null)
             {

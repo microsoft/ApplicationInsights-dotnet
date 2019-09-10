@@ -40,7 +40,7 @@
         public void Initialize()
         {
             Activity.DefaultIdFormat = ActivityIdFormat.W3C;
-            Activity.ForceDefaultIdFormat = false;
+            Activity.ForceDefaultIdFormat = true;
         }
 
         [TestCleanup]

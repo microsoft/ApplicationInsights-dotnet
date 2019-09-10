@@ -104,7 +104,8 @@ namespace Microsoft.ApplicationInsights.Tests
         [TestMethod]
         public void NetCore30_OnActivityStartInjectsW3COff()
         {
-            this.configuration.EnableW3CCorrelation = false;
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
 
             using (var listenerWithoutW3CHeaders = this.CreateHttpListener(HttpInstrumentationVersion.V3))
             {
@@ -152,7 +153,9 @@ namespace Microsoft.ApplicationInsights.Tests
         [TestMethod]
         public void NetCore30_OnStartActivityWithUriInExcludedDomainListW3COff()
         {
-            this.configuration.EnableW3CCorrelation = false;
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
+
             HttpRequestMessage requestMsg = new HttpRequestMessage(HttpMethod.Post, "http://excluded.host.com/path/to/file.html");
             using (var listener = new HttpCoreDiagnosticSourceListener(
                 this.configuration,

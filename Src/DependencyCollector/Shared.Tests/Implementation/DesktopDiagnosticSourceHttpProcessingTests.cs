@@ -41,7 +41,9 @@
         {
             this.sendItems = new List<ITelemetry>();
 
-            Activity.ForceDefaultIdFormat = false;
+            Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+            Activity.ForceDefaultIdFormat = true;
+
             this.configuration = new TelemetryConfiguration()
             {
                 TelemetryChannel = new StubTelemetryChannel

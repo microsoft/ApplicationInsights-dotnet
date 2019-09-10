@@ -46,7 +46,7 @@
         public void Initialize()
         {
             Activity.DefaultIdFormat = ActivityIdFormat.W3C;
-            Activity.ForceDefaultIdFormat = false;
+            Activity.ForceDefaultIdFormat = true;
             this.sentTelemetry = new List<DependencyTelemetry>();
             this.channel = new StubTelemetryChannel
             {
