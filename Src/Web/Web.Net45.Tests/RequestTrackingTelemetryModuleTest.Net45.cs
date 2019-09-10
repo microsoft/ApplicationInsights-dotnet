@@ -151,6 +151,54 @@
         }
 
         [TestMethod]
+        public void TrackRequestWithoutTraceparentOrRequestIdAndCorrelationContext()
+        {
+            var headers = new Dictionary<string, string>
+            {
+                ["Correlation-Context"] = "k=v"
+            };
+
+            var context = HttpModuleHelper.GetFakeHttpContext(headers);
+            var module = this.RequestTrackingTelemetryModuleFactory(this.CreateDefaultConfig(context));
+
+            module.OnBeginRequest(context);
+            var activityInitializedByW3CHeader = Activity.Current;
+
+            Assert.Equal("v", activityInitializedByW3CHeader.Baggage.Single(t => t.Key == "k").Value);
+
+            var requestTelemetry = context.GetRequestTelemetry();
+            module.OnEndRequest(context);
+
+            Assert.Equal($"|{activityInitializedByW3CHeader.TraceId.ToHexString()}.{activityInitializedByW3CHeader.SpanId.ToHexString()}.", requestTelemetry.Id);
+            Assert.Equal(activityInitializedByW3CHeader.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
+            Assert.Null(requestTelemetry.Context.Operation.ParentId);
+        }
+
+        [TestMethod]
+        public void TrackRequestWithoutTraceparentOrRequestIdAndCorrelationContextW3COff()
+        {
+            var headers = new Dictionary<string, string> { ["Correlation-Context"] = "k=v" };
+
+            var context = HttpModuleHelper.GetFakeHttpContext(headers);
+            var module = this.RequestTrackingTelemetryModuleFactory(this.CreateDefaultConfig(context));
+
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
+
+            module.OnBeginRequest(context);
+            var activityInitializedByW3CHeader = Activity.Current;
+
+            Assert.Equal("v", activityInitializedByW3CHeader.Baggage.Single(t => t.Key == "k").Value);
+
+            var requestTelemetry = context.GetRequestTelemetry();
+            module.OnEndRequest(context);
+
+            Assert.Equal(activityInitializedByW3CHeader.Id, requestTelemetry.Id);
+            Assert.Equal(activityInitializedByW3CHeader.RootId, requestTelemetry.Context.Operation.Id);
+            Assert.Null(requestTelemetry.Context.Operation.ParentId);
+        }
+
+        [TestMethod]
         public void TrackRequestWithW3CHeadersAndNoParentActivity()
         {
             this.TestRequestTrackingWithW3CSupportEnabled(

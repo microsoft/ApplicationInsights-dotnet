@@ -6,6 +6,7 @@
  - [QuickPulse/LiveMetrics background thread safeguards added to never throw unhandled exception.](https://github.com/microsoft/ApplicationInsights-dotnet-server/issues/1088)
  - [Make QuickPulse server id configurable to distinguish multiple role instances running on the same host](https://github.com/microsoft/ApplicationInsights-dotnet-server/issues/1253)
  - [Switch W3C Trace-Context on by default and leverage implementation from .NET in requests and depedencies collectors](https://github.com/microsoft/ApplicationInsights-dotnet-server/pull/1252)
+ - [Support correlation-context in absence of Request-Id or traceparent](https://github.com/microsoft/ApplicationInsights-dotnet-server/issues/1215)
 
 ## Version 2.11.0-beta1
  - [Add support for Event Counter collection.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1222)

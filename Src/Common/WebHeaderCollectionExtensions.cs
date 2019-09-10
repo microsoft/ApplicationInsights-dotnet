@@ -12,6 +12,8 @@
     internal static class WebHeaderCollectionExtensions
     {
         private const string KeyValuePairSeparator = "=";
+        private const int CorrelationContextHeaderMaxLength = 8192;
+        private const int CorrelationContextMaxPairs = 180;
 
         /// <summary>
         /// For the given header collection, for a given header of name-value type, find the value of a particular key.
@@ -122,6 +124,75 @@
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Reads Correlation-Context and populates it on Activity.Baggage following https://github.com/dotnet/corefx/blob/master/src/System.Diagnostics.DiagnosticSource/src/HttpCorrelationProtocol.md#correlation-context.
+        /// Use this method when you want force parsing Correlation-Context is absence of Request-Id or traceparent. 
+        /// </summary>
+        /// <param name="headers">Header collection.</param>
+        /// <param name="activity">Activity to populate baggage on.</param>
+        public static void ReadActivityBaggage(this NameValueCollection headers, Activity activity)
+        {
+            Debug.Assert(headers != null, "Headers must not be null");
+            Debug.Assert(activity != null, "Activity must not be null");
+            Debug.Assert(!activity.Baggage.Any(), "Baggage must be empty");
+
+            int itemsCount = 0;
+            var correlationContexts = headers.GetValues(RequestResponseHeaders.CorrelationContextHeader);
+            if (correlationContexts == null || correlationContexts.Length == 0)
+            {
+                return;
+            }
+
+            int overallLength = 0;
+            foreach (var cc in correlationContexts)
+            {
+                var headerValue = cc.AsSpan();
+                int currentLength = 0;
+                int initialLength = headerValue.Length;
+                while (itemsCount < CorrelationContextMaxPairs && currentLength < initialLength)
+                {
+                    var nextSegment = headerValue.Slice(currentLength);
+                    var nextComma = nextSegment.IndexOf(',');
+                    if (nextComma < 0)
+                    {
+                        // last one
+                        nextComma = nextSegment.Length;
+                    }
+
+                    if (nextComma == 0)
+                    {
+                        currentLength += 1;
+                        overallLength += 1;
+                        continue;
+                    }
+
+                    if (overallLength + nextComma >= CorrelationContextHeaderMaxLength)
+                    {
+                        return;
+                    }
+
+                    ReadOnlySpan<char> kvp = nextSegment.Slice(0, nextComma).Trim();
+
+                    var separatorInd = kvp.IndexOf('=');
+                    if (separatorInd > 0 && separatorInd < kvp.Length - 1)
+                    {
+                        var separatorIndNext = kvp.Slice(separatorInd + 1).IndexOf('=');
+                        // check there is just one '=' in key-value-pair
+                        if (separatorIndNext < 0)
+                        {
+                            var baggageKey = kvp.Slice(0, separatorInd).Trim().ToString();
+                            var baggageValue = kvp.Slice(separatorInd + 1).Trim().ToString();
+                            activity.AddBaggage(baggageKey, baggageValue);
+                            itemsCount += 1;
+                        }
+                    }
+
+                    currentLength += nextComma + 1;
+                    overallLength += nextComma + 1;
+                }
+            }
         }
 
         private static string FormatKeyValueHeader(string key, string value)

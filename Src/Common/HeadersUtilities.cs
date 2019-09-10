@@ -41,10 +41,11 @@
 
         public static IDictionary<string, string> GetHeaderDictionary(IEnumerable<string> headerValues)
         {
-            IDictionary<string, string> result = new Dictionary<string, string>();
+            IDictionary<string, string> result = null;
 
             if (headerValues != null)
             {
+                result = new Dictionary<string, string>();
                 foreach (string keyNameValue in headerValues)
                 {
                     string[] keyNameValueParts = keyNameValue.Trim().Split('=');
@@ -61,9 +62,9 @@
                 }
             }
 
-            if (!result.Any())
+            if (result == null || !result.Any())
             {
-                result = null;
+                return null;
             }
 
             return result;

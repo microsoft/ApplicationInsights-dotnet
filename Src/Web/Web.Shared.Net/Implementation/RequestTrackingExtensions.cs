@@ -26,6 +26,7 @@
             string legacyParentId = null;
             string legacyRootId = null;
 
+            var headers = platformContext.Request.Unvalidated.Headers;
             if (currentActivity == null)
             {
                 // if there was no BeginRequest, ASP.NET HttpModule did not have a chance to set current activity yet
@@ -38,13 +39,20 @@
                 // Here we simply maintaining backward compatibility with this behavior...
 
                 currentActivity = new Activity(ActivityHelpers.RequestActivityItemName);
-                if (!currentActivity.Extract(platformContext.Request.Headers) &&
-                    ActivityHelpers.ParentOperationIdHeaderName != null &&
-                    ActivityHelpers.RootOperationIdHeaderName != null)
+                if (!currentActivity.Extract(headers))
                 {
-                    legacyRootId = StringUtilities.EnforceMaxLength(platformContext.Request.UnvalidatedGetHeader(ActivityHelpers.RootOperationIdHeaderName), InjectionGuardConstants.RequestHeaderMaxLength);
-                    legacyParentId = StringUtilities.EnforceMaxLength(platformContext.Request.UnvalidatedGetHeader(ActivityHelpers.ParentOperationIdHeaderName), InjectionGuardConstants.RequestHeaderMaxLength);
-                    currentActivity.SetParentId(legacyRootId);
+                    if (ActivityHelpers.ParentOperationIdHeaderName != null &&
+                        ActivityHelpers.RootOperationIdHeaderName != null)
+                    {
+                        legacyRootId = StringUtilities.EnforceMaxLength(platformContext.Request.UnvalidatedGetHeader(ActivityHelpers.RootOperationIdHeaderName),
+                            InjectionGuardConstants.RequestHeaderMaxLength);
+                        legacyParentId = StringUtilities.EnforceMaxLength(
+                            platformContext.Request.UnvalidatedGetHeader(ActivityHelpers.ParentOperationIdHeaderName),
+                            InjectionGuardConstants.RequestHeaderMaxLength);
+                        currentActivity.SetParentId(legacyRootId);
+                    }
+
+                    headers.ReadActivityBaggage(currentActivity);
                 }
 
                 currentActivity.Start();

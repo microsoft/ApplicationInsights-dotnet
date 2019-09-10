@@ -488,6 +488,18 @@
                 this.applicationNameProvider.Name);
         }
 
+        [Event(50,
+            Keywords = Keywords.Diagnostics,
+            Message = "Unknown error, message {0}",
+            Level = EventLevel.Error)]
+        public void UnknownError(string message, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                50,
+                message,
+                this.applicationNameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the PlatformEventSource. Those keywords should match keywords in Core.
         /// </summary>

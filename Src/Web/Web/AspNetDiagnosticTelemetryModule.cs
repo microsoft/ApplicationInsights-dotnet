@@ -153,58 +153,84 @@
 
             public static Action<Activity, object> OnActivityImport => (activity, _) =>
             {
-                // ParentId is null, means that there were no W3C/Request-Id header, which means we have to look for AppInsights/custom headers
-                if (activity.ParentId == null)
+                try
                 {
-                    var context = HttpContext.Current;
-                    if (context == null)
+                    if (activity == null)
                     {
+                        // should not happen
                         WebEventSource.Log.NoHttpContextWarning();
                         return;
                     }
 
-                    HttpRequest request = null;
-                    try
+                    // ParentId is null, means that there were no W3C/Request-Id header, which means we have to look for AppInsights/custom headers
+                    if (activity.ParentId == null)
                     {
-                        request = context.Request;
-                    }
-                    catch (Exception ex)
-                    {
-                        WebEventSource.Log.HttpRequestNotAvailable(ex.Message, ex.StackTrace);
-                    }
-
-                    // parse custom headers if enabled
-                    if (request != null && ActivityHelpers.RootOperationIdHeaderName != null)
-                    {
-                        var rootId = StringUtilities.EnforceMaxLength(
-                            request.UnvalidatedGetHeader(ActivityHelpers.RootOperationIdHeaderName), 
-                            InjectionGuardConstants.RequestHeaderMaxLength);
-                        if (rootId != null)
+                        var context = HttpContext.Current;
+                        if (context == null)
                         {
-                            activity.SetParentId(rootId);
+                            WebEventSource.Log.NoHttpContextWarning();
+                            return;
                         }
+
+                        HttpRequest request = null;
+                        try
+                        {
+                            request = context.Request;
+                        }
+                        catch (Exception ex)
+                        {
+                            WebEventSource.Log.HttpRequestNotAvailable(ex.Message, ex.StackTrace);
+                            return;
+                        }
+
+                        // parse custom headers if enabled
+                        if (ActivityHelpers.RootOperationIdHeaderName != null)
+                        {
+                            var rootId = StringUtilities.EnforceMaxLength(
+                                request.UnvalidatedGetHeader(ActivityHelpers.RootOperationIdHeaderName),
+                                InjectionGuardConstants.RequestHeaderMaxLength);
+                            if (rootId != null)
+                            {
+                                activity.SetParentId(rootId);
+                            }
+                        }
+
+                        // even if there was no parent, parse Correlation-Context
+                        // length requirements are in https://osgwiki.com/index.php?title=CorrelationContext&oldid=459234
+                        request.Headers.ReadActivityBaggage(activity);
                     }
+                }
+                catch (Exception e)
+                {
+                    WebEventSource.Log.UnknownError(e.ToString());
                 }
             };
 
             public void OnNext(KeyValuePair<string, object> value)
             {
-                var context = HttpContext.Current;
+                try
+                {
+                    var context = HttpContext.Current;
 
-                if (value.Key == IncomingRequestStartEventName)
-                {
-                    this.requestModule?.OnBeginRequest(context);
-                }
-                else if (value.Key == IncomingRequestStopEventName)
-                {
-                    if (IsFirstRequest(context))
+                    if (value.Key == IncomingRequestStartEventName)
                     {
-                        // Asp.Net Http Module detected that activity was lost, it notifies about it with this event
-                        // It means that Activity was previously reported in BeginRequest and we saved it in HttpContext.Current
-                        // we will use it in Web.OperationCorrelationTelemetryInitializer to init exceptions and request
-                        this.exceptionModule?.OnError(context);
-                        this.requestModule?.OnEndRequest(context);
+                        this.requestModule?.OnBeginRequest(context);
                     }
+                    else if (value.Key == IncomingRequestStopEventName)
+                    {
+                        if (IsFirstRequest(context))
+                        {
+                            // Asp.Net Http Module detected that activity was lost, it notifies about it with this event
+                            // It means that Activity was previously reported in BeginRequest and we saved it in HttpContext.Current
+                            // we will use it in Web.OperationCorrelationTelemetryInitializer to init exceptions and request
+                            this.exceptionModule?.OnError(context);
+                            this.requestModule?.OnEndRequest(context);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    WebEventSource.Log.UnknownError(e.ToString());
                 }
             }
 

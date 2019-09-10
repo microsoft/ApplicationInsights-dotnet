@@ -480,6 +480,76 @@
             Assert.AreEqual(1, requestTelemetry.Properties.Count);
         }
 
+        [TestMethod]
+        public void CorrelationContextIsReadWithoutTraceparentAndRequestId()
+        {
+            this.aspNetDiagnosticsSource.FakeContext =
+                HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
+                {
+                    ["Correlation-Context"] = "k=v",
+                });
+            this.module = this.CreateModule();
+
+            var activity = new Activity(FakeAspNetDiagnosticSource.IncomingRequestEventName);
+            Assert.IsTrue(this.aspNetDiagnosticsSource.IsEnabled(FakeAspNetDiagnosticSource.IncomingRequestEventName, activity));
+            this.aspNetDiagnosticsSource.StartActivityWithoutChecks(activity);
+            var currentActivity = Activity.Current;
+
+            Assert.AreEqual(1, activity.Baggage.Count());
+            Assert.AreEqual("k", activity.Baggage.Single().Key);
+            Assert.AreEqual("v", activity.Baggage.Single().Value);
+
+            this.aspNetDiagnosticsSource.StopActivity();
+
+            Assert.AreEqual(1, this.sendItems.Count);
+
+            var requestTelemetry = this.sendItems[0] as RequestTelemetry;
+            Assert.IsNotNull(requestTelemetry);
+            Assert.AreEqual(currentActivity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
+            Assert.IsNull(requestTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual($"|{currentActivity.TraceId.ToHexString()}.{currentActivity.SpanId.ToHexString()}.", requestTelemetry.Id);
+
+            Assert.AreEqual(1, requestTelemetry.Properties.Count);
+            Assert.IsTrue(requestTelemetry.Properties.TryGetValue("k", out var v));
+            Assert.AreEqual("v", v);
+        }
+
+        [TestMethod]
+        public void CorrelationContextIsReadWithoutTraceparentAndRequestIdW3COff()
+        {
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
+            this.aspNetDiagnosticsSource.FakeContext =
+                HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
+                {
+                    ["Correlation-Context"] = "k=v",
+                });
+            this.module = this.CreateModule();
+
+            var activity = new Activity(FakeAspNetDiagnosticSource.IncomingRequestEventName);
+            Assert.IsTrue(this.aspNetDiagnosticsSource.IsEnabled(FakeAspNetDiagnosticSource.IncomingRequestEventName, activity));
+            this.aspNetDiagnosticsSource.StartActivityWithoutChecks(activity);
+            var currentActivity = Activity.Current;
+
+            Assert.AreEqual(1, activity.Baggage.Count());
+            Assert.AreEqual("k", activity.Baggage.Single().Key);
+            Assert.AreEqual("v", activity.Baggage.Single().Value);
+
+            this.aspNetDiagnosticsSource.StopActivity();
+
+            Assert.AreEqual(1, this.sendItems.Count);
+
+            var requestTelemetry = this.sendItems[0] as RequestTelemetry;
+            Assert.IsNotNull(requestTelemetry);
+            Assert.AreEqual(currentActivity.RootId, requestTelemetry.Context.Operation.Id);
+            Assert.IsNull(requestTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual(currentActivity.Id, requestTelemetry.Id);
+
+            Assert.AreEqual(1, requestTelemetry.Properties.Count);
+            Assert.IsTrue(requestTelemetry.Properties.TryGetValue("k", out var v));
+            Assert.AreEqual("v", v);
+        }
+
         public void Dispose()
         {
             this.Dispose(true);
