@@ -1,5 +1,9 @@
 # Changelog 
 
+## Version 2.11.0-beta2
+- Update Base SDK to version 2.11.0-beta2
+- Update System.Diagnostics.DiagnosticSource to 4.6.0-preview7. 
+
 ### Version 2.11.0-beta1
 - Update Base SDK to version 2.11.0-beta1
 
