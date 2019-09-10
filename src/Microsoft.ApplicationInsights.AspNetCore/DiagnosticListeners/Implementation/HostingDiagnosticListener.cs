@@ -235,12 +235,7 @@
                     AspNetCoreEventSource.Instance.HostingListenerInformational(this.aspNetCoreMajorVersion, "Ignoring original Activity from Hosting to create new one using traceparent header retrieved by sdk.");
 
                     // read and populate tracestate
-                    ReadTraceState(httpContext.Request.Headers, newActivity);
-
-                    // If only W3C headers are present then 2.XX Hosting will not read correlation-context. (it is read only if request-id is present)
-                    // SDK needs to do that.
-                    // This is in line with what Hosting 3.xx will do which will read corr context if either traceparent or request-id is present
-                    ReadCorrelationContext(httpContext.Request.Headers, newActivity);
+                    ReadTraceState(httpContext.Request.Headers, newActivity);                    
                 }
                 else if (this.aspNetCoreMajorVersion == AspNetCoreMajorVersion.Three && headers.ContainsKey(W3CConstants.TraceParentHeader))
                 {
@@ -275,13 +270,16 @@
                             AspNetCoreEventSource.Instance.HostingListenerInformational(this.aspNetCoreMajorVersion, "Incoming Request-ID is not W3C Compatible, and hence will be ignored for ID generation, but stored in custom property legacy_rootID.");
                         }
                     }
-                }
+                }                
 
                 if (newActivity != null)
                 {
                     newActivity.Start();
                     currentActivity = newActivity;
                 }
+
+                // Read Correlation-Context is all scenarios irrespective of presence of either request-id or traceparent headers.
+                ReadCorrelationContext(httpContext.Request.Headers, currentActivity);
 
                 var requestTelemetry = this.InitializeRequestTelemetry(httpContext, currentActivity, Stopwatch.GetTimestamp(), legacyRootId);
 
@@ -332,8 +330,7 @@
                     activity.SetParentId(parentTraceParent);
                     originalParentId = parentTraceParent;
 
-                    ReadTraceState(requestHeaders, activity);
-                    ReadCorrelationContext(requestHeaders, activity);
+                    ReadTraceState(requestHeaders, activity);                    
                 }
 
                 // Request-Id
@@ -356,9 +353,7 @@
                     else
                     {
                         activity.SetParentId(originalParentId);
-                    }
-
-                    ReadCorrelationContext(requestHeaders, activity);
+                    }                    
                 }
 
                 // no headers
@@ -369,6 +364,7 @@
 
                 activity.Start();
 
+                ReadCorrelationContext(requestHeaders, activity);
                 var requestTelemetry = this.InitializeRequestTelemetry(httpContext, activity, timestamp, legacyRootId);
 
                 requestTelemetry.Context.Operation.ParentId =
@@ -617,21 +613,31 @@
 
         private static void ReadCorrelationContext(IHeaderDictionary requestHeaders, Activity activity)
         {
-            string[] baggage = requestHeaders.GetCommaSeparatedValues(RequestResponseHeaders.CorrelationContextHeader);
-            if (baggage != StringValues.Empty && !activity.Baggage.Any())
+            try
             {
-                foreach (var item in baggage)
+                if (!activity.Baggage.Any())
                 {
-                    var parts = item.Split('=');
-                    if (parts.Length == 2)
+                    string[] baggage = requestHeaders.GetCommaSeparatedValues(RequestResponseHeaders.CorrelationContextHeader);
+                    if (baggage != StringValues.Empty)
                     {
-                        var itemName = StringUtilities.EnforceMaxLength(parts[0], InjectionGuardConstants.ContextHeaderKeyMaxLength);
-                        var itemValue = StringUtilities.EnforceMaxLength(parts[1], InjectionGuardConstants.ContextHeaderValueMaxLength);
-                        activity.AddBaggage(itemName, itemValue);
+                        foreach (var item in baggage)
+                        {
+                            var parts = item.Split('=');
+                            if (parts.Length == 2)
+                            {
+                                var itemName = StringUtilities.EnforceMaxLength(parts[0], InjectionGuardConstants.ContextHeaderKeyMaxLength);
+                                var itemValue = StringUtilities.EnforceMaxLength(parts[1], InjectionGuardConstants.ContextHeaderValueMaxLength);
+                                activity.AddBaggage(itemName.Trim(), itemValue.Trim());
+                            }
+                        }
+
+                        AspNetCoreEventSource.Instance.HostingListenerVerbose("Correlation-Context retrived from header and stored into activity baggage.");
                     }
                 }
-
-                AspNetCoreEventSource.Instance.HostingListenerVerboe("Correlation-Context retrived from header and stored into activity baggage.");
+            }
+            catch (Exception ex)
+            {
+                AspNetCoreEventSource.Instance.HostingListenerWarning("CorrelationContext read failed.", ex.ToInvariantString());
             }
         }
 
@@ -644,7 +650,7 @@
                 // make in the request context can continue propogation
                 // of tracestate.
                 activity.TraceStateString = traceState;
-                AspNetCoreEventSource.Instance.HostingListenerVerboe("TraceState retrived from header and stored into activity.TraceState");
+                AspNetCoreEventSource.Instance.HostingListenerVerbose("TraceState retrived from header and stored into activity.TraceState");
             }
         }
 
@@ -739,15 +745,15 @@
                 && this.configuration != null
                 && !string.IsNullOrEmpty(requestTelemetry.Context.Operation.Id)
                 && SamplingScoreGenerator.GetSamplingScore(requestTelemetry.Context.Operation.Id) >= this.configuration.GetLastObservedSamplingPercentage(requestTelemetry.ItemTypeFlag))
-            {
-                requestTelemetry.IsSampledOutAtHead = true;
+            {                
+                requestTelemetry.ProactiveSamplingDecision = SamplingDecision.SampledOut;
                 AspNetCoreEventSource.Instance.TelemetryItemWasSampledOutAtHead(requestTelemetry.Context.Operation.Id);
             }
 
             //// When the item is proactively sampled out, we can avoid heavy operations that do not have known dependency later in the pipeline.
             //// We mostly exclude operations that were deemed heavy as per the corresponding profiler trace of this code path.
 
-            if (!requestTelemetry.IsSampledOutAtHead)
+            if (requestTelemetry.ProactiveSamplingDecision != SamplingDecision.SampledOut)
             {
                 foreach (var prop in activity.Baggage)
                 {
@@ -865,7 +871,7 @@
                     telemetry.Name = httpContext.Request.Method + " " + httpContext.Request.Path.Value;
                 }
 
-                if (!telemetry.IsSampledOutAtHead)
+                if (telemetry.ProactiveSamplingDecision != SamplingDecision.SampledOut)
                 {
                     telemetry.Url = httpContext.Request.GetUri();
                     telemetry.Context.GetInternalContext().SdkVersion = this.sdkVersion;

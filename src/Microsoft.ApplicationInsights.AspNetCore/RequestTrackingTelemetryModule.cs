@@ -105,8 +105,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore
 
                             this.subscriptions?.Add(DiagnosticListener.AllListeners.Subscribe(this));
 
-                            // Questionable to modify the configuration here.
-                             configuration.EnableW3CCorrelation = this.CollectionOptions.EnableW3CDistributedTracing;
                             this.isInitialized = true;
                         }
                     }

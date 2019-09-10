@@ -612,7 +612,148 @@
                 Assert.Equal("value1", requestTelemetry.Properties["prop1"]);
                 Assert.Equal("value2", requestTelemetry.Properties["prop2"]);
             }
-        }        
+        }
+
+        [Theory]
+        [InlineData(AspNetCoreMajorVersion.One, true)]
+        [InlineData(AspNetCoreMajorVersion.Two, true)]
+        [InlineData(AspNetCoreMajorVersion.Three, true)]
+        [InlineData(AspNetCoreMajorVersion.One, false)]
+        [InlineData(AspNetCoreMajorVersion.Two, false)]
+        [InlineData(AspNetCoreMajorVersion.Three, false)]
+        public void RequestWithOutCorrelationHeaderStillReadsCorrelationContextIntoActivity(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool isW3C)
+        {
+            // Tests Correlation-Context is read and populated even when neither request-id nor traceparent is present.
+            HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
+
+            // Just correlationcontext
+            context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "prop1=value1, prop2=value2";
+
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion, isW3C: isW3C))
+            {
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
+                var activity = Activity.Current;
+                Assert.NotNull(activity);
+
+                // Activity baggage should be populated by SDK request collection module.
+                Assert.Single(activity.Baggage.Where(b => b.Key == "prop1" && b.Value == "value1"));
+                Assert.Single(activity.Baggage.Where(b => b.Key == "prop2" && b.Value == "value2"));
+                Assert.NotNull(context.Features.Get<RequestTelemetry>());
+
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
+
+                Assert.Single(sentTelemetry);
+                var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
+
+                ValidateRequestTelemetry(requestTelemetry, activity, isW3C, expectedParentId: null, expectedSource: null);
+
+                // Enriching telemetry from activity baggage is done by base sdk, still validating it here.
+                Assert.Equal("value1", requestTelemetry.Properties["prop1"]);
+                Assert.Equal("value2", requestTelemetry.Properties["prop2"]);
+            }
+        }
+
+        [Theory]
+        [InlineData("prop1")]
+        [InlineData(", , ,,")]
+        [InlineData(",")]
+        [InlineData(" ")]
+        public void RequestPopulateCorrelationHeaderVariousInputsNone(string correlationcontext)
+        {
+            // Tests Correlation-Context is read and populated even when neither request-id nor traceparent is present.
+            HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
+            context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = correlationcontext;
+
+            using (var hostingListener = CreateHostingListener(AspNetCoreMajorVersion.One))
+            {
+                HandleRequestBegin(hostingListener, context, 0, AspNetCoreMajorVersion.One);
+                var activity = Activity.Current;
+                Assert.NotNull(activity);
+
+                foreach (var bag in activity.Baggage)
+                {
+                    this.output.WriteLine($"bag.key {bag.Key} bag.value {bag.Value}");
+                }
+                Assert.Empty(activity.Baggage);
+
+                Assert.NotNull(context.Features.Get<RequestTelemetry>());
+
+                HandleRequestEnd(hostingListener, context, 0, AspNetCoreMajorVersion.One);
+
+                Assert.Single(sentTelemetry);
+                var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
+
+                ValidateRequestTelemetry(requestTelemetry, activity, true, expectedParentId: null, expectedSource: null);
+            }
+        }
+
+        [Theory]
+        [InlineData("prop1=value1, prop2=")]
+        [InlineData("prop1=value1, prop2")]
+        [InlineData("123, prop1=value1")]
+        [InlineData("prop1=value1")]
+        public void RequestPopulateCorrelationHeaderVariousInputsOne(string correlationcontext)
+        {
+            // Tests Correlation-Context is read and populated even when neither request-id nor traceparent is present.
+            HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
+            context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = correlationcontext;
+
+            using (var hostingListener = CreateHostingListener(AspNetCoreMajorVersion.One))
+            {
+                HandleRequestBegin(hostingListener, context, 0, AspNetCoreMajorVersion.One);
+                var activity = Activity.Current;
+                Assert.NotNull(activity);
+
+                foreach (var bag in activity.Baggage)
+                {
+                    this.output.WriteLine($"bag.key {bag.Key} bag.value {bag.Value}");
+                }
+                Assert.Single(activity.Baggage.Where(b => b.Key == "prop1" && b.Value == "value1"));
+
+                Assert.NotNull(context.Features.Get<RequestTelemetry>());
+
+                HandleRequestEnd(hostingListener, context, 0, AspNetCoreMajorVersion.One);
+
+                Assert.Single(sentTelemetry);
+                var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
+
+                ValidateRequestTelemetry(requestTelemetry, activity, true, expectedParentId: null, expectedSource: null);
+            }
+        }
+
+        [Theory]
+        [InlineData("prop1=value1,prop2=value2")]
+        [InlineData("prop1=value1 , prop2= value2")]
+        [InlineData("123, prop1=value1, prop2=value2,567,=")]
+        public void RequestPopulateCorrelationHeaderVariousInputsTwo(string correlationcontext)
+        {
+            // Tests Correlation-Context is read and populated even when neither request-id nor traceparent is present.
+            HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
+            context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = correlationcontext;            
+
+            using (var hostingListener = CreateHostingListener(AspNetCoreMajorVersion.One))
+            {
+                HandleRequestBegin(hostingListener, context, 0, AspNetCoreMajorVersion.One);
+                var activity = Activity.Current;
+                Assert.NotNull(activity);
+
+                foreach(var bag in activity.Baggage)
+                {
+                    this.output.WriteLine($"bag.key {bag.Key} bag.value {bag.Value}");
+                }
+                Assert.Single(activity.Baggage.Where(b => b.Key == "prop1" && b.Value == "value1"));
+                Assert.Single(activity.Baggage.Where(b => b.Key == "prop2" && b.Value == "value2"));
+                
+                Assert.NotNull(context.Features.Get<RequestTelemetry>());
+
+                HandleRequestEnd(hostingListener, context, 0, AspNetCoreMajorVersion.One);
+
+                Assert.Single(sentTelemetry);
+                var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
+
+                ValidateRequestTelemetry(requestTelemetry, activity, true, expectedParentId: null, expectedSource: null);
+            }
+        }
 
         [Theory]
         [InlineData(true)]
@@ -1011,7 +1152,7 @@
 
                 var requestTelemetry = context.Features.Get<RequestTelemetry>();
                 Assert.NotNull(requestTelemetry);               
-                Assert.True(requestTelemetry.IsSampledOutAtHead);
+                Assert.Equal(SamplingDecision.SampledOut, requestTelemetry.ProactiveSamplingDecision);
                 ValidateRequestTelemetry(requestTelemetry, Activity.Current, true);
                 Assert.Null(requestTelemetry.Context.Operation.ParentId);
             }
@@ -1040,7 +1181,7 @@
 
                 var requestTelemetry = context.Features.Get<RequestTelemetry>();
                 Assert.NotNull(requestTelemetry);
-                Assert.False(requestTelemetry.IsSampledOutAtHead);
+                Assert.NotEqual(SamplingDecision.SampledOut, requestTelemetry.ProactiveSamplingDecision);
                 ValidateRequestTelemetry(requestTelemetry, Activity.Current, true, "|4e3083444c10254ba40513c7316332eb.e2a5f830c0ee2c46.");
             }
         }
@@ -1064,7 +1205,7 @@
 
                 var requestTelemetry = context.Features.Get<RequestTelemetry>();
                 Assert.NotNull(requestTelemetry);
-                Assert.False(requestTelemetry.IsSampledOutAtHead);
+                Assert.NotEqual(SamplingDecision.SampledOut, requestTelemetry.ProactiveSamplingDecision);
                 ValidateRequestTelemetry(requestTelemetry, Activity.Current, true);
                 Assert.Null(requestTelemetry.Context.Operation.ParentId);
             }

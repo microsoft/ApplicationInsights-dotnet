@@ -5,8 +5,10 @@
 - [Make W3C Correlation default and leverage native W3C support from Activity for Asp.Net Core 3.0.](https://github.com/microsoft/ApplicationInsights-aspnetcore/pull/958)
 - [Fix: Azure Functions performance degradation when W3C enabled.](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/900)
 - [Fix: AppId is never set is Response Headers.](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/956)
+- [Support correlation-context in absence of request-id or traceparent.](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/901)
 - [Non Product - Asp.Net Core 3.0 Functional Tests Added. This leverages the built-in integration test capability of ASP.NET Core via Microsoft.AspNetCore.MVC.Testing](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/539)
 - [Fix: System.NullReferenceException in WebSessionTelemetryInitializer.](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/903)
+- Updated Base SDK version dependency to 2.11.0-beta2
 
 ## Version 2.8.0-beta2
 - [Fix MVCBeforeAction property fetcher to work with .NET Core 3.0 changes.](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/936)

@@ -279,41 +279,52 @@
             {
                 return builder.ConfigureServices(services =>
                 {
-                    services.AddApplicationInsightsTelemetry(o => o.RequestCollectionOptions.EnableW3CDistributedTracing = false);
+                    services.AddApplicationInsightsTelemetry();
 
                     // disable Dependency tracking (i.e. header injection)
                     services.Remove(services.FirstOrDefault(sd => sd.ImplementationType == typeof(DependencyTrackingTelemetryModule)));
                 });
             }
-
-            using (var server = new InProcessServer(assemblyName, this.output, Config))
+            try
             {
-                const string RequestPath = "/api/values";
+                // disable w3c
+                Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+                Activity.ForceDefaultIdFormat = true;
 
-                var expectedRequestTelemetry = new RequestTelemetry();
-                expectedRequestTelemetry.Name = "GET Values/Get";
-                expectedRequestTelemetry.ResponseCode = "200";
-                expectedRequestTelemetry.Success = true;
-                expectedRequestTelemetry.Url = new Uri(server.BaseHost + RequestPath);
-
-                var headers = new Dictionary<string, string>
+                using (var server = new InProcessServer(assemblyName, this.output, Config))
                 {
-                    // Both request id and traceparent
-                    ["Request-Id"] = "|8ee8641cbdd8dd280d239fa2121c7e4e.df07da90a5b27d93.",
-                    ["traceparent"] = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
-                    ["tracestate"] = "some=state",
-                    ["Correlation-Context"] = "k1=v1,k2=v2"
-                };
+                    const string RequestPath = "/api/values";
 
-                var actualRequest = this.ValidateRequestWithHeaders(server, RequestPath, headers, expectedRequestTelemetry);
+                    var expectedRequestTelemetry = new RequestTelemetry();
+                    expectedRequestTelemetry.Name = "GET Values/Get";
+                    expectedRequestTelemetry.ResponseCode = "200";
+                    expectedRequestTelemetry.Success = true;
+                    expectedRequestTelemetry.Url = new Uri(server.BaseHost + RequestPath);
 
-                Assert.Equal("8ee8641cbdd8dd280d239fa2121c7e4e", actualRequest.tags["ai.operation.id"]);
-                Assert.NotEqual("4bf92f3577b34da6a3ce929d0e0e4736", actualRequest.tags["ai.operation.id"]);
-                Assert.Contains("|8ee8641cbdd8dd280d239fa2121c7e4e.df07da90a5b27d93.", actualRequest.tags["ai.operation.parentId"]);
+                    var headers = new Dictionary<string, string>
+                    {
+                        // Both request id and traceparent
+                        ["Request-Id"] = "|8ee8641cbdd8dd280d239fa2121c7e4e.df07da90a5b27d93.",
+                        ["traceparent"] = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
+                        ["tracestate"] = "some=state",
+                        ["Correlation-Context"] = "k1=v1,k2=v2"
+                    };
 
-                // Correlation-Context should be read and populated.
-                Assert.True(actualRequest.data.baseData.properties.ContainsKey("k1"));
-                Assert.True(actualRequest.data.baseData.properties.ContainsKey("k2"));
+                    var actualRequest = this.ValidateRequestWithHeaders(server, RequestPath, headers, expectedRequestTelemetry);
+
+                    Assert.Equal("8ee8641cbdd8dd280d239fa2121c7e4e", actualRequest.tags["ai.operation.id"]);
+                    Assert.NotEqual("4bf92f3577b34da6a3ce929d0e0e4736", actualRequest.tags["ai.operation.id"]);
+                    Assert.Contains("|8ee8641cbdd8dd280d239fa2121c7e4e.df07da90a5b27d93.", actualRequest.tags["ai.operation.parentId"]);
+
+                    // Correlation-Context should be read and populated.
+                    Assert.True(actualRequest.data.baseData.properties.ContainsKey("k1"));
+                    Assert.True(actualRequest.data.baseData.properties.ContainsKey("k2"));
+                }
+            }
+            finally
+            {
+                Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+                Activity.ForceDefaultIdFormat = true;
             }
         }
     }

@@ -227,7 +227,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             20,
             Message = "Message: '{0}'.",
             Level = EventLevel.Verbose)]
-        public void HostingListenerVerboe(string message, string appDomainName = "Incorrect")
+        public void HostingListenerVerbose(string message, string appDomainName = "Incorrect")
         {
             this.WriteEvent(20, message, this.ApplicationName);
         }
@@ -242,6 +242,18 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         public void RequestTelemetryCreated(string correlationFormat, string requestId, string requestOperationId, string appDomainName = "Incorrect")
         {
             this.WriteEvent(21, correlationFormat, requestId, requestOperationId, this.ApplicationName);
+        }
+
+        /// <summary>
+        /// Logs a verbose event.
+        /// </summary>
+        [Event(
+            22,
+            Message = "Message: '{0}'. Exception: '{1}'",
+            Level = EventLevel.Warning)]
+        public void HostingListenerWarning(string message, string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(22, message, exception, this.ApplicationName);
         }
 
         /// <summary>
