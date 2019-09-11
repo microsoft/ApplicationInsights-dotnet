@@ -40,7 +40,8 @@
         private bool disableTelemetry = false;
         private TelemetryProcessorChainBuilder builder;
         private MetricManager metricManager = null;
-
+        private IApplicationIdProvider applicationIdProvider;
+    
         /// <summary>
         /// Indicates if this instance has been disposed of.
         /// </summary>
@@ -94,6 +95,8 @@
             }
 
             this.instrumentationKey = instrumentationKey;
+
+            SetTelemetryChannelEndpoint(channel, this.Endpoint.FormattedIngestionEndpoint);
             var defaultSink = new TelemetrySink(this, channel);
             defaultSink.Name = "default";
             this.telemetrySinks.Add(defaultSink);
@@ -225,7 +228,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the telemetry channel for the default sink.
+        /// Gets or sets the telemetry channel for the default sink. Will also attempt to set the Channel's endpoint.
         /// </summary>
         public ITelemetryChannel TelemetryChannel
         {
@@ -240,6 +243,7 @@
                 if (!this.isDisposed)
                 {
                     this.telemetrySinks.DefaultSink.TelemetryChannel = value;
+                    SetTelemetryChannelEndpoint(this.telemetrySinks.DefaultSink.TelemetryChannel, this.Endpoint.FormattedIngestionEndpoint);
                 }
             }
         }
@@ -250,7 +254,19 @@
         /// <remarks>
         /// This feature is opt-in and must be configured to be enabled.
         /// </remarks>
-        public IApplicationIdProvider ApplicationIdProvider { get; set; }
+        public IApplicationIdProvider ApplicationIdProvider
+        {
+            get
+            {
+                return this.applicationIdProvider;
+            }
+
+            set
+            {
+                this.applicationIdProvider = value;
+                SetApplicationIdEndpoint(this.applicationIdProvider, this.Endpoint.FormattedApplicationIdEndpoint);
+            }
+        }
 
         /// <summary>
         /// Gets the Endpoint Controller responsible for making service endpoints available.
@@ -285,33 +301,58 @@
                     // UPDATE TELEMETRY CHANNEL
                     foreach (var tSink in this.TelemetrySinks)
                     {
-                        if (tSink.TelemetryChannel is InMemoryChannel || tSink.TelemetryChannel.GetType().FullName == "Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel")
-                        {
-                            tSink.TelemetryChannel.EndpointAddress = new Uri(this.Endpoint.Ingestion, "v2/track").AbsoluteUri;
-                        }
+                        SetTelemetryChannelEndpoint(tSink.TelemetryChannel, this.Endpoint.FormattedIngestionEndpoint);
                     }
 
                     // UPDATE APPLICATION ID PROVIDER
                     // NOTE: This can be removed when the Indexer Service goes live sometime in 2020.
-                    if (this.ApplicationIdProvider != null)
-                    {
-                        if (this.ApplicationIdProvider is ApplicationInsightsApplicationIdProvider applicationIdProvider)
-                        {
-                            applicationIdProvider.ProfileQueryEndpoint = this.Endpoint.Ingestion.AbsoluteUri + "api/profiles/{0}/appId";
-                        }
-                        else if (this.ApplicationIdProvider is DictionaryApplicationIdProvider dictionaryApplicationIdProvider)
-                        {
-                            if (dictionaryApplicationIdProvider.Next is ApplicationInsightsApplicationIdProvider innerApplicationIdProvider)
-                            {
-                                innerApplicationIdProvider.ProfileQueryEndpoint = this.Endpoint.Ingestion.AbsoluteUri + "api/profiles/{0}/appId";
-                            }
-                        }
-                    }
+                    SetApplicationIdEndpoint(this.ApplicationIdProvider, this.Endpoint.FormattedApplicationIdEndpoint);
                 }
                 catch (Exception ex)
                 {
                     // TODO: LOG TO ETW ERROR: Could not set Connection String. Log Inner Exception.
                     throw;
+                }
+            }
+        }
+
+        /// <summary>
+        /// This will check the ApplicationIdProvider and attempt to set the endpoint.
+        /// This only supports our first party providers <see cref="ApplicationInsightsApplicationIdProvider"/> and <see cref="DictionaryApplicationIdProvider"/>.
+        /// </summary>
+        /// <param name="applicationIdProvider">ApplicationIdProvider to set.</param>
+        /// <param name="endpoint">Endpoint value to set.</param>
+        private static void SetApplicationIdEndpoint(IApplicationIdProvider applicationIdProvider, string endpoint)
+        {
+            if (applicationIdProvider != null)
+            {
+                if (applicationIdProvider is ApplicationInsightsApplicationIdProvider applicationInsightsApplicationIdProvider)
+                {
+                    applicationInsightsApplicationIdProvider.ProfileQueryEndpoint = endpoint;
+                }
+                else if (applicationIdProvider is DictionaryApplicationIdProvider dictionaryApplicationIdProvider)
+                {
+                    if (dictionaryApplicationIdProvider.Next is ApplicationInsightsApplicationIdProvider innerApplicationIdProvider)
+                    {
+                        innerApplicationIdProvider.ProfileQueryEndpoint = endpoint;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// This will check the TelemetryChannel and attempt to set the endpoint.
+        /// This only supports our first party providers <see cref="InMemoryChannel"/> and ServerTelemetryChannel.
+        /// </summary>
+        /// <param name="channel">TelemetryChannel to set.</param>
+        /// <param name="endpoint">Endpoint value to set.</param>
+        private static void SetTelemetryChannelEndpoint(ITelemetryChannel channel, string endpoint)
+        {
+            if (channel != null)
+            {
+                if (channel is InMemoryChannel || channel.GetType().FullName == "Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel")
+                {
+                    channel.EndpointAddress = endpoint;
                 }
             }
         }

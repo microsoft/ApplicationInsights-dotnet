@@ -111,7 +111,7 @@
         /// </summary>
         public string EndpointAddress
         {
-            get { return this.TelemetrySerializer.EndpointAddress.ToString(); }
+            get { return this.TelemetrySerializer.EndpointAddress?.ToString(); }
             set { this.TelemetrySerializer.EndpointAddress = new Uri(value); }
         }
 

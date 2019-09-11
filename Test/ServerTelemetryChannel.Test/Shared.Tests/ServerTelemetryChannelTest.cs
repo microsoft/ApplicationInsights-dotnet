@@ -433,6 +433,21 @@
         [TestClass]
         public class ServerTelemetryChannelConfigurationTests
         {
+            [TestMethod]
+            [TestCategory("ConnectionString")]
+            public void VerifyEndpointConnectionString_DefaultScenario()
+            {
+                var channel = new ServerTelemetryChannel();
+                Assert.AreEqual(null, channel.EndpointAddress);
+
+                var configuration = new TelemetryConfiguration
+                {
+                    TelemetryChannel = channel,
+                };
+
+                Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.Endpoint.Ingestion.AbsoluteUri);
+                Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", channel.EndpointAddress);
+            }
 
             [TestMethod]
             [TestCategory("ConnectionString")]

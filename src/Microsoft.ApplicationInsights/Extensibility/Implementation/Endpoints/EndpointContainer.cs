@@ -18,6 +18,12 @@
         /// <summary>Gets the endpoint for the Ingestion (aka Breeze) service.</summary>
         public Uri Ingestion { get; private set; }
 
+        /// <summary>Gets the fully formatted endpoint for the ingestion service.</summary>
+        internal string FormattedIngestionEndpoint => new Uri(this.Ingestion, "v2/track").AbsoluteUri;
+
+        /// <summary>Gets the fully formatted endpoint for the application id profile service.</summary>
+        internal string FormattedApplicationIdEndpoint => this.Ingestion.AbsoluteUri + "api/profiles/{0}/appId";
+
         /// <summary>Gets the endpoint for Live Metrics (aka QuickPulse) service.</summary>
         public Uri Live { get; private set; }
 
