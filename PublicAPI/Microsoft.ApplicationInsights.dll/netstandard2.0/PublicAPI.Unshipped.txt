@@ -1,5 +1,4 @@
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.EnableW3CCorrelation.set -> void
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.EnableW3CCorrelation.get -> bool
+Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental.ExperimentalFeaturesExtension
 Microsoft.ApplicationInsights.Extensibility.W3C.W3CUtilities
 static Microsoft.ApplicationInsights.Extensibility.W3C.W3CUtilities.GenerateTraceId() -> string
 Microsoft.ApplicationInsights.Extensibility.W3C.W3COperationCorrelationTelemetryInitializer
@@ -17,6 +16,8 @@ static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.Set
 static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.UpdateContextOnActivity(this System.Diagnostics.Activity activity) -> System.Diagnostics.Activity
 static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.UpdateTelemetry(this System.Diagnostics.Activity activity, Microsoft.ApplicationInsights.Channel.ITelemetry telemetry, bool forceUpdate) -> void
 Microsoft.ApplicationInsights.TelemetryClient.InitializeInstrumentationKey(Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> void
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ExperimentalFeatures.get -> System.Collections.Generic.IList<string>
+static Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental.ExperimentalFeaturesExtension.EvaluateExperimentalFeature(this Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration telemetryConfiguration, string featureName) -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryConfigurationExtensions
 static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryConfigurationExtensions.GetLastObservedSamplingPercentage(this Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration configuration, Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes samplingItemType) -> double
 static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryConfigurationExtensions.SetLastObservedSamplingPercentage(this Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration configuration, Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes samplingItemType, double value) -> void
@@ -45,26 +46,6 @@ Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ItemTypeFlag.get 
 Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
 Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
-Microsoft.ApplicationInsights.DataContracts.ISupportAdvancedSampling.IsSampledOutAtHead.get -> bool
-Microsoft.ApplicationInsights.DataContracts.ISupportAdvancedSampling.IsSampledOutAtHead.set -> void
-Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.IsSampledOutAtHead.get -> bool
-Microsoft.ApplicationInsights.DataContracts.EventTelemetry.IsSampledOutAtHead.get -> bool
-Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.IsSampledOutAtHead.get -> bool
-Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.IsSampledOutAtHead.get -> bool
-Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.IsSampledOutAtHead.get -> bool
-Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.IsSampledOutAtHead.get -> bool
-Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.IsSampledOutAtHead.get -> bool
-Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.IsSampledOutAtHead.set -> void
-Microsoft.ApplicationInsights.DataContracts.EventTelemetry.IsSampledOutAtHead.set -> void
-Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.IsSampledOutAtHead.set -> void
-Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.IsSampledOutAtHead.set -> void
-Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.IsSampledOutAtHead.set -> void
-Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.IsSampledOutAtHead.set -> void
-Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.IsSampledOutAtHead.set -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental.ExperimentalFeaturesExtension
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ExperimentalFeatures.get -> System.Collections.Generic.IList<string>
-static Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental.ExperimentalFeaturesExtension.EvaluateExperimentalFeature(this Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration telemetryConfiguration, string featureName) -> bool
-
 Microsoft.ApplicationInsights.Extensibility.Implementation.TaskTimer.TaskTimer() -> void
 Microsoft.ApplicationInsights.Extensibility.W3C.W3COperationCorrelationTelemetryInitializer.W3COperationCorrelationTelemetryInitializer() -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryDebugWriter.TelemetryDebugWriter() -> void
@@ -73,3 +54,23 @@ Microsoft.ApplicationInsights.Extensibility.SequencePropertyInitializer.Sequence
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.OperationTelemetry() -> void
 Microsoft.ApplicationInsights.Extensibility.OperationCorrelationTelemetryInitializer.OperationCorrelationTelemetryInitializer() -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.DictionaryApplicationIdProvider() -> void
+Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.SamplingDecision.None = 0 -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.SamplingDecision.SampledIn = 1 -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.SamplingDecision.SampledOut = 2 -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.ProactiveSamplingDecision.get -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.ProactiveSamplingDecision.get -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.ProactiveSamplingDecision.get -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.EventTelemetry.ProactiveSamplingDecision.get -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ProactiveSamplingDecision.get -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.ProactiveSamplingDecision.get -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.ProactiveSamplingDecision.get -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.ISupportAdvancedSampling.ProactiveSamplingDecision.get -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.ProactiveSamplingDecision.set -> void
+Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.ProactiveSamplingDecision.set -> void
+Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.ProactiveSamplingDecision.set -> void
+Microsoft.ApplicationInsights.DataContracts.EventTelemetry.ProactiveSamplingDecision.set -> void
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ProactiveSamplingDecision.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.ProactiveSamplingDecision.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.ProactiveSamplingDecision.set -> void
+Microsoft.ApplicationInsights.DataContracts.ISupportAdvancedSampling.ProactiveSamplingDecision.set -> void

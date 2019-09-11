@@ -23,7 +23,7 @@
         public void VerifyExpectedDefaultValue()
         {
             var exceptionTelemetry = new ExceptionTelemetry();
-            Assert.IsFalse(exceptionTelemetry.IsSampledOutAtHead);
+            Assert.AreEqual(SamplingDecision.None, exceptionTelemetry.ProactiveSamplingDecision);
             Assert.AreEqual(SamplingTelemetryItemTypes.Exception, exceptionTelemetry.ItemTypeFlag);
         }
 

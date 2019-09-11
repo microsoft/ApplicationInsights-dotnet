@@ -59,6 +59,25 @@
             }
 
             [TestMethod]
+            public void InitializeCatchAllExceptionsAndDoesNotSetCapacity()
+            {
+                var network = new StubNetwork { OnIsAvailable = () => { throw new Exception("error"); } };
+                var policy = new NetworkAvailabilityTransmissionPolicy(network);
+
+                try
+                {
+                    policy.Initialize(new StubTransmitter());
+                }
+                catch(Exception ex)
+                {
+                    Assert.Fail("No exception should have been thrown from Initialize. Exception thrown: " + ex.ToString());
+                }
+
+                Assert.IsNull(policy.MaxSenderCapacity);
+                Assert.IsNull(policy.MaxBufferCapacity);
+            }
+
+            [TestMethod]
             public void DoesNotSetMaxSenderAndBufferCapacitiesToZeroWhenNetworkIsAvailable()
             {
                 var network = new StubNetwork { OnIsAvailable = () => true };

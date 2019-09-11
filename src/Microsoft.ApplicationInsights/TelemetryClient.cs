@@ -481,14 +481,17 @@
             ISupportAdvancedSampling telemetryWithSampling = telemetry as ISupportAdvancedSampling;
 
             // Telemetry can be already sampled out if that decision was made before calling Track()
-            bool sampledOut = telemetryWithSampling?.IsSampledOutAtHead ?? false;
+            bool sampledOut = false;
+            if (telemetryWithSampling != null)
+            {
+                sampledOut = telemetryWithSampling.ProactiveSamplingDecision == SamplingDecision.SampledOut;
+            }
 
             if (!sampledOut)
             {
-                var telemetryWithProperties = telemetry as ISupportProperties;
-                if (telemetryWithProperties != null)
+                if (telemetry is ISupportProperties telemetryWithProperties)
                 {
-                    if ((this.configuration.TelemetryChannel != null) && (this.configuration.TelemetryChannel.DeveloperMode.HasValue && this.configuration.TelemetryChannel.DeveloperMode.Value))
+                    if (this.configuration.TelemetryChannel?.DeveloperMode != null && this.configuration.TelemetryChannel.DeveloperMode.Value)
                     {
                         if (!telemetryWithProperties.Properties.ContainsKey("DeveloperMode"))
                         {

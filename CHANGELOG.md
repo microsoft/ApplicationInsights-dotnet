@@ -8,8 +8,13 @@ This changelog will be used to generate documentation on [release notes page](ht
 - [Fix: Channels not handling AggregateException, not logging full HttpRequestException.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1173)
 - [Metric Aggregator background thread safeguards added to never throw unhandled exception.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1179)
 - [Updated version of System.Diagnostics.DiagnosticSource to 4.6.0-preview7.19362.9. Also remove marking SDK as CLS-Compliant](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1183)
-- [Make BaseSDK use W3C Trace Context based correlation by default. Set TelemetryConfiguration.EnableW3CCorrelation=false to disable this.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1193)
 - [Enhancement: Exceptions thrown by the TelemetryConfiguration will now specify the exact name of the property that could not be parsed from a config file.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1194)
+- [Fix: ServerTelemetryChannel constructor exception when network info API throws.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1184)
+- [Make BaseSDK use W3C Trace Context based correlation by default. Set TelemetryConfiguration.EnableW3CCorrelation=false to disable this.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1193)
+- [Removed TelemetryConfiguration.EnableW3CCorrelation. Users should do Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical; Activity.ForceDefaultIdFormat = true; to disable W3C Format](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1198)
+- [Enable sampling based on upstream sampling decision for adaptive sampling](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1200)
+- [Fix: StartOperation ignores user-provided custom Ids in scope of Activity](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1205)
+- [Set tracestate if available on requests and dependencies](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1207)
 
 ## Version 2.11.0-beta1
 - [Performance fixes: Support Head Sampling; Remove NewGuid(); Sampling Flags; etc... ](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1158)

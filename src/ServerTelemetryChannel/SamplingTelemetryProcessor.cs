@@ -28,13 +28,9 @@
         /// </summary>
         public SamplingTelemetryProcessor(ITelemetryProcessor next)
         {
-            if (next == null)
-            {
-                throw new ArgumentNullException(nameof(next));
-            }
-
             this.SamplingPercentage = 100.0;
-            this.SampledNext = next;
+            this.ProactiveSamplingPercentage = null;
+            this.SampledNext = next ?? throw new ArgumentNullException(nameof(next));
             this.UnsampledNext = next;
         }
 
@@ -119,6 +115,11 @@
         public double SamplingPercentage { get; set; }
 
         /// <summary>
+        /// Gets or sets current proactive-sampling percentage of telemetry items.
+        /// </summary>
+        internal double? ProactiveSamplingPercentage { get; set; }
+
+        /// <summary>
         /// Gets or sets the next TelemetryProcessor in call chain to send evaluated (sampled) telemetry items to.
         /// </summary>
         private ITelemetryProcessor SampledNext { get; set; }
@@ -182,7 +183,26 @@
             //// Ok, now we can actually sample:
 
             samplingSupportingTelemetry.SamplingPercentage = samplingPercentage;
-            bool isSampledIn = SamplingScoreGenerator.GetSamplingScore(item) < samplingPercentage;
+
+            bool isSampledIn;
+
+            // if this is executed in adaptive sampling processor (rate ratio has value), 
+            // and item supports proactive sampling and was sampled in before, we'll give it more weight
+            if (this.ProactiveSamplingPercentage.HasValue &&
+                advancedSamplingSupportingTelemetry != null &&
+                advancedSamplingSupportingTelemetry.ProactiveSamplingDecision == SamplingDecision.SampledIn)
+            {
+                // if current rate of proactively sampled-in telemetry is too high, ProactiveSamplingPercentage is low:
+                // we'll sample in as much proactively sampled in items as we can (based on their sampling score)
+                // so that we still keep target rate.
+                // if current rate of proactively sampled-in telemetry is less that configured, ProactiveSamplingPercentage
+                // is high - it could be > 100 - and we'll sample in all items with proactive SampledIn decision (plus some more in else branch).
+                isSampledIn = SamplingScoreGenerator.GetSamplingScore(item) < this.ProactiveSamplingPercentage;
+            }
+            else
+            {
+                isSampledIn = SamplingScoreGenerator.GetSamplingScore(item) < samplingPercentage;
+            }
 
             if (isSampledIn)
             {
@@ -212,7 +232,7 @@
 
             if (advancedSamplingSupportingTelemetry != null)
             {
-                if (advancedSamplingSupportingTelemetry.IsSampledOutAtHead)
+                if (advancedSamplingSupportingTelemetry.ProactiveSamplingDecision == SamplingDecision.SampledOut)
                 {
                     // Item is sampled in but was proactively sampled out: store the amount of items it represented and drop it
                     this.proactivelySampledOutCounters.AddItems(advancedSamplingSupportingTelemetry.ItemTypeFlag, Convert.ToInt64(100 / currentSamplingPercentage));

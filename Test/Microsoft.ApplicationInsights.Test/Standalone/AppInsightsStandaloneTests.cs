@@ -43,20 +43,27 @@
         [TestMethod]
         public void AppInsightsUsesActivityWhenDiagnosticSourceIsAvailableNonW3C()
         {
-            // Regular use case - System.DiagnosticSource is available. Regular unit test can cover this scenario.
-            var config = new TelemetryConfiguration();
-            config.EnableW3CCorrelation = false;
-            config.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
-            var tc = new TelemetryClient(config);
-            using (var requestOperation = tc.StartOperation<RequestTelemetry>("request", "guid"))
+            try
             {
-                using (var dependencyOperation = tc.StartOperation<DependencyTelemetry>("dependency", "guid"))
+                // Regular use case - System.DiagnosticSource is available. Regular unit test can cover this scenario.
+                var config = new TelemetryConfiguration();
+                DisableW3CFormatInActivity();
+                config.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
+                var tc = new TelemetryClient(config);
+                using (var requestOperation = tc.StartOperation<RequestTelemetry>("request", "guid"))
                 {
-                    Assert.IsTrue(dependencyOperation.Telemetry.Id.StartsWith("|guid."));
-                    tc.TrackTrace("Hello World!");
+                    using (var dependencyOperation = tc.StartOperation<DependencyTelemetry>("dependency", "guid"))
+                    {
+                        Assert.IsTrue(dependencyOperation.Telemetry.Id.StartsWith("|guid."));
+                        tc.TrackTrace("Hello World!");
+                    }
                 }
             }
-        }
+            finally
+            {
+                EnableW3CFormatInActivity();
+            }
+        }       
 
         [TestMethod]
         public void AppInsightsUsesActivityWhenDiagnosticSourceIsAvailableW3C()
@@ -105,6 +112,18 @@
            
 
             return p.StandardOutput.ReadToEnd();
+        }
+
+        private static void DisableW3CFormatInActivity()
+        {
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
+        }
+
+        private static void EnableW3CFormatInActivity()
+        {
+            Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+            Activity.ForceDefaultIdFormat = true;
         }
 
         private static bool CreateTestApplication(string fileName)
