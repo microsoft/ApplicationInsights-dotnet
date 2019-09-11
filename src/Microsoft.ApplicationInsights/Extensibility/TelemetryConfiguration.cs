@@ -89,12 +89,7 @@
         /// <param name="channel">The telemetry channel to provide with this configuration instance.</param>
         public TelemetryConfiguration(string instrumentationKey, ITelemetryChannel channel)
         {
-            if (instrumentationKey == null)
-            {
-                throw new ArgumentNullException(nameof(instrumentationKey));
-            }
-
-            this.instrumentationKey = instrumentationKey;
+            this.instrumentationKey = instrumentationKey ?? throw new ArgumentNullException(nameof(instrumentationKey));
 
             SetTelemetryChannelEndpoint(channel, this.Endpoint.FormattedIngestionEndpoint);
             var defaultSink = new TelemetrySink(this, channel);
