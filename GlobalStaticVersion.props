@@ -8,7 +8,7 @@
     <SemanticVersionMajor>2</SemanticVersionMajor>
     <SemanticVersionMinor>11</SemanticVersionMinor>
     <SemanticVersionPatch>0</SemanticVersionPatch>
-    <PreReleaseMilestone>beta1</PreReleaseMilestone>
+    <PreReleaseMilestone>beta2</PreReleaseMilestone>
     <!-- 
       Date when Semantic Version was changed. 
       Update for every public release.
