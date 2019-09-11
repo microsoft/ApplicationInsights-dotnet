@@ -2151,6 +2151,19 @@
 
         #endregion Preaggregated metrics
 
+        #region Connection Strings
+
+        [TestMethod]
+        [TestCategory("ConnectionString")]
+        public void VerifyEndpointConnectionString_DefaultScenario()
+        {
+            var telemetryClient = new TelemetryClient();
+
+            Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", telemetryClient.TelemetryConfiguration.DefaultTelemetrySink.TelemetryChannel.EndpointAddress);
+        }
+
+        #endregion
+
         private TelemetryClient InitializeTelemetryClient(ICollection<ITelemetry> sentTelemetry)
         {
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
