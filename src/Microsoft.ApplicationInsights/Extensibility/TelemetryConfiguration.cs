@@ -10,6 +10,7 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Sampling;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -78,11 +79,6 @@
         /// <param name="instrumentationKey">The instrumentation key this configuration instance will provide.</param>
         public TelemetryConfiguration(string instrumentationKey) : this(instrumentationKey, null)
         {
-        }
-
-        public TelemetryConfiguration(ITelemetryChannel channel, string connectionString)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -286,6 +282,7 @@
 
                     this.Endpoint = new EndpointContainer(endpointProvider);
 
+                    // UPDATE TELEMETRY CHANNEL
                     foreach (var tSink in this.TelemetrySinks)
                     {
                         if (tSink.TelemetryChannel is InMemoryChannel || tSink.TelemetryChannel.GetType().FullName == "Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel")
@@ -294,7 +291,22 @@
                         }
                     }
 
-                    // TODO: NEED TO UPDATE ApplicationIdProvider's Endpoint
+                    // UPDATE APPLICATION ID PROVIDER
+                    // NOTE: This can be removed when the Indexer Service goes live sometime in 2020.
+                    if (this.ApplicationIdProvider != null)
+                    {
+                        if (this.ApplicationIdProvider is ApplicationInsightsApplicationIdProvider applicationIdProvider)
+                        {
+                            applicationIdProvider.ProfileQueryEndpoint = this.Endpoint.Ingestion.AbsoluteUri + "api/profiles/{0}/appId";
+                        }
+                        else if (this.ApplicationIdProvider is DictionaryApplicationIdProvider dictionaryApplicationIdProvider)
+                        {
+                            if (dictionaryApplicationIdProvider.Next is ApplicationInsightsApplicationIdProvider innerApplicationIdProvider)
+                            {
+                                innerApplicationIdProvider.ProfileQueryEndpoint = this.Endpoint.Ingestion.AbsoluteUri + "api/profiles/{0}/appId";
+                            }
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {

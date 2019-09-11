@@ -101,7 +101,7 @@
         /// </summary>
         /// <param name="instrumentationKey">AI resource's Instrumentation Key.</param>
         /// <returns>Computed Uri.</returns>
-        private Uri GetApplicationIdEndPointUri(string instrumentationKey)
+        internal Uri GetApplicationIdEndPointUri(string instrumentationKey)
         {
             return new Uri(string.Format(CultureInfo.InvariantCulture, this.ProfileQueryEndpoint ?? Constants.ProfileQueryEndpoint, instrumentationKey));
         }

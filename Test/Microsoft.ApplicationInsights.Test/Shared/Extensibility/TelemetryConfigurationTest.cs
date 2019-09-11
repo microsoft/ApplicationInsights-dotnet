@@ -12,6 +12,7 @@
     using Microsoft.ApplicationInsights.Channel;
 
     using System.Diagnostics;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
 
     [TestClass]
     public class TelemetryConfigurationTest
@@ -390,11 +391,80 @@
 
         [TestMethod]
         [TestCategory("ConnectionString")]
-        public void E2E_ConfigConstructor()
+        public void VerifySetConnectionString_SetsApplicationIdProvider_DefaultEndpoint()
         {
-            var tConfig = new TelemetryConfiguration(new InMemoryChannel(), "https://127.0.0.1/");
+            var connectionString = $"InstrumentationKey=00000000-0000-0000-0000-000000000000";
 
-            Assert.AreEqual("https://127.0.0.1/v2/track", tConfig.DefaultTelemetrySink.TelemetryChannel.EndpointAddress);
+            var applicationIdProvider = new ApplicationInsightsApplicationIdProvider();
+
+            var configuration = new TelemetryConfiguration
+            {
+                ApplicationIdProvider = applicationIdProvider,
+                ConnectionString = connectionString,
+            };
+
+            Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.Endpoint.Ingestion.AbsoluteUri);
+            Assert.AreEqual("https://dc.services.visualstudio.com/api/profiles/{0}/appId", applicationIdProvider.ProfileQueryEndpoint);
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionString")]
+        public void VerifySetConnectionString_SetsApplicationIdProvider_DefaultEndpoint2()
+        {
+            var connectionString = $"InstrumentationKey=00000000-0000-0000-0000-000000000000";
+
+            var applicationIdProvider = new ApplicationInsightsApplicationIdProvider();
+
+            var configuration = new TelemetryConfiguration
+            {
+                ConnectionString = connectionString,
+            };
+
+            configuration.ApplicationIdProvider = applicationIdProvider;
+
+            Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.Endpoint.Ingestion.AbsoluteUri);
+            Assert.AreEqual(null, applicationIdProvider.ProfileQueryEndpoint);
+        }
+
+
+        [TestMethod]
+        [TestCategory("ConnectionString")]
+        public void VerifySetConnectionString_SetsApplicationIdProvider_DefaultEndpoint3()
+        {
+            var connectionString = $"InstrumentationKey=00000000-0000-0000-0000-000000000000";
+
+            var applicationIdProvider = new ApplicationInsightsApplicationIdProvider();
+            var dictionaryApplicationIdProvider = new DictionaryApplicationIdProvider
+            {
+                Next = applicationIdProvider
+            };
+
+            var configuration = new TelemetryConfiguration
+            {
+                ConnectionString = connectionString,
+            };
+
+            configuration.ApplicationIdProvider = applicationIdProvider;
+
+            Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.Endpoint.Ingestion.AbsoluteUri);
+            Assert.AreEqual(null, applicationIdProvider.ProfileQueryEndpoint);
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionString")]
+        public void VerifySetConnectionString_IgnoresDictionaryApplicationIdProvider()
+        {
+            var connectionString = $"InstrumentationKey=00000000-0000-0000-0000-000000000000";
+
+            var applicationIdProvider = new DictionaryApplicationIdProvider();
+
+            var configuration = new TelemetryConfiguration
+            {
+                ApplicationIdProvider = applicationIdProvider,
+                ConnectionString = connectionString,
+            };
+
+            Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.Endpoint.Ingestion.AbsoluteUri);
         }
 
         #endregion
