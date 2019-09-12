@@ -2,10 +2,10 @@ pool:
   vmImage: 'ubuntu-16.04'
 steps:
 
-- task: DotNetCoreInstaller@0
-  displayName: install dotnet core 2.1.500
+- task: DotNetCoreInstaller@2
+  displayName: install dotnet core 3.0.100-preview8-013656
   inputs:
-    version: "2.1.500"
+    version: "3.0.100-preview8-013656"
     
 - task: DotNetCoreCLI@1
   displayName: Restore solutions
@@ -21,36 +21,47 @@ steps:
     arguments: "--configuration Release"
 
 - task: DotNetCoreCLI@1
-  displayName: Test 2.0
+  displayName: Functional Tests 3.0
+  continueOnError: true
+  inputs:
+    command: "test"
+    projects: "test/**/TestApp30.Tests30.csproj"
+    arguments: "--configuration Release -l trx"
+
+- task: DotNetCoreInstaller@2
+  displayName: install dotnet core 2.2.104
+  inputs:
+    version: "2.2.104"
+    
+- task: DotNetCoreCLI@1
+  displayName: Functional Tests 2.0
   continueOnError: true
   inputs:
     command: "test"
     projects: "test/**/*Tests20.csproj"
     arguments: "--configuration Release -l trx"
 
-- task: DotNetCoreInstaller@0
-  displayName: install dotnet core 1.1.5
-  inputs:
-    version: "1.1.5"
-
 - task: DotNetCoreCLI@1
-  displayName: Test 1.1.5
+  displayName: Unit Tests for AspNetCore
   continueOnError: true
   inputs:
     command: "test"
-    projects: "test/**/*Tests.csproj"
-    arguments: "--configuration Release -l trx --filter Category!=WindowsOnly"
+    projects: "test/**/*AspNetCore.Tests.csproj"
+    arguments: "--configuration Release -l trx"
+
+- task: DotNetCoreCLI@1
+  displayName: Unit Tests + Func Tests for WorkerService
+  continueOnError: true
+  inputs:
+    command: "test"
+    projects: "test/**/*WorkerService.Tests.csproj"
+    arguments: "--configuration Release -l trx"
 
 
 - task: PublishTestResults@2
   inputs:
     testRunner: "VSTest"
     testResultsFiles: "**/*.trx"
-
-- task: DotNetCoreInstaller@0
-  displayName: install dotnet core 2.1.500
-  inputs:
-    version: "2.1.500"
 
 - task: DotNetCoreCLI@1
   displayName: Package Nuget

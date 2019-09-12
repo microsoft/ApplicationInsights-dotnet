@@ -14,6 +14,7 @@
         /// <summary>
         /// Get the Assembly Version with SDK prefix.
         /// </summary>
+        /// <returns>assembly version prefixed with versionprefix.</returns>
         internal static string GetVersion()
         {
             return VersionPrefix + GetAssemblyVersion();

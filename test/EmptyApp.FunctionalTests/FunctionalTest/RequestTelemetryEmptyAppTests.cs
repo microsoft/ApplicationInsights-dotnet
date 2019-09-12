@@ -47,8 +47,7 @@
                 this.ValidateBasicRequest(server, RequestPath, expectedRequestTelemetry);
             }
         }
-
-        [Fact]
+        
         public void TestMixedTelemetryItemsReceived()
         {
             InProcessServer server;

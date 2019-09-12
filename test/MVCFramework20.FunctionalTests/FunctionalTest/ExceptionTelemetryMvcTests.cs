@@ -1,7 +1,7 @@
 ﻿using Xunit;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
-namespace MVCFramework20.FunctionalTests.FunctionalTest
+namespace MVC20.FuncTests
 {
     using System;
     using FunctionalTestUtils;

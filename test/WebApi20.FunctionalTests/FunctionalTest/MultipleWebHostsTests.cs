@@ -8,7 +8,7 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace WebApi20.FunctionalTests20.FunctionalTest
+namespace WebApi20.FuncTests
 {
     public class MultipleWebHostsTests : TelemetryTestsBase
     {
@@ -19,7 +19,6 @@ namespace WebApi20.FunctionalTests20.FunctionalTest
         {
         }
 
-        [Fact]
         public void TwoWebHostsCreatedSequentially()
         {
             using (var server1 = new InProcessServer(assemblyName, this.output))
@@ -51,7 +50,6 @@ namespace WebApi20.FunctionalTests20.FunctionalTest
             }
         }
 
-        [Fact]
         public void TwoWebHostsCreatedInParallel()
         {
             using (var server1 = new InProcessServer(assemblyName, this.output))

@@ -1,4 +1,4 @@
-﻿namespace MVCFramework20.FunctionalTests.FunctionalTest
+﻿namespace MVC20.FuncTests
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -87,7 +87,6 @@
             }
         }
 
-        [Fact]
         public void TestMixedTelemetryItemsReceived()
         {
             using (var server = new InProcessServer(assemblyName, this.output))

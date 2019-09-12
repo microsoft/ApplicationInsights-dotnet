@@ -8,6 +8,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.ApplicationInsights.AspNetCore.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNetCore.Hosting;
 
@@ -31,7 +32,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestTrackingTelemetryModule"/> class.
         /// </summary>
-        public RequestTrackingTelemetryModule() 
+        public RequestTrackingTelemetryModule()
             : this(null)
         {
             this.CollectionOptions = new RequestCollectionOptions();
@@ -68,14 +69,29 @@ namespace Microsoft.ApplicationInsights.AspNetCore
                         {
                             this.telemetryClient = new TelemetryClient(configuration);
 
-                            bool enableNewDiagnosticEvents = true;
+                            // Assume default = 3, as its possible that IWebHostBuilder be removed in future and we hit exception.
+                            AspNetCoreMajorVersion aspNetCoreMajorVersion = AspNetCoreMajorVersion.Three;
+
                             try
                             {
-                                enableNewDiagnosticEvents = typeof(IWebHostBuilder).GetTypeInfo().Assembly.GetName().Version.Major >= 2;
+                                var version = typeof(IWebHostBuilder).GetTypeInfo().Assembly.GetName().Version.Major;
+
+                                if (version < 2)
+                                {
+                                    aspNetCoreMajorVersion = AspNetCoreMajorVersion.One;
+                                }
+                                else if (version == 2)
+                                {
+                                    aspNetCoreMajorVersion = AspNetCoreMajorVersion.Two;
+                                }
+                                else
+                                {
+                                    aspNetCoreMajorVersion = AspNetCoreMajorVersion.Three;
+                                }                                
                             }
-                            catch (Exception)
+                            catch (Exception e)
                             {
-                                // ignore any errors
+                                AspNetCoreEventSource.Instance.LogError($"Exception occured while attempting to find Asp.Net Core Major version. Assuming {aspNetCoreMajorVersion.ToString()} and continuing. Exception: {e.Message}");
                             }
 
                             this.diagnosticListener = new HostingDiagnosticListener(
@@ -85,7 +101,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
                                 this.CollectionOptions.InjectResponseHeaders,
                                 this.CollectionOptions.TrackExceptions,
                                 this.CollectionOptions.EnableW3CDistributedTracing,
-                                enableNewDiagnosticEvents);
+                                aspNetCoreMajorVersion);
 
                             this.subscriptions?.Add(DiagnosticListener.AllListeners.Subscribe(this));
 

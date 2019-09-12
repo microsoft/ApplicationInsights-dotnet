@@ -28,8 +28,8 @@
         {
             if (string.IsNullOrEmpty(telemetry.Context.Operation.SyntheticSource))
             {
-                var runIdHeader = platformContext.Request.Headers[SyntheticTestRunId];
-                var locationHeader = platformContext.Request.Headers[SyntheticTestLocation];
+                var runIdHeader = platformContext.Request?.Headers[SyntheticTestRunId];
+                var locationHeader = platformContext.Request?.Headers[SyntheticTestLocation];
 
                 if (!string.IsNullOrEmpty(runIdHeader) &&
                     !string.IsNullOrEmpty(locationHeader))
