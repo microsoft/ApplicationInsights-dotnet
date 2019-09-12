@@ -47,8 +47,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         public static ServiceCollection GetServiceCollectionWithContextAccessor()
         {
             var services = new ServiceCollection();
-            IHttpContextAccessor contextAccessor = new HttpContextAccessor();
-            services.AddSingleton<IHttpContextAccessor>(contextAccessor);
             services.AddSingleton<IHostingEnvironment>(new HostingEnvironment() { ContentRootPath = Directory.GetCurrentDirectory()});
             services.AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
             return services;
@@ -65,6 +63,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [InlineData(typeof(ITelemetryInitializer), typeof(SyntheticTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(WebSessionTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(WebUserTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(HttpDependenciesParsingTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(TelemetryConfiguration), null, ServiceLifetime.Singleton)]
             [InlineData(typeof(TelemetryClient), typeof(TelemetryClient), ServiceLifetime.Singleton)]
             public static void RegistersExpectedServices(Type serviceType, Type implementationType, ServiceLifetime lifecycle)
@@ -83,6 +82,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [InlineData(typeof(ITelemetryInitializer), typeof(SyntheticTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(WebSessionTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(WebUserTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(HttpDependenciesParsingTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(TelemetryConfiguration), null, ServiceLifetime.Singleton)]
             [InlineData(typeof(TelemetryClient), typeof(TelemetryClient), ServiceLifetime.Singleton)]
             public static void RegistersExpectedServicesOnlyOnce(Type serviceType, Type implementationType, ServiceLifetime lifecycle)
@@ -542,13 +542,18 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
                 //VALIDATE
                 Assert.Equal(23, eventCounterModule.Counters.Count);
-                eventCounterModule.Counters.FirstOrDefault<EventCounterCollectionRequest>(
-                    eventCounterCollectionRequest => eventCounterCollectionRequest.EventSourceName == "System.Runtime" 
+                
+                // sanity check with a sample counter.
+                var cpuCounterRequest = eventCounterModule.Counters.FirstOrDefault<EventCounterCollectionRequest>(
+                    eventCounterCollectionRequest => eventCounterCollectionRequest.EventSourceName == "System.Runtime"
                     && eventCounterCollectionRequest.EventCounterName == "cpu-usage");
+                Assert.NotNull(cpuCounterRequest);
 
-                eventCounterModule.Counters.FirstOrDefault<EventCounterCollectionRequest>(
-                    eventCounterCollectionRequest => eventCounterCollectionRequest.EventSourceName == "Microsoft.AspNetCore"
-                    && eventCounterCollectionRequest.EventCounterName == "requests-per-second");
+                // sanity check - asp.net counters should be added
+                var aspnetCounterRequest = eventCounterModule.Counters.Where<EventCounterCollectionRequest>(
+                    eventCounterCollectionRequest => eventCounterCollectionRequest.EventSourceName == "Microsoft.AspNetCore.Hosting");
+                Assert.NotNull(aspnetCounterRequest);
+                Assert.True(aspnetCounterRequest.Count() == 4);
             }
 #endif
 
@@ -1066,8 +1071,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.Single(requestTracking);
                 Assert.Single(dependencyTracking);
 
-                Assert.True(requestTracking.Single().CollectionOptions.EnableW3CDistributedTracing);
-                Assert.True(dependencyTracking.Single().EnableW3CHeadersInjection);
+                Assert.True(Activity.DefaultIdFormat == ActivityIdFormat.W3C);
+                Assert.True(Activity.ForceDefaultIdFormat);
             }
 
             private static int GetTelemetryProcessorsCountInConfiguration<T>(TelemetryConfiguration telemetryConfiguration)

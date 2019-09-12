@@ -42,11 +42,19 @@ steps:
     arguments: "--configuration Release -l trx"
 
 - task: DotNetCoreCLI@1
-  displayName: Unit Tests
+  displayName: Unit Tests for AspNetCore
   continueOnError: true
   inputs:
     command: "test"
     projects: "test/**/*AspNetCore.Tests.csproj"
+    arguments: "--configuration Release -l trx"
+
+- task: DotNetCoreCLI@1
+  displayName: Unit Tests + Func Tests for WorkerService
+  continueOnError: true
+  inputs:
+    command: "test"
+    projects: "test/**/*WorkerService.Tests.csproj"
     arguments: "--configuration Release -l trx"
 
 

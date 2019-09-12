@@ -3,9 +3,14 @@ namespace Microsoft.Extensions.DependencyInjection
     using System;
     using System.Collections.Generic;
     using System.Linq;
+#if AI_ASPNETCORE_WEB
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+#else
+    using Microsoft.ApplicationInsights.WorkerService;
+    using Microsoft.ApplicationInsights.WorkerService.Implementation.Tracing;
+#endif
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -14,7 +19,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.Extensions.Options;
     using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
-    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.DataContracts;    
 
     /// <summary>
     /// Initializes TelemetryConfiguration based on values in <see cref="ApplicationInsightsServiceOptions"/>
@@ -71,7 +76,11 @@ namespace Microsoft.Extensions.DependencyInjection
                         }
                         else
                         {
+#if AI_ASPNETCORE_WEB
                             AspNetCoreEventSource.Instance.UnableToFindModuleToConfigure(telemetryModuleConfigurator.TelemetryModuleType.ToString());
+#else
+                            WorkerServiceEventSource.Instance.UnableToFindModuleToConfigure(telemetryModuleConfigurator.TelemetryModuleType.ToString());
+#endif
                         }
                     }
                 }
@@ -127,10 +136,20 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 // Microsoft.ApplicationInsights.DependencyCollector.DependencyTrackingTelemetryModule depends on this nullable configuration to support Correlation.
                 configuration.ApplicationIdProvider = this.applicationIdProvider;
+
+#if AI_ASPNETCORE_WEB
+                AspNetCoreEventSource.Instance.LogInformational("Successfully configured TelemetryConfiguration.");
+#else
+                WorkerServiceEventSource.Instance.LogInformational("Successfully configured TelemetryConfiguration.");
+#endif
             }
             catch (Exception ex)
             {
+#if AI_ASPNETCORE_WEB
                 AspNetCoreEventSource.Instance.TelemetryConfigurationSetupFailure(ex.ToInvariantString());
+#else
+                WorkerServiceEventSource.Instance.TelemetryConfigurationSetupFailure(ex.ToInvariantString());
+#endif
             }
         }
 
@@ -151,7 +170,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 }
                 else
                 {
-                    AspNetCoreEventSource.Instance.UnableToFindQuickPulseModuleInDI();
+#if AI_ASPNETCORE_WEB
+                    AspNetCoreEventSource.Instance.UnableToFindModuleToConfigure("QuickPulseTelemetryModule");
+#else
+                    WorkerServiceEventSource.Instance.UnableToFindModuleToConfigure("QuickPulseTelemetryModule");
+#endif
                 }
             }
         }

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
+﻿#if AI_ASPNETCORE_WEB
+    namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
+#else
+    namespace Microsoft.ApplicationInsights.WorkerService
+#endif
 {
     using System.Reflection;
     using Microsoft.ApplicationInsights.DependencyCollector;
@@ -20,7 +24,9 @@
             this.EnableAuthenticationTrackingJavaScript = false;
             this.EnableHeartbeat = true;
             this.AddAutoCollectedMetricExtractor = true;
+#if AI_ASPNETCORE_WEB
             this.RequestCollectionOptions = new RequestCollectionOptions();
+#endif
             this.DependencyCollectionOptions = new DependencyCollectionOptions();
             this.ApplicationVersion = Assembly.GetEntryAssembly()?.GetName().Version.ToString();
         }
@@ -78,10 +84,13 @@
         /// </summary>
         public bool AddAutoCollectedMetricExtractor { get; set; }
 
+#if AI_ASPNETCORE_WEB
         /// <summary>
         /// Gets <see cref="RequestCollectionOptions"/> that allow to manage <see cref="RequestTrackingTelemetryModule"/>
         /// </summary>
         public RequestCollectionOptions RequestCollectionOptions { get; }
+#endif
+
 
         /// <summary>
         /// Gets <see cref="DependencyCollectionOptions"/> that allow to manage <see cref="DependencyTrackingTelemetryModule"/>

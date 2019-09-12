@@ -1,4 +1,8 @@
-﻿namespace Microsoft.ApplicationInsights.AspNetCore
+﻿#if AI_ASPNETCORE_WEB
+    namespace Microsoft.ApplicationInsights.AspNetCore
+#else
+    namespace Microsoft.ApplicationInsights.WorkerService
+#endif
 {
     using System;
     using Microsoft.ApplicationInsights.Extensibility;

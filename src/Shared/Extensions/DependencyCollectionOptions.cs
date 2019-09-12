@@ -1,4 +1,8 @@
-﻿namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
+﻿#if AI_ASPNETCORE_WEB
+    namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
+#else
+namespace Microsoft.ApplicationInsights.WorkerService
+#endif
 {
     /// <summary>
     /// Default collection options define the custom behavior or non-default features of dependency collection.
