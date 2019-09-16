@@ -32,6 +32,10 @@
         internal static IQuickPulseModuleScheduler moduleScheduler = QuickPulseThreadModuleScheduler.Instance;
 #endif
 
+        internal readonly LinkedList<IQuickPulseTelemetryProcessor> TelemetryProcessors = new LinkedList<IQuickPulseTelemetryProcessor>();
+
+        internal IQuickPulseServiceClient ServiceClient;
+
         private const int MaxSampleStorageSize = 10;
 
         private const int TopCpuCount = 5;
@@ -46,11 +50,7 @@
 
         private readonly LinkedList<QuickPulseDataSample> collectedSamples = new LinkedList<QuickPulseDataSample>();
 
-        private readonly LinkedList<IQuickPulseTelemetryProcessor> telemetryProcessors = new LinkedList<IQuickPulseTelemetryProcessor>();
-
         private TelemetryConfiguration config;
-
-        private IQuickPulseServiceClient serviceClient;
 
         private IQuickPulseModuleSchedulerHandle collectionThread;
 
@@ -102,7 +102,7 @@
         {
             this.collectionTimeSlotManager = collectionTimeSlotManager;
             this.dataAccumulatorManager = dataAccumulatorManager;
-            this.serviceClient = serviceClient;
+            this.ServiceClient = serviceClient;
             this.performanceCollector = performanceCollector;
             this.topCpuCollector = topCpuCollector;
             this.timings = timings;
@@ -191,7 +191,7 @@
                         this.InitializeServiceClient(configuration);
                         
                         this.stateManager = new QuickPulseCollectionStateManager(
-                            this.serviceClient,
+                            this.ServiceClient,
                             this.timeProvider,
                             this.timings,
                             this.OnStartCollection,
@@ -224,16 +224,16 @@
             lock (this.telemetryProcessorsLock)
             {
                 const int MaxTelemetryProcessorCount = 100;
-                if (!this.telemetryProcessors.Contains(quickPulseTelemetryProcessor))
+                if (!this.TelemetryProcessors.Contains(quickPulseTelemetryProcessor))
                 {
-                    this.telemetryProcessors.AddLast(quickPulseTelemetryProcessor);
+                    this.TelemetryProcessors.AddLast(quickPulseTelemetryProcessor);
 
-                    if (this.telemetryProcessors.Count > MaxTelemetryProcessorCount)
+                    if (this.TelemetryProcessors.Count > MaxTelemetryProcessorCount)
                     {
-                        this.telemetryProcessors.RemoveFirst();
+                        this.TelemetryProcessors.RemoveFirst();
                     }
 
-                    QuickPulseEventSource.Log.ProcessorRegistered(this.telemetryProcessors.Count.ToString(CultureInfo.InvariantCulture));
+                    QuickPulseEventSource.Log.ProcessorRegistered(this.TelemetryProcessors.Count.ToString(CultureInfo.InvariantCulture));
                 }
             }
         }
@@ -329,7 +329,7 @@
         
         private void InitializeServiceClient(TelemetryConfiguration configuration)
         {
-            if (this.serviceClient != null)
+            if (this.ServiceClient != null)
             {
                 // service client has been passed through a constructor, we don't need to do anything
                 return;
@@ -365,7 +365,7 @@
             var assemblyVersion = SdkVersionUtils.GetSdkVersion(null);
             bool isWebApp = PerformanceCounterUtility.IsWebAppRunningInAzure();
             int? processorCount = PerformanceCounterUtility.GetProcessorCount();
-            this.serviceClient = new QuickPulseServiceClient(
+            this.ServiceClient = new QuickPulseServiceClient(
                 serviceEndpointUri,
                 instanceName,
                 streamId,
@@ -600,11 +600,11 @@
 
             lock (this.telemetryProcessorsLock)
             {
-                foreach (var telemetryProcessor in this.telemetryProcessors)
+                foreach (var telemetryProcessor in this.TelemetryProcessors)
                 {
                     telemetryProcessor.StartCollection(
                         this.dataAccumulatorManager,
-                        this.serviceClient.ServiceUri,
+                        this.ServiceClient.ServiceUri,
                         this.config,
                         this.DisableFullTelemetryItems);
                 }
@@ -631,7 +631,7 @@
 
             lock (this.telemetryProcessorsLock)
             {
-                foreach (var telemetryProcessor in this.telemetryProcessors)
+                foreach (var telemetryProcessor in this.TelemetryProcessors)
                 {
                     telemetryProcessor.StopCollection();
                 }
@@ -705,9 +705,9 @@
                 Interlocked.Exchange(ref this.stateThread, null)?.Stop(wait: true);
                 Interlocked.Exchange(ref this.collectionThread, null)?.Stop(wait: true);
 
-                if (this.serviceClient != null)
+                if (this.ServiceClient != null)
                 {
-                    this.serviceClient.Dispose();
+                    this.ServiceClient.Dispose();
                 }
             }
         }
