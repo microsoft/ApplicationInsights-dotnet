@@ -2,6 +2,10 @@
 
 - [Microsoft.ApplicationInsights.AspNetCore](https://www.nuget.org/packages/Microsoft.ApplicationInsights.AspNetCore/)
 [![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.AspNetCore.svg)](https://nuget.org/packages/Microsoft.ApplicationInsights.AspNetCore)
+- [Microsoft.ApplicationInsights.WorkerService](https://www.nuget.org/packages/Microsoft.ApplicationInsights.WorkerService/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.WorkerService.svg)](https://nuget.org/packages/Microsoft.ApplicationInsights.WorkerService)
+
+
 
 Windows: [![Build Status](https://mseng.visualstudio.com/AppInsights/_apis/build/status/ChuckNorris/AI_ASPNETCore_Develop?branchName=develop)](https://mseng.visualstudio.com/AppInsights/_build/latest?definitionId=3717&branchName=develop)
 
