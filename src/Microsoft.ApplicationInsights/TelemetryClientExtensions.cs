@@ -311,7 +311,7 @@
             {
                 // if parent is not  W3C
                 if (activity.ParentId != null &&
-                    !activity.ParentId.StartsWith("00-"))
+                    !activity.ParentId.StartsWith("00-", StringComparison.Ordinal))
                 {
                     // save parent
                     legacyParent = activity.ParentId;
