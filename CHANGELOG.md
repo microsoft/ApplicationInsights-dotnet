@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.11.0
+- [Fix Sql dependency tracking in .NET Core 3.0 which uses Microsoft.Data.SqlClient instead of System.Data.SqlClient](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1263)
+
 ## Version 2.11.0-beta2
  - Updated Base SDK to 2.11.0-beta2
  - [Add NetStandard2.0 Target for WindowsServerPackage](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1212)

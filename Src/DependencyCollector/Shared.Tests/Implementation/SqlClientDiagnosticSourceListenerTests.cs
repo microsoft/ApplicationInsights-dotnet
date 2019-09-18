@@ -14,12 +14,11 @@ namespace Microsoft.ApplicationInsights.Tests
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Web.TestFramework;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Xunit;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
-    [TestClass]
-    public class SqlClientDiagnosticSourceListenerTests
+    public class SqlClientDiagnosticSourceListenerTests : IDisposable
     {
         private const string TestConnectionString = "Data Source=(localdb)\\MSSQLLocalDB;Database=master";
         
@@ -29,8 +28,7 @@ namespace Microsoft.ApplicationInsights.Tests
         private FakeSqlClientDiagnosticSource fakeSqlClientDiagnosticSource;
         private SqlClientDiagnosticSourceListener sqlClientDiagnosticSourceListener;
 
-        [TestInitialize]
-        public void TestInit()
+        public SqlClientDiagnosticSourceListenerTests()
         {
             this.sendItems = new List<ITelemetry>();
             this.stubTelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
@@ -45,8 +43,7 @@ namespace Microsoft.ApplicationInsights.Tests
             this.sqlClientDiagnosticSourceListener = new SqlClientDiagnosticSourceListener(this.configuration);
         }
 
-        [TestCleanup]
-        public void Cleanup()
+        public void Dispose()
         {
             this.sqlClientDiagnosticSourceListener.Dispose();
             this.fakeSqlClientDiagnosticSource.Dispose();
@@ -59,8 +56,10 @@ namespace Microsoft.ApplicationInsights.Tests
             }
         }
 
-        [TestMethod]
-        public void InitializesTelemetryFromParentActivity()
+        [Theory]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand)]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlMicrosoftBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlMicrosoftAfterExecuteCommand)]
+        public void InitializesTelemetryFromParentActivity(string beforeEventName, string afterEventName)
         {
             var activity = new Activity("Current").AddBaggage("Stuff", "123");
             activity.Start();
@@ -78,7 +77,7 @@ namespace Microsoft.ApplicationInsights.Tests
             };
 
             this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand,
+                beforeEventName,
                 beforeExecuteEventData);
 
             var afterExecuteEventData = new
@@ -89,18 +88,20 @@ namespace Microsoft.ApplicationInsights.Tests
             };
 
             this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand,
+                afterEventName,
                 afterExecuteEventData);
 
             var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
 
-            Assert.AreEqual(activity.RootId, dependencyTelemetry.Context.Operation.Id);
-            Assert.AreEqual(activity.Id, dependencyTelemetry.Context.Operation.ParentId);
-            Assert.AreEqual("123", dependencyTelemetry.Properties["Stuff"]);
+            Assert.Equal(activity.RootId, dependencyTelemetry.Context.Operation.Id);
+            Assert.Equal(activity.Id, dependencyTelemetry.Context.Operation.ParentId);
+            Assert.Equal("123", dependencyTelemetry.Properties["Stuff"]);
         }
 
-        [TestMethod]
-        public void TracksCommandExecuted()
+        [Theory]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand)]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlMicrosoftBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlMicrosoftAfterExecuteCommand)]
+        public void TracksCommandExecuted(string beforeCommand, string afterCommand)
         {
             var operationId = Guid.NewGuid();
             var sqlConnection = new SqlConnection(TestConnectionString);
@@ -115,7 +116,7 @@ namespace Microsoft.ApplicationInsights.Tests
             };
 
             this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand,
+                beforeCommand,
                 beforeExecuteEventData);
             var start = DateTimeOffset.UtcNow;
 
@@ -127,24 +128,26 @@ namespace Microsoft.ApplicationInsights.Tests
             };
 
             this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand,
+                afterCommand,
                 afterExecuteEventData);
 
             var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
 
-            Assert.AreEqual(beforeExecuteEventData.OperationId.ToString("N"), dependencyTelemetry.Id);
-            Assert.AreEqual(sqlCommand.CommandText, dependencyTelemetry.Data);
-            Assert.AreEqual("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Name);
-            Assert.AreEqual("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Target);
-            Assert.AreEqual(RemoteDependencyConstants.SQL, dependencyTelemetry.Type);
-            Assert.IsTrue((bool)dependencyTelemetry.Success);
-            Assert.IsTrue(dependencyTelemetry.Duration > TimeSpan.Zero);
-            Assert.IsTrue(dependencyTelemetry.Duration < TimeSpan.FromMilliseconds(500));
-            Assert.IsTrue(Math.Abs((start - dependencyTelemetry.Timestamp).TotalMilliseconds) <= 16);
+            Assert.Equal(beforeExecuteEventData.OperationId.ToString("N"), dependencyTelemetry.Id);
+            Assert.Equal(sqlCommand.CommandText, dependencyTelemetry.Data);
+            Assert.Equal("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Name);
+            Assert.Equal("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Target);
+            Assert.Equal(RemoteDependencyConstants.SQL, dependencyTelemetry.Type);
+            Assert.True((bool)dependencyTelemetry.Success);
+            Assert.True(dependencyTelemetry.Duration > TimeSpan.Zero);
+            Assert.True(dependencyTelemetry.Duration < TimeSpan.FromMilliseconds(500));
+            Assert.True(Math.Abs((start - dependencyTelemetry.Timestamp).TotalMilliseconds) <= 16);
         }
 
-        [TestMethod]
-        public void TracksCommandExecutedWhenNoTimestamp()
+        [Theory]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand)]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlMicrosoftBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlMicrosoftAfterExecuteCommand)]
+        public void TracksCommandExecutedWhenNoTimestamp(string beforeCommand, string afterCommand)
         {
             var operationId = Guid.NewGuid();
             var sqlConnection = new SqlConnection(TestConnectionString);
@@ -159,7 +162,7 @@ namespace Microsoft.ApplicationInsights.Tests
             };
 
             this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand,
+                beforeCommand,
                 beforeExecuteEventData);
 
             var afterExecuteEventData = new
@@ -170,23 +173,25 @@ namespace Microsoft.ApplicationInsights.Tests
             };
 
             this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand,
+                afterCommand,
                 afterExecuteEventData);
 
             var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
 
-            Assert.AreEqual(beforeExecuteEventData.OperationId.ToString("N"), dependencyTelemetry.Id);
-            Assert.AreEqual(sqlCommand.CommandText, dependencyTelemetry.Data);
-            Assert.AreEqual("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Name);
-            Assert.AreEqual("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Target);
-            Assert.AreEqual(RemoteDependencyConstants.SQL, dependencyTelemetry.Type);
-            Assert.IsTrue((bool)dependencyTelemetry.Success);
-            Assert.IsTrue(dependencyTelemetry.Duration > TimeSpan.Zero);
-            Assert.IsTrue(dependencyTelemetry.Duration < TimeSpan.FromMilliseconds(500));
+            Assert.Equal(beforeExecuteEventData.OperationId.ToString("N"), dependencyTelemetry.Id);
+            Assert.Equal(sqlCommand.CommandText, dependencyTelemetry.Data);
+            Assert.Equal("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Name);
+            Assert.Equal("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Target);
+            Assert.Equal(RemoteDependencyConstants.SQL, dependencyTelemetry.Type);
+            Assert.True((bool)dependencyTelemetry.Success);
+            Assert.True(dependencyTelemetry.Duration > TimeSpan.Zero);
+            Assert.True(dependencyTelemetry.Duration < TimeSpan.FromMilliseconds(500));
         }
 
-        [TestMethod]
-        public void TracksCommandError()
+        [Theory]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlErrorExecuteCommand)]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlMicrosoftBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlMicrosoftErrorExecuteCommand)]
+        public void TracksCommandError(string beforeCommand, string errorCommand)
         {
             var operationId = Guid.NewGuid();
             var sqlConnection = new SqlConnection(TestConnectionString);
@@ -201,7 +206,7 @@ namespace Microsoft.ApplicationInsights.Tests
             };
 
             this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand,
+                beforeCommand,
                 beforeExecuteEventData);
 
             var commandErrorEventData = new
@@ -213,17 +218,19 @@ namespace Microsoft.ApplicationInsights.Tests
             };
 
             this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlErrorExecuteCommand,
+                errorCommand,
                 commandErrorEventData);
 
             var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
 
-            Assert.AreEqual(commandErrorEventData.Exception.ToInvariantString(), dependencyTelemetry.Properties["Exception"]);
-            Assert.IsFalse(dependencyTelemetry.Success.Value);
+            Assert.Equal(commandErrorEventData.Exception.ToInvariantString(), dependencyTelemetry.Properties["Exception"]);
+            Assert.False(dependencyTelemetry.Success.Value);
         }
 
-        [TestMethod]
-        public void TracksCommandErrorWhenSqlException()
+        [Theory]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlErrorExecuteCommand)]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlMicrosoftBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlMicrosoftErrorExecuteCommand)]
+        public void TracksCommandErrorWhenSqlException(string beforeCommand, string errorCommand)
         {
             var operationId = Guid.NewGuid();
             var sqlConnection = new SqlConnection(TestConnectionString);
@@ -238,7 +245,7 @@ namespace Microsoft.ApplicationInsights.Tests
             };
 
             this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand,
+                beforeCommand,
                 beforeExecuteEventData);
 
             // Need to create SqlException via reflection because ctor is not public!
@@ -288,18 +295,20 @@ namespace Microsoft.ApplicationInsights.Tests
             };
 
             this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlErrorExecuteCommand,
+                errorCommand,
                 commandErrorEventData);
 
             var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
 
-            Assert.AreEqual(commandErrorEventData.Exception.ToInvariantString(), dependencyTelemetry.Properties["Exception"]);
-            Assert.IsFalse(dependencyTelemetry.Success.Value);
-            Assert.AreEqual("42", dependencyTelemetry.ResultCode);
+            Assert.Equal(commandErrorEventData.Exception.ToInvariantString(), dependencyTelemetry.Properties["Exception"]);
+            Assert.False(dependencyTelemetry.Success.Value);
+            Assert.Equal("42", dependencyTelemetry.ResultCode);
         }
 
-        [TestMethod]
-        public void TracksConnectionOpenedError()
+        [Theory]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlBeforeOpenConnection, SqlClientDiagnosticSourceListener.SqlErrorOpenConnection)]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlMicrosoftBeforeOpenConnection, SqlClientDiagnosticSourceListener.SqlMicrosoftErrorOpenConnection)]
+        public void TracksConnectionOpenedError(string openCon, string openError)
         {
             var operationId = Guid.NewGuid();
             var sqlConnection = new SqlConnection(TestConnectionString);
@@ -313,7 +322,7 @@ namespace Microsoft.ApplicationInsights.Tests
             };
 
             this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlBeforeOpenConnection,
+                openCon,
                 beforeOpenEventData);
 
             var errorOpenEventData = new
@@ -327,26 +336,28 @@ namespace Microsoft.ApplicationInsights.Tests
             var start = DateTimeOffset.UtcNow;
 
             this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlErrorOpenConnection,
+                openError,
                 errorOpenEventData);
 
             var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
 
-            Assert.AreEqual(beforeOpenEventData.OperationId.ToString("N"), dependencyTelemetry.Id);
-            Assert.AreEqual(beforeOpenEventData.Operation, dependencyTelemetry.Data);
-            Assert.AreEqual("(localdb)\\MSSQLLocalDB | master | " + beforeOpenEventData.Operation, dependencyTelemetry.Name);
-            Assert.AreEqual("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Target);
-            Assert.AreEqual(RemoteDependencyConstants.SQL, dependencyTelemetry.Type);
-            Assert.IsTrue(dependencyTelemetry.Duration > TimeSpan.Zero);
-            Assert.IsTrue(dependencyTelemetry.Duration < TimeSpan.FromMilliseconds(500));
-            Assert.IsTrue(Math.Abs((start - dependencyTelemetry.Timestamp).TotalMilliseconds) <= 16);
+            Assert.Equal(beforeOpenEventData.OperationId.ToString("N"), dependencyTelemetry.Id);
+            Assert.Equal(beforeOpenEventData.Operation, dependencyTelemetry.Data);
+            Assert.Equal("(localdb)\\MSSQLLocalDB | master | " + beforeOpenEventData.Operation, dependencyTelemetry.Name);
+            Assert.Equal("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Target);
+            Assert.Equal(RemoteDependencyConstants.SQL, dependencyTelemetry.Type);
+            Assert.True(dependencyTelemetry.Duration > TimeSpan.Zero);
+            Assert.True(dependencyTelemetry.Duration < TimeSpan.FromMilliseconds(500));
+            Assert.True(Math.Abs((start - dependencyTelemetry.Timestamp).TotalMilliseconds) <= 16);
 
-            Assert.AreEqual(errorOpenEventData.Exception.ToInvariantString(), dependencyTelemetry.Properties["Exception"]);
-            Assert.IsFalse(dependencyTelemetry.Success.Value);
+            Assert.Equal(errorOpenEventData.Exception.ToInvariantString(), dependencyTelemetry.Properties["Exception"]);
+            Assert.False(dependencyTelemetry.Success.Value);
         }
 
-        [TestMethod]
-        public void DoesNotTrackConnectionOpened()
+        [Theory]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlBeforeOpenConnection, SqlClientDiagnosticSourceListener.SqlAfterOpenConnection)]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlMicrosoftBeforeOpenConnection, SqlClientDiagnosticSourceListener.SqlMicrosoftAfterOpenConnection)]
+        public void DoesNotTrackConnectionOpened(string beforeOpen, string afterOpen)
         {
             var operationId = Guid.NewGuid();
             var sqlConnection = new SqlConnection(TestConnectionString);
@@ -360,7 +371,7 @@ namespace Microsoft.ApplicationInsights.Tests
             };
 
             this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlBeforeOpenConnection,
+                beforeOpen,
                 beforeOpenEventData);
 
             var afterOpenEventData = new
@@ -370,14 +381,16 @@ namespace Microsoft.ApplicationInsights.Tests
             };
 
             this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlAfterOpenConnection,
+                afterOpen,
                 afterOpenEventData);
 
-            Assert.AreEqual(0, this.sendItems.Count);
+            Assert.Equal(0, this.sendItems.Count);
         }
 
-        [TestMethod]
-        public void DoesNotTrackConnectionCloseError()
+        [Theory]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlBeforeCloseConnection, SqlClientDiagnosticSourceListener.SqlErrorCloseConnection)]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlMicrosoftBeforeCloseConnection, SqlClientDiagnosticSourceListener.SqlMicrosoftErrorCloseConnection)]
+        public void DoesNotTrackConnectionCloseError(string beforeClose, string errorClose)
         {
             var operationId = Guid.NewGuid();
             var sqlConnection = new SqlConnection(TestConnectionString);
@@ -391,7 +404,7 @@ namespace Microsoft.ApplicationInsights.Tests
             };
 
             this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlBeforeCloseConnection,
+                beforeClose,
                 beforeOpenEventData);
 
             var errorCloseEventData = new
@@ -403,14 +416,16 @@ namespace Microsoft.ApplicationInsights.Tests
             };
 
             this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlErrorCloseConnection,
+                errorClose,
                 errorCloseEventData);
 
-            Assert.AreEqual(0, this.sendItems.Count);
+            Assert.Equal(0, this.sendItems.Count);
         }
 
-        [TestMethod]
-        public void TracksTransactionCommitted()
+        [Theory]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlBeforeCommitTransaction, SqlClientDiagnosticSourceListener.SqlAfterCommitTransaction)]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlMicrosoftBeforeCommitTransaction, SqlClientDiagnosticSourceListener.SqlMicrosoftAfterCommitTransaction)]
+        public void TracksTransactionCommitted(string beforeCommit, string afterCommit)
         {
             var operationId = Guid.NewGuid();
             var sqlConnection = new SqlConnection(TestConnectionString);
@@ -425,7 +440,7 @@ namespace Microsoft.ApplicationInsights.Tests
             };
 
             this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlBeforeCommitTransaction,
+                beforeCommit,
                 beforeCommitEventData);
 
             var afterCommitEventData = new
@@ -438,26 +453,28 @@ namespace Microsoft.ApplicationInsights.Tests
             var start = DateTimeOffset.UtcNow;
 
             this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlAfterCommitTransaction,
+                afterCommit,
                 afterCommitEventData);
 
             var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
 
-            Assert.AreEqual(beforeCommitEventData.OperationId.ToString("N"), dependencyTelemetry.Id);
-            Assert.AreEqual(beforeCommitEventData.Operation, dependencyTelemetry.Data);
-            Assert.AreEqual(
+            Assert.Equal(beforeCommitEventData.OperationId.ToString("N"), dependencyTelemetry.Id);
+            Assert.Equal(beforeCommitEventData.Operation, dependencyTelemetry.Data);
+            Assert.Equal(
                 "(localdb)\\MSSQLLocalDB | master | " + beforeCommitEventData.Operation + " | " + beforeCommitEventData.IsolationLevel, 
                 dependencyTelemetry.Name);
-            Assert.AreEqual("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Target);
-            Assert.AreEqual(RemoteDependencyConstants.SQL, dependencyTelemetry.Type);
-            Assert.IsTrue((bool)dependencyTelemetry.Success);
-            Assert.IsTrue(dependencyTelemetry.Duration > TimeSpan.Zero);
-            Assert.IsTrue(dependencyTelemetry.Duration < TimeSpan.FromMilliseconds(500));
-            Assert.IsTrue(Math.Abs((start - dependencyTelemetry.Timestamp).TotalMilliseconds) <= 16);
+            Assert.Equal("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Target);
+            Assert.Equal(RemoteDependencyConstants.SQL, dependencyTelemetry.Type);
+            Assert.True((bool)dependencyTelemetry.Success);
+            Assert.True(dependencyTelemetry.Duration > TimeSpan.Zero);
+            Assert.True(dependencyTelemetry.Duration < TimeSpan.FromMilliseconds(500));
+            Assert.True(Math.Abs((start - dependencyTelemetry.Timestamp).TotalMilliseconds) <= 16);
         }
 
-        [TestMethod]
-        public void TracksTransactionCommitError()
+        [Theory]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlBeforeCommitTransaction, SqlClientDiagnosticSourceListener.SqlErrorCommitTransaction)]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlMicrosoftBeforeCommitTransaction, SqlClientDiagnosticSourceListener.SqlMicrosoftErrorCommitTransaction)]
+        public void TracksTransactionCommitError(string beforeCommit, string afterCommit)
         {
             var operationId = Guid.NewGuid();
             var sqlConnection = new SqlConnection(TestConnectionString);
@@ -472,7 +489,7 @@ namespace Microsoft.ApplicationInsights.Tests
             };
 
             this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlBeforeCommitTransaction,
+                beforeCommit,
                 beforeCommitEventData);
 
             var errorCommitEventData = new
@@ -484,17 +501,19 @@ namespace Microsoft.ApplicationInsights.Tests
             };
 
             this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlErrorCommitTransaction,
+                afterCommit,
                 errorCommitEventData);
 
             var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
 
-            Assert.AreEqual(errorCommitEventData.Exception.ToInvariantString(), dependencyTelemetry.Properties["Exception"]);
-            Assert.IsFalse(dependencyTelemetry.Success.Value);
+            Assert.Equal(errorCommitEventData.Exception.ToInvariantString(), dependencyTelemetry.Properties["Exception"]);
+            Assert.False(dependencyTelemetry.Success.Value);
         }
 
-        [TestMethod]
-        public void TracksTransactionRolledBack()
+        [Theory]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlBeforeRollbackTransaction, SqlClientDiagnosticSourceListener.SqlAfterRollbackTransaction)]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlMicrosoftBeforeRollbackTransaction, SqlClientDiagnosticSourceListener.SqlMicrosoftAfterRollbackTransaction)]
+        public void TracksTransactionRolledBack(string beforeCommit, string afterCommit)
         {
             var operationId = Guid.NewGuid();
             var sqlConnection = new SqlConnection(TestConnectionString);
@@ -510,7 +529,7 @@ namespace Microsoft.ApplicationInsights.Tests
             };
 
             this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlBeforeRollbackTransaction,
+                beforeCommit,
                 beforeRollbackEventData);
 
             var afterRollbackEventData = new
@@ -523,25 +542,25 @@ namespace Microsoft.ApplicationInsights.Tests
             var start = DateTimeOffset.UtcNow;
 
             this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlAfterRollbackTransaction,
+                afterCommit,
                 afterRollbackEventData);
 
             var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
 
-            Assert.AreEqual(beforeRollbackEventData.OperationId.ToString("N"), dependencyTelemetry.Id);
-            Assert.AreEqual(beforeRollbackEventData.Operation, dependencyTelemetry.Data);
-            Assert.AreEqual(
+            Assert.Equal(beforeRollbackEventData.OperationId.ToString("N"), dependencyTelemetry.Id);
+            Assert.Equal(beforeRollbackEventData.Operation, dependencyTelemetry.Data);
+            Assert.Equal(
                 "(localdb)\\MSSQLLocalDB | master | " + beforeRollbackEventData.Operation + " | " + beforeRollbackEventData.IsolationLevel,
                 dependencyTelemetry.Name);
-            Assert.AreEqual("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Target);
-            Assert.AreEqual(RemoteDependencyConstants.SQL, dependencyTelemetry.Type);
-            Assert.IsTrue((bool)dependencyTelemetry.Success);
-            Assert.IsTrue(dependencyTelemetry.Duration > TimeSpan.Zero);
-            Assert.IsTrue(dependencyTelemetry.Duration < TimeSpan.FromMilliseconds(500));
-            Assert.IsTrue(Math.Abs((start - dependencyTelemetry.Timestamp).TotalMilliseconds) <= 16);
+            Assert.Equal("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Target);
+            Assert.Equal(RemoteDependencyConstants.SQL, dependencyTelemetry.Type);
+            Assert.True((bool)dependencyTelemetry.Success);
+            Assert.True(dependencyTelemetry.Duration > TimeSpan.Zero);
+            Assert.True(dependencyTelemetry.Duration < TimeSpan.FromMilliseconds(500));
+            Assert.True(Math.Abs((start - dependencyTelemetry.Timestamp).TotalMilliseconds) <= 16);
         }
 
-        [TestMethod]
+        [Fact]
         public void MultiHost_OneListenerIsActive()
         {
             var operationId = Guid.NewGuid();
@@ -573,11 +592,11 @@ namespace Microsoft.ApplicationInsights.Tests
                     SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand,
                     afterExecuteEventData);
 
-                Assert.AreEqual(1, this.sendItems.Count(t => t is DependencyTelemetry));
+                Assert.Equal(1, this.sendItems.Count(t => t is DependencyTelemetry));
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void MultiHost_OneListenerThenAnotherIsActive()
         {
             var operationId = Guid.NewGuid();
@@ -607,7 +626,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand,
                 afterExecuteEventData);
 
-            Assert.AreEqual(1, this.sendItems.Count(t => t is DependencyTelemetry));
+            Assert.Equal(1, this.sendItems.Count(t => t is DependencyTelemetry));
 
             this.sqlClientDiagnosticSourceListener.Dispose();
 
@@ -621,11 +640,11 @@ namespace Microsoft.ApplicationInsights.Tests
                     SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand,
                     afterExecuteEventData);
 
-                Assert.AreEqual(2, this.sendItems.Count(t => t is DependencyTelemetry));
+                Assert.Equal(2, this.sendItems.Count(t => t is DependencyTelemetry));
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void MultiHost_OneListnerIsActiveAfterDispose()
         {
             var operationId = Guid.NewGuid();
@@ -657,7 +676,7 @@ namespace Microsoft.ApplicationInsights.Tests
                     SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand,
                     afterExecuteEventData);
 
-                Assert.AreEqual(1, this.sendItems.Count(t => t is DependencyTelemetry));
+                Assert.Equal(1, this.sendItems.Count(t => t is DependencyTelemetry));
 
                 this.sqlClientDiagnosticSourceListener.Dispose();
 
@@ -669,7 +688,7 @@ namespace Microsoft.ApplicationInsights.Tests
                     SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand,
                     afterExecuteEventData);
 
-                Assert.AreEqual(2, this.sendItems.Count(t => t is DependencyTelemetry));
+                Assert.Equal(2, this.sendItems.Count(t => t is DependencyTelemetry));
             }
         }
 
