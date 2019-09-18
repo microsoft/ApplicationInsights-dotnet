@@ -15,6 +15,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 - [Enable sampling based on upstream sampling decision for adaptive sampling](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1200)
 - [Fix: StartOperation ignores user-provided custom Ids in scope of Activity](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1205)
 - [Set tracestate if available on requests and dependencies](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1207)
+- [Fix: StartOperation(Activity) does not check for Ids compatibility()]
 
 ## Version 2.11.0-beta1
 - [Performance fixes: Support Head Sampling; Remove NewGuid(); Sampling Flags; etc... ](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1158)
