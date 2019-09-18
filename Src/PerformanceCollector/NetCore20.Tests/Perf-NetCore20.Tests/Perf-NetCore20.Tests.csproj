@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), NetCore.props))\NetCore.props" />
 
@@ -37,4 +37,6 @@
   </ItemGroup>
 
   <Import Project="..\..\Perf.Shared.Tests\Perf.Shared.Tests.projitems" Label="Shared" />
+
+  <Import Project="..\..\..\TestFramework\Shared\TestFramework.Shared.projitems" Label="Shared" />
 </Project>

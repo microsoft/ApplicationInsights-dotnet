@@ -2,11 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Linq;
     using System.Threading;
-
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Common.Internal;
@@ -49,6 +47,18 @@
 
         private IQuickPulseDataAccumulatorManager dataAccumulatorManager = null;
 
+        /// <summary>
+        /// Gets or sets an endpoint that is compared against telemetry to remove our requests from customer telemetry.
+        /// </summary>
+        /// <remarks>
+        /// This is set from the QuickPulseTelemetryModule. 
+        /// </remarks>
+        Uri IQuickPulseTelemetryProcessor.ServiceEndpoint
+        {
+            get { return this.serviceEndpoint; }
+            set { this.serviceEndpoint = value; }
+        }
+
         private Uri serviceEndpoint = QuickPulseDefaults.ServiceEndpoint;
 
         private TelemetryConfiguration config = null;
@@ -81,14 +91,9 @@
             float? maxGlobalTelemetryQuota = null,
             float? initialGlobalTelemetryQuota = null)
         {
-            if (next == null)
-            {
-                throw new ArgumentNullException(nameof(next));
-            }
+            this.Next = next ?? throw new ArgumentNullException(nameof(next));
 
-            this.Register();
-
-            this.Next = next;
+            this.RegisterSelfWithQuickPulseTelemetryModule();
 
             this.globalQuotaTracker = new QuickPulseQuotaTracker(
                 timeProvider,
@@ -118,7 +123,7 @@
 
             this.EvaluateDisabledTrackingProperties = configuration.EvaluateExperimentalFeature(ExperimentalConstants.DeferRequestTrackingProperties);
 
-            this.Register();
+            this.RegisterSelfWithQuickPulseTelemetryModule();
         }
 
         void IQuickPulseTelemetryProcessor.StartCollection(
@@ -707,10 +712,15 @@
             }
         }
 
-        private void Register()
+        private void RegisterSelfWithQuickPulseTelemetryModule()
         {
             var module = TelemetryModules.Instance.Modules.OfType<QuickPulseTelemetryModule>().SingleOrDefault();
-            module?.RegisterTelemetryProcessor(this);
+
+            if (module != null)
+            {
+                module.RegisterTelemetryProcessor(this);
+                this.serviceEndpoint = module.ServiceClient?.ServiceUri ?? QuickPulseDefaults.ServiceEndpoint;
+            }
         }
     }
 }

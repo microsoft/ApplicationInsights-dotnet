@@ -375,6 +375,12 @@
                 isWebApp,
                 processorCount ?? 0);
 
+            // TelemetryConfigurationFactory will initialize Modules after Processors. Need to update the processor with the correct service endpoint.
+            foreach (var processor in this.TelemetryProcessors)
+            {
+                processor.ServiceEndpoint = serviceEndpointUri;
+            }
+
             QuickPulseEventSource.Log.TroubleshootingMessageEvent(
                 string.Format(
                     CultureInfo.InvariantCulture,
