@@ -31,7 +31,7 @@
     <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
     <PackageReference Include="CompareNETObjects" Version="4.59.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.6.0-preview7.19362.9" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.6.0" />
     <ProjectReference Include="..\..\..\src\ServerTelemetryChannel\TelemetryChannel.csproj">
       <Project>{3273d899-d9b3-44fe-b3ab-578e18b2ef90}</Project>
       <Name>TelemetryChannel</Name>
