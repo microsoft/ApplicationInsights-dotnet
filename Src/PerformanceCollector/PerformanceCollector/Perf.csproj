@@ -38,11 +38,11 @@
 
   <ItemGroup>
     <!--Common Dependencies-->
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.11.0-beta2" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.11.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.6.0-preview8.19405.3" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.6.0" />
     <!--Framework References-->
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Web" />
