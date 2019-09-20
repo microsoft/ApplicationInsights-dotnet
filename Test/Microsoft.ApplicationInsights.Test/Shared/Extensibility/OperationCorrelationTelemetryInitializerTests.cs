@@ -301,6 +301,21 @@
         }
 
         [TestMethod]
+        public void InitializeWithActivityRecordedOperationIdSet()
+        {
+            var currentActivity = new Activity("test");
+            currentActivity.ActivityTraceFlags |= ActivityTraceFlags.Recorded;
+            currentActivity.Start();
+            var request = new RequestTelemetry();
+            request.Context.Operation.Id = ActivityTraceId.CreateRandom().ToHexString();
+
+            (new OperationCorrelationTelemetryInitializer()).Initialize(request);
+
+            Assert.AreEqual(SamplingDecision.SampledIn, request.ProactiveSamplingDecision);
+            currentActivity.Stop();
+        }
+
+        [TestMethod]
         public void InitializeWithActivityNotRecorded()
         {
             var currentActivity = new Activity("test");
@@ -412,6 +427,23 @@
 
             // does not throw
             (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
+        }
+
+        [TestMethod]
+        public void InitializeOnActivityWithTracestateAndOperationIdSet()
+        {
+            Activity parent = new Activity("parent")
+            {
+                TraceStateString = "some=state"
+            };
+            parent.Start();
+
+            var telemetry = new DependencyTelemetry();
+            telemetry.Context.Operation.Id = ActivityTraceId.CreateRandom().ToHexString();
+            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
+
+            Assert.IsTrue(telemetry.Properties.ContainsKey("tracestate"));
+            Assert.AreEqual("some=state", telemetry.Properties["tracestate"]);
         }
     }
 }
