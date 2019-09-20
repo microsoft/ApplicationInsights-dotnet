@@ -2,7 +2,9 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/documentation/articles/app-insights-release-notes-dotnet/).
 
+
 ## Version 2.11.0
+- Upgrade to System.Diagnostics.DiagnosticSource v4.6
 - [Fix: StartOperation(Activity) does not check for Ids compatibility](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1213)
 
 ## Version 2.11.0-beta2
