@@ -29,64 +29,71 @@
             isActivityAvailable = ActivityExtensions.TryRun(() =>
             {
                 var currentActivity = Activity.Current;
-                if (currentActivity != null && string.IsNullOrEmpty(itemOperationContext.Id))
+                if (currentActivity != null)
                 {
-                    if (currentActivity.IdFormat == ActivityIdFormat.W3C)
+                    // we are going to set tracestate property on requests and dependencies only
+                    if (currentActivity.IdFormat == ActivityIdFormat.W3C &&
+                        !string.IsNullOrEmpty(currentActivity.TraceStateString) &&
+                        telemetryItem is OperationTelemetry &&
+                        telemetryProp != null &&
+                        !telemetryProp.Properties.ContainsKey(TracestatePropertyKey))
                     {
-                        // Set OperationID to Activity.TraceId
-                        // itemOperationContext.Id = currentActivity.RootId; // check if this can be used
-                        itemOperationContext.Id = currentActivity.TraceId.ToHexString();
-
-                        // Set OperationParentID to ID of parent, constructed as !traceid.spanid.
-                        // ID for auto collected Request,Dependency are constructed as !traceid.spanid, so parentid must be set to the same format.
-                        // While it is possible to set SpanID as the ID for auto collected Request,Dependency we have to stick to this format
-                        // to maintain compatibility. This limitation may go away in the future.
-                        if (string.IsNullOrEmpty(itemOperationContext.ParentId))
-                        {
-                            itemOperationContext.ParentId = W3CUtilities.FormatTelemetryId(itemOperationContext.Id, currentActivity.SpanId.ToHexString());
-                        }
-
-                        // we are going to set tracestate property on requests and dependencies only
-                        if (!string.IsNullOrEmpty(currentActivity.TraceStateString) &&
-                            telemetryItem is OperationTelemetry &&
-                            telemetryProp != null &&
-                            !telemetryProp.Properties.ContainsKey(TracestatePropertyKey))
-                        {
-                            telemetryProp.Properties.Add(TracestatePropertyKey, currentActivity.TraceStateString);
-                        }
-                    }
-                    else
-                    {
-                        itemOperationContext.Id = currentActivity.RootId;
-
-                        if (string.IsNullOrEmpty(itemOperationContext.ParentId))
-                        {
-                            itemOperationContext.ParentId = currentActivity.Id;
-                        }
+                        telemetryProp.Properties.Add(TracestatePropertyKey, currentActivity.TraceStateString);
                     }
 
-                    foreach (var baggage in currentActivity.Baggage)
-                    {
-                        if (telemetryProp != null && !telemetryProp.Properties.ContainsKey(baggage.Key))
-                        {
-                            telemetryProp.Properties.Add(baggage);
-                        }
-                    }
-
-                    if (string.IsNullOrEmpty(itemOperationContext.Name))
-                    {
-                        string operationName = currentActivity.GetOperationName();
-                        if (!string.IsNullOrEmpty(operationName))
-                        {
-                            itemOperationContext.Name = operationName;
-                        }
-                    }
-
-                    if (currentActivity.Recorded && 
-                        telemetryItem is ISupportAdvancedSampling supportSamplingTelemetry && 
+                    // update proactive sampling decision if Activity is recorded
+                    // sampling processor may change the decision
+                    if (currentActivity.Recorded &&
+                        telemetryItem is ISupportAdvancedSampling supportSamplingTelemetry &&
                         supportSamplingTelemetry.ProactiveSamplingDecision == SamplingDecision.None)
                     {
                         supportSamplingTelemetry.ProactiveSamplingDecision = SamplingDecision.SampledIn;
+                    }
+
+                    if (string.IsNullOrEmpty(itemOperationContext.Id))
+                    {
+                        if (currentActivity.IdFormat == ActivityIdFormat.W3C)
+                        {
+                            // Set OperationID to Activity.TraceId
+                            // itemOperationContext.Id = currentActivity.RootId; // check if this can be used
+                            itemOperationContext.Id = currentActivity.TraceId.ToHexString();
+
+                            // Set OperationParentID to ID of parent, constructed as !traceid.spanid.
+                            // ID for auto collected Request,Dependency are constructed as !traceid.spanid, so parentid must be set to the same format.
+                            // While it is possible to set SpanID as the ID for auto collected Request,Dependency we have to stick to this format
+                            // to maintain compatibility. This limitation may go away in the future.
+                            if (string.IsNullOrEmpty(itemOperationContext.ParentId))
+                            {
+                                itemOperationContext.ParentId = W3CUtilities.FormatTelemetryId(itemOperationContext.Id,
+                                    currentActivity.SpanId.ToHexString());
+                            }
+                        }
+                        else
+                        {
+                            itemOperationContext.Id = currentActivity.RootId;
+
+                            if (string.IsNullOrEmpty(itemOperationContext.ParentId))
+                            {
+                                itemOperationContext.ParentId = currentActivity.Id;
+                            }
+                        }
+
+                        foreach (var baggage in currentActivity.Baggage)
+                        {
+                            if (telemetryProp != null && !telemetryProp.Properties.ContainsKey(baggage.Key))
+                            {
+                                telemetryProp.Properties.Add(baggage);
+                            }
+                        }
+
+                        if (string.IsNullOrEmpty(itemOperationContext.Name))
+                        {
+                            string operationName = currentActivity.GetOperationName();
+                            if (!string.IsNullOrEmpty(operationName))
+                            {
+                                itemOperationContext.Name = operationName;
+                            }
+                        }
                     }
                 }
             });
