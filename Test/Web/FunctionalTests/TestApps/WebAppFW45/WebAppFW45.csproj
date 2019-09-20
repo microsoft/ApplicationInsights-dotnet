@@ -53,14 +53,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.AI.ServerTelemetryChannel, Version=2.11.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\..\..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.11.0-beta2\lib\net45\Microsoft.AI.ServerTelemetryChannel.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.11.0\lib\net45\Microsoft.AI.ServerTelemetryChannel.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.ApplicationInsights, Version=2.11.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\..\..\packages\Microsoft.ApplicationInsights.2.11.0-beta2\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\packages\Microsoft.ApplicationInsights.2.11.0\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.AspNet.TelemetryCorrelation, Version=1.0.6.0, Culture=neutral, PublicKeyToken=f23a46de0be5d6f3, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\..\..\packages\Microsoft.AspNet.TelemetryCorrelation.1.0.6\lib\net45\Microsoft.AspNet.TelemetryCorrelation.dll</HintPath>
+    <Reference Include="Microsoft.AspNet.TelemetryCorrelation, Version=1.0.7.0, Culture=neutral, PublicKeyToken=f23a46de0be5d6f3, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\..\..\packages\Microsoft.AspNet.TelemetryCorrelation.1.0.7\lib\net45\Microsoft.AspNet.TelemetryCorrelation.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json">
