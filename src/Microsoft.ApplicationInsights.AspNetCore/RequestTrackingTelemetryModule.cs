@@ -10,6 +10,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.AspNetCore.Hosting;
 
     /// <summary>
@@ -112,7 +113,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
             }
             catch (Exception e)
             {
-                AspNetCoreEventSource.Instance.RequestTrackingModuleInitializationFailed(e.Message);
+                AspNetCoreEventSource.Instance.RequestTrackingModuleInitializationFailed(e.ToInvariantString());
             }
         }
 

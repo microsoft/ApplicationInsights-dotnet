@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 2.8.0
+- Updated Bask SDK/Web SDK/Logging Adaptor SDK to 2.11.0
+- Updated System.Diagnostics.DiagnosticSource to 4.6.0
+
+
 ## Version 2.8.0-beta3
 - [Make W3C Correlation default and leverage native W3C support from Activity.](https://github.com/microsoft/ApplicationInsights-aspnetcore/pull/958)
 - [Make W3C Correlation default and leverage native W3C support from Activity for Asp.Net Core 3.0.](https://github.com/microsoft/ApplicationInsights-aspnetcore/pull/958)
