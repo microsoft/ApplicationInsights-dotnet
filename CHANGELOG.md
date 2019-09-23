@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 2.12.0-beta1
+- Skipping version numbers to keep in sync with Base SDK.
+
+
 ## Version 2.8.0
 - Updated Bask SDK/Web SDK/Logging Adaptor SDK to 2.11.0
 - Updated System.Diagnostics.DiagnosticSource to 4.6.0

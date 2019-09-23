@@ -3,7 +3,7 @@
   
   <PropertyGroup>
     <AssemblyName>Microsoft.ApplicationInsights.AspNetCore</AssemblyName>
-    <VersionPrefix>2.8.0</VersionPrefix>
+    <VersionPrefix>2.12.0-beta1</VersionPrefix>
     <LangVersion>7.2</LangVersion>
     <TargetFrameworks>netstandard2.0;net451;net46;netstandard1.6</TargetFrameworks>
     <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard1.6;netstandard2.0</TargetFrameworks>
