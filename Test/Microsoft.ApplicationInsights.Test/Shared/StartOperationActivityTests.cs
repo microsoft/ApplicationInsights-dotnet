@@ -49,7 +49,7 @@
         [TestMethod]
         public void BasicStartOperationWithActivity()
         {
-            var activity = new Activity("name").SetParentId("parentId").AddBaggage("b1", "v1").AddTag("t1", "v1");
+            var activity = new Activity("name").AddBaggage("b1", "v1").AddTag("t1", "v1");
 
             RequestTelemetry telemetry;
             using (var operation = this.telemetryClient.StartOperation<RequestTelemetry>(activity))
@@ -60,6 +60,87 @@
             }
 
             this.ValidateTelemetry(telemetry, activity);
+
+            Assert.AreEqual(telemetry, this.sendItems.Single());
+        }
+
+        [TestMethod]
+        public void StartOperationWithActivity_LegacyId1()
+        {
+            var activity = new Activity("name")
+                .SetParentId("parentId")
+                .AddBaggage("b1", "v1")
+                .AddTag("t1", "v1");
+
+            activity.ActivityTraceFlags = ActivityTraceFlags.Recorded;
+            activity.TraceStateString = "state=some";
+
+            RequestTelemetry telemetry;
+            using (var operation = this.telemetryClient.StartOperation<RequestTelemetry>(activity))
+            {
+                telemetry = operation.Telemetry;
+                Assert.AreEqual(activity, Activity.Current);
+                Assert.IsNotNull(activity.Id);
+            }
+
+            this.ValidateTelemetry(telemetry, activity, true, "parentId");
+            Assert.IsTrue(telemetry.Properties.TryGetValue("ai_legacyRootId", out var legacyRoot));
+            Assert.AreEqual("parentId", legacyRoot);
+
+            Assert.AreEqual(telemetry, this.sendItems.Single());
+        }
+
+        [TestMethod]
+        public void StartOperationWithActivity_LegacyId2()
+        {
+            var activity = new Activity("name")
+                .SetParentId("|parentId.123.")
+                .AddBaggage("b1", "v1")
+                .AddTag("t1", "v1");
+
+            activity.ActivityTraceFlags = ActivityTraceFlags.Recorded;
+            activity.TraceStateString = "state=some";
+
+            RequestTelemetry telemetry;
+            using (var operation = this.telemetryClient.StartOperation<RequestTelemetry>(activity))
+            {
+                telemetry = operation.Telemetry;
+                Assert.AreEqual(activity, Activity.Current);
+                Assert.IsNotNull(activity.Id);
+            }
+
+            this.ValidateTelemetry(telemetry, activity, true, "|parentId.123.");
+
+            Assert.IsTrue(telemetry.Properties.TryGetValue("ai_legacyRootId", out var legacyRoot));
+            Assert.AreEqual("parentId", legacyRoot);
+            Assert.AreEqual(telemetry, this.sendItems.Single());
+        }
+
+        [TestMethod]
+        public void StartOperationWithActivity_LegacyIdCompatible()
+        {
+            var activity = new Activity("name")
+                .SetParentId("|00112233445566778899aabbccddeeff.123.")
+                .AddBaggage("b1", "v1")
+                .AddTag("t1", "v1");
+
+            activity.ActivityTraceFlags = ActivityTraceFlags.Recorded;
+            activity.TraceStateString = "state=some";
+
+            RequestTelemetry telemetry;
+            Activity newActivity = null;
+            using (var operation = this.telemetryClient.StartOperation<RequestTelemetry>(activity))
+            {
+                telemetry = operation.Telemetry;
+                newActivity = Activity.Current;
+                Assert.AreNotEqual(activity, newActivity);
+                Assert.IsNotNull(newActivity?.Id);
+            }
+
+            this.ValidateTelemetry(telemetry, newActivity, true, "|00112233445566778899aabbccddeeff.123.");
+            Assert.AreEqual("00112233445566778899aabbccddeeff", telemetry.Context.Operation.Id);
+
+            Assert.IsFalse(telemetry.Properties.ContainsKey("ai_legacyRootId"));
 
             Assert.AreEqual(telemetry, this.sendItems.Single());
         }
@@ -80,7 +161,7 @@
                 Assert.IsNotNull(activity.Id);
             }
 
-            this.ValidateTelemetry(telemetry, activity);
+            this.ValidateTelemetry(telemetry, activity, true, "parentId");
 
             Assert.AreEqual(telemetry, this.sendItems.Single());
             Assert.AreEqual(outerActivity, Activity.Current);
@@ -99,7 +180,11 @@
 
             // this is not right to give started Activity to StartOperation, but nothing terrible should happen
             // except it won't be possible to restore original context after StartOperation completes
-            var activity = new Activity("name").SetParentId("parentId").AddBaggage("b1", "v1").AddTag("t1", "v1").Start();
+            var activity = new Activity("name")
+                .SetParentId(ActivityTraceId.CreateRandom(), ActivitySpanId.CreateRandom())
+                .AddBaggage("b1", "v1")
+                .AddTag("t1", "v1")
+                .Start();
 
             RequestTelemetry telemetry;
             using (var operation = this.telemetryClient.StartOperation<RequestTelemetry>(activity))
@@ -119,7 +204,6 @@
             Assert.IsNotNull(request);
             Assert.AreEqual(activity.TraceId.ToHexString(), request.Context.Operation.Id);
             Assert.AreEqual($"|{activity.TraceId.ToHexString()}.{activity.SpanId.ToHexString()}.", request.Id);
-            Assert.AreEqual("parentId", request.Context.Operation.ParentId);
         }
 
         /// <summary>
@@ -128,7 +212,7 @@
         [TestMethod]
         public void InvalidStartOperationWithStartedActivity()
         {
-            var activity = new Activity("name").SetParentId("parentId").AddBaggage("b1", "v1").AddTag("t1", "v1").Start();
+            var activity = new Activity("name").AddBaggage("b1", "v1").AddTag("t1", "v1").Start();
 
             DependencyTelemetry telemetry;
             using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(activity))
@@ -150,12 +234,12 @@
             // nested operation processing.
             // E.g. Background Activity is tracking high-level operation "get 5 messages from the queue and process them all"
             // In this case, each message processing has it's own correlation scope, passed in the message (i.e. Parent Activity is external)
-            // The requirement is that backgorund Activity must survive each message processing.
+            // The requirement is that background Activity must survive each message processing.
 
             var backgroundActivity = new Activity("background").Start();
 
             //since ParentId is set on the activity, it won't be child of the parentActivity
-            var activity = new Activity("name").SetParentId("parentId");
+            var activity = new Activity("name").SetParentId(ActivityTraceId.CreateRandom(), ActivitySpanId.CreateRandom());
 
             // in order to keep parentActivity, StartOperation and StopOperation(or dispose)
             // must be called 
@@ -184,7 +268,7 @@
             var activity = new Activity("name").SetParentId("parentId");
             RequestTelemetry telemetry = await ProcessWithStartOperationAsync<RequestTelemetry>(activity, null);
 
-            this.ValidateTelemetry(telemetry, activity);
+            this.ValidateTelemetry(telemetry, activity, true, "parentId");
             Assert.AreEqual(telemetry, this.sendItems.Single());
 
             // after processing is done and chile activity is finished, 
@@ -332,20 +416,34 @@
             return telemetry;
         }
 
-        private void ValidateTelemetry<T>(T telemetry, Activity activity, bool isW3C = true) where T : OperationTelemetry
+        private void ValidateTelemetry<T>(T telemetry, Activity activity, bool isW3C = true, string legacyParentId = null) where T : OperationTelemetry
         {
             Assert.AreEqual(activity.OperationName, telemetry.Name);
+            Assert.AreEqual(
+                isW3C
+                    ? W3CUtilities.FormatTelemetryId(activity.TraceId.ToHexString(), activity.SpanId.ToHexString())
+                    : activity.Id, telemetry.Id);
+
             if (isW3C)
             {
-                Assert.AreEqual(W3CUtilities.FormatTelemetryId(activity.TraceId.ToHexString(), activity.SpanId.ToHexString()), telemetry.Id);
+                if (activity.ParentSpanId != default && activity.ParentSpanId.ToHexString() != "0000000000000000")
+                {
+                    Assert.AreEqual(
+                        W3CUtilities.FormatTelemetryId(activity.TraceId.ToHexString(),
+                            activity.ParentSpanId.ToHexString()), telemetry.Context.Operation.ParentId);
+                }
+                else
+                {
+                    Assert.AreEqual(legacyParentId, telemetry.Context.Operation.ParentId);
+                }
+
+                Assert.AreEqual(activity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
             }
             else
             {
-                Assert.AreEqual(activity.Id, telemetry.Id);
+                Assert.AreEqual(activity.ParentId, telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(activity.RootId, telemetry.Context.Operation.Id);
             }
-            
-            Assert.AreEqual(activity.ParentId, telemetry.Context.Operation.ParentId);
-            Assert.AreEqual(activity.RootId, telemetry.Context.Operation.Id);
 
             foreach (var baggage in activity.Baggage)
             {
@@ -358,6 +456,18 @@
                 Assert.IsTrue(telemetry.Properties.ContainsKey(tag.Key));
                 Assert.AreEqual(tag.Value, telemetry.Properties[tag.Key]);
             }
+
+            if (activity.TraceStateString != null)
+            {
+                Assert.IsTrue(telemetry.Properties.TryGetValue("tracestate", out var tracestate));
+                Assert.AreEqual(activity.TraceStateString, tracestate);
+            }
+            else
+            {
+                Assert.IsFalse(telemetry.Properties.ContainsKey("tracestate"));
+            }
+
+            Assert.AreEqual(activity.Recorded ? SamplingDecision.SampledIn : SamplingDecision.None, (telemetry as ISupportAdvancedSampling).ProactiveSamplingDecision);
         }
     }
 }

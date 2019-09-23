@@ -305,8 +305,42 @@
                 originalActivity = Activity.Current;
             }
 
+            string legacyRoot = null;
+            string legacyParent = null;
+            if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
+            {
+                // if parent is not  W3C
+                if (activity.ParentId != null &&
+                    !activity.ParentId.StartsWith("00-", StringComparison.Ordinal))
+                {
+                    // save parent
+                    legacyParent = activity.ParentId;
+
+                    if (W3CUtilities.IsCompatibleW3CTraceId(activity.RootId))
+                    {
+                        // reuse root id when compatible with trace ID
+                        activity = CopyFromCompatibleRoot(activity);
+                    }
+                    else
+                    {
+                        // or store legacy root in custom property
+                        legacyRoot = activity.RootId;
+                    }
+                }
+            }
+
             activity.Start();
             T operationTelemetry = ActivityToTelemetry<T>(activity);
+
+            if (legacyRoot != null)
+            {
+                operationTelemetry.Properties.Add(W3CConstants.LegacyRootIdProperty, legacyRoot);
+            }
+
+            if (legacyParent != null)
+            {
+                operationTelemetry.Context.Operation.ParentId = legacyParent;
+            }
 
             // We initialize telemetry here AND in Track method because of RichPayloadEventSource.
             // It sends Start and Stop events for OperationTelemetry. During Start event telemetry
@@ -332,15 +366,22 @@
 
             OperationContext operationContext = telemetry.Context.Operation;
             operationContext.Name = activity.GetOperationName();            
-            operationContext.ParentId = activity.ParentId;
+            
             if (activity.IdFormat == ActivityIdFormat.W3C)
             {
-                operationContext.Id = activity.TraceId.ToHexString();                
+                operationContext.Id = activity.TraceId.ToHexString();
                 telemetry.Id = W3CUtilities.FormatTelemetryId(operationContext.Id, activity.SpanId.ToHexString());
+
+                if (string.IsNullOrEmpty(operationContext.ParentId) && activity.ParentSpanId != default)
+                {
+                    operationContext.ParentId =
+                        W3CUtilities.FormatTelemetryId(operationContext.Id, activity.ParentSpanId.ToHexString());
+                }
             }
             else
             {
                 operationContext.Id = activity.RootId;
+                operationContext.ParentId = activity.ParentId;
                 telemetry.Id = activity.Id;
             }
 
@@ -361,6 +402,27 @@
             }
 
             return telemetry;
+        }
+
+        private static Activity CopyFromCompatibleRoot(Activity from)
+        {
+            var copy = new Activity(from.OperationName);
+            copy.SetParentId(ActivityTraceId.CreateFromString(from.RootId.AsSpan()),
+                default(ActivitySpanId), from.ActivityTraceFlags);
+
+            foreach (var tag in from.Tags)
+            {
+                copy.AddTag(tag.Key, tag.Value);
+            }
+
+            foreach (var baggage in from.Baggage)
+            {
+                copy.AddBaggage(baggage.Key, baggage.Value);
+            }
+
+            copy.TraceStateString = from.TraceStateString;
+
+            return copy;
         }
     }
 }
