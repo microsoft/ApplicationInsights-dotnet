@@ -62,8 +62,7 @@
 
             CollectionAssert.AreEqual(expected, test);
         }
-
-
+        
         [TestMethod]
         public void TestParseConnectionString_WithExtraSpaces()
         {
@@ -110,6 +109,13 @@
         public void TestParseConnectionString_DuplaceKeys()
         {
             EndpointProvider.ParseConnectionString("key1=value1;key1=value2");
+        }
+
+        [TestMethod]
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "Connection String Invalid: Contains duplicate key: 'key1'.")]
+        public void TestParseConnectionString_DuplaceKeysWithSpaces()
+        {
+            EndpointProvider.ParseConnectionString("key1=value1;key1  =value2");
         }
 
         [TestMethod]

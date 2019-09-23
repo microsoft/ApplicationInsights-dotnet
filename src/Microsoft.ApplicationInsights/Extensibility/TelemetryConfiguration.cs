@@ -305,7 +305,7 @@
                 }
                 catch (Exception ex)
                 {
-                    // TODO: LOG TO ETW ERROR: Could not set Connection String. Log Inner Exception.
+                    CoreEventSource.Log.ConnectionStringSetFailed(ex.ToInvariantString());
                     throw;
                 }
             }

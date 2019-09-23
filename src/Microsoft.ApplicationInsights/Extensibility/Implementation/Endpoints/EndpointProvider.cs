@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// This class encapsulates parsing a connection string and returning an Endpoint's URI.
@@ -48,7 +49,7 @@
                 }
                 else if (value.Length > ConnectionStringMaxLength)
                 {
-                    // TODO: LOG TO ETW ERROR: Malicious injection guard
+                    CoreEventSource.Log.ConnectionStringExceedsMaxLength(ConnectionStringMaxLength);
                     throw new ArgumentOutOfRangeException($"Values greater than {ConnectionStringMaxLength} characters are not allowed.", nameof(this.ConnectionString));
                 }
 
@@ -101,7 +102,7 @@
             }
             catch (Exception ex)
             {
-                // TODO: LOG TO ETW ERROR: exception trying to get endpointName. Log Inner Exception.
+                CoreEventSource.Log.ConnectionStringInvalidEndpoint(ex.ToInvariantString());
                 throw; // Re-throw original exception
             }
         }
@@ -131,7 +132,7 @@
         {
             if (connectionString == null)
             {
-                // TODO: LOG TO ETW ERROR: connection string null
+                CoreEventSource.Log.ConnectionStringNull();
                 throw new ArgumentNullException(nameof(connectionString));
             }
 
@@ -139,7 +140,7 @@
 
             if (keyValuePairs.Length == 0)
             {
-                // TODO: LOG TO ETW ERROR: connection string empty
+                CoreEventSource.Log.ConnectionStringEmpty();
                 throw new ArgumentException("Connection string cannot be empty.");
             }
 
@@ -150,17 +151,20 @@
                 var keyAndValue = pair.Split('=');
                 if (keyAndValue.Length != 2)
                 {
-                    // TODO: LOG TO ETW ERROR: connection string invalid format
+                    CoreEventSource.Log.ConnectionStringInvalidDelimiters();
                     throw new ArgumentException("Connection String Invalid: Unexpected delimiter can not be parsed. Expected: 'key1=value1;key2=value2;key3=value3'");
                 }
 
-                if (dictionary.ContainsKey(keyAndValue[0]))
+                var key = keyAndValue[0].Trim();
+                var value = keyAndValue[1].Trim();
+
+                if (dictionary.ContainsKey(key))
                 {
-                    // TODO: LOG TO ETW ERROR: connection string duplicate key
-                    throw new ArgumentException($"Connection String Invalid: Contains duplicate key: '{keyAndValue[0]}'.");
+                    CoreEventSource.Log.ConnectionStringDuplicateKey();
+                    throw new ArgumentException($"Connection String Invalid: Contains duplicate key: '{key}'.");
                 }
 
-                dictionary.Add(keyAndValue[0].Trim(), keyAndValue[1].Trim());
+                dictionary.Add(key, value);
             }
 
             return dictionary;
