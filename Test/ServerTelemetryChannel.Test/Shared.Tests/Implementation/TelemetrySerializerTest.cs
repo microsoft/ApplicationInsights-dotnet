@@ -28,10 +28,10 @@
         public class EndpointAddress
         {
             [TestMethod]
-            public void DefaultValuePointsToModernEndpointInProductionEnvironment()
+            public void DefaultValueIsNull()
             {
                 var serializer = new TelemetrySerializer(new StubTransmitter());
-                Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", serializer.EndpointAddress.ToString());
+                Assert.AreEqual(null, serializer.EndpointAddress);
             }
 
             [TestMethod]
@@ -78,7 +78,11 @@
                     serializationThreadId = Thread.CurrentThread.ManagedThreadId;
                 };
 
-                var serializer = new TelemetrySerializer(transmitter);
+                var serializer = new TelemetrySerializer(transmitter)
+                {
+                    EndpointAddress = new Uri("https://127.0.0.1")
+                };
+
                 serializer.Serialize(new[] { new StubTelemetry() });
 
                 Assert.AreEqual(serializationThreadId, Thread.CurrentThread.ManagedThreadId);
@@ -141,7 +145,10 @@
             public void DoesNotContinueAsyncOperationsOnCapturedSynchronizationContextToImprovePerformance()
             {
                 var transmitter = new StubTransmitter() { OnEnqueue = transmission => Task.Run(() => { }) };
-                var serializer = new TelemetrySerializer(transmitter);
+                var serializer = new TelemetrySerializer(transmitter)
+                {
+                    EndpointAddress = new Uri("https://127.0.0.1")
+                };
 
                 bool postedBack = false;
                 using (var context = new StubSynchronizationContext())

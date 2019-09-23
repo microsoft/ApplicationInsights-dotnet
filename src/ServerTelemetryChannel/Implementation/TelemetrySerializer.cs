@@ -8,6 +8,7 @@
     internal class TelemetrySerializer
     {
         internal readonly Transmitter Transmitter;
+        private Uri endpoindAddress;
 
         public TelemetrySerializer(Transmitter transmitter) => this.Transmitter = transmitter ?? throw new ArgumentNullException(nameof(transmitter));
 
@@ -19,7 +20,11 @@
         /// <summary>
         /// Gets or sets the endpoint address.  
         /// </summary>
-        public Uri EndpointAddress { get; set; }
+        public Uri EndpointAddress
+        {
+            get { return this.endpoindAddress; }
+            set { this.endpoindAddress = value ?? throw new ArgumentNullException(nameof(this.EndpointAddress)); }
+        }
 
         public virtual void Serialize(ICollection<ITelemetry> items)
         {
