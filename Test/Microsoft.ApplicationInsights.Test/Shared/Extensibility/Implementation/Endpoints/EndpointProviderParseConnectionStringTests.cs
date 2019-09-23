@@ -63,6 +63,22 @@
             CollectionAssert.AreEqual(expected, test);
         }
 
+
+        [TestMethod]
+        public void TestParseConnectionString_WithExtraSpaces()
+        {
+            var test = EndpointProvider.ParseConnectionString(" key1 =  value1   ; key2 = value2 ; key3    =value3   ");
+
+            var expected = new Dictionary<string, string>
+            {
+                {"key1", "value1" },
+                {"key2", "value2" },
+                {"key3", "value3" }
+            };
+
+            CollectionAssert.AreEqual(expected, test);
+        }
+
         /// <summary>
         /// Users can input unexpected casing in their connection strings.
         /// Verify that we can fetch any value from the dictionary regardless of the casing.

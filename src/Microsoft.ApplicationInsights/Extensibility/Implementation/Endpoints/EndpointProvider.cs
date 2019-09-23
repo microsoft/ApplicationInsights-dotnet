@@ -160,7 +160,7 @@
                     throw new ArgumentException($"Connection String Invalid: Contains duplicate key: '{keyAndValue[0]}'.");
                 }
 
-                dictionary.Add(keyAndValue[0], keyAndValue[1]);
+                dictionary.Add(keyAndValue[0].Trim(), keyAndValue[1].Trim());
             }
 
             return dictionary;
