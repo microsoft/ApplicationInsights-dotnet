@@ -406,6 +406,27 @@
 
         [TestMethod]
         [TestCategory("ConnectionString")]
+        public void E2E_CreateDefaultScenario()
+        {
+            var configuration = TelemetryConfiguration.CreateDefault();
+
+            Assert.AreEqual(string.Empty, configuration.InstrumentationKey);
+            Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", configuration.DefaultTelemetrySink.TelemetryChannel.EndpointAddress);
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionString")]
+        public void E2E_CreateDefaultScenario_WithConnectionString()
+        {
+            var configuration = TelemetryConfiguration.CreateDefault();
+            configuration.ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://127.0.0.1/";
+
+            Assert.AreEqual("00000000-0000-0000-0000-000000000000", configuration.InstrumentationKey);
+            Assert.AreEqual("https://127.0.0.1/v2/track", configuration.DefaultTelemetrySink.TelemetryChannel.EndpointAddress);
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionString")]
         public void VerifySetConnectionString_SetsApplicationIdProvider_FromDefault()
         {
             var applicationIdProvider = new ApplicationInsightsApplicationIdProvider();
