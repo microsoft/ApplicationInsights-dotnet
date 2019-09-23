@@ -77,6 +77,7 @@ Microsoft.ApplicationInsights.Channel.ITelemetryChannel.EndpointAddress.get -> s
 Microsoft.ApplicationInsights.Channel.ITelemetryChannel.EndpointAddress.set -> void
 Microsoft.ApplicationInsights.Channel.ITelemetryChannel.Flush() -> void
 Microsoft.ApplicationInsights.Channel.ITelemetryChannel.Send(Microsoft.ApplicationInsights.Channel.ITelemetry item) -> void
+Microsoft.ApplicationInsights.Channel.SamplingScoreGenerator
 Microsoft.ApplicationInsights.Channel.Transmission
 Microsoft.ApplicationInsights.Channel.Transmission.Content.get -> byte[]
 Microsoft.ApplicationInsights.Channel.Transmission.ContentEncoding.get -> string
@@ -127,6 +128,9 @@ Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.DependencyTeleme
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.DependencyTelemetry(string dependencyTypeName, string target, string dependencyName, string data, System.DateTimeOffset startTime, System.TimeSpan duration, string resultCode, bool success) -> void
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.DependencyTypeName.get -> string
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.DependencyTypeName.set -> void
+Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.ProactiveSamplingDecision.get -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.ProactiveSamplingDecision.set -> void
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.ResultCode.get -> string
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.ResultCode.set -> void
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.SetOperationDetail(string key, object detail) -> void
@@ -142,9 +146,12 @@ Microsoft.ApplicationInsights.DataContracts.EventTelemetry.EventTelemetry() -> v
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.EventTelemetry(string name) -> void
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.EventTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Metrics.get -> System.Collections.Generic.IDictionary<string, double>
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Name.get -> string
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Name.set -> void
+Microsoft.ApplicationInsights.DataContracts.EventTelemetry.ProactiveSamplingDecision.get -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.EventTelemetry.ProactiveSamplingDecision.set -> void
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Properties.get -> System.Collections.Generic.IDictionary<string, string>
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Sequence.get -> string
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Sequence.set -> void
@@ -174,9 +181,12 @@ Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Extension.get -> 
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Extension.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.HandledAt.get -> Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.HandledAt.set -> void
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Message.get -> string
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Message.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Metrics.get -> System.Collections.Generic.IDictionary<string, double>
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ProactiveSamplingDecision.get -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ProactiveSamplingDecision.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ProblemId.get -> string
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ProblemId.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Properties.get -> System.Collections.Generic.IDictionary<string, string>
@@ -204,6 +214,10 @@ Microsoft.ApplicationInsights.DataContracts.IJsonWriter.WritePropertyName(string
 Microsoft.ApplicationInsights.DataContracts.IJsonWriter.WriteRawValue(object value) -> void
 Microsoft.ApplicationInsights.DataContracts.IJsonWriter.WriteStartArray() -> void
 Microsoft.ApplicationInsights.DataContracts.IJsonWriter.WriteStartObject() -> void
+Microsoft.ApplicationInsights.DataContracts.ISupportAdvancedSampling
+Microsoft.ApplicationInsights.DataContracts.ISupportAdvancedSampling.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.ISupportAdvancedSampling.ProactiveSamplingDecision.get -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.ISupportAdvancedSampling.ProactiveSamplingDecision.set -> void
 Microsoft.ApplicationInsights.DataContracts.ISupportMetrics
 Microsoft.ApplicationInsights.DataContracts.ISupportMetrics.Metrics.get -> System.Collections.Generic.IDictionary<string, double>
 Microsoft.ApplicationInsights.DataContracts.ISupportProperties
@@ -253,6 +267,7 @@ Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Extensi
 Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Extension.set -> void
 Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Id.get -> string
 Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Id.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
 Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Metrics.get -> System.Collections.Generic.IDictionary<string, double>
 Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Name.get -> string
 Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Name.set -> void
@@ -262,6 +277,8 @@ Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.PageVie
 Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.PageViewPerformanceTelemetry(string pageName) -> void
 Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.PerfTotal.get -> System.TimeSpan
 Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.PerfTotal.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.ProactiveSamplingDecision.get -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.ProactiveSamplingDecision.set -> void
 Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Properties.get -> System.Collections.Generic.IDictionary<string, string>
 Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.ReceivedResponse.get -> System.TimeSpan
 Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.ReceivedResponse.set -> void
@@ -283,11 +300,14 @@ Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.Extension.get -> M
 Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.Extension.set -> void
 Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.Id.get -> string
 Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.Id.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
 Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.Metrics.get -> System.Collections.Generic.IDictionary<string, double>
 Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.Name.get -> string
 Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.Name.set -> void
 Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.PageViewTelemetry() -> void
 Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.PageViewTelemetry(string pageName) -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.ProactiveSamplingDecision.get -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.ProactiveSamplingDecision.set -> void
 Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.Properties.get -> System.Collections.Generic.IDictionary<string, string>
 Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.Sequence.get -> string
 Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.Sequence.set -> void
@@ -320,6 +340,9 @@ Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.Value.se
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.HttpMethod.get -> string
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.HttpMethod.set -> void
+Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.ProactiveSamplingDecision.get -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.ProactiveSamplingDecision.set -> void
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.RequestTelemetry() -> void
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.RequestTelemetry(string name, System.DateTimeOffset startTime, System.TimeSpan duration, string responseCode, bool success) -> void
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.ResponseCode.get -> string
@@ -328,6 +351,23 @@ Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Source.get -> strin
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Source.set -> void
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Url.get -> System.Uri
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Url.set -> void
+Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.SamplingDecision.None = 0 -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.SamplingDecision.SampledIn = 1 -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.SamplingDecision.SampledOut = 2 -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.Availability = 1024 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.Event = 1 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.Exception = 2 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.Message = 4 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.Metric = 8 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.None = 0 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.PageView = 16 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.PageViewPerformance = 32 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.PerformanceCounter = 64 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.RemoteDependency = 128 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.Request = 256 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.SessionState = 512 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
 Microsoft.ApplicationInsights.DataContracts.SessionState
 Microsoft.ApplicationInsights.DataContracts.SessionState.End = 1 -> Microsoft.ApplicationInsights.DataContracts.SessionState
 Microsoft.ApplicationInsights.DataContracts.SessionState.Start = 0 -> Microsoft.ApplicationInsights.DataContracts.SessionState
@@ -375,8 +415,11 @@ Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Context.get -> Micros
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Message.get -> string
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Message.set -> void
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.ProactiveSamplingDecision.get -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.ProactiveSamplingDecision.set -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Properties.get -> System.Collections.Generic.IDictionary<string, string>
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Sequence.get -> string
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Sequence.set -> void
@@ -408,6 +451,7 @@ Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.Applica
 Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider
 Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.Defined.get -> System.Collections.Generic.IReadOnlyDictionary<string, string>
 Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.Defined.set -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.DictionaryApplicationIdProvider() -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.Next.get -> Microsoft.ApplicationInsights.Extensibility.IApplicationIdProvider
 Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.Next.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.TryGetApplicationId(string instrumentationKey, out string applicationId) -> bool
@@ -436,9 +480,11 @@ Microsoft.ApplicationInsights.Extensibility.Implementation.DeviceContext.ScreenR
 Microsoft.ApplicationInsights.Extensibility.Implementation.DeviceContext.ScreenResolution.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.DeviceContext.Type.get -> string
 Microsoft.ApplicationInsights.Extensibility.Implementation.DeviceContext.Type.set -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental.ExperimentalFeaturesExtension
 Microsoft.ApplicationInsights.Extensibility.Implementation.HttpWebResponseWrapper
 Microsoft.ApplicationInsights.Extensibility.Implementation.HttpWebResponseWrapper.Content.get -> string
 Microsoft.ApplicationInsights.Extensibility.Implementation.HttpWebResponseWrapper.Content.set -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.HttpWebResponseWrapper.HttpWebResponseWrapper() -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.HttpWebResponseWrapper.RetryAfterHeader.get -> string
 Microsoft.ApplicationInsights.Extensibility.Implementation.HttpWebResponseWrapper.RetryAfterHeader.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.HttpWebResponseWrapper.StatusCode.get -> int
@@ -468,6 +514,7 @@ Microsoft.ApplicationInsights.Extensibility.Implementation.OperationContext.Pare
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationContext.SyntheticSource.get -> string
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationContext.SyntheticSource.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry
+Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.OperationTelemetry() -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Sanitize() -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.StartTime.get -> System.DateTimeOffset
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.StartTime.set -> void
@@ -483,8 +530,11 @@ Microsoft.ApplicationInsights.Extensibility.Implementation.TaskTimer.Delay.set -
 Microsoft.ApplicationInsights.Extensibility.Implementation.TaskTimer.Dispose() -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.TaskTimer.IsStarted.get -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.TaskTimer.Start(System.Func<System.Threading.Tasks.Task> elapsed) -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.TaskTimer.TaskTimer() -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryConfigurationExtensions
 Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryContextExtensions
 Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryDebugWriter
+Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryDebugWriter.TelemetryDebugWriter() -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryModules
 Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryModules.Modules.get -> System.Collections.Generic.IList<Microsoft.ApplicationInsights.Extensibility.ITelemetryModule>
 Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryModules.TelemetryModules() -> void
@@ -559,9 +609,11 @@ Microsoft.ApplicationInsights.Extensibility.ITelemetryProcessor
 Microsoft.ApplicationInsights.Extensibility.ITelemetryProcessor.Process(Microsoft.ApplicationInsights.Channel.ITelemetry item) -> void
 Microsoft.ApplicationInsights.Extensibility.OperationCorrelationTelemetryInitializer
 Microsoft.ApplicationInsights.Extensibility.OperationCorrelationTelemetryInitializer.Initialize(Microsoft.ApplicationInsights.Channel.ITelemetry telemetryItem) -> void
+Microsoft.ApplicationInsights.Extensibility.OperationCorrelationTelemetryInitializer.OperationCorrelationTelemetryInitializer() -> void
 Microsoft.ApplicationInsights.Extensibility.SdkInternalOperationsMonitor
 Microsoft.ApplicationInsights.Extensibility.SequencePropertyInitializer
 Microsoft.ApplicationInsights.Extensibility.SequencePropertyInitializer.Initialize(Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> void
+Microsoft.ApplicationInsights.Extensibility.SequencePropertyInitializer.SequencePropertyInitializer() -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ApplicationIdProvider.get -> Microsoft.ApplicationInsights.Extensibility.IApplicationIdProvider
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ApplicationIdProvider.set -> void
@@ -569,6 +621,7 @@ Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DefaultTeleme
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableTelemetry.get -> bool
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableTelemetry.set -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.Dispose() -> void
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ExperimentalFeatures.get -> System.Collections.Generic.IList<string>
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.InstrumentationKey.get -> string
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.InstrumentationKey.set -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.TelemetryChannel.get -> Microsoft.ApplicationInsights.Channel.ITelemetryChannel
@@ -596,6 +649,7 @@ Microsoft.ApplicationInsights.Extensibility.TelemetrySink.TelemetrySink(Microsof
 Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions
 Microsoft.ApplicationInsights.Extensibility.W3C.W3COperationCorrelationTelemetryInitializer
 Microsoft.ApplicationInsights.Extensibility.W3C.W3COperationCorrelationTelemetryInitializer.Initialize(Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> void
+Microsoft.ApplicationInsights.Extensibility.W3C.W3COperationCorrelationTelemetryInitializer.W3COperationCorrelationTelemetryInitializer() -> void
 Microsoft.ApplicationInsights.Extensibility.W3C.W3CUtilities
 Microsoft.ApplicationInsights.Metric
 Microsoft.ApplicationInsights.Metric.GetAllSeries() -> System.Collections.Generic.IReadOnlyList<System.Collections.Generic.KeyValuePair<string[], Microsoft.ApplicationInsights.Metrics.MetricSeries>>
@@ -856,11 +910,16 @@ override Microsoft.ApplicationInsights.Metrics.MetricIdentifier.GetHashCode() ->
 override Microsoft.ApplicationInsights.Metrics.MetricIdentifier.ToString() -> string
 override Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.Equals(object obj) -> bool
 override Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.GetHashCode() -> int
+static Microsoft.ApplicationInsights.Channel.SamplingScoreGenerator.GetSamplingScore(Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> double
+static Microsoft.ApplicationInsights.Channel.SamplingScoreGenerator.GetSamplingScore(string value) -> double
+static Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental.ExperimentalFeaturesExtension.EvaluateExperimentalFeature(this Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration telemetryConfiguration, string featureName) -> bool
 static Microsoft.ApplicationInsights.Extensibility.Implementation.JsonSerializer.CompressionType.get -> string
 static Microsoft.ApplicationInsights.Extensibility.Implementation.JsonSerializer.ContentType.get -> string
 static Microsoft.ApplicationInsights.Extensibility.Implementation.JsonSerializer.ConvertToByteArray(string telemetryItems, bool compress = true) -> byte[]
 static Microsoft.ApplicationInsights.Extensibility.Implementation.JsonSerializer.Deserialize(byte[] telemetryItemsData, bool compress = true) -> string
 static Microsoft.ApplicationInsights.Extensibility.Implementation.JsonSerializer.Serialize(System.Collections.Generic.IEnumerable<Microsoft.ApplicationInsights.Channel.ITelemetry> telemetryItems, bool compress = true) -> byte[]
+static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryConfigurationExtensions.GetLastObservedSamplingPercentage(this Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration configuration, Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes samplingItemType) -> double
+static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryConfigurationExtensions.SetLastObservedSamplingPercentage(this Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration configuration, Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes samplingItemType, double value) -> void
 static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryContextExtensions.GetInternalContext(this Microsoft.ApplicationInsights.DataContracts.TelemetryContext context) -> Microsoft.ApplicationInsights.Extensibility.Implementation.InternalContext
 static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryDebugWriter.IsTracingDisabled.get -> bool
 static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryDebugWriter.IsTracingDisabled.set -> void
