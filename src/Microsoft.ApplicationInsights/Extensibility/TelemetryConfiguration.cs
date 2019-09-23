@@ -312,47 +312,6 @@
         }
 
         /// <summary>
-        /// This will check the ApplicationIdProvider and attempt to set the endpoint.
-        /// This only supports our first party providers <see cref="ApplicationInsightsApplicationIdProvider"/> and <see cref="DictionaryApplicationIdProvider"/>.
-        /// </summary>
-        /// <param name="applicationIdProvider">ApplicationIdProvider to set.</param>
-        /// <param name="endpoint">Endpoint value to set.</param>
-        private static void SetApplicationIdEndpoint(IApplicationIdProvider applicationIdProvider, string endpoint)
-        {
-            if (applicationIdProvider != null)
-            {
-                if (applicationIdProvider is ApplicationInsightsApplicationIdProvider applicationInsightsApplicationIdProvider)
-                {
-                    applicationInsightsApplicationIdProvider.ProfileQueryEndpoint = endpoint;
-                }
-                else if (applicationIdProvider is DictionaryApplicationIdProvider dictionaryApplicationIdProvider)
-                {
-                    if (dictionaryApplicationIdProvider.Next is ApplicationInsightsApplicationIdProvider innerApplicationIdProvider)
-                    {
-                        innerApplicationIdProvider.ProfileQueryEndpoint = endpoint;
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// This will check the TelemetryChannel and attempt to set the endpoint.
-        /// This only supports our first party providers <see cref="InMemoryChannel"/> and ServerTelemetryChannel.
-        /// </summary>
-        /// <param name="channel">TelemetryChannel to set.</param>
-        /// <param name="endpoint">Endpoint value to set.</param>
-        private static void SetTelemetryChannelEndpoint(ITelemetryChannel channel, string endpoint)
-        {
-            if (channel != null)
-            {
-                if (channel is InMemoryChannel || channel.GetType().FullName == "Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel")
-                {
-                    channel.EndpointAddress = endpoint;
-                }
-            }
-        }
-
-        /// <summary>
         /// Gets a collection of strings indicating if an experimental feature should be enabled.
         /// The presence of a string in this collection will be evaluated as 'true'.
         /// </summary>
@@ -461,6 +420,47 @@
             }
 
             return manager;
+        }
+
+        /// <summary>
+        /// This will check the ApplicationIdProvider and attempt to set the endpoint.
+        /// This only supports our first party providers <see cref="ApplicationInsightsApplicationIdProvider"/> and <see cref="DictionaryApplicationIdProvider"/>.
+        /// </summary>
+        /// <param name="applicationIdProvider">ApplicationIdProvider to set.</param>
+        /// <param name="endpoint">Endpoint value to set.</param>
+        private static void SetApplicationIdEndpoint(IApplicationIdProvider applicationIdProvider, string endpoint)
+        {
+            if (applicationIdProvider != null)
+            {
+                if (applicationIdProvider is ApplicationInsightsApplicationIdProvider applicationInsightsApplicationIdProvider)
+                {
+                    applicationInsightsApplicationIdProvider.ProfileQueryEndpoint = endpoint;
+                }
+                else if (applicationIdProvider is DictionaryApplicationIdProvider dictionaryApplicationIdProvider)
+                {
+                    if (dictionaryApplicationIdProvider.Next is ApplicationInsightsApplicationIdProvider innerApplicationIdProvider)
+                    {
+                        innerApplicationIdProvider.ProfileQueryEndpoint = endpoint;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// This will check the TelemetryChannel and attempt to set the endpoint.
+        /// This only supports our first party providers <see cref="InMemoryChannel"/> and ServerTelemetryChannel.
+        /// </summary>
+        /// <param name="channel">TelemetryChannel to set.</param>
+        /// <param name="endpoint">Endpoint value to set.</param>
+        private static void SetTelemetryChannelEndpoint(ITelemetryChannel channel, string endpoint)
+        {
+            if (channel != null)
+            {
+                if (channel is InMemoryChannel || channel.GetType().FullName == "Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel")
+                {
+                    channel.EndpointAddress = endpoint;
+                }
+            }
         }
 
         /// <summary>

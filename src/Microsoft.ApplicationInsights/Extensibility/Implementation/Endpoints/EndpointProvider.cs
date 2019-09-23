@@ -146,7 +146,7 @@
 
             var dictionary = new Dictionary<string, string>(keyValuePairs.Length, StringComparer.OrdinalIgnoreCase);
 
-            foreach(var pair in keyValuePairs)
+            foreach (var pair in keyValuePairs)
             {
                 var keyAndValue = pair.Split('=');
                 if (keyAndValue.Length != 2)
@@ -195,7 +195,7 @@
             }
 
             var uriString = string.Concat("https://",
-                (string.IsNullOrEmpty(location) ? string.Empty : (location + ".")),
+                string.IsNullOrEmpty(location) ? string.Empty : (location + "."),
                 prefix,
                 ".",
                 suffix.Trim().TrimStart(TrimPeriod));

@@ -44,7 +44,7 @@
             {
                 this.telemetryChannel = new InMemoryChannel
                 {
-                    EndpointAddress = telemetryConfiguration.Endpoint.FormattedIngestionEndpoint
+                    EndpointAddress = telemetryConfiguration.Endpoint.FormattedIngestionEndpoint,
                 };
                 this.shouldDisposeChannel = true;
             }

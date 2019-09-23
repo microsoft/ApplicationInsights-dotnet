@@ -69,6 +69,16 @@
         }
 
         /// <summary>
+        /// Strips off any relative path at the end of the base URI and then appends the known relative path to get the Application Id uri.
+        /// </summary>
+        /// <param name="instrumentationKey">AI resource's Instrumentation Key.</param>
+        /// <returns>Computed Uri.</returns>
+        internal Uri GetApplicationIdEndPointUri(string instrumentationKey)
+        {
+            return new Uri(string.Format(CultureInfo.InvariantCulture, this.ProfileQueryEndpoint ?? Constants.ProfileQueryEndpoint, instrumentationKey));
+        }
+
+        /// <summary>
         /// Retrieves the Application Id given the Instrumentation Key.
         /// </summary>
         /// <param name="instrumentationKey">Instrumentation key for which Application Id is to be retrieved.</param>
@@ -94,16 +104,6 @@
             {
                 SdkInternalOperationsMonitor.Exit();
             }
-        }
-
-        /// <summary>
-        /// Strips off any relative path at the end of the base URI and then appends the known relative path to get the Application Id uri.
-        /// </summary>
-        /// <param name="instrumentationKey">AI resource's Instrumentation Key.</param>
-        /// <returns>Computed Uri.</returns>
-        internal Uri GetApplicationIdEndPointUri(string instrumentationKey)
-        {
-            return new Uri(string.Format(CultureInfo.InvariantCulture, this.ProfileQueryEndpoint ?? Constants.ProfileQueryEndpoint, instrumentationKey));
         }
     }
 }
