@@ -91,7 +91,7 @@
         {
             this.instrumentationKey = instrumentationKey ?? throw new ArgumentNullException(nameof(instrumentationKey));
 
-            SetTelemetryChannelEndpoint(channel, this.Endpoint.FormattedIngestionEndpoint);
+            SetTelemetryChannelEndpoint(channel, this.EndpointContainer.FormattedIngestionEndpoint);
             var defaultSink = new TelemetrySink(this, channel);
             defaultSink.Name = "default";
             this.telemetrySinks.Add(defaultSink);
@@ -238,7 +238,7 @@
                 if (!this.isDisposed)
                 {
                     this.telemetrySinks.DefaultSink.TelemetryChannel = value;
-                    SetTelemetryChannelEndpoint(this.telemetrySinks.DefaultSink.TelemetryChannel, this.Endpoint.FormattedIngestionEndpoint);
+                    SetTelemetryChannelEndpoint(this.telemetrySinks.DefaultSink.TelemetryChannel, this.EndpointContainer.FormattedIngestionEndpoint);
                 }
             }
         }
@@ -259,14 +259,14 @@
             set
             {
                 this.applicationIdProvider = value;
-                SetApplicationIdEndpoint(this.applicationIdProvider, this.Endpoint.FormattedApplicationIdEndpoint);
+                SetApplicationIdEndpoint(this.applicationIdProvider, this.EndpointContainer.FormattedApplicationIdEndpoint);
             }
         }
 
         /// <summary>
-        /// Gets the Endpoint Controller responsible for making service endpoints available.
+        /// Gets the Endpoint Container responsible for making service endpoints available.
         /// </summary>
-        public EndpointContainer Endpoint { get; private set; } = new EndpointContainer(new EndpointProvider());
+        public EndpointContainer EndpointContainer { get; private set; } = new EndpointContainer(new EndpointProvider());
 
         /// <summary>
         /// Gets or sets the connection string. Setting this value will also set the Instrumentation Key, validate the endpoints, and set the TelemetryChannel.Endpoint.
@@ -291,17 +291,17 @@
 
                     this.InstrumentationKey = endpointProvider.GetInstrumentationKey();
 
-                    this.Endpoint = new EndpointContainer(endpointProvider);
+                    this.EndpointContainer = new EndpointContainer(endpointProvider);
 
                     // UPDATE TELEMETRY CHANNEL
                     foreach (var tSink in this.TelemetrySinks)
                     {
-                        SetTelemetryChannelEndpoint(tSink.TelemetryChannel, this.Endpoint.FormattedIngestionEndpoint);
+                        SetTelemetryChannelEndpoint(tSink.TelemetryChannel, this.EndpointContainer.FormattedIngestionEndpoint);
                     }
 
                     // UPDATE APPLICATION ID PROVIDER
                     // NOTE: This can be removed when the Indexer Service goes live sometime in 2020.
-                    SetApplicationIdEndpoint(this.ApplicationIdProvider, this.Endpoint.FormattedApplicationIdEndpoint);
+                    SetApplicationIdEndpoint(this.ApplicationIdProvider, this.EndpointContainer.FormattedApplicationIdEndpoint);
                 }
                 catch (Exception ex)
                 {

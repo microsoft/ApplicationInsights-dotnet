@@ -569,7 +569,7 @@
         [Event(51, Message = "Connection String cannot be NULL.", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
         public void ConnectionStringNull(string appDomainName = "Incorrect") => this.WriteEvent(51, this.nameProvider.Name);
 
-        [Event(52, Message = "{0}.", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
+        [Event(52, Message = "Connection String could not create an endpoint. {0}.", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
         public void ConnectionStringInvalidEndpoint(string exceptionMessage, string appDomainName = "Incorrect") => this.WriteEvent(52, exceptionMessage, this.nameProvider.Name);
 
         [Event(53, Message = "Connection String could not be set. Exception: {0}", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]

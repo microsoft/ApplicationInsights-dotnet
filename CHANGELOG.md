@@ -3,7 +3,7 @@
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/documentation/articles/app-insights-release-notes-dotnet/).
 
 ## Version 2.12.0-beta1
-- [New: TelemetryConfiguration now supports Connection Strings](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1187)
+- [New: TelemetryConfiguration now supports Connection Strings]https://github.com/microsoft/ApplicationInsights-dotnet/issues/1221)
 
 ## Version 2.11.0
 - Upgrade to System.Diagnostics.DiagnosticSource v4.6

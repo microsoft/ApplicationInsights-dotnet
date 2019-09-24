@@ -329,7 +329,7 @@
             };
 
             Assert.AreEqual("00000000-0000-0000-0000-000000000000", configuration.InstrumentationKey);
-            Assert.AreEqual(explicitEndpoint, configuration.Endpoint.Ingestion.AbsoluteUri);
+            Assert.AreEqual(explicitEndpoint, configuration.EndpointContainer.Ingestion.AbsoluteUri);
         }
 
         [TestMethod]
@@ -347,7 +347,7 @@
             };
 
             Assert.AreEqual("00000000-0000-0000-0000-000000000000", configuration.InstrumentationKey);
-            Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.Endpoint.Ingestion.AbsoluteUri);
+            Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.EndpointContainer.Ingestion.AbsoluteUri);
             Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", channel.EndpointAddress);
         }
 
@@ -367,13 +367,13 @@
             };
 
             Assert.AreEqual("00000000-0000-0000-0000-000000000000", configuration.InstrumentationKey);
-            Assert.AreEqual(explicitEndpoint, configuration.Endpoint.Ingestion.AbsoluteUri);
+            Assert.AreEqual(explicitEndpoint, configuration.EndpointContainer.Ingestion.AbsoluteUri);
             Assert.AreEqual(explicitEndpoint + "v2/track", channel.EndpointAddress);
         }
 
         [TestMethod]
         [TestCategory("ConnectionString")]
-        public void E2E_DefaultScenario()
+        public void Configuration_DefaultScenario()
         {
             var configuration = new TelemetryConfiguration();
 
@@ -383,7 +383,7 @@
 
         [TestMethod]
         [TestCategory("ConnectionString")]
-        public void E2E_DefaultScenario_ConfigurationConstructor()
+        public void Configuration_DefaultScenario_ConfigurationConstructor()
         {
             var configuration = new TelemetryConfiguration("00000000-0000-0000-0000-000000000000", new InMemoryChannel());
 
@@ -393,7 +393,7 @@
 
         [TestMethod]
         [TestCategory("ConnectionString")]
-        public void E2E_DefaultScenario_WithConnectionString()
+        public void Configuration_DefaultScenario_WithConnectionString()
         {
             var configuration = new TelemetryConfiguration
             {
@@ -406,7 +406,7 @@
 
         [TestMethod]
         [TestCategory("ConnectionString")]
-        public void E2E_CreateDefaultScenario()
+        public void Configuration_CreateDefaultScenario()
         {
             var configuration = TelemetryConfiguration.CreateDefault();
 
@@ -416,7 +416,7 @@
 
         [TestMethod]
         [TestCategory("ConnectionString")]
-        public void E2E_CreateDefaultScenario_WithConnectionString()
+        public void Configuration_CreateDefaultScenario_WithConnectionString()
         {
             var configuration = TelemetryConfiguration.CreateDefault();
             configuration.ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://127.0.0.1/";
@@ -437,7 +437,7 @@
             };
 
             Assert.AreEqual(string.Empty, configuration.InstrumentationKey);
-            Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.Endpoint.Ingestion.AbsoluteUri);
+            Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.EndpointContainer.Ingestion.AbsoluteUri);
             Assert.AreEqual("https://dc.services.visualstudio.com/api/profiles/{0}/appId", applicationIdProvider.ProfileQueryEndpoint);
         }
 
@@ -456,7 +456,7 @@
             };
 
             Assert.AreEqual("00000000-0000-0000-0000-000000000000", configuration.InstrumentationKey);
-            Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.Endpoint.Ingestion.AbsoluteUri);
+            Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.EndpointContainer.Ingestion.AbsoluteUri);
             Assert.AreEqual("https://dc.services.visualstudio.com/api/profiles/{0}/appId", applicationIdProvider.ProfileQueryEndpoint);
         }
 
@@ -475,7 +475,7 @@
             };
 
             Assert.AreEqual("00000000-0000-0000-0000-000000000000", configuration.InstrumentationKey);
-            Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.Endpoint.Ingestion.AbsoluteUri);
+            Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.EndpointContainer.Ingestion.AbsoluteUri);
             Assert.AreEqual("https://dc.services.visualstudio.com/api/profiles/{0}/appId", applicationIdProvider.ProfileQueryEndpoint);
         }
 
@@ -500,7 +500,7 @@
             configuration.ApplicationIdProvider = applicationIdProvider;
 
             Assert.AreEqual("00000000-0000-0000-0000-000000000000", configuration.InstrumentationKey);
-            Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.Endpoint.Ingestion.AbsoluteUri);
+            Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.EndpointContainer.Ingestion.AbsoluteUri);
             Assert.AreEqual("https://dc.services.visualstudio.com/api/profiles/{0}/appId", applicationIdProvider.ProfileQueryEndpoint);
         }
 
@@ -519,7 +519,7 @@
             };
 
             Assert.AreEqual("00000000-0000-0000-0000-000000000000", configuration.InstrumentationKey);
-            Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.Endpoint.Ingestion.AbsoluteUri);
+            Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.EndpointContainer.Ingestion.AbsoluteUri);
         }
 
         #endregion
