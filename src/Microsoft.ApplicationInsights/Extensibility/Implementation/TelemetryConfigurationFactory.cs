@@ -480,7 +480,7 @@
                 configuration.InstrumentationKey = instrumentationKeyEnVar;
             }
 
-            // SANITY CHECK
+            // SANITY CHECK - If Ikey is null, this means that neither the InstrumentationKey nor ConnectionString were set.
             if (configuration.InstrumentationKey == null)
             {
                 // LOG TO ETW WARNING: No Instrumentation Key found. Needs to be manually set.

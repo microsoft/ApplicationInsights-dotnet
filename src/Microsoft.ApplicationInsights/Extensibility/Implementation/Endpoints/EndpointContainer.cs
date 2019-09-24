@@ -31,6 +31,6 @@
         internal string FormattedIngestionEndpoint => new Uri(this.Ingestion, "v2/track").AbsoluteUri;
 
         /// <summary>Gets the fully formatted endpoint for the application id profile service.</summary>
-        internal string FormattedApplicationIdEndpoint => this.Ingestion.AbsoluteUri + "api/profiles/{0}/appId";
+        internal string FormattedApplicationIdEndpoint => new Uri(this.Ingestion, "api/profiles/{0}/appId").AbsoluteUri;
     }
 }

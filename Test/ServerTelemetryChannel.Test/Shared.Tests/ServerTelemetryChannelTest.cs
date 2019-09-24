@@ -445,7 +445,7 @@
                     TelemetryChannel = channel,
                 };
 
-                Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.Endpoint.Ingestion.AbsoluteUri);
+                Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.EndpointContainer.Ingestion.AbsoluteUri);
                 Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", channel.EndpointAddress);
             }
 
@@ -463,7 +463,7 @@
                     ConnectionString = connectionstring,
                 };
 
-                Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.Endpoint.Ingestion.AbsoluteUri);
+                Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.EndpointContainer.Ingestion.AbsoluteUri);
                 Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", channel.EndpointAddress);
             }
 
@@ -482,7 +482,7 @@
                     ConnectionString = connectionString
                 };
 
-                Assert.AreEqual("https://127.0.0.1/", configuration.Endpoint.Ingestion.AbsoluteUri);
+                Assert.AreEqual("https://127.0.0.1/", configuration.EndpointContainer.Ingestion.AbsoluteUri);
                 Assert.AreEqual("https://127.0.0.1/v2/track", channel.EndpointAddress);
             }
 
@@ -501,7 +501,7 @@
                     ConnectionString = connectionString,
                 };
 
-                Assert.AreEqual("https://127.0.0.1/", configuration.Endpoint.Ingestion.AbsoluteUri);
+                Assert.AreEqual("https://127.0.0.1/", configuration.EndpointContainer.Ingestion.AbsoluteUri);
                 Assert.AreEqual("https://127.0.0.1/v2/track", channel.EndpointAddress);
             }
 
@@ -520,7 +520,7 @@
                     ConnectionString = connectionString,
                 };
 
-                Assert.AreEqual("https://127.0.0.1/", configuration.Endpoint.Ingestion.AbsoluteUri);
+                Assert.AreEqual("https://127.0.0.1/", configuration.EndpointContainer.Ingestion.AbsoluteUri);
 
                 channel.Initialize(configuration);
                 Assert.AreEqual("https://127.0.0.1/v2/track", channel.EndpointAddress);
@@ -542,7 +542,7 @@
                     ConnectionString = connectionString,
                 };
 
-                Assert.AreEqual("https://127.0.0.1/", configuration.Endpoint.Ingestion.AbsoluteUri);
+                Assert.AreEqual("https://127.0.0.1/", configuration.EndpointContainer.Ingestion.AbsoluteUri);
 
                 channel.Initialize(configuration);
                 Assert.AreEqual("https://127.0.0.1/v2/track", channel.EndpointAddress);
@@ -555,7 +555,7 @@
                 var channel = new ServerTelemetryChannel();
 
                 var configuration = new TelemetryConfiguration();
-                Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.Endpoint.Ingestion.AbsoluteUri);
+                Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.EndpointContainer.Ingestion.AbsoluteUri);
 
                 channel.Initialize(configuration);
                 Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", channel.EndpointAddress);
