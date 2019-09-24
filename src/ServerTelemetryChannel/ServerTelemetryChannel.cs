@@ -111,7 +111,7 @@
         /// </summary>
         public string EndpointAddress
         {
-            get { return this.TelemetrySerializer.EndpointAddress.ToString(); }
+            get { return this.TelemetrySerializer.EndpointAddress?.ToString(); }
             set { this.TelemetrySerializer.EndpointAddress = new Uri(value); }
         }
 
@@ -303,6 +303,8 @@
         public void Initialize(TelemetryConfiguration configuration)
         {
             this.Transmitter.Initialize();
+
+            this.EndpointAddress = new Uri(configuration.Endpoint.Ingestion, "v2/track").AbsoluteUri;
 
             // ApplyPolicies will synchronously get list of file names from disk and calculate size
             // Creating task to improve application startup time

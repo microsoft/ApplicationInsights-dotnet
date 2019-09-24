@@ -90,7 +90,7 @@
         /// </summary>
         public string EndpointAddress
         {
-            get { return this.transmitter.EndpointAddress.ToString(); }
+            get { return this.transmitter.EndpointAddress?.ToString(); }
             set { this.transmitter.EndpointAddress = new Uri(value); }
         }
 

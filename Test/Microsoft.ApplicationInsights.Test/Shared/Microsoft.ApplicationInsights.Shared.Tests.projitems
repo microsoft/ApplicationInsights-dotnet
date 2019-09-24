@@ -12,6 +12,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)ActivityExtensionsTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\PageViewPerformanceTelemetryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\DictionarySerializationWriterTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Endpoints\EndpointContainerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Endpoints\EndpointProviderParseConnectionStringTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Endpoints\EndpointProviderBuildUriTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Endpoints\EndpointProviderTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Experimental\ExperimentalFeaturesTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\JsonSerializationWriterTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\IExtensionImplementations.cs" />

@@ -430,5 +430,136 @@
             }
         }
 
+        [TestClass]
+        public class ServerTelemetryChannelConfigurationTests
+        {
+            [TestMethod]
+            [TestCategory("ConnectionString")]
+            public void VerifyEndpointConnectionString_DefaultScenario()
+            {
+                var channel = new ServerTelemetryChannel();
+                Assert.AreEqual(null, channel.EndpointAddress);
+
+                var configuration = new TelemetryConfiguration
+                {
+                    TelemetryChannel = channel,
+                };
+
+                Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.Endpoint.Ingestion.AbsoluteUri);
+                Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", channel.EndpointAddress);
+            }
+
+            [TestMethod]
+            [TestCategory("ConnectionString")]
+            public void VerifyEndpointConnectionString_SetFromConfiguration_DefaultEndpoint()
+            {
+                var connectionstring = $"instrumentationkey=00000000-0000-0000-0000-000000000000";
+
+                var channel = new ServerTelemetryChannel();
+
+                var configuration = new TelemetryConfiguration
+                {
+                    TelemetryChannel = channel,
+                    ConnectionString = connectionstring,
+                };
+
+                Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.Endpoint.Ingestion.AbsoluteUri);
+                Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", channel.EndpointAddress);
+            }
+
+            [TestMethod]
+            [TestCategory("ConnectionString")]
+            public void VerifyEndpointConnectionString_SetFromConfiguration_ExplicitEndpoint_WithTrailingSlash()
+            {
+                var explicitEndpoint = "https://127.0.0.1/";
+                var connectionString = $"InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint={explicitEndpoint}";
+
+                var channel = new ServerTelemetryChannel();
+
+                var configuration = new TelemetryConfiguration
+                {
+                    TelemetryChannel = channel,
+                    ConnectionString = connectionString
+                };
+
+                Assert.AreEqual("https://127.0.0.1/", configuration.Endpoint.Ingestion.AbsoluteUri);
+                Assert.AreEqual("https://127.0.0.1/v2/track", channel.EndpointAddress);
+            }
+
+            [TestMethod]
+            [TestCategory("ConnectionString")]
+            public void VerifyEndpointConnectionString_SetFromConfiguration_ExplicitEndpoint_WithoutTrailingSlash()
+            {
+                var explicitEndpoint = "https://127.0.0.1";
+                var connectionString = $"InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint={explicitEndpoint}";
+
+                var channel = new ServerTelemetryChannel();
+
+                var configuration = new TelemetryConfiguration
+                {
+                    TelemetryChannel = channel,
+                    ConnectionString = connectionString,
+                };
+
+                Assert.AreEqual("https://127.0.0.1/", configuration.Endpoint.Ingestion.AbsoluteUri);
+                Assert.AreEqual("https://127.0.0.1/v2/track", channel.EndpointAddress);
+            }
+
+            [TestMethod]
+            [TestCategory("ConnectionString")]
+            public void VerifyEndpointConnectionString_SetFromInitialize_ExplicitEndpoint_WithTrailingSlash()
+            {
+                
+                var explicitEndpoint = "https://127.0.0.1/";
+                var connectionString = $"InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint={explicitEndpoint}";
+
+                var channel = new ServerTelemetryChannel();
+
+                var configuration = new TelemetryConfiguration
+                {
+                    ConnectionString = connectionString,
+                };
+
+                Assert.AreEqual("https://127.0.0.1/", configuration.Endpoint.Ingestion.AbsoluteUri);
+
+                channel.Initialize(configuration);
+                Assert.AreEqual("https://127.0.0.1/v2/track", channel.EndpointAddress);
+            }
+
+
+            [TestMethod]
+            [TestCategory("ConnectionString")]
+            public void VerifyEndpointConnectionString_SetFromInitialize_ExplicitEndpoint_WithoutTrailingSlash()
+            {
+
+                var explicitEndpoint = "https://127.0.0.1";
+                var connectionString = $"InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint={explicitEndpoint}";
+
+                var channel = new ServerTelemetryChannel();
+
+                var configuration = new TelemetryConfiguration
+                {
+                    ConnectionString = connectionString,
+                };
+
+                Assert.AreEqual("https://127.0.0.1/", configuration.Endpoint.Ingestion.AbsoluteUri);
+
+                channel.Initialize(configuration);
+                Assert.AreEqual("https://127.0.0.1/v2/track", channel.EndpointAddress);
+            }
+
+            [TestMethod]
+            [TestCategory("ConnectionString")]
+            public void VerifyEndpointConnectionString_SetFromInitialize_DefaultEndpoint()
+            {
+                var channel = new ServerTelemetryChannel();
+
+                var configuration = new TelemetryConfiguration();
+                Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.Endpoint.Ingestion.AbsoluteUri);
+
+                channel.Initialize(configuration);
+                Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", channel.EndpointAddress);
+            }
+        }
     }
 }

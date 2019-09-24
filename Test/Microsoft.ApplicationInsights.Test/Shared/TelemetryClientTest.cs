@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Diagnostics;
+    using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
     using System.Linq;
     using System.Net;
@@ -2150,6 +2151,21 @@
         }
 
         #endregion Preaggregated metrics
+
+        #region Connection Strings
+
+        [TestMethod]
+        [TestCategory("ConnectionString")]
+        public void VerifyEndpointConnectionString_DefaultScenario()
+        {
+#pragma warning disable CS0618 // This constructor calls TelemetryConfiguration.Active which will throw an Obsolete compiler warning in NetCore projects. I don't care because I'm only testing that the pipeline could set a default value.
+            var telemetryClient = new TelemetryClient();
+#pragma warning restore CS0618
+
+            Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", telemetryClient.TelemetryConfiguration.DefaultTelemetrySink.TelemetryChannel.EndpointAddress);
+        }
+
+        #endregion
 
         private TelemetryClient InitializeTelemetryClient(ICollection<ITelemetry> sentTelemetry)
         {

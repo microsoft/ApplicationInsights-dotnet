@@ -36,7 +36,6 @@ namespace Microsoft.ApplicationInsights.Channel
         /// </summary>
         private int disposeCount = 0;
         private TimeSpan sendingInterval = TimeSpan.FromSeconds(30);
-        private Uri endpointAddress = new Uri(Constants.TelemetryServiceEndpoint);
                 
         internal InMemoryTransmitter(TelemetryBuffer buffer)
         {
@@ -54,11 +53,7 @@ namespace Microsoft.ApplicationInsights.Channel
                     TaskContinuationOptions.OnlyOnFaulted);
         }
 
-        internal Uri EndpointAddress
-        {
-            get { return this.endpointAddress; }
-            set { Property.Set(ref this.endpointAddress, value); }
-        }
+        internal Uri EndpointAddress { get; set; }
 
         internal TimeSpan SendingInterval
         {
@@ -165,7 +160,7 @@ namespace Microsoft.ApplicationInsights.Channel
                 return Task.FromResult<object>(null);
             }
 
-            var transmission = new Transmission(this.endpointAddress, data, JsonSerializer.ContentType, JsonSerializer.CompressionType, timeout);
+            var transmission = new Transmission(this.EndpointAddress, data, JsonSerializer.ContentType, JsonSerializer.CompressionType, timeout);
 
             return transmission.SendAsync();
         }

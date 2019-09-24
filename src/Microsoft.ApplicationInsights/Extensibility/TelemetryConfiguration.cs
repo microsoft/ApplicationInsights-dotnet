@@ -10,6 +10,8 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Sampling;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Metrics;
@@ -34,10 +36,12 @@
         
         private TelemetryProcessorChain telemetryProcessorChain;
         private string instrumentationKey = string.Empty;
+        private string connectionString;
         private bool disableTelemetry = false;
         private TelemetryProcessorChainBuilder builder;
         private MetricManager metricManager = null;
-
+        private IApplicationIdProvider applicationIdProvider;
+    
         /// <summary>
         /// Indicates if this instance has been disposed of.
         /// </summary>
@@ -85,12 +89,9 @@
         /// <param name="channel">The telemetry channel to provide with this configuration instance.</param>
         public TelemetryConfiguration(string instrumentationKey, ITelemetryChannel channel)
         {
-            if (instrumentationKey == null)
-            {
-                throw new ArgumentNullException(nameof(instrumentationKey));
-            }
+            this.instrumentationKey = instrumentationKey ?? throw new ArgumentNullException(nameof(instrumentationKey));
 
-            this.instrumentationKey = instrumentationKey;
+            SetTelemetryChannelEndpoint(channel, this.Endpoint.FormattedIngestionEndpoint);
             var defaultSink = new TelemetrySink(this, channel);
             defaultSink.Name = "default";
             this.telemetrySinks.Add(defaultSink);
@@ -143,20 +144,9 @@
         /// </remarks>
         public string InstrumentationKey
         {
-            get
-            {
-                return this.instrumentationKey;
-            }
+            get { return this.instrumentationKey; }
 
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
-
-                this.instrumentationKey = value;
-            }
+            set { this.instrumentationKey = value ?? throw new ArgumentNullException(nameof(this.InstrumentationKey)); }
         }
 
         /// <summary>
@@ -233,7 +223,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the telemetry channel for the default sink.
+        /// Gets or sets the telemetry channel for the default sink. Will also attempt to set the Channel's endpoint.
         /// </summary>
         public ITelemetryChannel TelemetryChannel
         {
@@ -248,6 +238,7 @@
                 if (!this.isDisposed)
                 {
                     this.telemetrySinks.DefaultSink.TelemetryChannel = value;
+                    SetTelemetryChannelEndpoint(this.telemetrySinks.DefaultSink.TelemetryChannel, this.Endpoint.FormattedIngestionEndpoint);
                 }
             }
         }
@@ -258,7 +249,67 @@
         /// <remarks>
         /// This feature is opt-in and must be configured to be enabled.
         /// </remarks>
-        public IApplicationIdProvider ApplicationIdProvider { get; set; }
+        public IApplicationIdProvider ApplicationIdProvider
+        {
+            get
+            {
+                return this.applicationIdProvider;
+            }
+
+            set
+            {
+                this.applicationIdProvider = value;
+                SetApplicationIdEndpoint(this.applicationIdProvider, this.Endpoint.FormattedApplicationIdEndpoint);
+            }
+        }
+
+        /// <summary>
+        /// Gets the Endpoint Controller responsible for making service endpoints available.
+        /// </summary>
+        public EndpointContainer Endpoint { get; private set; } = new EndpointContainer(new EndpointProvider());
+
+        /// <summary>
+        /// Gets or sets the connection string. Setting this value will also set the Instrumentation Key, validate the endpoints, and set the TelemetryChannel.Endpoint.
+        /// </summary>
+        public string ConnectionString
+        {
+            get
+            {
+                return this.connectionString;
+            }
+
+            set
+            {
+                try
+                {
+                    this.connectionString = value ?? throw new ArgumentNullException(nameof(this.ConnectionString));
+
+                    var endpointProvider = new EndpointProvider
+                    {
+                        ConnectionString = value,
+                    };
+
+                    this.InstrumentationKey = endpointProvider.GetInstrumentationKey();
+
+                    this.Endpoint = new EndpointContainer(endpointProvider);
+
+                    // UPDATE TELEMETRY CHANNEL
+                    foreach (var tSink in this.TelemetrySinks)
+                    {
+                        SetTelemetryChannelEndpoint(tSink.TelemetryChannel, this.Endpoint.FormattedIngestionEndpoint);
+                    }
+
+                    // UPDATE APPLICATION ID PROVIDER
+                    // NOTE: This can be removed when the Indexer Service goes live sometime in 2020.
+                    SetApplicationIdEndpoint(this.ApplicationIdProvider, this.Endpoint.FormattedApplicationIdEndpoint);
+                }
+                catch (Exception ex)
+                {
+                    CoreEventSource.Log.ConnectionStringSetFailed(ex.ToInvariantString());
+                    throw;
+                }
+            }
+        }
 
         /// <summary>
         /// Gets a collection of strings indicating if an experimental feature should be enabled.
@@ -369,6 +420,47 @@
             }
 
             return manager;
+        }
+
+        /// <summary>
+        /// This will check the ApplicationIdProvider and attempt to set the endpoint.
+        /// This only supports our first party providers <see cref="ApplicationInsightsApplicationIdProvider"/> and <see cref="DictionaryApplicationIdProvider"/>.
+        /// </summary>
+        /// <param name="applicationIdProvider">ApplicationIdProvider to set.</param>
+        /// <param name="endpoint">Endpoint value to set.</param>
+        private static void SetApplicationIdEndpoint(IApplicationIdProvider applicationIdProvider, string endpoint)
+        {
+            if (applicationIdProvider != null)
+            {
+                if (applicationIdProvider is ApplicationInsightsApplicationIdProvider applicationInsightsApplicationIdProvider)
+                {
+                    applicationInsightsApplicationIdProvider.ProfileQueryEndpoint = endpoint;
+                }
+                else if (applicationIdProvider is DictionaryApplicationIdProvider dictionaryApplicationIdProvider)
+                {
+                    if (dictionaryApplicationIdProvider.Next is ApplicationInsightsApplicationIdProvider innerApplicationIdProvider)
+                    {
+                        innerApplicationIdProvider.ProfileQueryEndpoint = endpoint;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// This will check the TelemetryChannel and attempt to set the endpoint.
+        /// This only supports our first party providers <see cref="InMemoryChannel"/> and ServerTelemetryChannel.
+        /// </summary>
+        /// <param name="channel">TelemetryChannel to set.</param>
+        /// <param name="endpoint">Endpoint value to set.</param>
+        private static void SetTelemetryChannelEndpoint(ITelemetryChannel channel, string endpoint)
+        {
+            if (channel != null)
+            {
+                if (channel is InMemoryChannel || channel.GetType().FullName == "Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel")
+                {
+                    channel.EndpointAddress = endpoint;
+                }
+            }
         }
 
         /// <summary>

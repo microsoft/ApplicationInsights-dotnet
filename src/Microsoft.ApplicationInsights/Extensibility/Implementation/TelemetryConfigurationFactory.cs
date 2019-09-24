@@ -20,7 +20,8 @@
         private const string AddElementName = "Add";
         private const string TypeAttributeName = "Type";
         private const string NameAttributeName = "Name";
-        private const string InstrumentationKeyWebSitesEnvironmentVariable = "APPINSIGHTS_INSTRUMENTATIONKEY";
+        private const string InstrumentationKeyEnvironmentVariable = "APPINSIGHTS_INSTRUMENTATIONKEY";
+        private const string ConnectionStringEnvironmentVariable = "APPLICATIONINSIGHTS_CONNECTION_STRING";
         private static readonly MethodInfo LoadInstancesDefinition = typeof(TelemetryConfigurationFactory).GetRuntimeMethods().First(m => m.Name == "LoadInstances");
         private static readonly XNamespace XmlNamespace = "http://schemas.microsoft.com/ApplicationInsights/2013/Settings";
 
@@ -77,12 +78,6 @@
                     }
                 }
 
-                // If an environment variable exists with an instrumentation key then use it (instead) for the "blackfield" scenario.
-                if (PlatformSingleton.Current.TryGetEnvironmentVariable(InstrumentationKeyWebSitesEnvironmentVariable, out string environmentInstrumentationKey))
-                {
-                    configuration.InstrumentationKey = environmentInstrumentationKey;
-                }
-
                 // Creating the processor chain with default processor (transmissionprocessor) if none configured
                 if (configuration.TelemetryProcessors == null)
                 {
@@ -98,6 +93,8 @@
                         telemetrySink.TelemetryProcessorChainBuilder.Build();
                     }
                 }
+
+                this.SelectInstrumentationKey(configuration);
 
                 InitializeComponents(configuration, modules);
             }
@@ -468,6 +465,27 @@
                 .Where(e => e.Name.LocalName != AddElementName);
 
             return attributeDefinitions.Concat(elementDefinitions);
+        }
+
+        private void SelectInstrumentationKey(TelemetryConfiguration configuration)
+        {
+            if (PlatformSingleton.Current.TryGetEnvironmentVariable(ConnectionStringEnvironmentVariable, out string connectionStringEnVar))
+            {
+                CoreEventSource.Log.TelemetryConfigurationFactoryFoundConnectionStringEnvironmentVariable(variableName: ConnectionStringEnvironmentVariable);
+                configuration.ConnectionString = connectionStringEnVar;
+            }
+            else if (PlatformSingleton.Current.TryGetEnvironmentVariable(InstrumentationKeyEnvironmentVariable, out string instrumentationKeyEnVar))
+            {
+                CoreEventSource.Log.TelemetryConfigurationFactoryFoundInstrumentationKeyEnvironmentVariable(variableName: InstrumentationKeyEnvironmentVariable);
+                configuration.InstrumentationKey = instrumentationKeyEnVar;
+            }
+
+            // SANITY CHECK
+            if (configuration.InstrumentationKey == null)
+            {
+                // LOG TO ETW WARNING: No Instrumentation Key found. Needs to be manually set.
+                CoreEventSource.Log.TelemetryConfigurationFactoryNoInstrumentationKey();
+            }
         }
     }
 }
