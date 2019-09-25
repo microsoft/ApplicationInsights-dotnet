@@ -31,6 +31,7 @@
     using Microsoft.Extensions.DependencyInjection.Extensions;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
+    using Shared.Implementation;
 
     /// <summary>
     /// Extension methods for <see cref="IServiceCollection"/> that allow adding Application Insights services to application.
@@ -109,19 +110,7 @@
             ApplicationInsightsServiceOptions options)
         {
             services.AddApplicationInsightsTelemetry();
-            services.Configure((ApplicationInsightsServiceOptions o) =>
-            {
-                o.ApplicationVersion = options.ApplicationVersion;
-                o.DeveloperMode = options.DeveloperMode;
-                o.EnableAdaptiveSampling = options.EnableAdaptiveSampling;
-                o.EnableAuthenticationTrackingJavaScript = options.EnableAuthenticationTrackingJavaScript;
-                o.EnableDebugLogger = options.EnableDebugLogger;
-                o.EnableQuickPulseMetricStream = options.EnableQuickPulseMetricStream;
-                o.EndpointAddress = options.EndpointAddress;
-                o.InstrumentationKey = options.InstrumentationKey;
-                o.EnableHeartbeat = options.EnableHeartbeat;
-                o.AddAutoCollectedMetricExtractor = options.AddAutoCollectedMetricExtractor;
-            });
+            ConfigureAiServiceOption(services, options);
             return services;
         }
 
@@ -143,10 +132,27 @@
                     AddCommonInitializers(services);
 
                     // Request Tracking.
-                    services.AddSingleton<ITelemetryModule, RequestTrackingTelemetryModule>();
+                    services.AddSingleton<ITelemetryModule>(provider =>
+                    {
+                        var options = provider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
+                        var appIdProvider = provider.GetService<IApplicationIdProvider>();
+
+                        if (options.EnableRequestTrackingTelemetryModule)
+                        {
+                            return new RequestTrackingTelemetryModule(appIdProvider);
+                        }
+                        else
+                        {
+                            return new NoOpTelemetryModule();
+                        }
+                    });
+
                     services.ConfigureTelemetryModule<RequestTrackingTelemetryModule>((module, options) =>
                     {
-                        module.CollectionOptions = options.RequestCollectionOptions;
+                        if(options.EnableRequestTrackingTelemetryModule)
+                        {
+                            module.CollectionOptions = options.RequestCollectionOptions;
+                        }                        
                     });
 
                     AddCommonTelemetryModules(services);

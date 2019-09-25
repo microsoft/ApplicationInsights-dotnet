@@ -334,6 +334,39 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 }
             }
 
+            /// <summary>
+            /// Validates that while using services.AddApplicationInsightsTelemetry(ApplicationInsightsServiceOptions), with null ikey
+            /// and endpoint, ikey and endpoint from AppSettings.Json is NOT overwritten with the null/empty ones from
+            /// ApplicationInsightsServiceOptions
+            /// </summary>
+            [Fact]
+            public static void AddApplicationInsightsTelemetryDoesNotOverrideEmptyInstrumentationKeyFromAiOptions()
+            {
+                // Create new options, which will be default have null ikey and endpoint.
+                var options = new ApplicationInsightsServiceOptions();
+                string ikey = Guid.NewGuid().ToString();
+                string text = File.ReadAllText("appsettings.json");
+                try
+                {
+                    text = text.Replace("ikeyhere", ikey);
+                    text = text.Replace("hosthere", "newhost");
+                    File.WriteAllText("appsettings.json", text);
+
+                    var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                    services.AddApplicationInsightsTelemetry(options);
+                    IServiceProvider serviceProvider = services.BuildServiceProvider();
+                    var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                    Assert.Equal(ikey, telemetryConfiguration.InstrumentationKey);
+                    Assert.Equal("http://newhost/v2/track/", telemetryConfiguration.DefaultTelemetrySink.TelemetryChannel.EndpointAddress);
+                }
+                finally
+                {
+                    text = text.Replace(ikey, "ikeyhere");
+                    text = text.Replace("newhost", "hosthere");
+                    File.WriteAllText("appsettings.json", text);
+                }
+            }
+
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromEnvironment()
             {
@@ -498,29 +531,28 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.Equal(6, modules.Count());
 #endif
 
-
-                var perfCounterModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(PerformanceCollectorModule));
+                var perfCounterModule = modules.OfType<PerformanceCollectorModule>().Single();
                 Assert.NotNull(perfCounterModule);
 
 #if NETCOREAPP2_0
-                var eventCounterModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(EventCounterCollectionModule));
+                var eventCounterModule = modules.OfType<EventCounterCollectionModule>().Single();
                 Assert.NotNull(eventCounterModule);
 #endif
 
 
-                var dependencyModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(DependencyTrackingTelemetryModule));
+                var dependencyModuleDescriptor = modules.OfType<DependencyTrackingTelemetryModule>().Single();
                 Assert.NotNull(dependencyModuleDescriptor);
 
-                var reqModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(RequestTrackingTelemetryModule));
+                var reqModuleDescriptor = modules.OfType<RequestTrackingTelemetryModule>().Single();
                 Assert.NotNull(reqModuleDescriptor);
 
-                var appServiceHeartBeatModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(AppServicesHeartbeatTelemetryModule));
+                var appServiceHeartBeatModuleDescriptor = modules.OfType<AppServicesHeartbeatTelemetryModule>().Single();
                 Assert.NotNull(appServiceHeartBeatModuleDescriptor);
 
-                var azureMetadataHeartBeatModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(AzureInstanceMetadataTelemetryModule));
+                var azureMetadataHeartBeatModuleDescriptor = modules.OfType<AzureInstanceMetadataTelemetryModule>().Single();
                 Assert.NotNull(azureMetadataHeartBeatModuleDescriptor);
 
-                var quickPulseModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(QuickPulseTelemetryModule));
+                var quickPulseModuleDescriptor = modules.OfType<QuickPulseTelemetryModule>().Single();
                 Assert.NotNull(quickPulseModuleDescriptor);
             }
 
@@ -556,6 +588,113 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.True(aspnetCounterRequest.Count() == 4);
             }
 #endif
+
+            [Fact]
+            public static void UserCanDisablePerfCollectorModule()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var aiOptions = new ApplicationInsightsServiceOptions();
+                aiOptions.EnablePerformanceCounterCollectionModule = false;
+                services.AddApplicationInsightsTelemetry(aiOptions);
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var modules = serviceProvider.GetServices<ITelemetryModule>();
+                Assert.NotNull(modules);
+
+                Assert.Empty(modules.OfType<PerformanceCollectorModule>());
+            }
+
+#if NETCOREAPP2_0
+            [Fact]
+            public static void UserCanDisableEventCounterCollectorModule()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var aiOptions = new ApplicationInsightsServiceOptions();
+                aiOptions.EnableEventCounterCollectionModule = false;
+                services.AddApplicationInsightsTelemetry(aiOptions);
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var modules = serviceProvider.GetServices<ITelemetryModule>();
+                Assert.NotNull(modules);
+
+                Assert.Empty(modules.OfType<EventCounterCollectionModule>());
+            }
+#endif
+
+            [Fact]
+            public static void UserCanDisableRequestCounterCollectorModule()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var aiOptions = new ApplicationInsightsServiceOptions();
+                aiOptions.EnableRequestTrackingTelemetryModule = false;
+                services.AddApplicationInsightsTelemetry(aiOptions);
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var modules = serviceProvider.GetServices<ITelemetryModule>();
+                Assert.NotNull(modules);
+
+                Assert.Empty(modules.OfType<RequestTrackingTelemetryModule>());
+            }
+
+            [Fact]
+            public static void UserCanDisableDependencyCollectorModule()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var aiOptions = new ApplicationInsightsServiceOptions();
+                aiOptions.EnableDependencyTrackingTelemetryModule = false;
+                services.AddApplicationInsightsTelemetry(aiOptions);
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var modules = serviceProvider.GetServices<ITelemetryModule>();
+                Assert.NotNull(modules);
+
+                Assert.Empty(modules.OfType<DependencyTrackingTelemetryModule>());
+            }
+
+            [Fact]
+            public static void UserCanDisableQuickPulseCollectorModule()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var aiOptions = new ApplicationInsightsServiceOptions();
+                aiOptions.EnableQuickPulseMetricStream = false;
+                services.AddApplicationInsightsTelemetry(aiOptions);
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var modules = serviceProvider.GetServices<ITelemetryModule>();
+                Assert.NotNull(modules);
+
+                Assert.Empty(modules.OfType<QuickPulseTelemetryModule>());
+            }
+
+            [Fact]
+            public static void UserCanDisableAppServiceHeartbeatModule()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var aiOptions = new ApplicationInsightsServiceOptions();
+                aiOptions.EnableAppServicesHeartbeatTelemetryModule = false;
+                services.AddApplicationInsightsTelemetry(aiOptions);
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var modules = serviceProvider.GetServices<ITelemetryModule>();
+                Assert.NotNull(modules);
+
+                Assert.Empty(modules.OfType<AppServicesHeartbeatTelemetryModule>());
+            }
+
+            [Fact]
+            public static void UserCanDisableAzureInstanceMetadataModule()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var aiOptions = new ApplicationInsightsServiceOptions();
+                aiOptions.EnableAzureInstanceMetadataTelemetryModule = false;
+                services.AddApplicationInsightsTelemetry(aiOptions);
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var modules = serviceProvider.GetServices<ITelemetryModule>();
+                Assert.NotNull(modules);
+
+                Assert.Empty(modules.OfType<AzureInstanceMetadataTelemetryModule>());
+            }
 
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesDependencyCollectorWithDefaultValues()

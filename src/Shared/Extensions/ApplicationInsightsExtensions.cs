@@ -32,6 +32,7 @@
 #endif
     using Microsoft.Extensions.Options;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
+    using Shared.Implementation;
 
     /// <summary>
     /// Extension methods for <see cref="IServiceCollection"/> that allow adding Application Insights services to application.
@@ -274,13 +275,77 @@
 
         private static void AddCommonTelemetryModules(IServiceCollection services)
         {
-            services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
-            services.AddSingleton<ITelemetryModule, AppServicesHeartbeatTelemetryModule>();
-            services.AddSingleton<ITelemetryModule, AzureInstanceMetadataTelemetryModule>();
-            services.AddSingleton<ITelemetryModule, QuickPulseTelemetryModule>();
+            services.AddSingleton<ITelemetryModule>(provider =>
+                {
+                    var options = provider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
+
+                    if(options.EnablePerformanceCounterCollectionModule)
+                    {
+                        return new PerformanceCollectorModule();
+                    }
+                    else
+                    {
+                        return new NoOpTelemetryModule();
+                    }
+                });
+
+            services.AddSingleton<ITelemetryModule>(provider =>
+            {
+                var options = provider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
+
+                if (options.EnableAppServicesHeartbeatTelemetryModule)
+                {
+                    return new AppServicesHeartbeatTelemetryModule();
+                }
+                else
+                {
+                    return new NoOpTelemetryModule();
+                }
+            });
+
+            services.AddSingleton<ITelemetryModule>(provider =>
+            {
+                var options = provider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
+
+                if (options.EnableAzureInstanceMetadataTelemetryModule)
+                {
+                    return new AzureInstanceMetadataTelemetryModule();
+                }
+                else
+                {
+                    return new NoOpTelemetryModule();
+                }
+            });
+
+            services.AddSingleton<ITelemetryModule>(provider =>
+            {
+                var options = provider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
+
+                if (options.EnableQuickPulseMetricStream)
+                {
+                    return new QuickPulseTelemetryModule();
+                }
+                else
+                {
+                    return new NoOpTelemetryModule();
+                }
+            });
+
             AddAndConfigureDependencyTracking(services);
 #if NETSTANDARD2_0
-            services.AddSingleton<ITelemetryModule, EventCounterCollectionModule>();
+            services.AddSingleton<ITelemetryModule>(provider =>
+            {
+                var options = provider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
+
+                if (options.EnableEventCounterCollectionModule)
+                {
+                    return new EventCounterCollectionModule();
+                }
+                else
+                {
+                    return new NoOpTelemetryModule();
+                }
+            });
 #endif
         }
 
@@ -306,27 +371,43 @@
 
         private static void AddAndConfigureDependencyTracking(IServiceCollection services)
         {
-            services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
+            services.AddSingleton<ITelemetryModule>(provider =>
+            {
+                var options = provider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
+
+                if (options.EnableDependencyTrackingTelemetryModule)
+                {
+                    return new DependencyTrackingTelemetryModule();
+                }
+                else
+                {
+                    return new NoOpTelemetryModule();
+                }
+            });
+
             services.ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module, o) =>
             {
-                module.EnableLegacyCorrelationHeadersInjection =
-                    o.DependencyCollectionOptions.EnableLegacyCorrelationHeadersInjection;
-
-                var excludedDomains = module.ExcludeComponentCorrelationHttpHeadersOnDomains;
-                excludedDomains.Add("core.windows.net");
-                excludedDomains.Add("core.chinacloudapi.cn");
-                excludedDomains.Add("core.cloudapi.de");
-                excludedDomains.Add("core.usgovcloudapi.net");
-
-                if (module.EnableLegacyCorrelationHeadersInjection)
+                if(o.EnableDependencyTrackingTelemetryModule)
                 {
-                    excludedDomains.Add("localhost");
-                    excludedDomains.Add("127.0.0.1");
-                }
+                    module.EnableLegacyCorrelationHeadersInjection =
+                       o.DependencyCollectionOptions.EnableLegacyCorrelationHeadersInjection;
 
-                var includedActivities = module.IncludeDiagnosticSourceActivities;
-                includedActivities.Add("Microsoft.Azure.EventHubs");
-                includedActivities.Add("Microsoft.Azure.ServiceBus");
+                    var excludedDomains = module.ExcludeComponentCorrelationHttpHeadersOnDomains;
+                    excludedDomains.Add("core.windows.net");
+                    excludedDomains.Add("core.chinacloudapi.cn");
+                    excludedDomains.Add("core.cloudapi.de");
+                    excludedDomains.Add("core.usgovcloudapi.net");
+
+                    if (module.EnableLegacyCorrelationHeadersInjection)
+                    {
+                        excludedDomains.Add("localhost");
+                        excludedDomains.Add("127.0.0.1");
+                    }
+
+                    var includedActivities = module.IncludeDiagnosticSourceActivities;
+                    includedActivities.Add("Microsoft.Azure.EventHubs");
+                    includedActivities.Add("Microsoft.Azure.ServiceBus");
+                }
             });
         }
 
@@ -341,42 +422,87 @@
         private static void ConfigureEventCounterModuleWithSystemCounters(IServiceCollection services)
         {
             services.ConfigureTelemetryModule<EventCounterCollectionModule>((eventCounterModule, options) =>
-                    {
-                        // Ref this code for actual names. https://github.com/dotnet/coreclr/blob/dbc5b56c48ce30635ee8192c9814c7de998043d5/src/System.Private.CoreLib/src/System/Diagnostics/Eventing/RuntimeEventSource.cs
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "cpu-usage");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "working-set");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gc-heap-size");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-0-gc-count");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-1-gc-count");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-2-gc-count");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "time-in-gc");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-0-size");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-1-size");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-2-size");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "loh-size");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "alloc-rate");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "assembly-count");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "exception-count");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "threadpool-thread-count");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "monitor-lock-contention-count");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "threadpool-queue-length");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "threadpool-completed-items-count");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "active-timer-count");
-                    });
+            {
+                if(options.EnableEventCounterCollectionModule)
+                {
+                    // Ref this code for actual names. https://github.com/dotnet/coreclr/blob/dbc5b56c48ce30635ee8192c9814c7de998043d5/src/System.Private.CoreLib/src/System/Diagnostics/Eventing/RuntimeEventSource.cs
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "cpu-usage");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "working-set");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gc-heap-size");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-0-gc-count");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-1-gc-count");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-2-gc-count");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "time-in-gc");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-0-size");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-1-size");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-2-size");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "loh-size");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "alloc-rate");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "assembly-count");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "exception-count");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "threadpool-thread-count");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "monitor-lock-contention-count");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "threadpool-queue-length");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "threadpool-completed-items-count");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "active-timer-count");
+                }                        
+            });
         }
 
         private static void ConfigureEventCounterModuleWithAspNetCounters(IServiceCollection services)
         {
-                    services.ConfigureTelemetryModule<EventCounterCollectionModule>((eventCounterModule, options) =>
-                    {
-                        // Ref this code for actual names. https://github.com/aspnet/AspNetCore/blob/f3f9a1cdbcd06b298035b523732b9f45b1408461/src/Hosting/Hosting/src/Internal/HostingEventSource.cs
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForAspNetCoreHosting, "requests-per-second");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForAspNetCoreHosting, "total-requests");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForAspNetCoreHosting, "current-requests");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForAspNetCoreHosting, "failed-requests");
-                    });
+            services.ConfigureTelemetryModule<EventCounterCollectionModule>((eventCounterModule, options) =>
+            {
+                if (options.EnableEventCounterCollectionModule)
+                {
+                    // Ref this code for actual names. https://github.com/aspnet/AspNetCore/blob/f3f9a1cdbcd06b298035b523732b9f45b1408461/src/Hosting/Hosting/src/Internal/HostingEventSource.cs
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForAspNetCoreHosting, "requests-per-second");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForAspNetCoreHosting, "total-requests");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForAspNetCoreHosting, "current-requests");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForAspNetCoreHosting, "failed-requests");
+                }
+            });
         }
 #endif
+
+        private static void ConfigureAiServiceOption(IServiceCollection services, ApplicationInsightsServiceOptions options)
+        {
+            services.Configure((ApplicationInsightsServiceOptions o) =>
+            {
+                if (options.DeveloperMode != null)
+                {
+                    o.DeveloperMode = options.DeveloperMode;
+                }
+
+                if (!string.IsNullOrEmpty(options.EndpointAddress))
+                {
+                    o.EndpointAddress = options.EndpointAddress;
+                }
+
+                if (!string.IsNullOrEmpty(options.InstrumentationKey))
+                {
+                    o.InstrumentationKey = options.InstrumentationKey;
+                }
+
+                o.ApplicationVersion = options.ApplicationVersion;
+                o.EnableAdaptiveSampling = options.EnableAdaptiveSampling;
+                o.EnableDebugLogger = options.EnableDebugLogger;
+                o.EnableQuickPulseMetricStream = options.EnableQuickPulseMetricStream;
+                o.EnableHeartbeat = options.EnableHeartbeat;
+                o.AddAutoCollectedMetricExtractor = options.AddAutoCollectedMetricExtractor;
+                o.EnablePerformanceCounterCollectionModule = options.EnablePerformanceCounterCollectionModule;
+                o.EnableDependencyTrackingTelemetryModule = options.EnableDependencyTrackingTelemetryModule;                
+                o.EnableAppServicesHeartbeatTelemetryModule = options.EnableAppServicesHeartbeatTelemetryModule;
+                o.EnableAzureInstanceMetadataTelemetryModule = options.EnableAzureInstanceMetadataTelemetryModule;
+#if NETSTANDARD2_0
+                o.EnableEventCounterCollectionModule = options.EnableEventCounterCollectionModule;
+#endif 
+#if AI_ASPNETCORE_WEB
+                o.EnableAuthenticationTrackingJavaScript = options.EnableAuthenticationTrackingJavaScript;
+                o.EnableRequestTrackingTelemetryModule = options.EnableRequestTrackingTelemetryModule;
+#endif
+            });
+        }
 
         private static void AddApplicationInsightsLoggerProvider(IServiceCollection services)
         {

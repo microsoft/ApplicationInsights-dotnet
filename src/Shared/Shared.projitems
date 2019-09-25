@@ -14,6 +14,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\DependencyCollectionOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ITelemetryModuleConfigurator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ITelemetryProcessorFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\NoOpTelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryConfigurationOptionsSetup.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryModuleConfigurator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryProcessorFactory.cs" />

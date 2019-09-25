@@ -18,15 +18,24 @@
         /// </summary>
         public ApplicationInsightsServiceOptions()
         {
+            this.EnablePerformanceCounterCollectionModule = true;
             this.EnableQuickPulseMetricStream = true;
             this.EnableAdaptiveSampling = true;
-            this.EnableDebugLogger = true;
-            this.EnableAuthenticationTrackingJavaScript = false;
+            this.EnableDebugLogger = true;            
             this.EnableHeartbeat = true;
             this.AddAutoCollectedMetricExtractor = true;
 #if AI_ASPNETCORE_WEB
+            this.EnableRequestTrackingTelemetryModule = true;
+            this.EnableAuthenticationTrackingJavaScript = false;
             this.RequestCollectionOptions = new RequestCollectionOptions();
 #endif
+
+#if NETSTANDARD2_0
+            this.EnableEventCounterCollectionModule = true;
+#endif
+            this.EnableDependencyTrackingTelemetryModule = true;
+            this.EnableAzureInstanceMetadataTelemetryModule = true;
+            this.EnableAppServicesHeartbeatTelemetryModule = true;            
             this.DependencyCollectionOptions = new DependencyCollectionOptions();
             this.ApplicationVersion = Assembly.GetEntryAssembly()?.GetName().Version.ToString();
         }
@@ -36,6 +45,38 @@
         /// Setting EnableQuickPulseMetricStream to <c>false</c>, will disable the default quick pulse metric stream. Defaults to <code>true</code>.
         /// </summary>
         public bool EnableQuickPulseMetricStream { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether PerformanceCollectorModule should be enabled.
+        /// Defaults to <code>true</code>.
+        /// </summary>
+        public bool EnablePerformanceCounterCollectionModule { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether AppServicesHeartbeatTelemetryModule should be enabled.
+        /// Defaults to <code>true</code>.
+        /// </summary>
+        public bool EnableAppServicesHeartbeatTelemetryModule { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether AzureInstanceMetadataTelemetryModule should be enabled.
+        /// Defaults to <code>true</code>.
+        /// </summary>
+        public bool EnableAzureInstanceMetadataTelemetryModule { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether DependencyTrackingTelemetryModule should be enabled.
+        /// Defaults to <code>true</code>.
+        /// </summary>
+        public bool EnableDependencyTrackingTelemetryModule { get; set; }        
+
+#if NETSTANDARD2_0
+        /// <summary>
+        /// Gets or sets a value indicating whether EventCounterCollectionModule should be enabled.
+        /// Defaults to <code>true</code>.
+        /// </summary>
+        public bool EnableEventCounterCollectionModule { get; set; }
+#endif
 
         /// <summary>
         /// Gets or sets a value indicating whether telemetry processor that controls sampling is added to the service.
@@ -66,13 +107,7 @@
         /// <summary>
         /// Gets or sets a value indicating whether a logger would be registered automatically in debug mode.
         /// </summary>
-        public bool EnableDebugLogger { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether a JavaScript snippet to track the current authenticated user should
-        /// be printed along with the main ApplicationInsights tracking script.
-        /// </summary>
-        public bool EnableAuthenticationTrackingJavaScript { get; set; }
+        public bool EnableDebugLogger { get; set; }        
 
         /// <summary>
         /// Gets or sets a value indicating whether heartbeats are enabled.
@@ -89,6 +124,18 @@
         /// Gets <see cref="RequestCollectionOptions"/> that allow to manage <see cref="RequestTrackingTelemetryModule"/>
         /// </summary>
         public RequestCollectionOptions RequestCollectionOptions { get; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether RequestTrackingTelemetryModule should be enabled.
+        /// Defaults to <code>true</code>.
+        /// </summary>
+        public bool EnableRequestTrackingTelemetryModule { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether a JavaScript snippet to track the current authenticated user should
+        /// be printed along with the main ApplicationInsights tracking script.
+        /// </summary>
+        public bool EnableAuthenticationTrackingJavaScript { get; set; }
 #endif
 
 
