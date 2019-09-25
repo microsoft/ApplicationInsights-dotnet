@@ -138,10 +138,45 @@
         public bool EnableAuthenticationTrackingJavaScript { get; set; }
 #endif
 
-
         /// <summary>
         /// Gets <see cref="DependencyCollectionOptions"/> that allow to manage <see cref="DependencyTrackingTelemetryModule"/>
         /// </summary>
         public DependencyCollectionOptions DependencyCollectionOptions { get; }
+
+        internal void CopyPropertiesTo(ApplicationInsightsServiceOptions target)
+        {
+            if (this.DeveloperMode != null)
+            {
+                target.DeveloperMode = this.DeveloperMode;
+            }
+
+            if (!string.IsNullOrEmpty(this.EndpointAddress))
+            {
+                target.EndpointAddress = this.EndpointAddress;
+            }
+
+            if (!string.IsNullOrEmpty(this.InstrumentationKey))
+            {
+                target.InstrumentationKey = this.InstrumentationKey;
+            }
+
+            target.ApplicationVersion = this.ApplicationVersion;
+            target.EnableAdaptiveSampling = this.EnableAdaptiveSampling;
+            target.EnableDebugLogger = this.EnableDebugLogger;
+            target.EnableQuickPulseMetricStream = this.EnableQuickPulseMetricStream;
+            target.EnableHeartbeat = this.EnableHeartbeat;
+            target.AddAutoCollectedMetricExtractor = this.AddAutoCollectedMetricExtractor;
+            target.EnablePerformanceCounterCollectionModule = this.EnablePerformanceCounterCollectionModule;
+            target.EnableDependencyTrackingTelemetryModule = this.EnableDependencyTrackingTelemetryModule;
+            target.EnableAppServicesHeartbeatTelemetryModule = this.EnableAppServicesHeartbeatTelemetryModule;
+            target.EnableAzureInstanceMetadataTelemetryModule = this.EnableAzureInstanceMetadataTelemetryModule;
+#if NETSTANDARD2_0
+            target.EnableEventCounterCollectionModule = this.EnableEventCounterCollectionModule;
+#endif
+#if AI_ASPNETCORE_WEB
+            target.EnableAuthenticationTrackingJavaScript = this.EnableAuthenticationTrackingJavaScript;
+            target.EnableRequestTrackingTelemetryModule = this.EnableRequestTrackingTelemetryModule;
+#endif
+        }
     }
 }

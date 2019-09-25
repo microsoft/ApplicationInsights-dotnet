@@ -110,7 +110,7 @@
             ApplicationInsightsServiceOptions options)
         {
             services.AddApplicationInsightsTelemetry();
-            ConfigureAiServiceOption(services, options);
+            services.Configure((ApplicationInsightsServiceOptions o) => options.CopyPropertiesTo(o));
             return services;
         }
 

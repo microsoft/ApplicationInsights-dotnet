@@ -465,44 +465,6 @@
         }
 #endif
 
-        private static void ConfigureAiServiceOption(IServiceCollection services, ApplicationInsightsServiceOptions options)
-        {
-            services.Configure((ApplicationInsightsServiceOptions o) =>
-            {
-                if (options.DeveloperMode != null)
-                {
-                    o.DeveloperMode = options.DeveloperMode;
-                }
-
-                if (!string.IsNullOrEmpty(options.EndpointAddress))
-                {
-                    o.EndpointAddress = options.EndpointAddress;
-                }
-
-                if (!string.IsNullOrEmpty(options.InstrumentationKey))
-                {
-                    o.InstrumentationKey = options.InstrumentationKey;
-                }
-
-                o.ApplicationVersion = options.ApplicationVersion;
-                o.EnableAdaptiveSampling = options.EnableAdaptiveSampling;
-                o.EnableDebugLogger = options.EnableDebugLogger;
-                o.EnableQuickPulseMetricStream = options.EnableQuickPulseMetricStream;
-                o.EnableHeartbeat = options.EnableHeartbeat;
-                o.AddAutoCollectedMetricExtractor = options.AddAutoCollectedMetricExtractor;
-                o.EnablePerformanceCounterCollectionModule = options.EnablePerformanceCounterCollectionModule;
-                o.EnableDependencyTrackingTelemetryModule = options.EnableDependencyTrackingTelemetryModule;                
-                o.EnableAppServicesHeartbeatTelemetryModule = options.EnableAppServicesHeartbeatTelemetryModule;
-                o.EnableAzureInstanceMetadataTelemetryModule = options.EnableAzureInstanceMetadataTelemetryModule;
-#if NETSTANDARD2_0
-                o.EnableEventCounterCollectionModule = options.EnableEventCounterCollectionModule;
-#endif 
-#if AI_ASPNETCORE_WEB
-                o.EnableAuthenticationTrackingJavaScript = options.EnableAuthenticationTrackingJavaScript;
-                o.EnableRequestTrackingTelemetryModule = options.EnableRequestTrackingTelemetryModule;
-#endif
-            });
-        }
 
         private static void AddApplicationInsightsLoggerProvider(IServiceCollection services)
         {

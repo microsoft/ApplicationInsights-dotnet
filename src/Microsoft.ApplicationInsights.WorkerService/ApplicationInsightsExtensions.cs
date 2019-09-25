@@ -86,7 +86,7 @@ namespace Microsoft.Extensions.DependencyInjection
             ApplicationInsightsServiceOptions options)
         {
             services.AddApplicationInsightsTelemetryWorkerService();
-            ConfigureAiServiceOption(services, options);
+            services.Configure((ApplicationInsightsServiceOptions o) => options.CopyPropertiesTo(o));
             return services;
         }
 
