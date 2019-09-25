@@ -203,55 +203,36 @@
         /// </summary>
         /// <param name="config">Configuration to read variables from.</param>
         /// <param name="serviceOptions">Telemetry configuration to populate.</param>
-        internal static void AddTelemetryConfiguration(IConfiguration config,
+        internal static void AddTelemetryConfiguration(
+            IConfiguration config,
             ApplicationInsightsServiceOptions serviceOptions)
         {
             try
             {
-                string instrumentationKey = config[InstrumentationKeyForWebSites];
-                if (string.IsNullOrWhiteSpace(instrumentationKey))
-                {
-                    instrumentationKey = config[InstrumentationKeyFromConfig];
-                }
-
-                if (!string.IsNullOrWhiteSpace(instrumentationKey))
+                if (config.TryGetValue(primaryKey: InstrumentationKeyForWebSites, backupKey: InstrumentationKeyFromConfig, value: out string instrumentationKey))
                 {
                     serviceOptions.InstrumentationKey = instrumentationKey;
                 }
 
-                string developerModeValue = config[DeveloperModeForWebSites];
-                if (string.IsNullOrWhiteSpace(developerModeValue))
+                if (config.TryGetValue(primaryKey: DeveloperModeForWebSites, backupKey: DeveloperModeFromConfig, value: out string developerModeValue))
                 {
-                    developerModeValue = config[DeveloperModeFromConfig];
-                }
-
-                if (!string.IsNullOrWhiteSpace(developerModeValue))
-                {
-                    bool developerMode = false;
-                    if (bool.TryParse(developerModeValue, out developerMode))
+                    if (bool.TryParse(developerModeValue, out bool developerMode))
                     {
                         serviceOptions.DeveloperMode = developerMode;
                     }
                 }
 
-                string endpointAddress = config[EndpointAddressForWebSites];
-                if (string.IsNullOrWhiteSpace(endpointAddress))
-                {
-                    endpointAddress = config[EndpointAddressFromConfig];
-                }
-
-                if (!string.IsNullOrWhiteSpace(endpointAddress))
+                if (config.TryGetValue(primaryKey: EndpointAddressForWebSites, backupKey: EndpointAddressFromConfig, value: out string endpointAddress))
                 {
                     serviceOptions.EndpointAddress = endpointAddress;
                 }
 
-                var version = config[VersionKeyFromConfig];
-                if (!string.IsNullOrWhiteSpace(version))
+                if (config.TryGetValue(primaryKey: VersionKeyFromConfig, value: out string version))
                 {
                     serviceOptions.ApplicationVersion = version;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 #if AI_ASPNETCORE_WEB
                 AspNetCoreEventSource.Instance.LogError(ex.ToInvariantString());
@@ -259,6 +240,18 @@
                 WorkerServiceEventSource.Instance.LogError(ex.ToInvariantString());
 #endif
             }
+        }
+
+        private static bool TryGetValue(this IConfiguration config, string primaryKey, out string value, string backupKey = null)
+        {
+            value = config[primaryKey];
+
+            if (backupKey != null && string.IsNullOrWhiteSpace(value))
+            {
+                value = config[backupKey];
+            }
+
+            return !string.IsNullOrWhiteSpace(value);
         }
 
         private static bool IsApplicationInsightsAdded(IServiceCollection services)
