@@ -269,7 +269,7 @@
         public EndpointContainer EndpointContainer { get; private set; } = new EndpointContainer(new EndpointProvider());
 
         /// <summary>
-        /// Gets or sets the connection string. Setting this value will also set the Instrumentation Key, validate the endpoints, and set the TelemetryChannel.Endpoint.
+        /// Gets or sets the connection string. Setting this value will also set (and overwrite) the Instrumentation Key. The endpoints are validated and will be set (and overwrite) our first party TelemetryChannels as well as the ApplicationIdProvider.
         /// </summary>
         public string ConnectionString
         {
@@ -300,7 +300,6 @@
                     }
 
                     // UPDATE APPLICATION ID PROVIDER
-                    // NOTE: This can be removed when the Indexer Service goes live sometime in 2020.
                     SetApplicationIdEndpoint(this.ApplicationIdProvider, this.EndpointContainer.FormattedApplicationIdEndpoint);
                 }
                 catch (Exception ex)
