@@ -30,6 +30,11 @@
             this.TelemetryModuleType = telemetryModuleType;
         }
 
+        /// <summary>
+        /// Gets the type of <see cref="ITelemetryModule"/> to be configured.
+        /// </summary>
+        public Type TelemetryModuleType { get; }
+
         [Obsolete("Use Configure(ITelemetryModule telemetryModule, ApplicationInsightsServiceOptions options) instead.", true)]
         public void Configure(ITelemetryModule telemetryModule)
         {
@@ -43,10 +48,5 @@
         {
             this.configure?.Invoke(telemetryModule, options);
         }
-
-        /// <summary>
-        /// Gets the type of <see cref="ITelemetryModule"/> to be configured.
-        /// </summary>
-        public Type TelemetryModuleType { get; }
     }
 }

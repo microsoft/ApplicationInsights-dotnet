@@ -1,28 +1,14 @@
-﻿using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.WorkerService.TelemetryInitializers;
-using Microsoft.ApplicationInsights.WorkerService;
-using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.DependencyCollector;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
-using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
-using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
-using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
-using Microsoft.ApplicationInsights.WindowsServer;
-using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-using Microsoft.ApplicationInsights.WorkerService.Implementation.Tracing;
-
-namespace Microsoft.Extensions.DependencyInjection
+﻿namespace Microsoft.Extensions.DependencyInjection
 {
+    using System;
+
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.WorkerService;
+    using Microsoft.ApplicationInsights.WorkerService.Implementation.Tracing;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection.Extensions;
+    using Microsoft.Extensions.Options;
+
     /// <summary>
     /// Extension methods for <see cref="IServiceCollection"/> that allow adding Application Insights services to application.
     /// </summary>
@@ -103,12 +89,11 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 if (!IsApplicationInsightsAdded(services))
                 {
-                    AddCommonInitializers(services);                    
+                    AddCommonInitializers(services);
                     AddCommonTelemetryModules(services);
                     AddTelemetryChannel(services);
 
                     ConfigureEventCounterModuleWithSystemCounters(services);
-
 
                     services
                         .TryAddSingleton<IConfigureOptions<ApplicationInsightsServiceOptions>,

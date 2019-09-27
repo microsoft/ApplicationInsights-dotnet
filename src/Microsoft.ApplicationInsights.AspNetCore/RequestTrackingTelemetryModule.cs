@@ -42,7 +42,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestTrackingTelemetryModule"/> class.
         /// </summary>
-        /// <param name="applicationIdProvider">Provider to resolve Application Id</param>
+        /// <param name="applicationIdProvider">Provider to resolve Application Id.</param>
         public RequestTrackingTelemetryModule(IApplicationIdProvider applicationIdProvider)
         {
             this.applicationIdProvider = applicationIdProvider;
@@ -88,7 +88,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
                                 else
                                 {
                                     aspNetCoreMajorVersion = AspNetCoreMajorVersion.Three;
-                                }                                
+                                }
                             }
                             catch (Exception e)
                             {

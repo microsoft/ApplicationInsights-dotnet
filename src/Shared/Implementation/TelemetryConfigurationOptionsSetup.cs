@@ -3,23 +3,23 @@ namespace Microsoft.Extensions.DependencyInjection
     using System;
     using System.Collections.Generic;
     using System.Linq;
+
 #if AI_ASPNETCORE_WEB
-    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
 #else
     using Microsoft.ApplicationInsights.WorkerService;
     using Microsoft.ApplicationInsights.WorkerService.Implementation.Tracing;
 #endif
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
-    using Microsoft.ApplicationInsights.Extensibility.W3C;
-    using Microsoft.Extensions.Options;
     using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
-    using Microsoft.ApplicationInsights.DataContracts;    
+    using Microsoft.Extensions.Options;
 
     /// <summary>
     /// Initializes TelemetryConfiguration based on values in <see cref="ApplicationInsightsServiceOptions"/>
@@ -101,7 +101,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 this.AddQuickPulse(configuration);
                 this.AddSampling(configuration);
                 this.DisableHeartBeatIfConfigured();
-                
+
                 configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder.Build();
                 configuration.TelemetryProcessorChainBuilder.Build();
 

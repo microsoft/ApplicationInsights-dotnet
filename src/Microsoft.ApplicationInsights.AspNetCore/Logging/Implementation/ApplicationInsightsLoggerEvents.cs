@@ -3,7 +3,7 @@
     using System;
 
     /// <summary>
-    /// Class to provide ApplicationInsights logger events
+    /// Class to provide ApplicationInsights logger events.
     /// </summary>
     internal class ApplicationInsightsLoggerEvents
     {
@@ -17,7 +17,7 @@
         /// </summary>
         public void OnLoggerAdded()
         {
-            LoggerAdded?.Invoke();
+            this.LoggerAdded?.Invoke();
         }
     }
 }

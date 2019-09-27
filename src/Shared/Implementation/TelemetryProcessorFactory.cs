@@ -17,7 +17,7 @@
         private readonly Type telemetryProcessorType;
 
         /// <summary>
-        /// Constructs an instance of the factory.
+        /// Initializes a new instance of the <see cref="TelemetryProcessorFactory"/> class.
         /// </summary>
         /// <param name="serviceProvider">The service provider.</param>
         /// <param name="telemetryProcessorType">The type of telemetry processor to create.</param>

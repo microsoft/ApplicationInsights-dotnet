@@ -40,7 +40,7 @@
         private static readonly ActiveSubsciptionManager SubscriptionManager = new ActiveSubsciptionManager();
 
         /// <summary>
-        /// This class need to be aware of the AspNetCore major version. 
+        /// This class need to be aware of the AspNetCore major version.
         /// This will affect what DiagnosticSource events we receive.
         /// To support AspNetCore 1.0,2.0,3.0 we listen to both old and new events.
         /// If the running AspNetCore version is 2.0 or 3.0, both old and new events will be sent. In this case, we will ignore the old events.
@@ -99,7 +99,7 @@
             bool injectResponseHeaders,
             bool trackExceptions,
             bool enableW3CHeaders,
-            AspNetCoreMajorVersion aspNetCoreMajorVersion )
+            AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             this.aspNetCoreMajorVersion = aspNetCoreMajorVersion;
             this.client = client ?? throw new ArgumentNullException(nameof(client));
@@ -153,8 +153,7 @@
 
             if (telemetry != null && string.IsNullOrEmpty(telemetry.Name))
             {
-                string name = this.GetNameFromRouteContext(routeValues);
-
+                string name = GetNameFromRouteContext(routeValues);
                 if (!string.IsNullOrEmpty(name))
                 {
                     name = httpContext.Request.Method + " " + name;
@@ -197,9 +196,9 @@
                 // 2. Incoming Request-ID Headers. originalParentId will be request-id, but Activity ignores this for ID calculations.
                 //    If incoming ID is W3C compatible, ignore current Activity. Create new one with parent set to incoming W3C compatible rootid.
                 //    If incoming ID is not W3C compatible, we can use Activity as such, but need to store originalParentID in custom property 'legacyRootId'
-                // 3. Incoming TraceParent header. 
+                // 3. Incoming TraceParent header.
                 //    3a - 2.XX Need to ignore current Activity, and create new from incoming W3C TraceParent header.
-                //    3b - 3.XX Use Activity as such because 3.XX is W3C Aware. 
+                //    3b - 3.XX Use Activity as such because 3.XX is W3C Aware.
 
                 // Another 3 possibilities when TelemetryConfiguration.EnableW3CCorrelation = false
                 // 1. No incoming headers. originalParentId will be null. Simply use the Activity as such.
@@ -235,11 +234,12 @@
                     AspNetCoreEventSource.Instance.HostingListenerInformational(this.aspNetCoreMajorVersion, "Ignoring original Activity from Hosting to create new one using traceparent header retrieved by sdk.");
 
                     // read and populate tracestate
-                    ReadTraceState(httpContext.Request.Headers, newActivity);                    
+                    ReadTraceState(httpContext.Request.Headers, newActivity);
                 }
                 else if (this.aspNetCoreMajorVersion == AspNetCoreMajorVersion.Three && headers.ContainsKey(W3CConstants.TraceParentHeader))
                 {
                     AspNetCoreEventSource.Instance.HostingListenerInformational(this.aspNetCoreMajorVersion, "Incoming request has traceparent. Using Activity created from Hosting.");
+
                     // scenario #3b Use Activity created by Hosting layer when W3C Headers Present.
                     // but ignore parent if user disabled w3c.
                     if (currentActivity.IdFormat != ActivityIdFormat.W3C)
@@ -270,7 +270,7 @@
                             AspNetCoreEventSource.Instance.HostingListenerInformational(this.aspNetCoreMajorVersion, "Incoming Request-ID is not W3C Compatible, and hence will be ignored for ID generation, but stored in custom property legacy_rootID.");
                         }
                     }
-                }                
+                }
 
                 if (newActivity != null)
                 {
@@ -330,7 +330,7 @@
                     activity.SetParentId(parentTraceParent);
                     originalParentId = parentTraceParent;
 
-                    ReadTraceState(requestHeaders, activity);                    
+                    ReadTraceState(requestHeaders, activity);
                 }
 
                 // Request-Id
@@ -353,7 +353,7 @@
                     else
                     {
                         activity.SetParentId(originalParentId);
-                    }                    
+                    }
                 }
 
                 // no headers
@@ -541,7 +541,7 @@
         {
         }
 
-        private string GetParentId(Activity activity, string originalParentId, string operationId)
+        private static string GetParentId(Activity activity, string originalParentId, string operationId)
         {
             if (activity.IdFormat == ActivityIdFormat.W3C && activity.ParentSpanId != default)
             {
@@ -654,7 +654,7 @@
             }
         }
 
-        private string GetNameFromRouteContext(IDictionary<string, object> routeValues)
+        private static string GetNameFromRouteContext(IDictionary<string, object> routeValues)
         {
             string name = null;
 
@@ -745,7 +745,7 @@
                 && this.configuration != null
                 && !string.IsNullOrEmpty(requestTelemetry.Context.Operation.Id)
                 && SamplingScoreGenerator.GetSamplingScore(requestTelemetry.Context.Operation.Id) >= this.configuration.GetLastObservedSamplingPercentage(requestTelemetry.ItemTypeFlag))
-            {                
+            {
                 requestTelemetry.ProactiveSamplingDecision = SamplingDecision.SampledOut;
                 AspNetCoreEventSource.Instance.TelemetryItemWasSampledOutAtHead(requestTelemetry.Context.Operation.Id);
             }
@@ -826,7 +826,8 @@
 
                     HttpHeadersUtilities.SetRequestContextKeyValue(
                         responseHeaders,
-                        RequestResponseHeaders.RequestContextTargetKey, this.lastAppIdUsed);
+                        RequestResponseHeaders.RequestContextTargetKey,
+                        this.lastAppIdUsed);
                 }
             }
         }
@@ -878,8 +879,6 @@
                 }
 
                 this.client.TrackRequest(telemetry);
-
-                
 
                 // Stop what we started.
                 var activity = Activity.Current;

@@ -187,7 +187,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         {
             this.WriteEvent(17, errorMessage, this.ApplicationName);
         }
-        
+
         /// <summary>
         /// Logs an event when a telemetry item is sampled out at head.
         /// </summary>

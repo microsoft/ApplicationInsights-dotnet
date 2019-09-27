@@ -5,7 +5,7 @@
     using Microsoft.AspNetCore.Http;
 
     /// <summary>
-    /// This will allow to mark synthetic traffic from availability tests
+    /// This will allow to mark synthetic traffic from availability tests.
     /// </summary>
     public class SyntheticTelemetryInitializer : TelemetryInitializerBase
     {

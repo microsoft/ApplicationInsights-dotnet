@@ -149,10 +149,10 @@
 
                     services.ConfigureTelemetryModule<RequestTrackingTelemetryModule>((module, options) =>
                     {
-                        if(options.EnableRequestTrackingTelemetryModule)
+                        if (options.EnableRequestTrackingTelemetryModule)
                         {
                             module.CollectionOptions = options.RequestCollectionOptions;
-                        }                        
+                        }
                     });
 
                     AddCommonTelemetryModules(services);
@@ -174,8 +174,9 @@
                     // that requires IOptions infrastructure to run and initialize
                     services.AddSingleton<IStartupFilter, ApplicationInsightsStartupFilter>();
                     services.AddSingleton<IJavaScriptSnippet, JavaScriptSnippet>();
+
                     // Add 'JavaScriptSnippet' "Service" for backwards compatibility. To remove in favour of 'IJavaScriptSnippet'.
-                    services.AddSingleton<JavaScriptSnippet>(); 
+                    services.AddSingleton<JavaScriptSnippet>();
 
                     // NetStandard2.0 has a package reference to Microsoft.Extensions.Logging.ApplicationInsights, and
                     // enables ApplicationInsightsLoggerProvider by default.

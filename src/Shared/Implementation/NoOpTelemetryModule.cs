@@ -1,12 +1,9 @@
-﻿using Microsoft.ApplicationInsights.Extensibility;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Shared.Implementation
+﻿namespace Shared.Implementation
 {
+    using Microsoft.ApplicationInsights.Extensibility;
+
     /// <summary>
-    /// No-op telemetry module that is added instead of actual one, when the actual module is disabled
+    /// No-op telemetry module that is added instead of actual one, when the actual module is disabled.
     /// </summary>
     internal class NoOpTelemetryModule : ITelemetryModule
     {

@@ -21,7 +21,7 @@
             this.EnablePerformanceCounterCollectionModule = true;
             this.EnableQuickPulseMetricStream = true;
             this.EnableAdaptiveSampling = true;
-            this.EnableDebugLogger = true;            
+            this.EnableDebugLogger = true;
             this.EnableHeartbeat = true;
             this.AddAutoCollectedMetricExtractor = true;
 #if AI_ASPNETCORE_WEB
@@ -35,52 +35,52 @@
 #endif
             this.EnableDependencyTrackingTelemetryModule = true;
             this.EnableAzureInstanceMetadataTelemetryModule = true;
-            this.EnableAppServicesHeartbeatTelemetryModule = true;            
+            this.EnableAppServicesHeartbeatTelemetryModule = true;
             this.DependencyCollectionOptions = new DependencyCollectionOptions();
             this.ApplicationVersion = Assembly.GetEntryAssembly()?.GetName().Version.ToString();
         }
 
         /// <summary>
         /// Gets or sets a value indicating whether QuickPulseTelemetryModule and QuickPulseTelemetryProcessor are registered with the configuration.
-        /// Setting EnableQuickPulseMetricStream to <c>false</c>, will disable the default quick pulse metric stream. Defaults to <code>true</code>.
+        /// Setting EnableQuickPulseMetricStream to <value>false</value>, will disable the default quick pulse metric stream. Defaults to <value>true</value>.
         /// </summary>
         public bool EnableQuickPulseMetricStream { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether PerformanceCollectorModule should be enabled.
-        /// Defaults to <code>true</code>.
+        /// Defaults to <value>true</value>.
         /// </summary>
         public bool EnablePerformanceCounterCollectionModule { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether AppServicesHeartbeatTelemetryModule should be enabled.
-        /// Defaults to <code>true</code>.
+        /// Defaults to <value>true</value>.
         /// </summary>
         public bool EnableAppServicesHeartbeatTelemetryModule { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether AzureInstanceMetadataTelemetryModule should be enabled.
-        /// Defaults to <code>true</code>.
+        /// Defaults to <value>true</value>.
         /// </summary>
         public bool EnableAzureInstanceMetadataTelemetryModule { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether DependencyTrackingTelemetryModule should be enabled.
-        /// Defaults to <code>true</code>.
+        /// Defaults to <value>true</value>.
         /// </summary>
-        public bool EnableDependencyTrackingTelemetryModule { get; set; }        
+        public bool EnableDependencyTrackingTelemetryModule { get; set; }
 
 #if NETSTANDARD2_0
         /// <summary>
         /// Gets or sets a value indicating whether EventCounterCollectionModule should be enabled.
-        /// Defaults to <code>true</code>.
+        /// Defaults to <value>true</value>.
         /// </summary>
         public bool EnableEventCounterCollectionModule { get; set; }
 #endif
 
         /// <summary>
         /// Gets or sets a value indicating whether telemetry processor that controls sampling is added to the service.
-        /// Setting EnableAdaptiveSampling to <c>false</c>, will disable the default adaptive sampling feature. Defaults to <code>true</code>.
+        /// Setting EnableAdaptiveSampling to <value>false</value>, will disable the default adaptive sampling feature. Defaults to <value>true</value>.
         /// </summary>
         public bool EnableAdaptiveSampling { get; set; }
 
@@ -107,7 +107,7 @@
         /// <summary>
         /// Gets or sets a value indicating whether a logger would be registered automatically in debug mode.
         /// </summary>
-        public bool EnableDebugLogger { get; set; }        
+        public bool EnableDebugLogger { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether heartbeats are enabled.
@@ -121,13 +121,13 @@
 
 #if AI_ASPNETCORE_WEB
         /// <summary>
-        /// Gets <see cref="RequestCollectionOptions"/> that allow to manage <see cref="RequestTrackingTelemetryModule"/>
+        /// Gets <see cref="RequestCollectionOptions"/> that allow to manage <see cref="RequestTrackingTelemetryModule"/>.
         /// </summary>
         public RequestCollectionOptions RequestCollectionOptions { get; }
 
         /// <summary>
         /// Gets or sets a value indicating whether RequestTrackingTelemetryModule should be enabled.
-        /// Defaults to <code>true</code>.
+        /// Defaults to <value>true</value>.
         /// </summary>
         public bool EnableRequestTrackingTelemetryModule { get; set; }
 
@@ -139,7 +139,7 @@
 #endif
 
         /// <summary>
-        /// Gets <see cref="DependencyCollectionOptions"/> that allow to manage <see cref="DependencyTrackingTelemetryModule"/>
+        /// Gets <see cref="DependencyCollectionOptions"/> that allow to manage <see cref="DependencyTrackingTelemetryModule"/>.
         /// </summary>
         public DependencyCollectionOptions DependencyCollectionOptions { get; }
 

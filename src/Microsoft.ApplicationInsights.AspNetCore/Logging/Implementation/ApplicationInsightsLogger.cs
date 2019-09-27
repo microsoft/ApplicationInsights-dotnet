@@ -29,7 +29,7 @@
         private readonly string sdkVersion = SdkVersionUtils.GetVersion(VersionPrefix);
 
         /// <summary>
-        /// Creates a new instance of <see cref="ApplicationInsightsLogger"/>.
+        /// Initializes a new instance of the <see cref="ApplicationInsightsLogger"/> class.
         /// </summary>
         public ApplicationInsightsLogger(string name, TelemetryClient telemetryClient, Func<string, LogLevel, bool> filter, ApplicationInsightsLoggerOptions options)
         {
@@ -48,7 +48,7 @@
         /// <inheritdoc />
         public bool IsEnabled(LogLevel logLevel)
         {
-            return this.filter != null && this.telemetryClient != null && this.filter(categoryName, logLevel) && this.telemetryClient.IsEnabled();
+            return this.filter != null && this.telemetryClient != null && this.filter(this.categoryName, logLevel) && this.telemetryClient.IsEnabled();
         }
 
         /// <inheritdoc />

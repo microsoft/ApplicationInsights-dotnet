@@ -12,6 +12,10 @@
     {
         private static readonly object lockObject = new object();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TelemetryConfigurationOptions"/> class.
+        /// </summary>
+        /// <param name="configureOptions"></param>
         public TelemetryConfigurationOptions(IEnumerable<IConfigureOptions<TelemetryConfiguration>> configureOptions)
         {
             this.Value = TelemetryConfiguration.CreateDefault();

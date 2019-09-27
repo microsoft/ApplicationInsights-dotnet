@@ -4,7 +4,7 @@
     using System.Reflection;
 
     // see https://github.com/dotnet/corefx/blob/master/src/System.Diagnostics.DiagnosticSource/src/System/Diagnostics/DiagnosticSourceEventSource.cs
-    
+
     /// <summary>
     /// Efficient implementation of fetching properties of anonymous types with reflection.
     /// </summary>

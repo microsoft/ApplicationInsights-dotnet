@@ -30,13 +30,14 @@
         /// </summary>
         public const string CorrelationContextHeader = "Correlation-Context";
 
-        //
-        // Summary:
-        //     W3C traceparent header name.
+        /// <summary>
+        /// W3C traceparent header name.
+        /// </summary>
         public const string TraceParentHeader = "traceparent";
-        //
-        // Summary:
-        //     W3C tracestate header name.
+
+        /// <summary>
+        /// W3C tracestate header name.
+        /// </summary>
         public const string TraceStateHeader = "tracestate";
     }
 }

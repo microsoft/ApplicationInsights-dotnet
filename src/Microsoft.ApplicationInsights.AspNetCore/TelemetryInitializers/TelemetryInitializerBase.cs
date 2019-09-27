@@ -9,7 +9,7 @@
     using Microsoft.AspNetCore.Http;
 
     /// <summary>
-    /// Base class for Telemetry Initializers. Provides access to HttpContext and RequestTelemetry
+    /// Base class for Telemetry Initializers. Provides access to HttpContext and RequestTelemetry.
     /// </summary>
     public abstract class TelemetryInitializerBase : ITelemetryInitializer
     {

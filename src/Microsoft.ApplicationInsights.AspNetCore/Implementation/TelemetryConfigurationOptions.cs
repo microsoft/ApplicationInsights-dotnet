@@ -10,7 +10,7 @@
     /// </summary>
     internal class TelemetryConfigurationOptions : IOptions<TelemetryConfiguration>
     {
-        private static readonly object lockObject = new object();
+        private static readonly object LockObject = new object();
 
         public TelemetryConfigurationOptions(IEnumerable<IConfigureOptions<TelemetryConfiguration>> configureOptions)
         {
@@ -22,7 +22,7 @@
                 c.Configure(this.Value);
             }
 
-            lock (lockObject)
+            lock (LockObject)
             {
                 // workaround for Microsoft/ApplicationInsights-dotnet#613
                 // as we expect some customers to use TelemetryConfiguration.Active together with dependency injection

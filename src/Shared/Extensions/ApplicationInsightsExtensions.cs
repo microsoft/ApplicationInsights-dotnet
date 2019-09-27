@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+
     using Microsoft.ApplicationInsights;
 #if AI_ASPNETCORE_WEB
     using Microsoft.ApplicationInsights.AspNetCore;
@@ -32,6 +33,7 @@
 #endif
     using Microsoft.Extensions.Options;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
+
     using Shared.Implementation;
 
     /// <summary>
@@ -49,7 +51,6 @@
         private const string EndpointAddressForWebSites = "APPINSIGHTS_ENDPOINTADDRESS";
         private const string EventSourceNameForSystemRuntime = "System.Runtime";
         private const string EventSourceNameForAspNetCoreHosting = "Microsoft.AspNetCore.Hosting";
-
 
         /// <summary>
         /// Adds an Application Insights Telemetry Processor into a service collection via a <see cref="ITelemetryProcessorFactory"/>.
@@ -76,8 +77,7 @@
         /// </returns>
         /// <exception cref="ArgumentNullException">The <paramref name="telemetryProcessorType"/> argument is null.</exception>
         /// <exception cref="ArgumentException">The <paramref name="telemetryProcessorType"/> type does not implement <see cref="ITelemetryProcessor"/>.</exception>
-        public static IServiceCollection AddApplicationInsightsTelemetryProcessor(this IServiceCollection services,
-            Type telemetryProcessorType)
+        public static IServiceCollection AddApplicationInsightsTelemetryProcessor(this IServiceCollection services, Type telemetryProcessorType)
         {
             if (telemetryProcessorType == null)
             {
@@ -110,7 +110,8 @@
                 throw new ArgumentNullException(nameof(configModule));
             }
 
-            return services.AddSingleton(typeof(ITelemetryModuleConfigurator),
+            return services.AddSingleton(
+                typeof(ITelemetryModuleConfigurator),
                 new TelemetryModuleConfigurator((config, options) => configModule((T)config), typeof(T)));
         }
 
@@ -132,7 +133,8 @@
                 throw new ArgumentNullException(nameof(configModule));
             }
 
-            return services.AddSingleton(typeof(ITelemetryModuleConfigurator),
+            return services.AddSingleton(
+                typeof(ITelemetryModuleConfigurator),
                 new TelemetryModuleConfigurator((config, options) => configModule((T)config, options), typeof(T)));
         }
 
@@ -167,16 +169,13 @@
 
             if (instrumentationKey != null)
             {
-                telemetryConfigValues.Add(new KeyValuePair<string, string>(InstrumentationKeyForWebSites,
-                    instrumentationKey));
+                telemetryConfigValues.Add(new KeyValuePair<string, string>(InstrumentationKeyForWebSites, instrumentationKey));
                 wasAnythingSet = true;
             }
 
             if (endpointAddress != null)
             {
-                telemetryConfigValues.Add(new KeyValuePair<string, string>(
-                    EndpointAddressForWebSites,
-                    endpointAddress));
+                telemetryConfigValues.Add(new KeyValuePair<string, string>(EndpointAddressForWebSites, endpointAddress));
                 wasAnythingSet = true;
             }
 
@@ -279,7 +278,7 @@
                 {
                     var options = provider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
 
-                    if(options.EnablePerformanceCounterCollectionModule)
+                    if (options.EnablePerformanceCounterCollectionModule)
                     {
                         return new PerformanceCollectorModule();
                     }
@@ -387,7 +386,7 @@
 
             services.ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module, o) =>
             {
-                if(o.EnableDependencyTrackingTelemetryModule)
+                if (o.EnableDependencyTrackingTelemetryModule)
                 {
                     module.EnableLegacyCorrelationHeadersInjection =
                        o.DependencyCollectionOptions.EnableLegacyCorrelationHeadersInjection;
@@ -419,11 +418,12 @@
                 eventCounterModule.Counters.Add(new EventCounterCollectionRequest(eventSource, eventCounterName));
             }
         }
+
         private static void ConfigureEventCounterModuleWithSystemCounters(IServiceCollection services)
         {
             services.ConfigureTelemetryModule<EventCounterCollectionModule>((eventCounterModule, options) =>
             {
-                if(options.EnableEventCounterCollectionModule)
+                if (options.EnableEventCounterCollectionModule)
                 {
                     // Ref this code for actual names. https://github.com/dotnet/coreclr/blob/dbc5b56c48ce30635ee8192c9814c7de998043d5/src/System.Private.CoreLib/src/System/Diagnostics/Eventing/RuntimeEventSource.cs
                     AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "cpu-usage");
@@ -445,7 +445,7 @@
                     AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "threadpool-queue-length");
                     AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "threadpool-completed-items-count");
                     AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "active-timer-count");
-                }                        
+                }
             });
         }
 
@@ -464,7 +464,6 @@
             });
         }
 #endif
-
 
         private static void AddApplicationInsightsLoggerProvider(IServiceCollection services)
         {
@@ -493,8 +492,10 @@
                     options => options.Rules.Insert(
                         0,
                         new LoggerFilterRule(
-                            "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider", null,
-                            LogLevel.Warning, null)));
+                            "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider",
+                            null,
+                            LogLevel.Warning,
+                            null)));
             });
 #endif
         }
