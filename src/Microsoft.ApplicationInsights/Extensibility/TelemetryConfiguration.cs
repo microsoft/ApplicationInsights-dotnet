@@ -269,7 +269,7 @@
         public EndpointContainer EndpointContainer { get; private set; } = new EndpointContainer(new EndpointProvider());
 
         /// <summary>
-        /// Gets or sets the connection string. Setting this value will also set (and overwrite) the Instrumentation Key. The endpoints are validated and will be set (and overwrite) our first party TelemetryChannels as well as the ApplicationIdProvider.
+        /// Gets or sets the connection string. Setting this value will also set (and overwrite) the <see cref="InstrumentationKey"/>. The endpoints are validated and will be set (and overwritten) for <see cref="InMemoryChannel"/> and ServerTelemetryChannel as well as the <see cref="ApplicationIdProvider"/>.
         /// </summary>
         public string ConnectionString
         {
