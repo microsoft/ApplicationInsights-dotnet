@@ -6,7 +6,7 @@
     <SharedGUID>d56f2979-d6bc-4ef2-bb9b-4077b3290599</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>Shared</Import_RootNamespace>
+    <Import_RootNamespace>Microsoft.ApplicationInsights.Shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\ApplicationInsightsExtensions.cs" />
@@ -18,6 +18,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryConfigurationOptionsSetup.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryModuleConfigurator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryProcessorFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Internals\ApplicationNameProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryInitializers\ComponentVersionTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryInitializers\DomainNameRoleInstanceTelemetryInitializer.cs" />
   </ItemGroup>

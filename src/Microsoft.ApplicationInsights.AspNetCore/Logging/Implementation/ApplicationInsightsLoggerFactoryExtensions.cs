@@ -9,7 +9,8 @@
     /// <summary>
     /// Extension methods for <see cref="ILoggerFactory"/> that allow adding Application Insights logger.
     /// </summary>
-    [SuppressMessage("Microsoft.Usage", "SA1614ElementParameterDocumentationMustHaveText", Justification = "Obsolete class")]
+    [SuppressMessage("Microsoft.Usage", "SA1614:ElementParameterDocumentationMustHaveText", Justification = "Obsolete class")]
+    [SuppressMessage("Microsoft.Usage", "SA1615:ElementReturnValueMustBeDocumented", Justification = "Obsolete class")]
     public static class ApplicationInsightsLoggerFactoryExtensions
     {
         /// <summary>

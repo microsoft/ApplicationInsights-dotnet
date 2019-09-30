@@ -416,6 +416,7 @@
             this.OnException(httpContext, exception);
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             SubscriptionManager.Detach(this);

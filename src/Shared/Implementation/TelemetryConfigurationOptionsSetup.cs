@@ -6,8 +6,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
 #if AI_ASPNETCORE_WEB
     using Microsoft.ApplicationInsights.AspNetCore;
-    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 #else
     using Microsoft.ApplicationInsights.WorkerService;
     using Microsoft.ApplicationInsights.WorkerService.Implementation.Tracing;

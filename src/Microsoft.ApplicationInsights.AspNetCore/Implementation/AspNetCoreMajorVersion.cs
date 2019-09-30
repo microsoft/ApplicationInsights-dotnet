@@ -5,5 +5,5 @@
         One,
         Two,
         Three,
-    };
+    }
 }

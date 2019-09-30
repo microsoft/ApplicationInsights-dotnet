@@ -1,11 +1,11 @@
-﻿using System;
-
-#if AI_ASPNETCORE_WEB
+﻿#if AI_ASPNETCORE_WEB
     namespace Microsoft.ApplicationInsights.AspNetCore
 #else
 namespace Microsoft.ApplicationInsights.WorkerService
 #endif
 {
+    using System;
+
 #if AI_ASPNETCORE_WEB
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 #else

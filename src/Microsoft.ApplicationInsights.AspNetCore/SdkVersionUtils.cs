@@ -3,6 +3,9 @@
     using System.Linq;
     using System.Reflection;
 
+    /// <summary>
+    /// Utility class for the version information of the current assembly.
+    /// </summary>
     internal class SdkVersionUtils
     {
 #if NET451 || NET46
@@ -14,7 +17,7 @@
         /// <summary>
         /// Get the Assembly Version with SDK prefix.
         /// </summary>
-        /// <returns>assembly version prefixed with versionprefix.</returns>
+        /// <returns>Assembly version combined with this assembly's version prefix.</returns>
         internal static string GetVersion()
         {
             return VersionPrefix + GetAssemblyVersion();
@@ -23,6 +26,8 @@
         /// <summary>
         /// Get the Assembly Version with given SDK prefix.
         /// </summary>
+        /// <param name="versionPrefix">Prefix string to be included with the version.</param>
+        /// <returns>Returns a string representing the current assembly version.</returns>
         internal static string GetVersion(string versionPrefix)
         {
             return versionPrefix + GetAssemblyVersion();
