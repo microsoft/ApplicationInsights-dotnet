@@ -123,6 +123,44 @@
 
         [TestMethod]
         [TestCategory("ConnectionString")]
+        public void NewTest()
+        {
+
+            string ikeyConfig = "00000000-0000-0000-1111-000000000000";
+            string ikeyConfigConnectionString = "00000000-0000-0000-2222-000000000000";
+
+            // SETUP CONFIG FILE
+            string configString = @"<InstrumentationKey>00000000-0000-0000-1111-000000000000</InstrumentationKey>
+  <TelemetryChannel Type=""Microsoft.ApplicationInsights.Channel.InMemoryChannel, Microsoft.ApplicationInsights"">
+    <EndpointAddress>http://10.0.0.0/v2/track</EndpointAddress>
+    <DeveloperMode>true</DeveloperMode>
+  </TelemetryChannel>";
+
+            string configFileContents = Configuration(configString);
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            Assert.AreEqual(ikeyConfig, configuration.InstrumentationKey);
+            Assert.AreEqual(true, configuration.TelemetryChannel.DeveloperMode);
+            Assert.AreEqual("http://10.0.0.0/v2/track", configuration.TelemetryChannel.EndpointAddress, "failed to set Channel Endpoint to config value");
+
+            TelemetryConfiguration.Active = configuration;
+
+
+
+            TelemetryConfiguration.Active.ConnectionString = $"InstrumentationKey={ikeyConfigConnectionString};IngestionEndpoint=https://localhost:63029/";
+
+            var client = new TelemetryClient();
+
+            Assert.AreEqual(string.Empty, client.InstrumentationKey);
+            Assert.AreEqual(ikeyConfigConnectionString, client.TelemetryConfiguration.InstrumentationKey);
+            Assert.AreEqual("https://localhost:63029/v2/track", client.TelemetryConfiguration.TelemetryChannel.EndpointAddress);
+
+        }
+
+
+        [TestMethod]
+        [TestCategory("ConnectionString")]
         public void VerifySelectInstrumentationKeyChooses_EnVarConnectionString()
         {
             // SETUP
