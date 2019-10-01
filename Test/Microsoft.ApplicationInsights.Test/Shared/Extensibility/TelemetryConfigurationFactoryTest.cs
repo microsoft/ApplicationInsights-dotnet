@@ -125,11 +125,10 @@
         [TestCategory("ConnectionString")]
         public void NewTest()
         {
-
+            // PART 1 - CONFIGURATION FACTORY IS EXPECTED TO CREATE A CONFIG THAT MATCHES THE XML
             string ikeyConfig = "00000000-0000-0000-1111-000000000000";
             string ikeyConfigConnectionString = "00000000-0000-0000-2222-000000000000";
 
-            // SETUP CONFIG FILE
             string configString = @"<InstrumentationKey>00000000-0000-0000-1111-000000000000</InstrumentationKey>
   <TelemetryChannel Type=""Microsoft.ApplicationInsights.Channel.InMemoryChannel, Microsoft.ApplicationInsights"">
     <EndpointAddress>http://10.0.0.0/v2/track</EndpointAddress>
@@ -144,9 +143,8 @@
             Assert.AreEqual(true, configuration.TelemetryChannel.DeveloperMode);
             Assert.AreEqual("http://10.0.0.0/v2/track", configuration.TelemetryChannel.EndpointAddress, "failed to set Channel Endpoint to config value");
 
+            // PART 2 - VERIFY SETTING THE CONNECTION STRING WILL OVERWRITE CHANNEL ENDPOINT.
             TelemetryConfiguration.Active = configuration;
-
-
 
             TelemetryConfiguration.Active.ConnectionString = $"InstrumentationKey={ikeyConfigConnectionString};IngestionEndpoint=https://localhost:63029/";
 
@@ -156,6 +154,34 @@
             Assert.AreEqual(ikeyConfigConnectionString, client.TelemetryConfiguration.InstrumentationKey);
             Assert.AreEqual("https://localhost:63029/v2/track", client.TelemetryConfiguration.TelemetryChannel.EndpointAddress);
 
+        }
+
+        /// <summary>
+        /// This fails because of a change to Channels.
+        /// Channels previously held a default endpoint value.
+        /// I changed that to read from the TelemetryConfiguration.EndpointContainer.
+        /// EndpointContainer now holds the default values unless overwritten by setting a ConnectionString.
+        /// In this example, No ConnectionString is in use and the Channel holds a custom Endpoint.
+        /// This custom Endpoint is being overwritten by the TelemetryConfiguration.EndpointContainer which is an error.
+        /// </summary>
+        [TestMethod]
+        [TestCategory("ConnectionString")]
+        public void NewTest2()
+        {
+            var configuration = new TelemetryConfiguration();
+            Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.EndpointContainer.Ingestion.AbsoluteUri);
+
+            var customEndpoint = "http://10.0.0.0/v2/track";
+            var customChannel = new InMemoryChannel
+            {
+                EndpointAddress = customEndpoint
+            };
+
+            Assert.AreEqual(customEndpoint, customChannel.EndpointAddress);
+
+            configuration.TelemetryChannel = customChannel;
+
+            Assert.AreEqual(customEndpoint, customChannel.EndpointAddress, "channel endpoint was overwritten by config");
         }
 
 
