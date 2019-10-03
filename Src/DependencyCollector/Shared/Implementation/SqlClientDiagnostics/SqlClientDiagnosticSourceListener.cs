@@ -13,6 +13,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.W3C.Internal;
     using static Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlClientDiagnostics.SqlClientDiagnosticFetcherTypes;
 
     internal class SqlClientDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>, IDisposable
@@ -342,13 +343,22 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
             if (activity != null)
             {
-                telemetry.Context.Operation.Id = activity.RootId;
+                // SQL Client does NOT create Activity.
+                // We initialize SQL dependency using Activity from incoming Request
+                // and it is the parent of the SQL dependency
 
-                // SQL Client does NOT create and Activity, i.e. 
-                // we initialize SQL dependency using request Activity 
-                // and it is a parent of the SQL dependency
-                telemetry.Context.Operation.ParentId = activity.Id;
-
+                if (activity.IdFormat == ActivityIdFormat.W3C)
+                {
+                    var traceId = activity.TraceId.ToHexString();
+                    telemetry.Context.Operation.Id = traceId;
+                    telemetry.Context.Operation.ParentId = W3CUtilities.FormatTelemetryId(traceId, activity.SpanId.ToHexString());
+                }
+                else
+                {
+                    telemetry.Context.Operation.Id = activity.RootId;
+                    telemetry.Context.Operation.ParentId = activity.Id;
+                }
+                
                 foreach (var item in activity.Baggage)
                 {
                     if (!telemetry.Properties.ContainsKey(item.Key))

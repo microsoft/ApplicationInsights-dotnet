@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.11.1
+- [Fix Sql dependency parent id to match W3CTraceContext format](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1277)
+
 ## Version 2.11.0
  - [Fix Sql dependency tracking in .NET Core 3.0 which uses Microsoft.Data.SqlClient instead of System.Data.SqlClient](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1263)
  - Updated Base SDK to 2.11.0

@@ -13,6 +13,7 @@ namespace Microsoft.ApplicationInsights.Tests
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlClientDiagnostics;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.W3C.Internal;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Xunit;
 
@@ -59,7 +60,60 @@ namespace Microsoft.ApplicationInsights.Tests
         [Theory]
         [InlineData(SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand)]
         [InlineData(SqlClientDiagnosticSourceListener.SqlMicrosoftBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlMicrosoftAfterExecuteCommand)]
-        public void InitializesTelemetryFromParentActivity(string beforeEventName, string afterEventName)
+        public void InitializesTelemetryFromParentActivityNonW3C(string beforeEventName, string afterEventName)
+        {
+            try
+            {
+                // Disable W3C
+                Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+                Activity.ForceDefaultIdFormat = true;
+
+                var activity = new Activity("Current").AddBaggage("Stuff", "123");
+                activity.Start();
+
+                var operationId = Guid.NewGuid();
+                var sqlConnection = new SqlConnection(TestConnectionString);
+                var sqlCommand = sqlConnection.CreateCommand();
+                sqlCommand.CommandText = "select * from orders";
+
+                var beforeExecuteEventData = new
+                {
+                    OperationId = operationId,
+                    Command = sqlCommand,
+                    Timestamp = (long?)1000000L
+                };
+
+                this.fakeSqlClientDiagnosticSource.Write(
+                    beforeEventName,
+                    beforeExecuteEventData);
+
+                var afterExecuteEventData = new
+                {
+                    OperationId = operationId,
+                    Command = sqlCommand,
+                    Timestamp = 2000000L
+                };
+
+                this.fakeSqlClientDiagnosticSource.Write(
+                    afterEventName,
+                    afterExecuteEventData);
+
+                var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
+
+                Assert.Equal(activity.RootId, dependencyTelemetry.Context.Operation.Id);
+                Assert.Equal(activity.Id, dependencyTelemetry.Context.Operation.ParentId);
+                Assert.Equal("123", dependencyTelemetry.Properties["Stuff"]);
+            }
+            finally
+            {
+                Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+            }
+        }
+
+        [Theory]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand)]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlMicrosoftBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlMicrosoftAfterExecuteCommand)]
+        public void InitializesTelemetryFromParentActivityW3C(string beforeEventName, string afterEventName)
         {
             var activity = new Activity("Current").AddBaggage("Stuff", "123");
             activity.Start();
@@ -93,8 +147,8 @@ namespace Microsoft.ApplicationInsights.Tests
 
             var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
 
-            Assert.Equal(activity.RootId, dependencyTelemetry.Context.Operation.Id);
-            Assert.Equal(activity.Id, dependencyTelemetry.Context.Operation.ParentId);
+            Assert.Equal(activity.TraceId.ToHexString(), dependencyTelemetry.Context.Operation.Id);
+            Assert.Equal(W3CUtilities.FormatTelemetryId(activity.TraceId.ToHexString(), activity.SpanId.ToHexString()), dependencyTelemetry.Context.Operation.ParentId);
             Assert.Equal("123", dependencyTelemetry.Properties["Stuff"]);
         }
 
