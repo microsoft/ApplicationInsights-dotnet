@@ -118,6 +118,7 @@ namespace EventCounterCollector.Tests
 
                 Assert.IsTrue(metricTelemetry.Context.GetInternalContext().SdkVersion.StartsWith("evtc"));
                 Assert.AreEqual(expectedName, metricTelemetry.Name);
+                Assert.IsFalse((telemetry as ISupportProperties).Properties.ContainsKey("CustomPerfCounter"));
             }
 
             Assert.AreEqual(expectedSum, sum);
