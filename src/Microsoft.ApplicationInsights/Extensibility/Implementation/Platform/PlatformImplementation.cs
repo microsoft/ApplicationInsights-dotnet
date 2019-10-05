@@ -1,4 +1,6 @@
-﻿#if !NETSTANDARD1_3 // netstandard1.3 has it's own implementation
+﻿using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+
+#if !NETSTANDARD1_3 // netstandard1.3 has it's own implementation
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
 {
     using System;
@@ -33,9 +35,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
             {
                 this.environmentVariables = Environment.GetEnvironmentVariables();
             }
-            catch (SecurityException e)
+            catch (Exception e)
             {
                 CoreEventSource.Log.FailedToLoadEnvironmentVariables(e.ToString());
+                throw;
             }
         }
 
@@ -186,8 +189,16 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
         /// <inheritdoc />
         public bool TryGetEnvironmentVariable(string name, out string value)
         {
-            value = Environment.GetEnvironmentVariable(name);
-            return !string.IsNullOrEmpty(value);
+            try
+            {
+                value = Environment.GetEnvironmentVariable(name);
+                return !string.IsNullOrEmpty(value);
+            }
+            catch (Exception e)
+            {
+                CoreEventSource.Log.FailedToLoadEnvironmentVariables(e.ToString());
+                throw;
+            }
         }
 
         /// <summary>
@@ -196,7 +207,15 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
         /// <returns>The machine name.</returns>
         public string GetMachineName()
         {
-            return Environment.GetEnvironmentVariable("COMPUTERNAME");
+            try
+            {
+                return Environment.GetEnvironmentVariable("COMPUTERNAME");
+            }
+            catch (Exception e)
+            {
+                CoreEventSource.Log.FailedToLoadEnvironmentVariables(e.ToString());
+                throw;
+            }
         }
     }
 }

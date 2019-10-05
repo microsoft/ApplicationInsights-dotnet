@@ -1,4 +1,6 @@
-﻿namespace Microsoft.ApplicationInsights.TestFramework
+﻿using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+
+namespace Microsoft.ApplicationInsights.TestFramework
 {
     using System;
 
@@ -23,8 +25,16 @@
 
         public bool TryGetEnvironmentVariable(string name, out string value)
         {
-            value = Environment.GetEnvironmentVariable(name);
-            return !string.IsNullOrEmpty(value);
+            try
+            {
+                value = Environment.GetEnvironmentVariable(name);
+                return !string.IsNullOrEmpty(value);
+            }
+            catch (Exception e)
+            {
+                CoreEventSource.Log.FailedToLoadEnvironmentVariables(e.ToString());
+                throw;
+            }
         }
 
         public string GetMachineName()
