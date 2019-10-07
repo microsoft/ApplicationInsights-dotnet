@@ -3,6 +3,7 @@
 #if (!NETCOREAPP1_1 && !NETCOREAPP2_0)
     using System;
     using System.IO;
+    using System.Security;
     using System.Security.Permissions;
     using System.Text;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -33,7 +34,7 @@
             var platform = new PlatformImplementation();
 
             string s = platform.ReadConfigurationXml();
-            
+
             Assert.AreEqual(TestFileContent, s);
         }
 
@@ -43,12 +44,13 @@
             var platform = new PlatformImplementation();
 
             string configuration = platform.ReadConfigurationXml();
-            
+
             Assert.AreEqual(0, configuration.Length);
         }
 
         [TestMethod]
-        public void FailureToReadEnvironmentVariablesDoesNotThrowExceptions()
+        [ExpectedException(typeof(SecurityException))]
+        public void FailureToReadEnvironmentVariablesDueToLackOfPermissionsShouldThrowSecurityException()
         {
             EnvironmentPermission permission = new EnvironmentPermission(EnvironmentPermissionAccess.NoAccess, "PATH");
             try
@@ -79,7 +81,7 @@
             {
                 byte[] configurationBytes = Encoding.UTF8.GetBytes(content);
                 fileStream.Write(configurationBytes, 0, configurationBytes.Length);
-            }           
+            }
         }
 
         private static void DeleteConfigurationFile()
