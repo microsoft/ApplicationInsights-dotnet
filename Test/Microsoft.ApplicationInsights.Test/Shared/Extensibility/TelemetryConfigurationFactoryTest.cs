@@ -125,6 +125,7 @@
         [TestCategory("ConnectionString")]
         public void VerifyChannelEndpointsAreSetWhenParsingFromConfigFile()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             // PART 1 - CONFIGURATION FACTORY IS EXPECTED TO CREATE A CONFIG THAT MATCHES THE XML
             string ikeyConfig = "00000000-0000-0000-1111-000000000000";
             string ikeyConfigConnectionString = "00000000-0000-0000-2222-000000000000";
@@ -153,7 +154,7 @@
             Assert.AreEqual(string.Empty, client.InstrumentationKey);
             Assert.AreEqual(ikeyConfigConnectionString, client.TelemetryConfiguration.InstrumentationKey);
             Assert.AreEqual("https://localhost:63029/v2/track", client.TelemetryConfiguration.TelemetryChannel.EndpointAddress);
-
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [TestMethod]
