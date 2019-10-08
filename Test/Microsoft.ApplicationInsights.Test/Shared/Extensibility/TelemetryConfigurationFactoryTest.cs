@@ -123,7 +123,7 @@
 
         [TestMethod]
         [TestCategory("ConnectionString")]
-        public void NewTest()
+        public void VerifyChannelEndpointsAreSetWhenParsingFromConfigFile()
         {
             // PART 1 - CONFIGURATION FACTORY IS EXPECTED TO CREATE A CONFIG THAT MATCHES THE XML
             string ikeyConfig = "00000000-0000-0000-1111-000000000000";
@@ -156,17 +156,9 @@
 
         }
 
-        /// <summary>
-        /// This fails because of a change to Channels.
-        /// Channels previously held a default endpoint value.
-        /// I changed that to read from the TelemetryConfiguration.EndpointContainer.
-        /// EndpointContainer now holds the default values unless overwritten by setting a ConnectionString.
-        /// In this example, No ConnectionString is in use and the Channel holds a custom Endpoint.
-        /// This custom Endpoint is being overwritten by the TelemetryConfiguration.EndpointContainer which is an error.
-        /// </summary>
         [TestMethod]
         [TestCategory("ConnectionString")]
-        public void NewTest2()
+        public void VerifyThatChannelEndpointIsNotOverwrittenIfManuallyConfigured()
         {
             var configuration = new TelemetryConfiguration();
             Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.EndpointContainer.Ingestion.AbsoluteUri);

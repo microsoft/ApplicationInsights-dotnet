@@ -427,6 +427,7 @@
         /// </summary>
         /// <param name="applicationIdProvider">ApplicationIdProvider to set.</param>
         /// <param name="endpoint">Endpoint value to set.</param>
+        /// <param name="force">When the ConnectionString is set, ApplicationId Endpoint should be forced to update. If the ApplicationId has been set separately, we will only set endpoint if it is null.</param>
         private static void SetApplicationIdEndpoint(IApplicationIdProvider applicationIdProvider, string endpoint, bool force = false)
         {
             if (applicationIdProvider != null)
@@ -457,6 +458,7 @@
         /// </summary>
         /// <param name="channel">TelemetryChannel to set.</param>
         /// <param name="endpoint">Endpoint value to set.</param>
+        /// /// <param name="force">When the ConnectionString is set, Channel Endpoint should be forced to update. If the Channel has been set separately, we will only set endpoint if it is null.</param>
         private static void SetTelemetryChannelEndpoint(ITelemetryChannel channel, string endpoint, bool force = false)
         {
             if (channel != null)
