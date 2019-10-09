@@ -29,62 +29,57 @@
         }
 
         [TestClass]
-        public class Constructor : TransmissionTest
+        public class Constructor
         {
+            private readonly Uri testUri = new Uri("https://127.0.0.1/");
+
             [TestMethod]
             public void SetsEndpointAddressPropertyToSpecifiedValue()
             {
-                var expectedAddress = new Uri("expected://uri");
-                var transmission = new Transmission(expectedAddress, new byte[1], "content/type", "content/encoding");
-                Assert.AreEqual(expectedAddress, transmission.EndpointAddress);
+                var transmission = new Transmission(testUri, new byte[1], "content/type", "content/encoding");
+                Assert.AreEqual(testUri, transmission.EndpointAddress);
             }
 
             [TestMethod]
-            public void ThrowsArgumentNullExceptionWhenEndpointAddressIsNull()
-            {
-                AssertEx.Throws<ArgumentNullException>(() => new Transmission(null, new byte[1], "content/type", "content/encoding"));
-            }
+            [ExpectedException(typeof(ArgumentNullException))]
+            public void ThrowsArgumentNullExceptionWhenEndpointAddressIsNull() => new Transmission(null, new byte[1], "content/type", "content/encoding");
 
             [TestMethod]
             public void SetsContentPropertyToSpecifiedValue()
             {
                 var expectedContent = new byte[42];
-                var transmission = new Transmission(new Uri("http://address"), expectedContent, "content/type", "content/encoding");
+                var transmission = new Transmission(testUri, expectedContent, "content/type", "content/encoding");
                 Assert.AreSame(expectedContent, transmission.Content);
             }
 
             [TestMethod]
-            public void ThrowsArgumentNullExceptionWhenContentIsNull()
-            {
-                AssertEx.Throws<ArgumentNullException>(() => new Transmission(new Uri("http://address"), (byte[])null, "content/type", "content/encoding"));
-            }
+            [ExpectedException(typeof(ArgumentNullException))]
+            public void ThrowsArgumentNullExceptionWhenContentIsNull() => new Transmission(testUri, (byte[])null, "content/type", "content/encoding");
 
             [TestMethod]
             public void SetsContentTypePropertyToSpecifiedValue()
             {
                 string expectedContentType = "TestContentType123";
-                var transmission = new Transmission(new Uri("http://address"), new byte[1], expectedContentType, "content/encoding");
+                var transmission = new Transmission(testUri, new byte[1], expectedContentType, "content/encoding");
                 Assert.AreSame(expectedContentType, transmission.ContentType);
             }
 
             [TestMethod]
-            public void ThrowsArgumentNullExceptionWhenContentTypeIsNull()
-            {
-                AssertEx.Throws<ArgumentNullException>(() => new Transmission(new Uri("http://address"), new byte[1], null, "content/encoding"));
-            }
+            [ExpectedException(typeof(ArgumentNullException))]
+            public void ThrowsArgumentNullExceptionWhenContentTypeIsNull() => new Transmission(testUri, new byte[1], null, "content/encoding");
 
             [TestMethod]
             public void SetContentEncodingPropertyToSpecifiedValue()
             {
                 string expectedContentEncoding = "gzip";
-                var transmission = new Transmission(new Uri("http://address"), new byte[1], "any/content", expectedContentEncoding);
+                var transmission = new Transmission(testUri, new byte[1], "any/content", expectedContentEncoding);
                 Assert.AreSame(expectedContentEncoding, transmission.ContentEncoding);
             }
 
             [TestMethod]
             public void SetsTimeoutTo100SecondsByDefaultToMatchHttpWebRequest()
             {
-                var transmission = new Transmission(new Uri("http://address"), new byte[1], "content/type", "content/encoding");
+                var transmission = new Transmission(testUri, new byte[1], "content/type", "content/encoding");
                 Assert.AreEqual(TimeSpan.FromSeconds(100), transmission.Timeout);
             }
 
@@ -92,7 +87,7 @@
             public void SetsTimeoutToSpecifiedValue()
             {
                 var expectedValue = TimeSpan.FromSeconds(42);
-                var transmission = new Transmission(new Uri("http://address"), new byte[1], "content/type", "content/encoding", expectedValue);
+                var transmission = new Transmission(testUri, new byte[1], "content/type", "content/encoding", expectedValue);
                 Assert.AreEqual(expectedValue, transmission.Timeout);
             }
         }
