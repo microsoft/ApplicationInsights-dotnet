@@ -338,8 +338,8 @@
             Uri serviceEndpointUri;
             if (string.IsNullOrWhiteSpace(this.QuickPulseServiceEndpoint))
             {
-                // endpoint is not specified in configuration, use the default one
-                serviceEndpointUri = QuickPulseDefaults.ServiceEndpoint;
+                // endpoint is not explicitly specified, use the Endpoint from the TelemetryConfiguration (ex: https://rt.services.visualstudio.com/QuickPulseService.svc)
+                serviceEndpointUri = new Uri(configuration.EndpointContainer.Live, "QuickPulseService.svc");
             }
             else
             {

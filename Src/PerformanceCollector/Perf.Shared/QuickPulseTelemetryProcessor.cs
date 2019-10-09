@@ -59,7 +59,7 @@
             set { this.serviceEndpoint = value; }
         }
 
-        private Uri serviceEndpoint = QuickPulseDefaults.ServiceEndpoint;
+        private Uri serviceEndpoint = QuickPulseDefaults.QuickPulseServiceEndpoint;
 
         private TelemetryConfiguration config = null;
 
@@ -719,7 +719,7 @@
             if (module != null)
             {
                 module.RegisterTelemetryProcessor(this);
-                this.serviceEndpoint = module.ServiceClient?.ServiceUri ?? QuickPulseDefaults.ServiceEndpoint;
+                this.serviceEndpoint = module.ServiceClient?.ServiceUri ?? QuickPulseDefaults.QuickPulseServiceEndpoint;
             }
         }
     }

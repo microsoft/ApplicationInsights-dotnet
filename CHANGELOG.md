@@ -2,6 +2,7 @@
 
 ## Version 2.12.0-beta1
  - [Enhancement to how QuickPulseTelemetryModule shares its ServiceEndpoint with QuickPulseTelemetryProcessor.](https://github.com/microsoft/ApplicationInsights-dotnet-server/pull/1266)
+ - [QuickPulse will support SDK Connection String](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1221)
 
 ## Version 2.11.0
  - Updated Base SDK to 2.11.0
