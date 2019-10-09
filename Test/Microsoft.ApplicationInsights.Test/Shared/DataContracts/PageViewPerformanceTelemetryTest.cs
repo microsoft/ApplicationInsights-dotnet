@@ -196,6 +196,7 @@
         }
 
         [TestMethod]
+        [Ignore("This test throws OutOfMemoryException")]
         public void PageViewPerformanceTelemetryDeepCloneCopiesAllProperties()
         {
             var pageView = new PageViewPerformanceTelemetry("My Page");
