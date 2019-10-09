@@ -1,8 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WorkerService
 {
     using System.Diagnostics;
-    using System.Globalization;
-    using System.IO;
+    using System.Diagnostics.CodeAnalysis;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Options;
@@ -10,6 +9,7 @@
     /// <summary>
     /// <see cref="IConfigureOptions&lt;ApplicationInsightsServiceOptions&gt;"/> implementation that reads options from provided IConfiguration.
     /// </summary>
+    [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "This class is instantiated by Dependency Injection.")]
     internal class DefaultApplicationInsightsServiceConfigureOptions : IConfigureOptions<ApplicationInsightsServiceOptions>
     {
         private readonly IConfiguration configuration;

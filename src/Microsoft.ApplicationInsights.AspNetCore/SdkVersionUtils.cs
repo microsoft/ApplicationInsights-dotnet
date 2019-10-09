@@ -9,8 +9,14 @@
     internal class SdkVersionUtils
     {
 #if NET451 || NET46
+        /// <summary>
+        /// SDK Version Prefix.
+        /// </summary>
         public const string VersionPrefix = "aspnet5f:";
 #else
+        /// <summary>
+        /// SDK Version Prefix.
+        /// </summary>
         public const string VersionPrefix = "aspnet5c:";
 #endif
 

@@ -11,6 +11,7 @@ namespace Microsoft.Extensions.Logging
         /// <summary>
         /// Initializes a new instance of the <see cref="ProviderAliasAttribute" /> class.
         /// </summary>
+        /// <param name="alias">Sets an alias that can be used instead of full type name.</param>
         public ProviderAliasAttribute(string alias) => this.Alias = alias;
 
         /// <summary>

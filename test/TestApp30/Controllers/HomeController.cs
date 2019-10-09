@@ -33,7 +33,7 @@ namespace TestApp30.Controllers
         public IActionResult Error()
         {
             throw new Exception("sample exception");
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            // return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

@@ -16,6 +16,10 @@
     {
         private readonly ILogger<ApplicationInsightsStartupFilter> logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ApplicationInsightsStartupFilter"/> class.
+        /// </summary>
+        /// <param name="logger">Instance of ILogger.</param>
         public ApplicationInsightsStartupFilter(ILogger<ApplicationInsightsStartupFilter> logger)
         {
             this.logger = logger;

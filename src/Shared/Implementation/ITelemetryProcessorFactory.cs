@@ -13,9 +13,12 @@ namespace Microsoft.ApplicationInsights.WorkerService
     public interface ITelemetryProcessorFactory
     {
         /// <summary>
-        /// Returns a <see cref="ITelemetryProcessor"/>,
-        /// given the next <see cref="ITelemetryProcessor"/> in the call chain.
+        /// Creates an instance of the telemetry processor, passing the
+        /// next <see cref="ITelemetryProcessor"/> in the call chain to
+        /// its constructor.
         /// </summary>
+        /// <param name="nextProcessor">The next processor in the chain.</param>
+        /// <returns>Returns a new TelemetryProcessor with it's Next property set to the provided processor.</returns>
         ITelemetryProcessor Create(ITelemetryProcessor nextProcessor);
     }
 }

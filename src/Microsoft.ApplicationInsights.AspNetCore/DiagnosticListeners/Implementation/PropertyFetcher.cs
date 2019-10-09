@@ -13,11 +13,20 @@
         private readonly string propertyName;
         private PropertyFetch innerFetcher;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PropertyFetcher"/> class.
+        /// </summary>
+        /// <param name="propertyName">Name of the property this instance will be responsible for.</param>
         public PropertyFetcher(string propertyName)
         {
             this.propertyName = propertyName;
         }
 
+        /// <summary>
+        /// Fetch the property from a provided object.
+        /// </summary>
+        /// <param name="obj">Anonymous object to fetch from.</param>
+        /// <returns>Returns the value of the property if it exists in the provided object. Otherwise returns null.</returns>
         public object Fetch(object obj)
         {
             if (this.innerFetcher == null)

@@ -30,7 +30,9 @@
     /// </summary>
     internal class HostingDiagnosticListener : IApplicationInsightDiagnosticListener
     {
-        // Name of custom property to store the legacy RootId when operating in W3C mode. Backend/UI understands this property.
+        /// <summary>
+        /// Name of custom property to store the legacy RootId when operating in W3C mode. Backend/UI understands this property.
+        /// </summary>
         internal const string LegacyRootIdProperty = "ai_legacyRootId";
 
         private const string ActivityCreatedByHostingDiagnosticListener = "ActivityCreatedByHostingDiagnosticListener";
@@ -59,8 +61,6 @@
         private readonly bool trackExceptions;
         private readonly bool enableW3CHeaders;
 
-        #region fetchers
-
         // fetch is unique per event and per property
         private readonly PropertyFetcher httpContextFetcherOnBeforeAction = new PropertyFetcher("httpContext");
         private readonly PropertyFetcher routeDataFetcher = new PropertyFetcher("routeData");
@@ -79,7 +79,6 @@
 
         private readonly PropertyFetcher timestampFetcherBeginRequest = new PropertyFetcher("timestamp");
         private readonly PropertyFetcher timestampFetcherEndRequest = new PropertyFetcher("timestamp");
-        #endregion
 
         private string lastIKeyLookedUp;
         private string lastAppIdUsed;

@@ -2,6 +2,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.Implementation;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
@@ -12,6 +13,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
     /// <see cref="IApplicationInsightDiagnosticListener"/> implementation that listens for events specific to AspNetCore Mvc layer.
     /// </summary>
     [Obsolete("This class was merged with HostingDiagnosticsListener to optimize Diagnostics Source subscription performance")]
+    [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Class is obsolete.")]
+    [SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly", Justification = "Class is obsolete.")]
+    [SuppressMessage("StyleCop Documentation Rules", "SA1611:ElementParametersMustBeDocumented", Justification = "Class is obsolete.")]
+    [SuppressMessage("Microsoft.Usage", "CA1816:CallGCSuppressFinalizeCorrectly", Justification = "Class is obsolete.")]
     public class MvcDiagnosticsListener : IApplicationInsightDiagnosticListener
     {
         private readonly PropertyFetcher httpContextFetcher = new PropertyFetcher("httpContext");

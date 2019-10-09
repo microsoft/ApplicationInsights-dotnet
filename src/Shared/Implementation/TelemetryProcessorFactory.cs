@@ -27,11 +27,7 @@
             this.telemetryProcessorType = telemetryProcessorType;
         }
 
-        /// <summary>
-        /// Creates an instance of the telemetry processor, passing the
-        /// next <see cref="ITelemetryProcessor"/> in the call chain to
-        /// its constructor.
-        /// </summary>
+        /// <inheritdoc />
         public ITelemetryProcessor Create(ITelemetryProcessor next)
         {
             return (ITelemetryProcessor)ActivatorUtilities.CreateInstance(this.serviceProvider, this.telemetryProcessorType, next);

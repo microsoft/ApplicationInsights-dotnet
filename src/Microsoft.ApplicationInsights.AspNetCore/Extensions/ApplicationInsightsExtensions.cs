@@ -38,19 +38,21 @@
     /// </summary>
     public static partial class ApplicationInsightsExtensions
     {
-        [SuppressMessage(category: "", checkId: "CS1591:MissingXmlComment", Justification = "Obsolete method.")]
+#pragma warning disable CS1591 // Missing XML comment.
+        [SuppressMessage(category: "StyleCop Documentation Rules", checkId: "SA1600:ElementsMustBeDocumented", Justification = "Obsolete method.")]
         [Obsolete("This middleware is no longer needed. Enable Request monitoring using services.AddApplicationInsights")]
         public static IApplicationBuilder UseApplicationInsightsRequestTelemetry(this IApplicationBuilder app)
         {
             return app;
         }
 
-        [SuppressMessage(category: "", checkId: "CS1591:MissingXmlComment", Justification = "Obsolete method.")]
+        [SuppressMessage(category: "StyleCop Documentation Rules", checkId: "SA1600:ElementsMustBeDocumented", Justification = "Obsolete method.")]
         [Obsolete("This middleware is no longer needed to track exceptions as they are automatically tracked by RequestTrackingTelemetryModule")]
         public static IApplicationBuilder UseApplicationInsightsExceptionTelemetry(this IApplicationBuilder app)
         {
             return app.UseMiddleware<ExceptionTrackingMiddleware>();
         }
+#pragma warning restore CS1591 // Missing XML comment.
 
         /// <summary>
         /// Adds Application Insights services into service collection.

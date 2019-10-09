@@ -5,6 +5,7 @@ namespace Microsoft.ApplicationInsights.WorkerService
 #endif
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
 
 #if AI_ASPNETCORE_WEB
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
@@ -27,11 +28,14 @@ namespace Microsoft.ApplicationInsights.WorkerService
         /// Configures the given <see cref="ITelemetryModule"/>.
         /// </summary>
         [Obsolete("Use Configure(ITelemetryModule telemetryModule, ApplicationInsightsServiceOptions options) instead.")]
+        [SuppressMessage("Documentation Rules", "SA1600:ElementsMustBeDocumented", Justification = "This method is obsolete.")]
         void Configure(ITelemetryModule telemetryModule);
 
         /// <summary>
         /// Configures the given <see cref="ITelemetryModule"/>.
         /// </summary>
+        /// <param name="telemetryModule">Module to be configured.</param>
+        /// <param name="options">Configuration options.</param>
         void Configure(ITelemetryModule telemetryModule, ApplicationInsightsServiceOptions options);
     }
 }

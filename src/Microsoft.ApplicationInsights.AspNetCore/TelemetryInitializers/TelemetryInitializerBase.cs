@@ -27,7 +27,7 @@
         /// <summary>
         /// TelemetryInitializerBase will retrieve the HttpContext and RequestTelemetry for the current ITelemetry and then invoke <see cref="OnInitializeTelemetry"/>.
         /// </summary>
-        /// <param name="telemetry"></param>
+        /// <param name="telemetry">Telemetry item to be enriched.</param>
         public void Initialize(ITelemetry telemetry)
         {
             var context = this.httpContextAccessor.HttpContext;
@@ -55,9 +55,9 @@
         /// <summary>
         /// Abstract method provides HttpContext, RequestTelemetry for the given ITelemetry.
         /// </summary>
-        /// <param name="platformContext"></param>
-        /// <param name="requestTelemetry"></param>
-        /// <param name="telemetry"></param>
+        /// <param name="platformContext">Current HttpContext.</param>
+        /// <param name="requestTelemetry">Request telemetry from the context.</param>
+        /// <param name="telemetry">Telemetry item to be enriched.</param>
         protected abstract void OnInitializeTelemetry(
             HttpContext platformContext,
             RequestTelemetry requestTelemetry,

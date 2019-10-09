@@ -5,6 +5,8 @@
 #endif
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
+
 #if AI_ASPNETCORE_WEB
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 #else
@@ -36,6 +38,7 @@
         public Type TelemetryModuleType { get; }
 
         [Obsolete("Use Configure(ITelemetryModule telemetryModule, ApplicationInsightsServiceOptions options) instead.", true)]
+        [SuppressMessage("Documentation Rules", "SA1600:ElementsMustBeDocumented", Justification = "This method is obsolete.")]
         public void Configure(ITelemetryModule telemetryModule)
         {
             this.configure?.Invoke(telemetryModule, null);
@@ -44,6 +47,8 @@
         /// <summary>
         /// Configures telemetry module.
         /// </summary>
+        /// <param name="telemetryModule">Module to be configured.</param>
+        /// <param name="options">Configuration options.</param>
         public void Configure(ITelemetryModule telemetryModule, ApplicationInsightsServiceOptions options)
         {
             this.configure?.Invoke(telemetryModule, options);

@@ -3,6 +3,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
     using System;
     using System.Collections.Concurrent;
     using System.Diagnostics;
+    using System.Diagnostics.CodeAnalysis;
     using System.Reflection;
     using System.Threading;
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
@@ -118,6 +119,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         }
 
         /// <inheritdoc />
+        [SuppressMessage("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes", Justification = "Already shipped.")]
         void IObserver<DiagnosticListener>.OnNext(DiagnosticListener value)
         {
             var subs = Volatile.Read(ref this.subscriptions);

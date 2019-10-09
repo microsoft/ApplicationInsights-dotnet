@@ -143,6 +143,10 @@
         /// </summary>
         public DependencyCollectionOptions DependencyCollectionOptions { get; }
 
+        /// <summary>
+        /// Copy the properties from this <see cref="ApplicationInsightsServiceOptions"/> to a target instance.
+        /// </summary>
+        /// <param name="target">Target instance to copy properties to.</param>
         internal void CopyPropertiesTo(ApplicationInsightsServiceOptions target)
         {
             if (this.DeveloperMode != null)

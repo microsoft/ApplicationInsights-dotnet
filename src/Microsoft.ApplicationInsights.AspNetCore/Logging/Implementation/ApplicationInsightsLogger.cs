@@ -17,8 +17,14 @@
     internal class ApplicationInsightsLogger : ILogger
     {
 #if NET451 || NET46
+        /// <summary>
+        /// SDK Version Prefix.
+        /// </summary>
         public const string VersionPrefix = "ilf:";
 #else
+        /// <summary>
+        /// SDK Version Prefix.
+        /// </summary>
         public const string VersionPrefix = "ilc:";
 #endif
 

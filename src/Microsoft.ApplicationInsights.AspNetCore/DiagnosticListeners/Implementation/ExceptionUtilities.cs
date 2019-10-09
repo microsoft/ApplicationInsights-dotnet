@@ -12,11 +12,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         /// Get the string representation of this Exception with special handling for AggregateExceptions.
         /// </summary>
         /// <param name="ex">The exception to convert to a string.</param>
-        /// <returns></returns>
+        /// <returns>Returns a string representing the Exception message, and call stack.</returns>
         internal static string GetExceptionDetailString(Exception ex)
         {
-            var ae = ex as AggregateException;
-            if (ae != null)
+            if (ex is AggregateException ae)
             {
                 return ae.Flatten().InnerException.ToInvariantString();
             }
