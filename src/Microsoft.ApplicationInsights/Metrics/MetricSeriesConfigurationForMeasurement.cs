@@ -9,7 +9,7 @@
 #pragma warning disable CA1034 // "Do not nest type" - part of the public API and too late to change.
 
     /// <summary>Abstracts the configuration for a metric series aggregated using the "measurement" aggregation kind.
-    /// A mear=surement is best suited for metrics describing sizes or durations.
+    /// A measurement is best suited for metrics describing sizes or durations.
     /// It contains the Min, Max, Sum and Count of values tracked during an aggregation period.</summary>
     public class MetricSeriesConfigurationForMeasurement : IMetricSeriesConfiguration
     {
@@ -34,7 +34,7 @@
         }
 
         /// <summary>Gets a value indicating whether the aggregation kind used by this configuration keeps state across aggregation cycles.
-        /// FOr measurements - always returns <c>false</c>.</summary>
+        /// For measurements - always returns <c>false</c>.</summary>
         public bool RequiresPersistentAggregation
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

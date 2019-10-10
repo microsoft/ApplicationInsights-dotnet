@@ -65,6 +65,8 @@
                 public static class PropertyNames
                 {
                     public const string Success = "Request.Success";
+                    public const string ResultCode = "request/resultCode";
+                    public const string PerformanceBucket = "request/performanceBucket";
                 }
             }
 
@@ -74,9 +76,26 @@
                 {
                     public const string Success = "Dependency.Success";
                     public const string TypeName = "Dependency.Type";
+                    public const string PerformanceBucket = "dependency/performanceBucket";
                 }
 
                 public static class TypeNames
+                {
+                    public const string Other = "Other";
+                    public const string Unknown = "Unknown";
+                }
+            }
+
+            public static class Common
+            {
+                public static class PropertyNames
+                {
+                    public const string CloudRoleInstance = "cloud/roleInstance";
+                    public const string CloudRoleName = "cloud/roleName";
+                    public const string Synthetic = "operation/synthetic";
+                }
+
+                public static class CloudRoleInstanceNames
                 {
                     public const string Other = "Other";
                     public const string Unknown = "Unknown";

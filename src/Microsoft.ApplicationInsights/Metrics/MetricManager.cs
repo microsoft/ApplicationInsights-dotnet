@@ -7,8 +7,8 @@
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
     /// <summary>A metric manager coordinates metrics aggregation at a specific scope.
-    /// It keeps track of the known metrics and is ultimataly respnsibe for correctly
-    /// initializeing metric data time series.
+    /// It keeps track of the known metrics and is ultimataly responsible for correctly
+    /// initializing metric data time series.
     /// Note that a metric manager deals with zero dimensional time series.
     /// Metric objects are multidimensional collections of such series and the manager 
     /// merely holds a collection of such containers for its scope.</summary>
@@ -105,10 +105,10 @@
             return this.CreateNewSeries(metricIdentifier, dimensionNamesAndValues, config);
         }
 
-        /// <summary>Creates and initilizes a new metric data time series.</summary>
-        /// <param name="metricIdentifier">THe identify of the metric to whcih the series belongs.</param>
+        /// <summary>Creates and initializes a new metric data time series.</summary>
+        /// <param name="metricIdentifier">The identify of the metric to which the series belongs.</param>
         /// <param name="dimensionNamesAndValues">The dimension names and values of the series within its metric.</param>
-        /// <param name="config">Configuration of the series, including the aggregatio kind and other aspects.</param>
+        /// <param name="config">Configuration of the series, including the aggregation kind and other aspects.</param>
         /// <returns>A new metric data time series.</returns>
         public MetricSeries CreateNewSeries(MetricIdentifier metricIdentifier, IEnumerable<KeyValuePair<string, string>> dimensionNamesAndValues, IMetricSeriesConfiguration config)
         {

@@ -22,7 +22,7 @@
         {
         }
 
-        /// <summary>Creates a new instance of <c>MetricConfiguration</c>.</summary>
+        /// <summary>Creates a new instance of <c>MetricConfigurationForMeasurement</c>.</summary>
         /// <param name="seriesCountLimit">How many data time series a metric can contain as a maximum.
         /// Once this limit is reached, calls to <c>TrackValue(..)</c>, <c>TryGetDataSeries(..)</c> and similar
         /// that would normally result in new series will return <c>false</c>.</param>
