@@ -117,6 +117,12 @@ namespace Microsoft.Extensions.DependencyInjection
                     configuration.TelemetryChannel.EndpointAddress = this.applicationInsightsServiceOptions.EndpointAddress;
                 }
 
+                // Need to set connection string before calling Initialize() on the Modules and Processors.
+                if (this.applicationInsightsServiceOptions.ConnectionString != null)
+                {
+                    configuration.ConnectionString = this.applicationInsightsServiceOptions.ConnectionString;
+                }
+
                 foreach (ITelemetryInitializer initializer in this.initializers)
                 {
                     configuration.TelemetryInitializers.Add(initializer);

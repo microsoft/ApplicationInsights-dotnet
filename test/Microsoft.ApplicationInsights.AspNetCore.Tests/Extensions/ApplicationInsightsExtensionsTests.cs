@@ -42,7 +42,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     {
         /// <summary>Constant instrumentation key value for testintg.</summary>
         public const string TestInstrumentationKey = "11111111-2222-3333-4444-555555555555";
+        private const string TestConnectionString = "InstrumentationKey=11111111-2222-3333-4444-555555555555;IngestionEndpoint=http://127.0.0.1";
         private const string InstrumentationKeyFromConfig = "ApplicationInsights:InstrumentationKey";
+        private const string ConnectionStringEnvironmentVariable = "APPLICATIONINSIGHTS_CONNECTION_STRING";
 
         public static ServiceCollection GetServiceCollectionWithContextAccessor()
         {
@@ -114,7 +116,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// Tests that the instrumentation key configuration can be read from a JSON file by the configuration factory.            
             /// </summary>
             [Fact]
-            
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromConfiguration()
             {                
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content", "config-instrumentation-key.json"), null);
@@ -122,6 +123,39 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 Assert.Equal(TestInstrumentationKey, telemetryConfiguration.InstrumentationKey);
+            }
+
+            /// <summary>
+            /// Tests that the connection string can be read from a JSON file by the configuration factory.            
+            /// </summary>
+            [Fact]
+            [Trait("Trait", "ConnectionString")]
+            public static void RegistersTelemetryConfigurationFactoryMethodThatReadsConnectionStringFromConfiguration()
+            {
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content", "config-connection-string.json"), null);
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                Assert.Equal(TestConnectionString, telemetryConfiguration.ConnectionString);
+                Assert.Equal(TestInstrumentationKey, telemetryConfiguration.InstrumentationKey);
+                Assert.Equal("http://127.0.0.1/", telemetryConfiguration.EndpointContainer.Ingestion.AbsoluteUri);
+            }
+
+            /// <summary>
+            /// Tests that the connection string can be read from a JSON file by the configuration factory.            
+            /// This config has both a connection string and an instrumentation key. It is expected to use the ikey from the connection string.
+            /// </summary>
+            [Fact]
+            [Trait("Trait", "ConnectionString")]
+            public static void RegistersTelemetryConfigurationFactoryMethodThatReadsConnectionStringAndInstrumentationKeyFromConfiguration()
+            {
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content", "config-connection-string-and-instrumentation-key.json"), null);
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                Assert.Equal(TestConnectionString, telemetryConfiguration.ConnectionString);
+                Assert.Equal(TestInstrumentationKey, telemetryConfiguration.InstrumentationKey);
+                Assert.Equal("http://127.0.0.1/", telemetryConfiguration.EndpointContainer.Ingestion.AbsoluteUri);
             }
 
             /// <summary>
@@ -147,7 +181,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             /// <summary>
-            /// We determine if Active telemtery needs to be configured based on the assumptions that 'default' configuration
+            /// We determine if Active telemetry needs to be configured based on the assumptions that 'default' configuration
             // created by base SDK has single preset ITelemetryInitializer. If it ever changes, change TelemetryConfigurationOptions.IsActiveConfigured method as well.
             /// </summary>
             [Fact]
@@ -159,7 +193,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             [Fact]
-            
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromConfiguration()
             {
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content", "config-developer-mode.json"), null);                
@@ -170,7 +203,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             [Fact]
-            
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromConfiguration()
             {
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content", "config-endpoint-address.json"), null);                
@@ -206,10 +238,35 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// Environment
             /// </summary>
             [Fact]
+            [Trait("Trait", "ConnectionString")]
+            public static void AddApplicationInsightsTelemetry_ReadsConnectionString_FromEnvironment()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                Environment.SetEnvironmentVariable(ConnectionStringEnvironmentVariable, TestConnectionString);
+                try
+                {
+                    services.AddApplicationInsightsTelemetry();
+                    IServiceProvider serviceProvider = services.BuildServiceProvider();
+                    var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                    Assert.Equal(TestConnectionString, telemetryConfiguration.ConnectionString);
+                    Assert.Equal(TestInstrumentationKey, telemetryConfiguration.InstrumentationKey);
+                    Assert.Equal("http://127.0.0.1/", telemetryConfiguration.EndpointContainer.Ingestion.AbsoluteUri);
+                }
+                finally
+                {
+                    Environment.SetEnvironmentVariable(ConnectionStringEnvironmentVariable, null);
+                }
+            }
+
+            /// <summary>
+            /// Validates that while using services.AddApplicationInsightsTelemetry(); ikey is read from
+            /// Environment
+            /// </summary>
+            [Fact]
             public static void AddApplicationInsightsTelemetryReadsInstrumentationKeyFromEnvironment()
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();                
-                Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", TestInstrumentationKey);                
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", TestInstrumentationKey);
                 try
                 {
                     services.AddApplicationInsightsTelemetry();
@@ -495,7 +552,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     EnableQuickPulseMetricStream = false,
                     EndpointAddress = "http://test",
                     EnableHeartbeat = false,
-                    InstrumentationKey = "test"
+                    InstrumentationKey = "test",
+                    ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000"
                 };
                 services.AddApplicationInsightsTelemetry(options);
                 ApplicationInsightsServiceOptions servicesOptions = null;
@@ -1002,24 +1060,46 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             [Fact]
-            public static void DoesNotOverWriteExistingChannel()
+            [Trait("Trait", "ConnectionString")]
+            public static void AddApplicationInsightsSettings_SetsConnectionString()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                services.AddSingleton<ITelemetryChannel>(new InMemoryChannel());
+                var config = new ConfigurationBuilder().AddApplicationInsightsSettings(connectionString: TestConnectionString).Build();
+                services.AddApplicationInsightsTelemetry(config);
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                Assert.Equal(TestConnectionString, telemetryConfiguration.ConnectionString);
+                Assert.Equal(TestInstrumentationKey, telemetryConfiguration.InstrumentationKey);
+                Assert.Equal("http://127.0.0.1/", telemetryConfiguration.EndpointContainer.Ingestion.AbsoluteUri);
+            }
+
+            [Fact]
+            [Trait("Trait", "Endpoints")]
+            public static void DoesNotOverWriteExistingChannel()
+            {
+                var testEndpoint = "http://localhost:1234/v2/track/";
+
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 services.AddSingleton<ITelemetryChannel, InMemoryChannel>();
-                var config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: "http://localhost:1234/v2/track/").Build();
+                var config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: testEndpoint).Build();
                 services.AddApplicationInsightsTelemetry(config);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 Assert.Equal(typeof(InMemoryChannel), telemetryConfiguration.TelemetryChannel.GetType());
+                Assert.Equal(testEndpoint, telemetryConfiguration.TelemetryChannel.EndpointAddress);
             }
 
             [Fact]
             public static void FallbacktoDefaultChannelWhenNoChannelFoundInDI()
             {
+                var testEndpoint = "http://localhost:1234/v2/track/";
+
                 // ARRANGE
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();                                
-                var config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: "http://localhost:1234/v2/track/").Build();
+                var config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: testEndpoint).Build();
                 services.AddApplicationInsightsTelemetry(config);
 
                 // Remove all ITelemetryChannel to simulate scenario where customer remove all channel from DI but forgot to add new one.
@@ -1037,6 +1117,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 Assert.Equal(typeof(InMemoryChannel), telemetryConfiguration.TelemetryChannel.GetType());
+                Assert.Equal(testEndpoint, telemetryConfiguration.TelemetryChannel.EndpointAddress);
             }
 
             [Fact]

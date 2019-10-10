@@ -55,6 +55,8 @@
         /// <returns>JavaScript code snippet with instrumentation key or empty if instrumentation key was not set for the application.</returns>
         public string FullScript
         {
+            // TODO: NEED TO SUPPORT CONNECTION STRING. DISCUSS WITH JAVASCRIPT SDK TO CONFIRM COMPATIBILITY.
+
             get
             {
                 if (!this.telemetryConfiguration.DisableTelemetry &&

@@ -50,10 +50,12 @@
     {
         private const string VersionKeyFromConfig = "version";
         private const string InstrumentationKeyFromConfig = "ApplicationInsights:InstrumentationKey";
+        private const string ConnectionStringFromConfig = "ApplicationInsights:ConnectionString";
         private const string DeveloperModeFromConfig = "ApplicationInsights:TelemetryChannel:DeveloperMode";
         private const string EndpointAddressFromConfig = "ApplicationInsights:TelemetryChannel:EndpointAddress";
 
         private const string InstrumentationKeyForWebSites = "APPINSIGHTS_INSTRUMENTATIONKEY";
+        private const string ConnectionStringEnvironmentVariable = "APPLICATIONINSIGHTS_CONNECTION_STRING";
         private const string DeveloperModeForWebSites = "APPINSIGHTS_DEVELOPER_MODE";
         private const string EndpointAddressForWebSites = "APPINSIGHTS_ENDPOINTADDRESS";
 
@@ -156,12 +158,14 @@
         /// <param name="developerMode">Enables or disables developer mode.</param>
         /// <param name="endpointAddress">Sets telemetry endpoint address.</param>
         /// <param name="instrumentationKey">Sets instrumentation key.</param>
+        /// <param name="connectionString">Sets connection string.</param>
         /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
         public static IConfigurationBuilder AddApplicationInsightsSettings(
             this IConfigurationBuilder configurationSourceRoot,
             bool? developerMode = null,
             string endpointAddress = null,
-            string instrumentationKey = null)
+            string instrumentationKey = null,
+            string connectionString = null)
         {
             var telemetryConfigValues = new List<KeyValuePair<string, string>>();
 
@@ -176,6 +180,12 @@
 #else
                     developerMode.Value.ToString()));
 #endif
+                wasAnythingSet = true;
+            }
+
+            if (connectionString != null)
+            {
+                telemetryConfigValues.Add(new KeyValuePair<string, string>(ConnectionStringEnvironmentVariable, connectionString));
                 wasAnythingSet = true;
             }
 
@@ -204,9 +214,18 @@
         /// Config.json will look like this:
         /// <para>
         ///      "ApplicationInsights": {
-        ///          "InstrumentationKey": "11111111-2222-3333-4444-555555555555"
+        ///          "InstrumentationKey": "11111111-2222-3333-4444-555555555555",
         ///          "TelemetryChannel": {
         ///              "EndpointAddress": "http://dc.services.visualstudio.com/v2/track",
+        ///              "DeveloperMode": true
+        ///          }
+        ///      }.
+        /// </para>
+        /// Or
+        /// <para>
+        ///      "ApplicationInsights": {
+        ///          "ConnectionString" : "InstrumentationKey=11111111-2222-3333-4444-555555555555;IngestionEndpoint=http://dc.services.visualstudio.com"
+        ///          "TelemetryChannel": {
         ///              "DeveloperMode": true
         ///          }
         ///      }.
@@ -221,6 +240,11 @@
         {
             try
             {
+                if (config.TryGetValue(primaryKey: ConnectionStringEnvironmentVariable, backupKey: ConnectionStringFromConfig, value: out string connectionStringValue))
+                {
+                    serviceOptions.ConnectionString = connectionStringValue;
+                }
+
                 if (config.TryGetValue(primaryKey: InstrumentationKeyForWebSites, backupKey: InstrumentationKeyFromConfig, value: out string instrumentationKey))
                 {
                     serviceOptions.InstrumentationKey = instrumentationKey;
