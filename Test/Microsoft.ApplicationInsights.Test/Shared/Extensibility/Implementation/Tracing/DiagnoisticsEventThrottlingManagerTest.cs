@@ -9,7 +9,7 @@
     using Mocks;
 
     [TestClass]
-    public sealed class DiagnoisticsEventThrottlingManagerTest : IDisposable
+    public sealed class DiagnoisticsEventThrottlingManagerTest
     {
         private const uint SampleIntervalInMinutes = 10;
 
@@ -19,27 +19,36 @@
         private const int ThrottlingStartedEventId = 4;
         private const int ThrottlingResetEventId = 5;
 
-        private readonly DiagnoisticsEventThrottlingMock throttleAllContainer = new DiagnoisticsEventThrottlingMock(
-            throttleAll: true,
-            signalJustExceeded: true,
-            sampleCounters: new Dictionary<int, DiagnoisticsEventCounters>());
+        private DiagnoisticsEventThrottlingMock throttleAllContainer;
 
-        private readonly DiagnoisticsEventThrottlingMock notThrottleContainer = new DiagnoisticsEventThrottlingMock(
-            throttleAll: false,
-            signalJustExceeded: false,
-            sampleCounters: new Dictionary<int, DiagnoisticsEventCounters>());
+        private DiagnoisticsEventThrottlingMock notThrottleContainer;
 
-        private readonly DiagnoisticsEventThrottlingSchedulerMock scheduler = new DiagnoisticsEventThrottlingSchedulerMock();
+        private DiagnoisticsEventThrottlingSchedulerMock scheduler;
 
-        private readonly DiagnoisticsEventThrottlingManager<DiagnoisticsEventThrottlingMock> throttleFirstCallManager;
-        private readonly DiagnoisticsEventThrottlingManager<DiagnoisticsEventThrottlingMock> notThrottleManager;
+        private DiagnoisticsEventThrottlingManager<DiagnoisticsEventThrottlingMock> throttleFirstCallManager;
+        private DiagnoisticsEventThrottlingManager<DiagnoisticsEventThrottlingMock> notThrottleManager;
 
-        private readonly DiagnosticsEventCollectingMock sender = new DiagnosticsEventCollectingMock();
+        private DiagnosticsEventCollectingMock sender;
 
-        private readonly DiagnosticsListener listener;
-
-        public DiagnoisticsEventThrottlingManagerTest()
+        private DiagnosticsListener listener;
+        
+        [TestInitialize]
+        public void TestInitialize()
         {
+            this.throttleAllContainer = new DiagnoisticsEventThrottlingMock(
+                throttleAll: true,
+                signalJustExceeded: true,
+                sampleCounters: new Dictionary<int, DiagnoisticsEventCounters>());
+
+            this.notThrottleContainer = new DiagnoisticsEventThrottlingMock(
+                throttleAll: false,
+                signalJustExceeded: false,
+                sampleCounters: new Dictionary<int, DiagnoisticsEventCounters>());
+
+            this.scheduler = new DiagnoisticsEventThrottlingSchedulerMock();
+
+            this.sender = new DiagnosticsEventCollectingMock();
+
             this.throttleFirstCallManager = new DiagnoisticsEventThrottlingManager<DiagnoisticsEventThrottlingMock>(
                 this.throttleAllContainer,
                 this.scheduler,
@@ -55,7 +64,8 @@
             this.listener.LogLevel = EventLevel.Verbose;
         }
 
-        public void Dispose()
+        [TestCleanup]
+        public void TestCleanup()
         {
             this.listener.Dispose();
         }

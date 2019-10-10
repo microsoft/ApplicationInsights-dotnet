@@ -14,77 +14,62 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System.CodeDom;
 
-    public class TransmissionTest : AsyncTest
+    public class TransmissionTest
     {
-        private static Stream CreateStream(string text)
-        {
-            var stream = new MemoryStream();
-            var writer = new StreamWriter(stream);
-            writer.Write(text);
-            writer.Flush();
-
-            stream.Seek(0, SeekOrigin.Begin);
-            return stream;
-        }
-
         [TestClass]
-        public class Constructor : TransmissionTest
+        public class Constructor
         {
+            private readonly Uri testUri = new Uri("https://127.0.0.1/");
+
             [TestMethod]
             public void SetsEndpointAddressPropertyToSpecifiedValue()
             {
-                var expectedAddress = new Uri("expected://uri");
-                var transmission = new Transmission(expectedAddress, new byte[1], "content/type", "content/encoding");
-                Assert.AreEqual(expectedAddress, transmission.EndpointAddress);
+                var transmission = new Transmission(testUri, new byte[1], "content/type", "content/encoding");
+                Assert.AreEqual(testUri, transmission.EndpointAddress);
             }
 
             [TestMethod]
-            public void ThrowsArgumentNullExceptionWhenEndpointAddressIsNull()
-            {
-                AssertEx.Throws<ArgumentNullException>(() => new Transmission(null, new byte[1], "content/type", "content/encoding"));
-            }
+            [ExpectedException(typeof(ArgumentNullException))]
+            public void ThrowsArgumentNullExceptionWhenEndpointAddressIsNull() => new Transmission(null, new byte[1], "content/type", "content/encoding");
 
             [TestMethod]
             public void SetsContentPropertyToSpecifiedValue()
             {
                 var expectedContent = new byte[42];
-                var transmission = new Transmission(new Uri("http://address"), expectedContent, "content/type", "content/encoding");
+                var transmission = new Transmission(testUri, expectedContent, "content/type", "content/encoding");
                 Assert.AreSame(expectedContent, transmission.Content);
             }
 
             [TestMethod]
-            public void ThrowsArgumentNullExceptionWhenContentIsNull()
-            {
-                AssertEx.Throws<ArgumentNullException>(() => new Transmission(new Uri("http://address"), (byte[])null, "content/type", "content/encoding"));
-            }
+            [ExpectedException(typeof(ArgumentNullException))]
+            public void ThrowsArgumentNullExceptionWhenContentIsNull() => new Transmission(testUri, (byte[])null, "content/type", "content/encoding");
 
             [TestMethod]
             public void SetsContentTypePropertyToSpecifiedValue()
             {
                 string expectedContentType = "TestContentType123";
-                var transmission = new Transmission(new Uri("http://address"), new byte[1], expectedContentType, "content/encoding");
+                var transmission = new Transmission(testUri, new byte[1], expectedContentType, "content/encoding");
                 Assert.AreSame(expectedContentType, transmission.ContentType);
             }
 
             [TestMethod]
-            public void ThrowsArgumentNullExceptionWhenContentTypeIsNull()
-            {
-                AssertEx.Throws<ArgumentNullException>(() => new Transmission(new Uri("http://address"), new byte[1], null, "content/encoding"));
-            }
+            [ExpectedException(typeof(ArgumentNullException))]
+            public void ThrowsArgumentNullExceptionWhenContentTypeIsNull() => new Transmission(testUri, new byte[1], null, "content/encoding");
 
             [TestMethod]
             public void SetContentEncodingPropertyToSpecifiedValue()
             {
                 string expectedContentEncoding = "gzip";
-                var transmission = new Transmission(new Uri("http://address"), new byte[1], "any/content", expectedContentEncoding);
+                var transmission = new Transmission(testUri, new byte[1], "any/content", expectedContentEncoding);
                 Assert.AreSame(expectedContentEncoding, transmission.ContentEncoding);
             }
 
             [TestMethod]
             public void SetsTimeoutTo100SecondsByDefaultToMatchHttpWebRequest()
             {
-                var transmission = new Transmission(new Uri("http://address"), new byte[1], "content/type", "content/encoding");
+                var transmission = new Transmission(testUri, new byte[1], "content/type", "content/encoding");
                 Assert.AreEqual(TimeSpan.FromSeconds(100), transmission.Timeout);
             }
 
@@ -92,25 +77,26 @@
             public void SetsTimeoutToSpecifiedValue()
             {
                 var expectedValue = TimeSpan.FromSeconds(42);
-                var transmission = new Transmission(new Uri("http://address"), new byte[1], "content/type", "content/encoding", expectedValue);
+                var transmission = new Transmission(testUri, new byte[1], "content/type", "content/encoding", expectedValue);
                 Assert.AreEqual(expectedValue, transmission.Timeout);
             }
         }
 
         [TestClass]
-        public class SendAsync : TransmissionTest
+        public class SendAsync
         {
+            private readonly Uri testUri = new Uri("https://127.0.0.1/");
+
             [TestMethod]
             public async Task SendAsyncUsesPostMethodToSpecifiedHttpEndpoint()
             {
-                var expectedUri = new Uri("http://uri");
                 var handler = new HandlerForFakeHttpClient
                 {
                     InnerHandler = new HttpClientHandler(),
                     OnSendAsync = (req, cancellationToken) =>
                     {
                         // VALIDATE
-                        Assert.AreEqual(expectedUri, req.RequestUri);
+                        Assert.AreEqual(testUri, req.RequestUri);
                         Assert.AreEqual(HttpMethod.Post, req.Method);
                         return Task.FromResult<HttpResponseMessage>(new HttpResponseMessage());
                     }
@@ -121,7 +107,7 @@
                     var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
 
                     // Instantiate Transmission with the mock HttpClient
-                    Transmission transmission = new Transmission(expectedUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
+                    Transmission transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
                     // transmission.Timeout = TimeSpan.FromMilliseconds(1);
 
                     HttpWebResponseWrapper result = await transmission.SendAsync();
@@ -151,7 +137,7 @@
                     var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
 
                     // Instantiate Transmission with the mock HttpClient
-                    var transmission = new Transmission(new Uri("http://testuri"), new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, expectedContentType, expectedContentEncoding);
+                    var transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, expectedContentType, expectedContentEncoding);
 
                     HttpWebResponseWrapper result = await transmission.SendAsync();
                 }
@@ -177,21 +163,18 @@
                     var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
 
                     // Instantiate Transmission with the mock HttpClient
-                    var transmission = new Transmission(new Uri("http://testuri"), new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, "ContentEncoding");
+                    var transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, "ContentEncoding");
 
                     HttpWebResponseWrapper result = await transmission.SendAsync();
                 }
             }
 
             [TestMethod]
-            public void ThrowsInvalidOperationExceptionWhenTransmissionIsAlreadySending()
+            public async Task ThrowsInvalidOperationExceptionWhenTransmissionIsAlreadySending()
             {
-                AsyncTest.Run(async () =>
-                {
-                    Transmission transmission = new Transmission(new Uri("http://uri"), new byte[] { 1, 2, 3, 4, 5 }, new HttpClient(), string.Empty, string.Empty); FieldInfo isSendingField = typeof(Transmission).GetField("isSending", BindingFlags.NonPublic | BindingFlags.Instance);
-                    isSendingField.SetValue(transmission,1);
-                    await AssertEx.ThrowsAsync<InvalidOperationException>(() => transmission.SendAsync());
-                });
+                Transmission transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, new HttpClient(), string.Empty, string.Empty); FieldInfo isSendingField = typeof(Transmission).GetField("isSending", BindingFlags.NonPublic | BindingFlags.Instance);
+                isSendingField.SetValue(transmission, 1);
+                await AssertEx.ThrowsAsync<InvalidOperationException>(() => transmission.SendAsync());
             }
 
             [TestMethod]
@@ -212,7 +195,7 @@
                 using (var fakeHttpClient = new HttpClient(handler))
                 {                    
                     // Instantiate Transmission with the mock HttpClient
-                    Transmission transmission = new Transmission(new Uri("http://uri"), new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
+                    Transmission transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
 
                     // ACT
                     HttpWebResponseWrapper result = await transmission.SendAsync();
@@ -243,7 +226,7 @@
                 using (var fakeHttpClient = new HttpClient(handler))
                 {
                     // Instantiate Transmission with the mock HttpClient
-                    Transmission transmission = new Transmission(new Uri("http://uri"), expectedContent, fakeHttpClient, string.Empty, string.Empty);
+                    Transmission transmission = new Transmission(testUri, expectedContent, fakeHttpClient, string.Empty, string.Empty);
 
                     // ACT
                     HttpWebResponseWrapper result = await transmission.SendAsync();
@@ -258,7 +241,7 @@
                 using (var fakeHttpClient = new HttpClient())
                 {                    
                     // Instantiate Transmission with the mock HttpClient and Timeout to be just 1 msec to force Timeout.
-                    Transmission transmission = new Transmission(new Uri("http://uri"), new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, 
+                    Transmission transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, 
                         string.Empty, TimeSpan.FromMilliseconds(clientTimeoutInMillisecs));
 
                     // ACT
@@ -287,7 +270,7 @@
                 using (var fakeHttpClient = new HttpClient())
                 {
                     // Instantiate Transmission with the mock HttpClient and Timeout to be just 1 msec to force Timeout.
-                    Transmission transmission = new Transmission(new Uri("http://uri"), new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty,
+                    Transmission transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty,
                         string.Empty);
 
                     // ACT & VALIDATE
@@ -317,7 +300,7 @@
                 using (var fakeHttpClient = new HttpClient(handler))
                 {
                     // Instantiate Transmission with the mock HttpClient
-                    Transmission transmission = new Transmission(new Uri("http://uri"), new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
+                    Transmission transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
 
                     // ACT
                     HttpWebResponseWrapper result = await transmission.SendAsync();
@@ -353,7 +336,7 @@
                 using (var fakeHttpClient = new HttpClient(handler))
                 {
                     // Instantiate Transmission with the mock HttpClient
-                    Transmission transmission = new Transmission(new Uri("http://uri"), new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
+                    Transmission transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
 
                     // ACT
                     HttpWebResponseWrapper result = await transmission.SendAsync();

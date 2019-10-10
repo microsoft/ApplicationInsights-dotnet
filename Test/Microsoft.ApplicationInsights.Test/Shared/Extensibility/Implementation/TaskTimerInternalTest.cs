@@ -182,20 +182,17 @@
         public class Cancel
         {
             [TestMethod]
-            public void AbortsPreviousAction()
+            public async Task AbortsPreviousAction()
             {
-                AsyncTest.Run(async () =>
-                {
-                    var timer = new TaskTimerInternal { Delay = TimeSpan.FromMilliseconds(1) };
+                var timer = new TaskTimerInternal { Delay = TimeSpan.FromMilliseconds(1) };
 
-                    bool actionInvoked = false;
-                    timer.Start(() => Task.Factory.StartNew(() => actionInvoked = true));
-                    timer.Cancel();
+                bool actionInvoked = false;
+                timer.Start(() => Task.Factory.StartNew(() => actionInvoked = true));
+                timer.Cancel();
         
-                    await Task.Delay(TimeSpan.FromMilliseconds(20));
+                await Task.Delay(TimeSpan.FromMilliseconds(20));
         
-                    Assert.IsFalse(actionInvoked);
-                });
+                Assert.IsFalse(actionInvoked);
             }
         }
     }

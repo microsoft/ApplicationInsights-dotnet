@@ -91,7 +91,7 @@
         {
             this.instrumentationKey = instrumentationKey ?? throw new ArgumentNullException(nameof(instrumentationKey));
 
-            SetTelemetryChannelEndpoint(channel, this.EndpointContainer.FormattedIngestionEndpoint);
+            SetTelemetryChannelEndpoint(channel, this.EndpointContainer.FormattedIngestionEndpoint, force: true);
             var defaultSink = new TelemetrySink(this, channel);
             defaultSink.Name = "default";
             this.telemetrySinks.Add(defaultSink);
@@ -296,11 +296,11 @@
                     // UPDATE TELEMETRY CHANNEL
                     foreach (var tSink in this.TelemetrySinks)
                     {
-                        SetTelemetryChannelEndpoint(tSink.TelemetryChannel, this.EndpointContainer.FormattedIngestionEndpoint);
+                        SetTelemetryChannelEndpoint(tSink.TelemetryChannel, this.EndpointContainer.FormattedIngestionEndpoint, force: true);
                     }
 
                     // UPDATE APPLICATION ID PROVIDER
-                    SetApplicationIdEndpoint(this.ApplicationIdProvider, this.EndpointContainer.FormattedApplicationIdEndpoint);
+                    SetApplicationIdEndpoint(this.ApplicationIdProvider, this.EndpointContainer.FormattedApplicationIdEndpoint, force: true);
                 }
                 catch (Exception ex)
                 {
@@ -427,19 +427,26 @@
         /// </summary>
         /// <param name="applicationIdProvider">ApplicationIdProvider to set.</param>
         /// <param name="endpoint">Endpoint value to set.</param>
-        private static void SetApplicationIdEndpoint(IApplicationIdProvider applicationIdProvider, string endpoint)
+        /// <param name="force">When the ConnectionString is set, ApplicationId Endpoint should be forced to update. If the ApplicationId has been set separately, we will only set endpoint if it is null.</param>
+        private static void SetApplicationIdEndpoint(IApplicationIdProvider applicationIdProvider, string endpoint, bool force = false)
         {
             if (applicationIdProvider != null)
             {
                 if (applicationIdProvider is ApplicationInsightsApplicationIdProvider applicationInsightsApplicationIdProvider)
                 {
-                    applicationInsightsApplicationIdProvider.ProfileQueryEndpoint = endpoint;
+                    if (force || applicationInsightsApplicationIdProvider.ProfileQueryEndpoint == null)
+                    {
+                        applicationInsightsApplicationIdProvider.ProfileQueryEndpoint = endpoint;
+                    }
                 }
                 else if (applicationIdProvider is DictionaryApplicationIdProvider dictionaryApplicationIdProvider)
                 {
                     if (dictionaryApplicationIdProvider.Next is ApplicationInsightsApplicationIdProvider innerApplicationIdProvider)
                     {
-                        innerApplicationIdProvider.ProfileQueryEndpoint = endpoint;
+                        if (force || innerApplicationIdProvider.ProfileQueryEndpoint == null)
+                        {
+                            innerApplicationIdProvider.ProfileQueryEndpoint = endpoint;
+                        }
                     }
                 }
             }
@@ -451,13 +458,17 @@
         /// </summary>
         /// <param name="channel">TelemetryChannel to set.</param>
         /// <param name="endpoint">Endpoint value to set.</param>
-        private static void SetTelemetryChannelEndpoint(ITelemetryChannel channel, string endpoint)
+        /// /// <param name="force">When the ConnectionString is set, Channel Endpoint should be forced to update. If the Channel has been set separately, we will only set endpoint if it is null.</param>
+        private static void SetTelemetryChannelEndpoint(ITelemetryChannel channel, string endpoint, bool force = false)
         {
             if (channel != null)
             {
                 if (channel is InMemoryChannel || channel.GetType().FullName == "Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel")
                 {
-                    channel.EndpointAddress = endpoint;
+                    if (force || channel.EndpointAddress == null)
+                    {
+                        channel.EndpointAddress = endpoint;
+                    }
                 }
             }
         }
