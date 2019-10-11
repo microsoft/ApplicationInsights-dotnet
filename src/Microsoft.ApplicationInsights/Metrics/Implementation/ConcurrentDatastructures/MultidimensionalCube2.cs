@@ -163,7 +163,7 @@
                 while (res.ResultCode == MultidimensionalPointResultCodes.Failure_SubdimensionsCountLimitReached)
                 {
                     int failedIndex = res.FailureCoordinateIndex;
-                    coordinates[failedIndex] = "DIMENSIONCAPHIT";
+                    coordinates[failedIndex] = "DIMENSION_CAPPED";
 
                     // retry
                     pointMoniker = this.GetPointMoniker(coordinates);
@@ -186,21 +186,7 @@
             }
 
             return res;
-        }
-
-        private MultidimensionalPointResult<TPoint> LockAndCreatePoint(string[] coordinates, string pointMoniker, bool useDimCap = false)
-        {
-            this.pointCreationLock.Wait();
-            try
-            {
-                MultidimensionalPointResult<TPoint> result = this.TryCreatePoint(coordinates, pointMoniker, useDimCap: useDimCap);
-                return result;
-            }
-            finally
-            {
-                this.pointCreationLock.Release();
-            }
-        }
+        }        
 
         public Task<MultidimensionalPointResult<TPoint>> TryGetOrCreatePointAsync(params string[] coordinates)
         {
@@ -296,6 +282,20 @@
             }
 
             return builder.ToString();
+        }
+
+        private MultidimensionalPointResult<TPoint> LockAndCreatePoint(string[] coordinates, string pointMoniker, bool useDimCap = false)
+        {
+            this.pointCreationLock.Wait();
+            try
+            {
+                MultidimensionalPointResult<TPoint> result = this.TryCreatePoint(coordinates, pointMoniker, useDimCap: useDimCap);
+                return result;
+            }
+            finally
+            {
+                this.pointCreationLock.Release();
+            }
         }
 
         private MultidimensionalPointResult<TPoint> TryCreatePoint(string[] coordinates, string pointMoniker, bool useDimCap = false)

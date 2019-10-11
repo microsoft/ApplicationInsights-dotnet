@@ -6,3 +6,5 @@ Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointCon
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ConnectionString.get -> string
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ConnectionString.set -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.EndpointContainer.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer
+Microsoft.ApplicationInsights.Metrics.MetricConfiguration.ApplyDimensionCapping.get -> bool
+Microsoft.ApplicationInsights.Metrics.MetricConfiguration.ApplyDimensionCapping.set -> void
