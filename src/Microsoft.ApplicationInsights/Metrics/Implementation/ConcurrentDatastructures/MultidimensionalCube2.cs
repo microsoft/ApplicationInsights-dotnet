@@ -150,10 +150,40 @@
                 return result;
             }
 
+            var res = this.LockAndCreatePoint(coordinates, pointMoniker);
+            while (res.ResultCode == MultidimensionalPointResultCodes.Failure_SubdimensionsCountLimitReached)
+            {
+                int failedIndex = res.FailureCoordinateIndex;
+                coordinates[failedIndex] = "Other";
+
+                // retry
+                pointMoniker = this.GetPointMoniker(coordinates);
+                hasPoint = this.points.TryGetValue(pointMoniker, out point);
+                if (hasPoint)
+                {
+                    var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Success_ExistingPointRetrieved, point);
+                    return result;
+                }
+
+                if (this.totalPointsCount >= this.totalPointsCountLimit)
+                {
+                    var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_TotalPointsCountLimitReached, -1);
+                    return result;
+                }
+
+                // retry with Other
+                res = this.LockAndCreatePoint(coordinates, pointMoniker, useDimCap: true);
+            }
+
+            return res;
+        }
+
+        private MultidimensionalPointResult<TPoint> LockAndCreatePoint(string[] coordinates, string pointMoniker, bool useDimCap = false)
+        {
             this.pointCreationLock.Wait();
             try
             {
-                MultidimensionalPointResult<TPoint> result = this.TryCreatePoint(coordinates, pointMoniker);
+                MultidimensionalPointResult<TPoint> result = this.TryCreatePoint(coordinates, pointMoniker, useDimCap: useDimCap);
                 return result;
             }
             finally
@@ -258,7 +288,7 @@
             return builder.ToString();
         }
 
-        private MultidimensionalPointResult<TPoint> TryCreatePoint(string[] coordinates, string pointMoniker)
+        private MultidimensionalPointResult<TPoint> TryCreatePoint(string[] coordinates, string pointMoniker, bool useDimCap = false)
         {
 #pragma warning disable SA1509 // Opening braces must not be preceded by blank line
 
@@ -293,10 +323,21 @@
                 HashSet<string> dimVals = this.dimensionValues[i];
                 string coordinateVal = coordinates[i];
 
-                if ((dimVals.Count >= this.dimensionValuesCountLimits[i]) && (false == dimVals.Contains(coordinateVal)))
+                if (useDimCap)
                 {
-                    reachedValsLimitDim = i;
-                    break;
+                    if ((dimVals.Count >= this.dimensionValuesCountLimits[i]) && (false == dimVals.Contains(coordinateVal)))
+                    {
+                        reachedValsLimitDim = i;
+                        break;
+                    }
+                }
+                else
+                {
+                    if ((dimVals.Count >= (this.dimensionValuesCountLimits[i] - 1)) && (false == dimVals.Contains(coordinateVal)))
+                    {
+                        reachedValsLimitDim = i;
+                        break;
+                    }
                 }
 
                 bool added = dimVals.Add(coordinates[i]);
