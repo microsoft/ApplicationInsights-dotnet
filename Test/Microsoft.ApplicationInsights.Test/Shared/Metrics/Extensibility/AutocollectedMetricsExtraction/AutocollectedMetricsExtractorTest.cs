@@ -521,7 +521,7 @@
             //// 8)  Unknown, false: 3
 
             Assert.AreEqual(27 + 8, telemetrySentToChannel.Count);
-            for (int i = 0; i < 35; i++)
+            for (int i = 0; i < telemetrySentToChannel.Count; i++)
             {
                 Assert.IsNotNull(telemetrySentToChannel[i]);
                 if (i == 0 || i == 14)
