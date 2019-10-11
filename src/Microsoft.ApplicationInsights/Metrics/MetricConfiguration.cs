@@ -115,6 +115,13 @@
         /// that would normally result in new series will return <c>false</c>.</summary>
         public int SeriesCountLimit { get; }
 
+        /// <summary>Gets a flag indicating if dimension capping should be applied, when any indiviual dimension
+        /// exceeds its limit. If this flag is set, calls to <c>TrackValue(..)</c>, <c>TryGetDataSeries(..)</c> and similar
+        /// that would normally return false when cap is hit will return true, and the actual value of dimension will be replaced
+        /// by a constant <c>DIMENSIONCAPHIT</c>
+        /// </summary>
+        public bool ApplyDimensionCapping { get; set;}
+
         /// <summary>Gets the configuration for how each series of this metric should be aggregated.</summary>
         public IMetricSeriesConfiguration SeriesConfig { get; }
 

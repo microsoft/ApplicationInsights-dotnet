@@ -33,6 +33,7 @@
         private readonly Func<string[], TPoint> pointsFactory;
 
         private int totalPointsCount;
+        private bool useDimensionCap;
 
         public MultidimensionalCube2(Func<string[], TPoint> pointsFactory, params int[] dimensionValuesCountLimits)
             : this(Int32.MaxValue, pointsFactory, dimensionValuesCountLimits)
@@ -81,6 +82,12 @@
             {
                 this.dimensionValues[i] = new HashSet<string>();
             }
+        }
+
+        public MultidimensionalCube2(int totalPointsCountLimit, Func<string[], TPoint> pointsFactory, bool useDimensionCap, params int[] dimensionValuesCountLimits)
+             : this(totalPointsCountLimit, pointsFactory, dimensionValuesCountLimits)
+        {
+            this.useDimensionCap = useDimensionCap;
         }
 
         public int DimensionsCount
@@ -151,28 +158,31 @@
             }
 
             var res = this.LockAndCreatePoint(coordinates, pointMoniker);
-            while (res.ResultCode == MultidimensionalPointResultCodes.Failure_SubdimensionsCountLimitReached)
+            if (this.useDimensionCap)
             {
-                int failedIndex = res.FailureCoordinateIndex;
-                coordinates[failedIndex] = "Other";
-
-                // retry
-                pointMoniker = this.GetPointMoniker(coordinates);
-                hasPoint = this.points.TryGetValue(pointMoniker, out point);
-                if (hasPoint)
+                while (res.ResultCode == MultidimensionalPointResultCodes.Failure_SubdimensionsCountLimitReached)
                 {
-                    var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Success_ExistingPointRetrieved, point);
-                    return result;
-                }
+                    int failedIndex = res.FailureCoordinateIndex;
+                    coordinates[failedIndex] = "DIMENSIONCAPHIT";
 
-                if (this.totalPointsCount >= this.totalPointsCountLimit)
-                {
-                    var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_TotalPointsCountLimitReached, -1);
-                    return result;
-                }
+                    // retry
+                    pointMoniker = this.GetPointMoniker(coordinates);
+                    hasPoint = this.points.TryGetValue(pointMoniker, out point);
+                    if (hasPoint)
+                    {
+                        var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Success_ExistingPointRetrieved, point);
+                        return result;
+                    }
 
-                // retry with Other
-                res = this.LockAndCreatePoint(coordinates, pointMoniker, useDimCap: true);
+                    if (this.totalPointsCount >= this.totalPointsCountLimit)
+                    {
+                        var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_TotalPointsCountLimitReached, -1);
+                        return result;
+                    }
+
+                    // retry with Other
+                    res = this.LockAndCreatePoint(coordinates, pointMoniker, useDimCap: true);
+                }
             }
 
             return res;
