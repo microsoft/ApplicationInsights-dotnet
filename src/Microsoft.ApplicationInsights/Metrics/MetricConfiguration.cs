@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Metrics
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using static System.FormattableString;
 
@@ -10,6 +11,8 @@
         private readonly int hashCode;
 
         private readonly int[] valuesPerDimensionLimits = new int[MetricIdentifier.MaxDimensionsCount];
+
+        private IEnumerable<string> unsafeDimCapFallbackDimensionValues = null;
 
         /// <summary>Creates a new instance of <c>MetricConfiguration</c>.</summary>
         /// <param name="seriesCountLimit">How many data time series a metric can contain as a maximum.
@@ -198,6 +201,66 @@
         public override int GetHashCode()
         {
             return this.hashCode;
+        }
+
+        /// <summary>
+        /// This is an unsafe API intended for internal SDK use only. Do not expose publicly!
+        /// The APIs that offer access to metric series(e.g. <c>Metric.TryGetDataSeries(..)</c>, <c>Metric.TrackValue(..)</c>, etc.)
+        /// return <c>false</c> if a limit for the number of series per dimension or for the entire metric has been reached.
+        /// Those limits are set in the <c>MetricConfiguration</c> parameters (<c>valuesPerDimensionLimits</c> and 
+        /// <c>seriesCountLimit</c>). The right way of dealing with cases where those limits are reached is domain-specific 
+        /// and is left to the user.
+        /// 
+        /// The SDK has a feature for extracting pre-aggregated metrics from standard documents (e.g.Requests, Dependencies, ...).
+        /// For those extracted metrics, for very specific dimensions, when a <c>valuesPerDimensionLimit</c> is reached, 
+        /// we want to use a fallback dimension value(e.g. "Other").
+        /// 
+        /// This API allows specifying such a fallback dimension value for each dimension.
+        /// 
+        /// This API must be used only internally and only after thorough considerations.
+        /// Note that dimension values are usually encountered in random order and so the values rolled into "Other" will vary
+        /// across application instances, across service instances or across restarts of the same instance. 
+        /// After such data is ingested from multiple instances and aggregated, a correct query (display) of metrics that have 
+        /// used the fallback dimension value is highly problematic. 
+        /// In a nutshell, if you see it, the values are likely wrong. :) 
+        /// The SDK uses this fallback as a kind of "graceful" failure only for cases where the dimensions are low-cardinality 
+        /// and are highly unlikely to reach the limit in practice.
+        /// 
+        /// Note that this API only addresses the per-dimension limits (<c>valuesPerDimensionLimits</c>), it does not address
+        /// the metric-wide <c>seriesCountLimit</c>.
+        /// </summary>
+        /// <param name="dimCapFallbackDimensionValues">Specifies a fallback dimension name for each dimension (e.g. "Other"). 
+        /// You can specify <c>null</c> for a dimension – in that case no fallback is used and when the number of values for 
+        /// that dimension reaches the limit, no new metric series are created and no values are tracked for those specific 
+        /// dimension values. If this enumeration contains more elements than the number of dimensions, the superfluous 
+        /// elements are ignored; if this enumeration contains less values than the number of dimensions in a metric,
+        /// <c>null</c> is assumed for uncovered dimensions. (Note that this is different from how <c>valuesPerDimensionLimits</c> 
+        /// is treated.)</param>
+        internal void SetUnsafeDimCapFallbackDimensionValues(IEnumerable<string> dimCapFallbackDimensionValues)
+        {
+            this.unsafeDimCapFallbackDimensionValues = dimCapFallbackDimensionValues;
+        }
+
+        /// <summary>
+        /// This is an unsafe API intended for internal SDK use only. Do not expose publicly!
+        /// See XML-Docs for <seealso cref="MetricConfiguration.SetUnsafeDimCapFallbackDimensionValues(IEnumerable{String})" />.
+        /// </summary>
+        /// <param name="dimCapFallbackDimensionValues">Specifies a fallback dimension name for each dimension (e.g. "Other").</param>
+        internal void SetUnsafeDimCapFallbackDimensionValues(params string[] dimCapFallbackDimensionValues)
+        {
+            this.SetUnsafeDimCapFallbackDimensionValues((IEnumerable<string>)dimCapFallbackDimensionValues);
+        }
+
+        /// <summary>
+        /// This is an unsafe API intended for internal SDK use only. Do not expose publicly!
+        /// See XML-Docs for <seealso cref="MetricConfiguration.SetUnsafeDimCapFallbackDimensionValues(IEnumerable{String})" />.
+        /// </summary>
+        /// <param name="dimCapFallbackDimensionValues">Specifies a fallback dimension name for each dimension (e.g. "Other").</param>
+        /// <returns>Whether fallback dimension names have been specified.</returns>
+        internal bool TryGetUnsafeDimCapFallbackDimensionValues(out IEnumerable<string> dimCapFallbackDimensionValues)
+        {
+            dimCapFallbackDimensionValues = this.unsafeDimCapFallbackDimensionValues;
+            return dimCapFallbackDimensionValues != null;
         }
 
         private int ComputeHashCode()

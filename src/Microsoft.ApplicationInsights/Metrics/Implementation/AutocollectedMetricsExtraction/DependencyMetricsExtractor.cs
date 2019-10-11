@@ -143,50 +143,26 @@
             bool dependencyFailed = (dependencyCall.Success != null) && (dependencyCall.Success == false);
             string dependencySuccessString = dependencyFailed ? bool.FalseString : bool.TrueString;
 
-            //// Now we need to determine which data series to use:
-            MetricSeries seriesToTrack = null;
+            //// Get Dependency Type Name:
+            //// IF (MaxDependencyTypesToDiscover == 0) THEN we do not group by Dependency Type (always use "Other").
+            //// ELSE We group by Dependency Type and if dim limit is reached fall back to using "Other" (we set that in the metric config).
+            string dependencyType = (this.MaxDependencyTypesToDiscover == 0)
+                                                    ? MetricTerms.Autocollection.DependencyCall.TypeNames.Other
+                                                    : dependencyCall.Type;
 
-            if (this.MaxDependencyTypesToDiscover == 0)
+            //// If Dependency Type is not set, we use "Unknown":
+            if (string.IsNullOrEmpty(dependencyType))
             {
-                // (MaxDependencyTypesToDiscover == 0) means we do not group by Dependency Type.
-                // Then, always use "Other" as Dependency Type:
-
-                dependencyCallMetric.TryGetDataSeries(
-                                                    out seriesToTrack,
-                                                    MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
-                                                    dependencySuccessString,
-                                                    MetricTerms.Autocollection.DependencyCall.TypeNames.Other);
+                dependencyType = MetricTerms.Autocollection.DependencyCall.TypeNames.Unknown;
             }
-            else
-            {
-                // We group by Dependency Type and if dim limit is reached fall back to using "Other":
 
-                string dependencyType = dependencyCall.Type;
-
-                //// If dependency type is not set, we use "Unknown":
-                if (string.IsNullOrEmpty(dependencyType))
-                {
-                    dependencyType = MetricTerms.Autocollection.DependencyCall.TypeNames.Unknown;
-                }
-
-                bool canTrack = dependencyCallMetric.TryGetDataSeries(
-                                                    out seriesToTrack,
+            //// Now get the data series to use and use it:
+            dependencyCallMetric.TryGetDataSeries(
+                                                    out MetricSeries seriesToTrack,
                                                     MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
                                                     dependencySuccessString,
                                                     dependencyType);
 
-                if (false == canTrack)
-                {
-                    // If dimension cap was reached, use "Other" as dependency type:
-                    // (that series has been pre-created, so cap will not apply)
-                    dependencyCallMetric.TryGetDataSeries(
-                                                    out seriesToTrack,
-                                                    MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
-                                                    dependencySuccessString,
-                                                    MetricTerms.Autocollection.DependencyCall.TypeNames.Other);
-                }
-            }
-           
             seriesToTrack.TrackValue(dependencyCall.Duration.TotalMilliseconds);
             isItemProcessed = true;
         }
@@ -215,7 +191,7 @@
                 int depTypesDimValuesLimit = (maxDependencyTypesToDiscoverCount == 0)
                                                 // "Other":
                                                 ? 1
-                                                // Discovered types + "Unknown" (when type not set) + "Other" (when limit reached):
+                                                // Discovered types + "Unknown" (when type not set):
                                                 : maxDependencyTypesToDiscoverCount + 2;
 
                 TelemetryClient thisMetricTelemetryClient = this.metricTelemetryClient;
@@ -241,6 +217,7 @@
                                                             (1 * 2 * depTypesDimValuesLimit) + 1,
                                                             new[] { 1, 2, depTypesDimValuesLimit },
                                                             new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
+                config.SetUnsafeDimCapFallbackDimensionValues(null, null, MetricTerms.Autocollection.DependencyCall.TypeNames.Other);
 
                 Metric dependencyCallDuration = thisMetricTelemetryClient.GetMetric(
                                                             metricId: MetricTerms.Autocollection.Metric.DependencyCallDuration.Name,
@@ -250,23 +227,14 @@
                                                             metricConfiguration: config,
                                                             aggregationScope: MetricAggregationScope.TelemetryClient);
 
-                // "Pre-book" series for "special" dependenty type monikers to make sure they are not affected by dimension caps:
-
-                MetricSeries prebookedSeries;
-
-                dependencyCallDuration.TryGetDataSeries(
-                                                            out prebookedSeries,
-                                                            MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
-                                                            Boolean.TrueString,
-                                                            MetricTerms.Autocollection.DependencyCall.TypeNames.Other);
-                dependencyCallDuration.TryGetDataSeries(
-                                                            out prebookedSeries,
-                                                            MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
-                                                            Boolean.FalseString,
-                                                            MetricTerms.Autocollection.DependencyCall.TypeNames.Other);
+                // "Pre-book" series for "Unknown" dependenty type to make sure they are not affected by dimension caps:
+                // (We do not need to pre-book the "Other" becasue we have specified it as a fallback for the TypeName 
+                // dimension in case the dim-val limit for that dimension is reached.)
 
                 if (maxDependencyTypesToDiscoverCount != 0)
                 {
+                    MetricSeries prebookedSeries;
+
                     dependencyCallDuration.TryGetDataSeries(
                                                             out prebookedSeries,
                                                             MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,

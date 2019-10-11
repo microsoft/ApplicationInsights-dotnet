@@ -58,10 +58,38 @@
                     dimensionValuesCountLimits[d] = configuration.GetValuesPerDimensionLimit(d + 1);
                 }
 
-                this.metricSeries = new MultidimensionalCube2<MetricSeries>(
-                            totalPointsCountLimit: configuration.SeriesCountLimit - 1,
-                            pointsFactory: this.CreateNewMetricSeries,
-                            dimensionValuesCountLimits: dimensionValuesCountLimits);
+                if (configuration.TryGetUnsafeDimCapFallbackDimensionValues(out IEnumerable<string> unsafeDimCapFallbackDimensionValues))
+                {
+                    string[] unsafeDimensionValuesCapFallbackValues = new string[metricIdentifier.DimensionsCount];
+                    int d = 0;
+
+                    foreach (string unsafeFallbackDimValue in unsafeDimCapFallbackDimensionValues)
+                    {
+                        unsafeDimensionValuesCapFallbackValues[d] = unsafeFallbackDimValue;
+                        if (++d == metricIdentifier.DimensionsCount)
+                        {
+                            break;
+                        }
+                    }
+
+                    while (d < metricIdentifier.DimensionsCount)
+                    {
+                        unsafeDimensionValuesCapFallbackValues[d] = null;
+                    }
+
+                    this.metricSeries = new MultidimensionalCube2<MetricSeries>(
+                                                totalPointsCountLimit: configuration.SeriesCountLimit - 1,
+                                                pointsFactory: this.CreateNewMetricSeries,
+                                                dimensionValuesCountLimits: dimensionValuesCountLimits,
+                                                unsafeDimensionValuesCapFallbackValues: unsafeDimensionValuesCapFallbackValues);
+                }
+                else
+                {
+                    this.metricSeries = new MultidimensionalCube2<MetricSeries>(
+                                                totalPointsCountLimit: configuration.SeriesCountLimit - 1,
+                                                pointsFactory: this.CreateNewMetricSeries,
+                                                dimensionValuesCountLimits: dimensionValuesCountLimits);
+                }
 
                 this.zeroDimSeriesList = null;
             }

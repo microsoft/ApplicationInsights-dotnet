@@ -31,6 +31,7 @@
         private readonly HashSet<string>[] dimensionValues;
         private readonly ConcurrentDictionary<string, TPoint> points;
         private readonly Func<string[], TPoint> pointsFactory;
+        private readonly string[] unsafeDimensionValuesCapFallbackValues = null;
 
         private int totalPointsCount;
 
@@ -81,6 +82,24 @@
             {
                 this.dimensionValues[i] = new HashSet<string>();
             }
+        }
+
+        internal MultidimensionalCube2(
+                    int totalPointsCountLimit, 
+                    Func<string[], TPoint> pointsFactory, 
+                    int[] dimensionValuesCountLimits,
+                    string[] unsafeDimensionValuesCapFallbackValues)
+            : this(totalPointsCountLimit, pointsFactory, dimensionValuesCountLimits)
+        {
+            if (unsafeDimensionValuesCapFallbackValues != null && unsafeDimensionValuesCapFallbackValues.Length != dimensionValuesCountLimits.Length)
+            {
+                throw new ArgumentException(Invariant($"{unsafeDimensionValuesCapFallbackValues} may be unspecified (i.e. null), but is it IS specified,")
+                                          + Invariant($" then it must have the same number of elements as there are dimensions;")
+                                          + Invariant($" however, there are {dimensionValuesCountLimits.Length} dimensions,")
+                                          + Invariant($" but {unsafeDimensionValuesCapFallbackValues}.Length = {unsafeDimensionValuesCapFallbackValues.Length}."));
+            }
+
+            this.unsafeDimensionValuesCapFallbackValues = unsafeDimensionValuesCapFallbackValues;
         }
 
         public int DimensionsCount
@@ -288,15 +307,24 @@
             int reachedValsLimitDim = -1;
             BitArray valueAddedToDims = new BitArray(length: coordinates.Length, defaultValue: false);
 
+            bool appliedUnsafeDimensionValuesCapFallback = false;
+
             for (int i = 0; i < coordinates.Length; i++)
             {
                 HashSet<string> dimVals = this.dimensionValues[i];
-                string coordinateVal = coordinates[i];
 
-                if ((dimVals.Count >= this.dimensionValuesCountLimits[i]) && (false == dimVals.Contains(coordinateVal)))
+                if ((dimVals.Count >= this.dimensionValuesCountLimits[i]) && (false == dimVals.Contains(coordinates[i])))
                 {
-                    reachedValsLimitDim = i;
-                    break;
+                    if (this.TryGetUnsafeDimensionValuesCapFallback(i, out string fallbackDimensionValue))
+                    {
+                        coordinates[i] = fallbackDimensionValue;
+                        appliedUnsafeDimensionValuesCapFallback = true;
+                    }
+                    else
+                    {
+                        reachedValsLimitDim = i;
+                        break;
+                    }
                 }
 
                 bool added = dimVals.Add(coordinates[i]);
@@ -342,6 +370,11 @@
             }
 
             { 
+                if (appliedUnsafeDimensionValuesCapFallback)
+                {
+                    pointMoniker = BuildPointMoniker(coordinates);
+                }
+
                 bool added = this.points.TryAdd(pointMoniker, point);
                 if (false == added)
                 {
@@ -355,10 +388,27 @@
             this.totalPointsCount++;
 
             {
-                var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Success_NewPointCreated, point);
+                var result = new MultidimensionalPointResult<TPoint>(
+                                        appliedUnsafeDimensionValuesCapFallback 
+                                                ? MultidimensionalPointResultCodes.Success_NewPointCreatedAboveDimCapLimit
+                                                : MultidimensionalPointResultCodes.Success_NewPointCreated,
+                                        point);
                 return result;
             }
 #pragma warning restore SA1509 // Opening braces must not be preceded by blank line
+        }
+
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        private bool TryGetUnsafeDimensionValuesCapFallback(int dimension, out string fallbackDimensionValue)
+        {
+            if (this.unsafeDimensionValuesCapFallbackValues == null)
+            {
+                fallbackDimensionValue = null;
+                return false;
+            }
+
+            fallbackDimensionValue = this.unsafeDimensionValuesCapFallbackValues[dimension];
+            return fallbackDimensionValue != null;
         }
 
         private void ValidateDimensionIndex(int dimension)
