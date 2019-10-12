@@ -88,6 +88,13 @@
              : this(totalPointsCountLimit, pointsFactory, dimensionValuesCountLimits)
         {
             this.useDimensionCap = useDimensionCap;
+            if (this.useDimensionCap)
+            {
+                for (int d = 0; d < this.dimensionValuesCountLimits.Length; d++)
+                {
+                    this.dimensionValuesCountLimits[d] = this.dimensionValuesCountLimits[d] + 1;
+                }
+            }
         }
 
         public int DimensionsCount
@@ -181,7 +188,7 @@
                     }
 
                     // retry with Other
-                    res = this.LockAndCreatePoint(coordinates, pointMoniker, useDimCap: true);
+                    res = this.LockAndCreatePoint(coordinates, pointMoniker, useReservedDimensionValue: true);
                 }
             }
 
@@ -284,12 +291,12 @@
             return builder.ToString();
         }
 
-        private MultidimensionalPointResult<TPoint> LockAndCreatePoint(string[] coordinates, string pointMoniker, bool useDimCap = false)
+        private MultidimensionalPointResult<TPoint> LockAndCreatePoint(string[] coordinates, string pointMoniker, bool useReservedDimensionValue = false)
         {
             this.pointCreationLock.Wait();
             try
             {
-                MultidimensionalPointResult<TPoint> result = this.TryCreatePoint(coordinates, pointMoniker, useDimCap: useDimCap);
+                MultidimensionalPointResult<TPoint> result = this.TryCreatePoint(coordinates, pointMoniker, useReservedDimensionValue: useReservedDimensionValue);
                 return result;
             }
             finally
@@ -298,7 +305,7 @@
             }
         }
 
-        private MultidimensionalPointResult<TPoint> TryCreatePoint(string[] coordinates, string pointMoniker, bool useDimCap = false)
+        private MultidimensionalPointResult<TPoint> TryCreatePoint(string[] coordinates, string pointMoniker, bool useReservedDimensionValue = false)
         {
 #pragma warning disable SA1509 // Opening braces must not be preceded by blank line
 
@@ -333,21 +340,21 @@
                 HashSet<string> dimVals = this.dimensionValues[i];
                 string coordinateVal = coordinates[i];
 
-                if (useDimCap)
+                int dimValueCap;
+                if (this.useDimensionCap)
                 {
-                    if ((dimVals.Count >= this.dimensionValuesCountLimits[i]) && (false == dimVals.Contains(coordinateVal)))
-                    {
-                        reachedValsLimitDim = i;
-                        break;
-                    }
+                    // We do DimensionCap. Do not use the reserved value unless asked to do.
+                    dimValueCap = useReservedDimensionValue ? this.dimensionValuesCountLimits[i] : this.dimensionValuesCountLimits[i] - 1;
                 }
                 else
                 {
-                    if ((dimVals.Count >= (this.dimensionValuesCountLimits[i] - 1)) && (false == dimVals.Contains(coordinateVal)))
-                    {
-                        reachedValsLimitDim = i;
-                        break;
-                    }
+                    dimValueCap = this.dimensionValuesCountLimits[i];
+                }
+
+                if ((dimVals.Count >= dimValueCap) && (false == dimVals.Contains(coordinateVal)))
+                {
+                    reachedValsLimitDim = i;
+                    break;
                 }
 
                 bool added = dimVals.Add(coordinates[i]);

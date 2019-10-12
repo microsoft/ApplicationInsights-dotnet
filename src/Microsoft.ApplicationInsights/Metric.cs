@@ -55,7 +55,7 @@
                 int[] dimensionValuesCountLimits = new int[metricIdentifier.DimensionsCount];
                 for (int d = 0; d < metricIdentifier.DimensionsCount; d++)
                 {
-                    dimensionValuesCountLimits[d] = 1 + configuration.GetValuesPerDimensionLimit(d + 1);
+                    dimensionValuesCountLimits[d] = configuration.GetValuesPerDimensionLimit(d + 1);
                 }
 
                 this.metricSeries = new MultidimensionalCube2<MetricSeries>(
