@@ -1,8 +1,0 @@
-Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer
-Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer.Ingestion.get -> System.Uri
-Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer.Live.get -> System.Uri
-Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer.Profiler.get -> System.Uri
-Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer.Snapshot.get -> System.Uri
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ConnectionString.get -> string
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ConnectionString.set -> void
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.EndpointContainer.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer
