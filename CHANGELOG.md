@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.12.0-beta2
+ - [Add support for storing EventCounter Metadata as properties of MetricTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet-server/issues/1287)
+
 ## Version 2.12.0-beta1
  - [Enhancement to how QuickPulseTelemetryModule shares its ServiceEndpoint with QuickPulseTelemetryProcessor.](https://github.com/microsoft/ApplicationInsights-dotnet-server/pull/1266)
  - [QuickPulse will support SDK Connection String](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1221)
