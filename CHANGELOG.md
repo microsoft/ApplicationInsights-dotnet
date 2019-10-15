@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.11.2
+- [Fix Sql dependency collection bug in .NET Core 3.0 with Microsoft.Data.SqlClient.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1291)
+
 ## Version 2.11.1
 - [Fix Sql dependency parent id to match W3CTraceContext format](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1277)
 - [Fix EventCounters so that it appear as CustomMetrics as opposed to PerformanceCounters.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1280)

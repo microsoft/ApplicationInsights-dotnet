@@ -201,6 +201,53 @@ namespace Microsoft.ApplicationInsights.Tests
         [Theory]
         [InlineData(SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand)]
         [InlineData(SqlClientDiagnosticSourceListener.SqlMicrosoftBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlMicrosoftAfterExecuteCommand)]
+        public void TracksCommandExecutedSP(string beforeCommand, string afterCommand)
+        {
+            var operationId = Guid.NewGuid();
+            var sqlConnection = new SqlConnection(TestConnectionString);
+            var sqlCommand = sqlConnection.CreateCommand();
+            sqlCommand.CommandText = "SP_GetOrders";
+            sqlCommand.CommandType = CommandType.StoredProcedure;
+
+            var beforeExecuteEventData = new
+            {
+                OperationId = operationId,
+                Command = sqlCommand,
+                Timestamp = (long?)1000000L
+            };
+
+            this.fakeSqlClientDiagnosticSource.Write(
+                beforeCommand,
+                beforeExecuteEventData);
+            var start = DateTimeOffset.UtcNow;
+
+            var afterExecuteEventData = new
+            {
+                OperationId = operationId,
+                Command = sqlCommand,
+                Timestamp = 2000000L
+            };
+
+            this.fakeSqlClientDiagnosticSource.Write(
+                afterCommand,
+                afterExecuteEventData);
+
+            var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
+
+            Assert.Equal(beforeExecuteEventData.OperationId.ToString("N"), dependencyTelemetry.Id);
+            Assert.Equal(sqlCommand.CommandText, dependencyTelemetry.Data);
+            Assert.Equal("(localdb)\\MSSQLLocalDB | master | SP_GetOrders", dependencyTelemetry.Name);
+            Assert.Equal("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Target);
+            Assert.Equal(RemoteDependencyConstants.SQL, dependencyTelemetry.Type);
+            Assert.True((bool)dependencyTelemetry.Success);
+            Assert.True(dependencyTelemetry.Duration > TimeSpan.Zero);
+            Assert.True(dependencyTelemetry.Duration < TimeSpan.FromMilliseconds(500));
+            Assert.True(Math.Abs((start - dependencyTelemetry.Timestamp).TotalMilliseconds) <= 16);
+        }
+
+        [Theory]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand)]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlMicrosoftBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlMicrosoftAfterExecuteCommand)]
         public void TracksCommandExecutedWhenNoTimestamp(string beforeCommand, string afterCommand)
         {
             var operationId = Guid.NewGuid();
