@@ -1,9 +1,14 @@
 # Changelog
 
+## Version 2.8.2
+- Updated Web SDK to 2.11.2
+
+## Version 2.8.1
+- Updated Web SDK to 2.11.1
+
 ## Version 2.8.0
 - Updated Bask SDK/Web SDK/Logging Adaptor SDK to 2.11.0
 - Updated System.Diagnostics.DiagnosticSource to 4.6.0
-
 
 ## Version 2.8.0-beta3
 - [Make W3C Correlation default and leverage native W3C support from Activity.](https://github.com/microsoft/ApplicationInsights-aspnetcore/pull/958)

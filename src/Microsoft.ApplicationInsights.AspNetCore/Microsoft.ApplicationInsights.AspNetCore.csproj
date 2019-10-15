@@ -3,7 +3,7 @@
   
   <PropertyGroup>
     <AssemblyName>Microsoft.ApplicationInsights.AspNetCore</AssemblyName>
-    <VersionPrefix>2.8.1</VersionPrefix>
+    <VersionPrefix>2.8.2</VersionPrefix>
     <LangVersion>7.2</LangVersion>
     <TargetFrameworks>netstandard2.0;net451;net46;netstandard1.6</TargetFrameworks>
     <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard1.6;netstandard2.0</TargetFrameworks>
@@ -65,9 +65,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.11.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.11.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.11.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.11.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.11.2" />
+    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.11.2" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.11.2" />
     <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.11.0" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="1.0.2" />           
     <PackageReference Include="System.Text.Encodings.Web" Version="4.3.1" />
@@ -82,7 +82,7 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">  
   <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.0" />  
   <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.11.0" />
-  <PackageReference Include="Microsoft.ApplicationInsights.EventCounterCollector" Version="2.11.1" />
+  <PackageReference Include="Microsoft.ApplicationInsights.EventCounterCollector" Version="2.11.2" />
   <PackageReference Include="System.Text.Encodings.Web" Version="4.3.1" />
   </ItemGroup>
 
