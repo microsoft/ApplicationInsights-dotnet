@@ -119,6 +119,8 @@
         /// exceeds its limit. If this flag is set, calls to <c>TrackValue(..)</c>, <c>TryGetDataSeries(..)</c> and similar
         /// that would normally return false when cap is hit will return true, and the actual value of dimension will be replaced
         /// by a constant <c>DIMENSION_CAPPED</c>.
+        /// The metric will continue to track the value, however, users should be beware that any metric filtering or
+        /// splitting involving a dimension which has the value DIMENSION_CAPPED, should be ignored.
         /// </summary>
         public bool ApplyDimensionCapping { get; set; }
 
