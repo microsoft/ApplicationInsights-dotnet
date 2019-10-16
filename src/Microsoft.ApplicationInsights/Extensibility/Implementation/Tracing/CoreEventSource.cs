@@ -554,6 +554,36 @@
                 this.nameProvider.Name);
         }
 
+        [Event(47, Message = "Connection String exceeds max length of {0} characters.", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
+        public void ConnectionStringExceedsMaxLength(int maxLength, string appDomainName = "Incorrect") => this.WriteEvent(47, maxLength, this.nameProvider.Name);
+
+        [Event(48, Message = "Connection String cannot be empty.", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
+        public void ConnectionStringEmpty(string appDomainName = "Incorrect") => this.WriteEvent(48, this.nameProvider.Name);
+
+        [Event(49, Message = "Connection String cannot contain duplicate keys.", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
+        public void ConnectionStringDuplicateKey(string appDomainName = "Incorrect") => this.WriteEvent(49, this.nameProvider.Name);
+
+        [Event(50, Message = "Connection String contains invalid delimiters and cannot be parsed.", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
+        public void ConnectionStringInvalidDelimiters(string appDomainName = "Incorrect") => this.WriteEvent(50, this.nameProvider.Name);
+        
+        [Event(51, Message = "Connection String cannot be NULL.", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
+        public void ConnectionStringNull(string appDomainName = "Incorrect") => this.WriteEvent(51, this.nameProvider.Name);
+
+        [Event(52, Message = "Connection String could not create an endpoint. {0}.", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
+        public void ConnectionStringInvalidEndpoint(string exceptionMessage, string appDomainName = "Incorrect") => this.WriteEvent(52, exceptionMessage, this.nameProvider.Name);
+
+        [Event(53, Message = "Connection String could not be set. Exception: {0}", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
+        public void ConnectionStringSetFailed(string exceptionMessage, string appDomainName = "Incorrect") => this.WriteEvent(53, exceptionMessage, this.nameProvider.Name);
+
+        [Event(54, Message = "TelemetryConfigurationFactory overwrote the ConnectionString with a value from an Environment Variable: {0}", Level = EventLevel.Informational)]
+        public void TelemetryConfigurationFactoryFoundConnectionStringEnvironmentVariable(string variableName, string appDomainName = "Incorrect") => this.WriteEvent(54, variableName, this.nameProvider.Name);
+
+        [Event(55, Message = "TelemetryConfigurationFactory overwrote the InstrumentationKey with a value from an Environment Variable: {0}", Level = EventLevel.Informational)]
+        public void TelemetryConfigurationFactoryFoundInstrumentationKeyEnvironmentVariable(string variableName, string appDomainName = "Incorrect") => this.WriteEvent(55, variableName, this.nameProvider.Name);
+
+        [Event(56, Message = "TelemetryConfigurationFactory could not find an InstrumentationKey. This needs to be manually set.", Level = EventLevel.Warning, Keywords = Keywords.UserActionable)]
+        public void TelemetryConfigurationFactoryNoInstrumentationKey(string appDomainName = "Incorrect") => this.WriteEvent(56, this.nameProvider.Name);
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>

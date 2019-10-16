@@ -42,7 +42,10 @@
             }
             else
             {
-                this.telemetryChannel = new InMemoryChannel();
+                this.telemetryChannel = new InMemoryChannel
+                {
+                    EndpointAddress = telemetryConfiguration.EndpointContainer.FormattedIngestionEndpoint,
+                };
                 this.shouldDisposeChannel = true;
             }
         }
