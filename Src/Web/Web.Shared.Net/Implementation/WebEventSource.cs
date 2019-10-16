@@ -500,6 +500,18 @@
                 this.applicationNameProvider.Name);
         }
 
+        [Event(51,
+    Keywords = Keywords.Diagnostics,
+    Message = "An error has occured in AzureAppServiceRoleNameFromHostNameHeaderInitializer. Exception: '{0}'",
+    Level = EventLevel.Warning)]
+        public void LogAzureAppServiceRoleNameFromHostNameHeaderInitializerWarning(string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                51,
+                exception,
+                this.applicationNameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the PlatformEventSource. Those keywords should match keywords in Core.
         /// </summary>
