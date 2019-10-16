@@ -155,7 +155,7 @@ For more information, see [CoreFX: "Diagnostic Source Users Guide"](https://gith
 To enable, edit the `TelemetryModules` section of the ApplicationInsights.config file:
 
 ```xml
-<Add Type="Microsoft.ApplicationInsights.DiagnsoticSourceListener.DiagnosticSourceTelemetryModule, Microsoft.ApplicationInsights.DiagnosticSourceListener">
+<Add Type="Microsoft.ApplicationInsights.DiagnosticSourceListener.DiagnosticSourceTelemetryModule, Microsoft.ApplicationInsights.DiagnosticSourceListener">
       <Sources>
         <Add Name="MyDiagnosticSourceName" />
       </Sources>
