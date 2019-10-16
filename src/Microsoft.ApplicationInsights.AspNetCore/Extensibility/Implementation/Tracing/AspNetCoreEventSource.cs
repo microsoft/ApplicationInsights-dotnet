@@ -240,6 +240,17 @@
         }
 
         /// <summary>
+        /// Logs an event when AzureAppServiceRoleNameFromHostNameHeaderInitializer faces errors.
+        /// </summary>
+        /// <param name="exception">Exception message.</param>
+        /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
+        [Event(24, Message = "An error has occured in AzureAppServiceRoleNameFromHostNameHeaderInitializer. Exception: '{0}'", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
+        public void LogAzureAppServiceRoleNameFromHostNameHeaderInitializerWarning(string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(24, exception, this.applicationNameProvider.Name);
+        }
+
+        /// <summary>
         /// Keywords for the AspNetEventSource.
         /// </summary>
         public sealed class Keywords

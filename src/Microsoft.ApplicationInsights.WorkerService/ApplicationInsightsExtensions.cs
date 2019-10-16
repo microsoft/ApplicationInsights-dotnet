@@ -1,8 +1,9 @@
 ﻿namespace Microsoft.Extensions.DependencyInjection
 {
     using System;
-
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.WindowsServer;
     using Microsoft.ApplicationInsights.WorkerService;
     using Microsoft.ApplicationInsights.WorkerService.Implementation.Tracing;
     using Microsoft.Extensions.Configuration;
@@ -89,6 +90,7 @@
             {
                 if (!IsApplicationInsightsAdded(services))
                 {
+                    services.AddSingleton<ITelemetryInitializer, AzureWebAppRoleEnvironmentTelemetryInitializer>();
                     AddCommonInitializers(services);
                     AddCommonTelemetryModules(services);
                     AddTelemetryChannel(services);
