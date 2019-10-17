@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Threading;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -19,6 +20,7 @@
     public class PerformanceCollectorModulesTests
     {
         [TestMethod]
+        [SuppressMessage(category: "Microsoft.Globalization", checkId: "CA1305:SpecifyIFormatProvider", Justification = "Don't care about invariant in unit tests.")]
         public void TimerTest()
         {
             var collector = CreatePerformanceCollector();
@@ -61,7 +63,7 @@
 
                 lock (collector.Sync)
                 {
-                    Assert.IsTrue(collector.Counters.TrueForAll(c => c.Item2.Count > 0), "Some of the counters have not been collected. Counter count: " + collector.Counters.Count + ", non-zero counter count: " + collector.Counters.Count(c => c.Item2.Count > 0));
+                    Assert.IsTrue(collector.Counters.TrueForAll(c => c.Item2.Count > 0), $"Some of the counters have not been collected. Counter count: {collector.Counters.Count}, non-zero counter count: {collector.Counters.Count(c => c.Item2.Count > 0)}");
                 }
 
                 if (assertionsFailure != null)

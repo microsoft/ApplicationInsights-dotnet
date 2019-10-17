@@ -9,5 +9,7 @@
         void StartCollection(IQuickPulseDataAccumulatorManager accumulatorManager, Uri serviceEndpoint, TelemetryConfiguration configuration, bool disableFullTelemetryItems = false);
 
         void StopCollection();
+
+        Uri ServiceEndpoint { get; set; }
     }
 }

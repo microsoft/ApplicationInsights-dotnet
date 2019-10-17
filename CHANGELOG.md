@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 2.12.0-beta1
+ - [Enhancement to how QuickPulseTelemetryModule shares its ServiceEndpoint with QuickPulseTelemetryProcessor.](https://github.com/microsoft/ApplicationInsights-dotnet-server/pull/1266)
+ - [QuickPulse will support SDK Connection String](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1221)
+ - [Add support for storing EventCounter Metadata as properties of MetricTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet-server/issues/1287)
+ - [New RoleName initializer for Azure Web App to accurately populate RoleName.](https://github.com/microsoft/ApplicationInsights-dotnet-server/issues/1207)
+
 ## Version 2.11.2
 - [Fix Sql dependency collection bug in .NET Core 3.0 with Microsoft.Data.SqlClient.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1291)
 

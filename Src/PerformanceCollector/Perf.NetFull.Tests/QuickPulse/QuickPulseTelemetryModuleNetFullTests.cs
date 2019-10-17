@@ -42,7 +42,7 @@
             var telemetryProcessor = config.TelemetryProcessors.OfType<QuickPulseTelemetryProcessor>().SingleOrDefault();
             Assert.IsNotNull(telemetryProcessor);
 
-            Assert.AreEqual(telemetryProcessor, QuickPulseTestHelper.GetTelemetryProcessors(module).SingleOrDefault());
+            Assert.AreEqual(telemetryProcessor, module.TelemetryProcessors.SingleOrDefault());
         }
 
         [TestMethod]
@@ -72,7 +72,7 @@
             var telemetryProcessor = config.TelemetryProcessors.OfType<QuickPulseTelemetryProcessor>().SingleOrDefault();
             Assert.IsNotNull(telemetryProcessor);
 
-            Assert.AreEqual(telemetryProcessor, QuickPulseTestHelper.GetTelemetryProcessors(module).SingleOrDefault());
+            Assert.AreEqual(telemetryProcessor, module.TelemetryProcessors.SingleOrDefault());
         }
 
         [TestMethod]
@@ -109,10 +109,9 @@
 
             // ASSERT
             var module = TelemetryModules.Instance.Modules.OfType<QuickPulseTelemetryModule>().SingleOrDefault();
-            var registeredProcessors = QuickPulseTestHelper.GetTelemetryProcessors(module);
 
-            Assert.AreEqual(TelemetryProcessorCount + 1, registeredProcessors.Count); // one was there after the initial configuration loading
-            Assert.IsTrue(telemetryProcessors.TrueForAll(registeredProcessors.Contains));
+            Assert.AreEqual(TelemetryProcessorCount + 1, module.TelemetryProcessors.Count); // one was there after the initial configuration loading
+            Assert.IsTrue(telemetryProcessors.TrueForAll(module.TelemetryProcessors.Contains));
         }
     }
 }

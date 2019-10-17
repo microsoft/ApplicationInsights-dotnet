@@ -19,6 +19,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)StubStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TaskExceptionObserver.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TelemetryConfigurationFactoryHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TestEventListener.cs" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' != 'netcoreapp1.0' ">

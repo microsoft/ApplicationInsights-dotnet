@@ -29,6 +29,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ApplicationInsightsHttpModuleTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RequestTrackingTelemetryModuleTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SessionTelemetryInitializerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AzureAppServiceRoleNameFromHostNameHeaderInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SyntheticUserAgentTelemetryInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WebTestTelemetryInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UserTelemetryInitializerTest.cs" />

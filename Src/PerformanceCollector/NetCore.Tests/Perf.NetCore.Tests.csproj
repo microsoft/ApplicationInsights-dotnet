@@ -39,4 +39,6 @@
   </ItemGroup>
 
   <Import Project="..\Perf.Shared.Tests\Perf.Shared.Tests.projitems" Label="Shared" />
+
+  <Import Project="..\..\TestFramework\Shared\TestFramework.Shared.projitems" Label="Shared" />
 </Project>
