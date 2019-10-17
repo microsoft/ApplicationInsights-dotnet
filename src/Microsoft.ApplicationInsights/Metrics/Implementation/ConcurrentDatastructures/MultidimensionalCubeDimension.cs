@@ -4,7 +4,6 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Threading;
-    using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
     using static System.FormattableString;
 

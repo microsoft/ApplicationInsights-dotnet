@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Metrics.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
 {
     using System;
 
@@ -10,7 +10,7 @@
             "CA1008: Enums should have zero value",
             Justification = "Crafted these flags to fit into a byte to make the struct container cheaper.")]
     [Flags]
-    public enum MultidimensionalPointResultCodes : byte
+    internal enum MultidimensionalPointResultCodes : byte
     {
         /// <summary>
         /// A new point was created and returned in this result.

@@ -437,11 +437,11 @@
         public bool TryGetDataSeries(out MetricSeries series, bool createIfNotExists, params string[] dimensionValues)
         {
 
-            GetDataSeries(out MultidimensionalPointResult<MetricSeries> result, createIfNotExists, dimensionValues);
+            GetDataSeries(out MetricDataSeriesRetrievalResult result, createIfNotExists, dimensionValues);
 
             if (result.IsSuccess)
             {
-                series = result.Point;
+                series = result.MetricSeries;
                 return true;
             }
             else
@@ -467,11 +467,11 @@
         /// <c>False</c> if the indicated series could not be retrieved or created because <c>createIfNotExists</c> is <c>false</c>
         /// or because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool GetDataSeries(out MultidimensionalPointResult<MetricSeries> result, bool createIfNotExists, params string[] dimensionValues)
+        public bool GetDataSeries(out MetricDataSeriesRetrievalResult result, bool createIfNotExists, params string[] dimensionValues)
         {
             if (dimensionValues == null || dimensionValues.Length == 0)
             {
-                result = new MultidimensionalPointResult<MetricSeries>(MultidimensionalPointResultCodes.Success_ExistingPointRetrieved, this.zeroDimSeries);
+                result = new MetricDataSeriesRetrievalResult(MetricDataSeriesRetrievalResultCodes.Success_ExistingSeriesRetrieved, this.zeroDimSeries);
                 return true;
             }
 
@@ -500,10 +500,11 @@
                 }
             }
 
-            result = createIfNotExists
+            MultidimensionalPointResult<MetricSeries> rawResult = createIfNotExists
                             ? this.metricSeries.TryGetOrCreatePoint(dimensionValues)
                             : this.metricSeries.TryGetPoint(dimensionValues);
 
+            result = new MetricDataSeriesRetrievalResult(rawResult);
             if (result.IsSuccess)
             {
                 return true;
