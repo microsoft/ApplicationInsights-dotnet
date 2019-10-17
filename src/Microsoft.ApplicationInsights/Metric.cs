@@ -5,6 +5,7 @@
     using System.Diagnostics.CodeAnalysis;
     using Microsoft.ApplicationInsights.Metrics;
     using Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures;
+    using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
     using static System.FormattableString;
 
@@ -435,9 +436,42 @@
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
         public bool TryGetDataSeries(out MetricSeries series, bool createIfNotExists, params string[] dimensionValues)
         {
+
+            GetDataSeries(out MultidimensionalPointResult<MetricSeries> result, createIfNotExists, dimensionValues);
+
+            if (result.IsSuccess)
+            {
+                series = result.Point;
+                return true;
+            }
+            else
+            {
+                series = null;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Gets or creates the <c>MetricSeries</c> associated with the specified dimension values.<br />
+        /// This overload used metrics of any valid dimensionality:
+        /// The number of elements in the specified <c>dimensionValues</c> array must exactly match the dimensionality of this metric,
+        /// and that array may not contain nulls. Specify a null-array for zero-dimensional metrics.
+        /// </summary>
+        /// <param name="result">The result of retrieving the metric time series. If this method returns <c>True</c>, this struct will include the 
+        /// the <c>MetricSeries</c> associated with the specified dimension values. Otherwise the result series reference will be set to <c>null</c>.
+        /// EIther way, the stuct will contain info on how a metric series was retrieved (e.g., new vs exitsing) or
+        /// how it failed (e.g. one of the limits was reached).</param>
+        /// <param name="createIfNotExists">Whether to attempt creating a metric series for the specified dimension values if it does not exist.</param>
+        /// <param name="dimensionValues">The values of the dimensions for the required metric series.</param>
+        /// <returns><c>True</c> if the <c>MetricSeries</c> indicated by the specified dimension names could be retrieved or created;
+        /// <c>False</c> if the indicated series could not be retrieved or created because <c>createIfNotExists</c> is <c>false</c>
+        /// or because a dimension cap or a metric series cap was reached.</returns>
+        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        public bool GetDataSeries(out MultidimensionalPointResult<MetricSeries> result, bool createIfNotExists, params string[] dimensionValues)
+        {
             if (dimensionValues == null || dimensionValues.Length == 0)
             {
-                series = this.zeroDimSeries;
+                result = new MultidimensionalPointResult<MetricSeries>(MultidimensionalPointResultCodes.Success_ExistingPointRetrieved, this.zeroDimSeries);
                 return true;
             }
 
@@ -466,18 +500,16 @@
                 }
             }
 
-            MultidimensionalPointResult<MetricSeries> result = createIfNotExists
-                                                                    ? this.metricSeries.TryGetOrCreatePoint(dimensionValues)
-                                                                    : this.metricSeries.TryGetPoint(dimensionValues);
+            result = createIfNotExists
+                            ? this.metricSeries.TryGetOrCreatePoint(dimensionValues)
+                            : this.metricSeries.TryGetPoint(dimensionValues);
 
             if (result.IsSuccess)
             {
-                series = result.Point;
                 return true;
             }
             else
             {
-                series = null;
                 return false;
             }
         }

@@ -1,13 +1,16 @@
-﻿namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
+﻿namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
     using System;
 
+    /// <summary>
+    /// Desbribes the kind of the result of retrieving or adding a point from/to a multidimensional metric cube.
+    /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage(
             "Microsoft.Design",
             "CA1008: Enums should have zero value",
             Justification = "Crafted these flags to fit into a byte to make the struct container cheaper.")]
     [Flags]
-    internal enum MultidimensionalPointResultCodes : byte
+    public enum MultidimensionalPointResultCodes : byte
     {
         /// <summary>
         /// A new point was created and returned in this result.

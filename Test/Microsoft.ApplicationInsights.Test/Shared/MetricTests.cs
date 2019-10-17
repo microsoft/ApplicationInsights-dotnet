@@ -2,8 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Reflection;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.ApplicationInsights.Metrics;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
 using Microsoft.ApplicationInsights.Metrics.TestUtility;
@@ -18,6 +19,67 @@ namespace Microsoft.ApplicationInsights
     [TestClass]
     public class MetricTests
     {
+
+        // Example. Will be removed before mergin.
+        public void LogOperationDuration(string operationType, string operationName, string targetType, TimeSpan duration)
+        {
+            Metric metric = (new TelemetryClient()).GetMetric("Operation Duration MSec", "Operation Type", "Operation Name", "Target Type");
+
+            metric.GetDataSeries(out MultidimensionalPointResult<MetricSeries> result, true, operationType, operationName, targetType);
+
+            if (result.ResultCode == MultidimensionalPointResultCodes.Failure_SubdimensionsCountLimitReached)
+            {
+                switch(result.FailureCoordinateIndex)
+                {
+                    case 0:
+                        // Operation type is expected to be very low cardinality. Handle abnormal condition by logging some kind of error and failing.
+                        return;
+
+                    case 1:
+                        // I will create another mentric that has the name dimension collepsed. it will be sparse, but it will always be correct.
+                        // If I did not want it to be sparse, I would always emit this second metric it.
+                        // A this point I (the customer) have REALLY internalized the trade-offs I am making here!!
+                        LogOperationDuration(operationType, targetType, duration);
+                        return;
+
+                    case 2:
+                        // Target type is expected to be very low cardinality. Handle abnormal condition by logging some kind of error and failing.
+                        return;
+                }
+            }
+
+            if (result.IsSuccess)
+            {
+                result.Point.TrackValue(duration.TotalMilliseconds);
+            }
+        }
+
+        private void LogOperationDuration(string operationType, string targetType, TimeSpan duration)
+        {
+            Metric metric = (new TelemetryClient()).GetMetric("Operation Duration (no name) MSec", "Operation Type", "Target Type");
+
+            metric.GetDataSeries(out MultidimensionalPointResult<MetricSeries> result, true, operationType, targetType);
+
+            if (result.ResultCode == MultidimensionalPointResultCodes.Failure_SubdimensionsCountLimitReached)
+            {
+                switch (result.FailureCoordinateIndex)
+                {
+                    case 0:
+                        // Operation type is expected to be very low cardinality. Handle abnormal condition by logging some kind of error and failing.
+                        return;
+
+                    case 1:
+                        // Target type is expected to be very low cardinality. Handle abnormal condition by logging some kind of error and failing.
+                        return;
+                }
+            }
+
+            if (result.IsSuccess)
+            {
+                result.Point.TrackValue(duration.TotalMilliseconds);
+            }
+        }
+
         /// <summary />
         [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
         [TestMethod]
