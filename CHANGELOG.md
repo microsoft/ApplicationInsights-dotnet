@@ -1,5 +1,6 @@
 # Changelog
 
+
 ## Version 2.12.0-beta1
 - Skipping version numbers to keep in sync with Base SDK.
 - [Fix Null/Empty Ikey from ApplicationInsightsServiceOptions overrding one from appsettings.json](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/989)
@@ -8,10 +9,15 @@
 - [New RoleName initializer for Azure Web App to accurately populate RoleName.](https://github.com/microsoft/ApplicationInsights-dotnet-server/issues/1207)
 - Update to Base/Web/Logging SDK to 2.12.0-beta1
 
+## Version 2.8.2
+- Updated Web SDK to 2.11.2
+
+## Version 2.8.1
+- Updated Web SDK to 2.11.1
+
 ## Version 2.8.0
 - Updated Base SDK/Web SDK/Logging Adaptor SDK to 2.11.0
 - Updated System.Diagnostics.DiagnosticSource to 4.6.0
-
 
 ## Version 2.8.0-beta3
 - [Make W3C Correlation default and leverage native W3C support from Activity.](https://github.com/microsoft/ApplicationInsights-aspnetcore/pull/958)
