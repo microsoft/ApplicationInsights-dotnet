@@ -23,7 +23,7 @@ namespace Microsoft.ApplicationInsights
         {
             Metric metric = (new TelemetryClient()).GetMetric("Operation Duration MSec", "Operation Type", "Operation Name", "Target Type");
 
-            metric.GetDataSeries(out MetricDataSeriesRetrievalResult result, true, operationType, operationName, targetType);
+            MetricDataSeriesRetrievalResult result = metric.GetDataSeries(true, operationType, operationName, targetType);
 
             if (result.ResultCode == MetricDataSeriesRetrievalResultCodes.Failure_SubdimensionsCountLimitReached)
             {
@@ -56,7 +56,7 @@ namespace Microsoft.ApplicationInsights
         {
             Metric metric = (new TelemetryClient()).GetMetric("Operation Duration (no name) MSec", "Operation Type", "Target Type");
 
-            metric.GetDataSeries(out MetricDataSeriesRetrievalResult result, true, operationType, targetType);
+            MetricDataSeriesRetrievalResult result = metric.GetDataSeries(true, operationType, targetType);
 
             if (result.ResultCode == MetricDataSeriesRetrievalResultCodes.Failure_SubdimensionsCountLimitReached)
             {
