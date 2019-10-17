@@ -17,9 +17,9 @@
         private readonly IHostingEnvironment hostingEnvironment;
 
         /// <summary>
-        /// Creates a new instance of <see cref="DefaultApplicationInsightsServiceConfigureOptions"/>
+        /// Initializes a new instance of the <see cref="DefaultApplicationInsightsServiceConfigureOptions"/> class.
         /// </summary>
-        /// <param name="hostingEnvironment"><see cref="IHostingEnvironment"/> to use for retreiving ContentRootPath</param>
+        /// <param name="hostingEnvironment"><see cref="IHostingEnvironment"/> to use for retreiving ContentRootPath.</param>
         public DefaultApplicationInsightsServiceConfigureOptions(IHostingEnvironment hostingEnvironment)
         {
             this.hostingEnvironment = hostingEnvironment;
@@ -31,7 +31,7 @@
             var configBuilder = new ConfigurationBuilder()
                 .SetBasePath(this.hostingEnvironment.ContentRootPath ?? Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", true)
-                .AddJsonFile(string.Format(CultureInfo.InvariantCulture, "appsettings.{0}.json", hostingEnvironment.EnvironmentName), true)
+                .AddJsonFile(string.Format(CultureInfo.InvariantCulture, "appsettings.{0}.json", this.hostingEnvironment.EnvironmentName), true)
                 .AddEnvironmentVariables();
             ApplicationInsightsExtensions.AddTelemetryConfiguration(configBuilder.Build(), options);
 

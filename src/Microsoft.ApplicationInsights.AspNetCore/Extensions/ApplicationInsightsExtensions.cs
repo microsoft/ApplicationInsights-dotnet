@@ -1,55 +1,44 @@
 ﻿namespace Microsoft.Extensions.DependencyInjection
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
-    using System.Linq;
-    using System.Reflection;
-
-    using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
-    using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
 #if NETSTANDARD2_0
     using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
 #endif
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
-    using Microsoft.ApplicationInsights.WindowsServer;
-    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Configuration.Memory;
     using Microsoft.Extensions.DependencyInjection.Extensions;
-    using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
+    using Shared.Implementation;
 
     /// <summary>
     /// Extension methods for <see cref="IServiceCollection"/> that allow adding Application Insights services to application.
     /// </summary>
     public static partial class ApplicationInsightsExtensions
     {
-        [SuppressMessage(category: "", checkId: "CS1591:MissingXmlComment", Justification = "Obsolete method.")]
+#pragma warning disable CS1591 // Missing XML comment.
+        [SuppressMessage(category: "StyleCop Documentation Rules", checkId: "SA1600:ElementsMustBeDocumented", Justification = "Obsolete method.")]
         [Obsolete("This middleware is no longer needed. Enable Request monitoring using services.AddApplicationInsights")]
         public static IApplicationBuilder UseApplicationInsightsRequestTelemetry(this IApplicationBuilder app)
         {
             return app;
         }
 
-        [SuppressMessage(category: "", checkId: "CS1591:MissingXmlComment", Justification = "Obsolete method.")]
+        [SuppressMessage(category: "StyleCop Documentation Rules", checkId: "SA1600:ElementsMustBeDocumented", Justification = "Obsolete method.")]
         [Obsolete("This middleware is no longer needed to track exceptions as they are automatically tracked by RequestTrackingTelemetryModule")]
         public static IApplicationBuilder UseApplicationInsightsExceptionTelemetry(this IApplicationBuilder app)
         {
             return app.UseMiddleware<ExceptionTrackingMiddleware>();
         }
+#pragma warning restore CS1591 // Missing XML comment.
 
         /// <summary>
         /// Adds Application Insights services into service collection.
@@ -109,19 +98,7 @@
             ApplicationInsightsServiceOptions options)
         {
             services.AddApplicationInsightsTelemetry();
-            services.Configure((ApplicationInsightsServiceOptions o) =>
-            {
-                o.ApplicationVersion = options.ApplicationVersion;
-                o.DeveloperMode = options.DeveloperMode;
-                o.EnableAdaptiveSampling = options.EnableAdaptiveSampling;
-                o.EnableAuthenticationTrackingJavaScript = options.EnableAuthenticationTrackingJavaScript;
-                o.EnableDebugLogger = options.EnableDebugLogger;
-                o.EnableQuickPulseMetricStream = options.EnableQuickPulseMetricStream;
-                o.EndpointAddress = options.EndpointAddress;
-                o.InstrumentationKey = options.InstrumentationKey;
-                o.EnableHeartbeat = options.EnableHeartbeat;
-                o.AddAutoCollectedMetricExtractor = options.AddAutoCollectedMetricExtractor;
-            });
+            services.Configure((ApplicationInsightsServiceOptions o) => options.CopyPropertiesTo(o));
             return services;
         }
 
@@ -143,10 +120,27 @@
                     AddCommonInitializers(services);
 
                     // Request Tracking.
-                    services.AddSingleton<ITelemetryModule, RequestTrackingTelemetryModule>();
+                    services.AddSingleton<ITelemetryModule>(provider =>
+                    {
+                        var options = provider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
+                        var appIdProvider = provider.GetService<IApplicationIdProvider>();
+
+                        if (options.EnableRequestTrackingTelemetryModule)
+                        {
+                            return new RequestTrackingTelemetryModule(appIdProvider);
+                        }
+                        else
+                        {
+                            return new NoOpTelemetryModule();
+                        }
+                    });
+
                     services.ConfigureTelemetryModule<RequestTrackingTelemetryModule>((module, options) =>
                     {
-                        module.CollectionOptions = options.RequestCollectionOptions;
+                        if (options.EnableRequestTrackingTelemetryModule)
+                        {
+                            module.CollectionOptions = options.RequestCollectionOptions;
+                        }
                     });
 
                     AddCommonTelemetryModules(services);
@@ -168,8 +162,9 @@
                     // that requires IOptions infrastructure to run and initialize
                     services.AddSingleton<IStartupFilter, ApplicationInsightsStartupFilter>();
                     services.AddSingleton<IJavaScriptSnippet, JavaScriptSnippet>();
+
                     // Add 'JavaScriptSnippet' "Service" for backwards compatibility. To remove in favour of 'IJavaScriptSnippet'.
-                    services.AddSingleton<JavaScriptSnippet>(); 
+                    services.AddSingleton<JavaScriptSnippet>();
 
                     // NetStandard2.0 has a package reference to Microsoft.Extensions.Logging.ApplicationInsights, and
                     // enables ApplicationInsightsLoggerProvider by default.
@@ -189,6 +184,7 @@
 
         private static void AddAspNetCoreWebTelemetryInitializers(IServiceCollection services)
         {
+            services.AddSingleton<ITelemetryInitializer, AzureAppServiceRoleNameFromHostNameHeaderInitializer>();
             services.AddSingleton<ITelemetryInitializer, ClientIpHeaderTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationNameTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, SyntheticTelemetryInitializer>();

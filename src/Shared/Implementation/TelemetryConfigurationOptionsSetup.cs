@@ -2,29 +2,31 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
+
 #if AI_ASPNETCORE_WEB
-    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 #else
     using Microsoft.ApplicationInsights.WorkerService;
     using Microsoft.ApplicationInsights.WorkerService.Implementation.Tracing;
 #endif
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
-    using Microsoft.ApplicationInsights.Extensibility.W3C;
-    using Microsoft.Extensions.Options;
     using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
-    using Microsoft.ApplicationInsights.DataContracts;    
+    using Microsoft.Extensions.Options;
 
     /// <summary>
     /// Initializes TelemetryConfiguration based on values in <see cref="ApplicationInsightsServiceOptions"/>
     /// and registered <see cref="ITelemetryInitializer"/>s and <see cref="ITelemetryModule"/>s.
     /// </summary>
+    [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "This class is instantiated by Dependency Injection.")]
     internal class TelemetryConfigurationOptionsSetup : IConfigureOptions<TelemetryConfiguration>
     {
         private readonly ApplicationInsightsServiceOptions applicationInsightsServiceOptions;
@@ -101,7 +103,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 this.AddQuickPulse(configuration);
                 this.AddSampling(configuration);
                 this.DisableHeartBeatIfConfigured();
-                
+
                 configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder.Build();
                 configuration.TelemetryProcessorChainBuilder.Build();
 
@@ -113,6 +115,12 @@ namespace Microsoft.Extensions.DependencyInjection
                 if (this.applicationInsightsServiceOptions.EndpointAddress != null)
                 {
                     configuration.TelemetryChannel.EndpointAddress = this.applicationInsightsServiceOptions.EndpointAddress;
+                }
+
+                // Need to set connection string before calling Initialize() on the Modules and Processors.
+                if (this.applicationInsightsServiceOptions.ConnectionString != null)
+                {
+                    configuration.ConnectionString = this.applicationInsightsServiceOptions.ConnectionString;
                 }
 
                 foreach (ITelemetryInitializer initializer in this.initializers)

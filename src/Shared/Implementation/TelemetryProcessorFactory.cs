@@ -17,7 +17,7 @@
         private readonly Type telemetryProcessorType;
 
         /// <summary>
-        /// Constructs an instance of the factory.
+        /// Initializes a new instance of the <see cref="TelemetryProcessorFactory"/> class.
         /// </summary>
         /// <param name="serviceProvider">The service provider.</param>
         /// <param name="telemetryProcessorType">The type of telemetry processor to create.</param>
@@ -27,11 +27,7 @@
             this.telemetryProcessorType = telemetryProcessorType;
         }
 
-        /// <summary>
-        /// Creates an instance of the telemetry processor, passing the
-        /// next <see cref="ITelemetryProcessor"/> in the call chain to
-        /// its constructor.
-        /// </summary>
+        /// <inheritdoc />
         public ITelemetryProcessor Create(ITelemetryProcessor next)
         {
             return (ITelemetryProcessor)ActivatorUtilities.CreateInstance(this.serviceProvider, this.telemetryProcessorType, next);

@@ -9,7 +9,8 @@ namespace Microsoft.ApplicationInsights.WorkerService.TelemetryInitializers
     using System.Net;
     using System.Net.NetworkInformation;
     using System.Threading;
-    using Channel;
+
+    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
@@ -35,6 +36,7 @@ namespace Microsoft.ApplicationInsights.WorkerService.TelemetryInitializers
         private string GetMachineName()
         {
             string hostName = Dns.GetHostName();
+
             // Issue #61: For dnxcore machine name does not have domain name like in full framework
 #if NET451 || NET46
             string domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;

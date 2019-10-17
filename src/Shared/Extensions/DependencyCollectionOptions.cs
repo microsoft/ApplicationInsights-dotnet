@@ -10,11 +10,11 @@ namespace Microsoft.ApplicationInsights.WorkerService
     public class DependencyCollectionOptions
     {
         /// <summary>
-        /// Creates new instance of <see cref="DependencyCollectionOptions"/> class and fills default values.
+        /// Initializes a new instance of the <see cref="DependencyCollectionOptions"/> class and fills default values.
         /// </summary>
         public DependencyCollectionOptions()
         {
-            EnableLegacyCorrelationHeadersInjection = false;
+            this.EnableLegacyCorrelationHeadersInjection = false;
         }
 
         /// <summary>

@@ -13,7 +13,8 @@
         /// Initializes a new instance of the <see cref="OperationNameTelemetryInitializer" /> class.
         /// </summary>
         /// <param name="httpContextAccessor">Accessor to provide HttpContext corresponding to telemetry items.</param>
-        public OperationNameTelemetryInitializer(IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
+        public OperationNameTelemetryInitializer(IHttpContextAccessor httpContextAccessor)
+            : base(httpContextAccessor)
         {
         }
 

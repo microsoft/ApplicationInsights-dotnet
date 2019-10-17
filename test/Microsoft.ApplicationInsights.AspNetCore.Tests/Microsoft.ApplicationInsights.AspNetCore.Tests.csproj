@@ -68,6 +68,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Generator>SettingsSingleFileGenerator</Generator>
     </None>
+    <None Update="content\config-connection-string-and-instrumentation-key.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="content\config-developer-mode.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -75,6 +78,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="content\config-connection-string.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="content\config-instrumentation-key-new.json">

@@ -10,8 +10,12 @@
     /// </summary>
     internal class TelemetryConfigurationOptions : IOptions<TelemetryConfiguration>
     {
-        private static readonly object lockObject = new object();
+        private static readonly object LockObject = new object();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TelemetryConfigurationOptions"/> class.
+        /// </summary>
+        /// <param name="configureOptions">Options to be configured.</param>
         public TelemetryConfigurationOptions(IEnumerable<IConfigureOptions<TelemetryConfiguration>> configureOptions)
         {
             this.Value = TelemetryConfiguration.CreateDefault();
@@ -22,7 +26,7 @@
                 c.Configure(this.Value);
             }
 
-            lock (lockObject)
+            lock (LockObject)
             {
                 // workaround for Microsoft/ApplicationInsights-dotnet#613
                 // as we expect some customers to use TelemetryConfiguration.Active together with dependency injection

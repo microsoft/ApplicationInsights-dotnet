@@ -27,6 +27,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="content\config-connection-string.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="content\config-instrumentation-key-new.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

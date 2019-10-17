@@ -10,17 +10,21 @@
     using Microsoft.Extensions.Logging;
 
     /// <summary>
-    /// <see cref="IStartupFilter"/> implementation that initialized ApplicationInsights services on application startup
+    /// <see cref="IStartupFilter"/> implementation that initialized ApplicationInsights services on application startup.
     /// </summary>
     internal class ApplicationInsightsStartupFilter : IStartupFilter
     {
         private readonly ILogger<ApplicationInsightsStartupFilter> logger;
-        
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ApplicationInsightsStartupFilter"/> class.
+        /// </summary>
+        /// <param name="logger">Instance of ILogger.</param>
         public ApplicationInsightsStartupFilter(ILogger<ApplicationInsightsStartupFilter> logger)
         {
             this.logger = logger;
         }
-        
+
         /// <inheritdoc/>
         public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
         {

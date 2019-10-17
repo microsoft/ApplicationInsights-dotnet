@@ -22,6 +22,7 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
     public class ExtensionsTests
     {
         private readonly ITestOutputHelper output;
+        private const string TestConnectionString = "InstrumentationKey=11111111-2222-3333-4444-555555555555;IngestionEndpoint=http://127.0.0.1";
         public const string TestInstrumentationKey = "11111111-2222-3333-4444-555555555555";
         public const string TestInstrumentationKeyEnv = "AAAAAAAA-BBBB-CCCC-DDDD-DDDDDDDDDD";
         public const string TestEndPoint = "http://testendpoint/v2/track";
@@ -120,6 +121,27 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
             Assert.Equal(TestInstrumentationKey, telemetryConfiguration.InstrumentationKey);
             Assert.Equal(TestEndPoint, telemetryConfiguration.TelemetryChannel.EndpointAddress);
             Assert.Equal(true, telemetryConfiguration.TelemetryChannel.DeveloperMode);
+        }
+
+        /// <summary>
+        /// Tests that the connection string can be read from a JSON file by the configuration factory.            
+        /// </summary>
+        [Fact]
+        [Trait("Trait", "ConnectionString")]
+        public void ReadsConnectionStringFromConfiguration()
+        {
+            var jsonFullPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "config-connection-string.json");
+
+            this.output.WriteLine("json:" + jsonFullPath);
+            var config = new ConfigurationBuilder().AddJsonFile(jsonFullPath).Build();
+            var services = new ServiceCollection();
+
+            services.AddApplicationInsightsTelemetryWorkerService(config);
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+            var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
+            Assert.Equal(TestConnectionString, telemetryConfiguration.ConnectionString);
+            Assert.Equal(TestInstrumentationKey, telemetryConfiguration.InstrumentationKey);
+            Assert.Equal("http://127.0.0.1/", telemetryConfiguration.EndpointContainer.Ingestion.AbsoluteUri);
         }
 
         [Fact]
