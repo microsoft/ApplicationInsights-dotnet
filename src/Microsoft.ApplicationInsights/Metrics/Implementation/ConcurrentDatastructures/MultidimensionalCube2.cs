@@ -348,6 +348,20 @@
                 return result;
             }
 
+            // If we have fallen back to the default dimension value at any time, we may have an existing point:
+
+            if (appliedUnsafeDimensionValuesCapFallback)
+            {
+                pointMoniker = BuildPointMoniker(coordinates);
+
+                hasPoint = this.points.TryGetValue(pointMoniker, out point);
+                if (hasPoint)
+                {
+                    var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Success_ExistingPointRetrieved, point);
+                    return result;
+                }
+            }
+
             // Create new point:
 
             try
@@ -370,17 +384,12 @@
             }
 
             { 
-                if (appliedUnsafeDimensionValuesCapFallback)
-                {
-                    pointMoniker = BuildPointMoniker(coordinates);
-                }
-
                 bool added = this.points.TryAdd(pointMoniker, point);
                 if (false == added)
                 {
                     throw new InvalidOperationException(Invariant($"Internal SDK bug. Please report this! (pointMoniker: {pointMoniker})")
                                                       + Invariant($" Info: Failed to add a point to the {nameof(this.points)}-collection in")
-                                                      + Invariant($" class {nameof(MultidimensionalCube2<TPoint>)} despite passing all the cerfification checks."));
+                                                      + Invariant($" class {nameof(MultidimensionalCube2<TPoint>)} despite passing all the certification checks."));
                 }
             }
 
