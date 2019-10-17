@@ -349,6 +349,7 @@
             }
 
             // If we have fallen back to the default dimension value at any time, we may have an existing point:
+            // (recall, we are still under lock, so there will be no race surprises)
 
             if (appliedUnsafeDimensionValuesCapFallback)
             {

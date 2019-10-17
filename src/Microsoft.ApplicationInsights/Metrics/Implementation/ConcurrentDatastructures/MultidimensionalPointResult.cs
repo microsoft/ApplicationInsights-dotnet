@@ -39,7 +39,11 @@
 
         public bool IsPointCreatedNew
         {
-            get { return (this.ResultCode & MultidimensionalPointResultCodes.Success_NewPointCreated) != 0; }
+            get
+            {
+                return ((this.ResultCode & MultidimensionalPointResultCodes.Success_NewPointCreated) != 0)
+                          || ((this.ResultCode & MultidimensionalPointResultCodes.Success_NewPointCreatedAboveDimCapLimit) != 0);
+            }
         }
 
         public bool IsSuccess
@@ -47,7 +51,8 @@
             get
             {
                 return ((this.ResultCode & MultidimensionalPointResultCodes.Success_NewPointCreated) != 0)
-                          || ((this.ResultCode & MultidimensionalPointResultCodes.Success_ExistingPointRetrieved) != 0);
+                          || ((this.ResultCode & MultidimensionalPointResultCodes.Success_ExistingPointRetrieved) != 0)
+                          || ((this.ResultCode & MultidimensionalPointResultCodes.Success_NewPointCreatedAboveDimCapLimit) != 0);
             }
         }
 
