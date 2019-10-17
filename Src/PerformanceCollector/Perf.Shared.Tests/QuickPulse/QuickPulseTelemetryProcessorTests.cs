@@ -57,7 +57,7 @@
             telemetryProcessor.Initialize(new TelemetryConfiguration());
 
             // ASSERT
-            Assert.AreEqual(telemetryProcessor, QuickPulseTestHelper.GetTelemetryProcessors(module).Single());
+            Assert.AreEqual(telemetryProcessor, module.TelemetryProcessors.Single());
         }
 
         [TestMethod]

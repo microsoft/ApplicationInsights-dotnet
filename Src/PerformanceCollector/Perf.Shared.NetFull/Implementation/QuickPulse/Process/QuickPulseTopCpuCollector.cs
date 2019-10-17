@@ -13,14 +13,14 @@
     /// </summary>
     internal sealed class QuickPulseTopCpuCollector : IQuickPulseTopCpuCollector
     {
+        // process name => (last observation timestamp, last observation value)
+        internal readonly Dictionary<string, TimeSpan> ProcessObservations = new Dictionary<string, TimeSpan>(StringComparer.Ordinal);
+
         private readonly TimeSpan accessDeniedRetryInterval = TimeSpan.FromMinutes(1);
 
         private readonly Clock timeProvider;
 
         private readonly IQuickPulseProcessProvider processProvider;
-
-        // process name => (last observation timestamp, last observation value)
-        private readonly Dictionary<string, TimeSpan> processObservations = new Dictionary<string, TimeSpan>(StringComparer.Ordinal);
 
         private DateTimeOffset prevObservationTime;
 
@@ -86,17 +86,17 @@
                     encounteredProcs.Add(process.ProcessName);
                     
                     TimeSpan lastObservation;
-                    if (!this.processObservations.TryGetValue(process.ProcessName, out lastObservation))
+                    if (!this.ProcessObservations.TryGetValue(process.ProcessName, out lastObservation))
                     {
                         // this is the first time we're encountering this process
-                        this.processObservations.Add(process.ProcessName, process.TotalProcessorTime);
+                        this.ProcessObservations.Add(process.ProcessName, process.TotalProcessorTime);
 
                         continue;
                     }
 
                     TimeSpan cpuTimeSinceLast = process.TotalProcessorTime - lastObservation;
 
-                    this.processObservations[process.ProcessName] = process.TotalProcessorTime;
+                    this.ProcessObservations[process.ProcessName] = process.TotalProcessorTime;
 
                     // use perf data if available; otherwise, calculate it ourselves
                     TimeSpan timeElapsedOnAllCoresSinceLast = (totalTime - this.prevOverallTime)
@@ -168,10 +168,10 @@
         private void CleanState(HashSet<string> encounteredProcs)
         {
             // remove processes that we haven't encountered this time around
-            string[] processCpuKeysToRemove = this.processObservations.Keys.Where(p => !encounteredProcs.Contains(p)).ToArray();
+            string[] processCpuKeysToRemove = this.ProcessObservations.Keys.Where(p => !encounteredProcs.Contains(p)).ToArray();
             foreach (var key in processCpuKeysToRemove)
             {
-                this.processObservations.Remove(key);
+                this.ProcessObservations.Remove(key);
             }
         }
     }
