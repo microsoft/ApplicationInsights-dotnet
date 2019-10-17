@@ -11,7 +11,7 @@
         //// http://github.com/dotnet/corefx/blob/master/src/System.Data.SqlClient/src/System/Data/SqlClient/SqlClientDiagnosticListenerExtensions.cs
         //// https://github.com/dotnet/SqlClient/blob/master/src/Microsoft.Data.SqlClient/netcore/src/Microsoft/Data/SqlClient/SqlClientDiagnosticListenerExtensions.cs
 
-#region "System.Data fetchers"
+        #region "System.Data fetchers"
 
         /// <summary> Fetchers for execute command before event. </summary>
         internal static class CommandBefore
@@ -41,6 +41,7 @@
             public static readonly PropertyFetcher Command = new PropertyFetcher(nameof(Command));
             public static readonly PropertyFetcher Exception = new PropertyFetcher(nameof(Exception));
             public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
+            public static readonly PropertyFetcher Number = new PropertyFetcher(nameof(Number));
         }
 
         /// <summary> Fetchers for connection open/close before events. </summary>
@@ -68,6 +69,7 @@
             public static readonly PropertyFetcher Connection = new PropertyFetcher(nameof(Connection));
             public static readonly PropertyFetcher Exception = new PropertyFetcher(nameof(Exception));
             public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
+            public static readonly PropertyFetcher Number = new PropertyFetcher(nameof(Number));
         }
 
         /// <summary> Fetchers for transaction commit before events. </summary>
@@ -118,6 +120,7 @@
             public static readonly PropertyFetcher Connection = new PropertyFetcher(nameof(Connection));
             public static readonly PropertyFetcher Exception = new PropertyFetcher(nameof(Exception));
             public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
+            public static readonly PropertyFetcher Number = new PropertyFetcher(nameof(Number));
         }
 
         /// <summary> Fetchers for transaction commit error events. </summary>
@@ -127,9 +130,10 @@
             public static readonly PropertyFetcher Connection = new PropertyFetcher(nameof(Connection));
             public static readonly PropertyFetcher Exception = new PropertyFetcher(nameof(Exception));
             public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
+            public static readonly PropertyFetcher Number = new PropertyFetcher(nameof(Number));
         }
         #endregion
-        
+
         #region "Microsoft.Data fetchers"
 
         /// <summary> Fetchers for execute command before event. </summary>
@@ -160,6 +164,7 @@
             public static readonly PropertyFetcher Command = new PropertyFetcher(nameof(Command));
             public static readonly PropertyFetcher Exception = new PropertyFetcher(nameof(Exception));
             public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
+            public static readonly PropertyFetcher Number = new PropertyFetcher(nameof(Number));
         }
 
         /// <summary> Fetchers for connection open/close before events. </summary>
@@ -187,6 +192,7 @@
             public static readonly PropertyFetcher Connection = new PropertyFetcher(nameof(Connection));
             public static readonly PropertyFetcher Exception = new PropertyFetcher(nameof(Exception));
             public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
+            public static readonly PropertyFetcher Number = new PropertyFetcher(nameof(Number));
         }
 
         /// <summary> Fetchers for transaction commit before events. </summary>
@@ -237,6 +243,7 @@
             public static readonly PropertyFetcher Connection = new PropertyFetcher(nameof(Connection));
             public static readonly PropertyFetcher Exception = new PropertyFetcher(nameof(Exception));
             public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
+            public static readonly PropertyFetcher Number = new PropertyFetcher(nameof(Number));
         }
 
         /// <summary> Fetchers for transaction commit error events. </summary>
@@ -246,6 +253,7 @@
             public static readonly PropertyFetcher Connection = new PropertyFetcher(nameof(Connection));
             public static readonly PropertyFetcher Exception = new PropertyFetcher(nameof(Exception));
             public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
+            public static readonly PropertyFetcher Number = new PropertyFetcher(nameof(Number));
         }
         #endregion
     }

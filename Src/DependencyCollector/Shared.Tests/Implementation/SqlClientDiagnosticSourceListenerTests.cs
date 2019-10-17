@@ -13,6 +13,7 @@ namespace Microsoft.ApplicationInsights.Tests
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlClientDiagnostics;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.W3C.Internal;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Xunit;
 
@@ -59,7 +60,60 @@ namespace Microsoft.ApplicationInsights.Tests
         [Theory]
         [InlineData(SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand)]
         [InlineData(SqlClientDiagnosticSourceListener.SqlMicrosoftBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlMicrosoftAfterExecuteCommand)]
-        public void InitializesTelemetryFromParentActivity(string beforeEventName, string afterEventName)
+        public void InitializesTelemetryFromParentActivityNonW3C(string beforeEventName, string afterEventName)
+        {
+            try
+            {
+                // Disable W3C
+                Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+                Activity.ForceDefaultIdFormat = true;
+
+                var activity = new Activity("Current").AddBaggage("Stuff", "123");
+                activity.Start();
+
+                var operationId = Guid.NewGuid();
+                var sqlConnection = new SqlConnection(TestConnectionString);
+                var sqlCommand = sqlConnection.CreateCommand();
+                sqlCommand.CommandText = "select * from orders";
+
+                var beforeExecuteEventData = new
+                {
+                    OperationId = operationId,
+                    Command = sqlCommand,
+                    Timestamp = (long?)1000000L
+                };
+
+                this.fakeSqlClientDiagnosticSource.Write(
+                    beforeEventName,
+                    beforeExecuteEventData);
+
+                var afterExecuteEventData = new
+                {
+                    OperationId = operationId,
+                    Command = sqlCommand,
+                    Timestamp = 2000000L
+                };
+
+                this.fakeSqlClientDiagnosticSource.Write(
+                    afterEventName,
+                    afterExecuteEventData);
+
+                var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
+
+                Assert.Equal(activity.RootId, dependencyTelemetry.Context.Operation.Id);
+                Assert.Equal(activity.Id, dependencyTelemetry.Context.Operation.ParentId);
+                Assert.Equal("123", dependencyTelemetry.Properties["Stuff"]);
+            }
+            finally
+            {
+                Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+            }
+        }
+
+        [Theory]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand)]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlMicrosoftBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlMicrosoftAfterExecuteCommand)]
+        public void InitializesTelemetryFromParentActivityW3C(string beforeEventName, string afterEventName)
         {
             var activity = new Activity("Current").AddBaggage("Stuff", "123");
             activity.Start();
@@ -93,8 +147,8 @@ namespace Microsoft.ApplicationInsights.Tests
 
             var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
 
-            Assert.Equal(activity.RootId, dependencyTelemetry.Context.Operation.Id);
-            Assert.Equal(activity.Id, dependencyTelemetry.Context.Operation.ParentId);
+            Assert.Equal(activity.TraceId.ToHexString(), dependencyTelemetry.Context.Operation.Id);
+            Assert.Equal(W3CUtilities.FormatTelemetryId(activity.TraceId.ToHexString(), activity.SpanId.ToHexString()), dependencyTelemetry.Context.Operation.ParentId);
             Assert.Equal("123", dependencyTelemetry.Properties["Stuff"]);
         }
 
@@ -136,6 +190,53 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.Equal(beforeExecuteEventData.OperationId.ToString("N"), dependencyTelemetry.Id);
             Assert.Equal(sqlCommand.CommandText, dependencyTelemetry.Data);
             Assert.Equal("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Name);
+            Assert.Equal("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Target);
+            Assert.Equal(RemoteDependencyConstants.SQL, dependencyTelemetry.Type);
+            Assert.True((bool)dependencyTelemetry.Success);
+            Assert.True(dependencyTelemetry.Duration > TimeSpan.Zero);
+            Assert.True(dependencyTelemetry.Duration < TimeSpan.FromMilliseconds(500));
+            Assert.True(Math.Abs((start - dependencyTelemetry.Timestamp).TotalMilliseconds) <= 16);
+        }
+
+        [Theory]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand)]
+        [InlineData(SqlClientDiagnosticSourceListener.SqlMicrosoftBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlMicrosoftAfterExecuteCommand)]
+        public void TracksCommandExecutedSP(string beforeCommand, string afterCommand)
+        {
+            var operationId = Guid.NewGuid();
+            var sqlConnection = new SqlConnection(TestConnectionString);
+            var sqlCommand = sqlConnection.CreateCommand();
+            sqlCommand.CommandText = "SP_GetOrders";
+            sqlCommand.CommandType = CommandType.StoredProcedure;
+
+            var beforeExecuteEventData = new
+            {
+                OperationId = operationId,
+                Command = sqlCommand,
+                Timestamp = (long?)1000000L
+            };
+
+            this.fakeSqlClientDiagnosticSource.Write(
+                beforeCommand,
+                beforeExecuteEventData);
+            var start = DateTimeOffset.UtcNow;
+
+            var afterExecuteEventData = new
+            {
+                OperationId = operationId,
+                Command = sqlCommand,
+                Timestamp = 2000000L
+            };
+
+            this.fakeSqlClientDiagnosticSource.Write(
+                afterCommand,
+                afterExecuteEventData);
+
+            var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
+
+            Assert.Equal(beforeExecuteEventData.OperationId.ToString("N"), dependencyTelemetry.Id);
+            Assert.Equal(sqlCommand.CommandText, dependencyTelemetry.Data);
+            Assert.Equal("(localdb)\\MSSQLLocalDB | master | SP_GetOrders", dependencyTelemetry.Name);
             Assert.Equal("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Target);
             Assert.Equal(RemoteDependencyConstants.SQL, dependencyTelemetry.Type);
             Assert.True((bool)dependencyTelemetry.Success);

@@ -13,7 +13,7 @@
     /// Implementation to listen to EventCounters.
     /// </summary>
     internal class EventCounterListener : EventListener
-    {        
+    {
         private readonly string refreshIntervalInSecs;
         private readonly int refreshInternalInSecInt;
         private readonly EventLevel level = EventLevel.Critical;
@@ -23,7 +23,7 @@
 
         // Thread-safe variable to hold the list of all EventSourcesCreated.
         // This class may not be instantiated at the time of EventSource creation, so the list of EventSources should be stored to be enabled after initialization.
-        private ConcurrentQueue<EventSource> allEventSourcesCreated;        
+        private ConcurrentQueue<EventSource> allEventSourcesCreated;
 
         // EventSourceNames from which counters are to be collected are the keys for this IDictionary.
         // The value will be the corresponding ICollection of counter names.
@@ -35,7 +35,7 @@
             {
                 this.refreshInternalInSecInt = refreshIntervalSecs;
                 this.refreshIntervalInSecs = refreshIntervalSecs.ToString(CultureInfo.InvariantCulture);
-                this.refreshIntervalDictionary = new Dictionary<string, string>();                
+                this.refreshIntervalDictionary = new Dictionary<string, string>();
                 this.refreshIntervalDictionary.Add("EventCounterIntervalSec", this.refreshIntervalInSecs);
 
                 this.telemetryClient = telemetryClient;
@@ -130,7 +130,7 @@
             {
                 // The EventSourceName is in the list we want to collect some counters from.
                 if (this.countersToCollect.ContainsKey(eventSource.Name))
-                {                    
+                {
                     // Unlike regular Events, the only relevant parameter here for EventCounter is the dictionary containing EventCounterIntervalSec.
                     this.EnableEvents(eventSource, this.level, (EventKeywords)(-1), this.refreshIntervalDictionary);
 
@@ -158,13 +158,14 @@
                 int actualCount = 0;
                 string counterName = string.Empty;
                 string counterDisplayName = string.Empty;
+                string counterDisplayUnit = string.Empty;
                 foreach (KeyValuePair<string, object> payload in eventPayload)
                 {
                     var key = payload.Key;
                     if (key.Equals("Name", StringComparison.OrdinalIgnoreCase))
                     {
                         counterName = payload.Value.ToString();
-                        if (!this.countersToCollect[eventSourceName].Contains(counterName))                        
+                        if (!this.countersToCollect[eventSourceName].Contains(counterName))
                         {
                             EventCounterCollectorEventSource.Log.IgnoreEventWrittenAsCounterNotInConfiguredList(eventSourceName, counterName);
                             return;
@@ -174,9 +175,13 @@
                     {
                         counterDisplayName = payload.Value.ToString();
                     }
+                    else if (key.Equals("DisplayUnits", StringComparison.OrdinalIgnoreCase))
+                    {
+                        counterDisplayUnit = payload.Value.ToString();
+                    }
                     else if (key.Equals("Mean", StringComparison.OrdinalIgnoreCase))
                     {
-                        actualValue = Convert.ToDouble(payload.Value, CultureInfo.InvariantCulture);                        
+                        actualValue = Convert.ToDouble(payload.Value, CultureInfo.InvariantCulture);
                     }
                     else if (key.Equals("Increment", StringComparison.OrdinalIgnoreCase))
                     {
@@ -237,9 +242,12 @@
                 var name = string.IsNullOrEmpty(counterDisplayName) ? counterName : counterDisplayName;
                 metricTelemetry.Name = eventSourceName + "|" + name;
 
-                // This will make the counter appear under PerformanceCounter as opposed to CustomMetrics in Application Insights Analytics(Kusto) tables.
-                metricTelemetry.Properties.Add("CustomPerfCounter", "true");
                 metricTelemetry.Properties.Add("AggregationInterval", actualInterval.ToString(CultureInfo.InvariantCulture));
+                if (!string.IsNullOrEmpty(counterDisplayUnit))
+                {
+                    metricTelemetry.Properties.Add("DisplayUnits", counterDisplayUnit);
+                }
+
                 metricTelemetry.Count = actualCount;
                 this.telemetryClient.TrackMetric(metricTelemetry);
             }

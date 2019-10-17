@@ -2,8 +2,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 {
     using System;
     using System.Collections.Generic;
-    using System.Data;
-    using System.Data.SqlClient;
     using System.Diagnostics;
     using System.Globalization;
 
@@ -13,6 +11,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.W3C.Internal;
     using static Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlClientDiagnostics.SqlClientDiagnosticFetcherTypes;
 
     internal class SqlClientDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>, IDisposable
@@ -153,14 +152,15 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                     case SqlErrorExecuteCommand:
                         {
-                            this.ErrorExecuteHelper(evnt, CommandError.OperationId, CommandError.Command, CommandError.Timestamp, CommandError.Exception);
+                            this.ErrorExecuteHelper(evnt, CommandError.OperationId, CommandError.Command, CommandError.Timestamp,
+                                CommandError.Exception, CommandError.Number);
                             break;
                         }
 
                     case SqlMicrosoftErrorExecuteCommand:
                         {
                             this.ErrorExecuteHelper(evnt, CommandErrorMicrosoft.OperationId, CommandErrorMicrosoft.Command,
-                                CommandErrorMicrosoft.Timestamp, CommandErrorMicrosoft.Exception);
+                                CommandErrorMicrosoft.Timestamp, CommandErrorMicrosoft.Exception, CommandErrorMicrosoft.Number);
                             break;
                         }
 
@@ -201,14 +201,14 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                     case SqlErrorOpenConnection:
                         {
                             this.ErrorOpenConnectionHelper(evnt, ConnectionError.OperationId, ConnectionError.Connection,
-                                ConnectionError.Timestamp, ConnectionError.Exception);
+                                ConnectionError.Timestamp, ConnectionError.Exception, ConnectionError.Number);
                             break;
                         }
 
                     case SqlMicrosoftErrorOpenConnection:
                         {
                             this.ErrorOpenConnectionHelper(evnt, ConnectionErrorMicrosoft.OperationId, ConnectionErrorMicrosoft.Connection,
-                                ConnectionErrorMicrosoft.Timestamp, ConnectionErrorMicrosoft.Exception);
+                                ConnectionErrorMicrosoft.Timestamp, ConnectionErrorMicrosoft.Exception, ConnectionErrorMicrosoft.Number);
                             break;
                         }
 
@@ -295,7 +295,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                             this.ErrorCommitHelper(evnt, TransactionCommitError.OperationId,
                                 TransactionCommitError.Connection,
                                 TransactionCommitError.Timestamp,
-                                TransactionCommitError.Exception);
+                                TransactionCommitError.Exception,
+                                TransactionCommitError.Number);
                             break;
                         }
 
@@ -304,7 +305,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                             this.ErrorCommitHelper(evnt, TransactionCommitErrorMicrosoft.OperationId,
                                 TransactionCommitErrorMicrosoft.Connection,
                                 TransactionCommitErrorMicrosoft.Timestamp,
-                                TransactionCommitErrorMicrosoft.Exception);
+                                TransactionCommitErrorMicrosoft.Exception,
+                                TransactionCommitErrorMicrosoft.Number);
                             break;
                         }
 
@@ -313,7 +315,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                             this.ErrorRollbackHelper(evnt, TransactionRollbackError.OperationId,
                                 TransactionRollbackError.Connection,
                                 TransactionRollbackError.Timestamp,
-                                TransactionRollbackError.Exception);
+                                TransactionRollbackError.Exception,
+                                TransactionRollbackError.Number);
                             break;
                         }
 
@@ -322,7 +325,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                             this.ErrorRollbackHelper(evnt, TransactionRollbackErrorMicrosoft.OperationId,
                                 TransactionRollbackErrorMicrosoft.Connection,
                                 TransactionRollbackErrorMicrosoft.Timestamp,
-                                TransactionRollbackErrorMicrosoft.Exception);
+                                TransactionRollbackErrorMicrosoft.Exception,
+                                TransactionRollbackErrorMicrosoft.Number);
                             break;
                         }
                 }
@@ -342,12 +346,21 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
             if (activity != null)
             {
-                telemetry.Context.Operation.Id = activity.RootId;
+                // SQL Client does NOT create Activity.
+                // We initialize SQL dependency using Activity from incoming Request
+                // and it is the parent of the SQL dependency
 
-                // SQL Client does NOT create and Activity, i.e. 
-                // we initialize SQL dependency using request Activity 
-                // and it is a parent of the SQL dependency
-                telemetry.Context.Operation.ParentId = activity.Id;
+                if (activity.IdFormat == ActivityIdFormat.W3C)
+                {
+                    var traceId = activity.TraceId.ToHexString();
+                    telemetry.Context.Operation.Id = traceId;
+                    telemetry.Context.Operation.ParentId = W3CUtilities.FormatTelemetryId(traceId, activity.SpanId.ToHexString());
+                }
+                else
+                {
+                    telemetry.Context.Operation.Id = activity.RootId;
+                    telemetry.Context.Operation.ParentId = activity.Id;
+                }
 
                 foreach (var item in activity.Baggage)
                 {
@@ -363,18 +376,23 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
             }
         }
 
-        private static void ConfigureExceptionTelemetry(DependencyTelemetry telemetry, Exception exception)
+        private static void ConfigureExceptionTelemetry(DependencyTelemetry telemetry, Exception exception, PropertyFetcher numberFetcher)
         {
             telemetry.Success = false;
             telemetry.Properties["Exception"] = exception.ToInvariantString();
 
-            if (exception is SqlException sqlException)
+            try
             {
-                telemetry.ResultCode = sqlException.Number.ToString(CultureInfo.InvariantCulture);
+                var exceptionNumber = (int)numberFetcher.Fetch(exception);
+                telemetry.ResultCode = exceptionNumber.ToString(CultureInfo.InvariantCulture);
+            }
+            catch (Exception)
+            {
+                // Ignore as it simply indicate exception was not a SqlException
             }
         }
 
-        private void BeforeExecuteHelper(KeyValuePair<string, object> evnt, 
+        private void BeforeExecuteHelper(KeyValuePair<string, object> evnt,
             PropertyFetcher operationIdFetcher,
             PropertyFetcher commandFetcher,
             PropertyFetcher commandTextFetcher,
@@ -403,7 +421,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                     var database = databaseFetcher.Fetch(con);
                     target = string.Join(" | ", dataSource, database);
 
-                    var commandName = (CommandType)commandTypeFetcher.Fetch(command) == CommandType.StoredProcedure
+                    // https://docs.microsoft.com/dotnet/api/system.data.commandtype
+                    // 4 indicate StoredProcedure
+                    var commandName = (int)commandTypeFetcher.Fetch(command) == 4
                         ? commandText
                         : string.Empty;
 
@@ -472,7 +492,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
             PropertyFetcher operationIdFetcher,
             PropertyFetcher commandFetcher,
             PropertyFetcher timestampFetcher,
-            PropertyFetcher exceptionFetcher)
+            PropertyFetcher exceptionFetcher,
+            PropertyFetcher numberFetcher)
         {
             var operationId = (Guid)operationIdFetcher.Fetch(evnt.Value);
 
@@ -493,7 +514,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                 var exception = (Exception)exceptionFetcher.Fetch(evnt.Value);
 
-                ConfigureExceptionTelemetry(telemetry, exception);
+                ConfigureExceptionTelemetry(telemetry, exception, numberFetcher);
 
                 this.client.TrackDependency(telemetry);
             }
@@ -568,7 +589,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
             PropertyFetcher operationIdFetcher,
             PropertyFetcher connectionFetcher,
             PropertyFetcher timestampFetcher,
-            PropertyFetcher exceptionFetcher)
+            PropertyFetcher exceptionFetcher,
+            PropertyFetcher numberFetcher)
         {
             var operationId = (Guid)operationIdFetcher.Fetch(evnt.Value);
 
@@ -589,7 +611,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                 var exception = (Exception)exceptionFetcher.Fetch(evnt.Value);
 
-                ConfigureExceptionTelemetry(telemetry, exception);
+                ConfigureExceptionTelemetry(telemetry, exception, numberFetcher);
 
                 this.client.TrackDependency(telemetry);
             }
@@ -612,13 +634,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
             DependencyCollectorEventSource.Log.SqlClientDiagnosticSubscriberCallbackCalled(operationId, evnt.Key);
 
-            var connection = (SqlConnection)connectionFetcher.Fetch(evnt.Value);
+            var connection = connectionFetcher.Fetch(evnt.Value);
 
             if (this.operationHolder.Get(connection) == null)
             {
                 var operation = (string)operationFetcher.Fetch(evnt.Value);
                 var timestamp = (long)timestampFetcher.Fetch(evnt.Value);
-                var isolationLevel = (IsolationLevel)isolationFetcher.Fetch(evnt.Value);
+                var isolationLevel = isolationFetcher.Fetch(evnt.Value);
                 var dataSource = (string)datasourceFetcher.Fetch(connection);
                 var database = (string)databaseFetcher.Fetch(connection);
 
@@ -662,7 +684,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                 {
                     var operation = (string)operationFetcher.Fetch(evnt.Value);
                     var timestamp = (long)timestampFetcher.Fetch(evnt.Value);
-                    var isolationLevel = (IsolationLevel)isolationFetcher.Fetch(evnt.Value);
+                    var isolationLevel = isolationFetcher.Fetch(evnt.Value);
                     var dataSource = (string)datasourceFetcher.Fetch(connection);
                     var database = (string)databaseFetcher.Fetch(connection);
 
@@ -753,7 +775,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
             PropertyFetcher operationIdFetcher,
             PropertyFetcher connectionFetcher,
             PropertyFetcher timestampFetcher,
-            PropertyFetcher exceptionFetcher)
+            PropertyFetcher exceptionFetcher,
+            PropertyFetcher numberFetcher)
         {
             var operationId = (Guid)operationIdFetcher.Fetch(evnt.Value);
 
@@ -774,7 +797,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                 var exception = (Exception)exceptionFetcher.Fetch(evnt.Value);
 
-                ConfigureExceptionTelemetry(telemetry, exception);
+                ConfigureExceptionTelemetry(telemetry, exception, numberFetcher);
 
                 this.client.TrackDependency(telemetry);
             }
@@ -788,7 +811,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
             PropertyFetcher operationIdFetcher,
             PropertyFetcher connectionFetcher,
             PropertyFetcher timestampFetcher,
-            PropertyFetcher exceptionFetcher)
+            PropertyFetcher exceptionFetcher,
+            PropertyFetcher numberFetcher)
         {
             var operationId = (Guid)operationIdFetcher.Fetch(evnt.Value);
 
@@ -809,7 +833,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                 var exception = (Exception)exceptionFetcher.Fetch(evnt.Value);
 
-                ConfigureExceptionTelemetry(telemetry, exception);
+                ConfigureExceptionTelemetry(telemetry, exception, numberFetcher);
 
                 this.client.TrackDependency(telemetry);
             }
