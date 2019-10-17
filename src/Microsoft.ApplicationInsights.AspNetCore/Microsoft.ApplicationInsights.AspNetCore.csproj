@@ -1,16 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\Nupkg.props" />
+  <Import Project="$(SourceRoot)\Product.props" />
   
   <PropertyGroup>
     <AssemblyName>Microsoft.ApplicationInsights.AspNetCore</AssemblyName>
-    <VersionPrefix>2.12.0-beta1</VersionPrefix>
     <LangVersion>7.2</LangVersion>
     <TargetFrameworks>netstandard2.0;net451;net46;netstandard1.6</TargetFrameworks>
     <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard1.6;netstandard2.0</TargetFrameworks>
     
     <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.6' ">1.6.1</NetStandardImplicitPackageVersion>	
-	  <OutputPath Condition="'$(OutputPath)'=='' ">..\..\artifacts\src\$(MSBuildProjectName)</OutputPath>
-	  <IntermediateOutputPath Condition="'$(IntermediateOutputPath)'=='' ">..\..\artifacts\obj\src\$(MSBuildProjectName)</IntermediateOutputPath>
+	  
     <DefineConstants>$(DefineConstants);AI_ASPNETCORE_WEB;</DefineConstants>
   </PropertyGroup>
 
@@ -66,7 +64,6 @@
 
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
 
-
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.12.0-beta1-build4530" />
     <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.12.0-beta1-build5020" />
@@ -99,8 +96,4 @@
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
   </ItemGroup>
 
-  <ImportGroup Condition=" '$(OS)' == 'Windows_NT' ">
-    <!-- 1 file is required for signing: Signing.props -->
-    <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Signing.props'))\Signing.props" />
-  </ImportGroup>
 </Project>

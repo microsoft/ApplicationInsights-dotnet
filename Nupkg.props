@@ -37,4 +37,20 @@
     <!-- <PackageTags>$(PackageTags) newTag1 newTag2</PackageTags> -->
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!-- Disable auto generation of package attributes. This resolves the 'Duplicate attribute' error. 
+         Common cause is a hidden AssemblyInfo.cs file in a project -->
+
+    <!-- <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute> 
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute> -->
+    
+  </PropertyGroup>
+
 </Project>

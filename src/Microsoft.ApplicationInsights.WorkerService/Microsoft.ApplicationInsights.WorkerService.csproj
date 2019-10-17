@@ -1,14 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\Nupkg.props" />
+  <Import Project="$(SourceRoot)\Product.props"/>
 
   <PropertyGroup>
     <AssemblyName>Microsoft.ApplicationInsights.WorkerService</AssemblyName>
-    <VersionPrefix>2.12.0-beta1</VersionPrefix>
     <LangVersion>7.2</LangVersion>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     
-    <OutputPath Condition="'$(OutputPath)'=='' ">..\..\artifacts\src\$(MSBuildProjectName)</OutputPath>
-    <IntermediateOutputPath Condition="'$(IntermediateOutputPath)'=='' ">..\..\artifacts\obj\src\$(MSBuildProjectName)</IntermediateOutputPath>
     <DefineConstants>$(DefineConstants);AI_ASPNETCORE_WORKER;</DefineConstants>
   </PropertyGroup>
 
@@ -71,10 +68,5 @@
     
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
   </ItemGroup>
-  
-  <ImportGroup Condition=" '$(OS)' == 'Windows_NT' ">
-    <!-- 1 file is required for signing: Signing.props -->
-    <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Signing.props'))\Signing.props" />
-  </ImportGroup>
-  
+
 </Project>

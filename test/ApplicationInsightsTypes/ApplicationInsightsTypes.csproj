@@ -12,8 +12,6 @@
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>ApplicationInsightsTypes</PackageId>
     <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
-	<OutputPath Condition="'$(OutputPath)'=='' ">..\..\artifacts\test\$(MSBuildProjectName)</OutputPath>	
-	<IntermediateOutputPath Condition="'$(IntermediateOutputPath)'=='' ">..\..\artifacts\obj\test\$(MSBuildProjectName)</IntermediateOutputPath>
 	<BondOutputDirectory>$(MSBuildThisFileDirectory)\Generated</BondOutputDirectory>
 	<EnableDefaultItems Condition="$(OS) == 'Windows_NT'">false</EnableDefaultItems>
   </PropertyGroup>

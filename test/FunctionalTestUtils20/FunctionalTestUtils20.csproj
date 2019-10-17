@@ -8,8 +8,6 @@
     <AssemblyName>FunctionalTestUtils20</AssemblyName>    
     <PackageId>FunctionalTestUtils</PackageId>
     <NetStandardImplicitPackageVersion>2.0.0</NetStandardImplicitPackageVersion>
-	<OutputPath Condition="'$(OutputPath)'=='' ">..\..\artifacts\test\$(MSBuildProjectName)</OutputPath>	
-	<IntermediateOutputPath Condition="'$(IntermediateOutputPath)'=='' ">..\..\artifacts\obj\test\$(MSBuildProjectName)</IntermediateOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
