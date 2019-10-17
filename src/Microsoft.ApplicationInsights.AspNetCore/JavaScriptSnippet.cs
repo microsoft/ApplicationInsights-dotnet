@@ -19,11 +19,11 @@
         /// <summary>JavaScript authenticated user tracking snippet.</summary>
         private static readonly string AuthSnippet = Resources.JavaScriptAuthSnippet;
 
-        /// <summary>Configuration instance.</summary>
-        private TelemetryConfiguration telemetryConfiguration;
-
         /// <summary> Http context accessor.</summary>
         private readonly IHttpContextAccessor httpContextAccessor;
+
+        /// <summary>Configuration instance.</summary>
+        private TelemetryConfiguration telemetryConfiguration;
 
         /// <summary> Weather to print authenticated user tracking snippet.</summary>
         private bool enableAuthSnippet;
@@ -31,7 +31,7 @@
         private JavaScriptEncoder encoder;
 
         /// <summary>
-        /// Initializes a new instance of the JavaScriptSnippet class.
+        /// Initializes a new instance of the <see cref="JavaScriptSnippet"/> class.
         /// </summary>
         /// <param name="telemetryConfiguration">The configuration instance to use.</param>
         /// <param name="serviceOptions">Service options instance to use.</param>
@@ -55,6 +55,8 @@
         /// <returns>JavaScript code snippet with instrumentation key or empty if instrumentation key was not set for the application.</returns>
         public string FullScript
         {
+            // TODO: NEED TO SUPPORT CONNECTION STRING. DISCUSS WITH JAVASCRIPT SDK TO CONFIRM COMPATIBILITY.
+
             get
             {
                 if (!this.telemetryConfiguration.DisableTelemetry &&
@@ -62,13 +64,14 @@
                 {
                     string additionalJS = string.Empty;
                     IIdentity identity = this.httpContextAccessor?.HttpContext?.User?.Identity;
-                    if (enableAuthSnippet &&
+                    if (this.enableAuthSnippet &&
                         identity != null &&
                         identity.IsAuthenticated)
                     {
-                        string escapedUserName = encoder.Encode(identity.Name);
+                        string escapedUserName = this.encoder.Encode(identity.Name);
                         additionalJS = string.Format(CultureInfo.InvariantCulture, AuthSnippet, escapedUserName);
                     }
+
                     return string.Format(CultureInfo.InvariantCulture, Snippet, this.telemetryConfiguration.InstrumentationKey, additionalJS);
                 }
                 else

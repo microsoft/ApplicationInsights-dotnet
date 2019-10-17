@@ -2,36 +2,46 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Reflection;
+
     using Microsoft.ApplicationInsights;
 #if AI_ASPNETCORE_WEB
     using Microsoft.ApplicationInsights.AspNetCore;
-    using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
-#else
-    using Microsoft.ApplicationInsights.WorkerService;
-    using Microsoft.ApplicationInsights.WorkerService.TelemetryInitializers;
-    using Microsoft.ApplicationInsights.WorkerService.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
 #endif
-    using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.WindowsServer;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Configuration.Memory;
-    using Microsoft.Extensions.Logging;
-    using Microsoft.ApplicationInsights.DependencyCollector;
+
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.Extensions.DependencyInjection.Extensions;
-    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
+    using Microsoft.ApplicationInsights.DependencyCollector;
+    using Microsoft.ApplicationInsights.Extensibility;
+
 #if NETSTANDARD2_0
     using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
 #endif
-    using Microsoft.Extensions.Options;
+
     using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
+    using Microsoft.ApplicationInsights.WindowsServer;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
+
+#if AI_ASPNETCORE_WORKER
+    using Microsoft.ApplicationInsights.WorkerService;
+    using Microsoft.ApplicationInsights.WorkerService.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.WorkerService.TelemetryInitializers;
+#endif
+
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Configuration.Memory;
+    using Microsoft.Extensions.DependencyInjection.Extensions;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
+
+    using Shared.Implementation;
 
     /// <summary>
     /// Extension methods for <see cref="IServiceCollection"/> that allow adding Application Insights services to application.
@@ -40,15 +50,20 @@
     {
         private const string VersionKeyFromConfig = "version";
         private const string InstrumentationKeyFromConfig = "ApplicationInsights:InstrumentationKey";
+        private const string ConnectionStringFromConfig = "ApplicationInsights:ConnectionString";
         private const string DeveloperModeFromConfig = "ApplicationInsights:TelemetryChannel:DeveloperMode";
         private const string EndpointAddressFromConfig = "ApplicationInsights:TelemetryChannel:EndpointAddress";
 
         private const string InstrumentationKeyForWebSites = "APPINSIGHTS_INSTRUMENTATIONKEY";
+        private const string ConnectionStringEnvironmentVariable = "APPLICATIONINSIGHTS_CONNECTION_STRING";
         private const string DeveloperModeForWebSites = "APPINSIGHTS_DEVELOPER_MODE";
         private const string EndpointAddressForWebSites = "APPINSIGHTS_ENDPOINTADDRESS";
-        private const string EventSourceNameForSystemRuntime = "System.Runtime";
-        private const string EventSourceNameForAspNetCoreHosting = "Microsoft.AspNetCore.Hosting";
 
+        [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "Used in NetStandard2.0 build.")]
+        private const string EventSourceNameForSystemRuntime = "System.Runtime";
+
+        [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "Used in NetStandard2.0 build.")]
+        private const string EventSourceNameForAspNetCoreHosting = "Microsoft.AspNetCore.Hosting";
 
         /// <summary>
         /// Adds an Application Insights Telemetry Processor into a service collection via a <see cref="ITelemetryProcessorFactory"/>.
@@ -75,8 +90,7 @@
         /// </returns>
         /// <exception cref="ArgumentNullException">The <paramref name="telemetryProcessorType"/> argument is null.</exception>
         /// <exception cref="ArgumentException">The <paramref name="telemetryProcessorType"/> type does not implement <see cref="ITelemetryProcessor"/>.</exception>
-        public static IServiceCollection AddApplicationInsightsTelemetryProcessor(this IServiceCollection services,
-            Type telemetryProcessorType)
+        public static IServiceCollection AddApplicationInsightsTelemetryProcessor(this IServiceCollection services, Type telemetryProcessorType)
         {
             if (telemetryProcessorType == null)
             {
@@ -109,7 +123,8 @@
                 throw new ArgumentNullException(nameof(configModule));
             }
 
-            return services.AddSingleton(typeof(ITelemetryModuleConfigurator),
+            return services.AddSingleton(
+                typeof(ITelemetryModuleConfigurator),
                 new TelemetryModuleConfigurator((config, options) => configModule((T)config), typeof(T)));
         }
 
@@ -131,7 +146,8 @@
                 throw new ArgumentNullException(nameof(configModule));
             }
 
-            return services.AddSingleton(typeof(ITelemetryModuleConfigurator),
+            return services.AddSingleton(
+                typeof(ITelemetryModuleConfigurator),
                 new TelemetryModuleConfigurator((config, options) => configModule((T)config, options), typeof(T)));
         }
 
@@ -142,12 +158,14 @@
         /// <param name="developerMode">Enables or disables developer mode.</param>
         /// <param name="endpointAddress">Sets telemetry endpoint address.</param>
         /// <param name="instrumentationKey">Sets instrumentation key.</param>
+        /// <param name="connectionString">Sets connection string.</param>
         /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
         public static IConfigurationBuilder AddApplicationInsightsSettings(
             this IConfigurationBuilder configurationSourceRoot,
             bool? developerMode = null,
             string endpointAddress = null,
-            string instrumentationKey = null)
+            string instrumentationKey = null,
+            string connectionString = null)
         {
             var telemetryConfigValues = new List<KeyValuePair<string, string>>();
 
@@ -155,7 +173,8 @@
 
             if (developerMode != null)
             {
-                telemetryConfigValues.Add(new KeyValuePair<string, string>(DeveloperModeForWebSites,
+                telemetryConfigValues.Add(new KeyValuePair<string, string>(
+                    DeveloperModeForWebSites,
 #if !NETSTANDARD1_6
                     developerMode.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)));
 #else
@@ -164,18 +183,21 @@
                 wasAnythingSet = true;
             }
 
+            if (connectionString != null)
+            {
+                telemetryConfigValues.Add(new KeyValuePair<string, string>(ConnectionStringEnvironmentVariable, connectionString));
+                wasAnythingSet = true;
+            }
+
             if (instrumentationKey != null)
             {
-                telemetryConfigValues.Add(new KeyValuePair<string, string>(InstrumentationKeyForWebSites,
-                    instrumentationKey));
+                telemetryConfigValues.Add(new KeyValuePair<string, string>(InstrumentationKeyForWebSites, instrumentationKey));
                 wasAnythingSet = true;
             }
 
             if (endpointAddress != null)
             {
-                telemetryConfigValues.Add(new KeyValuePair<string, string>(
-                    EndpointAddressForWebSites,
-                    endpointAddress));
+                telemetryConfigValues.Add(new KeyValuePair<string, string>(EndpointAddressForWebSites, endpointAddress));
                 wasAnythingSet = true;
             }
 
@@ -192,9 +214,18 @@
         /// Config.json will look like this:
         /// <para>
         ///      "ApplicationInsights": {
-        ///          "InstrumentationKey": "11111111-2222-3333-4444-555555555555"
+        ///          "InstrumentationKey": "11111111-2222-3333-4444-555555555555",
         ///          "TelemetryChannel": {
         ///              "EndpointAddress": "http://dc.services.visualstudio.com/v2/track",
+        ///              "DeveloperMode": true
+        ///          }
+        ///      }.
+        /// </para>
+        /// Or
+        /// <para>
+        ///      "ApplicationInsights": {
+        ///          "ConnectionString" : "InstrumentationKey=11111111-2222-3333-4444-555555555555;IngestionEndpoint=http://dc.services.visualstudio.com"
+        ///          "TelemetryChannel": {
         ///              "DeveloperMode": true
         ///          }
         ///      }.
@@ -203,55 +234,41 @@
         /// </summary>
         /// <param name="config">Configuration to read variables from.</param>
         /// <param name="serviceOptions">Telemetry configuration to populate.</param>
-        internal static void AddTelemetryConfiguration(IConfiguration config,
+        internal static void AddTelemetryConfiguration(
+            IConfiguration config,
             ApplicationInsightsServiceOptions serviceOptions)
         {
             try
             {
-                string instrumentationKey = config[InstrumentationKeyForWebSites];
-                if (string.IsNullOrWhiteSpace(instrumentationKey))
+                if (config.TryGetValue(primaryKey: ConnectionStringEnvironmentVariable, backupKey: ConnectionStringFromConfig, value: out string connectionStringValue))
                 {
-                    instrumentationKey = config[InstrumentationKeyFromConfig];
+                    serviceOptions.ConnectionString = connectionStringValue;
                 }
 
-                if (!string.IsNullOrWhiteSpace(instrumentationKey))
+                if (config.TryGetValue(primaryKey: InstrumentationKeyForWebSites, backupKey: InstrumentationKeyFromConfig, value: out string instrumentationKey))
                 {
                     serviceOptions.InstrumentationKey = instrumentationKey;
                 }
 
-                string developerModeValue = config[DeveloperModeForWebSites];
-                if (string.IsNullOrWhiteSpace(developerModeValue))
+                if (config.TryGetValue(primaryKey: DeveloperModeForWebSites, backupKey: DeveloperModeFromConfig, value: out string developerModeValue))
                 {
-                    developerModeValue = config[DeveloperModeFromConfig];
-                }
-
-                if (!string.IsNullOrWhiteSpace(developerModeValue))
-                {
-                    bool developerMode = false;
-                    if (bool.TryParse(developerModeValue, out developerMode))
+                    if (bool.TryParse(developerModeValue, out bool developerMode))
                     {
                         serviceOptions.DeveloperMode = developerMode;
                     }
                 }
 
-                string endpointAddress = config[EndpointAddressForWebSites];
-                if (string.IsNullOrWhiteSpace(endpointAddress))
-                {
-                    endpointAddress = config[EndpointAddressFromConfig];
-                }
-
-                if (!string.IsNullOrWhiteSpace(endpointAddress))
+                if (config.TryGetValue(primaryKey: EndpointAddressForWebSites, backupKey: EndpointAddressFromConfig, value: out string endpointAddress))
                 {
                     serviceOptions.EndpointAddress = endpointAddress;
                 }
 
-                var version = config[VersionKeyFromConfig];
-                if (!string.IsNullOrWhiteSpace(version))
+                if (config.TryGetValue(primaryKey: VersionKeyFromConfig, value: out string version))
                 {
                     serviceOptions.ApplicationVersion = version;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 #if AI_ASPNETCORE_WEB
                 AspNetCoreEventSource.Instance.LogError(ex.ToInvariantString());
@@ -259,6 +276,18 @@
                 WorkerServiceEventSource.Instance.LogError(ex.ToInvariantString());
 #endif
             }
+        }
+
+        private static bool TryGetValue(this IConfiguration config, string primaryKey, out string value, string backupKey = null)
+        {
+            value = config[primaryKey];
+
+            if (backupKey != null && string.IsNullOrWhiteSpace(value))
+            {
+                value = config[backupKey];
+            }
+
+            return !string.IsNullOrWhiteSpace(value);
         }
 
         private static bool IsApplicationInsightsAdded(IServiceCollection services)
@@ -273,21 +302,84 @@
             services.AddSingleton<ITelemetryInitializer, Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.DomainNameRoleInstanceTelemetryInitializer>();
 #else
             services.AddSingleton<ITelemetryInitializer, Microsoft.ApplicationInsights.WorkerService.TelemetryInitializers.DomainNameRoleInstanceTelemetryInitializer>();
-#endif
-            services.AddSingleton<ITelemetryInitializer, AzureWebAppRoleEnvironmentTelemetryInitializer>();
+#endif            
             services.AddSingleton<ITelemetryInitializer, HttpDependenciesParsingTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, ComponentVersionTelemetryInitializer>();
         }
 
         private static void AddCommonTelemetryModules(IServiceCollection services)
         {
-            services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
-            services.AddSingleton<ITelemetryModule, AppServicesHeartbeatTelemetryModule>();
-            services.AddSingleton<ITelemetryModule, AzureInstanceMetadataTelemetryModule>();
-            services.AddSingleton<ITelemetryModule, QuickPulseTelemetryModule>();
+            services.AddSingleton<ITelemetryModule>(provider =>
+                {
+                    var options = provider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
+
+                    if (options.EnablePerformanceCounterCollectionModule)
+                    {
+                        return new PerformanceCollectorModule();
+                    }
+                    else
+                    {
+                        return new NoOpTelemetryModule();
+                    }
+                });
+
+            services.AddSingleton<ITelemetryModule>(provider =>
+            {
+                var options = provider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
+
+                if (options.EnableAppServicesHeartbeatTelemetryModule)
+                {
+                    return new AppServicesHeartbeatTelemetryModule();
+                }
+                else
+                {
+                    return new NoOpTelemetryModule();
+                }
+            });
+
+            services.AddSingleton<ITelemetryModule>(provider =>
+            {
+                var options = provider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
+
+                if (options.EnableAzureInstanceMetadataTelemetryModule)
+                {
+                    return new AzureInstanceMetadataTelemetryModule();
+                }
+                else
+                {
+                    return new NoOpTelemetryModule();
+                }
+            });
+
+            services.AddSingleton<ITelemetryModule>(provider =>
+            {
+                var options = provider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
+
+                if (options.EnableQuickPulseMetricStream)
+                {
+                    return new QuickPulseTelemetryModule();
+                }
+                else
+                {
+                    return new NoOpTelemetryModule();
+                }
+            });
+
             AddAndConfigureDependencyTracking(services);
 #if NETSTANDARD2_0
-            services.AddSingleton<ITelemetryModule, EventCounterCollectionModule>();
+            services.AddSingleton<ITelemetryModule>(provider =>
+            {
+                var options = provider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
+
+                if (options.EnableEventCounterCollectionModule)
+                {
+                    return new EventCounterCollectionModule();
+                }
+                else
+                {
+                    return new NoOpTelemetryModule();
+                }
+            });
 #endif
         }
 
@@ -313,78 +405,102 @@
 
         private static void AddAndConfigureDependencyTracking(IServiceCollection services)
         {
-            services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
+            services.AddSingleton<ITelemetryModule>(provider =>
+            {
+                var options = provider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
+
+                if (options.EnableDependencyTrackingTelemetryModule)
+                {
+                    return new DependencyTrackingTelemetryModule();
+                }
+                else
+                {
+                    return new NoOpTelemetryModule();
+                }
+            });
+
             services.ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module, o) =>
             {
-                module.EnableLegacyCorrelationHeadersInjection =
-                    o.DependencyCollectionOptions.EnableLegacyCorrelationHeadersInjection;
-
-                var excludedDomains = module.ExcludeComponentCorrelationHttpHeadersOnDomains;
-                excludedDomains.Add("core.windows.net");
-                excludedDomains.Add("core.chinacloudapi.cn");
-                excludedDomains.Add("core.cloudapi.de");
-                excludedDomains.Add("core.usgovcloudapi.net");
-
-                if (module.EnableLegacyCorrelationHeadersInjection)
+                if (o.EnableDependencyTrackingTelemetryModule)
                 {
-                    excludedDomains.Add("localhost");
-                    excludedDomains.Add("127.0.0.1");
-                }
+                    module.EnableLegacyCorrelationHeadersInjection =
+                       o.DependencyCollectionOptions.EnableLegacyCorrelationHeadersInjection;
 
-                var includedActivities = module.IncludeDiagnosticSourceActivities;
-                includedActivities.Add("Microsoft.Azure.EventHubs");
-                includedActivities.Add("Microsoft.Azure.ServiceBus");
+                    var excludedDomains = module.ExcludeComponentCorrelationHttpHeadersOnDomains;
+                    excludedDomains.Add("core.windows.net");
+                    excludedDomains.Add("core.chinacloudapi.cn");
+                    excludedDomains.Add("core.cloudapi.de");
+                    excludedDomains.Add("core.usgovcloudapi.net");
+
+                    if (module.EnableLegacyCorrelationHeadersInjection)
+                    {
+                        excludedDomains.Add("localhost");
+                        excludedDomains.Add("127.0.0.1");
+                    }
+
+                    var includedActivities = module.IncludeDiagnosticSourceActivities;
+                    includedActivities.Add("Microsoft.Azure.EventHubs");
+                    includedActivities.Add("Microsoft.Azure.ServiceBus");
+                }
             });
         }
 
 #if NETSTANDARD2_0
         private static void AddEventCounterIfNotExist(EventCounterCollectionModule eventCounterModule, string eventSource, string eventCounterName)
         {
-            if (!eventCounterModule.Counters.Any(req => req.EventSourceName.Equals(eventSource) && req.EventCounterName.Equals(eventCounterName)))
+            if (!eventCounterModule.Counters.Any(req => req.EventSourceName.Equals(eventSource, StringComparison.Ordinal) && req.EventCounterName.Equals(eventCounterName, StringComparison.Ordinal)))
             {
                 eventCounterModule.Counters.Add(new EventCounterCollectionRequest(eventSource, eventCounterName));
             }
         }
+
         private static void ConfigureEventCounterModuleWithSystemCounters(IServiceCollection services)
         {
             services.ConfigureTelemetryModule<EventCounterCollectionModule>((eventCounterModule, options) =>
-                    {
-                        // Ref this code for actual names. https://github.com/dotnet/coreclr/blob/dbc5b56c48ce30635ee8192c9814c7de998043d5/src/System.Private.CoreLib/src/System/Diagnostics/Eventing/RuntimeEventSource.cs
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "cpu-usage");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "working-set");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gc-heap-size");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-0-gc-count");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-1-gc-count");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-2-gc-count");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "time-in-gc");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-0-size");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-1-size");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-2-size");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "loh-size");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "alloc-rate");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "assembly-count");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "exception-count");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "threadpool-thread-count");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "monitor-lock-contention-count");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "threadpool-queue-length");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "threadpool-completed-items-count");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "active-timer-count");
-                    });
+            {
+                if (options.EnableEventCounterCollectionModule)
+                {
+                    // Ref this code for actual names. https://github.com/dotnet/coreclr/blob/dbc5b56c48ce30635ee8192c9814c7de998043d5/src/System.Private.CoreLib/src/System/Diagnostics/Eventing/RuntimeEventSource.cs
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "cpu-usage");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "working-set");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gc-heap-size");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-0-gc-count");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-1-gc-count");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-2-gc-count");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "time-in-gc");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-0-size");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-1-size");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-2-size");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "loh-size");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "alloc-rate");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "assembly-count");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "exception-count");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "threadpool-thread-count");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "monitor-lock-contention-count");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "threadpool-queue-length");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "threadpool-completed-items-count");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "active-timer-count");
+                }
+            });
         }
 
         private static void ConfigureEventCounterModuleWithAspNetCounters(IServiceCollection services)
         {
-                    services.ConfigureTelemetryModule<EventCounterCollectionModule>((eventCounterModule, options) =>
-                    {
-                        // Ref this code for actual names. https://github.com/aspnet/AspNetCore/blob/f3f9a1cdbcd06b298035b523732b9f45b1408461/src/Hosting/Hosting/src/Internal/HostingEventSource.cs
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForAspNetCoreHosting, "requests-per-second");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForAspNetCoreHosting, "total-requests");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForAspNetCoreHosting, "current-requests");
-                        AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForAspNetCoreHosting, "failed-requests");
-                    });
+            services.ConfigureTelemetryModule<EventCounterCollectionModule>((eventCounterModule, options) =>
+            {
+                if (options.EnableEventCounterCollectionModule)
+                {
+                    // Ref this code for actual names. https://github.com/aspnet/AspNetCore/blob/f3f9a1cdbcd06b298035b523732b9f45b1408461/src/Hosting/Hosting/src/Internal/HostingEventSource.cs
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForAspNetCoreHosting, "requests-per-second");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForAspNetCoreHosting, "total-requests");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForAspNetCoreHosting, "current-requests");
+                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForAspNetCoreHosting, "failed-requests");
+                }
+            });
         }
 #endif
 
+        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "services parameter is used in only NetStandard 2.0 build.")]
         private static void AddApplicationInsightsLoggerProvider(IServiceCollection services)
         {
 #if NETSTANDARD2_0
@@ -412,8 +528,10 @@
                     options => options.Rules.Insert(
                         0,
                         new LoggerFilterRule(
-                            "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider", null,
-                            LogLevel.Warning, null)));
+                            "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider",
+                            null,
+                            LogLevel.Warning,
+                            null)));
             });
 #endif
         }

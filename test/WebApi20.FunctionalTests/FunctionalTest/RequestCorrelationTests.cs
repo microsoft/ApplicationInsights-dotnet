@@ -12,6 +12,7 @@
     using System.Linq;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using System.Text.RegularExpressions;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 
     public class RequestCorrelationTests : TelemetryTestsBase
     {
@@ -27,9 +28,10 @@
             {
                 return builder.ConfigureServices(services =>
                 {
-                    services.AddApplicationInsightsTelemetry();
+                    var aiOptions = new ApplicationInsightsServiceOptions();
                     // disable Dependency tracking (i.e. header injection)
-                    services.Remove(services.FirstOrDefault(sd => sd.ImplementationType == typeof(DependencyTrackingTelemetryModule)));
+                    aiOptions.EnableDependencyTrackingTelemetryModule = false;
+                    services.AddApplicationInsightsTelemetry(aiOptions);
                 });
             }
 
@@ -65,9 +67,10 @@
             {
                 return builder.ConfigureServices(services =>
                 {
-                    services.AddApplicationInsightsTelemetry();
+                    var aiOptions = new ApplicationInsightsServiceOptions();
                     // disable Dependency tracking (i.e. header injection)
-                    services.Remove(services.FirstOrDefault(sd => sd.ImplementationType == typeof(DependencyTrackingTelemetryModule)));
+                    aiOptions.EnableDependencyTrackingTelemetryModule = false;
+                    services.AddApplicationInsightsTelemetry(aiOptions);
                 });
             }
 
@@ -105,9 +108,10 @@
             {
                 return builder.ConfigureServices(services =>
                 {
-                    services.AddApplicationInsightsTelemetry();
+                    var aiOptions = new ApplicationInsightsServiceOptions();
                     // disable Dependency tracking (i.e. header injection)
-                    services.Remove(services.FirstOrDefault(sd => sd.ImplementationType == typeof(DependencyTrackingTelemetryModule)));
+                    aiOptions.EnableDependencyTrackingTelemetryModule = false;
+                    services.AddApplicationInsightsTelemetry(aiOptions);
                 });
             }
 
@@ -146,9 +150,10 @@
             {
                 return builder.ConfigureServices(services =>
                 {
-                    services.AddApplicationInsightsTelemetry();
+                    var aiOptions = new ApplicationInsightsServiceOptions();
                     // disable Dependency tracking (i.e. header injection)
-                    services.Remove(services.FirstOrDefault(sd => sd.ImplementationType == typeof(DependencyTrackingTelemetryModule)));
+                    aiOptions.EnableDependencyTrackingTelemetryModule = false;
+                    services.AddApplicationInsightsTelemetry(aiOptions);
                 });
             }
 

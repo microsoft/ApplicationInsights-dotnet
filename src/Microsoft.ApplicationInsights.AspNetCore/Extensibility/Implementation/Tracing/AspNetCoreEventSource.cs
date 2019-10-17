@@ -1,13 +1,8 @@
-﻿//-----------------------------------------------------------------------
-// <copyright file="AspNetCoreEventSource.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-//-----------------------------------------------------------------------
-
-namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing
+﻿namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing
 {
 #if AI_ASPNETCORE_WEB
     using Microsoft.ApplicationInsights.AspNetCore.Implementation;
+    using Microsoft.ApplicationInsights.Shared.Internals;
 #endif
     using System;
     using System.Diagnostics.CodeAnalysis;
@@ -18,6 +13,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
     /// </summary>
     [EventSource(Name = "Microsoft-ApplicationInsights-AspNetCore")]
     [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
+    [SuppressMessage("", "SA1611:ElementParametersMustBeDocumented", Justification = "Internal only class.")]
     internal sealed class AspNetCoreEventSource : EventSource
     {
         /// <summary>
@@ -26,6 +22,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         /// a property otherwise the internal state of the event source will not be enabled.
         /// </summary>
         public static readonly AspNetCoreEventSource Instance = new AspNetCoreEventSource();
+        private readonly ApplicationNameProvider applicationNameProvider = new ApplicationNameProvider();
 
         /// <summary>
         /// Prevents a default instance of the <see cref="AspNetCoreEventSource"/> class from being created.
@@ -33,25 +30,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         private AspNetCoreEventSource()
             : base()
         {
-            try
-            {
-                this.ApplicationName = System.Reflection.Assembly.GetEntryAssembly().GetName().Name;
-            }
-            catch (Exception exp)
-            {
-                this.ApplicationName = "Undefined " + exp.Message;
-            }
-        }
-
-        /// <summary>
-        /// Gets the application name for use in logging events.
-        /// </summary>
-        public string ApplicationName
-        {
-            [NonEvent]
-            get;
-            [NonEvent]
-            private set;
         }
 
         /// <summary>
@@ -61,7 +39,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         [Event(2, Message = "TelemetryInitializerBase.Initialize - httpContextAccessor.HttpContext is null, returning.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
         public void LogTelemetryInitializerBaseInitializeContextNull(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(2, this.ApplicationName);
+            this.WriteEvent(2, this.applicationNameProvider.Name);
         }
 
         /// <summary>
@@ -71,7 +49,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         [Event(4, Message = "TelemetryInitializerBase.Initialize - request is null, returning.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
         public void LogTelemetryInitializerBaseInitializeRequestNull(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(4, this.ApplicationName);
+            this.WriteEvent(4, this.applicationNameProvider.Name);
         }
 
         /// <summary>
@@ -81,7 +59,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         [Event(5, Message = "ClientIpHeaderTelemetryInitializer.OnInitializeTelemetry - telemetry.Context.Location.Ip is already set, returning.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
         public void LogClientIpHeaderTelemetryInitializerOnInitializeTelemetryIpNull(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(5, this.ApplicationName);
+            this.WriteEvent(5, this.applicationNameProvider.Name);
         }
 
         /// <summary>
@@ -91,7 +69,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         [Event(6, Message = "WebSessionTelemetryInitializer.OnInitializeTelemetry - telemetry.Context.Session.Id is null or empty, returning.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
         public void LogWebSessionTelemetryInitializerOnInitializeTelemetrySessionIdNull(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(6, this.ApplicationName);
+            this.WriteEvent(6, this.applicationNameProvider.Name);
         }
 
         /// <summary>
@@ -101,7 +79,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         [Event(7, Message = "WebUserTelemetryInitializer.OnInitializeTelemetry - telemetry.Context.Session.Id is null or empty, returning.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
         public void LogWebUserTelemetryInitializerOnInitializeTelemetrySessionIdNull(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(7, this.ApplicationName);
+            this.WriteEvent(7, this.applicationNameProvider.Name);
         }
 
         /// <summary>
@@ -111,7 +89,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         [Event(9, Message = "HostingDiagnosticListener.OnHttpRequestInStart - Activity.Current is null, returning.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
         public void LogHostingDiagnosticListenerOnHttpRequestInStartActivityNull(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(9, this.ApplicationName);
+            this.WriteEvent(9, this.applicationNameProvider.Name);
         }
 
         /// <summary>
@@ -120,7 +98,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         [Event(11, Message = "Unable to configure module {0} as it is not found in service collection.", Level = EventLevel.Error, Keywords = Keywords.Diagnostics)]
         public void UnableToFindModuleToConfigure(string moduleType, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(11, moduleType, this.ApplicationName);
+            this.WriteEvent(11, moduleType, this.applicationNameProvider.Name);
         }
 
         /// <summary>
@@ -133,7 +111,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             Level = EventLevel.Verbose)]
         public void NotActiveListenerNoTracking(string evntName, string activityId, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(13, evntName, activityId, this.ApplicationName);
+            this.WriteEvent(13, evntName, activityId, this.applicationNameProvider.Name);
         }
 
         /// <summary>
@@ -146,7 +124,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             Level = EventLevel.Error)]
         public void LogError(string errorMessage, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(14, errorMessage, this.ApplicationName);
+            this.WriteEvent(14, errorMessage, this.applicationNameProvider.Name);
         }
 
         /// <summary>
@@ -159,7 +137,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             Level = EventLevel.Error)]
         public void RequestTrackingModuleInitializationFailed(string errorMessage, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(15, errorMessage, this.ApplicationName);
+            this.WriteEvent(15, errorMessage, this.applicationNameProvider.Name);
         }
 
         /// <summary>
@@ -172,7 +150,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             Level = EventLevel.Warning)]
         public void DiagnosticListenerWarning(string callback, string errorMessage, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(16, callback, errorMessage, this.ApplicationName);
+            this.WriteEvent(16, callback, errorMessage, this.applicationNameProvider.Name);
         }
 
         /// <summary>
@@ -185,9 +163,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             Level = EventLevel.Error)]
         public void TelemetryConfigurationSetupFailure(string errorMessage, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(17, errorMessage, this.ApplicationName);
+            this.WriteEvent(17, errorMessage, this.applicationNameProvider.Name);
         }
-        
+
         /// <summary>
         /// Logs an event when a telemetry item is sampled out at head.
         /// </summary>
@@ -198,7 +176,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             Level = EventLevel.Verbose)]
         public void TelemetryItemWasSampledOutAtHead(string operationId, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(18, operationId, this.ApplicationName);
+            this.WriteEvent(18, operationId, this.applicationNameProvider.Name);
         }
 
         /// <summary>
@@ -210,7 +188,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             Level = EventLevel.Informational)]
         public void HostingListenerInformational(AspNetCoreMajorVersion hostingVersion, string message, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(19, hostingVersion, message, this.ApplicationName);
+            this.WriteEvent(19, hostingVersion, message, this.applicationNameProvider.Name);
         }
 
         /// <summary>
@@ -222,7 +200,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             Level = EventLevel.Verbose)]
         public void HostingListenerVerbose(string message, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(20, message, this.ApplicationName);
+            this.WriteEvent(20, message, this.applicationNameProvider.Name);
         }
 
         /// <summary>
@@ -234,7 +212,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             Level = EventLevel.Informational)]
         public void RequestTelemetryCreated(string correlationFormat, string requestId, string requestOperationId, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(21, correlationFormat, requestId, requestOperationId, this.ApplicationName);
+            this.WriteEvent(21, correlationFormat, requestId, requestOperationId, this.applicationNameProvider.Name);
         }
 
         /// <summary>
@@ -246,7 +224,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             Level = EventLevel.Warning)]
         public void HostingListenerWarning(string message, string exception, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(22, message, exception, this.ApplicationName);
+            this.WriteEvent(22, message, exception, this.applicationNameProvider.Name);
         }
 
         /// <summary>
@@ -258,7 +236,18 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             Level = EventLevel.Informational)]
         public void LogInformational(string message, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(23, message, this.ApplicationName);
+            this.WriteEvent(23, message, this.applicationNameProvider.Name);
+        }
+
+        /// <summary>
+        /// Logs an event when AzureAppServiceRoleNameFromHostNameHeaderInitializer faces errors.
+        /// </summary>
+        /// <param name="exception">Exception message.</param>
+        /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
+        [Event(24, Message = "An error has occured in AzureAppServiceRoleNameFromHostNameHeaderInitializer. Exception: '{0}'", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
+        public void LogAzureAppServiceRoleNameFromHostNameHeaderInitializerWarning(string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(24, exception, this.applicationNameProvider.Name);
         }
 
         /// <summary>

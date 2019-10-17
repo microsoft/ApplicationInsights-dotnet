@@ -1,10 +1,8 @@
 ﻿namespace Microsoft.AspNetCore.Hosting
 {
-    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.DependencyInjection.Extensions;
-    using Microsoft.Extensions.Options;
     using System;
+
+    using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
     /// Extension methods for <see cref="IWebHostBuilder"/> that allow adding Application Insights services to application.

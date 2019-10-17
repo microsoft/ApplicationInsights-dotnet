@@ -16,17 +16,16 @@
         /// </summary>
         public ApplicationInsightsLoggerOptions()
         {
-            TrackExceptionsAsExceptionTelemetry = true;
+            this.TrackExceptionsAsExceptionTelemetry = true;
         }
 
         /// <summary>
-        /// Gets or sets a value whether to track exceptions as <see cref="ExceptionTelemetry"/>.
+        /// Gets or sets a value indicating whether to track exceptions as <see cref="ExceptionTelemetry"/>.
         /// </summary>
-        public bool TrackExceptionsAsExceptionTelemetry
-        { get; set; }
+        public bool TrackExceptionsAsExceptionTelemetry { get; set; }
 
         /// <summary>
-        /// Gets or sets value indicating, whether EventId and EventName properties should be included in telemetry.
+        /// Gets or sets a value indicating whether EventId and EventName properties should be included in telemetry.
         /// </summary>
         public bool IncludeEventId { get; set; }
     }

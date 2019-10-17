@@ -72,6 +72,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         /// Http Headers only allow Printable US-ASCII characters.
         /// Remove all other characters.
         /// </summary>
+        /// <param name="input">String to be sanitized.</param>
         /// <returns>sanitized string.</returns>
         public static string SanitizeString(string input)
         {

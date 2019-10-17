@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
+﻿namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
 {
+    using System;
+
     /// <summary>
     /// Request collection options define the custom behavior or non-default features of request collection.
     /// </summary>
@@ -40,7 +40,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
         /// <summary>
         /// Gets or sets a value indicating whether W3C distributed tracing standard is enabled.
         /// </summary>
-        [Obsolete("This flag is obsolete and noop. Use System.Diagnostics.Activity.DefaultIdFormat (along with ForceDefaultIdFormat) flags instead.")] 
+        [Obsolete("This flag is obsolete and noop. Use System.Diagnostics.Activity.DefaultIdFormat (along with ForceDefaultIdFormat) flags instead.")]
         public bool EnableW3CDistributedTracing { get; set; }
     }
 }
