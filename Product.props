@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(SourceRoot)\Nupkg.props" />
+  <Import Project="$(SourceRoot)\Signing.props" Condition=" '$(OS)' == 'Windows_NT' " />
 
   <Target Name="Info_ProductProps"  BeforeTargets="Build" >
     <Message Text="INFO) Product.props imported by $(MSBuildProjectName)." Importance="high"/>
@@ -8,14 +9,6 @@
 
   <PropertyGroup>
     <VersionPrefix>2.12.0-beta1</VersionPrefix>
-<!-- 
-    <OutputPath Condition="'$(OutputPath)'=='' ">$(EnlistmentRoot)..\..\artifacts\src\$(MSBuildProjectName)</OutputPath>
-	  <IntermediateOutputPath Condition="'$(IntermediateOutputPath)'=='' ">..\..\artifacts\obj\src\$(MSBuildProjectName)</IntermediateOutputPath> -->
   </PropertyGroup>
-
-  <ImportGroup Condition=" '$(OS)' == 'Windows_NT' ">
-    <!-- 1 file is required for signing: Signing.props -->
-    <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Signing.props'))\Signing.props" />
-  </ImportGroup>
 
 </Project>
