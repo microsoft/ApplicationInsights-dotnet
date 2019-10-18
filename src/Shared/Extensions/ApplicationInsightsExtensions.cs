@@ -302,8 +302,7 @@
             services.AddSingleton<ITelemetryInitializer, Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.DomainNameRoleInstanceTelemetryInitializer>();
 #else
             services.AddSingleton<ITelemetryInitializer, Microsoft.ApplicationInsights.WorkerService.TelemetryInitializers.DomainNameRoleInstanceTelemetryInitializer>();
-#endif
-            services.AddSingleton<ITelemetryInitializer, AzureWebAppRoleEnvironmentTelemetryInitializer>();
+#endif            
             services.AddSingleton<ITelemetryInitializer, HttpDependenciesParsingTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, ComponentVersionTelemetryInitializer>();
         }

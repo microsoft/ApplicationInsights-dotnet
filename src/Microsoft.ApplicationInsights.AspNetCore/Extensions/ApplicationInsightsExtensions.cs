@@ -1,35 +1,21 @@
 ﻿namespace Microsoft.Extensions.DependencyInjection
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
-    using System.Linq;
-    using System.Reflection;
-
-    using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
-    using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
 #if NETSTANDARD2_0
     using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
 #endif
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
-    using Microsoft.ApplicationInsights.WindowsServer;
-    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Configuration.Memory;
     using Microsoft.Extensions.DependencyInjection.Extensions;
-    using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
     using Shared.Implementation;
 
@@ -198,6 +184,7 @@
 
         private static void AddAspNetCoreWebTelemetryInitializers(IServiceCollection services)
         {
+            services.AddSingleton<ITelemetryInitializer, AzureAppServiceRoleNameFromHostNameHeaderInitializer>();
             services.AddSingleton<ITelemetryInitializer, ClientIpHeaderTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationNameTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, SyntheticTelemetryInitializer>();
