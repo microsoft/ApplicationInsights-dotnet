@@ -6,7 +6,9 @@
   </Target>
 
   <PropertyGroup>
+    <!-- EnlistmentRoot is used to determine where to put BIN and OBJ directories. -->
     <EnlistmentRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'EnlistmentRoot.marker'))</EnlistmentRoot>
+    <!-- SourceRoot is used to reference project dependencies (ex: *.props). -->
     <SourceRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'SourceRoot.marker'))</SourceRoot>
 
     <BinRoot>$(EnlistmentRoot)\..\bin</BinRoot>
@@ -30,7 +32,6 @@
 
     <IntermediateOutputPath>$(ObjRoot)\$(Configuration)\$(RelativeOutputPathBase)</IntermediateOutputPath>
     <IntermediateOutputPath>$([System.IO.Path]::GetFullPath( $(IntermediateOutputPath) ))\</IntermediateOutputPath>
-
   </PropertyGroup>
 
 </Project>
