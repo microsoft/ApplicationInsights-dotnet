@@ -11,7 +11,7 @@ steps:
 - task: DotNetCoreCLI@1
   inputs:
     command: "restore"
-    projects: "*.sln"
+    projects: "BASE/*.sln"
 
 - task: DotNetCoreCLI@1
   inputs:
