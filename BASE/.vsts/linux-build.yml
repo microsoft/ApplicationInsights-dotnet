@@ -16,13 +16,13 @@ steps:
 - task: DotNetCoreCLI@1
   inputs:
     command: "build"
-    projects: "*.sln"
+    projects: "BASE/*.sln"
     arguments: "--configuration Release"
 
 - task: DotNetCoreCLI@1
   inputs:
     command: "test"
-    projects: "Test/**/*netcoreapp20*.csproj"
+    projects: "BASE/Test/**/*netcoreapp20*.csproj"
     arguments: "--configuration Release -l trx --filter TestCategory!=WindowsOnly"
 
 - task: DotNetCoreInstaller@0
@@ -32,7 +32,7 @@ steps:
 - task: DotNetCoreCLI@1
   inputs:
     command: "test"
-    projects: "Test/**/*netcoreapp11*.csproj"
+    projects: "BASE/Test/**/*netcoreapp11*.csproj"
     arguments: "--configuration Release -l trx --filter TestCategory!=WindowsOnly"
 
 - task: PublishTestResults@2
