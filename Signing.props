@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <Target Name="Info_SigningProps"  BeforeTargets="Build" >
+    <Message Text="INFO) Signing.props imported by $(MSBuildProjectName)." Importance="high"/>
+  </Target>
+
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\Keys\InternalKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(SourceRoot)\Keys\InternalKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(PublicRelease)' == 'True'">
     <DefineConstants>$(DefineConstants);PUBLIC_RELEASE</DefineConstants>
     <DelaySign>true</DelaySign>
-    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\Keys\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(SourceRoot)\Keys\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <Target Name="AddToSign" AfterTargets="CopyFilesToOutputDirectory" >
