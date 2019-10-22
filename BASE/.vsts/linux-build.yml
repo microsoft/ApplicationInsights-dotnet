@@ -9,17 +9,20 @@ steps:
     version: $(DotNetVersion)
 
 - task: DotNetCoreCLI@1
+  displayName: DotNetCoreCLI - Restore Solution
   inputs:
     command: "restore"
     projects: "BASE/*.sln"
 
 - task: DotNetCoreCLI@1
+  displayName: DotNetCoreCLI - Build Solution
   inputs:
     command: "build"
     projects: "BASE/*.sln"
     arguments: "--configuration Release"
 
 - task: DotNetCoreCLI@1
+  displayName: DotNetCoreCLI - Test NetCore 2.0
   inputs:
     command: "test"
     projects: "BASE/Test/**/*netcoreapp20*.csproj"
@@ -30,6 +33,7 @@ steps:
     version: "1.1.5"
 
 - task: DotNetCoreCLI@1
+  displayName: DotNetCoreCLI - Test NetCore 1.1
   inputs:
     command: "test"
     projects: "BASE/Test/**/*netcoreapp11*.csproj"
