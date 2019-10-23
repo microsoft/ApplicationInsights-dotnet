@@ -11,13 +11,13 @@ steps:
   displayName: Restore solutions
   inputs:
     command: "restore"
-    projects: "*.sln"
+    projects: "NETCORE/*.sln"
 
 - task: DotNetCoreCLI@1
   displayName: build all projects
   inputs:
     command: "build"
-    projects: "src/**/**.csproj"
+    projects: "NETCORE/src/**/**.csproj"
     arguments: "--configuration Release"
 
 - task: DotNetCoreCLI@1
@@ -25,7 +25,7 @@ steps:
   continueOnError: true
   inputs:
     command: "test"
-    projects: "test/**/TestApp30.Tests30.csproj"
+    projects: "NETCORE/test/**/TestApp30.Tests30.csproj"
     arguments: "--configuration Release -l trx"
 
 - task: DotNetCoreInstaller@2
@@ -38,7 +38,7 @@ steps:
   continueOnError: true
   inputs:
     command: "test"
-    projects: "test/**/*Tests20.csproj"
+    projects: "NETCORE/test/**/*Tests20.csproj"
     arguments: "--configuration Release -l trx"
 
 - task: DotNetCoreCLI@1
@@ -46,7 +46,7 @@ steps:
   continueOnError: true
   inputs:
     command: "test"
-    projects: "test/**/*AspNetCore.Tests.csproj"
+    projects: "NETCORE/test/**/*AspNetCore.Tests.csproj"
     arguments: "--configuration Release -l trx"
 
 - task: DotNetCoreCLI@1
@@ -54,7 +54,7 @@ steps:
   continueOnError: true
   inputs:
     command: "test"
-    projects: "test/**/*WorkerService.Tests.csproj"
+    projects: "NETCORE/test/**/*WorkerService.Tests.csproj"
     arguments: "--configuration Release -l trx"
 
 
@@ -67,7 +67,7 @@ steps:
   displayName: Package Nuget
   inputs:
     command: "pack"
-    projects: "src/**/**.csproj"
+    projects: "NETCORE/src/**/**.csproj"
     arguments: "--configuration Release --include-symbols --output $(build.artifactstagingdirectory)"
 
 - task: PublishBuildArtifacts@1
