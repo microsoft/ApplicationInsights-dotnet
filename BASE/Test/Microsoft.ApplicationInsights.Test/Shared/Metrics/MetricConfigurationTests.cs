@@ -22,7 +22,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     valuesPerDimensionLimit: 100,
                                     seriesConfig: new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
                 Assert.IsFalse(config.ApplyDimensionCapping);
-                Assert.AreEqual("DIMENSION_CAPPED", config.DimensionCappedString);
             }
 
             { 
