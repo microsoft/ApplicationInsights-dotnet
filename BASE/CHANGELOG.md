@@ -2,6 +2,9 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.12.0-beta2
+- [Enable Metric DimensionCapping API for Internal use with standard metric aggregation.]https://github.com/microsoft/ApplicationInsights-dotnet/issues/1244)
+
 ## Version 2.12.0-beta1
 - [New: TelemetryConfiguration now supports Connection Strings]https://github.com/microsoft/ApplicationInsights-dotnet/issues/1221)
 
