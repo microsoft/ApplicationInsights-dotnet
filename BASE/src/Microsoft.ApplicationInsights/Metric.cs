@@ -61,6 +61,8 @@
                 this.metricSeries = new MultidimensionalCube2<MetricSeries>(
                             totalPointsCountLimit: configuration.SeriesCountLimit - 1,
                             pointsFactory: this.CreateNewMetricSeries,
+                            applyDimensionCapping: configuration.ApplyDimensionCapping,
+                            dimensionCapValue: configuration.DimensionCappedString,
                             dimensionValuesCountLimits: dimensionValuesCountLimits);
 
                 this.zeroDimSeriesList = null;

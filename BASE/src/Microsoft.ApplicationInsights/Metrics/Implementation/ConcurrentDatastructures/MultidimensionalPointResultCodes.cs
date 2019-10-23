@@ -20,6 +20,13 @@
         Success_ExistingPointRetrieved = 2,
 
         /// <summary>
+        /// A new point was created and returned in this result.
+        /// The newly created point exceeded the specified dimension values count limit for one or more dimensions,
+        /// but it was capped with a fallback value.
+        /// </summary>
+        Success_NewPointCreatedAboveDimCapLimit = 4,
+
+        /// <summary>
         /// A point could not be created becasue the sub-dimsnions count was reached.
         /// </summary>
         Failure_SubdimensionsCountLimitReached = 8,

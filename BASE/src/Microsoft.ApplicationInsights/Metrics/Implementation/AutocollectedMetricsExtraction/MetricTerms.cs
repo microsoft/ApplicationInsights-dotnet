@@ -5,6 +5,7 @@
     internal static class MetricTerms
     {
         private const string MetricPropertiesNamePrefix = "_MS";
+        internal const string DimensionCapFallbackValue = "DIMENSION_CAPPED";
 
         public static class Aggregation
         {

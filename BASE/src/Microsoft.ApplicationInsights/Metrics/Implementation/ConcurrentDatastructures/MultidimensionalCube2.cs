@@ -33,6 +33,8 @@
         private readonly Func<string[], TPoint> pointsFactory;
 
         private int totalPointsCount;
+        private bool applyDimensionCapping;
+        private string dimensionCapValue;
 
         public MultidimensionalCube2(Func<string[], TPoint> pointsFactory, params int[] dimensionValuesCountLimits)
             : this(Int32.MaxValue, pointsFactory, dimensionValuesCountLimits)
@@ -81,6 +83,13 @@
             {
                 this.dimensionValues[i] = new HashSet<string>();
             }
+        }
+
+        public MultidimensionalCube2(int totalPointsCountLimit, Func<string[], TPoint> pointsFactory, bool applyDimensionCapping, string dimensionCapValue, params int[] dimensionValuesCountLimits)
+            : this(totalPointsCountLimit, pointsFactory, dimensionValuesCountLimits)
+        {
+            this.dimensionCapValue = dimensionCapValue;
+            this.applyDimensionCapping = applyDimensionCapping;
         }
 
         public int DimensionsCount
@@ -287,6 +296,7 @@
 
             int reachedValsLimitDim = -1;
             BitArray valueAddedToDims = new BitArray(length: coordinates.Length, defaultValue: false);
+            bool dimensionCappingApplied = false;
 
             for (int i = 0; i < coordinates.Length; i++)
             {
@@ -295,8 +305,17 @@
 
                 if ((dimVals.Count >= this.dimensionValuesCountLimits[i]) && (false == dimVals.Contains(coordinateVal)))
                 {
-                    reachedValsLimitDim = i;
-                    break;
+                    if (this.applyDimensionCapping)
+                    {
+                        // throwing away the actual dimension value here as we are asked to apply dimensioncapping.
+                        coordinates[i] = this.dimensionCapValue;
+                        dimensionCappingApplied = true;
+                    }
+                    else
+                    {
+                        reachedValsLimitDim = i;
+                        break;
+                    }
                 }
 
                 bool added = dimVals.Add(coordinates[i]);
@@ -320,8 +339,23 @@
                 return result;
             }
 
-            // Create new point:
+            if (dimensionCappingApplied)
+            {
+                // We did dimension capping - i.e one or more dimension values were replaced, requiring us to reconstruct the moniker with new values.
+                pointMoniker = BuildPointMoniker(coordinates);
 
+                // Check again (with new moniker) if the point already exists.
+                hasPoint = this.points.TryGetValue(pointMoniker, out point);
+                if (hasPoint)
+                {
+                    var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Success_ExistingPointRetrieved, point);
+                    return result;
+                }
+
+                // Continue with point creation using new moniker.
+            }
+
+            // Create new point:
             try
             {
                 point = this.pointsFactory(coordinates);
@@ -355,7 +389,9 @@
             this.totalPointsCount++;
 
             {
-                var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Success_NewPointCreated, point);
+                var result = new MultidimensionalPointResult<TPoint>(
+                    dimensionCappingApplied ? MultidimensionalPointResultCodes.Success_NewPointCreatedAboveDimCapLimit : MultidimensionalPointResultCodes.Success_NewPointCreated,
+                    point);
                 return result;
             }
 #pragma warning restore SA1509 // Opening braces must not be preceded by blank line
