@@ -42,11 +42,12 @@
         <!--  Src also contains the NuGet.config file which ensures that NuGet uses the NuGet.Packages folder.            -->        
         
         <EnlistmentRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'EnlistmentRoot.marker'))</EnlistmentRoot>
+        <SourceRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'SourceRoot.marker'))</SourceRoot>
         
         <BinRoot>$(EnlistmentRoot)\..\bin</BinRoot>
         <BinRoot>$([System.IO.Path]::GetFullPath( $(BinRoot) ))</BinRoot>
                 
-        <RelativeOutputPathBase>$(MSBuildProjectDirectory.Substring($(EnlistmentRoot.Length)))</RelativeOutputPathBase>
+        <RelativeOutputPathBase>$(MSBuildProjectDirectory.Substring($(SourceRoot.Length)))</RelativeOutputPathBase>
 
         <!-- Unit Test projects should be in a separate obj directory to exclude them from SDL scans -->
         <BaseIntermediateOutputPath>$(EnlistmentRoot)\..\obj\src\$(MSBuildProjectName)</BaseIntermediateOutputPath>

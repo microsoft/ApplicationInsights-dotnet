@@ -36,7 +36,7 @@
   <Import Project="$(ToolsDir)\sign.targets" Condition="('$(PublicRelease)' != 'True') And (Exists('$(ToolsDir)\sign.targets'))" />
 
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>$(EnlistmentRoot)\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <PropertyGroup> 
