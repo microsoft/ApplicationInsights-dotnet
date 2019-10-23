@@ -1,5 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.Metrics
-{    
+{
     using System;
     using System.Collections.Generic;
     using static System.FormattableString;
@@ -132,7 +132,7 @@
         /// </remarks>
         internal bool ApplyDimensionCapping { get; set; }
 
-        /// <summary>String value which will be used to represent all dimension values encountered after dimension hits cap.</summary>
+        /// <summary>Gets or sets value which will be used to represent all dimension values encountered after dimension hits cap.</summary>
         internal string DimensionCappedString { get; set; }
 
         /// <summary>
