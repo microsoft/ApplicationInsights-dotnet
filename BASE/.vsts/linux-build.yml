@@ -40,6 +40,7 @@ steps:
     arguments: "--configuration Release -l trx --filter TestCategory!=WindowsOnly"
 
 - task: PublishTestResults@2
+  condition: always()
   inputs:
     testRunner: "VSTest"
     testResultsFiles: "**/*.trx"
