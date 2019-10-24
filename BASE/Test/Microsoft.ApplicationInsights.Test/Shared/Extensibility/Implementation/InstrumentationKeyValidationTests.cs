@@ -35,5 +35,8 @@
         
         [TestMethod]
         public void VerifyExample3() => InstrumentationKeyValidation.Validate("a:00000000-0000-0000-0000-000000000000");
+
+        [TestMethod]
+        public void VerifyExample4() => InstrumentationKeyValidation.Validate("AAA-Application123");
     }
 }
