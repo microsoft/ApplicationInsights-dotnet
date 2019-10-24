@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+  <system.applicationHost>
+    <sites>
+      <site name="Development Web Site" id="1" serverAutoStart="true" xdt:Transform="Replace" xdt:Locator="Match(id)">
+        <application path="/" applicationPool="Clr4IntegratedAppPool">
+          <virtualDirectory path="/" physicalPath="D:\mseng\AppDataCollection\src\OperationTracking\TestResults\Deploy_olesyam 2014-06-06 12_43_11\Out\TestApps_Mvc4_MediumTrust_App"/>
+        </application>
+        <bindings>
+          <binding protocol="http" bindingInformation=":1111:localhost"/>
+        </bindings>
+      </site>
+    </sites>
+  </system.applicationHost>
+</configuration>
