@@ -144,9 +144,16 @@
         /// </remarks>
         public string InstrumentationKey
         {
-            get { return this.instrumentationKey; }
+            get 
+            { 
+                return this.instrumentationKey; 
+            }
 
-            set { this.instrumentationKey = value ?? throw new ArgumentNullException(nameof(this.InstrumentationKey)); }
+            set 
+            {
+                InstrumentationKeyValidation.Validate(value);
+                this.instrumentationKey = value; 
+            }
         }
 
         /// <summary>

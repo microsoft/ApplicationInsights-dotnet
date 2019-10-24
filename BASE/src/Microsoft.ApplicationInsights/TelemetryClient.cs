@@ -77,8 +77,16 @@
         /// </summary>
         public string InstrumentationKey
         {
-            get { return this.Context.InstrumentationKey; }
-            set { this.Context.InstrumentationKey = value; }
+            get 
+            { 
+                return this.Context.InstrumentationKey; 
+            }
+
+            set 
+            {
+                InstrumentationKeyValidation.Validate(value);
+                this.Context.InstrumentationKey = value; 
+            }
         }
 
         /// <summary>

@@ -17,6 +17,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Endpoints\EndpointProviderBuildUriTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Endpoints\EndpointProviderTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Experimental\ExperimentalFeaturesTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\InstrumentationKeyValidationTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\JsonSerializationWriterTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\IExtensionImplementations.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Sampling\SamplingRateStoreTest.cs" />
