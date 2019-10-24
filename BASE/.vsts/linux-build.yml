@@ -44,15 +44,15 @@ steps:
     testRunner: "VSTest"
     testResultsFiles: "**/*.trx"
 
-- task: DotNetCoreCLI@1
-  inputs:
-    command: "publish"
-    publishWebProjects: "True"
-    arguments: "--configuration Release --output $(build.artifactstagingdirectory)"
-    zipAfterPublish: "True"
+#- task: DotNetCoreCLI@1
+#  inputs:
+#    command: "publish"
+#    publishWebProjects: "True"
+#    arguments: "--configuration Release --output $(build.artifactstagingdirectory)"
+#    zipAfterPublish: "True"
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: "$(build.artifactstagingdirectory)"
-    ArtifactName: "drop"
-    ArtifactType: "Container"
+#- task: PublishBuildArtifacts@1
+#  inputs:
+#    PathtoPublish: "$(build.artifactstagingdirectory)"
+#    ArtifactName: "drop"
+#    ArtifactType: "Container"
