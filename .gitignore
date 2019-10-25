@@ -175,3 +175,12 @@ bonddefaultcodegen.in
 
 .PreReleaseVersion
 .nugetVersion
+.nuget/
+PublishProfiles/
+*.cache
+*.userprefs
+*.ipch
+bower_components/
+node_modules/
+**/wwwroot/lib
+/Msbuild.*
