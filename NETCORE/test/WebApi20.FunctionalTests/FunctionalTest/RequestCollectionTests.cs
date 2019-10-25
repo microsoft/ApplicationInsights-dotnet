@@ -1,0 +1,179 @@
+﻿namespace WebApi20.FuncTests
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using FunctionalTestUtils;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Xunit;
+    using Xunit.Abstractions;
+
+    public class RequestCollectionTests : TelemetryTestsBase
+    {
+        private const string assemblyName = "WebApi20.FunctionalTests20";
+        public RequestCollectionTests(ITestOutputHelper output) : base (output)
+        {
+        }
+
+        [Fact]
+        public void TestIfPerformanceCountersAreCollected()
+        {
+            this.output.WriteLine("Validating perfcounters");
+            ValidatePerformanceCountersAreCollected(assemblyName);
+        }
+
+        [Fact]
+        public void TestBasicRequestPropertiesAfterRequestingControllerThatThrows()
+        {
+            using (var server = new InProcessServer(assemblyName, this.output))
+            {
+                const string RequestPath = "/api/exception";
+
+                var expectedRequestTelemetry = new RequestTelemetry();
+                expectedRequestTelemetry.Name = "GET Exception/Get";
+                expectedRequestTelemetry.ResponseCode = "500";
+                expectedRequestTelemetry.Success = false;
+                expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
+
+                // the is no response header because of https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/717
+                this.ValidateBasicRequest(server, RequestPath, expectedRequestTelemetry, false);
+            }
+        }
+
+        [Fact]
+        public void TestBasicExceptionPropertiesAfterRequestingControllerThatThrows()
+        {
+            using (var server = new InProcessServer(assemblyName, this.output))
+            {
+                var expectedExceptionTelemetry = new ExceptionTelemetry();
+                expectedExceptionTelemetry.Exception = new InvalidOperationException();
+
+                this.ValidateBasicException(server, "/api/exception", expectedExceptionTelemetry);
+            }
+        }
+
+        [Fact]
+        public void TestBasicRequestPropertiesAfterRequestingValuesController()
+        {
+            using (var server = new InProcessServer(assemblyName, this.output))
+            {
+                const string RequestPath = "/api/values";
+
+                var expectedRequestTelemetry = new RequestTelemetry();
+                expectedRequestTelemetry.Name = "GET Values/Get";
+                expectedRequestTelemetry.ResponseCode = "200";
+                expectedRequestTelemetry.Success = true;
+                expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
+
+                Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
+                {                    
+                    { "Request-Context", "appId=value"},
+                };
+
+                this.ValidateRequestWithHeaders(server, RequestPath, requestHeaders, expectedRequestTelemetry, expectRequestContextInResponse: true);
+            }
+        }
+
+        [Fact]
+        public void TestBasicRequestPropertiesAfterRequestingNotExistingController()
+        {
+            using (var server = new InProcessServer(assemblyName, this.output))
+            {
+                const string RequestPath = "/api/notexistingcontroller";
+
+                var expectedRequestTelemetry = new RequestTelemetry();
+                expectedRequestTelemetry.Name = "GET /api/notexistingcontroller";
+                expectedRequestTelemetry.ResponseCode = "404";
+                expectedRequestTelemetry.Success = false;
+                expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
+
+                Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
+                {
+                    { "Request-Context", "appId=value"},
+                };
+
+                this.ValidateRequestWithHeaders(server, RequestPath, requestHeaders, expectedRequestTelemetry, expectRequestContextInResponse: true);
+            }
+        }
+
+        [Fact]
+        public void TestBasicRequestPropertiesAfterRequestingWebApiShimRoute()
+        {
+            using (var server = new InProcessServer(assemblyName, this.output))
+            {
+                const string RequestPath = "/api/values/1";
+
+                var expectedRequestTelemetry = new RequestTelemetry();
+                expectedRequestTelemetry.Name = "GET Values/Get [id]";
+                expectedRequestTelemetry.ResponseCode = "200";
+                expectedRequestTelemetry.Success = true;
+                expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
+
+                Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
+                {
+                    { "Request-Context", "appId=value"},
+                };
+
+                this.ValidateRequestWithHeaders(server, RequestPath, requestHeaders, expectedRequestTelemetry, expectRequestContextInResponse: true);
+            }
+        }
+
+        [Fact]
+        public void TestNoHeadersInjectedInResponseWhenConfiguredAndNoIncomingRequestContext()
+        {
+            IWebHostBuilder Config(IWebHostBuilder builder)
+            {
+                return builder.ConfigureServices(services =>
+                {
+                    services.AddApplicationInsightsTelemetry(options => { options.RequestCollectionOptions.InjectResponseHeaders = false; });
+                });
+            }
+
+            using (var server = new InProcessServer(assemblyName, this.output, Config))
+            {
+                const string RequestPath = "/api/values/1";
+
+                var expectedRequestTelemetry = new RequestTelemetry();
+                expectedRequestTelemetry.Name = "GET Values/Get [id]";
+                expectedRequestTelemetry.ResponseCode = "200";
+                expectedRequestTelemetry.Success = true;
+                expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
+
+                this.ValidateRequestWithHeaders(server, RequestPath, null, expectedRequestTelemetry, false);
+            }
+        }
+
+        [Fact]
+        public void TestNoHeadersInjectedInResponseWhenConfiguredAndWithIncomingRequestContext()
+        {
+            IWebHostBuilder Config(IWebHostBuilder builder)
+            {
+                return builder.ConfigureServices(services =>
+                {
+                    services.AddApplicationInsightsTelemetry(options => { options.RequestCollectionOptions.InjectResponseHeaders = false; });
+                });
+            }
+
+            using (var server = new InProcessServer(assemblyName, this.output, Config))
+            {
+                const string RequestPath = "/api/values/1";
+
+                var expectedRequestTelemetry = new RequestTelemetry();
+                expectedRequestTelemetry.Name = "GET Values/Get [id]";
+                expectedRequestTelemetry.ResponseCode = "200";
+                expectedRequestTelemetry.Success = true;
+                expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
+
+                Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
+                {
+                    { "Request-Context", "appId=value"},
+                };
+
+                this.ValidateRequestWithHeaders(server, RequestPath, requestHeaders, expectedRequestTelemetry, false);
+            }
+        }
+    }
+}
+

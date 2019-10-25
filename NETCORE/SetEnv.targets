@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<!--
+			Date when Semantic Version was changed. 
+			Update for every public release.
+		-->
+		<SemanticVersionDate>2016-9-28</SemanticVersionDate>
+		<!--
+			Pre-release version is used to distinguish internally built NuGet packages.
+			Pre-release version = Minutes since semantic version was set, divided by 5 (to make it fit in a UInt16).
+		-->
+		<PreReleaseVersion>$([MSBuild]::Divide($([System.DateTime]::Now.Subtract($([System.DateTime]::Parse($(SemanticVersionDate)))).TotalMinutes), 5).ToString('F0'))</PreReleaseVersion>
+	</PropertyGroup>
+	
+	<Target Name="SetEnvironmentVariables" Condition="'$(IsOfficialBuild)' != 'True'" BeforeTargets="BeforeBuild">
+		<!--
+			Variable DNX_BUILD_VERSION controls the pre-release version of the nuget package that is being generated.
+			It replaces "*" from the version number present in project.json of all the projects corresponding to this solution.
+		-->
+		<SetEnv Name="DNX_BUILD_VERSION" Value="$(PreReleaseVersion)"/>
+		<Message Importance="high" Text=" SetEnvironmentVariables executed on $(ProjectName)"></Message>
+	</Target>
+
+	<UsingTask	TaskName="SetEnv"
+				TaskFactory="CodeTaskFactory"
+				AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll">
+		<ParameterGroup>
+			<Name ParameterType="System.String" Required="true" />
+			<Value ParameterType="System.String" Required="true" />
+		</ParameterGroup>
+		<Task>
+			<Reference Include="System" />
+			<Code Type="Fragment" Language="cs">
+				<![CDATA[        
+					Environment.SetEnvironmentVariable(Name, Value);
+					
+					Log.LogMessage (
+						"Environment varible is set, name={0}, value:{1}", 
+                        Name, 
+						Value);
+				]]>
+			</Code>
+		</Task>
+	</UsingTask>
+</Project>

@@ -1,0 +1,97 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(SourceRoot)\Product.props" />
+  
+  <PropertyGroup>
+    <AssemblyName>Microsoft.ApplicationInsights.AspNetCore</AssemblyName>
+    <LangVersion>7.2</LangVersion>
+    <TargetFrameworks>netstandard2.0;net451;net46;netstandard1.6</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard1.6;netstandard2.0</TargetFrameworks>
+    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.6' ">1.6.1</NetStandardImplicitPackageVersion>	
+    <DefineConstants>$(DefineConstants);AI_ASPNETCORE_WEB;</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!--Nupkg properties-->
+    <PackageId>Microsoft.ApplicationInsights.AspNetCore</PackageId>
+    <AssemblyTitle>Application Insights for ASP.NET Core Web Applications</AssemblyTitle>
+    <Title>Application Insights for ASP.NET Core Web Applications</Title>
+    <Description>Application Insights for ASP.NET Core web applications. See https://azure.microsoft.com/documentation/articles/app-insights-asp-net-five/ for more information. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
+    <PackageTags>$(PackageTags)aspnetcore;</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!--Package Settings-->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <!--Symbols Settings-->
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>    
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+    <NoWarn>1701;1702</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
+    <!--Analyzers-->
+    <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.2">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.9.2">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Roslyn.Diagnostics.Analyzers" Version="2.9.2">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--Build Infrastructure-->
+    <PackageReference Include="MicroBuild.Core" Version="0.3.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <Import Project="..\Shared\Shared.projitems" Label="Shared" />
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.12.0-beta1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.12.0-beta1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.12.0-beta1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.12.0-beta1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.12.0-beta1" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="1.0.2" />           
+    <PackageReference Include="System.Text.Encodings.Web" Version="4.3.1" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.6.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard2.0' ">
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="1.0.2" />    
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">  
+  <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.0" />  
+  <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.12.0-beta1" />
+  <PackageReference Include="Microsoft.ApplicationInsights.EventCounterCollector" Version="2.12.0-beta1" />
+  <PackageReference Include="System.Text.Encodings.Web" Version="4.3.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net451' OR '$(TargetFramework)' == 'net46' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' OR '$(TargetFramework)' == 'netstandard2.0' ">
+    <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>

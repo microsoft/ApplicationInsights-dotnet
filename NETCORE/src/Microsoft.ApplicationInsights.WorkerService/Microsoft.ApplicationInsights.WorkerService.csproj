@@ -1,0 +1,71 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(SourceRoot)\Product.props"/>
+
+  <PropertyGroup>
+    <AssemblyName>Microsoft.ApplicationInsights.WorkerService</AssemblyName>
+    <LangVersion>7.2</LangVersion>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    
+    <DefineConstants>$(DefineConstants);AI_ASPNETCORE_WORKER;</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!--Nupkg properties-->
+    <PackageId>Microsoft.ApplicationInsights.WorkerService</PackageId>
+    <AssemblyTitle>Application Insights for .NET Core Worker Service Applications</AssemblyTitle>
+    <Title>Application Insights for .NET Core Worker Service Applications</Title>
+    <Description>Application Insights for .NET Core Worker Service (messaging, background tasks, and any non-HTTP workloads) applications. See https://azure.microsoft.com/documentation/articles/app-insights-asp-net-five/ for more information. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
+    <PackageTags>$(PackageTags)worker;console;backgroundtasks;</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!--Package Settings-->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <!--Symbols Settings-->
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
+    <!--Analyzers-->
+    <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.2">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.9.2">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Roslyn.Diagnostics.Analyzers" Version="2.9.2">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--Build Infrastructure-->
+    <PackageReference Include="MicroBuild.Core" Version="0.3.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <Import Project="..\Shared\Shared.projitems" Label="Shared" />
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.12.0-beta1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.12.0-beta1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.12.0-beta1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.12.0-beta1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.12.0-beta1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.12.0-beta1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.EventCounterCollector" Version="2.12.0-beta1" />
+    
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
+  </ItemGroup>
+</Project>
