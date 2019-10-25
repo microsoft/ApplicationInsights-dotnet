@@ -1,5 +1,51 @@
+# Please pardon our progress
+We are currently in the process of consolidating our repos.
+This Readme will be updated as we make significant changes.
+
+As of October 25, The contents of each former repo can be found in the sub folders; BASE, WEB, LOGGING, NETCORE.
+
+
 ## NuGet packages
 
+**Base SDKs**
+- [Microsoft.ApplicationInsights](https://www.nuget.org/packages/Microsoft.ApplicationInsights/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights/)
+- [Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel](https://www.nuget.org/packages/Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel/)
+
+**Web SDKs**
+- [Microsoft.ApplicationInsights.Web](https://www.nuget.org/packages/Microsoft.ApplicationInsights.Web/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.Web.svg)](https://nuget.org/packages/Microsoft.ApplicationInsights.Web)
+- [Microsoft.ApplicationInsights.DependencyCollector](https://www.nuget.org/packages/Microsoft.ApplicationInsights.DependencyCollector/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.DependencyCollector.svg)](https://nuget.org/packages/Microsoft.ApplicationInsights.DependencyCollector)
+- [Microsoft.ApplicationInsights.EventCounterCollector](https://www.nuget.org/packages/Microsoft.ApplicationInsights.EventCounterCollector)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.EventCounterCollector.svg)](https://nuget.org/packages/Microsoft.ApplicationInsights.EventCounterCollector)
+- [Microsoft.ApplicationInsights.PerfCounterCollector](https://www.nuget.org/packages/Microsoft.ApplicationInsights.PerfCounterCollector/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.PerfCounterCollector.svg)](https://nuget.org/packages/Microsoft.ApplicationInsights.PerfCounterCollector)
+- [Microsoft.ApplicationInsights.WindowsServer](https://www.nuget.org/packages/Microsoft.ApplicationInsights.WindowsServer/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.WindowsServer.svg)](https://nuget.org/packages/Microsoft.ApplicationInsights.WindowsServer)
+- [Microsoft.AspNet.ApplicationInsights.HostingStartup](https://www.nuget.org/packages/Microsoft.AspNet.ApplicationInsights.HostingStartup/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.AspNet.ApplicationInsights.HostingStartup.svg)](https://nuget.org/packages/Microsoft.AspNet.ApplicationInsights.HostingStartup)
+
+**Logging Adapters**
+- For ILogger:
+ [Microsoft.Extensions.Logging.ApplicationInsights](https://www.nuget.org/packages/Microsoft.Extensions.Logging.ApplicationInsights/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.Extensions.Logging.ApplicationInsights.svg)](https://www.nuget.org/packages/Microsoft.Extensions.Logging.ApplicationInsights/)
+- For NLog:
+ [Microsoft.ApplicationInsights.NLogTarget](http://www.nuget.org/packages/Microsoft.ApplicationInsights.NLogTarget/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.NLogTarget.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.NLogTarget/)
+- For Log4Net: [Microsoft.ApplicationInsights.Log4NetAppender](http://www.nuget.org/packages/Microsoft.ApplicationInsights.Log4NetAppender/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.Log4NetAppender.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.Log4NetAppender/)
+- For System.Diagnostics: [Microsoft.ApplicationInsights.TraceListener](http://www.nuget.org/packages/Microsoft.ApplicationInsights.TraceListener/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.TraceListener.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.TraceListener/)
+- [Microsoft.ApplicationInsights.DiagnosticSourceListener](http://www.nuget.org/packages/Microsoft.ApplicationInsights.DiagnosticSourceListener/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.DiagnosticSourceListener.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.DiagnosticSourceListener/)
+- [Microsoft.ApplicationInsights.EtwCollector](http://www.nuget.org/packages/Microsoft.ApplicationInsights.EtwCollector/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.EtwCollector.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.EtwCollector/)
+- [Microsoft.ApplicationInsights.EventSourceListener](http://www.nuget.org/packages/Microsoft.ApplicationInsights.EventSourceListener/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.EventSourceListener.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.EventSourceListener/)
+
+**NetCore SDKs**
 - [Microsoft.ApplicationInsights.AspNetCore](https://www.nuget.org/packages/Microsoft.ApplicationInsights.AspNetCore/)
 [![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.AspNetCore.svg)](https://nuget.org/packages/Microsoft.ApplicationInsights.AspNetCore)
 - [Microsoft.ApplicationInsights.WorkerService](https://www.nuget.org/packages/Microsoft.ApplicationInsights.WorkerService/)
@@ -7,99 +53,89 @@
 
 
 
-Windows: [![Build Status](https://mseng.visualstudio.com/AppInsights/_apis/build/status/ChuckNorris/AI_ASPNETCore_Develop?branchName=develop)](https://mseng.visualstudio.com/AppInsights/_build/latest?definitionId=3717&branchName=develop)
-
-Linux :[![Build Status](https://mseng.visualstudio.com/AppInsights/_apis/build/status/ChuckNorris/AI-AspNetCoreSDK-develop-linux?branchName=develop)](https://mseng.visualstudio.com/AppInsights/_build/latest?definitionId=6273&branchName=develop)
 
 
-Microsoft Application Insights for ASP.NET Core applications
-=============================================================
-
-This repository has a code for [Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) of [ASP.NET Core](https://docs.microsoft.com/aspnet/core) applications. Read about contribution policies on Application Insights Home [repository](https://github.com/microsoft/ApplicationInsights-home)
-
-Getting Started
----------------
-
-[Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) is a service that allows you to collect monitoring and diagnostics information about your application. The [getting started](https://docs.microsoft.com/azure/azure-monitor/app/asp-net-core) guide shows how you can onboard your ASP.NET Core web application to use the Application Insights SDK.
 
 
-Repository structure
---------------------
 
-```
-root\
-    ApplicationInsights.AspNetCore.sln - Main Solution
 
-    src\
-        ApplicationInsights.AspNetCore - Application Insights package
+# Application Insights for .NET
 
-    test\
-        ApplicationInsights.AspNetCore.Tests - Unit tests
-        FunctionalTestUtils - Test utilities for functional tests
-        MVCFramework.FunctionalTests - functional tests for MVC application targeting NetCore1.1,NetCore2.0 and NET45
-        WebApi.FunctionalTests - functional tests for Web API application targeting NetCore1.1,NetCore2.0 and NET45
-		EmptyApp.FunctionalTests - functional tests for an Empty application targeting NetCore1.1,NetCore2.0 and NET45
-        PerfTest - performance test
+This repository has code for the base .NET SDK for Application Insights. [Application Insights][AILandingPage] is a service that allows developers ensure their application are available, performing, and succeeding. This SDK provides the base ability to send all Application Insights types from any .NET project. 
+
+## Getting Started
+
+If developing for a .Net project that is supported by one of our platform specific packages, [Web][WebGetStarted] or [Windows Apps][WinAppGetStarted], we strongly recommend to use one of those packages instead of this base library. If your project does not fall into one of those platforms you can use this library for any .Net code. This library should have no dependencies outside of the .Net framework. If you are building a [Desktop][DesktopGetStarted] or any other .Net project type this library will enable you to utilize Application Insights. More on SDK layering and extensibility [later](#sdk-layering).
+
+### Get an Instrumentation Key
+
+To use the Application Insights SDK you will need to provide it with an Instrumentation Key which can be [obtained from the portal][AIKey]. This Instrumentation Key will identify all the data flowing from your application instances as belonging to your account and specific application.
+
+### Add the SDK library
+
+We recommend consuming the library as a NuGet package. Make sure to look for the [Microsoft.ApplicationInsights][NuGetCore] package. Use the NuGet package manager to add a reference to your application code. 
+
+### Initialize a TelemetryClient
+
+The `TelemetryClient` object is the primary root object for the library. Almost all functionality around telemetry sending is located on this object. You must initialize an instance of this object and populate it with your Instrumentation Key to identify your data.
+
+```C#
+using Microsoft.ApplicationInsights;
+
+var tc = new TelemetryClient();
+tc.InstrumentationKey = "INSERT YOUR KEY";
 ```
 
-Developing
-----------
-To successfully build the sources on your machine, make sure you've installed the following prerequisites:
-* Visual Studio 2017 Community or Enterprise. Please make sure to install all the latest updates to Visual Studio
-* .NET Framework 4.6
-* .NET Core SDK 1.1.7
-* .NET Core SDK 2.0 or above.(https://www.microsoft.com/net/download/windows)
+### Use the TelemetryClient to send telemetry
 
-## Building
-Once you've installed the prerequisites execute ```buildDebug.cmd``` or ```buildRelease.cmd``` script in the repository root to build the project locally.
-You can also open the solution in Visual Studio and build the ApplicationInsights.AspNetCore.sln solution directly.
+This "base" library does not provide any automatic telemetry collection or any automatic meta-data properties. You can populate common context on the `TelemetryClient.context` property which will be automatically attached to each telemetry item sent. You can also attach additional property data to each telemetry item sent. The `TelemetryClient` also exposes a number of `Track...()` methods that can be used to send all telemetry types understood by the Application Insights service. Some example use cases are shown below.
 
-## Testing/Debugging
-Execute the ```RunTests.cmd``` script in the repository root.
+```C#
+tc.Context.User.Id = Environment.GetUserName(); // This is probably a bad idea from a PII perspective.
+tc.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
 
-You can also open the solution in Visual Studio and run tests directly from Visual Studio Test Explorer. However, as the tests has multiple targets, Test Explorer only shows the first target
-from <TargetFrameworks> in .csproj. To debug/run tests from a particular TargetFramework with Visual Studio, only option is to re-arrange the <TargetFrameworks>
-such that the intended target comes first. This is a Visual Studio limitation and is likely removed in the future.
+tc.TrackPageView("Form1");
 
+tc.TrackEvent("PurchaseOrderSubmitted", new Dictionary<string, string>() { {"CouponCode", "JULY2015" } }, new Dictionary<string, double>() { {"OrderTotal", 68.99 }, {"ItemsOrdered", 5} });
+	
+try
+{
+	...
+}
+catch(Exception e)
+{
+	tc.TrackException(e);
+}
+``` 
 
-Running and writing tests
--------------------------
-There are two sets of tests unit tests and functional tests. Please use unit tests for all features testing. The purpose of functional tests is just end-to-end validation of functionality on sample applications.
+### Ensure you don't lose telemetry
 
-*Functional tests*
-Functional tests are regular web applications with unit tests integrated into them. Application can be compiled as a regular web application as well as set of tests. Typical functional tests will do the following:
+This library makes use of the InMemoryChannel to send telemetry data. This is a very lightweight channel implementation. It stores all telemetry to an in-memory queue and batches and sends telemetry. As a result, if the process is terminated suddenly, you could lose telemetry that is stored in the queue but not yet sent. It is recommended to track the closing of your process and call the `TelemetryClient.Flush()` method to ensure no telemetry is lost.
 
-1. Host the current project in In-Proc server.
-2. Initialize application insights telemetry channel.
-3. Initiate request to self hosted web application using HttpClient.
-4. Check data received in telemetry channel.
+### Full API Overview
 
-The following are modifications made to a regular web application to make it work this way:
-
-Add dependencies to .csproj:
-
-```
-"FunctionalTestUtils": "1.0.0-*",
-"dotnet.test.xunit": "1.0.0-*",
-"xunit": "2.1.0"
-```
-
-and test command:
-
-```
-"test": "xunit"
-```
-
-Add this initialization logic to Startup.cs:
-
-```
-services.AddFunctionalTestTelemetryChannel();
-```
-
+Read about [how to use the API and see the results in the portal][api-overview].
 
 ## Branches
-- We follow the [Git Flow](http://nvie.com/posts/a-successful-git-branching-model) model.
-- [master](https://github.com/Microsoft/ApplicationInsights-aspnetcore/tree/master) has the _latest_ version released on [NuGet.org](https://www.nuget.org/packages/Microsoft.ApplicationInsights.AspNetCore).
-- [develop](https://github.com/Microsoft/ApplicationInsights-aspnetcore/tree/develop) has the code for the _next_ release.
+
+- [master][master] contains the *latest* published release located on [NuGet][NuGetCore].
+- [develop][develop] contains the code for the *next* release. 
+
+## Contributing
+
+We strongly welcome and encourage contributions to this project. Please read the general [contributor's guide][ContribGuide] located in the ApplicationInsights-Home repository and the [contributing guide](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/develop/.github/CONTRIBUTING.md)  for this SDK. If making a large change we request that you open an [issue][GitHubIssue] first. We follow the [Git Flow][GitFlow] approach to branching. 
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
+[AILandingPage]: http://azure.microsoft.com/services/application-insights/
+[api-overview]: https://azure.microsoft.com/documentation/articles/app-insights-api-custom-events-metrics/
+[ContribGuide]: https://github.com/Microsoft/ApplicationInsights-Home/blob/master/CONTRIBUTING.md
+[GitFlow]: http://nvie.com/posts/a-successful-git-branching-model/
+[GitHubIssue]: https://github.com/Microsoft/ApplicationInsights-dotnet/issues
+[master]: https://github.com/Microsoft/ApplicationInsights-dotnet/tree/master
+[develop]: https://github.com/Microsoft/ApplicationInsights-dotnet/tree/development
+[NuGetCore]: https://www.nuget.org/packages/Microsoft.ApplicationInsights
+[WebGetStarted]: https://azure.microsoft.com/documentation/articles/app-insights-start-monitoring-app-health-usage/
+[WinAppGetStarted]: https://azure.microsoft.com/documentation/articles/app-insights-windows-get-started/
+[DesktopGetStarted]: https://azure.microsoft.com/documentation/articles/app-insights-windows-desktop/
+[AIKey]: https://github.com/Microsoft/ApplicationInsights-Home/wiki#getting-an-application-insights-instrumentation-key
