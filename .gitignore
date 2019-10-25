@@ -172,3 +172,6 @@ coverage.xml
 
 bondcodegen.done
 bonddefaultcodegen.in
+
+.PreReleaseVersion
+.nugetVersion
