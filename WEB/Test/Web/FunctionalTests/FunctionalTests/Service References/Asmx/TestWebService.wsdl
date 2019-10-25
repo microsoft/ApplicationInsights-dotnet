@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://TestWebService" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://TestWebService" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://TestWebService">
+      <s:element name="HelloWorld">
+        <s:complexType />
+      </s:element>
+      <s:element name="HelloWorldResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="HelloWorldResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="HelloPost">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="needThrow" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="HelloPostResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="HelloPostResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ExecuteHttpCall">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="url" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="method" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ExecuteHttpCallResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="string" nillable="true" type="s:string" />
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="HelloWorldSoapIn">
+    <wsdl:part name="parameters" element="tns:HelloWorld" />
+  </wsdl:message>
+  <wsdl:message name="HelloWorldSoapOut">
+    <wsdl:part name="parameters" element="tns:HelloWorldResponse" />
+  </wsdl:message>
+  <wsdl:message name="HelloPostSoapIn">
+    <wsdl:part name="parameters" element="tns:HelloPost" />
+  </wsdl:message>
+  <wsdl:message name="HelloPostSoapOut">
+    <wsdl:part name="parameters" element="tns:HelloPostResponse" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteHttpCallSoapIn">
+    <wsdl:part name="parameters" element="tns:ExecuteHttpCall" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteHttpCallSoapOut">
+    <wsdl:part name="parameters" element="tns:ExecuteHttpCallResponse" />
+  </wsdl:message>
+  <wsdl:message name="HelloWorldHttpGetIn" />
+  <wsdl:message name="HelloWorldHttpGetOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="HelloPostHttpGetIn">
+    <wsdl:part name="needThrow" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="HelloPostHttpGetOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteHttpCallHttpGetIn">
+    <wsdl:part name="url" type="s:string" />
+    <wsdl:part name="method" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteHttpCallHttpGetOut" />
+  <wsdl:message name="HelloWorldHttpPostIn" />
+  <wsdl:message name="HelloWorldHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="HelloPostHttpPostIn">
+    <wsdl:part name="needThrow" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="HelloPostHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteHttpCallHttpPostIn">
+    <wsdl:part name="url" type="s:string" />
+    <wsdl:part name="method" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteHttpCallHttpPostOut" />
+  <wsdl:portType name="TestWebServiceSoap">
+    <wsdl:operation name="HelloWorld">
+      <wsdl:input message="tns:HelloWorldSoapIn" />
+      <wsdl:output message="tns:HelloWorldSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="HelloPost">
+      <wsdl:input message="tns:HelloPostSoapIn" />
+      <wsdl:output message="tns:HelloPostSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteHttpCall">
+      <wsdl:input message="tns:ExecuteHttpCallSoapIn" />
+      <wsdl:output message="tns:ExecuteHttpCallSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="TestWebServiceHttpGet">
+    <wsdl:operation name="HelloWorld">
+      <wsdl:input message="tns:HelloWorldHttpGetIn" />
+      <wsdl:output message="tns:HelloWorldHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="HelloPost">
+      <wsdl:input message="tns:HelloPostHttpGetIn" />
+      <wsdl:output message="tns:HelloPostHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteHttpCall">
+      <wsdl:input message="tns:ExecuteHttpCallHttpGetIn" />
+      <wsdl:output message="tns:ExecuteHttpCallHttpGetOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="TestWebServiceHttpPost">
+    <wsdl:operation name="HelloWorld">
+      <wsdl:input message="tns:HelloWorldHttpPostIn" />
+      <wsdl:output message="tns:HelloWorldHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="HelloPost">
+      <wsdl:input message="tns:HelloPostHttpPostIn" />
+      <wsdl:output message="tns:HelloPostHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteHttpCall">
+      <wsdl:input message="tns:ExecuteHttpCallHttpPostIn" />
+      <wsdl:output message="tns:ExecuteHttpCallHttpPostOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="TestWebServiceSoap" type="tns:TestWebServiceSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="HelloWorld">
+      <soap:operation soapAction="http://TestWebService/HelloWorld" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="HelloPost">
+      <soap:operation soapAction="http://TestWebService/HelloPost" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteHttpCall">
+      <soap:operation soapAction="http://TestWebService/ExecuteHttpCall" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="TestWebServiceSoap12" type="tns:TestWebServiceSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="HelloWorld">
+      <soap12:operation soapAction="http://TestWebService/HelloWorld" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="HelloPost">
+      <soap12:operation soapAction="http://TestWebService/HelloPost" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteHttpCall">
+      <soap12:operation soapAction="http://TestWebService/ExecuteHttpCall" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="TestWebServiceHttpGet" type="tns:TestWebServiceHttpGet">
+    <http:binding verb="GET" />
+    <wsdl:operation name="HelloWorld">
+      <http:operation location="/HelloWorld" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="HelloPost">
+      <http:operation location="/HelloPost" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteHttpCall">
+      <http:operation location="/ExecuteHttpCall" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="TestWebServiceHttpPost" type="tns:TestWebServiceHttpPost">
+    <http:binding verb="POST" />
+    <wsdl:operation name="HelloWorld">
+      <http:operation location="/HelloWorld" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="HelloPost">
+      <http:operation location="/HelloPost" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteHttpCall">
+      <http:operation location="/ExecuteHttpCall" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="TestWebService">
+    <wsdl:port name="TestWebServiceSoap" binding="tns:TestWebServiceSoap">
+      <soap:address location="http://localhost:4321/Asmx/TestWebService.asmx" />
+    </wsdl:port>
+    <wsdl:port name="TestWebServiceSoap12" binding="tns:TestWebServiceSoap12">
+      <soap12:address location="http://localhost:4321/Asmx/TestWebService.asmx" />
+    </wsdl:port>
+    <wsdl:port name="TestWebServiceHttpGet" binding="tns:TestWebServiceHttpGet">
+      <http:address location="http://localhost:4321/Asmx/TestWebService.asmx" />
+    </wsdl:port>
+    <wsdl:port name="TestWebServiceHttpPost" binding="tns:TestWebServiceHttpPost">
+      <http:address location="http://localhost:4321/Asmx/TestWebService.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

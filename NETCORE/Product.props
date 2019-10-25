@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(SourceRoot)\Nupkg.props" />
+  <Import Project="$(SourceRoot)\Signing.props" Condition=" '$(OS)' == 'Windows_NT' " />
+
+  <Target Name="Info_ProductProps"  BeforeTargets="Build" >
+    <Message Text="INFO) Product.props imported by $(MSBuildProjectName)." Importance="high"/>
+  </Target>
+
+  <PropertyGroup>
+    <VersionPrefix>2.12.0-beta1</VersionPrefix>
+  </PropertyGroup>
+
+</Project>
