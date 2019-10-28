@@ -11,6 +11,7 @@
 
     <EnlistmentKeys>$(EnlistmentRoot)\.keys</EnlistmentKeys>
     <EnlistmentProps>$(EnlistmentRoot)\.props</EnlistmentKeys>
+    <EnlistmentRulesets>$(EnlistmentRoot)\.rulesets</EnlistmentKeys>
 
     <BinRoot>$(EnlistmentRoot)\..\bin</BinRoot>
     <BinRoot>$([System.IO.Path]::GetFullPath( $(BinRoot) ))</BinRoot>
