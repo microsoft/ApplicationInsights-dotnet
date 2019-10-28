@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <Target Name="Info_GlobalStaticVersionProps"  BeforeTargets="Build" >
-    <Message Text="INFO) GlobalStaticVersion.props imported by $(MSBuildProjectName)." Importance="high"/>
+  <Target Name="Info_GlobalStaticVersionProps"  BeforeTargets="Build" Condition=" $(Internal_Logging) == 'true' ">
+    <Message Text="Info: GlobalStaticVersion.props imported by $(MSBuildProjectName)." Importance="high"/>
   </Target>
 
   <PropertyGroup>
