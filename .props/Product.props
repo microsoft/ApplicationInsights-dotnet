@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <Target Name="Info_ProductProps"  BeforeTargets="Build" >
+    <Message Text="INFO) Product.props imported by $(MSBuildProjectName)." Importance="high"/>
+  </Target>
+
+  <Import Project=".\_GlobalStaticVersion.props" />
+  <Import Project=".\_Nupkg.props" />
+  <Import Project=".\_Common.props" />
+
+  <PropertyGroup>
+    
+  </PropertyGroup>
+</Project>

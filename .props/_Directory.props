@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <Target Name="Info_DirectoryProps"  BeforeTargets="Build" >
+    <Message Text="INFO) Directory.props imported by $(MSBuildProjectName)." Importance="high"/>
+  </Target>
+
+  <PropertyGroup>
+    <!-- EnlistmentRoot identifies the root directory of the repo and is used to dermine all other relative paths. -->
+    <EnlistmentRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'EnlistmentRoot.marker'))</EnlistmentRoot>
+
+    <EnlistmentKeys>$(EnlistmentRoot)\.keys</EnlistmentKeys>
+    <EnlistmentProps>$(EnlistmentRoot)\.props</EnlistmentKeys>
+
+    <BinRoot>$(EnlistmentRoot)\..\bin</BinRoot>
+    <BinRoot>$([System.IO.Path]::GetFullPath( $(BinRoot) ))</BinRoot>
+    
+    <ObjRoot>$(EnlistmentRoot)\..\obj</ObjRoot>
+    <ObjRoot>$([System.IO.Path]::GetFullPath( $(ObjRoot) ))</ObjRoot>
+
+    <RelativeOutputPathBase>$(MSBuildProjectDirectory.Substring($(EnlistmentRoot.Length)))</RelativeOutputPathBase>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+
+    <OutputPath>$(BinRoot)\$(Configuration)\$(RelativeOutputPathBase)</OutputPath>
+    <OutputPath>$([System.IO.Path]::GetFullPath( $(OutputPath) ))\</OutputPath>
+
+    <!-- Collect all NuGet packages in the same folder for convenience during testing -->
+    <PackageOutputDir>$(BinRoot)\$(Configuration)\NuGet</PackageOutputDir>
+    <PackageOutputPath>$(PackageOutputDir)</PackageOutputPath>
+
+    <IntermediateOutputPath>$(ObjRoot)\$(Configuration)\$(RelativeOutputPathBase)</IntermediateOutputPath>
+    <IntermediateOutputPath>$([System.IO.Path]::GetFullPath( $(IntermediateOutputPath) ))\</IntermediateOutputPath>
+</Project>
