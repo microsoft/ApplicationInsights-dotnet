@@ -118,6 +118,23 @@
         /// <summary>Gets the configuration for how each series of this metric should be aggregated.</summary>
         public IMetricSeriesConfiguration SeriesConfig { get; }
 
+        /// <summary>Gets or sets a value indicating whether dimension capping should be applied, when any indiviual dimension
+        /// exceeds its limit. If this flag is set, calls to <c>TrackValue(..)</c>, <c>TryGetDataSeries(..)</c> and similar
+        /// that would normally return false when cap is hit will return true, and the actual value of dimension will be replaced
+        /// by <c>DimensionCappedString</c>.
+        /// The metric will continue to track the value, however, users should be beware that any metric filtering or
+        /// splitting involving a dimension which has the value <c>DimensionCappedString</c>, should be ignored.
+        /// Overall metric value, and metric value for dimensions which do not have <c>DimensionCappedString</c> will remain
+        /// accurate.
+        /// </summary>
+        /// <remarks>
+        /// If overall series cap (SeriesCountLimit) is hit, then this dimension capping will not be applied.        
+        /// </remarks>
+        internal bool ApplyDimensionCapping { get; set; }
+
+        /// <summary>Gets or sets value which will be used to represent all dimension values encountered after dimension hits cap.</summary>
+        internal string DimensionCappedString { get; set; }
+
         /// <summary>
         /// Gets the maximum number of distinct values for a dimension identified by the specified 1-based dimension index.
         /// </summary>
