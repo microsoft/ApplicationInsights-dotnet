@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>a8ba3bd0-19ce-488d-b2bd-0b9b677f4e03</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Perf.Shared.NetStandard20</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)CounterFactoryXPlatform.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PerformanceCollectorXPlatform.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)XPlatProcessCPUPerformanceCounter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)XPlatProcessCPUPerformanceCounterNormalized.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)XPlatProcessMemoryPerformanceCounter.cs" />
+  </ItemGroup>
+</Project>
