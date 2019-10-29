@@ -5,6 +5,9 @@
     <Message Text="Info: Common.props imported by $(MSBuildProjectName)." Importance="high"/>
   </Target>
 
+  <Import Project=".\_Signing.props" />
+  <Import Project="$(TargetsRoot)\AddXmlLanguage.targets" />
+
   <PropertyGroup>
     
   </PropertyGroup>

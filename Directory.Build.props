@@ -10,7 +10,6 @@
     <Message Text="Internal_Logging is set to $(Internal_Logging)." Importance="high"/>
   </Target>
 
-
   <Target Name="Info_DirectoryBuildProps"  BeforeTargets="Build" Condition=" $(Internal_Logging) == 'true' ">
     <Message Text="Info: Directory.Build.props imported by $(MSBuildProjectName)." Importance="high"/>
   </Target>
@@ -22,6 +21,7 @@
     <KeysRoot>$(EnlistmentRoot)\.keys</KeysRoot>
     <PropsRoot>$(EnlistmentRoot)\.props</PropsRoot>
     <RulesetsRoot>$(EnlistmentRoot)\.rulesets</RulesetsRoot>
+    <TargetsRoot>$(EnlistmentRoot)\.targets</TargetsRoot>
 
     <BinRoot>$(EnlistmentRoot)\..\bin</BinRoot>
     <BinRoot>$([System.IO.Path]::GetFullPath( $(BinRoot) ))</BinRoot>
