@@ -122,7 +122,7 @@ namespace E2ETests
         private static void GetDockerCompose()
         {
             HttpClient client = new HttpClient();
-            var stream = client.GetStreamAsync("https://github.com/docker/compose/releases/download/1.12.0/docker-compose-Windows-x86_64.exe").Result;
+            var stream = client.GetStreamAsync("https://github.com/docker/compose/releases/download/1.24.1/docker-compose-Windows-x86_64.exe").Result;
             if (!File.Exists(".\\docker-compose.exe"))
             {
                 FileStream fs = null;
