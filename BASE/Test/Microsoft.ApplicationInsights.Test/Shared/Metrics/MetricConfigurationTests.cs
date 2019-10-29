@@ -16,6 +16,14 @@ namespace Microsoft.ApplicationInsights.Metrics
         [TestMethod]
         public void Ctor()
         {
+            {
+                var config = new MetricConfiguration(
+                                    seriesCountLimit: 1000,
+                                    valuesPerDimensionLimit: 100,
+                                    seriesConfig: new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
+                Assert.IsFalse(config.ApplyDimensionCapping);
+            }
+
             { 
                 var config = new MetricConfiguration(
                                     seriesCountLimit:           1000,

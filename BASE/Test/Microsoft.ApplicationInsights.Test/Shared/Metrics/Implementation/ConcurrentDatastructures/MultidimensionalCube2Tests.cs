@@ -379,6 +379,210 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
 
         /// <summary />
         [TestMethod]
+        public void TryGetOrCreatePoint_GetsAndCreatesWithDimCap()
+        {
+            string dimCapValue = "999";
+
+            var cube = new MultidimensionalCube2<int>(
+                                        8,
+                                        (vector) => Int32.Parse(vector[0]), true,
+                                        dimCapValue,
+                                        2, 2, 2);
+
+            MultidimensionalPointResult<int> result;
+
+            Assert.AreEqual(0, cube.TotalPointsCount);
+
+            result = cube.TryGetPoint("1", "1", "1");
+
+            Assert.IsFalse(result.IsSuccess);
+            Assert.IsFalse(result.IsPointCreatedNew);
+            Assert.AreEqual(-1, result.FailureCoordinateIndex);
+            Assert.AreEqual(MultidimensionalPointResultCodes.Failure_PointDoesNotExistCreationNotRequested, result.ResultCode);
+            Assert.AreEqual(0, result.Point);
+            Assert.AreEqual(0, cube.TotalPointsCount);
+
+            result = cube.TryGetOrCreatePoint("1", "1", "1");
+
+            Assert.IsTrue(result.IsSuccess);
+            Assert.IsTrue(result.IsPointCreatedNew);
+            Assert.AreEqual(-1, result.FailureCoordinateIndex);
+            Assert.AreEqual(MultidimensionalPointResultCodes.Success_NewPointCreated, result.ResultCode);
+            Assert.AreEqual(1, result.Point);
+            Assert.AreEqual(1, cube.TotalPointsCount);
+
+            result = cube.TryGetOrCreatePoint("1", "1", "1");
+
+            Assert.IsTrue(result.IsSuccess);
+            Assert.IsFalse(result.IsPointCreatedNew);
+            Assert.AreEqual(-1, result.FailureCoordinateIndex);
+            Assert.AreEqual(MultidimensionalPointResultCodes.Success_ExistingPointRetrieved, result.ResultCode);
+            Assert.AreEqual(1, result.Point);
+            Assert.AreEqual(1, cube.TotalPointsCount);
+
+            result = cube.TryGetPoint("1", "1", "1");
+
+            Assert.IsTrue(result.IsSuccess);
+            Assert.IsFalse(result.IsPointCreatedNew);
+            Assert.AreEqual(-1, result.FailureCoordinateIndex);
+            Assert.AreEqual(MultidimensionalPointResultCodes.Success_ExistingPointRetrieved, result.ResultCode);
+            Assert.AreEqual(1, result.Point);
+            Assert.AreEqual(1, cube.TotalPointsCount);
+
+
+            result = cube.TryGetPoint("1", "1", "2");
+
+            Assert.IsFalse(result.IsSuccess);
+            Assert.IsFalse(result.IsPointCreatedNew);
+            Assert.AreEqual(-1, result.FailureCoordinateIndex);
+            Assert.AreEqual(MultidimensionalPointResultCodes.Failure_PointDoesNotExistCreationNotRequested, result.ResultCode);
+            Assert.AreEqual(0, result.Point);
+            Assert.AreEqual(1, cube.TotalPointsCount);
+
+            result = cube.TryGetOrCreatePoint("1", "1", "2");
+
+            Assert.IsTrue(result.IsSuccess);
+            Assert.IsTrue(result.IsPointCreatedNew);
+            Assert.AreEqual(-1, result.FailureCoordinateIndex);
+            Assert.AreEqual(MultidimensionalPointResultCodes.Success_NewPointCreated, result.ResultCode);
+            Assert.AreEqual(1, result.Point);
+            Assert.AreEqual(2, cube.TotalPointsCount);
+
+            result = cube.TryGetOrCreatePoint("1", "1", "2");
+
+            Assert.IsTrue(result.IsSuccess);
+            Assert.IsFalse(result.IsPointCreatedNew);
+            Assert.AreEqual(-1, result.FailureCoordinateIndex);
+            Assert.AreEqual(MultidimensionalPointResultCodes.Success_ExistingPointRetrieved, result.ResultCode);
+            Assert.AreEqual(1, result.Point);
+            Assert.AreEqual(2, cube.TotalPointsCount);
+
+            result = cube.TryGetPoint("1", "1", "3");
+
+            Assert.IsFalse(result.IsSuccess);
+            Assert.IsFalse(result.IsPointCreatedNew);
+            Assert.AreEqual(-1, result.FailureCoordinateIndex);
+            Assert.AreEqual(MultidimensionalPointResultCodes.Failure_PointDoesNotExistCreationNotRequested, result.ResultCode);
+            Assert.AreEqual(0, result.Point);
+            Assert.AreEqual(2, cube.TotalPointsCount);
+
+            // Triggers creation of fallback dimension value.
+            // i.e 3 will be replaced with "dimCapValue"
+            result = cube.TryGetOrCreatePoint("1", "1", "3");
+
+            Assert.IsTrue(result.IsSuccess);
+            Assert.IsTrue(result.IsPointCreatedNew);
+            Assert.AreEqual(-1, result.FailureCoordinateIndex);
+            Assert.AreEqual(MultidimensionalPointResultCodes.Success_NewPointCreatedAboveDimCapLimit, result.ResultCode);
+            Assert.AreEqual(1, result.Point);
+            Assert.AreEqual(3, cube.TotalPointsCount);
+
+            result = cube.TryGetPoint("1", "1", "3");
+
+            Assert.IsFalse(result.IsSuccess);
+            Assert.IsFalse(result.IsPointCreatedNew);
+            Assert.AreEqual(-1, result.FailureCoordinateIndex);
+            Assert.AreEqual(MultidimensionalPointResultCodes.Failure_PointDoesNotExistCreationNotRequested, result.ResultCode);
+            Assert.AreEqual(0, result.Point);
+            Assert.AreEqual(3, cube.TotalPointsCount);
+
+            // Triggers re-use of previously created fallback dimension value.            
+            result = cube.TryGetOrCreatePoint("1", "1", "3");
+
+            Assert.IsTrue(result.IsSuccess);
+            Assert.IsFalse(result.IsPointCreatedNew);
+            Assert.AreEqual(-1, result.FailureCoordinateIndex);
+            Assert.AreEqual(MultidimensionalPointResultCodes.Success_ExistingPointRetrieved, result.ResultCode);
+            Assert.AreEqual(1, result.Point);
+            Assert.AreEqual(3, cube.TotalPointsCount);
+
+            // Force 2nd dimension to reach cap. (preparing for the next case below)
+            result = cube.TryGetOrCreatePoint("1", "2", "1");
+
+            Assert.IsTrue(result.IsSuccess);
+            Assert.IsTrue(result.IsPointCreatedNew);
+            Assert.AreEqual(-1, result.FailureCoordinateIndex);
+            Assert.AreEqual(MultidimensionalPointResultCodes.Success_NewPointCreated, result.ResultCode);
+            Assert.AreEqual(1, result.Point);
+            Assert.AreEqual(4, cube.TotalPointsCount);
+
+
+            // Triggers creation of fallback dimension value.
+            // i.e both 3 will be replaced with "dimCapValue"
+            result = cube.TryGetOrCreatePoint("1", "3", "3");
+
+            Assert.IsTrue(result.IsSuccess);
+            Assert.IsTrue(result.IsPointCreatedNew);
+            Assert.AreEqual(-1, result.FailureCoordinateIndex);
+            Assert.AreEqual(MultidimensionalPointResultCodes.Success_NewPointCreatedAboveDimCapLimit, result.ResultCode);
+            Assert.AreEqual(1, result.Point);
+            Assert.AreEqual(5, cube.TotalPointsCount);
+
+            // Force 1st dimension to reach cap. (preparing for the next case below)
+            result = cube.TryGetOrCreatePoint("2", "2", "1");
+
+            Assert.IsTrue(result.IsSuccess);
+            Assert.IsTrue(result.IsPointCreatedNew);
+            Assert.AreEqual(-1, result.FailureCoordinateIndex);
+            Assert.AreEqual(MultidimensionalPointResultCodes.Success_NewPointCreated, result.ResultCode);
+            Assert.AreEqual(2, result.Point);
+            Assert.AreEqual(6, cube.TotalPointsCount);
+
+
+            // Triggers creation of fallback dimension value.
+            // i.e all 3 will be replaced with "dimCapValue"
+            result = cube.TryGetOrCreatePoint("3", "3", "3");
+
+            Assert.IsTrue(result.IsSuccess);
+            Assert.IsTrue(result.IsPointCreatedNew);
+            Assert.AreEqual(-1, result.FailureCoordinateIndex);
+            Assert.AreEqual(MultidimensionalPointResultCodes.Success_NewPointCreatedAboveDimCapLimit, result.ResultCode);
+            Assert.AreEqual(999, result.Point);
+            Assert.AreEqual(7, cube.TotalPointsCount);
+        }
+
+        /// <summary />
+        [TestMethod]
+        public void TryGetOrCreatePoint_GetsAndCreatesWithDimCapReachingOverallCap()
+        {
+            string dimCapValue = "999";
+
+            var cube = new MultidimensionalCube2<int>(
+                                        4,
+                                        (vector) => Int32.Parse(vector[0]), true,
+                                        dimCapValue,
+                                        2, 2, 2);
+
+            MultidimensionalPointResult<int> result;
+
+            Assert.AreEqual(0, cube.TotalPointsCount);
+
+            result = cube.TryGetOrCreatePoint("1", "1", "1");
+            Assert.IsTrue(result.IsSuccess);
+            Assert.AreEqual(1, cube.TotalPointsCount);
+
+            result = cube.TryGetOrCreatePoint("1", "2", "1");
+            Assert.IsTrue(result.IsSuccess);
+            Assert.AreEqual(2, cube.TotalPointsCount);
+
+            result = cube.TryGetOrCreatePoint("1", "1", "2");
+            Assert.IsTrue(result.IsSuccess);
+            Assert.AreEqual(3, cube.TotalPointsCount);
+
+            result = cube.TryGetOrCreatePoint("2", "1", "1");
+            Assert.IsTrue(result.IsSuccess);
+            Assert.AreEqual(4, cube.TotalPointsCount);
+
+            // At this stage 4 series have been created, and it means overall metric cap is hit.
+            // The following will respect that limit, and will not attempt to do dim capping for the 3rd dimension.
+            result = cube.TryGetOrCreatePoint("1", "1", "3");
+            Assert.IsFalse(result.IsSuccess);
+            Assert.AreEqual(4, cube.TotalPointsCount);
+            Assert.AreEqual(MultidimensionalPointResultCodes.Failure_TotalPointsCountLimitReached, result.ResultCode);
+        }
+
+        /// <summary />
+        [TestMethod]
         public void GetAllPoints()
         {
             var cube = new MultidimensionalCube2<int>(
