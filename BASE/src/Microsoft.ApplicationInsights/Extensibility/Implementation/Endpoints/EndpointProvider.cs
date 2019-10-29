@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
@@ -50,7 +51,7 @@
                 else if (value.Length > ConnectionStringMaxLength)
                 {
                     CoreEventSource.Log.ConnectionStringExceedsMaxLength(ConnectionStringMaxLength);
-                    throw new ArgumentOutOfRangeException($"Values greater than {ConnectionStringMaxLength} characters are not allowed.", nameof(this.ConnectionString));
+                    throw new ArgumentOutOfRangeException(FormattableString.Invariant($"Values greater than {ConnectionStringMaxLength} characters are not allowed."), nameof(this.ConnectionString));
                 }
 
                 this.connectionString = value ?? throw new ArgumentNullException(nameof(this.ConnectionString));
@@ -81,7 +82,7 @@
                     }
                     else
                     {
-                        throw new ArgumentException($"Connection String Invalid: The value for {endpointMeta.ExplicitName} is invalid.");
+                        throw new ArgumentException(FormattableString.Invariant($"Connection String Invalid: The value for {endpointMeta.ExplicitName} is invalid."));
                     }
                 }
                 else if (this.connectionStringParsed.TryGetValue("EndpointSuffix", out string endpointSuffix))
@@ -92,7 +93,7 @@
                     }
                     else
                     {
-                        throw new ArgumentException($"Connection String Invalid: The value for EndpointSuffix is invalid.");
+                        throw new ArgumentException("Connection String Invalid: The value for EndpointSuffix is invalid.");
                     }
                 }
                 else
@@ -161,7 +162,7 @@
                 if (dictionary.ContainsKey(key))
                 {
                     CoreEventSource.Log.ConnectionStringDuplicateKey();
-                    throw new ArgumentException($"Connection String Invalid: Contains duplicate key: '{key}'.");
+                    throw new ArgumentException(FormattableString.Invariant($"Connection String Invalid: Contains duplicate key: '{key}'."));
                 }
 
                 dictionary.Add(key, value);
