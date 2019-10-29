@@ -123,18 +123,15 @@ namespace E2ETests
         {
             HttpClient client = new HttpClient();
             var stream = client.GetStreamAsync("https://github.com/docker/compose/releases/download/1.24.1/docker-compose-Windows-x86_64.exe").Result;
-            if (!File.Exists(".\\docker-compose.exe"))
+            FileStream fs = null;
+            try
             {
-                FileStream fs = null;
-                try
-                {
-                    fs = new FileStream(".\\docker-compose.exe", FileMode.Create, FileAccess.Write, FileShare.None);
-                    stream.CopyToAsync(fs).Wait();
-                }
-                finally
-                {
-                    fs.Close();
-                }
+                fs = new FileStream(".\\docker-compose.exe", FileMode.Create, FileAccess.Write, FileShare.None);
+                stream.CopyToAsync(fs).Wait();
+            }
+            finally
+            {
+                fs.Close();
             }
         }
 
