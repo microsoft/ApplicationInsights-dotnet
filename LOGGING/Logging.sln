@@ -7,11 +7,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{EE933574-C82
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{2FCC45B3-D820-405D-87FA-467C96465BB1}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Adapters.Shared.Tests", "test\Shared\Adapters.Shared.Tests.shproj", "{FA775630-7917-4A99-A78C-FBA46EDF685C}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TestFramework.Shared.Logging2", "test\Shared\TestFramework.Shared.Logging2.shproj", "{FA775630-7917-4A99-A78C-FBA46EDF685C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xdt.Tests", "test\Xdt.Tests\Xdt.Tests.csproj", "{C6B569BC-6F19-42C9-A951-DA611BB0F4BE}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{117E14CF-5656-42BD-B64E-93142160B6FA}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solution Items", "{117E14CF-5656-42BD-B64E-93142160B6FA}"
 	ProjectSection(SolutionItems) = preProject
 		CHANGELOG.md = CHANGELOG.md
 		CodeCov.ps1 = CodeCov.ps1
@@ -37,9 +37,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NLogTarget.Net45.Tests", "t
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TraceListener.Net45.Tests", "test\TraceListener.Net45.Tests\TraceListener.Net45.Tests.csproj", "{E6F03762-6BD6-4B38-8798-42C189AAB18C}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CommonShared", "src\CommonShared\CommonShared.shproj", "{587B624B-8C64-498E-93D7-A2D2ABC17EAB}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common.Logging", "src\CommonShared\Common.Logging.shproj", "{587B624B-8C64-498E-93D7-A2D2ABC17EAB}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CommonTestShared", "test\CommonTestShared\CommonTestShared.shproj", "{3B9AB7FA-562D-4E4E-86E3-3348426BC0D9}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TestFramework.Shared.Logging", "test\CommonTestShared\TestFramework.Shared.Logging.shproj", "{3B9AB7FA-562D-4E4E-86E3-3348426BC0D9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventSourceListener.netcoreapp10.Tests", "test\EventSourceListener.netcoreapp10.Tests\EventSourceListener.netcoreapp10.Tests.csproj", "{7030CAC6-4B94-4735-B146-C0FC3097ACA6}"
 EndProject
@@ -53,7 +53,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiagnosticSourceListener", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TraceListener", "src\TraceListener\TraceListener.csproj", "{E3766DD1-F376-43F8-B242-6CF06E186179}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "EventSource.Shared", "src\EventSource.Shared\EventSource.Shared\EventSource.Shared.shproj", "{A964DE6D-9750-4013-8BE2-79C2AFC056E5}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common.Logging.EventSource", "src\EventSource.Shared\EventSource.Shared\Common.Logging.EventSource.shproj", "{A964DE6D-9750-4013-8BE2-79C2AFC056E5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiagnosticSourceListener.netcoreapp1.Tests", "test\DiagnosticSourceListener.netcoreapp10.Tests\DiagnosticSourceListener.netcoreapp1.Tests.csproj", "{625DABF6-C4AD-41A9-B2C0-04C9FEC2ADCF}"
 EndProject
@@ -68,6 +68,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ILogger", "src\ILogger\ILogger.csproj", "{7D942802-E85E-4C3C-B97E-67A3867B7CBA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ILogger.NetStandard.Tests", "test\ILogger.NetStandard.Tests\ILogger.NetStandard.Tests.csproj", "{4C1B862F-8F19-4D0F-834D-694DDE0438AE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".DependentProjects", ".DependentProjects", "{5D78454B-607D-481D-96E5-0E9EB323B027}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights", "..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj", "{ED1E83B0-8656-4E2D-BB8B-158A84C45477}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -247,6 +251,14 @@ Global
 		{4C1B862F-8F19-4D0F-834D-694DDE0438AE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4C1B862F-8F19-4D0F-834D-694DDE0438AE}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{4C1B862F-8F19-4D0F-834D-694DDE0438AE}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{ED1E83B0-8656-4E2D-BB8B-158A84C45477}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED1E83B0-8656-4E2D-BB8B-158A84C45477}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED1E83B0-8656-4E2D-BB8B-158A84C45477}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{ED1E83B0-8656-4E2D-BB8B-158A84C45477}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{ED1E83B0-8656-4E2D-BB8B-158A84C45477}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED1E83B0-8656-4E2D-BB8B-158A84C45477}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED1E83B0-8656-4E2D-BB8B-158A84C45477}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{ED1E83B0-8656-4E2D-BB8B-158A84C45477}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -275,6 +287,7 @@ Global
 		{F74826DB-53B1-4588-BD02-4DD25DCBF292} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 		{7D942802-E85E-4C3C-B97E-67A3867B7CBA} = {EE933574-C82B-4E59-A0D1-05328197B937}
 		{4C1B862F-8F19-4D0F-834D-694DDE0438AE} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
+		{ED1E83B0-8656-4E2D-BB8B-158A84C45477} = {5D78454B-607D-481D-96E5-0E9EB323B027}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC8888B1-0E98-49D7-BE15-EB97A6261C0D}
