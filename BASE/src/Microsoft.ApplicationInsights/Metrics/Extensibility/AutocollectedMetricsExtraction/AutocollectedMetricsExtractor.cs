@@ -78,8 +78,9 @@
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="DependencyMetricsExtractor.MaxDependencyTypesToDiscover"/>-property.
-        /// See the remarks for the <see cref="DependencyMetricsExtractor"/>-class for more info.
+        /// Gets or sets the maximum distinct values for DependencyType.
+        /// Types encountered after this limit is hit will be collapsed into a single value DIMENSION_CAPPED.
+        /// Setting 0 will all values to be replaced with a single value "Other".
         /// </summary>
         public int MaxDependencyTypesToDiscover
         {
@@ -90,7 +91,81 @@
 
             set
             {
+                if (value < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "MaxDependencyTypesToDiscover value may not be negative.");
+                }
+
                 this.extractorForDependencyMetrics.MaxDependencyTypesToDiscover = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum distinct values for Dependency Target.
+        /// Targets encountered after this limit is hit will be collapsed into a single value DIMENSION_CAPPED.
+        /// Setting 0 will all values to be replaced with a single value "Other".
+        /// </summary>
+        public int MaxDependencyTargetValuesToDiscover
+        {
+            get
+            {
+                return this.extractorForDependencyMetrics.MaxDependencyTargetValuesToDiscover;
+            }
+
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "MaxDependencyTargetValuesToDiscover value may not be negative.");
+                }
+
+                this.extractorForDependencyMetrics.MaxDependencyTargetValuesToDiscover = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum distinct values for CloudRoleInstance for Request and Dependency telemetry.
+        /// Values encountered after this limit is hit will be collapsed into a single value DIMENSION_CAPPED.
+        /// Setting 0 will all values to be replaced with a single value "Other".
+        /// </summary>
+        public int MaxCloudRoleInstanceValuesToDiscover
+        {
+            get
+            {
+                return this.extractorForDependencyMetrics.MaxCloudRoleInstanceValuesToDiscover;
+            }
+
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "MaxCloudRoleInstanceValuesToDiscover value may not be negative.");
+                }
+
+                this.extractorForDependencyMetrics.MaxCloudRoleInstanceValuesToDiscover = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum distinct values for CloudRoleName for Request and Dependency telemetry.
+        /// Values encountered after this limit is hit will be collapsed into a single value DIMENSION_CAPPED.
+        /// Setting 0 will all values to be replaced with a single value "Other".
+        /// </summary>
+        public int MaxCloudRoleNameValuesToDiscover
+        {
+            get
+            {
+                return this.extractorForDependencyMetrics.MaxCloudRoleNameValuesToDiscover;
+            }
+
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "MaxCloudRoleNameValuesToDiscover value may not be negative.");
+                }
+
+                this.extractorForDependencyMetrics.MaxCloudRoleInstanceValuesToDiscover = value;
             }
         }
 

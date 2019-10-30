@@ -242,7 +242,7 @@
         [TestMethod]
         public void Dependency_MaxDependenctTypesToDiscoverDefaultIsAsExpected()
         {
-            Assert.AreEqual(15, DependencyMetricsExtractor.MaxDependenctTypesToDiscoverDefault);
+            Assert.AreEqual(15, DependencyMetricsExtractor.MaxDependencyTypesToDiscoverDefault);
         }
 
         [TestMethod]
@@ -309,7 +309,7 @@
         {
             var extractor = new AutocollectedMetricsExtractor(null);
 
-            Assert.AreEqual(DependencyMetricsExtractor.MaxDependenctTypesToDiscoverDefault, extractor.MaxDependencyTypesToDiscover);
+            Assert.AreEqual(DependencyMetricsExtractor.MaxDependencyTypesToDiscoverDefault, extractor.MaxDependencyTypesToDiscover);
 
             extractor.MaxDependencyTypesToDiscover = 1000;
             Assert.AreEqual(1000, extractor.MaxDependencyTypesToDiscover);
@@ -702,7 +702,10 @@
         internal static TelemetryConfiguration CreateTelemetryConfigWithExtractor(IList<ITelemetry> telemetrySentToChannel,
                                                                                   Func<ITelemetryProcessor, AutocollectedMetricsExtractor> extractorFactory)
         {
-            ITelemetryChannel channel = new StubTelemetryChannel { OnSend = (t) => telemetrySentToChannel.Add(t) };
+            ITelemetryChannel channel = new StubTelemetryChannel 
+            { 
+                OnSend = (t) => telemetrySentToChannel.Add(t) 
+            };
             string iKey = Guid.NewGuid().ToString("D");
             TelemetryConfiguration telemetryConfig = new TelemetryConfiguration(iKey, channel);
 
