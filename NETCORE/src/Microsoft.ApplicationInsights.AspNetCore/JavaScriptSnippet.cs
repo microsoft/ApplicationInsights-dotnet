@@ -87,6 +87,7 @@
                     }
 
                     // Return full snippet
+                    // Developer Note: If you recently updated the snippet and are now getting "FormatException: Input string was not in a correct format." you need to escape all the curly braces; '{' => '{{' and '}' => '}}'. 
                     return string.Format(CultureInfo.InvariantCulture, Snippet, insertConfig, insertAuthUserContext);
                 }
                 else
