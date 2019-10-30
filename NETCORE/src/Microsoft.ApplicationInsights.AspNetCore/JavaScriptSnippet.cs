@@ -55,23 +55,37 @@
         /// <returns>JavaScript code snippet with instrumentation key or empty if instrumentation key was not set for the application.</returns>
         public string FullScript
         {
-            // TODO: NEED TO SUPPORT CONNECTION STRING. DISCUSS WITH JAVASCRIPT SDK TO CONFIRM COMPATIBILITY.
-
             get
             {
-                if (!this.telemetryConfiguration.DisableTelemetry &&
-                    !string.IsNullOrEmpty(this.telemetryConfiguration.InstrumentationKey))
+                if (!this.telemetryConfiguration.DisableTelemetry)
                 {
-                    string additionalJS = string.Empty;
-                    IIdentity identity = this.httpContextAccessor?.HttpContext?.User?.Identity;
-                    if (this.enableAuthSnippet &&
-                        identity != null &&
-                        identity.IsAuthenticated)
+                    string insertConfig;
+                    if (!string.IsNullOrEmpty(this.telemetryConfiguration.ConnectionString))
                     {
-                        string escapedUserName = this.encoder.Encode(identity.Name);
-                        additionalJS = string.Format(CultureInfo.InvariantCulture, AuthSnippet, escapedUserName);
+                        insertConfig =  string.Format(CultureInfo.InvariantCulture, "connectionString: '{0}'", this.telemetryConfiguration.ConnectionString);
+                    }
+                    else if (!string.IsNullOrEmpty(this.telemetryConfiguration.InstrumentationKey))
+                    {
+                        insertConfig = string.Format(CultureInfo.InvariantCulture, "instrumentationKey: '{0}'", this.telemetryConfiguration.InstrumentationKey);
+                    }
+                    else
+                    {
+                        return string.Empty;
                     }
 
+                    // Auth Snippet
+                    string additionalJS = string.Empty;
+                    if (this.enableAuthSnippet)
+                    {
+                        IIdentity identity = this.httpContextAccessor?.HttpContext?.User?.Identity;
+                        if (identity != null && identity.IsAuthenticated)
+                        {
+                            string escapedUserName = this.encoder.Encode(identity.Name);
+                            additionalJS = string.Format(CultureInfo.InvariantCulture, AuthSnippet, escapedUserName);
+                        }
+                    }
+
+                    // Return full snippet
                     return string.Format(CultureInfo.InvariantCulture, Snippet, this.telemetryConfiguration.InstrumentationKey, additionalJS);
                 }
                 else
