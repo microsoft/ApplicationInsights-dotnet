@@ -59,6 +59,7 @@
             {
                 if (!this.telemetryConfiguration.DisableTelemetry)
                 {
+                    // Config JS SDK
                     string insertConfig;
                     if (!string.IsNullOrEmpty(this.telemetryConfiguration.ConnectionString))
                     {
@@ -73,20 +74,20 @@
                         return string.Empty;
                     }
 
-                    // Auth Snippet
-                    string additionalJS = string.Empty;
+                    // Auth Snippet (setAuthenticatedUserContext)
+                    string insertAuthUserContext = string.Empty;
                     if (this.enableAuthSnippet)
                     {
                         IIdentity identity = this.httpContextAccessor?.HttpContext?.User?.Identity;
                         if (identity != null && identity.IsAuthenticated)
                         {
                             string escapedUserName = this.encoder.Encode(identity.Name);
-                            additionalJS = string.Format(CultureInfo.InvariantCulture, AuthSnippet, escapedUserName);
+                            insertAuthUserContext = string.Format(CultureInfo.InvariantCulture, AuthSnippet, escapedUserName);
                         }
                     }
 
                     // Return full snippet
-                    return string.Format(CultureInfo.InvariantCulture, Snippet, this.telemetryConfiguration.InstrumentationKey, additionalJS);
+                    return string.Format(CultureInfo.InvariantCulture, Snippet, insertConfig, insertAuthUserContext);
                 }
                 else
                 {
