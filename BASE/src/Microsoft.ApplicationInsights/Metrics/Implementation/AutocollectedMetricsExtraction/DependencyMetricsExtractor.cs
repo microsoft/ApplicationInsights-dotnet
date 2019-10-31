@@ -40,20 +40,20 @@
         /// </summary>
         private Metric dependencyCallDurationMetric = null;
 
-        private List<AggregateDimension> aggregateDimensions = new List<AggregateDimension>();
+        private List<IDimensionExtractor> dimensionExtractors = new List<IDimensionExtractor>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DependencyMetricsExtractor" /> class.
         /// </summary>
         public DependencyMetricsExtractor()
         {
-            aggregateDimensions.Add(GetIdDimension());
-            aggregateDimensions.Add(GetSuccessDimension());
-            aggregateDimensions.Add(GetSyntheticDimension());
-            aggregateDimensions.Add(GetTypeDimension());
-            aggregateDimensions.Add(GetTargetDimension());
-            aggregateDimensions.Add(GetRoleInstanceDimension());
-            aggregateDimensions.Add(GetRoleNameDimension());
+            dimensionExtractors.Add(new IdDimensionExtractor());
+            dimensionExtractors.Add(new SuccessDimensionExtractor());
+            dimensionExtractors.Add(new SyntheticDimensionExtractor());
+            dimensionExtractors.Add(new TypeDimensionExtractor() { MaxValues = MaxDependencyTypesToDiscover });
+            dimensionExtractors.Add(new TargetDimensionExtractor() { MaxValues = MaxDependencyTargetValuesToDiscover });
+            dimensionExtractors.Add(new CloudRoleInstanceDimensionExtractor() { MaxValues = MaxCloudRoleInstanceValuesToDiscover });
+            dimensionExtractors.Add(new CloudRoleNameDimensionExtractor() { MaxValues = MaxCloudRoleNameValuesToDiscover });
         }
 
         /// <summary>
@@ -99,10 +99,10 @@
         public void InitializeExtractor(TelemetryClient metricTelemetryClient)
         {
             int seriesCountLimit = 1;
-            int[] valuesPerDimensionLimit = new int[this.aggregateDimensions.Count];
+            int[] valuesPerDimensionLimit = new int[this.dimensionExtractors.Count];
             int i = 0;
 
-            foreach (var dim in this.aggregateDimensions)
+            foreach (var dim in this.dimensionExtractors)
             {
                 int dimLimit = 1;
                 if (dim.MaxValues == 0)
@@ -125,15 +125,15 @@
             config.ApplyDimensionCapping = true;
             config.DimensionCappedString = MetricTerms.Autocollection.Common.PropertyValues.DimensionCapFallbackValue;
 
+            IList<string> dimensionNames = new List<string>(this.dimensionExtractors.Count);
+            for (i = 0; i < this.dimensionExtractors.Count; i++)
+            {
+                dimensionNames.Add(this.dimensionExtractors[i].Name);
+            }
+
             MetricIdentifier metricIdentifier = new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace,
                         MetricTerms.Autocollection.Metric.DependencyCallDuration.Name,
-                        this.aggregateDimensions[0].Name,
-                        this.aggregateDimensions[1].Name,
-                        this.aggregateDimensions[2].Name,
-                        this.aggregateDimensions[3].Name,
-                        this.aggregateDimensions[4].Name,
-                        this.aggregateDimensions[5].Name,
-                        this.aggregateDimensions[6].Name);
+                        dimensionNames);
 
             this.dependencyCallDurationMetric = metricTelemetryClient.GetMetric(
                                                         metricIdentifier: metricIdentifier,
@@ -166,10 +166,10 @@
             }
 
             int i = 0;
-            string[] dimValues = new string[this.aggregateDimensions.Count];
-            foreach (var dim in this.aggregateDimensions)
+            string[] dimValues = new string[this.dimensionExtractors.Count];
+            foreach (var dim in this.dimensionExtractors)
             {
-                dimValues[i] = dim.GetDimensionValue(dependencyCall);
+                dimValues[i] = dim.ExtractDimension(dependencyCall);
                 if (string.IsNullOrEmpty(dimValues[i]))
                 {
                     dimValues[i] = dim.DefaultValue;
@@ -181,112 +181,6 @@
             this.dependencyCallDurationMetric.TrackValue(dependencyCall.Duration.TotalMilliseconds,
                 dimValues[0], dimValues[1], dimValues[2], dimValues[3], dimValues[4], dimValues[5], dimValues[6]);
             isItemProcessed = true;
-        }
-
-        private AggregateDimension GetIdDimension()
-        {
-            var idDimension = new AggregateDimension();
-            idDimension.DefaultValue = MetricTerms.Autocollection.Metric.DependencyCallDuration.Id;
-            idDimension.MaxValues = 1;
-            idDimension.Name = MetricDimensionNames.TelemetryContext.Property(MetricTerms.Autocollection.MetricId.Moniker.Key);
-            idDimension.GetDimensionValue = (item) =>
-            {
-                return MetricTerms.Autocollection.Metric.DependencyCallDuration.Id;
-            };
-
-            return idDimension;
-        }
-
-        private AggregateDimension GetSuccessDimension()
-        {
-            var successDimension = new AggregateDimension();
-            successDimension.DefaultValue = bool.TrueString;
-            successDimension.MaxValues = 2;
-            successDimension.Name = MetricTerms.Autocollection.DependencyCall.PropertyNames.Success;
-            successDimension.GetDimensionValue = (item) =>
-            {
-                var dep = item as DependencyTelemetry;
-                bool dependencyFailed = (dep.Success != null) && (dep.Success == false);
-                string dependencySuccessString = dependencyFailed ? bool.FalseString : bool.TrueString;
-                return dependencySuccessString;
-            };
-
-            return successDimension;
-        }
-
-        private AggregateDimension GetSyntheticDimension()
-        {
-            var syntheticDimension = new AggregateDimension();
-            syntheticDimension.DefaultValue = bool.TrueString;
-            syntheticDimension.MaxValues = 2;
-            syntheticDimension.Name = MetricTerms.Autocollection.Common.PropertyNames.Synthetic;
-            syntheticDimension.GetDimensionValue = (item) =>
-            {
-                var dep = item as DependencyTelemetry;
-                bool isSynthetic = dep.Context.Operation.SyntheticSource != null;
-                string isSyntheticString = isSynthetic ? bool.TrueString : bool.FalseString;
-                return isSyntheticString;
-            };
-
-            return syntheticDimension;
-        }
-
-        private AggregateDimension GetTypeDimension()
-        {
-            var typeDimension = new AggregateDimension();
-            typeDimension.DefaultValue = MetricTerms.Autocollection.Common.PropertyValues.Unknown;
-            typeDimension.MaxValues = MaxDependencyTypesToDiscover;
-            typeDimension.Name = MetricTerms.Autocollection.DependencyCall.PropertyNames.TypeName;
-            typeDimension.GetDimensionValue = (item) =>
-            {
-                var dep = item as DependencyTelemetry;
-                return dep.Type;
-            };
-
-            return typeDimension;
-        }
-
-        private AggregateDimension GetTargetDimension()
-        {
-            var targetDimension = new AggregateDimension();
-            targetDimension.DefaultValue = MetricTerms.Autocollection.Common.PropertyValues.Unknown;
-            targetDimension.MaxValues = MaxDependencyTypesToDiscover;
-            targetDimension.Name = MetricTerms.Autocollection.DependencyCall.PropertyNames.Target;
-            targetDimension.GetDimensionValue = (item) =>
-            {
-                var dep = item as DependencyTelemetry;
-                return dep.Target;
-            };
-
-            return targetDimension;
-        }
-
-        private AggregateDimension GetRoleInstanceDimension()
-        {
-            var roleInstanceDimension = new AggregateDimension();
-            roleInstanceDimension.DefaultValue = MetricTerms.Autocollection.Common.PropertyValues.Unknown;
-            roleInstanceDimension.MaxValues = MaxCloudRoleInstanceValuesToDiscover;
-            roleInstanceDimension.Name = MetricTerms.Autocollection.Common.PropertyNames.CloudRoleInstance;
-            roleInstanceDimension.GetDimensionValue = (item) =>
-            {
-                return item.Context.Cloud.RoleInstance;
-            };
-
-            return roleInstanceDimension;
-        }
-
-        private AggregateDimension GetRoleNameDimension()
-        {
-            var roleNameDimension = new AggregateDimension();
-            roleNameDimension.DefaultValue = MetricTerms.Autocollection.Common.PropertyValues.Unknown;
-            roleNameDimension.MaxValues = MaxCloudRoleInstanceValuesToDiscover;
-            roleNameDimension.Name = MetricTerms.Autocollection.Common.PropertyNames.CloudRoleName;
-            roleNameDimension.GetDimensionValue = (item) =>
-            {
-                return item.Context.Cloud.RoleName;
-            };
-
-            return roleNameDimension;
         }
     }
 }
