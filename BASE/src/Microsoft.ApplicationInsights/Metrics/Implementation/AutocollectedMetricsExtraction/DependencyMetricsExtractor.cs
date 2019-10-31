@@ -36,11 +36,6 @@
         public const int MaxCloudRoleNameValuesToDiscoverDefault = 2;
 
         /// <summary>
-        /// The <c>TelemetryClient</c> to be used for creating and sending the metrics by this extractor.
-        /// </summary>
-        private TelemetryClient metricTelemetryClient = null;
-
-        /// <summary>
         /// Extracted metric.
         /// </summary>
         private Metric dependencyCallDurationMetric = null;
@@ -103,8 +98,6 @@
         /// <param name="metricTelemetryClient">The <c>TelemetryClient</c> to be used for sending extracted metrics.</param>
         public void InitializeExtractor(TelemetryClient metricTelemetryClient)
         {
-            this.metricTelemetryClient = metricTelemetryClient;
-            
             int seriesCountLimit = 1;
             int[] valuesPerDimensionLimit = new int[this.aggregateDimensions.Count];
             int i = 0;
@@ -142,7 +135,7 @@
                         this.aggregateDimensions[5].Name,
                         this.aggregateDimensions[6].Name);
 
-            this.dependencyCallDurationMetric = this.metricTelemetryClient.GetMetric(
+            this.dependencyCallDurationMetric = metricTelemetryClient.GetMetric(
                                                         metricIdentifier: metricIdentifier,
                                                         metricConfiguration: config,
                                                         aggregationScope: MetricAggregationScope.TelemetryClient);

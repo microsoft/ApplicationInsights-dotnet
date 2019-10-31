@@ -92,8 +92,7 @@
 
                 public static class PropertyValues
                 {
-                    public const string DimensionCapFallbackValue = "Other";
-                    public const string Other = "Other";
+                    public const string DimensionCapFallbackValue = "DIMENSION-CAPPED";
                     public const string Unknown = "Unknown";
                 }
             }
