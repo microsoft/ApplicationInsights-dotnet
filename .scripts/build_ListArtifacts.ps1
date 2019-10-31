@@ -10,6 +10,6 @@ param(
 
 Write-Host "`nDirectory:" $Directory;
 
-$files = Get-ChildItem -Path $Directory -Recurse -File -Include *.dll, *.pdb;
+$files = Get-ChildItem -Path $Directory -Recurse -File -Include *.dll, *.pdb; *.nupkg; *.snupkg
 $files | foreach-object { Write-Host "`t"$_.FullName };
 Write-Host "`nCount:" $files.Count;
