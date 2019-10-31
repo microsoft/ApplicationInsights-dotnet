@@ -9,7 +9,7 @@
         public int MaxValues { get; set; } = 2;
         public string DefaultValue { get; set; } = bool.TrueString;
 
-        public string Name { get; set; } = MetricTerms.Autocollection.DependencyCall.PropertyNames.Success;
+        public string Name { get; set; } = MetricTerms.Autocollection.Request.PropertyNames.Success;
 
         public string ExtractDimension(ITelemetry item)
         {
