@@ -1,4 +1,6 @@
-﻿FROM microsoft/windowsservercore:latest
+﻿# As explained here, https://techcommunity.microsoft.com/t5/Containers/Windows-Server-2019-Now-Available/ba-p/382430
+# replacing microsoft/windowsservercore:latest with recommended approach
+FROM mcr.microsoft.com/windows/servercore:ltsc2016
 
 RUN powershell -NoProfile -Command \
         mkdir nginx;
