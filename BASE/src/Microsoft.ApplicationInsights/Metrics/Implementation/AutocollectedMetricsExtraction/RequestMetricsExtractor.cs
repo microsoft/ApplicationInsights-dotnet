@@ -140,8 +140,7 @@
                 i++;
             }
 
-            this.requestDurationMetric.TrackValue(request.Duration.TotalMilliseconds,
-                dimValues[0], dimValues[1], dimValues[2], dimValues[3], dimValues[4], dimValues[5]);
+            CommonHelper.TrackValueHelper(this.requestDurationMetric, request.Duration.TotalMilliseconds, dimValues);
             isItemProcessed = true;
         }
     }

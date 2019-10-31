@@ -178,8 +178,7 @@
                 i++;
             }
 
-            this.dependencyCallDurationMetric.TrackValue(dependencyCall.Duration.TotalMilliseconds,
-                dimValues[0], dimValues[1], dimValues[2], dimValues[3], dimValues[4], dimValues[5], dimValues[6]);
+            CommonHelper.TrackValueHelper(this.dependencyCallDurationMetric, dependencyCall.Duration.TotalMilliseconds, dimValues);
             isItemProcessed = true;
         }
     }
