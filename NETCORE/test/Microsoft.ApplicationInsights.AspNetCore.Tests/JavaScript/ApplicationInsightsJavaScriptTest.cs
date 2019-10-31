@@ -44,6 +44,16 @@
         }
 
         [Fact]
+        [Trait("Trait", "ConnectionString")]
+        public static void SnippetWillIncludeConnectionStringAsSubstring()
+        {
+            string testConnString = "InstrumentationKey=00000000-0000-0000-0000-000000000000";
+            var telemetryConfiguration = new TelemetryConfiguration { ConnectionString = testConnString };
+            var snippet = new JavaScriptSnippet(telemetryConfiguration, GetOptions(false), null, encoder);
+            Assert.Contains("connectionString: '" + testConnString + "'", snippet.FullScript);
+        }
+
+        [Fact]
         public static void SnippetWillIncludeInstrumentationKeyAsSubstring()
         {
             string unittestkey = "unittestkey";
