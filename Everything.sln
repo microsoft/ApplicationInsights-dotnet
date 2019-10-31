@@ -161,7 +161,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "WindowsServer.Shared.Tests"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiagnosticSourceListener.netcoreapp1.Tests", "LOGGING\test\DiagnosticSourceListener.netcoreapp10.Tests\DiagnosticSourceListener.netcoreapp1.Tests.csproj", "{7CBC11F0-9D80-458F-A8DA-BF45EA648917}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtwCollector.Net451.Tests", "LOGGING\test\EtwCollector.Net451.Tests\EtwCollector.Net451.Tests.csproj", "{46167FB8-2B4B-40B4-ACB3-B20615B14682}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtwCollector.Net46.Tests", "LOGGING\test\EtwCollector.Net451.Tests\EtwCollector.Net46.Tests.csproj", "{46167FB8-2B4B-40B4-ACB3-B20615B14682}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventSourceListener.netcoreapp10.Tests", "LOGGING\test\EventSourceListener.netcoreapp10.Tests\EventSourceListener.netcoreapp10.Tests.csproj", "{6673D8EC-04F3-491F-B3C4-5C26C1228F80}"
 EndProject
