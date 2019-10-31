@@ -127,7 +127,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Perf.NetCore.Tests", "WEB\S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Perf-NetCore20.Tests", "WEB\Src\PerformanceCollector\NetCore20.Tests\Perf-NetCore20.Tests\Perf-NetCore20.Tests.csproj", "{07620299-B0E7-44BB-BE85-C4D1B25104F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perf.NetFull.Tests", "WEB\Src\PerformanceCollector\Perf.NetFull.Tests\Perf.NetFull.Tests.csproj", "{F254D4FB-428D-408E-8251-39BCA7B4B5CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perf.Net45.Tests", "WEB\Src\PerformanceCollector\Perf.Net45.Tests\Perf.Net45.Tests.csproj", "{F254D4FB-428D-408E-8251-39BCA7B4B5CE}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared", "WEB\Src\PerformanceCollector\Perf.Shared\Perf.Shared.shproj", "{A78F50D4-F518-4DCB-878B-526FD54CCA35}"
 EndProject
@@ -161,7 +161,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "WindowsServer.Shared.Tests"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiagnosticSourceListener.netcoreapp1.Tests", "LOGGING\test\DiagnosticSourceListener.netcoreapp10.Tests\DiagnosticSourceListener.netcoreapp1.Tests.csproj", "{7CBC11F0-9D80-458F-A8DA-BF45EA648917}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtwCollector.Net46.Tests", "LOGGING\test\EtwCollector.Net451.Tests\EtwCollector.Net46.Tests.csproj", "{46167FB8-2B4B-40B4-ACB3-B20615B14682}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtwCollector.Net46.Tests", "LOGGING\test\EtwCollector.Net46.Tests\EtwCollector.Net46.Tests.csproj", "{46167FB8-2B4B-40B4-ACB3-B20615B14682}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventSourceListener.netcoreapp10.Tests", "LOGGING\test\EventSourceListener.netcoreapp10.Tests\EventSourceListener.netcoreapp10.Tests.csproj", "{6673D8EC-04F3-491F-B3C4-5C26C1228F80}"
 EndProject
