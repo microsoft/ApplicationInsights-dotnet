@@ -45,7 +45,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventSourceListener.netcore
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtwCollector", "src\EtwCollector\EtwCollector.csproj", "{9BECFB0F-4F6D-4A84-931F-70DA3E4E2813}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtwCollector.Net451.Tests", "test\EtwCollector.Net451.Tests\EtwCollector.Net451.Tests.csproj", "{15FA58D1-F397-4808-831C-7AE65EE640AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtwCollector.Net46.Tests", "test\EtwCollector.Net46.Tests\EtwCollector.Net46.Tests.csproj", "{15FA58D1-F397-4808-831C-7AE65EE640AF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventSourceListener", "src\EventSourceListener\EventSourceListener.csproj", "{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4}"
 EndProject
