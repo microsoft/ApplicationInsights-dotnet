@@ -10,3 +10,5 @@ Foreach ($v in $var) {$out = $out + "`t{0,-28} = {1,-28}`n" -f $v.Name, $v.Value
 write-output $out
 
 Docker --version
+
+dotnet --list-sdks
