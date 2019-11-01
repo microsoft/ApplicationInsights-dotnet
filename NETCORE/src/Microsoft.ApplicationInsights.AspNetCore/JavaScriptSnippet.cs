@@ -55,24 +55,40 @@
         /// <returns>JavaScript code snippet with instrumentation key or empty if instrumentation key was not set for the application.</returns>
         public string FullScript
         {
-            // TODO: NEED TO SUPPORT CONNECTION STRING. DISCUSS WITH JAVASCRIPT SDK TO CONFIRM COMPATIBILITY.
-
             get
             {
-                if (!this.telemetryConfiguration.DisableTelemetry &&
-                    !string.IsNullOrEmpty(this.telemetryConfiguration.InstrumentationKey))
+                if (!this.telemetryConfiguration.DisableTelemetry)
                 {
-                    string additionalJS = string.Empty;
-                    IIdentity identity = this.httpContextAccessor?.HttpContext?.User?.Identity;
-                    if (this.enableAuthSnippet &&
-                        identity != null &&
-                        identity.IsAuthenticated)
+                    // Config JS SDK
+                    string insertConfig;
+                    if (!string.IsNullOrEmpty(this.telemetryConfiguration.ConnectionString))
                     {
-                        string escapedUserName = this.encoder.Encode(identity.Name);
-                        additionalJS = string.Format(CultureInfo.InvariantCulture, AuthSnippet, escapedUserName);
+                        insertConfig =  string.Format(CultureInfo.InvariantCulture, "connectionString: '{0}'", this.telemetryConfiguration.ConnectionString);
+                    }
+                    else if (!string.IsNullOrEmpty(this.telemetryConfiguration.InstrumentationKey))
+                    {
+                        insertConfig = string.Format(CultureInfo.InvariantCulture, "instrumentationKey: '{0}'", this.telemetryConfiguration.InstrumentationKey);
+                    }
+                    else
+                    {
+                        return string.Empty;
                     }
 
-                    return string.Format(CultureInfo.InvariantCulture, Snippet, this.telemetryConfiguration.InstrumentationKey, additionalJS);
+                    // Auth Snippet (setAuthenticatedUserContext)
+                    string insertAuthUserContext = string.Empty;
+                    if (this.enableAuthSnippet)
+                    {
+                        IIdentity identity = this.httpContextAccessor?.HttpContext?.User?.Identity;
+                        if (identity != null && identity.IsAuthenticated)
+                        {
+                            string escapedUserName = this.encoder.Encode(identity.Name);
+                            insertAuthUserContext = string.Format(CultureInfo.InvariantCulture, AuthSnippet, escapedUserName);
+                        }
+                    }
+
+                    // Return full snippet
+                    // Developer Note: If you recently updated the snippet and are now getting "FormatException: Input string was not in a correct format." you need to escape all the curly braces; '{' => '{{' and '}' => '}}'. 
+                    return string.Format(CultureInfo.InvariantCulture, Snippet, insertConfig, insertAuthUserContext);
                 }
                 else
                 {
