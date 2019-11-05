@@ -169,10 +169,17 @@
             string[] dimValues = new string[this.dimensionExtractors.Count];
             foreach (var dim in this.dimensionExtractors)
             {
-                dimValues[i] = dim.ExtractDimension(dependencyCall);
-                if (string.IsNullOrEmpty(dimValues[i]))
+                if (dim.MaxValues == 0)
                 {
                     dimValues[i] = dim.DefaultValue;
+                }
+                else
+                {
+                    dimValues[i] = dim.ExtractDimension(dependencyCall);
+                    if (string.IsNullOrEmpty(dimValues[i]))
+                    {
+                        dimValues[i] = dim.DefaultValue;
+                    }
                 }
 
                 i++;
