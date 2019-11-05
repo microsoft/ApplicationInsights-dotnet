@@ -6,7 +6,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
     using System.Collections.Generic;
-
+    using System.Globalization;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
@@ -246,7 +246,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 int candidate = 1;
                 do
                 {
-                    key = truncatedKey + candidate;
+                    key = truncatedKey + candidate.ToString(CultureInfo.InvariantCulture);
                     ++candidate;
                 }
                 while (dictionary.ContainsKey(key));
