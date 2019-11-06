@@ -36,7 +36,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TestFramework.Shared.Web", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PerformanceCollector", "PerformanceCollector", "{A318CC6C-51C8-4BD6-BC85-2B4F35123BE7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perf.NetFull.Tests", "PerformanceCollector\Perf.NetFull.Tests\Perf.NetFull.Tests.csproj", "{F254D4FB-428D-408E-8251-39BCA7B4B5CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perf.Net45.Tests", "PerformanceCollector\Perf.Net45.Tests\Perf.Net45.Tests.csproj", "{F254D4FB-428D-408E-8251-39BCA7B4B5CE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xdt.Tests", "PerformanceCollector\Xdt.Tests\Xdt.Tests.csproj", "{C6B569BC-6F19-42C9-A951-DA611BB0F4BE}"
 EndProject
@@ -62,7 +62,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HostingStartup.Net45.Tests"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared", "PerformanceCollector\Perf.Shared\Perf.Shared.shproj", "{A78F50D4-F518-4DCB-878B-526FD54CCA35}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared.NetFull", "PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.shproj", "{85238238-5EF0-40FA-AD3E-BD4B12A3DD1A}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared.Net45", "PerformanceCollector\Perf.Shared.Net45\Perf.Shared.Net45.shproj", "{85238238-5EF0-40FA-AD3E-BD4B12A3DD1A}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Filtering.Shared", "PerformanceCollector\Filtering.Shared\Filtering.Shared.shproj", "{568AEB4F-BA4C-47A5-9FA3-68F06CD11FED}"
 EndProject
