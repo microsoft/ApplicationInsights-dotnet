@@ -6,6 +6,7 @@
     <AssemblyName>Microsoft.AI.PerfCounterCollector</AssemblyName>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).XML</DocumentationFile>
     <TargetFrameworks>net45;netstandard1.6;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard1.6;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
