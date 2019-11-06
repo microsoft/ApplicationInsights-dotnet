@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using static System.FormattableString;
 
     /// <summary>Encapsulates the configuration for a metric and its respective data time series.</summary>
