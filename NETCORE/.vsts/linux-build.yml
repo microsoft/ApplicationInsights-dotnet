@@ -26,7 +26,7 @@ steps:
     command: 'restore'
     feedsToUse: config
     nugetConfigPath: Nuget.config
-    restoreSolution: "NETCORE/*.sln"
+    restoreSolution: NETCORE/*.sln
     noCache: true
   continueOnError: true
 
