@@ -32,7 +32,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web.Net45.Tests", "Web\Web.
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Web.Shared.Net.Tests", "Web\Web.Shared.Net.Tests\Web.Shared.Net.Tests.shproj", "{AC2E85BB-05F7-43CB-B966-3611CCF47156}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TestFramework.Shared", "TestFramework\Shared\TestFramework.Shared.shproj", "{9718F051-147F-4F5F-9FF3-C926430EFCF7}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TestFramework.Shared.Web", "TestFramework\Shared\TestFramework.Shared.Web.shproj", "{9718F051-147F-4F5F-9FF3-C926430EFCF7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PerformanceCollector", "PerformanceCollector", "{A318CC6C-51C8-4BD6-BC85-2B4F35123BE7}"
 EndProject
@@ -40,7 +40,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perf.NetFull.Tests", "Perfo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xdt.Tests", "PerformanceCollector\Xdt.Tests\Xdt.Tests.csproj", "{C6B569BC-6F19-42C9-A951-DA611BB0F4BE}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0828A19C-C62C-4B5E-9160-5A6F992F2000}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solution Items", "{0828A19C-C62C-4B5E-9160-5A6F992F2000}"
 	ProjectSection(SolutionItems) = preProject
 		..\CHANGELOG.md = ..\CHANGELOG.md
 		..\Common.props = ..\Common.props
@@ -52,7 +52,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Product.props = Product.props
 	EndProjectSection
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common", "Common\Common.shproj", "{CCAB7A34-8DC5-4A6F-B637-46CEBA93C687}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common.Web", "Common\Common.Web.shproj", "{CCAB7A34-8DC5-4A6F-B637-46CEBA93C687}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyCollector.NetCore.Tests", "DependencyCollector\NetCore.Tests\DependencyCollector.NetCore.Tests.csproj", "{D831194B-6283-4F53-B351-D9C72FC03629}"
 EndProject
