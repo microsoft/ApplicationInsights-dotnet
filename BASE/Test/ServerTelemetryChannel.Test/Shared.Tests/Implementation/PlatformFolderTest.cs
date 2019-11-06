@@ -179,7 +179,12 @@
                 Debug.WriteLine(this.storageFolder);
 
                 var folder = new PlatformFolder(this.storageFolder);
-                folder.CreateFile(new string('F', 1024));
+
+                var newFileName = new string('F', 1024);
+
+                DeleteFileIfExists(newFileName, this.storageFolder);
+
+                folder.CreateFile(newFileName);
             }
 
             [TestMethod]

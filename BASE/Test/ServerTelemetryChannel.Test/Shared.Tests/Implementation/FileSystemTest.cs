@@ -2,6 +2,7 @@
 {
 #if !NETCOREAPP1_1
     using System;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     
@@ -72,6 +73,19 @@
         protected static Stream OpenPlatformFile(FileInfo platformFile)
         {
             return platformFile.Open(FileMode.Open);
+        }
+
+        protected static void DeleteFileIfExists(string fileName, DirectoryInfo folder = null)
+        {
+            folder = folder ?? GetLocalFolder();
+            var filePath = Path.Combine(folder.FullName, fileName);
+
+            if(File.Exists(filePath))
+            {
+                Debug.WriteLine("Deleting file: " + filePath);
+
+                File.Delete(filePath);
+            }
         }
     }
 #endif

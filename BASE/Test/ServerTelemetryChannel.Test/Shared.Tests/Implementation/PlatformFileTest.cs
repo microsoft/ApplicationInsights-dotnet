@@ -257,7 +257,12 @@
                 Debug.WriteLine(this.platformFile);
 
                 var file = new PlatformFile(this.platformFile);
-                file.Rename(new string('F', 1024));
+
+                var newFileName = new string('F', 1024);
+
+                DeleteFileIfExists(newFileName);
+
+                file.Rename(newFileName);
             }
 
             [TestMethod]
