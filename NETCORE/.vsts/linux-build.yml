@@ -14,6 +14,12 @@ steps:
     versionSpec: '5.1.0' 
     #checkLatest: false # Optional
 
+# Push a project
+- task: NuGetCommand@2
+  inputs:
+    command: 'custom'
+    arguments: 'locals -clear all'
+
 - task: NuGetCommand@2
   inputs:
     command: 'restore'
