@@ -14,11 +14,21 @@ steps:
     versionSpec: '5.1.0' 
     #checkLatest: false # Optional
 
-- task: DotNetCoreCLI@1
-  displayName: Restore solutions
+- #task: DotNetCoreCLI@1
+  #displayName: Restore solutions
+  #inputs:
+  #  command: "restore"
+  #  projects: "NETCORE/*.sln"
+
+  # Restore 
+- task: NuGetCommand@2
   inputs:
-    command: "restore"
-    projects: "NETCORE/*.sln"
+    command: 'restore'
+    feedsToUse: config
+    nugetConfigPath: Nuget.config
+    restoreSolution: "NETCORE/*.sln"
+    noCache: true
+  continueOnError: true
 
 - task: DotNetCoreCLI@1
   displayName: build all projects
