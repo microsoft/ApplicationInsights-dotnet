@@ -197,7 +197,7 @@
             {
                 for (int i = 0; i < items.Count; i++)
                 {
-                    string key = this.GetKey(name + i);
+                    string key = this.GetKey(name + i.ToString(CultureInfo.InvariantCulture));
                     if (!this.AccumulatedDictionary.ContainsKey(key))
                     {
                         this.AccumulatedDictionary[key] = items[i];
@@ -224,13 +224,13 @@
                     if (items[i] != null)
                     {
                         this.lastPrefix.Push(this.currentPrefix);
-                        this.currentPrefix = this.GetKey(name + i);
+                        this.currentPrefix = this.GetKey(name + i.ToString(CultureInfo.InvariantCulture));
                         items[i].Serialize(this);
                         this.currentPrefix = this.lastPrefix.Pop();
                     }
                     else
                     {
-                        this.AccumulatedDictionary[this.GetKey(name + i)] = null;
+                        this.AccumulatedDictionary[this.GetKey(name + i.ToString(CultureInfo.InvariantCulture))] = null;
                     }
                 }
             }
@@ -318,12 +318,12 @@
 
         private string GenerateSequencialPrefix()
         {
-            return this.GetKey(DefaultKey + this.currentIndex++);
+            return this.GetKey(DefaultKey + (this.currentIndex++).ToString(CultureInfo.InvariantCulture));
         }
 
         private string GenerateSequencialPrefixForObject()
         {
-            return this.GetKey(DefaultObjectKey + this.currentIndex++);
+            return this.GetKey(DefaultObjectKey + (this.currentIndex++).ToString(CultureInfo.InvariantCulture));
         }
     }
 }

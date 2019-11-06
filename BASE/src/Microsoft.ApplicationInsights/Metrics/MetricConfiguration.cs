@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using static System.FormattableString;
 
     /// <summary>Encapsulates the configuration for a metric and its respective data time series.</summary>
@@ -87,7 +88,7 @@
 
                 if (lastLim < 0)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(valuesPerDimensionLimits) + "[" + d + "]");
+                    throw new ArgumentOutOfRangeException(nameof(valuesPerDimensionLimits) + "[" + d.ToString(CultureInfo.InvariantCulture) + "]");
                 }
 
                 this.valuesPerDimensionLimits[d] = lastLim;

@@ -177,7 +177,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
             // Update property key till there is no such key in dict
             do
             {
-                newKey += EventDataExtensions.random.Value.Next(0, 10);
+                newKey += EventDataExtensions.random.Value.Next(0, 10).ToString(CultureInfo.InvariantCulture);
             }
             while (properties.ContainsKey(newKey));
 

@@ -177,7 +177,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         break;
 
                     default:
-                        throw new ArgumentException($"Unexpected EventOpcode: {opCode}. Expected: Start or Stop.", nameof(opCode));
+                        throw new ArgumentException(FormattableString.Invariant($"Unexpected EventOpcode: {opCode}. Expected: Start or Stop."), nameof(opCode));
                 }
 
                 var extendedData = new

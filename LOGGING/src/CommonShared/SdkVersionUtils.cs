@@ -8,6 +8,7 @@
 namespace Microsoft.ApplicationInsights.Implementation
 {
     using System;
+    using System.Globalization;
     using System.Linq;
     using System.Reflection;
 
@@ -22,7 +23,7 @@ namespace Microsoft.ApplicationInsights.Implementation
 #endif
 
             Version version = new Version(versionStr);
-            return (versionPrefix ?? string.Empty) + version.ToString(3) + "-" + version.Revision;
+            return (versionPrefix ?? string.Empty) + version.ToString(3) + "-" + version.Revision.ToString(CultureInfo.InvariantCulture);
         }
     }
 }

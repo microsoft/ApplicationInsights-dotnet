@@ -111,7 +111,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector.Implemenetation
             // Update property key till there is no such key in dict
             do
             {
-                newKey += TraceEventExtensions.random.Value.Next(0, 10);
+                newKey += TraceEventExtensions.random.Value.Next(0, 10).ToString(CultureInfo.InvariantCulture);
             }
             while (properties.ContainsKey(newKey));
 
