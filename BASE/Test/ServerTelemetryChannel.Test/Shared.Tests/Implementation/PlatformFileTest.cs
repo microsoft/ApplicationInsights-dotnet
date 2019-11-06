@@ -251,18 +251,26 @@
             }
 
             [TestMethod]
-            [ExpectedException(typeof(PathTooLongException))]
             public void ThrowsIOExceptionWhenDesiredFileNameIsTooLong()
             {
-                Debug.WriteLine(this.platformFile);
+                bool expectedException = true;
 
-                var file = new PlatformFile(this.platformFile);
+                try
+                {
+                    var file = new PlatformFile(this.platformFile);
+                    file.Rename(new string('F', 1024));
+                }
+                catch (PathTooLongException)
+                {
+                    expectedException = true;
+                }
+                catch (IOException)
+                {
+                    // NET CORE 3.0 changed the exception that can be thrown.
+                    expectedException = true;
+                }
 
-                var newFileName = new string('F', 1024);
-
-                DeleteFileIfExists(newFileName);
-
-                file.Rename(newFileName);
+                Assert.IsTrue(expectedException);
             }
 
             [TestMethod]

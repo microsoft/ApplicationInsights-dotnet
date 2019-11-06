@@ -74,19 +74,6 @@
         {
             return platformFile.Open(FileMode.Open);
         }
-
-        protected static void DeleteFileIfExists(string fileName, DirectoryInfo folder = null)
-        {
-            folder = folder ?? GetLocalFolder();
-            var filePath = Path.Combine(folder.FullName, fileName);
-
-            if(File.Exists(filePath))
-            {
-                Debug.WriteLine("Deleting file: " + filePath);
-
-                File.Delete(filePath);
-            }
-        }
     }
 #endif
 }

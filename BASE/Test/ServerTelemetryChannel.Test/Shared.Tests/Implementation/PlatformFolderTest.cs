@@ -176,15 +176,24 @@
             [ExpectedException(typeof(PathTooLongException))]
             public void ThrowsIOExceptionWhenDesiredFileNameIsTooLong()
             {
-                Debug.WriteLine(this.storageFolder);
+                bool expectedException = true;
 
-                var folder = new PlatformFolder(this.storageFolder);
+                try
+                {
+                    var folder = new PlatformFolder(this.storageFolder);
+                    folder.CreateFile(new string('F', 1024));
+                }
+                catch (PathTooLongException)
+                {
+                    expectedException = true;
+                }
+                catch (IOException)
+                {
+                    // NET CORE 3.0 changed the exception that can be thrown.
+                    expectedException = true;
+                }
 
-                var newFileName = new string('F', 1024);
-
-                DeleteFileIfExists(newFileName, this.storageFolder);
-
-                folder.CreateFile(newFileName);
+                Assert.IsTrue(expectedException);
             }
 
             [TestMethod]
