@@ -32,7 +32,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web.Net45.Tests", "Web\Web.
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Web.Shared.Net.Tests", "Web\Web.Shared.Net.Tests\Web.Shared.Net.Tests.shproj", "{AC2E85BB-05F7-43CB-B966-3611CCF47156}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TestFramework.Shared", "TestFramework\Shared\TestFramework.Shared.Web.shproj", "{9718F051-147F-4F5F-9FF3-C926430EFCF7}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TestFramework.Shared.Web", "TestFramework\Shared\TestFramework.Shared.Web.shproj", "{9718F051-147F-4F5F-9FF3-C926430EFCF7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PerformanceCollector", "PerformanceCollector", "{A318CC6C-51C8-4BD6-BC85-2B4F35123BE7}"
 EndProject

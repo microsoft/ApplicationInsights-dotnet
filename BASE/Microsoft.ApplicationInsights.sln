@@ -42,7 +42,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsigh
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationInsightsTypes", "Test\Microsoft.ApplicationInsights.Test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj", "{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TestFramework.Shared", "Test\TestFramework\Shared\TestFramework.Shared.Base.shproj", "{F76C6CBD-29B0-4564-BDCB-C969F8FEC136}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TestFramework.Shared.Base", "Test\TestFramework\Shared\TestFramework.Shared.Base.shproj", "{F76C6CBD-29B0-4564-BDCB-C969F8FEC136}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel.Net45.Tests", "Test\ServerTelemetryChannel.Test\Net45.Tests\TelemetryChannel.Net45.Tests.csproj", "{DD9659BE-7C0F-4298-82B2-5E957F95977A}"
 EndProject
