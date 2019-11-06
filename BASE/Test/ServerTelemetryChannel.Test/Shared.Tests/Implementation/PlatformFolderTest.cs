@@ -173,10 +173,13 @@
             }
 
             [TestMethod]
+            [ExpectedException(typeof(PathTooLongException))]
             public void ThrowsIOExceptionWhenDesiredFileNameIsTooLong()
             {
+                Debug.WriteLine(this.storageFolder);
+
                 var folder = new PlatformFolder(this.storageFolder);
-                AssertEx.Throws<PathTooLongException>(() => folder.CreateFile(new string('F', 1024)));
+                folder.CreateFile(new string('F', 1024));
             }
 
             [TestMethod]

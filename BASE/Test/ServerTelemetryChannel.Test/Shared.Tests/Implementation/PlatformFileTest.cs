@@ -7,6 +7,7 @@
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.ApplicationInsights.TestFramework;
+    using System.Diagnostics;
 
 
     /// <summary>
@@ -250,10 +251,13 @@
             }
 
             [TestMethod]
+            [ExpectedException(typeof(PathTooLongException))]
             public void ThrowsIOExceptionWhenDesiredFileNameIsTooLong()
             {
+                Debug.WriteLine(this.platformFile);
+
                 var file = new PlatformFile(this.platformFile);
-                AssertEx.Throws<PathTooLongException>(() => file.Rename(new string('F', 1024)));
+                file.Rename(new string('F', 1024));
             }
 
             [TestMethod]
