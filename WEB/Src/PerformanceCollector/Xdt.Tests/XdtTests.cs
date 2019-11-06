@@ -64,7 +64,7 @@
                     int i = 0;
                     foreach (var item in dataSetXml.XPathSelectElements("./item"))
                     {
-                        Trace.WriteLine("Item #" + i++);
+                        Trace.WriteLine("Item #" + (i++).ToString(CultureInfo.InvariantCulture));
 
                         var original = GetInnerXml(item.XPathSelectElement("./original"));
                         var expectedPostTransform = GetInnerXml(item.XPathSelectElement("./expectedPostTransform"));

@@ -38,7 +38,7 @@
             byte[] dataRef = this.GetPerformanceData(categoryIndex.ToString(CultureInfo.InvariantCulture));
             if (dataRef == null)
             {
-                throw new InvalidOperationException("Could not read data for category index " + categoryIndex);
+                throw new InvalidOperationException("Could not read data for category index " + categoryIndex.ToString(CultureInfo.InvariantCulture));
             }
 
             return new CategorySample(dataRef, categoryIndex, counterIndex, this);
