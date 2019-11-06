@@ -87,7 +87,7 @@
 
                 if (lastLim < 0)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(valuesPerDimensionLimits) + "[" + d + "]");
+                    throw new ArgumentOutOfRangeException(nameof(valuesPerDimensionLimits) + "[" + d.ToString(CultureInfo.InvariantCulture) + "]");
                 }
 
                 this.valuesPerDimensionLimits[d] = lastLim;

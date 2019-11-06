@@ -22,7 +22,7 @@
         {
             if (string.IsNullOrEmpty(telemetry.Sequence))
             {
-                telemetry.Sequence = this.stablePrefix + Interlocked.Increment(ref this.currentNumber);
+                telemetry.Sequence = this.stablePrefix + Interlocked.Increment(ref this.currentNumber).ToString(CultureInfo.InvariantCulture);
             }
         }
     }
