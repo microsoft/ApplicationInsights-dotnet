@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.EtwCollector.Tests</RootNamespace>
-    <AssemblyName>Microsoft.ApplicationInsights.EtwCollector.Net451.Tests</AssemblyName>
+    <AssemblyName>Microsoft.ApplicationInsights.EtwCollector.Net46.Tests</AssemblyName>
     <TargetFramework>net46</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
