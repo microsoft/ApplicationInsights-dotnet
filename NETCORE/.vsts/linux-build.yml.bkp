@@ -6,12 +6,27 @@ steps:
   displayName: install dotnet core 3.0.100-preview8-013656
   inputs:
     version: "3.0.100-preview8-013656"
-    
-- task: DotNetCoreCLI@1
-  displayName: Restore solutions
+
+# NuGet tool installer
+# Acquires a specific version of NuGet from the internet or the tools cache and adds it to the PATH. Use this task to change the version of NuGet used in the NuGet tasks.
+- task: NuGetToolInstaller@0
   inputs:
-    command: "restore"
-    projects: "NETCORE/*.sln"
+    versionSpec: '5.1.0' 
+    #checkLatest: false # Optional
+
+# Push a project
+- task: NuGetCommand@2
+  inputs:
+    command: 'custom'
+    arguments: 'locals -clear all'
+
+- task: NuGetCommand@2
+  inputs:
+    command: 'restore'
+    feedsToUse: config
+    nugetConfigPath: NuGet.config
+    restoreSolution: 'NETCORE/*.sln'
+    noCache: true
   continueOnError: true
 
 - task: DotNetCoreCLI@1
