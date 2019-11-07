@@ -280,6 +280,7 @@ function Invoke-UnZip([string]$zipfile, [string]$outpath) {
 
 function Start-EvaluateNupkg ($nupkgPath) {
     Write-Break;
+    Write-Host "Evaluate nupkg:"
     Write-Name $nupkgPath;
 
     Get-IsPackageSigned $nupkgPath;
@@ -291,6 +292,7 @@ function Start-EvaluateNupkg ($nupkgPath) {
 
     # LOOK FOR ALL NUSPEC WITHIN NUPKG
     Get-ChildItem -Path $unzipPath -Recurse -Filter *.nuspec | ForEach-Object { 
+        Write-Host "Evaluate nuspec:"
         Write-Name $_.FullName;
         [xml]$nuspecXml = Get-Content $_.FullName
         Get-IsValidPackageId $nuspecXml;
@@ -307,6 +309,7 @@ function Start-EvaluateNupkg ($nupkgPath) {
     
     # LOOK FOR ALL DLL WITHIN NUPKG
     Get-ChildItem -Path $unzipPath -Recurse -Filter *.dll | ForEach-Object {
+        Write-Host "Evaluate dll:"
         Write-Name $_.FullName;
         Get-IsDllSigned $_.FullName;
         Get-DoesXmlDocExist $_.FullName;
