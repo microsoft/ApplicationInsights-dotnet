@@ -7,7 +7,6 @@
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.ApplicationInsights.TestFramework;
-    using System.Diagnostics;
 
 
     /// <summary>

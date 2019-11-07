@@ -173,7 +173,6 @@
             }
 
             [TestMethod]
-            [ExpectedException(typeof(PathTooLongException))]
             public void ThrowsIOExceptionWhenDesiredFileNameIsTooLong()
             {
                 bool expectedException = true;
