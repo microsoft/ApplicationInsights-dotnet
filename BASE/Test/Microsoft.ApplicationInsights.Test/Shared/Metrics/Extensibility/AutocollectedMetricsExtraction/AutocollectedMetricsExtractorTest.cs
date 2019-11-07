@@ -115,14 +115,14 @@
                                 for (int m = 0; m < synthetic.Length; m++)
                                 {
                                     // For ease of validation 3 calls are tracked.
-                                    // with 10, 30, 5 leading to min=5, max=30, sum = 45
+                                    // with 100, 300, 500 leading to min=50, max=300, sum = 450
                                     // ValidateAllMetric() method does this validation
                                     requests.Add(CreateRequestTelemetry(
-                                        TimeSpan.FromMilliseconds(10), responseCode[j], success[i], synthetic[m], cloudRoleNames[k], cloudRoleInstances[l]));
+                                        TimeSpan.FromMilliseconds(100), responseCode[j], success[i], synthetic[m], cloudRoleNames[k], cloudRoleInstances[l]));
                                     requests.Add(CreateRequestTelemetry(
-                                        TimeSpan.FromMilliseconds(30), responseCode[j], success[i], synthetic[m], cloudRoleNames[k], cloudRoleInstances[l]));
+                                        TimeSpan.FromMilliseconds(300), responseCode[j], success[i], synthetic[m], cloudRoleNames[k], cloudRoleInstances[l]));
                                     requests.Add(CreateRequestTelemetry(
-                                        TimeSpan.FromMilliseconds(5), responseCode[j], success[i], synthetic[m], cloudRoleNames[k], cloudRoleInstances[l]));
+                                        TimeSpan.FromMilliseconds(50), responseCode[j], success[i], synthetic[m], cloudRoleNames[k], cloudRoleInstances[l]));
                                 }
                             }
                         }
@@ -134,8 +134,8 @@
                     client.TrackRequest(req);
                 }
 
-                // 2 * 2 * 3 * 2 * 2 = 48
-                // success * synthetic * responseCode * RoleName * RoleInstance
+                // 2 * 2 * 3 * 2 * 2 * 2 = 96
+                // success * synthetic * responseCode * RoleName * RoleInstance * DurationBucket
                 // 3 Track calls are made in every iteration,
                 // hence 48 * 3 requests gives 144 total requests
                 Assert.AreEqual(144, telemetrySentToChannel.Count);
@@ -143,13 +143,13 @@
                 // The above did not include Metrics as they are sent upon dispose only.                
             } // dispose occurs here, and hence metrics get flushed out.
 
-            // 192 = 144 requests + 48 metrics as there are 48 unique combination of dimension
-            Assert.AreEqual(192, telemetrySentToChannel.Count);
+            // 240 = 144 requests + 96 metrics as there are 96 unique combination of dimension
+            Assert.AreEqual(240, telemetrySentToChannel.Count);
 
             // These are pre-agg metric
             var serverResponseMetric = telemetrySentToChannel.Where(
                 (tel) => "Server response time".Equals((tel as MetricTelemetry)?.Name));
-            Assert.AreEqual(48, serverResponseMetric.Count());
+            Assert.AreEqual(96, serverResponseMetric.Count());
 
             foreach(var metric in serverResponseMetric)
             {
@@ -166,6 +166,7 @@
                 Assert.AreEqual(true, metricTel.Properties.ContainsKey("cloud/roleInstance"));
                 Assert.AreEqual(true, metricTel.Properties.ContainsKey("cloud/roleName"));
                 Assert.AreEqual(true, metricTel.Properties.ContainsKey("request/resultCode"));
+                Assert.AreEqual(true, metricTel.Properties.ContainsKey("request/performanceBucket"));
                 Assert.AreEqual(true, metricTel.Properties.ContainsKey("operation/synthetic"));
             }
 
@@ -174,7 +175,7 @@
             {
                 var metricCollection = serverResponseMetric.Where(
                 (tel) => (tel as MetricTelemetry).Properties["Request.Success"] == success[i].ToString());
-                int expectedCount = 48 / success.Length;
+                int expectedCount = 96 / success.Length;
                 Assert.AreEqual(expectedCount, metricCollection.Count());
                 ValidateAllMetric(metricCollection);
             }
@@ -184,7 +185,7 @@
             {
                 var metricCollection = serverResponseMetric.Where(
                 (tel) => (tel as MetricTelemetry).Properties["operation/synthetic"] == synthetic[i].ToString());
-                int expectedCount = 48 / synthetic.Length;
+                int expectedCount = 96 / synthetic.Length;
                 Assert.AreEqual(expectedCount, metricCollection.Count());
                 ValidateAllMetric(metricCollection);
             }
@@ -194,7 +195,7 @@
             {
                 var metricCollection = serverResponseMetric.Where(
                 (tel) => (tel as MetricTelemetry).Properties["cloud/roleName"] == cloudRoleNames[i]);
-                int expectedCount = 48 / cloudRoleNames.Length;
+                int expectedCount = 96 / cloudRoleNames.Length;
                 Assert.AreEqual(expectedCount, metricCollection.Count());
                 ValidateAllMetric(metricCollection);
             }
@@ -204,7 +205,7 @@
             {
                 var metricCollection = serverResponseMetric.Where(
                 (tel) => (tel as MetricTelemetry).Properties["cloud/roleInstance"] == cloudRoleInstances[i]);
-                int expectedCount = 48 / cloudRoleInstances.Length;
+                int expectedCount = 96 / cloudRoleInstances.Length;
                 Assert.AreEqual(expectedCount, metricCollection.Count());
                 ValidateAllMetric(metricCollection);
             }
@@ -214,9 +215,26 @@
             {
                 var metricCollection = serverResponseMetric.Where(
                 (tel) => (tel as MetricTelemetry).Properties["request/resultCode"] == responseCode[i]);
-                int expectedCount = 48 / responseCode.Length;
+                int expectedCount = 96 / responseCode.Length;
                 Assert.AreEqual(expectedCount, metricCollection.Count());
                 ValidateAllMetric(metricCollection);
+            }
+
+            // Validate Duration Bucket dimension
+            {
+                var metricCollectionBelow250 = serverResponseMetric.Where(
+                    (tel) => (tel as MetricTelemetry).Properties["request/performanceBucket"] == "<250ms");
+
+                var metricCollection500mSecTo1Sec = serverResponseMetric.Where(
+                    (tel) => (tel as MetricTelemetry).Properties["request/performanceBucket"] == "500ms-1sec");
+
+
+                int expectedCount = 96 / 2;
+                Assert.AreEqual(expectedCount, metricCollectionBelow250.Count());
+                ValidateAllMetric(metricCollectionBelow250);
+
+                Assert.AreEqual(expectedCount, metricCollection500mSecTo1Sec.Count());
+                ValidateAllMetric(metricCollection500mSecTo1Sec);
             }
         }
 
@@ -254,9 +272,9 @@
             {
                 var m = singleMetric as MetricTelemetry;
                 Assert.AreEqual(3, m.Count);
-                Assert.AreEqual(5, m.Min);
-                Assert.AreEqual(30, m.Max);
-                Assert.AreEqual(45, m.Sum);
+                Assert.AreEqual(50, m.Min);
+                Assert.AreEqual(300, m.Max);
+                Assert.AreEqual(450, m.Sum);
             }
         }
 

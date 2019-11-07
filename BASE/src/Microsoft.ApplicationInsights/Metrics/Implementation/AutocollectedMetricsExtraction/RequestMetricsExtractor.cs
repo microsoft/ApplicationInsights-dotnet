@@ -40,6 +40,7 @@
         {
             dimensionExtractors.Add(new RequestIdDimensionExtractor());
             dimensionExtractors.Add(new RequestSuccessDimensionExtractor());
+            dimensionExtractors.Add(new DurationBucketExtractor());
             dimensionExtractors.Add(new SyntheticDimensionExtractor());
             dimensionExtractors.Add(new RequestResponseCodeDimensionExtractor() { MaxValues = MaxResponseCodeToDiscover });
             dimensionExtractors.Add(new CloudRoleInstanceDimensionExtractor() { MaxValues = MaxCloudRoleInstanceValuesToDiscover });
