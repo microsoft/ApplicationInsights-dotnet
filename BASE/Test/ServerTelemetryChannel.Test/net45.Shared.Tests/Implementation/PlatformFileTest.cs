@@ -249,8 +249,24 @@
             [TestMethod]
             public void ThrowsIOExceptionWhenDesiredFileNameIsTooLong()
             {
-                var file = new PlatformFile(this.platformFile);
-                AssertEx.Throws<PathTooLongException>(() => file.Rename(new string('F', 1024)));
+                bool expectedException = false;
+
+                try
+                {
+                    var file = new PlatformFile(this.platformFile);
+                    file.Rename(new string('F', 1024));
+                }
+                catch (PathTooLongException)
+                {
+                    expectedException = true;
+                }
+                catch (IOException)
+                {
+                    // NET CORE 3.0 changed the exception that can be thrown.
+                    expectedException = true;
+                }
+
+                Assert.IsTrue(expectedException);
             }
 
             [TestMethod]
