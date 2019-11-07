@@ -41,5 +41,11 @@
 
     <IntermediateOutputPath>$(ObjRoot)\$(Configuration)\$(RelativeOutputPathBase)</IntermediateOutputPath>
     <IntermediateOutputPath>$([System.IO.Path]::GetFullPath( $(IntermediateOutputPath) ))\</IntermediateOutputPath>
+
+
+
+    <!-- Testing fix for https://github.com/dotnet/sdk/issues/2523 -->
+    <!-- If this works, should move to common and not the directory props -->
+    <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
   </PropertyGroup>
 </Project>

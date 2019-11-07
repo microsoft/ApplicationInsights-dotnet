@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build;Package" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(SolutionDir)\FunctionalTests\Test.Common.props" />
   <PropertyGroup>
@@ -48,13 +48,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.AI.ServerTelemetryChannel, Version=2.12.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\..\..\..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.12.0-beta1\lib\net45\Microsoft.AI.ServerTelemetryChannel.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.ApplicationInsights, Version=2.12.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\..\..\..\packages\Microsoft.ApplicationInsights.2.12.0-beta1\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Microsoft.AspNet.TelemetryCorrelation, Version=1.0.7.0, Culture=neutral, PublicKeyToken=f23a46de0be5d6f3, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\..\..\..\packages\Microsoft.AspNet.TelemetryCorrelation.1.0.7\lib\net45\Microsoft.AspNet.TelemetryCorrelation.dll</HintPath>
       <Private>True</Private>
@@ -191,6 +184,24 @@
     <None Include="web.Release.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj">
+      <Project>{3a5be8ff-4571-48c0-bf28-5dbcb509900e}</Project>
+      <Name>Microsoft.ApplicationInsights</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\..\BASE\src\ServerTelemetryChannel\TelemetryChannel.csproj">
+      <Project>{4d3aed61-d670-4817-affd-91ecbe03fff2}</Project>
+      <Name>TelemetryChannel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\Src\Web\Web\Web.csproj">
+      <Project>{00e2f973-3be4-4ae5-b3e9-21f97c45e5e7}</Project>
+      <Name>Web</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\Src\WindowsServer\WindowsServer\WindowsServer.csproj">
+      <Project>{634a3177-56b4-44b1-9c81-32ba3959eaa5}</Project>
+      <Name>WindowsServer</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

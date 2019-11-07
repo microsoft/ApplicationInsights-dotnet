@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\Product.props" />
 
   <PropertyGroup>
@@ -6,6 +6,7 @@
     <AssemblyName>Microsoft.AI.DependencyCollector</AssemblyName>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).XML</DocumentationFile>
     <TargetFrameworks>net45;netstandard1.6;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard1.6;netstandard2.0</TargetFrameworks>
     <Prefer32Bit>false</Prefer32Bit> <!-- net45 -->
     <DefineConstants>$(DefineConstants);DEPENDENCY_COLLECTOR;ALLOW_AGGRESSIVE_INLIGNING_ATTRIBUTE;</DefineConstants>
   </PropertyGroup>
@@ -44,8 +45,9 @@
   
   <ItemGroup>
     <!--Common Dependencies-->
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.12.0-beta1" />
+    <ProjectReference Include="..\..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.6.0" />
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">

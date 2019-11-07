@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
   <PropertyGroup>
@@ -7,7 +7,7 @@
     <ProjectGuid>{F71138BB-B3F8-4767-B394-857B0776038E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -27,9 +27,6 @@
   <ItemGroup>
     <Reference Include="Castle.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\..\packages\Castle.Core.4.4.0\lib\net45\Castle.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.ApplicationInsights, Version=2.12.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\..\packages\Microsoft.ApplicationInsights.2.12.0-beta1\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.AspNet.TelemetryCorrelation, Version=1.0.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\..\packages\Microsoft.AspNet.TelemetryCorrelation.1.0.7\lib\net45\Microsoft.AspNet.TelemetryCorrelation.dll</HintPath>
@@ -143,6 +140,10 @@
     <Analyzer Include="..\..\..\..\..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj">
+      <Project>{e3d160e8-7f8c-416f-946f-6fdfc6787461}</Project>
+      <Name>Microsoft.ApplicationInsights</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Web\Web.csproj">
       <Project>{5a507420-188e-4f28-aecc-9f0877b7391b}</Project>
       <Name>Web</Name>
