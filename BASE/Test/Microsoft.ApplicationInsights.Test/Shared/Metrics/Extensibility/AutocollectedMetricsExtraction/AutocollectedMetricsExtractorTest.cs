@@ -2,11 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
-
-    
-
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -64,7 +60,7 @@
                 TelemetryClient client = new TelemetryClient(telemetryConfig);
                 client.TrackEvent("Test Event");
                 client.TrackRequest("Test Request 1", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), "200", success: true);
-                client.TrackRequest("Test Request 2", DateTimeOffset.Now, TimeSpan.FromMilliseconds(11), "201", success: true);
+                client.TrackRequest("Test Request 2", DateTimeOffset.Now, TimeSpan.FromMilliseconds(11), "200", success: true);
             }
 
             Assert.AreEqual(4, telemetrySentToChannel.Count);
@@ -85,7 +81,7 @@
             Assert.AreEqual("(Name:'Requests', Ver:'1.1')",
                          ((RequestTelemetry) telemetrySentToChannel[2]).Properties["_MS.ProcessedByMetricExtractors"]);
 
-            AssertEx.IsType<MetricTelemetry>(telemetrySentToChannel[3]);
+            AssertEx.IsType<MetricTelemetry>(telemetrySentToChannel[3]);            
         }
 
         [TestMethod]
@@ -94,72 +90,160 @@
             List<ITelemetry> telemetrySentToChannel = new List<ITelemetry>();
             Func<ITelemetryProcessor, AutocollectedMetricsExtractor> extractorFactory = (nextProc) => new AutocollectedMetricsExtractor(nextProc);
 
+            // default set of dimensions with test values.
+            bool[] success = new bool[] { true, false };
+            bool[] synthetic = new bool[] { true, false };
+            string[] responseCode = new string[] { "200", "500", "401" };
+            string[] cloudRoleNames = new string[] { "RoleA", "RoleB" };
+            string[] cloudRoleInstances = new string[] { "RoleInstanceA", "RoleInstanceB" };
+
             TelemetryConfiguration telemetryConfig = CreateTelemetryConfigWithExtractor(telemetrySentToChannel, extractorFactory);
             using (telemetryConfig)
             {
                 TelemetryClient client = new TelemetryClient(telemetryConfig);
+                List<RequestTelemetry> requests = new List<RequestTelemetry>();
 
-                client.TrackEvent("Test Event 1");
+                // Produces telemetry with every combination of dimension values.
+                for(int i = 0; i < success.Length; i++)
+                {
+                    for (int j = 0; j < responseCode.Length; j++)
+                    {
+                        for (int k = 0; k < cloudRoleNames.Length; k++)
+                        {
+                            for (int l = 0; l < cloudRoleInstances.Length; l++)
+                            {
+                                for (int m = 0; m < synthetic.Length; m++)
+                                {
+                                    // For ease of validation 3 calls are tracked.
+                                    // with 10, 30, 5 leading to min=5, max=30, sum = 45
+                                    // ValidateAllMetric() method does this validation
+                                    requests.Add(CreateRequestTelemetry(
+                                        TimeSpan.FromMilliseconds(10), responseCode[j], success[i], synthetic[m], cloudRoleNames[k], cloudRoleInstances[l]));
+                                    requests.Add(CreateRequestTelemetry(
+                                        TimeSpan.FromMilliseconds(30), responseCode[j], success[i], synthetic[m], cloudRoleNames[k], cloudRoleInstances[l]));
+                                    requests.Add(CreateRequestTelemetry(
+                                        TimeSpan.FromMilliseconds(5), responseCode[j], success[i], synthetic[m], cloudRoleNames[k], cloudRoleInstances[l]));
+                                }
+                            }
+                        }
+                    }
+                }
 
-                client.TrackRequest("Test Request 1", DateTimeOffset.Now, TimeSpan.FromMilliseconds(5), "201", success: true);
-                client.TrackRequest("Test Request 2", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), "202", success: true);
-                client.TrackRequest("Test Request 3", DateTimeOffset.Now, TimeSpan.FromMilliseconds(15), "203", success: true);
-                client.TrackRequest("Test Request 4", DateTimeOffset.Now, TimeSpan.FromMilliseconds(20), "204", success: true);
+                foreach(var req in requests)
+                {
+                    client.TrackRequest(req);
+                }
 
-                client.TrackRequest("Test Request 1", DateTimeOffset.Now, TimeSpan.FromMilliseconds(50), "501", success: false);
-                client.TrackRequest("Test Request 2", DateTimeOffset.Now, TimeSpan.FromMilliseconds(100), "502", success: false);
-                client.TrackRequest("Test Request 3", DateTimeOffset.Now, TimeSpan.FromMilliseconds(150), "503", success: false);
+                // 2 * 2 * 3 * 2 * 2 = 48
+                // success * synthetic * responseCode * RoleName * RoleInstance
+                // 3 Track calls are made in every iteration,
+                // hence 48 * 3 requests gives 144 total requests
+                Assert.AreEqual(144, telemetrySentToChannel.Count);
+
+                // The above did not include Metrics as they are sent upon dispose only.                
+            } // dispose occurs here, and hence metrics get flushed out.
+
+            // 192 = 144 requests + 48 metrics as there are 48 unique combination of dimension
+            Assert.AreEqual(192, telemetrySentToChannel.Count);
+
+            // These are pre-agg metric
+            var serverResponseMetric = telemetrySentToChannel.Where(
+                (tel) => "Server response time".Equals((tel as MetricTelemetry)?.Name));
+            Assert.AreEqual(48, serverResponseMetric.Count());
+
+            foreach(var metric in serverResponseMetric)
+            {
+                var metricTel = metric as MetricTelemetry;
+                // validate standard fields
+                Assert.IsTrue(metricTel.Properties.ContainsKey("_MS.AggregationIntervalMs"));
+                Assert.IsTrue(metricTel.Context.GlobalProperties.ContainsKey("_MS.IsAutocollected"));
+                Assert.AreEqual("True", metricTel.Context.GlobalProperties["_MS.IsAutocollected"]);
+                Assert.IsTrue(metricTel.Context.GlobalProperties.ContainsKey("_MS.MetricId"));
+                Assert.AreEqual("requests/duration", metricTel.Context.GlobalProperties["_MS.MetricId"]);
+                
+                // validate dimensions exist
+                Assert.AreEqual(true, metricTel.Properties.ContainsKey("Request.Success"));
+                Assert.AreEqual(true, metricTel.Properties.ContainsKey("cloud/roleInstance"));
+                Assert.AreEqual(true, metricTel.Properties.ContainsKey("cloud/roleName"));
+                Assert.AreEqual(true, metricTel.Properties.ContainsKey("request/resultCode"));
+                Assert.AreEqual(true, metricTel.Properties.ContainsKey("operation/synthetic"));
             }
 
-            Assert.AreEqual(10, telemetrySentToChannel.Count);
+            // Validate success dimension
+            for (int i = 0; i < success.Length; i++)
+            {
+                var metricCollection = serverResponseMetric.Where(
+                (tel) => (tel as MetricTelemetry).Properties["Request.Success"] == success[i].ToString());
+                int expectedCount = 48 / success.Length;
+                Assert.AreEqual(expectedCount, metricCollection.Count());
+                ValidateAllMetric(metricCollection);
+            }
 
-            var t = new SortedList<string, MetricTelemetry>();
+            // Validate synthetic dimension
+            for (int i = 0; i < success.Length; i++)
+            {
+                var metricCollection = serverResponseMetric.Where(
+                (tel) => (tel as MetricTelemetry).Properties["operation/synthetic"] == synthetic[i].ToString());
+                int expectedCount = 48 / synthetic.Length;
+                Assert.AreEqual(expectedCount, metricCollection.Count());
+                ValidateAllMetric(metricCollection);
+            }
 
-            Assert.IsNotNull(telemetrySentToChannel[8]);
-            AssertEx.IsType<MetricTelemetry>(telemetrySentToChannel[8]);
-            var m = (MetricTelemetry) telemetrySentToChannel[8];
-            t.Add(m.Properties["Request.Success"], m);
+            // Validate RoleName dimesion
+            for (int i = 0; i < cloudRoleNames.Length; i++)
+            {
+                var metricCollection = serverResponseMetric.Where(
+                (tel) => (tel as MetricTelemetry).Properties["cloud/roleName"] == cloudRoleNames[i]);
+                int expectedCount = 48 / cloudRoleNames.Length;
+                Assert.AreEqual(expectedCount, metricCollection.Count());
+                ValidateAllMetric(metricCollection);
+            }
 
-            Assert.IsNotNull(telemetrySentToChannel[9]);
-            AssertEx.IsType<MetricTelemetry>(telemetrySentToChannel[9]);
-            m = (MetricTelemetry)telemetrySentToChannel[9];
-            t.Add(m.Properties["Request.Success"], m);
+            // Validate RoleInstance dimension
+            for (int i = 0; i < cloudRoleInstances.Length; i++)
+            {
+                var metricCollection = serverResponseMetric.Where(
+                (tel) => (tel as MetricTelemetry).Properties["cloud/roleInstance"] == cloudRoleInstances[i]);
+                int expectedCount = 48 / cloudRoleInstances.Length;
+                Assert.AreEqual(expectedCount, metricCollection.Count());
+                ValidateAllMetric(metricCollection);
+            }
 
-            var metricF = t.Values[0];
-            var metricT = t.Values[1];
+            // Validate ResponseCode dimension
+            for (int i = 0; i < responseCode.Length; i++)
+            {
+                var metricCollection = serverResponseMetric.Where(
+                (tel) => (tel as MetricTelemetry).Properties["request/resultCode"] == responseCode[i]);
+                int expectedCount = 48 / responseCode.Length;
+                Assert.AreEqual(expectedCount, metricCollection.Count());
+                ValidateAllMetric(metricCollection);
+            }
+        }
 
-            Assert.AreEqual("Server response time", metricT.Name);
-            Assert.AreEqual(4, metricT.Count);
-            Assert.AreEqual(20, metricT.Max);
-            Assert.AreEqual(5, metricT.Min);
-            Assert.AreEqual(true, Math.Abs(metricT.StandardDeviation.Value - 5.590169943749474) < 0.0000001);
-            Assert.AreEqual(50, metricT.Sum);
+        private RequestTelemetry CreateRequestTelemetry(TimeSpan duration, string resp, bool success, bool synthetic,
+            string role, string instance)
+        {
+            var req = new RequestTelemetry("Req1", DateTimeOffset.Now, duration, resp, success);
+            req.Context.Cloud.RoleName = role;
+            req.Context.Cloud.RoleInstance = instance;
+            if (synthetic)
+            {
+                req.Context.Operation.SyntheticSource = "synthetic";
+            }
 
-            Assert.AreEqual(4, metricT.Properties.Count);
-            Assert.IsTrue(metricT.Properties.ContainsKey("_MS.AggregationIntervalMs"));
-            Assert.IsTrue(metricT.Properties.ContainsKey("_MS.IsAutocollected"));
-            Assert.AreEqual("True", metricT.Properties["_MS.IsAutocollected"]);
-            Assert.IsTrue(metricT.Properties.ContainsKey("_MS.MetricId"));
-            Assert.AreEqual("requests/duration", metricT.Properties["_MS.MetricId"]);
-            Assert.AreEqual(true, metricT.Properties.ContainsKey("Request.Success"));
-            Assert.AreEqual(Boolean.TrueString, metricT.Properties["Request.Success"]);
+            return req;
+        }
 
-
-            Assert.AreEqual("Server response time", metricF.Name);
-            Assert.AreEqual(3, metricF.Count);
-            Assert.AreEqual(150, metricF.Max);
-            Assert.AreEqual(50, metricF.Min);
-            Assert.AreEqual(true, Math.Abs(metricF.StandardDeviation.Value - 40.8248290) < 0.0000001);
-            Assert.AreEqual(300, metricF.Sum);
-
-            Assert.AreEqual(4, metricF.Properties.Count);
-            Assert.IsTrue(metricF.Properties.ContainsKey("_MS.AggregationIntervalMs"));
-            Assert.IsTrue(metricF.Properties.ContainsKey("_MS.IsAutocollected"));
-            Assert.AreEqual("True", metricF.Properties["_MS.IsAutocollected"]);
-            Assert.IsTrue(metricF.Properties.ContainsKey("_MS.MetricId"));
-            Assert.AreEqual("requests/duration", metricF.Properties["_MS.MetricId"]);
-            Assert.AreEqual(true, metricF.Properties.ContainsKey("Request.Success"));
-            Assert.AreEqual(Boolean.FalseString, metricF.Properties["Request.Success"]);
+        private void ValidateAllMetric(IEnumerable<ITelemetry> metricCollection)
+        {
+            foreach (var singleMetric in metricCollection)
+            {
+                var m = singleMetric as MetricTelemetry;
+                Assert.AreEqual(3, m.Count);
+                Assert.AreEqual(5, m.Min);
+                Assert.AreEqual(30, m.Max);
+                Assert.AreEqual(45, m.Sum);
+            }
         }
 
         [TestMethod]
@@ -257,13 +341,9 @@
                 TelemetryClient client = new TelemetryClient(telemetryConfig);
                 
                 client.TrackRequest("Test Request", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), "200", success: true);
-#pragma warning disable CS0612 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-                client.TrackDependency("Test Dependency Call 1", "Test Command", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), success: true);
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0612 // Type or member is obsolete
-                client.TrackDependency("Test Dependency Type", "Test Dependency Call 2", "Test Command", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), true);
-                client.TrackDependency("Test Dependency Type", "Test Target", "Test Dependency Call 3", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(11), "201", success: true);
+                client.TrackDependency("Type", "Target", "depName1", "data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(1000), "ResultCode100", true);
+                client.TrackDependency("Type", "Target", "depName2", "data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(1000), "ResultCode100", true);
+                client.TrackDependency("Type", "Target", "depName3", "data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(1000), "ResultCode100", true);
                 client.TrackEvent("Test Event");
             }
 
@@ -275,19 +355,19 @@
                          ((RequestTelemetry) telemetrySentToChannel[0]).Properties["_MS.ProcessedByMetricExtractors"]);
 
             AssertEx.IsType<DependencyTelemetry>(telemetrySentToChannel[1]);
-            Assert.AreEqual("Test Dependency Call 1", ((DependencyTelemetry) telemetrySentToChannel[1]).Name);
+            Assert.AreEqual("depName1", ((DependencyTelemetry) telemetrySentToChannel[1]).Name);
             Assert.AreEqual(true, ((DependencyTelemetry) telemetrySentToChannel[1]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
             Assert.AreEqual("(Name:'Dependencies', Ver:'1.1')",
                          ((DependencyTelemetry) telemetrySentToChannel[1]).Properties["_MS.ProcessedByMetricExtractors"]);
 
             AssertEx.IsType<DependencyTelemetry>(telemetrySentToChannel[2]);
-            Assert.AreEqual("Test Dependency Call 2", ((DependencyTelemetry)telemetrySentToChannel[2]).Name);
+            Assert.AreEqual("depName2", ((DependencyTelemetry)telemetrySentToChannel[2]).Name);
             Assert.AreEqual(true, ((DependencyTelemetry)telemetrySentToChannel[2]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
             Assert.AreEqual("(Name:'Dependencies', Ver:'1.1')",
                          ((DependencyTelemetry)telemetrySentToChannel[2]).Properties["_MS.ProcessedByMetricExtractors"]);
 
             AssertEx.IsType<DependencyTelemetry>(telemetrySentToChannel[3]);
-            Assert.AreEqual("Test Dependency Call 3", ((DependencyTelemetry) telemetrySentToChannel[3]).Name);
+            Assert.AreEqual("depName3", ((DependencyTelemetry) telemetrySentToChannel[3]).Name);
             Assert.AreEqual(true, ((DependencyTelemetry) telemetrySentToChannel[3]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
             Assert.AreEqual("(Name:'Dependencies', Ver:'1.1')",
                          ((DependencyTelemetry) telemetrySentToChannel[3]).Properties["_MS.ProcessedByMetricExtractors"]);
@@ -382,7 +462,8 @@
         public void Dependency_CorrectlyExtractsMetricWhenGroupingByTypeDisabled()
         {
             List<ITelemetry> telemetrySentToChannel = new List<ITelemetry>();
-            Func<ITelemetryProcessor, AutocollectedMetricsExtractor> extractorFactory = (nextProc) => new AutocollectedMetricsExtractor(nextProc) { MaxDependencyTypesToDiscover = 0 };
+            Func<ITelemetryProcessor, AutocollectedMetricsExtractor> extractorFactory = (nextProc) => new AutocollectedMetricsExtractor(nextProc) 
+            { MaxDependencyTypesToDiscover = 0 };
 
             TelemetryConfiguration telemetryConfig = CreateTelemetryConfigWithExtractor(telemetrySentToChannel, extractorFactory);
             using (telemetryConfig)
