@@ -45,7 +45,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventSourceListener.netcore
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtwCollector", "src\EtwCollector\EtwCollector.csproj", "{9BECFB0F-4F6D-4A84-931F-70DA3E4E2813}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtwCollector.Net451.Tests", "test\EtwCollector.Net451.Tests\EtwCollector.Net451.Tests.csproj", "{15FA58D1-F397-4808-831C-7AE65EE640AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtwCollector.Net46.Tests", "test\EtwCollector.Net46.Tests\EtwCollector.Net46.Tests.csproj", "{15FA58D1-F397-4808-831C-7AE65EE640AF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventSourceListener", "src\EventSourceListener\EventSourceListener.csproj", "{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4}"
 EndProject
@@ -68,6 +68,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ILogger", "src\ILogger\ILogger.csproj", "{7D942802-E85E-4C3C-B97E-67A3867B7CBA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ILogger.NetStandard.Tests", "test\ILogger.NetStandard.Tests\ILogger.NetStandard.Tests.csproj", "{4C1B862F-8F19-4D0F-834D-694DDE0438AE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".DependentProjects", ".DependentProjects", "{5D78454B-607D-481D-96E5-0E9EB323B027}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights", "..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj", "{ED1E83B0-8656-4E2D-BB8B-158A84C45477}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -247,6 +251,14 @@ Global
 		{4C1B862F-8F19-4D0F-834D-694DDE0438AE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4C1B862F-8F19-4D0F-834D-694DDE0438AE}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{4C1B862F-8F19-4D0F-834D-694DDE0438AE}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{ED1E83B0-8656-4E2D-BB8B-158A84C45477}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED1E83B0-8656-4E2D-BB8B-158A84C45477}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED1E83B0-8656-4E2D-BB8B-158A84C45477}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{ED1E83B0-8656-4E2D-BB8B-158A84C45477}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{ED1E83B0-8656-4E2D-BB8B-158A84C45477}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED1E83B0-8656-4E2D-BB8B-158A84C45477}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED1E83B0-8656-4E2D-BB8B-158A84C45477}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{ED1E83B0-8656-4E2D-BB8B-158A84C45477}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -275,6 +287,7 @@ Global
 		{F74826DB-53B1-4588-BD02-4DD25DCBF292} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 		{7D942802-E85E-4C3C-B97E-67A3867B7CBA} = {EE933574-C82B-4E59-A0D1-05328197B937}
 		{4C1B862F-8F19-4D0F-834D-694DDE0438AE} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
+		{ED1E83B0-8656-4E2D-BB8B-158A84C45477} = {5D78454B-607D-481D-96E5-0E9EB323B027}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC8888B1-0E98-49D7-BE15-EB97A6261C0D}

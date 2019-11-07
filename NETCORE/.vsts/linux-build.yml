@@ -12,12 +12,13 @@ steps:
   inputs:
     command: "restore"
     projects: "NETCORE/*.sln"
+  continueOnError: true
 
 - task: DotNetCoreCLI@1
   displayName: build all projects
   inputs:
     command: "build"
-    projects: "NETCORE/src/**/**.csproj"
+    projects: "NETCORE/*.sln"
     arguments: "--configuration Release"
 
 - task: DotNetCoreCLI@1

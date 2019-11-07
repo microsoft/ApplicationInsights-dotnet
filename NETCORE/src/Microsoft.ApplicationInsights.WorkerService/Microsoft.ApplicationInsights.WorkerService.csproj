@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="$(SourceRoot)\Product.props"/>
+  <Import Project="$(SourceRoot)\Product.props" />
 
   <PropertyGroup>
     <AssemblyName>Microsoft.ApplicationInsights.WorkerService</AssemblyName>
@@ -58,13 +58,13 @@
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   
   <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.12.0-beta1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.12.0-beta1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.12.0-beta1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.12.0-beta1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.12.0-beta1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.12.0-beta1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.EventCounterCollector" Version="2.12.0-beta1" />
+    <ProjectReference Include="..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
+    <ProjectReference Include="..\..\..\BASE\src\ServerTelemetryChannel\TelemetryChannel.csproj" />
+    <ProjectReference Include="..\..\..\LOGGING\src\ILogger\ILogger.csproj" />
+    <ProjectReference Include="..\..\..\WEB\Src\DependencyCollector\DependencyCollector\DependencyCollector.csproj" />
+    <ProjectReference Include="..\..\..\WEB\Src\EventCounterCollector\EventCounterCollector\EventCounterCollector.csproj" />
+    <ProjectReference Include="..\..\..\WEB\Src\PerformanceCollector\PerformanceCollector\Perf.csproj" />
+    <ProjectReference Include="..\..\..\WEB\Src\WindowsServer\WindowsServer\WindowsServer.csproj" />
     
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
   </ItemGroup>
