@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build;Package" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(SolutionDir)\Test.Common.props" />
   <PropertyGroup>
@@ -41,15 +41,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.AI.ServerTelemetryChannel">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.12.0-beta1\lib\net45\Microsoft.AI.ServerTelemetryChannel.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.ApplicationInsights">
-      <HintPath>..\..\..\..\..\..\..\packages\Microsoft.ApplicationInsights.2.12.0-beta1\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
     <Reference Include="Newtonsoft.Json">
@@ -146,6 +137,28 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj">
+      <Project>{6d3a5a2f-e594-488b-bb4e-93fa0efba1e6}</Project>
+      <Name>Microsoft.ApplicationInsights</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\..\BASE\src\ServerTelemetryChannel\TelemetryChannel.csproj">
+      <Project>{bcbb6bd4-90cd-452e-81aa-c54b7f941053}</Project>
+      <Name>TelemetryChannel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\Src\PerformanceCollector\PerformanceCollector\Perf.csproj">
+      <Project>{685e146a-1541-4cfe-9fab-4f627979965e}</Project>
+      <Name>Perf</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\Src\Web\Web\Web.csproj">
+      <Project>{e6045048-621c-476f-ac23-9a82afd56fe3}</Project>
+      <Name>Web</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\Src\WindowsServer\WindowsServer\WindowsServer.csproj">
+      <Project>{455a52da-0242-48ca-afb1-9566f1e0513a}</Project>
+      <Name>WindowsServer</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
