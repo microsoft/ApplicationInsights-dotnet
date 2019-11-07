@@ -175,7 +175,7 @@
             [TestMethod]
             public void ThrowsIOExceptionWhenDesiredFileNameIsTooLong()
             {
-                bool expectedException;
+                bool expectedException = false;
 
                 try
                 {
