@@ -28,19 +28,17 @@
       Pre-release version = Minutes since semantic version was set, divided by 5 (to make it fit in a UInt16 (max 65535 = ~7 months).
     -->
     <PreReleaseVersion Condition="'$(PreReleaseVersion)'==''">$([MSBuild]::Divide($([System.DateTime]::Now.Subtract($([System.DateTime]::Parse($(SemanticVersionDate)))).TotalMinutes), 5).ToString('F0'))</PreReleaseVersion>
+
+    <VersionPrefix>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch)</VersionPrefix>
+    <!-- <VersionSuffix>$(PreReleaseMilestone)</VersionSuffix> -->
+    <!-- <AssemblyVersion>$(VersionPrefix)</AssemblyVersion> -->
+    <FileVersion>$(VersionPrefix).$(PreReleaseVersion)</FileVersion>
+
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(PackageVersion)'==''">
-    <PackageVersion>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch)</PackageVersion>
-
-    <!-- <VersionPrefix>$(PackageVersion)</VersionPrefix> -->
-    <!-- <VersionSuffix>$(PreReleaseMilestone)</VersionSuffix> -->
-
+    <PackageVersion>$(VersionPrefix)</PackageVersion>
     <PackageVersion Condition="'$(PreReleaseMilestone)' != ''">$(PackageVersion)-$(PreReleaseMilestone)</PackageVersion>
-
-    <FileVersion>$(PackageVersion).$(PreReleaseVersion)</FileVersion>
-
     <PackageVersion Condition="'$(StableRelease)' != 'True'">$(PackageVersion)-build$(PreReleaseVersion)</PackageVersion>
-    <!-- <AssemblyVersion>$(VersionPrefix)</AssemblyVersion> -->
   </PropertyGroup>
 </Project>
