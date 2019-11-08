@@ -149,6 +149,16 @@ function Get-DoesXmlDocExist ([string]$dllPath) {
     Test-Condition (Test-Path $docFile) $message $requirement;
 }
 
+function Get-DoesDllVersionsMatch ([string]$dllPath) {
+    # CONFIRM Assembly version matches File version
+    [string]$fileVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($dllPath).FileVersion;
+    [string]$assemblyVersion = [Reflection.AssemblyName]::GetAssemblyName($dllPath).Version;
+
+    $message = "File Version: '$fileVersion' Assembly Version: '$assemblyVersion";
+    $requirement = "Versions should match."
+    Test-Condition ($fileVersion.Equals($assemblyVersion)) $message $requirement;
+}
+
 function Get-IsValidPackageId([xml]$nuspecXml) {
     $id = $nuspecXml.package.metadata.id;
 
@@ -309,6 +319,8 @@ function Start-EvaluateNupkg ($nupkgPath) {
         if ($verifySigning) {
             Get-IsDllSigned $_.FullName;
         }
+
+        Get-DoesDllVersionsMatch $_.FullName;
         
         Get-DoesXmlDocExist $_.FullName;
         }

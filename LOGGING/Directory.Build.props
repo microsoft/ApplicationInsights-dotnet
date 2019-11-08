@@ -98,24 +98,5 @@
     <AssemblyAttributesPath>$(IntermediateOutputPath)\AssemblyInfo.g.cs</AssemblyAttributesPath>
     <GenerateAdditionalSources>true</GenerateAdditionalSources>
   </PropertyGroup>
-  
-  <ItemGroup>
-    <!-- 
-      AssemblyVersion and AssemblyFileVersion attributes are generated automatically for every build.
-      NuGet package version is derived from AssemblyFileVersion.
-    -->
-    <AssemblyAttributes Include="AssemblyVersion">
-      <_Parameter1>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch).0</_Parameter1>
-    </AssemblyAttributes>
-    <AssemblyAttributes Include="AssemblyFileVersion">
-      <_Parameter1>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch).$(PreReleaseVersion)</_Parameter1>
-    </AssemblyAttributes>    
-  </ItemGroup>
-
-  <PropertyGroup>
-    <!-- MSBuild 15 apparently uses slightly different properties for the task of generating assembly/file version. -->
-    <AssemblyVersion>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch).0</AssemblyVersion>
-    <FileVersion>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch).$(PreReleaseVersion)</FileVersion>
-  </PropertyGroup>
-  
+   
 </Project>
