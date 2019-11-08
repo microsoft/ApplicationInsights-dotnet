@@ -245,35 +245,25 @@ function Get-IsValidTags([xml]$nuspecXml) {
     }
 }
 
-function Get-IsValidLogoUrl([xml]$nuspecXml, $path) {
-    $logoUrl = $nuspecXml.package.metadata.iconUrl;
-    $isEmpty = [System.String]::IsNullOrEmpty($logoUrl);
-    $dimension = "";
+function Get-IsValidLogo([xml]$nuspecXml, $path) {
+    $logoValue = $nuspecXml.package.metadata.icon;
+    $hasLogo = !([System.String]::IsNullOrEmpty($logoValue));
+    
+    Write-Host "test '$logoValue' '$hasLogo'";
 
     try {
-        $filePath = Join-Path $path "logo.png";
-        $wc = New-Object System.Net.WebClient;
-        $wc.DownloadFile($logoUrl, $filePath);
-        add-type -AssemblyName System.Drawing
-        $png = New-Object System.Drawing.Bitmap $filePath
-        $dimension = "$($png.Height)x$($png.Width)";
-        
-        # Release lock on png file
-        Remove-Variable png;
-        Remove-Variable wc;
+        $filePath = Join-Path $path $logoValue;
+        $exists = [System.IO.File]::Exists($filePath)
     } catch [System.SystemException] {
         $_.Exception.Message;
     }
 
-    [string[]]$expectedDimensions = ("32x32","48x48","64x64","128x128");
-
-    $message = "Logo Url: $logoUrl Dimensions: $dimension";
+    $message1 = "Logo: $logoValue";
+    $message2 = "Logo Exists: $exists";
     $requirement = "Must have a logo."
-    $recommendation = "Should be one of these sizes: $expectedDimensions";
     
-    $isExpected = ($expectedDimensions -contains $dimension);
-
-    Test-MultiCondition (!$isEmpty) ($isExpected) $message $requirement $recommendation;
+    Test-Condition ($hasLogo) $message1 $requirement;
+    Test-Condition ($exists) $message2 $requirement;
 }
 
 function Invoke-UnZip([string]$zipfile, [string]$outpath) {
@@ -308,7 +298,7 @@ function Start-EvaluateNupkg ($nupkgPath) {
         Get-IsValidLicense $nuspecXml;
         Get-IsValidLicenseAcceptance $nuspecXml;
         Get-IsValidCopyright $nuspecXml;
-        Get-IsValidLogoUrl $nuspecXml $unzipPath;
+        Get-IsValidLogo $nuspecXml $unzipPath;
         Get-IsValidDescription $nuspecXml;
         Get-IsValidTags $nuspecXml;
         }
