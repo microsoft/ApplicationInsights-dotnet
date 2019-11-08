@@ -28,14 +28,11 @@
       Pre-release version = Minutes since semantic version was set, divided by 5 (to make it fit in a UInt16 (max 65535 = ~7 months).
     -->
     <BuildNumber>$([MSBuild]::Divide($([System.DateTime]::Now.Subtract($([System.DateTime]::Parse($(SemanticVersionDate)))).TotalMinutes), 5).ToString('F0'))</BuildNumber>
-    <PreReleaseVersion>$(BuildNumber)</PreReleaseVersion> <!-- Dot Net Framework File Version -->
-
 
     <VersionPrefix>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch)</VersionPrefix>
     <VersionSuffix>$(PreReleaseMilestone)</VersionSuffix>
-    <AssemblyVersion>$(VersionPrefix).$(BuildNumber)</AssemblyVersion> <!-- Net Core Assembly Version -->
-    <FileVersion>$(AssemblyVersion)</FileVersion> <!-- Net Core File Version -->
-
+    <AssemblyVersion>$(VersionPrefix).$(BuildNumber)</AssemblyVersion> 
+    <FileVersion>$(AssemblyVersion)</FileVersion> 
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(PackageVersion)'==''">
