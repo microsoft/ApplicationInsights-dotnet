@@ -13,13 +13,13 @@ Param(
     [string]
     $workingDir,
 
-    [Parameter(Mandatory=$true,HelpMessage="Full Log?:")] #Include Pass with Fail output?
+    [Parameter(Mandatory=$true,HelpMessage="Full Log?:")] #Include Pass messages with output?
     [bool]
     $verboseLog,
 
-    [Parameter(Mandatory=$false,HelpMessage="Full Log?:")] #Include Pass with Fail output?
+    [Parameter(Mandatory=$false,HelpMessage="Full Log?:")] 
     [bool]
-    $throwErrors = $true
+    $verifySigning = $true
 
 ) 
 
@@ -288,8 +288,9 @@ function Start-EvaluateNupkg ($nupkgPath) {
     Write-Host "Evaluate nupkg:"
     Write-Name $nupkgPath;
 
-    Get-IsPackageSigned $nupkgPath;
-
+    if ($verifySigning){
+        Get-IsPackageSigned $nupkgPath;
+    }
 
     $unzipPath = $nupkgPath+"_unzip";
     Remove-Item $unzipPath -Recurse -ErrorAction Ignore
@@ -316,7 +317,11 @@ function Start-EvaluateNupkg ($nupkgPath) {
     Get-ChildItem -Path $unzipPath -Recurse -Filter *.dll | ForEach-Object {
         Write-Host "Evaluate dll:"
         Write-Name $_.FullName;
-        Get-IsDllSigned $_.FullName;
+
+        if ($verifySigning) {
+            Get-IsDllSigned $_.FullName;
+        }
+        
         Get-DoesXmlDocExist $_.FullName;
         }
 }
@@ -351,9 +356,5 @@ Write-Host "`nLog file created at $logPath"
 # RESULT
 if (!$script:isValid){
     Write-Host "`n"
-
-    if ($throwErrors){
-        throw "NUPKG or DLL is not valid. Please review log...";
-        }
-        
+    throw "NUPKG or DLL is not valid. Please review log...";
     }
