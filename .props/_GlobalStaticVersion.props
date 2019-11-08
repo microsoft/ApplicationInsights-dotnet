@@ -32,7 +32,15 @@
 
   <PropertyGroup Condition="'$(PackageVersion)'==''">
     <PackageVersion>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch)</PackageVersion>
+
+    <!-- <VersionPrefix>$(PackageVersion)</VersionPrefix> -->
+    <!-- <VersionSuffix>$(PreReleaseMilestone)</VersionSuffix> -->
+
     <PackageVersion Condition="'$(PreReleaseMilestone)' != ''">$(PackageVersion)-$(PreReleaseMilestone)</PackageVersion>
+
+    <FileVersion>$(PackageVersion).$(PreReleaseVersion)</FileVersion>
+
     <PackageVersion Condition="'$(StableRelease)' != 'True'">$(PackageVersion)-build$(PreReleaseVersion)</PackageVersion>
+    <!-- <AssemblyVersion>$(VersionPrefix)</AssemblyVersion> -->
   </PropertyGroup>
 </Project>
