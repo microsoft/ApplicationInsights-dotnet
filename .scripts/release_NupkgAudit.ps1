@@ -4,12 +4,23 @@
 # Authoring Requirements: https://microsoft.sharepoint.com/teams/NuGet/MicrosoftWiki/AuthoringRequirements.aspx
 # Signing Requirements: https://microsoft.sharepoint.com/teams/NuGet/MicrosoftWiki/SigningMicrosoftPackages.aspx
 Param(
-    [Parameter(Mandatory=$true,HelpMessage="Path to Artifact files (nupkg):")]
+    
+    [Parameter(Mandatory=$true,HelpMessage="Path to Nupkg files:")]
     [string]
-    $path,
+    $nupkgPath,
+    
+    [Parameter(Mandatory=$true,HelpMessage="Path to working directory:")]
+    [string]
+    $workingDir,
+
     [Parameter(Mandatory=$true,HelpMessage="Full Log?:")] #Include Pass with Fail output?
     [bool]
-    $verboseLog
+    $verboseLog,
+
+    [Parameter(Mandatory=$false,HelpMessage="Full Log?:")] #Include Pass with Fail output?
+    [bool]
+    $throwErrors = $true
+
 ) 
 
 
@@ -19,22 +30,23 @@ $expectedLicense = "MIT"; # MIT License SPDX ID
 $expectedOwner = "AppInsightsSdk"; # Application Insights Nuget Account
 $expectedTags = @("Azure","Monitoring");
 
+$nugetExePath = "$PSScriptRoot\Nuget.exe";
+
 $sb = [System.Text.StringBuilder]::new();
 
 $script:isValid = $true;
 
 
 # Get the latest Nuget.exe from here:
-if (!(Test-Path ".\Nuget.exe")) {
+if (!(Test-Path $nugetExePath)) {
 
     Write-Host "Nuget.exe not found. Attempting download...";
     Write-Host "Start time:" (Get-Date -Format G);
     $downloadNugetUrl = "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe";
-    $saveFile = "$PSScriptRoot\Nuget.exe";
-    (New-Object System.Net.WebClient).DownloadFile($downloadNugetUrl, $saveFile);
+    (New-Object System.Net.WebClient).DownloadFile($downloadNugetUrl, $nugetExePath);
     Write-Host "Finish time:" (Get-Date -Format G);
     
-    if (!(Test-Path ".\Nuget.exe")) {
+    if (!(Test-Path $nugetExePath)) {
         throw "Error: Nuget.exe not found! Please download latest from: https://www.nuget.org/downloads";
     }
 }
@@ -95,7 +107,7 @@ function Test-MultiCondition ([bool]$requiredCondition, [bool]$recommendedCondit
 
 function Get-IsPackageSigned([string]$nupkgPath) {
     $verifyOutput = "";
-    $null = .\Nuget.exe verify -signature -CertificateFingerprint 3F9001EA83C560D712C24CF213C3D312CB3BFF51EE89435D3430BD06B5D0EECE $nupkgPath -verbosity detailed 2>&1 | Tee-Object -Variable verifyOutput
+    $null = & $nugetExePath verify -signature -CertificateFingerprint 3F9001EA83C560D712C24CF213C3D312CB3BFF51EE89435D3430BD06B5D0EECE $nupkgPath -verbosity detailed 2>&1 | Tee-Object -Variable verifyOutput
     
 	#TEST OUTPUT
 	Write-Host $verifyOutput
@@ -273,6 +285,7 @@ function Invoke-UnZip([string]$zipfile, [string]$outpath) {
 
 function Start-EvaluateNupkg ($nupkgPath) {
     Write-Break;
+    Write-Host "Evaluate nupkg:"
     Write-Name $nupkgPath;
 
     Get-IsPackageSigned $nupkgPath;
@@ -284,6 +297,7 @@ function Start-EvaluateNupkg ($nupkgPath) {
 
     # LOOK FOR ALL NUSPEC WITHIN NUPKG
     Get-ChildItem -Path $unzipPath -Recurse -Filter *.nuspec | ForEach-Object { 
+        Write-Host "Evaluate nuspec:"
         Write-Name $_.FullName;
         [xml]$nuspecXml = Get-Content $_.FullName
         Get-IsValidPackageId $nuspecXml;
@@ -300,18 +314,46 @@ function Start-EvaluateNupkg ($nupkgPath) {
     
     # LOOK FOR ALL DLL WITHIN NUPKG
     Get-ChildItem -Path $unzipPath -Recurse -Filter *.dll | ForEach-Object {
+        Write-Host "Evaluate dll:"
         Write-Name $_.FullName;
         Get-IsDllSigned $_.FullName;
         Get-DoesXmlDocExist $_.FullName;
         }
 }
 
-# LOOK FOR ALL NUPKG IN A DIRECTORY. 
-Get-ChildItem -Path $path -Recurse -Filter *.nupkg -Exclude *.symbols.nupkg | 
+############################
+# MAIN EXECUTION STARTS HERE
+############################
+
+# CLEAR WORKING DIRECTORY
+Remove-Item $workingDir -Recurse -ErrorAction Ignore
+New-Item -ItemType directory -Path $workingDir
+
+# FIND ALL NUPKG AND COPY TO WORKING DIRECTORY
+Get-ChildItem -Path $nupkgPath -Recurse -Filter *.nupkg -Exclude *.symbols.nupkg -File |
+     Copy-Item -Destination $workingDir
+
+# LIST ALL FILES IN WORKING DIRECTORY
+Write-Host "NUPKGS to audit:"
+$files = Get-ChildItem -Path $workingDir -Recurse -File;
+$files | ForEach-Object { Write-Host "`t"$_.FullName };
+Write-Host "`nCount:" $files.Count;
+
+# RUN AUDIT
+Get-ChildItem -Path $workingDir -Recurse -File -Include *.nupkg | 
     ForEach-Object { Start-EvaluateNupkg $_.FullName }
 
-$sb.ToString() | Add-Content (Join-Path $path "log.txt");
+# LOG
+$logPath = (Join-Path $workingDir "log.txt")
+$sb.ToString() | Add-Content $logPath;
+Write-Host "`nLog file created at $logPath"
 
+# RESULT
 if (!$script:isValid){
-	throw "NUPKG or DLL is not valid. Please review log...";
+    Write-Host "`n"
+
+    if ($throwErrors){
+        throw "NUPKG or DLL is not valid. Please review log...";
+        }
+        
     }
