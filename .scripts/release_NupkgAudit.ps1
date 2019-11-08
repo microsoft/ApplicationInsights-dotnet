@@ -248,8 +248,6 @@ function Get-IsValidTags([xml]$nuspecXml) {
 function Get-IsValidLogo([xml]$nuspecXml, $path) {
     $logoValue = $nuspecXml.package.metadata.icon;
     $hasLogo = !([System.String]::IsNullOrEmpty($logoValue));
-    
-    Write-Host "test '$logoValue' '$hasLogo'";
 
     try {
         $filePath = Join-Path $path $logoValue;
