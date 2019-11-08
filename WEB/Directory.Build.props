@@ -4,8 +4,6 @@
     <!-- It defines common build paths and infrastructure.                                                                -->
     <!-- Other products / repositories using the same build pattern will have their own copy of copy this file            -->
 
-    <Import Project=".\GlobalStaticVersion.props" />
-
     <PropertyGroup>
         <!--  The common project structure looks like this:                                                               -->
         <!--  d:\DDGit\                                                                                                   -->
@@ -44,7 +42,14 @@
         <EnlistmentRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'EnlistmentRoot.marker'))</EnlistmentRoot>
         <SourceRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'SourceRoot.marker'))</SourceRoot>
 
-        <BinRoot>$(EnlistmentRoot)\..\bin</BinRoot>
+
+      <KeysRoot>$(EnlistmentRoot)\.keys</KeysRoot>
+      <PropsRoot>$(EnlistmentRoot)\.props</PropsRoot>
+      <RulesetsRoot>$(EnlistmentRoot)\.rulesets</RulesetsRoot>
+      <TargetsRoot>$(EnlistmentRoot)\.targets</TargetsRoot>
+
+
+      <BinRoot>$(EnlistmentRoot)\..\bin</BinRoot>
         <BinRoot>$([System.IO.Path]::GetFullPath( $(BinRoot) ))</BinRoot>
 
         <RelativeOutputPathBase>$(MSBuildProjectDirectory.Substring($(SourceRoot.Length)))</RelativeOutputPathBase>
@@ -85,6 +90,9 @@
         <EtwManifestOutDir>$(BinRoot)\$(Configuration)\ETW\</EtwManifestOutDir>
     </PropertyGroup>
 
+
+  <Import Project="$(PropsRoot)\_GlobalStaticVersion.props" />
+  
     <PropertyGroup>
         <!-- Enable NuGet package restore during build -->
         <RestorePackages>true</RestorePackages>
