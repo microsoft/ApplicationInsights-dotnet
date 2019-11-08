@@ -11,6 +11,13 @@
     <!-- SourceRoot is used to reference project dependencies (ex: *.props). -->
     <SourceRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'SourceRoot.marker'))</SourceRoot>
 
+
+    <KeysRoot>$(EnlistmentRoot)\.keys</KeysRoot>
+    <PropsRoot>$(EnlistmentRoot)\.props</PropsRoot>
+    <RulesetsRoot>$(EnlistmentRoot)\.rulesets</RulesetsRoot>
+    <TargetsRoot>$(EnlistmentRoot)\.targets</TargetsRoot>
+
+    
     <BinRoot>$(EnlistmentRoot)\..\bin</BinRoot>
     <BinRoot>$([System.IO.Path]::GetFullPath( $(BinRoot) ))</BinRoot>
     
@@ -33,5 +40,8 @@
     <IntermediateOutputPath>$(ObjRoot)\$(Configuration)\$(RelativeOutputPathBase)</IntermediateOutputPath>
     <IntermediateOutputPath>$([System.IO.Path]::GetFullPath( $(IntermediateOutputPath) ))\</IntermediateOutputPath>
   </PropertyGroup>
+
+
+  <Import Project="$(PropsRoot)\_GlobalStaticVersion.props" />
 
 </Project>

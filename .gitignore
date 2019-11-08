@@ -184,3 +184,4 @@ bower_components/
 node_modules/
 **/wwwroot/lib
 /Msbuild.*
+**/Nuget.exe
