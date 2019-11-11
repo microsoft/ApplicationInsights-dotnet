@@ -4,8 +4,6 @@
     <!-- It defines common build paths and infrastructure.                                                                -->
     <!-- Other products / repositories using the same build pattern will have an own copy of copy this file               -->
     
-    <Import Project=".\GlobalStaticVersion.props" />
-    
     <PropertyGroup>
         <!--  The common project structure looks like this:                                                               -->
         <!--  d:\DDGit\                                                                                                   -->
@@ -43,8 +41,15 @@
         
         <EnlistmentRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'EnlistmentRoot.marker'))</EnlistmentRoot>
         <SourceRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'SourceRoot.marker'))</SourceRoot>
-        
-        <BinRoot>$(EnlistmentRoot)\..\bin</BinRoot>
+
+
+      <KeysRoot>$(EnlistmentRoot)\.keys</KeysRoot>
+      <PropsRoot>$(EnlistmentRoot)\.props</PropsRoot>
+      <RulesetsRoot>$(EnlistmentRoot)\.rulesets</RulesetsRoot>
+      <TargetsRoot>$(EnlistmentRoot)\.targets</TargetsRoot>
+
+      
+      <BinRoot>$(EnlistmentRoot)\..\bin</BinRoot>
         <BinRoot>$([System.IO.Path]::GetFullPath( $(BinRoot) ))</BinRoot>
                 
         <RelativeOutputPathBase>$(MSBuildProjectDirectory.Substring($(SourceRoot.Length)))</RelativeOutputPathBase>
@@ -73,7 +78,10 @@
         <PackagesDir>$(EnlistmentRoot)\..\packages</PackagesDir>
         <PackagesDir>$([System.IO.Path]::GetFullPath( $(PackagesDir) ))</PackagesDir>
     </PropertyGroup>
-   
+
+
+  <Import Project="$(PropsRoot)\_GlobalStaticVersion.props" />
+  
     <PropertyGroup>
         <!-- Enable NuGet package restore during build -->
         <RestorePackages>true</RestorePackages>
@@ -90,24 +98,5 @@
     <AssemblyAttributesPath>$(IntermediateOutputPath)\AssemblyInfo.g.cs</AssemblyAttributesPath>
     <GenerateAdditionalSources>true</GenerateAdditionalSources>
   </PropertyGroup>
-  
-  <ItemGroup>
-    <!-- 
-      AssemblyVersion and AssemblyFileVersion attributes are generated automatically for every build.
-      NuGet package version is derived from AssemblyFileVersion.
-    -->
-    <AssemblyAttributes Include="AssemblyVersion">
-      <_Parameter1>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch).0</_Parameter1>
-    </AssemblyAttributes>
-    <AssemblyAttributes Include="AssemblyFileVersion">
-      <_Parameter1>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch).$(PreReleaseVersion)</_Parameter1>
-    </AssemblyAttributes>    
-  </ItemGroup>
-
-  <PropertyGroup>
-    <!-- MSBuild 15 apparently uses slightly different properties for the task of generating assembly/file version. -->
-    <AssemblyVersion>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch).0</AssemblyVersion>
-    <FileVersion>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch).$(PreReleaseVersion)</FileVersion>
-  </PropertyGroup>
-  
+   
 </Project>

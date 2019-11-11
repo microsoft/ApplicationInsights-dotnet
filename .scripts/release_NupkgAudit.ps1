@@ -4,12 +4,23 @@
 # Authoring Requirements: https://microsoft.sharepoint.com/teams/NuGet/MicrosoftWiki/AuthoringRequirements.aspx
 # Signing Requirements: https://microsoft.sharepoint.com/teams/NuGet/MicrosoftWiki/SigningMicrosoftPackages.aspx
 Param(
-    [Parameter(Mandatory=$true,HelpMessage="Path to Artifact files (nupkg):")]
+    
+    [Parameter(Mandatory=$true,HelpMessage="Path to Nupkg files:")]
     [string]
-    $path,
-    [Parameter(Mandatory=$true,HelpMessage="Full Log?:")] #Include Pass with Fail output?
+    $nupkgPath,
+    
+    [Parameter(Mandatory=$true,HelpMessage="Path to working directory:")]
+    [string]
+    $workingDir,
+
+    [Parameter(Mandatory=$true,HelpMessage="Full Log?:")] #Include Pass messages with output?
     [bool]
-    $verboseLog
+    $verboseLog,
+
+    [Parameter(Mandatory=$false,HelpMessage="Full Log?:")] 
+    [bool]
+    $verifySigning = $true
+
 ) 
 
 
@@ -19,22 +30,23 @@ $expectedLicense = "MIT"; # MIT License SPDX ID
 $expectedOwner = "AppInsightsSdk"; # Application Insights Nuget Account
 $expectedTags = @("Azure","Monitoring");
 
+$nugetExePath = "$PSScriptRoot\Nuget.exe";
+
 $sb = [System.Text.StringBuilder]::new();
 
 $script:isValid = $true;
 
 
 # Get the latest Nuget.exe from here:
-if (!(Test-Path ".\Nuget.exe")) {
+if (!(Test-Path $nugetExePath)) {
 
     Write-Host "Nuget.exe not found. Attempting download...";
     Write-Host "Start time:" (Get-Date -Format G);
     $downloadNugetUrl = "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe";
-    $saveFile = "$PSScriptRoot\Nuget.exe";
-    (New-Object System.Net.WebClient).DownloadFile($downloadNugetUrl, $saveFile);
+    (New-Object System.Net.WebClient).DownloadFile($downloadNugetUrl, $nugetExePath);
     Write-Host "Finish time:" (Get-Date -Format G);
     
-    if (!(Test-Path ".\Nuget.exe")) {
+    if (!(Test-Path $nugetExePath)) {
         throw "Error: Nuget.exe not found! Please download latest from: https://www.nuget.org/downloads";
     }
 }
@@ -95,7 +107,7 @@ function Test-MultiCondition ([bool]$requiredCondition, [bool]$recommendedCondit
 
 function Get-IsPackageSigned([string]$nupkgPath) {
     $verifyOutput = "";
-    $null = .\Nuget.exe verify -signature -CertificateFingerprint 3F9001EA83C560D712C24CF213C3D312CB3BFF51EE89435D3430BD06B5D0EECE $nupkgPath -verbosity detailed 2>&1 | Tee-Object -Variable verifyOutput
+    $null = & $nugetExePath verify -signature -CertificateFingerprint 3F9001EA83C560D712C24CF213C3D312CB3BFF51EE89435D3430BD06B5D0EECE $nupkgPath -verbosity detailed 2>&1 | Tee-Object -Variable verifyOutput
     
 	#TEST OUTPUT
 	Write-Host $verifyOutput
@@ -135,6 +147,16 @@ function Get-DoesXmlDocExist ([string]$dllPath) {
     $message = "XML Documentation:";
     $requirement = "Must exist."
     Test-Condition (Test-Path $docFile) $message $requirement;
+}
+
+function Get-DoesDllVersionsMatch ([string]$dllPath) {
+    # CONFIRM Assembly version matches File version
+    [string]$fileVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($dllPath).FileVersion;
+    [string]$assemblyVersion = [Reflection.AssemblyName]::GetAssemblyName($dllPath).Version;
+
+    $message = "File Version: '$fileVersion' Assembly Version: '$assemblyVersion";
+    $requirement = "Versions should match."
+    Test-Condition ($fileVersion.Equals($assemblyVersion)) $message $requirement;
 }
 
 function Get-IsValidPackageId([xml]$nuspecXml) {
@@ -233,35 +255,23 @@ function Get-IsValidTags([xml]$nuspecXml) {
     }
 }
 
-function Get-IsValidLogoUrl([xml]$nuspecXml, $path) {
-    $logoUrl = $nuspecXml.package.metadata.iconUrl;
-    $isEmpty = [System.String]::IsNullOrEmpty($logoUrl);
-    $dimension = "";
+function Get-IsValidLogo([xml]$nuspecXml, $path) {
+    $logoValue = $nuspecXml.package.metadata.icon;
+    $hasLogo = !([System.String]::IsNullOrEmpty($logoValue));
 
     try {
-        $filePath = Join-Path $path "logo.png";
-        $wc = New-Object System.Net.WebClient;
-        $wc.DownloadFile($logoUrl, $filePath);
-        add-type -AssemblyName System.Drawing
-        $png = New-Object System.Drawing.Bitmap $filePath
-        $dimension = "$($png.Height)x$($png.Width)";
-        
-        # Release lock on png file
-        Remove-Variable png;
-        Remove-Variable wc;
+        $filePath = Join-Path $path $logoValue;
+        $exists = [System.IO.File]::Exists($filePath)
     } catch [System.SystemException] {
         $_.Exception.Message;
     }
 
-    [string[]]$expectedDimensions = ("32x32","48x48","64x64","128x128");
-
-    $message = "Logo Url: $logoUrl Dimensions: $dimension";
+    $message1 = "Logo: $logoValue";
+    $message2 = "Logo Exists: $exists";
     $requirement = "Must have a logo."
-    $recommendation = "Should be one of these sizes: $expectedDimensions";
     
-    $isExpected = ($expectedDimensions -contains $dimension);
-
-    Test-MultiCondition (!$isEmpty) ($isExpected) $message $requirement $recommendation;
+    Test-Condition ($hasLogo) $message1 $requirement;
+    Test-Condition ($exists) $message2 $requirement;
 }
 
 function Invoke-UnZip([string]$zipfile, [string]$outpath) {
@@ -273,10 +283,12 @@ function Invoke-UnZip([string]$zipfile, [string]$outpath) {
 
 function Start-EvaluateNupkg ($nupkgPath) {
     Write-Break;
+    Write-Host "Evaluate nupkg:"
     Write-Name $nupkgPath;
 
-    Get-IsPackageSigned $nupkgPath;
-
+    if ($verifySigning){
+        Get-IsPackageSigned $nupkgPath;
+    }
 
     $unzipPath = $nupkgPath+"_unzip";
     Remove-Item $unzipPath -Recurse -ErrorAction Ignore
@@ -284,6 +296,7 @@ function Start-EvaluateNupkg ($nupkgPath) {
 
     # LOOK FOR ALL NUSPEC WITHIN NUPKG
     Get-ChildItem -Path $unzipPath -Recurse -Filter *.nuspec | ForEach-Object { 
+        Write-Host "Evaluate nuspec:"
         Write-Name $_.FullName;
         [xml]$nuspecXml = Get-Content $_.FullName
         Get-IsValidPackageId $nuspecXml;
@@ -293,25 +306,55 @@ function Start-EvaluateNupkg ($nupkgPath) {
         Get-IsValidLicense $nuspecXml;
         Get-IsValidLicenseAcceptance $nuspecXml;
         Get-IsValidCopyright $nuspecXml;
-        Get-IsValidLogoUrl $nuspecXml $unzipPath;
+        Get-IsValidLogo $nuspecXml $unzipPath;
         Get-IsValidDescription $nuspecXml;
         Get-IsValidTags $nuspecXml;
         }
     
     # LOOK FOR ALL DLL WITHIN NUPKG
     Get-ChildItem -Path $unzipPath -Recurse -Filter *.dll | ForEach-Object {
+        Write-Host "Evaluate dll:"
         Write-Name $_.FullName;
-        Get-IsDllSigned $_.FullName;
+
+        if ($verifySigning) {
+            Get-IsDllSigned $_.FullName;
+        }
+
+        Get-DoesDllVersionsMatch $_.FullName;
+        
         Get-DoesXmlDocExist $_.FullName;
         }
 }
 
-# LOOK FOR ALL NUPKG IN A DIRECTORY. 
-Get-ChildItem -Path $path -Recurse -Filter *.nupkg -Exclude *.symbols.nupkg | 
+############################
+# MAIN EXECUTION STARTS HERE
+############################
+
+# CLEAR WORKING DIRECTORY
+Remove-Item $workingDir -Recurse -ErrorAction Ignore
+New-Item -ItemType directory -Path $workingDir
+
+# FIND ALL NUPKG AND COPY TO WORKING DIRECTORY
+Get-ChildItem -Path $nupkgPath -Recurse -Filter *.nupkg -Exclude *.symbols.nupkg -File |
+     Copy-Item -Destination $workingDir
+
+# LIST ALL FILES IN WORKING DIRECTORY
+Write-Host "NUPKGS to audit:"
+$files = Get-ChildItem -Path $workingDir -Recurse -File;
+$files | ForEach-Object { Write-Host "`t"$_.FullName };
+Write-Host "`nCount:" $files.Count;
+
+# RUN AUDIT
+Get-ChildItem -Path $workingDir -Recurse -File -Include *.nupkg | 
     ForEach-Object { Start-EvaluateNupkg $_.FullName }
 
-$sb.ToString() | Add-Content (Join-Path $path "log.txt");
+# LOG
+$logPath = (Join-Path $workingDir "log.txt")
+$sb.ToString() | Add-Content $logPath;
+Write-Host "`nLog file created at $logPath"
 
+# RESULT
 if (!$script:isValid){
-	throw "NUPKG or DLL is not valid. Please review log...";
+    Write-Host "`n"
+    throw "NUPKG or DLL is not valid. Please review log...";
     }
