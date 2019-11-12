@@ -20,7 +20,8 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
 
             if (template == null || actual == null)
             {
-                return Comparer.DefaultInvariant.Compare(x, y);
+                // return Comparer.DefaultInvariant.Compare(x, y);
+                throw new ArgumentException();
             }
 
             bool equal = string.Equals(template.Message, actual.Message, StringComparison.Ordinal)
