@@ -40,7 +40,7 @@
             Assert.Equal("guid1", requestTelemetry.Context.Operation.Id);
             Assert.Equal("|guid1.1", requestTelemetry.Context.Operation.ParentId);
 
-            Assert.True(requestTelemetry.Id.StartsWith("|guid1.1.", StringComparison.Ordinal));
+            Assert.StartsWith("|guid1.1.", requestTelemetry.Id, StringComparison.Ordinal);
             Assert.NotEqual("|guid1.1", requestTelemetry.Id);
             Assert.Equal("guid1", this.GetActivityRootId(requestTelemetry.Id));
             Assert.Equal("v", requestTelemetry.Properties["k"]);
@@ -373,7 +373,7 @@
             // then we created Activity for request children and assigned it Id like guid1.1.12345_1
             // then we lost it and restored (started a new child activity), so the Id is guid1.1.123_1.abc
             // so the request is grand parent to the trace
-            Assert.True(trace.Context.Operation.ParentId.StartsWith(requestTelemetry.Id, StringComparison.Ordinal));
+            Assert.StartsWith(requestTelemetry.Id, trace.Context.Operation.ParentId, StringComparison.Ordinal);
             Assert.Equal("v", trace.Properties["k"]);
         }
 
