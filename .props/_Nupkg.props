@@ -24,7 +24,7 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://go.microsoft.com/fwlink/?LinkId=392727</PackageProjectUrl>
-    <PackageIconUrl>http://appanacdn.blob.core.windows.net/cdn/icons/aic.png</PackageIconUrl>
+    <PackageIcon>icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/Microsoft/ApplicationInsights-dotnet</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageType>Dependency</PackageType>
@@ -33,6 +33,10 @@
     <!-- <PackageOutputPath>Defined in Directory.props</PackageOutputPath> -->
     <PackageTags>Analytics Azure ApplicationInsights Telemetry Monitoring SDK</PackageTags>
   </PropertyGroup>
+
+  <ItemGroup>
+      <None Include="$(EnlistmentRoot)\.images\icon.png" Pack="true" PackagePath="\"/>
+  </ItemGroup>
 
   <PropertyGroup>
     <!-- These Properties are unique to the project and must be set in the csproj -->
