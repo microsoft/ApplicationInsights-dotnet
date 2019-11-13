@@ -38,13 +38,13 @@
 
         public RequestMetricsExtractor()
         {
-            dimensionExtractors.Add(new RequestIdDimensionExtractor());
-            dimensionExtractors.Add(new RequestSuccessDimensionExtractor());
-            dimensionExtractors.Add(new DurationBucketExtractor());
-            dimensionExtractors.Add(new SyntheticDimensionExtractor());
-            dimensionExtractors.Add(new RequestResponseCodeDimensionExtractor() { MaxValues = MaxResponseCodeToDiscover });
-            dimensionExtractors.Add(new CloudRoleInstanceDimensionExtractor() { MaxValues = MaxCloudRoleInstanceValuesToDiscover });
-            dimensionExtractors.Add(new CloudRoleNameDimensionExtractor() { MaxValues = MaxCloudRoleNameValuesToDiscover });
+            this.dimensionExtractors.Add(new RequestIdDimensionExtractor());
+            this.dimensionExtractors.Add(new RequestSuccessDimensionExtractor());
+            this.dimensionExtractors.Add(new DurationBucketExtractor());
+            this.dimensionExtractors.Add(new SyntheticDimensionExtractor());
+            this.dimensionExtractors.Add(new RequestResponseCodeDimensionExtractor() { MaxValues = this.MaxResponseCodeToDiscover });
+            this.dimensionExtractors.Add(new CloudRoleInstanceDimensionExtractor() { MaxValues = this.MaxCloudRoleInstanceValuesToDiscover });
+            this.dimensionExtractors.Add(new CloudRoleNameDimensionExtractor() { MaxValues = this.MaxCloudRoleNameValuesToDiscover });
         }
 
         public string ExtractorName { get; } = "Requests";
@@ -100,6 +100,7 @@
             {
                 dimensionNames.Add(this.dimensionExtractors[i].Name);
             }
+
             MetricIdentifier metricIdentifier = new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace,
                         MetricTerms.Autocollection.Metric.RequestDuration.Name,
                         dimensionNames);

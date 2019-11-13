@@ -1,9 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics
 {
     using System;
+
     internal class DurationBucketizer
     {
-        private static Tuple<string, long>[] PerfBuckets = new Tuple<string, long>[11]
+        private static Tuple<string, long>[] perfBuckets = new Tuple<string, long>[11]
         {
             new Tuple<string, long>("<250ms", 250),
             new Tuple<string, long>("250ms-500ms", 500),
@@ -20,16 +21,16 @@
 
         public static string GetPerformanceBucket(TimeSpan duration)
         {
-            for(int i = 0; i < PerfBuckets.Length; i ++)
+            for (int i = 0; i < perfBuckets.Length; i++)
             {
-                var bucket = PerfBuckets[i];
-                if(duration.TotalMilliseconds < bucket.Item2)
+                var bucket = perfBuckets[i];
+                if (duration.TotalMilliseconds < bucket.Item2)
                 {
                     return bucket.Item1;
                 }
             }
 
-            return PerfBuckets[PerfBuckets.Length - 1].Item1;
+            return perfBuckets[perfBuckets.Length - 1].Item1;
         }
     }
 }

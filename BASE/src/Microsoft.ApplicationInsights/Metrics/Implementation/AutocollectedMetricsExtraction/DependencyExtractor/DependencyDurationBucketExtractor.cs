@@ -7,6 +7,7 @@
     internal class DependencyDurationBucketExtractor : IDimensionExtractor
     {
         public int MaxValues { get; set; } = 11;
+
         public string DefaultValue { get; set; } = MetricTerms.Autocollection.Common.PropertyValues.Unknown;
 
         public string Name { get; set; } = MetricTerms.Autocollection.DependencyCall.PropertyNames.PerformanceBucket;

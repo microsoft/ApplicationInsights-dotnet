@@ -19,6 +19,7 @@
                         metricToTrack.TrackValue(metricValue, dimValues[0]);
                         break;
                     }
+
                 case 2:
                     {
                         metricToTrack.TrackValue(metricValue,
@@ -26,6 +27,7 @@
                             dimValues[1]);
                         break;
                     }
+
                 case 3:
                     {
                         metricToTrack.TrackValue(metricValue,
@@ -34,6 +36,7 @@
                             dimValues[2]);
                         break;
                     }
+
                 case 4:
                     {
                         metricToTrack.TrackValue(metricValue,
@@ -43,6 +46,7 @@
                             dimValues[3]);
                         break;
                     }
+
                 case 5:
                     {
                         metricToTrack.TrackValue(metricValue,
@@ -53,6 +57,7 @@
                             dimValues[4]);
                         break;
                     }
+
                 case 6:
                     {
                         metricToTrack.TrackValue(metricValue,
@@ -64,6 +69,7 @@
                             dimValues[5]);
                         break;
                     }
+
                 case 7:
                     {
                         metricToTrack.TrackValue(metricValue,
@@ -76,6 +82,7 @@
                              dimValues[6]);
                         break;
                     }
+
                 case 8:
                     {
                         metricToTrack.TrackValue(metricValue,
@@ -89,6 +96,7 @@
                              dimValues[7]);
                         break;
                     }
+
                 case 9:
                     {
                         metricToTrack.TrackValue(metricValue,
@@ -103,6 +111,7 @@
                             dimValues[8]);
                         break;
                     }
+
                 case 10:
                     {
                         metricToTrack.TrackValue(metricValue,

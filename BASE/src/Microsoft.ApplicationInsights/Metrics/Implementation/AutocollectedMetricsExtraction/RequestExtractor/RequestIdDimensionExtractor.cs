@@ -6,6 +6,7 @@
     internal class RequestIdDimensionExtractor : IDimensionExtractor
     {
         public int MaxValues { get; set; } = 1;
+
         public string DefaultValue { get; set; } = MetricTerms.Autocollection.Metric.RequestDuration.Id;
 
         public string Name { get; set; } = MetricDimensionNames.TelemetryContext.Property(MetricTerms.Autocollection.MetricId.Moniker.Key);

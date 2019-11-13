@@ -7,6 +7,7 @@
     internal class SuccessDimensionExtractor : IDimensionExtractor
     {
         public int MaxValues { get; set; } = 2;
+
         public string DefaultValue { get; set; } = bool.TrueString;
 
         public string Name { get; set; } = MetricTerms.Autocollection.DependencyCall.PropertyNames.Success;

@@ -47,14 +47,14 @@
         /// </summary>
         public DependencyMetricsExtractor()
         {
-            dimensionExtractors.Add(new IdDimensionExtractor());
-            dimensionExtractors.Add(new SuccessDimensionExtractor());
-            dimensionExtractors.Add(new DependencyDurationBucketExtractor());
-            dimensionExtractors.Add(new SyntheticDimensionExtractor());
-            dimensionExtractors.Add(new TypeDimensionExtractor() { MaxValues = MaxDependencyTypesToDiscover });
-            dimensionExtractors.Add(new TargetDimensionExtractor() { MaxValues = MaxDependencyTargetValuesToDiscover });
-            dimensionExtractors.Add(new CloudRoleInstanceDimensionExtractor() { MaxValues = MaxCloudRoleInstanceValuesToDiscover });
-            dimensionExtractors.Add(new CloudRoleNameDimensionExtractor() { MaxValues = MaxCloudRoleNameValuesToDiscover });
+            this.dimensionExtractors.Add(new IdDimensionExtractor());
+            this.dimensionExtractors.Add(new SuccessDimensionExtractor());
+            this.dimensionExtractors.Add(new DependencyDurationBucketExtractor());
+            this.dimensionExtractors.Add(new SyntheticDimensionExtractor());
+            this.dimensionExtractors.Add(new TypeDimensionExtractor() { MaxValues = this.MaxDependencyTypesToDiscover });
+            this.dimensionExtractors.Add(new TargetDimensionExtractor() { MaxValues = this.MaxDependencyTargetValuesToDiscover });
+            this.dimensionExtractors.Add(new CloudRoleInstanceDimensionExtractor() { MaxValues = this.MaxCloudRoleInstanceValuesToDiscover });
+            this.dimensionExtractors.Add(new CloudRoleNameDimensionExtractor() { MaxValues = this.MaxCloudRoleNameValuesToDiscover });
         }
 
         /// <summary>

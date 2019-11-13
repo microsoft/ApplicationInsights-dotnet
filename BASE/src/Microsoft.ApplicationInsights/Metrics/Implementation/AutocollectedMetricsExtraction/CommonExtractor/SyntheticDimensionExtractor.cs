@@ -7,6 +7,7 @@
     internal class SyntheticDimensionExtractor : IDimensionExtractor
     {
         public int MaxValues { get; set; } = 2;
+
         public string DefaultValue { get; set; } = bool.FalseString;
 
         public string Name { get; set; } = MetricTerms.Autocollection.Common.PropertyNames.Synthetic;
