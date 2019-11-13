@@ -25,7 +25,7 @@
         public const int MaxCloudRoleInstanceValuesToDiscoverDefault = 2;
 
         /// <summary>
-        /// The default value for the <see cref="MaxCloudRoleInstanceValuesToDiscover"/> property.
+        /// The default value for the <see cref="MaxCloudRoleNameValuesToDiscover"/> property.
         /// </summary>
         public const int MaxCloudRoleNameValuesToDiscoverDefault = 2;
 
