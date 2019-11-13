@@ -76,14 +76,7 @@
             foreach (var dim in this.dimensionExtractors)
             {
                 int dimLimit = 1;
-                if (dim.MaxValues == 0)
-                {
-                    dimLimit = 1;
-                }
-                else
-                {
-                    dimLimit = dim.MaxValues;
-                }
+                dimLimit = dim.MaxValues == 0 ? 1 : dim.MaxValues;
 
                 seriesCountLimit = seriesCountLimit * (1 + dimLimit);
                 valuesPerDimensionLimit[i++] = dimLimit;
@@ -130,10 +123,11 @@
                                                   + Invariant($" Either this metrics extractor has not been initialized, or it has been disposed."));
             }
 
-            int i = 0;
             string[] dimValues = new string[this.dimensionExtractors.Count];
-            foreach (var dim in this.dimensionExtractors)
+            
+            for (int i = 0; i < this.dimensionExtractors.Count; i++)
             {
+                var dim = this.dimensionExtractors[i];
                 if (dim.MaxValues == 0)
                 {
                     dimValues[i] = MetricTerms.Autocollection.Common.PropertyValues.Other;
@@ -146,8 +140,6 @@
                         dimValues[i] = dim.DefaultValue;
                     }
                 }
-
-                i++;
             }
 
             CommonHelper.TrackValueHelper(this.requestDurationMetric, request.Duration.TotalMilliseconds, dimValues);

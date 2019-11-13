@@ -107,15 +107,8 @@
             foreach (var dim in this.DimensionExtractors)
             {
                 int dimLimit = 1;
-                if (dim.MaxValues == 0)
-                {
-                    dimLimit = 1;
-                }
-                else
-                {
-                    dimLimit = dim.MaxValues;
-                }
 
+                dimLimit = dim.MaxValues == 0 ? 1 : dim.MaxValues;
                 seriesCountLimit = seriesCountLimit * (1 + dimLimit);
                 valuesPerDimensionLimit[i++] = dimLimit;
             }
