@@ -21,6 +21,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\IExtensionImplementations.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Sampling\SamplingRateStoreTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\ExceptionExtensionsTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Extensibility\AutocollectedMetricsExtraction\SyntheticDimensionExtractorTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Extensibility\AutocollectedMetricsExtraction\CloudRoleNameDimensionExtractorTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Extensibility\AutocollectedMetricsExtraction\CloudRoleInstanceDimensionExtractorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MetricTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OperationTelemetryExtensionsTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServiceProfiler\Agent\Utilities\ParsedPayload.cs" />
