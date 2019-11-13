@@ -46,15 +46,7 @@
         /// Initializes a new instance of the <see cref="DependencyMetricsExtractor" /> class.
         /// </summary>
         public DependencyMetricsExtractor()
-        {
-            this.DimensionExtractors.Add(new IdDimensionExtractor());
-            this.DimensionExtractors.Add(new SuccessDimensionExtractor());
-            this.DimensionExtractors.Add(new DependencyDurationBucketExtractor());
-            this.DimensionExtractors.Add(new SyntheticDimensionExtractor());
-            this.DimensionExtractors.Add(new TypeDimensionExtractor() { MaxValues = this.MaxDependencyTypesToDiscover });
-            this.DimensionExtractors.Add(new TargetDimensionExtractor() { MaxValues = this.MaxDependencyTargetValuesToDiscover });
-            this.DimensionExtractors.Add(new CloudRoleInstanceDimensionExtractor() { MaxValues = this.MaxCloudRoleInstanceValuesToDiscover });
-            this.DimensionExtractors.Add(new CloudRoleNameDimensionExtractor() { MaxValues = this.MaxCloudRoleNameValuesToDiscover });
+        {            
         }
 
         /// <summary>
@@ -99,6 +91,15 @@
         /// <param name="metricTelemetryClient">The <c>TelemetryClient</c> to be used for sending extracted metrics.</param>
         public void InitializeExtractor(TelemetryClient metricTelemetryClient)
         {
+            this.DimensionExtractors.Add(new IdDimensionExtractor());
+            this.DimensionExtractors.Add(new SuccessDimensionExtractor());
+            this.DimensionExtractors.Add(new DependencyDurationBucketExtractor());
+            this.DimensionExtractors.Add(new SyntheticDimensionExtractor());
+            this.DimensionExtractors.Add(new TypeDimensionExtractor() { MaxValues = this.MaxDependencyTypesToDiscover });
+            this.DimensionExtractors.Add(new TargetDimensionExtractor() { MaxValues = this.MaxDependencyTargetValuesToDiscover });
+            this.DimensionExtractors.Add(new CloudRoleInstanceDimensionExtractor() { MaxValues = this.MaxCloudRoleInstanceValuesToDiscover });
+            this.DimensionExtractors.Add(new CloudRoleNameDimensionExtractor() { MaxValues = this.MaxCloudRoleNameValuesToDiscover });
+
             int seriesCountLimit = 1;
             int[] valuesPerDimensionLimit = new int[this.DimensionExtractors.Count];
             int i = 0;
@@ -172,7 +173,7 @@
             {
                 if (dim.MaxValues == 0)
                 {
-                    dimValues[i] = dim.DefaultValue;
+                    dimValues[i] = MetricTerms.Autocollection.Common.PropertyValues.Other;
                 }
                 else
                 {

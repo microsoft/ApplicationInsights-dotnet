@@ -38,13 +38,7 @@
 
         public RequestMetricsExtractor()
         {
-            this.dimensionExtractors.Add(new RequestIdDimensionExtractor());
-            this.dimensionExtractors.Add(new RequestSuccessDimensionExtractor());
-            this.dimensionExtractors.Add(new DurationBucketExtractor());
-            this.dimensionExtractors.Add(new SyntheticDimensionExtractor());
-            this.dimensionExtractors.Add(new RequestResponseCodeDimensionExtractor() { MaxValues = this.MaxResponseCodeToDiscover });
-            this.dimensionExtractors.Add(new CloudRoleInstanceDimensionExtractor() { MaxValues = this.MaxCloudRoleInstanceValuesToDiscover });
-            this.dimensionExtractors.Add(new CloudRoleNameDimensionExtractor() { MaxValues = this.MaxCloudRoleNameValuesToDiscover });
+            
         }
 
         public string ExtractorName { get; } = "Requests";
@@ -68,6 +62,14 @@
 
         public void InitializeExtractor(TelemetryClient metricTelemetryClient)
         {
+            this.dimensionExtractors.Add(new RequestIdDimensionExtractor());
+            this.dimensionExtractors.Add(new RequestSuccessDimensionExtractor());
+            this.dimensionExtractors.Add(new DurationBucketExtractor());
+            this.dimensionExtractors.Add(new SyntheticDimensionExtractor());
+            this.dimensionExtractors.Add(new RequestResponseCodeDimensionExtractor() { MaxValues = this.MaxResponseCodeToDiscover });
+            this.dimensionExtractors.Add(new CloudRoleInstanceDimensionExtractor() { MaxValues = this.MaxCloudRoleInstanceValuesToDiscover });
+            this.dimensionExtractors.Add(new CloudRoleNameDimensionExtractor() { MaxValues = this.MaxCloudRoleNameValuesToDiscover });
+
             int seriesCountLimit = 1;
             int[] valuesPerDimensionLimit = new int[this.dimensionExtractors.Count];
             int i = 0;
@@ -135,7 +137,7 @@
             {
                 if (dim.MaxValues == 0)
                 {
-                    dimValues[i] = dim.DefaultValue;
+                    dimValues[i] = MetricTerms.Autocollection.Common.PropertyValues.Other;
                 }
                 else
                 {
