@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
   <PropertyGroup>
@@ -24,9 +24,6 @@
     <DefineConstants>$(DefineConstants);NET45</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.ApplicationInsights, Version=2.12.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\..\packages\Microsoft.ApplicationInsights.2.12.0-beta1\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.QualityTools.Testing.Fakes, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>fakesAssemblyForBuild\Microsoft.QualityTools.Testing.Fakes.dll</HintPath>
     </Reference>
@@ -69,6 +66,10 @@
     <Analyzer Include="..\..\..\..\..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj">
+      <Project>{e3d160e8-7f8c-416f-946f-6fdfc6787461}</Project>
+      <Name>Microsoft.ApplicationInsights</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HostingStartup\HostingStartup.csproj">
       <Project>{80f0481a-66c7-4442-96d3-5fd841132c4b}</Project>
       <Name>HostingStartup</Name>

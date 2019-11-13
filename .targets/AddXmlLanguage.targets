@@ -6,12 +6,13 @@
   </Target>
 
 
-    <UsingTask TaskName="InjectXmlLanguage" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <UsingTask TaskName="InjectXmlLanguage" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
         <ParameterGroup>
             <InputFiles ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
         </ParameterGroup>
         <Task>
-            <Reference Include="System" />
+            <!--<Reference Include="System" />-->
+            <Using Namespace="System" />
             <Using Namespace="System.Diagnostics" />
             <Using Namespace="System.IO" />
           <!--

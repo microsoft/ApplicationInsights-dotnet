@@ -98,7 +98,7 @@
             {
                 throw new ArgumentException("Cannot process the specified value."
                                           + " A non-negative whole number was expected, but the specified value is"
-                                          + " a negative double value (" + value + ")."
+                                          + " a negative double value (" + value.ToString(CultureInfo.InvariantCulture) + ")."
                                           + " Have you specified the correct metric configuration?");
             }
 
@@ -108,7 +108,7 @@
             {
                 throw new ArgumentException("Cannot process the specified value."
                                          + " A non-negative whole number was expected, but the specified value is"
-                                         + " larger than the maximum accepted value (" + value + ")."
+                                         + " larger than the maximum accepted value (" + value.ToString(CultureInfo.InvariantCulture) + ")."
                                          + " Have you specified the correct metric configuration?");
             }
 
@@ -117,7 +117,7 @@
             {
                 throw new ArgumentException("Cannot process the specified value."
                                           + " A non-negative whole number was expected, but the specified value is"
-                                          + " a double value that does not equal to a whole number (" + value + ")."
+                                          + " a double value that does not equal to a whole number (" + value.ToString(CultureInfo.InvariantCulture) + ")."
                                           + " Have you specified the correct metric configuration?");
             }
 

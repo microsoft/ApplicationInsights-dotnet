@@ -32,27 +32,25 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web.Net45.Tests", "Web\Web.
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Web.Shared.Net.Tests", "Web\Web.Shared.Net.Tests\Web.Shared.Net.Tests.shproj", "{AC2E85BB-05F7-43CB-B966-3611CCF47156}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TestFramework.Shared", "TestFramework\Shared\TestFramework.Shared.shproj", "{9718F051-147F-4F5F-9FF3-C926430EFCF7}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TestFramework.Shared.Web", "TestFramework\Shared\TestFramework.Shared.Web.shproj", "{9718F051-147F-4F5F-9FF3-C926430EFCF7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PerformanceCollector", "PerformanceCollector", "{A318CC6C-51C8-4BD6-BC85-2B4F35123BE7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perf.NetFull.Tests", "PerformanceCollector\Perf.NetFull.Tests\Perf.NetFull.Tests.csproj", "{F254D4FB-428D-408E-8251-39BCA7B4B5CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perf.Net45.Tests", "PerformanceCollector\Perf.Net45.Tests\Perf.Net45.Tests.csproj", "{F254D4FB-428D-408E-8251-39BCA7B4B5CE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xdt.Tests", "PerformanceCollector\Xdt.Tests\Xdt.Tests.csproj", "{C6B569BC-6F19-42C9-A951-DA611BB0F4BE}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0828A19C-C62C-4B5E-9160-5A6F992F2000}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solution Items", "{0828A19C-C62C-4B5E-9160-5A6F992F2000}"
 	ProjectSection(SolutionItems) = preProject
 		..\CHANGELOG.md = ..\CHANGELOG.md
 		..\Common.props = ..\Common.props
 		..\Directory.Build.props = ..\Directory.Build.props
 		..\dirs.proj = ..\dirs.proj
-		..\GlobalStaticVersion.props = ..\GlobalStaticVersion.props
 		..\NuGet.config = ..\NuGet.config
-		..\Nupkg.props = ..\Nupkg.props
 		Product.props = Product.props
 	EndProjectSection
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common", "Common\Common.shproj", "{CCAB7A34-8DC5-4A6F-B637-46CEBA93C687}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common.Web", "Common\Common.Web.shproj", "{CCAB7A34-8DC5-4A6F-B637-46CEBA93C687}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyCollector.NetCore.Tests", "DependencyCollector\NetCore.Tests\DependencyCollector.NetCore.Tests.csproj", "{D831194B-6283-4F53-B351-D9C72FC03629}"
 EndProject
@@ -62,7 +60,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HostingStartup.Net45.Tests"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared", "PerformanceCollector\Perf.Shared\Perf.Shared.shproj", "{A78F50D4-F518-4DCB-878B-526FD54CCA35}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared.NetFull", "PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.shproj", "{85238238-5EF0-40FA-AD3E-BD4B12A3DD1A}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared.Net45", "PerformanceCollector\Perf.Shared.Net45\Perf.Shared.Net45.shproj", "{85238238-5EF0-40FA-AD3E-BD4B12A3DD1A}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Filtering.Shared", "PerformanceCollector\Filtering.Shared\Filtering.Shared.shproj", "{568AEB4F-BA4C-47A5-9FA3-68F06CD11FED}"
 EndProject
@@ -97,6 +95,12 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventCounterCollector", "EventCounterCollector\EventCounterCollector\EventCounterCollector.csproj", "{30AE1A5D-775A-4DEC-9F87-849D8AE93E3A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventCounterCollector.Tests", "EventCounterCollector\EventCounterCollector.Tests\EventCounterCollector.Tests\EventCounterCollector.Tests.csproj", "{6ABC0D66-F577-44A7-8F61-B23882B7A1FF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".DependentProjects", ".DependentProjects", "{85C7566E-98C3-479D-AC4F-0D4B161B7D42}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights", "..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj", "{2BB7F06B-F094-417F-8C1B-7FCCA1192E17}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel", "..\..\BASE\src\ServerTelemetryChannel\TelemetryChannel.csproj", "{41301181-F4BE-4C36-B78D-A29C55CB0469}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -269,6 +273,22 @@ Global
 		{6ABC0D66-F577-44A7-8F61-B23882B7A1FF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6ABC0D66-F577-44A7-8F61-B23882B7A1FF}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{6ABC0D66-F577-44A7-8F61-B23882B7A1FF}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{2BB7F06B-F094-417F-8C1B-7FCCA1192E17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BB7F06B-F094-417F-8C1B-7FCCA1192E17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BB7F06B-F094-417F-8C1B-7FCCA1192E17}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{2BB7F06B-F094-417F-8C1B-7FCCA1192E17}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{2BB7F06B-F094-417F-8C1B-7FCCA1192E17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BB7F06B-F094-417F-8C1B-7FCCA1192E17}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BB7F06B-F094-417F-8C1B-7FCCA1192E17}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{2BB7F06B-F094-417F-8C1B-7FCCA1192E17}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{41301181-F4BE-4C36-B78D-A29C55CB0469}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41301181-F4BE-4C36-B78D-A29C55CB0469}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41301181-F4BE-4C36-B78D-A29C55CB0469}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{41301181-F4BE-4C36-B78D-A29C55CB0469}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{41301181-F4BE-4C36-B78D-A29C55CB0469}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41301181-F4BE-4C36-B78D-A29C55CB0469}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41301181-F4BE-4C36-B78D-A29C55CB0469}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{41301181-F4BE-4C36-B78D-A29C55CB0469}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -305,6 +325,8 @@ Global
 		{AC7D8533-C823-4E93-B008-51B3C4744E2E} = {A318CC6C-51C8-4BD6-BC85-2B4F35123BE7}
 		{054C25DC-E545-4712-95C4-81F30CF65CE8} = {A318CC6C-51C8-4BD6-BC85-2B4F35123BE7}
 		{A8BA3BD0-19CE-488D-B2BD-0B9B677F4E03} = {A318CC6C-51C8-4BD6-BC85-2B4F35123BE7}
+		{2BB7F06B-F094-417F-8C1B-7FCCA1192E17} = {85C7566E-98C3-479D-AC4F-0D4B161B7D42}
+		{41301181-F4BE-4C36-B78D-A29C55CB0469} = {85C7566E-98C3-479D-AC4F-0D4B161B7D42}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F99E0A07-C363-49BF-BFA7-C748391CE38E}

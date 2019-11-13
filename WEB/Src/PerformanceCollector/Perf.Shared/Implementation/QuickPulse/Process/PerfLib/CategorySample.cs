@@ -69,7 +69,7 @@
 
                 if (!foundCategory)
                 {
-                    throw new InvalidOperationException("Category not found for categoryNameIndex " + categoryNameIndex);
+                    throw new InvalidOperationException("Category not found for categoryNameIndex " + categoryNameIndex.ToString(CultureInfo.InvariantCulture));
                 }
 
                 int counterNumber = perfObject.NumCounters;
@@ -113,7 +113,7 @@
 
                 if (sample == null)
                 {
-                    throw new InvalidOperationException("Could not find the counter " + counterNameIndex);
+                    throw new InvalidOperationException("Could not find the counter " + counterNameIndex.ToString(CultureInfo.InvariantCulture));
                 }
 
                 // now set up the InstanceNameTable.  

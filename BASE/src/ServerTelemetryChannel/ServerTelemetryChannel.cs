@@ -2,6 +2,7 @@
 {
     using System;
     using System.ComponentModel;
+    using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -300,6 +301,7 @@
         /// <summary>
         /// Initialize method is called after all configuration properties have been loaded from the configuration.
         /// </summary>
+        [SuppressMessage("Microsoft.Usage", "CA2234:PassSystemUriObjectsInsteadOfStrings", Justification = "Private variable, low risk.")]
         public void Initialize(TelemetryConfiguration configuration)
         {
             this.Transmitter.Initialize();

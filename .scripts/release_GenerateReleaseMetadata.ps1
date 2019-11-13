@@ -95,6 +95,9 @@ function Get-PackageInfoFromNupkg([string]$nupkgPath) {
     Write-Verbose ("Found Dll: " + $dllPath.FullName)
     $dllVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($dllPath.FullName).FileVersion
 
+    #cleanup
+    Remove-Item -Recurse -Force $unzipPath
+
     return [PackageInfo]::new($name, $nuspecVersion, $dllVersion)
 }
 
