@@ -49,6 +49,7 @@
         {
             dimensionExtractors.Add(new IdDimensionExtractor());
             dimensionExtractors.Add(new SuccessDimensionExtractor());
+            dimensionExtractors.Add(new DependencyDurationBucketExtractor());
             dimensionExtractors.Add(new SyntheticDimensionExtractor());
             dimensionExtractors.Add(new TypeDimensionExtractor() { MaxValues = MaxDependencyTypesToDiscover });
             dimensionExtractors.Add(new TargetDimensionExtractor() { MaxValues = MaxDependencyTargetValuesToDiscover });

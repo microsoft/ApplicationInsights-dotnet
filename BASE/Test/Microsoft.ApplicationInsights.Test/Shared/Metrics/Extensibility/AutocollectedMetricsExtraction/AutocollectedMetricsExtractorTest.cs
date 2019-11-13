@@ -114,15 +114,17 @@
                             {
                                 for (int m = 0; m < synthetic.Length; m++)
                                 {
-                                    // For ease of validation 3 calls are tracked.
-                                    // with 100, 300, 500 leading to min=50, max=300, sum = 450
-                                    // ValidateAllMetric() method does this validation
+                                    // For ease of validation 4 calls are tracked.
+                                    // with 100, 100. 600. 600.
+                                    // This will fall into 2 buckets <250msec, and 500ms-1sec
                                     requests.Add(CreateRequestTelemetry(
                                         TimeSpan.FromMilliseconds(100), responseCode[j], success[i], synthetic[m], cloudRoleNames[k], cloudRoleInstances[l]));
                                     requests.Add(CreateRequestTelemetry(
-                                        TimeSpan.FromMilliseconds(300), responseCode[j], success[i], synthetic[m], cloudRoleNames[k], cloudRoleInstances[l]));
+                                        TimeSpan.FromMilliseconds(100), responseCode[j], success[i], synthetic[m], cloudRoleNames[k], cloudRoleInstances[l]));
                                     requests.Add(CreateRequestTelemetry(
-                                        TimeSpan.FromMilliseconds(50), responseCode[j], success[i], synthetic[m], cloudRoleNames[k], cloudRoleInstances[l]));
+                                        TimeSpan.FromMilliseconds(600), responseCode[j], success[i], synthetic[m], cloudRoleNames[k], cloudRoleInstances[l]));
+                                    requests.Add(CreateRequestTelemetry(
+                                        TimeSpan.FromMilliseconds(600), responseCode[j], success[i], synthetic[m], cloudRoleNames[k], cloudRoleInstances[l]));
                                 }
                             }
                         }
@@ -133,23 +135,32 @@
                 {
                     client.TrackRequest(req);
                 }
+                
+                // The # of iteration is 48 = 2 * 2 * 3 * 2 * 2
+                //  success * synthetic * responseCode * RoleName * RoleInstance
+                // 4 Track calls are made in every iteration,
+                // hence 48 * 4 requests gives 192 total requests
+                Assert.AreEqual(192, telemetrySentToChannel.Count);
 
+                // The total # of timeseries is 96
                 // 2 * 2 * 3 * 2 * 2 * 2 = 96
                 // success * synthetic * responseCode * RoleName * RoleInstance * DurationBucket
-                // 3 Track calls are made in every iteration,
-                // hence 48 * 3 requests gives 144 total requests
-                Assert.AreEqual(144, telemetrySentToChannel.Count);
+                // Duration bucket is auto calculated, hence not included in iteration count.
 
                 // The above did not include Metrics as they are sent upon dispose only.                
             } // dispose occurs here, and hence metrics get flushed out.
 
-            // 240 = 144 requests + 96 metrics as there are 96 unique combination of dimension
-            Assert.AreEqual(240, telemetrySentToChannel.Count);
+            // 2 * 2 * 3 * 2 * 2 * 2 = 96
+            // success * synthetic * responseCode * RoleName * RoleInstance * DurationBucket
+            int totalTimeSeries = 96;
+
+            // 288 = 192 requests + 96 metrics as there are 96 unique combination of dimension
+            Assert.AreEqual(288, telemetrySentToChannel.Count);
 
             // These are pre-agg metric
             var serverResponseMetric = telemetrySentToChannel.Where(
                 (tel) => "Server response time".Equals((tel as MetricTelemetry)?.Name));
-            Assert.AreEqual(96, serverResponseMetric.Count());
+            Assert.AreEqual(totalTimeSeries, serverResponseMetric.Count());
 
             foreach(var metric in serverResponseMetric)
             {
@@ -175,7 +186,7 @@
             {
                 var metricCollection = serverResponseMetric.Where(
                 (tel) => (tel as MetricTelemetry).Properties["Request.Success"] == success[i].ToString());
-                int expectedCount = 96 / success.Length;
+                int expectedCount = totalTimeSeries / success.Length;
                 Assert.AreEqual(expectedCount, metricCollection.Count());
                 ValidateAllMetric(metricCollection);
             }
@@ -185,7 +196,7 @@
             {
                 var metricCollection = serverResponseMetric.Where(
                 (tel) => (tel as MetricTelemetry).Properties["operation/synthetic"] == synthetic[i].ToString());
-                int expectedCount = 96 / synthetic.Length;
+                int expectedCount = totalTimeSeries / synthetic.Length;
                 Assert.AreEqual(expectedCount, metricCollection.Count());
                 ValidateAllMetric(metricCollection);
             }
@@ -195,7 +206,7 @@
             {
                 var metricCollection = serverResponseMetric.Where(
                 (tel) => (tel as MetricTelemetry).Properties["cloud/roleName"] == cloudRoleNames[i]);
-                int expectedCount = 96 / cloudRoleNames.Length;
+                int expectedCount = totalTimeSeries / cloudRoleNames.Length;
                 Assert.AreEqual(expectedCount, metricCollection.Count());
                 ValidateAllMetric(metricCollection);
             }
@@ -205,7 +216,7 @@
             {
                 var metricCollection = serverResponseMetric.Where(
                 (tel) => (tel as MetricTelemetry).Properties["cloud/roleInstance"] == cloudRoleInstances[i]);
-                int expectedCount = 96 / cloudRoleInstances.Length;
+                int expectedCount = totalTimeSeries / cloudRoleInstances.Length;
                 Assert.AreEqual(expectedCount, metricCollection.Count());
                 ValidateAllMetric(metricCollection);
             }
@@ -215,7 +226,7 @@
             {
                 var metricCollection = serverResponseMetric.Where(
                 (tel) => (tel as MetricTelemetry).Properties["request/resultCode"] == responseCode[i]);
-                int expectedCount = 96 / responseCode.Length;
+                int expectedCount = totalTimeSeries / responseCode.Length;
                 Assert.AreEqual(expectedCount, metricCollection.Count());
                 ValidateAllMetric(metricCollection);
             }
@@ -229,7 +240,7 @@
                     (tel) => (tel as MetricTelemetry).Properties["request/performanceBucket"] == "500ms-1sec");
 
 
-                int expectedCount = 96 / 2;
+                int expectedCount = totalTimeSeries / 2;
                 Assert.AreEqual(expectedCount, metricCollectionBelow250.Count());
                 ValidateAllMetric(metricCollectionBelow250);
 
@@ -271,10 +282,9 @@
             foreach (var singleMetric in metricCollection)
             {
                 var m = singleMetric as MetricTelemetry;
-                Assert.AreEqual(3, m.Count);
-                Assert.AreEqual(50, m.Min);
-                Assert.AreEqual(300, m.Max);
-                Assert.AreEqual(450, m.Sum);
+                // 2 is the count - its either 100,100 or 600,600 leading to sum of either 200 or 1200
+                Assert.AreEqual(2, m.Count);                
+                Assert.IsTrue(m.Sum == 200 || m.Sum == 1200);
             }
         }
 
@@ -523,15 +533,17 @@
                                 {
                                     for (int n = 0; n < types.Length; n++)
                                     {
-                                        // For ease of validation 3 calls are tracked.
-                                        // with 10, 30, 5 leading to min=5, max=30, sum = 45
-                                        // ValidateAllMetric() method does this validation
+                                        // For ease of validation 4 calls are tracked.
+                                        // with 100, 100. 600. 600.
+                                        // This will fall into 2 buckets <250msec, and 500ms-1sec
                                         dependencies.Add(CreateDependencyTelemetry(
-                                        TimeSpan.FromMilliseconds(10), targets[j], types[n], success[i], synthetic[m], cloudRoleNames[k], cloudRoleInstances[l]));
+                                        TimeSpan.FromMilliseconds(100), targets[j], types[n], success[i], synthetic[m], cloudRoleNames[k], cloudRoleInstances[l]));
                                         dependencies.Add(CreateDependencyTelemetry(
-                                            TimeSpan.FromMilliseconds(30), targets[j], types[n], success[i], synthetic[m], cloudRoleNames[k], cloudRoleInstances[l]));
+                                            TimeSpan.FromMilliseconds(100), targets[j], types[n], success[i], synthetic[m], cloudRoleNames[k], cloudRoleInstances[l]));
                                         dependencies.Add(CreateDependencyTelemetry(
-                                            TimeSpan.FromMilliseconds(5), targets[j], types[n], success[i], synthetic[m], cloudRoleNames[k], cloudRoleInstances[l]));
+                                            TimeSpan.FromMilliseconds(600), targets[j], types[n], success[i], synthetic[m], cloudRoleNames[k], cloudRoleInstances[l]));
+                                        dependencies.Add(CreateDependencyTelemetry(
+                                            TimeSpan.FromMilliseconds(600), targets[j], types[n], success[i], synthetic[m], cloudRoleNames[k], cloudRoleInstances[l]));
                                     }                                    
                                 }
                             }
@@ -544,22 +556,27 @@
                     client.TrackDependency(dep);
                 }
 
-                // 2 * 2 * 3 * 3 *  2 * 2 = 144
-                // success * synthetic * target * type * RoleName * RoleInstance
-                // 3 Track calls are made in every iteration,
-                // hence 144 * 3 dependencies gives 432 total dependencies
-                Assert.AreEqual(432, telemetrySentToChannel.Count);
+                
+                // 2 * 2 * 3 * 3 *  2 * 2 = 144 iteration
+                // DurationBucket is not included in interation as its automatically extracted.
+                // 4 Track calls are made in every iteration,
+                // hence 144 * 4 dependencies gives 576 total dependencies
+                Assert.AreEqual(576, telemetrySentToChannel.Count);
 
                 // The above did not include Metrics as they are sent upon dispose only.                
             } // dispose occurs here, and hence metrics get flushed out.
 
-            // 576 = 432 requests + 144 metrics as there are 144 unique combination of dimension
-            Assert.AreEqual(576, telemetrySentToChannel.Count);
+            // 2 * 2 * 3 * 3 *  2 * 2 * 2 = 288 timeseries
+            // success * synthetic * target * type * RoleName * RoleInstance *DurationBucket
+            int totalTimeSeries = 288;
+
+            // 864 = 576 requests + 288 metrics as there are 144 unique combination of dimension
+            Assert.AreEqual(864, telemetrySentToChannel.Count);
 
             // These are pre-agg metric
             var depDurationMetric = telemetrySentToChannel.Where(
                 (tel) => "Dependency duration".Equals((tel as MetricTelemetry)?.Name));
-            Assert.AreEqual(144, depDurationMetric.Count());
+            Assert.AreEqual(totalTimeSeries, depDurationMetric.Count());
 
             foreach (var metric in depDurationMetric)
             {
@@ -578,6 +595,7 @@
                 Assert.AreEqual(true, metricTel.Properties.ContainsKey("Dependency.Type"));
                 Assert.AreEqual(true, metricTel.Properties.ContainsKey("dependency/target"));
                 Assert.AreEqual(true, metricTel.Properties.ContainsKey("operation/synthetic"));
+                Assert.AreEqual(true, metricTel.Properties.ContainsKey("dependency/performanceBucket"));
             }
 
             // Validate success dimension
@@ -585,7 +603,7 @@
             {
                 var metricCollection = depDurationMetric.Where(
                 (tel) => (tel as MetricTelemetry).Properties["Dependency.Success"] == success[i].ToString());
-                int expectedCount = 144 / success.Length;
+                int expectedCount = totalTimeSeries / success.Length;
                 Assert.AreEqual(expectedCount, metricCollection.Count());
                 ValidateAllMetric(metricCollection);
             }
@@ -595,7 +613,7 @@
             {
                 var metricCollection = depDurationMetric.Where(
                 (tel) => (tel as MetricTelemetry).Properties["operation/synthetic"] == synthetic[i].ToString());
-                int expectedCount = 144 / synthetic.Length;
+                int expectedCount = totalTimeSeries / synthetic.Length;
                 Assert.AreEqual(expectedCount, metricCollection.Count());
                 ValidateAllMetric(metricCollection);
             }
@@ -605,7 +623,7 @@
             {
                 var metricCollection = depDurationMetric.Where(
                 (tel) => (tel as MetricTelemetry).Properties["cloud/roleName"] == cloudRoleNames[i]);
-                int expectedCount = 144 / cloudRoleNames.Length;
+                int expectedCount = totalTimeSeries / cloudRoleNames.Length;
                 Assert.AreEqual(expectedCount, metricCollection.Count());
                 ValidateAllMetric(metricCollection);
             }
@@ -615,7 +633,7 @@
             {
                 var metricCollection = depDurationMetric.Where(
                 (tel) => (tel as MetricTelemetry).Properties["cloud/roleInstance"] == cloudRoleInstances[i]);
-                int expectedCount = 144 / cloudRoleInstances.Length;
+                int expectedCount = totalTimeSeries / cloudRoleInstances.Length;
                 Assert.AreEqual(expectedCount, metricCollection.Count());
                 ValidateAllMetric(metricCollection);
             }
@@ -625,7 +643,7 @@
             {
                 var metricCollection = depDurationMetric.Where(
                 (tel) => (tel as MetricTelemetry).Properties["Dependency.Type"] == types[i]);
-                int expectedCount = 144 / types.Length;
+                int expectedCount = totalTimeSeries / types.Length;
                 Assert.AreEqual(expectedCount, metricCollection.Count());
                 ValidateAllMetric(metricCollection);
             }
@@ -635,9 +653,26 @@
             {
                 var metricCollection = depDurationMetric.Where(
                 (tel) => (tel as MetricTelemetry).Properties["dependency/target"] == targets[i]);
-                int expectedCount = 144 / types.Length;
+                int expectedCount = totalTimeSeries / types.Length;
                 Assert.AreEqual(expectedCount, metricCollection.Count());
                 ValidateAllMetric(metricCollection);
+            }
+
+            // Validate Duration Bucket dimension
+            {
+                var metricCollectionBelow250 = depDurationMetric.Where(
+                    (tel) => (tel as MetricTelemetry).Properties["dependency/performanceBucket"] == "<250ms");
+
+                var metricCollection500mSecTo1Sec = depDurationMetric.Where(
+                    (tel) => (tel as MetricTelemetry).Properties["dependency/performanceBucket"] == "500ms-1sec");
+
+
+                int expectedCount = totalTimeSeries / 2;
+                Assert.AreEqual(expectedCount, metricCollectionBelow250.Count());
+                ValidateAllMetric(metricCollectionBelow250);
+
+                Assert.AreEqual(expectedCount, metricCollection500mSecTo1Sec.Count());
+                ValidateAllMetric(metricCollection500mSecTo1Sec);
             }
         }
 

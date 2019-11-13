@@ -1,7 +1,6 @@
-﻿using System;
-
-namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics
 {
+    using System;
     internal class DurationBucketizer
     {
         private static Tuple<string, long>[] PerfBuckets = new Tuple<string, long>[11]
