@@ -38,7 +38,6 @@
 
         public RequestMetricsExtractor()
         {
-            
         }
 
         public string ExtractorName { get; } = "Requests";
