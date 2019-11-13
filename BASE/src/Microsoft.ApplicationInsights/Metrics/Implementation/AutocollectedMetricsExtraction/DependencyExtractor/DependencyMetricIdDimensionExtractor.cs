@@ -3,7 +3,7 @@
     using System;
     using Microsoft.ApplicationInsights.Channel;    
 
-    internal class IdDimensionExtractor : IDimensionExtractor
+    internal class DependencyMetricIdDimensionExtractor : IDimensionExtractor
     {
         public int MaxValues { get; set; } = 1;
 

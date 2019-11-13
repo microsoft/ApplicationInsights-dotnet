@@ -17,7 +17,7 @@
         /// <summary>
         /// The default value for the <see cref="MaxResponseCodeToDiscover"/> property.        
         /// </summary>
-        public const int MaxResponseCodeToDiscoverDefault = 10;
+        public const int MaxResponseCodeToDiscoverDefault = 30;
 
         /// <summary>
         /// The default value for the <see cref="MaxCloudRoleInstanceValuesToDiscover"/> property.
@@ -62,7 +62,7 @@
 
         public void InitializeExtractor(TelemetryClient metricTelemetryClient)
         {
-            this.dimensionExtractors.Add(new RequestIdDimensionExtractor());
+            this.dimensionExtractors.Add(new RequestMetricIdDimensionExtractor());
             this.dimensionExtractors.Add(new RequestSuccessDimensionExtractor());
             this.dimensionExtractors.Add(new DurationBucketExtractor());
             this.dimensionExtractors.Add(new SyntheticDimensionExtractor());

@@ -91,7 +91,7 @@
         /// <param name="metricTelemetryClient">The <c>TelemetryClient</c> to be used for sending extracted metrics.</param>
         public void InitializeExtractor(TelemetryClient metricTelemetryClient)
         {
-            this.DimensionExtractors.Add(new IdDimensionExtractor());
+            this.DimensionExtractors.Add(new DependencyMetricIdDimensionExtractor());
             this.DimensionExtractors.Add(new SuccessDimensionExtractor());
             this.DimensionExtractors.Add(new DependencyDurationBucketExtractor());
             this.DimensionExtractors.Add(new SyntheticDimensionExtractor());
