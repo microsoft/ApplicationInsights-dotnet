@@ -15,7 +15,14 @@
         public string ExtractDimension(ITelemetry item)
         {
             var req = item as RequestTelemetry;
-            return DurationBucketizer.GetPerformanceBucket(req.Duration);
+            if (req != null)
+            {
+                return DurationBucketizer.GetPerformanceBucket(req.Duration);
+            }
+            else
+            {
+                return string.Empty;
+            }
         }
     }
 }

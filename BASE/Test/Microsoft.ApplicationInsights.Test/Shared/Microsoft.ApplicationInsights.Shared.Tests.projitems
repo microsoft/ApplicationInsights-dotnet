@@ -21,6 +21,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\IExtensionImplementations.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Sampling\SamplingRateStoreTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\ExceptionExtensionsTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Extensibility\AutocollectedMetricsExtraction\DependencyDurationBucketExtractorTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Extensibility\AutocollectedMetricsExtraction\RequestResponseCodeDimensionExtractorTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Extensibility\AutocollectedMetricsExtraction\DependencyTypeDimesnionExtractorTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Extensibility\AutocollectedMetricsExtraction\RequestSuccessDimensionExtractorTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Extensibility\AutocollectedMetricsExtraction\DependencyTargetDimesnionExtractorTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Extensibility\AutocollectedMetricsExtraction\SuccessDimensionExtractorTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Extensibility\AutocollectedMetricsExtraction\RequestDurationBucketExtractorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Metrics\Extensibility\AutocollectedMetricsExtraction\SyntheticDimensionExtractorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Metrics\Extensibility\AutocollectedMetricsExtraction\CloudRoleNameDimensionExtractorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Metrics\Extensibility\AutocollectedMetricsExtraction\CloudRoleInstanceDimensionExtractorTest.cs" />
