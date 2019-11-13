@@ -32,7 +32,7 @@ function Clean ([string]$dir) {
 }
 
 function PrintFileCount ([string]$dir) {
-    $count = ( Get-ChildItem c:\MyFolder | Measure-Object ).Count;
+    $count = ( Get-ChildItem $dir -Recurse | Measure-Object ).Count;
     Write-Host " File count: $($count)";
 }
 
