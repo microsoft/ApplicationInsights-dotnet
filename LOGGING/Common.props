@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <CodeAnalysisRuleSet>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'ApplicationInsightsSDKRules.ruleset'))\ApplicationInsightsSDKRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>$(RulesetsRoot)\ApplicationInsightsSDKRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
