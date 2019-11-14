@@ -526,9 +526,13 @@
         #region Dependency-metrics-related Tests
 
         [TestMethod]
-        public void Dependency_MaxDependenctTypesToDiscoverDefaultIsAsExpected()
+        public void Dependency_DefaultDimensionLimitsValidation()
         {
-            Assert.AreEqual(15, DependencyMetricsExtractor.MaxDependencyTypesToDiscoverDefault);
+            var depExtractor = new DependencyMetricsExtractor();
+            Assert.AreEqual(15, depExtractor.MaxDependencyTypesToDiscover);
+            Assert.AreEqual(125, depExtractor.MaxDependencyTargetValuesToDiscover);
+            Assert.AreEqual(2, depExtractor.MaxCloudRoleNameValuesToDiscover);
+            Assert.AreEqual(2, depExtractor.MaxCloudRoleInstanceValuesToDiscover);
         }
 
         [TestMethod]
@@ -658,6 +662,12 @@
                 {
                 }
             }
+        }
+
+        [TestMethod]
+        public void Dependency_DimensionsLimitsAreEnforced()
+        {
+
         }
 
         [TestMethod]

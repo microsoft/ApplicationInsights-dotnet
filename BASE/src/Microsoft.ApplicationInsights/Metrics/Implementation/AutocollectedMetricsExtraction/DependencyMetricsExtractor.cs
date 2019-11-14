@@ -34,7 +34,7 @@
         /// </summary>
         public const int MaxCloudRoleNameValuesToDiscoverDefault = 2;
         
-        private List<IDimensionExtractor> DimensionExtractors = new List<IDimensionExtractor>();
+        internal List<IDimensionExtractor> DimensionExtractors = new List<IDimensionExtractor>();
         
         /// <summary>
         /// Extracted metric.
