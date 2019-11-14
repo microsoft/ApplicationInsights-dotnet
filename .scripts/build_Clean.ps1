@@ -1,7 +1,11 @@
 param(
     [Parameter(Mandatory=$True)]
     [System.String]
-    $Directory
+    $Directory,
+
+    [Parameter(Mandatory=$False)]
+    [System.Boolean]
+    $CleanBinAndObj
 )
 
 
@@ -15,9 +19,11 @@ function Clean ([string]$dir) {
     Write-Host "`nDirectory: $($dir)";
 
     if (Test-Path $dir) 
-    { 
+    {
+        PrintFileCount $dir;
         Remove-Item $dir -Recurse -Force; 
         Write-Host " removed";
+        PrintFileCount $dir;
     }
     else 
     { 
@@ -25,5 +31,15 @@ function Clean ([string]$dir) {
     }
 }
 
-Clean "$($Directory)\bin"
-Clean "$($Directory)\obj"
+function PrintFileCount ([string]$dir) {
+    $count = ( Get-ChildItem $dir -Recurse | Measure-Object ).Count;
+    Write-Host " File count: $($count)";
+}
+
+
+if ($CleanBinAndObj) {
+    Clean "$($Directory)\bin"
+    Clean "$($Directory)\obj"
+} else {
+    Clean "$($Directory)"
+}
