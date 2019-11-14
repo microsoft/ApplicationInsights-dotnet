@@ -8,7 +8,6 @@
 namespace Microsoft.Extensions.Logging.ApplicationInsights
 {
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.Extensions.Logging;
 
     /// <summary>
     /// <see cref="ApplicationInsightsLoggerOptions"/> defines the custom behavior of the tracing information sent to Application Insights.
@@ -26,5 +25,11 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
         /// Defaults to true.
         /// </summary>
         public bool IncludeScopes { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to flush telemetry when disposing
+        /// of the logger provider.
+        /// </summary>
+        public bool FlushOnDispose { get; set; } = true;
     }
 }

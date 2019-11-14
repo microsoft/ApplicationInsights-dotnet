@@ -1,5 +1,8 @@
 # Changelog 
 
+## Version 2.12.0-beta1
+- [ILogger - Flush TelemetryChannel when the ILoggerProvider is Disposed.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1289)
+
 ## Version 2.11.0
 - Update Base SDK to 2.11.0
 - Update System.Diagnostics.DiagnosticSource to 4.6.0. 
