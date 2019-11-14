@@ -248,6 +248,39 @@ namespace Microsoft.ApplicationInsights
             Assert.IsTrue(registeredOptions.Value.IncludeScopes);
         }
 
+        [TestMethod]
+        [TestCategory("ILogger")]
+        public void TelemetryChannelIsFlushedWhenServiceProviderIsDisposed()
+        {
+            TestTelemetryChannel testTelemetryChannel = new TestTelemetryChannel();
+
+            using (ServiceProvider serviceProvider = ILoggerIntegrationTests.SetupApplicationInsightsLoggerIntegration(
+                delegate { },
+                telemetryConfiguration => telemetryConfiguration.TelemetryChannel = testTelemetryChannel))
+            {
+                serviceProvider.GetRequiredService<ILogger<ILoggerIntegrationTests>>();
+            }
+
+            Assert.AreEqual(1, testTelemetryChannel.FlushCount);
+        }
+
+        [TestMethod]
+        [TestCategory("ILogger")]
+        public void TelemetryChannelIsNotFlushedWhenFlushOnDisposeIsFalse()
+        {
+            TestTelemetryChannel testTelemetryChannel = new TestTelemetryChannel();
+
+            using (ServiceProvider serviceProvider = ILoggerIntegrationTests.SetupApplicationInsightsLoggerIntegration(
+                delegate { },
+                telemetryConfiguration => telemetryConfiguration.TelemetryChannel = testTelemetryChannel,
+                applicationInsightsOptions => applicationInsightsOptions.FlushOnDispose = false))
+            {
+                serviceProvider.GetRequiredService<ILogger<ILoggerIntegrationTests>>();
+            }
+
+            Assert.AreEqual(0, testTelemetryChannel.FlushCount);
+        }
+
         /// <summary>
         /// Sets up the Application insights logger.
         /// </summary>
@@ -256,7 +289,7 @@ namespace Microsoft.ApplicationInsights
         /// <param name="configureApplicationInsightsOptions">Action to configure logger options.</param>
         /// <param name="configureServices">Action to add, configure services to DI container.</param>
         /// <returns>Built DI container.</returns>
-        private static IServiceProvider SetupApplicationInsightsLoggerIntegration(
+        private static ServiceProvider SetupApplicationInsightsLoggerIntegration(
             Action<ITelemetry, ITelemetryProcessor> telemetryActionCallback,
             Action<TelemetryConfiguration> configureTelemetryConfiguration = null,
             Action<ApplicationInsightsLoggerOptions> configureApplicationInsightsOptions = null,
@@ -298,7 +331,7 @@ namespace Microsoft.ApplicationInsights
                 services = configureServices.Invoke(services);
             }
 
-            IServiceProvider serviceProvider = services.BuildServiceProvider();
+            ServiceProvider serviceProvider = services.BuildServiceProvider();
 
             return serviceProvider;
         }
