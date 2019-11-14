@@ -15,3 +15,13 @@
 - NETCORE: [Added support for SDK Connection String](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1221)
 - NETCORE: [New RoleName initializer for Azure Web App to accurately populate RoleName.](https://github.com/microsoft/ApplicationInsights-dotnet-server/issues/1207)
 - NETCORE: Update to Base/Web/Logging SDK to 2.12.0-beta1
+
+
+## OLDER
+
+Our older changelogs have not been migrated to this file.
+
+- [Base](.\CHANGELOG.Base.md)
+- [Web](.\CHANGELOG.Web.md)
+- [Logging](.\CHANGELOG.Logging.md)
+- [NetCore](.\CHANGELOG.NetCore.md)
