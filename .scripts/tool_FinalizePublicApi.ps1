@@ -1,5 +1,5 @@
 # After every stable release, all PublicApi text files (Shipped & Unshipped) should be merged.
-$path = "\PublicAPI";
+$path = "..\BASE\PublicAPI";
 $directory = $PSScriptRoot;
 
 $searchPath = Join-Path -Path $directory -ChildPath $path;
