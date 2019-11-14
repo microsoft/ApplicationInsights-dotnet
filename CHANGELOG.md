@@ -1,7 +1,8 @@
 # Changelog
 
 ## Version 2.12.0-beta2
-- [Enable Metric DimensionCapping API for Internal use with standard metric aggregation.]https://github.com/microsoft/ApplicationInsights-dotnet/issues/1244)
+- [Enable Metric DimensionCapping API for Internal use with standard metric aggregation.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1244)
+- [ILogger - Flush TelemetryChannel when the ILoggerProvider is Disposed.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1289)
 
 ## Version 2.12.0-beta1
 - BASE: [New: TelemetryConfiguration now supports Connection Strings]https://github.com/microsoft/ApplicationInsights-dotnet/issues/1221)
@@ -25,3 +26,4 @@ Our older changelogs have not been migrated to this file.
 - [Web](.\CHANGELOG.Web.md)
 - [Logging](.\CHANGELOG.Logging.md)
 - [NetCore](.\CHANGELOG.NetCore.md)
+
