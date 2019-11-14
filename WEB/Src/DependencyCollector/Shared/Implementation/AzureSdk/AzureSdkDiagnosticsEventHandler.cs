@@ -42,9 +42,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 }
                 if (evnt.Key.EndsWith(".Stop"))
                 {
-                    var telemetry = operationHolder.Get(currentActivity);
-
-                    TelemetryClient.TrackDependency(telemetry.Item1);
+                    var telemetry = operationHolder.Get(currentActivity).Item1;
+                    telemetry.Duration = currentActivity.Duration;
+                    TelemetryClient.TrackDependency(telemetry);
                 }
                 else if (evnt.Key.EndsWith(".Exception"))
                 {
@@ -62,6 +62,27 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             {
                 DependencyCollectorEventSource.Log.TelemetryDiagnosticSourceCallbackException(evnt.Key, ex.ToInvariantString());
             }
+        }
+
+        protected override string GetOperationName(string eventName, object eventPayload, Activity activity)
+        {
+            // activity name looks like 'Azure.<...>.<Class>.<Name>'
+            // as namespace is too verbose, we'll just take the last two nodes from the activity name as telemetry name
+            string activityName = activity.OperationName;
+            int methodDotIndex = activityName.LastIndexOf('.');
+            if (methodDotIndex <= 0)
+            {
+                return activityName;
+            }
+
+            int classDotIndex = activityName.LastIndexOf('.', methodDotIndex - 1);
+
+            if (classDotIndex == -1)
+            {
+                return activityName;
+            }
+
+            return activityName.Substring(classDotIndex + 1, activityName.Length - classDotIndex - 1);
         }
 
         protected override bool IsOperationSuccessful(string eventName, object eventPayload, Activity activity)

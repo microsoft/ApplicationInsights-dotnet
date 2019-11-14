@@ -7,7 +7,6 @@
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -41,6 +40,23 @@
         }
 
         [TestMethod]
+        public void AzureClientSpansNotCollectedWhenDisabled()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.EnableAzureSdkTelemetryListener = false;
+                module.Initialize(this.configuration);
+
+                Activity sendActivity = new Activity("Azure.SomeClient.Send");
+                listener.StartActivity(sendActivity, null);
+                listener.StopActivity(sendActivity, null);
+
+                Assert.AreEqual(0, this.sentItems.Count);
+            }
+        }
+
+        [TestMethod]
         public void AzureClientSpansAreCollected()
         {
             using (var listener = new DiagnosticListener("Azure.SomeClient"))
@@ -58,7 +74,7 @@
                     () => sendActivity = Activity.Current);
 
                 Assert.IsNotNull(telemetry);
-                Assert.AreEqual("Send", telemetry.Name);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
                 Assert.IsTrue(telemetry.Success.Value);
 
                 Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.ParentSpanId.ToHexString()}.", telemetry.Context.Operation.ParentId);
@@ -95,7 +111,7 @@
                     });
 
                 Assert.IsNotNull(telemetry);
-                Assert.AreEqual("Send", telemetry.Name);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
                 Assert.IsFalse(telemetry.Success.Value);
                 Assert.AreEqual(telemetry.Data, exception.ToInvariantString());
 
