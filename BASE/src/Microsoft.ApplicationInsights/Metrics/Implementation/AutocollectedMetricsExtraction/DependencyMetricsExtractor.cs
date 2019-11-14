@@ -5,7 +5,6 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Metrics;
-    using Microsoft.ApplicationInsights.Metrics.Extensibility;
     using static System.FormattableString;
 
     /// <summary>
@@ -23,7 +22,7 @@
         /// <summary>
         /// The default value for the <see cref="MaxDependencyTargetValuesToDiscover"/> property.
         /// </summary>
-        public const int MaxTargetValuesToDiscoverDefault = 50;
+        public const int MaxTargetValuesToDiscoverDefault = 125;
 
         /// <summary>
         /// The default value for the <see cref="MaxCloudRoleInstanceValuesToDiscover"/> property.
@@ -35,7 +34,7 @@
         /// </summary>
         public const int MaxCloudRoleNameValuesToDiscoverDefault = 2;
         
-        internal List<IDimensionExtractor> DimensionExtractors = new List<IDimensionExtractor>();
+        private List<IDimensionExtractor> DimensionExtractors = new List<IDimensionExtractor>();
         
         /// <summary>
         /// Extracted metric.
@@ -91,6 +90,12 @@
         /// <param name="metricTelemetryClient">The <c>TelemetryClient</c> to be used for sending extracted metrics.</param>
         public void InitializeExtractor(TelemetryClient metricTelemetryClient)
         {
+            if (metricTelemetryClient == null)
+            {
+                this.dependencyCallDurationMetric = null;
+                return;
+            }
+
             this.DimensionExtractors.Add(new DependencyMetricIdDimensionExtractor());
             this.DimensionExtractors.Add(new SuccessDimensionExtractor());
             this.DimensionExtractors.Add(new DependencyDurationBucketExtractor());

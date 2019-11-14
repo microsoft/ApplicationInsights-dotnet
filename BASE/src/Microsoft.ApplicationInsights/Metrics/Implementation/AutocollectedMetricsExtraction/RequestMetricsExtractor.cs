@@ -61,6 +61,12 @@
 
         public void InitializeExtractor(TelemetryClient metricTelemetryClient)
         {
+            if (metricTelemetryClient == null)
+            {
+                this.requestDurationMetric = null;
+                return;
+            }
+
             this.dimensionExtractors.Add(new RequestMetricIdDimensionExtractor());
             this.dimensionExtractors.Add(new RequestSuccessDimensionExtractor());
             this.dimensionExtractors.Add(new DurationBucketExtractor());
