@@ -188,12 +188,12 @@
                         HttpResponseMessage response = new HttpResponseMessage();
                         response.StatusCode = HttpStatusCode.PartialContent;
                         response.Headers.RetryAfter = new RetryConditionHeaderValue(TimeSpan.FromSeconds(5));
-                        return Task.FromResult<HttpResponseMessage>(response);                        
+                        return Task.FromResult<HttpResponseMessage>(response);
                     }
                 };
 
                 using (var fakeHttpClient = new HttpClient(handler))
-                {                    
+                {
                     // Instantiate Transmission with the mock HttpClient
                     Transmission transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
 
@@ -233,20 +233,34 @@
                 }
             }
 
-            [TestMethod]            
+            [TestMethod]
             public async Task SendAsyncHandlesTimeout()
             {
                 int clientTimeoutInMillisecs = 1;
 
-                using (var fakeHttpClient = new HttpClient())
-                {                    
+                var handler = new HandlerForFakeHttpClient
+                {
+                    InnerHandler = new HttpClientHandler(),
+                    OnSendAsync = (req, cancellationToken) =>
+                    {
+                        // Intentionally delay for atleast client timeout.
+                        // By this time, client's cancellation token would definitely expire.
+                        Task.Delay(100 * clientTimeoutInMillisecs).Wait();
+                        // This simulates actual timeout
+                        cancellationToken.ThrowIfCancellationRequested();
+                        return Task.FromResult<HttpResponseMessage>(new HttpResponseMessage());
+                    }
+                };
+
+                using (var fakeHttpClient = new HttpClient(handler))
+                {
                     // Instantiate Transmission with the mock HttpClient and Timeout to be just 1 msec to force Timeout.
-                    Transmission transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, 
+                    Transmission transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty,
                         string.Empty, TimeSpan.FromMilliseconds(clientTimeoutInMillisecs));
 
                     // ACT
                     HttpWebResponseWrapper result = await transmission.SendAsync();
-                    
+
                     // VALIDATE
                     Assert.IsNotNull(result);
                     Assert.AreEqual((int) HttpStatusCode.RequestTimeout, result.StatusCode);
@@ -310,7 +324,7 @@
                     Assert.AreEqual(503, result.StatusCode);
                     Assert.IsNull(result.Content, "Content is not to be read except in partial response (206) status.");
                 }
-                  
+
             }
 
             [TestMethod]
