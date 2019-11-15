@@ -352,7 +352,7 @@
             }
 
             // Validate synthetic dimension
-            for (int i = 0; i < success.Length; i++)
+            for (int i = 0; i < synthetic.Length; i++)
             {
                 var metricCollection = serverResponseMetric.Where(
                 (tel) => (tel as MetricTelemetry).Properties["operation/synthetic"] == synthetic[i].ToString());
@@ -787,7 +787,7 @@
             }
 
             // Validate synthetic dimension
-            for (int i = 0; i < success.Length; i++)
+            for (int i = 0; i < synthetic.Length; i++)
             {
                 var metricCollection = depDurationMetric.Where(
                 (tel) => (tel as MetricTelemetry).Properties["operation/synthetic"] == synthetic[i].ToString());

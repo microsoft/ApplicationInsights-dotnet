@@ -4,10 +4,10 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class DependencyTypeDimesnionExtractorTest
+    public class DependencyTypeDimensionExtractorTest
     {
         [TestMethod]
-        public void NullTarget()
+        public void NullType()
         {
             var item = new DependencyTelemetry();
             var extractor = new TypeDimensionExtractor();
@@ -16,7 +16,7 @@
         }
 
         [TestMethod]
-        public void EmptyTarget()
+        public void EmptyType()
         {
             var item = new DependencyTelemetry();
             item.Type = string.Empty;
@@ -26,7 +26,7 @@
         }
 
         [TestMethod]
-        public void ActualTarget()
+        public void ActualType()
         {
             var item = new DependencyTelemetry();
             item.Type = "ExpectedType";
