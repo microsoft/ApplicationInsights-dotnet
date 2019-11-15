@@ -1,0 +1,67 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <RootNamespace>Microsoft.Extensions.Logging.ApplicationInsights</RootNamespace>
+    <AssemblyName>Microsoft.Extensions.Logging.ApplicationInsights</AssemblyName>
+  </PropertyGroup>
+
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
+    
+  <PropertyGroup>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+    <!-- Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+    <!-- Include the PDB in the built .nupkg -->
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!--Nupkg properties-->
+    <PackageId>Microsoft.Extensions.Logging.ApplicationInsights</PackageId>
+    <Title>Microsoft Logging Extensions for ApplicationInsights</Title>
+    <Description>Application Insights ILogger allows forwarding events from ILogger to Application Insights. Application Insights will collect your logs from multiple sources and provide rich powerful search capabilities. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
+    <PackageTags>$(PackageTags) ILogger ILoggerBuilder ILoggerProvider</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
+    <!--Analyzers-->
+    <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.2">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--Build Infrastructure-->
+    <PackageReference Include="MicroBuild.Core" Version="0.3.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.1.0" />
+  </ItemGroup>
+
+  <Import Project="..\CommonShared\CommonShared.projitems" Label="Shared" />
+
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
+</Project>

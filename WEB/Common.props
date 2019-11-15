@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Signing.props'))\Signing.props" />
+  <!-- If $(EnlistmentRoot) is not set then Directory.Build.props hasn't been imported yet. Import Microsoft.Common.props to get it included. -->
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="'$(EnlistmentRoot)' == '' and Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <!-- If $(EnlistmentRoot) is still not set, then import Directory.Build.props directly. This can happen when gitlink tries to build (because it uses MSBuild tools version 4.0 and we can't find Microsoft.Common.props) -->
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Directory.Build.props'))\Directory.Build.props" Condition="'$(EnlistmentRoot)' == ''"/>
+
+  <PropertyGroup>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <StyleCopEnabled>True</StyleCopEnabled>
+    <StyleCopTreatErrorsAsWarnings>False</StyleCopTreatErrorsAsWarnings>
+    <CodeAnalysisRuleSet>$(RulesetsRoot)\ApplicationInsightsSDKRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
+   <DefineConstants>$(DefineConstants);NET45;</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+   <!--There is a bug affecting Code Analysis and NetStandard 1.6.
+        https://github.com/dotnet/core/issues/758
+        https://github.com/dotnet/roslyn-analyzers/issues/1313
+        Workaround is to disable Code Analysis.
+    -->
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+   <DefineConstants>$(DefineConstants);NETSTANDARD2_0;</DefineConstants>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.6'">
+    <!--There is a bug affecting Code Analysis and NetStandard 1.6.
+        https://github.com/dotnet/core/issues/758
+        https://github.com/dotnet/roslyn-analyzers/issues/1313
+        Workaround is to disable Code Analysis.
+    -->
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+    <DefineConstants>$(DefineConstants);NETSTANDARD1_6;NETSTANDARD;</DefineConstants>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DefineConstants>$(DefineConstants);TRACE;DEBUG;CODE_ANALYSIS;</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PartitionPropertiesFile>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Partition.props'))\Partition.props</PartitionPropertiesFile>
+  </PropertyGroup>
+  <Import Project="$(PartitionPropertiesFile)" Condition="Exists($(PartitionPropertiesFile))" />
+
+  <PropertyGroup>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);AddXmlDocToNugetPackage</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+</Project>

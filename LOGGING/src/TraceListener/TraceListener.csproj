@@ -1,0 +1,63 @@
+﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net45;netstandard1.3</TargetFrameworks>
+    <RootNamespace>Microsoft.ApplicationInsights.TraceListener</RootNamespace>
+    <AssemblyName>Microsoft.ApplicationInsights.TraceListener</AssemblyName>
+  </PropertyGroup>
+  
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
+    
+  <PropertyGroup>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <!--Nupkg properties-->
+    <PackageId>Microsoft.ApplicationInsights.TraceListener</PackageId>
+    <Title>Application Insights TraceListener</Title>
+    <Description>Application Insights Trace Listener is a custom TraceListener allowing you to send trace log messages to Application Insights. Application Insights will collect your logs from multiple sources and provide rich powerful search capabilities. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
+    <PackageTags>$(PackageTags) TraceListener</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
+    <!--Analyzers-->
+    <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.2">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--Build Infrastructure-->
+    <PackageReference Include="MicroBuild.Core" Version="0.3.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <ProjectReference Include="..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <PackageReference Include="System.Diagnostics.TraceSource" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="app.config.install.xdt" />
+    <Content Include="app.config.uninstall.xdt" />
+    <Content Include="web.config.install.xdt" />
+    <Content Include="web.config.uninstall.xdt" />
+  </ItemGroup>
+
+  <Import Project="..\CommonShared\CommonShared.projitems" Label="Shared" />
+
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
+</Project>

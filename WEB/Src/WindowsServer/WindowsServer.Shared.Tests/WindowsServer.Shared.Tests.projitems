@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>7916ae39-ae89-4886-8842-33ac9883905a</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Microsoft.ApplicationInsights.WindowsServer</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AppServicesHeartbeatTelemetryModuleTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EnvironmentVariableMonitorTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AzureInstanceMetadataEndToEndTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AzureWebAppRoleEnvironmentTelemetryInitializerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AzureInstanceMetadataTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BuildInfoConfigComponentVersionTelemetryInitializerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DeveloperModeWithDebuggerAttachedTelemetryModuleTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mock\AzureInstanceMetadataRequestMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mock\AzureInstanceMetadataServiceMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mock\HeartbeatProviderMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mock\MockEnvironmentVariableMonitor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mock\NetPlatformHttpResponseTypesExtension.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UnobservedExceptionTelemetryModuleTest.cs" />
+  </ItemGroup>
+</Project>

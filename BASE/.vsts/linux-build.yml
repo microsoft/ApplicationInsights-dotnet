@@ -1,0 +1,59 @@
+variables:
+  DotNetVersion: "2.2.101"
+
+pool:
+  vmImage: 'ubuntu-16.04'
+steps:
+- task: DotNetCoreInstaller@0
+  inputs:
+    version: $(DotNetVersion)
+
+- task: DotNetCoreCLI@1
+  displayName: DotNetCoreCLI - Restore Solution
+  inputs:
+    command: "restore"
+    projects: "BASE/*.sln"
+
+- task: DotNetCoreCLI@1
+  displayName: DotNetCoreCLI - Build Solution
+  inputs:
+    command: "build"
+    projects: "BASE/*.sln"
+    arguments: "--configuration Release"
+
+- task: DotNetCoreCLI@1
+  displayName: DotNetCoreCLI - Test NetCore 2.0
+  inputs:
+    command: "test"
+    projects: "BASE/Test/**/*netcoreapp20*.csproj"
+    arguments: "--configuration Release -l trx --filter TestCategory!=WindowsOnly"
+
+- task: DotNetCoreInstaller@0
+  inputs:
+    version: "1.1.5"
+
+- task: DotNetCoreCLI@1
+  displayName: DotNetCoreCLI - Test NetCore 1.1
+  inputs:
+    command: "test"
+    projects: "BASE/Test/**/*netcoreapp11*.csproj"
+    arguments: "--configuration Release -l trx --filter TestCategory!=WindowsOnly"
+
+- task: PublishTestResults@2
+  condition: always()
+  inputs:
+    testRunner: "VSTest"
+    testResultsFiles: "**/*.trx"
+
+#- task: DotNetCoreCLI@1
+#  inputs:
+#    command: "publish"
+#    publishWebProjects: "True"
+#    arguments: "--configuration Release --output $(build.artifactstagingdirectory)"
+#    zipAfterPublish: "True"
+
+#- task: PublishBuildArtifacts@1
+#  inputs:
+#    PathtoPublish: "$(build.artifactstagingdirectory)"
+#    ArtifactName: "drop"
+#    ArtifactType: "Container"
