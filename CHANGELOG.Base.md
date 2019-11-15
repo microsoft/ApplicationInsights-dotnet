@@ -4,6 +4,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 
 ## Version 2.12.0-beta2
 - [Enable Metric DimensionCapping API for Internal use with standard metric aggregation.]https://github.com/microsoft/ApplicationInsights-dotnet/issues/1244)
+- [Standard Metric extractor (Request,Dependency) populates all standard dimensions.]https://github.com/microsoft/ApplicationInsights-dotnet/issues/1233)
 
 ## Version 2.12.0-beta1
 - [New: TelemetryConfiguration now supports Connection Strings]https://github.com/microsoft/ApplicationInsights-dotnet/issues/1221)
