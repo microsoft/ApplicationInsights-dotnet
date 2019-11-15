@@ -34,7 +34,7 @@
         /// </summary>
         public const int MaxCloudRoleNameValuesToDiscoverDefault = 2;
         
-        private List<IDimensionExtractor> DimensionExtractors = new List<IDimensionExtractor>();
+        private List<IDimensionExtractor> dimensionExtractors = new List<IDimensionExtractor>();
         
         /// <summary>
         /// Extracted metric.
@@ -96,20 +96,20 @@
                 return;
             }
 
-            this.DimensionExtractors.Add(new DependencyMetricIdDimensionExtractor());
-            this.DimensionExtractors.Add(new SuccessDimensionExtractor());
-            this.DimensionExtractors.Add(new DependencyDurationBucketExtractor());
-            this.DimensionExtractors.Add(new SyntheticDimensionExtractor());
-            this.DimensionExtractors.Add(new TypeDimensionExtractor() { MaxValues = this.MaxDependencyTypesToDiscover });
-            this.DimensionExtractors.Add(new TargetDimensionExtractor() { MaxValues = this.MaxDependencyTargetValuesToDiscover });
-            this.DimensionExtractors.Add(new CloudRoleInstanceDimensionExtractor() { MaxValues = this.MaxCloudRoleInstanceValuesToDiscover });
-            this.DimensionExtractors.Add(new CloudRoleNameDimensionExtractor() { MaxValues = this.MaxCloudRoleNameValuesToDiscover });
+            this.dimensionExtractors.Add(new DependencyMetricIdDimensionExtractor());
+            this.dimensionExtractors.Add(new SuccessDimensionExtractor());
+            this.dimensionExtractors.Add(new DependencyDurationBucketExtractor());
+            this.dimensionExtractors.Add(new SyntheticDimensionExtractor());
+            this.dimensionExtractors.Add(new TypeDimensionExtractor() { MaxValues = this.MaxDependencyTypesToDiscover });
+            this.dimensionExtractors.Add(new TargetDimensionExtractor() { MaxValues = this.MaxDependencyTargetValuesToDiscover });
+            this.dimensionExtractors.Add(new CloudRoleInstanceDimensionExtractor() { MaxValues = this.MaxCloudRoleInstanceValuesToDiscover });
+            this.dimensionExtractors.Add(new CloudRoleNameDimensionExtractor() { MaxValues = this.MaxCloudRoleNameValuesToDiscover });
 
             int seriesCountLimit = 1;
-            int[] valuesPerDimensionLimit = new int[this.DimensionExtractors.Count];
+            int[] valuesPerDimensionLimit = new int[this.dimensionExtractors.Count];
             int i = 0;
 
-            foreach (var dim in this.DimensionExtractors)
+            foreach (var dim in this.dimensionExtractors)
             {
                 int dimLimit = 1;
 
@@ -125,10 +125,10 @@
             config.ApplyDimensionCapping = true;
             config.DimensionCappedString = MetricTerms.Autocollection.Common.PropertyValues.DimensionCapFallbackValue;
 
-            IList<string> dimensionNames = new List<string>(this.DimensionExtractors.Count);
-            for (i = 0; i < this.DimensionExtractors.Count; i++)
+            IList<string> dimensionNames = new List<string>(this.dimensionExtractors.Count);
+            for (i = 0; i < this.dimensionExtractors.Count; i++)
             {
-                dimensionNames.Add(this.DimensionExtractors[i].Name);
+                dimensionNames.Add(this.dimensionExtractors[i].Name);
             }
 
             MetricIdentifier metricIdentifier = new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace,
@@ -166,8 +166,8 @@
             }
 
             int i = 0;
-            string[] dimValues = new string[this.DimensionExtractors.Count];
-            foreach (var dim in this.DimensionExtractors)
+            string[] dimValues = new string[this.dimensionExtractors.Count];
+            foreach (var dim in this.dimensionExtractors)
             {
                 if (dim.MaxValues == 0)
                 {
