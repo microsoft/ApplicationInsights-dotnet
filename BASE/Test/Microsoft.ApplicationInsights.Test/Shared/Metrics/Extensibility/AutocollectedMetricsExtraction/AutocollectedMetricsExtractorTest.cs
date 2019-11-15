@@ -521,6 +521,14 @@
             Assert.AreEqual(Boolean.FalseString, metricF.Properties["Request.Success"]);
         }
 
+        [TestMethod]
+        public void Request_DefaultDimensionLimitsValidation()
+        {
+            var reqExtractor = new RequestMetricsExtractor();
+            Assert.AreEqual(30, reqExtractor.MaxResponseCodeToDiscover);
+            Assert.AreEqual(2, reqExtractor.MaxCloudRoleNameValuesToDiscover);
+            Assert.AreEqual(2, reqExtractor.MaxCloudRoleInstanceValuesToDiscover);
+        }
         #endregion Request-metrics-related Tests
 
         #region Dependency-metrics-related Tests
