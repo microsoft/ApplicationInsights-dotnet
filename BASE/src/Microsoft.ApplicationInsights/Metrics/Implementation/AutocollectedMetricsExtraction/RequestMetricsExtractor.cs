@@ -29,11 +29,13 @@
         /// </summary>
         public const int MaxCloudRoleNameValuesToDiscoverDefault = 2;
 
+        private readonly object lockObject = new object();
+
         /// <summary>
         /// Extracted metric.
         /// </summary>
         private Metric requestDurationMetric = null;
-
+        private bool isInitialized = false;
         private List<IDimensionExtractor> dimensionExtractors = new List<IDimensionExtractor>();
 
         public RequestMetricsExtractor()
@@ -67,48 +69,58 @@
                 return;
             }
 
-            this.dimensionExtractors.Add(new RequestMetricIdDimensionExtractor());
-            this.dimensionExtractors.Add(new RequestSuccessDimensionExtractor());
-            this.dimensionExtractors.Add(new DurationBucketExtractor());
-            this.dimensionExtractors.Add(new SyntheticDimensionExtractor());
-            this.dimensionExtractors.Add(new RequestResponseCodeDimensionExtractor() { MaxValues = this.MaxResponseCodeToDiscover });
-            this.dimensionExtractors.Add(new CloudRoleInstanceDimensionExtractor() { MaxValues = this.MaxCloudRoleInstanceValuesToDiscover });
-            this.dimensionExtractors.Add(new CloudRoleNameDimensionExtractor() { MaxValues = this.MaxCloudRoleNameValuesToDiscover });
-
-            int seriesCountLimit = 1;
-            int[] valuesPerDimensionLimit = new int[this.dimensionExtractors.Count];
-            int i = 0;
-
-            foreach (var dim in this.dimensionExtractors)
+            if (!this.isInitialized)
             {
-                int dimLimit = 1;
-                dimLimit = dim.MaxValues == 0 ? 1 : dim.MaxValues;
+                lock (this.lockObject)
+                {
+                    if (!this.isInitialized)
+                    {
+                        this.dimensionExtractors.Add(new RequestMetricIdDimensionExtractor());
+                        this.dimensionExtractors.Add(new RequestSuccessDimensionExtractor());
+                        this.dimensionExtractors.Add(new DurationBucketExtractor());
+                        this.dimensionExtractors.Add(new SyntheticDimensionExtractor());
+                        this.dimensionExtractors.Add(new RequestResponseCodeDimensionExtractor() { MaxValues = this.MaxResponseCodeToDiscover });
+                        this.dimensionExtractors.Add(new CloudRoleInstanceDimensionExtractor() { MaxValues = this.MaxCloudRoleInstanceValuesToDiscover });
+                        this.dimensionExtractors.Add(new CloudRoleNameDimensionExtractor() { MaxValues = this.MaxCloudRoleNameValuesToDiscover });
 
-                seriesCountLimit = seriesCountLimit * (1 + dimLimit);
-                valuesPerDimensionLimit[i++] = dimLimit;
-            }
+                        int seriesCountLimit = 1;
+                        int[] valuesPerDimensionLimit = new int[this.dimensionExtractors.Count];
+                        int i = 0;
 
-            MetricConfiguration config = new MetricConfigurationForMeasurement(
-                                                            seriesCountLimit,
-                                                            valuesPerDimensionLimit,
-                                                            new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
-            config.ApplyDimensionCapping = true;
-            config.DimensionCappedString = MetricTerms.Autocollection.Common.PropertyValues.DimensionCapFallbackValue;
+                        foreach (var dim in this.dimensionExtractors)
+                        {
+                            int dimLimit = 1;
+                            dimLimit = dim.MaxValues == 0 ? 1 : dim.MaxValues;
 
-            IList<string> dimensionNames = new List<string>(this.dimensionExtractors.Count);
-            for (i = 0; i < this.dimensionExtractors.Count; i++)
-            {
-                dimensionNames.Add(this.dimensionExtractors[i].Name);
-            }
+                            seriesCountLimit = seriesCountLimit * (1 + dimLimit);
+                            valuesPerDimensionLimit[i++] = dimLimit;
+                        }
 
-            MetricIdentifier metricIdentifier = new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace,
-                        MetricTerms.Autocollection.Metric.RequestDuration.Name,
-                        dimensionNames);
+                        MetricConfiguration config = new MetricConfigurationForMeasurement(
+                                                                        seriesCountLimit,
+                                                                        valuesPerDimensionLimit,
+                                                                        new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
+                        config.ApplyDimensionCapping = true;
+                        config.DimensionCappedString = MetricTerms.Autocollection.Common.PropertyValues.DimensionCapFallbackValue;
 
-            this.requestDurationMetric = metricTelemetryClient.GetMetric(
-                                                        metricIdentifier: metricIdentifier,
-                                                        metricConfiguration: config,
-                                                        aggregationScope: MetricAggregationScope.TelemetryClient);
+                        IList<string> dimensionNames = new List<string>(this.dimensionExtractors.Count);
+                        for (i = 0; i < this.dimensionExtractors.Count; i++)
+                        {
+                            dimensionNames.Add(this.dimensionExtractors[i].Name);
+                        }
+
+                        MetricIdentifier metricIdentifier = new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace,
+                                    MetricTerms.Autocollection.Metric.RequestDuration.Name,
+                                    dimensionNames);
+
+                        this.requestDurationMetric = metricTelemetryClient.GetMetric(
+                                                                    metricIdentifier: metricIdentifier,
+                                                                    metricConfiguration: config,
+                                                                    aggregationScope: MetricAggregationScope.TelemetryClient);
+                        this.isInitialized = true;
+                    }
+                }
+            }            
         }
 
         public void ExtractMetrics(ITelemetry fromItem, out bool isItemProcessed)

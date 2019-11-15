@@ -33,13 +33,15 @@
         /// The default value for the <see cref="MaxCloudRoleNameValuesToDiscover"/> property.
         /// </summary>
         public const int MaxCloudRoleNameValuesToDiscoverDefault = 2;
-        
-        internal List<IDimensionExtractor> DimensionExtractors = new List<IDimensionExtractor>();
+
+        private readonly object lockObject = new object();
+        private List<IDimensionExtractor> dimensionExtractors = new List<IDimensionExtractor>();
         
         /// <summary>
         /// Extracted metric.
         /// </summary>
         private Metric dependencyCallDurationMetric = null;
+        private bool isInitialized = false;        
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DependencyMetricsExtractor" /> class.
@@ -96,49 +98,59 @@
                 return;
             }
 
-            this.dimensionExtractors.Add(new DependencyMetricIdDimensionExtractor());
-            this.dimensionExtractors.Add(new SuccessDimensionExtractor());
-            this.dimensionExtractors.Add(new DependencyDurationBucketExtractor());
-            this.dimensionExtractors.Add(new SyntheticDimensionExtractor());
-            this.dimensionExtractors.Add(new TypeDimensionExtractor() { MaxValues = this.MaxDependencyTypesToDiscover });
-            this.dimensionExtractors.Add(new TargetDimensionExtractor() { MaxValues = this.MaxDependencyTargetValuesToDiscover });
-            this.dimensionExtractors.Add(new CloudRoleInstanceDimensionExtractor() { MaxValues = this.MaxCloudRoleInstanceValuesToDiscover });
-            this.dimensionExtractors.Add(new CloudRoleNameDimensionExtractor() { MaxValues = this.MaxCloudRoleNameValuesToDiscover });
-
-            int seriesCountLimit = 1;
-            int[] valuesPerDimensionLimit = new int[this.dimensionExtractors.Count];
-            int i = 0;
-
-            foreach (var dim in this.dimensionExtractors)
+            if (!this.isInitialized)
             {
-                int dimLimit = 1;
+                lock (this.lockObject)
+                {
+                    if (!this.isInitialized)
+                    {
+                        this.dimensionExtractors.Add(new DependencyMetricIdDimensionExtractor());
+                        this.dimensionExtractors.Add(new SuccessDimensionExtractor());
+                        this.dimensionExtractors.Add(new DependencyDurationBucketExtractor());
+                        this.dimensionExtractors.Add(new SyntheticDimensionExtractor());
+                        this.dimensionExtractors.Add(new TypeDimensionExtractor() { MaxValues = this.MaxDependencyTypesToDiscover });
+                        this.dimensionExtractors.Add(new TargetDimensionExtractor() { MaxValues = this.MaxDependencyTargetValuesToDiscover });
+                        this.dimensionExtractors.Add(new CloudRoleInstanceDimensionExtractor() { MaxValues = this.MaxCloudRoleInstanceValuesToDiscover });
+                        this.dimensionExtractors.Add(new CloudRoleNameDimensionExtractor() { MaxValues = this.MaxCloudRoleNameValuesToDiscover });
 
-                dimLimit = dim.MaxValues == 0 ? 1 : dim.MaxValues;
-                seriesCountLimit = seriesCountLimit * (1 + dimLimit);
-                valuesPerDimensionLimit[i++] = dimLimit;
-            }
+                        int seriesCountLimit = 1;
+                        int[] valuesPerDimensionLimit = new int[this.dimensionExtractors.Count];
+                        int i = 0;
 
-            MetricConfiguration config = new MetricConfigurationForMeasurement(
-                                                            seriesCountLimit,
-                                                            valuesPerDimensionLimit,
-                                                            new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
-            config.ApplyDimensionCapping = true;
-            config.DimensionCappedString = MetricTerms.Autocollection.Common.PropertyValues.DimensionCapFallbackValue;
+                        foreach (var dim in this.dimensionExtractors)
+                        {
+                            int dimLimit = 1;
 
-            IList<string> dimensionNames = new List<string>(this.dimensionExtractors.Count);
-            for (i = 0; i < this.dimensionExtractors.Count; i++)
-            {
-                dimensionNames.Add(this.dimensionExtractors[i].Name);
-            }
+                            dimLimit = dim.MaxValues == 0 ? 1 : dim.MaxValues;
+                            seriesCountLimit = seriesCountLimit * (1 + dimLimit);
+                            valuesPerDimensionLimit[i++] = dimLimit;
+                        }
 
-            MetricIdentifier metricIdentifier = new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace,
-                        MetricTerms.Autocollection.Metric.DependencyCallDuration.Name,
-                        dimensionNames);
+                        MetricConfiguration config = new MetricConfigurationForMeasurement(
+                                                                        seriesCountLimit,
+                                                                        valuesPerDimensionLimit,
+                                                                        new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
+                        config.ApplyDimensionCapping = true;
+                        config.DimensionCappedString = MetricTerms.Autocollection.Common.PropertyValues.DimensionCapFallbackValue;
 
-            this.dependencyCallDurationMetric = metricTelemetryClient.GetMetric(
-                                                        metricIdentifier: metricIdentifier,
-                                                        metricConfiguration: config,
-                                                        aggregationScope: MetricAggregationScope.TelemetryClient);
+                        IList<string> dimensionNames = new List<string>(this.dimensionExtractors.Count);
+                        for (i = 0; i < this.dimensionExtractors.Count; i++)
+                        {
+                            dimensionNames.Add(this.dimensionExtractors[i].Name);
+                        }
+
+                        MetricIdentifier metricIdentifier = new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace,
+                                    MetricTerms.Autocollection.Metric.DependencyCallDuration.Name,
+                                    dimensionNames);
+
+                        this.dependencyCallDurationMetric = metricTelemetryClient.GetMetric(
+                                                                    metricIdentifier: metricIdentifier,
+                                                                    metricConfiguration: config,
+                                                                    aggregationScope: MetricAggregationScope.TelemetryClient);
+                        this.isInitialized = true;
+                    }
+                }
+            }            
         }
 
         /// <summary>
