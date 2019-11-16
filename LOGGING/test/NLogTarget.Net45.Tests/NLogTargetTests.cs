@@ -305,6 +305,7 @@
             }
 
             var telemetry = (ExceptionTelemetry)this.adapterHelper.Channel.SentItems.First();
+            Assert.IsTrue(telemetry.Message.Contains("Test logging exception"));
             Assert.AreEqual(expectedException.Message, telemetry.Exception.Message);
         }
 
@@ -324,6 +325,7 @@
             }
 
             ExceptionTelemetry telemetry = (ExceptionTelemetry)this.adapterHelper.Channel.SentItems.First();
+            Assert.IsTrue(telemetry.Message.Contains("Test logging exception"));
             Assert.IsTrue(telemetry.Properties["Message"].StartsWith("custom message", StringComparison.Ordinal));
         }
 
