@@ -25,6 +25,11 @@
         public const int MaxTargetValuesToDiscoverDefault = 125;
 
         /// <summary>
+        /// The default value for the <see cref="MaxDependencyResultCodesToDiscover"/> property.
+        /// </summary>
+        public const int MaxDependencyResultCodesToDiscoverDefault = 30;
+
+        /// <summary>
         /// The default value for the <see cref="MaxCloudRoleInstanceValuesToDiscover"/> property.
         /// </summary>
         public const int MaxCloudRoleInstanceValuesToDiscoverDefault = 2;
@@ -72,6 +77,11 @@
         public int MaxDependencyTypesToDiscover { get; set; } = MaxDependencyTypesToDiscoverDefault;
 
         /// <summary>
+        /// Gets or sets the maximum number of auto-discovered dependency result codes.
+        /// </summary>
+        public int MaxDependencyResultCodesToDiscover { get; set; } = MaxDependencyResultCodesToDiscoverDefault;
+
+        /// <summary>
         /// Gets or sets the maximum number of auto-discovered Dependency Target values.
         /// </summary>
         public int MaxDependencyTargetValuesToDiscover { get; set; } = MaxTargetValuesToDiscoverDefault;
@@ -108,6 +118,7 @@
                         this.dimensionExtractors.Add(new SuccessDimensionExtractor());
                         this.dimensionExtractors.Add(new DependencyDurationBucketExtractor());
                         this.dimensionExtractors.Add(new SyntheticDimensionExtractor());
+                        this.dimensionExtractors.Add(new DependencyResultCodeDimensionExtractor() { MaxValues = this.MaxDependencyResultCodesToDiscover });
                         this.dimensionExtractors.Add(new TypeDimensionExtractor() { MaxValues = this.MaxDependencyTypesToDiscover });
                         this.dimensionExtractors.Add(new TargetDimensionExtractor() { MaxValues = this.MaxDependencyTargetValuesToDiscover });
                         this.dimensionExtractors.Add(new CloudRoleInstanceDimensionExtractor() { MaxValues = this.MaxCloudRoleInstanceValuesToDiscover });

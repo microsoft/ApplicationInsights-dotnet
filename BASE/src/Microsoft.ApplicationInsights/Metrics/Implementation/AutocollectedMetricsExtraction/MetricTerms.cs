@@ -78,6 +78,7 @@
                     public const string TypeName = "Dependency.Type";
                     public const string PerformanceBucket = "dependency/performanceBucket";
                     public const string Target = "dependency/target";
+                    public const string ResultCode = "dependency/resultCode";
                 }
             }
 

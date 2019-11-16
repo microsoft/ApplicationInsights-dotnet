@@ -101,6 +101,29 @@
         }
 
         /// <summary>
+        /// Gets or sets the maximum distinct values for Dependency Result Code.
+        /// Types encountered after this limit is hit will be collapsed into a single value DIMENSION_CAPPED.
+        /// Setting 0 will all values to be replaced with a single value "Other".
+        /// </summary>
+        public int MaxDependencyResultCodesToDiscover
+        {
+            get
+            {
+                return this.extractorForDependencyMetrics.MaxDependencyResultCodesToDiscover;
+            }
+
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "MaxDependencyResultCodesToDiscover value may not be negative.");
+                }
+
+                this.extractorForDependencyMetrics.MaxDependencyResultCodesToDiscover = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the maximum distinct values for Dependency Target.
         /// Targets encountered after this limit is hit will be collapsed into a single value DIMENSION_CAPPED.
         /// Setting 0 will all values to be replaced with a single value "Other".
