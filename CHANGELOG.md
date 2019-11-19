@@ -1,8 +1,12 @@
 # Changelog
 
+## Version 2.12.0-beta3
+- [Standard Metric extractor for Dependency) add Dependency.ResultCode dimension.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1233)
+
 ## Version 2.12.0-beta2
 - [Enable Metric DimensionCapping API for Internal use with standard metric aggregation.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1244)
 - [ILogger - Flush TelemetryChannel when the ILoggerProvider is Disposed.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1289)
+- [Standard Metric extractor (Request,Dependency) populates all standard dimensions.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1233)
 
 ## Version 2.12.0-beta1
 - BASE: [New: TelemetryConfiguration now supports Connection Strings]https://github.com/microsoft/ApplicationInsights-dotnet/issues/1221)
