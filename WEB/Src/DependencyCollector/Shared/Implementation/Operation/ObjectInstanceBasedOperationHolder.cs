@@ -1,22 +1,22 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation
 {
     using System;
-    using System.Collections.Generic;
     using System.Runtime.CompilerServices;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
-    internal class ObjectInstanceBasedOperationHolder
+    internal class ObjectInstanceBasedOperationHolder<TTelemetry> where TTelemetry : OperationTelemetry
     {
-        private ConditionalWeakTable<object, Tuple<DependencyTelemetry, bool>> weakTableForCorrelation = new ConditionalWeakTable<object, Tuple<DependencyTelemetry, bool>>();
+        private ConditionalWeakTable<object, Tuple<TTelemetry, bool>> weakTableForCorrelation = new ConditionalWeakTable<object, Tuple<TTelemetry, bool>>();
 
-        public Tuple<DependencyTelemetry, bool> Get(object holderInstance)
+        public Tuple<TTelemetry, bool> Get(object holderInstance)
         {
             if (holderInstance == null)
             {
                 throw new ArgumentNullException(nameof(holderInstance));
             }
 
-            Tuple<DependencyTelemetry, bool> result = null;
+            Tuple<TTelemetry, bool> result = null;
             if (!this.weakTableForCorrelation.TryGetValue(holderInstance, out result))
             {
                 result = null;
@@ -35,7 +35,7 @@
             return this.weakTableForCorrelation.Remove(holderInstance);
         }
 
-        public void Store(object holderInstance, Tuple<DependencyTelemetry, bool> telemetryTuple)
+        public void Store(object holderInstance, Tuple<TTelemetry, bool> telemetryTuple)
         {
             if (holderInstance == null)
             {

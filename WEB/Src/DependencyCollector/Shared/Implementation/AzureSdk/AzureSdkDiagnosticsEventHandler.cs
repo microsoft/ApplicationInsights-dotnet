@@ -1,10 +1,12 @@
-﻿using Microsoft.ApplicationInsights.DataContracts;
-
-namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
+﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
+    using System.Text;
+    using Microsoft.ApplicationInsights.Common;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.EventHandlers;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -13,9 +15,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
     internal class AzureSdkDiagnosticsEventHandler : DiagnosticsEventHandlerBase
     {
-        private readonly ObjectInstanceBasedOperationHolder operationHolder = new ObjectInstanceBasedOperationHolder();
+        private readonly ObjectInstanceBasedOperationHolder<OperationTelemetry> operationHolder = new ObjectInstanceBasedOperationHolder<OperationTelemetry>();
 
-        public AzureSdkDiagnosticsEventHandler(TelemetryConfiguration configuration):base(configuration)
+        // fetchers must not be reused between sources
+        // fetcher is created per AzureSdkDiagnosticsEventHandler and AzureSdkDiagnosticsEventHandler is created per DiagnosticSource
+        private readonly PropertyFetcher LinksPropertyFetcher = new PropertyFetcher("Links");
+
+        public AzureSdkDiagnosticsEventHandler(TelemetryConfiguration configuration) : base(configuration)
         {
         }
 
@@ -31,30 +37,79 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 var currentActivity = Activity.Current;
                 if (evnt.Key.EndsWith(".Start"))
                 {
-                    var telemetry = new DependencyTelemetry();
-                    
-                    SetCommonProperties(evnt.Key, evnt.Value, currentActivity, telemetry);
+                    OperationTelemetry telemetry = null;
+                    if (diagnosticListener.Name == "Azure.Core")
+                    {
+                        telemetry = new DependencyTelemetry { Type = RemoteDependencyConstants.HTTP };
+                    }
+                    else
+                    {
+                        string dependencyType = RemoteDependencyConstants.InProc;
+                        foreach (var tag in currentActivity.Tags)
+                        {
+                            if (tag.Key == "kind")
+                            {
+                                if (tag.Value == "server" || tag.Value == "consumer")
+                                {
+                                    telemetry = new RequestTelemetry();
+                                }
+                                else if (tag.Value != "internal")
+                                {
+                                    dependencyType = string.Empty;
+                                    if (diagnosticListener.Name == "Azure.Messaging.EventHubs")
+                                    {
+                                        dependencyType = RemoteDependencyConstants.AzureEventHubs;
+                                    }
+                                }
+                                break;
+                            }
+                        }
 
-                    telemetry.Properties["DiagnosticSource"] = diagnosticListener.Name;
-                    telemetry.Properties["Activity"] = currentActivity.OperationName;
+                        if (telemetry == null)
+                        {
+                            telemetry = new DependencyTelemetry { Type = dependencyType };
+                        }
 
-                    operationHolder.Store(currentActivity, Tuple.Create(telemetry, /* isCustomCreated: */ false));
+                        if (this.LinksPropertyFetcher.Fetch(evnt.Value) is IEnumerable<Activity> activityLinks)
+                        {
+                            this.PopulateLinks(activityLinks, telemetry);
+                        }
+                    }
+
+                    this.operationHolder.Store(currentActivity, Tuple.Create(telemetry, /* isCustomCreated: */ false));
                 }
                 if (evnt.Key.EndsWith(".Stop"))
                 {
-                    var telemetry = operationHolder.Get(currentActivity).Item1;
-                    telemetry.Duration = currentActivity.Duration;
-                    TelemetryClient.TrackDependency(telemetry);
+                    var telemetry = this.operationHolder.Get(currentActivity).Item1;
+                    this.SetCommonProperties(evnt.Key, evnt.Value, currentActivity, telemetry);
+
+                    if (telemetry is DependencyTelemetry dependency)
+                    {
+                        if (dependency.Type == RemoteDependencyConstants.HTTP)
+                        {
+                            this.SetHttpProperties(currentActivity, dependency);
+                            if (evnt.Value != null)
+                            {
+                                dependency.SetOperationDetail(evnt.Value.GetType().FullName, evnt.Value);
+                            }
+                        }
+                        else if (dependency.Type == RemoteDependencyConstants.AzureEventHubs)
+                        {
+                            this.SetEventHubsProperties(currentActivity, dependency);
+                        }
+                    }
+
+                    this.TelemetryClient.Track(telemetry);
                 }
                 else if (evnt.Key.EndsWith(".Exception"))
                 {
                     Exception ex = evnt.Value as Exception;
 
-                    var telemetry = operationHolder.Get(currentActivity);
+                    var telemetry = this.operationHolder.Get(currentActivity);
                     telemetry.Item1.Success = false;
                     if (ex != null)
                     {
-                        telemetry.Item1.Data = ex.ToInvariantString();
+                        telemetry.Item1.Properties[RemoteDependencyConstants.DependencyErrorPropertyKey] = ex.ToInvariantString();
                     }
                 }
             }
@@ -62,6 +117,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             {
                 DependencyCollectorEventSource.Log.TelemetryDiagnosticSourceCallbackException(evnt.Key, ex.ToInvariantString());
             }
+        }
+
+        protected override void PopulateTags(Activity activity, OperationTelemetry telemetry)
+        {
         }
 
         protected override string GetOperationName(string eventName, object eventPayload, Activity activity)
@@ -88,6 +147,119 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         protected override bool IsOperationSuccessful(string eventName, object eventPayload, Activity activity)
         {
             return true;
+        }
+
+        private void SetHttpProperties(Activity activity, DependencyTelemetry dependency)
+        {
+            string method = null;
+            string url = null;
+            string status = null;
+
+            foreach (var tag in activity.Tags)
+            {
+                if (tag.Key == "http.url")
+                {
+                    url = tag.Value;
+                }
+                else if (tag.Key == "http.method")
+                {
+                    method = tag.Value;
+                }
+                else if (tag.Key == "requestId")
+                {
+                    dependency.Properties["ClientRequestId"] = tag.Value;
+                }
+                else if (tag.Key == "serviceRequestId")
+                {
+                    dependency.Properties["ServerRequestId"] = tag.Value;
+                }
+                else if (tag.Key == "http.status_code")
+                {
+                    status = tag.Value;
+                }
+            }
+
+            // TODO: could be optimized to avoid full URI parsing and allocation
+            if (url == null || !Uri.TryCreate(url, UriKind.Absolute, out var parsedUrl))
+            {
+                // TODO log error: something is wrong
+                return;
+            }
+
+            dependency.Name = string.Concat(method, " ", parsedUrl.AbsolutePath);
+            dependency.Type = RemoteDependencyConstants.HTTP;
+            dependency.Data = url;
+            dependency.Target = DependencyTargetNameHelper.GetDependencyTargetName(parsedUrl);
+            dependency.ResultCode = status;
+
+            if (int.TryParse(status, out var statusCode))
+            {
+                dependency.Success = (statusCode > 0) && (statusCode < 400);
+            }
+        }
+
+        private void SetEventHubsProperties(Activity activity, DependencyTelemetry dependency)
+        {
+            string endpoint = null;
+            string queueName = null;
+
+            foreach (var tag in activity.Tags)
+            {
+                if (tag.Key == "peer.address")
+                {
+                    endpoint = tag.Value;
+                }
+                else if (tag.Key == "message_bus.destination")
+                {
+                    queueName = tag.Value;
+                }
+            }
+
+            // Target uniquely identifies the resource, we use both: queueName and endpoint 
+            // with schema used for SQL-dependencies
+            dependency.Target = string.Concat(endpoint, " | ", queueName);
+        }
+
+        private void PopulateLinks(IEnumerable<Activity> links, OperationTelemetry telemetry)
+        {
+            if (links.Any())
+            {
+                var linksJson = new StringBuilder();
+                linksJson.Append('[');
+                foreach (var link in links)
+                {
+                    var linkTraceId = link.TraceId.ToHexString();
+
+                    // avoiding json serializers for now because of extra dependency.
+                    // serialization is trivial and looks like `links` property with json blob
+                    // [{"operation_Id":"5eca8b153632494ba00f619d6877b134","id":"d4c1279b6e7b7c47"},
+                    //  {"operation_Id":"ff28988d0776b44f9ca93352da126047","id":"bf4fa4855d161141"}]
+                    linksJson
+                        .Append('{')
+                        .Append("\"operation_Id\":")
+                        .Append('\"')
+                        .Append(linkTraceId)
+                        .Append('\"')
+                        .Append(',');
+                    linksJson
+                        .Append("\"id\":")
+                        .Append('\"')
+                        .Append(link.ParentSpanId.ToHexString())
+                        .Append('\"');
+
+                    // we explicitly ignore sampling flag, tracestate and attributes at this point.
+                    linksJson.Append("},");
+                }
+
+                if (linksJson.Length > 0)
+                {
+                    // trim trailing comma - json does not support it
+                    linksJson.Remove(linksJson.Length - 1, 1);
+                }
+
+                linksJson.Append("]");
+                telemetry.Properties["_MS.links"] = linksJson.ToString();
+            }
         }
     }
 }

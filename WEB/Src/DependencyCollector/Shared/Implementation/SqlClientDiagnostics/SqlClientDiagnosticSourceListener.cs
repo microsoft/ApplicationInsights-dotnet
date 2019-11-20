@@ -1,3 +1,5 @@
+using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
+
 namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlClientDiagnostics
 {
     using System;
@@ -7,7 +9,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -71,7 +72,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
         private readonly TelemetryClient client;
         private readonly SqlClientDiagnosticSourceSubscriber subscriber;
 
-        private readonly ObjectInstanceBasedOperationHolder operationHolder = new ObjectInstanceBasedOperationHolder();
+        private readonly ObjectInstanceBasedOperationHolder<DependencyTelemetry> operationHolder = new ObjectInstanceBasedOperationHolder<DependencyTelemetry>();
 
         public SqlClientDiagnosticSourceListener(TelemetryConfiguration configuration)
         {

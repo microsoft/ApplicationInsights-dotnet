@@ -47,7 +47,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
     internal class HttpCoreDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>, IDisposable
     {
-        private const string DependencyErrorPropertyKey = "Error";
         private const string HttpOutEventName = "System.Net.Http.HttpRequestOut";
         private const string HttpOutStartEventName = "System.Net.Http.HttpRequestOut.Start";
         private const string HttpOutStopEventName = "System.Net.Http.HttpRequestOut.Stop";
@@ -341,6 +340,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 return;
             }
 
+            if (request.Headers.Contains(W3C.W3CConstants.TraceParentHeader) && Activity.DefaultIdFormat == ActivityIdFormat.W3C)
+            {
+                // TODO comment and log
+                // DependencyCollectorEventSource.Log.CurrentActivityIsNull(HttpOutStartEventName);
+                return;
+            }
+
             DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerStart(currentActivity.Id);
 
             this.InjectRequestHeaders(request, this.configuration.InstrumentationKey);
@@ -357,6 +363,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             // are multiple subscribers and one subscriber returns true to IsEnabled then all subscribers will receive the event.
             if (this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri))
             {
+                return;
+            }
+
+            if (request.Headers.Contains(W3C.W3CConstants.TraceParentHeader) && Activity.DefaultIdFormat == ActivityIdFormat.W3C)
+            {
+                // TODO comment and log
+                // DependencyCollectorEventSource.Log.CurrentActivityIsNull(HttpOutStartEventName);
                 return;
             }
 
@@ -432,7 +445,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             {
                 if (this.pendingExceptions.TryRemove(currentActivity.Id, out Exception exception))
                 {
-                    telemetry.Properties[DependencyErrorPropertyKey] = exception.GetBaseException().Message;
+                    telemetry.Properties[RemoteDependencyConstants.DependencyErrorPropertyKey] = exception.GetBaseException().Message;
                 }
 
                 telemetry.ResultCode = requestTaskStatus.ToString();

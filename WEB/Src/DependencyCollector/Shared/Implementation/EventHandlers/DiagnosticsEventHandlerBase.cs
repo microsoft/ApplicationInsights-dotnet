@@ -1,4 +1,6 @@
-﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.EventHandlers
+﻿using Microsoft.ApplicationInsights.DataContracts;
+
+namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.EventHandlers
 {
     using System;
     using System.Collections.Concurrent;
@@ -77,13 +79,7 @@
                 telemetry.Context.Operation.ParentId = activity.ParentId;
             }
 
-            foreach (var item in activity.Tags)
-            {
-                if (!telemetry.Properties.ContainsKey(item.Key))
-                {
-                    telemetry.Properties[item.Key] = item.Value;
-                }
-            }
+            this.PopulateTags(activity, telemetry);
 
             foreach (var item in activity.Baggage)
             {
@@ -93,7 +89,21 @@
                 }
             }
 
-            telemetry.Success = this.IsOperationSuccessful(eventName, eventPayload, activity);
+            if (!telemetry.Success.HasValue)
+            {
+                telemetry.Success = this.IsOperationSuccessful(eventName, eventPayload, activity);
+            }
+        }
+
+        protected virtual void PopulateTags(Activity activity, OperationTelemetry telemetry)
+        {
+            foreach (var item in activity.Tags)
+            {
+                if (!telemetry.Properties.ContainsKey(item.Key))
+                {
+                    telemetry.Properties[item.Key] = item.Value;
+                }
+            }
         }
 
         protected virtual string GetOperationName(string eventName, object eventPayload, Activity activity)
