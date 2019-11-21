@@ -32,9 +32,13 @@
             {
                 case "Microsoft.Azure.EventHubs.Send.Start":
                 case "Microsoft.Azure.EventHubs.Receive.Start":
+                case "Send.Start":
+                case "Receive.Start":
                     break;
                 case "Microsoft.Azure.EventHubs.Send.Stop":
                 case "Microsoft.Azure.EventHubs.Receive.Stop":
+                case "Send.Stop":
+                case "Receive.Stop":
                     this.OnDependency(evnt.Key, evnt.Value, currentActivity);
                     break;
             }
