@@ -325,6 +325,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
             }
 
             ExceptionTelemetry telemetry = (ExceptionTelemetry)this.appendableLogger.SentItems.First();
+            Assert.AreEqual("System.Exception: Test logging exception", telemetry.Message);
             Assert.IsTrue(telemetry.Properties["Message"].StartsWith("custom message", StringComparison.Ordinal));
         }
 
