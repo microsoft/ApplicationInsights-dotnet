@@ -127,7 +127,9 @@ Function Get-ChangelogText ([string]$sourcePath, [string]$versionName) {
     $readFile = $true
 
     $changelogPath = Get-ChildItem -Path $sourcePath -Recurse -Filter changelog.md | Select-Object -First 1
-    Write-Verbose "Changelog Found: $changelogPath"
+    Write-Verbose "Changelog Found: $($changelogPath.FullName)"
+	Write-Verbose "Searching for: $versionName";
+
     Get-Content -Path $changelogPath.FullName | ForEach-Object {
         
         if($readFile) {
@@ -142,10 +144,14 @@ Function Get-ChangelogText ([string]$sourcePath, [string]$versionName) {
                     [void]$sb.AppendLine($_)
                 }
             } else {
-                if(($_ -like "##*") -and ($_ -match $versionName)) {
-                    $saveLines = $true
-                    Write-Verbose "START at $_"
-                }
+				if($_ -like "##*")  {
+					Write-Verbose "Inspecting $_"
+				
+					if ($_ -match $versionName) {
+						$saveLines = $true
+						Write-Verbose "START at $_"
+					}
+				}
             }
         }
     

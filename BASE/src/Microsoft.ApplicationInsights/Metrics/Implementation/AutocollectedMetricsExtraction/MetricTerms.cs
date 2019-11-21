@@ -3,9 +3,8 @@
     using System;
 
     internal static class MetricTerms
-    {
-        internal const string DimensionCapFallbackValue = "DIMENSION_CAPPED";
-        private const string MetricPropertiesNamePrefix = "_MS";        
+    {       
+        private const string MetricPropertiesNamePrefix = "_MS";
 
         public static class Aggregation
         {
@@ -66,6 +65,8 @@
                 public static class PropertyNames
                 {
                     public const string Success = "Request.Success";
+                    public const string ResultCode = "request/resultCode";
+                    public const string PerformanceBucket = "request/performanceBucket";
                 }
             }
 
@@ -75,12 +76,26 @@
                 {
                     public const string Success = "Dependency.Success";
                     public const string TypeName = "Dependency.Type";
+                    public const string PerformanceBucket = "dependency/performanceBucket";
+                    public const string Target = "dependency/target";
+                    public const string ResultCode = "dependency/resultCode";
+                }
+            }
+
+            public static class Common
+            {
+                public static class PropertyNames
+                {
+                    public const string CloudRoleInstance = "cloud/roleInstance";
+                    public const string CloudRoleName = "cloud/roleName";
+                    public const string Synthetic = "operation/synthetic";
                 }
 
-                public static class TypeNames
+                public static class PropertyValues
                 {
-                    public const string Other = "Other";
+                    public const string DimensionCapFallbackValue = "DIMENSION-CAPPED";
                     public const string Unknown = "Unknown";
+                    public const string Other = "Other";
                 }
             }
         }

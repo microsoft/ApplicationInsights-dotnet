@@ -1,11 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics
 {
     using System;
-
+    using System.Collections.Generic;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Metrics;
-    using Microsoft.ApplicationInsights.Metrics.Extensibility;
     using static System.FormattableString;
 
     /// <summary>
@@ -13,54 +12,47 @@
     /// It extracts auto-collected, pre-aggregated (aka. "standard") metrics from DependencyTelemetry objects which represent
     /// invocations of remote dependencies performed by the monitored service.
     /// </summary>
-    /// <remarks>
-    /// Auto-Discovering Dependency Types: **
-    /// Dependency call duration is collected as a metric for failed and successful calls separately, and grouped by dependency type.
-    /// It is essential to control the number of data series produced by this extractor: It must be a small, bounded value.
-    /// However, this extractor needs to support different modules that collect information about different kinds of dependencies.
-    /// To meet these constraints, the extractor will auto-discover dependency types, but it will not auto-discover more types than
-    /// the number controlled by the <see cref="DependencyMetricsExtractor.MaxDependencyTypesToDiscover" /> property.
-    /// The first <c>MaxDependencyTypesToDiscover</c> dependency types encountered will be tracked separately.
-    /// Additional types will all be grouped as "<c>Other</c>".
-    /// Customers should set this value to a value such that "<c>Other</c>" does not actually occur in practice.
-    /// As a guidance, a good value will be approximately in range 1 - 20. If significantly more types are expected, it should be
-    /// examined whether the dependency type field is used appropriately.
-    /// If <c>MaxDependencyTypesToDiscover</c> is set to <c>0</c>, dependency calls will not be grouped by type.
-    /// </remarks>
     internal class DependencyMetricsExtractor : ISpecificAutocollectedMetricsExtractor
     {
         /// <summary>
-        /// The default value for the <see cref="MaxDependencyTypesToDiscover"/> property if it is not set to a different value.
-        /// See also the remarks about the <see cref="DependencyMetricsExtractor"/> class for additional info about the use
-        /// the of <c>MaxDependencyTypesToDiscover</c>-property.
+        /// The default value for the <see cref="MaxDependencyTypesToDiscover"/> property.        
         /// </summary>
-        public const int MaxDependenctTypesToDiscoverDefault = 15;
+        public const int MaxDependencyTypesToDiscoverDefault = 15;
 
         /// <summary>
-        /// <see cref="ReinitializeMetrics(Int32)" />-lock.
+        /// The default value for the <see cref="MaxDependencyTargetValuesToDiscover"/> property.
         /// </summary>
-        private readonly object initializationLock = new Object();
+        public const int MaxTargetValuesToDiscoverDefault = 125;
 
         /// <summary>
-        /// The <c>TelemetryClient</c> to be used for creating and sending the metrics by this extractor.
+        /// The default value for the <see cref="MaxDependencyResultCodesToDiscover"/> property.
         /// </summary>
-        private TelemetryClient metricTelemetryClient = null;
+        public const int MaxDependencyResultCodesToDiscoverDefault = 30;
 
+        /// <summary>
+        /// The default value for the <see cref="MaxCloudRoleInstanceValuesToDiscover"/> property.
+        /// </summary>
+        public const int MaxCloudRoleInstanceValuesToDiscoverDefault = 2;
+
+        /// <summary>
+        /// The default value for the <see cref="MaxCloudRoleNameValuesToDiscover"/> property.
+        /// </summary>
+        public const int MaxCloudRoleNameValuesToDiscoverDefault = 2;
+
+        private readonly object lockObject = new object();
+        private List<IDimensionExtractor> dimensionExtractors = new List<IDimensionExtractor>();
+        
         /// <summary>
         /// Extracted metric.
         /// </summary>
         private Metric dependencyCallDurationMetric = null;
-
-        /// <summary>
-        /// Maximum number of auto-discovered dependency types.
-        /// </summary>
-        private int maxDependencyTypesToDiscover = MaxDependenctTypesToDiscoverDefault;
+        private bool isInitialized = false;        
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DependencyMetricsExtractor" /> class.
         /// </summary>
         public DependencyMetricsExtractor()
-        {
+        {            
         }
 
         /// <summary>
@@ -81,26 +73,28 @@
 
         /// <summary>
         /// Gets or sets the maximum number of auto-discovered dependency types.
-        /// See also the remarks about the <see cref="DependencyMetricsExtractor"/> class for additional info about the use the of this property.
         /// </summary>
-        public int MaxDependencyTypesToDiscover
-        {
-            get
-            {
-                return this.maxDependencyTypesToDiscover;
-            }
+        public int MaxDependencyTypesToDiscover { get; set; } = MaxDependencyTypesToDiscoverDefault;
 
-            set
-            {
-                if (value < 0)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(value), value, "MaxDependencyTypesToDiscover value may not be negative.");
-                }
+        /// <summary>
+        /// Gets or sets the maximum number of auto-discovered dependency result codes.
+        /// </summary>
+        public int MaxDependencyResultCodesToDiscover { get; set; } = MaxDependencyResultCodesToDiscoverDefault;
 
-                this.metricTelemetryClient?.Flush();
-                this.ReinitializeMetrics(value);
-            }
-        }
+        /// <summary>
+        /// Gets or sets the maximum number of auto-discovered Dependency Target values.
+        /// </summary>
+        public int MaxDependencyTargetValuesToDiscover { get; set; } = MaxTargetValuesToDiscoverDefault;
+        
+        /// <summary>
+        /// Gets or sets the maximum number of auto-discovered Cloud RoleInstance values.
+        /// </summary>
+        public int MaxCloudRoleInstanceValuesToDiscover { get; set; } = MaxCloudRoleInstanceValuesToDiscoverDefault;
+
+        /// <summary>
+        /// Gets or sets the maximum number of auto-discovered Cloud RoleName values.
+        /// </summary>
+        public int MaxCloudRoleNameValuesToDiscover { get; set; } = MaxCloudRoleNameValuesToDiscoverDefault;
 
         /// <summary>
         /// Pre-initialize this extractor.
@@ -108,9 +102,66 @@
         /// <param name="metricTelemetryClient">The <c>TelemetryClient</c> to be used for sending extracted metrics.</param>
         public void InitializeExtractor(TelemetryClient metricTelemetryClient)
         {
-            this.metricTelemetryClient = metricTelemetryClient;
-            // Benigh race where we already set the new metricTelemetryClient, but dependencyCallDurationMetric is not yet updated.
-            this.ReinitializeMetrics(this.maxDependencyTypesToDiscover);
+            if (metricTelemetryClient == null)
+            {
+                this.dependencyCallDurationMetric = null;
+                return;
+            }
+
+            if (!this.isInitialized)
+            {
+                lock (this.lockObject)
+                {
+                    if (!this.isInitialized)
+                    {
+                        this.dimensionExtractors.Add(new DependencyMetricIdDimensionExtractor());
+                        this.dimensionExtractors.Add(new SuccessDimensionExtractor());
+                        this.dimensionExtractors.Add(new DependencyDurationBucketExtractor());
+                        this.dimensionExtractors.Add(new SyntheticDimensionExtractor());
+                        this.dimensionExtractors.Add(new DependencyResultCodeDimensionExtractor() { MaxValues = this.MaxDependencyResultCodesToDiscover });
+                        this.dimensionExtractors.Add(new TypeDimensionExtractor() { MaxValues = this.MaxDependencyTypesToDiscover });
+                        this.dimensionExtractors.Add(new TargetDimensionExtractor() { MaxValues = this.MaxDependencyTargetValuesToDiscover });
+                        this.dimensionExtractors.Add(new CloudRoleInstanceDimensionExtractor() { MaxValues = this.MaxCloudRoleInstanceValuesToDiscover });
+                        this.dimensionExtractors.Add(new CloudRoleNameDimensionExtractor() { MaxValues = this.MaxCloudRoleNameValuesToDiscover });
+
+                        int seriesCountLimit = 1;
+                        int[] valuesPerDimensionLimit = new int[this.dimensionExtractors.Count];
+                        int i = 0;
+
+                        foreach (var dim in this.dimensionExtractors)
+                        {
+                            int dimLimit = 1;
+
+                            dimLimit = dim.MaxValues == 0 ? 1 : dim.MaxValues;
+                            seriesCountLimit = seriesCountLimit * (1 + dimLimit);
+                            valuesPerDimensionLimit[i++] = dimLimit;
+                        }
+
+                        MetricConfiguration config = new MetricConfigurationForMeasurement(
+                                                                        seriesCountLimit,
+                                                                        valuesPerDimensionLimit,
+                                                                        new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
+                        config.ApplyDimensionCapping = true;
+                        config.DimensionCappedString = MetricTerms.Autocollection.Common.PropertyValues.DimensionCapFallbackValue;
+
+                        IList<string> dimensionNames = new List<string>(this.dimensionExtractors.Count);
+                        for (i = 0; i < this.dimensionExtractors.Count; i++)
+                        {
+                            dimensionNames.Add(this.dimensionExtractors[i].Name);
+                        }
+
+                        MetricIdentifier metricIdentifier = new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace,
+                                    MetricTerms.Autocollection.Metric.DependencyCallDuration.Name,
+                                    dimensionNames);
+
+                        this.dependencyCallDurationMetric = metricTelemetryClient.GetMetric(
+                                                                    metricIdentifier: metricIdentifier,
+                                                                    metricConfiguration: config,
+                                                                    aggregationScope: MetricAggregationScope.TelemetryClient);
+                        this.isInitialized = true;
+                    }
+                }
+            }            
         }
 
         /// <summary>
@@ -128,10 +179,8 @@
                 return;
             }
 
-            Metric dependencyCallMetric = this.dependencyCallDurationMetric;
-
             //// If there is no Metric, then this extractor has not been properly initialized yet:
-            if (dependencyCallMetric == null)
+            if (this.dependencyCallDurationMetric == null)
             {
                 //// This should be caught and properly logged by the base class:
                 throw new InvalidOperationException(Invariant($"Cannot execute {nameof(this.ExtractMetrics)}.")
@@ -139,151 +188,28 @@
                                                   + Invariant($" Either this metrics extractor has not been initialized, or it has been disposed."));
             }
 
-            //// Get dependency call success status:
-            bool dependencyFailed = (dependencyCall.Success != null) && (dependencyCall.Success == false);
-            string dependencySuccessString = dependencyFailed ? bool.FalseString : bool.TrueString;
-
-            //// Now we need to determine which data series to use:
-            MetricSeries seriesToTrack = null;
-
-            if (this.MaxDependencyTypesToDiscover == 0)
+            int i = 0;
+            string[] dimValues = new string[this.dimensionExtractors.Count];
+            foreach (var dim in this.dimensionExtractors)
             {
-                // (MaxDependencyTypesToDiscover == 0) means we do not group by Dependency Type.
-                // Then, always use "Other" as Dependency Type:
-
-                dependencyCallMetric.TryGetDataSeries(
-                                                    out seriesToTrack,
-                                                    MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
-                                                    dependencySuccessString,
-                                                    MetricTerms.Autocollection.DependencyCall.TypeNames.Other);
-            }
-            else
-            {
-                // We group by Dependency Type and if dim limit is reached fall back to using "Other":
-
-                string dependencyType = dependencyCall.Type;
-
-                //// If dependency type is not set, we use "Unknown":
-                if (string.IsNullOrEmpty(dependencyType))
+                if (dim.MaxValues == 0)
                 {
-                    dependencyType = MetricTerms.Autocollection.DependencyCall.TypeNames.Unknown;
+                    dimValues[i] = MetricTerms.Autocollection.Common.PropertyValues.Other;
+                }
+                else
+                {
+                    dimValues[i] = dim.ExtractDimension(dependencyCall);
+                    if (string.IsNullOrEmpty(dimValues[i]))
+                    {
+                        dimValues[i] = dim.DefaultValue;
+                    }
                 }
 
-                bool canTrack = dependencyCallMetric.TryGetDataSeries(
-                                                    out seriesToTrack,
-                                                    MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
-                                                    dependencySuccessString,
-                                                    dependencyType);
-
-                if (false == canTrack)
-                {
-                    // If dimension cap was reached, use "Other" as dependency type:
-                    // (that series has been pre-created, so cap will not apply)
-                    dependencyCallMetric.TryGetDataSeries(
-                                                    out seriesToTrack,
-                                                    MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
-                                                    dependencySuccessString,
-                                                    MetricTerms.Autocollection.DependencyCall.TypeNames.Other);
-                }
+                i++;
             }
-           
-            seriesToTrack.TrackValue(dependencyCall.Duration.TotalMilliseconds);
+
+            CommonHelper.TrackValueHelper(this.dependencyCallDurationMetric, dependencyCall.Duration.TotalMilliseconds, dimValues);
             isItemProcessed = true;
-        }
-
-        /// <summary>
-        /// Initializes the privates and activates them atomically.
-        /// </summary>
-        /// <param name="maxDependencyTypesToDiscoverCount">Max number of Dependency Types to discover.</param>
-        private void ReinitializeMetrics(int maxDependencyTypesToDiscoverCount)
-        {
-            if (maxDependencyTypesToDiscoverCount < 0)
-            {
-                throw new ArgumentOutOfRangeException(
-                                nameof(maxDependencyTypesToDiscoverCount), 
-                                maxDependencyTypesToDiscoverCount, 
-                                Invariant($"{nameof(this.MaxDependencyTypesToDiscover)} value may not be negative."));
-            }
-
-            lock (this.initializationLock)
-            {
-                if (maxDependencyTypesToDiscoverCount > int.MaxValue - 3)
-                {
-                    maxDependencyTypesToDiscoverCount = int.MaxValue - 3;
-                }
-
-                int depTypesDimValuesLimit = (maxDependencyTypesToDiscoverCount == 0)
-                                                // "Other":
-                                                ? 1
-                                                // Discovered types + "Unknown" (when type not set) + "Other" (when limit reached):
-                                                : maxDependencyTypesToDiscoverCount + 2;
-
-                TelemetryClient thisMetricTelemetryClient = this.metricTelemetryClient;
-
-                //// If there is no TelemetryClient, then this extractor has not been properly initialized yet.
-                //// We set maxDependencyTypesToDiscover and return: 
-                if (thisMetricTelemetryClient == null)
-                {
-                    this.dependencyCallDurationMetric = null;
-                    this.maxDependencyTypesToDiscover = maxDependencyTypesToDiscoverCount;
-                    return;
-                }
-
-                //// Remove the old metric before creating the new one:
-                MetricManager metricManager;
-                if (thisMetricTelemetryClient.TryGetMetricManager(out metricManager))
-                {
-                    Metric oldMetric = this.dependencyCallDurationMetric;
-                    metricManager.Metrics.Remove(oldMetric);
-                }
-
-                MetricConfiguration config = new MetricConfigurationForMeasurement(
-                                                            (1 * 2 * depTypesDimValuesLimit) + 1,
-                                                            new[] { 1, 2, depTypesDimValuesLimit },
-                                                            new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
-
-                Metric dependencyCallDuration = thisMetricTelemetryClient.GetMetric(
-                                                            metricId: MetricTerms.Autocollection.Metric.DependencyCallDuration.Name,
-                                                            dimension1Name: MetricDimensionNames.TelemetryContext.Property(MetricTerms.Autocollection.MetricId.Moniker.Key),                                                            
-                                                            dimension2Name: MetricTerms.Autocollection.DependencyCall.PropertyNames.Success,
-                                                            dimension3Name: MetricTerms.Autocollection.DependencyCall.PropertyNames.TypeName,
-                                                            metricConfiguration: config,
-                                                            aggregationScope: MetricAggregationScope.TelemetryClient);
-
-                // "Pre-book" series for "special" dependenty type monikers to make sure they are not affected by dimension caps:
-
-                MetricSeries prebookedSeries;
-
-                dependencyCallDuration.TryGetDataSeries(
-                                                            out prebookedSeries,
-                                                            MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
-                                                            Boolean.TrueString,
-                                                            MetricTerms.Autocollection.DependencyCall.TypeNames.Other);
-                dependencyCallDuration.TryGetDataSeries(
-                                                            out prebookedSeries,
-                                                            MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
-                                                            Boolean.FalseString,
-                                                            MetricTerms.Autocollection.DependencyCall.TypeNames.Other);
-
-                if (maxDependencyTypesToDiscoverCount != 0)
-                {
-                    dependencyCallDuration.TryGetDataSeries(
-                                                            out prebookedSeries,
-                                                            MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
-                                                            Boolean.TrueString,
-                                                            MetricTerms.Autocollection.DependencyCall.TypeNames.Unknown);
-                    dependencyCallDuration.TryGetDataSeries(
-                                                            out prebookedSeries,
-                                                            MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
-                                                            Boolean.FalseString,
-                                                            MetricTerms.Autocollection.DependencyCall.TypeNames.Unknown);
-                }
-
-                // Benign race where dependencyCallDurationMetric config and maxDependencyTypesToDiscover may not correspond briefly:
-
-                this.dependencyCallDurationMetric = dependencyCallDuration;
-                this.maxDependencyTypesToDiscover = maxDependencyTypesToDiscoverCount;
-            }
         }
     }
 }

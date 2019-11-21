@@ -8,7 +8,6 @@
 namespace Microsoft.Extensions.Logging.ApplicationInsights
 {
     using System;
-    using System.Collections.Concurrent;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -105,7 +104,14 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
         /// <param name="releasedManagedResources">Release managed resources.</param>
         protected virtual void Dispose(bool releasedManagedResources)
         {
-            // Nothing to dispose right now.
+            if (releasedManagedResources && this.applicationInsightsLoggerOptions.FlushOnDispose)
+            {
+                this.telemetryClient.Flush();
+
+                // With the ServerTelemetryChannel, Flush pushes buffered telemetry to the Transmitter,
+                // but it doesn't guarantee that all events have been transmitted to the endpoint.
+                // TODO: Should we sleep here? Should that be controlled by options?
+            }
         }
     }
 }
