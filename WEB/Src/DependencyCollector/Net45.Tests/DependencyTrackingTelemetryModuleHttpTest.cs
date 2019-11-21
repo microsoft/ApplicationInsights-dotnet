@@ -100,6 +100,70 @@
 
         [TestMethod]
         [Timeout(5000)]
+        public void TestDependencyCollectionDiagnosticSourceBacksOffWhenTraceParentPresent()
+        {
+            using (this.CreateDependencyTrackingModule(true, true, true, false))
+            {
+                HttpWebRequest request = WebRequest.CreateHttp(LocalhostUrlDiagSource);
+                request.Headers.Add("traceparent", "00-0123456789abcdef0123456789abcdef-0123456789abcdef-00");
+
+                using (new LocalServer(
+                    new Uri(LocalhostUrlDiagSource).GetLeftPart(UriPartial.Authority) + "/",
+                    ctx =>
+                    {
+                        ctx.Response.StatusCode = 200;
+                    }))
+                {
+                    try
+                    {
+                        using (request.GetResponse())
+                        {
+                        }
+                    }
+                    catch (WebException)
+                    {
+                        // ignore and let ValidateTelemetry method check status code
+                    }
+                }
+
+                Assert.IsFalse(this.sentTelemetry.Any());
+            }
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public void TestDependencyCollectionDiagnosticSourceTraceParentPresentW3COff()
+        {
+            using (this.CreateDependencyTrackingModule(true, false, true, false))
+            {
+                HttpWebRequest request = WebRequest.CreateHttp(LocalhostUrlDiagSource);
+                request.Headers.Add("traceparent", "00-0123456789abcdef0123456789abcdef-0123456789abcdef-00");
+
+                using (new LocalServer(
+                    new Uri(LocalhostUrlDiagSource).GetLeftPart(UriPartial.Authority) + "/",
+                    ctx =>
+                    {
+                        ctx.Response.StatusCode = 200;
+                    }))
+                {
+                    try
+                    {
+                        using (request.GetResponse())
+                        {
+                        }
+                    }
+                    catch (WebException)
+                    {
+                        // ignore and let ValidateTelemetry method check status code
+                    }
+                }
+
+                Assert.AreEqual(1, this.sentTelemetry.Count());
+            }
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
         public void TestBasicDependencyCollectionDiagnosticSourceLegacyHeaders()
         {
             this.TestCollectionSuccessfulResponse(

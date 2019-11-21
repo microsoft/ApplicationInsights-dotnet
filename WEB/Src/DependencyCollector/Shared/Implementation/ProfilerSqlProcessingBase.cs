@@ -16,13 +16,13 @@
     /// </summary>
     internal abstract class ProfilerSqlProcessingBase
     {
-        internal ObjectInstanceBasedOperationHolder TelemetryTable;
+        internal ObjectInstanceBasedOperationHolder<DependencyTelemetry> TelemetryTable;
         private readonly TelemetryClient telemetryClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfilerSqlProcessingBase"/> class.
         /// </summary>
-        internal ProfilerSqlProcessingBase(TelemetryConfiguration configuration, string agentVersion, ObjectInstanceBasedOperationHolder telemetryTupleHolder)
+        internal ProfilerSqlProcessingBase(TelemetryConfiguration configuration, string agentVersion, ObjectInstanceBasedOperationHolder<DependencyTelemetry> telemetryTupleHolder)
         {
             if (configuration == null)
             {

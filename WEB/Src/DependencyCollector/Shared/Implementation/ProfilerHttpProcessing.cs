@@ -7,7 +7,6 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     /// <summary>
     /// Concrete class with all processing logic to generate RDD data from the callbacks
@@ -15,12 +14,12 @@
     /// </summary>
     internal sealed class ProfilerHttpProcessing : HttpProcessing
     {
-        internal ObjectInstanceBasedOperationHolder TelemetryTable;
+        internal ObjectInstanceBasedOperationHolder<DependencyTelemetry> TelemetryTable;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfilerHttpProcessing"/> class.
         /// </summary>
-        public ProfilerHttpProcessing(TelemetryConfiguration configuration, string agentVersion, ObjectInstanceBasedOperationHolder telemetryTupleHolder, bool setCorrelationHeaders, ICollection<string> correlationDomainExclusionList, bool injectLegacyHeaders, bool injectW3CHeaders)
+        public ProfilerHttpProcessing(TelemetryConfiguration configuration, string agentVersion, ObjectInstanceBasedOperationHolder<DependencyTelemetry> telemetryTupleHolder, bool setCorrelationHeaders, ICollection<string> correlationDomainExclusionList, bool injectLegacyHeaders, bool injectW3CHeaders)
             : base(configuration, SdkVersionUtils.GetSdkVersion("rdd" + RddSource.Profiler + ":"), agentVersion, setCorrelationHeaders, correlationDomainExclusionList, injectLegacyHeaders, injectW3CHeaders)
         {
             if (telemetryTupleHolder == null)

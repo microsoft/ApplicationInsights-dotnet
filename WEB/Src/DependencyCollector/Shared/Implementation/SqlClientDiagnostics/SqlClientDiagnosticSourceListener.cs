@@ -71,7 +71,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
         private readonly TelemetryClient client;
         private readonly SqlClientDiagnosticSourceSubscriber subscriber;
 
-        private readonly ObjectInstanceBasedOperationHolder operationHolder = new ObjectInstanceBasedOperationHolder();
+        private readonly ObjectInstanceBasedOperationHolder<DependencyTelemetry> operationHolder = new ObjectInstanceBasedOperationHolder<DependencyTelemetry>();
 
         public SqlClientDiagnosticSourceListener(TelemetryConfiguration configuration)
         {
