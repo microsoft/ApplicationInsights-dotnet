@@ -1,6 +1,7 @@
 # Changelog
 
 ## VNext
+- [Add support for collecting convention-based Azure SDK activities.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1300)
 
 ## Version 2.12.0-beta3
 - [Standard Metric extractor for Dependency) add Dependency.ResultCode dimension.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1233)
