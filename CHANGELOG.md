@@ -3,6 +3,7 @@
 ## VNext
 - [Log4Net includes Message for ExceptionTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1315)
 - [NLog includes Message for ExceptionTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1315)
+- [Fix RouteData not set in ASP.Net Core 3.0](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1318)
 
 ## Version 2.12.0-beta3
 - [Standard Metric extractor for Dependency) add Dependency.ResultCode dimension.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1233)
@@ -386,7 +387,7 @@ item is being filtered out.
 
 ## Version 0.15
 
-- BASE: New property ```Operation.SyntheticSource``` now available on ```TelemetryContext```. Now you can mark your telemetry items as “not a real user traffic” and specify how this traffic was generated. As an example by setting this property you can distinguish traffic from your test automation from load test traffic.
+- BASE: New property ```Operation.SyntheticSource``` now available on ```TelemetryContext```. Now you can mark your telemetry items as Â“not a real user trafficÂ” and specify how this traffic was generated. As an example by setting this property you can distinguish traffic from your test automation from load test traffic.
 - BASE: Channel logic was moved to the separate NuGet called Microsoft.ApplicationInsights.PersistenceChannel. Default channel is now called InMemoryChannel
 - BASE: New method ```TelemetryClient.Flush``` allows to flush telemetry items from the buffer synchronously
 
