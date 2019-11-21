@@ -120,8 +120,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                 if (webRequest.Headers[W3C.W3CConstants.TraceParentHeader] != null && Activity.DefaultIdFormat == ActivityIdFormat.W3C)
                 {
-                    // TODO comment and log
-                    // DependencyCollectorEventSource.Log.CurrentActivityIsNull(HttpOutStartEventName);
+                    DependencyCollectorEventSource.Log.HttpRequestAlreadyInstrumented();
                     return null;
                 }
 

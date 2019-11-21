@@ -342,8 +342,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
             if (request.Headers.Contains(W3C.W3CConstants.TraceParentHeader) && Activity.DefaultIdFormat == ActivityIdFormat.W3C)
             {
-                // TODO comment and log
-                // DependencyCollectorEventSource.Log.CurrentActivityIsNull(HttpOutStartEventName);
+                DependencyCollectorEventSource.Log.HttpRequestAlreadyInstrumented(currentActivity.Id);
                 return;
             }
 
@@ -366,17 +365,18 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 return;
             }
 
-            if (request.Headers.Contains(W3C.W3CConstants.TraceParentHeader) && Activity.DefaultIdFormat == ActivityIdFormat.W3C)
-            {
-                // TODO comment and log
-                // DependencyCollectorEventSource.Log.CurrentActivityIsNull(HttpOutStartEventName);
-                return;
-            }
-
             Activity currentActivity = Activity.Current;
             if (currentActivity == null)
             {
                 DependencyCollectorEventSource.Log.CurrentActivityIsNull(HttpOutStopEventName);
+                return;
+            }
+
+            if (Activity.DefaultIdFormat == ActivityIdFormat.W3C &&
+                request.Headers.TryGetValues(W3C.W3CConstants.TraceParentHeader, out var parents) && 
+                parents.FirstOrDefault() != currentActivity.Id)
+            {
+                DependencyCollectorEventSource.Log.HttpRequestAlreadyInstrumented();
                 return;
             }
 

@@ -493,6 +493,16 @@
             this.WriteEvent(47, httpInstrumentationVersion, httpClientMajorVersion, httpClientMinorVersion, infoVersion, this.applicationNameProvider.Name);
         }
 
+        [Event(
+            48,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "Http request is already instrumented.",
+            Level = EventLevel.Verbose)]
+        public void HttpRequestAlreadyInstrumented(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(48, this.applicationNameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the <see cref="DependencyCollectorEventSource"/>.
         /// </summary>
