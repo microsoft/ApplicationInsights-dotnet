@@ -1,5 +1,3 @@
-using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
-
 namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlClientDiagnostics
 {
     using System;
@@ -9,6 +7,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;

@@ -19,7 +19,7 @@
 
         // fetchers must not be reused between sources
         // fetcher is created per AzureSdkDiagnosticsEventHandler and AzureSdkDiagnosticsEventHandler is created per DiagnosticSource
-        private readonly PropertyFetcher LinksPropertyFetcher = new PropertyFetcher("Links");
+        private readonly PropertyFetcher linksPropertyFetcher = new PropertyFetcher("Links");
 
         public AzureSdkDiagnosticsEventHandler(TelemetryConfiguration configuration) : base(configuration)
         {
@@ -35,7 +35,7 @@
             try
             {
                 var currentActivity = Activity.Current;
-                if (evnt.Key.EndsWith(".Start"))
+                if (evnt.Key.EndsWith(".Start", StringComparison.Ordinal))
                 {
                     OperationTelemetry telemetry = null;
                     if (diagnosticListener.Name == "Azure.Core")
@@ -61,6 +61,7 @@
                                         dependencyType = RemoteDependencyConstants.AzureEventHubs;
                                     }
                                 }
+
                                 break;
                             }
                         }
@@ -70,7 +71,7 @@
                             telemetry = new DependencyTelemetry { Type = dependencyType };
                         }
 
-                        if (this.LinksPropertyFetcher.Fetch(evnt.Value) is IEnumerable<Activity> activityLinks)
+                        if (this.linksPropertyFetcher.Fetch(evnt.Value) is IEnumerable<Activity> activityLinks)
                         {
                             this.PopulateLinks(activityLinks, telemetry);
                         }
@@ -78,7 +79,7 @@
 
                     this.operationHolder.Store(currentActivity, Tuple.Create(telemetry, /* isCustomCreated: */ false));
                 }
-                if (evnt.Key.EndsWith(".Stop"))
+                else if (evnt.Key.EndsWith(".Stop", StringComparison.Ordinal))
                 {
                     var telemetry = this.operationHolder.Get(currentActivity).Item1;
                     this.SetCommonProperties(evnt.Key, evnt.Value, currentActivity, telemetry);
@@ -101,7 +102,7 @@
 
                     this.TelemetryClient.Track(telemetry);
                 }
-                else if (evnt.Key.EndsWith(".Exception"))
+                else if (evnt.Key.EndsWith(".Exception", StringComparison.Ordinal))
                 {
                     Exception ex = evnt.Value as Exception;
 

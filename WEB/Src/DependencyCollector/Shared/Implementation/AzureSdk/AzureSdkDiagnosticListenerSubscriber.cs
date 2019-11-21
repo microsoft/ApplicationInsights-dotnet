@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
+    using System;
     using System.Diagnostics;
     using Microsoft.ApplicationInsights.Extensibility;
 
@@ -13,7 +14,7 @@
 
         internal override bool IsSourceEnabled(DiagnosticListener diagnosticListener)
         {
-            return diagnosticListener.Name.StartsWith(DiagnosticListenerName);
+            return diagnosticListener.Name.StartsWith(DiagnosticListenerName, StringComparison.Ordinal);
         }
 
         internal override bool IsActivityEnabled(string evnt, object context)

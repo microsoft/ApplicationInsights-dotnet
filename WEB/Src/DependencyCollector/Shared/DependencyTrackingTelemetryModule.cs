@@ -148,7 +148,7 @@
 
                             this.sqlClientDiagnosticSourceListener = new SqlClientDiagnosticSourceListener(configuration);
 
-                            if (EnableAzureSdkTelemetryListener)
+                            if (this.EnableAzureSdkTelemetryListener)
                             {
                                 this.azureSdkDiagnosticListener = new AzureSdkDiagnosticListenerSubscriber(configuration);
                                 this.azureSdkDiagnosticListener.Subscribe();

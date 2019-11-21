@@ -1,6 +1,4 @@
-﻿using Microsoft.ApplicationInsights.DataContracts;
-
-namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.EventHandlers
+﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.EventHandlers
 {
     using System;
     using System.Collections.Concurrent;
