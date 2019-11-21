@@ -87,7 +87,7 @@
                 }
             }
 
-            if (!telemetry.Success.HasValue)
+            if (!telemetry.Success.HasValue || telemetry.Success.Value)
             {
                 telemetry.Success = this.IsOperationSuccessful(eventName, eventPayload, activity);
             }
