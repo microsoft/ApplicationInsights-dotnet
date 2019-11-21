@@ -2,6 +2,9 @@
 
 ## VNext
 
+## Version 2.12.0-beta4
+- [Fix depednency tracking for Microsoft.Azure.EventHubs SDK 4.1.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1317)
+
 ## Version 2.12.0-beta3
 - [Standard Metric extractor for Dependency) add Dependency.ResultCode dimension.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1233)
 
