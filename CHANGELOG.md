@@ -1,6 +1,8 @@
 # Changelog
 
 ## VNext
+- [Log4Net includes Message for ExceptionTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1315)
+- [NLog includes Message for ExceptionTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1315)
 
 ## Version 2.12.0-beta3
 - [Standard Metric extractor for Dependency) add Dependency.ResultCode dimension.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1233)
