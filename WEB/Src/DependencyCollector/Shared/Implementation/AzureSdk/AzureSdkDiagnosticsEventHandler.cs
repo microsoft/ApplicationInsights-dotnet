@@ -38,43 +38,50 @@
                 if (evnt.Key.EndsWith(".Start", StringComparison.Ordinal))
                 {
                     OperationTelemetry telemetry = null;
-                    if (diagnosticListener.Name == "Azure.Core")
+
+                    foreach (var tag in currentActivity.Tags)
                     {
-                        telemetry = new DependencyTelemetry { Type = RemoteDependencyConstants.HTTP };
+                        if (tag.Key == "kind" && (tag.Value == "server" || tag.Value == "consumer"))
+                        {
+                            telemetry = new RequestTelemetry();
+                            break;
+                        }
                     }
-                    else
+
+                    if (telemetry == null)
                     {
                         string dependencyType = RemoteDependencyConstants.InProc;
                         foreach (var tag in currentActivity.Tags)
                         {
                             if (tag.Key == "kind")
                             {
-                                if (tag.Value == "server" || tag.Value == "consumer")
+                                if (tag.Value == "internal")
                                 {
-                                    telemetry = new RequestTelemetry();
-                                }
-                                else if (tag.Value != "internal")
-                                {
-                                    dependencyType = string.Empty;
-                                    if (diagnosticListener.Name == "Azure.Messaging.EventHubs")
-                                    {
-                                        dependencyType = RemoteDependencyConstants.AzureEventHubs;
-                                    }
+                                    break;
                                 }
 
+                                dependencyType = string.Empty;
+                            }
+
+                            if (tag.Key.StartsWith("http.", StringComparison.Ordinal))
+                            {
+                                dependencyType = RemoteDependencyConstants.HTTP;
+                                break;
+                            }
+                            
+                            if (tag.Key == "component" && tag.Value == "eventhubs")
+                            {
+                                dependencyType = RemoteDependencyConstants.AzureEventHubs;
                                 break;
                             }
                         }
 
-                        if (telemetry == null)
-                        {
-                            telemetry = new DependencyTelemetry { Type = dependencyType };
-                        }
+                        telemetry = new DependencyTelemetry { Type = dependencyType };
+                    }
 
-                        if (this.linksPropertyFetcher.Fetch(evnt.Value) is IEnumerable<Activity> activityLinks)
-                        {
-                            this.PopulateLinks(activityLinks, telemetry);
-                        }
+                    if (this.linksPropertyFetcher.Fetch(evnt.Value) is IEnumerable<Activity> activityLinks)
+                    {
+                        this.PopulateLinks(activityLinks, telemetry);
                     }
 
                     this.operationHolder.Store(currentActivity, Tuple.Create(telemetry, /* isCustomCreated: */ false));
@@ -183,12 +190,11 @@
             // TODO: could be optimized to avoid full URI parsing and allocation
             if (url == null || !Uri.TryCreate(url, UriKind.Absolute, out var parsedUrl))
             {
-                // TODO log error: something is wrong
+                DependencyCollectorEventSource.Log.FailedToParseUrl(url);
                 return;
             }
 
             dependency.Name = string.Concat(method, " ", parsedUrl.AbsolutePath);
-            dependency.Type = RemoteDependencyConstants.HTTP;
             dependency.Data = url;
             dependency.Target = DependencyTargetNameHelper.GetDependencyTargetName(parsedUrl);
             dependency.ResultCode = status;

@@ -503,6 +503,16 @@
             this.WriteEvent(48, this.applicationNameProvider.Name);
         }
 
+        [Event(
+            49,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "Failed to parse Url '{0}'",
+            Level = EventLevel.Warning)]
+        public void FailedToParseUrl(string url, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(49, url, this.applicationNameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the <see cref="DependencyCollectorEventSource"/>.
         /// </summary>

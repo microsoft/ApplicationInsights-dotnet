@@ -240,12 +240,12 @@
         [TestMethod]
         public void AzureClientSpansAreCollectedForHttp()
         {
-            using (var listener = new DiagnosticListener("Azure.Core"))
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
             using (var module = new DependencyTrackingTelemetryModule())
             {
                 module.Initialize(this.configuration);
 
-                Activity httpActivity = new Activity("Azure.Core.Http.Request")
+                Activity httpActivity = new Activity("Azure.SomeClient.Http.Request")
                     .AddTag("http.method", "PATCH")
                     .AddTag("http.url", "http://host:8080/path?query#fragment")
                     .AddTag("requestId", "client-request-id");
@@ -279,12 +279,12 @@
         [TestMethod]
         public void AzureClientSpansAreCollectedForHttpNotSuccessResponse()
         {
-            using (var listener = new DiagnosticListener("Azure.Core"))
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
             using (var module = new DependencyTrackingTelemetryModule())
             {
                 module.Initialize(this.configuration);
 
-                Activity httpActivity = new Activity("Azure.Core.Http.Request")
+                Activity httpActivity = new Activity("Azure.SomeClient.Http.Request")
                     .AddTag("http.method", "PATCH")
                     .AddTag("http.url", "http://host/path?query#fragment");
 
@@ -313,13 +313,13 @@
         [TestMethod]
         public void AzureClientSpansAreCollectedForHttpException()
         {
-            using (var listener = new DiagnosticListener("Azure.Core"))
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
             using (var module = new DependencyTrackingTelemetryModule())
             {
                 module.Initialize(this.configuration);
 
                 var exception = new InvalidOperationException();
-                Activity httpActivity = new Activity("Azure.Core.Http.Request")
+                Activity httpActivity = new Activity("Azure.SomeClient.Http.Request")
                     .AddTag("http.method", "PATCH")
                     .AddTag("http.url", "http://host/path?query#fragment");
 
@@ -348,25 +348,26 @@
         [TestMethod]
         public void AzureClientSpansAreCollectedForEventHubs()
         {
-            using (var listener = new DiagnosticListener("Azure.Messaging.EventHubs"))
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
             using (var module = new DependencyTrackingTelemetryModule())
             {
                 module.Initialize(this.configuration);
 
                 var exception = new InvalidOperationException();
-                Activity sendActivity = new Activity("Azure.Messaging.EventHubs.EventHubProducerClient.Send")
+                Activity sendActivity = new Activity("Azure.SomeClient.Send")
                     .AddTag("peer.address", "amqps://eventHub.servicebus.windows.net/")
                     .AddTag("message_bus.destination", "queueName")
-                    .AddTag("kind", "producer");
+                    .AddTag("kind", "producer")
+                    .AddTag("component", "eventhubs");
 
                 listener.StartActivity(sendActivity, null);
-                listener.Write("Azure.Messaging.EventHubs.EventHubProducerClient.Send.Exception", exception);
+                listener.Write("Azure.SomeClient.Send.Exception", exception);
                 listener.StopActivity(sendActivity, null);
 
                 var telemetry = this.sentItems.Last() as DependencyTelemetry;
 
                 Assert.IsNotNull(telemetry);
-                Assert.AreEqual("EventHubProducerClient.Send", telemetry.Name);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
                 Assert.AreEqual("amqps://eventHub.servicebus.windows.net/ | queueName", telemetry.Target);
                 Assert.AreEqual(string.Empty, telemetry.Data);
                 Assert.AreEqual(string.Empty, telemetry.ResultCode);
@@ -382,15 +383,16 @@
         [TestMethod]
         public void AzureClientSpansAreCollectedForEventHubsException()
         {
-            using (var listener = new DiagnosticListener("Azure.Messaging.EventHubs"))
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
             using (var module = new DependencyTrackingTelemetryModule())
             {
                 module.Initialize(this.configuration);
 
-                Activity sendActivity = new Activity("Azure.Messaging.EventHubs.EventHubProducerClient.Send")
+                Activity sendActivity = new Activity("Azure.SomeClient.Send")
                     .AddTag("peer.address", "amqps://eventHub.servicebus.windows.net/")
                     .AddTag("message_bus.destination", "queueName")
-                    .AddTag("kind", "producer");
+                    .AddTag("kind", "producer")
+                    .AddTag("component", "eventhubs");
 
                 listener.StartActivity(sendActivity, null);
                 listener.StopActivity(sendActivity, null);
@@ -398,7 +400,7 @@
                 var telemetry = this.sentItems.Last() as DependencyTelemetry;
 
                 Assert.IsNotNull(telemetry);
-                Assert.AreEqual("EventHubProducerClient.Send", telemetry.Name);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
                 Assert.AreEqual("amqps://eventHub.servicebus.windows.net/ | queueName", telemetry.Target);
                 Assert.AreEqual(string.Empty, telemetry.Data);
                 Assert.AreEqual(string.Empty, telemetry.ResultCode);
