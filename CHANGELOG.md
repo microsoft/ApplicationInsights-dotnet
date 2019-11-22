@@ -1,6 +1,6 @@
 # Changelog
 
-## VNext
+## Version 2.12.0-beta4
 - [Add support for collecting convention-based Azure SDK activities.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1300)
 - [Log4Net includes Message for ExceptionTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1315)
 - [NLog includes Message for ExceptionTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1315)
