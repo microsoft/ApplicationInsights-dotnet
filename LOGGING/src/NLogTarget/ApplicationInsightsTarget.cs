@@ -38,6 +38,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         public ApplicationInsightsTarget()
         {
             this.Layout = @"${message}";
+            this.OptimizeBufferReuse = true;
         }
 
         /// <summary>
@@ -93,9 +94,9 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             for (int i = 0; i < this.ContextProperties.Count; ++i)
             {
                 var contextProperty = this.ContextProperties[i];
-                if (!string.IsNullOrEmpty(contextProperty.Name))
+                if (!string.IsNullOrEmpty(contextProperty.Name) && contextProperty.Layout != null)
                 {
-                    string propertyValue = contextProperty.Layout?.Render(logEvent);
+                    string propertyValue = RenderLogEvent(contextProperty.Layout, logEvent);
                     PopulatePropertyBag(propertyBag, contextProperty.Name, propertyValue);
                 }
             }
@@ -252,10 +253,14 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             var exceptionTelemetry = new ExceptionTelemetry(logEvent.Exception)
             {
                 SeverityLevel = GetSeverityLevel(logEvent.Level),
+                Message = $"{logEvent.Exception.GetType().ToString()}: {logEvent.Exception.Message}",
             };
 
-            string logMessage = this.Layout.Render(logEvent);
-            exceptionTelemetry.Properties.Add("Message", logMessage);
+            string logMessage = RenderLogEvent(this.Layout, logEvent);
+            if (!string.IsNullOrEmpty(logMessage))
+            {
+                exceptionTelemetry.Properties.Add("Message", logMessage);
+            }
 
             this.BuildPropertyBag(logEvent, exceptionTelemetry);
             this.telemetryClient.Track(exceptionTelemetry);
@@ -263,8 +268,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
 
         private void SendTrace(LogEventInfo logEvent)
         {
-            string logMessage = this.Layout.Render(logEvent);
-
+            string logMessage = RenderLogEvent(this.Layout, logEvent);
             var trace = new TraceTelemetry(logMessage)
             {
                 SeverityLevel = GetSeverityLevel(logEvent.Level),

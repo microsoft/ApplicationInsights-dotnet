@@ -14,6 +14,7 @@
         public const string AzureServiceBus = "Azure Service Bus";
         public const string AzureIotHub = "Azure IoT Hub";
         public const string AzureSearch = "Azure Search";
+        public const string InProc = "InProc";
 
         public const string WcfService = "WCF Service";
         public const string WebService = "Web Service";
@@ -23,5 +24,7 @@
         public const string HttpResponseHeadersOperationDetailName = "HttpResponseHeaders";
 
         public const string SqlCommandOperationDetailName = "SqlCommand";
+
+        public const string DependencyErrorPropertyKey = "Error";
     }
 }

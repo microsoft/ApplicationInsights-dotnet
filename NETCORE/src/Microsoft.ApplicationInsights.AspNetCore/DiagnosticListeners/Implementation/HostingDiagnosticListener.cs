@@ -63,6 +63,7 @@
 
         // fetch is unique per event and per property
         private readonly PropertyFetcher httpContextFetcherOnBeforeAction = new PropertyFetcher("httpContext");
+        private readonly PropertyFetcher httpContextFetcherOnBeforeAction30 = new PropertyFetcher("HttpContext");
         private readonly PropertyFetcher routeDataFetcher = new PropertyFetcher("routeData");
         private readonly PropertyFetcher routeDataFetcher30 = new PropertyFetcher("RouteData");
         private readonly PropertyFetcher routeValuesFetcher = new PropertyFetcher("Values");
@@ -450,13 +451,18 @@
                 }
                 else if (value.Key == "Microsoft.AspNetCore.Mvc.BeforeAction")
                 {
-                    var context = this.httpContextFetcherOnBeforeAction.Fetch(value.Value) as HttpContext;
-
+                    HttpContext context = null;
                     object routeData = null;
 
-                    // Asp.Net Core 3.0 changed the field name to "RouteData" from "routeData
+                    // Asp.Net Core 3.0 changed the field name to "RouteData" from "routeData and "HttpContext" from "httpContext"
                     if (this.aspNetCoreMajorVersion == AspNetCoreMajorVersion.Three)
                     {
+                        context = this.httpContextFetcherOnBeforeAction30.Fetch(value.Value) as HttpContext;
+                        if (context == null)
+                        {
+                            context = this.httpContextFetcherOnBeforeAction.Fetch(value.Value) as HttpContext;
+                        }
+
                         routeData = this.routeDataFetcher30.Fetch(value.Value);
                         if (routeData == null)
                         {
@@ -465,6 +471,12 @@
                     }
                     else
                     {
+                        context = this.httpContextFetcherOnBeforeAction.Fetch(value.Value) as HttpContext;
+                        if (context == null)
+                        {
+                            context = this.httpContextFetcherOnBeforeAction30.Fetch(value.Value) as HttpContext;
+                        }
+
                         routeData = this.routeDataFetcher.Fetch(value.Value);
                         if (routeData == null)
                         {

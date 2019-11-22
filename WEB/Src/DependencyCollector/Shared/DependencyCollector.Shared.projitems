@@ -14,6 +14,8 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)DependencyTrackingTelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ActiveSubsciptionManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\AzureSdk\AzureSdkDiagnosticsEventHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\AzureSdk\AzureSdkDiagnosticListenerSubscriber.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\EventHandlers\DiagnosticsEventHandlerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpCoreDiagnosticSourceListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpDependenciesParsingTelemetryInitializer.cs" />

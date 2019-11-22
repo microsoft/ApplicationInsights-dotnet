@@ -19,6 +19,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorDiagnosticListenerTests.Netcore20.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyTargetNameHelperTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\EnumerableAssert.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\AzureSdkDiagnosticListenerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpHeadersUtilitiesTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureBlobHttpParserTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureSearchHttpParserTests.cs" />
