@@ -493,6 +493,26 @@
             this.WriteEvent(47, httpInstrumentationVersion, httpClientMajorVersion, httpClientMinorVersion, infoVersion, this.applicationNameProvider.Name);
         }
 
+        [Event(
+            48,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "Http request is already instrumented.",
+            Level = EventLevel.Verbose)]
+        public void HttpRequestAlreadyInstrumented(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(48, this.applicationNameProvider.Name);
+        }
+
+        [Event(
+            49,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "Failed to parse Url '{0}'",
+            Level = EventLevel.Warning)]
+        public void FailedToParseUrl(string url, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(49, url, this.applicationNameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the <see cref="DependencyCollectorEventSource"/>.
         /// </summary>

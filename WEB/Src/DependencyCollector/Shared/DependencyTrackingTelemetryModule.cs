@@ -32,6 +32,7 @@
         private HttpCoreDiagnosticSourceListener httpCoreDiagnosticSourceListener;
         private TelemetryDiagnosticSourceListener telemetryDiagnosticSourceListener;
         private SqlClientDiagnosticSourceListener sqlClientDiagnosticSourceListener;
+        private AzureSdkDiagnosticListenerSubscriber azureSdkDiagnosticListener;
 
 #if !NETSTANDARD
         private ProfilerSqlCommandProcessing sqlCommandProcessing;
@@ -82,6 +83,11 @@
         /// Gets or sets a value indicating whether the correlation headers would be set on outgoing http requests.
         /// </summary>
         public bool SetComponentCorrelationHttpHeaders { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether telemetry would be produced for Azure SDK methods calls and requests.
+        /// </summary>
+        public bool EnableAzureSdkTelemetryListener { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the endpoint that is to be used to get the application insights resource's profile (appId etc.).
@@ -141,6 +147,12 @@
                             }
 
                             this.sqlClientDiagnosticSourceListener = new SqlClientDiagnosticSourceListener(configuration);
+
+                            if (this.EnableAzureSdkTelemetryListener)
+                            {
+                                this.azureSdkDiagnosticListener = new AzureSdkDiagnosticListenerSubscriber(configuration);
+                                this.azureSdkDiagnosticListener.Subscribe();
+                            }
 
                             DependencyCollectorEventSource.Log.RemoteDependencyModuleVerbose("Initializing DependencyTrackingModule completed successfully.");
                         }
@@ -241,6 +253,11 @@
                     if (this.sqlClientDiagnosticSourceListener != null)
                     {
                         this.sqlClientDiagnosticSourceListener.Dispose();
+                    }
+
+                    if (this.azureSdkDiagnosticListener != null)
+                    {
+                        this.azureSdkDiagnosticListener.Dispose();
                     }
                 }
 

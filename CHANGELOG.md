@@ -1,10 +1,9 @@
 # Changelog
 
 ## VNext
+- [Add support for collecting convention-based Azure SDK activities.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1300)
 - [Log4Net includes Message for ExceptionTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1315)
 - [NLog includes Message for ExceptionTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1315)
-
-## Version 2.12.0-beta4
 - [Fix depednency tracking for Microsoft.Azure.EventHubs SDK 4.1.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1317)
 
 ## Version 2.12.0-beta3
@@ -389,7 +388,7 @@ item is being filtered out.
 
 ## Version 0.15
 
-- BASE: New property ```Operation.SyntheticSource``` now available on ```TelemetryContext```. Now you can mark your telemetry items as “not a real user traffic” and specify how this traffic was generated. As an example by setting this property you can distinguish traffic from your test automation from load test traffic.
+- BASE: New property ```Operation.SyntheticSource``` now available on ```TelemetryContext```. Now you can mark your telemetry items as Â“not a real user trafficÂ” and specify how this traffic was generated. As an example by setting this property you can distinguish traffic from your test automation from load test traffic.
 - BASE: Channel logic was moved to the separate NuGet called Microsoft.ApplicationInsights.PersistenceChannel. Default channel is now called InMemoryChannel
 - BASE: New method ```TelemetryClient.Flush``` allows to flush telemetry items from the buffer synchronously
 

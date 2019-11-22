@@ -22,7 +22,7 @@
         {
             if (this.innerFetcher == null)
             {
-                this.innerFetcher = PropertyFetch.FetcherForProperty(obj.GetType().GetTypeInfo().GetDeclaredProperty(this.propertyName));
+                this.innerFetcher = PropertyFetch.FetcherForProperty(obj?.GetType()?.GetTypeInfo()?.GetDeclaredProperty(this.propertyName));
             }
 
             return this.innerFetcher?.Fetch(obj);
