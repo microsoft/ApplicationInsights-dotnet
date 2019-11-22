@@ -13,14 +13,14 @@
     public class ObjectInstanceBasedOperationHolderTests
     {
         private Tuple<DependencyTelemetry, bool> telemetryTuple;
-        private ObjectInstanceBasedOperationHolder objectInstanceBasedOperationHolder;
+        private ObjectInstanceBasedOperationHolder<DependencyTelemetry> objectInstanceBasedOperationHolder;
         private WebRequest webRequest;
 
         [TestInitialize]
         public void TestInitialize()
         {
             this.telemetryTuple = new Tuple<DependencyTelemetry, bool>(new DependencyTelemetry(), true);
-            this.objectInstanceBasedOperationHolder = new ObjectInstanceBasedOperationHolder();
+            this.objectInstanceBasedOperationHolder = new ObjectInstanceBasedOperationHolder<DependencyTelemetry>();
             this.webRequest = WebRequest.Create(new Uri("http://bing.com"));
         }
 

@@ -1,9 +1,11 @@
 # Changelog
 
 ## VNext
+- [Add support for collecting convention-based Azure SDK activities.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1300)
 - [Log4Net includes Message for ExceptionTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1315)
 - [NLog includes Message for ExceptionTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1315)
 - [Fix RouteData not set in ASP.Net Core 3.0](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1318)
+- [Fix depednency tracking for Microsoft.Azure.EventHubs SDK 4.1.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1317)
 
 ## Version 2.12.0-beta3
 - [Standard Metric extractor for Dependency) add Dependency.ResultCode dimension.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1233)

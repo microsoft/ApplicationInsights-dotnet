@@ -1,8 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
-    using System;
     using System.Data.SqlClient;
-    using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
 
@@ -19,7 +18,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfilerSqlConnectionProcessing"/> class.
         /// </summary>
-        internal ProfilerSqlConnectionProcessing(TelemetryConfiguration configuration, string agentVersion, ObjectInstanceBasedOperationHolder telemetryTupleHolder)
+        internal ProfilerSqlConnectionProcessing(TelemetryConfiguration configuration, string agentVersion, ObjectInstanceBasedOperationHolder<DependencyTelemetry> telemetryTupleHolder)
             : base(configuration, agentVersion, telemetryTupleHolder)
         {
         }              

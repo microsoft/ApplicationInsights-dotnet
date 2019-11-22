@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
-    using System.Threading;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
 
     internal class DependencyTableStore : IDisposable
@@ -9,8 +9,8 @@
         internal static bool IsDesktopHttpDiagnosticSourceActivated = false;
         internal CacheBasedOperationHolder WebRequestCacheHolder;
         internal CacheBasedOperationHolder SqlRequestCacheHolder;
-        internal ObjectInstanceBasedOperationHolder WebRequestConditionalHolder;
-        internal ObjectInstanceBasedOperationHolder SqlRequestConditionalHolder;
+        internal ObjectInstanceBasedOperationHolder<DependencyTelemetry> WebRequestConditionalHolder;
+        internal ObjectInstanceBasedOperationHolder<DependencyTelemetry> SqlRequestConditionalHolder;
 
         internal bool IsProfilerActivated = false;
 
@@ -20,8 +20,8 @@
         {
             this.WebRequestCacheHolder = new CacheBasedOperationHolder("aisdkwebrequests", 100 * 1000);
             this.SqlRequestCacheHolder = new CacheBasedOperationHolder("aisdksqlrequests", 100 * 1000);
-            this.WebRequestConditionalHolder = new ObjectInstanceBasedOperationHolder();
-            this.SqlRequestConditionalHolder = new ObjectInstanceBasedOperationHolder();
+            this.WebRequestConditionalHolder = new ObjectInstanceBasedOperationHolder<DependencyTelemetry>();
+            this.SqlRequestConditionalHolder = new ObjectInstanceBasedOperationHolder<DependencyTelemetry>();
         }
 
         internal static DependencyTableStore Instance

@@ -161,6 +161,51 @@
             }
         }
 
+        [TestMethod]
+        [Timeout(5000)]
+        public async Task TestDependencyCollectionBackOffsWhenTraceparentHeaderIsPresent()
+        {
+            Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+            Activity.ForceDefaultIdFormat = true;
+
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.config);
+
+                var url = new Uri(localhostUrl);
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Add("traceparent", "00-0123456789abcdef0123456789abcdef-0123456789abcdef-01");
+                using (new LocalServer(localhostUrl))
+                {
+                    await new HttpClient().SendAsync(request);
+                }
+
+                // DiagnosticSource Response event is fired after SendAsync returns on netcoreapp1.*
+                // let's wait until dependency is collected
+                Assert.IsTrue(SpinWait.SpinUntil(() => this.sentTelemetry.Count > 0, TimeSpan.FromSeconds(1)));
+            }
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public async Task TestDependencyCollectionWhenTraceparentHeaderIsPresentAndW3COff()
+        {
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.config);
+
+                var url = new Uri(localhostUrl);
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Add("traceparent", "00-0123456789abcdef0123456789abcdef-0123456789abcdef-01");
+                using (new LocalServer(localhostUrl))
+                {
+                    await new HttpClient().SendAsync(request);
+                }
+
+                Assert.IsFalse(this.sentTelemetry.Any());
+            }
+        }
+
         /// <summary>
         /// Tests that dependency is collected properly when there is parent activity.
         /// </summary>
