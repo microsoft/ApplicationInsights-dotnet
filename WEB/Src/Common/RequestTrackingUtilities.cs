@@ -26,7 +26,15 @@ namespace Microsoft.ApplicationInsights.Common
 
             if (requestTelemetry.Url == null)
             {
-                requestTelemetry.Url = request.Unvalidated.Url;
+                try
+                {
+                    requestTelemetry.Url = request.Unvalidated.Url;
+                }
+                catch
+                {
+                    // "AI (Internal): Unknown error, message System.UriFormatException: Invalid URI: The hostname could not be parsed."
+                    // Do nothing here. We cannot force an invalid value into the Uri object.
+                }
             }
 
             if (string.IsNullOrEmpty(requestTelemetry.Source))
