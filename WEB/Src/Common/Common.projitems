@@ -30,7 +30,4 @@
   <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard1.6' ">
     <Compile Include="$(MSBuildThisFileDirectory)WebHeaderCollectionExtensions.cs" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' and ('$(MSBuildProjectName)' == 'Perf' or '$(MSBuildProjectName)' == 'Web') ">
-    <Compile Include="$(MSBuildThisFileDirectory)RequestTrackingUtilities.cs" />
-  </ItemGroup>
 </Project>
