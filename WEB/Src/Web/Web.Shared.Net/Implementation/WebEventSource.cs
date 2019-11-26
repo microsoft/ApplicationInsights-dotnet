@@ -502,7 +502,7 @@
 
         [Event(51,
     Keywords = Keywords.Diagnostics,
-    Message = "An error has occured in AzureAppServiceRoleNameFromHostNameHeaderInitializer. Exception: '{0}'",
+    Message = "An error has occurred in AzureAppServiceRoleNameFromHostNameHeaderInitializer. Exception: '{0}'",
     Level = EventLevel.Warning)]
         public void LogAzureAppServiceRoleNameFromHostNameHeaderInitializerWarning(string exception, string appDomainName = "Incorrect")
         {
@@ -511,6 +511,9 @@
                 exception,
                 this.applicationNameProvider.Name);
         }
+
+        [Event(52, Message = "Failed to set RequestTelemetry URL. RawUrl: '{0}' Exception: '{1}'", Level = EventLevel.Warning)]
+        public void FailedToSetRequestTelemetryUrl(string rawUrl, string exception, string appDomainName = "Incorrect") => this.WriteEvent(52, rawUrl, exception, this.applicationNameProvider.Name);
 
         /// <summary>
         /// Keywords for the PlatformEventSource. Those keywords should match keywords in Core.

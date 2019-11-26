@@ -36,6 +36,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ExceptionTrackingTelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OperationNameTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RequestTrackingTelemetryModule.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RequestTrackingUtilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SessionTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WebTestTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SyntheticUserAgentTelemetryInitializer.cs" />

@@ -2,6 +2,7 @@
 
 ## VNext
 - [Fix IndexOutOfRangeException in W3CUtilities.TryGetTraceId](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1327)
+- [Fix UpdateRequestTelemetryFromRequest throwing UriFormatException](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1328)
 
 ## Version 2.12.0-beta4
 - [Add support for collecting convention-based Azure SDK activities.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1300)
