@@ -584,6 +584,9 @@
         [Event(56, Message = "TelemetryConfigurationFactory could not find an InstrumentationKey. This needs to be manually set.", Level = EventLevel.Warning, Keywords = Keywords.UserActionable)]
         public void TelemetryConfigurationFactoryNoInstrumentationKey(string appDomainName = "Incorrect") => this.WriteEvent(56, this.nameProvider.Name);
 
+        [Event(57, Message = "TransmissionProcessor found a telemetryItem without an InstrumentationKey. This is a required field.", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
+        public void TransmissionProcessorNoInstrumentationKey(string appDomainName = "Incorrect") => this.WriteEvent(57, this.nameProvider.Name);
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>

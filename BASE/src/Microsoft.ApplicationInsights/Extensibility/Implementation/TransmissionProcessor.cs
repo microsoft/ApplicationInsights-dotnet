@@ -3,6 +3,7 @@
     using System;
 
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// An <see cref="ITelemetryProcessor"/> that act as a proxy to the Transmission of telemetry"/>.
@@ -28,6 +29,11 @@
         public void Process(ITelemetry item)
         {
             TelemetryDebugWriter.WriteTelemetry(item);
+
+            if (string.IsNullOrWhiteSpace(item.Context.InstrumentationKey))
+            {
+                CoreEventSource.Log.TransmissionProcessorNoInstrumentationKey();
+            }
 
             this.sink.TelemetryChannel.Send(item);
         }
