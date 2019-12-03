@@ -148,7 +148,7 @@
                 {
                     if (!Debugger.IsAttached)
                     {
-                        throttleEmptyIkeyLog.PerformThrottledAction(() => CoreEventSource.Log.TelemetryChannelNoInstrumentationKey());
+                        this.throttleEmptyIkeyLog.PerformThrottledAction(() => CoreEventSource.Log.TelemetryChannelNoInstrumentationKey());
                     }
                 }
 
