@@ -2,6 +2,7 @@
 {
     using System;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
@@ -274,7 +275,10 @@
                     }
                     else
                     {
-                        emptyIkeyLogTimestamp.Eval(() => TelemetryChannelEventSource.Log.TelemetryChannelNoInstrumentationKey());
+                        if (!Debugger.IsAttached)
+                        {
+                            this.throttleEmptyIkeyLog.PerformThrottledAction(() => TelemetryChannelEventSource.Log.TelemetryChannelNoInstrumentationKey());
+                        }
                     }
 
                     return;

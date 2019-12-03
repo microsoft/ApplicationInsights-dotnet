@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
+    using System.Diagnostics;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
@@ -145,7 +146,10 @@
                 }
                 else
                 {
-                    throttleEmptyIkeyLog.PerformThrottledAction(() => CoreEventSource.Log.TelemetryChannelNoInstrumentationKey());
+                    if (!Debugger.IsAttached)
+                    {
+                        throttleEmptyIkeyLog.PerformThrottledAction(() => CoreEventSource.Log.TelemetryChannelNoInstrumentationKey());
+                    }
                 }
 
                 return;
