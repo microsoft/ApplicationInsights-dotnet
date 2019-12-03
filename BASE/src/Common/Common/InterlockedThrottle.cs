@@ -21,7 +21,7 @@
         /// Will execute the action only if the time period has elapsed.
         /// </summary>
         /// <param name="action">Action to be executed.</param>
-        public void Eval(Action action)
+        public void PerformThrottledAction(Action action)
         {
             var now = DateTimeOffset.UtcNow;
             if (now.Ticks > Interlocked.Read(ref this.timeStamp))

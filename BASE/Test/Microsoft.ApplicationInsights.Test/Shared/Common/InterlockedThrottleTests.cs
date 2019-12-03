@@ -15,19 +15,19 @@
 
             var its = new InterlockedThrottle(TimeSpan.FromSeconds(testInterval));
 
-            its.Eval(() => counter++);
-            its.Eval(() => counter++);
-            its.Eval(() => counter++);
-            its.Eval(() => counter++);
+            its.PerformThrottledAction(() => counter++);
+            its.PerformThrottledAction(() => counter++);
+            its.PerformThrottledAction(() => counter++);
+            its.PerformThrottledAction(() => counter++);
 
             Assert.AreEqual(1, counter);
 
             Thread.Sleep(TimeSpan.FromSeconds(testInterval +1));
 
-            its.Eval(() => counter++);
-            its.Eval(() => counter++);
-            its.Eval(() => counter++);
-            its.Eval(() => counter++);
+            its.PerformThrottledAction(() => counter++);
+            its.PerformThrottledAction(() => counter++);
+            its.PerformThrottledAction(() => counter++);
+            its.PerformThrottledAction(() => counter++);
 
             Assert.AreEqual(2, counter);
         }

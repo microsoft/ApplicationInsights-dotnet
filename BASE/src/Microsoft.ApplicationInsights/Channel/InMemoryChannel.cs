@@ -145,7 +145,7 @@
                 }
                 else
                 {
-                    throttleEmptyIkeyLog.Eval(() => CoreEventSource.Log.TelemetryChannelNoInstrumentationKey());
+                    throttleEmptyIkeyLog.PerformThrottledAction(() => CoreEventSource.Log.TelemetryChannelNoInstrumentationKey());
                 }
 
                 return;
