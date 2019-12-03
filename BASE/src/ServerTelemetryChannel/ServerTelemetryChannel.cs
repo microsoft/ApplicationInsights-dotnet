@@ -5,6 +5,7 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
@@ -16,6 +17,8 @@
         internal TelemetrySerializer TelemetrySerializer;
         internal TelemetryBuffer TelemetryBuffer;
         internal Transmitter Transmitter;
+
+        private readonly InterlockedThrottle throttleEmptyIkeyLog = new InterlockedThrottle(interval: TimeSpan.FromSeconds(30));
 
         private bool? developerMode;
         private int telemetryBufferCapacity;
@@ -268,6 +271,10 @@
                     if (TelemetryChannelEventSource.IsVerboseEnabled)
                     {
                         TelemetryChannelEventSource.Log.ItemRejectedNoInstrumentationKey(item.ToString());
+                    }
+                    else
+                    {
+                        emptyIkeyLogTimestamp.Eval(() => TelemetryChannelEventSource.Log.TelemetryChannelNoInstrumentationKey());
                     }
 
                     return;

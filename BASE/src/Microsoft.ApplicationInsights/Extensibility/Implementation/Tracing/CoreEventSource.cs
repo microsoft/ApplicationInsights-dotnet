@@ -584,8 +584,8 @@
         [Event(56, Message = "TelemetryConfigurationFactory did not find an InstrumentationKey in your config file. This needs to be set in either your config file or at application startup.", Level = EventLevel.Warning, Keywords = Keywords.UserActionable)]
         public void TelemetryConfigurationFactoryNoInstrumentationKey(string appDomainName = "Incorrect") => this.WriteEvent(56, this.nameProvider.Name);
 
-        [Event(57, Message = "TransmissionProcessor found a telemetry item without an InstrumentationKey. This is a required field and must be set in either your config file or at application startup.", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
-        public void TransmissionProcessorNoInstrumentationKey(string appDomainName = "Incorrect") => this.WriteEvent(57, this.nameProvider.Name);
+        [Event(57, Message = "TelemetryChannel found a telemetry item without an InstrumentationKey. This is a required field and must be set in either your config file or at application startup.", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
+        public void TelemetryChannelNoInstrumentationKey(string appDomainName = "Incorrect") => this.WriteEvent(57, this.nameProvider.Name);
 
         /// <summary>
         /// Keywords for the PlatformEventSource.
