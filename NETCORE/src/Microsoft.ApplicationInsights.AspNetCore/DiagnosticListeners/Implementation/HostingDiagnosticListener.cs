@@ -321,7 +321,7 @@
                 var activity = new Activity(ActivityCreatedByHostingDiagnosticListener);
                 IHeaderDictionary requestHeaders = httpContext.Request.Headers;
 
-                RoleNameContainer.Set(httpContext.Request.Headers);
+                RoleNameContainer.Set(requestHeaders);
 
                 string originalParentId = null;
                 string legacyRootId = null;
