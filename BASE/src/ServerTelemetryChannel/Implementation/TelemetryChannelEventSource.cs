@@ -538,7 +538,6 @@
             this.WriteEvent(74, this.ApplicationName);
         }
 
-
         private static string GetApplicationName()
         {
             //// We want to add application name to all events BUT
