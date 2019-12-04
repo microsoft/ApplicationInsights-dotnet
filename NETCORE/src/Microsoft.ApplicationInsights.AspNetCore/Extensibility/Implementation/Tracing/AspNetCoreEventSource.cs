@@ -120,7 +120,7 @@
         [Event(
             14,
             Keywords = Keywords.Diagnostics,
-            Message = "An error has occured which may prevent application insights from functioning. Error message: '{0}' ",
+            Message = "An error has occurred which may prevent application insights from functioning. Error message: '{0}' ",
             Level = EventLevel.Error)]
         public void LogError(string errorMessage, string appDomainName = "Incorrect")
         {
@@ -133,7 +133,7 @@
         [Event(
             15,
             Keywords = Keywords.Diagnostics,
-            Message = "An error has occured while initializing RequestTrackingModule. Requests will not be auto collected. Error message: '{0}' ",
+            Message = "An error has occurred while initializing RequestTrackingModule. Requests will not be auto collected. Error message: '{0}' ",
             Level = EventLevel.Error)]
         public void RequestTrackingModuleInitializationFailed(string errorMessage, string appDomainName = "Incorrect")
         {
@@ -146,7 +146,7 @@
         [Event(
             16,
             Keywords = Keywords.Diagnostics,
-            Message = "An error has occured in DiagnosticSource listener. Callback: '{0}'. Error message: '{1}' ",
+            Message = "An error has occurred in DiagnosticSource listener. Callback: '{0}'. Error message: '{1}' ",
             Level = EventLevel.Warning)]
         public void DiagnosticListenerWarning(string callback, string errorMessage, string appDomainName = "Incorrect")
         {
@@ -159,7 +159,7 @@
         [Event(
             17,
             Keywords = Keywords.Diagnostics,
-            Message = "An error has occured while setting up TelemetryConfiguration. Error message: '{0}' ",
+            Message = "An error has occurred while setting up TelemetryConfiguration. Error message: '{0}' ",
             Level = EventLevel.Error)]
         public void TelemetryConfigurationSetupFailure(string errorMessage, string appDomainName = "Incorrect")
         {

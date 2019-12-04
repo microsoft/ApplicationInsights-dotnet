@@ -31,9 +31,16 @@
         /// <param name="webAppSuffix">WebApp name suffix.</param>
         public AzureAppServiceRoleNameFromHostNameHeaderInitializer(string webAppSuffix = ".azurewebsites.net")
         {
-            RoleNameContainer.HostNameSuffix = webAppSuffix;
-            RoleNameContainer.SetFromEnvironmentVariable(out bool isAzureWebApp);
-            this.isAzureWebApp = isAzureWebApp;
+            try
+            {
+                RoleNameContainer.HostNameSuffix = webAppSuffix;
+                RoleNameContainer.SetFromEnvironmentVariable(out bool isAzureWebApp);
+                this.isAzureWebApp = isAzureWebApp;
+            }
+            catch (Exception ex)
+            {
+                AspNetCoreEventSource.Instance.LogAzureAppServiceRoleNameFromHostNameHeaderInitializerWarning(ex.ToInvariantString());
+            }
         }
 
         /// <summary>

@@ -3,8 +3,6 @@
     using System;
     using System.Threading;
 
-    using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.AspNetCore.Http;
 
     internal static class RoleNameContainer
@@ -37,18 +35,10 @@
 
         public static void SetFromEnvironmentVariable(out bool isAzureWebApp)
         {
-            try
-            {
-                var value = Environment.GetEnvironmentVariable(WebAppHostNameEnvironmentVariable);
-                ParseAndSetRoleName(value);
-                
-                isAzureWebApp = string.IsNullOrEmpty(value);
-            }
-            catch (Exception ex)
-            {
-                AspNetCoreEventSource.Instance.LogAzureAppServiceRoleNameFromHostNameHeaderInitializerWarning(ex.ToInvariantString());
-                isAzureWebApp = false;
-            }
+            var value = Environment.GetEnvironmentVariable(WebAppHostNameEnvironmentVariable);
+            ParseAndSetRoleName(value);
+
+            isAzureWebApp = string.IsNullOrEmpty(value);
         }
 
         public static void Set(IHeaderDictionary requestHeaders)
@@ -61,7 +51,7 @@
         {
             if (!string.IsNullOrEmpty(input) && input.EndsWith(HostNameSuffix, StringComparison.OrdinalIgnoreCase))
             {
-                RoleName = input.Substring(0, input.LastIndexOf(HostNameSuffix, StringComparison.OrdinalIgnoreCase));
+                RoleName = input.Substring(0, input.Length - HostNameSuffix.Length);
             }
             else
             {
