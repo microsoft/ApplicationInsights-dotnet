@@ -244,7 +244,7 @@
         /// </summary>
         /// <param name="exception">Exception message.</param>
         /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
-        [Event(24, Message = "An error has occured in AzureAppServiceRoleNameFromHostNameHeaderInitializer. Exception: '{0}'", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
+        [Event(24, Message = "An error has occurred in AzureAppServiceRoleNameFromHostNameHeaderInitializer. Exception: '{0}'", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
         public void LogAzureAppServiceRoleNameFromHostNameHeaderInitializerWarning(string exception, string appDomainName = "Incorrect")
         {
             this.WriteEvent(24, exception, this.applicationNameProvider.Name);

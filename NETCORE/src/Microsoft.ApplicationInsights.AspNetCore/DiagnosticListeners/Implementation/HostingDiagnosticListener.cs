@@ -160,6 +160,8 @@
                     telemetry.Name = name;
                 }
             }
+
+            RoleNameContainer.Set(httpContext.Request.Headers);
         }
 
         /// <summary>
@@ -318,6 +320,9 @@
                 // 1.XX does not create Activity and SDK is responsible for creating Activity.
                 var activity = new Activity(ActivityCreatedByHostingDiagnosticListener);
                 IHeaderDictionary requestHeaders = httpContext.Request.Headers;
+
+                RoleNameContainer.Set(httpContext.Request.Headers);
+
                 string originalParentId = null;
                 string legacyRootId = null;
 
