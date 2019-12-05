@@ -581,8 +581,11 @@
         [Event(55, Message = "TelemetryConfigurationFactory overwrote the InstrumentationKey with a value from an Environment Variable: {0}", Level = EventLevel.Informational)]
         public void TelemetryConfigurationFactoryFoundInstrumentationKeyEnvironmentVariable(string variableName, string appDomainName = "Incorrect") => this.WriteEvent(55, variableName, this.nameProvider.Name);
 
-        [Event(56, Message = "TelemetryConfigurationFactory could not find an InstrumentationKey. This needs to be manually set.", Level = EventLevel.Warning, Keywords = Keywords.UserActionable)]
+        [Event(56, Message = "TelemetryConfigurationFactory did not find an InstrumentationKey in your config file. This needs to be set in either your config file or at application startup.", Level = EventLevel.Warning, Keywords = Keywords.UserActionable)]
         public void TelemetryConfigurationFactoryNoInstrumentationKey(string appDomainName = "Incorrect") => this.WriteEvent(56, this.nameProvider.Name);
+
+        [Event(57, Message = "TelemetryChannel found a telemetry item without an InstrumentationKey. This is a required field and must be set in either your config file or at application startup.", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
+        public void TelemetryChannelNoInstrumentationKey(string appDomainName = "Incorrect") => this.WriteEvent(57, this.nameProvider.Name);
 
         /// <summary>
         /// Keywords for the PlatformEventSource.

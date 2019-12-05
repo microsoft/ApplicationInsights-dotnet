@@ -1,6 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
+    using System.Diagnostics;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
@@ -11,6 +13,9 @@
     {
         private readonly TelemetryBuffer buffer;
         private readonly InMemoryTransmitter transmitter;
+
+        private readonly InterlockedThrottle throttleEmptyIkeyLog = new InterlockedThrottle(interval: TimeSpan.FromSeconds(30));
+
         private bool? developerMode = false;
         private int bufferSize;
 
@@ -138,6 +143,13 @@
                 if (CoreEventSource.IsVerboseEnabled)
                 {
                     CoreEventSource.Log.ItemRejectedNoInstrumentationKey(item.ToString());
+                }
+                else
+                {
+                    if (!Debugger.IsAttached)
+                    {
+                        this.throttleEmptyIkeyLog.PerformThrottledAction(() => CoreEventSource.Log.TelemetryChannelNoInstrumentationKey());
+                    }
                 }
 
                 return;

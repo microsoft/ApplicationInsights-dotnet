@@ -10,5 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\ExceptionExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InterlockedThrottle.cs" />
   </ItemGroup>
 </Project>
