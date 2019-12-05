@@ -38,7 +38,7 @@
             var value = Environment.GetEnvironmentVariable(WebAppHostNameEnvironmentVariable);
             ParseAndSetRoleName(value);
 
-            isAzureWebApp = string.IsNullOrEmpty(value);
+            isAzureWebApp = !string.IsNullOrEmpty(value);
         }
 
         public static void Set(IHeaderDictionary requestHeaders)
@@ -49,7 +49,11 @@
 
         private static void ParseAndSetRoleName(string input)
         {
-            if (!string.IsNullOrEmpty(input) && input.EndsWith(HostNameSuffix, StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrEmpty(input))
+            {
+                // do nothing
+            }
+            else if (input.EndsWith(HostNameSuffix, StringComparison.OrdinalIgnoreCase))
             {
                 RoleName = input.Substring(0, input.Length - HostNameSuffix.Length);
             }

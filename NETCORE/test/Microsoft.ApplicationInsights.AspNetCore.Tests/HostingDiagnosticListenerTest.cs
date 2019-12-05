@@ -2,13 +2,13 @@
 {
     using System;
     using System.Collections.Concurrent;
-    using System.ComponentModel;
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
+
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
+    using Microsoft.ApplicationInsights.AspNetCore.Implementation;
     using Microsoft.ApplicationInsights.AspNetCore.Tests;
     using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
     using Microsoft.ApplicationInsights.Channel;
@@ -16,11 +16,13 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Primitives;
+
     using Xunit;
     using Xunit.Abstractions;
+
+    using AspNetCoreMajorVersion = Microsoft.ApplicationInsights.AspNetCore.Tests.AspNetCoreMajorVersion;
 
     public class HostingDiagnosticListenerTest : IDisposable
     {
@@ -1208,6 +1210,29 @@
                 Assert.NotEqual(SamplingDecision.SampledOut, requestTelemetry.ProactiveSamplingDecision);
                 ValidateRequestTelemetry(requestTelemetry, Activity.Current, true);
                 Assert.Null(requestTelemetry.Context.Operation.ParentId);
+            }
+        }
+
+        [Theory]
+        [Trait("Trait", "RoleName")]
+        [InlineData(AspNetCoreMajorVersion.One)]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        [InlineData(AspNetCoreMajorVersion.Three)]
+        public void VerifyRequestsUpdateRoleNameContainer(AspNetCoreMajorVersion aspNetCoreMajorVersion)
+        {
+            HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
+
+            RoleNameContainer.HostNameSuffix = ".azurewebsites.net";
+
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion))
+            {
+                context.Request.Headers["WAS-DEFAULT-HOSTNAME"] = "a.b.c.azurewebsites.net";
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
+                Assert.Equal("a.b.c", RoleNameContainer.RoleName);
+
+                context.Request.Headers["WAS-DEFAULT-HOSTNAME"] = "d.e.f.azurewebsites.net";
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
+                Assert.Equal("d.e.f", RoleNameContainer.RoleName);
             }
         }
 

@@ -44,6 +44,23 @@
         }
 
         /// <summary>
+        /// Gets or sets suffix of website name. This must be changed when running in non public Azure region.
+        /// Default value (Public Cloud):  ".azurewebsites.net"
+        /// For US Gov Cloud: ".azurewebsites.us"
+        /// For Azure Germany: ".azurewebsites.de".
+        /// </summary>
+        public string WebAppSuffix
+        {
+            get => RoleNameContainer.HostNameSuffix;
+
+            set
+            {
+                RoleNameContainer.HostNameSuffix = value;
+                RoleNameContainer.SetFromEnvironmentVariable(out _);
+            }
+        }
+
+        /// <summary>
         /// Populates RoleName from the request telemetry associated with the http context.
         /// If RoleName is empty on the request telemetry, it'll be updated as well so that other telemetry
         /// belonging to the same requests gets it from request telemetry, without having to parse headers again.
