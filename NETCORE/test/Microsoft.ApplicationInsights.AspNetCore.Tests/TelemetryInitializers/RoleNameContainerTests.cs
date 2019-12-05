@@ -16,15 +16,34 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
         }
 
         [Fact]
-        public void VerifyCanSetRoleNameFromEnvironmentVariable()
+        public void VerifyCanSetRoleNameFromEnvironmentVariableAndSetsIsWebAppProperty()
         {
             try
             {
                 Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", "a.b.c.azurewebsites.net");
-                RoleNameContainer.HostNameSuffix = ".azurewebsites.net";
-                RoleNameContainer.SetFromEnvironmentVariable(out bool ignore);
 
-                Assert.Equal("a.b.c", RoleNameContainer.RoleName);
+                var roleNameContainer = new RoleNameContainer(hostNameSuffix: ".azurewebsites.net");
+
+                Assert.Equal("a.b.c", roleNameContainer.RoleName);
+                Assert.True(roleNameContainer.IsAzureWebApp);
+            }
+            finally
+            {
+                this.ClearEnvironmentVariable();
+            }
+        }
+
+        [Fact (Skip = "this test fails when run in parallel because other tests modify the environment variable.")]
+        public void VerifyWhenEnvironmentVariableIsNull()
+        {
+            try
+            {
+                Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", null);
+
+                var roleNameContainer = new RoleNameContainer(hostNameSuffix: ".azurewebsites.net");
+
+                Assert.Equal(string.Empty, roleNameContainer.RoleName);
+                Assert.False(roleNameContainer.IsAzureWebApp);
             }
             finally
             {
@@ -35,13 +54,13 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
         [Fact]
         public void VerifyCanSetRoleNameFromHeaders()
         {
-            RoleNameContainer.HostNameSuffix = ".azurewebsites.net";
+            var roleNameContainer = new RoleNameContainer(hostNameSuffix: ".azurewebsites.net");
 
             var headers = new HeaderDictionary();
             headers.Add("WAS-DEFAULT-HOSTNAME", "d.e.f.azurewebsites.net");
-            RoleNameContainer.Set(headers);
+            roleNameContainer.Set(headers);
 
-            Assert.Equal("d.e.f", RoleNameContainer.RoleName);
+            Assert.Equal("d.e.f", roleNameContainer.RoleName);
         }
 
         [Fact]
@@ -50,21 +69,19 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
             try
             {
                 Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", "a.b.c.azurewebsites.net");
-                RoleNameContainer.HostNameSuffix = ".azurewebsites.net";
-                RoleNameContainer.SetFromEnvironmentVariable(out bool ignore);
+                var roleNameContainer = new RoleNameContainer(hostNameSuffix: ".azurewebsites.net");
 
-                Assert.Equal("a.b.c", RoleNameContainer.RoleName);
+                Assert.Equal("a.b.c", roleNameContainer.RoleName);
 
-                RoleNameContainer.Set(new HeaderDictionary()); // empty headers
+                roleNameContainer.Set(new HeaderDictionary()); // empty headers
 
-                Assert.Equal("a.b.c", RoleNameContainer.RoleName);
+                Assert.Equal("a.b.c", roleNameContainer.RoleName);
             }
             finally
             {
                 this.ClearEnvironmentVariable();
             }
         }
-
 
         public void Dispose() => this.ClearEnvironmentVariable();
 

@@ -23,8 +23,6 @@
     /// </remarks>
     public class AzureAppServiceRoleNameFromHostNameHeaderInitializer : ITelemetryInitializer
     {
-        private readonly bool isAzureWebApp;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="AzureAppServiceRoleNameFromHostNameHeaderInitializer" /> class.
         /// </summary>
@@ -33,9 +31,7 @@
         {
             try
             {
-                RoleNameContainer.HostNameSuffix = webAppSuffix;
-                RoleNameContainer.SetFromEnvironmentVariable(out bool isAzureWebApp);
-                this.isAzureWebApp = isAzureWebApp;
+                RoleNameContainer.Instance = new RoleNameContainer(webAppSuffix);
             }
             catch (Exception ex)
             {
@@ -51,13 +47,9 @@
         /// </summary>
         public string WebAppSuffix
         {
-            get => RoleNameContainer.HostNameSuffix;
+            get => RoleNameContainer.Instance.HostNameSuffix;
 
-            set
-            {
-                RoleNameContainer.HostNameSuffix = value;
-                RoleNameContainer.SetFromEnvironmentVariable(out _);
-            }
+            set => RoleNameContainer.Instance = new RoleNameContainer(value);
         }
 
         /// <summary>
@@ -74,7 +66,7 @@
         {
             try
             {
-                if (!this.isAzureWebApp)
+                if (!RoleNameContainer.Instance.IsAzureWebApp)
                 {
                     // return immediately if not azure web app.
                     return;
@@ -86,7 +78,7 @@
                     return;
                 }
 
-                telemetry.Context.Cloud.RoleName = RoleNameContainer.RoleName;
+                telemetry.Context.Cloud.RoleName = RoleNameContainer.Instance.RoleName;
             }
             catch (Exception ex)
             {

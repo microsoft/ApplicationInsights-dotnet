@@ -1222,17 +1222,17 @@
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
 
-            RoleNameContainer.HostNameSuffix = ".azurewebsites.net";
+            RoleNameContainer.Instance = new RoleNameContainer(hostNameSuffix: ".azurewebsites.net");
 
             using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion))
             {
                 context.Request.Headers["WAS-DEFAULT-HOSTNAME"] = "a.b.c.azurewebsites.net";
                 HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
-                Assert.Equal("a.b.c", RoleNameContainer.RoleName);
+                Assert.Equal("a.b.c", RoleNameContainer.Instance.RoleName);
 
                 context.Request.Headers["WAS-DEFAULT-HOSTNAME"] = "d.e.f.azurewebsites.net";
                 HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
-                Assert.Equal("d.e.f", RoleNameContainer.RoleName);
+                Assert.Equal("d.e.f", RoleNameContainer.Instance.RoleName);
             }
         }
 

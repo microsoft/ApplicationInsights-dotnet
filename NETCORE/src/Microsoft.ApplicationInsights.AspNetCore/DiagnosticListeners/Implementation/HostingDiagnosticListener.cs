@@ -191,8 +191,8 @@
                 bool traceParentPresent = false;
                 var headers = httpContext.Request.Headers;
 
-                // Update the static RoleName while we have access to the httpContext. 
-                RoleNameContainer.Set(headers);
+                // Update the static RoleName while we have access to the httpContext.
+                RoleNameContainer.Instance?.Set(headers);
 
                 // 3 possibilities when TelemetryConfiguration.EnableW3CCorrelation = true
                 // 1. No incoming headers. originalParentId will be null. Simply use the Activity as such.
@@ -322,8 +322,8 @@
                 var activity = new Activity(ActivityCreatedByHostingDiagnosticListener);
                 IHeaderDictionary requestHeaders = httpContext.Request.Headers;
 
-                // Update the static RoleName while we have access to the httpContext. 
-                RoleNameContainer.Set(requestHeaders);
+                // Update the static RoleName while we have access to the httpContext.
+                RoleNameContainer.Instance?.Set(requestHeaders);
 
                 string originalParentId = null;
                 string legacyRootId = null;

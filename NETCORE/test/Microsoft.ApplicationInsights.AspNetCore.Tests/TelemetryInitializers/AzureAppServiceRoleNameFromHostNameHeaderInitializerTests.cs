@@ -75,7 +75,7 @@
                 initializer.Initialize(requestTelemetry1);
                 Assert.Equal("a.b.c", requestTelemetry1.Context.Cloud.RoleName);
 
-                RoleNameContainer.RoleName = "test";
+                RoleNameContainer.Instance.RoleName = "test";
 
                 var requestTelemetry2 = new RequestTelemetry();
                 initializer.Initialize(requestTelemetry2);
