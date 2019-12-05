@@ -532,6 +532,12 @@
             this.WriteEvent(73, this.ApplicationName);
         }
 
+        [Event(74, Message = "TelemetryChannel found a telemetry item without an InstrumentationKey. This is a required field and must be set in either your config file or at application startup.", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
+        public void TelemetryChannelNoInstrumentationKey(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(74, this.ApplicationName);
+        }
+
         private static string GetApplicationName()
         {
             //// We want to add application name to all events BUT
