@@ -1,11 +1,13 @@
-namespace Microsoft.ApplicationInsights.Common
+namespace Microsoft.ApplicationInsights.Web
 {
     using System;
     using System.Collections.Specialized;
     using System.Web;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Web.Implementation;
 
     /// <summary>
     /// This class encapsulates setting tracking properties on RequestTelemetry.
@@ -26,7 +28,16 @@ namespace Microsoft.ApplicationInsights.Common
 
             if (requestTelemetry.Url == null)
             {
-                requestTelemetry.Url = request.Unvalidated.Url;
+                try
+                {
+                    requestTelemetry.Url = request.Unvalidated.Url;
+                }
+                catch (Exception ex)
+                {
+                    // "AI (Internal): Unknown error, message System.UriFormatException: Invalid URI: The hostname could not be parsed."
+                    // Do nothing here. We cannot force an invalid value into the Uri object.
+                    WebEventSource.Log.FailedToSetRequestTelemetryUrl(request.RawUrl, ex.ToInvariantString());
+                }
             }
 
             if (string.IsNullOrEmpty(requestTelemetry.Source))

@@ -1,15 +1,15 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
 {
     using System;
-    using System.Net;
-
+    using Microsoft.ApplicationInsights.AspNetCore.Implementation;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Xunit;
     using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Http.Features;
 
+    using Xunit;
+
+    [Trait("Trait", "RoleName")]
     public class AzureAppServiceRoleNameFromHostNameHeaderInitializerTests : IDisposable
     {
         public AzureAppServiceRoleNameFromHostNameHeaderInitializerTests()
@@ -18,34 +18,68 @@
         }
 
         [Fact]
-        public void InitializeThrowIfHttpContextAccessorIsNull()
-        {
-            Assert.ThrowsAny<ArgumentNullException>(() => { var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(null);  });
-        }
-
-        [Fact]
-        public void InitializeDoesNotThrowIfHttpContextIsUnavailable()
-        {
-            var ac = new HttpContextAccessor { HttpContext = null };
-            
-            var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(ac);
-
-            initializer.Initialize(new RequestTelemetry());
-        }
-
-        [Fact]
-        public void InitializeFallsbackToEnvIfHttpContextIsUnavailable()
+        public void VerifyInitializerWorksAsExpected()
         {
             try
             {
-                Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", "RoleNameEnv");
+                Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", "a.b.c.azurewebsites.net");
+
+                var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(webAppSuffix: ".azurewebsites.net");
+
+                var requestTelemetry1 = new RequestTelemetry();
+                initializer.Initialize(requestTelemetry1);
+                Assert.Equal("a.b.c", requestTelemetry1.Context.Cloud.RoleName);
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", null);
+            }
+        }
+
+        [Fact]
+        public void VerifyInitializerCanBeChangedAfterConstructor()
+        {
+            try
+            {
+                Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", "a.b.c.azurewebsites.net");
+
+                var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(webAppSuffix: ".azurewebsites.net");
+                
+                var requestTelemetry1 = new RequestTelemetry();
+                initializer.Initialize(requestTelemetry1);
+                Assert.Equal("a.b.c", requestTelemetry1.Context.Cloud.RoleName);
+
+                initializer.WebAppSuffix = ".c.azurewebsites.net";
+
+                var requestTelemetry2 = new RequestTelemetry();
+                initializer.Initialize(requestTelemetry2);
+                Assert.Equal("a.b", requestTelemetry2.Context.Cloud.RoleName);
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", null);
+            }
+        }
+
+        [Fact]
+        public void VerifyInitializerRespectsChangesToRoleNameContainerRoleName()
+        {
+            try
+            {
+                Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", "a.b.c.azurewebsites.net");
                 var ac = new HttpContextAccessor { HttpContext = null };
 
-                var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(ac);
-                var req = new RequestTelemetry();
-                initializer.Initialize(req);
+                var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(webAppSuffix: ".azurewebsites.net");
 
-                Assert.Equal("RoleNameEnv", req.Context.Cloud.RoleName);
+                var requestTelemetry1 = new RequestTelemetry();
+                initializer.Initialize(requestTelemetry1);
+                Assert.Equal("a.b.c", requestTelemetry1.Context.Cloud.RoleName);
+
+                RoleNameContainer.Instance.RoleName = "test";
+
+                var requestTelemetry2 = new RequestTelemetry();
+                initializer.Initialize(requestTelemetry2);
+                Assert.Equal("test", requestTelemetry2.Context.Cloud.RoleName);
             }
             finally
             {
@@ -61,7 +95,7 @@
                 Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", "RoleNameEnv.azurewebsites.net");
                 var ac = new HttpContextAccessor { HttpContext = null };
 
-                var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(ac);
+                var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer();
                 var req = new RequestTelemetry();
                 initializer.Initialize(req);
 
@@ -74,16 +108,6 @@
         }
 
         [Fact]
-        public void InitializeDoesNotThrowIfRequestServicesAreUnavailable()
-        {
-            var ac = new HttpContextAccessor { HttpContext = new DefaultHttpContext() };
-            
-            var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(ac);
-
-            initializer.Initialize(new RequestTelemetry());
-        }
-
-        [Fact]
         public void InitializeFallsbackToEnvIfRequestServicesAreUnavailable()
         {
             try
@@ -91,7 +115,7 @@
                 Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", "RoleNameEnv");
                 var ac = new HttpContextAccessor { HttpContext = new DefaultHttpContext() };
 
-                var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(ac);
+                var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer();
                 var req = new RequestTelemetry();
                 initializer.Initialize(req);
 
@@ -106,9 +130,7 @@
         [Fact]
         public void InitializeDoesNotThrowIfRequestIsUnavailable()
         {
-            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessorWithoutRequest(new HttpContextStub(), new RequestTelemetry());
-            
-            var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(contextAccessor);
+            var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer();
 
             initializer.Initialize(new EventTelemetry());
         }
@@ -119,9 +141,7 @@
             try
             {
                 Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", "RoleNameEnv");
-                var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessorWithoutRequest(new HttpContextStub(), new RequestTelemetry());
-
-                var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(contextAccessor);
+                var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer();
                 var req = new RequestTelemetry();
                 initializer.Initialize(req);
 
@@ -132,74 +152,7 @@
                 Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", null);
             }
         }
-
-        [Fact]
-        public void InitializeDoesNotThrowIfHeaderCollectionIsUnavailable()
-        {
-            var httpContext = new HttpContextStub();
-            httpContext.OnRequestGetter = () => new HttpRequestStub(httpContext);
-
-            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessorWithoutRequest(httpContext, new RequestTelemetry());
-
-            var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(contextAccessor);
-
-            initializer.Initialize(new EventTelemetry());
-        }
-
-        [Fact]
-        public void InitializeFallsbackToEnvIfHeaderCollectionIsUnavailable()
-        {
-            try
-            {
-                Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", "RoleNameEnv");
-                var httpContext = new HttpContextStub();
-                httpContext.OnRequestGetter = () => new HttpRequestStub(httpContext);
-
-                var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessorWithoutRequest(httpContext, new RequestTelemetry());
-
-                var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(contextAccessor);
-                var req = new RequestTelemetry();
-                initializer.Initialize(req);
-
-                Assert.Equal("RoleNameEnv", req.Context.Cloud.RoleName);
-            }
-            finally
-            {
-                Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", null);
-            }
-        }
-
-        [Fact]
-        public void InitializeDoesNotThrowIfHostNameHeaderIsNull()
-        {
-            var requestTelemetry = new RequestTelemetry();
-            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
-
-            var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(contextAccessor);
-
-            initializer.Initialize(requestTelemetry);
-        }
-
-        [Fact]
-        public void InitializeFallsbackToEnvIfHostNameHeaderIsNull()
-        {
-            try
-            {
-                Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", "RoleNameEnv");
-                var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor();
-
-                var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(contextAccessor);
-                var req = new RequestTelemetry();
-                initializer.Initialize(req);
-
-                Assert.Equal("RoleNameEnv", req.Context.Cloud.RoleName);
-            }
-            finally
-            {
-                Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", null);
-            }
-        }
-
+        
         [Fact]
         public void InitializeFallsbackToEnvIfHostNameIsEmptyInHeader()
         {
@@ -211,7 +164,7 @@
 
                 contextAccessor.HttpContext.Request.Headers.Add("WAS-DEFAULT-HOSTNAME", new string[] { string.Empty });
 
-                var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(contextAccessor);
+                var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer();
 
                 initializer.Initialize(requestTelemetry);
 
@@ -222,107 +175,7 @@
                 Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", null);
             }
         }
-
-        [Fact]
-        public void InitializeSetsRoleNameFromHostNameHeader()
-        {
-            var requestTelemetry = new RequestTelemetry();
-            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
-
-            contextAccessor.HttpContext.Request.Headers.Add("WAS-DEFAULT-HOSTNAME", new string[] { "MyAppServiceProd" });
-
-            var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(contextAccessor);
-
-            initializer.Initialize(requestTelemetry);
-
-            Assert.Equal("MyAppServiceProd", requestTelemetry.Context.Cloud.RoleName);
-        }
-
-        [Fact]
-        public void InitializeSetsRoleNameFromRequestTelemetryIfPresent()
-        {
-            var requestTelemetry = new RequestTelemetry();
-            requestTelemetry.Context.Cloud.RoleName = "RoleNameOnRequest";
-            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
-
-            contextAccessor.HttpContext.Request.Headers.Add("WAS-DEFAULT-HOSTNAME", new string[] { "RoleNameOnHeader" });
-
-            var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(contextAccessor);
-
-            var evt = new EventTelemetry();
-            initializer.Initialize(evt);
-
-            Assert.Equal("RoleNameOnRequest", evt.Context.Cloud.RoleName);
-        }
-
-        [Fact]
-        public void InitializeSavesRoleNameIntoRequestFromHostNameHeader()
-        {
-            var requestTelemetry = new RequestTelemetry();
-            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
-
-            contextAccessor.HttpContext.Request.Headers.Add("WAS-DEFAULT-HOSTNAME", new string[] { "MyAppServiceProd" });
-
-            var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(contextAccessor);
-
-            var evt = new EventTelemetry();
-            initializer.Initialize(evt);
-
-            Assert.Equal("MyAppServiceProd", evt.Context.Cloud.RoleName);
-            Assert.Equal("MyAppServiceProd", requestTelemetry.Context.Cloud.RoleName);
-        }
-
-        [Fact]
-        public void InitializeSetsRoleNameFromHostNameWithAzureWebsites()
-        {
-            var requestTelemetry = new RequestTelemetry();
-            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
-
-            contextAccessor.HttpContext.Request.Headers.Add("WAS-DEFAULT-HOSTNAME", new string[] { "appserviceslottest-ppe.azurewebsites.net" });
-
-            var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(contextAccessor);
-
-            initializer.Initialize(requestTelemetry);
-
-            Assert.Equal("appserviceslottest-ppe", requestTelemetry.Context.Cloud.RoleName);
-        }
-
-        [Fact]
-        public void InitializeSetsRoleNameFromHostNameWithAzureWebsitesCustom()
-        {
-            var requestTelemetry = new RequestTelemetry();
-            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
-
-            contextAccessor.HttpContext.Request.Headers.Add("WAS-DEFAULT-HOSTNAME", new string[] { "appserviceslottest-ppe.azurewebsites.us" });
-
-            var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(contextAccessor);
-            initializer.WebAppSuffix = ".azurewebsites.us";
-
-            initializer.Initialize(requestTelemetry);
-
-            Assert.Equal("appserviceslottest-ppe", requestTelemetry.Context.Cloud.RoleName);
-        }
-
-        [Fact]
-        public void InitializeSetsRoleNameFromEnvWithAzureWebsitesCustom()
-        {
-            try
-            {
-                Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", "appserviceslottest-ppe.azurewebsites.us");
-                var requestTelemetry = new RequestTelemetry();
-                var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
-                var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(contextAccessor, ".azurewebsites.us");
-
-                initializer.Initialize(requestTelemetry);
-
-                Assert.Equal("appserviceslottest-ppe", requestTelemetry.Context.Cloud.RoleName);
-            }
-            finally
-            {
-                Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", null);
-            }
-        }
-
+        
         [Fact]
         public void InitializeDoesNotOverrideRoleName()
         {
@@ -332,7 +185,7 @@
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
             contextAccessor.HttpContext.Request.Headers.Add("WAS-DEFAULT-HOSTNAME", new string[] { "MyAppServiceProd" });
 
-            var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(contextAccessor);
+            var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer();
 
             initializer.Initialize(requestTelemetry);
 
@@ -345,7 +198,7 @@
             Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", null);
             var ac = new HttpContextAccessor { HttpContext = null };
 
-            var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer(ac);
+            var initializer = new AzureAppServiceRoleNameFromHostNameHeaderInitializer();
 
             var requestTelemetry = new RequestTelemetry();
             initializer.Initialize(requestTelemetry);

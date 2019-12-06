@@ -133,6 +133,7 @@
     <Compile Include="RequestTrackingTelemetryModuleTest.Net45.cs" />
     <Compile Include="RequestTrackingUtilitiesTest.cs" />
     <Compile Include="SdkVersionUtilsTest.cs" />
+    <Compile Include="W3CUtilitiesTests.cs" />
     <Compile Include="WebApiExceptionLoggerTests.cs" />
   </ItemGroup>
   <ItemGroup>

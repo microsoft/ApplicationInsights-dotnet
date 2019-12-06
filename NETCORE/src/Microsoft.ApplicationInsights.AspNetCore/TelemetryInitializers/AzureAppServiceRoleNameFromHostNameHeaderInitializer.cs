@@ -1,12 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
 {
     using System;
+
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.AspNetCore.Implementation;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.AspNetCore.Http;
 
     /// <summary>
     /// A telemetry initializer that will gather Azure Web App Role Environment context information to
@@ -23,42 +23,15 @@
     /// </remarks>
     public class AzureAppServiceRoleNameFromHostNameHeaderInitializer : ITelemetryInitializer
     {
-        private const string WebAppHostNameHeaderName = "WAS-DEFAULT-HOSTNAME";
-        private const string WebAppHostNameEnvironmentVariable = "WEBSITE_HOSTNAME";
-        private readonly IHttpContextAccessor httpContextAccessor;
-        private string roleName;
-        private bool isAzureWebApp;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="AzureAppServiceRoleNameFromHostNameHeaderInitializer" /> class.
         /// </summary>
-        /// <param name="httpContextAccessor">Accessor to provide HttpContext if available.</param>
-        public AzureAppServiceRoleNameFromHostNameHeaderInitializer(IHttpContextAccessor httpContextAccessor)
-            : this(httpContextAccessor, ".azurewebsites.net")
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AzureAppServiceRoleNameFromHostNameHeaderInitializer" /> class.
-        /// </summary>
-        /// <param name="httpContextAccessor">Accessor to provide HttpContext if available.</param>
         /// <param name="webAppSuffix">WebApp name suffix.</param>
-        public AzureAppServiceRoleNameFromHostNameHeaderInitializer(IHttpContextAccessor httpContextAccessor, string webAppSuffix)
+        public AzureAppServiceRoleNameFromHostNameHeaderInitializer(string webAppSuffix = ".azurewebsites.net")
         {
-            this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-            this.WebAppSuffix = webAppSuffix;
-
             try
             {
-                var result = Environment.GetEnvironmentVariable(WebAppHostNameEnvironmentVariable);
-                this.isAzureWebApp = !string.IsNullOrEmpty(result);
-
-                if (!string.IsNullOrEmpty(result) && result.EndsWith(this.WebAppSuffix, StringComparison.OrdinalIgnoreCase))
-                {
-                    result = result.Substring(0, result.Length - this.WebAppSuffix.Length);
-                }
-
-                this.roleName = result;
+                RoleNameContainer.Instance = new RoleNameContainer(webAppSuffix);
             }
             catch (Exception ex)
             {
@@ -72,7 +45,12 @@
         /// For US Gov Cloud: ".azurewebsites.us"
         /// For Azure Germany: ".azurewebsites.de".
         /// </summary>
-        public string WebAppSuffix { get; set; }
+        public string WebAppSuffix
+        {
+            get => RoleNameContainer.Instance.HostNameSuffix;
+
+            set => RoleNameContainer.Instance = new RoleNameContainer(value);
+        }
 
         /// <summary>
         /// Populates RoleName from the request telemetry associated with the http context.
@@ -88,7 +66,7 @@
         {
             try
             {
-                if (!this.isAzureWebApp)
+                if (!RoleNameContainer.Instance.IsAzureWebApp)
                 {
                     // return immediately if not azure web app.
                     return;
@@ -100,73 +78,12 @@
                     return;
                 }
 
-                string roleName = string.Empty;
-                var context = this.httpContextAccessor.HttpContext;
-
-                if (context != null)
-                {
-                    lock (context)
-                    {
-                        var request = context.Features.Get<RequestTelemetry>();
-
-                        if (request != null)
-                        {
-                            if (string.IsNullOrEmpty(request.Context.Cloud.RoleName))
-                            {
-                                if (this.TryGetRoleNameFromHeader(context, out roleName))
-                                {
-                                    request.Context.Cloud.RoleName = roleName;
-                                }
-                            }
-                            else
-                            {
-                                roleName = request.Context.Cloud.RoleName;
-                            }
-                        }
-                        else
-                        {
-                            if (!this.TryGetRoleNameFromHeader(context, out roleName))
-                            {
-                                roleName = this.roleName;
-                            }
-                        }
-                    }
-                }
-
-                if (string.IsNullOrEmpty(roleName))
-                {
-                    // Fallback to value from ENV variable.
-                    roleName = this.roleName;
-                }
-
-                telemetry.Context.Cloud.RoleName = roleName;
+                telemetry.Context.Cloud.RoleName = RoleNameContainer.Instance.RoleName;
             }
             catch (Exception ex)
             {
                 AspNetCoreEventSource.Instance.LogAzureAppServiceRoleNameFromHostNameHeaderInitializerWarning(ex.ToInvariantString());
             }
-        }
-
-        private bool TryGetRoleNameFromHeader(HttpContext context, out string roleName)
-        {
-            roleName = string.Empty;
-
-            if (context.Request?.Headers != null)
-            {
-                string headerValue = context.Request.Headers[WebAppHostNameHeaderName];
-                if (!string.IsNullOrEmpty(headerValue))
-                {
-                    if (headerValue.EndsWith(this.WebAppSuffix, StringComparison.OrdinalIgnoreCase))
-                    {
-                        headerValue = headerValue.Substring(0, headerValue.Length - this.WebAppSuffix.Length);
-                    }
-
-                    roleName = headerValue;
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }

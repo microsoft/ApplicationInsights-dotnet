@@ -28,10 +28,9 @@
             {
                 return builder.ConfigureServices(services =>
                 {
-                    var aiOptions = new ApplicationInsightsServiceOptions();
+                    services.AddApplicationInsightsTelemetry();
                     // disable Dependency tracking (i.e. header injection)
-                    aiOptions.EnableDependencyTrackingTelemetryModule = false;
-                    services.AddApplicationInsightsTelemetry(aiOptions);
+                    services.Remove(services.FirstOrDefault(sd => sd.ImplementationType == typeof(DependencyTrackingTelemetryModule)));                    
                 });
             }
 

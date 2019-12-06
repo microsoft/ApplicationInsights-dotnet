@@ -29,7 +29,7 @@
             Debug.Assert(!string.IsNullOrEmpty(legacyId), "diagnosticId must not be null or empty");
 
             traceId = default;
-            if (legacyId[0] == '|' && legacyId.Length >= 33 && legacyId[33] == '.')
+            if (legacyId[0] == '|' && legacyId.Length > 33 && legacyId[33] == '.')
             {
                 for (int i = 1; i < 33; i++)
                 {

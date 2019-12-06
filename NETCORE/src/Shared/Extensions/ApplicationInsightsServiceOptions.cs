@@ -120,7 +120,8 @@
         public bool EnableHeartbeat { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether AutoCollectedMetricExtractor are added or not.
+        /// Gets or sets a value indicating whether AutoCollectedMetricExtractors are added or not.
+        /// Defaults to <value>true</value>.
         /// </summary>
         public bool AddAutoCollectedMetricExtractor { get; set; }
 
