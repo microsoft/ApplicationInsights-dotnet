@@ -309,77 +309,14 @@
 
         private static void AddCommonTelemetryModules(IServiceCollection services)
         {
-            services.AddSingleton<ITelemetryModule>(provider =>
-                {
-                    var options = provider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
-
-                    if (options.EnablePerformanceCounterCollectionModule)
-                    {
-                        return new PerformanceCollectorModule();
-                    }
-                    else
-                    {
-                        return new NoOpTelemetryModule();
-                    }
-                });
-
-            services.AddSingleton<ITelemetryModule>(provider =>
-            {
-                var options = provider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
-
-                if (options.EnableAppServicesHeartbeatTelemetryModule)
-                {
-                    return new AppServicesHeartbeatTelemetryModule();
-                }
-                else
-                {
-                    return new NoOpTelemetryModule();
-                }
-            });
-
-            services.AddSingleton<ITelemetryModule>(provider =>
-            {
-                var options = provider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
-
-                if (options.EnableAzureInstanceMetadataTelemetryModule)
-                {
-                    return new AzureInstanceMetadataTelemetryModule();
-                }
-                else
-                {
-                    return new NoOpTelemetryModule();
-                }
-            });
-
-            services.AddSingleton<ITelemetryModule>(provider =>
-            {
-                var options = provider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
-
-                if (options.EnableQuickPulseMetricStream)
-                {
-                    return new QuickPulseTelemetryModule();
-                }
-                else
-                {
-                    return new NoOpTelemetryModule();
-                }
-            });
+            services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
+            services.AddSingleton<ITelemetryModule, AppServicesHeartbeatTelemetryModule>();
+            services.AddSingleton<ITelemetryModule, AzureInstanceMetadataTelemetryModule>();
+            services.AddSingleton<ITelemetryModule, QuickPulseTelemetryModule>();
 
             AddAndConfigureDependencyTracking(services);
 #if NETSTANDARD2_0
-            services.AddSingleton<ITelemetryModule>(provider =>
-            {
-                var options = provider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
-
-                if (options.EnableEventCounterCollectionModule)
-                {
-                    return new EventCounterCollectionModule();
-                }
-                else
-                {
-                    return new NoOpTelemetryModule();
-                }
-            });
+            services.AddSingleton<ITelemetryModule, EventCounterCollectionModule>();
 #endif
         }
 
@@ -405,19 +342,7 @@
 
         private static void AddAndConfigureDependencyTracking(IServiceCollection services)
         {
-            services.AddSingleton<ITelemetryModule>(provider =>
-            {
-                var options = provider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
-
-                if (options.EnableDependencyTrackingTelemetryModule)
-                {
-                    return new DependencyTrackingTelemetryModule();
-                }
-                else
-                {
-                    return new NoOpTelemetryModule();
-                }
-            });
+            services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
 
             services.ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module, o) =>
             {

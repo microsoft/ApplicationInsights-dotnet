@@ -29,7 +29,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         private TelemetryClient telemetryClient;
         private ConcurrentBag<IDisposable> subscriptions;
         private HostingDiagnosticListener diagnosticListener;
-        private bool isInitialized = false;
+        internal bool isInitialized = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestTrackingTelemetryModule"/> class.

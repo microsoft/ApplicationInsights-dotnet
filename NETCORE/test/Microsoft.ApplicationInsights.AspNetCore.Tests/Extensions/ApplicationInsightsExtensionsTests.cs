@@ -659,7 +659,13 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
 
-                Assert.Empty(modules.OfType<PerformanceCollectorModule>());
+                // Even if a module is disabled its still added to DI.
+                Assert.NotEmpty(modules.OfType<PerformanceCollectorModule>());
+
+                // TODO add unit test to validate that module.isInitialized is false.
+                // similar to being done in UserCanDisableRequestCounterCollectorModule
+                // It requires some restructuring as internals are not accessible
+                // to this test project
             }
 
 #if NETCOREAPP2_0
@@ -675,7 +681,13 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
 
-                Assert.Empty(modules.OfType<EventCounterCollectionModule>());
+                // Even if a module is disabled its still added to DI.
+                Assert.NotEmpty(modules.OfType<EventCounterCollectionModule>());
+
+                // TODO add unit test to validate that module.isInitialized is false.
+                // similar to being done in UserCanDisableRequestCounterCollectorModule
+                // It requires some restructuring as internals are not accessible
+                // to this test project
             }
 #endif
 
@@ -691,7 +703,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
 
-                Assert.Empty(modules.OfType<RequestTrackingTelemetryModule>());
+                // Even if a module is disabled its still added to DI.
+                Assert.NotEmpty(modules.OfType<RequestTrackingTelemetryModule>());
+                var req = modules.OfType<RequestTrackingTelemetryModule>().First();
+
+                // But the module will not be initialized.
+                Assert.False(req.isInitialized);
             }
 
             [Fact]
@@ -706,7 +723,13 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
 
-                Assert.Empty(modules.OfType<DependencyTrackingTelemetryModule>());
+                // Even if a module is disabled its still added to DI.
+                Assert.NotEmpty(modules.OfType<DependencyTrackingTelemetryModule>());
+
+                // TODO add unit test to validate that module.isInitialized is false.
+                // similar to being done in UserCanDisableRequestCounterCollectorModule
+                // It requires some restructuring as internals are not accessible
+                // to this test project
             }
 
             [Fact]
@@ -721,7 +744,13 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
 
-                Assert.Empty(modules.OfType<QuickPulseTelemetryModule>());
+                // Even if a module is disabled its still added to DI.
+                Assert.NotEmpty(modules.OfType<QuickPulseTelemetryModule>());
+
+                // TODO add unit test to validate that module.isInitialized is false.
+                // similar to being done in UserCanDisableRequestCounterCollectorModule
+                // It requires some restructuring as internals are not accessible
+                // to this test project
             }
 
             [Fact]
@@ -736,7 +765,13 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
 
-                Assert.Empty(modules.OfType<AppServicesHeartbeatTelemetryModule>());
+                // Even if a module is disabled its still added to DI.
+                Assert.NotEmpty(modules.OfType<AppServicesHeartbeatTelemetryModule>());
+
+                // TODO add unit test to validate that module.isInitialized is false.
+                // similar to being done in UserCanDisableRequestCounterCollectorModule
+                // It requires some restructuring as internals are not accessible
+                // to this test project
             }
 
             [Fact]
@@ -751,7 +786,13 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
 
-                Assert.Empty(modules.OfType<AzureInstanceMetadataTelemetryModule>());
+                // Even if a module is disabled its still added to DI.
+                Assert.NotEmpty(modules.OfType<AzureInstanceMetadataTelemetryModule>());
+
+                // TODO add unit test to validate that module.isInitialized is false.
+                // similar to being done in UserCanDisableRequestCounterCollectorModule
+                // It requires some restructuring as internals are not accessible
+                // to this test project
             }
 
             [Fact]

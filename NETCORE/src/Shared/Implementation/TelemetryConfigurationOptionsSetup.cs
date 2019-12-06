@@ -15,10 +15,16 @@ namespace Microsoft.Extensions.DependencyInjection
 #endif
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
+#if NETSTANDARD2_0
+    using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
+#endif
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
+    using Microsoft.ApplicationInsights.WindowsServer;
     using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
     using Microsoft.Extensions.Options;
 
@@ -130,6 +136,86 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 foreach (ITelemetryModule module in this.modules)
                 {
+                    // If any of the modules are disabled explicitly using aioptions,
+                    // do not initialize them and dispose if disposable.
+                    // The option of not adding a module to DI if disabled
+                    // cannot be done to maintain backward compatibility.
+                    // So this approach of adding all modules to DI, but selectively
+                    // disable those modules which user has disabled is chosen.
+
+                    // DependencyTrackingTelemetryModule
+                    if (module is DependencyTrackingTelemetryModule)
+                    {
+                        if (!this.applicationInsightsServiceOptions.EnableDependencyTrackingTelemetryModule)
+                        {
+                            DisposeIfDisposable(module);
+                            continue;
+                        }
+                    }
+
+#if AI_ASPNETCORE_WEB
+                    // RequestTrackingTelemetryModule
+                    if (module is RequestTrackingTelemetryModule)
+                    {
+                        if (!this.applicationInsightsServiceOptions.EnableRequestTrackingTelemetryModule)
+                        {
+                            DisposeIfDisposable(module);
+                            continue;
+                        }
+                    }
+#endif
+
+#if NETSTANDARD2_0
+                    // EventCounterCollectionModule
+                    if (module is EventCounterCollectionModule)
+                    {
+                        if (!this.applicationInsightsServiceOptions.EnableEventCounterCollectionModule)
+                        {
+                            DisposeIfDisposable(module);
+                            continue;
+                        }
+                    }
+#endif
+
+                    // PerformanceCollectorModule
+                    if (module is PerformanceCollectorModule)
+                    {
+                        if (!this.applicationInsightsServiceOptions.EnablePerformanceCounterCollectionModule)
+                        {
+                            DisposeIfDisposable(module);
+                            continue;
+                        }
+                    }
+
+                    // AppServicesHeartbeatTelemetryModule
+                    if (module is AppServicesHeartbeatTelemetryModule)
+                    {
+                        if (!this.applicationInsightsServiceOptions.EnableAppServicesHeartbeatTelemetryModule)
+                        {
+                            DisposeIfDisposable(module);
+                            continue;
+                        }
+                    }
+
+                    // AzureInstanceMetadataTelemetryModule
+                    if (module is AzureInstanceMetadataTelemetryModule)
+                    {
+                        if (!this.applicationInsightsServiceOptions.EnableAzureInstanceMetadataTelemetryModule)
+                        {
+                            DisposeIfDisposable(module);
+                            continue;
+                        }
+                    }
+
+                    // QuickPulseTelemetryModule
+                    if (module is QuickPulseTelemetryModule)
+                    {
+                        if (!this.applicationInsightsServiceOptions.EnableQuickPulseMetricStream)
+                        {
+                            DisposeIfDisposable(module);
+                            continue;
+                        }
+                    }
                     module.Initialize(configuration);
                 }
 
@@ -158,6 +244,14 @@ namespace Microsoft.Extensions.DependencyInjection
 #else
                 WorkerServiceEventSource.Instance.TelemetryConfigurationSetupFailure(ex.ToInvariantString());
 #endif
+            }
+        }
+
+        private static void DisposeIfDisposable(ITelemetryModule module)
+        {
+            if (module is IDisposable)
+            {
+                (module as IDisposable).Dispose();
             }
         }
 
