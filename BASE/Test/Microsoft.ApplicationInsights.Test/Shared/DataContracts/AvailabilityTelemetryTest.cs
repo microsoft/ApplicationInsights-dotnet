@@ -139,7 +139,7 @@
         }
 
         [TestMethod]
-        [Ignore("This test throws OutOfMemoryException")]
+        
         public void AvailabilityTelemetryDeepCloneCopiesAllProperties()
         {
             AvailabilityTelemetry telemetry = CreateAvailabilityTelemetry();

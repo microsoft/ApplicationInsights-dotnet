@@ -341,7 +341,6 @@
         }
 
         [TestMethod]
-        [Ignore("This test throws OutOfMemoryException")]
         public void MetricTelemetryDeepCloneCopiesAllProperties()
         {
             var metric = new MetricTelemetry();

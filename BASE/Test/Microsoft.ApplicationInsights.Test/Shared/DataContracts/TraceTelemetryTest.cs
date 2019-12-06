@@ -162,7 +162,6 @@
         }
 
         [TestMethod]
-        [Ignore("This test throws OutOfMemoryException")]
         public void TraceTelemetryDeepCloneCopiesAllProperties()
         {
             var trace = new TraceTelemetry();
