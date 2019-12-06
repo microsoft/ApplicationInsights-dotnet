@@ -700,6 +700,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 services.AddApplicationInsightsTelemetry(aiOptions);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
+                // Get telemetry client to trigger TelemetryConfig setup.
+                var tc = serviceProvider.GetService<TelemetryClient>();
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
 
@@ -720,7 +722,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 services.AddApplicationInsightsTelemetry(aiOptions);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
-                var modules = serviceProvider.GetServices<ITelemetryModule>();
+                var modules = serviceProvider.GetServices<ITelemetryModule>();                
                 Assert.NotNull(modules);
 
                 // Even if a module is disabled its still added to DI.
