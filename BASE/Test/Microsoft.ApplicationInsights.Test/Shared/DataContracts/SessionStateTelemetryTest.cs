@@ -57,7 +57,6 @@
         }
 
         [TestMethod]
-        [Ignore("This test throws OutOfMemoryException")]
         public void SessionStateTelemetryDeepCloneCopiesAllProperties()
         {
             var telemetry = new SessionStateTelemetry();

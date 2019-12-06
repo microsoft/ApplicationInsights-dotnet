@@ -163,7 +163,6 @@
         }
 
         [TestMethod]
-        [Ignore("This test throws OutOfMemoryException")]
         public void EventTelemetryDeepCloneCopiesAllProperties()
         {
             var eventTelemetry = new EventTelemetry();
