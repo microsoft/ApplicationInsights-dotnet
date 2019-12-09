@@ -1,7 +1,7 @@
 # Changelog
 
 ## VNext
-
+- [Added Sub Resource Integrity Check to client side Javascript snippet](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1491)
 
 ## Version 2.12.0
 - [Fix IndexOutOfRangeException in W3CUtilities.TryGetTraceId](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1327)
