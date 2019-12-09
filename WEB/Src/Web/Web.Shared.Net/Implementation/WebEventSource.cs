@@ -501,9 +501,9 @@
         }
 
         [Event(51,
-    Keywords = Keywords.Diagnostics,
-    Message = "An error has occurred in AzureAppServiceRoleNameFromHostNameHeaderInitializer. Exception: '{0}'",
-    Level = EventLevel.Warning)]
+            Keywords = Keywords.Diagnostics,
+            Message = "An error has occurred in AzureAppServiceRoleNameFromHostNameHeaderInitializer. Exception: '{0}'",
+            Level = EventLevel.Warning)]
         public void LogAzureAppServiceRoleNameFromHostNameHeaderInitializerWarning(string exception, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
@@ -515,6 +515,25 @@
         [Event(52, Message = "Failed to set RequestTelemetry URL. RawUrl: '{0}' Exception: '{1}'", Level = EventLevel.Warning)]
         public void FailedToSetRequestTelemetryUrl(string rawUrl, string exception, string appDomainName = "Incorrect") => this.WriteEvent(52, rawUrl, exception, this.applicationNameProvider.Name);
 
+        [Event(53,
+            Keywords = Keywords.Diagnostics,
+            Message = "Failed to invoke OnExecuteRequestStep, Error='{0}'", 
+            Level = EventLevel.Warning)]
+        public void OnExecuteRequestStepInvocationError(string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(53, error, this.applicationNameProvider.Name);
+        }
+
+        [Event(
+            54,
+            Message = "Http application is null",
+            Level = EventLevel.Warning)]
+        public void NoHttpApplicationWarning(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                54,
+                this.applicationNameProvider.Name);
+        }
         /// <summary>
         /// Keywords for the PlatformEventSource. Those keywords should match keywords in Core.
         /// </summary>

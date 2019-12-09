@@ -411,6 +411,48 @@
         }
 
         [TestMethod]
+        public void RequestIdBecomesParentAndRootIfCompatibleWhenThereAreNoW3CHeaders_ExceptionInScopeOfRequest()
+        {
+            this.aspNetDiagnosticsSource.FakeContext =
+                HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
+                {
+                    ["Request-Id"] = "|4bf92f3577b34da6a3ce929d0e0e4736.",
+                });
+            this.module = this.CreateModule();
+
+            var activity = new Activity(FakeAspNetDiagnosticSource.IncomingRequestEventName);
+            Assert.IsTrue(this.aspNetDiagnosticsSource.IsEnabled(FakeAspNetDiagnosticSource.IncomingRequestEventName, activity));
+            this.aspNetDiagnosticsSource.StartActivityWithoutChecks(activity);
+
+            // Activity is overwritten to match new W3C-compatible id
+
+            var appInsightsActivity = Activity.Current;
+            Assert.AreNotEqual(activity, appInsightsActivity);
+
+            // here is where OnError happens
+            this.aspNetDiagnosticsSource.FakeContext.AddError(new ArgumentNullException());
+
+            // and then activity ends
+            this.aspNetDiagnosticsSource.StopActivity();
+
+            Assert.AreEqual(2, this.sendItems.Count);
+
+            var requestTelemetry = this.sendItems.OfType<RequestTelemetry>().FirstOrDefault();
+            var exceptionTelemetry = this.sendItems.OfType<ExceptionTelemetry>().FirstOrDefault();
+
+            Assert.IsNotNull(requestTelemetry);
+            Assert.AreEqual("4bf92f3577b34da6a3ce929d0e0e4736", requestTelemetry.Context.Operation.Id);
+            Assert.AreEqual("|4bf92f3577b34da6a3ce929d0e0e4736.", requestTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual($"|4bf92f3577b34da6a3ce929d0e0e4736.{appInsightsActivity.SpanId.ToHexString()}.", requestTelemetry.Id);
+
+            Assert.IsNotNull(exceptionTelemetry);
+            Assert.AreEqual("4bf92f3577b34da6a3ce929d0e0e4736", exceptionTelemetry.Context.Operation.Id);
+            Assert.AreEqual(requestTelemetry.Id, exceptionTelemetry.Context.Operation.ParentId);
+
+            Assert.IsFalse(requestTelemetry.Properties.ContainsKey("ai_legacyRootId"));
+        }
+
+        [TestMethod]
         public void RequestIdBecomesParentAndRootIfCompatibleWhenThereAreNoW3CHeaders()
         {
             this.aspNetDiagnosticsSource.FakeContext =
@@ -643,6 +685,7 @@
                 activity.Extract(this.fakeContext.Request.Headers);
                 this.listener.OnActivityImport(activity, null);
                 this.listener.StartActivity(activity, new { });
+                this.fakeContext.Items["__AspnetActivity__"] = activity;
             }
 
             public bool StartActivity(Activity activity = null)
@@ -661,6 +704,9 @@
                     if (this.listener.IsEnabled(IncomingRequestEventName, activity))
                     {
                         this.listener.StartActivity(activity, new { });
+                        
+                        // simulate TelemetryCorrelation module
+                        this.fakeContext.Items["__AspnetActivity__"] = activity;
                     }
 
                     return true;
@@ -671,15 +717,17 @@
 
             public void StopActivity(Activity activity = null)
             {
+                // simulate TelemetryCorrelation module
+                var contextActivity = (Activity)this.FakeContext.Items["__AspnetActivity__"];
+                if (Activity.Current != contextActivity)
+                {
+                    Activity.Current = contextActivity;
+                }
+
                 if (activity == null)
                 {
                     this.listener.StopActivity(Activity.Current, new { });
                     return;
-                }
-
-                while (Activity.Current != activity && Activity.Current != null)
-                {
-                    Activity.Current.Stop();
                 }
 
                 this.listener.StopActivity(activity, new { });
