@@ -79,7 +79,7 @@
                 "The controller for path '/wrongController' was not found or does not implement IController.",
                 "System.Web.Mvc.DefaultControllerFactory.GetControllerInstance",
                 "System.Web.Mvc, Version=",
-                15);
+                100);
         }
     }
 }
