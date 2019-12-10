@@ -157,7 +157,7 @@ function Get-DoesXmlDocContainsLang ([string]$dllPath) {
     [string]$searchString = '<doc xml:lang="en">';
 
     if (Test-Path $docFile) {
-        $result = select-string -path .\Microsoft.ApplicationInsights.xml -Pattern $searchString -Quiet;
+        $result = select-string -path $docFile -Pattern $searchString -Quiet;
     }
 
     $message = "XML Documentation:";
