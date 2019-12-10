@@ -142,20 +142,6 @@
         {
         }
 
-        private void Application_PreRequestHandlerExecute(object sender, EventArgs e)
-        {
-            var httpApplication = (HttpApplication)sender;
-
-            if (httpApplication == null)
-            {
-                WebEventSource.Log.NoHttpApplicationWarning();
-                return;
-            }
-
-            TraceCallback(nameof(this.Application_PreRequestHandlerExecute), httpApplication);
-            ActivityHelpers.RestoreActivityIfNeeded(httpApplication.Context?.Items);
-        }
-
         /// <summary>
         /// Restores Activity before each pipeline step if it was lost.
         /// </summary>
@@ -200,7 +186,21 @@
                 }
             }
         }
-        
+
+        private void Application_PreRequestHandlerExecute(object sender, EventArgs e)
+        {
+            var httpApplication = (HttpApplication)sender;
+
+            if (httpApplication == null)
+            {
+                WebEventSource.Log.NoHttpApplicationWarning();
+                return;
+            }
+
+            TraceCallback(nameof(this.Application_PreRequestHandlerExecute), httpApplication);
+            ActivityHelpers.RestoreActivityIfNeeded(httpApplication.Context?.Items);
+        }
+
         private void OnBeginRequest(object sender, EventArgs eventArgs)
         {
             if (this.isEnabled)
