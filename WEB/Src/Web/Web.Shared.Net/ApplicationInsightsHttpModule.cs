@@ -135,9 +135,16 @@
             }
         }
 
+        /// <summary>
+        /// Required IDisposable implementation.
+        /// </summary>
+        public void Dispose()
+        {
+        }
+
         private void Application_PreRequestHandlerExecute(object sender, EventArgs e)
         {
-            var httpApplication = (HttpApplication) sender;
+            var httpApplication = (HttpApplication)sender;
 
             if (httpApplication == null)
             {
@@ -147,14 +154,6 @@
 
             TraceCallback(nameof(this.Application_PreRequestHandlerExecute), httpApplication);
             ActivityHelpers.RestoreActivityIfNeeded(httpApplication.Context?.Items);
-        }
-
-
-        /// <summary>
-        /// Required IDisposable implementation.
-        /// </summary>
-        public void Dispose()
-        {
         }
 
         /// <summary>

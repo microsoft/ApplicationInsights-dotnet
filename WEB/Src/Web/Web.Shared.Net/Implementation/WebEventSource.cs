@@ -534,6 +534,7 @@
                 54,
                 this.applicationNameProvider.Name);
         }
+
         /// <summary>
         /// Keywords for the PlatformEventSource. Those keywords should match keywords in Core.
         /// </summary>

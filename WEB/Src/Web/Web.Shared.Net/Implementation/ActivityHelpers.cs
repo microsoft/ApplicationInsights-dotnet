@@ -28,7 +28,6 @@ namespace Microsoft.ApplicationInsights.Common
             return !string.IsNullOrEmpty(requestId) && requestId[0] == '|';
         }
 
-
         /// <summary>
         /// It's possible that a request is executed in both native threads and managed threads,
         /// in such case Activity.Current will be lost during native thread and managed thread switch.
