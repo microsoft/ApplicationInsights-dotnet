@@ -1,12 +1,10 @@
-﻿using System.Diagnostics;
-using Microsoft.ApplicationInsights.Common;
-
-namespace Microsoft.ApplicationInsights.Web
+﻿namespace Microsoft.ApplicationInsights.Web
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Reflection;
     using System.Web;
-
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -20,19 +18,21 @@ namespace Microsoft.ApplicationInsights.Web
         private static readonly MethodInfo OnStepMethodInfo;
         private static readonly bool AddOnSendingHeadersMethodExists;
 
-        private readonly RequestTrackingTelemetryModule requestModule;
-
         // Delegate preferred over Invoke to gain performance, only in NET45 or above as ISubscriptionToken is not available in Net40
         private static readonly Func<HttpResponse, Action<HttpContext>, ISubscriptionToken> OpenDelegateForInvokingAddOnSendingHeadersMethod;
 
-        private object[] addOnSendingHeadersMethodParams;
+        private readonly RequestTrackingTelemetryModule requestModule;
         private readonly Action<HttpContext> addOnSendingHeadersMethodParam;
-        private readonly object[] onExecuteActionParam = { (Action<HttpContextBase, Action>) OnExecuteRequestStep };
+        private readonly object[] onExecuteActionParam = { (Action<HttpContextBase, Action>)OnExecuteRequestStep };
+
+        private object[] addOnSendingHeadersMethodParams;
+
         /// <summary>
         /// Indicates if module initialized successfully.
         /// </summary>
         private bool isEnabled = true;
 
+        [SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline", Justification = "Enforcing static fields initialization.")]
         static ApplicationInsightsHttpModule()
         {
             // We use reflection here because 'AddOnSendingHeaders' is only available post .net framework 4.5.2. Hence we call it if we can find it.

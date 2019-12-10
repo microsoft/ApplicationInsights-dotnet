@@ -1,9 +1,9 @@
-using System.Collections;
-using System.Diagnostics;
-using Microsoft.ApplicationInsights.Web.Implementation;
-
 namespace Microsoft.ApplicationInsights.Common
 {
+    using System.Collections;
+    using System.Diagnostics;
+    using Microsoft.ApplicationInsights.Web.Implementation;
+
     internal class ActivityHelpers
     {
         /// <summary>
