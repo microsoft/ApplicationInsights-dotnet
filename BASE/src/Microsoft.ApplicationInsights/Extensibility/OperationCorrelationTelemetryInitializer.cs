@@ -63,7 +63,6 @@
                             // itemOperationContext.Id = currentActivity.RootId; // check if this can be used
                             itemOperationContext.Id = currentActivity.TraceId.ToHexString();
 
-
                             if (string.IsNullOrEmpty(itemOperationContext.ParentId))
                             {
                                 itemOperationContext.ParentId = currentActivity.SpanId.ToHexString();
