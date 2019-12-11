@@ -62,7 +62,7 @@
             module.OnEndRequest(context);
 
             Assert.Equal(activity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
-            Assert.Equal($"|{activity.TraceId.ToHexString()}.{activity.SpanId.ToHexString()}.", requestTelemetry.Id);
+            Assert.Equal(activity.SpanId.ToHexString(), requestTelemetry.Id);
             Assert.Equal("guid1", requestTelemetry.Context.Operation.ParentId);
             Assert.True(requestTelemetry.Properties.TryGetValue("ai_legacyRootId", out var legacyRootId));
             Assert.Equal("guid1", legacyRootId);
@@ -87,7 +87,7 @@
 
             Assert.Null(requestTelemetry.Context.Operation.ParentId);
             Assert.Equal(activity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
-            Assert.Equal($"|{activity.TraceId.ToHexString()}.{activity.SpanId.ToHexString()}.", requestTelemetry.Id);
+            Assert.Equal(activity.SpanId.ToHexString(), requestTelemetry.Id);
         }
 
         [TestMethod]
@@ -136,7 +136,7 @@
             module.OnEndRequest(context);
 
             Assert.Equal(activity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
-            Assert.Equal($"|{activity.TraceId.ToHexString()}.{activity.SpanId.ToHexString()}.", requestTelemetry.Id);
+            Assert.Equal(activity.SpanId.ToHexString(), requestTelemetry.Id);
             Assert.Equal("guid1", requestTelemetry.Context.Operation.ParentId);
             Assert.True(requestTelemetry.Properties.TryGetValue("ai_legacyRootId", out var legacyRootId));
             Assert.Equal("guid2", legacyRootId);
@@ -169,7 +169,7 @@
             var requestTelemetry = context.GetRequestTelemetry();
             module.OnEndRequest(context);
 
-            Assert.Equal($"|{activityInitializedByW3CHeader.TraceId.ToHexString()}.{activityInitializedByW3CHeader.SpanId.ToHexString()}.", requestTelemetry.Id);
+            Assert.Equal(activityInitializedByW3CHeader.SpanId.ToHexString(), requestTelemetry.Id);
             Assert.Equal(activityInitializedByW3CHeader.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
             Assert.Null(requestTelemetry.Context.Operation.ParentId);
         }
@@ -254,7 +254,7 @@
             module.OnEndRequest(context);
 
             Assert.Equal(activity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
-            Assert.Equal($"|{activity.TraceId.ToHexString()}.{activity.SpanId.ToHexString()}.", requestTelemetry.Id);
+            Assert.Equal(activity.SpanId.ToHexString(), requestTelemetry.Id);
             Assert.Equal("guid1", requestTelemetry.Context.Operation.ParentId);
             Assert.True(requestTelemetry.Properties.TryGetValue("ai_legacyRootId", out var legacyRootId));
             Assert.Equal("guid2", legacyRootId);
@@ -280,7 +280,9 @@
             Assert.Equal("ParentId", requestTelemetry.Context.Operation.ParentId);
 
             Assert.Equal(activity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
-            Assert.NotEqual($"|{activity.TraceId.ToHexString()}.{activity.SpanId.ToHexString()}", requestTelemetry.Id);
+            
+            // Assert.NotEqual($"|{activity.TraceId.ToHexString()}.{activity.SpanId.ToHexString()}", requestTelemetry.Id);
+            Assert.Equal(activity.SpanId.ToHexString(), requestTelemetry.Id);
             Assert.True(requestTelemetry.Properties.TryGetValue("ai_legacyRootId", out var legacyRootId));
             Assert.Equal("RootId", legacyRootId);
         }
@@ -465,7 +467,7 @@
 
             var request = (RequestTelemetry)this.sentTelemetry.Single(t => t is RequestTelemetry);
             Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", request.Context.Operation.Id);
-            Assert.Equal("|4bf92f3577b34da6a3ce929d0e0e4736.00f067aa0ba902b7.", request.Context.Operation.ParentId);
+            Assert.Equal("00f067aa0ba902b7", request.Context.Operation.ParentId);
 
             Assert.Equal(trace1.Context.Operation.Id, request.Context.Operation.Id);
             Assert.Equal(trace2.Context.Operation.Id, request.Context.Operation.Id);
@@ -539,9 +541,9 @@
             var requestTelemetry = context.GetRequestTelemetry();
             module.OnEndRequest(context);
 
-            Assert.Equal($"|4bf92f3577b34da6a3ce929d0e0e4736.{activityInitializedByW3CHeader.SpanId.ToHexString()}.", requestTelemetry.Id);
+            Assert.Equal(activityInitializedByW3CHeader.SpanId.ToHexString(), requestTelemetry.Id);
             Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", requestTelemetry.Context.Operation.Id);
-            Assert.Equal("|4bf92f3577b34da6a3ce929d0e0e4736.00f067aa0ba902b7.", requestTelemetry.Context.Operation.ParentId);
+            Assert.Equal("00f067aa0ba902b7", requestTelemetry.Context.Operation.ParentId);
 
             Assert.Equal("state=some", requestTelemetry.Properties["tracestate"]);
         }
@@ -565,7 +567,7 @@
             var requestTelemetry = context.GetRequestTelemetry();
             module.OnEndRequest(context);
 
-            Assert.Equal($"|{activityInitializedByW3CHeader.TraceId.ToHexString()}.{activityInitializedByW3CHeader.SpanId.ToHexString()}.", requestTelemetry.Id);
+            Assert.Equal(activityInitializedByW3CHeader.SpanId.ToHexString(), requestTelemetry.Id);
             Assert.Equal(activityInitializedByW3CHeader.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
 
             if (addRequestId)

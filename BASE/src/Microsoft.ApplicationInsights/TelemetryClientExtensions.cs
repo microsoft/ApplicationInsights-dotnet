@@ -188,9 +188,7 @@
                         telemetryContext.Id = operationActivity.TraceId.ToHexString();
                     }
 
-                    // ID takes the form |TraceID.SpanId. 
-                    // TelemetryContext.Id used instead of TraceID.ToHexString() for perf.
-                    operationTelemetry.Id = W3CUtilities.FormatTelemetryId(telemetryContext.Id, operationActivity.SpanId.ToHexString());
+                    operationTelemetry.Id = operationActivity.SpanId.ToHexString();
                 }
                 else
                 {
@@ -370,12 +368,11 @@
             if (activity.IdFormat == ActivityIdFormat.W3C)
             {
                 operationContext.Id = activity.TraceId.ToHexString();
-                telemetry.Id = W3CUtilities.FormatTelemetryId(operationContext.Id, activity.SpanId.ToHexString());
+                telemetry.Id = activity.SpanId.ToHexString();
 
                 if (string.IsNullOrEmpty(operationContext.ParentId) && activity.ParentSpanId != default)
                 {
-                    operationContext.ParentId =
-                        W3CUtilities.FormatTelemetryId(operationContext.Id, activity.ParentSpanId.ToHexString());
+                    operationContext.ParentId = activity.ParentSpanId.ToHexString();
                 }
             }
             else
