@@ -19,11 +19,11 @@ namespace Microsoft.ApplicationInsights.AspNetCore
     /// </summary>
     public class RequestTrackingTelemetryModule : ITelemetryModule, IObserver<DiagnosticListener>, IDisposable
     {
-        internal bool isInitialized = false;
+        internal bool IsInitialized = false;
 
         // We are only interested in BeforeAction event from Microsoft.AspNetCore.Mvc source.
         // We are interested in Microsoft.AspNetCore.Hosting and Microsoft.AspNetCore.Diagnostics as well.
-        // Below filter achieves acceptable performance, character 22 shoudl not be M unless event is BeforeAction.
+        // Below filter achieves acceptable performance, character 22 should not be M unless event is BeforeAction.
         private static readonly Predicate<string> HostingPredicate = (string eventName) => (eventName != null) ? !(eventName[21] == 'M') || eventName == "Microsoft.AspNetCore.Mvc.BeforeAction" : false;
         private readonly object lockObject = new object();
         private readonly IApplicationIdProvider applicationIdProvider;
@@ -64,11 +64,11 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         {
             try
             {
-                if (!this.isInitialized)
+                if (!this.IsInitialized)
                 {
                     lock (this.lockObject)
                     {
-                        if (!this.isInitialized)
+                        if (!this.IsInitialized)
                         {
                             this.telemetryClient = new TelemetryClient(configuration);
 
@@ -108,7 +108,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
 
                             this.subscriptions?.Add(DiagnosticListener.AllListeners.Subscribe(this));
 
-                            this.isInitialized = true;
+                            this.IsInitialized = true;
                         }
                     }
                 }

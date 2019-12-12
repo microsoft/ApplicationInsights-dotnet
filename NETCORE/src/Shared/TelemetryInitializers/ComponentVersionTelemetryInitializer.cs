@@ -4,6 +4,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
 namespace Microsoft.ApplicationInsights.WorkerService.TelemetryInitializers
 #endif
 {
+    using System;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
 #if AI_ASPNETCORE_WEB
@@ -32,6 +33,11 @@ namespace Microsoft.ApplicationInsights.WorkerService.TelemetryInitializers
         /// <inheritdoc />
         public void Initialize(ITelemetry telemetry)
         {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
             if (string.IsNullOrEmpty(telemetry.Context.Component.Version))
             {
                 if (!string.IsNullOrEmpty(this.version))

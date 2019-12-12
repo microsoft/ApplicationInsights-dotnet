@@ -65,6 +65,11 @@
         /// <inheritdoc />
         protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
         {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
             if (!string.IsNullOrEmpty(telemetry.Context.Location.Ip))
             {
                 // Ip is already populated.

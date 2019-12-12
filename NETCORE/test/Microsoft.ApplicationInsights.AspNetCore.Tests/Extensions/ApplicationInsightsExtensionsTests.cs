@@ -710,7 +710,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var req = modules.OfType<RequestTrackingTelemetryModule>().First();
 
                 // But the module will not be initialized.
-                Assert.False(req.isInitialized);
+                Assert.False(req.IsInitialized);
             }
 
             [Fact]

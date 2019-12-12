@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Web
 {
+    using System;
     using System.Web;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -18,11 +19,13 @@
         /// <param name="platformContext">Http context.</param>
         /// <param name="rootRequestTelemetry">Request telemetry object associated with the current request.</param>
         /// <param name="telemetry">Telemetry item to initialize.</param>
-        protected override void OnInitializeTelemetry(
-            HttpContext platformContext,
-            RequestTelemetry rootRequestTelemetry, 
-            ITelemetry telemetry)
+        protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry rootRequestTelemetry,  ITelemetry telemetry)
         {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
             if (string.IsNullOrEmpty(telemetry.Context.Operation.Name))
             {
                 // Do not cache name because it may be too early to calculate it (e.g. traces on applicatio start).

@@ -66,6 +66,11 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
         /// <param name="eventSourceEvent">Event to extract values from.</param>
         public static TraceTelemetry PopulateStandardProperties(this TraceTelemetry telemetry, EventWrittenEventArgs eventSourceEvent)
         {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
             if (!string.IsNullOrWhiteSpace(eventSourceEvent.EventSource.Name))
             {
                 telemetry.AddProperty(ProviderNameProperty, eventSourceEvent.EventSource.Name);
