@@ -19,6 +19,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore
     /// </summary>
     public class RequestTrackingTelemetryModule : ITelemetryModule, IObserver<DiagnosticListener>, IDisposable
     {
+        internal bool isInitialized = false;
+
         // We are only interested in BeforeAction event from Microsoft.AspNetCore.Mvc source.
         // We are interested in Microsoft.AspNetCore.Hosting and Microsoft.AspNetCore.Diagnostics as well.
         // Below filter achieves acceptable performance, character 22 shoudl not be M unless event is BeforeAction.
@@ -29,7 +31,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         private TelemetryClient telemetryClient;
         private ConcurrentBag<IDisposable> subscriptions;
         private HostingDiagnosticListener diagnosticListener;
-        internal bool isInitialized = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestTrackingTelemetryModule"/> class.

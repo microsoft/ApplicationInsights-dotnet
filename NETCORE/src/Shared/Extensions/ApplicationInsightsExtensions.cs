@@ -221,7 +221,7 @@
         ///          }
         ///      }.
         /// </para>
-        /// Or
+        /// Or.
         /// <para>
         ///      "ApplicationInsights": {
         ///          "ConnectionString" : "InstrumentationKey=11111111-2222-3333-4444-555555555555;IngestionEndpoint=http://dc.services.visualstudio.com"
@@ -302,7 +302,7 @@
             services.AddSingleton<ITelemetryInitializer, Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.DomainNameRoleInstanceTelemetryInitializer>();
 #else
             services.AddSingleton<ITelemetryInitializer, Microsoft.ApplicationInsights.WorkerService.TelemetryInitializers.DomainNameRoleInstanceTelemetryInitializer>();
-#endif            
+#endif
             services.AddSingleton<ITelemetryInitializer, HttpDependenciesParsingTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, ComponentVersionTelemetryInitializer>();
         }

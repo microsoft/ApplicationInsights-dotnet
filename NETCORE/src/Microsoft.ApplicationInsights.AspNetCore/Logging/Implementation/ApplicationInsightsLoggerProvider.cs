@@ -20,6 +20,9 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ApplicationInsightsLoggerProvider"/> class.
         /// </summary>
+        /// <param name="telemetryClient"></param>
+        /// <param name="options"></param>
+        /// <param name="filter"></param>
         public ApplicationInsightsLoggerProvider(TelemetryClient telemetryClient, Func<string, LogLevel, bool> filter, IOptions<ApplicationInsightsLoggerOptions> options)
         {
             this.telemetryClient = telemetryClient;

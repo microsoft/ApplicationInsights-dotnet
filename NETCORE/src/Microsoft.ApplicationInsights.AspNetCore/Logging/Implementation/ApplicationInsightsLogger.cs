@@ -37,6 +37,10 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ApplicationInsightsLogger"/> class.
         /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="name"></param>
+        /// <param name="options"></param>
+        /// <param name="telemetryClient"></param>
         public ApplicationInsightsLogger(string name, TelemetryClient telemetryClient, Func<string, LogLevel, bool> filter, ApplicationInsightsLoggerOptions options)
         {
             this.categoryName = name;

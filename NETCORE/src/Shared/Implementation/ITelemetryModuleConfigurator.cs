@@ -29,6 +29,7 @@ namespace Microsoft.ApplicationInsights.WorkerService
         /// </summary>
         [Obsolete("Use Configure(ITelemetryModule telemetryModule, ApplicationInsightsServiceOptions options) instead.")]
         [SuppressMessage("Documentation Rules", "SA1600:ElementsMustBeDocumented", Justification = "This method is obsolete.")]
+        [SuppressMessage("Documentation Rules", "SA1611:ElementParametersMustBeDocumented", Justification = "This method is obsolete.")]
         void Configure(ITelemetryModule telemetryModule);
 
         /// <summary>

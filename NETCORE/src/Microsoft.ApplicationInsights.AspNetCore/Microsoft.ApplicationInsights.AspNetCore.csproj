@@ -56,8 +56,7 @@
   <Choose>
     <When Condition=" '$(Configuration)' == 'Release' ">
       <PropertyGroup>
-        <!--TODO: FIX ALL ISSUES SO WE CAN TURN THIS ON-->
-        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
       </PropertyGroup>
     </When>
     <When Condition=" '$(Configuration)' != 'Release' ">
