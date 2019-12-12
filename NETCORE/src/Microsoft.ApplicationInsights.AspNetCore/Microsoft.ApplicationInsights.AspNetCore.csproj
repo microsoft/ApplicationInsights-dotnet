@@ -34,7 +34,7 @@
     <NoWarn>1701;1702</NoWarn>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
+  <ItemGroup Condition=" $(OS) == 'Windows_NT'">
     <!--Analyzers-->
     <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
       <PrivateAssets>All</PrivateAssets>
@@ -52,6 +52,20 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
+
+  <Choose>
+    <When Condition=" '$(Configuration)' == 'Release' ">
+      <PropertyGroup>
+        <!--TODO: FIX ALL ISSUES SO WE CAN TURN THIS ON-->
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+      </PropertyGroup>
+    </When>
+    <When Condition=" '$(Configuration)' != 'Release' ">
+      <PropertyGroup>
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+      </PropertyGroup>
+    </When>
+  </Choose>
 
   <ItemGroup>
     <!--Build Infrastructure-->

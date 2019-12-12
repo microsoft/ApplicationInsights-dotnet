@@ -19,7 +19,7 @@
     <PackageTags>$(PackageTags) Log4Net</PackageTags>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
+  <ItemGroup Condition=" $(OS) == 'Windows_NT'">
     <!--Analyzers-->
     <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
       <PrivateAssets>All</PrivateAssets>
@@ -31,6 +31,19 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
+
+  <Choose>
+    <When Condition=" '$(Configuration)' == 'Release' ">
+      <PropertyGroup>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+      </PropertyGroup>
+    </When>
+    <When Condition=" '$(Configuration)' != 'Release' ">
+      <PropertyGroup>
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+      </PropertyGroup>
+    </When>
+  </Choose>
 
   <ItemGroup>
     <!--Build Infrastructure-->

@@ -17,10 +17,10 @@
     <Rule Id="CA1049" Action="Warning" />
     <Rule Id="CA1060" Action="Warning" />
     <Rule Id="CA1061" Action="Warning" />
-    <!-- Disabling this check "CA1063: Implement IDisposable correctly". 
-    This analyzer has a bug which fails the build, https://github.com/dotnet/roslyn-analyzers/issues/1815 -->
-    <Rule Id="CA1063" Action="None" />
+    <Rule Id="CA1063" Action="Warning" />
     <Rule Id="CA1065" Action="Warning" />
+    <!-- Suppressing Message "Do not pass literals as localized parameters" because we do not localize our SDK -->
+    <Rule Id="CA1303" Action="None" />
     <Rule Id="CA1304" Action="Warning" />
     <Rule Id="CA1305" Action="Warning" />
     <Rule Id="CA1307" Action="Warning" />
@@ -85,9 +85,7 @@
     <Rule Id="CA2207" Action="Warning" />
     <Rule Id="CA2210" Action="None" />
     <Rule Id="CA2212" Action="Warning" />
-    <!-- Disabling this check "CA2213:DisposableFieldsShouldBeDisposed". 
-    This analyzer has a bug which fails the build, https://github.com/dotnet/roslyn-analyzers/issues/1815 -->
-    <Rule Id="CA2213" Action="None" />
+    <Rule Id="CA2213" Action="Warning" />
     <Rule Id="CA2214" Action="Warning" />
     <Rule Id="CA2216" Action="Warning" />
     <Rule Id="CA2219" Action="Warning" />
