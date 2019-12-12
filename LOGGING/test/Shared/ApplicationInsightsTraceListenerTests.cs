@@ -29,7 +29,7 @@
         [TestCategory("TraceListener")]
         public void TraceListenerInitializeDoesNotThrowWhenInstrumentationKeyIsNull()
         {
-            var listener = new ApplicationInsightsTraceListener(null);
+            var listener = new ApplicationInsightsTraceListener(instrumentationKey: null);
             listener.Dispose();
         }
 
@@ -40,7 +40,15 @@
             var listener = new ApplicationInsightsTraceListener(string.Empty);
             listener.Dispose();
         }
-        
+
+        [TestMethod]
+        [TestCategory("TraceListener")]
+        public void TraceListenerInitializeDoesNotThrowWhenConfigurationIsNull()
+        {
+            var listener = new ApplicationInsightsTraceListener(configuration: null);
+            listener.Dispose();
+        }
+
         [TestMethod]
         [TestCategory("TraceListener")]
         public void TraceListenerWriteUsedApplicationInsightsConfigInstrumentationKeyWhenUnspecifiedInstrumentationKey()
@@ -53,7 +61,7 @@
             TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
 #pragma warning restore CS0618 // Type or member is obsolete
 
-            using (var listener = new ApplicationInsightsTraceListener(null))
+            using (var listener = new ApplicationInsightsTraceListener(instrumentationKey: null))
             {                
                 this.VerifyMessagesInMockChannel(listener, this.adapterHelper.InstrumentationKey);
             }
@@ -95,6 +103,18 @@
                 Assert.AreEqual(expectedMessage, telemetry.Message);
                 Assert.IsFalse(telemetry.Properties.ContainsKey("EventId"));
                 Assert.AreEqual(SeverityLevel.Verbose, telemetry.SeverityLevel);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("TraceListener")]
+        public void TraceListenerWriteUsedTelemetryConfigurationInstrumentationKeyWhenSpecified()
+        {
+            TelemetryConfiguration telemetryConfiguration = TelemetryConfiguration.Active;
+
+            using (var listener = new ApplicationInsightsTraceListener(telemetryConfiguration))
+            {
+                this.VerifyMessagesInMockChannel(listener, telemetryConfiguration.InstrumentationKey);
             }
         }
 

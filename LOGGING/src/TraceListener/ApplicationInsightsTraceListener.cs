@@ -14,6 +14,7 @@ namespace Microsoft.ApplicationInsights.TraceListener
     using System.Linq;
 
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Implementation;
 
@@ -46,6 +47,19 @@ namespace Microsoft.ApplicationInsights.TraceListener
                 this.TelemetryClient.Context.InstrumentationKey = instrumentationKey;
             }
 
+            this.TelemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("sd:");
+        }
+
+        /// <summary>
+        /// Initializes a newinstance of the ApplicationInsightsTraceListener class.
+        /// </summary>
+        /// <param name="configuration"></param>
+        public ApplicationInsightsTraceListener(TelemetryConfiguration configuration)
+        {
+            configuration = configuration ?? TelemetryConfiguration.Active;
+
+            this.TelemetryClient = new TelemetryClient(configuration);
+            
             this.TelemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("sd:");
         }
 
@@ -147,7 +161,7 @@ namespace Microsoft.ApplicationInsights.TraceListener
 
             string message = string.Join(", ", data.Select(d => d == null ? string.Empty : d.ToString()));
             var trace = new TraceTelemetry(message);
-            CreateTraceData(eventType, id, trace);                       
+            CreateTraceData(eventType, id, trace);
             this.TelemetryClient.Track(trace);
         }
 
@@ -193,9 +207,9 @@ namespace Microsoft.ApplicationInsights.TraceListener
         private static void CreateTraceData(TraceEventType eventType, int? id, TraceTelemetry trace)
         {
             trace.SeverityLevel = GetSeverityLevel(eventType);
-            
+
             IDictionary<string, string> metaData = trace.Properties;
-            
+
             if (id.HasValue)
             {
                 metaData.Add("EventId", id.Value.ToString(CultureInfo.InvariantCulture));
