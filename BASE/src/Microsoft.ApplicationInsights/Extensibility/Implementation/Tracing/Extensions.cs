@@ -22,14 +22,14 @@
                 return string.Empty;
             }
 
-#if !NETSTANDARD1_3
+#if NETSTANDARD1_3
+            return exception.ToString();
+#else
             CultureInfo originalUICulture = Thread.CurrentThread.CurrentUICulture;
             try
             {
                 Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-#endif
                 return exception.ToString();
-#if !NETSTANDARD1_3
             }
             finally
             {

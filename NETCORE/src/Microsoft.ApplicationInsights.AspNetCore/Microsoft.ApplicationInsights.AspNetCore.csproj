@@ -56,12 +56,15 @@
   <Choose>
     <When Condition=" '$(Configuration)' == 'Release' ">
       <PropertyGroup>
+        <!-- Microsoft recommends that we disable CodeAnalysis in favor of FxCop Analyzers. aka.ms/fxcopanalyzers -->
+        <RunCodeAnalysis>false</RunCodeAnalysis>
         <CodeAnalysisRuleSet>$(RulesetsRoot)\ApplicationInsightsSDKRules.ruleset</CodeAnalysisRuleSet>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
       </PropertyGroup>
     </When>
     <When Condition=" '$(Configuration)' != 'Release' ">
       <PropertyGroup>
+        <RunCodeAnalysis>false</RunCodeAnalysis>
         <CodeAnalysisRuleSet>$(RulesetsRoot)\ApplicationInsightsSDKRules.ruleset</CodeAnalysisRuleSet>
         <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
       </PropertyGroup>
