@@ -390,8 +390,8 @@
         /// <summary>
         /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.EndRequest' event. This is from 1.XX runtime.
         /// </summary>
-        /// <param name="timestamp"></param>
         /// <param name="httpContext"></param>
+        /// <param name="timestamp"></param>
         public void OnEndRequest(HttpContext httpContext, long timestamp)
         {
             if (this.aspNetCoreMajorVersion == AspNetCoreMajorVersion.One)
@@ -420,8 +420,8 @@
         /// <summary>
         /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.HandledException' event.
         /// </summary>
-        /// <param name="exception"></param>
         /// <param name="httpContext"></param>
+        /// <param name="exception"></param>
         public void OnDiagnosticsHandledException(HttpContext httpContext, Exception exception)
         {
             this.OnException(httpContext, exception);
@@ -444,7 +444,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="value"></param>
         public void OnNext(KeyValuePair<string, object> value)
