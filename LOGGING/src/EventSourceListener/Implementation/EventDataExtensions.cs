@@ -41,6 +41,11 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
         /// <param name="eventSourceEvent">The source for the telemetry data.</param>
         public static TraceTelemetry CreateTraceTelementry(this EventWrittenEventArgs eventSourceEvent)
         {
+            if (eventSourceEvent == null)
+            {
+                throw new ArgumentNullException(nameof(eventSourceEvent));
+            }
+
             string formattedMessage = null;
             if (eventSourceEvent.Message != null)
             {
@@ -69,6 +74,11 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
             if (telemetry == null)
             {
                 throw new ArgumentNullException(nameof(telemetry));
+            }
+
+            if (eventSourceEvent == null)
+            {
+                throw new ArgumentNullException(nameof(eventSourceEvent));
             }
 
             if (!string.IsNullOrWhiteSpace(eventSourceEvent.EventSource.Name))
@@ -116,7 +126,15 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
         /// <param name="eventSourceEvent">Event to extract values from.</param>
         public static TraceTelemetry PopulatePayloadProperties(this TraceTelemetry telemetry, EventWrittenEventArgs eventSourceEvent)
         {
-            Debug.Assert(telemetry != null, "Should have received a valid TraceTelemetry object");
+            if (eventSourceEvent == null)
+            {
+                throw new ArgumentNullException(nameof(eventSourceEvent));
+            }
+
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
 
             if (eventSourceEvent.Payload == null || eventSourceEvent.PayloadNames == null)
             {

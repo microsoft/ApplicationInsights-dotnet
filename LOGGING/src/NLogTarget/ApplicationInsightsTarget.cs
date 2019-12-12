@@ -156,6 +156,11 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         /// <param name="asyncContinuation">The asynchronous continuation.</param>
         protected override void FlushAsync(AsyncContinuation asyncContinuation)
         {
+            if (asyncContinuation == null)
+            {
+                throw new ArgumentNullException(nameof(asyncContinuation));
+            }
+
             try
             {
                 this.TelemetryClient.Flush();

@@ -315,6 +315,11 @@
         [SuppressMessage("Microsoft.Usage", "CA2234:PassSystemUriObjectsInsteadOfStrings", Justification = "Private variable, low risk.")]
         public void Initialize(TelemetryConfiguration configuration)
         {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
             this.Transmitter.Initialize();
 
             this.EndpointAddress = new Uri(configuration.EndpointContainer.Ingestion, "v2/track").AbsoluteUri;

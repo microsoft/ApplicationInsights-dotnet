@@ -27,7 +27,12 @@ namespace Microsoft.ApplicationInsights.WorkerService.TelemetryInitializers
         /// <param name="options">Provides the Application Version to be added to the telemetry.</param>
         public ComponentVersionTelemetryInitializer(IOptions<ApplicationInsightsServiceOptions> options)
         {
-             this.version = options.Value.ApplicationVersion;
+            if (options == null)
+            {
+                throw new ArgumentNullException(nameof(options));
+            }
+
+            this.version = options.Value.ApplicationVersion;
         }
 
         /// <inheritdoc />

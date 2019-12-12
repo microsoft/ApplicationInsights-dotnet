@@ -32,6 +32,11 @@
                 throw new ArgumentNullException(nameof(telemetry));
             }
 
+            if (platformContext == null)
+            {
+                throw new ArgumentNullException(nameof(platformContext));
+            }
+
             if (string.IsNullOrEmpty(telemetry.Context.Operation.SyntheticSource))
             {
                 var runIdHeader = platformContext.Request?.Headers[SyntheticTestRunId];

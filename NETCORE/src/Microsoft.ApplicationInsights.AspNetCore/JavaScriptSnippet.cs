@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore
 {
+    using System;
     using System.Globalization;
     using System.Security.Principal;
     using System.Text.Encodings.Web;
@@ -43,6 +44,11 @@
             IHttpContextAccessor httpContextAccessor,
             JavaScriptEncoder encoder = null)
         {
+            if (serviceOptions == null)
+            {
+                throw new ArgumentNullException(nameof(serviceOptions));
+            }
+
             this.telemetryConfiguration = telemetryConfiguration;
             this.httpContextAccessor = httpContextAccessor;
             this.enableAuthSnippet = serviceOptions.Value.EnableAuthenticationTrackingJavaScript;

@@ -64,6 +64,11 @@
         /// <param name="telemetry">The telemetry item for which RoleName is to be set.</param>
         public void Initialize(ITelemetry telemetry)
         {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
             try
             {
                 if (!RoleNameContainer.Instance.IsAzureWebApp)

@@ -80,6 +80,16 @@
                 throw new ArgumentNullException(nameof(telemetry));
             }
 
+            if (requestTelemetry == null)
+            {
+                throw new ArgumentNullException(nameof(requestTelemetry));
+            }
+
+            if (platformContext == null)
+            {
+                throw new ArgumentNullException(nameof(platformContext));
+            }
+
             if (string.IsNullOrEmpty(telemetry.Context.Location.Ip))
             {
                 var location = requestTelemetry.Context.Location;

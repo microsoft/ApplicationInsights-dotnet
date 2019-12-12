@@ -437,6 +437,11 @@
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void Track(ITelemetry telemetry)
         {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
             // TALK TO YOUR TEAM MATES BEFORE CHANGING THIS.
             // This method needs to be public so that we can build and ship new telemetry types without having to ship core.
             // It is hidden from intellisense to prevent customer confusion.
@@ -461,6 +466,11 @@
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void InitializeInstrumentationKey(ITelemetry telemetry)
         {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
             string instrumentationKey = this.Context.InstrumentationKey;
 
             if (string.IsNullOrEmpty(instrumentationKey))
@@ -478,6 +488,11 @@
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void Initialize(ITelemetry telemetry)
         {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
             ISupportAdvancedSampling telemetryWithSampling = telemetry as ISupportAdvancedSampling;
 
             // Telemetry can be already sampled out if that decision was made before calling Track()

@@ -71,6 +71,16 @@
                 throw new ArgumentNullException(nameof(telemetry));
             }
 
+            if (requestTelemetry == null)
+            {
+                throw new ArgumentNullException(nameof(requestTelemetry));
+            }
+
+            if (platformContext == null)
+            {
+                throw new ArgumentNullException(nameof(platformContext));
+            }
+
             // Telemetry is initialized by Base SDK OperationCorrelationTelemetryInitializer from the call context /Current Activity
             // However we still may lose CorrelationContext/AsyncLocal due to IIS managed/native thread hops. 
             // We protect from it with PreRequestHandlerExecute event, that happens right before the handler

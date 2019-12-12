@@ -66,6 +66,11 @@
         /// <param name="value">DiagnosticListener value.</param>
         public void OnNext(DiagnosticListener value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             if (this.isEnabled && value.Name == AspNetListenerName)
             {
                 var eventListener = new AspNetEventObserver(this.requestModule, this.exceptionModule);

@@ -17,6 +17,11 @@
         /// </summary>
         public static string ToInvariantString(this Exception exception)
         {
+            if (exception == null)
+            {
+                return string.Empty;
+            }
+
 #if !NETSTANDARD1_3
             CultureInfo originalUICulture = Thread.CurrentThread.CurrentUICulture;
             try

@@ -15,6 +15,11 @@
         /// <returns>The configuration of the metric.</returns>
         public static MetricConfiguration GetConfiguration(this Metric metric)
         {
+            if (metric == null)
+            {
+                throw new ArgumentNullException(nameof(metric));
+            }
+
             return metric.configuration;
         }
 

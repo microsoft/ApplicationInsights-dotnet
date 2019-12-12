@@ -167,6 +167,11 @@
             string instrumentationKey = null,
             string connectionString = null)
         {
+            if (configurationSourceRoot == null)
+            {
+                throw new ArgumentNullException(nameof(configurationSourceRoot));
+            }
+
             var telemetryConfigValues = new List<KeyValuePair<string, string>>();
 
             bool wasAnythingSet = false;

@@ -70,6 +70,16 @@
                 throw new ArgumentNullException(nameof(telemetry));
             }
 
+            if (platformContext == null)
+            {
+                throw new ArgumentNullException(nameof(platformContext));
+            }
+
+            if (requestTelemetry == null)
+            {
+                throw new ArgumentNullException(nameof(requestTelemetry));
+            }
+
             if (!string.IsNullOrEmpty(telemetry.Context.Location.Ip))
             {
                 // Ip is already populated.
