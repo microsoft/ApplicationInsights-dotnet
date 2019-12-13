@@ -13,7 +13,7 @@
         private const string WebAppHostNameHeaderName = "WAS-DEFAULT-HOSTNAME";
         private const string WebAppHostNameEnvironmentVariable = "WEBSITE_HOSTNAME";
 
-        private static string roleName = string.Empty;
+        private string roleName = string.Empty;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RoleNameContainer"/> class.
