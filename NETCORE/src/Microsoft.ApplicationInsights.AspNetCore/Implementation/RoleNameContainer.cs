@@ -39,13 +39,13 @@
         /// </summary>
         public string RoleName
         {
-            get => roleName;
+            get => this.roleName;
 
             set
             {
-                if (value != roleName)
+                if (value != this.roleName)
                 {
-                    Interlocked.Exchange(ref roleName, value);
+                    Interlocked.Exchange(ref this.roleName, value);
                 }
             }
         }

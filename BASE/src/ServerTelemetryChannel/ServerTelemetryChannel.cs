@@ -30,6 +30,7 @@
         /// Initializes a new instance of the <see cref="ServerTelemetryChannel"/> class.
         /// </summary>
 #if !NETSTANDARD
+        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "WebApplicationLifecycle is needed for the life of the application.")]
         public ServerTelemetryChannel() : this(new Network(), new WebApplicationLifecycle())
 #else
         // TODO: IApplicationLifecycle implementation for netcore need to be written instead of null here.
