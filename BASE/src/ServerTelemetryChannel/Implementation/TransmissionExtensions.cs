@@ -27,7 +27,6 @@
             return new Transmission(address, content, contentType, contentEncoding);
         }
 
-
         /// <summary>
         /// Saves the transmission to the specified <paramref name="stream"/>.
         /// </summary>
