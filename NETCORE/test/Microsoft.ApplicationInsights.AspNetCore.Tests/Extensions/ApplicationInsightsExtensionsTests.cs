@@ -36,8 +36,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Http.Internal;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Options;    
+    using Microsoft.Extensions.Options;
 
+#pragma warning disable CS0618 // TelemetryConfiguration.Active is obsolete. We still test with this for backwards compatibility.
     public static class ApplicationInsightsExtensionsTests
     {
         /// <summary>Constant instrumentation key value for testintg.</summary>
@@ -1506,4 +1507,5 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
         }
     }
+#pragma warning restore CS0618 // TelemetryConfiguration.Active is obsolete. We still test with this for backwards compatibility.
 }

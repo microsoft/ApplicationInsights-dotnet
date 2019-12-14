@@ -46,12 +46,12 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryConfigurationOptionsSetup"/> class.
         /// </summary>
-        /// <param name="applicationInsightsServiceOptions"></param>
-        /// <param name="initializers"></param>
-        /// <param name="modules"></param>
-        /// <param name="serviceProvider"></param>
-        /// <param name="telemetryModuleConfigurators"></param>
-        /// <param name="telemetryProcessorFactories"></param>
+        /// <param name="serviceProvider">Instance of IServiceProvider.</param>
+        /// <param name="applicationInsightsServiceOptions">Instance of IOptions&lt;ApplicationInsightsServiceOptions>.</param>
+        /// <param name="initializers">Instance of IEnumerable&lt;ITelemetryInitializer>.</param>
+        /// <param name="modules">Instance of IEnumerable&lt;ITelemetryModule>.</param>
+        /// <param name="telemetryProcessorFactories">Instance of IEnumerable&lt;ITelemetryProcessorFactory>.</param>
+        /// <param name="telemetryModuleConfigurators">Instance of IEnumerable&lt;ITelemetryModuleConfigurator>.</param>
         public TelemetryConfigurationOptionsSetup(
             IServiceProvider serviceProvider,
             IOptions<ApplicationInsightsServiceOptions> applicationInsightsServiceOptions,

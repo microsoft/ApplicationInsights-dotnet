@@ -97,6 +97,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
                                 AspNetCoreEventSource.Instance.LogError($"Exception occured while attempting to find Asp.Net Core Major version. Assuming {aspNetCoreMajorVersion.ToString()} and continuing. Exception: {e.Message}");
                             }
 
+#pragma warning disable CS0618 // EnableW3CDistributedTracing is obsolete. Ignore because the property inside this constructor is still in use.
                             this.diagnosticListener = new HostingDiagnosticListener(
                                 configuration,
                                 this.telemetryClient,
@@ -105,6 +106,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
                                 this.CollectionOptions.TrackExceptions,
                                 this.CollectionOptions.EnableW3CDistributedTracing,
                                 aspNetCoreMajorVersion);
+#pragma warning restore CS0618
 
                             this.subscriptions?.Add(DiagnosticListener.AllListeners.Subscribe(this));
 
