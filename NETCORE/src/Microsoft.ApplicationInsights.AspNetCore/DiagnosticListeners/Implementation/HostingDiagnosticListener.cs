@@ -944,7 +944,7 @@
                 }
 
                 var exceptionTelemetry = new ExceptionTelemetry(exception);
-                exceptionTelemetry.HandledAt = ExceptionHandledAt.Platform; // TODO: NEED CIJO'S HELP TO REFACTOR "HandledAt" obsolete.:
+                exceptionTelemetry.Properties["handledAt"] = "Platform";
                 exceptionTelemetry.Context.GetInternalContext().SdkVersion = this.sdkVersion;
                 this.client.Track(exceptionTelemetry);
             }
