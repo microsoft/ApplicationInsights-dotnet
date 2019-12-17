@@ -4,6 +4,7 @@
 
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     internal class StubPlatform : IPlatform
     {
@@ -23,8 +24,16 @@
 
         public bool TryGetEnvironmentVariable(string name, out string value)
         {
-            value = Environment.GetEnvironmentVariable(name);
-            return !string.IsNullOrEmpty(value);
+            try
+            {
+                value = Environment.GetEnvironmentVariable(name);
+                return !string.IsNullOrEmpty(value);
+            }
+            catch (Exception e)
+            {
+                CoreEventSource.Log.FailedToLoadEnvironmentVariables(e.ToString());
+                throw;
+            }
         }
 
         public string GetMachineName()
