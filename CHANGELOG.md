@@ -1,7 +1,7 @@
 # Changelog
 
 ## VNext
-
+- [Fix Environment read permission Exception](https://github.com/microsoft/ApplicationInsights-dotnet/issues/657)
 
 ## Version 2.12.0
 - [Fix IndexOutOfRangeException in W3CUtilities.TryGetTraceId](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1327)
