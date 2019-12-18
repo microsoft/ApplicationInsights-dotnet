@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
 {
+    using System;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -24,14 +25,29 @@
         /// <inheritdoc />
         protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
         {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
             if (!string.IsNullOrEmpty(telemetry.Context.User.Id))
             {
                 AspNetCoreEventSource.Instance.LogWebUserTelemetryInitializerOnInitializeTelemetrySessionIdNull();
                 return;
             }
 
+            if (requestTelemetry == null)
+            {
+                throw new ArgumentNullException(nameof(requestTelemetry));
+            }
+
             if (string.IsNullOrEmpty(requestTelemetry.Context.User.Id))
             {
+                if (platformContext == null)
+                {
+                    throw new ArgumentNullException(nameof(platformContext));
+                }
+
                 UpdateRequestTelemetryFromPlatformContext(requestTelemetry, platformContext);
             }
 

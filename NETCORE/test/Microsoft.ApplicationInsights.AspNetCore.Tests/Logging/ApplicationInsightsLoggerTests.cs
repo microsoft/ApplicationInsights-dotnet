@@ -8,6 +8,7 @@ using Xunit;
 
 namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
 {
+#pragma warning disable CS0618 // ApplicationInsightsLoggerOptions is obsolete. Are we ready to delete these tests?
     /// <summary>
     /// Tests for the Application Insights ILogger implementation.
     /// </summary>
@@ -464,4 +465,5 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
             logger.LogTrace("This won't do anything.", new object[] { });
         }
     }
+#pragma warning restore CS0618 // ApplicationInsightsLoggerOptions is obsolete. Are we ready to delete these tests?
 }

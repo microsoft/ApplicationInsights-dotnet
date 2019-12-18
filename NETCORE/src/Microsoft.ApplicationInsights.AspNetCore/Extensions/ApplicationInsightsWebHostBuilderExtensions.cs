@@ -17,6 +17,11 @@
         [Obsolete("This method is deprecated in favor of AddApplicationInsightsTelemetry() extension method on IServiceCollection.")]
         public static IWebHostBuilder UseApplicationInsights(this IWebHostBuilder webHostBuilder)
         {
+            if (webHostBuilder == null)
+            {
+                throw new ArgumentNullException(nameof(webHostBuilder));
+            }
+
             webHostBuilder.ConfigureServices(collection =>
             {
                 collection.AddApplicationInsightsTelemetry();
@@ -34,6 +39,11 @@
         [Obsolete("This method is deprecated in favor of AddApplicationInsightsTelemetry(string instrumentationKey) extension method on IServiceCollection.")]
         public static IWebHostBuilder UseApplicationInsights(this IWebHostBuilder webHostBuilder, string instrumentationKey)
         {
+            if (webHostBuilder == null)
+            {
+                throw new ArgumentNullException(nameof(webHostBuilder));
+            }
+
             webHostBuilder.ConfigureServices(collection => collection.AddApplicationInsightsTelemetry(instrumentationKey));
             return webHostBuilder;
         }

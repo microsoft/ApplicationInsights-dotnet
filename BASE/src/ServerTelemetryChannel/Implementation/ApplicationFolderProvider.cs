@@ -121,12 +121,16 @@
 
         private static string GetSHA256Hash(string input)
         {
-            byte[] inputBits = Encoding.Unicode.GetBytes(input);            
-            byte[] hashBits = CreateSHA256().ComputeHash(inputBits);
             var hashString = new StringBuilder();
-            foreach (byte b in hashBits)
+
+            byte[] inputBits = Encoding.Unicode.GetBytes(input);
+            using (var sha256 = CreateSHA256())
             {
-                hashString.Append(b.ToString("x2", CultureInfo.InvariantCulture));
+                byte[] hashBits = sha256.ComputeHash(inputBits);
+                foreach (byte b in hashBits)
+                {
+                    hashString.Append(b.ToString("x2", CultureInfo.InvariantCulture));
+                }
             }
 
             return hashString.ToString();

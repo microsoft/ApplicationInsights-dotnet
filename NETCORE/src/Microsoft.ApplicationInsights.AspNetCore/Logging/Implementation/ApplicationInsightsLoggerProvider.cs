@@ -1,9 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.Logging
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
 
+#pragma warning disable CS0618 // ApplicationInsightsLoggerOptions is obsolete. This will not be fixed because this class is also obsolete.
     /// <summary>
     /// <see cref="ILoggerProvider"/> implementation that creates returns instances of <see cref="ApplicationInsightsLogger"/>.
     /// </summary>
@@ -11,6 +13,7 @@
     // For NETSTANDARD2.0 We take dependency on Microsoft.Extensions.Logging.ApplicationInsights which has ApplicationInsightsProvider having the same ProviderAlias and don't want to clash with this ProviderAlias.
     [ProviderAlias("ApplicationInsights")]
 #endif
+    [SuppressMessage("Documentation Rules", "SA1614:ElementParameterDocumentationMustHaveText", Justification = "This class is obsolete and will not be completely documented.")]
     internal class ApplicationInsightsLoggerProvider : ILoggerProvider
     {
         private readonly TelemetryClient telemetryClient;
@@ -20,6 +23,9 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ApplicationInsightsLoggerProvider"/> class.
         /// </summary>
+        /// <param name="telemetryClient"></param>
+        /// <param name="options"></param>
+        /// <param name="filter"></param>
         public ApplicationInsightsLoggerProvider(TelemetryClient telemetryClient, Func<string, LogLevel, bool> filter, IOptions<ApplicationInsightsLoggerOptions> options)
         {
             this.telemetryClient = telemetryClient;
@@ -38,4 +44,5 @@
         {
         }
     }
+#pragma warning restore CS0618
 }

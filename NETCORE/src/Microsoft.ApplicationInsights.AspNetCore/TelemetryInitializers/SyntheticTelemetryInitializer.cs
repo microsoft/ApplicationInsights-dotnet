@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
 {
+    using System;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNetCore.Http;
@@ -26,8 +27,18 @@
         /// <inheritdoc />
         protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
         {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
             if (string.IsNullOrEmpty(telemetry.Context.Operation.SyntheticSource))
             {
+                if (platformContext == null)
+                {
+                    throw new ArgumentNullException(nameof(platformContext));
+                }
+
                 var runIdHeader = platformContext.Request?.Headers[SyntheticTestRunId];
                 var locationHeader = platformContext.Request?.Headers[SyntheticTestLocation];
 

@@ -34,10 +34,13 @@ namespace Microsoft.Extensions.Logging
         /// <param name="builder">The <see cref="ILoggingBuilder"/> to use.</param>
         /// <param name="instrumentationKey">Application insights instrumentation key.</param>
         /// <returns>Logging builder with Application Insights added to it.</returns>
-        public static ILoggingBuilder AddApplicationInsights(
-            this ILoggingBuilder builder,
-            string instrumentationKey)
+        public static ILoggingBuilder AddApplicationInsights(this ILoggingBuilder builder, string instrumentationKey)
         {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
             return builder.AddApplicationInsights(
                 (telemetryConfiguration) => telemetryConfiguration.InstrumentationKey = instrumentationKey,
                 (applicationInsightsOptions) => { });
@@ -55,6 +58,11 @@ namespace Microsoft.Extensions.Logging
             string instrumentationKey,
             Action<ApplicationInsightsLoggerOptions> configureApplicationInsightsLoggerOptions)
         {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
             return builder.AddApplicationInsights(
                 (telemetryConfiguration) => telemetryConfiguration.InstrumentationKey = instrumentationKey,
                 configureApplicationInsightsLoggerOptions);
@@ -69,6 +77,11 @@ namespace Microsoft.Extensions.Logging
             this ILoggingBuilder builder,
             Action<ApplicationInsightsLoggerOptions> configureApplicationInsightsLoggerOptions)
         {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
             return builder.AddApplicationInsights(
                 (telemetryConfiguration) => { },
                 configureApplicationInsightsLoggerOptions);
