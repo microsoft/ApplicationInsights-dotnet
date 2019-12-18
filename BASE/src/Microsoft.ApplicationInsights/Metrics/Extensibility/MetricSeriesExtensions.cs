@@ -16,6 +16,11 @@
         /// <returns>Configuration of the specified series.</returns>
         public static IMetricSeriesConfiguration GetConfiguration(this MetricSeries metricSeries)
         {
+            if (metricSeries == null)
+            {
+                throw new ArgumentNullException(nameof(metricSeries));
+            }
+
             return metricSeries.configuration;
         }
     }

@@ -96,7 +96,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                 var contextProperty = this.ContextProperties[i];
                 if (!string.IsNullOrEmpty(contextProperty.Name) && contextProperty.Layout != null)
                 {
-                    string propertyValue = RenderLogEvent(contextProperty.Layout, logEvent);
+                    string propertyValue = this.RenderLogEvent(contextProperty.Layout, logEvent);
                     PopulatePropertyBag(propertyBag, contextProperty.Name, propertyValue);
                 }
             }
@@ -156,6 +156,11 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         /// <param name="asyncContinuation">The asynchronous continuation.</param>
         protected override void FlushAsync(AsyncContinuation asyncContinuation)
         {
+            if (asyncContinuation == null)
+            {
+                throw new ArgumentNullException(nameof(asyncContinuation));
+            }
+
             try
             {
                 this.TelemetryClient.Flush();
@@ -256,7 +261,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                 Message = $"{logEvent.Exception.GetType().ToString()}: {logEvent.Exception.Message}",
             };
 
-            string logMessage = RenderLogEvent(this.Layout, logEvent);
+            string logMessage = this.RenderLogEvent(this.Layout, logEvent);
             if (!string.IsNullOrEmpty(logMessage))
             {
                 exceptionTelemetry.Properties.Add("Message", logMessage);
@@ -268,7 +273,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
 
         private void SendTrace(LogEventInfo logEvent)
         {
-            string logMessage = RenderLogEvent(this.Layout, logEvent);
+            string logMessage = this.RenderLogEvent(this.Layout, logEvent);
             var trace = new TraceTelemetry(logMessage)
             {
                 SeverityLevel = GetSeverityLevel(logEvent.Level),

@@ -41,7 +41,7 @@
         /// <param name="webAppSuffix">WebApp name suffix.</param>
         public AzureAppServiceRoleNameFromHostNameHeaderInitializer(string webAppSuffix)
         {
-            this.WebAppSuffix = webAppSuffix;
+            this.WebAppSuffix = webAppSuffix ?? throw new ArgumentNullException(nameof(webAppSuffix));
             try
             {
                 var result = Environment.GetEnvironmentVariable(WebAppHostNameEnvironmentVariable);
@@ -80,6 +80,11 @@
         /// <param name="telemetry">The telemetry item for which RoleName is to be set.</param>
         public void Initialize(ITelemetry telemetry)
         {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
             try
             {
                 if (!this.isAzureWebApp)

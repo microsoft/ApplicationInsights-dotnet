@@ -28,6 +28,8 @@ namespace Microsoft.ApplicationInsights.Channel
         /// A lock object to serialize the sending calls from Flush, OnFull event and the Runner.  
         /// </summary>
         private object sendingLockObj = new object();
+
+        [SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", Justification = "Object is disposed within the using statement of the " + nameof(Runner) + " method.")]
         private AutoResetEvent startRunnerEvent;
         private bool enabled = true;
         

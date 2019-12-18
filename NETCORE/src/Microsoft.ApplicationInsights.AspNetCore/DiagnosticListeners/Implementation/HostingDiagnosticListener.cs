@@ -147,6 +147,8 @@
         /// <summary>
         /// Diagnostic event handler method for 'Microsoft.AspNetCore.Mvc.BeforeAction' event.
         /// </summary>
+        /// <param name="httpContext">HttpContext is used to retrieve information about the Request and Response.</param>
+        /// <param name="routeValues">Used to get the name of the request.</param>
         public void OnBeforeAction(HttpContext httpContext, IDictionary<string, object> routeValues)
         {
             var telemetry = httpContext.Features.Get<RequestTelemetry>();
@@ -165,6 +167,7 @@
         /// <summary>
         /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.HttpRequestIn.Start' event. This is from 2.XX runtime.
         /// </summary>
+        /// <param name="httpContext">HttpContext is used to retrieve information about the Request and Response.</param>
         public void OnHttpRequestInStart(HttpContext httpContext)
         {
             if (this.client.IsEnabled())
@@ -296,6 +299,7 @@
         /// <summary>
         /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.HttpRequestIn.Stop' event. This is from 2.XX runtime.
         /// </summary>
+        /// <param name="httpContext">HttpContext is used to retrieve information about the Request and Response.</param>
         public void OnHttpRequestInStop(HttpContext httpContext)
         {
             this.EndRequest(httpContext, Stopwatch.GetTimestamp());
@@ -304,6 +308,8 @@
         /// <summary>
         /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.BeginRequest' event. This is from 1.XX runtime.
         /// </summary>
+        /// <param name="httpContext">HttpContext is used to retrieve information about the Request and Response.</param>
+        /// <param name="timestamp">Used to set the request start property.</param>
         public void OnBeginRequest(HttpContext httpContext, long timestamp)
         {
             if (this.client.IsEnabled() && this.aspNetCoreMajorVersion == AspNetCoreMajorVersion.One)
@@ -384,6 +390,8 @@
         /// <summary>
         /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.EndRequest' event. This is from 1.XX runtime.
         /// </summary>
+        /// <param name="httpContext">HttpContext is used to retrieve information about the Request and Response.</param>
+        /// <param name="timestamp">Used to set request stop property.</param>
         public void OnEndRequest(HttpContext httpContext, long timestamp)
         {
             if (this.aspNetCoreMajorVersion == AspNetCoreMajorVersion.One)
@@ -395,6 +403,8 @@
         /// <summary>
         /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.UnhandledException' event.
         /// </summary>
+        /// <param name="httpContext">HttpContext is used to retrieve information about the Request and Response.</param>
+        /// <param name="exception">Used to create exception telemetry.</param>
         public void OnHostingException(HttpContext httpContext, Exception exception)
         {
             this.OnException(httpContext, exception);
@@ -410,6 +420,8 @@
         /// <summary>
         /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.HandledException' event.
         /// </summary>
+        /// <param name="httpContext">HttpContext is used to retrieve information about the Request and Response.</param>
+        /// <param name="exception">Used to create exception telemetry.</param>
         public void OnDiagnosticsHandledException(HttpContext httpContext, Exception exception)
         {
             this.OnException(httpContext, exception);
@@ -418,6 +430,8 @@
         /// <summary>
         /// Diagnostic event handler method for 'Microsoft.AspNetCore.Diagnostics.UnhandledException' event.
         /// </summary>
+        /// <param name="httpContext">HttpContext is used to retrieve information about the Request and Response.</param>
+        /// <param name="exception">Used to create exception telemetry.</param>
         public void OnDiagnosticsUnhandledException(HttpContext httpContext, Exception exception)
         {
             this.OnException(httpContext, exception);
@@ -429,6 +443,7 @@
             SubscriptionManager.Detach(this);
         }
 
+        /// <inheritdoc />
         public void OnNext(KeyValuePair<string, object> value)
         {
             HttpContext httpContext = null;
@@ -929,7 +944,7 @@
                 }
 
                 var exceptionTelemetry = new ExceptionTelemetry(exception);
-                exceptionTelemetry.HandledAt = ExceptionHandledAt.Platform;
+                exceptionTelemetry.Properties["handledAt"] = "Platform";
                 exceptionTelemetry.Context.GetInternalContext().SdkVersion = this.sdkVersion;
                 this.client.Track(exceptionTelemetry);
             }

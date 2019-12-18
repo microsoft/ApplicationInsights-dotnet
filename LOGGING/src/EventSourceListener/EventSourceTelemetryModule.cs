@@ -156,6 +156,11 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         /// <param name="eventData">Event to process.</param>
         protected override void OnEventWritten(EventWrittenEventArgs eventData)
         {
+            if (eventData == null)
+            {
+                throw new ArgumentNullException(nameof(eventData));
+            }
+
             // Suppress events from TplEventSource--they are mostly interesting for debugging task processing and interaction,
             // and not that useful for production tracing. However, TPL EventSource must be enabled to get hierarchical activity IDs.
             if (this.initialized && !TplActivities.TplEventSourceGuid.Equals(eventData.EventSource.Guid))
@@ -179,6 +184,11 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         /// Then, as new EventSources are created, the EventListener will receive notifications about them.</remarks>
         protected override void OnEventSourceCreated(EventSource eventSource)
         {
+            if (eventSource == null)
+            {
+                throw new ArgumentNullException(nameof(eventSource));
+            }
+
             // There is a bug in the EventListener library that causes this override to be called before the object is fully constructed.
             // We need to remember all EventSources we get notified about to do the initialization correctly (event if it happens multiple times).
             // If we are initialized, we can follow up with enabling the source straight away.

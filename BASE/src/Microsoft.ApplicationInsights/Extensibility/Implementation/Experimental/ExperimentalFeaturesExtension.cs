@@ -25,6 +25,11 @@
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static bool EvaluateExperimentalFeature(this TelemetryConfiguration telemetryConfiguration, string featureName)
         {
+            if (telemetryConfiguration == null)
+            {
+                throw new ArgumentNullException(nameof(telemetryConfiguration));
+            }
+
             return telemetryConfiguration.ExperimentalFeatures.Any(x => x.Equals(featureName, StringComparison.OrdinalIgnoreCase));
         }
     }

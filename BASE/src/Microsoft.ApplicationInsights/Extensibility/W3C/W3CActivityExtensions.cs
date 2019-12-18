@@ -65,6 +65,11 @@
         [Obsolete("Activity from System.Diagnostics.DiagnosticSource 4.6.0 onwards natively support W3C.")]
         public static string GetTraceparent(this Activity activity)
         {
+            if (activity == null)
+            {
+                throw new ArgumentNullException(nameof(activity));
+            }
+
             // Activity.ID is the trasceparent header.
             return activity.Id;
         }
@@ -90,6 +95,11 @@
         [Obsolete("Activity from System.Diagnostics.DiagnosticSource 4.6.0 onwards natively support W3C.")]
         public static string GetTracestate(this Activity activity)
         {
+            if (activity == null)
+            {
+                throw new ArgumentNullException(nameof(activity));
+            }
+
             return activity.TraceStateString;
         }
          
@@ -102,6 +112,11 @@
         [Obsolete("Activity from System.Diagnostics.DiagnosticSource 4.6.0 onwards natively support W3C.")]
         public static void SetTracestate(this Activity activity, string value)
         {
+            if (activity == null)
+            {
+                throw new ArgumentNullException(nameof(activity));
+            }
+
             activity.TraceStateString = value;
         }
 
@@ -114,6 +129,11 @@
         [Obsolete("Activity from System.Diagnostics.DiagnosticSource 4.6.0 onwards natively support W3C. Use Activity.TraceId to get Trace ID")]
         public static string GetTraceId(this Activity activity)
         {
+            if (activity == null)
+            {
+                throw new ArgumentNullException(nameof(activity));
+            }
+
             return activity.TraceId.ToHexString();
         }
 
@@ -126,6 +146,11 @@
         [Obsolete("Activity from System.Diagnostics.DiagnosticSource 4.6.0 onwards natively support W3C. Use Activity.SpanId to get Span ID")]
         public static string GetSpanId(this Activity activity)
         {
+            if (activity == null)
+            {
+                throw new ArgumentNullException(nameof(activity));
+            }
+
             return activity.SpanId.ToHexString();
         }
 
@@ -138,6 +163,11 @@
         [Obsolete("Activity from System.Diagnostics.DiagnosticSource 4.6.0 onwards natively support W3C. Use Activity.ParentSpanId to get ParentSpan ID")]
         public static string GetParentSpanId(this Activity activity)
         {
+            if (activity == null)
+            {
+                throw new ArgumentNullException(nameof(activity));
+            }
+
             return activity.ParentSpanId.ToHexString();
         }
 

@@ -30,6 +30,7 @@
         /// Initializes a new instance of the <see cref="ServerTelemetryChannel"/> class.
         /// </summary>
 #if !NETSTANDARD
+        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "WebApplicationLifecycle is needed for the life of the application.")]
         public ServerTelemetryChannel() : this(new Network(), new WebApplicationLifecycle())
 #else
         // TODO: IApplicationLifecycle implementation for netcore need to be written instead of null here.
@@ -315,6 +316,11 @@
         [SuppressMessage("Microsoft.Usage", "CA2234:PassSystemUriObjectsInsteadOfStrings", Justification = "Private variable, low risk.")]
         public void Initialize(TelemetryConfiguration configuration)
         {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
             this.Transmitter.Initialize();
 
             this.EndpointAddress = new Uri(configuration.EndpointContainer.Ingestion, "v2/track").AbsoluteUri;

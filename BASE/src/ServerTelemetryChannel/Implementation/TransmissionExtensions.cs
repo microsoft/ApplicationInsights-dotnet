@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.IO;
 
@@ -15,6 +16,7 @@
         /// Loads a new transmission from the specified <paramref name="stream"/>.
         /// </summary>
         /// <returns>Return transmission loaded from file; throws FormatException is file is corrupted.</returns>
+        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Disposing the StreamReader will also dispose the stream.")]
         public static Transmission Load(Stream stream)
         {
             var reader = new StreamReader(stream);
@@ -28,10 +30,10 @@
         /// <summary>
         /// Saves the transmission to the specified <paramref name="stream"/>.
         /// </summary>
+        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Disposing the StreamWriter will also dispose the stream.")]
         public static void Save(this Transmission transmission, Stream stream)
         {
             var writer = new StreamWriter(stream);
-
             writer.WriteLine(transmission.EndpointAddress.ToString());
 
             writer.Write(ContentTypeHeader);
