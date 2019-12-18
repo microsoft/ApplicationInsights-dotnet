@@ -84,6 +84,11 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
         /// <param name="loggingEvent">Events to be logged.</param>
         protected override void Append(LoggingEvent loggingEvent)
         {
+            if (loggingEvent == null)
+            {
+                throw new ArgumentNullException(nameof(loggingEvent));
+            }
+
             if (loggingEvent.ExceptionObject != null)
             {
                 this.SendException(loggingEvent);

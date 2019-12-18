@@ -13,7 +13,7 @@
         private const string WebAppHostNameHeaderName = "WAS-DEFAULT-HOSTNAME";
         private const string WebAppHostNameEnvironmentVariable = "WEBSITE_HOSTNAME";
 
-        private static string roleName = string.Empty;
+        private string roleName = string.Empty;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RoleNameContainer"/> class.
@@ -39,13 +39,13 @@
         /// </summary>
         public string RoleName
         {
-            get => roleName;
+            get => this.roleName;
 
             set
             {
-                if (value != roleName)
+                if (value != this.roleName)
                 {
-                    Interlocked.Exchange(ref roleName, value);
+                    Interlocked.Exchange(ref this.roleName, value);
                 }
             }
         }

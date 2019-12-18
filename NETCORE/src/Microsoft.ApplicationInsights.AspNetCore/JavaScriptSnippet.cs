@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore
 {
+    using System;
     using System.Globalization;
     using System.Security.Principal;
     using System.Text.Encodings.Web;
@@ -43,6 +44,11 @@
             IHttpContextAccessor httpContextAccessor,
             JavaScriptEncoder encoder = null)
         {
+            if (serviceOptions == null)
+            {
+                throw new ArgumentNullException(nameof(serviceOptions));
+            }
+
             this.telemetryConfiguration = telemetryConfiguration;
             this.httpContextAccessor = httpContextAccessor;
             this.enableAuthSnippet = serviceOptions.Value.EnableAuthenticationTrackingJavaScript;
@@ -63,7 +69,7 @@
                     string insertConfig;
                     if (!string.IsNullOrEmpty(this.telemetryConfiguration.ConnectionString))
                     {
-                        insertConfig =  string.Format(CultureInfo.InvariantCulture, "connectionString: '{0}'", this.telemetryConfiguration.ConnectionString);
+                        insertConfig = string.Format(CultureInfo.InvariantCulture, "connectionString: '{0}'", this.telemetryConfiguration.ConnectionString);
                     }
                     else if (!string.IsNullOrEmpty(this.telemetryConfiguration.InstrumentationKey))
                     {
@@ -87,7 +93,7 @@
                     }
 
                     // Return full snippet
-                    // Developer Note: If you recently updated the snippet and are now getting "FormatException: Input string was not in a correct format." you need to escape all the curly braces; '{' => '{{' and '}' => '}}'. 
+                    // Developer Note: If you recently updated the snippet and are now getting "FormatException: Input string was not in a correct format." you need to escape all the curly braces; '{' => '{{' and '}' => '}}'.
                     return string.Format(CultureInfo.InvariantCulture, Snippet, insertConfig, insertAuthUserContext);
                 }
                 else

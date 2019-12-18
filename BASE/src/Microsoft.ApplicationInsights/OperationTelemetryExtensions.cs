@@ -28,6 +28,11 @@
         /// <param name="timestamp">A high-resolution timestamp from <see cref="Stopwatch"/>.</param>
         public static void Start(this OperationTelemetry telemetry, long timestamp)
         {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
             telemetry.Timestamp = PreciseTimestamp.GetUtcNow(); 
 
             // Begin time is used internally for calculating duration of operation at the end call,
@@ -44,6 +49,11 @@
         /// <param name="telemetry">Telemetry item object that calls this extension method.</param>
         public static void Stop(this OperationTelemetry telemetry)
         {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
             if (telemetry.BeginTimeInTicks != 0L)
             {
                 StopImpl(telemetry, timestamp: Stopwatch.GetTimestamp());
@@ -61,6 +71,11 @@
         /// <param name="timestamp">A high-resolution timestamp from <see cref="Stopwatch"/>.</param>
         public static void Stop(this OperationTelemetry telemetry, long timestamp)
         {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
             if (telemetry.BeginTimeInTicks != 0L)
             {
                 StopImpl(telemetry, timestamp);
@@ -77,6 +92,11 @@
         /// <param name="telemetry">Telemetry to initialize Operation id for.</param>
         public static void GenerateOperationId(this OperationTelemetry telemetry)
         {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
             telemetry.GenerateId();
         }
 

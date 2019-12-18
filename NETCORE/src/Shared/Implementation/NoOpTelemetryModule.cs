@@ -1,10 +1,12 @@
 ﻿namespace Shared.Implementation
 {
+    using System.Diagnostics.CodeAnalysis;
     using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
     /// No-op telemetry module that is added instead of actual one, when the actual module is disabled.
     /// </summary>
+    [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "This class is instantiated by Dependency Injection.")]
     internal class NoOpTelemetryModule : ITelemetryModule
     {
         /// <summary>

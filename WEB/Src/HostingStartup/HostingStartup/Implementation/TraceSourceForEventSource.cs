@@ -106,6 +106,11 @@
         /// <param name="eventData">Event to trace.</param>
         protected void TraceEvent(EventWrittenEventArgs eventData)
         {
+            if (eventData == null)
+            {
+                throw new ArgumentNullException(nameof(eventData));
+            }
+
             try
             {
                 if (eventData.Payload != null)

@@ -30,6 +30,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         /// <param name="filteredBy">If specified, indicates the telemetry item was filtered out and not sent to the API.</param>
         public static void WriteTelemetry(ITelemetry telemetry, string filteredBy = null)
         {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
             var output = PlatformSingleton.Current.GetDebugOutput();
             if (output.IsAttached() && output.IsLogging())
             {

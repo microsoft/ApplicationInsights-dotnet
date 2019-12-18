@@ -138,24 +138,29 @@
         {
             try
             {
-                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, requestUri);
-                this.AddHeaders(request, includeIdentityHeaders, configurationETag, authApiKey);
-
-                using (MemoryStream stream = new MemoryStream())
+                using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, requestUri))
                 {
-                    onWriteRequestBody(stream);
-                    stream.Flush();
-                    ArraySegment<byte> buffer = stream.TryGetBuffer(out buffer) ? buffer : new ArraySegment<byte>();
-                    request.Content = new ByteArrayContent(buffer.Array, buffer.Offset, buffer.Count);
+                    this.AddHeaders(request, includeIdentityHeaders, configurationETag, authApiKey);
 
-                    HttpResponseMessage response = this.httpClient.SendAsync(request, new CancellationTokenSource(this.timeout).Token).GetAwaiter().GetResult();
-                    if (response == null)
+                    using (MemoryStream stream = new MemoryStream())
                     {
-                        configurationInfo = null;
-                        return null;
-                    }
+                        onWriteRequestBody(stream);
+                        stream.Flush();
+                        ArraySegment<byte> buffer = stream.TryGetBuffer(out buffer) ? buffer : new ArraySegment<byte>();
+                        request.Content = new ByteArrayContent(buffer.Array, buffer.Offset, buffer.Count);
 
-                    return this.ProcessResponse(response, configurationETag, out configurationInfo);
+                        using (var cancellationToken = new CancellationTokenSource(this.timeout))
+                        {
+                            HttpResponseMessage response = this.httpClient.SendAsync(request, cancellationToken.Token).GetAwaiter().GetResult();
+                            if (response == null)
+                            {
+                                configurationInfo = null;
+                                return null;
+                            }
+
+                            return this.ProcessResponse(response, configurationETag, out configurationInfo);
+                        }
+                    }
                 }
             }
             catch (Exception e)

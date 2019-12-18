@@ -19,7 +19,7 @@
     <PackageTags>$(PackageTags) TraceListener</PackageTags>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
+  <ItemGroup Condition=" $(OS) == 'Windows_NT'">
     <!--Analyzers-->
     <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
       <PrivateAssets>All</PrivateAssets>
@@ -27,10 +27,26 @@
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.2">
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
+
+  <Choose>
+    <When Condition=" '$(Configuration)' == 'Release' ">
+      <PropertyGroup>
+        <!-- Microsoft recommends that we disable CodeAnalysis in favor of FxCop Analyzers. aka.ms/fxcopanalyzers -->
+        <RunCodeAnalysis>false</RunCodeAnalysis>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+      </PropertyGroup>
+    </When>
+    <When Condition=" '$(Configuration)' != 'Release' ">
+      <PropertyGroup>
+        <RunCodeAnalysis>false</RunCodeAnalysis>
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+      </PropertyGroup>
+    </When>
+  </Choose>
 
   <ItemGroup>
     <!--Build Infrastructure-->
