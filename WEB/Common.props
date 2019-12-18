@@ -65,7 +65,4 @@
   </PropertyGroup>
   <Import Project="$(PartitionPropertiesFile)" Condition="Exists($(PartitionPropertiesFile))" />
 
-  <PropertyGroup>
-    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);AddXmlDocToNugetPackage</TargetsForTfmSpecificBuildOutput>
-  </PropertyGroup>
 </Project>

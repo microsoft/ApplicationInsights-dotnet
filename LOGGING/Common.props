@@ -24,7 +24,4 @@
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);AddXmlDocToNugetPackage</TargetsForTfmSpecificBuildOutput>
-  </PropertyGroup>
 </Project>
