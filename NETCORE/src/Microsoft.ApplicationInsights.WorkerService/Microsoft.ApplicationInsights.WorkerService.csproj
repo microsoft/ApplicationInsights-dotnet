@@ -83,4 +83,6 @@
     
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
   </ItemGroup>
+
+  <Import Project="$(TargetsRoot)\AddXmlLanguage.targets" />
 </Project>
