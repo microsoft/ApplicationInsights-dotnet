@@ -19,11 +19,6 @@
     <PackageTags>$(PackageTags)aspnetcore;</PackageTags>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <!--Package Settings-->
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <!--Symbols Settings-->
     <DebugType>full</DebugType>

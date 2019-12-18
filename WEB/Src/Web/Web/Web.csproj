@@ -4,7 +4,6 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.Web</RootNamespace>
     <AssemblyName>Microsoft.AI.Web</AssemblyName>
-    <DocumentationFile>$(OutputPath)\$(AssemblyName).XML</DocumentationFile>
     <TargetFramework>net45</TargetFramework>
     <Prefer32Bit>false</Prefer32Bit>
     <DefineConstants>$(DefineConstants);ALLOW_AGGRESSIVE_INLIGNING_ATTRIBUTE</DefineConstants>
