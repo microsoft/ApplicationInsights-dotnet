@@ -37,15 +37,15 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
                 throw new ArgumentNullException(nameof(httpContext));
             }
 
-            if (routeValues == null)
-            {
-                throw new ArgumentNullException(nameof(routeValues));
-            }
-
             var telemetry = httpContext.Features.Get<RequestTelemetry>();
 
             if (telemetry != null && string.IsNullOrEmpty(telemetry.Name))
             {
+                if (routeValues == null)
+                {
+                    throw new ArgumentNullException(nameof(routeValues));
+                }
+
                 string name = GetNameFromRouteContext(routeValues);
                 if (!string.IsNullOrEmpty(name))
                 {

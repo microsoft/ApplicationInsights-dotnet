@@ -27,24 +27,24 @@
                 throw new ArgumentNullException(nameof(telemetry));
             }
 
-            if (platformContext == null)
-            {
-                throw new ArgumentNullException(nameof(platformContext));
-            }
-
-            if (requestTelemetry == null)
-            {
-                throw new ArgumentNullException(nameof(requestTelemetry));
-            }
-
             if (string.IsNullOrEmpty(telemetry.Context.Operation.Name))
             {
+                if (requestTelemetry == null)
+                {
+                    throw new ArgumentNullException(nameof(requestTelemetry));
+                }
+
                 if (!string.IsNullOrEmpty(requestTelemetry.Name))
                 {
                     telemetry.Context.Operation.Name = requestTelemetry.Name;
                 }
                 else
                 {
+                    if (platformContext == null)
+                    {
+                        throw new ArgumentNullException(nameof(platformContext));
+                    }
+
                     // We didn't get BeforeAction notification
                     string name = platformContext.Request.Method + " " + platformContext.Request.Path.Value;
                     telemetry.Context.Operation.Name = name;

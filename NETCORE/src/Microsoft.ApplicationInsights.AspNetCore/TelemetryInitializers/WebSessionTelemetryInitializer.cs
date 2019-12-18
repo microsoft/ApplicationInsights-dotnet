@@ -30,9 +30,10 @@
                 throw new ArgumentNullException(nameof(telemetry));
             }
 
-            if (platformContext == null)
+            if (!string.IsNullOrEmpty(telemetry.Context.Session.Id))
             {
-                throw new ArgumentNullException(nameof(platformContext));
+                AspNetCoreEventSource.Instance.LogWebSessionTelemetryInitializerOnInitializeTelemetrySessionIdNull();
+                return;
             }
 
             if (requestTelemetry == null)
@@ -40,14 +41,13 @@
                 throw new ArgumentNullException(nameof(requestTelemetry));
             }
 
-            if (!string.IsNullOrEmpty(telemetry.Context.Session.Id))
-            {
-                AspNetCoreEventSource.Instance.LogWebSessionTelemetryInitializerOnInitializeTelemetrySessionIdNull();
-                return;
-            }
-
             if (string.IsNullOrEmpty(requestTelemetry.Context.Session.Id))
             {
+                if (platformContext == null)
+                {
+                    throw new ArgumentNullException(nameof(platformContext));
+                }
+
                 UpdateRequestTelemetryFromPlatformContext(requestTelemetry, platformContext);
             }
 
