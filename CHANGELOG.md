@@ -1,6 +1,7 @@
 # Changelog
 
 ## VNext
+- [Upgraded FxCop and fixed several issues related to null checks and disposing objects.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1499)
 - [Fix Environment read permission Exception](https://github.com/microsoft/ApplicationInsights-dotnet/issues/657)
 
 ## Version 2.12.0

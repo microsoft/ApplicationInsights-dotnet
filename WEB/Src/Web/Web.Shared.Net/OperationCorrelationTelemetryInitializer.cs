@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Web
 {
+    using System;
     using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
     using System.Web;
@@ -63,11 +64,23 @@
         /// <param name="platformContext">Http context.</param>
         /// <param name="requestTelemetry">Request telemetry object associated with the current request.</param>
         /// <param name="telemetry">Telemetry item to initialize.</param>
-        protected override void OnInitializeTelemetry(
-            HttpContext platformContext,
-            RequestTelemetry requestTelemetry,
-            ITelemetry telemetry)
+        protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
         {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
+            if (requestTelemetry == null)
+            {
+                throw new ArgumentNullException(nameof(requestTelemetry));
+            }
+
+            if (platformContext == null)
+            {
+                throw new ArgumentNullException(nameof(platformContext));
+            }
+
             // Telemetry is initialized by Base SDK OperationCorrelationTelemetryInitializer from the call context /Current Activity
             // However we still may lose CorrelationContext/AsyncLocal due to IIS managed/native thread hops. 
             // We protect from it with PreRequestHandlerExecute event, that happens right before the handler

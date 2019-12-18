@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Common;
@@ -68,6 +69,7 @@
             }
         }
 
+        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "TelemetryConfiguration is needed for the life of the application.")]
         private TelemetryClient GetTelemetryClient(TelemetryConfiguration sourceConfiguration)
         {
             this.channel.EndpointAddress = sourceConfiguration.TelemetryChannel.EndpointAddress;

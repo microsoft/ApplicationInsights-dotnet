@@ -63,12 +63,18 @@
         /// <param name="filter">Filter action.</param>
         /// <param name="loggerAddedCallback">The callback that gets executed when another ApplicationInsights logger is added.</param>
         [Obsolete("ApplicationInsightsLoggerProvider is now enabled by default when enabling ApplicationInsights monitoring using UseApplicationInsights extension method on IWebHostBuilder or AddApplicationInsightsTelemetry extension method on IServiceCollection. From 2.7.0-beta3 onwards, calling this method will result in double logging and filters applied will not get applied. If interested in using just logging provider, then please use Microsoft.Extensions.Logging.ApplicationInsightsLoggingBuilderExtensions.AddApplicationInsights from Microsoft.Extensions.Logging.ApplicationInsights package. Read more https://aka.ms/ApplicationInsightsILoggerFaq")]
+        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Obsolete method.")]
         public static ILoggerFactory AddApplicationInsights(
             this ILoggerFactory factory,
             IServiceProvider serviceProvider,
             Func<string, LogLevel, bool> filter,
             Action loggerAddedCallback)
         {
+            if (factory == null)
+            {
+                throw new ArgumentNullException(nameof(factory));
+            }
+
             var client = serviceProvider.GetService<TelemetryClient>();
             var debugLoggerControl = serviceProvider.GetService<Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerEvents>();
             var options = serviceProvider.GetService<IOptions<Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerOptions>>();

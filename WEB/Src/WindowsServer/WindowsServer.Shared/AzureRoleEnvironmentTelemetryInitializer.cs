@@ -47,6 +47,11 @@
         /// <param name="telemetry">The telemetry to initialize.</param>
         public void Initialize(ITelemetry telemetry)
         {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
             if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleName))
             {                
                 telemetry.Context.Cloud.RoleName = this.roleName;

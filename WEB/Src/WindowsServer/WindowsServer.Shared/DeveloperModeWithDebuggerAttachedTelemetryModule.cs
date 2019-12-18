@@ -20,6 +20,11 @@
         /// <param name="configuration">Configuration object.</param>
         public void Initialize(TelemetryConfiguration configuration)
         {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
             if (!configuration.TelemetryChannel.DeveloperMode.HasValue && IsDebuggerAttached())
             {
                 // Note that when debugger is not attached we are preserving default null value

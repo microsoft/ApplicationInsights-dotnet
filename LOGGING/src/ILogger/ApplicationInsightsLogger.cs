@@ -78,6 +78,11 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
         /// <param name="formatter">Function to create a <c>string</c> message of the <paramref name="state" /> and <paramref name="exception" />.</param>
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
+            if (formatter == null)
+            {
+                throw new ArgumentNullException(nameof(formatter));
+            }
+
             if (this.IsEnabled(logLevel))
             {
                 if (exception == null || !this.applicationInsightsLoggerOptions.TrackExceptionsAsExceptionTelemetry)

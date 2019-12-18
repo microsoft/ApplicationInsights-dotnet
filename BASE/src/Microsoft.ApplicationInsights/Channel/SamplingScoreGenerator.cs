@@ -25,6 +25,11 @@
         /// <returns>Item sampling score.</returns>
         public static double GetSamplingScore(ITelemetry telemetry)
         {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
             double samplingScore = 0;
 
             if (telemetry.Context.Operation.Id != null)

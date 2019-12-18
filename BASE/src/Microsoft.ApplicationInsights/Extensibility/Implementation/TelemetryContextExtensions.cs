@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
+    using System;
     using System.ComponentModel;
     using Microsoft.ApplicationInsights.DataContracts;
 
@@ -16,6 +17,11 @@
         /// <returns>Internal context for TelemetryContext.</returns>
         public static InternalContext GetInternalContext(this TelemetryContext context)
         {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
             return context.Internal;
         }
     }
