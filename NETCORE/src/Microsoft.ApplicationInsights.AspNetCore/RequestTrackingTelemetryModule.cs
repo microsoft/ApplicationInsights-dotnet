@@ -19,9 +19,11 @@ namespace Microsoft.ApplicationInsights.AspNetCore
     /// </summary>
     public class RequestTrackingTelemetryModule : ITelemetryModule, IObserver<DiagnosticListener>, IDisposable
     {
+        internal bool IsInitialized = false;
+
         // We are only interested in BeforeAction event from Microsoft.AspNetCore.Mvc source.
         // We are interested in Microsoft.AspNetCore.Hosting and Microsoft.AspNetCore.Diagnostics as well.
-        // Below filter achieves acceptable performance, character 22 shoudl not be M unless event is BeforeAction.
+        // Below filter achieves acceptable performance, character 22 should not be M unless event is BeforeAction.
         private static readonly Predicate<string> HostingPredicate = (string eventName) => (eventName != null) ? !(eventName[21] == 'M') || eventName == "Microsoft.AspNetCore.Mvc.BeforeAction" : false;
         private readonly object lockObject = new object();
         private readonly IApplicationIdProvider applicationIdProvider;
@@ -29,7 +31,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         private TelemetryClient telemetryClient;
         private ConcurrentBag<IDisposable> subscriptions;
         private HostingDiagnosticListener diagnosticListener;
-        internal bool isInitialized = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestTrackingTelemetryModule"/> class.
@@ -63,11 +64,11 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         {
             try
             {
-                if (!this.isInitialized)
+                if (!this.IsInitialized)
                 {
                     lock (this.lockObject)
                     {
-                        if (!this.isInitialized)
+                        if (!this.IsInitialized)
                         {
                             this.telemetryClient = new TelemetryClient(configuration);
 
@@ -96,6 +97,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
                                 AspNetCoreEventSource.Instance.LogError($"Exception occured while attempting to find Asp.Net Core Major version. Assuming {aspNetCoreMajorVersion.ToString()} and continuing. Exception: {e.Message}");
                             }
 
+#pragma warning disable CS0618 // EnableW3CDistributedTracing is obsolete. Ignore because the property inside this constructor is still in use.
                             this.diagnosticListener = new HostingDiagnosticListener(
                                 configuration,
                                 this.telemetryClient,
@@ -104,10 +106,11 @@ namespace Microsoft.ApplicationInsights.AspNetCore
                                 this.CollectionOptions.TrackExceptions,
                                 this.CollectionOptions.EnableW3CDistributedTracing,
                                 aspNetCoreMajorVersion);
+#pragma warning restore CS0618
 
                             this.subscriptions?.Add(DiagnosticListener.AllListeners.Subscribe(this));
 
-                            this.isInitialized = true;
+                            this.IsInitialized = true;
                         }
                     }
                 }
@@ -149,6 +152,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         public void Dispose()
         {
             this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>

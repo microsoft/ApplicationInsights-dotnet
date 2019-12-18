@@ -20,6 +20,11 @@
         /// </summary>
         public void Initialize(ITelemetry telemetry)
         {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
             if (string.IsNullOrEmpty(telemetry.Sequence))
             {
                 telemetry.Sequence = this.stablePrefix + Interlocked.Increment(ref this.currentNumber).ToString(CultureInfo.InvariantCulture);

@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Common
 {
+    using System;
     using System.Runtime.CompilerServices;
 
     /// <summary>
@@ -12,6 +13,11 @@
         /// </summary>
         public static void AddIfNotExists<TKey, TValue>(this ConditionalWeakTable<TKey, TValue> conditionalWeakTable, TKey key, TValue value) where TKey : class where TValue : class
         {
+            if (conditionalWeakTable == null)
+            {
+                throw new ArgumentNullException(nameof(conditionalWeakTable));
+            }
+
             if (!conditionalWeakTable.TryGetValue(key, out TValue testValue))
             {
                 conditionalWeakTable.Add(key, value);

@@ -26,6 +26,11 @@ namespace Microsoft.ApplicationInsights.WorkerService.TelemetryInitializers
         /// <param name="telemetry">Telemetry item.</param>
         public void Initialize(ITelemetry telemetry)
         {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
             if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
             {
                 var name = LazyInitializer.EnsureInitialized(ref this.roleInstanceName, this.GetMachineName);

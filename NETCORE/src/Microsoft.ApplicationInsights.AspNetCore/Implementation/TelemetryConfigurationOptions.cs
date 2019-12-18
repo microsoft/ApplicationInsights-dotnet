@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Extensions.DependencyInjection
 {
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.Extensions.Options;
@@ -35,7 +36,9 @@
                 {
                     foreach (var c in configureOptionsArray)
                     {
-                        c.Configure(TelemetryConfiguration.Active);
+#pragma warning disable CS0618 // This must be maintained for backwards compatibility.
+                        c.Configure(TelemetryConfiguration.Active); 
+#pragma warning restore CS0618
                     }
                 }
             }
@@ -51,7 +54,9 @@
         /// <returns>True is TelemertryConfiguration.Active was previously configured.</returns>
         private static bool IsActiveConfigured(string instrumentationKey)
         {
+#pragma warning disable CS0618 // This must be maintained for backwards compatibility.
             var active = TelemetryConfiguration.Active;
+#pragma warning restore CS0618
             if (string.IsNullOrEmpty(active.InstrumentationKey) && !string.IsNullOrEmpty(instrumentationKey))
             {
                 return false;

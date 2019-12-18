@@ -7,6 +7,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.Implementation;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.AspNetCore.Http;
 
     /// <summary>
@@ -31,10 +32,20 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         /// </summary>
         public void OnBeforeAction(HttpContext httpContext, IDictionary<string, object> routeValues)
         {
+            if (httpContext == null)
+            {
+                throw new ArgumentNullException(nameof(httpContext));
+            }
+
             var telemetry = httpContext.Features.Get<RequestTelemetry>();
 
             if (telemetry != null && string.IsNullOrEmpty(telemetry.Name))
             {
+                if (routeValues == null)
+                {
+                    throw new ArgumentNullException(nameof(routeValues));
+                }
+
                 string name = GetNameFromRouteContext(routeValues);
                 if (!string.IsNullOrEmpty(name))
                 {

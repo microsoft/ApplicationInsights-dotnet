@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
+    using System;
     using System.Diagnostics;
 
     using Microsoft.ApplicationInsights;
@@ -22,6 +23,11 @@
         /// <param name="telemetryItem">Target telemetry item to add operation context.</param>
         public void Initialize(ITelemetry telemetryItem)
         {
+            if (telemetryItem == null)
+            {
+                throw new ArgumentNullException(nameof(telemetryItem));
+            }
+
             var itemOperationContext = telemetryItem.Context.Operation;
             var telemetryProp = telemetryItem as ISupportProperties;            
 

@@ -3,6 +3,7 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Linq;
     using Microsoft.ApplicationInsights;
@@ -11,9 +12,11 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.Extensions.Logging;
 
+#pragma warning disable CS0618 // ApplicationInsightsLoggerOptions is obsolete. This will not be fixed because this class is also obsolete.
     /// <summary>
     /// <see cref="ILogger"/> implementation that forwards log messages as Application Insight trace events.
     /// </summary>
+    [SuppressMessage("Documentation Rules", "SA1614:ElementParameterDocumentationMustHaveText", Justification = "This class is obsolete and will not be completely documented.")]
     internal class ApplicationInsightsLogger : ILogger
     {
 #if NET451 || NET46
@@ -37,6 +40,10 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ApplicationInsightsLogger"/> class.
         /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="name"></param>
+        /// <param name="options"></param>
+        /// <param name="telemetryClient"></param>
         public ApplicationInsightsLogger(string name, TelemetryClient telemetryClient, Func<string, LogLevel, bool> filter, ApplicationInsightsLoggerOptions options)
         {
             this.categoryName = name;
@@ -134,4 +141,5 @@
             }
         }
     }
+#pragma warning restore CS0618
 }
