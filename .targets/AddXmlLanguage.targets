@@ -24,7 +24,7 @@
                     }
                     else
                     {
-                      Log.LogError("InjectXmlLanguage: Assembly XML Doc file not found in bin folder.");
+                        Log.LogError("InjectXmlLanguage: Assembly XML Doc file not found in bin folder.");
                     }
             ]]></Code>
         </Task>
