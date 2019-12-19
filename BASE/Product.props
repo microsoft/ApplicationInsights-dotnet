@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.props'))\Common.props"/>
+  <Import Project="$(SourceRoot)\Common.props"/>
+
+  <Import Project="$(TargetsRoot)\AddXmlLanguage.targets" />
+
   <PropertyGroup>
     <!--Removing the SRC folder from the output directory-->
     <CorePath>$(RelativeOutputPathBase.Substring(4))</CorePath>	
@@ -8,8 +11,4 @@
     <OutputPath>$([System.IO.Path]::GetFullPath( $(OutputPath) ))\</OutputPath>
   </PropertyGroup>
   
-  <PropertyGroup>
-    <RootNamespace>Microsoft.ApplicationInsights</RootNamespace>
-    <AssemblyName>$(RootNamespace)</AssemblyName>
-  </PropertyGroup>
 </Project>

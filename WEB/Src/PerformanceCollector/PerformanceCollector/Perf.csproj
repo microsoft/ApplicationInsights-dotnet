@@ -94,5 +94,4 @@
   <Import Project="..\Perf.Shared.NetStandard16.Stubs\Perf.Shared.NetStandard16.Stubs.projitems" Label="Shared" Condition="'$(TargetFramework)' == 'netstandard1.6'" />
   <Import Project="..\Perf.Shared.NetStandard20\Perf.Shared.NetStandard20.projitems" Label="Shared" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
   
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 </Project>
