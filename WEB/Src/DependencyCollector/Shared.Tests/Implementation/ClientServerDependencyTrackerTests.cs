@@ -85,9 +85,9 @@
             Assert.AreNotEqual(parentActivity, currentActivity);
             Assert.AreEqual(parentActivity, currentActivity.Parent);
 
-            Assert.AreEqual($"|{currentActivity.TraceId.ToHexString()}.{currentActivity.SpanId.ToHexString()}.", telemetry.Id);
+            Assert.AreEqual(currentActivity.SpanId.ToHexString(), telemetry.Id);
             Assert.AreEqual(currentActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-            Assert.AreEqual($"|{currentActivity.TraceId.ToHexString()}.{currentActivity.ParentSpanId.ToHexString()}.", telemetry.Context.Operation.ParentId);
+            Assert.AreEqual(currentActivity.ParentSpanId.ToHexString(), telemetry.Context.Operation.ParentId);
 
             var properties = telemetry.Properties;
             Assert.AreEqual(2, properties.Count);
@@ -105,7 +105,7 @@
             Assert.IsNotNull(Activity.Current);
             Assert.IsNull(currentActivity.Parent);
 
-            Assert.AreEqual($"|{currentActivity.TraceId.ToHexString()}.{currentActivity.SpanId.ToHexString()}.", telemetry.Id);
+            Assert.AreEqual(currentActivity.SpanId.ToHexString(), telemetry.Id);
             Assert.AreEqual(currentActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
             Assert.IsNull(telemetry.Context.Operation.ParentId);
 
@@ -152,9 +152,9 @@
 
             var telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
 
-            Assert.AreEqual($"|{activity.TraceId.ToHexString()}.{activity.SpanId.ToHexString()}.", telemetry.Id);
+            Assert.AreEqual(activity.SpanId.ToHexString(), telemetry.Id);
             Assert.AreEqual(activity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-            Assert.AreEqual($"|{activity.TraceId.ToHexString()}.{activity.ParentSpanId.ToHexString()}.", telemetry.Context.Operation.ParentId);
+            Assert.AreEqual(activity.ParentSpanId.ToHexString(), telemetry.Context.Operation.ParentId);
 
             var properties = telemetry.Properties;
             Assert.AreEqual(1, properties.Count);

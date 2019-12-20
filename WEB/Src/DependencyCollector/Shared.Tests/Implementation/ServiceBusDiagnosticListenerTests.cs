@@ -86,9 +86,9 @@
                 Assert.AreEqual("sb://queuename.myservicebus.com/ | queueName", telemetry.Target);
                 Assert.IsTrue(telemetry.Success.Value);
 
-                Assert.AreEqual($"|{parentActivity.TraceId.ToHexString()}.{parentActivity.SpanId.ToHexString()}.", telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(parentActivity.SpanId.ToHexString(), telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(parentActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
 
                 Assert.AreEqual("v1", telemetry.Properties["k1"]);
                 Assert.AreEqual("messageId", telemetry.Properties["MessageId"]);
@@ -152,7 +152,7 @@
 
                 Assert.IsNull(telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
 
                 Assert.AreEqual("messageId", telemetry.Properties["MessageId"]);
             }
@@ -181,9 +181,9 @@
                 Assert.AreEqual("sb://queuename.myservicebus.com/ | queueName", telemetry.Target);
                 Assert.IsFalse(telemetry.Success.Value);
 
-                Assert.AreEqual($"|{parentActivity.TraceId.ToHexString()}.{parentActivity.SpanId.ToHexString()}.", telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(parentActivity.SpanId.ToHexString(), telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(parentActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
 
                 Assert.AreEqual("v1", telemetry.Properties["k1"]);
                 Assert.AreEqual("messageId", telemetry.Properties["MessageId"]);
@@ -222,9 +222,9 @@
                     requestTelemetry.Source);
                 Assert.IsTrue(requestTelemetry.Success.Value);
 
-                Assert.AreEqual($"|{messageActivity.TraceId.ToHexString()}.{messageActivity.ParentSpanId.ToHexString()}.", requestTelemetry.Context.Operation.ParentId);
+                Assert.AreEqual(messageActivity.ParentSpanId.ToHexString(), requestTelemetry.Context.Operation.ParentId);
                 Assert.AreEqual(messageActivity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{messageActivity.TraceId.ToHexString()}.{messageActivity.SpanId.ToHexString()}.", requestTelemetry.Id);
+                Assert.AreEqual(messageActivity.SpanId.ToHexString(), requestTelemetry.Id);
 
                 Assert.AreEqual("v1", requestTelemetry.Properties["k1"]);
 
@@ -322,7 +322,7 @@
                 Assert.IsTrue(requestTelemetry.Properties.TryGetValue("ai_legacyRootId", out var legacyRoot));
                 Assert.AreEqual("hierarchical-parent", legacyRoot);
                 Assert.AreEqual("|hierarchical-parent.", requestTelemetry.Context.Operation.ParentId);
-                Assert.AreEqual($"|{messageActivity.TraceId.ToHexString()}.{messageActivity.SpanId.ToHexString()}.", requestTelemetry.Id);
+                Assert.AreEqual(messageActivity.SpanId.ToHexString(), requestTelemetry.Id);
                 Assert.AreEqual(messageActivity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
                 Assert.AreEqual("messageId", requestTelemetry.Properties["MessageId"]);
 
@@ -369,7 +369,7 @@
 
                 Assert.IsFalse(requestTelemetry.Properties.TryGetValue("ai_legacyRootId", out _));
                 Assert.AreEqual(parentId, requestTelemetry.Context.Operation.ParentId);
-                Assert.AreEqual($"|{messageActivity.TraceId.ToHexString()}.{messageActivity.SpanId.ToHexString()}.", requestTelemetry.Id);
+                Assert.AreEqual(messageActivity.SpanId.ToHexString(), requestTelemetry.Id);
                 Assert.AreEqual(messageActivity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
 
                 Assert.AreEqual("messageId", requestTelemetry.Properties["MessageId"]);
@@ -417,7 +417,7 @@
                 Assert.IsTrue(requestTelemetry.Properties.TryGetValue("ai_legacyRootId", out var legacyRoot));
                 Assert.AreEqual("malformed-parent", legacyRoot);
                 Assert.AreEqual("malformed-parent", requestTelemetry.Context.Operation.ParentId);
-                Assert.AreEqual($"|{messageActivity.TraceId.ToHexString()}.{messageActivity.SpanId.ToHexString()}.", requestTelemetry.Id);
+                Assert.AreEqual(messageActivity.SpanId.ToHexString(), requestTelemetry.Id);
                 Assert.AreEqual(messageActivity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
                 Assert.AreEqual("messageId", requestTelemetry.Properties["MessageId"]);
 
@@ -461,7 +461,7 @@
 
                 Assert.AreEqual(messageActivity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
                 Assert.IsNull(requestTelemetry.Context.Operation.ParentId);
-                Assert.AreEqual($"|{messageActivity.TraceId.ToHexString()}.{messageActivity.SpanId.ToHexString()}.", requestTelemetry.Id);
+                Assert.AreEqual(messageActivity.SpanId.ToHexString(), requestTelemetry.Id);
 
                 Assert.AreEqual("messageId", requestTelemetry.Properties["MessageId"]);
 

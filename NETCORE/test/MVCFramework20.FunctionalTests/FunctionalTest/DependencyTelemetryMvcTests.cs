@@ -104,7 +104,7 @@
                 var requestTelemetry = actual.OfType<TelemetryItem<RequestData>>().FirstOrDefault();
                 Assert.NotNull(requestTelemetry);
 
-                Assert.Contains(requestTelemetry.tags["ai.operation.id"], dependencyTelemetry.tags["ai.operation.parentId"]);
+                Assert.Equal(requestTelemetry.data.baseData.id, dependencyTelemetry.tags["ai.operation.parentId"]);
             }
         }
     }

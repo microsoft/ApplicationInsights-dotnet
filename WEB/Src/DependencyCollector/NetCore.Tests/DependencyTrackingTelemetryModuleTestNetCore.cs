@@ -433,15 +433,12 @@
                 SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModule), "rdddsc:"),
                 item.Context.GetInternalContext().SdkVersion);
 
-            var requestId = item.Id;
-            Assert.IsTrue(requestId.StartsWith('|' + item.Context.Operation.Id + '.'));
-
             if (parentActivity != null)
             {
                 if (parentActivity.IdFormat == ActivityIdFormat.W3C)
                 {
                     Assert.AreEqual(parentActivity.TraceId.ToHexString(), item.Context.Operation.Id);
-                    Assert.AreEqual($"|{parentActivity.TraceId.ToHexString()}.{parentActivity.SpanId.ToHexString()}.", item.Context.Operation.ParentId);
+                    Assert.AreEqual(parentActivity.SpanId.ToHexString(), item.Context.Operation.ParentId);
                     if (parentActivity.TraceStateString != null)
                     {
                         Assert.IsTrue(item.Properties.ContainsKey("tracestate"));
@@ -456,6 +453,7 @@
                 {
                     Assert.AreEqual(parentActivity.RootId, item.Context.Operation.Id);
                     Assert.AreEqual(parentActivity.Id, item.Context.Operation.ParentId);
+                    Assert.IsTrue(item.Id.StartsWith('|' + item.Context.Operation.Id + '.'));
                 }
             }
             else
@@ -466,11 +464,14 @@
 
             if (request != null)
             {
+                var requestIdHeader = request.Headers.GetValues(RequestResponseHeaders.RequestIdHeader).Single();
+
                 if (expectW3CHeaders)
                 {
                     var traceId = item.Context.Operation.Id;
-                    var spanId = requestId.Substring(34, 16);
+                    var spanId = item.Id;
                     var expectedTraceparent = $"00-{traceId}-{spanId}-00";
+                    var expectedRequestId = $"|{traceId}.{spanId}.";
 
                     Assert.AreEqual(expectedTraceparent, request.Headers.GetValues(W3C.W3CConstants.TraceParentHeader).Single());
                     if (parentActivity?.TraceStateString != null)
@@ -480,7 +481,7 @@
 
                     if (expectRequestId)
                     {
-                        Assert.AreEqual(requestId, request.Headers.GetValues(RequestResponseHeaders.RequestIdHeader).Single());
+                        Assert.AreEqual(expectedRequestId, request.Headers.GetValues(RequestResponseHeaders.RequestIdHeader).Single());
                     }
                     else
                     {
@@ -494,12 +495,12 @@
                 {
                     Assert.IsFalse(request.Headers.Contains(W3C.W3CConstants.TraceParentHeader));
                     Assert.IsFalse(request.Headers.Contains(W3C.W3CConstants.TraceStateHeader));
-                    Assert.AreEqual(requestId, request.Headers.GetValues(RequestResponseHeaders.RequestIdHeader).Single());
+                    Assert.AreEqual(item.Id, request.Headers.GetValues(RequestResponseHeaders.RequestIdHeader).Single());
                 }
 
                 if (expectLegacyHeaders)
                 {
-                    Assert.AreEqual(requestId, request.Headers.GetValues(RequestResponseHeaders.StandardParentIdHeader).Single());
+                    Assert.AreEqual(item.Id, request.Headers.GetValues(RequestResponseHeaders.StandardParentIdHeader).Single());
                     Assert.AreEqual(item.Context.Operation.Id, request.Headers.GetValues(RequestResponseHeaders.StandardRootIdHeader).Single());
                 }
                 else

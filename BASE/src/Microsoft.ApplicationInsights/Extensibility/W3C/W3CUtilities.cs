@@ -29,16 +29,6 @@
         }
 
         /// <summary>
-        /// Constructs a Telemetry ID from given traceid and span id in the format |traceid.spanid.
-        /// This is the format used by Application Insights.        
-        /// </summary>
-        /// <returns>constructed Telemetry ID.</returns>
-        internal static string FormatTelemetryId(string traceId, string spanId)
-        {
-            return string.Concat("|", traceId, ".", spanId, ".");
-        }
-
-        /// <summary>
         /// Checks if the given string is a valid trace-id as per W3C Specs.
         /// https://github.com/w3c/distributed-tracing/blob/master/trace_context/HTTP_HEADER_FORMAT.md#trace-id .
         /// </summary>
