@@ -65,7 +65,6 @@
                 if (W3CUtilities.TryGetTraceId(currentActivity.ParentId, out var traceId))
                 {
                     legacyParentId = currentActivity.ParentId;
-                    
                     currentActivity = CreateSubstituteActivityFromCompatibleRootId(currentActivity, traceId);
                 }
                 else
