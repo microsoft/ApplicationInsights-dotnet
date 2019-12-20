@@ -98,15 +98,15 @@
         /// <summary>
         /// Initializes module for a given application.
         /// </summary>
-        /// <param name="application">HttpApplication instance.</param>
+        /// <param name="context">HttpApplication instance.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "Context cannot be null")]
-        public void Init(HttpApplication application)
+        public void Init(HttpApplication context)
         {
             if (this.isEnabled)
             {
                 try
                 {
-                    application.BeginRequest += this.OnBeginRequest;
+                    context.BeginRequest += this.OnBeginRequest;
 
                     // OnExecuteRequestStep is available starting with 4.7.1
                     // If this is executed in 4.7.1 runtime (regardless of targeted .NET version),
@@ -115,7 +115,7 @@
                     {
                         try
                         {
-                            OnStepMethodInfo.Invoke(application, this.onExecuteActionParam);
+                            OnStepMethodInfo.Invoke(context, this.onExecuteActionParam);
                         }
                         catch (Exception e)
                         {
@@ -124,7 +124,7 @@
                     }
                     else
                     {
-                        application.PreRequestHandlerExecute += this.Application_PreRequestHandlerExecute;
+                        context.PreRequestHandlerExecute += this.Application_PreRequestHandlerExecute;
                     }
                 }
                 catch (Exception exc)
