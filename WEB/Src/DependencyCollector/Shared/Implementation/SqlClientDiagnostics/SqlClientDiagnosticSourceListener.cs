@@ -354,7 +354,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                 {
                     var traceId = activity.TraceId.ToHexString();
                     telemetry.Context.Operation.Id = traceId;
-                    telemetry.Context.Operation.ParentId = W3CUtilities.FormatTelemetryId(traceId, activity.SpanId.ToHexString());
+                    telemetry.Context.Operation.ParentId = activity.SpanId.ToHexString();
                 }
                 else
                 {

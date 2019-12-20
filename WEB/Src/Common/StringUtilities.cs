@@ -63,10 +63,10 @@
         /// <param name="traceId">Trace Id.</param>
         /// <param name="spanId">Span id.</param>
         /// <returns>valid Request-Id.</returns>
-        [Obsolete("Obsolete, implement yourself with 'string.Concat(\"|\", traceId, \".\", spanId, \".\").'")]
+        [Obsolete("Obsolete, use spanId instead")]
         public static string FormatRequestId(string traceId, string spanId)
         {
-            return string.Concat("|", traceId, ".", spanId, ".");
+            return spanId;
         }
     }
 }

@@ -256,7 +256,7 @@ namespace Microsoft.ApplicationInsights.Tests
 
                 Assert.AreEqual(dependency.Telemetry.Id, legacyParentIdHeader);
                 Assert.AreEqual(dependency.Telemetry.Context.Operation.Id, legacyRootIdHeader);
-                Assert.AreEqual(dependency.Telemetry.Id, requestIdHeader);
+                Assert.AreEqual($"|{dependency.Telemetry.Context.Operation.Id}.{dependency.Telemetry.Id}.", requestIdHeader);
             }
         }
 
@@ -324,7 +324,7 @@ namespace Microsoft.ApplicationInsights.Tests
                     GetRequestHeaderValues(requestMsg, RequestResponseHeaders.RequestIdHeader).Single();
                 Assert.IsFalse(requestMsg.Headers.Contains(RequestResponseHeaders.StandardRootIdHeader));
                 Assert.IsFalse(requestMsg.Headers.Contains(RequestResponseHeaders.StandardParentIdHeader));
-                Assert.AreEqual(dependency.Telemetry.Id, requestIdHeader);
+                Assert.AreEqual($"|{dependency.Telemetry.Context.Operation.Id}.{dependency.Telemetry.Id}.", requestIdHeader);
             }
         }
 
@@ -711,14 +711,13 @@ namespace Microsoft.ApplicationInsights.Tests
                 listener.OnRequest(requestMsg, loggingRequestId);
                 Assert.IsNotNull(Activity.Current);
 
-                var requestId = requestMsg.Headers.GetValues(RequestResponseHeaders.RequestIdHeader).Single();
-                var traceparent = requestMsg.Headers.GetValues("traceparent").Single();
-                var tracestate = requestMsg.Headers.GetValues("tracestate").Single();
+                var requestIdHeader = requestMsg.Headers.GetValues(RequestResponseHeaders.RequestIdHeader).Single();
+                var traceparentHeader = requestMsg.Headers.GetValues("traceparent").Single();
+                var tracestateHeader = requestMsg.Headers.GetValues("tracestate").Single();
 
-                Assert.AreEqual($"|{Activity.Current.TraceId.ToHexString()}.{Activity.Current.SpanId.ToHexString()}.",
-                    requestId);
-                Assert.AreEqual(Activity.Current.Id, traceparent);
-                Assert.AreEqual("state=some", tracestate);
+                Assert.AreEqual($"|{Activity.Current.TraceId.ToHexString()}.{Activity.Current.SpanId.ToHexString()}.", requestIdHeader);
+                Assert.AreEqual(Activity.Current.Id, traceparentHeader);
+                Assert.AreEqual("state=some", tracestateHeader);
 
                 var correlationContextHeader =
                     requestMsg.Headers.GetValues(RequestResponseHeaders.CorrelationContextHeader).ToArray();
@@ -737,9 +736,9 @@ namespace Microsoft.ApplicationInsights.Tests
 
                 listener.OnResponse(responseMsg, loggingRequestId);
                 Assert.AreEqual(parentActivity, Activity.Current);
-                Assert.AreEqual(requestId, telemetry.Id);
+                Assert.AreEqual(requestIdHeader.Substring(34, 16), telemetry.Id);
                 Assert.AreEqual(parentActivity.RootId, telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{parentActivity.TraceId.ToHexString()}.{parentActivity.SpanId.ToHexString()}.", telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(parentActivity.SpanId.ToHexString(), telemetry.Context.Operation.ParentId);
                 Assert.AreEqual("state=some", telemetry.Properties["tracestate"]);
 
                 // Check the operation details

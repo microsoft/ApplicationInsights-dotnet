@@ -148,7 +148,7 @@ namespace Microsoft.ApplicationInsights.Tests
             var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
 
             Assert.Equal(activity.TraceId.ToHexString(), dependencyTelemetry.Context.Operation.Id);
-            Assert.Equal(W3CUtilities.FormatTelemetryId(activity.TraceId.ToHexString(), activity.SpanId.ToHexString()), dependencyTelemetry.Context.Operation.ParentId);
+            Assert.Equal(activity.SpanId.ToHexString(), dependencyTelemetry.Context.Operation.ParentId);
             Assert.Equal("123", dependencyTelemetry.Properties["Stuff"]);
         }
 

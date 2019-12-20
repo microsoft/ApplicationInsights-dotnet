@@ -104,8 +104,7 @@
 
             // Check that request has operation Id, parentId and Id are set from headers
             Assert.AreEqual("9d2341f8070895468dbdffb599cf49fc", request.tags[new ContextTagKeys().OperationId], "Request Operation Id is not parsed from header");
-            Assert.AreEqual("|9d2341f8070895468dbdffb599cf49fc.0895468dbdffb519.", request.tags[new ContextTagKeys().OperationParentId], "Request Parent Id is not parsed from header");
-            Assert.IsTrue(request.data.baseData.id.StartsWith("|9d2341f8070895468dbdffb599cf49fc."), "Request Id is not properly set");
+            Assert.AreEqual("0895468dbdffb519", request.tags[new ContextTagKeys().OperationParentId], "Request Parent Id is not parsed from header");
 
             Assert.IsTrue(request.data.baseData.properties.TryGetValue("tracestate", out var tracestate));
             Assert.AreEqual("some=state", tracestate);
@@ -177,7 +176,6 @@
             var operationId = request.tags[new ContextTagKeys().OperationId];
             Assert.IsNotNull(operationId, "Request Operation Id is not parsed from header");
             Assert.AreEqual("|guid2.guid1.", request.tags[new ContextTagKeys().OperationParentId], "Request Parent Id is not parsed from header");
-            Assert.IsTrue(request.data.baseData.id.StartsWith($"|{operationId}."), "Request Id is not properly set");
             Assert.IsTrue(request.data.baseData.properties.TryGetValue("ai_legacyRootId", out var legacyRootId));
             Assert.AreEqual("guid2", legacyRootId);
         }

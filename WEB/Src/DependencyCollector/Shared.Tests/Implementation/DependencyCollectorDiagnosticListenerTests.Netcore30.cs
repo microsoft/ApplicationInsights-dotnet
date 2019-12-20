@@ -94,10 +94,8 @@ namespace Microsoft.ApplicationInsights.Tests
                 // check only legacy headers here
                 Assert.AreEqual(activity.RootId,
                     requestMsg.Headers.GetValues(RequestResponseHeaders.StandardRootIdHeader).Single());
-                Assert.AreEqual($"|{activity.TraceId.ToHexString()}.{activity.SpanId.ToHexString()}.",
-                    requestMsg.Headers.GetValues(RequestResponseHeaders.StandardParentIdHeader).Single());
-                Assert.AreEqual(this.testApplicationId1,
-                    GetRequestContextKeyValue(requestMsg, RequestResponseHeaders.RequestContextCorrelationSourceKey));
+                Assert.AreEqual(activity.SpanId.ToHexString(), requestMsg.Headers.GetValues(RequestResponseHeaders.StandardParentIdHeader).Single());
+                Assert.AreEqual(this.testApplicationId1, GetRequestContextKeyValue(requestMsg, RequestResponseHeaders.RequestContextCorrelationSourceKey));
             }
         }
 

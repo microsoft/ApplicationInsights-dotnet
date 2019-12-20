@@ -169,7 +169,7 @@
             var request = this.sendItems.Single() as RequestTelemetry;
             Assert.IsNotNull(request);
             Assert.AreEqual(activity.TraceId.ToHexString(), request.Context.Operation.Id);
-            Assert.AreEqual($"|{activity.TraceId.ToHexString()}.{activity.SpanId.ToHexString()}.", request.Id);
+            Assert.AreEqual(activity.SpanId.ToHexString(), request.Id);
             Assert.AreEqual("parentId", request.Context.Operation.ParentId);
         }
 
@@ -203,7 +203,7 @@
             var request = this.sendItems.Single() as RequestTelemetry;
             Assert.IsNotNull(request);
             Assert.AreEqual(activity.TraceId.ToHexString(), request.Context.Operation.Id);
-            Assert.AreEqual($"|{activity.TraceId.ToHexString()}.{activity.SpanId.ToHexString()}.", request.Id);
+            Assert.AreEqual(activity.SpanId.ToHexString(), request.Id);
         }
 
         /// <summary>
@@ -419,18 +419,13 @@
         private void ValidateTelemetry<T>(T telemetry, Activity activity, bool isW3C = true, string legacyParentId = null) where T : OperationTelemetry
         {
             Assert.AreEqual(activity.OperationName, telemetry.Name);
-            Assert.AreEqual(
-                isW3C
-                    ? W3CUtilities.FormatTelemetryId(activity.TraceId.ToHexString(), activity.SpanId.ToHexString())
-                    : activity.Id, telemetry.Id);
+            Assert.AreEqual(isW3C ? activity.SpanId.ToHexString() : activity.Id, telemetry.Id);
 
             if (isW3C)
             {
                 if (activity.ParentSpanId != default && activity.ParentSpanId.ToHexString() != "0000000000000000")
                 {
-                    Assert.AreEqual(
-                        W3CUtilities.FormatTelemetryId(activity.TraceId.ToHexString(),
-                            activity.ParentSpanId.ToHexString()), telemetry.Context.Operation.ParentId);
+                    Assert.AreEqual(activity.ParentSpanId.ToHexString(), telemetry.Context.Operation.ParentId);
                 }
                 else
                 {
