@@ -443,7 +443,7 @@
             Assert.IsNotNull(requestTelemetry);
             Assert.AreEqual("4bf92f3577b34da6a3ce929d0e0e4736", requestTelemetry.Context.Operation.Id);
             Assert.AreEqual("|4bf92f3577b34da6a3ce929d0e0e4736.", requestTelemetry.Context.Operation.ParentId);
-            Assert.AreEqual($"|4bf92f3577b34da6a3ce929d0e0e4736.{appInsightsActivity.SpanId.ToHexString()}.", requestTelemetry.Id);
+            Assert.AreEqual(appInsightsActivity.SpanId.ToHexString(), requestTelemetry.Id);
 
             Assert.IsNotNull(exceptionTelemetry);
             Assert.AreEqual("4bf92f3577b34da6a3ce929d0e0e4736", exceptionTelemetry.Context.Operation.Id);
@@ -482,7 +482,7 @@
             Assert.IsNotNull(requestTelemetry);
             Assert.AreEqual("4bf92f3577b34da6a3ce929d0e0e4736", requestTelemetry.Context.Operation.Id);
             Assert.AreEqual("|4bf92f3577b34da6a3ce929d0e0e4736.", requestTelemetry.Context.Operation.ParentId);
-            Assert.AreEqual($"|4bf92f3577b34da6a3ce929d0e0e4736.{currentActivity.SpanId.ToHexString()}.", requestTelemetry.Id);
+            Assert.AreEqual(currentActivity.SpanId.ToHexString(), requestTelemetry.Id);
 
             Assert.IsFalse(requestTelemetry.Properties.ContainsKey("ai_legacyRootId"));
             Assert.AreEqual(1, requestTelemetry.Properties.Count);
@@ -549,7 +549,7 @@
             Assert.IsNotNull(requestTelemetry);
             Assert.AreEqual(currentActivity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
             Assert.IsNull(requestTelemetry.Context.Operation.ParentId);
-            Assert.AreEqual($"|{currentActivity.TraceId.ToHexString()}.{currentActivity.SpanId.ToHexString()}.", requestTelemetry.Id);
+            Assert.AreEqual(currentActivity.SpanId.ToHexString(), requestTelemetry.Id);
 
             Assert.AreEqual(1, requestTelemetry.Properties.Count);
             Assert.IsTrue(requestTelemetry.Properties.TryGetValue("k", out var v));
