@@ -68,6 +68,7 @@ namespace MVCFramework.FunctionalTests.FunctionalTest
             }
         }
 
+        [Fact]
         public void TestMixedTelemetryItemsReceived()
         {
             InProcessServer server;
