@@ -4,6 +4,8 @@
 - [Upgraded FxCop and fixed several issues related to null checks and disposing objects.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1499)
 - [Exceptions are not correlated to requests when customErrors=Off and Request-Id is passed](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1493)
 - [Switch to compact Id format in W3C mode](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1498)
+- [Adding a flag to DependencyTrackingTelemetryModule to enable/disable collection of SQL Command text.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1514)
+   Collecting SQL Command Text will now be opt-in, so this value will default to false. This is a change from the current behavior on .NET Core. To see how to collect SQL Command Text see here for details: https://docs.microsoft.com/en-us/azure/azure-monitor/app/asp-net-dependencies#advanced-sql-tracking-to-get-full-sql-query
 
 ## Version 2.12.0
 - [Fix IndexOutOfRangeException in W3CUtilities.TryGetTraceId](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1327)
