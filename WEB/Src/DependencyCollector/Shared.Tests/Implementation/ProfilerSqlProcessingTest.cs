@@ -43,6 +43,7 @@
         private TelemetryConfiguration configuration;
         private List<ITelemetry> sendItems;
         private ProfilerSqlCommandProcessing sqlCommandProcessingProfiler;
+        private ProfilerSqlCommandProcessing sqlCommandProcessingProfilerWithDisabledCommandText;
         private ProfilerSqlConnectionProcessing sqlConnectionProcessingProfiler;
 
         [TestInitialize]
@@ -53,6 +54,8 @@
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
             this.configuration.InstrumentationKey = Guid.NewGuid().ToString();
             this.sqlCommandProcessingProfiler = new ProfilerSqlCommandProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder());
+            this.sqlCommandProcessingProfiler = new ProfilerSqlCommandProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), true);
+            this.sqlCommandProcessingProfilerWithDisabledCommandText = new ProfilerSqlCommandProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), false);
             this.sqlConnectionProcessingProfiler = new ProfilerSqlConnectionProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder());
         }
 
@@ -301,6 +304,30 @@
             SqlCommand command = GetMoreComplexSqlCommandTestForQuery();
             string actualCommandName = this.sqlCommandProcessingProfiler.GetCommandName(command);
             Assert.AreEqual(command.CommandText, actualCommandName);
+        }
+
+        [TestMethod]
+        public void CommandNameForStoredProcIsCollectedCorrectly()
+        {
+            SqlCommand command = GetSqlCommandTestForStoredProc();
+            string actualCommandName = this.sqlCommandProcessingProfiler.GetCommandName(command);
+            Assert.AreEqual(command.CommandText, actualCommandName);
+        }
+
+        [TestMethod]
+        public void CommandNameForNonStoredProcIsNotCollectedWhenDisabled()
+        {
+            SqlCommand command = GetMoreComplexSqlCommandTestForQuery();
+            string actualCommandName = this.sqlCommandProcessingProfilerWithDisabledCommandText.GetCommandName(command);
+            Assert.AreEqual(string.Empty, actualCommandName);
+        }
+
+        [TestMethod]
+        public void CommandNameForStoredProcIsNotCollectedWhenDisabled()
+        {
+            SqlCommand command = GetSqlCommandTestForStoredProc();
+            string actualCommandName = this.sqlCommandProcessingProfilerWithDisabledCommandText.GetCommandName(command);
+            Assert.AreEqual(string.Empty, actualCommandName);
         }
 
         [TestMethod]

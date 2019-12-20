@@ -2,6 +2,7 @@
 {
     using System.Data;
     using System.Data.SqlClient;
+
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -11,12 +12,15 @@
     /// </summary>
     internal sealed class ProfilerSqlCommandProcessing : ProfilerSqlProcessingBase
     {
+        private readonly bool collectCommandText;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfilerSqlCommandProcessing"/> class.
         /// </summary>
-        internal ProfilerSqlCommandProcessing(TelemetryConfiguration configuration, string agentVersion, ObjectInstanceBasedOperationHolder<DependencyTelemetry> telemetryTupleHolder)
+        internal ProfilerSqlCommandProcessing(TelemetryConfiguration configuration, string agentVersion, ObjectInstanceBasedOperationHolder<DependencyTelemetry> telemetryTupleHolder, bool collectCommandText)
             : base(configuration, agentVersion, telemetryTupleHolder)
-        {            
+        {
+            this.collectCommandText = collectCommandText;
         }
 
         /// <summary>
@@ -72,11 +76,14 @@
         /// <returns>Returns the command text or empty.</returns>
         internal override string GetCommandName(object thisObj)
         {
-            SqlCommand command = thisObj as SqlCommand;
-
-            if (command != null)
+            if (this.collectCommandText)
             {
-                return command.CommandText ?? string.Empty;
+                SqlCommand command = thisObj as SqlCommand;
+
+                if (command != null)
+                {
+                    return command.CommandText ?? string.Empty;
+                }
             }
 
             return string.Empty;
