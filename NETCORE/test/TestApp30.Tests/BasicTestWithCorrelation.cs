@@ -27,7 +27,7 @@ namespace TestApp30.Tests
 
         [Fact]
         public async Task RequestSuccessWithTraceParent()
-        {            
+        {
             // Arrange
             var client = _factory.CreateClient();
             var url = "Home/Index";
@@ -43,11 +43,11 @@ namespace TestApp30.Tests
 
             // Assert
             response.EnsureSuccessStatusCode();
-            
+
             this.output.WriteLine(await response.Content.ReadAsStringAsync());
-            
+
             WaitForTelemetryToArrive();
-            
+
             var items = _factory.sentItems;
             PrintItems(items);
             // 1 Trace from Ilogger, 1 Request
@@ -63,9 +63,8 @@ namespace TestApp30.Tests
             Assert.NotNull(trace);
 
             Assert.Equal("4e3083444c10254ba40513c7316332eb", req.Context.Operation.Id);
-            Assert.Equal("|4e3083444c10254ba40513c7316332eb.e2a5f830c0ee2c46.", req.Context.Operation.ParentId);
+            Assert.Equal("e2a5f830c0ee2c46", req.Context.Operation.ParentId);
             Assert.Equal("4e3083444c10254ba40513c7316332eb", trace.Context.Operation.Id);
-            Assert.Contains("|4e3083444c10254ba40513c7316332eb.", req.Id);
             Assert.Equal(req.Id, trace.Context.Operation.ParentId);
 
             Assert.Equal("http://localhost/" + url, req.Url.ToString());
@@ -109,9 +108,8 @@ namespace TestApp30.Tests
 
             Assert.Equal("4e3083444c10254ba40513c7316332eb", req.Context.Operation.Id);
             Assert.Equal("4e3083444c10254ba40513c7316332eb", exception.Context.Operation.Id);
-            Assert.Equal("|4e3083444c10254ba40513c7316332eb.e2a5f830c0ee2c46.", req.Context.Operation.ParentId);
+            Assert.Equal("e2a5f830c0ee2c46", req.Context.Operation.ParentId);
             Assert.Equal(req.Id, exception.Context.Operation.ParentId);
-            Assert.Contains("|4e3083444c10254ba40513c7316332eb.", req.Id);
 
             Assert.Equal("http://localhost/" + url, req.Url.ToString());
             Assert.False(req.Success);
@@ -157,7 +155,6 @@ namespace TestApp30.Tests
             Assert.Equal("40d1a5a08a68c0998e4a3b7c91915ca6", trace.Context.Operation.Id);
 
             Assert.Equal("|40d1a5a08a68c0998e4a3b7c91915ca6.b9e41c35_1.", req.Context.Operation.ParentId);
-            Assert.Contains("|40d1a5a08a68c0998e4a3b7c91915ca6.", req.Id);
             Assert.Equal(req.Id, trace.Context.Operation.ParentId);
 
             Assert.Equal("http://localhost/" + url, req.Url.ToString());
@@ -201,14 +198,12 @@ namespace TestApp30.Tests
 
             Assert.Equal("40d1a5a08a68c0998e4a3b7c91915ca6", req.Context.Operation.Id);
             Assert.Equal("40d1a5a08a68c0998e4a3b7c91915ca6", exception.Context.Operation.Id);
-            
+
             Assert.Equal(req.Id, exception.Context.Operation.ParentId);
             Assert.Equal("|40d1a5a08a68c0998e4a3b7c91915ca6.b9e41c35_1.", req.Context.Operation.ParentId);
-            Assert.Contains("|40d1a5a08a68c0998e4a3b7c91915ca6.", req.Id);
-
             Assert.Equal("http://localhost/" + url, req.Url.ToString());
             Assert.False(req.Success);
-        }        
+        }
 
         [Fact]
         public async Task RequestSuccessWithNonW3CCompatibleRequestId()
@@ -224,7 +219,7 @@ namespace TestApp30.Tests
                 };
             var request = CreateRequestMessage(requestHeaders);
             request.RequestUri = new Uri(client.BaseAddress + url);
-            
+
             var response = await client.SendAsync(request);
 
             // Assert
@@ -250,7 +245,6 @@ namespace TestApp30.Tests
             Assert.NotEqual("noncompatible", trace.Context.Operation.Id);
 
             Assert.Equal("|noncompatible.b9e41c35_1.", req.Context.Operation.ParentId);
-            Assert.Contains($"|{req.Context.Operation.Id}.", req.Id);
             Assert.Equal(req.Id, trace.Context.Operation.ParentId);
             Assert.Equal("noncompatible", req.Properties["ai_legacyRootId"]);
 
@@ -287,11 +281,11 @@ namespace TestApp30.Tests
         private List<T> GetTelemetryOfType<T>(ConcurrentBag<ITelemetry> items)
         {
             List<T> foundItems = new List<T>();
-            foreach(var item in items)
+            foreach (var item in items)
             {
-                if(item is T)
+                if (item is T)
                 {
-                    foundItems.Add((T) item);
+                    foundItems.Add((T)item);
                 }
             }
 
@@ -303,7 +297,7 @@ namespace TestApp30.Tests
             int i = 1;
             foreach (var item in items)
             {
-                this.output.WriteLine("Item " + (i++) + ".");                
+                this.output.WriteLine("Item " + (i++) + ".");
 
                 if (item is RequestTelemetry req)
                 {

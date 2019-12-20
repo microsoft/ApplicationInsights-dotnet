@@ -87,7 +87,7 @@
 
                 if (currentActivity.ParentSpanId != default && legacyParentId == null)
                 {
-                    requestContext.ParentId = W3CUtilities.FormatTelemetryId(requestContext.Id, currentActivity.ParentSpanId.ToHexString());
+                    requestContext.ParentId = currentActivity.ParentSpanId.ToHexString();
                 }
                 else
                 {
@@ -98,13 +98,7 @@
                     }
                 }
 
-                // TODO[tracestate]: remove, this is done in base SDK
-                if (!string.IsNullOrEmpty(currentActivity.TraceStateString))
-                {
-                    result.Properties[W3CConstants.TracestatePropertyKey] = currentActivity.TraceStateString;
-                }
-
-                result.Id = W3CUtilities.FormatTelemetryId(requestContext.Id, currentActivity.SpanId.ToHexString());
+                result.Id = currentActivity.SpanId.ToHexString();
             }
             else
             {

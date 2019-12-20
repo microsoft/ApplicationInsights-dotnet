@@ -53,7 +53,7 @@
                 {
                     if (activity.ParentSpanId != default)
                     {
-                        telemetry.Context.Operation.ParentId = W3CUtilities.FormatTelemetryId(traceId, activity.ParentSpanId.ToHexString());
+                        telemetry.Context.Operation.ParentId = activity.ParentSpanId.ToHexString();
                     }
                     else if (!string.IsNullOrEmpty(activity.ParentId))
                     {
@@ -62,13 +62,7 @@
                     }
                 }
 
-                telemetry.Id = W3CUtilities.FormatTelemetryId(traceId, activity.SpanId.ToHexString());
-
-                // TODO[tracestate]: remove, this is done in base SDK
-                if (!string.IsNullOrEmpty(activity.TraceStateString) && !telemetry.Properties.ContainsKey(W3CConstants.TracestatePropertyKey))
-                {
-                    telemetry.Properties.Add(W3CConstants.TracestatePropertyKey, activity.TraceStateString);
-                }
+                telemetry.Id = activity.SpanId.ToHexString();
             }
             else
             {
