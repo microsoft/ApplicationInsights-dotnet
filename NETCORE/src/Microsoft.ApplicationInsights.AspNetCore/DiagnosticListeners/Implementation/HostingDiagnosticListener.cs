@@ -289,8 +289,7 @@
 
                 var requestTelemetry = this.InitializeRequestTelemetry(httpContext, currentActivity, Stopwatch.GetTimestamp(), legacyRootId);
 
-                requestTelemetry.Context.Operation.ParentId =
-                    GetParentId(currentActivity, originalParentId, requestTelemetry.Context.Operation.Id);
+                requestTelemetry.Context.Operation.ParentId = GetParentId(currentActivity, originalParentId);
 
                 this.AddAppIdToResponseIfRequired(httpContext, requestTelemetry);
             }
@@ -380,8 +379,7 @@
                 ReadCorrelationContext(requestHeaders, activity);
                 var requestTelemetry = this.InitializeRequestTelemetry(httpContext, activity, timestamp, legacyRootId);
 
-                requestTelemetry.Context.Operation.ParentId =
-                    GetParentId(activity, originalParentId, requestTelemetry.Context.Operation.Id);
+                requestTelemetry.Context.Operation.ParentId = GetParentId(activity, originalParentId);
 
                 this.AddAppIdToResponseIfRequired(httpContext, requestTelemetry);
             }
@@ -575,7 +573,7 @@
         {
         }
 
-        private static string GetParentId(Activity activity, string originalParentId, string operationId)
+        private static string GetParentId(Activity activity, string originalParentId)
         {
             if (activity.IdFormat == ActivityIdFormat.W3C && activity.ParentSpanId != default)
             {
