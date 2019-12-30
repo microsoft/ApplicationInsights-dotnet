@@ -6,14 +6,16 @@
     using Xunit;
     using Microsoft.ApplicationInsights.Extensibility;
     using Xunit.Abstractions;
+    using System.Reflection;
 
     public class ExceptionTelemetryWebApiTests : TelemetryTestsBase
     {
+        private readonly string assemblyName;
+
         public ExceptionTelemetryWebApiTests(ITestOutputHelper output) : base(output)
         {
+            this.assemblyName = this.GetType().GetTypeInfo().Assembly.GetName().Name;
         }
-
-        private const string assemblyName = "WebApi.FunctionalTests";
 
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingControllerThatThrows()
