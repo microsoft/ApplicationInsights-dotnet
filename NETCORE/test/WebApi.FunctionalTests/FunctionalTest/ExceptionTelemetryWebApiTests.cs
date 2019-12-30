@@ -26,7 +26,7 @@
 
                 var expectedRequestTelemetry = new RequestTelemetry();
                 expectedRequestTelemetry.Name = "GET Exception/Get";
-                //TODO: default template of Web API applicaiton doesn't have error handling middleware 
+                //TODO: default template of Web API application doesn't have error handling middleware 
                 //that will set appropriate status code
                 expectedRequestTelemetry.ResponseCode = "200";
                 expectedRequestTelemetry.Success = false;
