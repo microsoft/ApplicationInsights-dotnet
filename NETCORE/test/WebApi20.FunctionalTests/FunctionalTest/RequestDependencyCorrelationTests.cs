@@ -10,12 +10,15 @@
     using Microsoft.Extensions.DependencyInjection;
     using Xunit;
     using Xunit.Abstractions;
+    using System.Reflection;
 
     public class RequestDependencyCorrelationTests : TelemetryTestsBase, IDisposable
     {
-        private const string assemblyName = "WebApi20.FunctionalTests20";
+        private readonly string assemblyName;
+
         public RequestDependencyCorrelationTests(ITestOutputHelper output) : base (output)
         {
+            this.assemblyName = this.GetType().GetTypeInfo().Assembly.GetName().Name;
         }
 
         // The NET451 conditional check is wrapped inside the test to make the tests visible in the test explorer. We can move them to the class level once if the issue is resolved.
