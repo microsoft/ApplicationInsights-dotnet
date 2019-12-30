@@ -25,6 +25,7 @@
             Activity.DefaultIdFormat = ActivityIdFormat.W3C;
             Activity.ForceDefaultIdFormat = true;
             this.configuration = new TelemetryConfiguration();
+            this.configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
             this.sentItems = new List<ITelemetry>();
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sentItems.Add(item), EndpointAddress = "https://dc.services.visualstudio.com/v2/track" };
             this.configuration.InstrumentationKey = Guid.NewGuid().ToString();
@@ -87,9 +88,9 @@
                 Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ | ehname", telemetry.Target);
                 Assert.IsTrue(telemetry.Success.Value);
 
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.ParentSpanId.ToHexString()}.", telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.ParentSpanId.ToHexString(), telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
 
                 Assert.AreEqual("v1", telemetry.Properties["k1"]);
                 Assert.AreEqual("eventhubname.servicebus.windows.net", telemetry.Properties["peer.hostname"]);
@@ -127,9 +128,9 @@
                 Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ | ehname", telemetry.Target);
                 Assert.IsTrue(telemetry.Success.Value);
 
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.ParentSpanId.ToHexString()}.", telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.ParentSpanId.ToHexString(), telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
 
                 Assert.AreEqual("v1", telemetry.Properties["k1"]);
                 Assert.AreEqual("eventhubname.servicebus.windows.net", telemetry.Properties["peer.hostname"]);
@@ -167,9 +168,9 @@
                 Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ | ehname", telemetry.Target);
                 Assert.IsTrue(telemetry.Success.Value);
 
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.ParentSpanId.ToHexString()}.", telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.ParentSpanId.ToHexString(), telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
 
                 Assert.AreEqual("v1", telemetry.Properties["k1"]);
                 Assert.AreEqual("eventhubname.servicebus.windows.net", telemetry.Properties["peer.hostname"]);
@@ -207,9 +208,9 @@
                 Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ | ehname", telemetry.Target);
                 Assert.IsTrue(telemetry.Success.Value);
 
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.ParentSpanId.ToHexString()}.", telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.ParentSpanId.ToHexString(), telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
 
                 Assert.AreEqual("v1", telemetry.Properties["k1"]);
                 Assert.AreEqual("eventhubname.servicebus.windows.net", telemetry.Properties["peer.hostname"]);
@@ -285,7 +286,7 @@
 
                 Assert.IsNull(telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
 
                 Assert.AreEqual("eventhubname.servicebus.windows.net", telemetry.Properties["peer.hostname"]);
                 Assert.AreEqual("ehname", telemetry.Properties["eh.event_hub_name"]);
@@ -319,7 +320,7 @@
 
                 Assert.AreEqual("parent", telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
 
                 Assert.AreEqual("eventhubname.servicebus.windows.net", telemetry.Properties["peer.hostname"]);
                 Assert.AreEqual("ehname", telemetry.Properties["eh.event_hub_name"]);
@@ -352,9 +353,9 @@
                 Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ | ehname", telemetry.Target);
                 Assert.IsFalse(telemetry.Success.Value);
 
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.ParentSpanId.ToHexString()}.", telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.ParentSpanId.ToHexString(), telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
 
                 Assert.AreEqual("v1", telemetry.Properties["k1"]);
                 Assert.AreEqual("eventhubname.servicebus.windows.net", telemetry.Properties["peer.hostname"]);

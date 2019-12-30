@@ -214,5 +214,4 @@
       copy "$(TargetDir)" "$(ProjectDir)bin"
     </PostBuildEvent>
   </PropertyGroup>
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 </Project>

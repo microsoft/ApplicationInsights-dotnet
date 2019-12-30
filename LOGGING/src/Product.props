@@ -3,6 +3,8 @@
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.props'))\Common.props"/>
 
   <Import Project="$(PropsRoot)\_Nupkg.props" />
+
+  <Import Project="$(TargetsRoot)\AddXmlLanguage.targets" />
   
   <PropertyGroup>
     <!--Removing the SRC folder from the output directory-->
@@ -11,9 +13,4 @@
     <OutputPath>$([System.IO.Path]::GetFullPath( $(OutputPath) ))\</OutputPath>
   </PropertyGroup>
   
-  <PropertyGroup>
-    <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).XML</DocumentationFile>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
-
 </Project>

@@ -465,7 +465,7 @@
                 if (parentActivity.IdFormat == ActivityIdFormat.W3C)
                 {
                     Assert.AreEqual(parentActivity.TraceId.ToHexString(), remoteDependencyTelemetryActual.Context.Operation.Id);
-                    Assert.AreEqual($"|{parentActivity.TraceId.ToHexString()}.{parentActivity.SpanId.ToHexString()}.", remoteDependencyTelemetryActual.Context.Operation.ParentId);
+                    Assert.AreEqual(parentActivity.SpanId.ToHexString(), remoteDependencyTelemetryActual.Context.Operation.ParentId);
                     if (parentActivity.TraceStateString != null)
                     {
                         Assert.IsTrue(remoteDependencyTelemetryActual.Properties.ContainsKey("tracestate"));

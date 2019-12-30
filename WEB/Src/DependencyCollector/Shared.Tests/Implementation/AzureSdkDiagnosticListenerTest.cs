@@ -26,6 +26,7 @@
             Activity.DefaultIdFormat = ActivityIdFormat.W3C;
             Activity.ForceDefaultIdFormat = true;
             this.configuration = new TelemetryConfiguration();
+            this.configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
             this.sentItems = new List<ITelemetry>();
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sentItems.Add(item), EndpointAddress = "https://dc.services.visualstudio.com/v2/track" };
             this.configuration.InstrumentationKey = Guid.NewGuid().ToString();
@@ -79,9 +80,9 @@
                 Assert.AreEqual("InProc", telemetry.Type);
                 Assert.IsTrue(telemetry.Success.Value);
 
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.ParentSpanId.ToHexString()}.", telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.ParentSpanId.ToHexString(), telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
 
                 Assert.AreEqual("v1", telemetry.Properties["k1"]);
                 
@@ -113,7 +114,7 @@
 
                 Assert.IsNull(telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
             }
         }
 
@@ -139,7 +140,7 @@
 
                 Assert.IsNull(telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
             }
         }
 
@@ -177,7 +178,7 @@
 
                 Assert.IsNull(telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
 
                 // does not throw
                 var jsonSettingThrowOnError = new JsonSerializerSettings
@@ -233,7 +234,7 @@
 
                 Assert.IsNull(telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
             }
         }
 
@@ -272,7 +273,7 @@
 
                 Assert.IsNull(telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(httpActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{httpActivity.TraceId.ToHexString()}.{httpActivity.SpanId.ToHexString()}.", telemetry.Id);
+                Assert.AreEqual(httpActivity.SpanId.ToHexString(), telemetry.Id);
             }
         }
 
@@ -306,7 +307,7 @@
 
                 Assert.IsNull(telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(httpActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{httpActivity.TraceId.ToHexString()}.{httpActivity.SpanId.ToHexString()}.", telemetry.Id);
+                Assert.AreEqual(httpActivity.SpanId.ToHexString(), telemetry.Id);
             }
         }
 
@@ -341,7 +342,7 @@
 
                 Assert.IsNull(telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(httpActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{httpActivity.TraceId.ToHexString()}.{httpActivity.SpanId.ToHexString()}.", telemetry.Id);
+                Assert.AreEqual(httpActivity.SpanId.ToHexString(), telemetry.Id);
             }
         }
 
@@ -376,7 +377,7 @@
                 Assert.AreEqual(exception.ToInvariantString(), telemetry.Properties["Error"]);
                 Assert.IsNull(telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
             }
         }
 
@@ -409,7 +410,7 @@
 
                 Assert.IsNull(telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{sendActivity.TraceId.ToHexString()}.{sendActivity.SpanId.ToHexString()}.", telemetry.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
             }
         }
 

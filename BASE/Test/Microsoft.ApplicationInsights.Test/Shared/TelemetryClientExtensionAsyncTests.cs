@@ -1,4 +1,6 @@
-﻿namespace Microsoft.ApplicationInsights
+﻿using System.Diagnostics;
+
+namespace Microsoft.ApplicationInsights
 {
     using System;
     using System.Collections.Generic;
@@ -48,10 +50,9 @@
         /// Ensure that context being propagated via async/await.
         /// </summary>
         [TestMethod]
-        public void ContextPropagatesThroughAsyncAwait()
+        public async Task ContextPropagatesThroughAsyncAwait()
         {
-            var task = this.TestAsync();
-            task.Wait();
+            await this.TestAsync();
         }
 
         /// <summary>
@@ -60,8 +61,11 @@
         /// <returns>Task to await.</returns>
         public async Task TestAsync()
         {
+            Activity activity;
             using (var op = this.telemetryClient.StartOperation<RequestTelemetry>("request"))
             {
+                activity = Activity.Current;
+                
                 var id1 = Thread.CurrentThread.ManagedThreadId;
                 this.telemetryClient.TrackTrace("trace1");
 
@@ -75,20 +79,32 @@
             }
 
             Assert.AreEqual(3, this.sendItems.Count);
-            var id = ((RequestTelemetry)this.sendItems[this.sendItems.Count - 1]).Id;
-            Assert.IsFalse(string.IsNullOrEmpty(id));
+            var requestTelemetry = ((RequestTelemetry) this.sendItems[this.sendItems.Count - 1]);
+            var requestId = requestTelemetry.Id;
+            var requestOperationId = requestTelemetry.Context.Operation.Id;
+            Assert.IsFalse(string.IsNullOrEmpty(requestTelemetry.Id));
+            Assert.IsFalse(string.IsNullOrEmpty(requestOperationId));
 
             foreach (var item in this.sendItems)
             {
                 if (item is TraceTelemetry)
                 {
-                    Assert.AreEqual(id, item.Context.Operation.ParentId);
-                    Assert.AreEqual(GetRootOperationId(id), item.Context.Operation.Id);
+                    Assert.AreEqual(requestId, item.Context.Operation.ParentId);
+                    Assert.AreEqual(requestOperationId, item.Context.Operation.Id);
                 }
                 else
                 {
-                    Assert.AreEqual(id, ((RequestTelemetry)item).Id);
-                    Assert.AreEqual(GetRootOperationId(id), item.Context.Operation.Id);
+                    if (activity.IdFormat == ActivityIdFormat.W3C)
+                    {
+                        Assert.AreEqual(activity.TraceId.ToHexString(), requestOperationId);
+                        Assert.AreEqual(activity.SpanId.ToHexString(), requestId);
+                    }
+                    else
+                    {
+                        Assert.AreEqual(activity.RootId, requestOperationId);
+                        Assert.AreEqual(activity.Id, requestId);
+                    }
+
                     Assert.IsNull(item.Context.Operation.ParentId);
                 }
             }
@@ -101,6 +117,7 @@
         public void ContextPropagatesThroughBeginEnd()
         {
             var op = this.telemetryClient.StartOperation<RequestTelemetry>("request");
+            var activity = Activity.Current;
             var id1 = Thread.CurrentThread.ManagedThreadId;
             int id2 = 0;
             this.telemetryClient.TrackTrace("trace1");
@@ -126,30 +143,35 @@
 
             Assert.AreNotEqual(id1, id2);
             Assert.AreEqual(3, this.sendItems.Count);
-            var id = ((RequestTelemetry)this.sendItems[this.sendItems.Count - 1]).Id;
-            Assert.IsFalse(string.IsNullOrEmpty(id));
+            var requestTelemetry = ((RequestTelemetry)this.sendItems[this.sendItems.Count - 1]);
+            var requestId = requestTelemetry.Id;
+            var requestOperationId = requestTelemetry.Context.Operation.Id;
+            Assert.IsFalse(string.IsNullOrEmpty(requestTelemetry.Id));
+            Assert.IsFalse(string.IsNullOrEmpty(requestOperationId));
 
             foreach (var item in this.sendItems)
             {
                 if (item is TraceTelemetry)
                 {
-                    Assert.AreEqual(id, item.Context.Operation.ParentId);
-                    Assert.AreEqual(GetRootOperationId(id), item.Context.Operation.Id);
+                    Assert.AreEqual(requestId, item.Context.Operation.ParentId);
+                    Assert.AreEqual(requestOperationId, item.Context.Operation.Id);
                 }
                 else
                 {
-                    Assert.AreEqual(id, ((RequestTelemetry)item).Id);
-                    Assert.AreEqual(GetRootOperationId(id), item.Context.Operation.Id);
-                    Assert.IsNull(item.Context.Operation.ParentId);
+                    if (activity.IdFormat == ActivityIdFormat.W3C)
+                    {
+                        Assert.AreEqual(activity.TraceId.ToHexString(), requestOperationId);
+                        Assert.AreEqual(activity.SpanId.ToHexString(), requestId);
+                    }
+                    else
+                    {
+                        Assert.AreEqual(activity.RootId, requestOperationId);
+                        Assert.AreEqual(activity.Id, requestId);
+                    }
 
+                    Assert.IsNull(item.Context.Operation.ParentId);
                 }
             }
-        }
-
-        private string GetRootOperationId(string operationId)
-        {
-            Assert.IsTrue(operationId.StartsWith("|"));
-            return operationId.Substring(1, operationId.IndexOf('.') - 1);
         }
     }
 }

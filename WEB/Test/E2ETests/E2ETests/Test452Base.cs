@@ -28,9 +28,9 @@ namespace E2ETests
     }
     public abstract class Test452Base
     {
-        
+
         internal static Dictionary<string, DeployedApp> Apps = new Dictionary<string, DeployedApp>()
-        {                          
+        {
             {
                 TestConstants.WebApiName,
                 new DeployedApp
@@ -96,9 +96,9 @@ namespace E2ETests
                 DockerUtils.PrintDockerProcessStats("Docker-Compose -build retry");
                 PopulateIPAddresses();
                 allAppsHealthy = HealthCheckAndRemoveImageIfNeededAllApp();
-            }            
+            }
 
-            Assert.IsTrue(allAppsHealthy, "All Apps are not unhealthy.");            
+            Assert.IsTrue(allAppsHealthy, "All Apps are not unhealthy.");
 
             dataendpointClient = new DataEndpointClient(new Uri("http://" + Apps[TestConstants.IngestionName].ipAddress));
 
@@ -160,13 +160,13 @@ namespace E2ETests
         private static bool HealthCheckAndRemoveImageIfNeededAllApp()
         {
             bool healthy = true;
-            foreach(var app in Apps)
+            foreach (var app in Apps)
             {
                 healthy = healthy && HealthCheckAndRemoveImageIfNeeded(app.Value);
             }
 
             return healthy;
-        }       
+        }
 
         private static void PopulateIPAddresses()
         {
@@ -174,7 +174,7 @@ namespace E2ETests
             Trace.WriteLine("Inspecting Docker containers to get IP addresses");
             foreach (var app in Apps)
             {
-                app.Value.ipAddress = DockerUtils.FindIpDockerContainer(app.Value.containerName);                
+                app.Value.ipAddress = DockerUtils.FindIpDockerContainer(app.Value.containerName);
             }
         }
 
@@ -277,7 +277,7 @@ namespace E2ETests
                 var request = new HttpRequestMessage(HttpMethod.Post, string.Format($"http://{Apps[TestConstants.WebApiName].ipAddress}/api/values"));
                 request.Headers.Add("traceparent", $"00-{operationId}-{ActivitySpanId.CreateRandom()}-01");
 
-                request.Content = new StringContent($"\"{new string('1', 1024*1024)}\"", Encoding.UTF8, "application/json");
+                request.Content = new StringContent($"\"{new string('1', 1024 * 1024)}\"", Encoding.UTF8, "application/json");
 
                 var response = await httpClient.SendAsync(request);
 
@@ -301,7 +301,7 @@ namespace E2ETests
             PrintDependencies(dependencies);
             Assert.AreEqual(1, dependencies.Count);
 
-            var requests = WaitForReceiveRequestItemsFromDataIngestion(Apps[TestConstants.WebApiName].ipAddress, Apps[TestConstants.WebApiName].ikey, expectNumberOfItems:1);
+            var requests = WaitForReceiveRequestItemsFromDataIngestion(Apps[TestConstants.WebApiName].ipAddress, Apps[TestConstants.WebApiName].ikey, expectNumberOfItems: 1);
             Trace.WriteLine("Requests count for WebApp:" + requests.Count);
             PrintRequests(requests);
             Assert.AreEqual(1, requests.Count);
@@ -314,7 +314,7 @@ namespace E2ETests
             {
                 var spanId = restoredActivityId.Split('-')[2];
                 Assert.AreEqual(operationId, dependency.tags["ai.operation.id"]);
-                Assert.AreEqual($"|{operationId}.{spanId}.", dependency.tags["ai.operation.parentId"]);
+                Assert.AreEqual(spanId, dependency.tags["ai.operation.parentId"]);
                 Assert.AreEqual(requests[0].data.baseData.id, dependency.tags["ai.operation.parentId"]);
             }
             else
@@ -515,7 +515,7 @@ namespace E2ETests
             // will be a local url in case of emulator.
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
-            expectedDependencyTelemetry.Target = TestConstants.WebAppTargetToEmulatorTable;            
+            expectedDependencyTelemetry.Target = TestConstants.WebAppTargetToEmulatorTable;
 
             // 2 dependency item is expected.
             // 1 from creating table, and 1 from writing data to it.
@@ -531,7 +531,7 @@ namespace E2ETests
             // will be a local url in case of emulator.
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
-            expectedDependencyTelemetry.Target = TestConstants.WebAppTargetToEmulatorQueue;            
+            expectedDependencyTelemetry.Target = TestConstants.WebAppTargetToEmulatorQueue;
 
             // 2 dependency item is expected.
             // 1 from creating queue, and 1 from writing data to it.
@@ -547,7 +547,7 @@ namespace E2ETests
             // will be a local url in case of emulator.
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
-            expectedDependencyTelemetry.Target = TestConstants.WebAppTargetToEmulatorBlob;            
+            expectedDependencyTelemetry.Target = TestConstants.WebAppTargetToEmulatorBlob;
 
             // 2 dependency item is expected.
             // 1 from creating table, and 1 from writing data to it.
@@ -569,7 +569,7 @@ namespace E2ETests
             }
             expectedDependencyTelemetry.Target = TestConstants.WebAppTargetNameToSql;
             expectedDependencyTelemetry.Data = expectedData;
-            
+
             ValidateBasicDependency(Apps[appname].ipAddress, path, expectedDependencyTelemetry,
                 Apps[appname].ikey, 1, expectedPrefix);
         }
@@ -580,8 +580,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
             expectedDependencyTelemetry.Target = TestConstants.WebAppTargetNameToSql;
-            
-            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf")? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
+
+            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf") ? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=ExecuteReaderAsync&success=true", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -594,7 +594,7 @@ namespace E2ETests
             expectedDependencyTelemetry.Success = false;
             expectedDependencyTelemetry.ResultCode = "208";
             expectedDependencyTelemetry.Target = TestConstants.WebAppTargetNameToSql;
-            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf") ? TestConstants.WebAppFullQueryToSqlException : string.Empty;            
+            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf") ? TestConstants.WebAppFullQueryToSqlException : string.Empty;
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=ExecuteReaderAsync&success=false", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -606,7 +606,7 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
             expectedDependencyTelemetry.Target = TestConstants.WebAppTargetNameToSql;
-            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf")? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
+            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf") ? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader0&success=true", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -631,7 +631,7 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
             expectedDependencyTelemetry.Target = TestConstants.WebAppTargetNameToSql;
-            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf")? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
+            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf") ? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader1&success=true", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -656,7 +656,7 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
             expectedDependencyTelemetry.Target = TestConstants.WebAppTargetNameToSql;
-            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf")? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
+            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf") ? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader2&success=true", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -681,7 +681,7 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
             expectedDependencyTelemetry.Target = TestConstants.WebAppTargetNameToSql;
-            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf")? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
+            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf") ? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader3&success=true", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -706,7 +706,7 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
             expectedDependencyTelemetry.Target = TestConstants.WebAppTargetNameToSql;
-            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf")? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
+            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf") ? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteReader1&success=true", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -731,7 +731,7 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
             expectedDependencyTelemetry.Target = TestConstants.WebAppTargetNameToSql;
-            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf")? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
+            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf") ? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteReader1&success=true", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -756,7 +756,7 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
             expectedDependencyTelemetry.Target = TestConstants.WebAppTargetNameToSql;
-            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf")? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
+            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf") ? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=ExecuteScalarAsync&success=true", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -781,7 +781,7 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
             expectedDependencyTelemetry.Target = TestConstants.WebAppTargetNameToSql;
-            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf")? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
+            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf") ? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteScalar&success=true", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -806,7 +806,7 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
             expectedDependencyTelemetry.Target = TestConstants.WebAppTargetNameToSql;
-            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf")? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
+            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf") ? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteNonQuery&success=true", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -831,7 +831,7 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
             expectedDependencyTelemetry.Target = TestConstants.WebAppTargetNameToSql;
-            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf")? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
+            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf") ? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=ExecuteNonQueryAsync&success=true", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -856,7 +856,7 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
             expectedDependencyTelemetry.Target = TestConstants.WebAppTargetNameToSql;
-            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf")? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
+            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf") ? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=BeginExecuteNonQuery0&success=true", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -881,7 +881,7 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
             expectedDependencyTelemetry.Target = TestConstants.WebAppTargetNameToSql;
-            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf")? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
+            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf") ? TestConstants.WebAppFullQueryToSqlSuccess : string.Empty;
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=BeginExecuteNonQuery2&success=true", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -956,7 +956,7 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
             expectedDependencyTelemetry.Target = TestConstants.WebAppTargetNameToSql;
-            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf") ? TestConstants.WebAppFullQueryToSqlSuccessXML : string.Empty;            
+            expectedDependencyTelemetry.Data = (expectedPrefix != "rddf") ? TestConstants.WebAppFullQueryToSqlSuccessXML : string.Empty;
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteXmlReader&success=true", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -979,7 +979,7 @@ namespace E2ETests
         {
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "SQL";
-            expectedDependencyTelemetry.Success = true;            
+            expectedDependencyTelemetry.Success = true;
             expectedDependencyTelemetry.Target = TestConstants.WebAppTargetNameToSql;
             expectedDependencyTelemetry.Data = TestConstants.WebAppStoredProcedureNameToSql;
 
@@ -998,9 +998,9 @@ namespace E2ETests
             Trace.WriteLine("Hitting the target url:" + url);
             var response = await client.GetAsync(url);
             Trace.WriteLine("Actual Response code: " + response.StatusCode);
-            Thread.Sleep(5 * AISDKBufferFlushTime);            
+            Thread.Sleep(5 * AISDKBufferFlushTime);
 
-            var requestsSource = WaitForReceiveRequestItemsFromDataIngestion(sourceInstanceIp, sourceIKey);            
+            var requestsSource = WaitForReceiveRequestItemsFromDataIngestion(sourceInstanceIp, sourceIKey);
             var dependenciesSource = WaitForReceiveDependencyItemsFromDataIngestion(sourceInstanceIp, sourceIKey);
             var requestsTarget = WaitForReceiveRequestItemsFromDataIngestion(targetInstanceIp, targetIKey);
 
@@ -1084,7 +1084,7 @@ namespace E2ETests
             ValidateDependency(expectedDependencyTelemetry, dependency, expectedPrefix);
         }
 
-        private static IList<TelemetryItem<RemoteDependencyData>> WaitForReceiveDependencyItemsFromDataIngestion(string targetInstanceIp,string ikey, int maxRetryCount = 5, bool flushChannel = true)
+        private static IList<TelemetryItem<RemoteDependencyData>> WaitForReceiveDependencyItemsFromDataIngestion(string targetInstanceIp, string ikey, int maxRetryCount = 5, bool flushChannel = true)
         {
             int receivedItemCount = 0;
             int iteration = 0;
@@ -1092,12 +1092,12 @@ namespace E2ETests
 
             while (iteration < maxRetryCount && receivedItemCount < 1)
             {
-                Thread.Sleep(AISDKBufferFlushTime);                
+                Thread.Sleep(AISDKBufferFlushTime);
                 items = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
                 receivedItemCount = items.Count;
                 iteration++;
                 if (receivedItemCount == 0 && flushChannel)
-                {                    
+                {
                     ExecuteWebRequestToTarget(targetInstanceIp, Apps[AppNameBeingTested].flushPath).Wait();
                 }
             }
@@ -1140,7 +1140,7 @@ namespace E2ETests
                 }
                 Trace.WriteLine("End Application Traces for ikey:" + ikey + "----------------------------------------------------------------------------------------");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.WriteLine("Exception printing application traces:" + ex.Message);
             }
@@ -1149,7 +1149,7 @@ namespace E2ETests
         private void ReadApplicationTraces(string targetInstanceIp, string targetPath)
         {
             try
-            {                
+            {
                 Trace.WriteLine("Begin Application Traces----------------------------------------------------------------------------------------");
 
 
@@ -1176,7 +1176,7 @@ namespace E2ETests
 
         private void ValidateAzureDependencyAsync(string targetInstanceIp, string targetPath,
             DependencyTelemetry expectedDependencyTelemetry, string ikey, int minCount, string expectedPrefix, int additionalSleepTimeMsec = 0)
-        {            
+        {
             var success = ExecuteWebRequestToTarget(targetInstanceIp, targetPath).Result;
             Assert.IsTrue(success, "Web App did not respond with success. Failing test. Check exception from logs.");
             Thread.Sleep(AISDKBufferFlushTime + additionalSleepTimeMsec);
@@ -1208,7 +1208,7 @@ namespace E2ETests
             catch (Exception ex)
             {
                 success = false;
-                Trace.WriteLine("Exception occured:" + ex);                
+                Trace.WriteLine("Exception occured:" + ex);
             }
 
             return success;
@@ -1224,7 +1224,7 @@ namespace E2ETests
             string actualSdkVersion = actualDependencyTelemetry.tags[new ContextTagKeys().InternalSdkVersion];
             Assert.IsTrue(actualSdkVersion.Contains(expectedPrefix), "Actual version:" + actualSdkVersion);
 
-            if(!string.IsNullOrEmpty(expectedDependencyTelemetry.ResultCode))
+            if (!string.IsNullOrEmpty(expectedDependencyTelemetry.ResultCode))
             {
                 Assert.AreEqual(expectedDependencyTelemetry.ResultCode, actualDependencyTelemetry.data.baseData.resultCode);
             }
@@ -1239,11 +1239,11 @@ namespace E2ETests
             {
                 Assert.AreEqual(expectedDependencyTelemetry.Data, actualDependencyTelemetry.data.baseData.data);
             }
-            
-            var depTime = TimeSpan.Parse(actualDependencyTelemetry.data.baseData.duration, CultureInfo.InvariantCulture);            
+
+            var depTime = TimeSpan.Parse(actualDependencyTelemetry.data.baseData.duration, CultureInfo.InvariantCulture);
             if (expectedDependencyTelemetry.Success.HasValue)
             {
-                if(expectedDependencyTelemetry.Success.Value == true)
+                if (expectedDependencyTelemetry.Success.Value == true)
                 {
                     Assert.IsTrue(depTime.TotalMilliseconds > 0, "Access time should be above zero");
                 }
@@ -1251,7 +1251,7 @@ namespace E2ETests
                 {
                     Assert.IsTrue(depTime.TotalMilliseconds >= 0, "Access time should be zero or above zero if success is false.");
                 }
-            }            
+            }
         }
 
         private void PrintDependencies(IList<TelemetryItem<AI.RemoteDependencyData>> dependencies)
@@ -1265,7 +1265,7 @@ namespace E2ETests
                 Trace.WriteLine("deps.data.baseData.name:" + deps.data.baseData.name);
                 Trace.WriteLine("deps.tags[ai.operation.id]:" + deps.tags["ai.operation.id"]);
                 Trace.WriteLine("deps.data.baseData.type:" + deps.data.baseData.type);
-                Trace.WriteLine("deps.data.baseData.data:" + deps.data.baseData.data);                
+                Trace.WriteLine("deps.data.baseData.data:" + deps.data.baseData.data);
                 Trace.WriteLine("deps.data.baseData.success:" + deps.data.baseData.success);
                 Trace.WriteLine("deps.data.baseData.duration:" + deps.data.baseData.duration);
                 Trace.WriteLine("deps.data.baseData.resultCode:" + deps.data.baseData.resultCode);
@@ -1285,10 +1285,10 @@ namespace E2ETests
                 Trace.WriteLine("req.iKey: " + req.iKey);
                 Trace.WriteLine("req.name: " + req.name);
                 Trace.WriteLine("req.data.baseData.name:" + req.data.baseData.name);
-                Trace.WriteLine("req.tags[ai.operation.id]:" + req.tags["ai.operation.id"]); 
+                Trace.WriteLine("req.tags[ai.operation.id]:" + req.tags["ai.operation.id"]);
                 Trace.WriteLine("req.data.baseData.responseCode:" + req.data.baseData.responseCode);
                 Trace.WriteLine("req.data.baseData.success:" + req.data.baseData.success);
-                Trace.WriteLine("req.data.baseData.duration:" + req.data.baseData.duration);                
+                Trace.WriteLine("req.data.baseData.duration:" + req.data.baseData.duration);
                 Trace.WriteLine("req.data.baseData.id:" + req.data.baseData.id);
                 Trace.WriteLine("req.data.baseData.url:" + req.data.baseData.url);
                 Trace.WriteLine("InternalSdkVersion:" + req.tags[new ContextTagKeys().InternalSdkVersion]);
@@ -1298,12 +1298,12 @@ namespace E2ETests
 
         private static void RemoveIngestionItems()
         {
-            Trace.WriteLine("Deleting items started:" + DateTime.UtcNow.ToLongTimeString());            
-            foreach(var app in Apps)
+            Trace.WriteLine("Deleting items started:" + DateTime.UtcNow.ToLongTimeString());
+            foreach (var app in Apps)
             {
                 Trace.WriteLine("Deleting items for ikey:" + app.Value.ikey);
                 dataendpointClient.DeleteItems(app.Value.ikey);
-            }            
+            }
             Trace.WriteLine("Deleting items completed:" + DateTime.UtcNow.ToLongTimeString());
         }
 
@@ -1335,7 +1335,7 @@ namespace E2ETests
 
         private static bool HealthCheck(DeployedApp app)
         {
-            bool isHealthy = true;            
+            bool isHealthy = true;
             string url = "";
             try
             {
@@ -1354,7 +1354,7 @@ namespace E2ETests
             {
                 isHealthy = false;
                 Trace.WriteLine(string.Format("Exception occuring hitting {0} : {1}", url, ex));
-            }            
+            }
             return isHealthy;
         }
     }

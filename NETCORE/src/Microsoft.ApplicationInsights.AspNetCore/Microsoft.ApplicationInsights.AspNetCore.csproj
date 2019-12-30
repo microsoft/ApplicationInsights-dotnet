@@ -19,11 +19,6 @@
     <PackageTags>$(PackageTags)aspnetcore;</PackageTags>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <!--Package Settings-->
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <!--Symbols Settings-->
     <DebugType>full</DebugType>
@@ -112,4 +107,5 @@
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
   </ItemGroup>
 
+  <Import Project="$(TargetsRoot)\AddXmlLanguage.targets" />
 </Project>
