@@ -2,6 +2,7 @@
 {
     using System.Linq;
     using System.Net.Http;
+    using System.Reflection;
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
