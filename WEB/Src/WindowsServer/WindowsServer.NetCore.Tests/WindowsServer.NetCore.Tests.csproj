@@ -3,7 +3,6 @@
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), NetCore.props))\NetCore.props" />  
   
   <PropertyGroup>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>Microsoft.AI.WindowsServer.NetCore.Tests</AssemblyName>
     <PackageId>Microsoft.AI.WindowsServer.NetCore.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>

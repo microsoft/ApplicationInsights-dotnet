@@ -1,5 +1,9 @@
 namespace Microsoft.ApplicationInsights.Common
 {
+    using System.Collections;
+    using System.Diagnostics;
+    using Microsoft.ApplicationInsights.Web.Implementation;
+
     internal class ActivityHelpers
     {
         /// <summary>
@@ -8,7 +12,7 @@ namespace Microsoft.ApplicationInsights.Common
         /// https://github.com/aspnet/Microsoft.AspNet.TelemetryCorrelation/blob/6ccf0729050be4fac6797fa85af0200883db1c83/src/Microsoft.AspNet.TelemetryCorrelation/ActivityHelper.cs#L33
         /// so that TelemetryCorrelation will restore and treat 'our' Activity as it's own.
         /// </summary>
-        internal const string RequestActivityItemName = "__AspnetActivity__";
+        internal const string RequestActivityItemName = "Microsoft.ApplicationInsights.Activity";
 
         internal static string RootOperationIdHeaderName { get; set; }
 
@@ -22,6 +26,27 @@ namespace Microsoft.ApplicationInsights.Common
         internal static bool IsHierarchicalRequestId(string requestId)
         {
             return !string.IsNullOrEmpty(requestId) && requestId[0] == '|';
+        }
+
+        /// <summary>
+        /// It's possible that a request is executed in both native threads and managed threads,
+        /// in such case Activity.Current will be lost during native thread and managed thread switch.
+        /// This method is intended to restore the current activity in order to correlate the child
+        /// activities with the root activity of the request.
+        /// </summary>
+        /// <param name="contextItems">Dictionary of HttpContext.Items.</param>
+        internal static void RestoreActivityIfNeeded(IDictionary contextItems)
+        {
+            if (contextItems == null)
+            {
+                WebEventSource.Log.NoHttpContextWarning();
+                return;
+            }
+
+            if (Activity.Current == null && contextItems.Contains(RequestActivityItemName))
+            {
+                Activity.Current = (Activity)contextItems[RequestActivityItemName];
+            }
         }
     }
 }

@@ -289,8 +289,7 @@
 
                 var requestTelemetry = this.InitializeRequestTelemetry(httpContext, currentActivity, Stopwatch.GetTimestamp(), legacyRootId);
 
-                requestTelemetry.Context.Operation.ParentId =
-                    GetParentId(currentActivity, originalParentId, requestTelemetry.Context.Operation.Id);
+                requestTelemetry.Context.Operation.ParentId = GetParentId(currentActivity, originalParentId);
 
                 this.AddAppIdToResponseIfRequired(httpContext, requestTelemetry);
             }
@@ -380,8 +379,7 @@
                 ReadCorrelationContext(requestHeaders, activity);
                 var requestTelemetry = this.InitializeRequestTelemetry(httpContext, activity, timestamp, legacyRootId);
 
-                requestTelemetry.Context.Operation.ParentId =
-                    GetParentId(activity, originalParentId, requestTelemetry.Context.Operation.Id);
+                requestTelemetry.Context.Operation.ParentId = GetParentId(activity, originalParentId);
 
                 this.AddAppIdToResponseIfRequired(httpContext, requestTelemetry);
             }
@@ -575,14 +573,14 @@
         {
         }
 
-        private static string GetParentId(Activity activity, string originalParentId, string operationId)
+        private static string GetParentId(Activity activity, string originalParentId)
         {
             if (activity.IdFormat == ActivityIdFormat.W3C && activity.ParentSpanId != default)
             {
                 var parentSpanId = activity.ParentSpanId.ToHexString();
                 if (parentSpanId != "0000000000000000")
                 {
-                    return FormatTelemetryId(operationId, parentSpanId);
+                    return parentSpanId;
                 }
             }
 
@@ -638,11 +636,6 @@
                 result = null;
                 return false;
             }
-        }
-
-        private static string FormatTelemetryId(string traceId, string spanId)
-        {
-            return string.Concat("|", traceId, ".", spanId, ".");
         }
 
         private static void ReadCorrelationContext(IHeaderDictionary requestHeaders, Activity activity)
@@ -763,7 +756,7 @@
             if (activity.IdFormat == ActivityIdFormat.W3C)
             {
                 var traceId = activity.TraceId.ToHexString();
-                requestTelemetry.Id = FormatTelemetryId(traceId, activity.SpanId.ToHexString());
+                requestTelemetry.Id = activity.SpanId.ToHexString();
                 requestTelemetry.Context.Operation.Id = traceId;
                 AspNetCoreEventSource.Instance.RequestTelemetryCreated("W3C", requestTelemetry.Id, traceId);
             }

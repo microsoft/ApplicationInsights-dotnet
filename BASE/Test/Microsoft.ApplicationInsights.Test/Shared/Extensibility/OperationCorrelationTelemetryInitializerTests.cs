@@ -70,8 +70,7 @@
 
             // Validate
             Assert.AreEqual(activity.TraceId.ToHexString(), telemetry.Context.Operation.Id, "OperationCorrelationTelemetryInitializer is expected to populate OperationID from Activity");
-            Assert.AreEqual(W3CUtilities.FormatTelemetryId(activity.TraceId.ToHexString(), activity.SpanId.ToHexString()), 
-                telemetry.Context.Operation.ParentId,
+            Assert.AreEqual(activity.SpanId.ToHexString(), telemetry.Context.Operation.ParentId,
                 "OperationCorrelationTelemetryInitializer is expected to populate Operation ParentID as |traceID.SpanId. from Activity");
             Assert.AreEqual(originalTelemetryId, telemetry.Id, "OperationCorrelationTelemetryInitializer is not expected to modify Telemetry ID");
             activity.Stop();
@@ -256,7 +255,7 @@
             (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
 
             Assert.AreEqual(currentActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-            Assert.AreEqual(W3CUtilities.FormatTelemetryId(currentActivity.TraceId.ToHexString(), currentActivity.SpanId.ToHexString()), telemetry.Context.Operation.ParentId);
+            Assert.AreEqual(currentActivity.SpanId.ToHexString(), telemetry.Context.Operation.ParentId);
             Assert.AreEqual("operation", telemetry.Context.Operation.Name);
 
             Assert.AreEqual(3, telemetry.Properties.Count);
@@ -278,7 +277,7 @@
             (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
 
             Assert.AreEqual(currentActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
-            Assert.AreEqual(W3CUtilities.FormatTelemetryId(currentActivity.TraceId.ToHexString(), currentActivity.SpanId.ToHexString()), telemetry.Context.Operation.ParentId);
+            Assert.AreEqual(currentActivity.SpanId.ToHexString(), telemetry.Context.Operation.ParentId);
 
             Assert.AreEqual("operation", telemetry.Context.Operation.Name);
             Assert.AreEqual(1, telemetry.Properties.Count);

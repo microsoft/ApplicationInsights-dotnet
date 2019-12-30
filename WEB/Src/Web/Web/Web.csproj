@@ -4,7 +4,6 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.Web</RootNamespace>
     <AssemblyName>Microsoft.AI.Web</AssemblyName>
-    <DocumentationFile>$(OutputPath)\$(AssemblyName).XML</DocumentationFile>
     <TargetFramework>net45</TargetFramework>
     <Prefer32Bit>false</Prefer32Bit>
     <DefineConstants>$(DefineConstants);ALLOW_AGGRESSIVE_INLIGNING_ATTRIBUTE</DefineConstants>
@@ -78,5 +77,4 @@
 
   <Import Project="..\Web.Shared.Net\Web.Shared.Net.projitems" Label="Shared" />
   <Import Project="..\..\Common\Common.projitems" Label="Shared" />
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 </Project>

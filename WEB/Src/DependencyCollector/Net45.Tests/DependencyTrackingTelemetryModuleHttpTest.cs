@@ -855,7 +855,8 @@
                 if (parentActivity.IdFormat == ActivityIdFormat.W3C)
                 {
                     Assert.AreEqual(parentActivity.TraceId.ToHexString(), item.Context.Operation.Id);
-                    Assert.AreEqual($"|{parentActivity.TraceId.ToHexString()}.{parentActivity.SpanId.ToHexString()}.", item.Context.Operation.ParentId);
+                    Assert.AreEqual(parentActivity.SpanId.ToHexString(), item.Context.Operation.ParentId);
+
                     if (parentActivity.TraceStateString != null)
                     {
                         Assert.IsTrue(item.Properties.ContainsKey("tracestate"));
@@ -870,6 +871,7 @@
                 {
                     Assert.AreEqual(parentActivity.RootId, item.Context.Operation.Id);
                     Assert.AreEqual(parentActivity.Id, item.Context.Operation.ParentId);
+                    Assert.IsTrue(item.Id.StartsWith('|' + item.Context.Operation.Id + '.'));
                 }
             }
             else
@@ -877,8 +879,6 @@
                 Assert.IsNotNull(item.Context.Operation.Id);
                 Assert.IsNull(item.Context.Operation.ParentId);
             }
-
-            Assert.IsTrue(item.Id.StartsWith('|' + item.Context.Operation.Id + '.'));
 
             if (diagnosticSource)
             {
@@ -906,28 +906,31 @@
                 SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModule), "rdddsd:"),
                 item.Context.GetInternalContext().SdkVersion);
 
-            var requestId = item.Id;
-
             if (requestMsg != null)
             {
+                var requestIdHeader = requestMsg.Headers[RequestResponseHeaders.RequestIdHeader];
+                string expectedRequestId;
+
                 if (expectW3CHeaders)
                 {
                     var traceId = item.Context.Operation.Id;
-                    var spanId = requestId.Substring(34, 16);
+                    var spanId = item.Id;
                     var expectedTraceparent = $"00-{traceId}-{spanId}-00";
+                    expectedRequestId = $"|{traceId}.{spanId}.";
 
                     Assert.AreEqual(expectedTraceparent, requestMsg.Headers[W3C.W3CConstants.TraceParentHeader]);
                     Assert.AreEqual(Activity.Current?.TraceStateString, requestMsg.Headers[W3C.W3CConstants.TraceStateHeader]);
                 }
                 else
                 {
+                    expectedRequestId = item.Id;
                     Assert.IsNull(requestMsg.Headers[W3C.W3CConstants.TraceParentHeader]);
                     Assert.IsNull(requestMsg.Headers[W3C.W3CConstants.TraceStateHeader]);
                 }
 
                 if (expectRequestId)
                 {
-                    Assert.AreEqual(requestId, requestMsg.Headers[RequestResponseHeaders.RequestIdHeader]);
+                    Assert.AreEqual(expectedRequestId, requestMsg.Headers[RequestResponseHeaders.RequestIdHeader]);
                 }
                 else
                 {
@@ -936,7 +939,7 @@
 
                 if (expectLegacyHeaders)
                 {
-                    Assert.AreEqual(requestId, requestMsg.Headers[RequestResponseHeaders.StandardParentIdHeader]);
+                    Assert.AreEqual(item.Id, requestMsg.Headers[RequestResponseHeaders.StandardParentIdHeader]);
                     Assert.AreEqual(item.Context.Operation.Id, requestMsg.Headers[RequestResponseHeaders.StandardRootIdHeader]);
                 }
                 else

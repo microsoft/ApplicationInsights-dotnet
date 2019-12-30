@@ -4,7 +4,6 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.Extensibility.EventCounterCollector</RootNamespace>
     <AssemblyName>Microsoft.AI.EventCounterCollector</AssemblyName>
-    <DocumentationFile>$(OutputPath)\$(AssemblyName).XML</DocumentationFile>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
@@ -58,6 +57,5 @@
   </ItemGroup>
 
   <Import Project="..\..\..\Src\Common\Common.projitems" Label="Shared" />
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 
 </Project>

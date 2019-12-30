@@ -116,10 +116,8 @@ namespace Microsoft.ApplicationInsights.Tests
                 // check only legacy headers here
                 Assert.AreEqual(activity.RootId,
                     requestMsg.Headers.GetValues(RequestResponseHeaders.StandardRootIdHeader).Single());
-                Assert.AreEqual($"|{activity.TraceId.ToHexString()}.{activity.SpanId.ToHexString()}.",
-                    requestMsg.Headers.GetValues(RequestResponseHeaders.StandardParentIdHeader).Single());
-                Assert.AreEqual(this.testApplicationId1,
-                    GetRequestContextKeyValue(requestMsg, RequestResponseHeaders.RequestContextCorrelationSourceKey));
+                Assert.AreEqual(activity.SpanId.ToHexString(), requestMsg.Headers.GetValues(RequestResponseHeaders.StandardParentIdHeader).Single());
+                Assert.AreEqual(this.testApplicationId1, GetRequestContextKeyValue(requestMsg, RequestResponseHeaders.RequestContextCorrelationSourceKey));
             }
         }
 
@@ -187,9 +185,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 Assert.AreEqual(activity.RootId, telemetry.Context.Operation.Id);
                 Assert.IsNull(telemetry.Context.Operation.ParentId);
 
-                Assert.AreEqual(
-                    string.Concat('|', telemetry.Context.Operation.Id, '.', activity.SpanId.ToHexString(), '.'),
-                    telemetry.Id);
+                Assert.AreEqual(activity.SpanId.ToHexString(), telemetry.Id);
                 Assert.AreEqual("v", telemetry.Properties["k"]);
 
                 Assert.AreEqual(32, telemetry.Context.Operation.Id.Length);
@@ -285,7 +281,7 @@ namespace Microsoft.ApplicationInsights.Tests
 
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("0123456789abcdef0123456789abcdef", telemetry.Context.Operation.Id);
-                Assert.AreEqual("|0123456789abcdef0123456789abcdef.0123456789abcdef.",
+                Assert.AreEqual("0123456789abcdef",
                     telemetry.Context.Operation.ParentId);
             }
         }
@@ -312,8 +308,7 @@ namespace Microsoft.ApplicationInsights.Tests
 
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual(parent.RootId, telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{parent.RootId}.{parent.SpanId.ToHexString()}.",
-                    telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(parent.SpanId.ToHexString(), telemetry.Context.Operation.ParentId);
             }
         }
 
@@ -342,9 +337,8 @@ namespace Microsoft.ApplicationInsights.Tests
 
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual(parent.RootId, telemetry.Context.Operation.Id);
-                Assert.AreEqual($"|{activity.TraceId.ToHexString()}.{activity.ParentSpanId.ToHexString()}.",
-                    telemetry.Context.Operation.ParentId);
-                Assert.AreEqual($"|{activity.TraceId.ToHexString()}.{activity.SpanId.ToHexString()}.", telemetry.Id);
+                Assert.AreEqual(activity.ParentSpanId.ToHexString(), telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(activity.SpanId.ToHexString(), telemetry.Id);
                 Assert.AreEqual("v", telemetry.Properties["k"]);
 
                 string expectedVersion =
