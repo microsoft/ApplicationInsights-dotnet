@@ -177,7 +177,7 @@
             Assert.IsNotNull(requestTelemetry);
             Assert.IsNull(requestTelemetry.Context.Operation.ParentId);
             Assert.AreEqual(activity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
-            Assert.AreEqual(FormatTelemetryId(activity.TraceId, activity.SpanId), requestTelemetry.Id);
+            Assert.AreEqual(activity.SpanId.ToHexString(), requestTelemetry.Id);
         }
 
         [TestMethod]
@@ -287,7 +287,7 @@
             var request = (RequestTelemetry)this.sendItems[0];
             Assert.AreEqual(activity.TraceId.ToHexString(), request.Context.Operation.Id);
             Assert.IsNull(request.Context.Operation.ParentId);
-            Assert.AreEqual(FormatTelemetryId(activity.TraceId, activity.SpanId), request.Id);
+            Assert.AreEqual(activity.SpanId.ToHexString(), request.Id);
 
             Assert.IsFalse(request.Properties.ContainsKey("ai_legacyRootId"));
         }
@@ -338,8 +338,8 @@
             var requestTelemetry = this.sendItems[0] as RequestTelemetry;
             Assert.IsNotNull(requestTelemetry);
             Assert.AreEqual("4bf92f3577b34da6a3ce929d0e0e4736", requestTelemetry.Context.Operation.Id);
-            Assert.AreEqual("|4bf92f3577b34da6a3ce929d0e0e4736.00f067aa0ba902b7.", requestTelemetry.Context.Operation.ParentId);
-            Assert.AreEqual($"|4bf92f3577b34da6a3ce929d0e0e4736.{activity.SpanId.ToHexString()}.", requestTelemetry.Id);
+            Assert.AreEqual("00f067aa0ba902b7", requestTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual(activity.SpanId.ToHexString(), requestTelemetry.Id);
 
             Assert.AreEqual(0, requestTelemetry.Properties.Count);
             Assert.IsFalse(requestTelemetry.Properties.ContainsKey("ai_legacyRootId"));
@@ -371,8 +371,8 @@
             var requestTelemetry = this.sendItems[0] as RequestTelemetry;
             Assert.IsNotNull(requestTelemetry);
             Assert.AreEqual("4bf92f3577b34da6a3ce929d0e0e4736", requestTelemetry.Context.Operation.Id);
-            Assert.AreEqual("|4bf92f3577b34da6a3ce929d0e0e4736.00f067aa0ba902b7.", requestTelemetry.Context.Operation.ParentId);
-            Assert.AreEqual($"|4bf92f3577b34da6a3ce929d0e0e4736.{activity.SpanId.ToHexString()}.", requestTelemetry.Id);
+            Assert.AreEqual("00f067aa0ba902b7", requestTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual(activity.SpanId.ToHexString(), requestTelemetry.Id);
 
             Assert.IsFalse(requestTelemetry.Properties.ContainsKey("ai_legacyRootId"));
             Assert.AreEqual(0, requestTelemetry.Properties.Count);
@@ -403,11 +403,53 @@
             Assert.IsNotNull(requestTelemetry);
             Assert.AreEqual(activity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
             Assert.AreEqual("|requestId.", requestTelemetry.Context.Operation.ParentId);
-            Assert.AreEqual(FormatTelemetryId(activity.TraceId, activity.SpanId), requestTelemetry.Id);
+            Assert.AreEqual(activity.SpanId.ToHexString(), requestTelemetry.Id);
 
             Assert.AreEqual(1, requestTelemetry.Properties.Count);
             Assert.IsTrue(requestTelemetry.Properties.TryGetValue("ai_legacyRootId", out var aiLegacyRootId));
             Assert.AreEqual("requestId", aiLegacyRootId);
+        }
+
+        [TestMethod]
+        public void RequestIdBecomesParentAndRootIfCompatibleWhenThereAreNoW3CHeaders_ExceptionInScopeOfRequest()
+        {
+            this.aspNetDiagnosticsSource.FakeContext =
+                HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
+                {
+                    ["Request-Id"] = "|4bf92f3577b34da6a3ce929d0e0e4736.",
+                });
+            this.module = this.CreateModule();
+
+            var activity = new Activity(FakeAspNetDiagnosticSource.IncomingRequestEventName);
+            Assert.IsTrue(this.aspNetDiagnosticsSource.IsEnabled(FakeAspNetDiagnosticSource.IncomingRequestEventName, activity));
+            this.aspNetDiagnosticsSource.StartActivityWithoutChecks(activity);
+
+            // Activity is overwritten to match new W3C-compatible id
+
+            var appInsightsActivity = Activity.Current;
+            Assert.AreNotEqual(activity, appInsightsActivity);
+
+            // here is where OnError happens
+            this.aspNetDiagnosticsSource.FakeContext.AddError(new ArgumentNullException());
+
+            // and then activity ends
+            this.aspNetDiagnosticsSource.StopActivity();
+
+            Assert.AreEqual(2, this.sendItems.Count);
+
+            var requestTelemetry = this.sendItems.OfType<RequestTelemetry>().FirstOrDefault();
+            var exceptionTelemetry = this.sendItems.OfType<ExceptionTelemetry>().FirstOrDefault();
+
+            Assert.IsNotNull(requestTelemetry);
+            Assert.AreEqual("4bf92f3577b34da6a3ce929d0e0e4736", requestTelemetry.Context.Operation.Id);
+            Assert.AreEqual("|4bf92f3577b34da6a3ce929d0e0e4736.", requestTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual(appInsightsActivity.SpanId.ToHexString(), requestTelemetry.Id);
+
+            Assert.IsNotNull(exceptionTelemetry);
+            Assert.AreEqual("4bf92f3577b34da6a3ce929d0e0e4736", exceptionTelemetry.Context.Operation.Id);
+            Assert.AreEqual(requestTelemetry.Id, exceptionTelemetry.Context.Operation.ParentId);
+
+            Assert.IsFalse(requestTelemetry.Properties.ContainsKey("ai_legacyRootId"));
         }
 
         [TestMethod]
@@ -440,7 +482,7 @@
             Assert.IsNotNull(requestTelemetry);
             Assert.AreEqual("4bf92f3577b34da6a3ce929d0e0e4736", requestTelemetry.Context.Operation.Id);
             Assert.AreEqual("|4bf92f3577b34da6a3ce929d0e0e4736.", requestTelemetry.Context.Operation.ParentId);
-            Assert.AreEqual($"|4bf92f3577b34da6a3ce929d0e0e4736.{currentActivity.SpanId.ToHexString()}.", requestTelemetry.Id);
+            Assert.AreEqual(currentActivity.SpanId.ToHexString(), requestTelemetry.Id);
 
             Assert.IsFalse(requestTelemetry.Properties.ContainsKey("ai_legacyRootId"));
             Assert.AreEqual(1, requestTelemetry.Properties.Count);
@@ -473,7 +515,7 @@
             Assert.IsNotNull(requestTelemetry);
             Assert.AreEqual(activity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
             Assert.AreEqual("parent", requestTelemetry.Context.Operation.ParentId);
-            Assert.AreEqual(FormatTelemetryId(activity.TraceId, activity.SpanId), requestTelemetry.Id);
+            Assert.AreEqual(activity.SpanId.ToHexString(), requestTelemetry.Id);
 
             Assert.IsTrue(requestTelemetry.Properties.TryGetValue("ai_legacyRootId", out var legacyRootId));
             Assert.AreEqual("root", legacyRootId);
@@ -507,7 +549,7 @@
             Assert.IsNotNull(requestTelemetry);
             Assert.AreEqual(currentActivity.TraceId.ToHexString(), requestTelemetry.Context.Operation.Id);
             Assert.IsNull(requestTelemetry.Context.Operation.ParentId);
-            Assert.AreEqual($"|{currentActivity.TraceId.ToHexString()}.{currentActivity.SpanId.ToHexString()}.", requestTelemetry.Id);
+            Assert.AreEqual(currentActivity.SpanId.ToHexString(), requestTelemetry.Id);
 
             Assert.AreEqual(1, requestTelemetry.Properties.Count);
             Assert.IsTrue(requestTelemetry.Properties.TryGetValue("k", out var v));
@@ -554,11 +596,6 @@
         {
             this.Dispose(true);
             GC.SuppressFinalize(this);
-        }
-
-        private static string FormatTelemetryId(ActivityTraceId traceId, ActivitySpanId spanId)
-        {
-            return string.Concat('|', traceId, '.', spanId, '.');
         }
 
         private AspNetDiagnosticTelemetryModule CreateModule(string rootIdHeaderName = null, string parentIdHeaderName = null)
@@ -643,6 +680,7 @@
                 activity.Extract(this.fakeContext.Request.Headers);
                 this.listener.OnActivityImport(activity, null);
                 this.listener.StartActivity(activity, new { });
+                this.fakeContext.Items["__AspnetActivity__"] = activity;
             }
 
             public bool StartActivity(Activity activity = null)
@@ -661,6 +699,9 @@
                     if (this.listener.IsEnabled(IncomingRequestEventName, activity))
                     {
                         this.listener.StartActivity(activity, new { });
+                        
+                        // simulate TelemetryCorrelation module
+                        this.fakeContext.Items["__AspnetActivity__"] = activity;
                     }
 
                     return true;
@@ -671,15 +712,17 @@
 
             public void StopActivity(Activity activity = null)
             {
+                // simulate TelemetryCorrelation module
+                var contextActivity = (Activity)this.FakeContext.Items["__AspnetActivity__"];
+                if (Activity.Current != contextActivity)
+                {
+                    Activity.Current = contextActivity;
+                }
+
                 if (activity == null)
                 {
                     this.listener.StopActivity(Activity.Current, new { });
                     return;
-                }
-
-                while (Activity.Current != activity && Activity.Current != null)
-                {
-                    Activity.Current.Stop();
                 }
 
                 this.listener.StopActivity(activity, new { });

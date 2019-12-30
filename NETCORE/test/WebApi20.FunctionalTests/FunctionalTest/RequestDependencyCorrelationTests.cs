@@ -7,7 +7,6 @@
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.Extensions.DependencyInjection;
     using Xunit;
     using Xunit.Abstractions;
@@ -73,12 +72,12 @@
                     .Start();
 
                 var (request, dependency) = this.ValidateBasicDependency(server, RequestPath, expected);
-                string expectedTraceId = activity.GetTraceId();
-                string expectedParentSpanId = activity.GetSpanId();
+                string expectedTraceId = activity.TraceId.ToHexString();
+                string expectedParentSpanId = activity.SpanId.ToHexString();
 
                 Assert.Equal(expectedTraceId, request.tags["ai.operation.id"]);
                 Assert.Equal(expectedTraceId, dependency.tags["ai.operation.id"]);
-                Assert.Equal($"|{expectedTraceId}.{expectedParentSpanId}.", dependency.tags["ai.operation.parentId"]);
+                Assert.Equal(expectedParentSpanId, dependency.tags["ai.operation.parentId"]);
             }
         }
 

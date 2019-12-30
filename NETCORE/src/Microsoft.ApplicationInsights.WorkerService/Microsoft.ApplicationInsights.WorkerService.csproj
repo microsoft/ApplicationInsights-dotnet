@@ -18,11 +18,6 @@
     <PackageTags>$(PackageTags)worker;console;backgroundtasks;</PackageTags>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <!--Package Settings-->
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <!--Symbols Settings-->
     <DebugType>full</DebugType>
@@ -88,4 +83,6 @@
     
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
   </ItemGroup>
+
+  <Import Project="$(TargetsRoot)\AddXmlLanguage.targets" />
 </Project>

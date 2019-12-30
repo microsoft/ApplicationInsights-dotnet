@@ -45,10 +45,5 @@
 
             return false;
         }
-
-        internal static string FormatTelemetryId(string traceId, string spanId)
-        {
-            return string.Concat('|', traceId, '.', spanId, '.');
-        }
     }
 }

@@ -395,10 +395,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 telemetry.Context.Operation.Id = traceId;
                 if (currentActivity.ParentSpanId != default)
                 {
-                    telemetry.Context.Operation.ParentId = W3CUtilities.FormatTelemetryId(traceId, currentActivity.ParentSpanId.ToHexString());
+                    telemetry.Context.Operation.ParentId = currentActivity.ParentSpanId.ToHexString();
                 }
 
-                telemetry.Id = W3CUtilities.FormatTelemetryId(traceId, currentActivity.SpanId.ToHexString());
+                telemetry.Id = currentActivity.SpanId.ToHexString();
             }
             else
             {
@@ -413,12 +413,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 {
                     telemetry.Properties[item.Key] = item.Value;
                 }
-            }
-
-            // TODO[tracestate]: remove, this is done in base SDK
-            if (!string.IsNullOrEmpty(currentActivity.TraceStateString) && !telemetry.Properties.ContainsKey(W3CConstants.TracestatePropertyKey))
-            {
-                telemetry.Properties.Add(W3CConstants.TracestatePropertyKey, currentActivity.TraceStateString);
             }
 
             this.client.Initialize(telemetry);
@@ -471,13 +465,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 var resourceName = request.Method.Method + " " + requestUri.AbsolutePath;
 
                 var dependency = this.client.StartOperation<DependencyTelemetry>(resourceName);
-
-                // TODO[tracestate]: remove, this is done in base SDK
-                var tracestate = Activity.Current?.TraceStateString;
-                if (!string.IsNullOrEmpty(tracestate) && !dependency.Telemetry.Properties.ContainsKey(W3CConstants.TracestatePropertyKey))
-                {
-                    dependency.Telemetry.Properties.Add(W3CConstants.TracestatePropertyKey, tracestate);
-                }
 
                 dependency.Telemetry.Target = DependencyTargetNameHelper.GetDependencyTargetName(requestUri);
                 dependency.Telemetry.Type = RemoteDependencyConstants.HTTP;
@@ -557,9 +544,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         {
             if (!requestHeaders.Contains(RequestResponseHeaders.RequestIdHeader))
             {
-                requestHeaders.Add(RequestResponseHeaders.RequestIdHeader,
-                    W3CUtilities.FormatTelemetryId(currentActivity.TraceId.ToHexString(),
-                            currentActivity.SpanId.ToHexString()));
+                requestHeaders.Add(RequestResponseHeaders.RequestIdHeader, string.Concat('|', currentActivity.TraceId.ToHexString(), '.', currentActivity.SpanId.ToHexString(), '.'));
             }
         }
 
@@ -651,7 +636,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                         // Add the parent ID
                         string parentId = currentActivity.IdFormat == ActivityIdFormat.W3C ? 
-                            W3CUtilities.FormatTelemetryId(rootId, currentActivity.SpanId.ToHexString()) :
+                            currentActivity.SpanId.ToHexString() :
                             currentActivity.Id;
 
                         if (!string.IsNullOrEmpty(parentId) && !requestHeaders.Contains(RequestResponseHeaders.StandardParentIdHeader))

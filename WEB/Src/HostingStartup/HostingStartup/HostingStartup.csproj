@@ -4,7 +4,6 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.Extensibility.HostingStartup</RootNamespace>
     <AssemblyName>Microsoft.AspNet.ApplicationInsights.HostingStartup</AssemblyName>
-    <DocumentationFile>$(OutputPath)\$(AssemblyName).XML</DocumentationFile>
     <TargetFramework>net45</TargetFramework>
     <Prefer32Bit>false</Prefer32Bit>
     <DefineConstants>$(DefineConstants);ALLOW_AGGRESSIVE_INLIGNING_ATTRIBUTE</DefineConstants>
@@ -77,5 +76,4 @@
   </ItemGroup>
 
   <Import Project="..\..\Common\Common.projitems" Label="Shared" />
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 </Project>

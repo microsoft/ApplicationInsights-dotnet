@@ -1,8 +1,10 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
+  <Import Project="$(SourceRoot)\Product.props" />
   <Import Project="$(PropsRoot)\_Nupkg.props" />
 
   <PropertyGroup>
+    <RootNamespace>Microsoft.ApplicationInsights</RootNamespace>
+    <AssemblyName>Microsoft.ApplicationInsights</AssemblyName>
     <TargetFrameworks>net45;net46;netstandard1.3;netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard1.3;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
@@ -88,5 +90,5 @@
 
   <Import Project="..\Common\Common\Common.projitems" Label="Shared" />
 
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
+  <Import Project="$(SourceRoot)\Common.targets" />
 </Project>
