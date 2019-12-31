@@ -6,14 +6,16 @@
     using Xunit;
     using Microsoft.ApplicationInsights.Extensibility;
     using Xunit.Abstractions;
+    using System.Reflection;
 
     public class ExceptionTelemetryWebApiTests : TelemetryTestsBase
     {
+        private readonly string assemblyName;
+
         public ExceptionTelemetryWebApiTests(ITestOutputHelper output) : base(output)
         {
+            this.assemblyName = this.GetType().GetTypeInfo().Assembly.GetName().Name;
         }
-
-        private const string assemblyName = "WebApi.FunctionalTests";
 
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingControllerThatThrows()
@@ -24,9 +26,7 @@
 
                 var expectedRequestTelemetry = new RequestTelemetry();
                 expectedRequestTelemetry.Name = "GET Exception/Get";
-                //TODO: default template of Web API applicaiton doesn't have error handling middleware 
-                //that will set appropriate status code
-                expectedRequestTelemetry.ResponseCode = "200";
+                expectedRequestTelemetry.ResponseCode = "500";
                 expectedRequestTelemetry.Success = false;
                 expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
 

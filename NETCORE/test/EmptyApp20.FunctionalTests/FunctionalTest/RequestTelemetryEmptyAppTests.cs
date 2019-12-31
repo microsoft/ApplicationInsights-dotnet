@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Net.Http;
+    using System.Reflection;
     using AI;
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -11,10 +12,11 @@
 
     public class RequestTelemetryEmptyAppTests : TelemetryTestsBase
     {
-        private const string assemblyName = "EmptyApp20.FunctionalTests20";
+        private readonly string assemblyName;
 
         public RequestTelemetryEmptyAppTests(ITestOutputHelper output) : base (output)
         {
+            this.assemblyName = this.GetType().GetTypeInfo().Assembly.GetName().Name;
         }
 
         [Fact]
