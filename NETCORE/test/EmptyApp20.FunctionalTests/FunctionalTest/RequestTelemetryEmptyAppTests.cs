@@ -65,6 +65,7 @@
             }
         }
 
+        [Fact]
         public void TestMixedTelemetryItemsReceived()
         {
             using (var server = new InProcessServer(assemblyName, this.output))

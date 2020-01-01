@@ -51,6 +51,7 @@
             }
         }
         
+        [Fact]
         public void TestMixedTelemetryItemsReceived()
         {
             InProcessServer server;
