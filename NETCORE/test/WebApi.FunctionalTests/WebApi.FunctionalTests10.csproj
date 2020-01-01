@@ -6,7 +6,7 @@
 	<TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp1.0</TargetFrameworks>
 	<RuntimeIdentifier Condition=" '$(TargetFramework)' == 'net46' ">win7-x86</RuntimeIdentifier>
     <PreserveCompilationContext>true</PreserveCompilationContext>
-    <AssemblyName>WebApi.FunctionalTests</AssemblyName>    
+    <AssemblyName>WebApi.FunctionalTests.Tests</AssemblyName>    
     <PackageId>WebApi.FunctionalTests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">$(PackageTargetFallback);portable-net45+win8</PackageTargetFallback>
