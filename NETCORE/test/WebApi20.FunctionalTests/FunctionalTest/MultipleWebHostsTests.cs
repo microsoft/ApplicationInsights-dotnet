@@ -12,11 +12,12 @@ namespace WebApi20.FuncTests
 {
     public class MultipleWebHostsTests : TelemetryTestsBase
     {
-        private const string assemblyName = "WebApi20.FunctionalTests20";
+        private readonly string assemblyName;
         private const string requestPath = "/api/dependency";
         
         public MultipleWebHostsTests(ITestOutputHelper output) : base(output)
         {
+            this.assemblyName = this.GetType().GetTypeInfo().Assembly.GetName().Name;
         }
 
         public void TwoWebHostsCreatedSequentially()

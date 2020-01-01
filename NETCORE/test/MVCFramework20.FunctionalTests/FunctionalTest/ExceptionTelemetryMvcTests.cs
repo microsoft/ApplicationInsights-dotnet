@@ -4,6 +4,7 @@
 namespace MVC20.FuncTests
 {
     using System;
+    using System.Reflection;
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
@@ -11,10 +12,11 @@ namespace MVC20.FuncTests
 
     public class ExceptionTelemetryMvcTests : TelemetryTestsBase
     {
-        private const string assemblyName = "MVCFramework20.FunctionalTests20";
+        private readonly string assemblyName;
 
         public ExceptionTelemetryMvcTests(ITestOutputHelper output) : base(output)
         {
+            this.assemblyName = this.GetType().GetTypeInfo().Assembly.GetName().Name;
         }
 
         [Fact]
