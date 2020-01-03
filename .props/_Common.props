@@ -6,9 +6,5 @@
   </Target>
 
   <Import Project=".\_Signing.props" />
-  <Import Project="$(TargetsRoot)\AddXmlLanguage.targets" />
 
-  <PropertyGroup>
-    
-  </PropertyGroup>
 </Project>

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+  <!-- This targets file will add an English localization tag to our xml documentation file. -->
+  <Import Project="$(TargetsRoot)\AddXmlLanguage.targets" />
+  
   <Target Name="Info_NupkgProps"  BeforeTargets="Build" Condition=" $(Internal_Logging) == 'true' ">
     <Message Text="Info: Nupkg.props imported by $(MSBuildProjectName)." Importance="high"/>
   </Target>

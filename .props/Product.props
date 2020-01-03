@@ -9,7 +9,5 @@
   <Import Project=".\_Nupkg.props" />
   <Import Project=".\_Common.props" />
 
-  <PropertyGroup>
-    
-  </PropertyGroup>
+
 </Project>
