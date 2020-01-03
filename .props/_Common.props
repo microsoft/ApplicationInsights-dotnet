@@ -6,6 +6,7 @@
   </Target>
 
   <PropertyGroup>
+    <!-- COMMON PROJECTS SETTINGS -->
     
     <!-- https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/errorreport-compiler-option -->
     <ErrorReport>prompt</ErrorReport>
