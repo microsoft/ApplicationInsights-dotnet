@@ -6,7 +6,7 @@
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Directory.Build.props'))\Directory.Build.props" Condition="'$(EnlistmentRoot)' == ''"/>
   
   <PropertyGroup>
-
+    <LangVersion>7.1</LangVersion>
     <ChecksumAlgorithm>SHA256</ChecksumAlgorithm>
   </PropertyGroup>
  
