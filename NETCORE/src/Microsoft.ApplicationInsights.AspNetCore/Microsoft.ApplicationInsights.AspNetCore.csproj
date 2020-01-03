@@ -90,5 +90,4 @@
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
   </ItemGroup>
 
-  <Import Project="$(TargetsRoot)\AddXmlLanguage.targets" />
 </Project>

@@ -4,8 +4,6 @@
 
   <Import Project="$(PropsRoot)\_Nupkg.props" />
 
-  <Import Project="$(TargetsRoot)\AddXmlLanguage.targets" />
-  
   <PropertyGroup>
     <!--Removing the SRC folder from the output directory-->
     <CorePath>$(RelativeOutputPathBase)</CorePath>	
