@@ -5,9 +5,18 @@
     <Message Text="Info: Common.props imported by $(MSBuildProjectName)." Importance="high"/>
   </Target>
 
-  <Import Project=".\_Signing.props" />
-
   <PropertyGroup>
     
+    <!-- https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/errorreport-compiler-option -->
+    <ErrorReport>prompt</ErrorReport>
+    
+    <!-- https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/warn-compiler-option -->
+    <WarningLevel>4</WarningLevel>
+
+    <!-- https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/langversion-compiler-option -->
+    <!-- https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/configure-language-version -->
+    <LangVersion>7.3</LangVersion>
+    
   </PropertyGroup>
+  
 </Project>

@@ -1,8 +1,8 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <Import Project="$(SourceRoot)\Product.props" />
-  <Import Project="$(PropsRoot)\_Nupkg.props" />
-  <Import Project="$(PropsRoot)\_AnalyzerSettings.props" />
 
+  <Import Project="$(PropsRoot)\Product.props" />
+  
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel</RootNamespace>
     <AssemblyName>Microsoft.AI.ServerTelemetryChannel</AssemblyName>

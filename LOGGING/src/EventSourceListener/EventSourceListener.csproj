@@ -6,7 +6,8 @@
   </PropertyGroup>
   
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
-  <Import Project="$(PropsRoot)\_AnalyzerSettings.props" />
+
+  <Import Project="$(PropsRoot)\Product.props" />
     
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

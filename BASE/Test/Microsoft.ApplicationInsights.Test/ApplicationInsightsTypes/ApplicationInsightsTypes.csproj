@@ -1,5 +1,6 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
+  <Import Project="$(PropsRoot)\Test.props" />
   <PropertyGroup>
     <Company>Microsoft</Company>
     <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>

@@ -1,10 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="$(SourceRoot)\Product.props" />
-  <Import Project="$(PropsRoot)\_AnalyzerSettings.props" />
+  <Import Project="$(PropsRoot)\Product.props" />
+  
+  <Import Project="$(SourceRoot)\Signing.props" Condition=" '$(OS)' == 'Windows_NT' " />
+
 
   <PropertyGroup>
+    <!-- Override settings from Nupkg.props. I don't know why the NetCore projects need this and the others don't. -->
+    <GenerateAssemblyVersionAttribute>true</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>true</GenerateAssemblyFileVersionAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>true</GenerateAssemblyInformationalVersionAttribute>
+    <GenerateAssemblyDescriptionAttribute>true</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyProductAttribute>true</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
+  </PropertyGroup>
+  
+  <PropertyGroup>
     <AssemblyName>Microsoft.ApplicationInsights.WorkerService</AssemblyName>
-    <LangVersion>7.2</LangVersion>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     
     <DefineConstants>$(DefineConstants);AI_ASPNETCORE_WORKER;</DefineConstants>

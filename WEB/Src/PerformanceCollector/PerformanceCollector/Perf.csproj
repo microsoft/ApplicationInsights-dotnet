@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\Product.props" />
-  <Import Project="$(PropsRoot)\_AnalyzerSettings.props" />
+
+  <Import Project="$(PropsRoot)\Product.props" />
 
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector</RootNamespace>
