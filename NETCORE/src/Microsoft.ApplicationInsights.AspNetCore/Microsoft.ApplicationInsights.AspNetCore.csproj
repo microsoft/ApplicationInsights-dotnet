@@ -89,6 +89,4 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' OR '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
   </ItemGroup>
-
-  <Import Project="$(TargetsRoot)\AddXmlLanguage.targets" />
 </Project>
