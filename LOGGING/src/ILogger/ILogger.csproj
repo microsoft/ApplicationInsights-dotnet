@@ -25,11 +25,6 @@
     <PackageTags>$(PackageTags) ILogger ILoggerBuilder ILoggerProvider</PackageTags>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-
   <ItemGroup Condition=" $(OS) == 'Windows_NT'">
     <!--Analyzers-->
     <PackageReference Include="Desktop.Analyzers" Version="1.1.0">

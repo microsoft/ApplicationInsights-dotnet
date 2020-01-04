@@ -19,6 +19,34 @@
     <!-- https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/configure-language-version -->
     <!--<LangVersion>7.3</LangVersion>-->
     
+
+    
   </PropertyGroup>
   
+  <!-- 
+    Regarding Debug Type: 
+    FULL is the legacy Windows format. 
+    NetCore has switched to PORTABLE. https://github.com/dotnet/core/blob/master/Documentation/diagnostics/portable_pdb.md 
+    We tried switching to Portable in 2018, ago but Microsoft Symbol Server didn't support it yet.
+    I tried onboarding to Nuget Symbols Server in 2019, but they require Portable.
+
+    DotNet SDK recommends using PORTABLE  https://github.com/dotnet/sdk/issues/2679#issuecomment-441098067
+    
+    This needs to be revisited when someone has time.
+  -->
+  
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
+  </PropertyGroup>
+
 </Project>
