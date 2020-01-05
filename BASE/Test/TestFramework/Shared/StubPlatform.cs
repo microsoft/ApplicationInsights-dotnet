@@ -32,6 +32,7 @@
             catch (Exception e)
             {
                 CoreEventSource.Log.FailedToLoadEnvironmentVariables(e.ToString());
+                return false;
             }
         }
 
