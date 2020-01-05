@@ -1,7 +1,8 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <Import Project="$(SourceRoot)\Product.props" />
-  <Import Project="$(PropsRoot)\_Nupkg.props" />
 
+  <Import Project="$(PropsRoot)\Product.props" />
+  
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel</RootNamespace>
     <AssemblyName>Microsoft.AI.ServerTelemetryChannel</AssemblyName>
@@ -42,22 +43,6 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-
-  <Choose>
-    <When Condition=" '$(Configuration)' == 'Release' ">
-      <PropertyGroup>
-        <!-- Microsoft recommends that we disable CodeAnalysis in favor of FxCop Analyzers. aka.ms/fxcopanalyzers -->
-        <RunCodeAnalysis>false</RunCodeAnalysis>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-      </PropertyGroup>
-    </When>
-    <When Condition=" '$(Configuration)' != 'Release' ">
-      <PropertyGroup>
-        <RunCodeAnalysis>false</RunCodeAnalysis>
-        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-      </PropertyGroup>
-    </When>
-  </Choose>
 
   <ItemGroup>
     <!--Build Infrastructure-->

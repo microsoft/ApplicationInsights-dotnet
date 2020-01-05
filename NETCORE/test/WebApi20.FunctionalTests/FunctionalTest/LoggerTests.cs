@@ -15,19 +15,21 @@
     using Xunit.Abstractions;
     using AI;
     using Microsoft.Extensions.Logging;
+    using System.Reflection;
 
     /// <summary>
     /// These are Functional Tests validating E2E ILogger integration. Though filtering mechanism is done by the ILogger framework itself, we 
     /// are here testing that the integration is done in correct ways.
     /// Specifically,
     /// 1. By Default, Warning and above from All categories is expected to captured.
-    /// 2. Any overriding done by user is respected and will override default behaviour
+    /// 2. Any overriding done by user is respected and will override default behavior
     /// </summary>
     public class LoggerTests : TelemetryTestsBase, IDisposable
     {
-        private const string assemblyName = "WebApi20.FunctionalTests20";
+        private readonly string assemblyName;
         public LoggerTests(ITestOutputHelper output) : base (output)
         {
+            this.assemblyName = this.GetType().GetTypeInfo().Assembly.GetName().Name;
         }
 
         [Fact]
