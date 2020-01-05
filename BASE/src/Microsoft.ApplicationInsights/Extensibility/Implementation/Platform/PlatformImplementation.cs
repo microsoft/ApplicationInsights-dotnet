@@ -211,8 +211,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
             catch (Exception e)
             {
                 CoreEventSource.Log.FailedToLoadEnvironmentVariables(e.ToString());
-                throw;
             }
+
+            return string.Empty;
         }
     }
 }
