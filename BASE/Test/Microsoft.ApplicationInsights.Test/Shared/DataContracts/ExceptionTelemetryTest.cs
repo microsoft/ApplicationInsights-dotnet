@@ -606,6 +606,17 @@
         }
 
         [TestMethod]
+        public void SanitizeWillTrimMessageInExceptionTelemetry()
+        {
+            ExceptionTelemetry exceptionTelemetry = new ExceptionTelemetry();
+            exceptionTelemetry.Message = new string('M', Property.MaxMessageLength) + 'M';
+
+            ((ITelemetry)exceptionTelemetry).Sanitize();
+
+            Assert.AreEqual(new string('M', Property.MaxMessageLength), exceptionTelemetry.Message);
+        }
+
+        [TestMethod]
         public void SanitizeWillTrimPropertiesKeyAndValueInExceptionTelemetry()
         {
             ExceptionTelemetry telemetry = new ExceptionTelemetry();
