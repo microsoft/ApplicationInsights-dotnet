@@ -222,7 +222,10 @@
 
                 if (this.Data.ExceptionDetailsInfoList != null && this.Data.ExceptionDetailsInfoList.Count > 0)
                 {
-                    this.Data.ExceptionDetailsInfoList[0].Message = value;
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        this.Data.ExceptionDetailsInfoList[0].Message = value;
+                    }
                 }
                 else
                 {
@@ -345,7 +348,7 @@
         void ITelemetry.Sanitize()
         {
             // Sanitize on the ExceptionDetails stack information for raw stack and parsed stack is done while creating the object in ExceptionConverter.cs
-            this.Message = this.Message.SanitizeMessage();
+            this.message = this.message.SanitizeMessage();
             this.Properties.SanitizeProperties();
             this.Metrics.SanitizeMeasurements();
         }
