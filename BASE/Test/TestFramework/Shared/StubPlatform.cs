@@ -24,6 +24,8 @@
 
         public bool TryGetEnvironmentVariable(string name, out string value)
         {
+            value = string.Empty;
+
             try
             {
                 value = Environment.GetEnvironmentVariable(name);
@@ -32,8 +34,9 @@
             catch (Exception e)
             {
                 CoreEventSource.Log.FailedToLoadEnvironmentVariables(e.ToString());
-                return false;
             }
+
+            return false;
         }
 
         public string GetMachineName()

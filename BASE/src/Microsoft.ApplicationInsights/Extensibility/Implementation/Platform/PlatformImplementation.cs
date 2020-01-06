@@ -186,6 +186,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
         /// <inheritdoc />
         public bool TryGetEnvironmentVariable(string name, out string value)
         {
+            value = string.Empty;
+
             try
             {
                 value = Environment.GetEnvironmentVariable(name);
@@ -194,8 +196,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
             catch (Exception e)
             {
                 CoreEventSource.Log.FailedToLoadEnvironmentVariables(e.ToString());
-                return false;
             }
+
+            return false;
         }
 
         /// <summary>
