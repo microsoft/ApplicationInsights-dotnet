@@ -1,6 +1,7 @@
 # Changelog
 
 ## VNext
+- [All product sdks are now building the same symbols (DebugType = FULL) and we're including symbols in the nuget package.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1527)
 - [Upgraded FxCop and fixed several issues related to null checks and disposing objects.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1499)
 - [Exceptions are not correlated to requests when customErrors=Off and Request-Id is passed](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1493)
 - [Switch to compact Id format in W3C mode](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1498)
