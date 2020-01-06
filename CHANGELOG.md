@@ -6,6 +6,7 @@
 - [Fix Environment read permission Exception](https://github.com/microsoft/ApplicationInsights-dotnet/issues/657)
 - [Exceptions are not correlated to requests when customErrors=Off and Request-Id is passed](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1493)
 - [Switch to compact Id format in W3C mode](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1498)
+- [Fix CreateRequestTelemetryPrivate throwing System.ArgumentOutOfRangeException](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1513)
 
 ## Version 2.12.0
 - [Fix IndexOutOfRangeException in W3CUtilities.TryGetTraceId](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1327)
