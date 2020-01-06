@@ -13,12 +13,15 @@
     using Microsoft.ApplicationInsights.DependencyCollector;
     using System.Text.RegularExpressions;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using System.Reflection;
 
     public class RequestCorrelationTests : TelemetryTestsBase
     {
-        private const string assemblyName = "WebApi20.FunctionalTests20";
+        private readonly string assemblyName;
+
         public RequestCorrelationTests(ITestOutputHelper output) : base(output)
         {
+            this.assemblyName = this.GetType().GetTypeInfo().Assembly.GetName().Name;
         }
 
         [Fact]

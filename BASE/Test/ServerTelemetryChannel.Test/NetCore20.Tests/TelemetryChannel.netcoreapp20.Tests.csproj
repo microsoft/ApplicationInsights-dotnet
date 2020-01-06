@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
 
+  <Import Project="$(PropsRoot)\Test.props" />
+
   <PropertyGroup>
     <ProjectGuid>{14FA551E-886A-4D1B-B716-567EB4954C8E}</ProjectGuid>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>

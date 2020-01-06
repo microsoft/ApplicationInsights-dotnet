@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Net.Http;
-
+    using System.Reflection;
     using AI;
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -12,10 +12,11 @@
     
     public class RequestTelemetryMvcTests : TelemetryTestsBase
     {
-        private const string assemblyName = "MVCFramework20.FunctionalTests20";
+        private readonly string assemblyName;
 
         public RequestTelemetryMvcTests(ITestOutputHelper output) : base(output)
         {
+            this.assemblyName = this.GetType().GetTypeInfo().Assembly.GetName().Name;
         }
 
         [Fact]
@@ -87,6 +88,7 @@
             }
         }
 
+        [Fact]
         public void TestMixedTelemetryItemsReceived()
         {
             using (var server = new InProcessServer(assemblyName, this.output))

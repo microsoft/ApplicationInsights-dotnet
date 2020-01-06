@@ -6,10 +6,8 @@
   </PropertyGroup>
   
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
-    
-  <PropertyGroup>
-    <RunCodeAnalysis>false</RunCodeAnalysis>
-  </PropertyGroup>
+  
+  <Import Project="$(PropsRoot)\Product.props" />
 
   <PropertyGroup>
     <!--Nupkg properties-->
@@ -17,11 +15,6 @@
     <Title>Application Insights DiagnosticSourceListener</Title>
     <Description>Application Insights DiagnosticSourceListener allows forwarding events from DiagnosticSource to Application Insights. Application Insights will collect your logs from multiple sources and provide rich powerful search capabilities. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
     <PackageTags>$(PackageTags) DiagnosticsSource</PackageTags>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>
@@ -41,22 +34,6 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-
-  <Choose>
-    <When Condition=" '$(Configuration)' == 'Release' ">
-      <PropertyGroup>
-        <!-- Microsoft recommends that we disable CodeAnalysis in favor of FxCop Analyzers. aka.ms/fxcopanalyzers -->
-        <RunCodeAnalysis>false</RunCodeAnalysis>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-      </PropertyGroup>
-    </When>
-    <When Condition=" '$(Configuration)' != 'Release' ">
-      <PropertyGroup>
-        <RunCodeAnalysis>false</RunCodeAnalysis>
-        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-      </PropertyGroup>
-    </When>
-  </Choose>
 
   <ItemGroup>
     <!--Build Infrastructure-->

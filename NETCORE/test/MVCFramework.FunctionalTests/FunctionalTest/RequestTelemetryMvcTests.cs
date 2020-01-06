@@ -5,6 +5,7 @@ namespace MVCFramework.FunctionalTests.FunctionalTest
 {
     using System.Linq;
     using System.Net.Http;
+    using System.Reflection;
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
@@ -12,9 +13,11 @@ namespace MVCFramework.FunctionalTests.FunctionalTest
 
     public class RequestTelemetryMvcTests : TelemetryTestsBase
     {
-        private const string assemblyName = "MVCFramework.FunctionalTests";
+        private readonly string assemblyName;
+
         public RequestTelemetryMvcTests(ITestOutputHelper output) : base(output)
         {
+            this.assemblyName = this.GetType().GetTypeInfo().Assembly.GetName().Name;
         }
 
         [Fact]
@@ -68,6 +71,7 @@ namespace MVCFramework.FunctionalTests.FunctionalTest
             }
         }
 
+        [Fact]
         public void TestMixedTelemetryItemsReceived()
         {
             InProcessServer server;

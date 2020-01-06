@@ -5,11 +5,10 @@
     <Message Text="Info: Product.props imported by $(MSBuildProjectName)." Importance="high"/>
   </Target>
 
+  <Import Project=".\_Common.props" />
+  <Import Project=".\_AnalyzerSettings.props" />
+  
   <Import Project=".\_GlobalStaticVersion.props" />
   <Import Project=".\_Nupkg.props" />
-  <Import Project=".\_Common.props" />
 
-  <PropertyGroup>
-    
-  </PropertyGroup>
 </Project>

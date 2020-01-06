@@ -61,7 +61,7 @@
                 Assert.Equal(expected.Success, actual.Success);
                 Assert.Equal(expected.Url, actual.Url);
                 InRange(actual.Timestamp, expected.Timestamp, DateTimeOffset.Now);
-                Assert.True(actual.Duration < timer.Elapsed, "duration");
+                Assert.True(actual.Duration < timer.Elapsed, $"actual.Duration '{actual.Duration}' is not less than timer.Elpased '{timer.Elapsed}'");
             }
         }
 

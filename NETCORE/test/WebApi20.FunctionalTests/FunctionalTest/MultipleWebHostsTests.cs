@@ -12,13 +12,15 @@ namespace WebApi20.FuncTests
 {
     public class MultipleWebHostsTests : TelemetryTestsBase
     {
-        private const string assemblyName = "WebApi20.FunctionalTests20";
+        private readonly string assemblyName;
         private const string requestPath = "/api/dependency";
         
         public MultipleWebHostsTests(ITestOutputHelper output) : base(output)
         {
+            this.assemblyName = this.GetType().GetTypeInfo().Assembly.GetName().Name;
         }
 
+        [Fact]
         public void TwoWebHostsCreatedSequentially()
         {
             using (var server1 = new InProcessServer(assemblyName, this.output))
@@ -50,6 +52,7 @@ namespace WebApi20.FuncTests
             }
         }
 
+        [Fact]
         public void TwoWebHostsCreatedInParallel()
         {
             using (var server1 = new InProcessServer(assemblyName, this.output))

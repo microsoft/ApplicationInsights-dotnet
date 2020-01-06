@@ -6,16 +6,18 @@ using Xunit.Abstractions;
 namespace EmptyApp20.FunctionalTests.FunctionalTest
 {
     using System;
+    using System.Reflection;
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;
 
     public class ExceptionTelemetryEmptyAppTests : TelemetryTestsBase
     {
-        private const string assemblyName = "EmptyApp20.FunctionalTests20";
+        private readonly string assemblyName;
+
         public ExceptionTelemetryEmptyAppTests(ITestOutputHelper output) : base (output)
         {
+            this.assemblyName = this.GetType().GetTypeInfo().Assembly.GetName().Name;
         }
-
 
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingRequestThatThrows()
