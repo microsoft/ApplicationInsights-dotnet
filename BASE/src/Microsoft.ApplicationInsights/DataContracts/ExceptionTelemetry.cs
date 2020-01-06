@@ -222,10 +222,7 @@
 
                 if (this.Data.ExceptionDetailsInfoList != null && this.Data.ExceptionDetailsInfoList.Count > 0)
                 {
-                    if (!string.IsNullOrEmpty(value))
-                    {
-                        this.Data.ExceptionDetailsInfoList[0].Message = value;
-                    }
+                    this.Data.ExceptionDetailsInfoList[0].Message = value;
                 }
                 else
                 {
