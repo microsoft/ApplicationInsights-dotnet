@@ -17,8 +17,9 @@
     <AssemblyName>Microsoft.ApplicationInsights.TelemetryChannel.NetCore20.Tests</AssemblyName>
     <DebugType>pdbonly</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>$(DefineConstants);NETCOREAPP;NETCOREAPP2_0</DefineConstants>
   </PropertyGroup>
+
+  <Import Project="$(PropsRoot)\DefineConstants.props" />
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />

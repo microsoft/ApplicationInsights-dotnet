@@ -10,17 +10,10 @@
     <PackageId>Microsoft.AI.PerformanceCollector.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>    
     <RootNamespace>Microsoft.ApplicationInsights.Tests</RootNamespace>
+    <NoWarn>1701;1702;1705;1591;8002</NoWarn>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <NoWarn>1701;1702;1705;1591;8002</NoWarn>
-    <DefineConstants>TRACE;DEBUG;NETCORE;NETCOREAPP2_0</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <NoWarn>1701;1702;1705;1591;8002</NoWarn>
-    <DefineConstants>TRACE;RELEASE;NETCORE;NETCOREAPP2_0</DefineConstants>
-  </PropertyGroup>
+  <Import Project="$(PropsRoot)\DefineConstants.props" />
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />

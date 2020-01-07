@@ -6,25 +6,7 @@
   <!-- If $(EnlistmentRoot) is still not set, then import Directory.Build.props directly. This can happen when gitlink tries to build (because it uses MSBuild tools version 4.0 and we can't find Microsoft.Common.props) -->
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Directory.Build.props'))\Directory.Build.props" Condition="'$(EnlistmentRoot)' == ''"/>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
-   <DefineConstants>$(DefineConstants);NET45;</DefineConstants>
-  </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-
-   <DefineConstants>$(DefineConstants);NETSTANDARD2_0;</DefineConstants>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.6'">
-
-
-    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
-    <DefineConstants>$(DefineConstants);NETSTANDARD1_6;NETSTANDARD;</DefineConstants>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DefineConstants>$(DefineConstants);TRACE;DEBUG;CODE_ANALYSIS;</DefineConstants>
-  </PropertyGroup>
 
   <PropertyGroup>
     <PartitionPropertiesFile>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Partition.props'))\Partition.props</PartitionPropertiesFile>

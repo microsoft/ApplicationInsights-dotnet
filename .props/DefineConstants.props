@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <Target Name="Info_DefineConstants"  BeforeTargets="Build" Condition=" $(Internal_Logging) == 'true' ">
+    <Message Text="Info: DefineConstants.props imported by $(MSBuildProjectName)." Importance="high"/>
+  </Target>
+
+  <!-- NET FULL FRAMEWORK TARGETS -->
+  
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
+    <DefineConstants>$(DefineConstants);NET45;</DefineConstants>
+  </PropertyGroup>
+
+  <!-- NET STANDARD TARGETS -->
+  
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <DefineConstants>$(DefineConstants);NETSTANDARD;NETCORE;NETSTANDARD1_3;</DefineConstants>
+    <IsNetStandardBuild>True</IsNetStandardBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.6'">
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+    <DefineConstants>$(DefineConstants);NETSTANDARD;NETSTANDARD1_6;</DefineConstants>
+    <IsNetStandardBuild>True</IsNetStandardBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <DefineConstants>$(DefineConstants);NETSTANDARD;NETCORE;NETSTANDARD2_0;</DefineConstants>
+    <IsNetStandardBuild>True</IsNetStandardBuild>
+  </PropertyGroup>
+
+  <!-- NET CORE APP TARGETS -->
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp1.0'">
+    <DefineConstants>$(DefineConstants);NETCORE;NETCOREAPP1_0;</DefineConstants>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp1.1'">
+    <DefineConstants>$(DefineConstants);NETCOREAPP;NETCOREAPP1_1;</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+    <DefineConstants>$(DefineConstants);NETCORE;NETCOREAPP;NETCOREAPP2_0</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
+    <DefineConstants>$(DefineConstants);NETCORE;NETCOREAPP2_1</DefineConstants>
+  </PropertyGroup>
+  
+  
+  
+</Project>

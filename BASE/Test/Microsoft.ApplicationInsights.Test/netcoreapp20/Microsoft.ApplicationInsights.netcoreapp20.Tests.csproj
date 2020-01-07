@@ -14,9 +14,10 @@
     <TargetFrameworks>netcoreapp2.0</TargetFrameworks>
     <DebugType>pdbonly</DebugType> 
     <DebugSymbols>true</DebugSymbols> 
-    <DefineConstants>$(DefineConstants);NETCOREAPP</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+
+  <Import Project="$(PropsRoot)\DefineConstants.props" />
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
