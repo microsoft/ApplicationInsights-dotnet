@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+  <!-- 
+  This file is separate from the other Test.props and Product.props.
+  These constants are used to switch code branches on/off and need to be controlled without any other dependencies. -->
+  
   <Target Name="Info_DefineConstants"  BeforeTargets="Build" Condition=" $(Internal_Logging) == 'true' ">
     <Message Text="Info: DefineConstants.props imported by $(MSBuildProjectName)." Importance="high"/>
   </Target>
@@ -37,10 +41,12 @@
   
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp1.1'">
     <DefineConstants>$(DefineConstants);NETCOREAPP;NETCOREAPP1_1;</DefineConstants>
+    <IsNetCoreBuild>True</IsNetCoreBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
     <DefineConstants>$(DefineConstants);NETCORE;NETCOREAPP;NETCOREAPP2_0</DefineConstants>
+    <IsNetCoreBuild>True</IsNetCoreBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
