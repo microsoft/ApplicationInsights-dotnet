@@ -8,7 +8,10 @@
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
 
   <Import Project="$(PropsRoot)\Product.props" />
-  
+
+  <Import Project="$(PropsRoot)\DefineConstants.props" />
+
+
   <PropertyGroup>
     <!--Nupkg properties-->
     <PackageId>Microsoft.ApplicationInsights.NLogTarget</PackageId>

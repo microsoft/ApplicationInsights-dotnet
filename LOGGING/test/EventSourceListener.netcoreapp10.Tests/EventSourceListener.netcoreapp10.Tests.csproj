@@ -14,6 +14,9 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
+  <Import Project="$(PropsRoot)\DefineConstants.props" />
+
+
   <ItemGroup>    
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.1.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />

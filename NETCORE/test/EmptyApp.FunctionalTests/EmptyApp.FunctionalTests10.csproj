@@ -15,6 +15,9 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
+  <Import Project="$(PropsRoot)\DefineConstants.props" />
+
+
   <ItemGroup>
     <ProjectReference Include="..\FunctionalTestUtils\FunctionalTestUtils.csproj" />
   </ItemGroup>

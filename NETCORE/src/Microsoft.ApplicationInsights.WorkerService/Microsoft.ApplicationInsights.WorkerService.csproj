@@ -21,6 +21,9 @@
     <DefineConstants>$(DefineConstants);AI_ASPNETCORE_WORKER;</DefineConstants>
   </PropertyGroup>
 
+  <Import Project="$(PropsRoot)\DefineConstants.props" />
+
+
   <PropertyGroup>
     <!--Nupkg properties-->
     <PackageId>Microsoft.ApplicationInsights.WorkerService</PackageId>

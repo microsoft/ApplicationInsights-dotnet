@@ -4,6 +4,9 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
 
+  <Import Project="$(PropsRoot)\DefineConstants.props" />
+
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.ApplicationInsights.WorkerService\Microsoft.ApplicationInsights.WorkerService.csproj" />
   </ItemGroup>

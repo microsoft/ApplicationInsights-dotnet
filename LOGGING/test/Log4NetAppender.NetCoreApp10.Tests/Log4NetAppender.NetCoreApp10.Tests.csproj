@@ -8,6 +8,9 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
+  <Import Project="$(PropsRoot)\DefineConstants.props" />
+
+
   <ItemGroup>
     <Compile Include="..\Log4NetAppender.Net45.Tests\ApplicationInsightsAppenderTests.cs" Link="ApplicationInsightsAppenderTests.cs" />
     <Compile Include="..\Log4NetAppender.Net45.Tests\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />

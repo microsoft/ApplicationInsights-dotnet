@@ -7,6 +7,9 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
+  <Import Project="$(PropsRoot)\DefineConstants.props" />
+
+
   <ItemGroup>
     <Compile Include="..\Shared\ApplicationInsightsTraceFilterTests.cs" Link="ApplicationInsightsTraceFilterTests.cs" />
     <Compile Include="..\Shared\ApplicationInsightsTraceListenerTests.cs" Link="ApplicationInsightsTraceListenerTests.cs" />

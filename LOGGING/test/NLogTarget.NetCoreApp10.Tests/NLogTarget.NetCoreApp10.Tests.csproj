@@ -8,6 +8,9 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
+  <Import Project="$(PropsRoot)\DefineConstants.props" />
+
+
   <ItemGroup>
     <Compile Include="..\NLogTarget.Net45.Tests\NLogTargetTests.cs" Link="NLogTargetTests.cs" />
   </ItemGroup>

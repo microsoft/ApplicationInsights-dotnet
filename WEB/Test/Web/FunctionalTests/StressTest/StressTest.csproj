@@ -32,6 +32,9 @@
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+
+  <Import Project="$(PropsRoot)\DefineConstants.props" />
+
   <ItemGroup>
     <Reference Include="Microsoft.Diagnostics.OperationTracking">
       <HintPath>$(BinRoot)\$(Configuration)\OperationTracking\Core\OperationTrackingUniversal40\Microsoft.Diagnostics.OperationTracking.dll</HintPath>

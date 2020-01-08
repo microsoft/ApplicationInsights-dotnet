@@ -21,6 +21,9 @@
     <BondOutputDirectory>$(MSBuildThisFileDirectory)\Generated</BondOutputDirectory>
     <EnableDefaultItems Condition="$(OS) == 'Windows_NT'">false</EnableDefaultItems>
   </PropertyGroup>
+
+  <Import Project="$(PropsRoot)\DefineConstants.props" />
+
   <ItemGroup Condition="$(OS) == 'Windows_NT'">
     <Compile Include="ItemType.cs" />
     <Compile Include="TelemetryItem.cs" />

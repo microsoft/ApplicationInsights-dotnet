@@ -9,6 +9,9 @@
   
   <Import Project="$(PropsRoot)\Product.props" />
 
+  <Import Project="$(PropsRoot)\DefineConstants.props" />
+
+
   <PropertyGroup>
     <!--Nupkg properties-->
     <PackageId>Microsoft.ApplicationInsights.DiagnosticSourceListener</PackageId>

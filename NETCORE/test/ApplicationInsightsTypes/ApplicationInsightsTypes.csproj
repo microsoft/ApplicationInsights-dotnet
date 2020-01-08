@@ -16,7 +16,8 @@
 	<EnableDefaultItems Condition="$(OS) == 'Windows_NT'">false</EnableDefaultItems>
   </PropertyGroup>
 
-  
+  <Import Project="$(PropsRoot)\DefineConstants.props" />
+
   <ItemGroup>
     <PackageReference Include="Bond.Core.CSharp" Version="7.0.0" />
     <PackageReference Include="Bond.CSharp" Version="7.0.0" />    

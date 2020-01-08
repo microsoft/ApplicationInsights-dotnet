@@ -37,6 +37,9 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+
+  <Import Project="$(PropsRoot)\DefineConstants.props" />
+
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>

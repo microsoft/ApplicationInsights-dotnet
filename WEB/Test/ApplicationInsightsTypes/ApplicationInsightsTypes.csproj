@@ -20,6 +20,9 @@
     <AssemblyName>ApplicationInsightsTypes</AssemblyName>
     <BondOptions>--collection-interfaces --using="DateTimeOffset=System.DateTimeOffset" --using="TimeSpan=System.TimeSpan" --using="Guid=System.Guid"</BondOptions>
   </PropertyGroup>
+
+  <Import Project="$(PropsRoot)\DefineConstants.props" />
+
   <ItemGroup>
   </ItemGroup>
   <ItemGroup>

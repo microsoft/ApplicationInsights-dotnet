@@ -3,8 +3,8 @@
   <PropertyGroup>
     <VersionPrefix>2.0.0</VersionPrefix>
     <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
-	<TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp2.0</TargetFrameworks>
-	<RuntimeIdentifier Condition=" '$(TargetFramework)' == 'net461' ">win7-x86</RuntimeIdentifier>    
+	  <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp2.0</TargetFrameworks>
+	  <RuntimeIdentifier Condition=" '$(TargetFramework)' == 'net461' ">win7-x86</RuntimeIdentifier>    
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>WebApi20.FunctionalTests20.Tests</AssemblyName>
     <PackageId>WebApi20.FunctionalTests</PackageId>
@@ -13,6 +13,10 @@
     <DebugType>pdbonly</DebugType>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
+
+
+  <Import Project="$(PropsRoot)\DefineConstants.props" />
+
 
   <ItemGroup>
     <None Update="App.config">

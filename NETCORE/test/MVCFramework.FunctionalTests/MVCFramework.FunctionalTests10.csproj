@@ -3,8 +3,8 @@
   <PropertyGroup>
     <VersionPrefix>2.0.0</VersionPrefix>
     <TargetFrameworks>net46;netcoreapp1.0</TargetFrameworks>
-	<TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp1.0</TargetFrameworks>
-	<RuntimeIdentifier Condition=" '$(TargetFramework)' == 'net46' ">win7-x86</RuntimeIdentifier>    
+	  <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp1.0</TargetFrameworks>
+  	<RuntimeIdentifier Condition=" '$(TargetFramework)' == 'net46' ">win7-x86</RuntimeIdentifier>    
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>MVCFramework.FunctionalTests.Tests</AssemblyName>        
     <PackageId>MVCFramework.FunctionalTests</PackageId>
@@ -16,6 +16,9 @@
     <DebugType>pdbonly</DebugType>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
+
+  <Import Project="$(PropsRoot)\DefineConstants.props" />
+
 
   <ItemGroup>
     <None Update="App.config">

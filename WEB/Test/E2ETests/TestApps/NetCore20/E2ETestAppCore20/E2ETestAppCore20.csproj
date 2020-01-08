@@ -12,6 +12,9 @@
     <DoNotSign>true</DoNotSign>
   </PropertyGroup>
 
+  <Import Project="$(PropsRoot)\DefineConstants.props" />
+
+
   <ItemGroup>
     <Folder Include="wwwroot\" />
   </ItemGroup>
