@@ -8,6 +8,7 @@
 - [Switch to compact Id format in W3C mode](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1498)
 - [Sanitizing Message in Exception](https://github.com/microsoft/ApplicationInsights-dotnet/issues/546)
 - [Fix CreateRequestTelemetryPrivate throwing System.ArgumentOutOfRangeException](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1513)
+- [NLog supports TargetFramework NetStandard2.0 and reduces dependencies](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1522)
 
 ## Version 2.12.0
 - [Fix IndexOutOfRangeException in W3CUtilities.TryGetTraceId](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1327)
@@ -20,7 +21,7 @@
 - [Log4Net includes Message for ExceptionTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1315)
 - [NLog includes Message for ExceptionTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1315)
 - [Fix RouteData not set in ASP.Net Core 3.0](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1318)
-- [Fix depednency tracking for Microsoft.Azure.EventHubs SDK 4.1.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1317)
+- [Fix dependency tracking for Microsoft.Azure.EventHubs SDK 4.1.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1317)
 
 ## Version 2.12.0-beta3
 - [Standard Metric extractor for Dependency) add Dependency.ResultCode dimension.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1233)
