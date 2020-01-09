@@ -1,6 +1,9 @@
 # Changelog
 
 ## VNext
+
+
+## Version 2.13.0-beta1
 - [All product sdks are now building the same symbols (DebugType = FULL) and we're including symbols in the nuget package.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1527)
 - [Upgraded FxCop and fixed several issues related to null checks and disposing objects.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1499)
 - [Fix Environment read permission Exception](https://github.com/microsoft/ApplicationInsights-dotnet/issues/657)
