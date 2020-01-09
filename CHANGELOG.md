@@ -9,6 +9,7 @@
 - [Sanitizing Message in Exception](https://github.com/microsoft/ApplicationInsights-dotnet/issues/546)
 - [Fix CreateRequestTelemetryPrivate throwing System.ArgumentOutOfRangeException](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1513)
 - [NLog supports TargetFramework NetStandard2.0 and reduces dependencies](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1522)
+- [Enable ILogger provider for apps targetting .NET Framework](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1312)
 
 ## Version 2.12.0
 - [Fix IndexOutOfRangeException in W3CUtilities.TryGetTraceId](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1327)

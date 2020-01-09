@@ -17,7 +17,7 @@
   <PropertyGroup>
     <AssemblyName>Microsoft.ApplicationInsights.AspNetCore</AssemblyName>
     <LangVersion>7.2</LangVersion>
-    <TargetFrameworks>netstandard2.0;net451;net46;netstandard1.6</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net451;net46;net461;netstandard1.6</TargetFrameworks>
     <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard1.6;netstandard2.0</TargetFrameworks>
     <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.6' ">1.6.1</NetStandardImplicitPackageVersion>	
     <DefineConstants>$(DefineConstants);AI_ASPNETCORE_WEB;</DefineConstants>
@@ -75,12 +75,12 @@
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.6.0" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard2.0' ">
+  <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard2.0' AND '$(TargetFramework)' != 'net461' ">
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.0.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="1.0.2" />    
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">  
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net461' ">  
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.0" />
     <ProjectReference Include="..\..\..\LOGGING\src\ILogger\ILogger.csproj" />
     <ProjectReference Include="..\..\..\WEB\Src\EventCounterCollector\EventCounterCollector\EventCounterCollector.csproj" />
