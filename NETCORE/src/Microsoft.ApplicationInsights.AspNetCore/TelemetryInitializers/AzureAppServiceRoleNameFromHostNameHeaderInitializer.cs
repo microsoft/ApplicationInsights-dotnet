@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
 {
     using System;
-
+    using System.Diagnostics.CodeAnalysis;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.AspNetCore.Implementation;
     using Microsoft.ApplicationInsights.Channel;
@@ -45,6 +45,7 @@
         /// For US Gov Cloud: ".azurewebsites.us"
         /// For Azure Germany: ".azurewebsites.de".
         /// </summary>
+        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "We want this to be an instance variable for configuration.")]
         public string WebAppSuffix
         {
             get => RoleNameContainer.Instance.HostNameSuffix;
@@ -64,6 +65,11 @@
         /// <param name="telemetry">The telemetry item for which RoleName is to be set.</param>
         public void Initialize(ITelemetry telemetry)
         {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
             try
             {
                 if (!RoleNameContainer.Instance.IsAzureWebApp)

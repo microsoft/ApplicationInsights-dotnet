@@ -15,12 +15,15 @@ namespace MVCFramework.FunctionalTests.FunctionalTest
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.Extensions.DependencyInjection;
+    using System.Reflection;
 
     public class DependencyTelemetryMvcTests : TelemetryTestsBase
     {
-        private const string assemblyName = "MVCFramework.FunctionalTests";
+        private readonly string assemblyName;
+
         public DependencyTelemetryMvcTests(ITestOutputHelper output) : base(output)
         {
+            this.assemblyName = this.GetType().GetTypeInfo().Assembly.GetName().Name;
         }
 
         [Fact]

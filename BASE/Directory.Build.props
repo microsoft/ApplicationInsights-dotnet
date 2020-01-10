@@ -83,8 +83,6 @@
     </PropertyGroup>
 
 
-  <Import Project="$(PropsRoot)\_GlobalStaticVersion.props" />
-  
     <PropertyGroup>
         <!-- Enable NuGet package restore during build -->
         <RestorePackages>true</RestorePackages>

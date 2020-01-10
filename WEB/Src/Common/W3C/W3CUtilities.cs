@@ -16,9 +16,12 @@
 
             if (legacyId[0] == '|')
             {
-                var dot = legacyId.IndexOf('.');
+                var dotIndex = legacyId.IndexOf('.');
 
-                return legacyId.Substring(1, dot - 1);
+                if (dotIndex > 0)
+                {
+                    return legacyId.Substring(1, dotIndex - 1);
+                }
             }
 
             return StringUtilities.EnforceMaxLength(legacyId, InjectionGuardConstants.RequestHeaderMaxLength);
@@ -44,11 +47,6 @@
             }
 
             return false;
-        }
-
-        internal static string FormatTelemetryId(string traceId, string spanId)
-        {
-            return string.Concat('|', traceId, '.', spanId, '.');
         }
     }
 }

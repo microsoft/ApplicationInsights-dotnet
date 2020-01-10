@@ -3,6 +3,7 @@
     using System;
     using System.Linq;
     using System.Net.Http;
+    using System.Reflection;
     using System.Text;
 
     using AI;
@@ -15,9 +16,11 @@
 
     public class DependencyTelemetryMvcTests : TelemetryTestsBase
     {
-        private const string assemblyName = "MVCFramework20.FunctionalTests20";
+        private readonly string assemblyName;
+
         public DependencyTelemetryMvcTests(ITestOutputHelper output) : base(output)
         {
+            this.assemblyName = this.GetType().GetTypeInfo().Assembly.GetName().Name;
         }
 
         [Fact]
@@ -104,7 +107,7 @@
                 var requestTelemetry = actual.OfType<TelemetryItem<RequestData>>().FirstOrDefault();
                 Assert.NotNull(requestTelemetry);
 
-                Assert.Contains(requestTelemetry.tags["ai.operation.id"], dependencyTelemetry.tags["ai.operation.parentId"]);
+                Assert.Equal(requestTelemetry.data.baseData.id, dependencyTelemetry.tags["ai.operation.parentId"]);
             }
         }
     }

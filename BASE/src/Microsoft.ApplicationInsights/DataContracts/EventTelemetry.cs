@@ -152,6 +152,11 @@
         /// <inheritdoc/>
         public void SerializeData(ISerializationWriter serializationWriter)
         {
+            if (serializationWriter == null)
+            {
+                throw new ArgumentNullException(nameof(serializationWriter));
+            }
+
             serializationWriter.WriteProperty(this.Data);
         }
     }

@@ -52,8 +52,10 @@
 
         private TelemetryConfiguration config;
 
+        [SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", Justification = "This object self-disposes with this class's Dispose method.")]
         private IQuickPulseModuleSchedulerHandle collectionThread;
 
+        [SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", Justification = "This object self-disposes with this class's Dispose method.")]
         private IQuickPulseModuleSchedulerHandle stateThread;
 
         private Clock timeProvider;

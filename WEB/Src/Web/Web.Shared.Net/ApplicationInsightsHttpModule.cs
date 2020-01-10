@@ -1,34 +1,59 @@
 ﻿namespace Microsoft.ApplicationInsights.Web
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Reflection;
     using System.Web;
-
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Web.Implementation;
-
-#pragma warning disable 0612
 
     /// <summary>
     /// Platform agnostic module for web application instrumentation.
     /// </summary>
     public sealed class ApplicationInsightsHttpModule : IHttpModule
     {
-        private readonly RequestTrackingTelemetryModule requestModule;
+        private static readonly MethodInfo OnStepMethodInfo;
+        private static readonly bool AddOnSendingHeadersMethodExists;
 
         // Delegate preferred over Invoke to gain performance, only in NET45 or above as ISubscriptionToken is not available in Net40
-        private Func<HttpResponse, Action<HttpContext>, ISubscriptionToken> openDelegateForInvokingAddOnSendingHeadersMethod;
-        private MethodInfo addOnSendingHeadersMethod;                
-        private bool addOnSendingHeadersMethodExists;
-        private Action<HttpContext> addOnSendingHeadersMethodParam;
+        private static readonly Func<HttpResponse, Action<HttpContext>, ISubscriptionToken> OpenDelegateForInvokingAddOnSendingHeadersMethod;
+
+        private readonly RequestTrackingTelemetryModule requestModule;
+        private readonly Action<HttpContext> addOnSendingHeadersMethodParam;
+        private readonly object[] onExecuteActionParam = { (Action<HttpContextBase, Action>)OnExecuteRequestStep };
+
         private object[] addOnSendingHeadersMethodParams;
 
         /// <summary>
         /// Indicates if module initialized successfully.
         /// </summary>
         private bool isEnabled = true;
+
+        [SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline", Justification = "Enforcing static fields initialization.")]
+        static ApplicationInsightsHttpModule()
+        {
+            // We use reflection here because 'AddOnSendingHeaders' is only available post .net framework 4.5.2. Hence we call it if we can find it.
+            // Not using reflection would result in MissingMethodException when 4.5 or 4.5.1 is present. 
+            var addOnSendingHeadersMethod = typeof(HttpResponse).GetMethod("AddOnSendingHeaders");
+
+            if (addOnSendingHeadersMethod != null)
+            {
+                AddOnSendingHeadersMethodExists = true;
+                OpenDelegateForInvokingAddOnSendingHeadersMethod = (Func<HttpResponse, Action<HttpContext>, ISubscriptionToken>)Delegate.CreateDelegate(
+                    typeof(Func<HttpResponse, Action<HttpContext>, ISubscriptionToken>),
+                    null,
+                    addOnSendingHeadersMethod,
+                    true);
+            }
+
+            // OnExecuteRequestStep is available starting with 4.7.1
+            // If this is executed in 4.7.1 runtime (regardless of targeted .NET version),
+            // we will use it to restore lost activity, otherwise keep PreRequestHandlerExecute
+            OnStepMethodInfo = typeof(HttpApplication).GetMethod("OnExecuteRequestStep");
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApplicationInsightsHttpModule"/> class.
@@ -37,39 +62,30 @@
         {
             try
             {
-                // The call initializes TelemetryConfiguration that will create and Intialize modules
+                // The call initializes TelemetryConfiguration that will create and Initialize modules
                 TelemetryConfiguration configuration = TelemetryConfiguration.Active;
                 foreach (var module in TelemetryModules.Instance.Modules)
                 {
-                    if (module is RequestTrackingTelemetryModule)
+                    if (module is RequestTrackingTelemetryModule telemetryModule)
                     {
-                        this.requestModule = (RequestTrackingTelemetryModule)module;
+                        this.requestModule = telemetryModule;
                     }
                 }
-                
-                // We use reflection here because 'AddOnSendingHeaders' is only available post .net framework 4.5.2. Hence we call it if we can find it.
-                // Not using reflection would result in MissingMethodException when 4.5 or 4.5.1 is present. 
-                this.addOnSendingHeadersMethod = typeof(HttpResponse).GetMethod("AddOnSendingHeaders");
-                this.addOnSendingHeadersMethodExists = this.addOnSendingHeadersMethod != null;
 
-                if (this.addOnSendingHeadersMethodExists)
+                if (AddOnSendingHeadersMethodExists)
                 {
-                    this.addOnSendingHeadersMethodParam = new Action<HttpContext>((httpContext) =>
-                            {
-                                try
-                                {
-                                    if (this.requestModule != null)
-                                    {
-                                        this.requestModule.AddTargetHashForResponseHeader(httpContext);
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    WebEventSource.Log.AddTargetHeaderFailedWarning(ex.ToInvariantString());
-                                }
-                            });
+                    this.addOnSendingHeadersMethodParam = (httpContext) =>
+                    {
+                        try
+                        {
+                            this.requestModule?.AddTargetHashForResponseHeader(httpContext);
+                        }
+                        catch (Exception ex)
+                        {
+                            WebEventSource.Log.AddTargetHeaderFailedWarning(ex.ToInvariantString());
+                        }
+                    };
                     this.addOnSendingHeadersMethodParams = new object[] { this.addOnSendingHeadersMethodParam };
-                    this.openDelegateForInvokingAddOnSendingHeadersMethod = CreateOpenDelegate(this.addOnSendingHeadersMethod);
                 }
             }
             catch (Exception exc)
@@ -91,6 +107,25 @@
                 try
                 {
                     context.BeginRequest += this.OnBeginRequest;
+
+                    // OnExecuteRequestStep is available starting with 4.7.1
+                    // If this is executed in 4.7.1 runtime (regardless of targeted .NET version),
+                    // we will use it to restore lost activity, otherwise keep PreRequestHandlerExecute
+                    if (OnStepMethodInfo != null && HttpRuntime.UsingIntegratedPipeline)
+                    {
+                        try
+                        {
+                            OnStepMethodInfo.Invoke(context, this.onExecuteActionParam);
+                        }
+                        catch (Exception e)
+                        {
+                            WebEventSource.Log.OnExecuteRequestStepInvocationError(e.Message);
+                        }
+                    }
+                    else
+                    {
+                        context.PreRequestHandlerExecute += this.Application_PreRequestHandlerExecute;
+                    }
                 }
                 catch (Exception exc)
                 {
@@ -107,13 +142,35 @@
         {
         }
 
+        /// <summary>
+        /// Restores Activity before each pipeline step if it was lost.
+        /// </summary>
+        /// <param name="context">HttpContext instance.</param>
+        /// <param name="step">Step to be executed.</param>
+        private static void OnExecuteRequestStep(HttpContextBase context, Action step)
+        {
+            if (context == null)
+            {
+                WebEventSource.Log.NoHttpContextWarning();
+                return;
+            }
+
+            TraceCallback(nameof(OnExecuteRequestStep), context.ApplicationInstance);
+            if (context.CurrentNotification == RequestNotification.ExecuteRequestHandler && !context.IsPostNotification)
+            {
+                ActivityHelpers.RestoreActivityIfNeeded(context.Items);
+            }
+
+            step();
+        }
+
         private static void TraceCallback(string callback, HttpApplication application)
         {
             if (WebEventSource.IsVerboseEnabled)
             {
                 try
                 {
-                    if (application.Context != null)
+                    if (application?.Context != null)
                     {
                         // Url.ToString internally builds local member once and then always returns it
                         // During serialization we will anyway call same ToString() so we do not force unnecessary formatting just for tracing 
@@ -130,19 +187,18 @@
             }
         }
 
-        /// <summary>
-        /// Creates open delegate for faster invocation than regular Invoke.        
-        /// </summary>
-        /// <param name="mi">MethodInfo for which open delegate is to be created.</param>
-        private static Func<HttpResponse, Action<HttpContext>, ISubscriptionToken> CreateOpenDelegate(MethodInfo mi)
+        private void Application_PreRequestHandlerExecute(object sender, EventArgs e)
         {
-            var openDelegate = Delegate.CreateDelegate(
-                typeof(Func<HttpResponse, Action<HttpContext>, ISubscriptionToken>),
-                null,
-                mi,
-                true);
+            var httpApplication = (HttpApplication)sender;
 
-            return (Func<HttpResponse, Action<HttpContext>, ISubscriptionToken>)openDelegate;
+            if (httpApplication == null)
+            {
+                WebEventSource.Log.NoHttpApplicationWarning();
+                return;
+            }
+
+            TraceCallback(nameof(this.Application_PreRequestHandlerExecute), httpApplication);
+            ActivityHelpers.RestoreActivityIfNeeded(httpApplication.Context?.Items);
         }
 
         private void OnBeginRequest(object sender, EventArgs eventArgs)
@@ -171,13 +227,10 @@
         {
             try
             {
-                if (httpApplication != null && httpApplication.Response != null)
+                if (httpApplication?.Response != null && AddOnSendingHeadersMethodExists)
                 {                                     
-                    if (this.addOnSendingHeadersMethodExists)
-                    {                        
-                        // Faster delegate based invocation.
-                        this.openDelegateForInvokingAddOnSendingHeadersMethod.Invoke(httpApplication.Response, this.addOnSendingHeadersMethodParam);
-                    }
+                    // Faster delegate based invocation.
+                    OpenDelegateForInvokingAddOnSendingHeadersMethod.Invoke(httpApplication.Response, this.addOnSendingHeadersMethodParam);
                 }
             }
             catch (Exception ex)

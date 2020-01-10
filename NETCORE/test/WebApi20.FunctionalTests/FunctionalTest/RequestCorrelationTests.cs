@@ -13,12 +13,15 @@
     using Microsoft.ApplicationInsights.DependencyCollector;
     using System.Text.RegularExpressions;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using System.Reflection;
 
     public class RequestCorrelationTests : TelemetryTestsBase
     {
-        private const string assemblyName = "WebApi20.FunctionalTests20";
+        private readonly string assemblyName;
+
         public RequestCorrelationTests(ITestOutputHelper output) : base(output)
         {
+            this.assemblyName = this.GetType().GetTypeInfo().Assembly.GetName().Name;
         }
 
         [Fact]
@@ -94,7 +97,7 @@
                 var actualRequest = this.ValidateRequestWithHeaders(server, RequestPath, headers, expectedRequestTelemetry);
 
                 Assert.Equal("8ee8641cbdd8dd280d239fa2121c7e4e", actualRequest.tags["ai.operation.id"]);
-                Assert.Contains("|8ee8641cbdd8dd280d239fa2121c7e4e.df07da90a5b27d93.", actualRequest.tags["ai.operation.parentId"]);
+                Assert.Equal("|8ee8641cbdd8dd280d239fa2121c7e4e.df07da90a5b27d93.", actualRequest.tags["ai.operation.parentId"]);
                 Assert.Equal("v1", actualRequest.data.baseData.properties["k1"]);
                 Assert.Equal("v2", actualRequest.data.baseData.properties["k2"]);
             }
@@ -135,7 +138,7 @@
                 var actualRequest = this.ValidateRequestWithHeaders(server, RequestPath, headers, expectedRequestTelemetry);
 
                 Assert.NotEqual("noncompatible", actualRequest.tags["ai.operation.id"]);
-                Assert.Contains("|noncompatible.df07da90a5b27d93.", actualRequest.tags["ai.operation.parentId"]);
+                Assert.Equal("|noncompatible.df07da90a5b27d93.", actualRequest.tags["ai.operation.parentId"]);
                 Assert.Equal("noncompatible", actualRequest.data.baseData.properties["ai_legacyRootId"]);
                 Assert.Equal("v1", actualRequest.data.baseData.properties["k1"]);
                 Assert.Equal("v2", actualRequest.data.baseData.properties["k2"]);
@@ -177,7 +180,7 @@
                 var actualRequest = this.ValidateRequestWithHeaders(server, RequestPath, headers, expectedRequestTelemetry);
 
                 Assert.NotEqual("noncompatible", actualRequest.tags["ai.operation.id"]);
-                Assert.Contains("somerandomidnotinanyformat", actualRequest.tags["ai.operation.parentId"]);
+                Assert.Equal("somerandomidnotinanyformat", actualRequest.tags["ai.operation.parentId"]);
                 Assert.Equal("somerandomidnotinanyformat", actualRequest.data.baseData.properties["ai_legacyRootId"]);
                 Assert.Equal("v1", actualRequest.data.baseData.properties["k1"]);
                 Assert.Equal("v2", actualRequest.data.baseData.properties["k2"]);
@@ -218,7 +221,7 @@
                 var actualRequest = this.ValidateRequestWithHeaders(server, RequestPath, headers, expectedRequestTelemetry);
 
                 Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", actualRequest.tags["ai.operation.id"]);
-                Assert.Equal("|4bf92f3577b34da6a3ce929d0e0e4736.00f067aa0ba902b7.", actualRequest.tags["ai.operation.parentId"]);
+                Assert.Equal("00f067aa0ba902b7", actualRequest.tags["ai.operation.parentId"]);
 
                 // Correlation-Context will be read if either Request-Id or TraceParent available.
                 Assert.True(actualRequest.data.baseData.properties.ContainsKey("k1"));
@@ -265,7 +268,7 @@
 
                 Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", actualRequest.tags["ai.operation.id"]);
                 Assert.NotEqual("8ee8641cbdd8dd280d239fa2121c7e4e", actualRequest.tags["ai.operation.id"]);
-                Assert.Equal("|4bf92f3577b34da6a3ce929d0e0e4736.00f067aa0ba902b7.", actualRequest.tags["ai.operation.parentId"]);
+                Assert.Equal("00f067aa0ba902b7", actualRequest.tags["ai.operation.parentId"]);
 
                 // Correlation-Context will be read if either Request-Id or traceparent is present.
                 Assert.True(actualRequest.data.baseData.properties.ContainsKey("k1"));
@@ -318,7 +321,7 @@
 
                     Assert.Equal("8ee8641cbdd8dd280d239fa2121c7e4e", actualRequest.tags["ai.operation.id"]);
                     Assert.NotEqual("4bf92f3577b34da6a3ce929d0e0e4736", actualRequest.tags["ai.operation.id"]);
-                    Assert.Contains("|8ee8641cbdd8dd280d239fa2121c7e4e.df07da90a5b27d93.", actualRequest.tags["ai.operation.parentId"]);
+                    Assert.Contains("df07da90a5b27d93", actualRequest.tags["ai.operation.parentId"]);
 
                     // Correlation-Context should be read and populated.
                     Assert.True(actualRequest.data.baseData.properties.ContainsKey("k1"));

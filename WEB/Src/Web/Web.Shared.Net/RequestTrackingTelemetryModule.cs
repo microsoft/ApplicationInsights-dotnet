@@ -246,7 +246,7 @@
         /// <param name="configuration">Telemetry configuration to use for initialization.</param>
         public void Initialize(TelemetryConfiguration configuration)
         {
-            this.telemetryConfiguration = configuration;
+            this.telemetryConfiguration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             this.telemetryClient = new TelemetryClient(configuration);
             this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("web:");
 

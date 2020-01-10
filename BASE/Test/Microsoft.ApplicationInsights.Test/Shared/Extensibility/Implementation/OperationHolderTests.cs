@@ -56,7 +56,7 @@
             var operation = new OperationHolder<DependencyTelemetry>(client, new DependencyTelemetry(), originalActivity);
 
             var newActivity = new Activity("new").SetParentId("detached-parent").Start();
-            operation.Telemetry.Id = $"|{newActivity.TraceId.ToHexString()}.{newActivity.SpanId.ToHexString()}.";
+            operation.Telemetry.Id = newActivity.SpanId.ToHexString();
 
             operation.Dispose();
             Assert.AreEqual(Activity.Current, originalActivity);
@@ -71,7 +71,7 @@
             var operation = new OperationHolder<DependencyTelemetry>(client, new DependencyTelemetry(), null);
 
             var newActivity = new Activity("new").SetParentId("detached-parent").Start();
-            operation.Telemetry.Id = $"|{newActivity.TraceId.ToHexString()}.{newActivity.SpanId.ToHexString()}.";
+            operation.Telemetry.Id = newActivity.SpanId.ToHexString();
 
             operation.Dispose();
             Assert.IsNull(Activity.Current);
@@ -87,7 +87,7 @@
 
             // child of original
             var newActivity = new Activity("new").Start();
-            operation.Telemetry.Id = $"|{newActivity.TraceId.ToHexString()}.{newActivity.SpanId.ToHexString()}.";
+            operation.Telemetry.Id = newActivity.SpanId.ToHexString();
             operation.Dispose();
             Assert.AreEqual(Activity.Current, originalActivity);
         }

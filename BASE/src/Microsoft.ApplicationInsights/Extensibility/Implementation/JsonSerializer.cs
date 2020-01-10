@@ -52,6 +52,11 @@
         [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "Disposing a MemoryStream multiple times is harmless.")]
         public static byte[] Serialize(IEnumerable<ITelemetry> telemetryItems, bool compress = true)
         {
+            if (telemetryItems == null)
+            {
+                throw new ArgumentNullException(nameof(telemetryItems));
+            }
+
             var memoryStream = new MemoryStream();
             using (Stream compressedStream = compress ? CreateCompressedStream(memoryStream) : memoryStream)
             {

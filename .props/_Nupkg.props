@@ -1,21 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Including this file will generate both the *.nupkg and *.snupkg  -->
 
   <Target Name="Info_NupkgProps"  BeforeTargets="Build" Condition=" $(Internal_Logging) == 'true' ">
     <Message Text="Info: Nupkg.props imported by $(MSBuildProjectName)." Importance="high"/>
   </Target>
 
   <PropertyGroup Condition="$(OS) == 'Windows_NT'">
-    <!-- Including this file will generate both the *.nupkg and *.symbols.nupkg -->
-    <!--https://docs.microsoft.com/en-us/nuget/create-packages/symbol-packages-snupkg-->
+    <!-- Automatically generate package on build https://docs.microsoft.com/en-us/nuget/quickstart/create-and-publish-a-package-using-the-dotnet-cli#automatically-generate-package-on-build -->
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+
+    <!-- Documenting your code with XML comments https://docs.microsoft.com/en-us/dotnet/csharp/codedoc -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- Creating symbol packages (.snupkg) https://docs.microsoft.com/en-us/nuget/create-packages/symbol-packages-snupkg -->
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    
+    <!-- Include the PDB in the built .nupkg -->
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
 
   <PropertyGroup>
-    <!-- These are the common properties used when generating the nupkg -->
-    <!-- https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets -->
+    <!-- These are the common properties used when generating the nupkg https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets -->
     <Company>Microsoft</Company>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <!-- <PackageVersion>Defined in GlobalStaticVersion.props</PackageVersion> -->
@@ -55,4 +62,41 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
   </PropertyGroup>
+
+  <Target Name="FixXmlDocumentation" AfterTargets="AfterBuild" DependsOnTargets="AfterBuild"  Condition="$(OS) == 'Windows_NT'">
+    <!-- This target will add an English localization tag to our xml documentation file. -->
+    <InjectXmlLanguage FilePath="$(OutputPath)\$(AssemblyName).XML" />
+  </Target>
+  
+  <UsingTask TaskName="InjectXmlLanguage" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <FilePath ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.Diagnostics" />
+      <Using Namespace="System.IO" />
+      <!--
+            Not sure where the requirement of xml:lang="en" came from. But to address it - hacking is the only way now:
+            https://social.msdn.microsoft.com/forums/en-us/70b984eb-f490-4494-8fbc-12fe4a62e5e4/xmllang-on-doc-for-xml-doc-comments?forum=xmlandnetfx
+          -->
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+                    Log.LogMessage(MessageImportance.High, "InjectXmlLanguage -> {0}", FilePath);
+
+                    if (File.Exists(FilePath))
+                    {
+                        string text = File.ReadAllText(FilePath);
+                        text = text.Replace("<doc>", "<doc xml:lang=\"en\">");
+                        File.WriteAllText(FilePath, text);
+                    }
+                    else
+                    {
+                        Log.LogError("InjectXmlLanguage: Assembly XML Doc file not found in bin folder.");
+                    }
+            ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
 </Project>

@@ -42,6 +42,5 @@
   </PropertyGroup>
 
 
-  <Import Project="$(PropsRoot)\_GlobalStaticVersion.props" />
 
 </Project>

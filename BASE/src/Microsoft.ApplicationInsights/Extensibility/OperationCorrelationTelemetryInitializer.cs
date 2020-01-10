@@ -1,12 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
+    using System;
     using System.Diagnostics;
 
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.W3C;
 
     /// <summary>
     /// Telemetry initializer that populates OperationContext for the telemetry item from Activity.
@@ -22,6 +22,11 @@
         /// <param name="telemetryItem">Target telemetry item to add operation context.</param>
         public void Initialize(ITelemetry telemetryItem)
         {
+            if (telemetryItem == null)
+            {
+                throw new ArgumentNullException(nameof(telemetryItem));
+            }
+
             var itemOperationContext = telemetryItem.Context.Operation;
             var telemetryProp = telemetryItem as ISupportProperties;            
 
@@ -58,14 +63,9 @@
                             // itemOperationContext.Id = currentActivity.RootId; // check if this can be used
                             itemOperationContext.Id = currentActivity.TraceId.ToHexString();
 
-                            // Set OperationParentID to ID of parent, constructed as !traceid.spanid.
-                            // ID for auto collected Request,Dependency are constructed as !traceid.spanid, so parentid must be set to the same format.
-                            // While it is possible to set SpanID as the ID for auto collected Request,Dependency we have to stick to this format
-                            // to maintain compatibility. This limitation may go away in the future.
                             if (string.IsNullOrEmpty(itemOperationContext.ParentId))
                             {
-                                itemOperationContext.ParentId = W3CUtilities.FormatTelemetryId(itemOperationContext.Id,
-                                    currentActivity.SpanId.ToHexString());
+                                itemOperationContext.ParentId = currentActivity.SpanId.ToHexString();
                             }
                         }
                         else

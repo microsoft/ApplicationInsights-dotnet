@@ -66,6 +66,11 @@
         /// <param name="value">DiagnosticListener value.</param>
         public void OnNext(DiagnosticListener value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             if (this.isEnabled && value.Name == AspNetListenerName)
             {
                 var eventListener = new AspNetEventObserver(this.requestModule, this.exceptionModule);
@@ -218,11 +223,16 @@
                     }
                     else if (value.Key == IncomingRequestStopEventName)
                     {
+                        // AppInsights overrides Activity to allow Request-Id and legacy headers backward compatible mode
+                        // it it was overriden, we need to restore it here.
+                        var overrideActivity = (Activity)context.Items[ActivityHelpers.RequestActivityItemName];
+                        if (overrideActivity != null && Activity.Current != overrideActivity)
+                        {
+                            Activity.Current = overrideActivity;
+                        }
+
                         if (IsFirstRequest(context))
                         {
-                            // Asp.Net Http Module detected that activity was lost, it notifies about it with this event
-                            // It means that Activity was previously reported in BeginRequest and we saved it in HttpContext.Current
-                            // we will use it in Web.OperationCorrelationTelemetryInitializer to init exceptions and request
                             this.exceptionModule?.OnError(context);
                             this.requestModule?.OnEndRequest(context);
                         }

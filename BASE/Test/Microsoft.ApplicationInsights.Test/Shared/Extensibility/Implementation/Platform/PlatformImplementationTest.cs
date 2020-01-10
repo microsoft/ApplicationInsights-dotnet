@@ -3,6 +3,7 @@
 #if (!NETCOREAPP1_1 && !NETCOREAPP2_0)
     using System;
     using System.IO;
+    using System.Security;
     using System.Security.Permissions;
     using System.Text;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -48,6 +49,7 @@
         }
 
         [TestMethod]
+        [ExpectedException(typeof(SecurityException))]
         public void FailureToReadEnvironmentVariablesDoesNotThrowExceptions()
         {
             EnvironmentPermission permission = new EnvironmentPermission(EnvironmentPermissionAccess.NoAccess, "PATH");

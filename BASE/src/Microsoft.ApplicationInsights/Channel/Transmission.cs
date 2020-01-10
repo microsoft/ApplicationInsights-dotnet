@@ -227,6 +227,11 @@
         /// </returns>
         public virtual Tuple<Transmission, Transmission> Split(Func<int, int> calculateLength)
         {
+            if (calculateLength == null)
+            {
+                throw new ArgumentNullException(nameof(calculateLength));
+            }
+
             Transmission transmissionA = this;
             Transmission transmissionB = null;
 

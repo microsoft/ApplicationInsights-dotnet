@@ -7,16 +7,18 @@
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.Extensions.DependencyInjection;
     using Xunit;
     using Xunit.Abstractions;
+    using System.Reflection;
 
     public class RequestDependencyCorrelationTests : TelemetryTestsBase, IDisposable
     {
-        private const string assemblyName = "WebApi20.FunctionalTests20";
+        private readonly string assemblyName;
+
         public RequestDependencyCorrelationTests(ITestOutputHelper output) : base (output)
         {
+            this.assemblyName = this.GetType().GetTypeInfo().Assembly.GetName().Name;
         }
 
         // The NET451 conditional check is wrapped inside the test to make the tests visible in the test explorer. We can move them to the class level once if the issue is resolved.
@@ -73,12 +75,12 @@
                     .Start();
 
                 var (request, dependency) = this.ValidateBasicDependency(server, RequestPath, expected);
-                string expectedTraceId = activity.GetTraceId();
-                string expectedParentSpanId = activity.GetSpanId();
+                string expectedTraceId = activity.TraceId.ToHexString();
+                string expectedParentSpanId = activity.SpanId.ToHexString();
 
                 Assert.Equal(expectedTraceId, request.tags["ai.operation.id"]);
                 Assert.Equal(expectedTraceId, dependency.tags["ai.operation.id"]);
-                Assert.Equal($"|{expectedTraceId}.{expectedParentSpanId}.", dependency.tags["ai.operation.parentId"]);
+                Assert.Equal(expectedParentSpanId, dependency.tags["ai.operation.parentId"]);
             }
         }
 

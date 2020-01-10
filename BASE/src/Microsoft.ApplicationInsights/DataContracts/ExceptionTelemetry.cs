@@ -299,6 +299,11 @@
         /// <inheritdoc/>
         public void SerializeData(ISerializationWriter serializationWriter)
         {
+            if (serializationWriter == null)
+            {
+                throw new ArgumentNullException(nameof(serializationWriter));
+            }
+
             serializationWriter.WriteProperty(this.Data.Data);
         }
 
@@ -340,6 +345,7 @@
         void ITelemetry.Sanitize()
         {
             // Sanitize on the ExceptionDetails stack information for raw stack and parsed stack is done while creating the object in ExceptionConverter.cs
+            this.message = this.message.SanitizeMessage();
             this.Properties.SanitizeProperties();
             this.Metrics.SanitizeMeasurements();
         }

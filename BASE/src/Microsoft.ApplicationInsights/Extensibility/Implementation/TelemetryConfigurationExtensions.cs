@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
+    using System;
     using System.ComponentModel;
     using Microsoft.ApplicationInsights.DataContracts;
 
@@ -14,6 +15,11 @@
         /// </summary>
         public static double GetLastObservedSamplingPercentage(this TelemetryConfiguration configuration, SamplingTelemetryItemTypes samplingItemType)
         {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
             return configuration.LastKnownSampleRateStore.GetLastObservedSamplingPercentage(samplingItemType);
         }
 
@@ -22,6 +28,11 @@
         /// </summary>
         public static void SetLastObservedSamplingPercentage(this TelemetryConfiguration configuration, SamplingTelemetryItemTypes samplingItemType, double value)
         {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
             configuration.LastKnownSampleRateStore.SetLastObservedSamplingPercentage(samplingItemType, value);
         }
     }

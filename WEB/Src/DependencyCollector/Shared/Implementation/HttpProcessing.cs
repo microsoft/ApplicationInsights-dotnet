@@ -240,7 +240,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     {
                         if (webRequest.Headers[RequestResponseHeaders.RequestIdHeader] == null)
                         {
-                            webRequest.Headers.Add(RequestResponseHeaders.RequestIdHeader, telemetry.Id);
+                            webRequest.Headers.Add(RequestResponseHeaders.RequestIdHeader, string.Concat('|', telemetry.Context.Operation.Id, '.', telemetry.Id, '.'));
                         }
                     }
                 }

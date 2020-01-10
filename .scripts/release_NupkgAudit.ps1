@@ -149,6 +149,31 @@ function Get-DoesXmlDocExist ([string]$dllPath) {
     Test-Condition (Test-Path $docFile) $message $requirement;
 }
 
+function Get-DoesXmlDocContainsLang ([string]$dllPath) {
+    # CONFIRM .XML DOCUMENTATION FILE EXISTS WITH EACH DLL
+    [string]$docFile = $dllPath -replace ".dll", ".xml";
+
+    [bool]$result = $false;
+    [string]$searchString = '<doc xml:lang="en">';
+
+    if (Test-Path $docFile) {
+        $result = select-string -path $docFile -Pattern $searchString -Quiet;
+    }
+
+    $message = "XML Documentation:";
+    $requirement = "Must contain xml:lang='en' ";
+    Test-Condition ($result) $message $requirement;
+}
+
+function Get-DoesPdbExist ([string]$dllPath) {
+    # CONFIRM .PDB SYMBOLS EXIST WITH EACH DLL
+    [string]$docFile = $dllPath -replace ".dll", ".pdb";
+
+    $message = "Symbols in package:";
+    $requirement = "Not a requirement, but made a decision to include these in packages."
+    Test-Condition (Test-Path $docFile) $message $requirement;
+}
+
 function Get-DoesDllVersionsMatch ([string]$dllPath) {
     # CONFIRM Assembly version matches File version
     [string]$fileVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($dllPath).FileVersion;
@@ -322,7 +347,10 @@ function Start-EvaluateNupkg ($nupkgPath) {
 
         Get-DoesDllVersionsMatch $_.FullName;
         
+        Get-DoesPdbExist $_.FullName;
+
         Get-DoesXmlDocExist $_.FullName;
+        Get-DoesXmlDocContainsLang $_.FullName;
         }
 }
 

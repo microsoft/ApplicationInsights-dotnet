@@ -2,15 +2,5 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)\..', 'Common.props'))\Common.props" />
-  <Import Project="$(PropsRoot)\_Nupkg.props" />
-  
-  <!--
-      Example of how to do logs:
-      Conditions are supported.
-    
-    <Target Name="BuildLogs_HelloWorld" AfterTargets="CopyFilesToOutputDirectory" >
-        <Message Text="Hello World!" Importance="high" />
-    </Target>
-    -->
 
 </Project>

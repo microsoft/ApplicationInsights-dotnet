@@ -139,3 +139,38 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 [WinAppGetStarted]: https://azure.microsoft.com/documentation/articles/app-insights-windows-get-started/
 [DesktopGetStarted]: https://azure.microsoft.com/documentation/articles/app-insights-windows-desktop/
 [AIKey]: https://github.com/Microsoft/ApplicationInsights-Home/wiki#getting-an-application-insights-instrumentation-key
+
+## Release Schedule
+
+The following is our tentative release schedule for 2020.
+
+| **2019H2**  	|       	|   	|            	|             	|
+|-----------	|-------	|---	|------------	|-------------	|
+| December  	| Early 	|   	|            	| 2.12 Stable 	|
+|           	| Mid   	|   	| 2.13 Beta1 	|             	|
+| **2020H1**   	|       	|   	|            	|             	|
+| January   	| Early 	|   	| 2.13 Beta2 	|             	|
+|           	| Mid   	|   	| 2.13 Beta3 	|             	|
+| February  	| Early 	|   	|            	| 2.13 Stable 	|
+|           	| Mid   	|   	| 2.14 Beta1 	|             	|
+| March     	| Early 	|   	| 2.14 Beta2 	|             	|
+|           	| Mid   	|   	| 2.14 Beta3 	|             	|
+| April     	| Early 	|   	|            	| 2.14 Stable 	|
+|           	| Mid   	|   	| 2.15 Beta1 	|             	|
+| May       	| Early 	|   	| 2.15 Beta2 	|             	|
+|           	| Mid   	|   	| 2.15 Beta3 	|             	|
+| June      	| Early 	|   	|            	| 2.15 Stable 	|
+|           	| Mid   	|   	| 2.16 Beta1 	|             	|
+| **2020H2**   	|       	|   	|            	|             	|
+| July      	| Early 	|   	| 2.16 Beta2 	|             	|
+|           	| Mid   	|   	| 2.16 Beta3 	|             	|
+| August    	| Early 	|   	|            	| 2.16 Stable 	|
+|           	| Mid   	|   	| 2.17 Beta1 	|             	|
+| September 	| Early 	|   	| 2.17 Beta2 	|             	|
+|           	| Mid   	|   	| 2.17 Beta3 	|             	|
+| October   	| Early 	|   	|            	| 2.17 Stable 	|
+|           	| Mid   	|   	| 2.18 Beta1 	|             	|
+| November  	| Early 	|   	| 2.18 Beta2 	|             	|
+|           	| Mid   	|   	| 2.18 Beta3 	|             	|
+| December  	| Early 	|   	|            	| 2.18 Stable 	|
+|           	| Mid   	|   	| 2.19 Beta1 	|             	|
