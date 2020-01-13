@@ -31,9 +31,6 @@ Once you've installed the prerequisites execute either ```buildDebug.cmd``` or `
 ```buildRelease.cmd``` also runs StlyeCop checks, and is required before merging any pull requests.
 
 You can also open the solutions in Visual Studio and build directly from there.
-The following solution contains the product code and unit tests 
-
-```	"\Src\Microsoft.ApplicationInsights.Web.sln" ```
 
 
 ## Unit Tests
