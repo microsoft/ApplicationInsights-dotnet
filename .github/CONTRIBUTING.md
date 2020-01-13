@@ -2,6 +2,18 @@
 
 If you're interested in contributing, take a look at the general [contributer's guide](https://github.com/Microsoft/ApplicationInsights-Home/blob/master/CONTRIBUTING.md) first and continue here.
 
+
+## Solutions
+
+- Everything.sln - this will build all projects and tests.
+- ProjectsForSigning.sln - this builds all shipping projects.
+- BASE\Microsoft.ApplicationInsights.sln - this builds the Base SDK and ServerTelemetryChannel.
+- WEB\Microsoft.ApplicationInsights.Web.sln - this builds the ASP.Net projects.
+- NETCORE\ApplicationInsights.AspNetCore.sln - this builds the .Net Core projects.
+- LOGGING\Logging.sln - this builds the logging adapters.
+
+
+
 ## Build
 
 To successfully build the sources on your machine, make sure you've installed the following prerequisites:
