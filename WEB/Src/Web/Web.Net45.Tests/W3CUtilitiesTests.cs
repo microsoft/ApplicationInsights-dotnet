@@ -29,5 +29,14 @@
         {
             Assert.IsFalse(W3C.Internal.W3CUtilities.TryGetTraceId("|0123456789abcdef0123456789abcdef", out _));
         }
+
+        [TestMethod]
+        public void VerifyGetRootId_ReturnsCorrectValue() => Assert.AreEqual("0123456789", W3C.Internal.W3CUtilities.GetRootId("|0123456789.abcdef"));
+
+        [TestMethod]
+        public void VerifyGetRootId_ReturnsInputIfInputValueMissingPipe() => Assert.AreEqual("0123456789abcdef", W3C.Internal.W3CUtilities.GetRootId("0123456789abcdef"));
+
+        [TestMethod]
+        public void VerifyGetRootId_ReturnsInputIfInputValueMissingDecimal() => Assert.AreEqual("|0123456789abcdef", W3C.Internal.W3CUtilities.GetRootId("|0123456789abcdef"));
     }
 }

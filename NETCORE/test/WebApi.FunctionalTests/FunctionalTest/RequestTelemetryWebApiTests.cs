@@ -1,5 +1,6 @@
 ﻿namespace WebApi.FunctionalTests.FunctionalTest
 {
+    using System.Reflection;
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
@@ -7,10 +8,11 @@
 
     public class RequestTelemetryWebApiTests : TelemetryTestsBase
     {
-        private const string assemblyName = "WebApi.FunctionalTests";
+        private readonly string assemblyName;
 
         public RequestTelemetryWebApiTests(ITestOutputHelper output) : base (output)
         {
+            this.assemblyName = this.GetType().GetTypeInfo().Assembly.GetName().Name;
         }
 
         [Fact]

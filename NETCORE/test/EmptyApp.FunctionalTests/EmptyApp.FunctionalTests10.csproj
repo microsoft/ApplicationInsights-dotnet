@@ -7,7 +7,7 @@
 	<RuntimeIdentifier Condition=" '$(TargetFramework)' == 'net46' ">win7-x86</RuntimeIdentifier>
     <DelaySign Condition=" '$(OS)' == 'Windows_NT' ">true</DelaySign>
     <PreserveCompilationContext>true</PreserveCompilationContext>
-    <AssemblyName>EmptyApp.FunctionalTests</AssemblyName>    
+    <AssemblyName>EmptyApp.FunctionalTests.Tests</AssemblyName>    
     <PackageId>EmptyApp.FunctionalTests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <!--<RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">1.1.5</RuntimeFrameworkVersion>-->

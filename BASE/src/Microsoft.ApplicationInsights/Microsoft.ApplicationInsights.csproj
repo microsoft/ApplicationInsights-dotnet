@@ -1,6 +1,7 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <Import Project="$(SourceRoot)\Product.props" />
-  <Import Project="$(PropsRoot)\_Nupkg.props" />
+
+  <Import Project="$(PropsRoot)\Product.props" />
 
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights</RootNamespace>
@@ -36,22 +37,6 @@
     </PackageReference>
   </ItemGroup>
 
-    <Choose>
-      <When Condition=" '$(Configuration)' == 'Release' ">
-        <PropertyGroup>
-          <!-- Microsoft recommends that we disable CodeAnalysis in favor of FxCop Analyzers. aka.ms/fxcopanalyzers -->
-          <RunCodeAnalysis>false</RunCodeAnalysis>
-          <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        </PropertyGroup>
-      </When>
-      <When Condition=" '$(Configuration)' != 'Release' ">
-        <PropertyGroup>
-          <RunCodeAnalysis>false</RunCodeAnalysis>
-          <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-        </PropertyGroup>
-      </When>
-    </Choose>
-    
   <ItemGroup>
     <!--Build Infrastructure-->
     <PackageReference Include="MicroBuild.Core" Version="0.3.0">
@@ -64,8 +49,11 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.6.0" />
-    <Reference Include="System.Net.Http" />
   </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'net46'">
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>  
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
     <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
@@ -73,10 +61,6 @@
     <PackageReference Include="System.Net.Security" Version="4.3.2" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.RunTime.InteropServices" Version="4.3.0" />   
   </ItemGroup>
 
   <ItemGroup>

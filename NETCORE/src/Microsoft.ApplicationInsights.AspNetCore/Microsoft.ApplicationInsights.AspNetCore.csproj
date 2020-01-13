@@ -1,5 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="$(SourceRoot)\Product.props" />
+  <Import Project="$(PropsRoot)\Product.props" />
+  
+  <Import Project="$(SourceRoot)\Signing.props" Condition=" '$(OS)' == 'Windows_NT' " />
+
+
+  <PropertyGroup>
+    <!-- Override settings from Nupkg.props. I don't know why the NetCore projects need this and the others don't. -->
+    <GenerateAssemblyVersionAttribute>true</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>true</GenerateAssemblyFileVersionAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>true</GenerateAssemblyInformationalVersionAttribute>
+    <GenerateAssemblyDescriptionAttribute>true</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyProductAttribute>true</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
+  </PropertyGroup>
   
   <PropertyGroup>
     <AssemblyName>Microsoft.ApplicationInsights.AspNetCore</AssemblyName>
@@ -17,12 +30,6 @@
     <Title>Application Insights for ASP.NET Core Web Applications</Title>
     <Description>Application Insights for ASP.NET Core web applications. See https://azure.microsoft.com/documentation/articles/app-insights-asp-net-five/ for more information. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
     <PackageTags>$(PackageTags)aspnetcore;</PackageTags>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <!--Symbols Settings-->
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>    
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
@@ -47,24 +54,6 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-
-  <Choose>
-    <When Condition=" '$(Configuration)' == 'Release' ">
-      <PropertyGroup>
-        <!-- Microsoft recommends that we disable CodeAnalysis in favor of FxCop Analyzers. aka.ms/fxcopanalyzers -->
-        <RunCodeAnalysis>false</RunCodeAnalysis>
-        <CodeAnalysisRuleSet>$(RulesetsRoot)\ApplicationInsightsSDKRules.ruleset</CodeAnalysisRuleSet>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-      </PropertyGroup>
-    </When>
-    <When Condition=" '$(Configuration)' != 'Release' ">
-      <PropertyGroup>
-        <RunCodeAnalysis>false</RunCodeAnalysis>
-        <CodeAnalysisRuleSet>$(RulesetsRoot)\ApplicationInsightsSDKRules.ruleset</CodeAnalysisRuleSet>
-        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-      </PropertyGroup>
-    </When>
-  </Choose>
 
   <ItemGroup>
     <!--Build Infrastructure-->
@@ -106,6 +95,4 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' OR '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
   </ItemGroup>
-
-  <Import Project="$(TargetsRoot)\AddXmlLanguage.targets" />
 </Project>

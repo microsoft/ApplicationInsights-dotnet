@@ -2,6 +2,7 @@
 {
     using System.Linq;
     using System.Net.Http;
+    using System.Reflection;
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
@@ -9,9 +10,11 @@
 
     public class RequestTelemetryEmptyAppTests : TelemetryTestsBase
     {
-        private const string assemblyName = "EmptyApp.FunctionalTests";
+        private readonly string assemblyName;
+
         public RequestTelemetryEmptyAppTests(ITestOutputHelper output) : base(output)
         {
+            this.assemblyName = this.GetType().GetTypeInfo().Assembly.GetName().Name;
         }
 
         [Fact]
@@ -48,6 +51,7 @@
             }
         }
         
+        [Fact]
         public void TestMixedTelemetryItemsReceived()
         {
             InProcessServer server;

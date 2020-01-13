@@ -86,7 +86,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
             var telemetry = (TraceTelemetry)sentItems[0];
             Assert.AreNotEqual(default(DateTimeOffset), telemetry.Context);
 
-            string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(prefix: "log4net:", loggerType: typeof(AppendableLogger));
+            string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(prefix: "log4net:", loggerType: typeof(ApplicationInsightsAppender));
             Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
         }
         
