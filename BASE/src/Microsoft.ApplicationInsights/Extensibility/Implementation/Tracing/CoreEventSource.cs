@@ -587,6 +587,15 @@
         [Event(57, Message = "TelemetryChannel found a telemetry item without an InstrumentationKey. This is a required field and must be set in either your config file or at application startup.", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
         public void TelemetryChannelNoInstrumentationKey(string appDomainName = "Incorrect") => this.WriteEvent(57, this.nameProvider.Name);
 
+        [Event(58, Message = "TelemetryClient.Flush was invoked.", Level = EventLevel.Verbose)]
+        public void TelemetlyClientFlush(string appDomainName = "Incorrect") => this.WriteEvent(58, this.nameProvider.Name);
+
+        [Event(59, Message = "MetricManager.Flush was invoked.", Level = EventLevel.Verbose)]
+        public void MetricManagerFlush(string appDomainName = "Incorrect") => this.WriteEvent(59, this.nameProvider.Name);
+
+        [Event(60, Message = "MetricManager created {0} Tasks.", Level = EventLevel.Verbose)]
+        public void MetricManagerCreatedTasks(int taskCount, string appDomainName = "Incorrect") => this.WriteEvent(60, taskCount, this.nameProvider.Name);
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>
