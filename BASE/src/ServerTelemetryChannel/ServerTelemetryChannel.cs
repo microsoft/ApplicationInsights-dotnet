@@ -323,7 +323,7 @@
 
             this.Transmitter.Initialize();
 
-            this.EndpointAddress = new Uri(configuration.EndpointContainer.Ingestion, "v2/track").AbsoluteUri;
+            this.EndpointAddress = new Uri(configuration.EndpointContainer.Ingestion, "v2/track").AbsoluteUri; // TODO: REMOVE THIS
 
             // ApplyPolicies will synchronously get list of file names from disk and calculate size
             // Creating task to improve application startup time
