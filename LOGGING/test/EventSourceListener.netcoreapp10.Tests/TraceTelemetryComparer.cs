@@ -20,7 +20,8 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
 
             if (template == null || actual == null)
             {
-                return Comparer.DefaultInvariant.Compare(x, y);
+                throw new NotImplementedException("Using the generic type Comparer<T> requires 1 type arguments");
+                // return Comparer<>.DefaultInvariant.Compare(x, y);
             }
 
             bool equal = string.Equals(template.Message, actual.Message, StringComparison.Ordinal)
