@@ -1,7 +1,7 @@
 # Changelog
 
 ## VNext
-
+- LOGGING: Make TelemetryConfiguration configurable in ApplicationInsightsLoggingBuilderExtensions
 
 ## Version 2.13.0-beta1
 - [All product sdks are now building the same symbols (DebugType = FULL) and we're including symbols in the nuget package.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1527)
