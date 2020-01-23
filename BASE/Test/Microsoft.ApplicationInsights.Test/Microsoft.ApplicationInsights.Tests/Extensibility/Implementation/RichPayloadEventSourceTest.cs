@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
-#if (!NETCOREAPP && !NETCOREAPP1_1)
+#if !NETCOREAPP
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.Tracing;

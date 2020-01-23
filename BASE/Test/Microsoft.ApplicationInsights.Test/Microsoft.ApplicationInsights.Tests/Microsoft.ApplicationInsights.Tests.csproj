@@ -19,6 +19,9 @@
     <DebugType>pdbonly</DebugType> 
     <DebugSymbols>true</DebugSymbols> 
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+    <!-- this constant is set for all other netcore targets except 1-->
+    <DefineConstants Condition="'$(TargetFramework)' == 'netcoreapp1.1'">$(DefineConstants);NETCOREAPP;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
