@@ -26,7 +26,7 @@ steps:
   inputs:
     command: "test"
     projects: "BASE/Test/**/Microsoft.ApplicationInsights.Tests.csproj"
-    arguments: "--configuration Release -framework netcoreapp2.0 -l trx --filter TestCategory!=WindowsOnly"
+    arguments: "--configuration Release --framework netcoreapp2.0 -l trx --filter TestCategory!=WindowsOnly"
 
 - task: DotNetCoreInstaller@0
   inputs:
@@ -37,7 +37,7 @@ steps:
   inputs:
     command: "test"
     projects: "BASE/Test/**/Microsoft.ApplicationInsights.Tests.csproj"
-    arguments: "--configuration Release -framework netcoreapp1.0 -l trx --filter TestCategory!=WindowsOnly"
+    arguments: "--configuration Release --framework netcoreapp1.0 -l trx --filter TestCategory!=WindowsOnly"
 
 - task: PublishTestResults@2
   condition: always()
