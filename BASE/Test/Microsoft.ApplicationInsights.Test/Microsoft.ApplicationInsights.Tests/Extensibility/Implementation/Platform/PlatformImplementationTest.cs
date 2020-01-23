@@ -12,6 +12,7 @@
     /// Shared, platform-neutral tests for <see cref="PlatformImplementation"/> class.
     /// </summary>
     [TestClass]
+    [TestCategory("WindowsOnly")] // do not run these tests on linux builds
     public class PlatformImplementationTest : IDisposable
     {
         public PlatformImplementationTest()

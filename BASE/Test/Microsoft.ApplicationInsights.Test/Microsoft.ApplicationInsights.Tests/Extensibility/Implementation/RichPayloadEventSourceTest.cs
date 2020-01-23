@@ -20,6 +20,7 @@
     /// Tests the rich payload event source tracking.
     /// </summary>
     [TestClass]
+    [TestCategory("WindowsOnly")] // do not run these tests on linux builds
     public class RichPayloadEventSourceTest
     {
         /// <summary>
