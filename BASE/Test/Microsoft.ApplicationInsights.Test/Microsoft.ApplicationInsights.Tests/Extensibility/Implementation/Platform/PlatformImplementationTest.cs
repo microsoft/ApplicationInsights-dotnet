@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
 {
-#if (!NETCOREAPP1_1 && !NETCOREAPP2_0)
+#if !NETCOREAPP
     using System;
     using System.IO;
     using System.Security;
@@ -12,6 +12,7 @@
     /// Shared, platform-neutral tests for <see cref="PlatformImplementation"/> class.
     /// </summary>
     [TestClass]
+    [TestCategory("WindowsOnly")] // do not run these tests on linux builds
     public class PlatformImplementationTest : IDisposable
     {
         public PlatformImplementationTest()
@@ -49,7 +50,6 @@
         }
 
         [TestMethod]
-        [ExpectedException(typeof(SecurityException))]
         public void FailureToReadEnvironmentVariablesDoesNotThrowExceptions()
         {
             EnvironmentPermission permission = new EnvironmentPermission(EnvironmentPermissionAccess.NoAccess, "PATH");
