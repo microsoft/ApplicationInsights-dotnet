@@ -93,17 +93,26 @@ namespace Microsoft.Extensions.Logging
         /// <param name="builder">The <see cref="ILoggingBuilder"/> to use.</param>
         /// <param name="configureTelemetryConfiguration">Action to configure telemetry configuration.</param>
         /// <param name="configureApplicationInsightsLoggerOptions">Action to configure ApplicationInsights logger.</param>
-        private static ILoggingBuilder AddApplicationInsights(
+        public static ILoggingBuilder AddApplicationInsights(
             this ILoggingBuilder builder,
             Action<TelemetryConfiguration> configureTelemetryConfiguration,
             Action<ApplicationInsightsLoggerOptions> configureApplicationInsightsLoggerOptions)
         {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (configureTelemetryConfiguration == null)
+            {
+                throw new ArgumentNullException(nameof(configureTelemetryConfiguration));
+            }
+
             if (configureApplicationInsightsLoggerOptions == null)
             {
                 throw new ArgumentNullException(nameof(configureApplicationInsightsLoggerOptions));
             }
 
-            // Initialize IOptions<TelemetryConfiguration> user can keep on configuring it furthur if they want to.
             builder.Services.Configure<TelemetryConfiguration>(configureTelemetryConfiguration);
 
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ILoggerProvider, ApplicationInsightsLoggerProvider>());
