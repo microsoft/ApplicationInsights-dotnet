@@ -1,8 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
 {
+#if !NETCOREAPP
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
 
     [TestClass]
     public class PlatformReferencesTests
@@ -23,4 +23,5 @@
             }
         }
     }
+#endif
 }

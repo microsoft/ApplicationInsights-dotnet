@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
+#if !NETCOREAPP
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.Tracing;
@@ -700,4 +701,5 @@
             return ver >= ver46;
         }
     }
+#endif
 }
