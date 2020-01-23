@@ -15,7 +15,7 @@
   
   <PropertyGroup>
     <TargetFrameworks>net45;net46;netcoreapp1.1;netcoreapp2.0</TargetFrameworks>
-    <TargetFrameworks Condition="$(OS) == 'Windows_NT'">netcoreapp1.1;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netcoreapp1.1;netcoreapp2.0</TargetFrameworks>
     <DebugType>pdbonly</DebugType> 
     <DebugSymbols>true</DebugSymbols> 
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
