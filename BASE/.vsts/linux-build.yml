@@ -21,22 +21,15 @@ steps:
     projects: "BASE/*.sln"
     arguments: "--configuration Release"
 
-- task: DotNetCoreCLI@1
-  displayName: DotNetCoreCLI - Test NetCore 2.0
-  inputs:
-    command: "test"
-    projects: "BASE/Test/**/*netcoreapp20*.csproj"
-    arguments: "--configuration Release -l trx --filter TestCategory!=WindowsOnly"
-
 - task: DotNetCoreInstaller@0
   inputs:
     version: "1.1.5"
 
 - task: DotNetCoreCLI@1
-  displayName: DotNetCoreCLI - Test NetCore 1.1
+  displayName: DotNetCoreCLI - Test NetCore
   inputs:
     command: "test"
-    projects: "BASE/Test/**/*netcoreapp11*.csproj"
+    projects: "BASE/Test/**/Microsoft.ApplicationInsights.Tests.csproj"
     arguments: "--configuration Release -l trx --filter TestCategory!=WindowsOnly"
 
 - task: PublishTestResults@2
