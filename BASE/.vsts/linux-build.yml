@@ -33,11 +33,11 @@ steps:
     version: "1.1.5"
 
 - task: DotNetCoreCLI@1
-  displayName: DotNetCoreCLI - Test NetCore 1.0
+  displayName: DotNetCoreCLI - Test NetCore 1.1
   inputs:
     command: "test"
     projects: "BASE/Test/**/Microsoft.ApplicationInsights.Tests.csproj"
-    arguments: "--configuration Release --framework netcoreapp1.0 -l trx --filter TestCategory!=WindowsOnly"
+    arguments: "--configuration Release --framework netcoreapp1.1 -l trx --filter TestCategory!=WindowsOnly"
 
 - task: PublishTestResults@2
   condition: always()
