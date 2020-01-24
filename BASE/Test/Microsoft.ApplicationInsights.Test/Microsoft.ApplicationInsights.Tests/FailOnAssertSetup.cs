@@ -4,6 +4,7 @@
 
 namespace Microsoft.ApplicationInsights
 {
+#if !NETCOREAPP
     using System;
     using System.Diagnostics;
     using System.Linq;
@@ -55,4 +56,5 @@ namespace Microsoft.ApplicationInsights
             }
         }
     }
+#endif
 }

@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Tests
 {
+#if NETCOREAPP
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -576,4 +577,5 @@
             }
         }
     }
+#endif
 }

@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
+#if !NETCOREAPP
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.Tracing;
@@ -19,6 +20,7 @@
     /// Tests the rich payload event source tracking.
     /// </summary>
     [TestClass]
+    [TestCategory("WindowsOnly")] // do not run these tests on linux builds
     public class RichPayloadEventSourceTest
     {
         /// <summary>
@@ -700,4 +702,5 @@
             return ver >= ver46;
         }
     }
+#endif
 }

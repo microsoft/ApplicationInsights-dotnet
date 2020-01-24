@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Tests
 {
+#if NET45
     using System;
     using System.Reflection;
 
@@ -103,4 +104,5 @@
             }
         }
     }
+#endif
 }
