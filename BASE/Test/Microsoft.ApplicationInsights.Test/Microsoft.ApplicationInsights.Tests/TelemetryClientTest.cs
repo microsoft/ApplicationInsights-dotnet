@@ -2159,6 +2159,8 @@
         public void VerifyEndpointConnectionString_DefaultScenario()
         {
 #pragma warning disable CS0618 // This constructor calls TelemetryConfiguration.Active which will throw an Obsolete compiler warning in NetCore projects. I don't care because I'm only testing that the pipeline could set a default value.
+            TelemetryConfiguration.Active = null; // Need to null this because other tests can cause side effects here.
+
             var telemetryClient = new TelemetryClient();
 #pragma warning restore CS0618
 
