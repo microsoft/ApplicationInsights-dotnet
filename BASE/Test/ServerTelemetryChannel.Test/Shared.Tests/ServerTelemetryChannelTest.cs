@@ -572,7 +572,7 @@
                 Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", channel.EndpointAddress, "channel endpoint should match config after Initialize");
 
                 channel.EndpointAddress = "http://localhost:1234";
-                Assert.AreEqual("http://localhost:1234", channel.EndpointAddress, "channel endpoint was not set");
+                Assert.AreEqual("http://localhost:1234/", channel.EndpointAddress, "channel endpoint was not set");
             }
         }
     }
