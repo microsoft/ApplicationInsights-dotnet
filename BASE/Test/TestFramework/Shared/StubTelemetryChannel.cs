@@ -82,7 +82,7 @@
         /// </summary>
         public Task<bool> FlushAsync()
         {
-            return Task.Run(()=>false);
+            return Task.Run(()=>true);
         }
     }
 }
