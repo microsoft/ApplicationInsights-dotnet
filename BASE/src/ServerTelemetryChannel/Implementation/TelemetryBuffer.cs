@@ -167,6 +167,51 @@
         /// </summary>
         public virtual async Task FlushAsync()
         {
+            List<ITelemetry> telemetryToFlush = this.MoveTelemeteryBufferForFlush();
+
+            if (telemetryToFlush != null)
+            {
+                TelemetryChannelEventSource.Log.SerializationStarted(telemetryToFlush.Count);
+
+                // Flush on thread pull to offload the rest of the channel logic from the customer's thread.
+                // This also works around the problem in ASP.NET 4.0, does not support await and SynchronizationContext correctly.
+                // See also: http://www.bing.com/search?q=UseTaskFriendlySynchronizationContext
+                await Task.Run(() => this.serializer.Serialize(telemetryToFlush)).ConfigureAwait(false);
+            }
+        }
+
+        /// <summary>
+        /// Passes all <see cref="ITelemetry"/> items to the <see cref="TelemetrySerializer"/>, empties the queue and returns a task.
+        /// </summary>
+        public virtual async Task<bool> ManualFlushAsync()
+        {
+            List<ITelemetry> telemetryToFlush = this.MoveTelemeteryBufferForFlush();
+
+            if (telemetryToFlush != null)
+            {
+                TelemetryChannelEventSource.Log.SerializationStarted(telemetryToFlush.Count);
+
+                // Flush on thread pull to offload the rest of the channel logic from the customer's thread.
+                // This also works around the problem in ASP.NET 4.0, does not support await and SynchronizationContext correctly.
+                // See also: http://www.bing.com/search?q=UseTaskFriendlySynchronizationContext
+                return await this.serializer.Serialize(telemetryToFlush, true).ConfigureAwait(false);
+            }
+
+            return false;
+        }
+
+        public IEnumerator<ITelemetry> GetEnumerator()
+        {
+            return this.itemBuffer.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
+
+        private List<ITelemetry> MoveTelemeteryBufferForFlush()
+        {
             List<ITelemetry> telemetryToFlush = null;
             if (this.itemBuffer.Count > 0)
             {
@@ -182,25 +227,7 @@
                 }
             }
 
-            if (telemetryToFlush != null)
-            {
-                TelemetryChannelEventSource.Log.SerializationStarted(telemetryToFlush.Count);
-
-                // Flush on thread pull to offload the rest of the channel logic from the customer's thread.
-                // This also works around the problem in ASP.NET 4.0, does not support await and SynchronizationContext correctly.
-                // See also: http://www.bing.com/search?q=UseTaskFriendlySynchronizationContext
-                await Task.Run(() => this.serializer.Serialize(telemetryToFlush)).ConfigureAwait(false);
-            }
-        }
-
-        public IEnumerator<ITelemetry> GetEnumerator()
-        {
-            return this.itemBuffer.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
+            return telemetryToFlush;
         }
 
         private void HandleApplicationStoppingEvent(object sender, ApplicationStoppingEventArgs e)

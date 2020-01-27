@@ -31,5 +31,10 @@ namespace Microsoft.ApplicationInsights.Channel
         /// Flushes the in-memory buffer.
         /// </summary>
         void Flush();
+
+        /// <summary>
+        /// Flushes the in-memory buffer asynchronously.
+        /// </summary>
+        Task<bool> FlushAsync();
     }
 }

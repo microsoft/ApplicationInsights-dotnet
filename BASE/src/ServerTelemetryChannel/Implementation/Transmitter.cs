@@ -17,6 +17,7 @@
         internal readonly TransmissionStorage Storage;        
         private readonly IEnumerable<TransmissionPolicy> policies;
         private readonly BackoffLogicManager backoffLogicManager;
+        private readonly object lockObj = new object();
 
         private bool arePoliciesApplied;
         private int maxSenderCapacity;
@@ -161,6 +162,27 @@
 
             if (this.Buffer.Enqueue(transmissionGetter))
             {
+                if (transmission.ManualFlushAsyncFlag)
+                {
+                    lock (this.lockObj)
+                    {
+                        int temp_maxSenderCapacity = this.maxSenderCapacity;
+                        int temp_maxBufferCapacity = this.maxBufferCapacity;
+                        this.maxSenderCapacity = 0;
+                        this.maxBufferCapacity = 0;
+
+                        // Move buffer to storage
+                        this.ApplyPolicies();
+
+                        // Set flush success after moving to local storage
+                        transmission.FlushTaskCompletionSource.SetResult(true);
+
+                        // Reset the sender and buffer capacity
+                        this.MaxSenderCapacity = temp_maxSenderCapacity;
+                        this.MaxBufferCapacity = temp_maxBufferCapacity;
+                    }
+                }
+
                 return;
             }
 

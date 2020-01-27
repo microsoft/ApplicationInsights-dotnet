@@ -753,7 +753,8 @@ namespace User.Namespace.Example06ab
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using TraceSeveretyLevel = Microsoft.ApplicationInsights.DataContracts.SeverityLevel;
-    
+    using System.Threading.Tasks;
+
     /// <summary>
     /// In this example we discuss how to write unit tests that validate that metrics are sent correctly.
     /// We will consider three approaches:
@@ -1019,6 +1020,11 @@ namespace User.Namespace.Example06ab
 
         public void Flush()
         {
+        }
+
+        public Task<bool> FlushAsync()
+        {
+            return Task.Run(() => false);
         }
     }
 }

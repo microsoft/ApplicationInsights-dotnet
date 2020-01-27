@@ -538,6 +538,12 @@
             this.WriteEvent(74, this.ApplicationName);
         }
 
+        [Event(75, Message = "Transmitter flushed telemetry events async.", Level = EventLevel.Verbose)]
+        public void TelemetryChannelFlushAsync(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(75, this.ApplicationName);
+        }
+
         private static string GetApplicationName()
         {
             //// We want to add application name to all events BUT

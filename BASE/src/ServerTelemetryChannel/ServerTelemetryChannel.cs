@@ -311,6 +311,20 @@
         }
 
         /// <summary>
+        /// Asynchronously flushes the telemetry buffer. 
+        /// </summary>
+        public async Task<bool> FlushAsync()
+        {
+            if (!this.isInitialized)
+            {
+                TelemetryChannelEventSource.Log.StorageNotInitializedError();
+            }
+
+            TelemetryChannelEventSource.Log.TelemetryChannelFlushAsync();
+            return await this.TelemetryBuffer.ManualFlushAsync().ConfigureAwait(false);
+        }
+
+        /// <summary>
         /// Initialize method is called after all configuration properties have been loaded from the configuration.
         /// </summary>
         [SuppressMessage("Microsoft.Usage", "CA2234:PassSystemUriObjectsInsteadOfStrings", Justification = "Private variable, low risk.")]

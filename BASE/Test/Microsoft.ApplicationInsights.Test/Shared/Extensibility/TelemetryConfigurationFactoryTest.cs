@@ -5,6 +5,7 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Reflection;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -1938,6 +1939,8 @@
             public void Dispose() { }
 
             public void Flush() { }
+
+            public Task<bool> FlushAsync() { return Task.Run(() => false); }
 
             public void Initialize(TelemetryConfiguration configuration)
             {

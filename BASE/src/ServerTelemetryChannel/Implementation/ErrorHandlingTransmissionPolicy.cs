@@ -122,6 +122,11 @@
                     TelemetryChannelEventSource.Log.TransmissionDataLossError(e.Transmission.Id,
                         "Unknown Exception Message");
                 }
+
+                if (e.Transmission.ManualFlushAsyncFlag)
+                {
+                    e.Transmission.SetFlushTaskCompletionSource(false);
+                }
             }
         }
 

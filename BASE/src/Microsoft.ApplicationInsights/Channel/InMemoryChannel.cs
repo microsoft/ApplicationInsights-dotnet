@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
@@ -184,6 +185,16 @@
             {
                 CoreEventSource.Log.InMemoryChannelFlushedAfterBeingDisposed();
             }
+        }
+
+        /// <summary>
+        /// Will send all the telemetry items stored in the memory asynchronously.
+        /// </summary>
+        public async Task<bool> FlushAsync()
+        {
+            return await Task.Run(() => this.Flush(default(TimeSpan)))
+                    .ContinueWith(t => t.IsCompleted)
+                    .ConfigureAwait(false);
         }
 
         /// <summary>

@@ -43,6 +43,11 @@
                         // We start losing data!
                         this.MaxBufferCapacity = 0;
                         this.MaxStorageCapacity = 0;
+
+                        if (e.Transmission.ManualFlushAsyncFlag)
+                        {
+                            e.Transmission.SetFlushTaskCompletionSource(false);
+                        }
                     }
                     else
                     {

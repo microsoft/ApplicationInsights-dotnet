@@ -205,6 +205,11 @@
                     }
 
                     this.OnTransmissionSent(new TransmissionProcessedEventArgs(acceptedTransmission, exception, responseContent));
+
+                    if (transmission.ManualFlushAsyncFlag)
+                    {
+                        transmission.SetFlushTaskCompletionSource(true);
+                    }
                 }
             }
             finally

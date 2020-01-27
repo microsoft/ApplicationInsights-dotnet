@@ -3,7 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Globalization;    
+    using System.Globalization;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -672,6 +673,32 @@
                 ITelemetryChannel channel = pipeline.TelemetryChannel;
                 channel?.Flush();
             }
+        }
+
+        /// <summary>
+        /// Asynchronously Flushes the in-memory buffer and any metrics being pre-aggregated.
+        /// </summary>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#flushing-data">Learn more</a>
+        /// </remarks>
+        public async Task<bool> FlushAsync()
+        {
+            if (this.TryGetMetricManager(out MetricManager privateMetricManager))
+            {
+                privateMetricManager.Flush(flushDownstreamPipeline: false);
+            }
+
+            TelemetryConfiguration pipeline = this.configuration;
+            if (pipeline != null)
+            {
+                MetricManager sharedMetricManager = pipeline.GetMetricManager(createIfNotExists: false);
+                sharedMetricManager?.Flush(flushDownstreamPipeline: false);
+
+                ITelemetryChannel channel = pipeline.TelemetryChannel;
+                return await (channel?.FlushAsync()).ConfigureAwait(false);
+            }
+
+            return false;
         }
 
         /// <summary>

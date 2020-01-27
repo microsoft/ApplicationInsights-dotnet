@@ -1,3 +1,10 @@
+Microsoft.ApplicationInsights.Channel.Transmission.FlushTaskCompletionSource.get -> System.Threading.Tasks.TaskCompletionSource<bool>
+Microsoft.ApplicationInsights.Channel.Transmission.ManualFlushAsyncFlag.get -> bool
+Microsoft.ApplicationInsights.Channel.Transmission.SetFlushTaskCompletionSource(bool manualFlushAsyncFlag) -> void
+Microsoft.ApplicationInsights.TelemetryClient.FlushAsync() -> System.Threading.Tasks.Task<bool>
+Microsoft.ApplicationInsights.Channel.ITelemetryChannel.FlushAsync() -> System.Threading.Tasks.Task<bool>
+Microsoft.ApplicationInsights.Channel.InMemoryChannel.FlushAsync() -> System.Threading.Tasks.Task<bool>
+Microsoft.ApplicationInsights.Channel.Transmission.Transmission(System.Uri address, System.Collections.Generic.ICollection<Microsoft.ApplicationInsights.Channel.ITelemetry> telemetryItems, bool manualFlushAsync, System.TimeSpan timeout = default(System.TimeSpan)) -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer
 Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer.Ingestion.get -> System.Uri
 Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer.Live.get -> System.Uri

@@ -47,6 +47,17 @@
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="Transmission"/> class. 
+        /// </summary>
+        public Transmission(Uri address, ICollection<ITelemetry> telemetryItems, bool manualFlushAsync, TimeSpan timeout = default(TimeSpan))
+            : this(address, JsonSerializer.Serialize(telemetryItems, true), JsonSerializer.ContentType, JsonSerializer.CompressionType, timeout)
+        { 
+            this.TelemetryItems = telemetryItems;
+            this.ManualFlushAsyncFlag = manualFlushAsync;
+            this.FlushTaskCompletionSource = new TaskCompletionSource<bool>();
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Transmission"/> class. This overload is for Test purposes. 
         /// </summary>
         internal Transmission(Uri address, IEnumerable<ITelemetry> telemetryItems, string contentType, string contentEncoding, TimeSpan timeout = default(TimeSpan))
@@ -126,11 +137,41 @@
         }
 
         /// <summary>
+        /// Gets a value indicating whether flush is async.
+        /// </summary>
+        public bool ManualFlushAsyncFlag
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets Test to support async Flush.
+        /// </summary>
+        public TaskCompletionSource<bool> FlushTaskCompletionSource
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// Gets the number of telemetry items in the transmission.
         /// </summary>
         public ICollection<ITelemetry> TelemetryItems
         {
             get; private set;
+        }
+
+        /// <summary>
+        /// Send signal to Flush Async.
+        /// </summary>
+        public void SetFlushTaskCompletionSource(bool manualFlushAsyncFlag)
+        {
+            if (manualFlushAsyncFlag)
+            {
+                this.ManualFlushAsyncFlag = false;
+                this.FlushTaskCompletionSource.TrySetResult(true);
+            }
         }
 
         /// <summary>
@@ -201,7 +242,7 @@
                         }
                     }
                     catch (OperationCanceledException)
-                    {                        
+                    {
                         wrapper = new HttpWebResponseWrapper
                         {
                             StatusCode = (int)HttpStatusCode.RequestTimeout,

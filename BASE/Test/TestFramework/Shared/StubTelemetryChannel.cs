@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.TestFramework
 {
     using System;
-
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
 
     /// <summary>
@@ -75,6 +75,14 @@
         public void Flush()
         {
             this.OnFlush();
+        }
+
+        /// <summary>
+        /// Implements  the <see cref="ITelemetryChannel.FlushAsync" /> method.
+        /// </summary>
+        public Task<bool> FlushAsync()
+        {
+            return Task.Run(()=>false);
         }
     }
 }
