@@ -509,11 +509,8 @@
             [TestCategory("ConnectionString")]
             public void VerifyEndpointConnectionString_SetFromInitialize_ExplicitEndpoint_WithTrailingSlash()
             {
-                
                 var explicitEndpoint = "https://127.0.0.1/";
                 var connectionString = $"InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint={explicitEndpoint}";
-
-                var channel = new ServerTelemetryChannel();
 
                 var configuration = new TelemetryConfiguration
                 {
@@ -522,6 +519,7 @@
 
                 Assert.AreEqual("https://127.0.0.1/", configuration.EndpointContainer.Ingestion.AbsoluteUri);
 
+                var channel = new ServerTelemetryChannel();
                 channel.Initialize(configuration);
                 Assert.AreEqual("https://127.0.0.1/v2/track", channel.EndpointAddress);
             }
@@ -531,11 +529,8 @@
             [TestCategory("ConnectionString")]
             public void VerifyEndpointConnectionString_SetFromInitialize_ExplicitEndpoint_WithoutTrailingSlash()
             {
-
                 var explicitEndpoint = "https://127.0.0.1";
                 var connectionString = $"InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint={explicitEndpoint}";
-
-                var channel = new ServerTelemetryChannel();
 
                 var configuration = new TelemetryConfiguration
                 {
@@ -544,6 +539,7 @@
 
                 Assert.AreEqual("https://127.0.0.1/", configuration.EndpointContainer.Ingestion.AbsoluteUri);
 
+                var channel = new ServerTelemetryChannel();
                 channel.Initialize(configuration);
                 Assert.AreEqual("https://127.0.0.1/v2/track", channel.EndpointAddress);
             }
@@ -553,12 +549,30 @@
             public void VerifyEndpointConnectionString_SetFromInitialize_DefaultEndpoint()
             {
                 var channel = new ServerTelemetryChannel();
+                Assert.AreEqual(null, channel.EndpointAddress, "channel endpoint should be null before Initialize");
 
                 var configuration = new TelemetryConfiguration();
                 Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.EndpointContainer.Ingestion.AbsoluteUri);
 
                 channel.Initialize(configuration);
-                Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", channel.EndpointAddress);
+                Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", channel.EndpointAddress, "channel endpoint should match config after Initialize");
+            }
+            
+            [TestMethod]
+            [TestCategory("ConnectionString")]
+            public void VerifyCanChangeEndpointAfterInitialize()
+            {
+                var channel = new ServerTelemetryChannel();
+                Assert.AreEqual(null, channel.EndpointAddress, "channel endpoint should be null before Initialize");
+
+                var configuration = new TelemetryConfiguration();
+                Assert.AreEqual("https://dc.services.visualstudio.com/", configuration.EndpointContainer.Ingestion.AbsoluteUri);
+
+                channel.Initialize(configuration);
+                Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", channel.EndpointAddress, "channel endpoint should match config after Initialize");
+
+                channel.EndpointAddress = "http://localhost:1234";
+                Assert.AreEqual("http://localhost:1234/", channel.EndpointAddress, "channel endpoint was not set");
             }
         }
     }
