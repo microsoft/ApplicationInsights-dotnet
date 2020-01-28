@@ -1,9 +1,10 @@
-﻿namespace Microsoft.ApplicationInsights.HostingStartup.Tests
+﻿namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementation.Tracing.SelfDiagnostics
 {
+#if !NETCOREAPP1_1
     using System.Diagnostics;
     using System.Diagnostics.Tracing;
 
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
@@ -84,4 +85,5 @@
             }
         }
     }
+#endif
 }
