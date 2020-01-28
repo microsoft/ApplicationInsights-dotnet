@@ -36,22 +36,16 @@
             this.Transmitter.Enqueue(transmission);
         }
 
-        public virtual async Task<bool> Serialize(ICollection<ITelemetry> items, bool manualFlushAsync)
+        public virtual async Task<bool> SerializeAsync(ICollection<ITelemetry> items, CancellationToken cancellationToken)
         {
             this.HandleTelemetryException(items);
 
-            var transmission = new Transmission(this.EndpointAddress, items, manualFlushAsync);
-            
-            using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(100)))
+            var transmission = new Transmission(this.EndpointAddress, items, true);
+
+            using (cancellationToken.Register(() => transmission.SetFlushTaskCompletionSourceResult(false)))
             {
-                using (cancellationTokenSource.Token.Register(() =>
-                {
-                    transmission.SetFlushTaskCompletionSource(false);
-                }))
-                {
-                    this.Transmitter.Enqueue(transmission);
-                    return await transmission.FlushTaskCompletionSource.Task.ConfigureAwait(false);
-                }
+                this.Transmitter.Enqueue(transmission);
+                return await transmission.FlushTaskCompletionSource.Task.ConfigureAwait(false);
             }
         }
 

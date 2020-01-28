@@ -165,12 +165,12 @@
         /// <summary>
         /// Send signal to Flush Async.
         /// </summary>
-        public void SetFlushTaskCompletionSource(bool manualFlushAsyncFlag)
+        public void SetFlushTaskCompletionSourceResult(bool status)
         {
-            if (manualFlushAsyncFlag)
+            if (this.ManualFlushAsyncFlag)
             {
                 this.ManualFlushAsyncFlag = false;
-                this.FlushTaskCompletionSource.TrySetResult(true);
+                this.FlushTaskCompletionSource.TrySetResult(status);
             }
         }
 

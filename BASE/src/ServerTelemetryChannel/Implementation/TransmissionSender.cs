@@ -208,7 +208,7 @@
 
                     if (transmission.ManualFlushAsyncFlag)
                     {
-                        transmission.SetFlushTaskCompletionSource(true);
+                        transmission.SetFlushTaskCompletionSourceResult(true);
                     }
                 }
             }

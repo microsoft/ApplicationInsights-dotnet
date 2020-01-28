@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Globalization;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -678,10 +679,11 @@
         /// <summary>
         /// Asynchronously Flushes the in-memory buffer and any metrics being pre-aggregated.
         /// </summary>
+        /// <returns>The task to await. Task has true set on successful flush.</returns>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#flushing-data">Learn more</a>
         /// </remarks>
-        public async Task<bool> FlushAsync()
+        public async Task<bool> FlushAsync(CancellationToken cancellationToken)
         {
             if (this.TryGetMetricManager(out MetricManager privateMetricManager))
             {
@@ -695,7 +697,10 @@
                 sharedMetricManager?.Flush(flushDownstreamPipeline: false);
 
                 ITelemetryChannel channel = pipeline.TelemetryChannel;
-                return await (channel?.FlushAsync()).ConfigureAwait(false);
+                if (channel != null)
+                {
+                    return await (channel?.FlushAsync(cancellationToken)).ConfigureAwait(false);
+                }
             }
 
             return false;

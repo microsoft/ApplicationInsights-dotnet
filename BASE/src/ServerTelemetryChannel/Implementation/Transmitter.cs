@@ -175,7 +175,7 @@
                         this.ApplyPolicies();
 
                         // Set flush success after moving to local storage
-                        transmission.FlushTaskCompletionSource.SetResult(true);
+                        transmission.SetFlushTaskCompletionSourceResult(true);
 
                         // Reset the sender and buffer capacity
                         this.MaxSenderCapacity = temp_maxSenderCapacity;

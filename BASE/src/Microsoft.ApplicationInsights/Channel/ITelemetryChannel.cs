@@ -5,6 +5,7 @@
 namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -35,6 +36,7 @@ namespace Microsoft.ApplicationInsights.Channel
         /// <summary>
         /// Flushes the in-memory buffer asynchronously.
         /// </summary>
-        Task<bool> FlushAsync();
+        /// <returns>The task to await.</returns>
+        Task<bool> FlushAsync(CancellationToken cancellationToken);
     }
 }

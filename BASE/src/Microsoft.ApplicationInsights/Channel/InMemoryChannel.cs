@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -190,11 +191,12 @@
         /// <summary>
         /// Will send all the telemetry items stored in the memory asynchronously.
         /// </summary>
-        public async Task<bool> FlushAsync()
+        /// <returns>The task to await. Task has true set on successful flush.</returns>
+        public async Task<bool> FlushAsync(CancellationToken cancellationToken)
         {
-            return await Task.Run(() => this.Flush(default(TimeSpan)))
-                    .ContinueWith(t => t.IsCompleted)
-                    .ConfigureAwait(false);
+            var taskResult = Task.Run(() => this.Flush(default(TimeSpan)), cancellationToken);
+            await taskResult.ConfigureAwait(false);
+            return taskResult.IsCompleted;   
         }
 
         /// <summary>

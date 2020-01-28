@@ -4,6 +4,7 @@
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Common;
@@ -313,7 +314,8 @@
         /// <summary>
         /// Asynchronously flushes the telemetry buffer. 
         /// </summary>
-        public async Task<bool> FlushAsync()
+        /// <returns>The task to await. Task has true set on successful flush.</returns>
+        public async Task<bool> FlushAsync(CancellationToken cancellationToken)
         {
             if (!this.isInitialized)
             {
@@ -321,7 +323,7 @@
             }
 
             TelemetryChannelEventSource.Log.TelemetryChannelFlushAsync();
-            return await this.TelemetryBuffer.ManualFlushAsync().ConfigureAwait(false);
+            return await this.TelemetryBuffer.ManualFlushAsync(cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>

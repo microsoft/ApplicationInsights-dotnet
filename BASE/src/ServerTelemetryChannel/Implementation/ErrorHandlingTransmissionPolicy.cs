@@ -125,7 +125,7 @@
 
                 if (e.Transmission.ManualFlushAsyncFlag)
                 {
-                    e.Transmission.SetFlushTaskCompletionSource(false);
+                    e.Transmission.SetFlushTaskCompletionSourceResult(false);
                 }
             }
         }

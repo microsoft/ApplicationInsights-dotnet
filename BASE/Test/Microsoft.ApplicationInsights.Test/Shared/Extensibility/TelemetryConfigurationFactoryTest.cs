@@ -5,6 +5,7 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Reflection;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Microsoft.ApplicationInsights.Channel;
@@ -1940,7 +1941,7 @@
 
             public void Flush() { }
 
-            public Task<bool> FlushAsync() { return Task.FromResult(true); }
+            public Task<bool> FlushAsync(CancellationToken cancellationToken) { return Task.FromResult(true); }
 
             public void Initialize(TelemetryConfiguration configuration)
             {

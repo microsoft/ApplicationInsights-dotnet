@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ApplicationInsights.Channel;
 
+using Microsoft.ApplicationInsights.Channel;
 
 namespace Microsoft.ApplicationInsights.Metrics.TestUtility
 {
@@ -77,7 +78,7 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtility
         /// <summary>
         /// Implements  the <see cref="ITelemetryChannel.FlushAsync" /> method.
         /// </summary>
-        public Task<bool> FlushAsync()
+        public Task<bool> FlushAsync(CancellationToken cancellationToken)
         {
             return Task.FromResult(true);
         }

@@ -1,1 +1,1 @@
-Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel.FlushAsync() -> System.Threading.Tasks.Task<bool>
+Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>

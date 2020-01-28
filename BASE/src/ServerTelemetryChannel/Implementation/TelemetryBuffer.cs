@@ -3,6 +3,7 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -16,6 +17,7 @@
 
         private readonly TaskTimerInternal flushTimer;
         private readonly TelemetrySerializer serializer;
+        private readonly object lockObj = new object();
 
         private int capacity = 500;
         private int backlogSize = 1000000;
@@ -183,21 +185,10 @@
         /// <summary>
         /// Passes all <see cref="ITelemetry"/> items to the <see cref="TelemetrySerializer"/>, empties the queue and returns a task.
         /// </summary>
-        public virtual async Task<bool> ManualFlushAsync()
+        public virtual Task<bool> ManualFlushAsync(CancellationToken cancellationToken)
         {
             List<ITelemetry> telemetryToFlush = this.MoveTelemeteryBufferForFlush();
-
-            if (telemetryToFlush != null)
-            {
-                TelemetryChannelEventSource.Log.SerializationStarted(telemetryToFlush.Count);
-
-                // Flush on thread pull to offload the rest of the channel logic from the customer's thread.
-                // This also works around the problem in ASP.NET 4.0, does not support await and SynchronizationContext correctly.
-                // See also: http://www.bing.com/search?q=UseTaskFriendlySynchronizationContext
-                return await this.serializer.Serialize(telemetryToFlush, true).ConfigureAwait(false);
-            }
-
-            return false;
+            return telemetryToFlush != null ? this.serializer.SerializeAsync(telemetryToFlush, cancellationToken) : Task.FromResult(false);
         }
 
         public IEnumerator<ITelemetry> GetEnumerator()
@@ -215,7 +206,7 @@
             List<ITelemetry> telemetryToFlush = null;
             if (this.itemBuffer.Count > 0)
             {
-                lock (this)
+                lock (this.lockObj)
                 {
                     if (this.itemBuffer.Count > 0)
                     {

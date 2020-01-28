@@ -754,6 +754,7 @@ namespace User.Namespace.Example06ab
 
     using TraceSeveretyLevel = Microsoft.ApplicationInsights.DataContracts.SeverityLevel;
     using System.Threading.Tasks;
+    using System.Threading;
 
     /// <summary>
     /// In this example we discuss how to write unit tests that validate that metrics are sent correctly.
@@ -1022,7 +1023,7 @@ namespace User.Namespace.Example06ab
         {
         }
 
-        public Task<bool> FlushAsync()
+        public Task<bool> FlushAsync(CancellationToken cancellationToken)
         {
             return Task.FromResult(true);
         }
