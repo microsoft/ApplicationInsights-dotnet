@@ -79,7 +79,7 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtility
         /// </summary>
         public Task<bool> FlushAsync()
         {
-            return Task.Run(() => true);
+            return Task.FromResult(true);
         }
     }
 }

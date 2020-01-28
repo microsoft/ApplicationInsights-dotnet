@@ -1024,7 +1024,7 @@ namespace User.Namespace.Example06ab
 
         public Task<bool> FlushAsync()
         {
-            return Task.Run(() => true);
+            return Task.FromResult(true);
         }
     }
 }

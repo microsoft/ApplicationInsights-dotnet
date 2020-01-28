@@ -1940,7 +1940,7 @@
 
             public void Flush() { }
 
-            public Task<bool> FlushAsync() { return Task.Run(() => true); }
+            public Task<bool> FlushAsync() { return Task.FromResult(true); }
 
             public void Initialize(TelemetryConfiguration configuration)
             {
