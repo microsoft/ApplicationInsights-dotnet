@@ -2,6 +2,8 @@
 
 ## VNext
 
+## Version 2.12.1
+- [Fix Endpoint configuration bug affecting ServerTelemetryChannel and QuickPulseTelemetryModule](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1648)
 
 ## Version 2.12.0
 - [Fix IndexOutOfRangeException in W3CUtilities.TryGetTraceId](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1327)
