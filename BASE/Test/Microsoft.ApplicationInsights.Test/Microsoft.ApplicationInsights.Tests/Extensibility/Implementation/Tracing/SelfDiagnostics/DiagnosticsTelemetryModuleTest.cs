@@ -128,10 +128,20 @@
             }
         }
 
+
+        [TestMethod]
+        [TestCategory("WindowsOnly")]
+        public void FilePathNotChangedForFolderWithInvalidCharacters_WindowsOnly()
+        {
+            // colon ':' is an illegal character in Windows, but not Linux
+            this.SetInvalidFolder(Path.Combine(Directory.GetCurrentDirectory(), ":InvalidFolderName:"));
+        }
+
         [TestMethod]
         public void FilePathNotChangedForFolderWithInvalidCharacters()
         {
-            this.SetInvalidFolder(Path.Combine(Directory.GetCurrentDirectory(), ":InvalidFolderName:"));
+            // forward-slash '/' is an illegal character in both Windows and Linux
+            this.SetInvalidFolder(Path.Combine(Directory.GetCurrentDirectory(), "/InvalidFolderName:"));
         }
 
         [TestMethod]
@@ -141,7 +151,8 @@
         }
 
         [TestMethod]
-        public void FilePathNotChangedForNotAccessibleFolder()
+        [TestCategory("WindowsOnly")]
+        public void FilePathNotChangedForNotAccessibleFolder_WindowsnOnly()
         {
             DirectoryInfo directory = new DirectoryInfo(Directory.GetCurrentDirectory()).CreateSubdirectory(Path.GetRandomFileName());
             DirectorySecurity security = directory.GetAccessControl();
@@ -152,13 +163,15 @@
         }
 
         [TestMethod]
-        public void FilePathNotChangedForFolderWithoutRightsToCreateFiles()
+        [TestCategory("WindowsOnly")]
+        public void FilePathNotChangedForFolderWithoutRightsToCreateFiles_WindowsOnly()
         {
             this.SetNotAccessibleFolder(FileSystemRights.CreateFiles);
         }
 
         [TestMethod]
-        public void FilePathNotChangedForFolderWithoutRightsToWrite()
+        [TestCategory("WindowsOnly")]
+        public void FilePathNotChangedForFolderWithoutRightsToWrite_WindowsOnly()
         {
             this.SetNotAccessibleFolder(FileSystemRights.Write);
         }
