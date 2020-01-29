@@ -1,5 +1,6 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics
 {
+#if !NETSTANDARD1_3
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -9,9 +10,8 @@
     /// <summary>
     /// TraceSource that will report Application Insights diagnostics messages.
     /// </summary>
-    [Obsolete("Please use Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics.FileDiagnosticsTelemetryModule")]
     [ComVisible(false)]
-    public class TraceSourceForEventSource : TraceSource, IEventListener, IDisposable
+    internal class TraceSourceForEventSource : TraceSource, IEventListener, IDisposable
     {
         private const long AllKeyword = -1;
         private const string TraceSourceName = "Microsoft.ApplicationInsights.Extensibility.TraceSource";
@@ -202,4 +202,5 @@
             }
         }
     }
+#endif
 }

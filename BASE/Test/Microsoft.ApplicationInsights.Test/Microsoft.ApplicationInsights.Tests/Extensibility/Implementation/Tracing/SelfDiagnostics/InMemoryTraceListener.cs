@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.HostingStartup.Tests
+﻿namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementation.Tracing.SelfDiagnostics
 {
     using System;
     using System.Collections.Generic;

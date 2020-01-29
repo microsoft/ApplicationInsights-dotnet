@@ -20,3 +20,15 @@ Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxReq
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxRequestResponseCodeValuesToDiscover.set -> void
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxDependencyResultCodesToDiscover.get -> int
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxDependencyResultCodesToDiscover.set -> void
+
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics.FileDiagnosticsTelemetryModule
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics.FileDiagnosticsTelemetryModule.Dispose() -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics.FileDiagnosticsTelemetryModule.FileDiagnosticsTelemetryModule() -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics.FileDiagnosticsTelemetryModule.Initialize(Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration configuration) -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics.FileDiagnosticsTelemetryModule.LogFileName.get -> string
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics.FileDiagnosticsTelemetryModule.LogFileName.set -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics.FileDiagnosticsTelemetryModule.LogFilePath.get -> string
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics.FileDiagnosticsTelemetryModule.LogFilePath.set -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics.FileDiagnosticsTelemetryModule.Severity.get -> string
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics.FileDiagnosticsTelemetryModule.Severity.set -> void
+virtual Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics.FileDiagnosticsTelemetryModule.Dispose(bool disposeManaged = true) -> void
