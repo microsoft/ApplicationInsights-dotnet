@@ -152,7 +152,7 @@
 
         [TestMethod]
         [TestCategory("WindowsOnly")]
-        public void FilePathNotChangedForNotAccessibleFolder_WindowsnOnly()
+        public void FilePathNotChangedForNotAccessibleFolder_WindowsOnly()
         {
             DirectoryInfo directory = new DirectoryInfo(Directory.GetCurrentDirectory()).CreateSubdirectory(Path.GetRandomFileName());
             DirectorySecurity security = directory.GetAccessControl();
