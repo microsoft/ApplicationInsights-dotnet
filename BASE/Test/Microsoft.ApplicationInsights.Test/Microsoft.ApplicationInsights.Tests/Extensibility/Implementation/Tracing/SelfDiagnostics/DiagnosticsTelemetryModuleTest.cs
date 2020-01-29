@@ -128,22 +128,6 @@
             }
         }
 
-
-        [TestMethod]
-        [TestCategory("WindowsOnly")]
-        public void FilePathNotChangedForFolderWithInvalidCharacters_WindowsOnly()
-        {
-            // colon ':' is an illegal character in Windows, but not Linux
-            this.SetInvalidFolder(Path.Combine(Directory.GetCurrentDirectory(), ":InvalidFolderName:"));
-        }
-
-        [TestMethod]
-        public void FilePathNotChangedForFolderWithInvalidCharacters()
-        {
-            // forward-slash '/' is an illegal character in both Windows and Linux
-            this.SetInvalidFolder(Path.Combine(Directory.GetCurrentDirectory(), "/InvalidFolderName/"));
-        }
-
         [TestMethod]
         public void FilePathNotChangedForEmptyStringFilePath()
         {
@@ -151,7 +135,14 @@
         }
 
         [TestMethod]
-        [TestCategory("WindowsOnly")]
+        [TestCategory("WindowsOnly")] // colon ':' is an illegal character in Windows, but not Linux
+        public void FilePathNotChangedForFolderWithInvalidCharacters_WindowsOnly()
+        {
+            this.SetInvalidFolder(Path.Combine(Directory.GetCurrentDirectory(), ":InvalidFolderName:"));
+        }
+
+        [TestMethod]
+        [TestCategory("WindowsOnly")] // there's currently no .NET library for folder permissions in Linux
         public void FilePathNotChangedForNotAccessibleFolder_WindowsOnly()
         {
             DirectoryInfo directory = new DirectoryInfo(Directory.GetCurrentDirectory()).CreateSubdirectory(Path.GetRandomFileName());
@@ -163,14 +154,14 @@
         }
 
         [TestMethod]
-        [TestCategory("WindowsOnly")]
+        [TestCategory("WindowsOnly")] // there's currently no .NET library for folder permissions in Linux
         public void FilePathNotChangedForFolderWithoutRightsToCreateFiles_WindowsOnly()
         {
             this.SetNotAccessibleFolder(FileSystemRights.CreateFiles);
         }
 
         [TestMethod]
-        [TestCategory("WindowsOnly")]
+        [TestCategory("WindowsOnly")] // there's currently no .NET library for folder permissions in Linux
         public void FilePathNotChangedForFolderWithoutRightsToWrite_WindowsOnly()
         {
             this.SetNotAccessibleFolder(FileSystemRights.Write);
