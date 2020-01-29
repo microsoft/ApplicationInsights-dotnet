@@ -141,7 +141,7 @@
         public void FilePathNotChangedForFolderWithInvalidCharacters()
         {
             // forward-slash '/' is an illegal character in both Windows and Linux
-            this.SetInvalidFolder(Path.Combine(Directory.GetCurrentDirectory(), "/InvalidFolderName:"));
+            this.SetInvalidFolder(Path.Combine(Directory.GetCurrentDirectory(), "/InvalidFolderName/"));
         }
 
         [TestMethod]
