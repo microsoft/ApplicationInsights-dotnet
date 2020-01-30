@@ -14,7 +14,7 @@
     /// <summary>
     /// Represents a communication channel for sending telemetry to Application Insights via HTTP/S.
     /// </summary>
-    public sealed class ServerTelemetryChannel : ITelemetryChannel, ITelemetryModule
+    public sealed class ServerTelemetryChannel : ITelemetryChannel, IAsyncFlushable, ITelemetryModule
     {
         internal TelemetrySerializer TelemetrySerializer;
         internal TelemetryBuffer TelemetryBuffer;
@@ -315,7 +315,7 @@
         /// Asynchronously flushes the telemetry buffer. 
         /// </summary>
         /// <returns>The task to await. Task has true set on successful flush.</returns>
-        public async Task<bool> FlushAsync(CancellationToken cancellationToken)
+        public Task<bool> FlushAsync(CancellationToken cancellationToken)
         {
             if (!this.isInitialized)
             {
@@ -323,7 +323,7 @@
             }
 
             TelemetryChannelEventSource.Log.TelemetryChannelFlushAsync();
-            return await this.TelemetryBuffer.ManualFlushAsync(cancellationToken).ConfigureAwait(false);
+            return this.TelemetryBuffer.ManualFlushAsync(cancellationToken);
         }
 
         /// <summary>

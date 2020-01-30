@@ -683,7 +683,7 @@
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#flushing-data">Learn more</a>
         /// </remarks>
-        public async Task<bool> FlushAsync(CancellationToken cancellationToken)
+        public Task<bool> FlushAsync(CancellationToken cancellationToken)
         {
             if (this.TryGetMetricManager(out MetricManager privateMetricManager))
             {
@@ -697,13 +697,14 @@
                 sharedMetricManager?.Flush(flushDownstreamPipeline: false);
 
                 ITelemetryChannel channel = pipeline.TelemetryChannel;
-                if (channel != null)
+
+                if (channel is IAsyncFlushable)
                 {
-                    return await (channel?.FlushAsync(cancellationToken)).ConfigureAwait(false);
+                    return ((IAsyncFlushable)channel)?.FlushAsync(cancellationToken);
                 }
             }
 
-            return false;
+            return Task.FromResult(false);
         }
 
         /// <summary>
