@@ -9,7 +9,7 @@ namespace Microsoft.ApplicationInsights.Channel
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Represents a communication channel for sending telemetry to application insights.
+    /// Represents asynchronous flush for  to application insights.
     /// </summary>
     public interface IAsyncFlushable : IDisposable
     {
