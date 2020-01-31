@@ -5,23 +5,23 @@
     using System;
     using System.Diagnostics;
     using System.Diagnostics.Tracing;
-    using System.Globalization;
     using System.IO;
     using System.Security;
     using System.Threading;
+    using Microsoft.ApplicationInsights.Common.Extensions;
+    using static System.FormattableString;
 
     /// <summary>
     /// Diagnostics telemetry module for azure web sites.
     /// </summary>
     public class FileDiagnosticsTelemetryModule : IDisposable, ITelemetryModule
     {
+        private readonly TraceSourceForEventSource traceSource = new TraceSourceForEventSource(EventLevel.Error);
+        private readonly DefaultTraceListener listener = new DefaultTraceListener();
+
         private string windowsIdentityName;
-        
         private string logFileName;
         private string logFilePath;
-
-        private TraceSourceForEventSource traceSource = new TraceSourceForEventSource(EventLevel.Error);
-        private DefaultTraceListener listener = new DefaultTraceListener();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FileDiagnosticsTelemetryModule" /> class.
@@ -29,7 +29,9 @@
         public FileDiagnosticsTelemetryModule()
         {
             this.logFilePath = Environment.ExpandEnvironmentVariables("%TEMP%");
-            this.logFileName = "ApplicationInsightsLog_" + Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture) + ".txt";
+
+            var process = Process.GetCurrentProcess();
+            this.logFileName = Invariant($"ApplicationInsightsLog_{DateTime.UtcNow.ToInvariantString("yyyyMMdd_HHmmss")}_{process.ProcessName}_{process.Id}.txt");
 
             this.SetAndValidateLogsFolder(this.logFilePath, this.logFileName);
 
@@ -42,10 +44,7 @@
         /// </summary>
         public string Severity
         {
-            get
-            {
-                return this.traceSource.LogLevel.ToString();
-            }
+            get => this.traceSource.LogLevel.ToString();
 
             set
             {
@@ -67,10 +66,7 @@
         /// </summary>
         public string LogFileName
         {
-            get
-            {
-                return this.logFileName;
-            }
+            get => this.logFileName;
 
             set
             {
@@ -86,10 +82,7 @@
         /// </summary>
         public string LogFilePath
         {
-            get
-            {
-                return this.logFilePath;
-            }
+            get => this.logFilePath;
 
             set
             {
@@ -102,7 +95,7 @@
         }
 
         /// <summary>
-        /// Initializes the telemetry module.
+        /// No op.
         /// </summary>
         /// <param name="configuration">Telemetry configuration object.</param>
         public void Initialize(TelemetryConfiguration configuration)
@@ -151,11 +144,6 @@
             }
         }
 
-        private static string GetPathAccessFailureErrorMessage(Exception exp, string path, string file)
-        {
-            return "Path: " + path + "File: " + file + "; Error: " + exp.Message + Environment.NewLine;
-        }
-
         private bool SetAndValidateLogsFolder(string filePath, string fileName)
         {
             bool result = false;
@@ -175,46 +163,18 @@
                     result = true;
                 }
             }
-            catch (NotSupportedException exp)
+            catch (Exception ex)
             {
-                // The given path's format is not supported
+                // NotSupportedException: The given path's format is not supported
+                // UnauthorizedAccessException
+                // ArgumentException: // Path does not specify a valid file path or contains invalid DirectoryInfo characters.
+                // DirectoryNotFoundException: The specified path is invalid, such as being on an unmapped drive.
+                // IOException: The subdirectory cannot be created. -or- A file or directory already has the name specified by path. -or-  The specified path, file name, or both exceed the system-defined maximum length.
+                // SecurityException: The caller does not have code access permission to create the directory.
+
                 CoreEventSource.Log.LogStorageAccessDeniedError(
-                    GetPathAccessFailureErrorMessage(exp, this.logFilePath, this.logFileName),
-                    LazyInitializer.EnsureInitialized(ref this.windowsIdentityName, this.GetCurrentIdentityName));
-            }
-            catch (UnauthorizedAccessException exp)
-            {
-                CoreEventSource.Log.LogStorageAccessDeniedError(
-                    GetPathAccessFailureErrorMessage(exp, this.logFilePath, this.logFileName),
-                    LazyInitializer.EnsureInitialized(ref this.windowsIdentityName, this.GetCurrentIdentityName));
-            }
-            catch (ArgumentException exp)
-            {
-                // Path does not specify a valid file path or contains invalid DirectoryInfo characters.
-                CoreEventSource.Log.LogStorageAccessDeniedError(
-                    GetPathAccessFailureErrorMessage(exp, this.logFilePath, this.logFileName),
-                    LazyInitializer.EnsureInitialized(ref this.windowsIdentityName, this.GetCurrentIdentityName));
-            }
-            catch (DirectoryNotFoundException exp)
-            {
-                // The specified path is invalid, such as being on an unmapped drive.
-                CoreEventSource.Log.LogStorageAccessDeniedError(
-                   GetPathAccessFailureErrorMessage(exp, this.logFilePath, this.logFileName),
-                   LazyInitializer.EnsureInitialized(ref this.windowsIdentityName, this.GetCurrentIdentityName));
-            }
-            catch (IOException exp)
-            {
-                // The subdirectory cannot be created. -or- A file or directory already has the name specified by path. -or-  The specified path, file name, or both exceed the system-defined maximum length. .
-                CoreEventSource.Log.LogStorageAccessDeniedError(
-                   GetPathAccessFailureErrorMessage(exp, this.logFilePath, this.logFileName),
-                   LazyInitializer.EnsureInitialized(ref this.windowsIdentityName, this.GetCurrentIdentityName));
-            }
-            catch (SecurityException exp)
-            {
-                // The caller does not have code access permission to create the directory.
-                CoreEventSource.Log.LogStorageAccessDeniedError(
-                    GetPathAccessFailureErrorMessage(exp, this.logFilePath, this.logFileName),
-                    LazyInitializer.EnsureInitialized(ref this.windowsIdentityName, this.GetCurrentIdentityName));
+                    error: Invariant($"Path: {this.logFilePath} File: {this.logFileName}; Error: {ex.Message}{Environment.NewLine}"),
+                    user: LazyInitializer.EnsureInitialized(ref this.windowsIdentityName, this.GetCurrentIdentityName));
             }
 
             return result;

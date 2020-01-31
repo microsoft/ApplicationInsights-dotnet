@@ -15,14 +15,19 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics;
 
     internal class TelemetryConfigurationFactory
     {
+        internal const string InstrumentationKeyEnvironmentVariable = "APPINSIGHTS_INSTRUMENTATIONKEY";
+        internal const string ConnectionStringEnvironmentVariable = "APPLICATIONINSIGHTS_CONNECTION_STRING";
+        internal const string DiagnosticsEnvironmentVariable = "APPLICATIONINSIGHTS_DIAGNOSTICS";
+        internal const string DiagnosticsLogDirectoryEnvironmentVariable = "APPLICATIONINSIGHTS_DIAGNOSTICS_LOG_DIRECTORY";
+
         private const string AddElementName = "Add";
         private const string TypeAttributeName = "Type";
         private const string NameAttributeName = "Name";
-        private const string InstrumentationKeyEnvironmentVariable = "APPINSIGHTS_INSTRUMENTATIONKEY";
-        private const string ConnectionStringEnvironmentVariable = "APPLICATIONINSIGHTS_CONNECTION_STRING";
+
         private static readonly MethodInfo LoadInstancesDefinition = typeof(TelemetryConfigurationFactory).GetRuntimeMethods().First(m => m.Name == "LoadInstances");
         private static readonly XNamespace XmlNamespace = "http://schemas.microsoft.com/ApplicationInsights/2013/Settings";
 
@@ -98,6 +103,8 @@
 
                 this.SelectInstrumentationKey(configuration);
 
+                this.EvaluateDiagnosticsMode(modules);
+
                 InitializeComponents(configuration, modules);
             }
             finally
@@ -110,6 +117,33 @@
         {
             // Load customizations from the ApplicationsInsights.config file
             this.Initialize(configuration, modules, PlatformSingleton.Current.ReadConfigurationXml());
+        }
+
+        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "We want objects created in this method to live for the life of the application.")]
+        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "This value is not used in NetStandard1.3 but is used for all other frameworks..")]
+        internal void EvaluateDiagnosticsMode(TelemetryModules modules)
+        {
+#if !NETSTANDARD1_3
+            // TODO: EVALUATE DIAGNOSTICS MODE
+            if (PlatformSingleton.Current.TryGetEnvironmentVariable(DiagnosticsEnvironmentVariable, out string diagnosticsValue) && bool.TryParse(diagnosticsValue, out bool boolValue) && boolValue)
+            {
+                if (modules != null && !modules.Modules.Any(module => module is FileDiagnosticsTelemetryModule))
+                {
+                    var fileDiagnosticsTelemetryModule = new FileDiagnosticsTelemetryModule
+                    {
+                        Severity = "Verbose",
+                    };
+
+                    if (PlatformSingleton.Current.TryGetEnvironmentVariable(DiagnosticsLogDirectoryEnvironmentVariable, out string diagnosticsLogDirectoryValue))
+                    {
+                        fileDiagnosticsTelemetryModule.LogFilePath = diagnosticsLogDirectoryValue;
+                    }
+
+                    // Create diagnostics module so configuration loading errors are reported to the portal
+                    modules.Modules.Add(fileDiagnosticsTelemetryModule);
+                }
+            }
+#endif
         }
 
         protected static object CreateInstance(Type interfaceType, string typeName, object[] constructorArgs = null)
