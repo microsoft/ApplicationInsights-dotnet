@@ -65,8 +65,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         private readonly PropertyFetcher startRequestFetcher = new PropertyFetcher("Request");
         private readonly PropertyFetcher stopRequestFetcher = new PropertyFetcher("Request");
-        private readonly PropertyFetcher exceptionRequestFetcher = new PropertyFetcher("Request");
-        private readonly PropertyFetcher exceptionFetcher = new PropertyFetcher("Exception");
         private readonly PropertyFetcher stopResponseFetcher = new PropertyFetcher("Response");
         private readonly PropertyFetcher stopRequestStatusFetcher = new PropertyFetcher("RequestTaskStatus");
         private readonly PropertyFetcher deprecatedRequestFetcher = new PropertyFetcher("Request");
