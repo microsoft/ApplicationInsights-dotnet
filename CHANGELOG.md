@@ -1,7 +1,8 @@
-# Changelog
+﻿# Changelog
 
 ## VNext
 - [Move FileDiagnosticTelemetryModule to Microsoft.ApplicationInsights assembly.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1059)
+- [Copy tags if we create new Activity in ASP.NET Core listener](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1660)
 
 ## Version 2.13.0-beta1
 - [All product sdks are now building the same symbols (DebugType = FULL) and we're including symbols in the nuget package.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1527)
