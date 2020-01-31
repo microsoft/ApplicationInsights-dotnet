@@ -236,6 +236,8 @@
                     // Scenario #3. W3C-TraceParent
                     // We need to ignore the Activity created by Hosting, as it did not take W3CTraceParent into consideration.
                     newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
+                    CopyActivityPropertiesFromAspNetCore(currentActivity, newActivity);
+
                     newActivity.SetParentId(originalParentId);
                     AspNetCoreEventSource.Instance.HostingListenerInformational(this.aspNetCoreMajorVersion, "Ignoring original Activity from Hosting to create new one using traceparent header retrieved by sdk.");
 
@@ -261,13 +263,9 @@
                         if (TryGetW3CCompatibleTraceId(originalParentId, out var traceId))
                         {
                             newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
+                            CopyActivityPropertiesFromAspNetCore(currentActivity, newActivity);
                             newActivity.SetParentId(ActivityTraceId.CreateFromString(traceId), default(ActivitySpanId), ActivityTraceFlags.None);
                             AspNetCoreEventSource.Instance.HostingListenerInformational(this.aspNetCoreMajorVersion, "Ignoring original Activity from Hosting to create new one using w3c compatible request-id.");
-
-                            foreach (var bag in currentActivity.Baggage)
-                            {
-                                newActivity.AddBaggage(bag.Key, bag.Value);
-                            }
                         }
                         else
                         {
@@ -585,6 +583,19 @@
             }
 
             return originalParentId;
+        }
+
+        private static void CopyActivityPropertiesFromAspNetCore(Activity currentActivity, Activity newActivity)
+        {
+            foreach (var tag in currentActivity.Tags)
+            {
+                newActivity.AddTag(tag.Key, tag.Value);
+            }
+
+            foreach (var baggage in currentActivity.Baggage)
+            {
+                newActivity.AddBaggage(baggage.Key, baggage.Value);
+            }
         }
 
         private static string ExtractOperationIdFromRequestId(string originalParentId)
