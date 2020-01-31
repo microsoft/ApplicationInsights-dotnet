@@ -63,6 +63,8 @@
             {
                 SdkInternalOperationsMonitor.Enter();
 
+                this.EvaluateDiagnosticsMode(modules);
+
                 if (modules != null && !modules.Modules.Any(module => module is DiagnosticsTelemetryModule))
                 {
                     // Create diagnostics module so configuration loading errors are reported to the portal
@@ -103,8 +105,6 @@
 
                 this.SelectInstrumentationKey(configuration);
 
-                this.EvaluateDiagnosticsMode(modules);
-
                 InitializeComponents(configuration, modules);
             }
             finally
@@ -124,7 +124,7 @@
         internal void EvaluateDiagnosticsMode(TelemetryModules modules)
         {
 #if !NETSTANDARD1_3
-            // TODO: EVALUATE DIAGNOSTICS MODE
+            // TODO: NEED TO EMIT ETW LOGS
             if (PlatformSingleton.Current.TryGetEnvironmentVariable(DiagnosticsEnvironmentVariable, out string diagnosticsValue) && bool.TryParse(diagnosticsValue, out bool boolValue) && boolValue)
             {
                 if (modules != null && !modules.Modules.Any(module => module is FileDiagnosticsTelemetryModule))
