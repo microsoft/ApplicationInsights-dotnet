@@ -12,20 +12,48 @@
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
-    <AssemblyName>Microsoft.ApplicationInsights.TelemetryChannel.NetCore.Tests</AssemblyName>
-    <DebugType>pdbonly</DebugType> 
-    <DebugSymbols>true</DebugSymbols> 
-    <DefineConstants>$(DefineConstants);NETCOREAPP;NETCOREAPP1_1</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFrameworks>net45;netcoreapp1.1;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netcoreapp1.1;netcoreapp2.0</TargetFrameworks>
+
+    <AssemblyName>Microsoft.ApplicationInsights.TelemetryChannel.Tests</AssemblyName>
+
+    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+
+    <!-- this constant is set for all other netcore targets except 1-->
+    <DefineConstants Condition="'$(TargetFramework)' == 'netcoreapp1.1'">$(DefineConstants);NETCOREAPP;NETCOREAPP1_1;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
     <ProjectReference Include="..\..\..\Test\Microsoft.ApplicationInsights.Test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj" />
+    <ProjectReference Include="..\..\..\src\ServerTelemetryChannel\TelemetryChannel.csproj" />
+
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="16.1.0" />
     <PackageReference Include="Moq" Version="4.10.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
+
+    <PackageReference Include="CompareNETObjects" Version="4.59.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.6.0" />
+
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp1.1'">
     <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
     <PackageReference Include="System.Diagnostics.Tracing" Version="4.3.0" />
     <PackageReference Include="System.Diagnostics.TraceSource" Version="4.3.0" />
@@ -34,18 +62,21 @@
     <PackageReference Include="System.Reflection.Primitives" Version="4.3.0" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />
     <PackageReference Include="System.Security.AccessControl" Version="4.3.0" />
-    <PackageReference Include="CompareNETObjects" Version="4.59.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.6.0" />
     <PackageReference Include="System.Net.Security" Version="4.3.2" />
-    <ProjectReference Include="..\..\..\src\ServerTelemetryChannel\TelemetryChannel.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Web.Extensions" />
   </ItemGroup>
 
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
+
   <Import Project="..\..\..\Test\TestFramework\Shared\TestFramework.Shared.projitems" Label="TestFramework.Shared" />
-  <Import Project="..\Shared.Tests\Shared.Tests.projitems" Label="Shared" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 
 </Project>
