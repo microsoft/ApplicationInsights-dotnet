@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
+#if !NETCOREAPP
     using System;
     using System.Threading.Tasks;
     using System.Web.Hosting;
@@ -183,4 +184,5 @@
             }
         }
     }
+#endif
 }
