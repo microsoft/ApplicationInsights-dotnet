@@ -87,12 +87,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsigh
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "net45.Shared.Tests", "BASE\Test\ServerTelemetryChannel.Test\net45.Shared.Tests\net45.Shared.Tests.shproj", "{C5A3F18D-1426-4941-9D81-D21062A2B8F2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel.Net45.Tests", "BASE\Test\ServerTelemetryChannel.Test\Net45.Tests\TelemetryChannel.Net45.Tests.csproj", "{DD9659BE-7C0F-4298-82B2-5E957F95977A}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel.netcoreapp11.Tests", "BASE\Test\ServerTelemetryChannel.Test\NetCore.Tests\TelemetryChannel.netcoreapp11.Tests.csproj", "{037DD64B-F486-4B53-A83D-7E34A3214B4D}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel.netcoreapp20.Tests", "BASE\Test\ServerTelemetryChannel.Test\NetCore20.Tests\TelemetryChannel.netcoreapp20.Tests.csproj", "{14FA551E-886A-4D1B-B716-567EB4954C8E}"
-EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared.Tests", "BASE\Test\ServerTelemetryChannel.Test\Shared.Tests\Shared.Tests.shproj", "{C5A3F18F-1426-4941-9D81-D21062A2B8F2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel.Nuget.Tests", "BASE\Test\ServerTelemetryChannel.Test\TelemetryChannel.Nuget.Tests\TelemetryChannel.Nuget.Tests.csproj", "{21CB9A8A-F25B-4DEB-92CB-ACB6920EB8BC}"
@@ -200,6 +194,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights.Tests", "BASE\Test\Microsoft.ApplicationInsights.Test\Microsoft.ApplicationInsights.Tests\Microsoft.ApplicationInsights.Tests.csproj", "{4BAA7AF2-3C5B-4C7C-9A9C-26F561218A86}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyCollector.Tests", "WEB\Src\DependencyCollector\DependencyCollector.Tests\DependencyCollector.Tests.csproj", "{FAC049E4-7011-45FF-BD06-69ACA28921E8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerTelemetryChannel.Tests", "BASE\Test\ServerTelemetryChannel.Test\ServerTelemetryChannel.Tests\ServerTelemetryChannel.Tests.csproj", "{AAD347D2-6802-402E-8B60-557CB17F2D34}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -317,18 +313,6 @@ Global
 		{2759BC71-7F47-44DA-8579-AE2D8C8C684D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2759BC71-7F47-44DA-8579-AE2D8C8C684D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2759BC71-7F47-44DA-8579-AE2D8C8C684D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DD9659BE-7C0F-4298-82B2-5E957F95977A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DD9659BE-7C0F-4298-82B2-5E957F95977A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DD9659BE-7C0F-4298-82B2-5E957F95977A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DD9659BE-7C0F-4298-82B2-5E957F95977A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{037DD64B-F486-4B53-A83D-7E34A3214B4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{037DD64B-F486-4B53-A83D-7E34A3214B4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{037DD64B-F486-4B53-A83D-7E34A3214B4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{037DD64B-F486-4B53-A83D-7E34A3214B4D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{14FA551E-886A-4D1B-B716-567EB4954C8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{14FA551E-886A-4D1B-B716-567EB4954C8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{14FA551E-886A-4D1B-B716-567EB4954C8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{14FA551E-886A-4D1B-B716-567EB4954C8E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{21CB9A8A-F25B-4DEB-92CB-ACB6920EB8BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{21CB9A8A-F25B-4DEB-92CB-ACB6920EB8BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{21CB9A8A-F25B-4DEB-92CB-ACB6920EB8BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -461,6 +445,10 @@ Global
 		{FAC049E4-7011-45FF-BD06-69ACA28921E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FAC049E4-7011-45FF-BD06-69ACA28921E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FAC049E4-7011-45FF-BD06-69ACA28921E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAD347D2-6802-402E-8B60-557CB17F2D34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAD347D2-6802-402E-8B60-557CB17F2D34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAD347D2-6802-402E-8B60-557CB17F2D34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAD347D2-6802-402E-8B60-557CB17F2D34}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -486,9 +474,6 @@ Global
 		{4B0BC3B7-C7FC-4333-9E28-5790D9153F07} = {632FB9CE-540D-4451-9FF2-12E89C1492BD}
 		{2759BC71-7F47-44DA-8579-AE2D8C8C684D} = {632FB9CE-540D-4451-9FF2-12E89C1492BD}
 		{C5A3F18D-1426-4941-9D81-D21062A2B8F2} = {FBAFD313-0139-4DA3-BCB3-EE54DC3B6CCD}
-		{DD9659BE-7C0F-4298-82B2-5E957F95977A} = {FBAFD313-0139-4DA3-BCB3-EE54DC3B6CCD}
-		{037DD64B-F486-4B53-A83D-7E34A3214B4D} = {FBAFD313-0139-4DA3-BCB3-EE54DC3B6CCD}
-		{14FA551E-886A-4D1B-B716-567EB4954C8E} = {FBAFD313-0139-4DA3-BCB3-EE54DC3B6CCD}
 		{C5A3F18F-1426-4941-9D81-D21062A2B8F2} = {FBAFD313-0139-4DA3-BCB3-EE54DC3B6CCD}
 		{21CB9A8A-F25B-4DEB-92CB-ACB6920EB8BC} = {FBAFD313-0139-4DA3-BCB3-EE54DC3B6CCD}
 		{669E7E58-072D-4B0A-A4DD-4EB2AE2EA4D4} = {005BD823-60AF-406E-AC20-842D7653FE60}
@@ -538,6 +523,7 @@ Global
 		{3D7258E3-5DDC-45A4-A457-9AA3BCC92DE7} = {E9AEB857-E8AA-4ED6-A020-DF4D8486CEB0}
 		{4BAA7AF2-3C5B-4C7C-9A9C-26F561218A86} = {632FB9CE-540D-4451-9FF2-12E89C1492BD}
 		{FAC049E4-7011-45FF-BD06-69ACA28921E8} = {005BD823-60AF-406E-AC20-842D7653FE60}
+		{AAD347D2-6802-402E-8B60-557CB17F2D34} = {FBAFD313-0139-4DA3-BCB3-EE54DC3B6CCD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0E0415AF-37CC-4999-8E5B-DD36F75BFD4D}

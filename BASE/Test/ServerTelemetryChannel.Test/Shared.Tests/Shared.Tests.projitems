@@ -60,12 +60,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)ServerTelemetryChannelTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\PlatformFolderTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationFolderProviderTest.cs" />
-  </ItemGroup>
-  <PropertyGroup>
-    <IsNetCoreBuild Condition="'$(TargetFramework)' == 'netcoreapp1.1'">True</IsNetCoreBuild>
-    <IsNetCoreBuild Condition="'$(TargetFramework)' == 'netcoreapp2.0'">True</IsNetCoreBuild>
-  </PropertyGroup>
-  <ItemGroup Condition="'$(IsNetCoreBuild)'!='True'">
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebApplicationLifecycleTest.cs" />
   </ItemGroup>
 </Project>
