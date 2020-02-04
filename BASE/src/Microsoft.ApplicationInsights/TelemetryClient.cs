@@ -656,6 +656,8 @@
         /// </remarks>
         public void Flush()
         {
+            CoreEventSource.Log.TelemetlyClientFlush();
+
             if (this.TryGetMetricManager(out MetricManager privateMetricManager))
             {
                 privateMetricManager.Flush(flushDownstreamPipeline: false);

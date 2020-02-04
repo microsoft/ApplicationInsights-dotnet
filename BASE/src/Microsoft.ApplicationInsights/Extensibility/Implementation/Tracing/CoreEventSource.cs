@@ -587,6 +587,39 @@
         [Event(57, Message = "TelemetryChannel found a telemetry item without an InstrumentationKey. This is a required field and must be set in either your config file or at application startup.", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
         public void TelemetryChannelNoInstrumentationKey(string appDomainName = "Incorrect") => this.WriteEvent(57, this.nameProvider.Name);
 
+        [Event(58, Message = "TelemetryClient.Flush was invoked.", Level = EventLevel.Verbose)]
+        public void TelemetlyClientFlush(string appDomainName = "Incorrect") => this.WriteEvent(58, this.nameProvider.Name);
+
+        [Event(59, Message = "MetricManager.Flush was invoked.", Level = EventLevel.Verbose)]
+        public void MetricManagerFlush(string appDomainName = "Incorrect") => this.WriteEvent(59, this.nameProvider.Name);
+
+        [Event(60, Message = "MetricManager created {0} Tasks.", Level = EventLevel.Verbose)]
+        public void MetricManagerCreatedTasks(int taskCount, string appDomainName = "Incorrect") => this.WriteEvent(60, taskCount, this.nameProvider.Name);
+
+        #region FileDiagnosticsTelemetryModule
+
+        [Event(61, Message = "Logs file name: {0}.", Level = EventLevel.Verbose)]
+        public void LogsFileName(string fileName, string appDomainName = "Incorrect") => this.WriteEvent(61, fileName ?? string.Empty, this.nameProvider.Name);
+
+        [Event(62, Keywords = Keywords.UserActionable, Message = "Access to the logs folder was denied (User: {1}). Error message: {0}.", Level = EventLevel.Error)]
+        public void LogStorageAccessDeniedError(string error, string user, string appDomainName = "Incorrect") => this.WriteEvent(62, error ?? string.Empty, user ?? string.Empty, this.nameProvider.Name);
+
+        /*
+        [Event(63, Message = "Trying to load http module type from assembly: {0}, type name: {1}.", Level = EventLevel.Verbose)]
+        public void HttpModuleLoadingStart(string assemblyName, string moduleName, string appDomainName = "Incorrect") => this.WriteEvent(63, assemblyName ?? string.Empty, moduleName ?? string.Empty, this.nameProvider.Name);
+
+        [Event(64, Message = "Http module type from assembly: {0}, type name: {1} loaded successfully", Level = EventLevel.Verbose)]
+        public void HttpModuleLoadingEnd(string assemblyName, string moduleName, string appDomainName = "Incorrect") => this.WriteEvent(64, assemblyName ?? string.Empty, moduleName ?? string.Empty, this.nameProvider.Name);
+
+        [Event(65, Keywords = Keywords.UserActionable, Message = "Error loading http module type from assembly {0}, type name {1}, exception: {2}.", Level = EventLevel.Error)]
+        public void HttpModuleLoadingError(string assemblyName, string moduleName, string exception, string appDomainName = "Incorrect") => this.WriteEvent(65, assemblyName ?? string.Empty, moduleName ?? string.Empty, exception ?? string.Empty, this.nameProvider.Name);
+        */
+
+        [Event(66, Message = "Call to WindowsIdentity.Current failed with the exception: {0}.", Level = EventLevel.Warning)]
+        public void LogWindowsIdentityAccessSecurityException(string error, string appDomainName = "Incorrect") => this.WriteEvent(66, error ?? string.Empty, this.nameProvider.Name);
+
+        #endregion
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>
