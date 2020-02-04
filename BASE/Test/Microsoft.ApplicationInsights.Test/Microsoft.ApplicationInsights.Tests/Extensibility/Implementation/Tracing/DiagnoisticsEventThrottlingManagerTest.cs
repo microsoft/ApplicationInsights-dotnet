@@ -5,6 +5,7 @@
     using System.Diagnostics.Tracing;
     using System.Globalization;
     using System.Linq;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsModule;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Mocks;
 
