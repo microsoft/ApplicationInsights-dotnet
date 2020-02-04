@@ -5,8 +5,8 @@
     /// <summary>
     /// Diagnostics telemetry module for azure web sites.
     /// </summary>
-    [Obsolete("Please use Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics.FileDiagnosticsTelemetryModule")]
-    public class FileDiagnosticsTelemetryModule : Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics.FileDiagnosticsTelemetryModule
+    [Obsolete("Please use Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.FileDiagnosticsTelemetryModule")]
+    public class FileDiagnosticsTelemetryModule : Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.FileDiagnosticsTelemetryModule
     {
     }
 }

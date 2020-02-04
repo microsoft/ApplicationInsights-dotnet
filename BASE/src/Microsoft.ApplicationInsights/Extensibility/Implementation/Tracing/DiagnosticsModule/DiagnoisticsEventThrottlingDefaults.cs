@@ -6,7 +6,7 @@
 // <summary></summary>
 // -----------------------------------------------------------------------
 
-namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
+namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsModule
 {
     internal static class DiagnoisticsEventThrottlingDefaults
     {

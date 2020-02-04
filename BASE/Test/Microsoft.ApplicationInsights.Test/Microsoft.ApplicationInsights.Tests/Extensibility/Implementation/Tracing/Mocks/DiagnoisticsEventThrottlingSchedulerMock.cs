@@ -10,6 +10,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Moc
 {
     using System;
     using System.Collections.Generic;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsModule;
 
     internal class DiagnoisticsEventThrottlingSchedulerMock : IDiagnoisticsEventThrottlingScheduler
     {
