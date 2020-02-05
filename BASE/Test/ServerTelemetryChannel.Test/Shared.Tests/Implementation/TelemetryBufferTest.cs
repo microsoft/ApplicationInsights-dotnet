@@ -11,6 +11,7 @@
     
     using ITelemetry = Microsoft.ApplicationInsights.Channel.ITelemetry;
     using Channel.Helpers;
+    using Microsoft.ApplicationInsights.Channel;
 
     public class TelemetryBufferTest
     {
@@ -289,7 +290,7 @@
                 int serializerThreadId = -1;
                 var serializerInvoked = new ManualResetEventSlim();
                 var serializer = new StubTelemetrySerializer();
-                serializer.OnSerialize = telemetry =>
+                serializer.OnSerialize= telemetry =>
                 {
                     serializerThreadId = Thread.CurrentThread.ManagedThreadId;
                     serializerInvoked.Set();
@@ -376,6 +377,137 @@
         
                     Assert.IsFalse(postedBack);
                 }
+            }
+        }
+
+        [TestClass]
+        public class ManualFlushAsync : TelemetryBufferTest
+        {
+            [TestMethod]
+            [Timeout(10000)]
+            public void DoesntSerializeTelemetryIfBufferIsEmpty()
+            {
+                bool telemetrySerialized = false;
+                var serializer = new StubTelemetrySerializer();
+                serializer.OnSerialize = telemetry =>
+                {
+                    telemetrySerialized = true;
+                };
+                var telemetryBuffer = new TelemetryBuffer(serializer, new StubApplicationLifecycle());
+
+                telemetryBuffer.ManualFlushAsync(new CancellationToken()).GetAwaiter().GetResult();
+
+                Assert.IsFalse(telemetrySerialized);
+            }
+
+            [TestMethod]
+            [Timeout(10000)]
+            public void SerializesTelemetryIfBufferIsNotEmpty()
+            {
+                List<ITelemetry> serializedTelemetry = null;
+
+                var serializer = new StubTelemetrySerializer
+                {
+                    OnSerializeAsync = (telemetry, cancellationToken) =>
+                    {
+                        serializedTelemetry = new List<ITelemetry>(telemetry);
+                        return Task.FromResult(true);
+                    }
+                };
+
+                var telemetryBuffer = new TelemetryBuffer(serializer, new StubApplicationLifecycle());
+
+                var expectedTelemetry = new StubTelemetry();
+                telemetryBuffer.Process(expectedTelemetry);
+
+                telemetryBuffer.ManualFlushAsync(new CancellationToken()).GetAwaiter().GetResult();
+
+                Assert.AreSame(expectedTelemetry, serializedTelemetry.Single());
+            }
+
+            [TestMethod]
+            [Timeout(10000)]
+            public async Task EmptiesBufferAfterSerialization()
+            {
+                var serializer = new StubTelemetrySerializer
+                {
+                    OnSerializeAsync = (telemetry, cancellationToken) =>
+                    {
+                        return Task.FromResult(true);
+                    }
+                };
+
+                var buffer = new TelemetryBuffer(serializer, new StubApplicationLifecycle());
+                buffer.Capacity = 10;
+                buffer.Process(new StubTelemetry());
+
+                await buffer.ManualFlushAsync(new CancellationToken());
+
+                Assert.AreEqual(0, buffer.Count());
+            }
+
+            [TestMethod]
+            [Timeout(10000)]
+            public async Task DoesNotContinueOnCapturedSynchronizationContextToImprovePerformance()
+            {
+                var serializer = new StubTelemetrySerializer
+                {
+                    OnSerializeAsync = (telemetry, cancellationToken) =>
+                    {
+                        return Task.FromResult(true);
+                    }
+                };
+
+                var buffer = new TelemetryBuffer(serializer, new StubApplicationLifecycle());
+                buffer.Process(new StubTelemetry());
+
+                bool postedBack = false;
+                using (var context = new StubSynchronizationContext())
+                {
+                    context.OnPost = (callback, state) =>
+                    {
+                        postedBack = true;
+                        callback(state);
+                    };
+
+                    await buffer.ManualFlushAsync(new CancellationToken());
+
+                    Assert.IsFalse(postedBack);
+                }
+            }
+
+            [TestMethod]
+            public void SetCancellationTokenOnManualFlushAsync()
+            {
+                var telemetryBuffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
+                var task = telemetryBuffer.ManualFlushAsync(new CancellationToken(true));
+                Thread.Sleep(TimeSpan.FromMilliseconds(100));
+
+                Assert.AreEqual(true, task.IsCanceled);
+            }
+
+            [TestMethod]
+            public void WaitsUntilTelemetryBufferIsSafeToModify()
+            {
+                var serializer = new StubTelemetrySerializer
+                {
+                    OnSerializeAsync = (telemetry, cancellationToken) =>
+                    {
+                        return Task.FromResult(true);
+                    }
+                };
+
+                var telemetryBuffer = new TelemetryBuffer(serializer, new StubApplicationLifecycle());
+                telemetryBuffer.Process(new StubTelemetry());
+
+                Task anotherThread;
+                lock (telemetryBuffer)
+                {
+                    anotherThread = Task.Run(() => telemetryBuffer.ManualFlushAsync(new CancellationToken()));
+                    Assert.IsFalse(anotherThread.Wait(10));
+                }
+
+                Assert.IsTrue(anotherThread.Wait(50));
             }
         }
 

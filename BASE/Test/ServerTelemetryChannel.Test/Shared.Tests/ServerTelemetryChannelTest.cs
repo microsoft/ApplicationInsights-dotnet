@@ -295,6 +295,56 @@
         }
 
         [TestClass]
+        public class FlushAsync : ServerTelemetryChannelTest
+        {
+            [TestMethod]
+            public void FlushesTelemetryBuffer()
+            {
+                var mockTelemetryBuffer = new Mock<TelemetryChannel.Implementation.TelemetryBuffer>();
+                var channel = new ServerTelemetryChannel { TelemetryBuffer = mockTelemetryBuffer.Object };
+                channel.Initialize(TelemetryConfiguration.CreateDefault());
+
+                var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(100));
+                var token = cancellationTokenSource.Token;
+                channel.FlushAsync(token);
+
+                mockTelemetryBuffer.Verify(x => x.ManualFlushAsync(token));
+            }
+
+            [TestMethod]
+            public void WaitsForAsynchronousFlushToCompleteAndAllowsItsExceptionsToBubbleUp()
+            {
+                var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(100));
+                var token = cancellationTokenSource.Token;
+
+                var expectedException = new Exception();
+                var tcs = new TaskCompletionSource<bool>();
+                tcs.SetException(expectedException);
+                var mockTelemetryBuffer = new Mock<TelemetryChannel.Implementation.TelemetryBuffer>();
+                mockTelemetryBuffer.Setup(x => x.ManualFlushAsync(token)).Returns(tcs.Task);
+                var channel = new ServerTelemetryChannel { TelemetryBuffer = mockTelemetryBuffer.Object };
+                channel.Initialize(TelemetryConfiguration.CreateDefault());
+
+                var actualException = AssertEx.ThrowsAsync<Exception>(async () => await channel.FlushAsync(token));
+
+                Assert.AreSame(expectedException, actualException.Result);
+            }
+
+            [TestMethod]
+            public void SendCancelledTaskOnCancellationToken()
+            {
+                var mockTelemetryBuffer = new Mock<TelemetryChannel.Implementation.TelemetryBuffer>();
+                var channel = new ServerTelemetryChannel { TelemetryBuffer = mockTelemetryBuffer.Object };
+                channel.Initialize(TelemetryConfiguration.CreateDefault());
+
+                var flushTask = channel.FlushAsync(new CancellationToken(true));
+                Thread.Sleep(TimeSpan.FromMilliseconds(100));
+
+                Assert.AreEqual(true, flushTask.IsCanceled);
+            }
+        }
+
+        [TestClass]
         public class Initialize : ServerTelemetryChannelTest
         {
             [TestMethod]
@@ -424,7 +474,7 @@
                 var telemetry = new StubTelemetry();
                 telemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
                 channel.Send(telemetry);
-                Thread.Sleep(TimeSpan.FromSeconds(1));
+                Thread.Sleep(TimeSpan.FromMilliseconds(1));
 
                 Assert.IsTrue(wasCalled);
             }

@@ -1,10 +1,10 @@
 Microsoft.ApplicationInsights.Channel.IAsyncFlushable
 Microsoft.ApplicationInsights.Channel.IAsyncFlushable.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
-Microsoft.ApplicationInsights.Channel.Transmission.FlushTaskCompletionSource.get -> System.Threading.Tasks.TaskCompletionSource<bool>
-Microsoft.ApplicationInsights.Channel.Transmission.ManualFlushAsyncFlag.get -> bool
-Microsoft.ApplicationInsights.Channel.Transmission.SetFlushTaskCompletionSourceResult(bool status) -> void
+Microsoft.ApplicationInsights.Channel.Transmission.GetFlushTask(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
+Microsoft.ApplicationInsights.Channel.Transmission.CompleteFlushTask(bool success) -> void
+Microsoft.ApplicationInsights.Channel.Transmission.CancelFlushTask() -> void
+Microsoft.ApplicationInsights.Channel.Transmission.HasFlushTask.get -> bool
 Microsoft.ApplicationInsights.TelemetryClient.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
-Microsoft.ApplicationInsights.Channel.Transmission.Transmission(System.Uri address, System.Collections.Generic.ICollection<Microsoft.ApplicationInsights.Channel.ITelemetry> telemetryItems, bool manualFlushAsync, System.TimeSpan timeout = default(System.TimeSpan)) -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer
 Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer.Ingestion.get -> System.Uri
 Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer.Live.get -> System.Uri

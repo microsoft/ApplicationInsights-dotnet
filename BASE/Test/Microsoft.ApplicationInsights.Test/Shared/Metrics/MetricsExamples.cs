@@ -550,7 +550,7 @@ namespace User.Namespace.Example04
 
     using Microsoft.ApplicationInsights.Metrics;
     using Microsoft.ApplicationInsights.Extensibility;
-    
+
     /// <summary>
     /// In this example we cover working directly with the MetricManager.
     /// </summary>
@@ -753,8 +753,6 @@ namespace User.Namespace.Example06ab
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using TraceSeveretyLevel = Microsoft.ApplicationInsights.DataContracts.SeverityLevel;
-    using System.Threading.Tasks;
-    using System.Threading;
 
     /// <summary>
     /// In this example we discuss how to write unit tests that validate that metrics are sent correctly.
@@ -791,7 +789,7 @@ namespace User.Namespace.Example06ab
                 IList<ITelemetry> telemetrySentToChannel;
                 TelemetryConfiguration telemetryPipeline = TestUtil.CreateApplicationInsightsTelemetryConfiguration(out telemetrySentToChannel);
                 using (telemetryPipeline)
-                { 
+                {
                     TelemetryClient telemetryClient = new TelemetryClient(telemetryPipeline);
 
                     // Invoke method being tested:
@@ -807,15 +805,15 @@ namespace User.Namespace.Example06ab
                     // Verify that the right telemetry was sent:
                     Assert.AreEqual(2, telemetrySentToChannel.Count);
 
-                    TraceTelemetry[] traceItems = telemetrySentToChannel.Where( (t) => ((t != null) && (t is TraceTelemetry)) )
-                                                                        .Select( (t) => ((TraceTelemetry) t) )
+                    TraceTelemetry[] traceItems = telemetrySentToChannel.Where((t) => ((t != null) && (t is TraceTelemetry)))
+                                                                        .Select((t) => ((TraceTelemetry)t))
                                                                         .ToArray();
                     Assert.AreEqual(1, traceItems.Length);
                     Assert.AreEqual("Stuff #1 completed", traceItems[0].Message);
                     Assert.AreEqual(TraceSeveretyLevel.Information, traceItems[0].SeverityLevel);
 
-                    MetricTelemetry[] metricItems = telemetrySentToChannel.Where( (t) => ((t != null) && (t is MetricTelemetry)) )
-                                                                          .Select( (t) => ((MetricTelemetry) t) )
+                    MetricTelemetry[] metricItems = telemetrySentToChannel.Where((t) => ((t != null) && (t is MetricTelemetry)))
+                                                                          .Select((t) => ((MetricTelemetry)t))
                                                                           .ToArray();
                     Assert.AreEqual(1, metricItems.Length);
                     Assert.AreEqual("Ducks Sold", metricItems[0].Name);
@@ -885,22 +883,22 @@ namespace User.Namespace.Example06ab
                 // metric manager at TelemetryConfiguration.Active.GetMetricManager(). Luckily, all their names begin with "Items", so we can filter them out.
 
                 ITelemetry[] telemetryFromThisTest = telemetryCollector.TelemetryItems
-                                                                       .Where( (t) => !((t is MetricTelemetry) && ((MetricTelemetry) t).Name.StartsWith("Items")) )
+                                                                       .Where((t) => !((t is MetricTelemetry) && ((MetricTelemetry)t).Name.StartsWith("Items")))
                                                                        .ToArray();
 
                 // Verify that the right telemetry was sent:
 
                 Assert.AreEqual(2, telemetryFromThisTest.Length);
 
-                TraceTelemetry[] traceItems = telemetryFromThisTest.Where( (t) => ((t != null) && (t is TraceTelemetry)) )
-                                                                   .Select( (t) => ((TraceTelemetry) t) )
+                TraceTelemetry[] traceItems = telemetryFromThisTest.Where((t) => ((t != null) && (t is TraceTelemetry)))
+                                                                   .Select((t) => ((TraceTelemetry)t))
                                                                    .ToArray();
                 Assert.AreEqual(1, traceItems.Length);
                 Assert.AreEqual("Stuff #1 completed", traceItems[0].Message);
                 Assert.AreEqual(TraceSeveretyLevel.Information, traceItems[0].SeverityLevel);
 
-                MetricTelemetry[] metricItems = telemetryFromThisTest.Where( (t) => ((t != null) && (t is MetricTelemetry)) )
-                                                                     .Select( (t) => ((MetricTelemetry) t) )
+                MetricTelemetry[] metricItems = telemetryFromThisTest.Where((t) => ((t != null) && (t is MetricTelemetry)))
+                                                                     .Select((t) => ((MetricTelemetry)t))
                                                                      .ToArray();
                 Assert.AreEqual(1, metricItems.Length);
                 Assert.AreEqual("Ducks Sold", metricItems[0].Name);
@@ -1022,11 +1020,6 @@ namespace User.Namespace.Example06ab
         public void Flush()
         {
         }
-
-        public Task<bool> FlushAsync(CancellationToken cancellationToken)
-        {
-            return Task.FromResult(true);
-        }
     }
 }
 // ----------- ----------- ----------- ----------- ----------- ----------- ----------- ----------- -----------
@@ -1042,7 +1035,7 @@ namespace User.Namespace.Example06c
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using TraceSeverityLevel = Microsoft.ApplicationInsights.DataContracts.SeverityLevel;
-    
+
     /// <summary>
     /// In this example we discuss how to write unit tests that validate that metrics are sent correctly
     /// We will consider an advanced unit test approach:

@@ -99,7 +99,7 @@
                                return Task.FromResult<object>(null);
                            });
                         break;
-                    default:                        
+                    default:
                         // We are losing data here but that is intentional as the response code is
                         // not in the whitelisted set to attempt retry.
                         TelemetryChannelEventSource.Log.TransmissionDataNotRetriedForNonWhitelistedResponse(e.Transmission.Id,
@@ -113,7 +113,7 @@
                 // We are losing data here (we did not upload failed transaction back).
                 // We got unknown exception. 
                 if (e.Exception != null)
-                {                    
+                {
                     TelemetryChannelEventSource.Log.TransmissionDataLossError(e.Transmission.Id,
                         e.Exception.Message);
                 }
@@ -123,10 +123,7 @@
                         "Unknown Exception Message");
                 }
 
-                if (e.Transmission.ManualFlushAsyncFlag)
-                {
-                    e.Transmission.SetFlushTaskCompletionSourceResult(false);
-                }
+                e.Transmission.CompleteFlushTask(false);
             }
         }
 

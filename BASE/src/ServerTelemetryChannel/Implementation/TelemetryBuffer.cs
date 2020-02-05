@@ -17,7 +17,6 @@
 
         private readonly TaskTimerInternal flushTimer;
         private readonly TelemetrySerializer serializer;
-        private readonly object lockObj = new object();
 
         private int capacity = 500;
         private int backlogSize = 1000000;
@@ -188,7 +187,17 @@
         public virtual Task<bool> ManualFlushAsync(CancellationToken cancellationToken)
         {
             List<ITelemetry> telemetryToFlush = this.MoveTelemeteryBufferForFlush();
-            return telemetryToFlush != null ? this.serializer.SerializeAsync(telemetryToFlush, cancellationToken) : Task.FromResult(false);
+
+            if (telemetryToFlush != null && !cancellationToken.IsCancellationRequested)
+            {
+                return this.serializer.SerializeAsync(telemetryToFlush, cancellationToken);
+            }
+
+            return cancellationToken.IsCancellationRequested ? Task.Factory.StartNew(() =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                return false;
+            }, cancellationToken) : Task.FromResult(false);
         }
 
         public IEnumerator<ITelemetry> GetEnumerator()
@@ -206,7 +215,7 @@
             List<ITelemetry> telemetryToFlush = null;
             if (this.itemBuffer.Count > 0)
             {
-                lock (this.lockObj)
+                lock (this)
                 {
                     if (this.itemBuffer.Count > 0)
                     {

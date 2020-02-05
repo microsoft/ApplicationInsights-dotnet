@@ -16,7 +16,10 @@ namespace Microsoft.ApplicationInsights.Channel
         /// <summary>
         /// Flushes the in-memory buffer asynchronously.
         /// </summary>
-        /// <returns>The task to await.</returns>
+        /// <returns>
+        /// True indicates telemetry data ownership is transferred out of process, that are emitted before the flush invocation.
+        /// False indicates transfer of telemetry data has failed, the process still owns all or part of the telemetry.
+        /// </returns>
         Task<bool> FlushAsync(CancellationToken cancellationToken);
     }
 }

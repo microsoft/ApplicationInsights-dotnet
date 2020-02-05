@@ -162,7 +162,7 @@
 
             if (this.Buffer.Enqueue(transmissionGetter))
             {
-                if (transmission.ManualFlushAsyncFlag)
+                if (transmission.HasFlushTask)
                 {
                     lock (this.lockObj)
                     {
@@ -175,7 +175,7 @@
                         this.ApplyPolicies();
 
                         // Set flush success after moving to local storage
-                        transmission.SetFlushTaskCompletionSourceResult(true);
+                        transmission.CompleteFlushTask(true);
 
                         // Reset the sender and buffer capacity
                         this.MaxSenderCapacity = temp_maxSenderCapacity;

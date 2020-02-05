@@ -40,13 +40,15 @@
         {
             this.HandleTelemetryException(items);
 
-            var transmission = new Transmission(this.EndpointAddress, items, true);
+            var transmission = new Transmission(this.EndpointAddress, items);
+            Task<bool> resultTask = transmission.GetFlushTask(cancellationToken);
 
-            using (cancellationToken.Register(() => transmission.SetFlushTaskCompletionSourceResult(false)))
+            if (!cancellationToken.IsCancellationRequested)
             {
-                Task.Run(() => this.Transmitter.Enqueue(transmission));
-                return transmission.FlushTaskCompletionSource.Task;
+                Task.Run(() => this.Transmitter.Enqueue(transmission), cancellationToken);
             }
+
+            return resultTask;
         }
 
         private void HandleTelemetryException(ICollection<ITelemetry> items)

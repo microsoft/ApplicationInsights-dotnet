@@ -175,5 +175,128 @@
                 }
             }
         }
+
+        [TestClass]
+        public class SerializeAsyncTask
+        {
+            [TestMethod]
+            public void ThrowsArgumentNullExceptionWhenTelemetryIsNullToPreventUsageErrors()
+            {
+                var serializer = new TelemetrySerializer(new StubTransmitter());
+                AssertEx.Throws<ArgumentNullException>(() => serializer.SerializeAsync(null, new CancellationToken()));
+            }
+
+            [TestMethod]
+            public void ThrowsArgumentExceptionWhenTelemetryIsEmptyToPreventUsageErrors()
+            {
+                var serializer = new TelemetrySerializer(new StubTransmitter());
+                AssertEx.Throws<ArgumentException>(() => serializer.SerializeAsync(new List<ITelemetry>(), new CancellationToken()));
+            }
+
+            [TestMethod]
+            public async Task EnqueuesTransmissionWithExpectedPropertiesForUnknownTelemetry()
+            {
+                Transmission transmission = null;
+                var transmitter = new StubTransmitter();
+                transmitter.OnEnqueue = t =>
+                {
+                    transmission = t;
+                    transmission.CompleteFlushTask(true);
+                };
+
+                var serializer = new TelemetrySerializer(transmitter) { EndpointAddress = new Uri("http://expected.uri") };
+                await serializer.SerializeAsync(new[] { new StubTelemetry() }, new CancellationToken());
+
+                Assert.AreEqual(serializer.EndpointAddress, transmission.EndpointAddress);
+                Assert.AreEqual("application/x-json-stream", transmission.ContentType);
+                Assert.AreEqual("gzip", transmission.ContentEncoding);
+                Assert.AreEqual("{" +
+                    "\"name\":\"Microsoft.ApplicationInsights.Event\"," +
+                    "\"time\":\"0001-01-01T00:00:00.0000000Z\"," +
+                    "\"data\":{\"baseType\":\"EventData\"," +
+                        "\"baseData\":{\"ver\":2," +
+                            "\"name\":\"ConvertedTelemetry\"}" +
+                        "}" +
+                    "}", Unzip(transmission.Content));
+            }
+
+            [TestMethod]
+            public async Task EnqueuesTransmissionWithExpectedPropertiesForKnownTelemetry()
+            {
+                Transmission transmission = null;
+                var transmitter = new StubTransmitter();
+                transmitter.OnEnqueue = t =>
+                {
+                    transmission = t;
+                    transmission.CompleteFlushTask(true);
+                };
+
+                var serializer = new TelemetrySerializer(transmitter) { EndpointAddress = new Uri("http://expected.uri") };
+                await serializer.SerializeAsync(new[] { new StubSerializableTelemetry() }, new CancellationToken());
+
+                Assert.AreEqual(serializer.EndpointAddress, transmission.EndpointAddress);
+                Assert.AreEqual("application/x-json-stream", transmission.ContentType);
+                Assert.AreEqual("gzip", transmission.ContentEncoding);
+
+                var expectedContent = "{" +
+                    "\"name\":\"Microsoft.ApplicationInsights.StubTelemetryName\"," +
+                    "\"time\":\"0001-01-01T00:00:00.0000000Z\"," +
+                    "\"data\":{\"baseType\":\"StubTelemetryBaseType\"," +
+                        "\"baseData\":{}" +
+                        "}" +
+                    "}";
+                Assert.AreEqual(expectedContent, Unzip(transmission.Content));
+            }
+
+            [TestMethod]
+            public void DoesNotContinueAsyncOperationsOnCapturedSynchronizationContextToImprovePerformance()
+            {
+                var transmitter = new StubTransmitter() { OnEnqueue = transmission => Task.Run(() => { }) };
+                var serializer = new TelemetrySerializer(transmitter)
+                {
+                    EndpointAddress = new Uri("https://127.0.0.1")
+                };
+
+                bool postedBack = false;
+                using (var context = new StubSynchronizationContext())
+                {
+                    context.OnPost = (callback, state) =>
+                    {
+                        postedBack = true;
+                        callback(state);
+                    };
+
+                    serializer.SerializeAsync(new[] { new StubTelemetry() }, new CancellationToken());
+                }
+
+                Assert.IsFalse(postedBack);
+            }
+
+            [TestMethod]
+            public void SetCanceledStatusOnCancellationToken()
+            {
+                Transmission transmission = null;
+                var transmitter = new StubTransmitter();
+                transmitter.OnEnqueue = t =>
+                {
+                    transmission = t;
+                };
+
+                var serializer = new TelemetrySerializer(transmitter) { EndpointAddress = new Uri("http://expected.uri") };
+                var serializerTask = serializer.SerializeAsync(new[] { new StubTelemetry() }, new CancellationToken(true));
+
+                Assert.AreEqual(true, serializerTask.IsCanceled);         
+            }
+
+            private static string Unzip(byte[] content)
+            {
+                var memoryStream = new MemoryStream(content);
+                var gzipStream = new GZipStream(memoryStream, CompressionMode.Decompress);
+                using (var streamReader = new StreamReader(gzipStream))
+                {
+                    return streamReader.ReadToEnd();
+                }
+            }
+        }
     }
 }

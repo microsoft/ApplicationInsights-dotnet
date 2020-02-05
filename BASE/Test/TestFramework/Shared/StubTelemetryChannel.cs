@@ -1,8 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.TestFramework
 {
     using System;
-    using System.Threading;
-    using System.Threading.Tasks;
+
     using Microsoft.ApplicationInsights.Channel;
 
     /// <summary>
@@ -39,7 +38,7 @@
         /// Gets or sets an integer value. This field exists to test config parsing.
         /// </summary>
         public int IntegerProperty { get; set; }
-    
+
         /// <summary>
         /// Gets or sets the callback invoked by the <see cref="Send"/> method.
         /// </summary>
@@ -76,14 +75,6 @@
         public void Flush()
         {
             this.OnFlush();
-        }
-
-        /// <summary>
-        /// Implements  the <see cref="ITelemetryChannel.FlushAsync" /> method.
-        /// </summary>
-        public Task<bool> FlushAsync(CancellationToken cancellationToken)
-        {
-            return Task.FromResult(true);
         }
     }
 }

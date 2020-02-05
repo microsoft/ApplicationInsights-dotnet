@@ -22,6 +22,7 @@
         private static HttpClient client = new HttpClient() { Timeout = System.Threading.Timeout.InfiniteTimeSpan };
 
         private int isSending;
+        private TaskCompletionSource<bool> flushTaskCompletionSource;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Transmission"/> class.
@@ -44,17 +45,6 @@
             : this(address, JsonSerializer.Serialize(telemetryItems, true), JsonSerializer.ContentType, JsonSerializer.CompressionType, timeout)
         {
             this.TelemetryItems = telemetryItems;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Transmission"/> class. 
-        /// </summary>
-        public Transmission(Uri address, ICollection<ITelemetry> telemetryItems, bool manualFlushAsync, TimeSpan timeout = default(TimeSpan))
-            : this(address, JsonSerializer.Serialize(telemetryItems, true), JsonSerializer.ContentType, JsonSerializer.CompressionType, timeout)
-        { 
-            this.TelemetryItems = telemetryItems;
-            this.ManualFlushAsyncFlag = manualFlushAsync;
-            this.FlushTaskCompletionSource = new TaskCompletionSource<bool>();
         }
 
         /// <summary>
@@ -137,24 +127,6 @@
         }
 
         /// <summary>
-        /// Gets a value indicating whether flush is async.
-        /// </summary>
-        public bool ManualFlushAsyncFlag
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets Test to support async Flush.
-        /// </summary>
-        public TaskCompletionSource<bool> FlushTaskCompletionSource
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
         /// Gets the number of telemetry items in the transmission.
         /// </summary>
         public ICollection<ITelemetry> TelemetryItems
@@ -163,14 +135,43 @@
         }
 
         /// <summary>
-        /// Send signal to Flush Async.
+        /// Gets a value indicating whether flush is async.
         /// </summary>
-        public void SetFlushTaskCompletionSourceResult(bool status)
+        public bool HasFlushTask => this.flushTaskCompletionSource != null && !this.flushTaskCompletionSource.Task.IsCompleted;
+
+        /// <summary>
+        /// Gets Test to support async Flush.
+        /// </summary>
+        public Task<bool> GetFlushTask(CancellationToken cancellationToken)
         {
-            if (this.ManualFlushAsyncFlag)
+            if (this.flushTaskCompletionSource == null)
             {
-                this.ManualFlushAsyncFlag = false;
-                this.FlushTaskCompletionSource.TrySetResult(status);
+                this.flushTaskCompletionSource = new TaskCompletionSource<bool>();
+                cancellationToken.Register(() => this.CancelFlushTask());
+            }
+
+            return this.flushTaskCompletionSource.Task;
+        }
+
+        /// <summary>
+        /// Send signal to flush async task on completion.
+        /// </summary>
+        public void CompleteFlushTask(bool success)
+        {
+            if (this.HasFlushTask)
+            {
+                this.flushTaskCompletionSource.TrySetResult(success);
+            }
+        }
+
+        /// <summary>
+        /// Cancel flush async task.
+        /// </summary>
+        public void CancelFlushTask()
+        {
+            if (this.HasFlushTask)
+            {
+                this.flushTaskCompletionSource.TrySetCanceled();
             }
         }
 

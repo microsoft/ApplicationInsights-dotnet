@@ -314,7 +314,10 @@
         /// <summary>
         /// Asynchronously flushes the telemetry buffer. 
         /// </summary>
-        /// <returns>The task to await. Task has true set on successful flush.</returns>
+        /// <returns>
+        /// True indicates telemetry data ownership is transferred out of process, that are emitted before the flush invocation.
+        /// False indicates transfer of telemetry data has failed, the process still owns all or part of the telemetry.
+        /// </returns>
         public Task<bool> FlushAsync(CancellationToken cancellationToken)
         {
             if (!this.isInitialized)
@@ -323,7 +326,12 @@
             }
 
             TelemetryChannelEventSource.Log.TelemetryChannelFlushAsync();
-            return this.TelemetryBuffer.ManualFlushAsync(cancellationToken);
+
+            return cancellationToken.IsCancellationRequested ? Task.Factory.StartNew(() =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                return false;
+            }, cancellationToken) : this.TelemetryBuffer.ManualFlushAsync(cancellationToken);
         }
 
         /// <summary>
