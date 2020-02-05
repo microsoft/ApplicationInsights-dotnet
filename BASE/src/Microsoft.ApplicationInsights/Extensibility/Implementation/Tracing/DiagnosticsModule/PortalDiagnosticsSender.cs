@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsModule
 {
     using System;
     using System.Globalization;

@@ -7,7 +7,7 @@
     using System.Security.AccessControl;
     using System.Security.Principal;
 
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
     [TestClass]

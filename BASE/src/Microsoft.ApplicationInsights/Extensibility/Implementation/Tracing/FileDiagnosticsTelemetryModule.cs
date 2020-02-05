@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
 #if !NETSTANDARD1_3
 
@@ -8,6 +8,7 @@
     using System.IO;
     using System.Security;
     using System.Threading;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.FileDiagnosticsModule;
     using Microsoft.ApplicationInsights.Common.Extensions;
     using static System.FormattableString;
 

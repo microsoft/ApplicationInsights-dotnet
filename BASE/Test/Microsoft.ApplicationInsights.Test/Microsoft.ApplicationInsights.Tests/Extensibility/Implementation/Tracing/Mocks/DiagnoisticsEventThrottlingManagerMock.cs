@@ -6,6 +6,8 @@
 // <summary></summary>
 // -----------------------------------------------------------------------
 
+using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsModule;
+
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Mocks
 {
     internal class DiagnoisticsEventThrottlingManagerMock : IDiagnoisticsEventThrottlingManager

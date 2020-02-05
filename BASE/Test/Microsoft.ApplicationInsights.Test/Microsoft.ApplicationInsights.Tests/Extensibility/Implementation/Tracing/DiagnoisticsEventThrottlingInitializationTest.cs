@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
     using System;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsModule;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
