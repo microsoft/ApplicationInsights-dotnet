@@ -1,7 +1,12 @@
-# Changelog
+﻿# Changelog
 
 ## VNext
 
+
+## Version 2.13.0-beta2
+- [Move FileDiagnosticTelemetryModule to Microsoft.ApplicationInsights assembly.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1059)
+- [Do not track exceptions from HttpClient on .NET Core](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1362)
+- [Copy tags if we create new Activity in ASP.NET Core listener](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1660)
 
 ## Version 2.13.0-beta1
 - [All product sdks are now building the same symbols (DebugType = FULL) and we're including symbols in the nuget package.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1527)
@@ -12,6 +17,9 @@
 - [Sanitizing Message in Exception](https://github.com/microsoft/ApplicationInsights-dotnet/issues/546)
 - [Fix CreateRequestTelemetryPrivate throwing System.ArgumentOutOfRangeException](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1513)
 - [NLog supports TargetFramework NetStandard2.0 and reduces dependencies](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1522)
+
+## Version 2.12.1
+- [Fix Endpoint configuration bug affecting ServerTelemetryChannel and QuickPulseTelemetryModule](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1648)
 
 ## Version 2.12.0
 - [Fix IndexOutOfRangeException in W3CUtilities.TryGetTraceId](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1327)

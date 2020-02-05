@@ -25,8 +25,8 @@ steps:
   displayName: DotNetCoreCLI - Test NetCore 2.0
   inputs:
     command: "test"
-    projects: "BASE/Test/**/*netcoreapp20*.csproj"
-    arguments: "--configuration Release -l trx --filter TestCategory!=WindowsOnly"
+    projects: "BASE/Test/**/Microsoft.ApplicationInsights.Tests.csproj"
+    arguments: "--configuration Release --framework netcoreapp2.0 -l trx --filter TestCategory!=WindowsOnly"
 
 - task: DotNetCoreInstaller@0
   inputs:
@@ -36,8 +36,8 @@ steps:
   displayName: DotNetCoreCLI - Test NetCore 1.1
   inputs:
     command: "test"
-    projects: "BASE/Test/**/*netcoreapp11*.csproj"
-    arguments: "--configuration Release -l trx --filter TestCategory!=WindowsOnly"
+    projects: "BASE/Test/**/Microsoft.ApplicationInsights.Tests.csproj"
+    arguments: "--configuration Release --framework netcoreapp1.1 -l trx --filter TestCategory!=WindowsOnly"
 
 - task: PublishTestResults@2
   condition: always()
