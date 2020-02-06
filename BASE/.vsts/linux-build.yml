@@ -4,9 +4,14 @@ variables:
 pool:
   vmImage: 'ubuntu-16.04'
 steps:
+
 - task: DotNetCoreInstaller@0
   inputs:
-    version: $(DotNetVersion)
+    version: 2.2.207
+
+- task: DotNetCoreInstaller@0
+  inputs:
+    version: 3.0.102
 
 - task: DotNetCoreCLI@1
   displayName: DotNetCoreCLI - Restore Solution
