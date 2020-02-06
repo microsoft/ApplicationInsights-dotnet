@@ -504,7 +504,11 @@
         }
 
         [TestMethod]
+#if NETCOREAPP3_0
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "Failed to parse configuration value. Property: 'TimeSpanProperty' Reason: String 'TestValue' was not recognized as a valid TimeSpan.")]
+#else
         [ExpectedExceptionWithMessage(typeof(ArgumentException), "Failed to parse configuration value. Property: 'TimeSpanProperty' Reason: String was not recognized as a valid TimeSpan.")]
+#endif
         public void LoadInstanceSetsInstancePropertiesOfTimeSpanTypeFromChildElementValuesOfDefinitionWithInvalidFormatThrowsException()
         {
             var definition = new XElement(
@@ -641,9 +645,9 @@
             Assert.AreEqual(42, loaded.Int32Property);
         }
 
-        #endregion
+#endregion
 
-        #region TelemetryProcesors
+#region TelemetryProcesors
 
         [TestMethod]
         public void InitializeTelemetryProcessorsFromConfigurationFile()
@@ -873,9 +877,9 @@
             AssertEx.IsType<StubTelemetryProcessor2>(configuration.TelemetryProcessors[1]);
         }
 
-        #endregion
+#endregion
 
-        #region Modules
+#region Modules
 
         [TestMethod]
         public void InitializeTelemetryModulesFromConfigurationFile()
@@ -961,9 +965,9 @@
             }
         }
 
-        #endregion
+#endregion
 
-        #region TelemetryInitializers
+#region TelemetryInitializers
         [TestMethod]
         public void InitializeAddTelemetryInitializersWithOneInvalid()
         {
@@ -982,9 +986,9 @@
         }
 
 
-        #endregion
+#endregion
 
-        #region LoadInstances<T>
+#region LoadInstances<T>
 
         [TestMethod]
         public void LoadInstancesPopulatesListWithInstancesOfSpecifiedType()
@@ -1055,9 +1059,9 @@
             AssertEx.AreEqual(new[] { 42 }, instances);
         }
 
-        #endregion
+#endregion
 
-        #region LoadProperties
+#region LoadProperties
 
         [TestMethod]
         public void LoadPropertiesConvertsPropertyValuesFromStringToPropertyType()
@@ -1215,9 +1219,9 @@
             Assert.IsFalse(instance.TelemetryChannel.DeveloperMode.HasValue);
         }
 
-        #endregion
+#endregion
 
-        #region TelemetrySinks
+#region TelemetrySinks
 
         [TestMethod]
         public void EmptyConfigurationCreatesDefaultSink()
@@ -1783,7 +1787,7 @@
             Assert.IsTrue(processor.Initialized);
         }
 
-        #endregion 
+#endregion
 
         [TestMethod]
         public void InitializeIsMarkesAsInternalSdkOperation()

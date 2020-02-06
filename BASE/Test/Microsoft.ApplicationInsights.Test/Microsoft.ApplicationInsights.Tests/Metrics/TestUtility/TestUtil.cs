@@ -236,7 +236,7 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtility
             Assert.IsNotNull(versionMoniker);
 
             // Expected result example: "m-agg2:2.6.0-12552"
-#if NETCOREAPP1_1 || NETCOREAPP2_0
+#if NETCOREAPP // This constant is defined for all versions of NetCore https://docs.microsoft.com/en-us/dotnet/core/tutorials/libraries#how-to-multitarget
         const string expectedPrefix = "m-agg2c:";
 #else
             const string expectedPrefix = "m-agg2:";
