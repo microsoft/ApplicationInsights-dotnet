@@ -8,8 +8,8 @@
     using System.IO;
     using System.Security;
     using System.Threading;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.FileDiagnosticsModule;
     using Microsoft.ApplicationInsights.Common.Extensions;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.FileDiagnosticsModule;
     using static System.FormattableString;
 
     /// <summary>
