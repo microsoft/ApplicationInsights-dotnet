@@ -46,7 +46,7 @@ steps:
 
  ## Install and test NetCore 1.1
 
-- task: DotNetCoreInstaller@1
+- task: DotNetCoreInstaller@0
   displayName: install dotnet core 1.1
   inputs:
     version: 1.1.5
