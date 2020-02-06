@@ -102,9 +102,9 @@
         /// If the configuration file does not exist, the active configuration instance is initialized with minimum defaults 
         /// needed to send telemetry to Application Insights.
         /// </summary>
-#if NETSTANDARD1_3 || NETSTANDARD2_0
+#if NETSTANDARD // This constant is defined for all versions of NetStandard https://docs.microsoft.com/en-us/dotnet/core/tutorials/libraries#how-to-multitarget
         [Obsolete("We do not recommend using TelemetryConfiguration.Active on .NET Core. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/1152 for more details")]
-#endif 
+#endif
         public static TelemetryConfiguration Active
         {
             get
