@@ -16,8 +16,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.W3C;
-    using Microsoft.ApplicationInsights.W3C.Internal;
 
     /// <summary>
     /// Version of the HttpClient instrumentation.
@@ -67,8 +65,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         private readonly PropertyFetcher startRequestFetcher = new PropertyFetcher("Request");
         private readonly PropertyFetcher stopRequestFetcher = new PropertyFetcher("Request");
-        private readonly PropertyFetcher exceptionRequestFetcher = new PropertyFetcher("Request");
-        private readonly PropertyFetcher exceptionFetcher = new PropertyFetcher("Exception");
         private readonly PropertyFetcher stopResponseFetcher = new PropertyFetcher("Response");
         private readonly PropertyFetcher stopRequestStatusFetcher = new PropertyFetcher("RequestTaskStatus");
         private readonly PropertyFetcher deprecatedRequestFetcher = new PropertyFetcher("Request");
@@ -197,29 +193,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             break;
                         }
 
-                    case HttpExceptionEventName:
-                        {
-                            var exception = this.exceptionFetcher.Fetch(evnt.Value) as Exception;
-                            var request = this.exceptionRequestFetcher.Fetch(evnt.Value) as HttpRequestMessage;
-
-                            if (exception == null)
-                            {
-                                var error = string.Format(CultureInfo.InvariantCulture, errorTemplateTypeCast, evnt.Key, "exception", "Exception");
-                                DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);
-                            }
-                            else if (request == null)
-                            {
-                                var error = string.Format(CultureInfo.InvariantCulture, errorTemplateTypeCast, evnt.Key, "request", "HttpRequestMessage");
-                                DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);
-                            }
-                            else
-                            {
-                                this.OnException(exception, request);
-                            }
-
-                            break;
-                        }
-
                     case DeprecatedRequestEventName:
                         {
                             if (this.httpInstrumentationVersion != HttpInstrumentationVersion.V1)
@@ -289,34 +262,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         {
             this.Dispose(true);
             GC.SuppressFinalize(this);
-        }
-
-        //// netcoreapp 2.0+ event
-
-        /// <summary>
-        /// Handler for Exception event, it is sent when request processing cause an exception (e.g. because of DNS or network issues)
-        /// Stop event will be sent anyway with null response.
-        /// </summary>
-        internal void OnException(Exception exception, HttpRequestMessage request)
-        {
-            // Even though we have the IsEnabled filter, to reject ApplicationInsights URLs before any events are fired,
-            // Exceptions are special and fired even if request instrumentation is disabled.
-            if (this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri))
-            {
-                return;
-            }
-
-            Activity currentActivity = Activity.Current;
-            if (currentActivity == null)
-            {
-                DependencyCollectorEventSource.Log.CurrentActivityIsNull(HttpExceptionEventName);
-                return;
-            }
-            
-            DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerException(currentActivity.Id);
-
-            this.pendingExceptions.TryAdd(currentActivity.Id, exception);
-            this.client.TrackException(exception);
         }
 
         //// netcoreapp 2.0 event
@@ -790,7 +735,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                                 {
                                     if (evnt == HttpExceptionEventName)
                                     {
-                                        return true;
+                                        return false;
                                     }
 
                                     if (!evnt.StartsWith(HttpOutEventName, StringComparison.Ordinal))

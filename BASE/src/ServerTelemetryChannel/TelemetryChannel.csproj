@@ -1,12 +1,17 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <Import Project="$(SourceRoot)\Product.props" />
-  <Import Project="$(PropsRoot)\_Nupkg.props" />
 
+  <Import Project="$(PropsRoot)\Product.props" />
+  
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel</RootNamespace>
     <AssemblyName>Microsoft.AI.ServerTelemetryChannel</AssemblyName>
     <TargetFrameworks>net45;netstandard1.3;netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard1.3;netstandard2.0</TargetFrameworks>
+
+
+    <!-- this constant is set for all other netcore targets except 1-->
+    <DefineConstants Condition="'$(TargetFramework)' == 'netstandard1.3'">$(DefineConstants);NETSTANDARD;</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -43,22 +48,6 @@
     </PackageReference>
   </ItemGroup>
 
-  <Choose>
-    <When Condition=" '$(Configuration)' == 'Release' ">
-      <PropertyGroup>
-        <!-- Microsoft recommends that we disable CodeAnalysis in favor of FxCop Analyzers. aka.ms/fxcopanalyzers -->
-        <RunCodeAnalysis>false</RunCodeAnalysis>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-      </PropertyGroup>
-    </When>
-    <When Condition=" '$(Configuration)' != 'Release' ">
-      <PropertyGroup>
-        <RunCodeAnalysis>false</RunCodeAnalysis>
-        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-      </PropertyGroup>
-    </When>
-  </Choose>
-
   <ItemGroup>
     <!--Build Infrastructure-->
     <PackageReference Include="MicroBuild.Core" Version="0.3.0">
@@ -68,14 +57,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
-    <Reference Include="System.Web" Condition="'$(TargetFramework)' == 'net45'" />
-    <Reference Include="System.Net.Http" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
     <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
+    
+    <Reference Include="System.Web" />
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
   
   <ItemGroup>

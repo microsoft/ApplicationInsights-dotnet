@@ -6,8 +6,6 @@
   </Target>
 
   <Import Project=".\_Common.props" />
+  <Import Project=".\_AnalyzerSettings.props" />
 
-  <PropertyGroup>
-    
-  </PropertyGroup>
 </Project>

@@ -8,7 +8,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
     using System.Net;
     using System.Net.NetworkInformation;
     using System.Security;
-    using System.Threading;
 
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -33,7 +32,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
             {
                 this.environmentVariables = Environment.GetEnvironmentVariables();
             }
-            catch (SecurityException e)
+            catch (Exception e)
             {
                 CoreEventSource.Log.FailedToLoadEnvironmentVariables(e.ToString());
             }
@@ -150,11 +149,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
     using System;
     using System.Collections.Generic;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     internal class PlatformImplementation : IPlatform
     {
         private IDebugOutput debugOutput = null;
-        
+
         public IDictionary<string, object> GetApplicationSettings()
         {
             return null;
@@ -177,17 +177,28 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
         {
             if (this.debugOutput == null)
             {
-                this.debugOutput = new TelemetryDebugWriter(); 
+                this.debugOutput = new TelemetryDebugWriter();
             }
-            
+
             return this.debugOutput;
         }
 
         /// <inheritdoc />
         public bool TryGetEnvironmentVariable(string name, out string value)
         {
-            value = Environment.GetEnvironmentVariable(name);
-            return !string.IsNullOrEmpty(value);
+            value = string.Empty;
+
+            try
+            {
+                value = Environment.GetEnvironmentVariable(name);
+                return !string.IsNullOrEmpty(value);
+            }
+            catch (Exception e)
+            {
+                CoreEventSource.Log.FailedToLoadEnvironmentVariables(e.ToString());
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -196,7 +207,16 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
         /// <returns>The machine name.</returns>
         public string GetMachineName()
         {
-            return Environment.GetEnvironmentVariable("COMPUTERNAME");
+            try
+            {
+                return Environment.GetEnvironmentVariable("COMPUTERNAME");
+            }
+            catch (Exception e)
+            {
+                CoreEventSource.Log.FailedToLoadEnvironmentVariables(e.ToString());
+            }
+
+            return string.Empty;
         }
     }
 }

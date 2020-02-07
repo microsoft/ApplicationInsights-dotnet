@@ -6,7 +6,7 @@
 	<TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp2.0</TargetFrameworks>
 	<RuntimeIdentifier Condition=" '$(TargetFramework)' == 'net461' ">win7-x86</RuntimeIdentifier>    
     <PreserveCompilationContext>true</PreserveCompilationContext>
-    <AssemblyName>EmptyApp20.FunctionalTests20</AssemblyName>    
+    <AssemblyName>EmptyApp20.FunctionalTests20.Tests</AssemblyName>    
     <PackageId>EmptyApp20.FunctionalTests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">2.0.0</RuntimeFrameworkVersion>

@@ -1,11 +1,26 @@
-# Changelog
+﻿# Changelog
 
 ## VNext
-- [Upgraded FxCop and fixed several issues related to null checks and disposing objects.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1499)
-- [Exceptions are not correlated to requests when customErrors=Off and Request-Id is passed](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1493)
-- [Switch to compact Id format in W3C mode](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1498)
 - [Adding a flag to DependencyTrackingTelemetryModule to enable/disable collection of SQL Command text.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1514)
    Collecting SQL Command Text will now be opt-in, so this value will default to false. This is a change from the current behavior on .NET Core. To see how to collect SQL Command Text see here for details: https://docs.microsoft.com/en-us/azure/azure-monitor/app/asp-net-dependencies#advanced-sql-tracking-to-get-full-sql-query
+
+## Version 2.13.0-beta2
+- [Move FileDiagnosticTelemetryModule to Microsoft.ApplicationInsights assembly.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1059)
+- [Do not track exceptions from HttpClient on .NET Core](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1362)
+- [Copy tags if we create new Activity in ASP.NET Core listener](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1660)
+
+## Version 2.13.0-beta1
+- [All product sdks are now building the same symbols (DebugType = FULL) and we're including symbols in the nuget package.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1527)
+- [Upgraded FxCop and fixed several issues related to null checks and disposing objects.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1499)
+- [Fix Environment read permission Exception](https://github.com/microsoft/ApplicationInsights-dotnet/issues/657)
+- [Exceptions are not correlated to requests when customErrors=Off and Request-Id is passed](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1493)
+- [Switch to compact Id format in W3C mode](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1498)
+- [Sanitizing Message in Exception](https://github.com/microsoft/ApplicationInsights-dotnet/issues/546)
+- [Fix CreateRequestTelemetryPrivate throwing System.ArgumentOutOfRangeException](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1513)
+- [NLog supports TargetFramework NetStandard2.0 and reduces dependencies](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1522)
+
+## Version 2.12.1
+- [Fix Endpoint configuration bug affecting ServerTelemetryChannel and QuickPulseTelemetryModule](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1648)
 
 ## Version 2.12.0
 - [Fix IndexOutOfRangeException in W3CUtilities.TryGetTraceId](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1327)
@@ -18,7 +33,7 @@
 - [Log4Net includes Message for ExceptionTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1315)
 - [NLog includes Message for ExceptionTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1315)
 - [Fix RouteData not set in ASP.Net Core 3.0](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1318)
-- [Fix depednency tracking for Microsoft.Azure.EventHubs SDK 4.1.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1317)
+- [Fix dependency tracking for Microsoft.Azure.EventHubs SDK 4.1.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1317)
 
 ## Version 2.12.0-beta3
 - [Standard Metric extractor for Dependency) add Dependency.ResultCode dimension.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1233)

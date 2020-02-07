@@ -20,3 +20,15 @@ Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxReq
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxRequestResponseCodeValuesToDiscover.set -> void
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxDependencyResultCodesToDiscover.get -> int
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxDependencyResultCodesToDiscover.set -> void
+
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.FileDiagnosticsTelemetryModule
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.FileDiagnosticsTelemetryModule.Dispose() -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.FileDiagnosticsTelemetryModule.FileDiagnosticsTelemetryModule() -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.FileDiagnosticsTelemetryModule.Initialize(Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration configuration) -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.FileDiagnosticsTelemetryModule.LogFileName.get -> string
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.FileDiagnosticsTelemetryModule.LogFileName.set -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.FileDiagnosticsTelemetryModule.LogFilePath.get -> string
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.FileDiagnosticsTelemetryModule.LogFilePath.set -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.FileDiagnosticsTelemetryModule.Severity.get -> string
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.FileDiagnosticsTelemetryModule.Severity.set -> void
+virtual Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.FileDiagnosticsTelemetryModule.Dispose(bool disposeManaged = true) -> void

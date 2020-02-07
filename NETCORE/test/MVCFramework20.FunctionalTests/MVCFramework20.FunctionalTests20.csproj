@@ -6,7 +6,7 @@
 	<TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp2.0</TargetFrameworks>
 	<RuntimeIdentifier Condition=" '$(TargetFramework)' == 'net461' ">win7-x86</RuntimeIdentifier>
     <PreserveCompilationContext>true</PreserveCompilationContext>
-    <AssemblyName>MVCFramework20.FunctionalTests20</AssemblyName>
+    <AssemblyName>MVCFramework20.FunctionalTests20.Tests</AssemblyName>
     <PackageId>MVCFramework.FunctionalTests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <UserSecretsId>aspnet-MVCFramework45.FunctionalTests-60cfc765-2dc9-454c-bb34-dc379ed92cd0</UserSecretsId>

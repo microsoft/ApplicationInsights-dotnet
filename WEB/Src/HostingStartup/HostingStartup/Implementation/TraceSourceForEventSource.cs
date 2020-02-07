@@ -9,6 +9,7 @@
     /// <summary>
     /// TraceSource that will report Application Insights diagnostics messages.
     /// </summary>
+    [Obsolete("Please use Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.FileDiagnosticsTelemetryModule")]
     [ComVisible(false)]
     public class TraceSourceForEventSource : TraceSource, IEventListener, IDisposable
     {

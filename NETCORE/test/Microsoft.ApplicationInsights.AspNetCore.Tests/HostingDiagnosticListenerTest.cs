@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
@@ -299,9 +300,15 @@
             context.Request.Headers[RequestResponseHeaders.RequestIdHeader] = requestId;
             context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "prop1=value1, prop2=value2";
 
+            var tags = new Dictionary<string, string>
+            {
+                ["tag1"] = "v1",
+                ["tag2"] = "v2",
+            };
+
             using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion, isW3C:IsW3C))
             {
-                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion, tags);
 
                 var activity = Activity.Current;
                 Assert.NotNull(activity);
@@ -311,12 +318,14 @@
                 }
                 else
                 {
-                    // Hosting in 2,3 creates Activity which are ignored by SDK in W3C Mode to use the w3c compatbile traceid from Request-Id
+                    // Hosting in 2,3 creates Activity which are ignored by SDK in W3C Mode to use the w3c compatible trace-id from Request-Id
                     // Validate that activity is the one created by SDK HostingListener
                     if (IsW3C)
                     {
                         Assert.Equal(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
                     }
+
+                    Assert.Equal(tags, activity.Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
                 }
 
                 Assert.Single(activity.Baggage.Where(b => b.Key == "prop1" && b.Value == "value1"));
@@ -351,9 +360,15 @@
             context.Request.Headers[RequestResponseHeaders.RequestIdHeader] = requestId;
             context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "prop1=value1, prop2=value2";
 
+            var tags = new Dictionary<string, string>
+            {
+                ["tag1"] = "v1",
+                ["tag2"] = "v2",
+            };
+
             using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion, isW3C: IsW3C))
             {
-                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion, tags);
 
                 var activity = Activity.Current;
                 Assert.NotNull(activity);
@@ -367,6 +382,7 @@
                     // hence SDK also ignores them, and just uses Activity from Hosting. 
                     // Validate that activity is Not created by SDK Hosting
                     Assert.NotEqual(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
+                    Assert.Equal(tags, activity.Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
                 }
 
                 Assert.Single(activity.Baggage.Where(b => b.Key == "prop1" && b.Value == "value1"));
@@ -411,9 +427,15 @@
             context.Request.Headers[RequestResponseHeaders.RequestIdHeader] = requestId;
             context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "prop1=value1, prop2=value2";
 
+            var tags = new Dictionary<string, string>
+            {
+                ["tag1"] = "v1",
+                ["tag2"] = "v2",
+            };
+
             using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion, isW3C: IsW3C))
             {
-                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion, tags);
 
                 var activity = Activity.Current;
                 Assert.NotNull(activity);
@@ -427,7 +449,9 @@
                     // hence SDK also ignores them, and just uses Activity from Hosting. 
                     // Validate that activity is Not created by SDK Hosting
                     Assert.NotEqual(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
+                    Assert.Equal(tags, activity.Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
                 }
+
                 Assert.Single(activity.Baggage.Where(b => b.Key == "prop1" && b.Value == "value1"));
                 Assert.Single(activity.Baggage.Where(b => b.Key == "prop2" && b.Value == "value2"));
 
@@ -472,9 +496,15 @@
             context.Request.Headers[Microsoft.ApplicationInsights.W3C.W3CConstants.TraceStateHeader] = "w3cprop1=value1, w3cprop2=value2";
             context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "prop1=value1, prop2=value2";
 
+            var tags = new Dictionary<string, string>
+            {
+                ["tag1"] = "v1",
+                ["tag2"] = "v2",
+            };
+
             using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion, isW3C: isW3C))
             {
-                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion, tags);
                 var activity = Activity.Current;
                 Assert.NotNull(activity);
 
@@ -485,6 +515,7 @@
                 else if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two && isW3C)
                 {
                     Assert.Equal(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
+                    Assert.Equal(tags, activity.Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
                 }
                 else if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Three)
                 {
@@ -1236,7 +1267,12 @@
             }
         }
 
-        private void HandleRequestBegin(HostingDiagnosticListener hostingListener, HttpContext context, long timestamp, AspNetCoreMajorVersion aspNetCoreMajorVersion)
+        private void HandleRequestBegin(
+            HostingDiagnosticListener hostingListener,
+            HttpContext context,
+            long timestamp,
+            AspNetCoreMajorVersion aspNetCoreMajorVersion,
+            IEnumerable<KeyValuePair<string, string>> tags = null)
         {
             if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two)
             {
@@ -1244,11 +1280,20 @@
                 {
                     var activity = new Activity("operation");
 
+                    if (tags != null)
+                    {
+                        foreach (var tag in tags)
+                        {
+                            activity.AddTag(tag.Key, tag.Value);
+                        }
+                    }
+
                     // Simulating the behaviour of Hosting layer in 2.xx, which parses Request-Id Header and 
                     // set Activity parent.
                     if (context.Request.Headers.TryGetValue("Request-Id", out var requestId))
                     {
                         activity.SetParentId(requestId);
+
                         string[] baggage = context.Request.Headers.GetCommaSeparatedValues(RequestResponseHeaders.CorrelationContextHeader);
                         if (baggage != StringValues.Empty && !activity.Baggage.Any())
                         {
@@ -1275,6 +1320,13 @@
                 if (Activity.Current == null)
                 {
                     var activity = new Activity("operation");
+                    if (tags != null)
+                    {
+                        foreach (var tag in tags)
+                        {
+                            activity.AddTag(tag.Key, tag.Value);
+                        }
+                    }
 
                     // Simulating the behaviour of Hosting layer in 3.xx, which parses TraceParent if available, or Request-Id Header and 
                     // set Activity parent.
