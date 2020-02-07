@@ -193,11 +193,11 @@
                 return this.serializer.SerializeAsync(telemetryToFlush, cancellationToken);
             }
 
-            return cancellationToken.IsCancellationRequested ? Task.Factory.StartNew(() =>
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                return false;
-            }, cancellationToken) : Task.FromResult(false);
+#if NET45
+            return cancellationToken.IsCancellationRequested ? Task.Factory.StartNew(() => false, cancellationToken) : Task.FromResult(false);
+#else
+            return cancellationToken.IsCancellationRequested ? Task.FromCanceled<bool>(cancellationToken) : Task.FromResult(false);
+#endif
         }
 
         public IEnumerator<ITelemetry> GetEnumerator()

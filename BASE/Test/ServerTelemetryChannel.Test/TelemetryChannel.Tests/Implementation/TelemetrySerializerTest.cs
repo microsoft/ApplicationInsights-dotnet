@@ -183,14 +183,14 @@
             public void ThrowsArgumentNullExceptionWhenTelemetryIsNullToPreventUsageErrors()
             {
                 var serializer = new TelemetrySerializer(new StubTransmitter());
-                AssertEx.Throws<ArgumentNullException>(() => serializer.SerializeAsync(null, new CancellationToken()));
+                AssertEx.Throws<ArgumentNullException>(() => serializer.SerializeAsync(null, CancellationToken.None));
             }
 
             [TestMethod]
             public void ThrowsArgumentExceptionWhenTelemetryIsEmptyToPreventUsageErrors()
             {
                 var serializer = new TelemetrySerializer(new StubTransmitter());
-                AssertEx.Throws<ArgumentException>(() => serializer.SerializeAsync(new List<ITelemetry>(), new CancellationToken()));
+                AssertEx.Throws<ArgumentException>(() => serializer.SerializeAsync(new List<ITelemetry>(), CancellationToken.None));
             }
 
             [TestMethod]
@@ -205,7 +205,7 @@
                 };
 
                 var serializer = new TelemetrySerializer(transmitter) { EndpointAddress = new Uri("http://expected.uri") };
-                await serializer.SerializeAsync(new[] { new StubTelemetry() }, new CancellationToken());
+                await serializer.SerializeAsync(new[] { new StubTelemetry() }, CancellationToken.None);
 
                 Assert.AreEqual(serializer.EndpointAddress, transmission.EndpointAddress);
                 Assert.AreEqual("application/x-json-stream", transmission.ContentType);
@@ -232,7 +232,7 @@
                 };
 
                 var serializer = new TelemetrySerializer(transmitter) { EndpointAddress = new Uri("http://expected.uri") };
-                await serializer.SerializeAsync(new[] { new StubSerializableTelemetry() }, new CancellationToken());
+                await serializer.SerializeAsync(new[] { new StubSerializableTelemetry() }, CancellationToken.None);
 
                 Assert.AreEqual(serializer.EndpointAddress, transmission.EndpointAddress);
                 Assert.AreEqual("application/x-json-stream", transmission.ContentType);
@@ -266,7 +266,7 @@
                         callback(state);
                     };
 
-                    serializer.SerializeAsync(new[] { new StubTelemetry() }, new CancellationToken());
+                    serializer.SerializeAsync(new[] { new StubTelemetry() }, CancellationToken.None);
                 }
 
                 Assert.IsFalse(postedBack);

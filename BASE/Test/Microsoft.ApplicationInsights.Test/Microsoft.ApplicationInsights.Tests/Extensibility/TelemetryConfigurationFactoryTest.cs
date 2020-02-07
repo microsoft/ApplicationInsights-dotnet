@@ -1976,8 +1976,6 @@
 
             public void Flush() { }
 
-            public Task<bool> FlushAsync(CancellationToken cancellationToken) { return Task.FromResult(true); }
-
             public void Initialize(TelemetryConfiguration configuration)
             {
                 this.Initialized = true;

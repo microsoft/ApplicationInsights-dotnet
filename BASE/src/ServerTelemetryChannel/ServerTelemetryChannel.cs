@@ -327,11 +327,11 @@
 
             TelemetryChannelEventSource.Log.TelemetryChannelFlushAsync();
 
-            return cancellationToken.IsCancellationRequested ? Task.Factory.StartNew(() =>
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                return false;
-            }, cancellationToken) : this.TelemetryBuffer.ManualFlushAsync(cancellationToken);
+#if NET45
+            return cancellationToken.IsCancellationRequested ? Task.Factory.StartNew(() => false, cancellationToken) : this.TelemetryBuffer.ManualFlushAsync(cancellationToken);
+#else
+            return cancellationToken.IsCancellationRequested ? Task.FromCanceled<bool>(cancellationToken) : this.TelemetryBuffer.ManualFlushAsync(cancellationToken);
+#endif
         }
 
         /// <summary>

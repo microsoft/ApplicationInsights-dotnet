@@ -331,14 +331,22 @@
             }
 
             [TestMethod]
-            public void SendCancelledTaskOnCancellationToken()
+            public async Task SendCancelledTaskOnCancellationToken()
             {
                 var mockTelemetryBuffer = new Mock<TelemetryChannel.Implementation.TelemetryBuffer>();
                 var channel = new ServerTelemetryChannel { TelemetryBuffer = mockTelemetryBuffer.Object };
                 channel.Initialize(TelemetryConfiguration.CreateDefault());
 
                 var flushTask = channel.FlushAsync(new CancellationToken(true));
-                Thread.Sleep(TimeSpan.FromMilliseconds(100));
+
+                try
+                {
+                    await flushTask;
+                }
+                catch(Exception)
+                {
+                    // Fails when task is canceled 
+                }
 
                 Assert.AreEqual(true, flushTask.IsCanceled);
             }
@@ -474,7 +482,7 @@
                 var telemetry = new StubTelemetry();
                 telemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
                 channel.Send(telemetry);
-                Thread.Sleep(TimeSpan.FromMilliseconds(1));
+                Thread.Sleep(TimeSpan.FromMilliseconds(100));
 
                 Assert.IsTrue(wasCalled);
             }
