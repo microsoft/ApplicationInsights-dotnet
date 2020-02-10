@@ -15,7 +15,10 @@
 
     internal class AzureSdkDiagnosticsEventHandler : DiagnosticsEventHandlerBase
     {
+#if NET45
         private static readonly DateTimeOffset EpochStart = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+#endif
+
         private readonly ObjectInstanceBasedOperationHolder<OperationTelemetry> operationHolder = new ObjectInstanceBasedOperationHolder<OperationTelemetry>();
 
         // fetchers must not be reused between sources
@@ -137,6 +140,54 @@
         protected override bool IsOperationSuccessful(string eventName, object eventPayload, Activity activity)
         {
             return true;
+        }
+
+        private static bool TryGetAverageTimeInQueueForBatch(IEnumerable<Activity> links, DateTimeOffset requestStartTime, out long avgTimeInQueue)
+        {
+            avgTimeInQueue = 0;
+            int linksCount = 0;
+            foreach (var link in links)
+            {
+                if (!this.TryGetEnqueuedTime(link, out var msgEnqueuedTime))
+                {
+                    // instrumentation does not consistently report enqueued time, ignoring whole span
+                    return false;
+                }
+                
+                long startEpochTime = 0;
+#if NET45
+                startEpochTime = (long)(requestStartTime - EpochStart).TotalMilliseconds;
+#else
+                startEpochTime = requestStartTime.ToUnixTimeMilliseconds();
+#endif
+                avgTimeInQueue += Math.Max(startEpochTime - msgEnqueuedTime, 0);
+                linksCount++;
+            }
+
+            if (linksCount == 0)
+            {
+                return false;
+            }
+
+            avgTimeInQueue /= linksCount;
+            return true;
+        }
+
+        private static bool TryGetEnqueuedTime(Activity link, out long enqueuedTime)
+        {
+            enqueuedTime = 0;
+            foreach (var attribute in link.Tags)
+            {
+                if (attribute.Key == "enqueuedTime")
+                {
+                    if (attribute.Value is string strValue)
+                    {
+                        return long.TryParse(strValue, out enqueuedTime);
+                    }
+                }
+            }
+
+            return false;
         }
 
         private string GetType(Activity currentActivity)
@@ -321,54 +372,6 @@
                 linksJson.Append("]");
                 telemetry.Properties["_MS.links"] = linksJson.ToString();
             }
-        }
-
-        private bool TryGetAverageTimeInQueueForBatch(IEnumerable<Activity> links, DateTimeOffset requestStartTime, out long avgTimeInQueue)
-        {
-            avgTimeInQueue = 0;
-            int linksCount = 0;
-            foreach (var link in links)
-            {
-                if (!this.TryGetEnqueuedTime(link, out var msgEnqueuedTime))
-                {
-                    // instrumentation does not consistently report enqueued time, ignoring whole span
-                    return false;
-                }
-                
-                long startEpochTime = 0;
-#if NET45
-                startEpochTime = (long)(requestStartTime - EpochStart).TotalMilliseconds;
-#else
-                startEpochTime = requestStartTime.ToUnixTimeMilliseconds();
-#endif
-                avgTimeInQueue += Math.Max(startEpochTime - msgEnqueuedTime, 0);
-                linksCount++;
-            }
-
-            if (linksCount == 0)
-            {
-                return false;
-            }
-
-            avgTimeInQueue /= linksCount;
-            return true;
-        }
-
-        private bool TryGetEnqueuedTime(Activity link, out long enqueuedTime)
-        {
-            enqueuedTime = 0;
-            foreach (var attribute in link.Tags)
-            {
-                if (attribute.Key == "enqueuedTime")
-                {
-                    if (attribute.Value is string strValue)
-                    {
-                        return long.TryParse(strValue, out enqueuedTime);
-                    }
-                }
-            }
-
-            return false;
         }
     }
 }
