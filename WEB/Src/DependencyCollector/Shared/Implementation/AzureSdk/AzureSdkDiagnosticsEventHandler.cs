@@ -69,7 +69,7 @@
                         this.PopulateLinks(activityLinks, telemetry);
 
                         if (telemetry is RequestTelemetry request &&
-                            this.TryGetAverageTimeInQueueForBatch(activityLinks, currentActivity.StartTimeUtc, out long enqueuedTime))
+                            TryGetAverageTimeInQueueForBatch(activityLinks, currentActivity.StartTimeUtc, out long enqueuedTime))
                         {
                             request.Metrics["timeSinceEnqueued"] = enqueuedTime;
                         }
@@ -148,7 +148,7 @@
             int linksCount = 0;
             foreach (var link in links)
             {
-                if (!this.TryGetEnqueuedTime(link, out var msgEnqueuedTime))
+                if (!TryGetEnqueuedTime(link, out var msgEnqueuedTime))
                 {
                     // instrumentation does not consistently report enqueued time, ignoring whole span
                     return false;
