@@ -11,7 +11,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.W3C.Internal;
+
     using static Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlClientDiagnostics.SqlClientDiagnosticFetcherTypes;
 
     internal class SqlClientDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>, IDisposable
@@ -416,10 +416,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                 var target = string.Empty;
                 var commandType = (int)commandTypeFetcher.Fetch(command);
                 var commandText = string.Empty;
-                
+
                 // https://docs.microsoft.com/dotnet/api/system.data.commandtype
                 // 4 indicate StoredProcedure
-                if (this.collectCommandText && commandType == 4)
+                if (this.collectCommandText)
                 {
                     commandText = (string)commandTextFetcher.Fetch(command);
                 }
