@@ -40,7 +40,11 @@
 
         protected void SetCommonProperties(string eventName, object eventPayload, Activity activity, OperationTelemetry telemetry)
         {
-            telemetry.Name = this.GetOperationName(eventName, eventPayload, activity);
+            if (string.IsNullOrEmpty(telemetry.Name))
+            {
+                telemetry.Name = this.GetOperationName(eventName, eventPayload, activity);
+            }
+
             telemetry.Duration = activity.Duration;
             telemetry.Timestamp = activity.StartTimeUtc;
 

@@ -1,7 +1,7 @@
 ﻿# Changelog
 
 ## VNext
-
+- [Support new conventions for EventHubs from Azure.Messaging.EventHubs and processor.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1674)
 
 ## Version 2.13.0-beta2
 - [Move FileDiagnosticTelemetryModule to Microsoft.ApplicationInsights assembly.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1059)
