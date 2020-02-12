@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Globalization;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsModule;
     using TestFramework;
 
     internal class DiagnosticsSenderMock : IDiagnosticsSender

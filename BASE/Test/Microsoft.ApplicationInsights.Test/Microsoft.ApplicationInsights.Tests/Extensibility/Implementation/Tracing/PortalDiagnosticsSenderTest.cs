@@ -5,6 +5,7 @@
     using System.Diagnostics.Tracing;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsModule;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Mocks;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using TestFramework;

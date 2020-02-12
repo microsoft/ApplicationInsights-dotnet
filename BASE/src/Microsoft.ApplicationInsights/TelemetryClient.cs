@@ -19,7 +19,7 @@
     /// </summary>
     public sealed class TelemetryClient
     {
-#if NETSTANDARD1_3 || NETSTANDARD2_0
+#if NETSTANDARD // This constant is defined for all versions of NetStandard https://docs.microsoft.com/en-us/dotnet/core/tutorials/libraries#how-to-multitarget
         private const string VersionPrefix = "dotnetc:";
 #else
         private const string VersionPrefix = "dotnet:";
@@ -32,7 +32,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryClient" /> class. Send telemetry with the active configuration, usually loaded from ApplicationInsights.config.
         /// </summary>
-#if NETSTANDARD1_3 || NETSTANDARD2_0
+#if NETSTANDARD // This constant is defined for all versions of NetStandard https://docs.microsoft.com/en-us/dotnet/core/tutorials/libraries#how-to-multitarget
         [Obsolete("We do not recommend using TelemetryConfiguration.Active on .NET Core. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/1152 for more details")]
 #endif
         public TelemetryClient() : this(TelemetryConfiguration.Active)

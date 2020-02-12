@@ -9,6 +9,7 @@
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Mocks
 {
     using System.Collections.Generic;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsModule;
 
     internal class DiagnoisticsEventThrottlingMock : IDiagnoisticsEventThrottling
     {

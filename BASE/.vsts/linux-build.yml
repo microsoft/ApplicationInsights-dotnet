@@ -1,12 +1,12 @@
-variables:
-  DotNetVersion: "2.2.101"
-
 pool:
   vmImage: 'ubuntu-16.04'
 steps:
-- task: DotNetCoreInstaller@0
+
+
+- task: DotNetCoreInstaller@1
+  displayName: install dotnet core 3.0
   inputs:
-    version: $(DotNetVersion)
+    version: 3.0.x
 
 - task: DotNetCoreCLI@1
   displayName: DotNetCoreCLI - Restore Solution
@@ -22,15 +22,34 @@ steps:
     arguments: "--configuration Release"
 
 - task: DotNetCoreCLI@1
+  displayName: DotNetCoreCLI - Test NetCore 3.0
+  inputs:
+    command: "test"
+    projects: "BASE/Test/**/Microsoft.ApplicationInsights.Tests.csproj"
+    arguments: "--configuration Release --framework netcoreapp3.0 -l trx --filter TestCategory!=WindowsOnly"
+
+
+## Install and test NetCore 2.2
+
+- task: DotNetCoreInstaller@1
+  displayName: install dotnet core 2.2
+  inputs:
+    version: 2.2.x
+
+- task: DotNetCoreCLI@1
   displayName: DotNetCoreCLI - Test NetCore 2.0
   inputs:
     command: "test"
     projects: "BASE/Test/**/Microsoft.ApplicationInsights.Tests.csproj"
     arguments: "--configuration Release --framework netcoreapp2.0 -l trx --filter TestCategory!=WindowsOnly"
 
+
+ ## Install and test NetCore 1.1
+
 - task: DotNetCoreInstaller@0
+  displayName: install dotnet core 1.1
   inputs:
-    version: "1.1.5"
+    version: 1.1.5
 
 - task: DotNetCoreCLI@1
   displayName: DotNetCoreCLI - Test NetCore 1.1
@@ -38,6 +57,8 @@ steps:
     command: "test"
     projects: "BASE/Test/**/Microsoft.ApplicationInsights.Tests.csproj"
     arguments: "--configuration Release --framework netcoreapp1.1 -l trx --filter TestCategory!=WindowsOnly"
+
+## Publish test results
 
 - task: PublishTestResults@2
   condition: always()
