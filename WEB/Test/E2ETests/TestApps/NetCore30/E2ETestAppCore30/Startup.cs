@@ -70,6 +70,7 @@ namespace E2ETestAppCore30
                 endpoints.MapControllers();
             });
             
+            module.EnableSqlCommandTextInstrumentation = true;
             module.Initialize(configuration);
         }
     }
