@@ -8,6 +8,10 @@
     <AssemblyName>Microsoft.AI.ServerTelemetryChannel</AssemblyName>
     <TargetFrameworks>net45;netstandard1.3;netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard1.3;netstandard2.0</TargetFrameworks>
+
+
+    <!-- this constant is set for all other netcore targets except 1-->
+    <DefineConstants Condition="'$(TargetFramework)' == 'netstandard1.3'">$(DefineConstants);NETSTANDARD;</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup>
