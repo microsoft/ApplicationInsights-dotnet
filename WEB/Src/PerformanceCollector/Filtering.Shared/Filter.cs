@@ -45,7 +45,7 @@
 
         private static readonly MethodInfo DoubleTryParseMethodInfo = typeof(double).GetMethod(
             "TryParse",
-            new[] { typeof(string), typeof(double).MakeByRefType() });
+            new[] { typeof(string), typeof(NumberStyles), typeof(IFormatProvider), typeof(double).MakeByRefType() });
 
         private static readonly MethodInfo DictionaryStringStringTryGetValueMethodInfo = typeof(IDictionary<string, string>).GetMethod("TryGetValue");
 
@@ -56,6 +56,9 @@
 
         private static readonly MethodInfo DictionaryStringDoubleScanMethodInfo =
            GetMethodInfo<IDictionary<string, double>, string, bool>((dict, searchValue) => Filter<int>.ScanDictionary(dict, searchValue));
+
+        private static readonly ConstantExpression DoubleDefaultNumberStyles = Expression.Constant(NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite | NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands | NumberStyles.AllowExponent);
+        private static readonly ConstantExpression InvariantCulture = Expression.Constant(CultureInfo.InvariantCulture);
 
         private readonly Func<TTelemetry, bool> filterLambda;
 
@@ -90,7 +93,7 @@
                 fieldNameType == FieldNameType.AnyField && this.predicate != Predicate.Contains && this.predicate != Predicate.DoesNotContain);
 
             double comparandDouble;
-            this.comparandDouble = double.TryParse(filterInfo.Comparand, out comparandDouble) ? comparandDouble : (double?)null;
+            this.comparandDouble = double.TryParse(filterInfo.Comparand, NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite | NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands | NumberStyles.AllowExponent, CultureInfo.InvariantCulture, out comparandDouble) ? comparandDouble : (double?)null;
 
             bool comparandBoolean;
             this.comparandBoolean = bool.TryParse(filterInfo.Comparand, out comparandBoolean) ? comparandBoolean : (bool?)null;
@@ -237,7 +240,7 @@
             // a block will "return" its last expression
             return Expression.Block(valueType, new[] { valueVariable }, tryGetValueCall, valueVariable);
         }
-        
+
         private static MethodInfo GetMethodInfo<T, TResult>(Expression<Func<T, TResult>> expression)
         {
             var member = expression.Body as MethodCallExpression;
@@ -666,7 +669,7 @@
         private Expression CreateStringToDoubleComparisonBlock(Expression fieldExpression, Predicate predicate)
         {
             ParameterExpression tempVariable = Expression.Variable(typeof(double));
-            MethodCallExpression doubleTryParseCall = Expression.Call(DoubleTryParseMethodInfo, fieldExpression, tempVariable);
+            MethodCallExpression doubleTryParseCall = Expression.Call(DoubleTryParseMethodInfo, fieldExpression, DoubleDefaultNumberStyles, InvariantCulture, tempVariable);
 
             BinaryExpression comparisonExpression;
             switch (predicate)
