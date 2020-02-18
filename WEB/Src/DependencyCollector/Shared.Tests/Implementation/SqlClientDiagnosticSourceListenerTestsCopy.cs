@@ -2,18 +2,16 @@ namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
     using System.Collections.Generic;
-    using System.Data;
     using System.Data.SqlClient;
     using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlClientDiagnostics;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.W3C.Internal;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -23,7 +21,7 @@ namespace Microsoft.ApplicationInsights.Tests
     public class SqlClientDiagnosticSourceListenerTestsCopy : IDisposable
     {
         private const string TestConnectionString = "Data Source=(localdb)\\MSSQLLocalDB;Database=master";
-        
+
         private IList<ITelemetry> sendItems;
         private StubTelemetryChannel stubTelemetryChannel;
         private TelemetryConfiguration configuration;
@@ -42,7 +40,7 @@ namespace Microsoft.ApplicationInsights.Tests
             };
 
             this.fakeSqlClientDiagnosticSource = new FakeSqlClientDiagnosticSource();
-            this.sqlClientDiagnosticSourceListener = new SqlClientDiagnosticSourceListener(this.configuration);
+            this.sqlClientDiagnosticSourceListener = new SqlClientDiagnosticSourceListener(this.configuration, true);
         }
 
         public void Dispose()
@@ -114,7 +112,7 @@ namespace Microsoft.ApplicationInsights.Tests
 
             typeof(SqlErrorCollection).GetMethod("Add", BindingFlags.NonPublic | BindingFlags.Instance)
                 .Invoke(sqlErrorCollection, new object[] { sqlError });
-            
+
             var sqlExceptionCtor = typeof(SqlException).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)[0];
 
             var sqlException = (SqlException)sqlExceptionCtor.Invoke(
