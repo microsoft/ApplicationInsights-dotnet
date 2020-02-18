@@ -1,7 +1,8 @@
 ﻿# Changelog
 
 ## VNext
-
+- [Adding a flag to DependencyTrackingTelemetryModule to enable/disable collection of SQL Command text.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1514)
+   Collecting SQL Command Text will now be opt-in, so this value will default to false. This is a change from the current behavior on .NET Core. To see how to collect SQL Command Text see here for details: https://docs.microsoft.com/en-us/azure/azure-monitor/app/asp-net-dependencies#advanced-sql-tracking-to-get-full-sql-query
 
 ## Version 2.13.0-beta2
 - [Move FileDiagnosticTelemetryModule to Microsoft.ApplicationInsights assembly.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1059)

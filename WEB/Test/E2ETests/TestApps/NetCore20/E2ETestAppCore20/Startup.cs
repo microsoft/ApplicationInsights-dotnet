@@ -1,23 +1,24 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿
+using Microsoft.ApplicationInsights.DependencyCollector;
+using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights.DependencyCollector;
 
 namespace E2ETestAppCore20
 {
     public class Startup
     {
         public Startup(IHostingEnvironment env)
-        {            
+        {
             var configBuilder = new ConfigurationBuilder()
             .SetBasePath(env.ContentRootPath)
             .AddJsonFile("appsettings.json");
 
-            Configuration = configBuilder.Build();            
+            Configuration = configBuilder.Build();
         }
 
         public IConfiguration Configuration { get; }
@@ -47,7 +48,7 @@ namespace E2ETestAppCore20
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, 
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory,
             IOptions<AppInsightsOptions> options,
             TelemetryConfiguration configuration,
             DependencyTrackingTelemetryModule module)
@@ -56,6 +57,7 @@ namespace E2ETestAppCore20
             loggerFactory.AddDebug();
 
             app.UseMvc();
+            module.EnableSqlCommandTextInstrumentation = true;
             module.Initialize(configuration);
         }
     }
