@@ -49,7 +49,9 @@
         private const string WebSiteIsolationEnvironmentVariable = "WEBSITE_ISOLATION";
         private const string WebSiteIsolationHyperV = "hyperv";
 
+#if !NETSTANDARD1_6
         private static readonly ConcurrentDictionary<string, Tuple<DateTime, PerformanceCounterCategory, InstanceDataCollectionCollection>> cache = new ConcurrentDictionary<string, Tuple<DateTime, PerformanceCounterCategory, InstanceDataCollectionCollection>>();
+#endif
 
         private static readonly ConcurrentDictionary<string, string> PlaceholderCache =
             new ConcurrentDictionary<string, string>();
