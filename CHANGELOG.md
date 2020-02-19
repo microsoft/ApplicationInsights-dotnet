@@ -1,10 +1,16 @@
 ﻿# Changelog
 
 ## VNext
+
+
+## Version 2.14.0-beta1
 - [Support new conventions for EventHubs from Azure.Messaging.EventHubs and processor.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1674)
 - [Adding a flag to DependencyTrackingTelemetryModule to enable/disable collection of SQL Command text.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1514)
-   Collecting SQL Command Text will now be opt-in, so this value will default to false. This is a change from the current behavior on .NET Core. To see how to collect SQL Command Text see here for details: https://docs.microsoft.com/en-us/azure/azure-monitor/app/asp-net-dependencies#advanced-sql-tracking-to-get-full-sql-query
+   Collecting SQL Command Text will now be opt-in, so this value will default to false. This is a change from the current behavior on .NET Core. To see how to collect SQL Command Text see here for details: https://docs.microsoft.com/azure/azure-monitor/app/asp-net-dependencies#advanced-sql-tracking-to-get-full-sql-query
 - [change references to log4net to version 2.0.8](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1675)
+
+## Version 2.13.0
+- no changes since beta.
 
 ## Version 2.13.0-beta2
 - [Move FileDiagnosticTelemetryModule to Microsoft.ApplicationInsights assembly.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1059)
