@@ -435,8 +435,22 @@ Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.AutocollectedMetricsExtractor(Microsoft.ApplicationInsights.Extensibility.ITelemetryProcessor nextProcessorInPipeline) -> void
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.Dispose() -> void
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.Initialize(Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration configuration) -> void
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxDependencyCloudRoleInstanceValuesToDiscover.get -> int
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxDependencyCloudRoleInstanceValuesToDiscover.set -> void
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxDependencyCloudRoleNameValuesToDiscover.get -> int
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxDependencyCloudRoleNameValuesToDiscover.set -> void
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxDependencyResultCodesToDiscover.get -> int
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxDependencyResultCodesToDiscover.set -> void
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxDependencyTargetValuesToDiscover.get -> int
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxDependencyTargetValuesToDiscover.set -> void
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxDependencyTypesToDiscover.get -> int
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxDependencyTypesToDiscover.set -> void
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxRequestCloudRoleInstanceValuesToDiscover.get -> int
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxRequestCloudRoleInstanceValuesToDiscover.set -> void
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxRequestCloudRoleNameValuesToDiscover.get -> int
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxRequestCloudRoleNameValuesToDiscover.set -> void
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxRequestResponseCodeValuesToDiscover.get -> int
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxRequestResponseCodeValuesToDiscover.set -> void
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.Process(Microsoft.ApplicationInsights.Channel.ITelemetry item) -> void
 Microsoft.ApplicationInsights.Extensibility.IApplicationIdProvider
 Microsoft.ApplicationInsights.Extensibility.IApplicationIdProvider.TryGetApplicationId(string instrumentationKey, out string applicationId) -> bool
@@ -480,6 +494,11 @@ Microsoft.ApplicationInsights.Extensibility.Implementation.DeviceContext.ScreenR
 Microsoft.ApplicationInsights.Extensibility.Implementation.DeviceContext.ScreenResolution.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.DeviceContext.Type.get -> string
 Microsoft.ApplicationInsights.Extensibility.Implementation.DeviceContext.Type.set -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer
+Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer.Ingestion.get -> System.Uri
+Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer.Live.get -> System.Uri
+Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer.Profiler.get -> System.Uri
+Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer.Snapshot.get -> System.Uri
 Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental.ExperimentalFeaturesExtension
 Microsoft.ApplicationInsights.Extensibility.Implementation.HttpWebResponseWrapper
 Microsoft.ApplicationInsights.Extensibility.Implementation.HttpWebResponseWrapper.Content.get -> string
@@ -617,10 +636,13 @@ Microsoft.ApplicationInsights.Extensibility.SequencePropertyInitializer.Sequence
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ApplicationIdProvider.get -> Microsoft.ApplicationInsights.Extensibility.IApplicationIdProvider
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ApplicationIdProvider.set -> void
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ConnectionString.get -> string
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ConnectionString.set -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DefaultTelemetrySink.get -> Microsoft.ApplicationInsights.Extensibility.TelemetrySink
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableTelemetry.get -> bool
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableTelemetry.set -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.Dispose() -> void
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.EndpointContainer.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ExperimentalFeatures.get -> System.Collections.Generic.IList<string>
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.InstrumentationKey.get -> string
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.InstrumentationKey.set -> void
