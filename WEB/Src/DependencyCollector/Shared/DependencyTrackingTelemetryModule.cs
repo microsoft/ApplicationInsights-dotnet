@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
+
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.EventHandlers;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlClientDiagnostics;
@@ -68,6 +69,11 @@
         /// Gets or sets a value indicating whether to enable Request-Id correlation headers injection.
         /// </summary>
         public bool EnableRequestIdHeaderInjectionInW3CMode { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to track the SQL command text in SQL dependencies.
+        /// </summary>
+        public bool EnableSqlCommandTextInstrumentation { get; set; } = false;
 
         /// <summary>
         /// Gets the component correlation configuration.
@@ -146,7 +152,7 @@
                                 this.telemetryDiagnosticSourceListener.Subscribe();
                             }
 
-                            this.sqlClientDiagnosticSourceListener = new SqlClientDiagnosticSourceListener(configuration);
+                            this.sqlClientDiagnosticSourceListener = new SqlClientDiagnosticSourceListener(configuration, this.EnableSqlCommandTextInstrumentation);
 
                             if (this.EnableAzureSdkTelemetryListener)
                             {
@@ -198,7 +204,7 @@
                 this.ExcludeComponentCorrelationHttpHeadersOnDomains,
                 this.EnableLegacyCorrelationHeadersInjection,
                 this.EnableRequestIdHeaderInjectionInW3CMode);
-            this.sqlCommandProcessing = new ProfilerSqlCommandProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.SqlRequestConditionalHolder);
+            this.sqlCommandProcessing = new ProfilerSqlCommandProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.SqlRequestConditionalHolder, this.EnableSqlCommandTextInstrumentation);
             this.sqlConnectionProcessing = new ProfilerSqlConnectionProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.SqlRequestConditionalHolder);
 
             ProfilerRuntimeInstrumentation.DecorateProfilerForHttp(ref this.httpProcessing);
@@ -298,8 +304,8 @@
 
             FrameworkHttpProcessing frameworkHttpProcessing = new FrameworkHttpProcessing(
                 this.telemetryConfiguration,
-                DependencyTableStore.Instance.WebRequestCacheHolder, 
-                this.SetComponentCorrelationHttpHeaders, 
+                DependencyTableStore.Instance.WebRequestCacheHolder,
+                this.SetComponentCorrelationHttpHeaders,
                 this.ExcludeComponentCorrelationHttpHeadersOnDomains,
                 this.EnableLegacyCorrelationHeadersInjection);
 
@@ -310,7 +316,7 @@
                 TimeSpan.FromMilliseconds(10));
 
             this.sqlEventListener = RetryPolicy.Retry<InvalidOperationException, TelemetryConfiguration, FrameworkSqlEventListener>(
-                config => new FrameworkSqlEventListener(config, DependencyTableStore.Instance.SqlRequestCacheHolder),
+                config => new FrameworkSqlEventListener(config, DependencyTableStore.Instance.SqlRequestCacheHolder, this.EnableSqlCommandTextInstrumentation),
                 this.telemetryConfiguration,
                 TimeSpan.FromMilliseconds(10));
         }

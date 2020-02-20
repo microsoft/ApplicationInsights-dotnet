@@ -15,6 +15,7 @@
         public const string AzureIotHub = "Azure IoT Hub";
         public const string AzureSearch = "Azure Search";
         public const string InProc = "InProc";
+        public const string QueueMessage = "Queue Message";
 
         public const string WcfService = "WCF Service";
         public const string WebService = "Web Service";
