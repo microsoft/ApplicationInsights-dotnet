@@ -158,14 +158,25 @@
         /// <param name="developerMode">Enables or disables developer mode.</param>
         /// <param name="endpointAddress">Sets telemetry endpoint address.</param>
         /// <param name="instrumentationKey">Sets instrumentation key.</param>
-        /// <param name="connectionString">Sets connection string.</param>
         /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
+        public static IConfigurationBuilder AddApplicationInsightsSettings(this IConfigurationBuilder configurationSourceRoot,  bool? developerMode = null, string endpointAddress = null, string instrumentationKey = null)
+            => configurationSourceRoot.AddApplicationInsightsSettings(developerMode, endpointAddress, instrumentationKey);
+
+            /// <summary>
+            /// Adds Application Insight specific configuration properties to <see cref="IConfigurationBuilder"/>.
+            /// </summary>
+            /// <param name="configurationSourceRoot">The <see cref="IConfigurationBuilder"/> instance.</param>
+            /// <param name="connectionString">Sets connection string.</param>
+            /// <param name="developerMode">Enables or disables developer mode.</param>
+            /// <param name="endpointAddress">Sets telemetry endpoint address.</param>
+            /// <param name="instrumentationKey">Sets instrumentation key.</param>
+            /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
         public static IConfigurationBuilder AddApplicationInsightsSettings(
             this IConfigurationBuilder configurationSourceRoot,
+            string connectionString,
             bool? developerMode = null,
             string endpointAddress = null,
-            string instrumentationKey = null,
-            string connectionString = null)
+            string instrumentationKey = null)
         {
             if (configurationSourceRoot == null)
             {
