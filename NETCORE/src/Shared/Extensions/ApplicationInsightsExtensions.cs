@@ -160,7 +160,7 @@
         /// <param name="instrumentationKey">Sets instrumentation key.</param>
         /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
         public static IConfigurationBuilder AddApplicationInsightsSettings(this IConfigurationBuilder configurationSourceRoot,  bool? developerMode = null, string endpointAddress = null, string instrumentationKey = null)
-            => configurationSourceRoot.AddApplicationInsightsSettings(developerMode, endpointAddress, instrumentationKey);
+            => configurationSourceRoot.AddApplicationInsightsSettings(connectionString: null, developerMode: developerMode, endpointAddress: endpointAddress, instrumentationKey: instrumentationKey);
 
             /// <summary>
             /// Adds Application Insight specific configuration properties to <see cref="IConfigurationBuilder"/>.
