@@ -1,7 +1,7 @@
 ﻿# Changelog
 
 ## VNext
-
+- [New: JavaScript Property to support Content Security Policy](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1443)
 
 ## Version 2.14.0-beta2
 - [Fix: AspNetCore AddApplicationInsightsSettings() and MissingMethodException](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1702)

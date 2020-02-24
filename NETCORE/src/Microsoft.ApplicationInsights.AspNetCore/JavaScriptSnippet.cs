@@ -14,6 +14,9 @@
     /// </summary>
     public class JavaScriptSnippet : IJavaScriptSnippet
     {
+        private const string ScriptTagBegin = "<script type=""text/javascript"">";
+        private const string ScriptTagEnd = "</script>";
+
         /// <summary>JavaScript snippet.</summary>
         private static readonly string Snippet = Resources.JavaScriptSnippet;
 
@@ -24,12 +27,12 @@
         private readonly IHttpContextAccessor httpContextAccessor;
 
         /// <summary>Configuration instance.</summary>
-        private TelemetryConfiguration telemetryConfiguration;
+        private readonly TelemetryConfiguration telemetryConfiguration;
 
         /// <summary> Weather to print authenticated user tracking snippet.</summary>
-        private bool enableAuthSnippet;
+        private readonly bool enableAuthSnippet;
 
-        private JavaScriptEncoder encoder;
+        private readonly JavaScriptEncoder encoder;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="JavaScriptSnippet"/> class.
@@ -52,18 +55,41 @@
             this.telemetryConfiguration = telemetryConfiguration;
             this.httpContextAccessor = httpContextAccessor;
             this.enableAuthSnippet = serviceOptions.Value.EnableAuthenticationTrackingJavaScript;
-            this.encoder = (encoder == null) ? JavaScriptEncoder.Default : encoder;
+            this.encoder = encoder ?? JavaScriptEncoder.Default;
         }
 
         /// <summary>
-        /// Gets a code snippet with instrumentation key initialized from TelemetryConfiguration.
+        /// Gets the full JavaScript Snippet in HTML script tags with instrumentation key initialized from TelemetryConfiguration.
         /// </summary>
-        /// <returns>JavaScript code snippet with instrumentation key or empty if instrumentation key was not set for the application.</returns>
+        /// <returns>JavaScript code snippet with instrumentation key or returns string.Empty if instrumentation key was not set for the application.</returns>
         public string FullScript
+        { 
+            get
+            {
+                if (this.telemetryConfiguration.DisableTelemetry)
+                {
+                    return string.Empty;
+                }
+                else
+                {
+                    return string.Concat(ScriptTagBegin, this.ScriptBody, ScriptTagEnd);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the JavaScript Snippet body (without HTML script tags) with instrumentation key initialized from TelemetryConfiguration.
+        /// </summary>
+        /// <returns>JavaScript code snippet with instrumentation key or returns string.Empty if instrumentation key was not set for the application.</returns>
+        public string ScriptBody
         {
             get
             {
-                if (!this.telemetryConfiguration.DisableTelemetry)
+                if (this.telemetryConfiguration.DisableTelemetry)
+                {
+                    return string.Empty;
+                }
+                else
                 {
                     // Config JS SDK
                     string insertConfig;
@@ -92,13 +118,9 @@
                         }
                     }
 
-                    // Return full snippet
+                    // Return snippet
                     // Developer Note: If you recently updated the snippet and are now getting "FormatException: Input string was not in a correct format." you need to escape all the curly braces; '{' => '{{' and '}' => '}}'.
                     return string.Format(CultureInfo.InvariantCulture, Snippet, insertConfig, insertAuthUserContext);
-                }
-                else
-                {
-                    return string.Empty;
                 }
             }
         }
