@@ -14,7 +14,7 @@
     /// </summary>
     public class JavaScriptSnippet : IJavaScriptSnippet
     {
-        private const string ScriptTagBegin = "<script type=""text/javascript"">";
+        private const string ScriptTagBegin = @"<script type=""text/javascript"">";
         private const string ScriptTagEnd = "</script>";
 
         /// <summary>JavaScript snippet.</summary>
