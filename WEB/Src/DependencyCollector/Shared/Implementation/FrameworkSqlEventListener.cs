@@ -32,9 +32,15 @@
         /// </summary>
         private const int EndExecuteEventId = 2;
 
-        internal FrameworkSqlEventListener(TelemetryConfiguration configuration, CacheBasedOperationHolder telemetryTupleHolder)
+        /// <summary>
+        /// Indicates whether SQL command text should be collected or not.
+        /// </summary>
+        private readonly bool collectCommandText;
+
+        internal FrameworkSqlEventListener(TelemetryConfiguration configuration, CacheBasedOperationHolder telemetryTupleHolder, bool collectCommandText)
         {
             this.SqlProcessingFramework = new FrameworkSqlProcessing(configuration, telemetryTupleHolder);
+            this.collectCommandText = collectCommandText;
         }
 
         private enum CompositeState
@@ -99,7 +105,7 @@
                 var id = Convert.ToInt64(eventData.Payload[0], CultureInfo.InvariantCulture);
                 var dataSource = Convert.ToString(eventData.Payload[1], CultureInfo.InvariantCulture);
                 var database = Convert.ToString(eventData.Payload[2], CultureInfo.InvariantCulture);
-                var commandText = Convert.ToString(eventData.Payload[3], CultureInfo.InvariantCulture);
+                var commandText = this.collectCommandText ? Convert.ToString(eventData.Payload[3], CultureInfo.InvariantCulture) : string.Empty;
 
                 if (this.SqlProcessingFramework != null)
                 {

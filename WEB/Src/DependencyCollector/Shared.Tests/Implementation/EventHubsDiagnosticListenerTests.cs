@@ -85,7 +85,7 @@
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Send", telemetry.Name);
                 Assert.AreEqual(RemoteDependencyConstants.AzureEventHubs, telemetry.Type);
-                Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ | ehname", telemetry.Target);
+                Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ehname", telemetry.Target);
                 Assert.IsTrue(telemetry.Success.Value);
 
                 Assert.AreEqual(sendActivity.ParentSpanId.ToHexString(), telemetry.Context.Operation.ParentId);
@@ -125,7 +125,7 @@
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Receive", telemetry.Name);
                 Assert.AreEqual(RemoteDependencyConstants.AzureEventHubs, telemetry.Type);
-                Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ | ehname", telemetry.Target);
+                Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ehname", telemetry.Target);
                 Assert.IsTrue(telemetry.Success.Value);
 
                 Assert.AreEqual(sendActivity.ParentSpanId.ToHexString(), telemetry.Context.Operation.ParentId);
@@ -165,7 +165,7 @@
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Receive", telemetry.Name);
                 Assert.AreEqual(RemoteDependencyConstants.AzureEventHubs, telemetry.Type);
-                Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ | ehname", telemetry.Target);
+                Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ehname", telemetry.Target);
                 Assert.IsTrue(telemetry.Success.Value);
 
                 Assert.AreEqual(sendActivity.ParentSpanId.ToHexString(), telemetry.Context.Operation.ParentId);
@@ -205,7 +205,7 @@
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Send", telemetry.Name);
                 Assert.AreEqual(RemoteDependencyConstants.AzureEventHubs, telemetry.Type);
-                Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ | ehname", telemetry.Target);
+                Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ehname", telemetry.Target);
                 Assert.IsTrue(telemetry.Success.Value);
 
                 Assert.AreEqual(sendActivity.ParentSpanId.ToHexString(), telemetry.Context.Operation.ParentId);
@@ -246,7 +246,7 @@
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Send", telemetry.Name);
                 Assert.AreEqual(RemoteDependencyConstants.AzureEventHubs, telemetry.Type);
-                Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ | ehname", telemetry.Target);
+                Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ehname", telemetry.Target);
                 Assert.IsTrue(telemetry.Success.Value);
 
                 Assert.AreEqual(parentActivity.Id, telemetry.Context.Operation.ParentId);
@@ -281,7 +281,7 @@
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Send", telemetry.Name);
                 Assert.AreEqual(RemoteDependencyConstants.AzureEventHubs, telemetry.Type);
-                Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ | ehname", telemetry.Target);
+                Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ehname", telemetry.Target);
                 Assert.IsTrue(telemetry.Success.Value);
 
                 Assert.IsNull(telemetry.Context.Operation.ParentId);
@@ -315,7 +315,7 @@
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Send", telemetry.Name);
                 Assert.AreEqual(RemoteDependencyConstants.AzureEventHubs, telemetry.Type);
-                Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ | ehname", telemetry.Target);
+                Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ehname", telemetry.Target);
                 Assert.IsTrue(telemetry.Success.Value);
 
                 Assert.AreEqual("parent", telemetry.Context.Operation.ParentId);
@@ -350,7 +350,7 @@
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Send", telemetry.Name);
                 Assert.AreEqual(RemoteDependencyConstants.AzureEventHubs, telemetry.Type);
-                Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ | ehname", telemetry.Target);
+                Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ehname", telemetry.Target);
                 Assert.IsFalse(telemetry.Success.Value);
 
                 Assert.AreEqual(sendActivity.ParentSpanId.ToHexString(), telemetry.Context.Operation.ParentId);

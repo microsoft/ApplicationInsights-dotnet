@@ -14,8 +14,8 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <TargetFrameworks>net45;net46;netcoreapp1.1;netcoreapp2.0</TargetFrameworks>
-    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netcoreapp1.1;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net45;net46;netcoreapp1.1;netcoreapp2.0;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netcoreapp1.1;netcoreapp2.0;netcoreapp3.0</TargetFrameworks>
     <DebugType>pdbonly</DebugType> 
     <DebugSymbols>true</DebugSymbols> 
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -26,6 +26,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
+    <ProjectReference Include="..\..\..\src\ServerTelemetryChannel\TelemetryChannel.csproj">
+      <!-- Base and TelemetryChannel share the same Common namespace. Alias is required to prevent compiler ambiguity. -->
+      <Aliases>STC,%(Aliases)</Aliases>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Test\Microsoft.ApplicationInsights.Test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj" />
   </ItemGroup>
 

@@ -235,6 +235,11 @@
                         this.TelemetryProcessors.RemoveFirst();
                     }
 
+                    if (this.ServiceClient != null)
+                    {
+                        quickPulseTelemetryProcessor.ServiceEndpoint = this.ServiceClient.ServiceUri;
+                    }
+
                     QuickPulseEventSource.Log.ProcessorRegistered(this.TelemetryProcessors.Count.ToString(CultureInfo.InvariantCulture));
                 }
             }
