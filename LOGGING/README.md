@@ -57,6 +57,19 @@ If your application does not have web.config then it can also be configured manu
 </nlog>
 ```
 
+NLog allows you to configure conditional configs:
+
+```xml
+<instrumentationKey>${configsetting:APPINSIGHTS.INSTRUMENTATIONKEY:whenEmpty=${environment:APPINSIGHTS_INSTRUMENTATIONKEY}}</instrumentationKey>	
+```
+
+For more information see:
+- https://github.com/NLog/NLog/wiki/ConfigSetting-Layout-Renderer
+- https://github.com/nlog/nlog/wiki/Environment-Layout-Renderer
+- https://github.com/nlog/nlog/wiki/WhenEmpty-Layout-Renderer
+
+
+
 ```csharp
 // You need this only if you did not define InstrumentationKey in ApplicationInsights.config (Or in the NLog.config)
 TelemetryConfiguration.Active.InstrumentationKey = "Your_Resource_Key";

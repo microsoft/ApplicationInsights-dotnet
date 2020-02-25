@@ -8,6 +8,10 @@
     <AssemblyName>Microsoft.AI.ServerTelemetryChannel</AssemblyName>
     <TargetFrameworks>net45;netstandard1.3;netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard1.3;netstandard2.0</TargetFrameworks>
+
+
+    <!-- this constant is set for all other netcore targets except 1-->
+    <DefineConstants Condition="'$(TargetFramework)' == 'netstandard1.3'">$(DefineConstants);NETSTANDARD;</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -53,14 +57,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
-    <Reference Include="System.Web" Condition="'$(TargetFramework)' == 'net45'" />
-    <Reference Include="System.Net.Http" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
     <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
+    
+    <Reference Include="System.Web" />
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
   
   <ItemGroup>

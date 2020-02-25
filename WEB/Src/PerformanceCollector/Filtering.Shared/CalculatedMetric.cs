@@ -3,9 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+
     using Microsoft.ApplicationInsights.Common;
 
     /// <summary>
@@ -26,15 +26,19 @@
             "ToString",
             BindingFlags.Public | BindingFlags.Instance);
 
+        private static readonly MethodInfo DoubleToStringMethodInfo = typeof(double).GetMethod(
+            "ToString",
+            new[] { typeof(IFormatProvider) });
+
         private readonly CalculatedMetricInfo info;
 
         /// <summary>
         /// OR-connected collection of AND-connected filter groups.
         /// </summary>
         private readonly List<FilterConjunctionGroup<TTelemetry>> filterGroups = new List<FilterConjunctionGroup<TTelemetry>>();
-        
+
         private Func<TTelemetry, double> projectionLambda;
-        
+
         public CalculatedMetric(CalculatedMetricInfo info, out CollectionConfigurationError[] errors)
         {
             if (info == null)
@@ -52,7 +56,7 @@
         public string Id => this.info.Id;
 
         public AggregationType AggregationType => this.info.Aggregation;
-        
+
         public bool CheckFilters(TTelemetry document, out CollectionConfigurationError[] errors)
         {
             if (this.filterGroups.Count < 1)
@@ -144,7 +148,7 @@
         private void CreateProjection()
         {
             ParameterExpression documentExpression = Expression.Variable(typeof(TTelemetry));
-            
+
             Expression projectionExpression;
 
             try
@@ -174,10 +178,19 @@
                     }
                 }
 
-                // double.Parse(((object)fieldExpression).ToString());
-                Expression fieldAsObjectExpression = Expression.ConvertChecked(fieldExpression, typeof(object));
-                MethodCallExpression fieldExpressionToString = Expression.Call(fieldAsObjectExpression, ObjectToStringMethodInfo);
-                projectionExpression = Expression.Call(DoubleParseMethodInfo, fieldExpressionToString, Expression.Constant(CultureInfo.InvariantCulture));
+                ConstantExpression invariantCulture = Expression.Constant(CultureInfo.InvariantCulture);
+                if (fieldExpression.Type == typeof(double))
+                {
+                    // Expression fieldAsObjectExpression = Expression.ConvertChecked(fieldExpression, typeof(object));
+                    MethodCallExpression fieldExpressionToString = Expression.Call(fieldExpression, DoubleToStringMethodInfo, invariantCulture);
+                    projectionExpression = Expression.Call(DoubleParseMethodInfo, fieldExpressionToString, invariantCulture);
+                }
+                else
+                {
+                    Expression fieldAsObjectExpression = Expression.ConvertChecked(fieldExpression, typeof(object));
+                    MethodCallExpression fieldExpressionToString = Expression.Call(fieldExpression, ObjectToStringMethodInfo);
+                    projectionExpression = Expression.Call(DoubleParseMethodInfo, fieldExpressionToString, invariantCulture);
+                }
             }
             catch (Exception e)
             {

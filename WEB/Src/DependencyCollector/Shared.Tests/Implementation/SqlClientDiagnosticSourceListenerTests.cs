@@ -41,7 +41,7 @@ namespace Microsoft.ApplicationInsights.Tests
             };
 
             this.fakeSqlClientDiagnosticSource = new FakeSqlClientDiagnosticSource();
-            this.sqlClientDiagnosticSourceListener = new SqlClientDiagnosticSourceListener(this.configuration);
+            this.sqlClientDiagnosticSourceListener = new SqlClientDiagnosticSourceListener(this.configuration, true);
         }
 
         public void Dispose()
@@ -605,7 +605,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 Timestamp = 2000000L
             };
 
-            using (var listener2 = new SqlClientDiagnosticSourceListener(this.configuration))
+            using (var listener2 = new SqlClientDiagnosticSourceListener(this.configuration, true))
             {
                 this.fakeSqlClientDiagnosticSource.Write(
                     SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand,
@@ -616,6 +616,46 @@ namespace Microsoft.ApplicationInsights.Tests
                     afterExecuteEventData);
 
                 Assert.Equal(1, this.sendItems.Count(t => t is DependencyTelemetry));
+            }
+        }
+
+        [Fact]
+        public void DoesNotTrackCommandTextWhenDisabled()
+        {
+            var operationId = Guid.NewGuid();
+            var sqlConnection = new SqlConnection(TestConnectionString);
+            var sqlCommand = sqlConnection.CreateCommand();
+            sqlCommand.CommandText = "select * from orders";
+
+            var beforeExecuteEventData = new
+            {
+                OperationId = operationId,
+                Command = sqlCommand,
+                Timestamp = (long?)1000000L
+            };
+
+            var afterExecuteEventData = new
+            {
+                OperationId = operationId,
+                Command = sqlCommand,
+                Timestamp = 2000000L
+            };
+
+            this.sqlClientDiagnosticSourceListener.Dispose();
+
+            using (var listener2 = new SqlClientDiagnosticSourceListener(this.configuration, false))
+            {
+                this.fakeSqlClientDiagnosticSource.Write(
+                    SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand,
+                    beforeExecuteEventData);
+
+                this.fakeSqlClientDiagnosticSource.Write(
+                    SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand,
+                    afterExecuteEventData);
+
+                Assert.Equal(1, this.sendItems.Count(t => t is DependencyTelemetry));
+                var telemetry = this.sendItems[0] as DependencyTelemetry;
+                Assert.Equal(string.Empty, telemetry.Data);
             }
         }
 
@@ -653,7 +693,7 @@ namespace Microsoft.ApplicationInsights.Tests
 
             this.sqlClientDiagnosticSourceListener.Dispose();
 
-            using (var listener = new SqlClientDiagnosticSourceListener(this.configuration))
+            using (var listener = new SqlClientDiagnosticSourceListener(this.configuration, true))
             {
                 this.fakeSqlClientDiagnosticSource.Write(
                     SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand,
@@ -689,7 +729,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 Timestamp = 2000000L
             };
 
-            using (var listener2 = new SqlClientDiagnosticSourceListener(this.configuration))
+            using (var listener2 = new SqlClientDiagnosticSourceListener(this.configuration, true))
             {
                 this.fakeSqlClientDiagnosticSource.Write(
                     SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand,

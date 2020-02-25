@@ -58,8 +58,20 @@
 
             // Target uniquely identifies the resource, we use both: queueName and endpoint 
             // with schema used for SQL-dependencies
-            telemetry.Target = string.Join(" | ", endpoint, queueName);
+            if (endpoint == null || queueName == null)
+            {
+                return;
+            }
 
+            // Target uniquely identifies the resource, we use both: queueName and endpoint 
+            // with schema used for SQL-dependencies
+            string separator = "/";
+            if (endpoint.EndsWith(separator, StringComparison.Ordinal))
+            {
+                separator = string.Empty;
+            }
+
+            telemetry.Target = string.Concat(endpoint, separator, queueName);
             this.TelemetryClient.TrackDependency(telemetry);
         }
     }

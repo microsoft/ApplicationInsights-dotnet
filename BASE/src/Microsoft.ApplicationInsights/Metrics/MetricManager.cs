@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
     /// <summary>A metric manager coordinates metrics aggregation at a specific scope.
@@ -127,6 +128,8 @@
 
         internal void Flush(bool flushDownstreamPipeline)
         {
+            CoreEventSource.Log.MetricManagerFlush();
+
             DateTimeOffset now = DateTimeOffset.Now;
             AggregationPeriodSummary aggregates = this.aggregationManager.StartOrCycleAggregators(MetricAggregationCycleKind.Default, futureFilter: null, tactTimestamp: now);
             this.TrackMetricAggregates(aggregates, flushDownstreamPipeline);
@@ -134,15 +137,11 @@
 
         internal void TrackMetricAggregates(AggregationPeriodSummary aggregates, bool flush)
         {
-            int nonpersistentAggregatesCount = (aggregates?.NonpersistentAggregates == null)
-                                                    ? 0
-                                                    : aggregates.NonpersistentAggregates.Count;
+            int? nonpersistentAggregatesCount = aggregates?.NonpersistentAggregates?.Count;
+            int? persistentAggregatesCount = aggregates?.PersistentAggregates?.Count;
 
-            int persistentAggregatesCount = (aggregates?.PersistentAggregates == null)
-                                                    ? 0
-                                                    : aggregates.PersistentAggregates.Count;
+            int totalAggregatesCount = (nonpersistentAggregatesCount ?? 0) + (persistentAggregatesCount ?? 0);
 
-            int totalAggregatesCount = nonpersistentAggregatesCount + persistentAggregatesCount;
             if (totalAggregatesCount == 0)
             {
                 return;
@@ -175,6 +174,7 @@
                 }
             }
 
+            CoreEventSource.Log.MetricManagerCreatedTasks(trackTasks.Length);
             Task.WaitAll(trackTasks);
 
             if (flush)
