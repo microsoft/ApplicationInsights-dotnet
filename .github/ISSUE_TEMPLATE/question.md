@@ -5,7 +5,11 @@ labels: question
 ---
 
 **Describe your environment.**
-Describe any aspect of your environment relevant to the question, including your platform, OS version, etc.
+Describe any aspect of your environment relevant to the question:
+* SDK version: 
+* .NET runtime version (.NET or .NET Core, TargetFramework in the .csproj file): 
+* Hosting Info (IIS/Azure WebApps/etc): 
+* Platform and OS version: 
 
 **What are you trying to achieve?**
 What did you expect to see?

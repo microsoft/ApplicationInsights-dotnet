@@ -4,8 +4,13 @@ about: Create a report to help us improve
 labels: bug
 ---
 
-**Describe your environment.**
-Describe any aspect of your environment relevant to the problem, including your SDK version, platform, OS version, etc. If you're reporting a problem with a specific version of a library in this repo, please check whether the problem has been fixed on master.
+**Describe your environment.** Describe any aspect of your environment relevant to the problem:
+* SDK version: 
+* .NET runtime version (.NET or .NET Core, TargetFramework in the .csproj file): 
+* Hosting Info (IIS/Azure WebApps/etc): 
+* Platform and OS version: 
+
+If you're reporting a problem with a specific version of a library in this repo, please check whether the problem has been fixed on master.
 
 **Steps to reproduce.**
 Describe exactly how to reproduce the error. Include a code sample if applicable.
