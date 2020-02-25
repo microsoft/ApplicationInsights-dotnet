@@ -51,7 +51,7 @@
 
   <ItemGroup>
     <!--Build Infrastructure-->
-    <PackageReference Include="MicroBuild.Core" Version="0.3.0">
+    <PackageReference Include="Microsoft.VisualStudioEng.MicroBuild.Core" Version="0.4.1">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
