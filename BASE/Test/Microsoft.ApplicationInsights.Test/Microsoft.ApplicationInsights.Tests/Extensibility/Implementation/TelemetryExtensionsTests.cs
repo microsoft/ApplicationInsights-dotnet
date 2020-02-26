@@ -31,7 +31,7 @@
         }
 
         [TestMethod]
-        public static void CanSetEnvelopeNameForSupportedTypes()
+        public void CanSetEnvelopeNameForSupportedTypes()
         {
             string testEnvelopeName = "Non_Standard*Envelope.Name";
 
@@ -59,24 +59,31 @@
             pct.SetEnvelopeName(testEnvelopeName);
             sst.SetEnvelopeName(testEnvelopeName);
 
-            Assert.AreEqual(testEnvelopeName, at.EnvelopeName);
-            Assert.AreEqual(testEnvelopeName, dt.EnvelopeName);
-            Assert.AreEqual(testEnvelopeName, et.EnvelopeName);
-            Assert.AreEqual(testEnvelopeName, ext.EnvelopeName);
-            Assert.AreEqual(testEnvelopeName, mt.EnvelopeName);
-            Assert.AreEqual(testEnvelopeName, pvpt.EnvelopeName);
-            Assert.AreEqual(testEnvelopeName, pvt.EnvelopeName);
-            Assert.AreEqual(testEnvelopeName, rt.EnvelopeName);
-            Assert.AreEqual(testEnvelopeName, pct.Data.EnvelopeName);
-            Assert.AreEqual(testEnvelopeName, sst.Data.EnvelopeName);
+            Assert.AreEqual(testEnvelopeName, at.GetEnvelopeName());
+            Assert.AreEqual(testEnvelopeName, dt.GetEnvelopeName());
+            Assert.AreEqual(testEnvelopeName, et.GetEnvelopeName());
+            Assert.AreEqual(testEnvelopeName, ext.GetEnvelopeName());
+            Assert.AreEqual(testEnvelopeName, mt.GetEnvelopeName());
+            Assert.AreEqual(testEnvelopeName, pvpt.GetEnvelopeName());
+            Assert.AreEqual(testEnvelopeName, pvt.GetEnvelopeName());
+            Assert.AreEqual(testEnvelopeName, rt.GetEnvelopeName());
+            Assert.AreEqual(testEnvelopeName, pct.Data.GetEnvelopeName());
+            Assert.AreEqual(testEnvelopeName, sst.Data.GetEnvelopeName());
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
-        public static void SetEnvelopeNameThrowsForUnsupportedTypes()
+        public void SetEnvelopeNameThrowsForUnsupportedTypes()
         {
             var nst = new NonSerializableTelemetry();
             nst.SetEnvelopeName("Any"); // Throws, NonSerializableTelemetry does not implement IAiSerializableTelemetry
+        }
+
+        [TestMethod]        
+        public void GetEnvelopeNameReturnsDefaultForUnsupportedTypes()
+        {
+            var nst = new NonSerializableTelemetry();
+            Assert.AreEqual("Event", nst.GetEnvelopeName());
         }
     }
 }

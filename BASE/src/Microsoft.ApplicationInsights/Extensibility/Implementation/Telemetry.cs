@@ -36,7 +36,7 @@
             var eventName = string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}{1}",
-                telemetry.IsDeveloperMode() ? Constants.DevModeTelemetryNamePrefix : Constants.TelemetryNamePrefix,
+                telemetry.IsDeveloperMode() ? Constants.DevModeTelemetryNamePrefix : string.Empty,
                 telemetryName);
 
             return eventName;

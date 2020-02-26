@@ -8,6 +8,8 @@
     /// </summary>
     public static class TelemetryExtensions
     {
+        private const string DefaultEnvelopeName = "Event";
+
         /// <summary>
         /// Sets envelope name for ITelemetry object.
         /// </summary>
@@ -23,6 +25,23 @@
             else
             {
                 throw new ArgumentException("Provided telemetry object does not support envelope name.", nameof(telemetry));
+            }
+        }
+
+        /// <summary>
+        /// Gets envelope name for ITelemetry object.
+        /// </summary>
+        /// <param name="telemetry">ITelemetry object to set envelope name for.</param>
+        /// <exception cref="ArgumentException">Concrete implementation of ITelemetry object does not expose envelope name.</exception>
+        public static string GetEnvelopeName(this ITelemetry telemetry)
+        {
+            if (telemetry is IAiSerializableTelemetry aiSerializableTelemetry)
+            {
+                return aiSerializableTelemetry.TelemetryName;
+            }
+            else
+            {
+                return DefaultEnvelopeName;
             }
         }
     }
