@@ -4,9 +4,9 @@
     {
         internal const string ProfileQueryEndpoint = "https://dc.services.visualstudio.com/api/profiles/{0}/appId";
 
-        internal const string TelemetryNamePrefix = "Microsoft.ApplicationInsights.";
+        internal const string TelemetryNamePrefix = "";
 
-        internal const string DevModeTelemetryNamePrefix = "Microsoft.ApplicationInsights.Dev.";
+        internal const string DevModeTelemetryNamePrefix = "Dev.";
 
         internal const string EventNameForUnknownTelemetry = "ConvertedTelemetry";
 

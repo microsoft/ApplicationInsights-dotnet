@@ -15,10 +15,9 @@
     /// </summary>
     public sealed class MetricTelemetry : ITelemetry, ISupportProperties, IAiSerializableTelemetry
     {
-        internal const string TelemetryName = "Metric";
-
         internal readonly MetricData Data;
         internal readonly DataPoint Metric;
+        internal string EnvelopeName = "Metric";
         private IExtension extension;
 
         /// <summary>
@@ -136,7 +135,18 @@
         }
 
         /// <inheritdoc />
-        string IAiSerializableTelemetry.TelemetryName => TelemetryName;
+        string IAiSerializableTelemetry.TelemetryName
+        {
+            get
+            {
+                return this.EnvelopeName;
+            }
+
+            set
+            {
+                this.EnvelopeName = value;
+            }
+        }
 
         /// <inheritdoc />
         string IAiSerializableTelemetry.BaseType => nameof(MetricData);

@@ -222,7 +222,7 @@
                 .SerializeDeserializeTelemetryItem<TEndpointData>(expected);
 
             Assert.AreEqual(
-                Constants.TelemetryNamePrefix + "312cbd799dbb4c48a7da3cc2a931cb71." + this.ExtractTelemetryNameFromType(typeof(TTelemetry)),
+                Constants.TelemetryNamePrefix + this.ExtractTelemetryNameFromType(typeof(TTelemetry)),
                 actual.name);
         }
 

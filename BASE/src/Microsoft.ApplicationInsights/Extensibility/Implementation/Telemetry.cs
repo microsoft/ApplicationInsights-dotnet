@@ -32,12 +32,11 @@
         {
             // A different event name prefix is sent for normal mode and developer mode.
             // Format the event name using the following format:
-            // Microsoft.ApplicationInsights[.Dev].<normalized-instrumentation-key>.<event-type>
+            // [.Dev].<event-type>
             var eventName = string.Format(
                 CultureInfo.InvariantCulture,
-                "{0}{1}{2}",
+                "{0}{1}",
                 telemetry.IsDeveloperMode() ? Constants.DevModeTelemetryNamePrefix : Constants.TelemetryNamePrefix,
-                NormalizeInstrumentationKey(telemetry.Context.InstrumentationKey),
                 telemetryName);
 
             return eventName;

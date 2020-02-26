@@ -15,9 +15,8 @@
     /// </summary>
     public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties, ISupportMetrics, IAiSerializableTelemetry
     {
-        internal const string TelemetryName = "Availability";
-
         internal readonly AvailabilityData Data;
+        internal string EnvelopeName = "Availability";
         private readonly TelemetryContext context;
         private IExtension extension;
 
@@ -60,7 +59,18 @@
         }
 
         /// <inheritdoc />
-        string IAiSerializableTelemetry.TelemetryName => TelemetryName;
+        string IAiSerializableTelemetry.TelemetryName
+        {
+            get
+            {
+                return this.EnvelopeName;
+            }
+
+            set
+            {
+                this.EnvelopeName = value;
+            }
+        }
 
         /// <inheritdoc />
         string IAiSerializableTelemetry.BaseType => nameof(AvailabilityData);

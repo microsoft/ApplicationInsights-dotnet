@@ -263,7 +263,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                          PartA_flags = flags,
                      };
 
-                     writeMethod.Invoke(eventSource, new object[] { EventTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                     writeMethod.Invoke(eventSource, new object[] { EventTelemetry.DefaultEnvelopeName, eventSourceOptions, extendedData });
                  }
              };
         }
@@ -390,7 +390,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         PartA_flags = telemetryItem.Context.Flags,
                     };
 
-                    writeMethod.Invoke(eventSource, new object[] { TraceTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                    writeMethod.Invoke(eventSource, new object[] { telemetryItem.EnvelopeName, eventSourceOptions, extendedData });
                 }
             };
         }
@@ -442,7 +442,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         PartA_flags = telemetryItem.Context.Flags,
                     };
 
-                    writeMethod.Invoke(eventSource, new object[] { EventTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                    writeMethod.Invoke(eventSource, new object[] { telemetryItem.EnvelopeName, eventSourceOptions, extendedData });
                 }
             };
         }
@@ -587,7 +587,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         PartA_flags = telemetryItem.Context.Flags,
                     };
 
-                    writeMethod.Invoke(eventSource, new object[] { MetricTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                    writeMethod.Invoke(eventSource, new object[] { telemetryItem.EnvelopeName, eventSourceOptions, extendedData });
                 }
             };
         }
@@ -685,7 +685,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         PartA_flags = telemetryItem.Context.Flags,
                     };
 
-                    writeMethod.Invoke(eventSource, new object[] { ExceptionTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                    writeMethod.Invoke(eventSource, new object[] { telemetryItem.EnvelopeName, eventSourceOptions, extendedData });
                 }
             };
         }
@@ -762,7 +762,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         PartA_flags = telemetryItem.Context.Flags,
                     };
 
-                    writeMethod.Invoke(eventSource, new object[] { MetricTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                    writeMethod.Invoke(eventSource, new object[] { telemetryItem.EnvelopeName, eventSourceOptions, extendedData });
                 }
             };
         }
@@ -820,7 +820,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         PartA_flags = telemetryItem.Context.Flags,
                     };
 
-                    writeMethod.Invoke(eventSource, new object[] { PageViewTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                    writeMethod.Invoke(eventSource, new object[] { telemetryItem.EnvelopeName, eventSourceOptions, extendedData });
                 }
             };
         }
@@ -879,7 +879,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         },
                     };
 
-                    writeMethod.Invoke(eventSource, new object[] { PageViewTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                    writeMethod.Invoke(eventSource, new object[] { telemetryItem.EnvelopeName, eventSourceOptions, extendedData });
                 }
             };
         }
@@ -933,7 +933,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         PartA_flags = telemetryItem.Context.Flags,
                     };
 
-                    writeMethod.Invoke(eventSource, new object[] { EventTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                    writeMethod.Invoke(eventSource, new object[] { telemetryItem.EnvelopeName, eventSourceOptions, extendedData });
                 }
             };
         }

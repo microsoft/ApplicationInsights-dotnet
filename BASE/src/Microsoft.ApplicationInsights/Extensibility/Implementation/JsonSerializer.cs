@@ -204,7 +204,7 @@
                 Utils.CopyDictionary(extensionSerializationWriter.AccumulatedMeasurements, dictionarySerializationWriter.AccumulatedMeasurements);
             }
 
-            jsonSerializationWriter.WriteProperty("name", telemetryItem.WriteTelemetryName(EventTelemetry.TelemetryName));
+            jsonSerializationWriter.WriteProperty("name", telemetryItem.WriteTelemetryName(EventTelemetry.DefaultEnvelopeName));
             telemetryItem.WriteEnvelopeProperties(jsonSerializationWriter); // No need to copy Context - it's serialized here from the original item
 
             jsonSerializationWriter.WriteStartObject("data");

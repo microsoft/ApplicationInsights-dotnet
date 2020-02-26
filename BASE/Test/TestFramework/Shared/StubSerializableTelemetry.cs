@@ -28,7 +28,7 @@
         public IDictionary<string, string> Properties { get; set; }
         public IExtension Extension { get; set; }
 
-        public string TelemetryName => "StubTelemetryName";
+        public string TelemetryName { get; set; } = "StubTelemetryName";
 
         public string BaseType => "StubTelemetryBaseType";
 
