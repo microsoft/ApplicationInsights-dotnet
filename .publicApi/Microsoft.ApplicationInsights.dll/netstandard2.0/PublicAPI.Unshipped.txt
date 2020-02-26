@@ -1,0 +1,2 @@
+Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryExtensions
+static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryExtensions.SetEnvelopeName(this Microsoft.ApplicationInsights.Channel.ITelemetry telemetry, string envelopeName) -> void
