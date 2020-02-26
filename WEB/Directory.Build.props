@@ -47,6 +47,7 @@
       <PropsRoot>$(EnlistmentRoot)\.props</PropsRoot>
       <RulesetsRoot>$(EnlistmentRoot)\.rulesets</RulesetsRoot>
       <TargetsRoot>$(EnlistmentRoot)\.targets</TargetsRoot>
+      <PublicApiRoot>$(EnlistmentRoot)\.publicApi</PublicApiRoot>
 
 
       <BinRoot>$(EnlistmentRoot)\..\bin</BinRoot>
