@@ -37,7 +37,7 @@
 
   <ItemGroup>
     <!--Build Infrastructure-->
-    <PackageReference Include="MicroBuild.Core" Version="0.3.0">
+    <PackageReference Include="Microsoft.VisualStudioEng.MicroBuild.Core" Version="0.4.1">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
@@ -47,7 +47,6 @@
     <ProjectReference Include="..\..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
     <ProjectReference Include="..\..\..\..\BASE\src\ServerTelemetryChannel\TelemetryChannel.csproj" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.6.0" />
-    <Reference Include="System.Net.Http" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.6' OR '$(TargetFramework)' == 'netstandard2.0'">
@@ -67,6 +66,7 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
     <!--Framework References-->    
     <Reference Include="System.Management" />
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
   
   <ItemGroup>

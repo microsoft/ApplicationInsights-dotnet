@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsModule;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]

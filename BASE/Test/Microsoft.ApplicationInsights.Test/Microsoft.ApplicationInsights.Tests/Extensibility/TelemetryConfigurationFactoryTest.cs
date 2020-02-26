@@ -123,7 +123,7 @@
 
         [TestMethod]
         [TestCategory("ConnectionString")]
-        public void VerifyChannelEndpointsAreSetWhenParsingFromConfigFile()
+        public void VerifyChannelEndpointsAreSetWhenParsingFromConfigFile_InMemoryChannel()
         {
 #pragma warning disable CS0618 // Type or member is obsolete
             // PART 1 - CONFIGURATION FACTORY IS EXPECTED TO CREATE A CONFIG THAT MATCHES THE XML
@@ -142,6 +142,41 @@
 
             Assert.AreEqual(ikeyConfig, configuration.InstrumentationKey);
             Assert.AreEqual(true, configuration.TelemetryChannel.DeveloperMode);
+            Assert.AreEqual("http://10.0.0.0/v2/track", configuration.TelemetryChannel.EndpointAddress, "failed to set Channel Endpoint to config value");
+
+            // PART 2 - VERIFY SETTING THE CONNECTION STRING WILL OVERWRITE CHANNEL ENDPOINT.
+            TelemetryConfiguration.Active = configuration;
+
+            TelemetryConfiguration.Active.ConnectionString = $"InstrumentationKey={ikeyConfigConnectionString};IngestionEndpoint=https://localhost:63029/";
+
+            var client = new TelemetryClient();
+
+            Assert.AreEqual(string.Empty, client.InstrumentationKey);
+            Assert.AreEqual(ikeyConfigConnectionString, client.TelemetryConfiguration.InstrumentationKey);
+            Assert.AreEqual("https://localhost:63029/v2/track", client.TelemetryConfiguration.TelemetryChannel.EndpointAddress);
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
+
+
+        [TestMethod]
+        [TestCategory("ConnectionString")]
+        public void VerifyChannelEndpointsAreSetWhenParsingFromConfigFile_ServerTelemetryChannel()
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            // PART 1 - CONFIGURATION FACTORY IS EXPECTED TO CREATE A CONFIG THAT MATCHES THE XML
+            string ikeyConfig = "00000000-0000-0000-1111-000000000000";
+            string ikeyConfigConnectionString = "00000000-0000-0000-2222-000000000000";
+
+            string configString = @"<InstrumentationKey>00000000-0000-0000-1111-000000000000</InstrumentationKey>
+  <TelemetryChannel Type=""Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel, Microsoft.AI.ServerTelemetryChannel"">
+    <EndpointAddress>http://10.0.0.0/v2/track</EndpointAddress>
+  </TelemetryChannel>";
+
+            string configFileContents = Configuration(configString);
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            Assert.AreEqual(ikeyConfig, configuration.InstrumentationKey);
             Assert.AreEqual("http://10.0.0.0/v2/track", configuration.TelemetryChannel.EndpointAddress, "failed to set Channel Endpoint to config value");
 
             // PART 2 - VERIFY SETTING THE CONNECTION STRING WILL OVERWRITE CHANNEL ENDPOINT.
@@ -469,7 +504,11 @@
         }
 
         [TestMethod]
+#if NETCOREAPP3_0
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "Failed to parse configuration value. Property: 'TimeSpanProperty' Reason: String 'TestValue' was not recognized as a valid TimeSpan.")]
+#else
         [ExpectedExceptionWithMessage(typeof(ArgumentException), "Failed to parse configuration value. Property: 'TimeSpanProperty' Reason: String was not recognized as a valid TimeSpan.")]
+#endif
         public void LoadInstanceSetsInstancePropertiesOfTimeSpanTypeFromChildElementValuesOfDefinitionWithInvalidFormatThrowsException()
         {
             var definition = new XElement(
@@ -606,9 +645,9 @@
             Assert.AreEqual(42, loaded.Int32Property);
         }
 
-        #endregion
+#endregion
 
-        #region TelemetryProcesors
+#region TelemetryProcesors
 
         [TestMethod]
         public void InitializeTelemetryProcessorsFromConfigurationFile()
@@ -838,9 +877,9 @@
             AssertEx.IsType<StubTelemetryProcessor2>(configuration.TelemetryProcessors[1]);
         }
 
-        #endregion
+#endregion
 
-        #region Modules
+#region Modules
 
         [TestMethod]
         public void InitializeTelemetryModulesFromConfigurationFile()
@@ -926,9 +965,9 @@
             }
         }
 
-        #endregion
+#endregion
 
-        #region TelemetryInitializers
+#region TelemetryInitializers
         [TestMethod]
         public void InitializeAddTelemetryInitializersWithOneInvalid()
         {
@@ -947,9 +986,9 @@
         }
 
 
-        #endregion
+#endregion
 
-        #region LoadInstances<T>
+#region LoadInstances<T>
 
         [TestMethod]
         public void LoadInstancesPopulatesListWithInstancesOfSpecifiedType()
@@ -1020,9 +1059,9 @@
             AssertEx.AreEqual(new[] { 42 }, instances);
         }
 
-        #endregion
+#endregion
 
-        #region LoadProperties
+#region LoadProperties
 
         [TestMethod]
         public void LoadPropertiesConvertsPropertyValuesFromStringToPropertyType()
@@ -1180,9 +1219,9 @@
             Assert.IsFalse(instance.TelemetryChannel.DeveloperMode.HasValue);
         }
 
-        #endregion
+#endregion
 
-        #region TelemetrySinks
+#region TelemetrySinks
 
         [TestMethod]
         public void EmptyConfigurationCreatesDefaultSink()
@@ -1748,7 +1787,7 @@
             Assert.IsTrue(processor.Initialized);
         }
 
-        #endregion 
+#endregion
 
         [TestMethod]
         public void InitializeIsMarkesAsInternalSdkOperation()

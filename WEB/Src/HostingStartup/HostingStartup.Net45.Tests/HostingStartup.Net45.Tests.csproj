@@ -55,11 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClassWithFailingStaticConstructor.cs" />
-    <Compile Include="DiagnosticsTelemetryModuleTest.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="InMemoryTraceListener.cs" />
-    <Compile Include="TestEventSource.cs" />
-    <Compile Include="TraceSourceForEventSourceTest.cs" />
     <Compile Include="WebRequestTrackingModuleRegisterTest.cs" />
   </ItemGroup>
   <ItemGroup>

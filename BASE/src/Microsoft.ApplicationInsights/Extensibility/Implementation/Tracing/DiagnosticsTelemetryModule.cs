@@ -5,6 +5,7 @@
     using System.Diagnostics.Tracing;
     using System.Linq;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsModule;
 
     /// <summary>
     /// Use diagnostics telemetry module to report SDK internal problems to the portal and VS debug output window.
@@ -19,7 +20,6 @@
         private readonly object lockObject = new object();
         private readonly IDiagnoisticsEventThrottlingScheduler throttlingScheduler = new DiagnoisticsEventThrottlingScheduler();
         private volatile bool disposed = false;
-        private TimeSpan heartbeatInterval;
         private string instrumentationKey;
         private bool isInitialized = false;
 
@@ -32,8 +32,6 @@
             this.Senders.Add(new PortalDiagnosticsQueueSender());
 
             this.EventListener = new DiagnosticsListener(this.Senders);
-
-            this.heartbeatInterval = Tracing.HeartbeatProvider.DefaultHeartbeatInterval;
 
             this.HeartbeatProvider = new HeartbeatProvider();
         }

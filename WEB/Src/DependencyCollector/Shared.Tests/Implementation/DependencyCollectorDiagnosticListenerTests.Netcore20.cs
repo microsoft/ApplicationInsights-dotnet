@@ -408,45 +408,6 @@ namespace Microsoft.ApplicationInsights.Tests
         }
 
         /// <summary>
-        /// Tests that exception during request processing is tracked with correct context.
-        /// </summary>
-        [TestMethod]
-        public void OnExceptionTracksException()
-        {
-            var activity = new Activity("System.Net.Http.HttpRequestOut");
-            activity.Start();
-
-            HttpRequestMessage requestMsg = new HttpRequestMessage(HttpMethod.Post, RequestUrlWithScheme);
-
-            using (var listener = this.CreateHttpListener(HttpInstrumentationVersion.V2))
-            {
-                listener.OnActivityStart(requestMsg);
-
-                var exception = new HttpRequestException("message",
-                    new Exception("The server name or address could not be resolved"));
-                listener.OnException(exception, requestMsg);
-                listener.OnActivityStop(null, requestMsg, TaskStatus.Faulted);
-
-                var dependencyTelemetry =
-                    this.sentTelemetry.Single(t => t is DependencyTelemetry) as DependencyTelemetry;
-                var exceptionTelemetry = this.sentTelemetry.Single(t => t is ExceptionTelemetry) as ExceptionTelemetry;
-
-                Assert.AreEqual(2, this.sentTelemetry.Count);
-                Assert.IsNotNull(exceptionTelemetry);
-                Assert.IsNotNull(dependencyTelemetry);
-                Assert.AreEqual(exception, exceptionTelemetry.Exception);
-                Assert.AreEqual(exceptionTelemetry.Context.Operation.Id, dependencyTelemetry.Context.Operation.Id);
-                Assert.AreEqual(exceptionTelemetry.Context.Operation.ParentId, dependencyTelemetry.Id);
-                Assert.AreEqual("The server name or address could not be resolved",
-                    dependencyTelemetry.Properties["Error"]);
-
-                // Check the operation details
-                this.operationDetailsInitializer.ValidateOperationDetailsCore(dependencyTelemetry,
-                    responseExpected: false);
-            }
-        }
-
-        /// <summary>
         /// Tests HTTP dependencies and exceptions are NOT tracked for ApplicationInsights URL.
         /// </summary>
         [TestMethod]
@@ -470,9 +431,6 @@ namespace Microsoft.ApplicationInsights.Tests
                 Assert.IsNull(HttpHeadersUtilities.GetRequestContextKeyValue(requestMsg.Headers,
                     RequestResponseHeaders.StandardRootIdHeader));
 
-                var exception = new HttpRequestException("message",
-                    new Exception("The server name or address could not be resolved"));
-                listener.OnException(exception, requestMsg);
                 listener.OnActivityStop(null, requestMsg, TaskStatus.Faulted);
 
                 Assert.IsFalse(this.sentTelemetry.Any());
