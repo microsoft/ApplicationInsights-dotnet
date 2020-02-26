@@ -4,17 +4,8 @@ about: Create a report to help us improve the documents
 labels: documentation
 ---
 
-**Document URL.**
-What is the public documentation URL?
+**Is this a document under https://docs.microsoft.com/en-us/azure/azure-monitor/**
+If yes, [file issue against the document repo](https://github.com/MicrosoftDocs/azure-docs/issues/new).
 
 **Does the document belong to this repo?**
-If no, please file the issue against the document repo (e.g. https://github.com/MicrosoftDocs/azure-docs/).
-
-**What is the expected document?**
-What did you expect to see?
-
-**What is the actual document?**
-What did you see instead?
-
-**Additional context.**
-Add any other context about the problem here.
+If yes, please describe the issue and what you expect to see.
