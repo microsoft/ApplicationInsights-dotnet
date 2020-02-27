@@ -61,6 +61,7 @@
         /// <summary>
         /// Gets the full JavaScript Snippet in HTML script tags with instrumentation key initialized from TelemetryConfiguration.
         /// </summary>
+        /// <remarks>This method will evaluate if Telemetry has been disabled in the config and if the instrumentation key was provided by either setting InstrumentationKey or ConnectionString.</remarks>
         /// <returns>JavaScript code snippet with instrumentation key or returns string.Empty if instrumentation key was not set for the application.</returns>
         public string FullScript
         { 
