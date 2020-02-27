@@ -66,7 +66,7 @@
         { 
             get
             {
-                if (this.telemetryConfiguration.DisableTelemetry)
+                if (!this.IsAvailable())
                 {
                     return string.Empty;
                 }
@@ -85,43 +85,53 @@
         {
             get
             {
-                if (this.telemetryConfiguration.DisableTelemetry)
+                // Config JS SDK
+                string insertConfig;
+                if (!string.IsNullOrEmpty(this.telemetryConfiguration.ConnectionString))
                 {
-                    return string.Empty;
+                    insertConfig = string.Format(CultureInfo.InvariantCulture, "connectionString: '{0}'", this.telemetryConfiguration.ConnectionString);
+                }
+                else if (!string.IsNullOrEmpty(this.telemetryConfiguration.InstrumentationKey))
+                {
+                    insertConfig = string.Format(CultureInfo.InvariantCulture, "instrumentationKey: '{0}'", this.telemetryConfiguration.InstrumentationKey);
                 }
                 else
                 {
-                    // Config JS SDK
-                    string insertConfig;
-                    if (!string.IsNullOrEmpty(this.telemetryConfiguration.ConnectionString))
-                    {
-                        insertConfig = string.Format(CultureInfo.InvariantCulture, "connectionString: '{0}'", this.telemetryConfiguration.ConnectionString);
-                    }
-                    else if (!string.IsNullOrEmpty(this.telemetryConfiguration.InstrumentationKey))
-                    {
-                        insertConfig = string.Format(CultureInfo.InvariantCulture, "instrumentationKey: '{0}'", this.telemetryConfiguration.InstrumentationKey);
-                    }
-                    else
-                    {
-                        return string.Empty;
-                    }
-
-                    // Auth Snippet (setAuthenticatedUserContext)
-                    string insertAuthUserContext = string.Empty;
-                    if (this.enableAuthSnippet)
-                    {
-                        IIdentity identity = this.httpContextAccessor?.HttpContext?.User?.Identity;
-                        if (identity != null && identity.IsAuthenticated)
-                        {
-                            string escapedUserName = this.encoder.Encode(identity.Name);
-                            insertAuthUserContext = string.Format(CultureInfo.InvariantCulture, AuthSnippet, escapedUserName);
-                        }
-                    }
-
-                    // Return snippet
-                    // Developer Note: If you recently updated the snippet and are now getting "FormatException: Input string was not in a correct format." you need to escape all the curly braces; '{' => '{{' and '}' => '}}'.
-                    return string.Format(CultureInfo.InvariantCulture, Snippet, insertConfig, insertAuthUserContext);
+                    return string.Empty;
                 }
+
+                // Auth Snippet (setAuthenticatedUserContext)
+                string insertAuthUserContext = string.Empty;
+                if (this.enableAuthSnippet)
+                {
+                    IIdentity identity = this.httpContextAccessor?.HttpContext?.User?.Identity;
+                    if (identity != null && identity.IsAuthenticated)
+                    {
+                        string escapedUserName = this.encoder.Encode(identity.Name);
+                        insertAuthUserContext = string.Format(CultureInfo.InvariantCulture, AuthSnippet, escapedUserName);
+                    }
+                }
+
+                // Return snippet
+                // Developer Note: If you recently updated the snippet and are now getting "FormatException: Input string was not in a correct format." you need to escape all the curly braces; '{' => '{{' and '}' => '}}'.
+                return string.Format(CultureInfo.InvariantCulture, Snippet, insertConfig, insertAuthUserContext);
+            }
+        }
+
+        /// <summary>
+        /// Determine if we have enough information to build a full script.
+        /// </summary>
+        /// <returns>Returns true if we can build the JavaScript snippet.</returns>
+        private bool IsAvailable()
+        {
+            if (this.telemetryConfiguration.DisableTelemetry)
+            {
+                return false;
+            }
+            else
+            {
+                return !(string.IsNullOrEmpty(this.telemetryConfiguration.ConnectionString)
+                    && string.IsNullOrEmpty(this.telemetryConfiguration.InstrumentationKey));
             }
         }
     }
