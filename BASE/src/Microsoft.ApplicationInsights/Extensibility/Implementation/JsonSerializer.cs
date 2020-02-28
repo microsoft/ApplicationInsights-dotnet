@@ -179,7 +179,7 @@
 
         private static void SerializeHelper(ITelemetry telemetryItem, JsonSerializationWriter jsonSerializationWriter, string baseType, string telemetryName)
         {
-            jsonSerializationWriter.WriteProperty("name", telemetryItem.GetEnvelopeName());
+            jsonSerializationWriter.WriteProperty("name", telemetryName);
             telemetryItem.WriteEnvelopeProperties(jsonSerializationWriter);
             jsonSerializationWriter.WriteStartObject("data");
             jsonSerializationWriter.WriteProperty("baseType", baseType);
