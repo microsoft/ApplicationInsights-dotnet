@@ -28,20 +28,6 @@
             WriteTelemetryContext(json, telemetry.Context);
         }
 
-        public static string WriteTelemetryName(this ITelemetry telemetry, string telemetryName)
-        {
-            // A different event name prefix is sent for normal mode and developer mode.
-            // Format the event name using the following format:
-            // [.Dev].<event-type>
-            var eventName = string.Format(
-                CultureInfo.InvariantCulture,
-                "{0}{1}",
-                telemetry.IsDeveloperMode() ? Constants.DevModeTelemetryNamePrefix : string.Empty,
-                telemetryName);
-
-            return eventName;
-        }
-
         public static void WriteTelemetryContext(ISerializationWriter json, TelemetryContext context)
         {
             if (context != null)

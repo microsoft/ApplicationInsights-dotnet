@@ -179,7 +179,7 @@
 
         private static void SerializeHelper(ITelemetry telemetryItem, JsonSerializationWriter jsonSerializationWriter, string baseType, string telemetryName)
         {
-            jsonSerializationWriter.WriteProperty("name", telemetryItem.WriteTelemetryName(telemetryName));
+            jsonSerializationWriter.WriteProperty("name", telemetryItem.GetEnvelopeName());
             telemetryItem.WriteEnvelopeProperties(jsonSerializationWriter);
             jsonSerializationWriter.WriteStartObject("data");
             jsonSerializationWriter.WriteProperty("baseType", baseType);
@@ -204,7 +204,7 @@
                 Utils.CopyDictionary(extensionSerializationWriter.AccumulatedMeasurements, dictionarySerializationWriter.AccumulatedMeasurements);
             }
 
-            jsonSerializationWriter.WriteProperty("name", telemetryItem.WriteTelemetryName(EventTelemetry.DefaultEnvelopeName));
+            jsonSerializationWriter.WriteProperty("name", EventTelemetry.DefaultEnvelopeName);
             telemetryItem.WriteEnvelopeProperties(jsonSerializationWriter); // No need to copy Context - it's serialized here from the original item
 
             jsonSerializationWriter.WriteStartObject("data");

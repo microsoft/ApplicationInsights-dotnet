@@ -19,7 +19,5 @@
         public const string RemoteDependency = "AppDependencies";
 
         public const string PerformanceCounter = "AppPerformanceCounters";
-
-        public const string SessionState = "SessionState";
     }
 }

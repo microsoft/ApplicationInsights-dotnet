@@ -48,16 +48,16 @@
             var sst = new SessionStateTelemetry();
 #pragma warning restore CS0618 // Type or member is obsolete
 
-            at.SetEnvelopeName(testEnvelopeName);
-            dt.SetEnvelopeName(testEnvelopeName);
-            et.SetEnvelopeName(testEnvelopeName);
-            ext.SetEnvelopeName(testEnvelopeName);
-            mt.SetEnvelopeName(testEnvelopeName);
-            pvpt.SetEnvelopeName(testEnvelopeName);
-            pvt.SetEnvelopeName(testEnvelopeName);
-            rt.SetEnvelopeName(testEnvelopeName);
-            pct.SetEnvelopeName(testEnvelopeName);
-            sst.SetEnvelopeName(testEnvelopeName);
+            Assert.IsTrue(at.TrySetEnvelopeName(testEnvelopeName));
+            Assert.IsTrue(dt.TrySetEnvelopeName(testEnvelopeName));
+            Assert.IsTrue(et.TrySetEnvelopeName(testEnvelopeName));
+            Assert.IsTrue(ext.TrySetEnvelopeName(testEnvelopeName));
+            Assert.IsTrue(mt.TrySetEnvelopeName(testEnvelopeName));
+            Assert.IsTrue(pvpt.TrySetEnvelopeName(testEnvelopeName));
+            Assert.IsTrue(pvt.TrySetEnvelopeName(testEnvelopeName));
+            Assert.IsTrue(rt.TrySetEnvelopeName(testEnvelopeName));
+            Assert.IsTrue(pct.TrySetEnvelopeName(testEnvelopeName));
+            Assert.IsTrue(sst.TrySetEnvelopeName(testEnvelopeName));
 
             Assert.AreEqual(testEnvelopeName, at.GetEnvelopeName());
             Assert.AreEqual(testEnvelopeName, dt.GetEnvelopeName());
@@ -72,11 +72,10 @@
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void SetEnvelopeNameThrowsForUnsupportedTypes()
+        public void TrySetEnvelopeNameReturnsFalseForUnsupportedTypes()
         {
             var nst = new NonSerializableTelemetry();
-            nst.SetEnvelopeName("Any"); // Throws, NonSerializableTelemetry does not implement IAiSerializableTelemetry
+            Assert.IsFalse(nst.TrySetEnvelopeName("Any")); // Returns false, NonSerializableTelemetry does not implement IAiSerializableTelemetry
         }
 
         [TestMethod]        

@@ -15,16 +15,17 @@
         /// </summary>
         /// <param name="telemetry">ITelemetry object to set envelope name for.</param>
         /// <param name="envelopeName">Envelope name to use for ITelemetry object.</param>
-        /// <exception cref="ArgumentException">Concrete implementation of ITelemetry object does not expose envelope name.</exception>
-        public static void SetEnvelopeName(this ITelemetry telemetry, string envelopeName)
+        /// <returns>Boolean indicating the success of assigning envelope name.</returns>
+        public static bool TrySetEnvelopeName(this ITelemetry telemetry, string envelopeName)
         {
             if (telemetry is IAiSerializableTelemetry aiSerializableTelemetry)
             {
                 aiSerializableTelemetry.TelemetryName = envelopeName;
+                return true;
             }
             else
             {
-                throw new ArgumentException("Provided telemetry object does not support envelope name.", nameof(telemetry));
+                return false;
             }
         }
 

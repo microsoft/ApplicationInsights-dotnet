@@ -105,7 +105,7 @@
                 Assert.AreEqual("application/x-json-stream", transmission.ContentType);
                 Assert.AreEqual("gzip", transmission.ContentEncoding);
                 Assert.AreEqual("{" +
-                    "\"name\":\"Event\"," +
+                    "\"name\":\"AppEvents\"," +
                     "\"time\":\"0001-01-01T00:00:00.0000000Z\"," +
                     "\"data\":{\"baseType\":\"EventData\"," +
                         "\"baseData\":{\"ver\":2," +
