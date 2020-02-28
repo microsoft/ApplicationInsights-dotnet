@@ -147,10 +147,22 @@
         [NonEvent]
         public void CallbackError(long id, string callbackName, Exception exception)
         {
-            if (this.IsEnabled(EventLevel.Error, Keywords.RddEventKeywords))
+            string idString = null;
+
+            if (this.IsEnabled(EventLevel.Verbose, Keywords.RddEventKeywords))
             {
-                this.CallbackError(id.ToString(CultureInfo.InvariantCulture), callbackName ?? string.Empty, exception == null ? "null" : exception.ToInvariantString());
+                idString = id.ToString(CultureInfo.InvariantCulture);
             }
+            else if (this.IsEnabled(EventLevel.Error, Keywords.RddEventKeywords))
+            {
+                idString = "_";
+            }
+            else
+            {
+                return;
+            }
+
+            this.CallbackError(idString, callbackName ?? string.Empty, exception == null ? "null" : exception.ToInvariantString());
         }
 
         [Event(
