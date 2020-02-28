@@ -17,7 +17,7 @@
     {
         internal readonly MetricData Data;
         internal readonly DataPoint Metric;
-        internal string EnvelopeName = "Metric";
+        internal string EnvelopeName = "AppMetrics";
         private IExtension extension;
 
         /// <summary>

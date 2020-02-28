@@ -22,7 +22,7 @@
     /// </remarks>
     public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportAdvancedSampling, IAiSerializableTelemetry
     {
-        internal string EnvelopeName = "Request";
+        internal string EnvelopeName = "AppRequests";
 
         private readonly TelemetryContext context;
         private RequestData dataPrivate;

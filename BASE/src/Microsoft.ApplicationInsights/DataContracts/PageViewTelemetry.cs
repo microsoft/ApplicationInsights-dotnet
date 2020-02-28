@@ -21,7 +21,7 @@
     public sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportAdvancedSampling, ISupportMetrics, IAiSerializableTelemetry
     {
         internal readonly PageViewData Data;
-        internal string EnvelopeName = "PageView";
+        internal string EnvelopeName = "AppPageViews";
         private readonly TelemetryContext context;
         private IExtension extension;
 

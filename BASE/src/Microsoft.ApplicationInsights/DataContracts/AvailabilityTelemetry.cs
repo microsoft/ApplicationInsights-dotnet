@@ -16,7 +16,7 @@
     public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties, ISupportMetrics, IAiSerializableTelemetry
     {
         internal readonly AvailabilityData Data;
-        internal string EnvelopeName = "Availability";
+        internal string EnvelopeName = "AppAvailabilityResults";
         private readonly TelemetryContext context;
         private IExtension extension;
 

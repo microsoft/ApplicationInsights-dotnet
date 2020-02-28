@@ -14,7 +14,7 @@
     public sealed class PageViewPerformanceTelemetry : ITelemetry, ISupportProperties, ISupportAdvancedSampling, IAiSerializableTelemetry
     {
         internal readonly PageViewPerfData Data;
-        internal string EnvelopeName = "PageViewPerformance";
+        internal string EnvelopeName = "AppBrowserTimings";
         private IExtension extension;
         private double? samplingPercentage;
 
