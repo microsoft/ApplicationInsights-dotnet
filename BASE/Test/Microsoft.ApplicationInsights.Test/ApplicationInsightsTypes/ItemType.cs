@@ -17,7 +17,5 @@
         public const string PageViewPerformance = "AppBrowserTimings";
 
         public const string RemoteDependency = "AppDependencies";
-
-        public const string PerformanceCounter = "AppPerformanceCounters";
     }
 }
