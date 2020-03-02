@@ -159,18 +159,20 @@
         /// <param name="endpointAddress">Sets telemetry endpoint address.</param>
         /// <param name="instrumentationKey">Sets instrumentation key.</param>
         /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
+        [SuppressMessage("ApiDesign", "RS0026:Do not add multiple public overloads with optional parameters", Justification = "We made a mistake here, but we can't remove it from the public API now.")]
         public static IConfigurationBuilder AddApplicationInsightsSettings(this IConfigurationBuilder configurationSourceRoot,  bool? developerMode = null, string endpointAddress = null, string instrumentationKey = null)
             => configurationSourceRoot.AddApplicationInsightsSettings(connectionString: null, developerMode: developerMode, endpointAddress: endpointAddress, instrumentationKey: instrumentationKey);
 
-            /// <summary>
-            /// Adds Application Insight specific configuration properties to <see cref="IConfigurationBuilder"/>.
-            /// </summary>
-            /// <param name="configurationSourceRoot">The <see cref="IConfigurationBuilder"/> instance.</param>
-            /// <param name="connectionString">Sets connection string.</param>
-            /// <param name="developerMode">Enables or disables developer mode.</param>
-            /// <param name="endpointAddress">Sets telemetry endpoint address.</param>
-            /// <param name="instrumentationKey">Sets instrumentation key.</param>
-            /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
+        /// <summary>
+        /// Adds Application Insight specific configuration properties to <see cref="IConfigurationBuilder"/>.
+        /// </summary>
+        /// <param name="configurationSourceRoot">The <see cref="IConfigurationBuilder"/> instance.</param>
+        /// <param name="connectionString">Sets connection string.</param>
+        /// <param name="developerMode">Enables or disables developer mode.</param>
+        /// <param name="endpointAddress">Sets telemetry endpoint address.</param>
+        /// <param name="instrumentationKey">Sets instrumentation key.</param>
+        /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
+        [SuppressMessage("ApiDesign", "RS0026:Do not add multiple public overloads with optional parameters", Justification = "We made a mistake here, but we can't remove it from the public API now.")]
         public static IConfigurationBuilder AddApplicationInsightsSettings(
             this IConfigurationBuilder configurationSourceRoot,
             string connectionString,

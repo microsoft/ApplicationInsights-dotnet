@@ -1,7 +1,7 @@
 ﻿# Changelog
 
 ## VNext
-
+- [Fix: Some perf counters aren't collected when app is hosted on Azure WebApp](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1685)
 
 ## Version 2.14.0-beta2
 - [Fix: AspNetCore AddApplicationInsightsSettings() and MissingMethodException](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1702)
