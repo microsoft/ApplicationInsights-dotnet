@@ -6,7 +6,6 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     internal class ITelemetryTest<TTelemetry, TEndpointData> 
@@ -222,7 +221,7 @@
                 .SerializeDeserializeTelemetryItem<TEndpointData>(expected);
 
             Assert.AreEqual(
-                Constants.TelemetryNamePrefix + "312cbd799dbb4c48a7da3cc2a931cb71." + this.ExtractTelemetryNameFromType(typeof(TTelemetry)),
+                this.ExtractEnvelopeNameFromType(typeof(TTelemetry)),
                 actual.name);
         }
 
@@ -237,7 +236,7 @@
             else if (telemetryType == typeof(DependencyTelemetry))
             {
                 // handle DeppendencyTelemetry separately
-                result = "RemoteDependency";                
+                result = "RemoteDependency";
             }
 #pragma warning disable 618
             else if (telemetryType == typeof(SessionStateTelemetry))
@@ -249,6 +248,64 @@
             {
                 // handle TraceTelemetry separately
                 result = "Metric";
+            }
+#pragma warning restore 618
+            else
+            {
+                // common logic is to strip out "Telemetry" suffix from the telemetry type
+                string typeName = telemetryType.Name;
+                StringAssert.EndsWith(typeName, "Telemetry", "Unknown Telemetry object");
+                result = typeName.Substring(0, typeName.LastIndexOf("Telemetry", StringComparison.Ordinal));
+            }
+
+            return result;
+        }
+
+        private string ExtractEnvelopeNameFromType(Type telemetryType)
+        {
+            string result;
+
+            if (telemetryType == typeof(MetricTelemetry))
+            {
+                result = ItemType.Metric;
+            }
+            else if (telemetryType == typeof(RequestTelemetry))
+            {
+                result = ItemType.Request;
+            }
+            else if (telemetryType == typeof(ExceptionTelemetry))
+            {
+                result = ItemType.Exception;
+            }
+            else if (telemetryType == typeof(TraceTelemetry))
+            {
+                result = ItemType.Message;
+            }
+            else if (telemetryType == typeof(EventTelemetry))
+            {
+                result = ItemType.Event;
+            }
+            else if (telemetryType == typeof(PageViewTelemetry))
+            {
+                result = ItemType.PageView;
+            }
+            else if (telemetryType == typeof(PageViewPerformanceTelemetry))
+            {
+                result = ItemType.PageViewPerformance;
+            }
+            else if (telemetryType == typeof(DependencyTelemetry))
+            {
+                result = ItemType.RemoteDependency;
+            }
+#pragma warning disable 618
+            else if (telemetryType == typeof(SessionStateTelemetry))
+            {
+                // handle TraceTelemetry separately
+                result = ItemType.Event;
+            }
+            else if (telemetryType == typeof(PerformanceCounterTelemetry))
+            {
+                result = ItemType.Metric;
             }
 #pragma warning restore 618
             else
