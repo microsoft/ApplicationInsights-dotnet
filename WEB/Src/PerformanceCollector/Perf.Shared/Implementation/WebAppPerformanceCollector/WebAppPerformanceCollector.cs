@@ -126,13 +126,22 @@
                 this.performanceCounters.Remove(tupleToRemove);
             }
 
-            this.RegisterPerformanceCounter(
-                pcd.OriginalString,
-                pcd.ReportAs,
-                pcd.PerformanceCounter.CategoryName,
-                pcd.PerformanceCounter.CounterName,
-                pcd.PerformanceCounter.InstanceName,
-                pcd.UsesInstanceNamePlaceholder);
+            try
+            {
+                this.RegisterPerformanceCounter(
+                    pcd.OriginalString,
+                    pcd.ReportAs,
+                    pcd.PerformanceCounter.CategoryName,
+                    pcd.PerformanceCounter.CounterName,
+                    pcd.PerformanceCounter.InstanceName,
+                    pcd.UsesInstanceNamePlaceholder);
+            }
+            catch (InvalidOperationException e)
+            {
+                PerformanceCollectorEventSource.Log.CounterRegistrationFailedEvent(
+                    e.Message,
+                    PerformanceCounterUtility.FormatPerformanceCounter(pcd.PerformanceCounter));
+            }
         }
 
         /// <summary>
