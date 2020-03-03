@@ -11,7 +11,10 @@ RUN msiexec /i SqlLocalDB.msi /qn /norestart IACCEPTSQLLOCALDBLICENSETERMS=YES
 
 # Get AzureEmulator
 ADD https://download.microsoft.com/download/F/3/8/F3857A38-D344-43B4-8E5B-2D03489909B9/MicrosoftAzureStorageEmulator.msi MicrosoftAzureStorageEmulator.msi
-RUN msiexec /i MicrosoftAzureStorageEmulator.msi /qn
+RUN msiexec /i MicrosoftAzureStorageEmulator.msi /qn /L*V "c:\\msi.log"
+
+RUN powershell -NoProfile -Command \
+        Get-Content -Path "c:\\msi.log";
 
 #Delete the downloaded installers.
 RUN powershell -NoProfile -Command \
