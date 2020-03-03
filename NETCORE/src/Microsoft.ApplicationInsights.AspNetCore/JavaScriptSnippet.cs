@@ -14,6 +14,9 @@
     /// </summary>
     public class JavaScriptSnippet : IJavaScriptSnippet
     {
+        private const string ScriptTagBegin = @"<script type=""text/javascript"">";
+        private const string ScriptTagEnd = "</script>";
+
         /// <summary>JavaScript snippet.</summary>
         private static readonly string Snippet = Resources.JavaScriptSnippet;
 
@@ -24,12 +27,12 @@
         private readonly IHttpContextAccessor httpContextAccessor;
 
         /// <summary>Configuration instance.</summary>
-        private TelemetryConfiguration telemetryConfiguration;
+        private readonly TelemetryConfiguration telemetryConfiguration;
 
         /// <summary> Weather to print authenticated user tracking snippet.</summary>
-        private bool enableAuthSnippet;
+        private readonly bool enableAuthSnippet;
 
-        private JavaScriptEncoder encoder;
+        private readonly JavaScriptEncoder encoder;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="JavaScriptSnippet"/> class.
@@ -52,54 +55,84 @@
             this.telemetryConfiguration = telemetryConfiguration;
             this.httpContextAccessor = httpContextAccessor;
             this.enableAuthSnippet = serviceOptions.Value.EnableAuthenticationTrackingJavaScript;
-            this.encoder = (encoder == null) ? JavaScriptEncoder.Default : encoder;
+            this.encoder = encoder ?? JavaScriptEncoder.Default;
         }
 
         /// <summary>
-        /// Gets a code snippet with instrumentation key initialized from TelemetryConfiguration.
+        /// Gets the full JavaScript Snippet in HTML script tags with instrumentation key initialized from TelemetryConfiguration.
         /// </summary>
-        /// <returns>JavaScript code snippet with instrumentation key or empty if instrumentation key was not set for the application.</returns>
+        /// <remarks>This method will evaluate if Telemetry has been disabled in the config and if the instrumentation key was provided by either setting InstrumentationKey or ConnectionString.</remarks>
+        /// <returns>JavaScript code snippet with instrumentation key or returns string.Empty if instrumentation key was not set for the application.</returns>
         public string FullScript
+        { 
+            get
+            {
+                if (!this.IsAvailable())
+                {
+                    return string.Empty;
+                }
+                else
+                {
+                    return string.Concat(ScriptTagBegin, this.ScriptBody, ScriptTagEnd);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the JavaScript Snippet body (without HTML script tags) with instrumentation key initialized from TelemetryConfiguration.
+        /// </summary>
+        /// <returns>JavaScript code snippet with instrumentation key or returns string.Empty if instrumentation key was not set for the application.</returns>
+        public string ScriptBody
         {
             get
             {
-                if (!this.telemetryConfiguration.DisableTelemetry)
+                // Config JS SDK
+                string insertConfig;
+                if (!string.IsNullOrEmpty(this.telemetryConfiguration.ConnectionString))
                 {
-                    // Config JS SDK
-                    string insertConfig;
-                    if (!string.IsNullOrEmpty(this.telemetryConfiguration.ConnectionString))
-                    {
-                        insertConfig = string.Format(CultureInfo.InvariantCulture, "connectionString: '{0}'", this.telemetryConfiguration.ConnectionString);
-                    }
-                    else if (!string.IsNullOrEmpty(this.telemetryConfiguration.InstrumentationKey))
-                    {
-                        insertConfig = string.Format(CultureInfo.InvariantCulture, "instrumentationKey: '{0}'", this.telemetryConfiguration.InstrumentationKey);
-                    }
-                    else
-                    {
-                        return string.Empty;
-                    }
-
-                    // Auth Snippet (setAuthenticatedUserContext)
-                    string insertAuthUserContext = string.Empty;
-                    if (this.enableAuthSnippet)
-                    {
-                        IIdentity identity = this.httpContextAccessor?.HttpContext?.User?.Identity;
-                        if (identity != null && identity.IsAuthenticated)
-                        {
-                            string escapedUserName = this.encoder.Encode(identity.Name);
-                            insertAuthUserContext = string.Format(CultureInfo.InvariantCulture, AuthSnippet, escapedUserName);
-                        }
-                    }
-
-                    // Return full snippet
-                    // Developer Note: If you recently updated the snippet and are now getting "FormatException: Input string was not in a correct format." you need to escape all the curly braces; '{' => '{{' and '}' => '}}'.
-                    return string.Format(CultureInfo.InvariantCulture, Snippet, insertConfig, insertAuthUserContext);
+                    insertConfig = string.Format(CultureInfo.InvariantCulture, "connectionString: '{0}'", this.telemetryConfiguration.ConnectionString);
+                }
+                else if (!string.IsNullOrEmpty(this.telemetryConfiguration.InstrumentationKey))
+                {
+                    insertConfig = string.Format(CultureInfo.InvariantCulture, "instrumentationKey: '{0}'", this.telemetryConfiguration.InstrumentationKey);
                 }
                 else
                 {
                     return string.Empty;
                 }
+
+                // Auth Snippet (setAuthenticatedUserContext)
+                string insertAuthUserContext = string.Empty;
+                if (this.enableAuthSnippet)
+                {
+                    IIdentity identity = this.httpContextAccessor?.HttpContext?.User?.Identity;
+                    if (identity != null && identity.IsAuthenticated)
+                    {
+                        string escapedUserName = this.encoder.Encode(identity.Name);
+                        insertAuthUserContext = string.Format(CultureInfo.InvariantCulture, AuthSnippet, escapedUserName);
+                    }
+                }
+
+                // Return snippet
+                // Developer Note: If you recently updated the snippet and are now getting "FormatException: Input string was not in a correct format." you need to escape all the curly braces; '{' => '{{' and '}' => '}}'.
+                return string.Format(CultureInfo.InvariantCulture, Snippet, insertConfig, insertAuthUserContext);
+            }
+        }
+
+        /// <summary>
+        /// Determine if we have enough information to build a full script.
+        /// </summary>
+        /// <returns>Returns true if we can build the JavaScript snippet.</returns>
+        private bool IsAvailable()
+        {
+            if (this.telemetryConfiguration.DisableTelemetry)
+            {
+                return false;
+            }
+            else
+            {
+                return !(string.IsNullOrEmpty(this.telemetryConfiguration.ConnectionString)
+                    && string.IsNullOrEmpty(this.telemetryConfiguration.InstrumentationKey));
             }
         }
     }

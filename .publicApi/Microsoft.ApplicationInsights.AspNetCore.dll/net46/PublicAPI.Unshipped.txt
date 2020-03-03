@@ -1,0 +1,1 @@
+Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet.ScriptBody.get -> string
