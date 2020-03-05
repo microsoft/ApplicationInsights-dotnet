@@ -1,6 +1,8 @@
 ﻿# Changelog
 
 ## VNext
+
+## Version 2.14.0-beta3
 - [New: JavaScript Property to support Content Security Policy](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1443)
 - [Fix: All perf counters stop being collected when any of faulty counters are specified to collect on Azure WebApps](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1686)
 - [Fix: Some perf counters aren't collected when app is hosted on Azure WebApp](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1685)
