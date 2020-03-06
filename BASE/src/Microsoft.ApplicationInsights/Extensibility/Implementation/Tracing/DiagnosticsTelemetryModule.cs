@@ -20,7 +20,6 @@
         private readonly object lockObject = new object();
         private readonly IDiagnoisticsEventThrottlingScheduler throttlingScheduler = new DiagnoisticsEventThrottlingScheduler();
         private volatile bool disposed = false;
-        private TimeSpan heartbeatInterval;
         private string instrumentationKey;
         private bool isInitialized = false;
 
@@ -33,8 +32,6 @@
             this.Senders.Add(new PortalDiagnosticsQueueSender());
 
             this.EventListener = new DiagnosticsListener(this.Senders);
-
-            this.heartbeatInterval = Tracing.HeartbeatProvider.DefaultHeartbeatInterval;
 
             this.HeartbeatProvider = new HeartbeatProvider();
         }
