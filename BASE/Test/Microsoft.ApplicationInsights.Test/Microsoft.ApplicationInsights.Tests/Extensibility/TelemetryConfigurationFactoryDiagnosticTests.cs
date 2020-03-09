@@ -7,7 +7,7 @@
     using System.Linq;
     using System.Xml.Linq;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.TestFramework;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -22,22 +22,6 @@
             PlatformSingleton.Current = null; // Force reinitialization in future tests so that new environment variables will be loaded.
         }
 
-        [TestMethod]
-        public void VerifyDiagnosticsIsEnabledViaEnvironmentVariable()
-        {
-            this.RunBasicTest(environmentVariableValue: "true", shouldInitializeModule: true);
-            this.RunBasicTest(environmentVariableValue: "TRUE", shouldInitializeModule: true);
-            this.RunBasicTest(environmentVariableValue: "True", shouldInitializeModule: true);
-        }
-
-        [TestMethod]
-        public void VerifyDiagnosticsIsNotEnabled()
-        {
-            this.RunBasicTest(environmentVariableValue: "false", shouldInitializeModule: false);
-            this.RunBasicTest(environmentVariableValue: "False", shouldInitializeModule: false);
-            this.RunBasicTest(environmentVariableValue: "FALSE", shouldInitializeModule: false);
-            this.RunBasicTest(environmentVariableValue: null, shouldInitializeModule: false);
-        }
 
         [TestMethod]
         public void VerifyFileDiagnosticsFolderPathCanBeSetViaEnvironmentVariable()
@@ -46,8 +30,7 @@
 
             // SETUP
             var platform = new StubEnvironmentVariablePlatform();
-            platform.SetEnvironmentVariable(TelemetryConfigurationFactory.DiagnosticsEnvironmentVariable, "true");
-            platform.SetEnvironmentVariable(TelemetryConfigurationFactory.DiagnosticsLogDirectoryEnvironmentVariable, testLogFilePath);
+            platform.SetEnvironmentVariable(TelemetryConfigurationFactory.SelfDiagnosticsEnvironmentVariable, $"type=file;path={testLogFilePath}");
             PlatformSingleton.Current = platform;
 
             // ACT
@@ -61,15 +44,14 @@
         }
 
         [TestMethod]
-        public void IfFileDiagnosticsModuleAlreadyExistVerifyWeDoNothing()
+        public void VerifyExistingModulesOverridenByEnvironmentVariable()
         {
             string testLogFilePath1 = "C:\\Temp\\111";
             string testLogFilePath2 = "C:\\Temp\\222";
 
             // SETUP
             var platform = new StubEnvironmentVariablePlatform();
-            platform.SetEnvironmentVariable(TelemetryConfigurationFactory.DiagnosticsEnvironmentVariable, "true");
-            platform.SetEnvironmentVariable(TelemetryConfigurationFactory.DiagnosticsLogDirectoryEnvironmentVariable, testLogFilePath2);
+            platform.SetEnvironmentVariable(TelemetryConfigurationFactory.SelfDiagnosticsEnvironmentVariable, $"type=file;path={testLogFilePath2}");
             PlatformSingleton.Current = platform;
 
             // ACT
@@ -80,29 +62,25 @@
                 TelemetryConfigurationFactory.Instance.EvaluateDiagnosticsMode(modules);
 
                 var module = (FileDiagnosticsTelemetryModule)modules.Modules.Single();
-                Assert.AreEqual(testLogFilePath1, module.LogFilePath, "although path #2 was set in the environment variable, the previous module with path #1 was pre-set and should not be overwritten");
+                Assert.AreEqual(testLogFilePath2, module.LogFilePath, "the environment variable should take precedence to enable DevOps to have control over troubleshooting scenarios");
             }
         }
 
         [TestMethod]
-        public void WhatHappensWithMultipleModules()
+        public void VerifyConfigIsOverridenByEnvironmentVariable()
         {
             string testLogFilePath1 = "C:\\Temp\\111";
             string testLogFilePath2 = "C:\\Temp\\222";
 
             // SETUP
             var platform = new StubEnvironmentVariablePlatform();
-            platform.SetEnvironmentVariable(TelemetryConfigurationFactory.DiagnosticsEnvironmentVariable, "true");
-            platform.SetEnvironmentVariable(TelemetryConfigurationFactory.DiagnosticsLogDirectoryEnvironmentVariable, testLogFilePath2);
+            platform.SetEnvironmentVariable(TelemetryConfigurationFactory.SelfDiagnosticsEnvironmentVariable, $"type=file;path={testLogFilePath2}");
             PlatformSingleton.Current = platform;
 
             string configFileContents = Configuration(
                 @"<TelemetryModules>
                     <Add Type = """ + typeof(FileDiagnosticsTelemetryModule).AssemblyQualifiedName + @"""  >
                         <LogFilePath>" + testLogFilePath1 + @"</LogFilePath>
-                    </Add>
-                    <Add Type = """ + typeof(FileDiagnosticsTelemetryModule).AssemblyQualifiedName + @"""  >
-                        <LogFilePath>xxx</LogFilePath>
                     </Add>
                   </TelemetryModules>");
 
@@ -111,7 +89,7 @@
                 new TestableTelemetryConfigurationFactory().Initialize(new TelemetryConfiguration(), modules, configFileContents);
 
                 var module = modules.Modules.OfType<FileDiagnosticsTelemetryModule>().Single();
-                Assert.AreEqual(testLogFilePath2, module.LogFilePath, "We want the config from the environment variable to take precedence to enable DevOps to have control over troubleshooting scenarios");
+                Assert.AreEqual(testLogFilePath2, module.LogFilePath, "the environment variable should take precedence to enable DevOps to have control over troubleshooting scenarios");
             }
         }
 
@@ -122,24 +100,6 @@
                 <ApplicationInsights xmlns=""http://schemas.microsoft.com/ApplicationInsights/2013/Settings"">
 " + innerXml + @"
                 </ApplicationInsights>";
-        }
-
-        private void RunBasicTest(string environmentVariableValue, bool shouldInitializeModule)
-        {
-            // SETUP
-            var platform = new StubEnvironmentVariablePlatform();
-            platform.SetEnvironmentVariable(TelemetryConfigurationFactory.DiagnosticsEnvironmentVariable, environmentVariableValue);
-            PlatformSingleton.Current = platform;
-
-            // ACT
-            using (var modules = new TestableTelemetryModules())
-            {
-                Assert.AreEqual(0, modules.Modules.Count());
-
-                TelemetryConfigurationFactory.Instance.EvaluateDiagnosticsMode(modules);
-
-                Assert.AreEqual(shouldInitializeModule ? 1 : 0, modules.Modules.Count());
-            }
         }
 
         private class TestableTelemetryModules : TelemetryModules, IDisposable

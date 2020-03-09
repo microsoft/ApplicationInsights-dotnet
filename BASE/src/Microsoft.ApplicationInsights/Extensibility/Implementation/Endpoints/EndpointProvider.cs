@@ -2,8 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
+
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.ConfigString;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
@@ -21,8 +22,6 @@
         /// Setting an over-exaggerated max length to protect against malicious injections (2^12 = 4096).
         /// </remarks>
         internal const int ConnectionStringMaxLength = 4096;
-
-        private static readonly char[] SplitSemicolon = new char[] { ';' };
 
         private static readonly char[] TrimPeriod = new char[] { '.' };
 
@@ -131,44 +130,7 @@
         /// <returns>A dictionary parsed from the input connection string.</returns>
         internal static Dictionary<string, string> ParseConnectionString(string connectionString)
         {
-            if (connectionString == null)
-            {
-                CoreEventSource.Log.ConnectionStringNull();
-                throw new ArgumentNullException(nameof(connectionString));
-            }
-
-            var keyValuePairs = connectionString.Split(SplitSemicolon, StringSplitOptions.RemoveEmptyEntries);
-
-            if (keyValuePairs.Length == 0)
-            {
-                CoreEventSource.Log.ConnectionStringEmpty();
-                throw new ArgumentException("Connection string cannot be empty.");
-            }
-
-            var dictionary = new Dictionary<string, string>(keyValuePairs.Length, StringComparer.OrdinalIgnoreCase);
-
-            foreach (var pair in keyValuePairs)
-            {
-                var keyAndValue = pair.Split('=');
-                if (keyAndValue.Length != 2)
-                {
-                    CoreEventSource.Log.ConnectionStringInvalidDelimiters();
-                    throw new ArgumentException("Connection String Invalid: Unexpected delimiter can not be parsed. Expected: 'key1=value1;key2=value2;key3=value3'");
-                }
-
-                var key = keyAndValue[0].Trim();
-                var value = keyAndValue[1].Trim();
-
-                if (dictionary.ContainsKey(key))
-                {
-                    CoreEventSource.Log.ConnectionStringDuplicateKey();
-                    throw new ArgumentException(FormattableString.Invariant($"Connection String Invalid: Contains duplicate key: '{key}'."));
-                }
-
-                dictionary.Add(key, value);
-            }
-
-            return dictionary;
+            return ConfigStringParser.Parse(connectionString, configName: "Connection String");
         }
 
         /// <summary>

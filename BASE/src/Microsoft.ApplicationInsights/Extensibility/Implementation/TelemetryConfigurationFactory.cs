@@ -20,8 +20,8 @@
     {
         internal const string InstrumentationKeyEnvironmentVariable = "APPINSIGHTS_INSTRUMENTATIONKEY";
         internal const string ConnectionStringEnvironmentVariable = "APPLICATIONINSIGHTS_CONNECTION_STRING";
-        internal const string DiagnosticsEnvironmentVariable = "APPLICATIONINSIGHTS_DIAGNOSTICS";
-        internal const string DiagnosticsLogDirectoryEnvironmentVariable = "APPLICATIONINSIGHTS_DIAGNOSTICS_LOG_DIRECTORY";
+
+        internal const string SelfDiagnosticsEnvironmentVariable = "APPLICATIONINSIGHTS_SELF_DIAGNOSTICS";
 
         private const string AddElementName = "Add";
         private const string TypeAttributeName = "Type";
@@ -122,24 +122,26 @@
         [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "This value is not used in NetStandard1.3 but is used for all other frameworks..")]
         internal void EvaluateDiagnosticsMode(TelemetryModules modules)
         {
-#if !NETSTANDARD1_3
             // TODO: NEED TO EMIT ETW LOGS
-            if (PlatformSingleton.Current.TryGetEnvironmentVariable(DiagnosticsEnvironmentVariable, out string diagnosticsValue) && bool.TryParse(diagnosticsValue, out bool boolValue) && boolValue)
-            {
-                if (modules != null && !modules.Modules.Any(module => module is FileDiagnosticsTelemetryModule))
-                {
-                    var fileDiagnosticsTelemetryModule = new FileDiagnosticsTelemetryModule
-                    {
-                        Severity = "Verbose",
-                    };
 
-                    if (PlatformSingleton.Current.TryGetEnvironmentVariable(DiagnosticsLogDirectoryEnvironmentVariable, out string diagnosticsLogDirectoryValue))
+#if !NETSTANDARD1_3
+            if (PlatformSingleton.Current.TryGetEnvironmentVariable(SelfDiagnosticsEnvironmentVariable, out string selfDiagnosticsConfigurationString))
+            {
+                var keyValuePairs = SelfDiagnosticsProvider.ParseConfigurationString(selfDiagnosticsConfigurationString);
+
+                if (SelfDiagnosticsProvider.IsFileDiagnostics(keyValuePairs, out string path, out string level, out string maxSize))
+                {
+                    var module = modules?.Modules.SingleOrDefault(x => x is FileDiagnosticsTelemetryModule);
+                    if (module != null)
                     {
-                        fileDiagnosticsTelemetryModule.LogFilePath = diagnosticsLogDirectoryValue;
+                        modules.Modules.Remove(module);
                     }
 
-                    // Create diagnostics module so configuration loading errors are reported to the portal
-                    modules.Modules.Add(fileDiagnosticsTelemetryModule);
+                    modules.Modules.Add(new FileDiagnosticsTelemetryModule
+                    {
+                        Severity = "Verbose",
+                        LogFilePath = path,
+                    });
                 }
             }
 #endif
