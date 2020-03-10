@@ -93,6 +93,28 @@
             }
         }
 
+        [TestMethod]
+        public void VerifyConfigCanStillSetFileDiagnosticsModule()
+        {
+            string testLogFilePath1 = "C:\\Temp\\111";
+
+            // SETUP
+            string configFileContents = Configuration(
+                @"<TelemetryModules>
+                    <Add Type = """ + typeof(FileDiagnosticsTelemetryModule).AssemblyQualifiedName + @"""  >
+                        <LogFilePath>" + testLogFilePath1 + @"</LogFilePath>
+                    </Add>
+                  </TelemetryModules>");
+
+            using (var modules = new TestableTelemetryModules())
+            {
+                new TestableTelemetryConfigurationFactory().Initialize(new TelemetryConfiguration(), modules, configFileContents);
+
+                var module = modules.Modules.OfType<FileDiagnosticsTelemetryModule>().Single();
+                Assert.AreEqual(testLogFilePath1, module.LogFilePath, "the environment variable should take precedence to enable DevOps to have control over troubleshooting scenarios");
+            }
+        }
+
         private static string Configuration(string innerXml)
         {
             return

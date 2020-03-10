@@ -316,6 +316,10 @@
                             instances.Add((T)instance);
                         }
                     }
+                    else if (IsExcludedType(instance))
+                    {
+                        return;
+                    }
                     else
                     {
                         // Apply configuration overrides to element created in code
@@ -323,6 +327,22 @@
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Some types need to be injected before the config is parsed. 
+        /// If the same object is in the config, that should not be allowed to override the injected type.
+        /// </summary>
+        /// <remarks>FileDiagnosticsTelemetryModule can be injected via Environment Variable.</remarks>
+        /// <param name="instance">instance being evaluated.</param>
+        /// <returns>Returns true if the type is excluded from LoadProperties.</returns>
+        protected static bool IsExcludedType(object instance)
+        {
+            bool returnValue = false;
+#if !NETSTANDARD1_3
+            returnValue |= instance.GetType().Equals(typeof(FileDiagnosticsTelemetryModule));
+#endif
+            return returnValue;
         }
 
         protected static void LoadProperties(XElement instanceDefinition, object instance, TelemetryModules modules)
@@ -525,4 +545,4 @@
             }
         }
     }
-}
+ }
