@@ -59,6 +59,8 @@
             }
         }
 
+        internal bool IsEnqueueSuccess { get; set; } = false;
+
         public void Dispose()
         {
             this.Dispose(true);
@@ -99,6 +101,7 @@
                     ChangeFileExtension(temporaryFile, TransmissionFileExtension);
                     Interlocked.Add(ref this.size, temporaryFileSize);
                     TelemetryChannelEventSource.Log.TransmissionSavedToStorage(transmission.Id);
+                    this.IsEnqueueSuccess = true;
                     return true;
                 }
                 catch (UnauthorizedAccessException e)

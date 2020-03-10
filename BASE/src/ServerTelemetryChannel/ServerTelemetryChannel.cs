@@ -326,12 +326,7 @@
             }
 
             TelemetryChannelEventSource.Log.TelemetryChannelFlushAsync();
-
-#if NET45
-            return cancellationToken.IsCancellationRequested ? Task.Factory.StartNew(() => false, cancellationToken) : this.TelemetryBuffer.ManualFlushAsync(cancellationToken);
-#else
-            return cancellationToken.IsCancellationRequested ? Task.FromCanceled<bool>(cancellationToken) : this.TelemetryBuffer.ManualFlushAsync(cancellationToken);
-#endif
+            return cancellationToken.IsCancellationRequested ? TaskEx.FromCanceled<bool>(cancellationToken) : this.TelemetryBuffer.FlushAsync(cancellationToken);
         }
 
         /// <summary>

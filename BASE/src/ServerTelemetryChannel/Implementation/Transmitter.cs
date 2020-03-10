@@ -170,12 +170,19 @@
                         int temp_maxBufferCapacity = this.maxBufferCapacity;
                         this.maxSenderCapacity = 0;
                         this.maxBufferCapacity = 0;
+                        this.Storage.IsEnqueueSuccess = false;
 
                         // Move buffer to storage
                         this.ApplyPolicies();
 
-                        // Set flush success after moving to local storage
-                        transmission.CompleteFlushTask(true);
+                        if (this.Storage.IsEnqueueSuccess)
+                        {
+                            transmission.CompleteFlushTask(true);
+                        }
+                        else
+                        {
+                            transmission.CompleteFlushTask(false);
+                        }
 
                         // Reset the sender and buffer capacity
                         this.MaxSenderCapacity = temp_maxSenderCapacity;
@@ -192,7 +199,10 @@
             if (!this.Storage.Enqueue(transmissionGetter))
             {
                 TelemetryChannelEventSource.Log.TransmitterStorageSkipped(transmission.Id);
+                transmission.CompleteFlushTask(false);
             }
+
+            transmission.CompleteFlushTask(true);
         }
 
         internal virtual void ApplyPolicies()

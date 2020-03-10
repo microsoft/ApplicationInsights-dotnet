@@ -184,7 +184,7 @@
         /// <summary>
         /// Passes all <see cref="ITelemetry"/> items to the <see cref="TelemetrySerializer"/>, empties the queue and returns a task.
         /// </summary>
-        public virtual Task<bool> ManualFlushAsync(CancellationToken cancellationToken)
+        public virtual Task<bool> FlushAsync(CancellationToken cancellationToken)
         {
             List<ITelemetry> telemetryToFlush = this.MoveTelemeteryBufferForFlush();
 
@@ -193,11 +193,7 @@
                 return this.serializer.SerializeAsync(telemetryToFlush, cancellationToken);
             }
 
-#if NET45
-            return cancellationToken.IsCancellationRequested ? Task.Factory.StartNew(() => false, cancellationToken) : Task.FromResult(false);
-#else
-            return cancellationToken.IsCancellationRequested ? Task.FromCanceled<bool>(cancellationToken) : Task.FromResult(false);
-#endif
+            return cancellationToken.IsCancellationRequested ? TaskEx.FromCanceled<bool>(cancellationToken) : Task.FromResult(false);
         }
 
         public IEnumerator<ITelemetry> GetEnumerator()

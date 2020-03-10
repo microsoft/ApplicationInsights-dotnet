@@ -395,7 +395,7 @@
                 };
                 var telemetryBuffer = new TelemetryBuffer(serializer, new StubApplicationLifecycle());
 
-                telemetryBuffer.ManualFlushAsync(CancellationToken.None).GetAwaiter().GetResult();
+                telemetryBuffer.FlushAsync(CancellationToken.None).GetAwaiter().GetResult();
 
                 Assert.IsFalse(telemetrySerialized);
             }
@@ -420,7 +420,7 @@
                 var expectedTelemetry = new StubTelemetry();
                 telemetryBuffer.Process(expectedTelemetry);
 
-                telemetryBuffer.ManualFlushAsync(CancellationToken.None).GetAwaiter().GetResult();
+                telemetryBuffer.FlushAsync(CancellationToken.None).GetAwaiter().GetResult();
 
                 Assert.AreSame(expectedTelemetry, serializedTelemetry.Single());
             }
@@ -441,7 +441,7 @@
                 buffer.Capacity = 10;
                 buffer.Process(new StubTelemetry());
 
-                await buffer.ManualFlushAsync(CancellationToken.None);
+                await buffer.FlushAsync(CancellationToken.None);
 
                 Assert.AreEqual(0, buffer.Count());
             }
@@ -470,7 +470,7 @@
                         callback(state);
                     };
 
-                    await buffer.ManualFlushAsync(CancellationToken.None);
+                    await buffer.FlushAsync(CancellationToken.None);
 
                     Assert.IsFalse(postedBack);
                 }
@@ -480,7 +480,7 @@
             public async Task SetCancellationTokenOnManualFlushAsync()
             {
                 var telemetryBuffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
-                var task = telemetryBuffer.ManualFlushAsync(new CancellationToken(true));
+                var task = telemetryBuffer.FlushAsync(new CancellationToken(true));
                 
                 try
                 {
@@ -511,7 +511,7 @@
                 Task anotherThread;
                 lock (telemetryBuffer)
                 {
-                    anotherThread = Task.Run(() => telemetryBuffer.ManualFlushAsync(CancellationToken.None));
+                    anotherThread = Task.Run(() => telemetryBuffer.FlushAsync(CancellationToken.None));
                     Assert.IsFalse(anotherThread.Wait(10));
                 }
 
