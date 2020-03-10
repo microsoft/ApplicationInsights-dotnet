@@ -4,7 +4,6 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Globalization;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
@@ -29,7 +28,7 @@
         /// <summary>
         /// Value for property indicating 'app insights version' related specifically to heartbeats.
         /// </summary>        
-#if NETSTANDARD1_3 || NETSTANDARD2_0
+#if NETSTANDARD // This constant is defined for all versions of NetStandard https://docs.microsoft.com/en-us/dotnet/core/tutorials/libraries#how-to-multitarget
         private static string sdkVersionPropertyValue = SdkVersionUtils.GetSdkVersion("hbnetc:");
 #else
         private static string sdkVersionPropertyValue = SdkVersionUtils.GetSdkVersion("hbnet:");

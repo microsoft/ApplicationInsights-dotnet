@@ -11,7 +11,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.W3C.Internal;
+
     using static Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlClientDiagnostics.SqlClientDiagnosticFetcherTypes;
 
     internal class SqlClientDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>, IDisposable
@@ -72,14 +72,16 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
         private readonly SqlClientDiagnosticSourceSubscriber subscriber;
 
         private readonly ObjectInstanceBasedOperationHolder<DependencyTelemetry> operationHolder = new ObjectInstanceBasedOperationHolder<DependencyTelemetry>();
+        private readonly bool collectCommandText;
 
-        public SqlClientDiagnosticSourceListener(TelemetryConfiguration configuration)
+        public SqlClientDiagnosticSourceListener(TelemetryConfiguration configuration, bool collectCommandText)
         {
             this.client = new TelemetryClient(configuration);
             this.client.Context.GetInternalContext().SdkVersion =
                 SdkVersionUtils.GetSdkVersion("rdd" + RddSource.DiagnosticSourceCore + ":");
 
             this.subscriber = new SqlClientDiagnosticSourceSubscriber(this);
+            this.collectCommandText = collectCommandText;
         }
 
         public void Dispose()
@@ -412,8 +414,16 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
             {
                 var dependencyName = string.Empty;
                 var target = string.Empty;
+                var commandType = (int)commandTypeFetcher.Fetch(command);
+                var commandText = string.Empty;
 
-                var commandText = (string)commandTextFetcher.Fetch(command);
+                // https://docs.microsoft.com/dotnet/api/system.data.commandtype
+                // 4 indicate StoredProcedure
+                if (this.collectCommandText)
+                {
+                    commandText = (string)commandTextFetcher.Fetch(command);
+                }
+
                 var con = connectionFetcher.Fetch(command);
                 if (con != null)
                 {
@@ -423,7 +433,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                     // https://docs.microsoft.com/dotnet/api/system.data.commandtype
                     // 4 indicate StoredProcedure
-                    var commandName = (int)commandTypeFetcher.Fetch(command) == 4
+                    var commandName = commandType == 4
                         ? commandText
                         : string.Empty;
 

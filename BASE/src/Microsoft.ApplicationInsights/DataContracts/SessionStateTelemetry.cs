@@ -45,7 +45,18 @@
         }
 
         /// <inheritdoc />
-        string IAiSerializableTelemetry.TelemetryName => ((IAiSerializableTelemetry)this.Data).TelemetryName;
+        string IAiSerializableTelemetry.TelemetryName
+        {
+            get
+            {
+                return ((IAiSerializableTelemetry)this.Data).TelemetryName;
+            }
+
+            set
+            {
+                ((IAiSerializableTelemetry)this.Data).TelemetryName = value;
+            }
+        }
 
         /// <inheritdoc />
         string IAiSerializableTelemetry.BaseType => ((IAiSerializableTelemetry)this.Data).BaseType;

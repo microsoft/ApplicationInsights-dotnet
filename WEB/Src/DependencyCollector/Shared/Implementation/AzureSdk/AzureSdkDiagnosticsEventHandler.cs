@@ -15,6 +15,10 @@
 
     internal class AzureSdkDiagnosticsEventHandler : DiagnosticsEventHandlerBase
     {
+#if NET45
+        private static readonly DateTimeOffset EpochStart = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+#endif
+
         private readonly ObjectInstanceBasedOperationHolder<OperationTelemetry> operationHolder = new ObjectInstanceBasedOperationHolder<OperationTelemetry>();
 
         // fetchers must not be reused between sources
@@ -48,40 +52,27 @@
                         }
                     }
 
+                    string type = this.GetType(currentActivity);
+
                     if (telemetry == null)
                     {
-                        string dependencyType = RemoteDependencyConstants.InProc;
-                        foreach (var tag in currentActivity.Tags)
-                        {
-                            if (tag.Key == "kind")
-                            {
-                                if (tag.Value == "internal")
-                                {
-                                    break;
-                                }
+                        telemetry = new DependencyTelemetry { Type = type };
+                    }
 
-                                dependencyType = string.Empty;
-                            }
-
-                            if (tag.Key.StartsWith("http.", StringComparison.Ordinal))
-                            {
-                                dependencyType = RemoteDependencyConstants.HTTP;
-                                break;
-                            }
-                            
-                            if (tag.Key == "component" && tag.Value == "eventhubs")
-                            {
-                                dependencyType = RemoteDependencyConstants.AzureEventHubs;
-                                break;
-                            }
-                        }
-
-                        telemetry = new DependencyTelemetry { Type = dependencyType };
+                    if (type != null && type.EndsWith(RemoteDependencyConstants.AzureEventHubs, StringComparison.Ordinal))
+                    {
+                        this.SetEventHubsProperties(currentActivity, telemetry);
                     }
 
                     if (this.linksPropertyFetcher.Fetch(evnt.Value) is IEnumerable<Activity> activityLinks)
                     {
                         this.PopulateLinks(activityLinks, telemetry);
+
+                        if (telemetry is RequestTelemetry request &&
+                            TryGetAverageTimeInQueueForBatch(activityLinks, currentActivity.StartTimeUtc, out long enqueuedTime))
+                        {
+                            request.Metrics["timeSinceEnqueued"] = enqueuedTime;
+                        }
                     }
 
                     this.operationHolder.Store(currentActivity, Tuple.Create(telemetry, /* isCustomCreated: */ false));
@@ -89,21 +80,15 @@
                 else if (evnt.Key.EndsWith(".Stop", StringComparison.Ordinal))
                 {
                     var telemetry = this.operationHolder.Get(currentActivity).Item1;
+
                     this.SetCommonProperties(evnt.Key, evnt.Value, currentActivity, telemetry);
 
-                    if (telemetry is DependencyTelemetry dependency)
+                    if (telemetry is DependencyTelemetry dependency && dependency.Type == RemoteDependencyConstants.HTTP)
                     {
-                        if (dependency.Type == RemoteDependencyConstants.HTTP)
+                        this.SetHttpProperties(currentActivity, dependency);
+                        if (evnt.Value != null)
                         {
-                            this.SetHttpProperties(currentActivity, dependency);
-                            if (evnt.Value != null)
-                            {
-                                dependency.SetOperationDetail(evnt.Value.GetType().FullName, evnt.Value);
-                            }
-                        }
-                        else if (dependency.Type == RemoteDependencyConstants.AzureEventHubs)
-                        {
-                            this.SetEventHubsProperties(currentActivity, dependency);
+                            dependency.SetOperationDetail(evnt.Value.GetType().FullName, evnt.Value);
                         }
                     }
 
@@ -157,6 +142,106 @@
             return true;
         }
 
+        private static bool TryGetAverageTimeInQueueForBatch(IEnumerable<Activity> links, DateTimeOffset requestStartTime, out long avgTimeInQueue)
+        {
+            avgTimeInQueue = 0;
+            int linksCount = 0;
+            foreach (var link in links)
+            {
+                if (!TryGetEnqueuedTime(link, out var msgEnqueuedTime))
+                {
+                    // instrumentation does not consistently report enqueued time, ignoring whole span
+                    return false;
+                }
+                
+                long startEpochTime = 0;
+#if NET45
+                startEpochTime = (long)(requestStartTime - EpochStart).TotalMilliseconds;
+#else
+                startEpochTime = requestStartTime.ToUnixTimeMilliseconds();
+#endif
+                avgTimeInQueue += Math.Max(startEpochTime - msgEnqueuedTime, 0);
+                linksCount++;
+            }
+
+            if (linksCount == 0)
+            {
+                return false;
+            }
+
+            avgTimeInQueue /= linksCount;
+            return true;
+        }
+
+        private static bool TryGetEnqueuedTime(Activity link, out long enqueuedTime)
+        {
+            enqueuedTime = 0;
+            foreach (var attribute in link.Tags)
+            {
+                if (attribute.Key == "enqueuedTime")
+                {
+                    if (attribute.Value is string strValue)
+                    {
+                        return long.TryParse(strValue, out enqueuedTime);
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private string GetType(Activity currentActivity)
+        {
+            string kind = RemoteDependencyConstants.InProc;
+            string component = null;
+            foreach (var tag in currentActivity.Tags)
+            {
+                if (tag.Key.StartsWith("http.", StringComparison.Ordinal))
+                {
+                    return RemoteDependencyConstants.HTTP;
+                }
+
+                switch (tag.Key)
+                {
+                    case "kind":
+                        switch (tag.Value)
+                        {
+                            case "internal":
+                                break;
+                            case "producer":
+                                kind = RemoteDependencyConstants.QueueMessage;
+                                break;
+                            default:
+                                kind = null;
+                                break;
+                        }
+
+                        break;
+
+                    case "component":
+                    case "az.namespace":
+                        component = tag.Value;
+                        break;
+                }
+            }
+
+            if (component == "eventhubs" || component == "Microsoft.EventHub")
+            {
+                return kind == null
+                    ? RemoteDependencyConstants.AzureEventHubs
+                    : string.Concat(kind, " | ", RemoteDependencyConstants.AzureEventHubs);
+            }
+
+            if (component != null)
+            {
+                return kind == null
+                    ? component
+                    : string.Concat(kind, " | ", component);
+            }
+
+            return kind ?? string.Empty;
+        }
+
         private void SetHttpProperties(Activity activity, DependencyTelemetry dependency)
         {
             string method = null;
@@ -205,7 +290,7 @@
             }
         }
 
-        private void SetEventHubsProperties(Activity activity, DependencyTelemetry dependency)
+        private void SetEventHubsProperties(Activity activity, OperationTelemetry telemetry)
         {
             string endpoint = null;
             string queueName = null;
@@ -222,9 +307,29 @@
                 }
             }
 
+            if (endpoint == null || queueName == null)
+            {
+                return;
+            }
+
             // Target uniquely identifies the resource, we use both: queueName and endpoint 
             // with schema used for SQL-dependencies
-            dependency.Target = string.Concat(endpoint, " | ", queueName);
+            string separator = "/";
+            if (endpoint.EndsWith(separator, StringComparison.Ordinal))
+            {
+                separator = string.Empty;
+            }
+
+            string eventHubInfo = string.Concat(endpoint, separator, queueName);
+
+            if (telemetry is DependencyTelemetry dependency)
+            {
+                dependency.Target = eventHubInfo;
+            }
+            else if (telemetry is RequestTelemetry request)
+            {
+                request.Source = eventHubInfo;
+            }
         }
 
         private void PopulateLinks(IEnumerable<Activity> links, OperationTelemetry telemetry)

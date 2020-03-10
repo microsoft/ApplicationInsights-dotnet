@@ -17,8 +17,16 @@
     [TestClass]
     public class AzureSdkDiagnosticListenerTest
     {
+        private static readonly DateTimeOffset EpochStart = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
         private TelemetryConfiguration configuration;
         private List<ITelemetry> sentItems;
+        private static readonly JsonSerializerSettings JsonSettingThrowOnError = new JsonSerializerSettings
+        {
+            MissingMemberHandling = MissingMemberHandling.Error,
+            ReferenceLoopHandling = ReferenceLoopHandling.Error,
+            NullValueHandling = NullValueHandling.Include,
+            DefaultValueHandling = DefaultValueHandling.Include,
+        };
 
         [TestInitialize]
         public void TestInitialize()
@@ -119,6 +127,315 @@
         }
 
         [TestMethod]
+        public void AzureClientSpansAreCollectedProducerKind()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                Activity sendActivity = new Activity("Azure.SomeClient.Send");
+                sendActivity.AddTag("kind", "producer");
+
+                listener.StartActivity(sendActivity, null);
+                listener.StopActivity(sendActivity, null);
+
+                var telemetry = this.sentItems.Last() as DependencyTelemetry;
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
+                Assert.AreEqual("Queue Message", telemetry.Type);
+                Assert.IsTrue(telemetry.Success.Value);
+
+                Assert.IsNull(telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
+            }
+        }
+
+        [TestMethod]
+        public void AzureClientSpansAreCollectedInternalKind()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                Activity sendActivity = new Activity("Azure.SomeClient.Send");
+                sendActivity.AddTag("kind", "internal");
+
+                listener.StartActivity(sendActivity, null);
+                listener.StopActivity(sendActivity, null);
+
+                var telemetry = this.sentItems.Last() as DependencyTelemetry;
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
+                Assert.AreEqual("InProc", telemetry.Type);
+                Assert.IsTrue(telemetry.Success.Value);
+
+                Assert.IsNull(telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
+            }
+        }
+
+        [TestMethod]
+        public void AzureClientSpansAreCollectedProducerKindWithComponentEventHubs()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                Activity sendActivity = new Activity("Azure.SomeClient.Send");
+                sendActivity.AddTag("kind", "producer");
+                sendActivity.AddTag("component", "eventhubs");
+
+                listener.StartActivity(sendActivity, null);
+                listener.StopActivity(sendActivity, null);
+
+                var telemetry = this.sentItems.Last() as DependencyTelemetry;
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
+                Assert.AreEqual("Queue Message | Azure Event Hubs", telemetry.Type);
+                Assert.IsTrue(telemetry.Success.Value);
+
+                Assert.IsNull(telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
+            }
+        }
+
+        [TestMethod]
+        public void AzureClientSpansAreCollectedInternalKindWithComponentEventHubs()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                Activity sendActivity = new Activity("Azure.SomeClient.Send");
+                sendActivity.AddTag("kind", "internal");
+                sendActivity.AddTag("component", "eventhubs");
+
+                listener.StartActivity(sendActivity, null);
+                listener.StopActivity(sendActivity, null);
+
+                var telemetry = this.sentItems.Last() as DependencyTelemetry;
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
+                Assert.AreEqual("InProc | Azure Event Hubs", telemetry.Type);
+                Assert.IsTrue(telemetry.Success.Value);
+
+                Assert.IsNull(telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
+            }
+        }
+
+        [TestMethod]
+        public void AzureClientSpansAreCollectedProducerKindWithComponent()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                Activity sendActivity = new Activity("Azure.SomeClient.Send");
+                sendActivity.AddTag("kind", "producer");
+                sendActivity.AddTag("component", "foo");
+
+                listener.StartActivity(sendActivity, null);
+                listener.StopActivity(sendActivity, null);
+
+                var telemetry = this.sentItems.Last() as DependencyTelemetry;
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
+                Assert.AreEqual("Queue Message | foo", telemetry.Type);
+                Assert.IsTrue(telemetry.Success.Value);
+
+                Assert.IsNull(telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
+            }
+        }
+
+        [TestMethod]
+        public void AzureClientSpansAreCollectedInternalKindWithComponent()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                Activity sendActivity = new Activity("Azure.SomeClient.Send");
+                sendActivity.AddTag("kind", "internal");
+                sendActivity.AddTag("component", "foo");
+
+                listener.StartActivity(sendActivity, null);
+                listener.StopActivity(sendActivity, null);
+
+                var telemetry = this.sentItems.Last() as DependencyTelemetry;
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
+                Assert.AreEqual("InProc | foo", telemetry.Type);
+                Assert.IsTrue(telemetry.Success.Value);
+
+                Assert.IsNull(telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
+            }
+        }
+
+        [TestMethod]
+        public void AzureClientSpansAreCollectedProducerKindWithAzNamespaceEventHubs()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                Activity sendActivity = new Activity("Azure.SomeClient.Send");
+                sendActivity.AddTag("kind", "producer");
+                sendActivity.AddTag("az.namespace", "Microsoft.EventHub");
+
+                listener.StartActivity(sendActivity, null);
+                listener.StopActivity(sendActivity, null);
+
+                var telemetry = this.sentItems.Last() as DependencyTelemetry;
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
+                Assert.AreEqual("Queue Message | Azure Event Hubs", telemetry.Type);
+                Assert.IsTrue(telemetry.Success.Value);
+
+                Assert.IsNull(telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
+            }
+        }
+
+        [TestMethod]
+        public void AzureClientSpansAreCollectedProducerKindWithAzNamespaceEventHubsAndAttributes()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                Activity sendActivity = new Activity("Azure.SomeClient.Send");
+                sendActivity.AddTag("kind", "producer");
+                sendActivity.AddTag("az.namespace", "Microsoft.EventHub");
+                sendActivity.AddTag("peer.address", "amqps://eventHub.servicebus.windows.net/");
+                sendActivity.AddTag("message_bus.destination", "queueName");
+
+                listener.StartActivity(sendActivity, null);
+                listener.StopActivity(sendActivity, null);
+
+                var telemetry = this.sentItems.Last() as DependencyTelemetry;
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
+                Assert.AreEqual("Queue Message | Azure Event Hubs", telemetry.Type);
+                Assert.AreEqual("amqps://eventHub.servicebus.windows.net/queueName", telemetry.Target);
+                Assert.IsTrue(telemetry.Success.Value);
+
+                Assert.IsNull(telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
+            }
+        }
+
+        [TestMethod]
+        public void AzureClientSpansAreCollectedInternalKindWithAzNamespaceEventHubs()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                Activity sendActivity = new Activity("Azure.SomeClient.Send");
+                sendActivity.AddTag("kind", "internal");
+                sendActivity.AddTag("az.namespace", "Microsoft.EventHub");
+
+                listener.StartActivity(sendActivity, null);
+                listener.StopActivity(sendActivity, null);
+
+                var telemetry = this.sentItems.Last() as DependencyTelemetry;
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
+                Assert.AreEqual("InProc | Azure Event Hubs", telemetry.Type);
+                Assert.IsTrue(telemetry.Success.Value);
+
+                Assert.IsNull(telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
+            }
+        }
+
+        [TestMethod]
+        public void AzureClientSpansAreCollectedProducerKindWithAzNamespace()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                Activity sendActivity = new Activity("Azure.SomeClient.Send");
+                sendActivity.AddTag("kind", "producer");
+                sendActivity.AddTag("az.namespace", "foo");
+
+                listener.StartActivity(sendActivity, null);
+                listener.StopActivity(sendActivity, null);
+
+                var telemetry = this.sentItems.Last() as DependencyTelemetry;
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
+                Assert.AreEqual("Queue Message | foo", telemetry.Type);
+                Assert.IsTrue(telemetry.Success.Value);
+
+                Assert.IsNull(telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
+            }
+        }
+
+        [TestMethod]
+        public void AzureClientSpansAreCollectedInternalKindWithAzNamespace()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                Activity sendActivity = new Activity("Azure.SomeClient.Send");
+                sendActivity.AddTag("kind", "internal");
+                sendActivity.AddTag("az.namespace", "foo");
+
+                listener.StartActivity(sendActivity, null);
+                listener.StopActivity(sendActivity, null);
+
+                var telemetry = this.sentItems.Last() as DependencyTelemetry;
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
+                Assert.AreEqual("InProc | foo", telemetry.Type);
+                Assert.IsTrue(telemetry.Success.Value);
+
+                Assert.IsNull(telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
+            }
+        }
+
+        [TestMethod]
         public void AzureClientSpansAreCollectedServerKind()
         {
             using (var listener = new DiagnosticListener("Azure.SomeClient"))
@@ -141,6 +458,69 @@
                 Assert.IsNull(telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
                 Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
+                Assert.IsFalse(telemetry.Metrics.Any());
+            }
+        }
+
+        [TestMethod]
+        public void AzureClientSpansAreCollectedServerKindEventHubs()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                Activity sendActivity = new Activity("Azure.SomeClient.Send");
+                sendActivity.AddTag("kind", "server");
+                sendActivity.AddTag("az.namespace", "Microsoft.EventHub");
+                sendActivity.AddTag("peer.address", "amqps://eventHub.servicebus.windows.net");
+                sendActivity.AddTag("message_bus.destination", "queueName");
+
+                listener.StartActivity(sendActivity, null);
+                listener.StopActivity(sendActivity, null);
+
+                var telemetry = this.sentItems.Last() as RequestTelemetry;
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
+                Assert.AreEqual("amqps://eventHub.servicebus.windows.net/queueName", telemetry.Source);
+                Assert.IsTrue(telemetry.Success.Value);
+
+                Assert.IsNull(telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
+                Assert.IsFalse(telemetry.Metrics.Any());
+            }
+        }
+
+        [TestMethod]
+        public void AzureClientSpansAreCollectedConsumerKindEventHubs()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                Activity sendActivity = new Activity("Azure.SomeClient.Send");
+                sendActivity.AddTag("kind", "consumer");
+                sendActivity.AddTag("az.namespace", "Microsoft.EventHub");
+                sendActivity.AddTag("peer.address", "amqps://eventHub.servicebus.windows.net/");
+                sendActivity.AddTag("message_bus.destination", "queueName");
+
+                listener.StartActivity(sendActivity, null);
+                listener.StopActivity(sendActivity, null);
+
+                var telemetry = this.sentItems.Last() as RequestTelemetry;
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
+                Assert.AreEqual("amqps://eventHub.servicebus.windows.net/queueName", telemetry.Source);
+                Assert.IsTrue(telemetry.Success.Value);
+
+                Assert.IsNull(telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
+                Assert.IsFalse(telemetry.Metrics.Any());
             }
         }
 
@@ -181,16 +561,8 @@
                 Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
 
                 // does not throw
-                var jsonSettingThrowOnError = new JsonSerializerSettings
-                {
-                    MissingMemberHandling = MissingMemberHandling.Error,
-                    ReferenceLoopHandling = ReferenceLoopHandling.Error,
-                    NullValueHandling = NullValueHandling.Include,
-                    DefaultValueHandling = DefaultValueHandling.Include,
-                };
-
                 Assert.IsTrue(telemetry.Properties.TryGetValue("_MS.links", out var linksStr));
-                var actualLinks = JsonConvert.DeserializeObject<ApplicationInsightsLink[]>(linksStr, jsonSettingThrowOnError);
+                var actualLinks = JsonConvert.DeserializeObject<ApplicationInsightsLink[]>(linksStr, JsonSettingThrowOnError);
 
                 Assert.IsNotNull(actualLinks);
                 Assert.AreEqual(2, actualLinks.Length);
@@ -202,6 +574,193 @@
                 Assert.AreEqual(link1SpanId, actualLinks[1].Id);
 
                 Assert.AreEqual($"[{{\"operation_Id\":\"{link0TraceId}\",\"id\":\"{link0SpanId}\"}},{{\"operation_Id\":\"{link1TraceId}\",\"id\":\"{link1SpanId}\"}}]", linksStr);
+                Assert.IsFalse(telemetry.Metrics.Any());
+            }
+        }
+
+        [TestMethod]
+        public void AzureServerSpansAreCollectedLinks()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                var sendActivity = new Activity("Azure.SomeClient.Send");
+                sendActivity.AddTag("kind", "server");
+
+                var link0TraceId = "70545f717a9aa6a490d820438b9d2bf6";
+                var link1TraceId = "c5aa06717eef0c4592af26323ade92f7";
+                var link0SpanId = "8b0b2fb40c84e64a";
+                var link1SpanId = "3a69ce690411bb4f";
+
+                var payload = new PayloadWithLinks
+                {
+                    Links = new List<Activity>
+                    {
+                        new Activity("link0").SetParentId($"00-{link0TraceId}-{link0SpanId}-01"),
+                        new Activity("link1").SetParentId($"00-{link1TraceId}-{link1SpanId}-01"),
+                    },
+                };
+
+                listener.StartActivity(sendActivity, payload);
+                listener.StopActivity(sendActivity, null);
+
+                var telemetry = this.sentItems.Last() as RequestTelemetry;
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
+                Assert.IsTrue(telemetry.Success.Value);
+
+                Assert.IsNull(telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
+
+                // does not throw
+                Assert.IsTrue(telemetry.Properties.TryGetValue("_MS.links", out var linksStr));
+                var actualLinks = JsonConvert.DeserializeObject<ApplicationInsightsLink[]>(linksStr, JsonSettingThrowOnError);
+
+                Assert.IsNotNull(actualLinks);
+                Assert.AreEqual(2, actualLinks.Length);
+
+                Assert.AreEqual(link0TraceId, actualLinks[0].OperationId);
+                Assert.AreEqual(link1TraceId, actualLinks[1].OperationId);
+
+                Assert.AreEqual(link0SpanId, actualLinks[0].Id);
+                Assert.AreEqual(link1SpanId, actualLinks[1].Id);
+
+                Assert.AreEqual($"[{{\"operation_Id\":\"{link0TraceId}\",\"id\":\"{link0SpanId}\"}},{{\"operation_Id\":\"{link1TraceId}\",\"id\":\"{link1SpanId}\"}}]", linksStr);
+                Assert.IsFalse(telemetry.Metrics.Any());
+            }
+        }
+
+        [TestMethod]
+        public void AzureConsumerSpansAreCollectedLinksAndTimeInQueue()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                var sendActivity = new Activity("Azure.SomeClient.Send");
+                sendActivity.AddTag("kind", "consumer");
+
+                long enqueued0 = ToUnixTimeStamp(DateTimeOffset.UtcNow.AddMilliseconds(-100));
+                long enqueued1 = ToUnixTimeStamp(DateTimeOffset.UtcNow.AddMilliseconds(-200));
+                long enqueued2 = ToUnixTimeStamp(DateTimeOffset.UtcNow.AddMilliseconds(-300));
+                var payload = new PayloadWithLinks
+                {
+                    Links = new List<Activity>
+                    {
+                        CreateRandomLink(enqueued0),
+                        CreateRandomLink(enqueued1),
+                        CreateRandomLink(enqueued2),
+                    },
+                };
+
+                listener.StartActivity(sendActivity, payload);
+                listener.StopActivity(sendActivity, null);
+
+                var telemetry = this.sentItems.Last() as RequestTelemetry;
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
+                Assert.IsTrue(telemetry.Success.Value);
+
+                Assert.IsNull(telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
+
+                Assert.AreEqual(1, telemetry.Metrics.Count);
+                Assert.IsTrue(telemetry.Metrics.TryGetValue("timeSinceEnqueued", out var timeInQueue));
+
+                var startTimeEpoch = ToUnixTimeStamp(sendActivity.StartTimeUtc);
+                long expectedTimeInQueue = ((startTimeEpoch - enqueued0) +
+                                          (startTimeEpoch - enqueued1) +
+                                          (startTimeEpoch - enqueued2)) / 3; // avg diff with request start time across links
+
+                Assert.AreEqual(expectedTimeInQueue, timeInQueue);
+            }
+        }
+
+        [TestMethod]
+        public void AzureConsumerSpansAreCollectedLinksAndTimeInQueueInvalid()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                var sendActivity = new Activity("Azure.SomeClient.Send");
+                sendActivity.AddTag("kind", "consumer");
+
+                var link = new Activity("foo").SetParentId(ActivityTraceId.CreateRandom(), ActivitySpanId.CreateRandom());
+                link.AddTag("enqueuedTime", "not long");
+
+                var payload = new PayloadWithLinks { Links = new List<Activity> { link, }, };
+
+                listener.StartActivity(sendActivity, payload);
+                listener.StopActivity(sendActivity, null);
+
+                var telemetry = this.sentItems.Last() as RequestTelemetry;
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
+                Assert.IsTrue(telemetry.Success.Value);
+
+                Assert.IsNull(telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
+
+                Assert.IsFalse(telemetry.Metrics.Any());
+            }
+        }
+
+        [TestMethod]
+        public void AzureConsumerSpansAreCollectedLinksAndTimeInQueueNegative()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                var sendActivity = new Activity("Azure.SomeClient.Send");
+                sendActivity.AddTag("kind", "consumer");
+
+                long enqueued0 = ToUnixTimeStamp(DateTimeOffset.UtcNow.AddMilliseconds(-100));
+                long enqueued1 = ToUnixTimeStamp(DateTimeOffset.UtcNow.AddMilliseconds(-200));
+                long enqueued2 = ToUnixTimeStamp(DateTimeOffset.UtcNow.AddMilliseconds(300)); // ignored
+                var payload = new PayloadWithLinks
+                {
+                    Links = new List<Activity>
+                    {
+                        CreateRandomLink(enqueued0),
+                        CreateRandomLink(enqueued1),
+                        CreateRandomLink(enqueued2),
+                    },
+                };
+
+                listener.StartActivity(sendActivity, payload);
+                listener.StopActivity(sendActivity, null);
+
+                var telemetry = this.sentItems.Last() as RequestTelemetry;
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
+                Assert.IsTrue(telemetry.Success.Value);
+
+                Assert.IsNull(telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
+
+                Assert.AreEqual(1, telemetry.Metrics.Count);
+                Assert.IsTrue(telemetry.Metrics.TryGetValue("timeSinceEnqueued", out var timeInQueue));
+
+                var startTimeEpoch = ToUnixTimeStamp(sendActivity.StartTimeUtc);
+                long expectedTimeInQueue = ((startTimeEpoch - enqueued0) +
+                                          (startTimeEpoch - enqueued1)) / 3; // avg diff with request start time across links ignoring outliers (negative diff)
+
+                Assert.AreEqual(expectedTimeInQueue, timeInQueue);
             }
         }
 
@@ -356,7 +915,42 @@
 
                 var exception = new InvalidOperationException();
                 Activity sendActivity = new Activity("Azure.SomeClient.Send")
-                    .AddTag("peer.address", "amqps://eventHub.servicebus.windows.net/")
+                    .AddTag("peer.address", "amqps://eventHub.servicebus.windows.net")
+                    .AddTag("message_bus.destination", "queueName")
+                    .AddTag("kind", "client")
+                    .AddTag("component", "eventhubs");
+
+                listener.StartActivity(sendActivity, null);
+                listener.Write("Azure.SomeClient.Send.Exception", exception);
+                listener.StopActivity(sendActivity, null);
+
+                var telemetry = this.sentItems.Last() as DependencyTelemetry;
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
+                Assert.AreEqual("amqps://eventHub.servicebus.windows.net/queueName", telemetry.Target);
+                Assert.AreEqual(string.Empty, telemetry.Data);
+                Assert.AreEqual(string.Empty, telemetry.ResultCode);
+                Assert.AreEqual("Azure Event Hubs", telemetry.Type);
+                Assert.IsFalse(telemetry.Success.Value);
+                Assert.AreEqual(exception.ToInvariantString(), telemetry.Properties["Error"]);
+                Assert.IsNull(telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
+            }
+        }
+
+        [TestMethod]
+        public void AzureClientSpansAreCollectedForEventHubsMessages()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                var exception = new InvalidOperationException();
+                Activity sendActivity = new Activity("Azure.SomeClient.Send")
+                    .AddTag("peer.address", "amqps://eventHub.servicebus.windows.net")
                     .AddTag("message_bus.destination", "queueName")
                     .AddTag("kind", "producer")
                     .AddTag("component", "eventhubs");
@@ -369,10 +963,10 @@
 
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("SomeClient.Send", telemetry.Name);
-                Assert.AreEqual("amqps://eventHub.servicebus.windows.net/ | queueName", telemetry.Target);
+                Assert.AreEqual("amqps://eventHub.servicebus.windows.net/queueName", telemetry.Target);
                 Assert.AreEqual(string.Empty, telemetry.Data);
                 Assert.AreEqual(string.Empty, telemetry.ResultCode);
-                Assert.AreEqual("Azure Event Hubs", telemetry.Type);
+                Assert.AreEqual("Queue Message | Azure Event Hubs", telemetry.Type);
                 Assert.IsFalse(telemetry.Success.Value);
                 Assert.AreEqual(exception.ToInvariantString(), telemetry.Properties["Error"]);
                 Assert.IsNull(telemetry.Context.Operation.ParentId);
@@ -390,9 +984,9 @@
                 module.Initialize(this.configuration);
 
                 Activity sendActivity = new Activity("Azure.SomeClient.Send")
-                    .AddTag("peer.address", "amqps://eventHub.servicebus.windows.net/")
+                    .AddTag("peer.address", "amqps://eventHub.servicebus.windows.net")
                     .AddTag("message_bus.destination", "queueName")
-                    .AddTag("kind", "producer")
+                    .AddTag("kind", "client")
                     .AddTag("component", "eventhubs");
 
                 listener.StartActivity(sendActivity, null);
@@ -402,7 +996,7 @@
 
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("SomeClient.Send", telemetry.Name);
-                Assert.AreEqual("amqps://eventHub.servicebus.windows.net/ | queueName", telemetry.Target);
+                Assert.AreEqual("amqps://eventHub.servicebus.windows.net/queueName", telemetry.Target);
                 Assert.AreEqual(string.Empty, telemetry.Data);
                 Assert.AreEqual(string.Empty, telemetry.ResultCode);
                 Assert.AreEqual("Azure Event Hubs", telemetry.Type);
@@ -448,6 +1042,23 @@
             // no new telemetry items were added
             Assert.AreEqual(itemCountBefore, this.sentItems.Count);
             return null;
+        }
+
+        private Activity CreateRandomLink(long enqueuedTimeMs)
+        {
+            var activity = new Activity("foo").SetParentId(ActivityTraceId.CreateRandom(), ActivitySpanId.CreateRandom(), ActivityTraceFlags.None);
+            activity.AddTag("enqueuedTime", enqueuedTimeMs.ToString());
+
+            return activity;
+        }
+
+        private long ToUnixTimeStamp(DateTimeOffset datetime)
+        {
+#if NET45
+           return (long)(datetime - EpochStart).TotalMilliseconds;
+#else
+           return datetime.ToUnixTimeMilliseconds();
+#endif
         }
 
         private class PayloadWithLinks

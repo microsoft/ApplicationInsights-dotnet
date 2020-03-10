@@ -8,6 +8,10 @@
     <AssemblyName>Microsoft.AI.ServerTelemetryChannel</AssemblyName>
     <TargetFrameworks>net45;netstandard1.3;netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard1.3;netstandard2.0</TargetFrameworks>
+
+
+    <!-- this constant is set for all other netcore targets except 1-->
+    <DefineConstants Condition="'$(TargetFramework)' == 'netstandard1.3'">$(DefineConstants);NETSTANDARD;</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -39,14 +43,14 @@
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="2.9.3">
+    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="2.9.8">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
     <!--Build Infrastructure-->
-    <PackageReference Include="MicroBuild.Core" Version="0.3.0">
+    <PackageReference Include="Microsoft.VisualStudioEng.MicroBuild.Core" Version="0.4.1">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
@@ -71,13 +75,10 @@
     <Content Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets" PackagePath="build" />
   </ItemGroup>
 
+
   <ItemGroup>
-    <AdditionalFiles Include="..\..\PublicAPI\Microsoft.AI.ServerTelemetryChannel.dll\$(TargetFramework)\PublicAPI.Shipped.txt">
-      <Link>PublicAPI.Shipped.txt</Link>
-    </AdditionalFiles>
-    <AdditionalFiles Include="..\..\PublicAPI\Microsoft.AI.ServerTelemetryChannel.dll\$(TargetFramework)\PublicAPI.Unshipped.txt">
-      <Link>PublicAPI.Unshipped.txt</Link>
-    </AdditionalFiles>
+    <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\$(TargetFramework)\PublicAPI.Shipped.txt" />
+    <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\$(TargetFramework)\PublicAPI.Unshipped.txt" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(IsNetStandardBuild)'=='True'">
@@ -85,7 +86,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="4.5.0" />
+    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="4.7.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">

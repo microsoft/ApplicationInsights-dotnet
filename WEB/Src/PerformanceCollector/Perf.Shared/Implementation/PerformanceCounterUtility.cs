@@ -49,6 +49,10 @@
         private const string WebSiteIsolationEnvironmentVariable = "WEBSITE_ISOLATION";
         private const string WebSiteIsolationHyperV = "hyperv";
 
+#if !NETSTANDARD1_6
+        private static readonly ConcurrentDictionary<string, Tuple<DateTime, PerformanceCounterCategory, InstanceDataCollectionCollection>> cache = new ConcurrentDictionary<string, Tuple<DateTime, PerformanceCounterCategory, InstanceDataCollectionCollection>>();
+#endif
+
         private static readonly ConcurrentDictionary<string, string> PlaceholderCache =
             new ConcurrentDictionary<string, string>();
 
@@ -480,26 +484,54 @@
         }
 
 #if !NETSTANDARD1_6
-        private static string FindProcessInstance(
-            int pid,
-            IEnumerable<string> instances,
-            string categoryName,
-            string counterName)
+        private static string FindProcessInstance(int pid, IEnumerable<string> instances, string categoryName, string counterName)
         {
-            return instances.FirstOrDefault(
-                i =>
+            Tuple<DateTime, PerformanceCounterCategory, InstanceDataCollectionCollection> cached;
+
+            DateTime utcNow = DateTime.UtcNow;
+
+            InstanceDataCollectionCollection result = null;
+
+            PerformanceCounterCategory category = null;
+
+            if (cache.TryGetValue(categoryName, out cached))
+            {
+                category = cached.Item2;
+
+                if (cached.Item1 < utcNow)
                 {
-                    try
+                    result = cached.Item3;
+                }
+            }
+
+            if (result == null)
+            {
+                if (category == null)
+                {
+                    category = new PerformanceCounterCategory(categoryName);
+                }
+
+                result = category.ReadCategory();
+
+                cache.TryAdd(categoryName, new Tuple<DateTime, PerformanceCounterCategory, InstanceDataCollectionCollection>(utcNow.AddMinutes(1), category, result));
+            }
+
+            InstanceDataCollection counters = result[counterName];
+
+            if (counters != null)
+            {
+                foreach (string i in instances)
+                {
+                    InstanceData instance = counters[i];
+
+                    if ((instance != null) && (pid == instance.RawValue))
                     {
-                        return pid == (int)new PerformanceCounter(categoryName, counterName, i, true).RawValue;
+                        return i;
                     }
-                    catch (Exception)
-                    {
-                        // most likely the process has terminated since we got the process list
-                        // that process is not us, we're still running
-                        return false;
-                    }
-                });
+                }
+            }
+
+            return null;
         }
 
         private static IList<string> GetInstances(string categoryName)
