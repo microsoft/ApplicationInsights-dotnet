@@ -1,6 +1,7 @@
 ﻿# Changelog
 
 ## VNext
+- [SQL dependency names are bloated when running under the .NET Framework and using Microsoft.Data.SqlClient package](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1723)
 
 ## Version 2.14.0-beta3
 - [New: JavaScript Property to support Content Security Policy](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1443)
