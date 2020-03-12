@@ -96,6 +96,14 @@
         }
 
         /// <summary>
+        /// Gets or sets the self-diagnostics configuration string used to setup this module.
+        /// </summary>
+        /// <remarks>
+        /// This module can be setup by the Self-Diagnostics Environment Variable and we want to include that string in the file.
+        /// </remarks>
+        internal string SelfDiagnosticsConfig { get; set; }
+
+        /// <summary>
         /// No op.
         /// </summary>
         /// <param name="configuration">Telemetry configuration object.</param>
@@ -125,8 +133,10 @@
         }
 
         /// <summary>
-        /// Throws <see cref="UnauthorizedAccessException" /> if the process lacks the required permissions to access the <paramref name="directory"/>.
+        /// Create a random named file and write to it to confirm that we have access to this directory. 
+        /// Deletes flie when FileStream is closed.
         /// </summary>
+        /// <exception cref="UnauthorizedAccessException">Throws <see cref="UnauthorizedAccessException" /> if the process lacks the required permissions to access the <paramref name="directory"/>.</exception>
         private static void CheckAccessPermissions(DirectoryInfo directory)
         {
             string testFileName = Path.GetRandomFileName();
@@ -137,12 +147,18 @@
                 Directory.CreateDirectory(directory.FullName);
             }
 
-            // FileSystemRights.CreateFiles
-            using (var testFile = new FileStream(testFilePath, FileMode.CreateNew, FileAccess.ReadWrite))
+            // Create a test file 
+            using (var testFile = new FileStream(testFilePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None, 4096, FileOptions.DeleteOnClose))
             {
-                // FileSystemRights.Write
                 testFile.Write(new[] { default(byte) }, 0, 1);
             }
+        }
+
+        private static void WriteFileHeader(string logFilePath)
+        {
+            string[] lines = { "hello world", "this is a test", string.Empty };
+
+            System.IO.File.WriteAllLines(logFilePath, lines);
         }
 
         private bool SetAndValidateLogsFolder(string filePath, string fileName)
@@ -158,6 +174,8 @@
 
                     string fullLogFileName = Path.Combine(filePath, fileName);
                     CoreEventSource.Log.LogsFileName(fullLogFileName);
+
+                    WriteFileHeader(fullLogFileName);
 
                     this.listener.LogFileName = fullLogFileName;
 

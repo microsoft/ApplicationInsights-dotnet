@@ -62,7 +62,7 @@
             {
                 SdkInternalOperationsMonitor.Enter();
 
-                this.EvaluateDiagnosticsMode(modules);
+                this.EvaluateSelfDiagnosticsMode(modules);
 
                 if (modules != null && !modules.Modules.Any(module => module is DiagnosticsTelemetryModule))
                 {
@@ -120,7 +120,7 @@
 
         [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "We want objects created in this method to live for the life of the application.")]
         [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "This value is not used in NetStandard1.3 but is used for all other frameworks..")]
-        internal void EvaluateDiagnosticsMode(TelemetryModules modules)
+        internal void EvaluateSelfDiagnosticsMode(TelemetryModules modules)
         {
             // TODO: NEED TO EMIT ETW LOGS
 
@@ -141,6 +141,7 @@
                     {
                         Severity = "Verbose",
                         LogFilePath = path,
+                        SelfDiagnosticsConfig = selfDiagnosticsConfigurationString,
                     });
                 }
             }
@@ -336,6 +337,7 @@
         /// <remarks>FileDiagnosticsTelemetryModule can be injected via Environment Variable.</remarks>
         /// <param name="instance">instance being evaluated.</param>
         /// <returns>Returns true if the type is excluded from LoadProperties.</returns>
+        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "This value is not used in NetStandard1.3 but is used for all other frameworks..")]
         protected static bool IsExcludedType(object instance)
         {
             bool returnValue = false;
