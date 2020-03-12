@@ -6,10 +6,13 @@
     using System.Diagnostics;
     using System.Diagnostics.Tracing;
     using System.IO;
+    using System.Runtime.CompilerServices;
     using System.Security;
     using System.Threading;
+
     using Microsoft.ApplicationInsights.Common.Extensions;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.FileDiagnosticsModule;
+
     using static System.FormattableString;
 
     /// <summary>
@@ -154,9 +157,14 @@
             }
         }
 
-        private static void WriteFileHeader(string logFilePath)
+        private void WriteFileHeader(string logFilePath)
         {
-            string[] lines = { "hello world", "this is a test", string.Empty };
+            string[] lines = 
+            { 
+                this.SelfDiagnosticsConfig,
+                ".NET SDK version: " + SdkVersionUtils.GetSdkVersion(string.Empty), 
+                string.Empty,
+            };
 
             System.IO.File.WriteAllLines(logFilePath, lines);
         }
@@ -175,7 +183,7 @@
                     string fullLogFileName = Path.Combine(filePath, fileName);
                     CoreEventSource.Log.LogsFileName(fullLogFileName);
 
-                    WriteFileHeader(fullLogFileName);
+                    this.WriteFileHeader(fullLogFileName);
 
                     this.listener.LogFileName = fullLogFileName;
 

@@ -139,9 +139,9 @@
 
                     modules.Modules.Add(new FileDiagnosticsTelemetryModule
                     {
-                        Severity = "Verbose",
-                        LogFilePath = path,
                         SelfDiagnosticsConfig = selfDiagnosticsConfigurationString,
+                        Severity = level,
+                        LogFilePath = path,
                     });
                 }
             }

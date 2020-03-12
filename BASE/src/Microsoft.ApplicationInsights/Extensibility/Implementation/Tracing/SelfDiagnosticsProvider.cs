@@ -7,10 +7,10 @@
 
     internal class SelfDiagnosticsProvider
     {
-        private const string KeyType = "type";
-        private const string KeyFilePath = "path";
-        private const string KeyFileLevel = "level";
-        private const string KeyFileMaxSize = "maxsize";
+        private const string KeyType = "Destination";
+        private const string KeyFilePath = "Path";
+        private const string KeyFileLevel = "Level";
+        private const string KeyFileMaxSize = "MaxSize";
         private const string ValueTypeFile = "file";
 
         /// <summary>
@@ -28,7 +28,7 @@
             }
             else
             {
-                throw new Exception("Self-Diagnostics Configuration string is invalid. Missing key 'Type'");
+                throw new Exception("Self-Diagnostics Configuration string is invalid. Missing key 'Destination'");
             }
         }
 
