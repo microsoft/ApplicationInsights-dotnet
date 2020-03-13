@@ -36,7 +36,7 @@
             // ACT
             using (var modules = new TestableTelemetryModules())
             {
-                TelemetryConfigurationFactory.Instance.EvaluateDiagnosticsMode(modules);
+                TelemetryConfigurationFactory.Instance.EvaluateSelfDiagnosticsMode(modules);
 
                 var module = (FileDiagnosticsTelemetryModule)modules.Modules.Single();
                 Assert.AreEqual(testLogFilePath, module.LogFilePath);
@@ -59,7 +59,7 @@
             {
                 modules.Modules.Add(new FileDiagnosticsTelemetryModule { LogFilePath = testLogFilePath1 });
 
-                TelemetryConfigurationFactory.Instance.EvaluateDiagnosticsMode(modules);
+                TelemetryConfigurationFactory.Instance.EvaluateSelfDiagnosticsMode(modules);
 
                 var module = (FileDiagnosticsTelemetryModule)modules.Modules.Single();
                 Assert.AreEqual(testLogFilePath2, module.LogFilePath, "the environment variable should take precedence to enable DevOps to have control over troubleshooting scenarios");
