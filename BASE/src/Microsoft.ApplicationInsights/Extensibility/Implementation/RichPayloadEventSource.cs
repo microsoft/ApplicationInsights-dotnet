@@ -63,7 +63,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
-                    telemetryItem.EnvelopeName,
+                    RequestTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
@@ -82,7 +82,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
-                    telemetryItem.EnvelopeName,
+                    TraceTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
@@ -101,7 +101,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
-                    telemetryItem.EnvelopeName,
+                    EventTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
@@ -123,7 +123,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
-                    telemetryItem.EnvelopeName,
+                    DependencyTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.InternalData,
@@ -142,7 +142,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
-                    telemetryItem.EnvelopeName,
+                    MetricTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
@@ -161,7 +161,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
-                    telemetryItem.EnvelopeName,
+                    ExceptionTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data.Data,
@@ -181,7 +181,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
-                    telemetryItem.EnvelopeName,
+                    MetricTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
@@ -201,7 +201,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
-                    telemetryItem.EnvelopeName,
+                    PageViewTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
@@ -220,7 +220,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
-                    telemetryItem.EnvelopeName,
+                    PageViewPerformanceTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
@@ -240,7 +240,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
-                    telemetryItem.EnvelopeName,
+                    EventTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
@@ -259,7 +259,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
-                    telemetryItem.EnvelopeName,
+                    AvailabilityTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
@@ -279,7 +279,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 telemetryData.name = Constants.EventNameForUnknownTelemetry;
 
                 this.WriteEvent(
-                    EventTelemetry.DefaultEnvelopeName,
+                    EventTelemetry.EtwEnvelopeName,
                     item.Context.InstrumentationKey,
                     item.Context.SanitizedTags,
                     telemetryData,
@@ -361,7 +361,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             if (item is RequestTelemetry)
             {
                 this.EventSourceInternal.Write(
-                    RequestTelemetry.TelemetryName,
+                    RequestTelemetry.EtwEnvelopeName,
                     new EventSourceOptions { Keywords = Keywords.Operations, Opcode = eventOpCode, Level = EventLevel.Informational },
                     payload);
             }

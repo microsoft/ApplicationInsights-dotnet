@@ -13,6 +13,7 @@
     /// </summary>
     public sealed class PageViewPerformanceTelemetry : ITelemetry, ISupportProperties, ISupportAdvancedSampling, IAiSerializableTelemetry
     {
+        internal const string EtwEnvelopeName = "PageViewPerformance";
         internal readonly PageViewPerfData Data;
         internal string EnvelopeName = "AppBrowserTimings";
         private IExtension extension;

@@ -15,6 +15,7 @@
     /// </summary>
     public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportAdvancedSampling, ISupportMetrics, IAiSerializableTelemetry
     {
+        internal const string EtwEnvelopeName = "Event";
         internal const string DefaultEnvelopeName = "AppEvents";
         internal readonly EventData Data;
         internal string EnvelopeName = DefaultEnvelopeName;

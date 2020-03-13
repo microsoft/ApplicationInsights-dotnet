@@ -15,6 +15,7 @@
     /// </summary>
     public sealed class TraceTelemetry : ITelemetry, ISupportProperties, ISupportAdvancedSampling, IAiSerializableTelemetry
     {
+        internal const string EtwEnvelopeName = "Message";
         internal readonly MessageData Data;
         internal string EnvelopeName = "AppTraces";
         private readonly TelemetryContext context;

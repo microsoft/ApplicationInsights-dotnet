@@ -18,6 +18,7 @@
     /// </remarks>
     public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportAdvancedSampling, ISupportMetrics, IAiSerializableTelemetry
     {
+        internal const string EtwEnvelopeName = "Exception";
         internal string EnvelopeName = "AppExceptions";
 
         internal ExceptionInfo Data = null;
