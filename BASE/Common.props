@@ -4,7 +4,7 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="'$(EnlistmentRoot)' == '' and Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <!-- If $(EnlistmentRoot) is still not set, then import Directory.Build.props directly. This can happen when gitlink tries to build (because it uses MSBuild tools version 4.0 and we can't find Microsoft.Common.props) -->
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Directory.Build.props'))\Directory.Build.props" Condition="'$(EnlistmentRoot)' == ''"/>
-  
+
   <PropertyGroup>
     <LangVersion>7.1</LangVersion>
     <ChecksumAlgorithm>SHA256</ChecksumAlgorithm>
