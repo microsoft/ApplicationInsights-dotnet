@@ -13,8 +13,8 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    [TestCategory("Diagnostics")]
-    public class TelemetryConfigurationFactoryDiagnosticTests
+    [TestCategory("SelfDiagnostics")]
+    public class TelemetryConfigurationFactorySelfDiagnosticTests
     {
         [TestCleanup]
         public void TestCleanup()
@@ -30,7 +30,7 @@
 
             // SETUP
             var platform = new StubEnvironmentVariablePlatform();
-            platform.SetEnvironmentVariable(TelemetryConfigurationFactory.SelfDiagnosticsEnvironmentVariable, $"type=file;path={testLogFilePath}");
+            platform.SetEnvironmentVariable(TelemetryConfigurationFactory.SelfDiagnosticsEnvironmentVariable, $"destination=file;path={testLogFilePath}");
             PlatformSingleton.Current = platform;
 
             // ACT
@@ -51,7 +51,7 @@
 
             // SETUP
             var platform = new StubEnvironmentVariablePlatform();
-            platform.SetEnvironmentVariable(TelemetryConfigurationFactory.SelfDiagnosticsEnvironmentVariable, $"type=file;path={testLogFilePath2}");
+            platform.SetEnvironmentVariable(TelemetryConfigurationFactory.SelfDiagnosticsEnvironmentVariable, $"destination=file;path={testLogFilePath2}");
             PlatformSingleton.Current = platform;
 
             // ACT
@@ -74,7 +74,7 @@
 
             // SETUP
             var platform = new StubEnvironmentVariablePlatform();
-            platform.SetEnvironmentVariable(TelemetryConfigurationFactory.SelfDiagnosticsEnvironmentVariable, $"type=file;path={testLogFilePath2}");
+            platform.SetEnvironmentVariable(TelemetryConfigurationFactory.SelfDiagnosticsEnvironmentVariable, $"destination=file;path={testLogFilePath2}");
             PlatformSingleton.Current = platform;
 
             string configFileContents = Configuration(
