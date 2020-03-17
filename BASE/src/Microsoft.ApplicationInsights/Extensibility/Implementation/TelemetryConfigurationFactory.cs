@@ -62,7 +62,14 @@
             {
                 SdkInternalOperationsMonitor.Enter();
 
-                this.EvaluateSelfDiagnosticsMode(modules);
+                try
+                {
+                    this.EvaluateSelfDiagnosticsMode(modules);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Failed to parse Self-Diagnostics config string. You must fix or remove this configuration.", ex);
+                }
 
                 if (modules != null && !modules.Modules.Any(module => module is DiagnosticsTelemetryModule))
                 {
@@ -122,8 +129,6 @@
         [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "This value is not used in NetStandard1.3 but is used for all other frameworks..")]
         internal void EvaluateSelfDiagnosticsMode(TelemetryModules modules)
         {
-            // TODO: NEED TO EMIT ETW LOGS
-
 #if !NETSTANDARD1_3
             if (PlatformSingleton.Current.TryGetEnvironmentVariable(SelfDiagnosticsEnvironmentVariable, out string selfDiagnosticsConfigurationString))
             {
