@@ -31,6 +31,7 @@
         // List of all participating extractors that take care of specific metrics kinds:
         private readonly RequestMetricsExtractor extractorForRequestMetrics;
         private readonly DependencyMetricsExtractor extractorForDependencyMetrics;
+        private readonly ExceptionMetricsExtractor extractorForExceptionMetrics;
 
         /// <summary>
         /// We have dedicated instance variables to refer to each individual extractors because we are exposing some of their properties to the config subsystem here.
@@ -69,11 +70,13 @@
 
             this.extractorForRequestMetrics = new RequestMetricsExtractor();
             this.extractorForDependencyMetrics = new DependencyMetricsExtractor();
+            this.extractorForExceptionMetrics = new ExceptionMetricsExtractor();
 
             this.extractors = new ExtractorWithInfo[]
                     {
                         new ExtractorWithInfo(this.extractorForRequestMetrics, GetExtractorInfo(this.extractorForRequestMetrics)),
                         new ExtractorWithInfo(this.extractorForDependencyMetrics, GetExtractorInfo(this.extractorForDependencyMetrics)),
+                        new ExtractorWithInfo(this.extractorForExceptionMetrics, GetExtractorInfo(this.extractorForExceptionMetrics)),
                     };
         }
 
@@ -189,6 +192,52 @@
                 }
 
                 this.extractorForDependencyMetrics.MaxCloudRoleInstanceValuesToDiscover = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum distinct values for CloudRoleInstance for Exception telemetry.
+        /// Values encountered after this limit is hit will be collapsed into a single value DIMENSION_CAPPED.
+        /// Setting 0 will all values to be replaced with a single value "Other".
+        /// </summary>
+        public int MaxExceptionCloudRoleInstanceValuesToDiscover
+        {
+            get
+            {
+                return this.extractorForExceptionMetrics.MaxCloudRoleInstanceValuesToDiscover;
+            }
+
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "MaxExceptionCloudRoleInstanceValuesToDiscover value may not be negative.");
+                }
+
+                this.extractorForExceptionMetrics.MaxCloudRoleInstanceValuesToDiscover = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum distinct values for CloudRoleName for Exception telemetry.
+        /// Values encountered after this limit is hit will be collapsed into a single value DIMENSION_CAPPED.
+        /// Setting 0 will all values to be replaced with a single value "Other".
+        /// </summary>
+        public int MaxExceptionCloudRoleNameValuesToDiscover
+        {
+            get
+            {
+                return this.extractorForExceptionMetrics.MaxCloudRoleNameValuesToDiscover;
+            }
+
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "MaxExceptionCloudRoleNameValuesToDiscover value may not be negative.");
+                }
+
+                this.extractorForExceptionMetrics.MaxCloudRoleInstanceValuesToDiscover = value;
             }
         }
 
@@ -369,7 +418,12 @@
             {
                 var dep = item as DependencyTelemetry;
                 dep.MetricExtractorInfo = ExtractionPipelineInfo(dep.MetricExtractorInfo, extractorInfo);
-            }                                   
+            }
+            else if (item is ExceptionTelemetry)
+            {
+                var exp = item as ExceptionTelemetry;
+                exp.MetricExtractorInfo = ExtractionPipelineInfo(exp.MetricExtractorInfo, extractorInfo);
+            }
         }
 
         private static string ExtractionPipelineInfo(string extractionPipelineInfo, string extractorInfo)

@@ -1,3 +1,26 @@
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxExceptionCloudRoleInstanceValuesToDiscover.get -> int
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxExceptionCloudRoleInstanceValuesToDiscover.set -> void
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxExceptionCloudRoleNameValuesToDiscover.get -> int
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxExceptionCloudRoleNameValuesToDiscover.set -> void
+override Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
+override Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
+override Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Duration.get -> System.TimeSpan
+override Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Duration.set -> void
+override Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+override Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Extension.set -> void
+override Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Id.get -> string
+override Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Id.set -> void
+override Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Metrics.get -> System.Collections.Generic.IDictionary<string, double>
+override Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Name.get -> string
+override Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Name.set -> void
+override Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Properties.get -> System.Collections.Generic.IDictionary<string, string>
+override Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Sequence.get -> string
+override Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Sequence.set -> void
+override Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.SerializeData(Microsoft.ApplicationInsights.Extensibility.ISerializationWriter serializationWriter) -> void
+override Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Success.get -> bool?
+override Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Success.set -> void
+override Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Timestamp.get -> System.DateTimeOffset
+override Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Timestamp.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryExtensions
 static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryExtensions.GetEnvelopeName(this Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> string
 static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryExtensions.TrySetEnvelopeName(this Microsoft.ApplicationInsights.Channel.ITelemetry telemetry, string envelopeName) -> bool

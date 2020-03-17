@@ -58,6 +58,12 @@
                     public const string Name = "Dependency duration";
                     public const string Id = "dependencies/duration";
                 }
+
+                public static class ExceptionCount
+                {
+                    public const string Name = "Exceptions";
+                    public const string Id = "exceptions/count";
+                }
             }
 
             public static class Request

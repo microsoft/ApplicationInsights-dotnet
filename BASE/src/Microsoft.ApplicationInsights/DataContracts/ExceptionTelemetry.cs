@@ -8,6 +8,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics;
 
     /// <summary>
     /// Telemetry type used to track exceptions. This will capture TypeName, Message, and CallStack.
@@ -16,7 +17,7 @@
     /// <remarks>
     /// Additional exception details will need to be tracked manually.
     /// </remarks>
-    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportAdvancedSampling, ISupportMetrics, IAiSerializableTelemetry
+    public sealed class ExceptionTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportAdvancedSampling, ISupportMetrics, IAiSerializableTelemetry
     {
         internal string EnvelopeName = "AppExceptions";
 
@@ -118,17 +119,17 @@
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
         /// </summary>
-        public DateTimeOffset Timestamp { get; set; }
+        public override DateTimeOffset Timestamp { get; set; }
 
         /// <summary>
         /// Gets or sets the value that defines absolute order of the telemetry item.
         /// </summary>
-        public string Sequence { get; set; }
+        public override string Sequence { get; set; }
 
         /// <summary>
         /// Gets the context associated with the current telemetry item.
         /// </summary>
-        public TelemetryContext Context
+        public override TelemetryContext Context
         {
             get { return this.context; }
         }
@@ -136,10 +137,28 @@
         /// <summary>
         /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
         /// </summary>
-        public IExtension Extension
+        public override IExtension Extension
         {
             get { return this.extension; }
             set { this.extension = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets ID.
+        /// </summary>
+        public override string Id
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets human-readable name of the exception.
+        /// </summary>
+        public override string Name
+        {
+            get;
+            set;
         }
 
         /// <summary>
@@ -246,7 +265,7 @@
         /// Gets a dictionary of application-defined exception metrics.
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
-        public IDictionary<string, double> Metrics
+        public override IDictionary<string, double> Metrics
         {
             get { return this.Data.Measurements; }
         }
@@ -261,9 +280,37 @@
         /// Gets a dictionary of application-defined property names and values providing additional information about this exception.
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
-        public IDictionary<string, string> Properties
+        public override IDictionary<string, string> Properties
         {
-            get { return this.Data.Properties; }
+#pragma warning disable CS0618 // Type or member is obsolete
+            get
+            {
+                if (!string.IsNullOrEmpty(this.MetricExtractorInfo) && !this.Context.Properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
+                {
+                    this.Context.Properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
+                }
+
+                return this.Context.Properties;
+#pragma warning restore CS0618 // Type or member is obsolete
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the amount of time it took the application to handle the exception.
+        /// </summary>
+        public override TimeSpan Duration
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether application handled the exception successfully.
+        /// </summary>
+        public override bool? Success
+        {
+            get;
+            set;
         }
 
         /// <summary>
@@ -299,16 +346,25 @@
         }
 
         /// <summary>
+        /// Gets or sets the MetricExtractorInfo.
+        /// </summary>
+        internal string MetricExtractorInfo
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Deeply clones a <see cref="ExceptionTelemetry"/> object.
         /// </summary>
         /// <returns>A cloned instance.</returns>
-        public ITelemetry DeepClone()
+        public override ITelemetry DeepClone()
         {
             return new ExceptionTelemetry(this);
         }
 
         /// <inheritdoc/>
-        public void SerializeData(ISerializationWriter serializationWriter)
+        public override void SerializeData(ISerializationWriter serializationWriter)
         {
             if (serializationWriter == null)
             {

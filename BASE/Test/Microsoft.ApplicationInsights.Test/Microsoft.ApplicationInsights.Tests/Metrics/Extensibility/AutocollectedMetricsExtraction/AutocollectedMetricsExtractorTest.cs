@@ -36,12 +36,15 @@
                 (req as ISupportSampling).SamplingPercentage = 1;
                 var dep = new DependencyTelemetry("Type", "Target", "depName1", "data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(1000), "ResultCode100", true);
                 (dep as ISupportSampling).SamplingPercentage = 1;
+                var exp = new ExceptionTelemetry(new ArgumentException("Test"));
+                (exp as ISupportSampling).SamplingPercentage = 1;
 
                 client.TrackRequest(req);
                 client.TrackDependency(dep);
+                client.TrackException(exp);
             }
 
-            Assert.AreEqual(2, telemetrySentToChannel.Count);
+            Assert.AreEqual(3, telemetrySentToChannel.Count);
 
             // Validate that Preaggregator does not process items which are sampled.
             AssertEx.IsType<RequestTelemetry>(telemetrySentToChannel[0]);
@@ -53,6 +56,11 @@
             Assert.AreEqual(false, ((DependencyTelemetry)telemetrySentToChannel[1]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
             Assert.AreEqual(false,
                          ((DependencyTelemetry)telemetrySentToChannel[1]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
+
+            AssertEx.IsType<ExceptionTelemetry>(telemetrySentToChannel[2]);
+            Assert.AreEqual(false, ((ExceptionTelemetry)telemetrySentToChannel[2]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
+            Assert.AreEqual(false,
+                         ((ExceptionTelemetry)telemetrySentToChannel[2]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
 
         }
 
@@ -470,6 +478,14 @@
             }
 
             return dep;
+        }
+
+        private ExceptionTelemetry CreateExceptionTelemetry(Exception exception, string role, string instance)
+        {
+            var exp = new ExceptionTelemetry(exception);
+            exp.Context.Cloud.RoleName = role;
+            exp.Context.Cloud.RoleInstance = instance;
+            return exp;
         }
 
         private void ValidateAllMetric(IEnumerable<ITelemetry> metricCollection)
@@ -940,6 +956,243 @@
         }
 
         #endregion Dependency-metrics-related Tests
+
+        #region Exception-metrics-related Tests
+
+        [TestMethod]
+        public void Exception_TelemetryMarkedAsProcessedCorrectly()
+        {
+            List<ITelemetry> telemetrySentToChannel = new List<ITelemetry>();
+            Func<ITelemetryProcessor, AutocollectedMetricsExtractor> extractorFactory = (nextProc) => new AutocollectedMetricsExtractor(nextProc);
+
+            TelemetryConfiguration telemetryConfig = CreateTelemetryConfigWithExtractor(telemetrySentToChannel, extractorFactory);
+            using (telemetryConfig)
+            {
+                TelemetryClient client = new TelemetryClient(telemetryConfig);
+                client.TrackEvent("Test Event");
+                client.TrackException(new ExceptionTelemetry(new NullReferenceException("Test")));
+                client.TrackException(new ExceptionTelemetry(new ArgumentException("Test")));
+            }
+
+            Assert.AreEqual(4, telemetrySentToChannel.Count);
+
+        }
+
+        [TestMethod]
+        public void Exception_TelemetryRespectsDimLimitCloudRoleInstance()
+        {
+            List<ITelemetry> telemetrySentToChannel = new List<ITelemetry>();
+            Func<ITelemetryProcessor, AutocollectedMetricsExtractor> extractorFactory =
+                (nextProc) => {
+                    var metricExtractor = new AutocollectedMetricsExtractor(nextProc);
+                    metricExtractor.MaxExceptionCloudRoleInstanceValuesToDiscover = 2;
+                    return metricExtractor;
+                };
+
+            TelemetryConfiguration telemetryConfig = CreateTelemetryConfigWithExtractor(telemetrySentToChannel, extractorFactory);
+            using (telemetryConfig)
+            {
+                TelemetryClient client = new TelemetryClient(telemetryConfig);
+                // Track 4 exceptions with 3 different values for RoleInstance - A B C D.
+                // As MaxExceptionCloudRoleInstanceValuesToDiscover = 2, the first 2 values encountered (A,B) 
+                // will be used as such at which the DimensionCap is hit.
+                // Newly incoming values (C,D) will be rolled into "DIMENSION-CAPPED"
+
+                client.TrackException(CreateExceptionTelemetry(
+                                        new ArgumentException("Test A"), "RoleNameA", "RoleInstanceA"));
+                client.TrackException(CreateExceptionTelemetry(
+                                        new NullReferenceException("Test B"), "RoleNameA", "RoleInstanceB"));
+                client.TrackException(CreateExceptionTelemetry(
+                                        new NullReferenceException("Test C"), "RoleNameA", "RoleInstanceC"));
+                client.TrackException(CreateExceptionTelemetry(
+                                        new ArgumentException("Test D"), "RoleNameA", "RoleInstanceD"));
+            }
+
+            // 4 requests + 3 metric
+            Assert.AreEqual(7, telemetrySentToChannel.Count);
+
+            AssertEx.IsType<ExceptionTelemetry>(telemetrySentToChannel[0]);
+            Assert.AreEqual("Test A", ((ExceptionTelemetry)telemetrySentToChannel[0]).Exception.Message);
+            Assert.AreEqual(true, ((ExceptionTelemetry)telemetrySentToChannel[0]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
+            Assert.AreEqual("(Name:'Exceptions', Ver:'1.1')",
+                         ((ExceptionTelemetry)telemetrySentToChannel[0]).Properties["_MS.ProcessedByMetricExtractors"]);
+
+            AssertEx.IsType<ExceptionTelemetry>(telemetrySentToChannel[1]);
+            Assert.AreEqual("Test B", ((ExceptionTelemetry)telemetrySentToChannel[1]).Exception.Message);
+            Assert.AreEqual(true, ((ExceptionTelemetry)telemetrySentToChannel[1]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
+            Assert.AreEqual("(Name:'Exceptions', Ver:'1.1')",
+                         ((ExceptionTelemetry)telemetrySentToChannel[1]).Properties["_MS.ProcessedByMetricExtractors"]);
+
+            AssertEx.IsType<ExceptionTelemetry>(telemetrySentToChannel[2]);
+            Assert.AreEqual("Test C", ((ExceptionTelemetry)telemetrySentToChannel[2]).Exception.Message);
+            Assert.AreEqual(true, ((ExceptionTelemetry)telemetrySentToChannel[2]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
+            Assert.AreEqual("(Name:'Exceptions', Ver:'1.1')",
+                         ((ExceptionTelemetry)telemetrySentToChannel[2]).Properties["_MS.ProcessedByMetricExtractors"]);
+
+            AssertEx.IsType<ExceptionTelemetry>(telemetrySentToChannel[3]);
+            Assert.AreEqual("Test D", ((ExceptionTelemetry)telemetrySentToChannel[3]).Exception.Message);
+            Assert.AreEqual(true, ((ExceptionTelemetry)telemetrySentToChannel[3]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
+            Assert.AreEqual("(Name:'Exceptions', Ver:'1.1')",
+                         ((ExceptionTelemetry)telemetrySentToChannel[3]).Properties["_MS.ProcessedByMetricExtractors"]);
+
+            for (int i = 4; i < 7; i++)
+            {
+                AssertEx.IsType<MetricTelemetry>(telemetrySentToChannel[i]);
+                var metricTel = telemetrySentToChannel[i] as MetricTelemetry;
+                // validate standard fields
+                Assert.IsTrue(metricTel.Properties.ContainsKey("_MS.AggregationIntervalMs"));
+                Assert.IsTrue(metricTel.Context.GlobalProperties.ContainsKey("_MS.IsAutocollected"));
+                Assert.AreEqual("True", metricTel.Context.GlobalProperties["_MS.IsAutocollected"]);
+                Assert.IsTrue(metricTel.Context.GlobalProperties.ContainsKey("_MS.MetricId"));
+                Assert.AreEqual("exceptions/count", metricTel.Context.GlobalProperties["_MS.MetricId"]);
+
+                // validate dimensions exist
+                Assert.AreEqual(true, metricTel.Properties.ContainsKey("cloud/roleInstance"));
+                Assert.AreEqual(true, metricTel.Properties.ContainsKey("cloud/roleName"));
+            }
+
+            // We expect RoleInstanceA to be tracked correctly
+            var cloudRoleInstanceA = telemetrySentToChannel.Where(
+                (tel) => "Exceptions".Equals((tel as MetricTelemetry)?.Name)
+                && (tel as MetricTelemetry).Properties.Contains(new KeyValuePair<string, string>("cloud/roleInstance", "RoleInstanceA")));
+
+            Assert.IsTrue(cloudRoleInstanceA.Count() == 1);
+
+            // We expect RoleInstanceB to be tracked correctly
+            var cloudRoleInstanceB = telemetrySentToChannel.Where(
+                (tel) => "Exceptions".Equals((tel as MetricTelemetry)?.Name)
+                && (tel as MetricTelemetry).Properties.Contains(new KeyValuePair<string, string>("cloud/roleInstance", "RoleInstanceB")));
+
+            Assert.IsTrue(cloudRoleInstanceB.Count() == 1);
+
+            // We expect RoleInstanceC to be not present as a dimension, as dimension cap of 2 is already hit.
+            var cloudRoleInstanceC = telemetrySentToChannel.Where(
+                (tel) => "Exceptions".Equals((tel as MetricTelemetry)?.Name)
+                && (tel as MetricTelemetry).Properties.Contains(new KeyValuePair<string, string>("cloud/roleInstance", "RoleInstanceC")));
+
+            Assert.IsTrue(cloudRoleInstanceC.Count() == 0);
+
+            // We expect RoleInstanceD to be not present as a dimension, as dimension cap of 2 is already hit.
+            var cloudRoleInstanceD = telemetrySentToChannel.Where(
+                (tel) => "Exceptions".Equals((tel as MetricTelemetry)?.Name)
+                && (tel as MetricTelemetry).Properties.Contains(new KeyValuePair<string, string>("cloud/roleInstance", "RoleInstanceD")));
+
+            Assert.IsTrue(cloudRoleInstanceD.Count() == 0);
+
+            // We expect a DIMENSION-CAPPED series, which represents RoleInstanceC and RoleInstanceD
+            var dimCappedSeries = telemetrySentToChannel.Where(
+                (tel) => "Exceptions".Equals((tel as MetricTelemetry)?.Name)
+                && (tel as MetricTelemetry).Properties.Contains(new KeyValuePair<string, string>("cloud/roleInstance", "DIMENSION-CAPPED")));
+
+            Assert.IsTrue(dimCappedSeries.Count() == 1);
+        }
+
+        [TestMethod]
+        public void Exception_CorrectlyExtractsMetric()
+        {
+            List<ITelemetry> telemetrySentToChannel = new List<ITelemetry>();
+            Func<ITelemetryProcessor, AutocollectedMetricsExtractor> extractorFactory = (nextProc) => new AutocollectedMetricsExtractor(nextProc);
+
+            // default set of dimensions with test values.
+            string[] cloudRoleNames = new string[] { "RoleA", "RoleB" };
+            string[] cloudRoleInstances = new string[] { "RoleInstanceA", "RoleInstanceB" };
+
+            TelemetryConfiguration telemetryConfig = CreateTelemetryConfigWithExtractor(telemetrySentToChannel, extractorFactory);
+            using (telemetryConfig)
+            {
+                TelemetryClient client = new TelemetryClient(telemetryConfig);
+                List<ExceptionTelemetry> exceptions = new List<ExceptionTelemetry>();
+
+                // Produces telemetry with every combination of dimension values.
+                for (int i = 0; i < cloudRoleNames.Length; i++)
+                {
+                    for (int j = 0; j < cloudRoleInstances.Length; j++)
+                    {
+                        exceptions.Add(CreateExceptionTelemetry(
+                            new NullReferenceException("Test"), cloudRoleNames[i], cloudRoleInstances[j]));
+                        exceptions.Add(CreateExceptionTelemetry(
+                            new ArgumentException("Test"), cloudRoleNames[i], cloudRoleInstances[j]));
+                        exceptions.Add(CreateExceptionTelemetry(
+                            new NullReferenceException("Test"), cloudRoleNames[i], cloudRoleInstances[j]));
+                        exceptions.Add(CreateExceptionTelemetry(
+                            new ArgumentException("Test"), cloudRoleNames[i], cloudRoleInstances[j]));
+                    }
+                }
+
+
+                foreach (var exp in exceptions)
+                {
+                    client.TrackException(exp);
+                }
+
+                // The # of iteration is 4  = 2 * 2
+                //  RoleName * RoleInstance
+                // 4 Track calls are made in every iteration,
+                // hence 4 * 4 requests gives 16 total requests
+                Assert.AreEqual(16, telemetrySentToChannel.Count);
+
+                // The total # of timeseries is 4
+                // 2 * 2 = 4
+                // RoleInstance
+                // Duration bucket is auto calculated, hence not included in iteration count.
+
+                // The above did not include Metrics as they are sent upon dispose only.                
+            } // dispose occurs here, and hence metrics get flushed out.
+
+            // 2 * 2 = 4
+            // RoleName * RoleInstance
+            int totalTimeSeries = 4;
+
+            // 20 = 16 exceptions + 4 metrics as there are 4 unique combination of dimension
+            Assert.AreEqual(20, telemetrySentToChannel.Count);
+
+            // These are pre-agg metric
+            var serverExceptionMetric = telemetrySentToChannel.Where(
+                (tel) => "Exceptions".Equals((tel as MetricTelemetry)?.Name));
+            Assert.AreEqual(totalTimeSeries, serverExceptionMetric.Count());
+
+            foreach (var metric in serverExceptionMetric)
+            {
+                var metricTel = metric as MetricTelemetry;
+                // validate standard fields
+                Assert.IsTrue(metricTel.Properties.ContainsKey("_MS.AggregationIntervalMs"));
+                Assert.IsTrue(metricTel.Context.GlobalProperties.ContainsKey("_MS.IsAutocollected"));
+                Assert.AreEqual("True", metricTel.Context.GlobalProperties["_MS.IsAutocollected"]);
+                Assert.IsTrue(metricTel.Context.GlobalProperties.ContainsKey("_MS.MetricId"));
+                Assert.AreEqual("exceptions/count", metricTel.Context.GlobalProperties["_MS.MetricId"]);
+
+                // validate dimensions exist
+                Assert.AreEqual(true, metricTel.Properties.ContainsKey("cloud/roleInstance"));
+                Assert.AreEqual(true, metricTel.Properties.ContainsKey("cloud/roleName"));
+            }
+
+            // Validate RoleName dimesion
+            for (int i = 0; i < cloudRoleNames.Length; i++)
+            {
+                var metricCollection = serverExceptionMetric.Where(
+                (tel) => (tel as MetricTelemetry).Properties["cloud/roleName"] == cloudRoleNames[i]);
+                int expectedCount = totalTimeSeries / cloudRoleNames.Length;
+                Assert.AreEqual(expectedCount, metricCollection.Count());
+            }
+
+            // Validate RoleInstance dimension
+            for (int i = 0; i < cloudRoleInstances.Length; i++)
+            {
+                var metricCollection = serverExceptionMetric.Where(
+                (tel) => (tel as MetricTelemetry).Properties["cloud/roleInstance"] == cloudRoleInstances[i]);
+                int expectedCount = totalTimeSeries / cloudRoleInstances.Length;
+                Assert.AreEqual(expectedCount, metricCollection.Count());
+            }
+        }
+
+        [TestMethod]
+        public void Exception_DefaultDimensionLimitsValidation()
+        {
+            var reqExtractor = new ExceptionMetricsExtractor();
+            Assert.AreEqual(2, reqExtractor.MaxCloudRoleNameValuesToDiscover);
+            Assert.AreEqual(2, reqExtractor.MaxCloudRoleInstanceValuesToDiscover);
+        }
+        #endregion Exception-metrics-related Tests
 
         #region Common Tools
 
