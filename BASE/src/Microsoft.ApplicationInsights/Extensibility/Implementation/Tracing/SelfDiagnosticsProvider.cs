@@ -5,13 +5,16 @@
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation.ConfigString;
 
+    /// <summary>
+    /// This class encapsulates parsing and interpreting the self diagnostics configuration string.
+    /// </summary>
     internal class SelfDiagnosticsProvider
     {
-        private const string KeyType = "Destination";
+        private const string KeyDestination = "Destination";
         private const string KeyFilePath = "Path";
-        private const string KeyFileLevel = "Level";
+        private const string KeyLevel = "Level";
         private const string KeyFileMaxSize = "MaxSize";
-        private const string ValueTypeFile = "file";
+        private const string ValueDestinationFile = "file";
 
         /// <summary>
         /// Parse a configuration string and return a Dictionary.
@@ -22,7 +25,7 @@
         {
             var keyVaulePairs = ConfigStringParser.Parse(configurationString, configName: "Self-Diagnostics Configuration String");
 
-            if (keyVaulePairs.ContainsKey(KeyType))
+            if (keyVaulePairs.ContainsKey(KeyDestination))
             {
                 return keyVaulePairs;
             }
@@ -32,12 +35,20 @@
             }
         }
 
+        /// <summary>
+        /// Evaluates if the keyvalue pairs specifies writing to file. If so, parses and returns params.
+        /// </summary>
+        /// <param name="keyValuePairs">The keyvalue pairs from the config string.</param>
+        /// <param name="path">File directory for logging.</param>
+        /// <param name="level">Log level.</param>
+        /// <param name="maxSize">Max size of file log.</param>
+        /// <returns>Returns true if file has been specified in config string.</returns>
         internal static bool IsFileDiagnostics(Dictionary<string, string> keyValuePairs, out string path, out string level, out string maxSize)
         {
-            if (keyValuePairs[KeyType].Equals(ValueTypeFile, StringComparison.OrdinalIgnoreCase))
+            if (keyValuePairs[KeyDestination].Equals(ValueDestinationFile, StringComparison.OrdinalIgnoreCase))
             {
                 TryGetValueWithDefault(keyValuePairs, key: KeyFilePath, defaultValue: "%TEMP%", value: out path);
-                TryGetValueWithDefault(keyValuePairs, key: KeyFileLevel, defaultValue: "Verbose", value: out level);
+                TryGetValueWithDefault(keyValuePairs, key: KeyLevel, defaultValue: "Verbose", value: out level);
                 TryGetValueWithDefault(keyValuePairs, key: KeyFileMaxSize, defaultValue: "20", value: out maxSize);
 
                 return true;
