@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="$(PropsRoot)\Product.props" />
   
-  <Import Project="$(SourceRoot)\Signing.props" Condition=" '$(OS)' == 'Windows_NT' " />
-
+  <!--<Import Project="$(SourceRoot)\Signing.props" Condition=" '$(OS)' == 'Windows_NT' " />-->
+  <Import Project="$(PropsRoot)\_Signing.props" />
 
   <PropertyGroup>
     <!-- Override settings from Nupkg.props. I don't know why the NetCore projects need this and the others don't. -->
