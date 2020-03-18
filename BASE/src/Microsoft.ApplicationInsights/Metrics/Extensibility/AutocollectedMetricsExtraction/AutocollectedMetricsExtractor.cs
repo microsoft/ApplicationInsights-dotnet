@@ -194,7 +194,7 @@
                     throw new ArgumentOutOfRangeException(nameof(value), value, "MaxDependencyCloudRoleNameValuesToDiscover value may not be negative.");
                 }
 
-                this.extractorForDependencyMetrics.MaxCloudRoleInstanceValuesToDiscover = value;
+                this.extractorForDependencyMetrics.MaxCloudRoleNameValuesToDiscover = value;
             }
         }
 
@@ -240,7 +240,7 @@
                     throw new ArgumentOutOfRangeException(nameof(value), value, "MaxExceptionCloudRoleNameValuesToDiscover value may not be negative.");
                 }
 
-                this.extractorForExceptionMetrics.MaxCloudRoleInstanceValuesToDiscover = value;
+                this.extractorForExceptionMetrics.MaxCloudRoleNameValuesToDiscover = value;
             }
         }
 
@@ -286,7 +286,7 @@
                     throw new ArgumentOutOfRangeException(nameof(value), value, "MaxTraceCloudRoleNameValuesToDiscover value may not be negative.");
                 }
 
-                this.extractorForTraceMetrics.MaxCloudRoleInstanceValuesToDiscover = value;
+                this.extractorForTraceMetrics.MaxCloudRoleNameValuesToDiscover = value;
             }
         }
 
@@ -355,7 +355,7 @@
                     throw new ArgumentOutOfRangeException(nameof(value), value, "MaxRequestCloudRoleNameValuesToDiscover value may not be negative.");
                 }
 
-                this.extractorForRequestMetrics.MaxCloudRoleInstanceValuesToDiscover = value;
+                this.extractorForRequestMetrics.MaxCloudRoleNameValuesToDiscover = value;
             }
         }
 

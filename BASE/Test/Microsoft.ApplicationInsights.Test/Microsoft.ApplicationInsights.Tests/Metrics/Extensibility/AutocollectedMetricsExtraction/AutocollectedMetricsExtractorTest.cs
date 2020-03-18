@@ -1196,9 +1196,9 @@
         [TestMethod]
         public void Exception_DefaultDimensionLimitsValidation()
         {
-            var reqExtractor = new ExceptionMetricsExtractor();
-            Assert.AreEqual(2, reqExtractor.MaxCloudRoleNameValuesToDiscover);
-            Assert.AreEqual(2, reqExtractor.MaxCloudRoleInstanceValuesToDiscover);
+            var expExtractor = new ExceptionMetricsExtractor();
+            Assert.AreEqual(2, expExtractor.MaxCloudRoleNameValuesToDiscover);
+            Assert.AreEqual(2, expExtractor.MaxCloudRoleInstanceValuesToDiscover);
         }
         #endregion Exception-metrics-related Tests
 
@@ -1291,7 +1291,7 @@
             Func<ITelemetryProcessor, AutocollectedMetricsExtractor> extractorFactory =
                 (nextProc) => {
                     var metricExtractor = new AutocollectedMetricsExtractor(nextProc);
-                    metricExtractor.MaxRequestCloudRoleInstanceValuesToDiscover = 2;
+                    metricExtractor.MaxTraceCloudRoleInstanceValuesToDiscover = 2;
                     return metricExtractor;
                 };
 
@@ -1300,7 +1300,7 @@
             {
                 TelemetryClient client = new TelemetryClient(telemetryConfig);
                 // Track 4 traces with 3 different values for RoleInstance - A B C D.
-                // As MaxRequestCloudRoleInstanceValuesToDiscover = 2, the first 2 values encountered (A,B) 
+                // As MaxTraceCloudRoleInstanceValuesToDiscover = 2, the first 2 values encountered (A,B) 
                 // will be used as such at which the DimensionCap is hit.
                 // Newly incoming values (C,D) will be rolled into "DIMENSION-CAPPED"
 
@@ -1402,7 +1402,7 @@
             Func<ITelemetryProcessor, AutocollectedMetricsExtractor> extractorFactory = (nextProc) => new AutocollectedMetricsExtractor(nextProc);
 
             // default set of dimensions with test values.
-            int[] severityLevels = new int[] { 0, 1, 2, 3, 4}; //Kusto stores SeverityLevel as integer values
+            int[] severityLevels = new int[] { 0, 1, 2, 3, 4}; //Backend stores SeverityLevel as integer values
             bool[] synthetic = new bool[] { true, false };
             string[] cloudRoleNames = new string[] { "RoleA", "RoleB" };
             string[] cloudRoleInstances = new string[] { "RoleInstanceA", "RoleInstanceB" };
