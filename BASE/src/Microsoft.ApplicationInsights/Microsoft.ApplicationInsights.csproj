@@ -42,13 +42,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Metrics\Implementation\AutocollectedMetricsExtraction\ExceptionExtractor\ExceptionClientTypeDimensionExtractor.cs" />
-    <Compile Remove="Metrics\Implementation\AutocollectedMetricsExtraction\ExceptionExtractor\ExceptionIsServerDimensionExtractor.cs" />
-    <Compile Remove="Metrics\Implementation\AutocollectedMetricsExtraction\ExceptionExtractor\ExceptionSeverityLevelDimensionExtractor.cs" />
-    <Compile Remove="Metrics\Implementation\AutocollectedMetricsExtraction\ExceptionExtractor\ExceptionTypeDimensionExtractor.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <!--Build Infrastructure-->
     <PackageReference Include="Microsoft.VisualStudioEng.MicroBuild.Core" Version="0.4.1">
       <PrivateAssets>All</PrivateAssets>

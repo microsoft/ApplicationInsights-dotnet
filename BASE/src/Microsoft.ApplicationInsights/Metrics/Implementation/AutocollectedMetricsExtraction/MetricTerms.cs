@@ -64,6 +64,12 @@
                     public const string Name = "Exceptions";
                     public const string Id = "exceptions/count";
                 }
+
+                public static class TraceCount
+                {
+                    public const string Name = "Traces";
+                    public const string Id = "traces/count";
+                }
             }
 
             public static class Request
@@ -85,6 +91,14 @@
                     public const string PerformanceBucket = "dependency/performanceBucket";
                     public const string Target = "dependency/target";
                     public const string ResultCode = "dependency/resultCode";
+                }
+            }
+
+            public static class TraceCount
+            {
+                public static class PropertyNames
+                {
+                    public const string SeverityLevel = "trace/severityLevel";
                 }
             }
 

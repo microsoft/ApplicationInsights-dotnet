@@ -400,23 +400,13 @@ Microsoft.ApplicationInsights.DataContracts.TelemetryContext.TelemetryContext() 
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.TryGetRawObject(string key, out object rawObject) -> bool
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.User.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry
-Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
-Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
-Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
-Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Extension.set -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Message.get -> string
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Message.set -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.ProactiveSamplingDecision.get -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.ProactiveSamplingDecision.set -> void
-Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Properties.get -> System.Collections.Generic.IDictionary<string, string>
-Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Sequence.get -> string
-Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Sequence.set -> void
-Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.SerializeData(Microsoft.ApplicationInsights.Extensibility.ISerializationWriter serializationWriter) -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.SeverityLevel.get -> Microsoft.ApplicationInsights.DataContracts.SeverityLevel?
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.SeverityLevel.set -> void
-Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Timestamp.get -> System.DateTimeOffset
-Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Timestamp.set -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.TraceTelemetry() -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.TraceTelemetry(string message) -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.TraceTelemetry(string message, Microsoft.ApplicationInsights.DataContracts.SeverityLevel severityLevel) -> void

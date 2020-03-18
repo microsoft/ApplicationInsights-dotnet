@@ -1,3 +1,28 @@
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxTraceCloudRoleInstanceValuesToDiscover.get -> int
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxTraceCloudRoleInstanceValuesToDiscover.set -> void
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxTraceCloudRoleNameValuesToDiscover.get -> int
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxTraceCloudRoleNameValuesToDiscover.set -> void
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxTraceSeverityLevelValuesToDiscover.get -> int
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxTraceSeverityLevelValuesToDiscover.set -> void
+override Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
+override Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
+override Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Duration.get -> System.TimeSpan
+override Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Duration.set -> void
+override Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+override Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Extension.set -> void
+override Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Id.get -> string
+override Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Id.set -> void
+override Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Metrics.get -> System.Collections.Generic.IDictionary<string, double>
+override Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Name.get -> string
+override Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Name.set -> void
+override Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Properties.get -> System.Collections.Generic.IDictionary<string, string>
+override Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Sequence.get -> string
+override Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Sequence.set -> void
+override Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.SerializeData(Microsoft.ApplicationInsights.Extensibility.ISerializationWriter serializationWriter) -> void
+override Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Success.get -> bool?
+override Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Success.set -> void
+override Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Timestamp.get -> System.DateTimeOffset
+override Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Timestamp.set -> void
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxExceptionCloudRoleInstanceValuesToDiscover.get -> int
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxExceptionCloudRoleInstanceValuesToDiscover.set -> void
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxExceptionCloudRoleNameValuesToDiscover.get -> int

@@ -7,13 +7,14 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics;
 
     /// <summary>
     /// Telemetry type used for log messages.
     /// Contains a time and message and optionally some additional metadata.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#tracktrace">Learn more</a>
     /// </summary>
-    public sealed class TraceTelemetry : ITelemetry, ISupportProperties, ISupportAdvancedSampling, IAiSerializableTelemetry
+    public sealed class TraceTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportAdvancedSampling, IAiSerializableTelemetry
     {
         internal readonly MessageData Data;
         internal string EnvelopeName = "AppTraces";
@@ -82,17 +83,17 @@
         /// <summary>
         /// Gets or sets date and time when event was recorded.
         /// </summary>
-        public DateTimeOffset Timestamp { get; set; }
+        public override DateTimeOffset Timestamp { get; set; }
 
         /// <summary>
         /// Gets or sets the value that defines absolute order of the telemetry item.
         /// </summary>
-        public string Sequence { get; set; }
+        public override string Sequence { get; set; }
 
         /// <summary>
         /// Gets the context associated with the current telemetry item.
         /// </summary>
-        public TelemetryContext Context
+        public override TelemetryContext Context
         {
             get { return this.context; }
         }
@@ -100,10 +101,28 @@
         /// <summary>
         /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
         /// </summary>
-        public IExtension Extension
+        public override IExtension Extension
         {
             get { return this.extension; }
             set { this.extension = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets ID.
+        /// </summary>
+        public override string Id
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets human-readable name of the trace.
+        /// </summary>
+        public override string Name
+        {
+            get;
+            set;
         }
 
         /// <summary>
@@ -113,6 +132,15 @@
         {
             get { return this.Data.message; }
             set { this.Data.message = value; }
+        }
+
+        /// <summary>
+        /// Gets a dictionary of application-defined trace metrics.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
+        /// </summary>
+        public override IDictionary<string, double> Metrics
+        {
+            get;
         }
 
         /// <summary>
@@ -128,9 +156,37 @@
         /// Gets a dictionary of application-defined property names and values providing additional information about this trace.
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
-        public IDictionary<string, string> Properties
+        public override IDictionary<string, string> Properties
         {
-            get { return this.Data.properties; }
+#pragma warning disable CS0618 // Type or member is obsolete
+            get
+            {
+                if (!string.IsNullOrEmpty(this.MetricExtractorInfo) && !this.Context.Properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
+                {
+                    this.Context.Properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
+                }
+
+                return this.Context.Properties;
+#pragma warning restore CS0618 // Type or member is obsolete
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets duration.
+        /// </summary>
+        public override TimeSpan Duration
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets success.
+        /// </summary>
+        public override bool? Success
+        {
+            get;
+            set;
         }
 
         /// <summary>
@@ -152,16 +208,25 @@
         public SamplingDecision ProactiveSamplingDecision { get; set; }
 
         /// <summary>
+        /// Gets or sets the MetricExtractorInfo.
+        /// </summary>
+        internal string MetricExtractorInfo
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Deeply clones a <see cref="TraceTelemetry"/> object.
         /// </summary>
         /// <returns>A cloned instance.</returns>
-        public ITelemetry DeepClone()
+        public override ITelemetry DeepClone()
         {
             return new TraceTelemetry(this);
         }
 
         /// <inheritdoc/>
-        public void SerializeData(ISerializationWriter serializationWriter)
+        public override void SerializeData(ISerializationWriter serializationWriter)
         {
             if (serializationWriter == null)
             {

@@ -32,6 +32,7 @@
         private readonly RequestMetricsExtractor extractorForRequestMetrics;
         private readonly DependencyMetricsExtractor extractorForDependencyMetrics;
         private readonly ExceptionMetricsExtractor extractorForExceptionMetrics;
+        private readonly TraceMetricsExtractor extractorForTraceMetrics;
 
         /// <summary>
         /// We have dedicated instance variables to refer to each individual extractors because we are exposing some of their properties to the config subsystem here.
@@ -71,12 +72,14 @@
             this.extractorForRequestMetrics = new RequestMetricsExtractor();
             this.extractorForDependencyMetrics = new DependencyMetricsExtractor();
             this.extractorForExceptionMetrics = new ExceptionMetricsExtractor();
+            this.extractorForTraceMetrics = new TraceMetricsExtractor();
 
             this.extractors = new ExtractorWithInfo[]
                     {
                         new ExtractorWithInfo(this.extractorForRequestMetrics, GetExtractorInfo(this.extractorForRequestMetrics)),
                         new ExtractorWithInfo(this.extractorForDependencyMetrics, GetExtractorInfo(this.extractorForDependencyMetrics)),
                         new ExtractorWithInfo(this.extractorForExceptionMetrics, GetExtractorInfo(this.extractorForExceptionMetrics)),
+                        new ExtractorWithInfo(this.extractorForTraceMetrics, GetExtractorInfo(this.extractorForTraceMetrics)),
                     };
         }
 
@@ -238,6 +241,75 @@
                 }
 
                 this.extractorForExceptionMetrics.MaxCloudRoleInstanceValuesToDiscover = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum distinct values for CloudRoleInstance for Trace telemetry.
+        /// Values encountered after this limit is hit will be collapsed into a single value DIMENSION_CAPPED.
+        /// Setting 0 will all values to be replaced with a single value "Other".
+        /// </summary>
+        public int MaxTraceCloudRoleInstanceValuesToDiscover
+        {
+            get
+            {
+                return this.extractorForTraceMetrics.MaxCloudRoleInstanceValuesToDiscover;
+            }
+
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "MaxTraceCloudRoleInstanceValuesToDiscover value may not be negative.");
+                }
+
+                this.extractorForTraceMetrics.MaxCloudRoleInstanceValuesToDiscover = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum distinct values for CloudRoleName for Trace telemetry.
+        /// Values encountered after this limit is hit will be collapsed into a single value DIMENSION_CAPPED.
+        /// Setting 0 will all values to be replaced with a single value "Other".
+        /// </summary>
+        public int MaxTraceCloudRoleNameValuesToDiscover
+        {
+            get
+            {
+                return this.extractorForTraceMetrics.MaxCloudRoleNameValuesToDiscover;
+            }
+
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "MaxTraceCloudRoleNameValuesToDiscover value may not be negative.");
+                }
+
+                this.extractorForTraceMetrics.MaxCloudRoleInstanceValuesToDiscover = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum distinct values for SeverityLevel for Trace telemetry.
+        /// Values encountered after this limit is hit will be collapsed into a single value DIMENSION_CAPPED.
+        /// Setting 0 will all values to be replaced with a single value "Other".
+        /// </summary>
+        public int MaxTraceSeverityLevelValuesToDiscover
+        {
+            get
+            {
+                return this.extractorForTraceMetrics.MaxTraceSeverityLevelValuesToDiscover;
+            }
+
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "MaxTraceSeverityLevelValuesToDiscover value may not be negative.");
+                }
+
+                this.extractorForTraceMetrics.MaxTraceSeverityLevelValuesToDiscover = value;
             }
         }
 
@@ -423,6 +495,11 @@
             {
                 var exp = item as ExceptionTelemetry;
                 exp.MetricExtractorInfo = ExtractionPipelineInfo(exp.MetricExtractorInfo, extractorInfo);
+            }
+            else if (item is TraceTelemetry)
+            {
+                var trace = item as TraceTelemetry;
+                trace.MetricExtractorInfo = ExtractionPipelineInfo(trace.MetricExtractorInfo, extractorInfo);
             }
         }
 
