@@ -17,7 +17,7 @@
     /// <remarks>
     /// Additional exception details will need to be tracked manually.
     /// </remarks>
-    public sealed class ExceptionTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportAdvancedSampling, ISupportMetrics, IAiSerializableTelemetry
+    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportAdvancedSampling, ISupportMetrics, IAiSerializableTelemetry
     {
         internal string EnvelopeName = "AppExceptions";
 
@@ -95,7 +95,7 @@
             {
                 this.exception = source.Exception;
             }
-            
+
             this.extension = source.extension?.DeepClone();
         }
 
@@ -119,17 +119,17 @@
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
         /// </summary>
-        public override DateTimeOffset Timestamp { get; set; }
+        public DateTimeOffset Timestamp { get; set; }
 
         /// <summary>
         /// Gets or sets the value that defines absolute order of the telemetry item.
         /// </summary>
-        public override string Sequence { get; set; }
+        public string Sequence { get; set; }
 
         /// <summary>
         /// Gets the context associated with the current telemetry item.
         /// </summary>
-        public override TelemetryContext Context
+        public TelemetryContext Context
         {
             get { return this.context; }
         }
@@ -137,28 +137,10 @@
         /// <summary>
         /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
         /// </summary>
-        public override IExtension Extension
+        public IExtension Extension
         {
             get { return this.extension; }
             set { this.extension = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets ID.
-        /// </summary>
-        public override string Id
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets human-readable name of the exception.
-        /// </summary>
-        public override string Name
-        {
-            get;
-            set;
         }
 
         /// <summary>
@@ -265,7 +247,7 @@
         /// Gets a dictionary of application-defined exception metrics.
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
-        public override IDictionary<string, double> Metrics
+        public IDictionary<string, double> Metrics
         {
             get { return this.Data.Measurements; }
         }
@@ -280,7 +262,7 @@
         /// Gets a dictionary of application-defined property names and values providing additional information about this exception.
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
-        public override IDictionary<string, string> Properties
+        public IDictionary<string, string> Properties
         {
 #pragma warning disable CS0618 // Type or member is obsolete
             get
@@ -293,24 +275,6 @@
                 return this.Context.Properties;
 #pragma warning restore CS0618 // Type or member is obsolete
             }
-        }
-
-        /// <summary>
-        /// Gets or sets the amount of time it took the application to handle the exception.
-        /// </summary>
-        public override TimeSpan Duration
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether application handled the exception successfully.
-        /// </summary>
-        public override bool? Success
-        {
-            get;
-            set;
         }
 
         /// <summary>
@@ -358,13 +322,13 @@
         /// Deeply clones a <see cref="ExceptionTelemetry"/> object.
         /// </summary>
         /// <returns>A cloned instance.</returns>
-        public override ITelemetry DeepClone()
+        public ITelemetry DeepClone()
         {
             return new ExceptionTelemetry(this);
         }
 
         /// <inheritdoc/>
-        public override void SerializeData(ISerializationWriter serializationWriter)
+        public void SerializeData(ISerializationWriter serializationWriter)
         {
             if (serializationWriter == null)
             {

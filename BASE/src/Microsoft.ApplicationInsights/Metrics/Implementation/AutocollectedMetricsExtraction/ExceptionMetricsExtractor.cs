@@ -146,7 +146,7 @@
                 }
             }
 
-            CommonHelper.TrackValueHelper(this.exceptionServerMetric, exception.Duration.TotalMilliseconds, dimValues);
+            CommonHelper.TrackValueHelper(this.exceptionServerMetric, default, dimValues);
             isItemProcessed = true;
         }
     }

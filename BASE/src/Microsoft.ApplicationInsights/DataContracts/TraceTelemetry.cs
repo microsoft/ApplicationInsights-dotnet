@@ -14,7 +14,7 @@
     /// Contains a time and message and optionally some additional metadata.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#tracktrace">Learn more</a>
     /// </summary>
-    public sealed class TraceTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportAdvancedSampling, IAiSerializableTelemetry
+    public sealed class TraceTelemetry : ITelemetry, ISupportProperties, ISupportAdvancedSampling, IAiSerializableTelemetry
     {
         internal readonly MessageData Data;
         internal string EnvelopeName = "AppTraces";
@@ -83,17 +83,17 @@
         /// <summary>
         /// Gets or sets date and time when event was recorded.
         /// </summary>
-        public override DateTimeOffset Timestamp { get; set; }
+        public DateTimeOffset Timestamp { get; set; }
 
         /// <summary>
         /// Gets or sets the value that defines absolute order of the telemetry item.
         /// </summary>
-        public override string Sequence { get; set; }
+        public string Sequence { get; set; }
 
         /// <summary>
         /// Gets the context associated with the current telemetry item.
         /// </summary>
-        public override TelemetryContext Context
+        public TelemetryContext Context
         {
             get { return this.context; }
         }
@@ -101,28 +101,10 @@
         /// <summary>
         /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
         /// </summary>
-        public override IExtension Extension
+        public IExtension Extension
         {
             get { return this.extension; }
             set { this.extension = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets ID.
-        /// </summary>
-        public override string Id
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets human-readable name of the trace.
-        /// </summary>
-        public override string Name
-        {
-            get;
-            set;
         }
 
         /// <summary>
@@ -132,15 +114,6 @@
         {
             get { return this.Data.message; }
             set { this.Data.message = value; }
-        }
-
-        /// <summary>
-        /// Gets a dictionary of application-defined trace metrics.
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
-        /// </summary>
-        public override IDictionary<string, double> Metrics
-        {
-            get;
         }
 
         /// <summary>
@@ -156,7 +129,7 @@
         /// Gets a dictionary of application-defined property names and values providing additional information about this trace.
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
-        public override IDictionary<string, string> Properties
+        public IDictionary<string, string> Properties
         {
 #pragma warning disable CS0618 // Type or member is obsolete
             get
@@ -169,24 +142,6 @@
                 return this.Context.Properties;
 #pragma warning restore CS0618 // Type or member is obsolete
             }
-        }
-
-        /// <summary>
-        /// Gets or sets duration.
-        /// </summary>
-        public override TimeSpan Duration
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets success.
-        /// </summary>
-        public override bool? Success
-        {
-            get;
-            set;
         }
 
         /// <summary>
@@ -220,20 +175,20 @@
         /// Deeply clones a <see cref="TraceTelemetry"/> object.
         /// </summary>
         /// <returns>A cloned instance.</returns>
-        public override ITelemetry DeepClone()
+        public ITelemetry DeepClone()
         {
             return new TraceTelemetry(this);
         }
 
         /// <inheritdoc/>
-        public override void SerializeData(ISerializationWriter serializationWriter)
+        public void SerializeData(ISerializationWriter serializationWriter)
         {
             if (serializationWriter == null)
             {
                 throw new ArgumentNullException(nameof(serializationWriter));
             }
 
-            serializationWriter.WriteProperty(this.Data);            
+            serializationWriter.WriteProperty(this.Data);
         }
 
         /// <summary>

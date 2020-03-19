@@ -169,24 +169,35 @@ Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt.Platform = 2 -> M
 Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt.Unhandled = 0 -> Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt
 Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt.UserCode = 1 -> Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Exception.get -> System.Exception
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Exception.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ExceptionDetailsInfoList.get -> System.Collections.Generic.IReadOnlyList<Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo>
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ExceptionTelemetry() -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ExceptionTelemetry(System.Collections.Generic.IEnumerable<Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo> exceptionDetailsInfoList, Microsoft.ApplicationInsights.DataContracts.SeverityLevel? severityLevel, string problemId, System.Collections.Generic.IDictionary<string, string> properties, System.Collections.Generic.IDictionary<string, double> measurements) -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ExceptionTelemetry(System.Exception exception) -> void
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Extension.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.HandledAt.get -> Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.HandledAt.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Message.get -> string
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Message.set -> void
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Metrics.get -> System.Collections.Generic.IDictionary<string, double>
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ProactiveSamplingDecision.get -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ProactiveSamplingDecision.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ProblemId.get -> string
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ProblemId.set -> void
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Properties.get -> System.Collections.Generic.IDictionary<string, string>
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Sequence.get -> string
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Sequence.set -> void
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.SerializeData(Microsoft.ApplicationInsights.Extensibility.ISerializationWriter serializationWriter) -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.SetParsedStack(System.Diagnostics.StackFrame[] frames) -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.SeverityLevel.get -> Microsoft.ApplicationInsights.DataContracts.SeverityLevel?
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.SeverityLevel.set -> void
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Timestamp.get -> System.DateTimeOffset
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Timestamp.set -> void
 Microsoft.ApplicationInsights.DataContracts.IJsonWriter
 Microsoft.ApplicationInsights.DataContracts.IJsonWriter.WriteComma() -> void
 Microsoft.ApplicationInsights.DataContracts.IJsonWriter.WriteEndArray() -> void
@@ -400,13 +411,23 @@ Microsoft.ApplicationInsights.DataContracts.TelemetryContext.TelemetryContext() 
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.TryGetRawObject(string key, out object rawObject) -> bool
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.User.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Extension.set -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Message.get -> string
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Message.set -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.ProactiveSamplingDecision.get -> Microsoft.ApplicationInsights.DataContracts.SamplingDecision
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.ProactiveSamplingDecision.set -> void
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Properties.get -> System.Collections.Generic.IDictionary<string, string>
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Sequence.get -> string
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Sequence.set -> void
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.SerializeData(Microsoft.ApplicationInsights.Extensibility.ISerializationWriter serializationWriter) -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.SeverityLevel.get -> Microsoft.ApplicationInsights.DataContracts.SeverityLevel?
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.SeverityLevel.set -> void
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Timestamp.get -> System.DateTimeOffset
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Timestamp.set -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.TraceTelemetry() -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.TraceTelemetry(string message) -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.TraceTelemetry(string message, Microsoft.ApplicationInsights.DataContracts.SeverityLevel severityLevel) -> void
