@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics
 {
     using System;
+    using System.Globalization;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
 
@@ -18,7 +19,7 @@
             if (trace != null)
             {
                 var sevLevel = (int)trace.SeverityLevel.GetValueOrDefault();
-                return sevLevel.ToString();
+                return sevLevel.ToString(CultureInfo.InvariantCulture);
             }
             else
             {
