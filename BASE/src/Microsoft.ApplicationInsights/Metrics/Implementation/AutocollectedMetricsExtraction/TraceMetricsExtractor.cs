@@ -34,7 +34,7 @@
         /// <summary>
         /// Extracted metric.
         /// </summary>
-        private Metric traceDurationMetric = null;
+        private Metric traceCountMetric = null;
         private bool isInitialized = false;
         private List<IDimensionExtractor> dimensionExtractors = new List<IDimensionExtractor>();
 
@@ -65,7 +65,7 @@
         {
             if (metricTelemetryClient == null)
             {
-                this.traceDurationMetric = null;
+                this.traceCountMetric = null;
                 return;
             }
 
@@ -111,7 +111,7 @@
                                     MetricTerms.Autocollection.Metric.TraceCount.Name,
                                     dimensionNames);
 
-                        this.traceDurationMetric = metricTelemetryClient.GetMetric(
+                        this.traceCountMetric = metricTelemetryClient.GetMetric(
                                                                     metricIdentifier: metricIdentifier,
                                                                     metricConfiguration: config,
                                                                     aggregationScope: MetricAggregationScope.TelemetryClient);
@@ -131,11 +131,11 @@
             }
 
             //// If there is no Metric, then this extractor has not been properly initialized yet:
-            if (this.traceDurationMetric == null)
+            if (this.traceCountMetric == null)
             {
                 //// This should be caught and properly logged by the base class:
                 throw new InvalidOperationException(Invariant($"Cannot execute {nameof(this.ExtractMetrics)}.")
-                                                  + Invariant($" There is no {nameof(this.traceDurationMetric)}.")
+                                                  + Invariant($" There is no {nameof(this.traceCountMetric)}.")
                                                   + Invariant($" Either this metrics extractor has not been initialized, or it has been disposed."));
             }
 
@@ -158,7 +158,7 @@
                 }
             }
 
-            CommonHelper.TrackValueHelper(this.traceDurationMetric, default, dimValues);
+            CommonHelper.TrackValueHelper(this.traceCountMetric, default, dimValues);
             isItemProcessed = true;
         }
     }
