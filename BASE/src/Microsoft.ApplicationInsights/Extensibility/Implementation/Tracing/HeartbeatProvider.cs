@@ -152,7 +152,7 @@
             get => this.disabledDefaultFields;
         }
 
-        internal Timer HeartbeatTimer { get; set; } // timer that will send each heartbeat in intervals
+        private Timer HeartbeatTimer { get; set; } // timer that will send each heartbeat in intervals
 
         public void Initialize(TelemetryConfiguration configuration)
         {
