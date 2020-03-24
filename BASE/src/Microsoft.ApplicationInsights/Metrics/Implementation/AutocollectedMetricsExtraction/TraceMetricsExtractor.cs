@@ -9,7 +9,7 @@
 
     /// <summary>
     /// An instance of this class is contained within the <see cref="AutocollectedMetricsExtractor"/> telemetry processor.
-    /// It extracts auto-collected, pre-aggregated (aka. "standard") metrics from TraceTelemetry objects which represent
+    /// It extracts auto-collected, pre-aggregated metrics from TraceTelemetry objects which represent
     /// invocations of the monitored service.
     /// </summary>
     internal class TraceMetricsExtractor : ISpecificAutocollectedMetricsExtractor
@@ -158,7 +158,7 @@
                 }
             }
 
-            CommonHelper.TrackValueHelper(this.traceCountMetric, default, dimValues);
+            CommonHelper.TrackValueHelper(this.traceCountMetric, 1, dimValues);
             isItemProcessed = true;
         }
     }

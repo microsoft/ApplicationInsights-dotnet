@@ -9,7 +9,7 @@
 
     /// <summary>
     /// An instance of this class is contained within the <see cref="AutocollectedMetricsExtractor"/> telemetry processor.
-    /// It extracts auto-collected, pre-aggregated (aka. "standard") metrics from ExceptionTelemetry objects which represent
+    /// It extracts auto-collected, pre-aggregated metrics from ExceptionTelemetry objects which represent
     /// invocations of the monitored service.
     /// </summary>
     internal class ExceptionMetricsExtractor : ISpecificAutocollectedMetricsExtractor
@@ -146,7 +146,7 @@
                 }
             }
 
-            CommonHelper.TrackValueHelper(this.exceptionServerMetric, default, dimValues);
+            CommonHelper.TrackValueHelper(this.exceptionServerMetric, 1, dimValues);
             isItemProcessed = true;
         }
     }
