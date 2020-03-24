@@ -1,6 +1,7 @@
 ﻿# Changelog
 
 ## VNext
+- [Fix: Disabling HeartBeats in Asp.Net Core projects causes Error traces every heart beat interval (15 minutes defualt)](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1681)
 - [Standard Metric extractor (Exception,Trace) populates all standard dimensions.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1738)
 
 ## Version 2.14.0-beta3
