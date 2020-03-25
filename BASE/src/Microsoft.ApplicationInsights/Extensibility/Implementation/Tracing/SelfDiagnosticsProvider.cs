@@ -23,11 +23,11 @@
         /// <returns>A dictionary parsed from the input configuration string.</returns>
         internal static Dictionary<string, string> ParseConfigurationString(string configurationString)
         {
-            var keyVaulePairs = ConfigStringParser.Parse(configurationString, configName: "Self-Diagnostics Configuration String");
+            var keyValuePairs = ConfigStringParser.Parse(configurationString, configName: "Self-Diagnostics Configuration String");
 
-            if (keyVaulePairs.ContainsKey(KeyDestination))
+            if (keyValuePairs.ContainsKey(KeyDestination))
             {
-                return keyVaulePairs;
+                return keyValuePairs;
             }
             else
             {
@@ -41,15 +41,13 @@
         /// <param name="keyValuePairs">The keyvalue pairs from the config string.</param>
         /// <param name="path">File directory for logging.</param>
         /// <param name="level">Log level.</param>
-        /// <param name="maxSize">Max size of file log.</param>
         /// <returns>Returns true if file has been specified in config string.</returns>
-        internal static bool IsFileDiagnostics(Dictionary<string, string> keyValuePairs, out string path, out string level, out string maxSize)
+        internal static bool IsFileDiagnostics(Dictionary<string, string> keyValuePairs, out string path, out string level)
         {
             if (keyValuePairs[KeyDestination].Equals(ValueDestinationFile, StringComparison.OrdinalIgnoreCase))
             {
                 TryGetValueWithDefault(keyValuePairs, key: KeyFilePath, defaultValue: "%TEMP%", value: out path);
                 TryGetValueWithDefault(keyValuePairs, key: KeyLevel, defaultValue: "Verbose", value: out level);
-                TryGetValueWithDefault(keyValuePairs, key: KeyFileMaxSize, defaultValue: "20", value: out maxSize);
 
                 return true;
             }

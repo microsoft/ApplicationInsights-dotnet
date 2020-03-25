@@ -134,7 +134,7 @@
             {
                 var keyValuePairs = SelfDiagnosticsProvider.ParseConfigurationString(selfDiagnosticsConfigurationString);
 
-                if (SelfDiagnosticsProvider.IsFileDiagnostics(keyValuePairs, out string path, out string level, out string maxSize))
+                if (SelfDiagnosticsProvider.IsFileDiagnostics(keyValuePairs, out string path, out string level))
                 {
                     var module = modules?.Modules.SingleOrDefault(x => x is FileDiagnosticsTelemetryModule);
                     if (module != null)

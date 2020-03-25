@@ -24,7 +24,7 @@
         /// <param name="configName">Name of the config string that is being parsed. This is used for error messages.</param>
         /// <returns>Returns a dictionary of Key/Value pairs. Keys are not case sensitive.</returns>
         /// <remarks>This is used by both Connection Strings and Self-Diagnostics configuration.</remarks>
-        public static Dictionary<string, string> Parse(string configString, string configName)
+        public static IDictionary<string, string> Parse(string configString, string configName)
         {
             if (configString == null)
             {
