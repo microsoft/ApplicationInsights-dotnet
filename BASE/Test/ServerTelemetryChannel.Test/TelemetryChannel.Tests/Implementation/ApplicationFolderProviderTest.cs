@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System.Collections;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq; 
     using System.Security.AccessControl;
@@ -319,6 +320,8 @@
         private DirectoryInfo CreateTestDirectory(string path, FileSystemRights rights = FileSystemRights.FullControl, AccessControlType access = AccessControlType.Allow)
         {
             DirectoryInfo directory = this.testDirectory.CreateSubdirectory(path);
+            Assert.IsTrue(Directory.Exists(directory.FullName), $"failed to create test directory: {directory.FullName}");
+
             DirectorySecurity security = directory.GetAccessControl();
             security.AddAccessRule(new FileSystemAccessRule(WindowsIdentity.GetCurrent().Name, rights, access));
             directory.SetAccessControl(security);
