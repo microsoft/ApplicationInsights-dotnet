@@ -291,29 +291,6 @@
         }
 
         /// <summary>
-        /// Gets or sets the maximum distinct values for SeverityLevel for Trace telemetry.
-        /// Values encountered after this limit is hit will be collapsed into a single value DIMENSION_CAPPED.
-        /// Setting 0 will all values to be replaced with a single value "Other".
-        /// </summary>
-        public int MaxTraceSeverityLevelValuesToDiscover
-        {
-            get
-            {
-                return this.extractorForTraceMetrics.MaxTraceSeverityLevelValuesToDiscover;
-            }
-
-            set
-            {
-                if (value < 0)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(value), value, "MaxTraceSeverityLevelValuesToDiscover value may not be negative.");
-                }
-
-                this.extractorForTraceMetrics.MaxTraceSeverityLevelValuesToDiscover = value;
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the maximum distinct values for CloudRoleInstance for Request telemetry.
         /// Values encountered after this limit is hit will be collapsed into a single value DIMENSION_CAPPED.
         /// Setting 0 will all values to be replaced with a single value "Other".

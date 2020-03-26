@@ -115,6 +115,7 @@
                 {
                     public const string DimensionCapFallbackValue = "DIMENSION-CAPPED";
                     public const string Unknown = "Unknown";
+                    public const string Unspecified = "Unspecified";
                     public const string Other = "Other";
                 }
             }

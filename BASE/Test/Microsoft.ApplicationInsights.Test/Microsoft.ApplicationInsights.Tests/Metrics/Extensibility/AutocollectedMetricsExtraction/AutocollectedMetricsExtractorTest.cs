@@ -1223,68 +1223,6 @@
         }
 
         [TestMethod]
-        public void Trace_TelemetryRespectsDimLimitSeverityLevel()
-        {
-            List<ITelemetry> telemetrySentToChannel = new List<ITelemetry>();
-            Func<ITelemetryProcessor, AutocollectedMetricsExtractor> extractorFactory =
-                (nextProc) => {
-                    var metricExtractor = new AutocollectedMetricsExtractor(nextProc);
-                    metricExtractor.MaxTraceSeverityLevelValuesToDiscover = 0;
-                    return metricExtractor;
-                };
-
-            TelemetryConfiguration telemetryConfig = CreateTelemetryConfigWithExtractor(telemetrySentToChannel, extractorFactory);
-            using (telemetryConfig)
-            {
-                TelemetryClient client = new TelemetryClient(telemetryConfig);
-                // Track 3 traces with 3 different values for Severity Level - Error, Critical, Verbose.
-                // As MaxTraceSeverityLevelValuesToDiscover = 0, we expect all severity level to be rolled into Other
-                client.TrackTrace("Test 1", SeverityLevel.Error);
-                client.TrackTrace("Test 2", SeverityLevel.Critical);
-                client.TrackTrace("Test 3", SeverityLevel.Verbose);
-            }
-
-            Assert.AreEqual(4, telemetrySentToChannel.Count);
-
-            AssertEx.IsType<TraceTelemetry>(telemetrySentToChannel[0]);
-            Assert.AreEqual("Test 1", ((TraceTelemetry)telemetrySentToChannel[0]).Message);
-            Assert.AreEqual(true, ((TraceTelemetry)telemetrySentToChannel[0]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
-            Assert.AreEqual("(Name:'Traces', Ver:'1.1')",
-                         ((TraceTelemetry)telemetrySentToChannel[0]).Properties["_MS.ProcessedByMetricExtractors"]);
-
-            AssertEx.IsType<TraceTelemetry>(telemetrySentToChannel[1]);
-            Assert.AreEqual("Test 2", ((TraceTelemetry)telemetrySentToChannel[1]).Message);
-            Assert.AreEqual(true, ((TraceTelemetry)telemetrySentToChannel[1]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
-            Assert.AreEqual("(Name:'Traces', Ver:'1.1')",
-                         ((TraceTelemetry)telemetrySentToChannel[1]).Properties["_MS.ProcessedByMetricExtractors"]);
-
-            AssertEx.IsType<TraceTelemetry>(telemetrySentToChannel[2]);
-            Assert.AreEqual("Test 3", ((TraceTelemetry)telemetrySentToChannel[2]).Message);
-            Assert.AreEqual(true, ((TraceTelemetry)telemetrySentToChannel[2]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
-            Assert.AreEqual("(Name:'Traces', Ver:'1.1')",
-                         ((TraceTelemetry)telemetrySentToChannel[2]).Properties["_MS.ProcessedByMetricExtractors"]);
-
-            AssertEx.IsType<MetricTelemetry>(telemetrySentToChannel[3]);
-            var metricTel = telemetrySentToChannel[3] as MetricTelemetry;
-            // validate standard fields
-            Assert.IsTrue(metricTel.Properties.ContainsKey("_MS.AggregationIntervalMs"));
-            Assert.IsTrue(metricTel.Context.GlobalProperties.ContainsKey("_MS.IsAutocollected"));
-            Assert.AreEqual("True", metricTel.Context.GlobalProperties["_MS.IsAutocollected"]);
-            Assert.IsTrue(metricTel.Context.GlobalProperties.ContainsKey("_MS.MetricId"));
-            Assert.AreEqual("traces/count", metricTel.Context.GlobalProperties["_MS.MetricId"]);
-
-            // validate dimensions exist
-            Assert.AreEqual(true, metricTel.Properties.ContainsKey("trace/severityLevel"));
-            Assert.AreEqual(true, metricTel.Properties.ContainsKey("cloud/roleInstance"));
-            Assert.AreEqual(true, metricTel.Properties.ContainsKey("cloud/roleName"));
-            Assert.AreEqual(true, metricTel.Properties.ContainsKey("operation/synthetic"));
-
-            var resultCodeDimension = metricTel.Properties["trace/severityLevel"];
-            // As MaxTraceSeverityLevelValuesToDiscover = 0, we expect all severity level to be rolled into Other
-            Assert.AreEqual("Other", resultCodeDimension);
-        }
-
-        [TestMethod]
         public void Trace_TelemetryRespectsDimLimitCloudRoleInstance()
         {
             List<ITelemetry> telemetrySentToChannel = new List<ITelemetry>();
@@ -1542,7 +1480,6 @@
         public void Trace_DefaultDimensionLimitsValidation()
         {
             var traceExtractor = new TraceMetricsExtractor();
-            Assert.AreEqual(5, traceExtractor.MaxTraceSeverityLevelValuesToDiscover);
             Assert.AreEqual(2, traceExtractor.MaxCloudRoleNameValuesToDiscover);
             Assert.AreEqual(2, traceExtractor.MaxCloudRoleInstanceValuesToDiscover);
         }

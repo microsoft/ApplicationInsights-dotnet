@@ -15,11 +15,6 @@
     internal class TraceMetricsExtractor : ISpecificAutocollectedMetricsExtractor
     {
         /// <summary>
-        /// The default value for the <see cref="MaxTraceSeverityLevelValuesToDiscover"/> property.        
-        /// </summary>
-        public const int MaxTraceSeverityLevelValuesToDiscoverDefault = 5;
-
-        /// <summary>
         /// The default value for the <see cref="MaxCloudRoleInstanceValuesToDiscover"/> property.
         /// </summary>
         public const int MaxCloudRoleInstanceValuesToDiscoverDefault = 2;
@@ -47,11 +42,6 @@
         public string ExtractorVersion { get; } = "1.1";
 
         /// <summary>
-        /// Gets or sets the maximum number of auto-discovered trace types.
-        /// </summary>
-        public int MaxTraceSeverityLevelValuesToDiscover { get; set; } = MaxTraceSeverityLevelValuesToDiscoverDefault;
-
-        /// <summary>
         /// Gets or sets the maximum number of auto-discovered Cloud RoleInstance values.
         /// </summary>
         public int MaxCloudRoleInstanceValuesToDiscover { get; set; } = MaxCloudRoleInstanceValuesToDiscoverDefault;
@@ -76,7 +66,7 @@
                     if (!this.isInitialized)
                     {
                         this.dimensionExtractors.Add(new TraceMetricIdDimensionExtractor());
-                        this.dimensionExtractors.Add(new TraceSeverityLevelDimensionExtractor() { MaxValues = this.MaxTraceSeverityLevelValuesToDiscover });
+                        this.dimensionExtractors.Add(new TraceSeverityLevelDimensionExtractor());
                         this.dimensionExtractors.Add(new SyntheticDimensionExtractor());                      
                         this.dimensionExtractors.Add(new CloudRoleInstanceDimensionExtractor() { MaxValues = this.MaxCloudRoleInstanceValuesToDiscover });
                         this.dimensionExtractors.Add(new CloudRoleNameDimensionExtractor() { MaxValues = this.MaxCloudRoleNameValuesToDiscover });
