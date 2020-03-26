@@ -157,19 +157,22 @@
         {
             string longName = new string('A', 238 - this.testDirectory.FullName.Length);
 
+            // Setup unit test directories
             DirectoryInfo localAppData = this.CreateTestDirectory(longName);
             DirectoryInfo temp = this.CreateTestDirectory("Temp");
+
+            // Initialize ApplicationfolderProvider
             var environmentVariables = new Hashtable 
             { 
                 { "LOCALAPPDATA", localAppData.FullName },
                 { "TEMP", temp.FullName },
             };
             var provider = new ApplicationFolderProvider(environmentVariables);
-
             IPlatformFolder applicationFolder = provider.GetApplicationFolder();
 
+            // Evaluate
             Assert.IsNotNull(applicationFolder);
-            Assert.AreEqual(1, temp.GetDirectories().Length);
+            Assert.AreEqual(1, temp.GetDirectories().Length, "subdirectories were not created");
 
             localAppData.Delete(true);
             temp.Delete(true);
