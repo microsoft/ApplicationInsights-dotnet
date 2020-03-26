@@ -1,6 +1,7 @@
 ﻿# Changelog
 
 ## VNext
+- [Fix: Disabling HeartBeats in Asp.Net Core projects causes Error traces every heart beat interval (15 minutes defualt)](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1681)
 
 ## Version 2.14.0-beta3
 - [New: JavaScript Property to support Content Security Policy](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1443)
