@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System.Collections;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq; 
     using System.Security.AccessControl;
@@ -154,23 +155,25 @@
         [TestCategory("WindowsOnly")]
         public void GetApplicationFolderReturnsSubfolderFromTempFolderIfLocalAppDataIsTooLong()
         {
-            string longName = new string('A', 238 - this.testDirectory.FullName.Length);
-
-            DirectoryInfo localAppData = this.CreateTestDirectory(longName);
+            // For reasons i don't understand, DotNetCore is able to create longer directory names. I've increased the length of this test path to guarantee that it fails.
+            string longDirectoryName = Path.Combine(this.testDirectory.FullName, new string('A', 300)); //Windows has a max directory length of 248 characters.
             DirectoryInfo temp = this.CreateTestDirectory("Temp");
+
+            // Initialize ApplicationfolderProvider
             var environmentVariables = new Hashtable 
             { 
-                { "LOCALAPPDATA", localAppData.FullName },
+                { "LOCALAPPDATA", longDirectoryName },
                 { "TEMP", temp.FullName },
             };
             var provider = new ApplicationFolderProvider(environmentVariables);
-
             IPlatformFolder applicationFolder = provider.GetApplicationFolder();
 
+            // Evaluate
             Assert.IsNotNull(applicationFolder);
-            Assert.AreEqual(1, temp.GetDirectories().Length);
+            Assert.IsFalse(Directory.Exists(longDirectoryName), "TEST ERROR: This directory should not be created.");
+            Assert.IsTrue(Directory.Exists(temp.FullName), "TEST ERROR: This directory should be created.");
+            Assert.AreEqual(1, temp.GetDirectories().Length, "TEST FAIL: TEMP subdirectories were not created");
 
-            localAppData.Delete(true);
             temp.Delete(true);
         }
 
