@@ -62,6 +62,7 @@
                 object localAppData = this.environment["LOCALAPPDATA"];
                 if (localAppData != null)
                 {
+                    System.Console.WriteLine("Attempt to create localAppData directory...");
                     result = this.CreateAndValidateApplicationFolder(localAppData.ToString(), createSubFolder: true, errors: errors);
                 }
             }
@@ -71,13 +72,14 @@
                 object temp = this.environment["TEMP"];
                 if (temp != null)
                 {
+                    System.Console.WriteLine("Attempt to create TEMP directory...");
                     result = this.CreateAndValidateApplicationFolder(temp.ToString(), createSubFolder: true, errors: errors);
                 }
             }
 
             if (result == null)
             {
-                Debug.WriteLine("ApplicationfolderProvider unable to create directories.");
+                System.Console.WriteLine("ApplicationfolderProvider unable to create directories.");
                 TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedError(string.Join(Environment.NewLine, errors), this.identityProvider.GetName(), this.customFolderName);
             }
 
@@ -95,6 +97,7 @@
 
         private static string GetPathAccessFailureErrorMessage(Exception exp, string path)
         {
+            System.Console.WriteLine("Error {0} {1}", exp.ToString(), path);
             return "Path: " + path + "; Error: " + exp.Message + Environment.NewLine;
         }
 
