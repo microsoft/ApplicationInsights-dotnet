@@ -155,20 +155,20 @@
         [TestCategory("WindowsOnly")]
         public void GetApplicationFolderReturnsSubfolderFromTempFolderIfLocalAppDataIsTooLong()
         {
-            string longName = new string('A', 238 - this.testDirectory.FullName.Length);
+            string longDirectoryName = Path.Combine(this.testDirectory.FullName, new string('A', 500)); //Windows has a max directory length of 248 characters.
 
-            // Setup unit test directories
-            DirectoryInfo localAppData = this.CreateTestDirectory(longName);
             DirectoryInfo temp = this.CreateTestDirectory("Temp");
 
             //TODO PRINT FULL FOLDER PATHS
-            System.Console.WriteLine($"LocalAppData: {localAppData.FullName}");
+            //System.Console.WriteLine($"LocalAppData: {localAppData.FullName}");
+            System.Console.WriteLine($"LocalAppData: {longDirectoryName}");
             System.Console.WriteLine($"Temp: {temp.FullName}");
 
             // Initialize ApplicationfolderProvider
             var environmentVariables = new Hashtable 
             { 
-                { "LOCALAPPDATA", localAppData.FullName },
+                //{ "LOCALAPPDATA", localAppData.FullName },
+                { "LOCALAPPDATA", longDirectoryName },
                 { "TEMP", temp.FullName },
             };
             var provider = new ApplicationFolderProvider(environmentVariables);
@@ -176,9 +176,12 @@
 
             // Evaluate
             Assert.IsNotNull(applicationFolder);
-            Assert.AreEqual(1, temp.GetDirectories().Length, "subdirectories were not created");
+            Assert.IsFalse(Directory.Exists(longDirectoryName));
+            Assert.IsTrue(Directory.Exists(temp.FullName));
+            //Assert.AreEqual(0, localAppData.GetDirectories().Length, "TEST ERROR: localAppData subdirectories were not expected.");
+            Assert.AreEqual(1, temp.GetDirectories().Length, "TEST FAIL: TEMP subdirectories were not created");
 
-            localAppData.Delete(true);
+            //localAppData.Delete(true);
             temp.Delete(true);
         }
 
@@ -326,6 +329,12 @@
 
         private DirectoryInfo CreateTestDirectory(string path, FileSystemRights rights = FileSystemRights.FullControl, AccessControlType access = AccessControlType.Allow)
         {
+            var testPath = Path.Combine(this.testDirectory.FullName, path);
+            if (Directory.Exists(testPath))
+            {
+                Directory.Delete(testPath);
+            }
+
             DirectoryInfo directory = this.testDirectory.CreateSubdirectory(path);
             Assert.IsTrue(Directory.Exists(directory.FullName), $"failed to create test directory: {directory.FullName}");
 
