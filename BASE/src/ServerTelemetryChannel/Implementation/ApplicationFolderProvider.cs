@@ -77,6 +77,7 @@
 
             if (result == null)
             {
+                Debug.WriteLine("ApplicationfolderProvider unable to create directories.");
                 TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedError(string.Join(Environment.NewLine, errors), this.identityProvider.GetName(), this.customFolderName);
             }
 

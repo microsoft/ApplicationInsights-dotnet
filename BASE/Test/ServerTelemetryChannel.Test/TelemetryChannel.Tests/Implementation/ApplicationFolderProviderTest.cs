@@ -161,6 +161,10 @@
             DirectoryInfo localAppData = this.CreateTestDirectory(longName);
             DirectoryInfo temp = this.CreateTestDirectory("Temp");
 
+            //TODO PRINT FULL FOLDER PATHS
+            System.Console.WriteLine($"LocalAppData: {localAppData.FullName}");
+            System.Console.WriteLine($"Temp: {temp.FullName}");
+
             // Initialize ApplicationfolderProvider
             var environmentVariables = new Hashtable 
             { 
