@@ -10,7 +10,7 @@
     /// <summary>
     /// An instance of this class is contained within the <see cref="AutocollectedMetricsExtractor"/> telemetry processor.
     /// It extracts auto-collected, pre-aggregated metrics from TraceTelemetry objects which represent
-    /// invocations of the monitored service.
+    /// count of Trace telemetry tracked in this service.
     /// </summary>
     internal class TraceMetricsExtractor : ISpecificAutocollectedMetricsExtractor
     {
