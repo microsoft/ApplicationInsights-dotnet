@@ -529,8 +529,10 @@
                     Assert.AreEqual(client.InstrumentationKey, actualEvent.Payload[0]);
 #if !NET45
                     // adding logging to confirm what executable is being tested.
-                    var test = AppDomain.CurrentDomain.GetAssemblies().Single(x => x.GetName().Name == "Microsoft.ApplicationInsights").GetName().Version.ToString();
-                    Console.WriteLine($"SDK Version: {test}");
+                    var sdkAssembly = AppDomain.CurrentDomain.GetAssemblies().Single(x => x.GetName().Name == "Microsoft.ApplicationInsights");
+                    var sdkVersion = sdkAssembly.GetName().Version.ToString();
+                    Console.WriteLine($"SDK Assembly: {sdkAssembly.Location}");
+                    Console.WriteLine($"SDK Version: {sdkVersion}");
                     Assert.AreEqual(ServiceProfilerNameContracts[item.GetType()], actualEvent.EventName, $"ItemType: '{item.GetType().Name}' ServiceProfilerName: '{ServiceProfilerNameContracts[item.GetType()]}' does not match EventName: '{actualEvent.EventName}'");
 #endif
 
