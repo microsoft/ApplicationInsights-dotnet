@@ -3,6 +3,7 @@
     using System;
     using System.Diagnostics;
     using System.Globalization;
+
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
@@ -47,7 +48,7 @@
         {
             try
             {
-                var resourceName = GetResourceName(dataSource, database, commandText);
+                var resourceName = GetResourceName(dataSource, database);
 
                 DependencyCollectorEventSource.Log.BeginCallbackCalled(id, resourceName);
 
@@ -112,24 +113,16 @@
         }
 
         #endregion
-        
+
         /// <summary>
         /// Gets SQL command resource name.
         /// </summary>
         /// <param name="dataSource">DataSource name.</param>
         /// <param name="database">Database name.</param>
-        /// <param name="commandText">CommandText name.</param>        
         /// <returns>The resource name if possible otherwise empty string.</returns>
-        private static string GetResourceName(string dataSource, string database, string commandText)
+        private static string GetResourceName(string dataSource, string database)
         {
-            if (!string.IsNullOrEmpty(commandText))
-            {
-                return commandText;
-            }
-            else
-            {
-                return string.Format(CultureInfo.InvariantCulture, "{0} | {1}", dataSource, database);
-            }
+            return string.Format(CultureInfo.InvariantCulture, "{0} | {1}", dataSource, database);
         }
     }
 }
