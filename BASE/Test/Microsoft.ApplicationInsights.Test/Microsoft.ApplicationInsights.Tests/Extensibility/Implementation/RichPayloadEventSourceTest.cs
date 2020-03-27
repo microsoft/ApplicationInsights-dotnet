@@ -531,7 +531,7 @@
                     // adding logging to confirm what executable is being tested.
                     var test = AppDomain.CurrentDomain.GetAssemblies().Single(x => x.GetName().Name == "Microsoft.ApplicationInsights").GetName().Version.ToString();
                     Console.WriteLine($"SDK Version: {test}");
-                    Assert.AreEqual(ServiceProfilerNameContracts[item.GetType()], actualEvent.EventName, $"ItemType {item.GetType()} ServiceProfilerName {ServiceProfilerNameContracts[item.GetType()]} does not match EventName {actualEvent.EventName}");
+                    Assert.AreEqual(ServiceProfilerNameContracts[item.GetType()], actualEvent.EventName, $"ItemType: '{item.GetType().Name}' ServiceProfilerName: '{ServiceProfilerNameContracts[item.GetType()]}' does not match EventName: '{actualEvent.EventName}'");
 #endif
 
                     int keysFound = 0;

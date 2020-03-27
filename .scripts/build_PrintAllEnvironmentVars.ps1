@@ -12,5 +12,8 @@ write-output $out
 Write-Host "`nDocker:";
 Docker --version
 
-Write-Host "`nDotNet List SDKs:";
+Write-Host "DotNet Framework:"
+Get-ItemProperty "HKLM:SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full"
+
+Write-Host "`nDotNet Core List SDKs:";
 dotnet --list-sdks
