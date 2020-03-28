@@ -12,56 +12,17 @@ namespace Microsoft.ApplicationInsights.TestFramework.BuildInfra
         [TestMethod]
         public void VerifyAssemblyDirectoryContainsFrameworkName()
         {
-            string frameworkDirectoryName = null;
-
-#if NET45
-            frameworkDirectoryName = "net45";
-#elif NET46
-            frameworkDirectoryName = "net46";
-#elif NETCOREAPP1_1
-            frameworkDirectoryName = "netcoreapp1.1";
-#elif NETCOREAPP2_0
-            frameworkDirectoryName = "netcoreapp2.0";
-#elif NETCOREAPP3_0
-            frameworkDirectoryName = "netcoreapp3.0";
-#else
-            throw new Exception("unconfigured test");
-#endif
-
+            var frameworkDirectoryName = GetExpectedFrameworkDirectoryName();
             var testAssembly = GetTestAssembly();
-            var sdkAssembly = GetBaseSdkAssembly();
-            PrintInfoToConsole(testAssembly: testAssembly, sdkAssembly: sdkAssembly);
 
             Assert.IsTrue(testAssembly.Location.Contains(frameworkDirectoryName));
-            Assert.IsTrue(sdkAssembly.Location.Contains(frameworkDirectoryName));
         }
-
-        private Assembly GetBaseSdkAssembly()
-        {
-#if NETCOREAPP1_1
-            return typeof(TelemetryClient).GetTypeInfo().Assembly;
-#else
-            return AppDomain.CurrentDomain.GetAssemblies().Single(x => x.GetName().Name == "Microsoft.ApplicationInsights");
-#endif
-        }
-
-        private Assembly GetTestAssembly()
-        {
-
-#if NETCOREAPP1_1
-            return typeof(InspectBuildInfraTests).GetTypeInfo().Assembly;
-#else
-            return Assembly.GetExecutingAssembly();
-#endif
-        }
-
 
         [TestMethod]
         public void VerifyCorrectAssemblyDirectories()
         {
             var testAssembly = GetTestAssembly();
             var sdkAssembly = GetBaseSdkAssembly();
-            PrintInfoToConsole(testAssembly: testAssembly, sdkAssembly: sdkAssembly);
 
 
             var testDirectoryInfo = new DirectoryInfo(testAssembly.Location);
@@ -73,14 +34,50 @@ namespace Microsoft.ApplicationInsights.TestFramework.BuildInfra
             Assert.AreEqual(testDirectory.FullName, sdkDirectory.FullName);
         }
 
-
-        private void PrintInfoToConsole(Assembly testAssembly, Assembly sdkAssembly)
+        private string GetExpectedFrameworkDirectoryName()
         {
-            Console.WriteLine($"Test Assembly: {testAssembly.Location}");
-            Console.WriteLine($"SDK Assembly: {sdkAssembly.Location}");
+#if NET45
+            return "net45";
+#elif NET46
+            return "net46";
+#elif NETCOREAPP1_1
+            return "netcoreapp1.1";
+#elif NETCOREAPP2_0
+            return "netcoreapp2.0";
+#elif NETCOREAPP3_0
+            return "netcoreapp3.0";
+#else
+            throw new Exception("unconfigured test");
+#endif
+        }
 
-            var sdkVersion = sdkAssembly.GetName().Version.ToString();
+        private Assembly GetBaseSdkAssembly()
+        {
+#if NETCOREAPP1_1
+            Assembly assembly = typeof(TelemetryClient).GetTypeInfo().Assembly;
+#else
+            Assembly assembly = AppDomain.CurrentDomain.GetAssemblies().Single(x => x.GetName().Name == "Microsoft.ApplicationInsights");
+#endif
+
+            Console.WriteLine($"SDK Assembly: {assembly.Location}");
+            var sdkVersion = assembly.GetName().Version.ToString();
             Console.WriteLine($"SDK Version: {sdkVersion}");
+
+            return assembly;
+        }
+
+        private Assembly GetTestAssembly()
+        {
+
+#if NETCOREAPP1_1
+            Assembly assembly = typeof(InspectBuildInfraTests).GetTypeInfo().Assembly;
+#else
+            Assembly assembly = Assembly.GetExecutingAssembly();
+#endif
+
+            Console.WriteLine($"Test Assembly: {assembly.Location}");
+
+            return assembly;
         }
     }
 }
