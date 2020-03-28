@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -9,7 +10,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.BuildInfra
     public class InspectBuildInfraTests
     {
         [TestMethod]
-        public void VerifyCorrectAssemblies()
+        public void VerifyAssemblyDirectoryContainsFrameworkName()
         {
             string frameworkDirectoryName = null;
 
@@ -29,12 +30,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.BuildInfra
 
             var testAssembly = GetTestAssembly();
             var sdkAssembly = GetBaseSdkAssembly();
-
-            Console.WriteLine($"Test Assembly: {testAssembly.Location}");
-            Console.WriteLine($"SDK Assembly: {sdkAssembly.Location}");
-
-            var sdkVersion = sdkAssembly.GetName().Version.ToString();
-            Console.WriteLine($"SDK Version: {sdkVersion}");
+            PrintInfoToConsole(testAssembly: testAssembly, sdkAssembly: sdkAssembly);
 
             Assert.IsTrue(testAssembly.Location.Contains(frameworkDirectoryName));
             Assert.IsTrue(sdkAssembly.Location.Contains(frameworkDirectoryName));
@@ -59,5 +55,32 @@ namespace Microsoft.ApplicationInsights.TestFramework.BuildInfra
 #endif
         }
 
+
+        [TestMethod]
+        public void VerifyCorrectAssemblyDirectories()
+        {
+            var testAssembly = GetTestAssembly();
+            var sdkAssembly = GetBaseSdkAssembly();
+            PrintInfoToConsole(testAssembly: testAssembly, sdkAssembly: sdkAssembly);
+
+
+            var testDirectoryInfo = new DirectoryInfo(testAssembly.Location);
+            var testDirectory = testDirectoryInfo.Parent;
+
+            var sdkDirectoryInfo = new DirectoryInfo(sdkAssembly.Location);
+            var sdkDirectory = sdkDirectoryInfo.Parent;
+
+            Assert.AreEqual(testDirectory.FullName, sdkDirectory.FullName);
+        }
+
+
+        private void PrintInfoToConsole(Assembly testAssembly, Assembly sdkAssembly)
+        {
+            Console.WriteLine($"Test Assembly: {testAssembly.Location}");
+            Console.WriteLine($"SDK Assembly: {sdkAssembly.Location}");
+
+            var sdkVersion = sdkAssembly.GetName().Version.ToString();
+            Console.WriteLine($"SDK Version: {sdkVersion}");
+        }
     }
 }
