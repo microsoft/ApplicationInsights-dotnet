@@ -26,7 +26,7 @@
         private static readonly char[] TrimPeriod = new char[] { '.' };
 
         private string connectionString;
-        private Dictionary<string, string> connectionStringParsed = new Dictionary<string, string>(0);
+        private IDictionary<string, string> connectionStringParsed = new Dictionary<string, string>(0);
 
         /// <summary>
         /// Gets or sets the connection string. 
@@ -128,7 +128,7 @@
         /// </summary>
         /// <remarks>Example: "key1=value1;key2=value2;key3=value3".</remarks>
         /// <returns>A dictionary parsed from the input connection string.</returns>
-        internal static Dictionary<string, string> ParseConnectionString(string connectionString)
+        internal static IDictionary<string, string> ParseConnectionString(string connectionString)
         {
             return ConfigStringParser.Parse(connectionString, configName: "Connection String");
         }

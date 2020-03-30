@@ -5,15 +5,16 @@
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation.ConfigString;
 
+    using static System.FormattableString;
+
     /// <summary>
     /// This class encapsulates parsing and interpreting the self diagnostics configuration string.
     /// </summary>
     internal class SelfDiagnosticsProvider
     {
         private const string KeyDestination = "Destination";
-        private const string KeyFilePath = "Path";
+        private const string KeyFilePath = "Directory";
         private const string KeyLevel = "Level";
-        private const string KeyFileMaxSize = "MaxSize";
         private const string ValueDestinationFile = "file";
 
         /// <summary>
@@ -21,7 +22,7 @@
         /// </summary>
         /// <remarks>Example: "key1=value1;key2=value2;key3=value3".</remarks>
         /// <returns>A dictionary parsed from the input configuration string.</returns>
-        internal static Dictionary<string, string> ParseConfigurationString(string configurationString)
+        internal static IDictionary<string, string> ParseConfigurationString(string configurationString)
         {
             var keyValuePairs = ConfigStringParser.Parse(configurationString, configName: "Self-Diagnostics Configuration String");
 
@@ -31,18 +32,18 @@
             }
             else
             {
-                throw new Exception("Self-Diagnostics Configuration string is invalid. Missing key 'Destination'");
+                throw new Exception(Invariant($"Self-Diagnostics Configuration string is invalid. Missing key '{KeyDestination}'"));
             }
         }
 
         /// <summary>
-        /// Evaluates if the keyvalue pairs specifies writing to file. If so, parses and returns params.
+        /// Evaluates if the key-value pairs specifies writing to file. If so, parses and returns params.
         /// </summary>
-        /// <param name="keyValuePairs">The keyvalue pairs from the config string.</param>
+        /// <param name="keyValuePairs">The key-value pairs from the config string.</param>
         /// <param name="path">File directory for logging.</param>
         /// <param name="level">Log level.</param>
         /// <returns>Returns true if file has been specified in config string.</returns>
-        internal static bool IsFileDiagnostics(Dictionary<string, string> keyValuePairs, out string path, out string level)
+        internal static bool IsFileDiagnostics(IDictionary<string, string> keyValuePairs, out string path, out string level)
         {
             if (keyValuePairs[KeyDestination].Equals(ValueDestinationFile, StringComparison.OrdinalIgnoreCase))
             {
@@ -53,12 +54,12 @@
             }
             else
             {
-                path = level = maxSize = null;
+                path = level = null;
                 return false;
             }
         }
 
-        internal static void TryGetValueWithDefault(Dictionary<string, string> dictionary, string key, string defaultValue, out string value)
+        internal static void TryGetValueWithDefault(IDictionary<string, string> dictionary, string key, string defaultValue, out string value)
         {
             if (!dictionary.TryGetValue(key, out value))
             {
