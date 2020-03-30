@@ -49,7 +49,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel.Tests", "T
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		src\Common\Common\Common.projitems*{3273d899-d9b3-44fe-b3ab-578e18b2ef90}*SharedItemsImports = 5
 		src\Common\Common\Common.projitems*{936af739-4297-4016-9d70-4280042709be}*SharedItemsImports = 13
+		src\Common\Common\Common.projitems*{e9ecee96-dd50-42f6-9f33-0978cdfa15ed}*SharedItemsImports = 5
 		Test\TestFramework\Shared\TestFramework.Shared.projitems*{f76c6cbd-29b0-4564-bdcb-c969f8fec136}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
