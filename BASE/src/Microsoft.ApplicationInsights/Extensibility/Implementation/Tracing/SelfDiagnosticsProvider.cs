@@ -12,10 +12,10 @@
     /// </summary>
     internal class SelfDiagnosticsProvider
     {
-        private const string KeyDestination = "Destination";
-        private const string KeyFilePath = "Directory";
-        private const string KeyLevel = "Level";
-        private const string ValueDestinationFile = "file";
+        internal const string KeyDestination = "Destination";
+        internal const string KeyFilePath = "Directory";
+        internal const string KeyLevel = "Level";
+        internal const string ValueDestinationFile = "file";
 
         /// <summary>
         /// Parse a configuration string and return a Dictionary.

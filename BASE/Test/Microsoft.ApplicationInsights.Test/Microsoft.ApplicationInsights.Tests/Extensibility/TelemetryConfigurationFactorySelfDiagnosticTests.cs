@@ -30,7 +30,7 @@
 
             // SETUP
             var platform = new StubEnvironmentVariablePlatform();
-            platform.SetEnvironmentVariable(TelemetryConfigurationFactory.SelfDiagnosticsEnvironmentVariable, $"destination=file;path={testLogFilePath}");
+            platform.SetEnvironmentVariable(TelemetryConfigurationFactory.SelfDiagnosticsEnvironmentVariable, $"{SelfDiagnosticsProvider.KeyDestination}={SelfDiagnosticsProvider.ValueDestinationFile};{SelfDiagnosticsProvider.KeyFilePath}={testLogFilePath}");
             PlatformSingleton.Current = platform;
 
             // ACT
@@ -51,7 +51,7 @@
 
             // SETUP
             var platform = new StubEnvironmentVariablePlatform();
-            platform.SetEnvironmentVariable(TelemetryConfigurationFactory.SelfDiagnosticsEnvironmentVariable, $"destination=file;path={testLogFilePath2}");
+            platform.SetEnvironmentVariable(TelemetryConfigurationFactory.SelfDiagnosticsEnvironmentVariable, $"{SelfDiagnosticsProvider.KeyDestination}={SelfDiagnosticsProvider.ValueDestinationFile};{SelfDiagnosticsProvider.KeyFilePath}={testLogFilePath2}");
             PlatformSingleton.Current = platform;
 
             // ACT
@@ -74,7 +74,7 @@
 
             // SETUP
             var platform = new StubEnvironmentVariablePlatform();
-            platform.SetEnvironmentVariable(TelemetryConfigurationFactory.SelfDiagnosticsEnvironmentVariable, $"destination=file;path={testLogFilePath2}");
+            platform.SetEnvironmentVariable(TelemetryConfigurationFactory.SelfDiagnosticsEnvironmentVariable, $"{SelfDiagnosticsProvider.KeyDestination}={SelfDiagnosticsProvider.ValueDestinationFile};{SelfDiagnosticsProvider.KeyFilePath}={testLogFilePath2}");
             PlatformSingleton.Current = platform;
 
             string configFileContents = Configuration(
