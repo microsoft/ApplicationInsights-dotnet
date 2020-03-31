@@ -190,12 +190,12 @@
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Bytes In Total":
                     return new RawCounterGauge(
                         reportAs,
-                        "requestsBytesIn",
+                        "requestBytesIn",
                         AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Bytes Out Total":
                     return new RawCounterGauge(
                         reportAs,
-                        "requestsBytesOut",
+                        "requestBytesOut",
                         AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Executing":
                     return new RawCounterGauge(
@@ -585,7 +585,7 @@
                 case @"\.NET CLR Memory(??APP_CLR_PROC??)\# Total committed Bytes":
                     return new RawCounterGauge(
                         reportAs,
-                        "commitedBytes",
+                        "committedBytes",
                         AzureWebApEnvironmentVariables.CLR);
                 case @"\.NET CLR Memory(??APP_CLR_PROC??)\# Total reserved Bytes":
                     return new RawCounterGauge(

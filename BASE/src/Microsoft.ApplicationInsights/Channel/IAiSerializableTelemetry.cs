@@ -6,9 +6,9 @@
     internal interface IAiSerializableTelemetry
     {
         /// <summary>
-        /// Gets the name of the Telemetry. Used internally for serialization.
+        /// Gets or sets the name of the Telemetry. Used internally for serialization.
         /// </summary>
-        string TelemetryName { get; }
+        string TelemetryName { get; set; }
 
         /// <summary>
         /// Gets the name of the TelemetryType. Typically the datatype of the internal Data property. Used internally for serialization.

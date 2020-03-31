@@ -1,7 +1,19 @@
 ﻿# Changelog
 
 ## VNext
+- [Fix: SQL dependency names are bloated when running under the .NET Framework and using Microsoft.Data.SqlClient package](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1723)
+- [Fix: Disabling HeartBeats in Asp.Net Core projects causes Error traces every heart beat interval (15 minutes defualt)](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1681)
+- [Standard Metric extractor (Exception,Trace) populates all standard dimensions.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1738)
+- [Add an explicit reference to System.Memory v4.5.4. This fixes a bug in System.Diagnostics.DiagnosticSource. We will remove this dependency when DiagnosticSource is re-released.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1707)
 
+## Version 2.14.0-beta3
+- [New: JavaScript Property to support Content Security Policy](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1443)
+- [Fix: All perf counters stop being collected when any of faulty counters are specified to collect on Azure WebApps](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1686)
+- [Fix: Some perf counters aren't collected when app is hosted on Azure WebApp](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1685)
+- [Fix: Update dependencies to fix incompatibility with NetCore 3.0 and 3.1](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1699)
+    - removing dependency on System.Data.SqlClient
+    - System.Diagnostics.PerformanceCounter v4.5.0 -> v4.7.0
+    - System.IO.FileSystem.AccessControl v4.5.0 -> 4.7.0
 
 ## Version 2.14.0-beta2
 - [Fix: AspNetCore AddApplicationInsightsSettings() and MissingMethodException](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1702)

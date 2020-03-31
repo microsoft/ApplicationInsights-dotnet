@@ -28,7 +28,7 @@
 
             // Validates 2 random properties
             Assert.IsNotNull(exceptionAsJson);
-            Assert.AreEqual("Microsoft.ApplicationInsights.Exception", obj["name"].ToString());
+            Assert.AreEqual(ItemType.Exception, obj["name"].ToString());
         }
 
         [TestMethod]
@@ -112,7 +112,7 @@
 
             TelemetryItem<EventTelemetry> data = obj.ToObject<TelemetryItem<EventTelemetry>>();
 
-            Assert.AreEqual("Microsoft.ApplicationInsights.Event", data.name);
+            Assert.AreEqual(ItemType.Event, data.name);
             Assert.AreEqual(Constants.EventNameForUnknownTelemetry, data.data.baseData.Name);
             Assert.AreEqual("testUser", data.tags["ai.user.id"]);
             Assert.IsTrue(DateTimeOffset.TryParse(data.time, out DateTimeOffset testResult));

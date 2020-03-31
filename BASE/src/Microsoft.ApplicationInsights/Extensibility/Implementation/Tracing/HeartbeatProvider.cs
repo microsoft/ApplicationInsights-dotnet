@@ -120,9 +120,15 @@
             {
                 if (!this.isEnabled && value)
                 {
-                    // we need to start calling the timer again
-                    // if requested to disable, let the next HeartbeatPulse disable it for us (do nothing here)
-                    this.HeartbeatTimer.Change(this.HeartbeatInterval, this.HeartbeatInterval);
+                    // we need to start calling the timer again                    
+                    this.HeartbeatTimer?.Change(this.HeartbeatInterval, this.HeartbeatInterval);
+                }
+                else if (this.isEnabled && !value)
+                {
+                    // heartbeat was enabled previously, and being disabled now.
+                    // dispose timers so they never fire again.
+                    this.HeartbeatTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+                    this.HeartbeatTimer?.Dispose();
                 }
 
                 this.isEnabled = value;
