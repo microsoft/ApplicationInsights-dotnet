@@ -190,7 +190,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 var parameters = new object[]
                 {
-                    isRequest ? RequestTelemetry.TelemetryName : OperationTelemetry.TelemetryName,
+                    isRequest ? RequestTelemetry.EtwEnvelopeName : OperationTelemetry.TelemetryName,
                     eventSourceOptionsObject,
                     extendedData,
                 };
