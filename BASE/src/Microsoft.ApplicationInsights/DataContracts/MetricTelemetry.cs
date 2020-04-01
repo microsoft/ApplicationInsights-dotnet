@@ -15,6 +15,7 @@
     /// </summary>
     public sealed class MetricTelemetry : ITelemetry, ISupportProperties, IAiSerializableTelemetry
     {
+        internal const string EtwEnvelopeName = "Metric";
         internal readonly MetricData Data;
         internal readonly DataPoint Metric;
         internal string EnvelopeName = "AppMetrics";

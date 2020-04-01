@@ -23,6 +23,25 @@
     [TestCategory("WindowsOnly")] // do not run these tests on linux builds
     public class RichPayloadEventSourceTest
     {
+        public Dictionary<Type, string> ServiceProfilerNameContracts = new Dictionary<Type, string>
+        {
+            {typeof(AvailabilityTelemetry), "Availability" },
+            {typeof(DependencyTelemetry), "RemoteDependency" },
+            {typeof(EventTelemetry), "Event" },
+            {typeof(ExceptionTelemetry), "Exception" },
+            {typeof(MetricTelemetry), "Metric" },
+            {typeof(PageViewPerformanceTelemetry), "PageViewPerformance" },
+            {typeof(PageViewTelemetry), "PageView" },
+#pragma warning disable 618
+            {typeof(PerformanceCounterTelemetry), "Metric" },
+            {typeof(SessionStateTelemetry), "Event" },
+ #pragma warning restore 618
+            {typeof(RequestTelemetry), "Request" },
+            {typeof(TraceTelemetry), "Message" },
+            {typeof(OperationTelemetry), "Operation" },
+            {typeof(UnknownTelemetry), "Event" },
+        };
+
         /// <summary>
         /// Tests tracking request telemetry.
         /// </summary>
@@ -297,8 +316,8 @@
                     // Expect exactly two events (start and stop)
                     var actualEvents = listener.Messages.Where(m => m.Keywords.HasFlag(RichPayloadEventSource.Keywords.Operations)).Take(2).ToArray();
 
-                    VerifyOperationEvent(requestTelemetry, RequestTelemetry.TelemetryName, EventOpcode.Start, actualEvents[0]);
-                    VerifyOperationEvent(requestTelemetry, RequestTelemetry.TelemetryName, EventOpcode.Stop, actualEvents[1]);
+                    VerifyOperationEvent(requestTelemetry, ServiceProfilerNameContracts[requestTelemetry.GetType()], EventOpcode.Start, actualEvents[0]);
+                    VerifyOperationEvent(requestTelemetry, ServiceProfilerNameContracts[requestTelemetry.GetType()], EventOpcode.Stop, actualEvents[1]);
                 }
             }
             else
@@ -335,10 +354,10 @@
                     // Expect exactly four events (start, start, stop, stop)
                     var actualEvents = listener.Messages.Where(m=>m.Keywords.HasFlag(RichPayloadEventSource.Keywords.Operations)).Take(4).ToArray();
 
-                    VerifyOperationEvent(requestTelemetry, RequestTelemetry.TelemetryName, EventOpcode.Start, actualEvents[0]);
-                    VerifyOperationEvent(nestedOperation, OperationTelemetry.TelemetryName, EventOpcode.Start, actualEvents[1]);
-                    VerifyOperationEvent(nestedOperation, OperationTelemetry.TelemetryName, EventOpcode.Stop, actualEvents[2]);
-                    VerifyOperationEvent(requestTelemetry, RequestTelemetry.TelemetryName, EventOpcode.Stop, actualEvents[3]);
+                    VerifyOperationEvent(requestTelemetry, ServiceProfilerNameContracts[requestTelemetry.GetType()], EventOpcode.Start, actualEvents[0]);
+                    VerifyOperationEvent(nestedOperation, ServiceProfilerNameContracts[typeof(OperationTelemetry)], EventOpcode.Start, actualEvents[1]);
+                    VerifyOperationEvent(nestedOperation, ServiceProfilerNameContracts[typeof(OperationTelemetry)], EventOpcode.Stop, actualEvents[2]);
+                    VerifyOperationEvent(requestTelemetry, ServiceProfilerNameContracts[requestTelemetry.GetType()], EventOpcode.Stop, actualEvents[3]);
                 }
             }
             else
@@ -508,6 +527,14 @@
 
                     Assert.IsNotNull(actualEvent);
                     Assert.AreEqual(client.InstrumentationKey, actualEvent.Payload[0]);
+#if !NET45
+                    // adding logging to confirm what executable is being tested.
+                    var sdkAssembly = AppDomain.CurrentDomain.GetAssemblies().Single(x => x.GetName().Name == "Microsoft.ApplicationInsights");
+                    var sdkVersion = sdkAssembly.GetName().Version.ToString();
+                    Console.WriteLine($"SDK Assembly: {sdkAssembly.Location}");
+                    Console.WriteLine($"SDK Version: {sdkVersion}");
+                    Assert.AreEqual(ServiceProfilerNameContracts[item.GetType()], actualEvent.EventName, $"ItemType: '{item.GetType().Name}' ServiceProfilerName: '{ServiceProfilerNameContracts[item.GetType()]}' does not match EventName: '{actualEvent.EventName}'");
+#endif
 
                     int keysFound = 0;
                     object[] tags = actualEvent.Payload[1] as object[];
@@ -703,4 +730,4 @@
         }
     }
 #endif
-}
+    }
