@@ -7,6 +7,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics;
 
     /// <summary>
     /// Telemetry type used for log messages.
@@ -131,7 +132,17 @@
         /// </summary>
         public IDictionary<string, string> Properties
         {
-            get { return this.Data.properties; }
+#pragma warning disable CS0618 // Type or member is obsolete
+            get
+            {
+                if (!string.IsNullOrEmpty(this.MetricExtractorInfo) && !this.Context.Properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
+                {
+                    this.Context.Properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
+                }
+
+                return this.Context.Properties;
+#pragma warning restore CS0618 // Type or member is obsolete
+            }
         }
 
         /// <summary>
@@ -153,6 +164,15 @@
         public SamplingDecision ProactiveSamplingDecision { get; set; }
 
         /// <summary>
+        /// Gets or sets the MetricExtractorInfo.
+        /// </summary>
+        internal string MetricExtractorInfo
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Deeply clones a <see cref="TraceTelemetry"/> object.
         /// </summary>
         /// <returns>A cloned instance.</returns>
@@ -169,7 +189,7 @@
                 throw new ArgumentNullException(nameof(serializationWriter));
             }
 
-            serializationWriter.WriteProperty(this.Data);            
+            serializationWriter.WriteProperty(this.Data);
         }
 
         /// <summary>

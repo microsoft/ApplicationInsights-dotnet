@@ -58,6 +58,18 @@
                     public const string Name = "Dependency duration";
                     public const string Id = "dependencies/duration";
                 }
+
+                public static class ExceptionCount
+                {
+                    public const string Name = "Exceptions";
+                    public const string Id = "exceptions/count";
+                }
+
+                public static class TraceCount
+                {
+                    public const string Name = "Traces";
+                    public const string Id = "traces/count";
+                }
             }
 
             public static class Request
@@ -82,6 +94,14 @@
                 }
             }
 
+            public static class TraceCount
+            {
+                public static class PropertyNames
+                {
+                    public const string SeverityLevel = "trace/severityLevel";
+                }
+            }
+
             public static class Common
             {
                 public static class PropertyNames
@@ -95,6 +115,7 @@
                 {
                     public const string DimensionCapFallbackValue = "DIMENSION-CAPPED";
                     public const string Unknown = "Unknown";
+                    public const string Unspecified = "Unspecified";
                     public const string Other = "Other";
                 }
             }
