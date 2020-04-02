@@ -19,6 +19,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
     /// </summary>
     public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportAdvancedSampling, ISupportMetrics, IAiSerializableTelemetry
     {
+        internal const string EtwEnvelopeName = "RemoteDependency";
         internal string EnvelopeName = "AppDependencies";
         
         private readonly TelemetryContext context;
