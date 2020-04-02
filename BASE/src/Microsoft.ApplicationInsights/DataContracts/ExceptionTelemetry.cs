@@ -8,6 +8,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics;
 
     /// <summary>
     /// Telemetry type used to track exceptions. This will capture TypeName, Message, and CallStack.
@@ -18,6 +19,7 @@
     /// </remarks>
     public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportAdvancedSampling, ISupportMetrics, IAiSerializableTelemetry
     {
+        internal const string EtwEnvelopeName = "Exception";
         internal string EnvelopeName = "AppExceptions";
 
         internal ExceptionInfo Data = null;
@@ -94,7 +96,7 @@
             {
                 this.exception = source.Exception;
             }
-            
+
             this.extension = source.extension?.DeepClone();
         }
 
@@ -263,7 +265,17 @@
         /// </summary>
         public IDictionary<string, string> Properties
         {
-            get { return this.Data.Properties; }
+#pragma warning disable CS0618 // Type or member is obsolete
+            get
+            {
+                if (!string.IsNullOrEmpty(this.MetricExtractorInfo) && !this.Context.Properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
+                {
+                    this.Context.Properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
+                }
+
+                return this.Context.Properties;
+#pragma warning restore CS0618 // Type or member is obsolete
+            }
         }
 
         /// <summary>
@@ -296,6 +308,15 @@
         internal IList<ExceptionDetails> Exceptions
         {
             get { return this.Data.Data.exceptions; }
+        }
+
+        /// <summary>
+        /// Gets or sets the MetricExtractorInfo.
+        /// </summary>
+        internal string MetricExtractorInfo
+        {
+            get;
+            set;
         }
 
         /// <summary>

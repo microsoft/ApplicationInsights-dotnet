@@ -20,6 +20,7 @@
     /// </remarks>
     public sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportAdvancedSampling, ISupportMetrics, IAiSerializableTelemetry
     {
+        internal const string EtwEnvelopeName = "PageView";
         internal readonly PageViewData Data;
         internal string EnvelopeName = "AppPageViews";
         private readonly TelemetryContext context;

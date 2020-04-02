@@ -22,6 +22,7 @@
     /// </remarks>
     public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportAdvancedSampling, IAiSerializableTelemetry
     {
+        internal const string EtwEnvelopeName = "Request";
         internal string EnvelopeName = "AppRequests";
 
         private readonly TelemetryContext context;

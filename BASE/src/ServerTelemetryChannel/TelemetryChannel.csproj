@@ -101,6 +101,4 @@
   </ItemGroup>
 
   <Import Project="..\Common\Common\Common.projitems" Label="Shared" />
-
-  <Import Project="$(SourceRoot)\Common.targets" />
 </Project>

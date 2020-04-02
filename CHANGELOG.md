@@ -2,6 +2,12 @@
 
 ## VNext
 
+## Version 2.14.0-beta4
+- [Fix: SQL dependency names are bloated when running under the .NET Framework and using Microsoft.Data.SqlClient package](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1723)
+- [Fix: Disabling HeartBeats in Asp.Net Core projects causes Error traces every heart beat interval (15 minutes defualt)](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1681)
+- [Standard Metric extractor (Exception,Trace) populates all standard dimensions.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1738)
+- [Add an explicit reference to System.Memory v4.5.4. This fixes a bug in System.Diagnostics.DiagnosticSource. We will remove this dependency when DiagnosticSource is re-released.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1707)
+
 ## Version 2.14.0-beta3
 - [New: JavaScript Property to support Content Security Policy](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1443)
 - [Fix: All perf counters stop being collected when any of faulty counters are specified to collect on Azure WebApps](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1686)

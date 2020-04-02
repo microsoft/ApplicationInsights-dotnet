@@ -15,7 +15,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solutio
 		NuGet.config = NuGet.config
 		Readme.md = Readme.md
 		RunTestsCore.ps1 = RunTestsCore.ps1
-		Signing.props = Signing.props
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{8B5230E5-8138-44D6-839F-DF9248F195EE}"
@@ -75,6 +74,21 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsigh
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\BASE\src\Common\Common\Common.projitems*{0c91d961-b21e-4760-a192-14193f10b831}*SharedItemsImports = 5
+		..\WEB\Src\Common\Common.projitems*{1056392c-387c-4530-ba3f-aa687ea453ae}*SharedItemsImports = 5
+		..\BASE\src\Common\Common\Common.projitems*{2c7ceedd-bb15-48df-b12a-b268e9d74859}*SharedItemsImports = 5
+		..\WEB\Src\Common\Common.projitems*{3c157fc2-2e52-45fc-87e8-76e4fced4260}*SharedItemsImports = 5
+		..\WEB\Src\PerformanceCollector\Filtering.Shared\Filtering.Shared.projitems*{3c157fc2-2e52-45fc-87e8-76e4fced4260}*SharedItemsImports = 5
+		..\WEB\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{3c157fc2-2e52-45fc-87e8-76e4fced4260}*SharedItemsImports = 5
+		..\WEB\Src\PerformanceCollector\Perf.Shared.NetStandard20Net45\Perf.Shared.NetStandard20Net45.projitems*{3c157fc2-2e52-45fc-87e8-76e4fced4260}*SharedItemsImports = 5
+		..\WEB\Src\PerformanceCollector\Perf.Shared\Perf.Shared.projitems*{3c157fc2-2e52-45fc-87e8-76e4fced4260}*SharedItemsImports = 5
+		..\LOGGING\src\CommonShared\CommonShared.projitems*{4a9ec531-f8b2-4cd1-bd6b-745f33e52e7b}*SharedItemsImports = 5
+		..\WEB\Src\Common\Common.projitems*{8d13f3c8-d938-44fd-a0d8-b5d1712c95db}*SharedItemsImports = 5
+		..\WEB\Src\DependencyCollector\Shared\DependencyCollector.Shared.projitems*{8d13f3c8-d938-44fd-a0d8-b5d1712c95db}*SharedItemsImports = 5
+		src\Shared\Shared.projitems*{95ec3635-22e4-4c3a-a066-f5823a0648da}*SharedItemsImports = 5
+		src\Shared\Shared.projitems*{aecee8dd-09ae-4dea-8690-f76a37c0534b}*SharedItemsImports = 5
+		..\WEB\Src\Common\Common.projitems*{af9287b2-0d23-4d85-9a3e-200a2a603278}*SharedItemsImports = 5
+		..\WEB\Src\WindowsServer\WindowsServer.Shared\WindowsServer.Shared.projitems*{af9287b2-0d23-4d85-9a3e-200a2a603278}*SharedItemsImports = 5
 		src\Shared\Shared.projitems*{d56f2979-d6bc-4ef2-bb9b-4077b3290599}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
