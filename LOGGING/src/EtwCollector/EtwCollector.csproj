@@ -57,7 +57,5 @@
   <Import Project="..\CommonShared\CommonShared.projitems" Label="Shared" />
 
   <Import Project="..\EventSource.Shared\EventSource.Shared\EventSource.Shared.projitems" Label="Shared" />
-
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 </Project>
 
