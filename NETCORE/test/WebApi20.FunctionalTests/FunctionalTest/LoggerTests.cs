@@ -36,7 +36,7 @@
         public void TestIloggerWarningOrAboveIsCapturedByDefault()
         {
 
-#if NETCOREAPP2_0
+#if NETCOREAPP2_0 || NET461
             using (var server = new InProcessServer(assemblyName, this.output))
             {                
                 // Make request to this path, which sents one log of each severity  Error, Warning, Information, Trace
@@ -59,7 +59,7 @@
         public void TestIloggerDefaultsCanBeOverridenByUserForAllCategories()
         {
 
-#if NETCOREAPP2_0
+#if NETCOREAPP2_0 || NET461
             void ConfigureServices(IServiceCollection services)
             {
                 // ARRANGE
@@ -88,7 +88,7 @@
         public void TestIloggerDefaultsCanBeOverridenByUserForSpecificCategory()
         {
 
-#if NETCOREAPP2_0
+#if NETCOREAPP2_0 || NET461
             void ConfigureServices(IServiceCollection services)
             {
                 // ARRANGE
