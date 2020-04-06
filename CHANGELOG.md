@@ -2,6 +2,9 @@
 
 ## VNext
 
+## Version 2.14.0-beta5
+- [Stop collecting EventCounters from Microsoft.AspNetCore.Hosting](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1759)
+
 ## Version 2.14.0-beta4
 - [Fix: SQL dependency names are bloated when running under the .NET Framework and using Microsoft.Data.SqlClient package](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1723)
 - [Fix: Disabling HeartBeats in Asp.Net Core projects causes Error traces every heart beat interval (15 minutes defualt)](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1681)
