@@ -3,14 +3,18 @@
     using System;
     using System.Diagnostics;
     using System.Linq;
-    using System.Reflection;
     using System.Runtime.CompilerServices;
+    using System.Threading;
 
     internal static class ActivityExtensions
     {
         private const string OperationNameTag = "OperationName";
-        private static bool isInitialized;
-        private static bool isAvailable;
+
+        private const int ActivityAvailabilityUnknown = 0;
+        private const int ActivityAvailable = 1;
+        private const int ActivityNotAvailable = 2;
+
+        private static int activityTypeAvailability = ActivityAvailabilityUnknown;
 
         /// <summary>
         /// Executes action if Activity is available (DiagnosticSource DLL is available).
@@ -21,17 +25,16 @@
         public static bool TryRun(Action action)
         {
             Debug.Assert(action != null, "Action must not be null");
-            if (!isInitialized)
-            {
-                isAvailable = Initialize();
-            }
 
-            if (isAvailable)
+            if (IsActivityTypeAvailable())
             {
                 action.Invoke();
+                return true;
             }
-
-            return isAvailable;
+            else
+            {
+                return false;
+            }
         }
 
         internal static string GetOperationName(this Activity activity)
@@ -47,29 +50,62 @@
             activity.AddTag(OperationNameTag, operationName);
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        private static bool Initialize()
+        private static bool IsActivityTypeAvailable()
         {
-            try
+            if (activityTypeAvailability == ActivityAvailable)
             {
-                Assembly.Load(new AssemblyName("System.Diagnostics.DiagnosticSource, Version=4.0.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51"));
+                // Fast common case
                 return true;
             }
-            catch (System.IO.FileNotFoundException)
+
+            if (activityTypeAvailability == ActivityNotAvailable)
             {
-                // This is a workaround that allows ApplicationInsights Core SDK run without DiagnosticSource.dll
-                // so the ApplicationInsights.dll could be used alone to track telemetry, and will fall back to CallContext/AsyncLocal instead of Activity
+                // This can happen if System.Diagnostics.DiagnosticSource cannot be loaded,
+                // i.e. in some PowerShell scenarios where only Microsoft.ApplicationInsights.dll was loaded.
                 return false;
             }
-            catch (System.IO.FileLoadException)
+
+            // Must be activityTypeAvailability == ActivityAvailabilityUnknown
+
+            if (CanLoadActivityType())
             {
-                // Dll version, public token or culture is different
+                Interlocked.Exchange(ref activityTypeAvailability, ActivityAvailable);
+                return true;
+            }
+            else
+            {
+                Interlocked.Exchange(ref activityTypeAvailability, ActivityNotAvailable);
                 return false;
             }
-            finally
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static bool CanLoadActivityType()
+        {
+            // This is a workaround that allows ApplicationInsights Core SDK run without DiagnosticSource.dll
+            // so the ApplicationInsights.dll could be used alone to track telemetry, and will fall back to CallContext/AsyncLocal instead of Activity
+            try
             {
-                isInitialized = true;
+                return LoadActivityType();
             }
+            catch (System.IO.IOException)
+            {
+                // Cannot open DLL file
+                return false;
+            }
+            catch (System.TypeLoadException)
+            {
+                // Cannot resolve type
+                return false;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static bool LoadActivityType()
+        {
+            // At this point the Activity type has already been loaded, or - if not - the runtime will attempt to load the assembly from which it is referenced.
+            // While doing so, it will respect type redirects potentially set up by the execution environment. This is preferable to doing Assembly-Load directly.
+            return typeof(System.Diagnostics.Activity) != null;
         }
     }
 }
