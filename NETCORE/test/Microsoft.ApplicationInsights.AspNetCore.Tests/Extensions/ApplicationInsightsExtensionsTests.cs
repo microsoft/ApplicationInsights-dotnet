@@ -632,19 +632,13 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var eventCounterModule = modules.OfType<EventCounterCollectionModule>().Single();
 
                 //VALIDATE
-                Assert.Equal(23, eventCounterModule.Counters.Count);
+                Assert.Equal(19, eventCounterModule.Counters.Count);
                 
                 // sanity check with a sample counter.
                 var cpuCounterRequest = eventCounterModule.Counters.FirstOrDefault<EventCounterCollectionRequest>(
                     eventCounterCollectionRequest => eventCounterCollectionRequest.EventSourceName == "System.Runtime"
                     && eventCounterCollectionRequest.EventCounterName == "cpu-usage");
-                Assert.NotNull(cpuCounterRequest);
-
-                // sanity check - asp.net counters should be added
-                var aspnetCounterRequest = eventCounterModule.Counters.Where<EventCounterCollectionRequest>(
-                    eventCounterCollectionRequest => eventCounterCollectionRequest.EventSourceName == "Microsoft.AspNetCore.Hosting");
-                Assert.NotNull(aspnetCounterRequest);
-                Assert.True(aspnetCounterRequest.Count() == 4);
+                Assert.NotNull(cpuCounterRequest);                
             }
 #endif
 
@@ -989,7 +983,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                                                                                                                 == typeof(RequestTrackingTelemetryModule));
 
                 Assert.True(requestTrackingModule.CollectionOptions.InjectResponseHeaders);
-#if NETCOREAPP2_0
+#if NETCOREAPP2_0 || NET461
                 Assert.False(requestTrackingModule.CollectionOptions.TrackExceptions);
 #else
                 Assert.True(requestTrackingModule.CollectionOptions.TrackExceptions);

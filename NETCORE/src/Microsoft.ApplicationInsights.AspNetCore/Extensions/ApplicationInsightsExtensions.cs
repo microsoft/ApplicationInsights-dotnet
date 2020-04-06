@@ -134,8 +134,7 @@
                     AddTelemetryChannel(services);
 
 #if NETSTANDARD2_0
-                    ConfigureEventCounterModuleWithSystemCounters(services);
-                    ConfigureEventCounterModuleWithAspNetCounters(services);
+                    ConfigureEventCounterModuleWithSystemCounters(services);                    
 #endif
 
                     services.TryAddSingleton<IConfigureOptions<ApplicationInsightsServiceOptions>,
@@ -155,7 +154,7 @@
 
                     // NetStandard2.0 has a package reference to Microsoft.Extensions.Logging.ApplicationInsights, and
                     // enables ApplicationInsightsLoggerProvider by default.
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NET461
                     AddApplicationInsightsLoggerProvider(services);
 #endif
                 }
