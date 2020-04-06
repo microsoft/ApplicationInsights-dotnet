@@ -134,8 +134,7 @@
                     AddTelemetryChannel(services);
 
 #if NETSTANDARD2_0
-                    ConfigureEventCounterModuleWithSystemCounters(services);
-                    ConfigureEventCounterModuleWithAspNetCounters(services);
+                    ConfigureEventCounterModuleWithSystemCounters(services);                    
 #endif
 
                     services.TryAddSingleton<IConfigureOptions<ApplicationInsightsServiceOptions>,
