@@ -17,7 +17,7 @@
 
             // In NetStandard20, ApplicationInsightsLoggerProvider is enabled by default,
             // which captures Exceptions. Disabling it in RequestCollectionModule to avoid duplication.
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NET461
             this.TrackExceptions = false;
 #else
             this.TrackExceptions = true;

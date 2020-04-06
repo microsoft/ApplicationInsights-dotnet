@@ -446,7 +446,7 @@
         [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "services parameter is used in only NetStandard 2.0 build.")]
         private static void AddApplicationInsightsLoggerProvider(IServiceCollection services)
         {
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NET461
             services.AddLogging(loggingBuilder =>
             {
                 loggingBuilder.AddApplicationInsights();
