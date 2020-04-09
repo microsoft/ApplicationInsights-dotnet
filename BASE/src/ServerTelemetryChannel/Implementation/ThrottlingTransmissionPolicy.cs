@@ -44,6 +44,12 @@
                         this.MaxBufferCapacity = 0;
                         this.MaxStorageCapacity = 0;
                     }
+                    else if (httpWebResponse.StatusDescription == "SendToDisk")
+                    {
+                        // Move rejectedTransmission to storage on IAsyncFlushable.FlushAsync
+                        this.MaxBufferCapacity = 0;
+                        this.MaxStorageCapacity = null;
+                    }
                     else
                     {
                         this.MaxBufferCapacity = null;

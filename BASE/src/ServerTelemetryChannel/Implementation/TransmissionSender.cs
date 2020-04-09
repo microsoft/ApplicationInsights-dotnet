@@ -1,19 +1,28 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Globalization;
+    using System.Linq;
     using System.Net;
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
-
+    using System.Xml.Serialization;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Common.Extensions;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     internal class TransmissionSender
-    {
+    {      
+        private static string transmissionBatchId = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
+        private readonly object lockObj = new object();
+        // Stores all inflight requests with a common id, before SendAsync.
+        // Removes entry from dictionary after getting response.
+        // Changes common id with IAsyncFlushable.FlushAsync, so it starts next batch to track for next IAsyncFlushable.FlushAsync.
+        private ConcurrentDictionary<Task<HttpWebResponseWrapper>, string> inTransmitIds = new ConcurrentDictionary<Task<HttpWebResponseWrapper>, string>();
+
         private int transmissionCount = 0;
         private int capacity = 10;
 
@@ -106,10 +115,10 @@
             bool enqueueSucceded = false;
 
             int currentCount = Interlocked.Increment(ref this.transmissionCount);
+            var transmission = transmissionGetter();
+
             if (currentCount <= this.capacity)
             {
-                var transmission = transmissionGetter();
-
                 if (transmission != null)
                 {
                     ExceptionHandler.Start(this.StartSending, transmission);
@@ -129,6 +138,20 @@
             if (!enqueueSucceded)
             {
                 Interlocked.Decrement(ref this.transmissionCount);
+
+                if (transmission?.HasFlushTask == true)
+                {                   
+                    string lastTransmissionBatchId = transmissionBatchId;
+                    lock (this.lockObj)
+                    {
+                        // Generate new transmissionBatchId for next transmissions to be ready for next IAsyncFlushable.FlushAsync (if called).
+                        transmissionBatchId = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
+                    }
+
+                    // Wait for inflight transmissions to complete.
+                    this.WaitForPreviousTransmissionsToComplete(transmission, lastTransmissionBatchId).ConfigureAwait(false).GetAwaiter().GetResult();
+                    this.SendTransmissionToDisk(transmission);
+                }
             }
 
             return enqueueSucceded;
@@ -142,6 +165,8 @@
         private async Task StartSending(Transmission transmission)
         {
             SdkInternalOperationsMonitor.Enter();
+            Task<HttpWebResponseWrapper> transmissionTask = null;
+            string lastTransmissionBatchId = null;
 
             try
             {
@@ -150,12 +175,25 @@
 
                 // Locally self-throttle this payload before we send it
                 Transmission acceptedTransmission = this.Throttle(transmission);
-
+                
                 // Now that we've self-imposed a throttle, we can try to send the remaining data
                 try
                 {
                     TelemetryChannelEventSource.Log.TransmissionSendStarted(acceptedTransmission.Id);
-                    responseContent = await acceptedTransmission.SendAsync().ConfigureAwait(false);
+                    transmissionTask = acceptedTransmission.SendAsync();
+                    this.inTransmitIds.TryAdd(transmissionTask, transmissionBatchId);
+
+                    if (transmission.HasFlushTask)
+                    {
+                        lastTransmissionBatchId = transmissionBatchId;
+                        lock (this.lockObj)
+                        {
+                            // Generate new transmissionBatchId for next transmissions to be ready for next IAsyncFlushable.FlushAsync (if called).
+                            transmissionBatchId = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
+                        }
+                    }
+
+                    responseContent = await transmissionTask.ConfigureAwait(false); 
                 }
                 catch (Exception e)
                 {
@@ -203,6 +241,14 @@
                             StatusCode = ResponseStatusCodes.UnknownNetworkError,
                         };
                     }
+                                        
+                    this.inTransmitIds.TryRemove(transmissionTask, out string ignoreValue);
+
+                    if (transmission.HasFlushTask)
+                    {
+                        // Wait for inflight transmissions to complete.
+                        await this.WaitForPreviousTransmissionsToComplete(transmission, lastTransmissionBatchId).ConfigureAwait(false);
+                    }
 
                     this.OnTransmissionSent(new TransmissionProcessedEventArgs(acceptedTransmission, exception, responseContent));
                 }
@@ -210,6 +256,24 @@
             finally
             {
                 SdkInternalOperationsMonitor.Exit();
+            }
+        }
+
+        /// <summary>
+        /// Wait for inflight transmissions to complete. Honors the CancellationToken set by an application on IAsyncFlushable.FlushAsync.
+        /// </summary>
+        private async Task WaitForPreviousTransmissionsToComplete(Transmission transmission, string lastTransmissionBatchId)
+        {
+            var activeTransmissions = this.inTransmitIds.Where(p => p.Value == lastTransmissionBatchId).Select(p => p.Key);
+
+            if (activeTransmissions != null)
+            {
+                // Wait for all transmissions over the wire to complete.
+                var inTransitTasks = Task<HttpWebResponseWrapper>.WhenAll(activeTransmissions);
+                // Respect passed Cancellation token in FlushAsync call
+                await Task<HttpWebResponseWrapper>.WhenAny(inTransitTasks, new Task<HttpWebResponseWrapper>(() => { return default(HttpWebResponseWrapper); }, transmission.TransmissionCancellationToken)).ConfigureAwait(false);
+                // Remove processed transmission items from list to free the memory
+                activeTransmissions.ToList().ForEach(key => this.inTransmitIds.TryRemove(key, out string ignoreValue));
             }
         }
 
@@ -266,19 +330,23 @@
 
             Transmission acceptedTransmission = transmissions.Item1;
             Transmission rejectedTransmission = transmissions.Item2;
-            
+
             // Send rejected payload back for retry
             if (rejectedTransmission != null)
             {
                 TelemetryChannelEventSource.Log.TransmissionThrottledWarning(this.ThrottleLimit, attemptedItemsCount, acceptedItemsCount);
-                this.SendTransmissionThrottleRejection(rejectedTransmission);
+                // On transmission split, TaskCompletionSource is lost. Copy TaskCompletionSource to acceptedTransmission.
+                acceptedTransmission.SetFlushTaskCompletionSource(transmission.GetFlushTaskCompletionSource());
+                // rejectedTransmission calls policy, which inturn moves transmission to storage. 
+                this.SendTransmissionThrottleRejection(rejectedTransmission, transmission.HasFlushTask);
             }
             
             return acceptedTransmission;
         }
 
-        private void SendTransmissionThrottleRejection(Transmission rejectedTransmission)
+        private void SendTransmissionThrottleRejection(Transmission rejectedTransmission, bool hasFlushTask)
         {
+            var statusDescription = hasFlushTask ? "SendToDisk" : "Internally Throttled";
             WebException exception = new WebException(
                 "Transmission was split by local throttling policy",
                 null,
@@ -290,7 +358,23 @@
                 new HttpWebResponseWrapper()
                 {
                     StatusCode = ResponseStatusCodes.ResponseCodeTooManyRequests,
-                    StatusDescription = "Internally Throttled",
+                    StatusDescription = statusDescription,
+                    RetryAfterHeader = null,
+                }));
+        }
+
+        /// <summary>
+        /// Called when Sender is out of capacity, AsyncFlushTransmissionPolicy gets invoked and items will be moved to storage.
+        /// </summary>
+        private void SendTransmissionToDisk(Transmission transmission)
+        {
+            this.OnTransmissionSent(new TransmissionProcessedEventArgs(
+                transmission,
+                null,
+                new HttpWebResponseWrapper()
+                {
+                    StatusCode = ResponseStatusCodes.Success,
+                    StatusDescription = "SendToDisk",
                     RetryAfterHeader = null,
                 }));
         }

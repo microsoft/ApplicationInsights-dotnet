@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.IO;
     using System.Net;
     using System.Net.Http;
@@ -22,6 +23,15 @@
         private static HttpClient client = new HttpClient() { Timeout = System.Threading.Timeout.InfiniteTimeSpan };
 
         private int isSending;
+        private TaskCompletionSource<bool> flushTaskCompletionSource;
+        private CancellationToken transmissionCancellationToken;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Transmission"/> class. This overload seperates telemetryitems serialization from object construction. 
+        /// </summary>
+        public Transmission()
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Transmission"/> class.
@@ -61,13 +71,6 @@
             : this(address, content, contentType, contentEncoding, timeout)
         {
             client = passedClient;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Transmission"/> class. This overload is for Test purposes. 
-        /// </summary>
-        protected internal Transmission()
-        {
         }
 
         /// <summary>
@@ -131,6 +134,103 @@
         public ICollection<ITelemetry> TelemetryItems
         {
             get; private set;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether TaskCompletionSource task is active.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public bool HasFlushTask => this.flushTaskCompletionSource != null && !this.flushTaskCompletionSource.Task.IsCompleted;
+
+        /// <summary>
+        /// Gets CancellationToken of IAsyncFlushable.FlushAsync. 
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public CancellationToken TransmissionCancellationToken
+        {
+            get
+            {
+                return this.transmissionCancellationToken;
+            }
+        }
+
+        /// <summary>
+        /// Creates a task from TaskCompletionSource.
+        /// </summary>
+        /// <returns>
+        /// A return task of type <see cref="Task{Boolean}" />  is sent to IAsyncFlushable.FlushAsync. 
+        /// Application will await on this task to track completion of IAsyncFlushable.FlushAsync call.
+        /// </returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Task<bool> GetFlushTask(CancellationToken cancellationToken)
+        {
+            if (this.flushTaskCompletionSource == null)
+            {
+                this.flushTaskCompletionSource = new TaskCompletionSource<bool>();
+                cancellationToken.Register(() => this.CancelFlushTask());
+                this.transmissionCancellationToken = cancellationToken;
+            }
+
+            return this.flushTaskCompletionSource.Task;
+        }
+
+        /// <summary>
+        /// Complete TaskCompletionSource of IAsyncFlushable.FlushAsync task.
+        /// Signals application that IAsyncFlushable.FlushAsync task is complete. 
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void CompleteFlushTask(bool success)
+        {
+            if (this.HasFlushTask)
+            {
+                this.flushTaskCompletionSource.TrySetResult(success);
+            }
+        }
+
+        /// <summary>
+        /// Cancels TaskCompletionSource of IAsyncFlushable.FlushAsync task.
+        /// Signals application that IAsyncFlushable.FlushAsync task is cancelled.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void CancelFlushTask()
+        {
+            if (this.HasFlushTask)
+            {
+                this.flushTaskCompletionSource.TrySetCanceled();
+            }
+        }
+
+        /// <summary>
+        /// Serializes telemetry items.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void Serialize(Uri address, IEnumerable<ITelemetry> telemetryItems, TimeSpan timeout = default(TimeSpan))
+        {
+            this.EndpointAddress = address;
+            this.Content = JsonSerializer.Serialize(telemetryItems);
+            this.ContentType = JsonSerializer.ContentType;
+            this.ContentEncoding = JsonSerializer.CompressionType;
+            this.Timeout = timeout == default(TimeSpan) ? DefaultTimeout : timeout;
+            this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
+        }
+
+        /// <summary>
+        /// Gets the TaskCompletionSource.
+        /// Tranmission can get split, we need TaskCompletionSource to assign on newly created transmission.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public TaskCompletionSource<bool> GetFlushTaskCompletionSource()
+        {
+            return this.flushTaskCompletionSource;
+        }
+
+        /// <summary>
+        /// Sets the reference of passed TaskCompletionSource to current transmission.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void SetFlushTaskCompletionSource(TaskCompletionSource<bool> flushTaskCompletionSource)
+        {
+            this.flushTaskCompletionSource = flushTaskCompletionSource;
         }
 
         /// <summary>

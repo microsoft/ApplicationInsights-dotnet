@@ -3,6 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
 
     internal class TelemetrySerializer
@@ -28,6 +30,39 @@
 
         public virtual void Serialize(ICollection<ITelemetry> items)
         {
+            this.HandleTelemetryException(items);
+
+            var transmission = new Transmission(this.EndpointAddress, items);
+            this.Transmitter.Enqueue(transmission);
+        }
+
+        public virtual Task<bool> SerializeAsync(ICollection<ITelemetry> items, CancellationToken cancellationToken)
+        {
+            this.HandleTelemetryException(items);
+
+            var transmission = new Transmission();
+            Task<bool> resultTask = transmission.GetFlushTask(cancellationToken);
+
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                // serializes transmission and enqueue asynchronously
+                Task.Run(() => this.SerializeTransmissionAndEnqueue(transmission, items), cancellationToken);
+            }
+
+            return resultTask;
+        }
+
+        /// <summary>
+        /// Serializes transmission and enqueue.
+        /// </summary>
+        private void SerializeTransmissionAndEnqueue(Transmission transmission, ICollection<ITelemetry> items)
+        {
+            transmission.Serialize(this.EndpointAddress, items);
+            this.Transmitter.Enqueue(transmission);
+        }
+
+        private void HandleTelemetryException(ICollection<ITelemetry> items)
+        {
             if (items == null)
             {
                 throw new ArgumentNullException(nameof(items));
@@ -42,9 +77,6 @@
             {
                 throw new Exception("TelemetrySerializer.EndpointAddress was not set.");
             }
-
-            var transmission = new Transmission(this.EndpointAddress, items);
-            this.Transmitter.Enqueue(transmission);
         }
     }
 }

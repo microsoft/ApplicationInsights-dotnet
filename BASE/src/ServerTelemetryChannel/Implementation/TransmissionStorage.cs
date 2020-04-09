@@ -59,6 +59,11 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether enqueue to storage is success.
+        /// </summary>
+        internal bool IsEnqueueSuccess { get; set; } = true;
+
         public void Dispose()
         {
             this.Dispose(true);
@@ -79,6 +84,7 @@
         {
             if (this.folder == null)
             {
+                this.IsEnqueueSuccess = false;
                 return false;
             }
 
@@ -109,6 +115,7 @@
                 catch (Exception exp)
                 {
                     TelemetryChannelEventSource.Log.TransmissionFailedToStoreWarning(transmission.Id, exp.ToString());
+                    this.IsEnqueueSuccess = false;
                     throw;
                 }
             }
@@ -117,6 +124,7 @@
                 TelemetryChannelEventSource.Log.StorageEnqueueNoCapacityWarning(this.size, this.Capacity);
             }
 
+            this.IsEnqueueSuccess = false;
             return false;
         }
 

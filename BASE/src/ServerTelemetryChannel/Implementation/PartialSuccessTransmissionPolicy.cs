@@ -115,6 +115,13 @@
                         args.Transmission.ContentEncoding,
                         args.Transmission.Timeout);
 
+                    if (args.Transmission.HasFlushTask)
+                    {
+                        // Copy FlushTask from current transmission to new transmission
+                        // newTransmission will get moved to storage by AsyncFlushTransmissionPolicy
+                        newTransmission.SetFlushTaskCompletionSource(args.Transmission.GetFlushTaskCompletionSource());
+                    }
+
                     this.Transmitter.Enqueue(newTransmission);
                 }
                 else
