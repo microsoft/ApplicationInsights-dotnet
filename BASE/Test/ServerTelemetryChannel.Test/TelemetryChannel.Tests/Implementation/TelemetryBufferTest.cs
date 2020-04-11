@@ -445,8 +445,7 @@
                 }
                 catch
                 {
-
-                    throw;
+                    // Swallow Exception
                 }
 
                 Assert.IsFalse(telemetrySerialized);
@@ -481,7 +480,7 @@
                 }
                 catch
                 {
-                    throw;
+                    // Swallow exception
                 }
 
                 Assert.AreSame(expectedTelemetry, serializedTelemetry.Single());

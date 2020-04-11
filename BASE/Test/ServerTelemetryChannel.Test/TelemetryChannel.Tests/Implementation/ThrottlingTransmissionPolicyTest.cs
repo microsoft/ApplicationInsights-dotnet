@@ -19,11 +19,19 @@
             private const int ResponseCodeTooManyRequestsOverExtendedTime = 439;
             private const int ResponseCodePaymentRequired = 402;
             private const int ResponseCodeUnsupported = 0;
+            private bool hasFlushTask = false;
 
             [TestMethod]
             public void AssertTooManyRequestsStopsSending()
             {
                 this.PositiveTest(ResponseCodeTooManyRequests, 0, null, null);
+            }
+
+            [TestMethod]
+            public void AssertTooManyRequestsStopsSendingWithFlushAsyncTask()
+            {
+                hasFlushTask = true;
+                this.PositiveTest(ResponseCodeTooManyRequests, 0, 0, null);
             }
 
             [TestMethod]
@@ -127,11 +135,19 @@
                 var policy = new ThrottlingTransmissionPolicy();
                 policy.Initialize(transmitter);
 
+                string statusDescription = null;
+                if (hasFlushTask)
+                {
+                    statusDescription = "SendToDisk";
+                    hasFlushTask = false;
+                }
+
                 transmitter.OnTransmissionSent(
                     new TransmissionProcessedEventArgs(
                         new StubTransmission(), null, new HttpWebResponseWrapper()
                         {
                             StatusCode = responseCode,
+                            StatusDescription = statusDescription,
                             RetryAfterHeader = retryAfter
                         }));
 

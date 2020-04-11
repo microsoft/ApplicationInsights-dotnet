@@ -299,6 +299,79 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                 catch
                 {
                 }
+
+                Assert.IsTrue(flushTask.Result);
+            }
+        }
+
+        [TestMethod]
+        public async Task ChannelSendsTransmissionAndMovesBufferToStorageOnFlushAsync()
+        {
+            using (var localServer = new LocalInProcHttpServer(Localurl))
+            {
+                IList<ITelemetry> telemetryItems = new List<ITelemetry>();
+                var telemetry = new EventTelemetry("test event name");
+                telemetry.Context.InstrumentationKey = "dummy";
+                telemetryItems.Add((telemetry));
+                var serializedExpected = JsonSerializer.Serialize(telemetryItems);
+
+                localServer.ServerLogic = async (ctx) =>
+                {
+                    await Task.Delay(DelayfromWebServerInMilliseconds);
+                    await ctx.Response.WriteAsync("Ok");
+                };
+
+                var channel = new ServerTelemetryChannel
+                {
+                    EndpointAddress = Localurl
+                };
+
+                var config = new TelemetryConfiguration("dummy")
+                {
+                    TelemetryChannel = channel
+                };
+                channel.Initialize(config);
+
+                using (var listener = new TestEventListener())
+                {
+                    listener.EnableEvents(TelemetryChannelEventSource.Log, EventLevel.LogAlways,
+                        (EventKeywords)AllKeywords);
+                    // ACT 
+                    // Data would be sent to the LocalServer which validates it.
+                    channel.Send(telemetry);
+                    var flushTask = channel.FlushAsync(default);
+                    
+                    // Add transmissions to Buffer when we are waiting for data from server
+                    // Set Sender Capacity to to zero, so no items from buffer will be picked for processing
+                    // Sleep for few microseconds so that FlushAsync moves to a state of waiting for data from server
+                    Thread.Sleep(100);
+                    channel.MaxTransmissionSenderCapacity = 0;
+
+                    for (int i = 0; i < 10; i++)
+                    {
+                        channel.Transmitter.Buffer.Enqueue(() => new StubTransmission());
+                    }
+
+                    try
+                    {
+                        await flushTask;
+                    }
+                    catch
+                    {
+                    }
+
+                    // VERIFY
+                    // We validate by checking SDK traces.
+                    var allTraces = listener.Messages.ToList();
+                    // Event 22 is logged upon successful transmission.
+                    var traces = allTraces.Where(item => item.EventId == 22).ToList();
+                    Assert.AreEqual(1, traces.Count);
+                    // Event 26 is logged when items are moved to Storage.
+                    traces = allTraces.Where(item => item.EventId == 26).ToList();
+                    Assert.IsTrue(traces.Count >= 1);
+                    // Returns success, telemetry items are in storage as transmission. Control has transferred out of process. 
+                    Assert.IsTrue(flushTask.Result);
+                }
             }
         }
 
@@ -403,6 +476,9 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     Assert.IsTrue(traces.Count > 0);
                     // 500 is the response code.
                     Assert.AreEqual("500", traces[0].Payload[1]);
+                    // Event 26 is logged when items are moved to Storage.
+                    traces = allTraces.Where(item => item.EventId == 26).ToList();
+                    Assert.IsTrue(traces.Count >= 1);
                     // Returns success, telemetry items are in storage as transmission. Control has transferred out of process. 
                     Assert.IsTrue(flushTask.Result);
                 }
@@ -454,12 +530,12 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     // We validate by checking SDK traces
                     var allTraces = listener.Messages.ToList();
 
-                    // Event 54 is logged upon transmission failure.
+                    // Event 71 is logged upon transmission failure.
                     var traces = allTraces.Where(item => item.EventId == 71).ToList();
                     Assert.IsTrue(traces.Count > 0);
-                    // 500 is the response code.
+                    // 400 is the response code.
                     Assert.AreEqual("400", traces[0].Payload[1]);
-                    // Returns success, telemetry items are in storage as transmission. Control has transferred out of process. 
+                    // Returns failure, non-whitelisted error code.
                     Assert.IsFalse(flushTask.Result);
                 }
             }
@@ -513,6 +589,9 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var traces = allTraces.Where(item => item.EventId == 54).ToList();
                     Assert.IsTrue(traces.Count > 0);
                     Assert.AreEqual("500", traces[0].Payload[1].ToString());
+                    // Event 26 is logged when items are moved to Storage.
+                    traces = allTraces.Where(item => item.EventId == 26).ToList();
+                    Assert.IsTrue(traces.Count >= 1);
                     // Returns success, telemetry items are in storage as transmission. Control has transferred out of process. 
                     Assert.IsTrue(flushTask.Result);
                 }

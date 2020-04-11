@@ -234,7 +234,9 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
                     var policy = new ErrorHandlingTransmissionPolicy();
                     policy.Initialize(transmitter);
 
+                    // Setting flush task to check for failure
                     var failedTransmission = new StubTransmission();
+                    var task = failedTransmission.GetFlushTask(default);
 
                     // Act:
                     transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(failedTransmission, null, null));
@@ -244,6 +246,8 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
                     Assert.AreEqual(1, traces.Count);
                     Assert.AreEqual(69, traces[0].EventId); // failed to send
                     Assert.AreEqual("Unknown Exception Message", traces[0].Payload[1]);
+                    // Sets flush task to failure on not whitelisted status code
+                    Assert.IsFalse(task.Result);
                 }
             }
 
@@ -268,6 +272,8 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
                     policy.Initialize(transmitter);
 
                     var failedTransmission = new StubTransmission();
+                    // Setting flush task to check for failure
+                    var task = failedTransmission.GetFlushTask(default);
 
                     // Act:
                     var res = new HttpWebResponseWrapper();
@@ -279,6 +285,8 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
                     Assert.AreEqual(1, traces.Count);
                     Assert.AreEqual(71, traces[0].EventId); // failed to send
                     Assert.AreEqual("8989", traces[0].Payload[1]);
+                    // Sets flush task to failure on not whitelisted status code
+                    Assert.IsFalse(task.Result);
                 }
             }
 

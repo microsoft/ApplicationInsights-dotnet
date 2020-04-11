@@ -183,7 +183,7 @@
             public void ThrowsArgumentNullExceptionWhenTelemetryIsNullToPreventUsageErrors()
             {
                 var serializer = new TelemetrySerializer(new StubTransmitter());
-                AssertEx.Throws<ArgumentNullException>(() => serializer.SerializeAsync(null, CancellationToken.None));
+                AssertEx.Throws<ArgumentNullException>(() => serializer.SerializeAsync(null, default));
             }
 
             [TestMethod]

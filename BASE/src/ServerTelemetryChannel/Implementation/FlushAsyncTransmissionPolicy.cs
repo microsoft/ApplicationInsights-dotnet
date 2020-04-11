@@ -39,7 +39,7 @@
                 // Moves transmission to storage when sender is out of capacity
                 if (httpWebResponseWrapper.StatusDescription == "SendToDisk")
                 {
-                    // Move currennt transmission to storage
+                    // Move current transmission to storage
                     if (!this.Transmitter.Storage.Enqueue(() => e.Transmission))
                     {
                         TelemetryChannelEventSource.Log.TransmitterStorageSkipped(e.Transmission.Id);
@@ -49,7 +49,7 @@
                     }
                 }
 
-                // Disable sending and buffer capacity (Enqueue will enqueue to the Storage)
+                // Disable sending and buffer capacity to move items from buffer to the Storage)
                 this.MaxSenderCapacity = 0;
                 this.MaxBufferCapacity = 0;
                 this.LogCapacityChanged();
