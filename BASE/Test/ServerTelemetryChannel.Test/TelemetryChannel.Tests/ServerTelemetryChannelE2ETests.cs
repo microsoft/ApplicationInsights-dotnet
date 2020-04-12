@@ -28,8 +28,8 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
         private const string LocalurlNotRunning = "http://localhost:6091";
         private const long AllKeywords = -1;
         private const int SleepInMilliseconds = 10000;
-        private const int DelayfromWebServerInMilliseconds = 6000;
-        private const int CancellationTimeOutInMilliseconds = 5000;
+        private const int DelayfromWebServerInMilliseconds = 2000;
+        private const int CancellationTimeOutInMilliseconds = 1000;
 
         [TestMethod]
         [Ignore("Ignored as unstable in Test/Build machines. Run locally when making changes to ServerChannel")]
@@ -291,16 +291,8 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                 // ACT 
                 // Data would be sent to the LocalServer which validates it.
                 channel.Send(telemetry);
-                var flushTask = channel.FlushAsync(default);
-                try
-                {
-                    await flushTask;
-                }
-                catch
-                {
-                }
-
-                Assert.IsTrue(flushTask.Result);
+                var flushResult = await channel.FlushAsync(default);
+                Assert.IsTrue(flushResult);
             }
         }
 
@@ -405,14 +397,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var telemetry = new EventTelemetry("test event name");
                     telemetry.Context.InstrumentationKey = "dummy";
                     channel.Send(telemetry);
-                    var flushTask = channel.FlushAsync(default);
-                    try
-                    {
-                        await flushTask;
-                    }
-                    catch
-                    {
-                    }
+                    var flushResult = await channel.FlushAsync(default);
                     Thread.Sleep(SleepInMilliseconds);
 
                     // VERIFY
@@ -421,7 +406,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     // Event 22 is logged upon successful transmission.
                     var traces = allTraces.Where(item => item.EventId == 22).ToList();
                     Assert.AreEqual(1, traces.Count);
-                    Assert.IsTrue(flushTask.Result);
+                    Assert.IsTrue(flushResult);
                 }
             }
         }
@@ -457,14 +442,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var telemetry = new EventTelemetry("test event name");
                     telemetry.Context.InstrumentationKey = "dummy";
                     channel.Send(telemetry);
-                    var flushTask = channel.FlushAsync(default);
-                    try
-                    {
-                        await flushTask;
-                    }
-                    catch
-                    {
-                    }
+                    var flushResult = await channel.FlushAsync(default);
                     Thread.Sleep(SleepInMilliseconds);
 
                     // VERIFY
@@ -480,7 +458,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     traces = allTraces.Where(item => item.EventId == 26).ToList();
                     Assert.IsTrue(traces.Count >= 1);
                     // Returns success, telemetry items are in storage as transmission. Control has transferred out of process. 
-                    Assert.IsTrue(flushTask.Result);
+                    Assert.IsTrue(flushResult);
                 }
             }
         }
@@ -516,14 +494,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var telemetry = new EventTelemetry("test event name");
                     telemetry.Context.InstrumentationKey = "dummy";
                     channel.Send(telemetry);
-                    var flushTask = channel.FlushAsync(default);
-                    try
-                    {
-                        await flushTask;
-                    }
-                    catch
-                    {
-                    }
+                    var flushResult = await channel.FlushAsync(default);
                     Thread.Sleep(SleepInMilliseconds);
 
                     // VERIFY
@@ -536,7 +507,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     // 400 is the response code.
                     Assert.AreEqual("400", traces[0].Payload[1]);
                     // Returns failure, non-whitelisted error code.
-                    Assert.IsFalse(flushTask.Result);
+                    Assert.IsFalse(flushResult);
                 }
             }
         }
@@ -573,14 +544,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var telemetry = new EventTelemetry("test event name");
                     telemetry.Context.InstrumentationKey = "dummy";
                     channel.Send(telemetry);
-                    var flushTask = channel.FlushAsync(default);
-                    try
-                    {
-                        await flushTask;
-                    }
-                    catch
-                    {
-                    }
+                    var flushResult = await channel.FlushAsync(default);
                     Thread.Sleep(SleepInMilliseconds);
 
                     // Assert:
@@ -593,7 +557,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     traces = allTraces.Where(item => item.EventId == 26).ToList();
                     Assert.IsTrue(traces.Count >= 1);
                     // Returns success, telemetry items are in storage as transmission. Control has transferred out of process. 
-                    Assert.IsTrue(flushTask.Result);
+                    Assert.IsTrue(flushResult);
                 }
             }
         }
@@ -629,14 +593,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var telemetry = new EventTelemetry("test event name");
                     telemetry.Context.InstrumentationKey = "dummy";
                     channel.Send(telemetry);
-                    var flushTask = channel.FlushAsync(default);
-                    try
-                    {
-                        await flushTask;
-                    }
-                    catch
-                    {
-                    }
+                    var flushResult = await channel.FlushAsync(default);
                     Thread.Sleep(SleepInMilliseconds);
 
                     // Assert:
@@ -646,7 +603,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     Assert.AreEqual(1, traces.Count);
                     // 439 is the response code.
                     Assert.AreEqual("439", traces[0].Payload[1]);
-                    Assert.IsFalse(flushTask.Result);
+                    Assert.IsFalse(flushResult);
                 }
             }
         }
@@ -690,16 +647,9 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                         var telemetry = new EventTelemetry("test event name");
                         telemetry.Context.InstrumentationKey = "dummy";
                         channel.Send(telemetry);
-                        var flushTask = channel.FlushAsync(default);
-                        try
-                        {
-                            await flushTask;
-                        }
-                        catch
-                        {
-                        }
+                        var flushResult = await channel.FlushAsync(default);
+                        Assert.IsTrue(flushResult);
                         Thread.Sleep(SleepInMilliseconds);
-                        Assert.IsTrue(flushTask.Result);
                     }
 
                     // Assert:
@@ -781,14 +731,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var telemetry = new EventTelemetry("test event name");
                     telemetry.Context.InstrumentationKey = "dummy";
                     channel.Send(telemetry);
-                    var flushTask = channel.FlushAsync(default);
-                    try
-                    {
-                        await flushTask;
-                    }
-                    catch
-                    {
-                    }
+                    var flushResult = await channel.FlushAsync(default);
                     Thread.Sleep(SleepInMilliseconds);
 
                     // VERIFY
@@ -796,9 +739,9 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var allTraces = listener.Messages.ToList();
                     // Event 26 is logged when items are moved to Storage.
                     var traces = allTraces.Where(item => item.EventId == 26).ToList();
-                    Assert.AreEqual(1, traces.Count);
+                    Assert.IsTrue(traces.Count >= 1);
                     // All items are moved to storage
-                    Assert.IsTrue(flushTask.Result);
+                    Assert.IsTrue(flushResult);
                 }
             }
         }
@@ -835,14 +778,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var telemetry = new EventTelemetry("test event name");
                     telemetry.Context.InstrumentationKey = "dummy";
                     channel.Send(telemetry);
-                    var flushTask = channel.FlushAsync(default);
-                    try
-                    {
-                        await flushTask;
-                    }
-                    catch
-                    {
-                    }
+                    var flushResult = await channel.FlushAsync(default);
                     Thread.Sleep(SleepInMilliseconds);
 
                     // VERIFY
@@ -852,7 +788,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var traces = allTraces.Where(item => item.EventId == 25).ToList();
                     Assert.IsTrue(traces.Count > 0);
                     // Returns failure as telemetry items did not store either in webserver or storage, failure is within the process. 
-                    Assert.IsFalse(flushTask.Result);
+                    Assert.IsFalse(flushResult);
                 }
             }
         }
@@ -889,14 +825,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var telemetry = new EventTelemetry("test event name");
                     telemetry.Context.InstrumentationKey = "dummy";
                     channel.Send(telemetry);
-                    var flushTask = channel.FlushAsync(default);
-                    try
-                    {
-                        await flushTask;
-                    }
-                    catch
-                    {
-                    }
+                    var flushResult = await channel.FlushAsync(default);
                     Thread.Sleep(SleepInMilliseconds);
 
                     // VERIFY
@@ -904,8 +833,8 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var allTraces = listener.Messages.ToList();
                     // Event 26 is logged when items are moved to storage.
                     var traces = allTraces.Where(item => item.EventId == 26).ToList();
-                    Assert.AreEqual(1, traces.Count);
-                    Assert.IsTrue(flushTask.Result);
+                    Assert.IsTrue(traces.Count >= 1);
+                    Assert.IsTrue(flushResult);
                 }
             }
         }
@@ -943,14 +872,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var telemetry = new EventTelemetry("test event name");
                     telemetry.Context.InstrumentationKey = "dummy";
                     channel.Send(telemetry);
-                    var flushTask = channel.FlushAsync(default);
-                    try
-                    {
-                        await flushTask;
-                    }
-                    catch
-                    {
-                    }
+                    var flushResult = await channel.FlushAsync(default);
                     Thread.Sleep(SleepInMilliseconds);
 
                     // VERIFY
@@ -960,7 +882,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var traces = allTraces.Where(item => item.EventId == 42).ToList();
                     Assert.AreEqual(1, traces.Count);
                     // We lose telemetry.
-                    Assert.IsFalse(flushTask.Result);
+                    Assert.IsFalse(flushResult);
                 }
             }
         }
@@ -1024,17 +946,8 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var telemetry = new EventTelemetry("test event name");
                     telemetry.Context.InstrumentationKey = "dummy";
                     channel.Send(telemetry);                    
-                    var flushTask = channel.FlushAsync(default);
-
-                    try
-                    {
-                        await flushTask;
-                    }
-                    catch
-                    {
-                    }
-
-                    Assert.IsTrue(flushTask.Result);
+                    var flushResult = await channel.FlushAsync(default);
+                    Assert.IsTrue(flushResult);
                 }
             }
         }
@@ -1098,17 +1011,15 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var telemetry = new EventTelemetry("test event name");
                     telemetry.Context.InstrumentationKey = "dummy";
                     channel.Send(telemetry);                    
-                    var flushTask = channel.FlushAsync(default);
+                    var flushResult = await channel.FlushAsync(default);
+                    Assert.IsTrue(flushResult);
 
-                    try
-                    {
-                        await flushTask;
-                    }
-                    catch
-                    {
-                    }
-
-                    Assert.IsTrue(flushTask.Result);
+                    // We validate by checking SDK traces.
+                    allTraces = listener.Messages.ToList();
+                    // Event 26 is logged when items are moved to storage.
+                    traces = allTraces.Where(item => item.EventId == 26).ToList();
+                    // Transmission is moved to storage when Sender is out of capacity.
+                    Assert.IsTrue(traces.Count >= 1);
                 }
             }
         }
@@ -1148,14 +1059,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                         channel.Send(telemetry);
                     }
 
-                    var flushTask = channel.FlushAsync(default(CancellationToken));
-                    try
-                    {
-                        await flushTask;
-                    }
-                    catch
-                    {
-                    }
+                    var flushResult = await channel.FlushAsync(default(CancellationToken));
                     Thread.Sleep(SleepInMilliseconds);
 
                     // VERIFY
@@ -1163,8 +1067,8 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var allTraces = listener.Messages.ToList();
                     // Event 26 is logged once items are moved to Storage.
                     var traces = allTraces.Where(item => item.EventId == 26).ToList();
-                    Assert.IsTrue(traces.Count > 0);
-                    Assert.IsTrue(flushTask.Result);
+                    Assert.IsTrue(traces.Count >= 1);
+                    Assert.IsTrue(flushResult);
                 }
             }
         }
@@ -1206,16 +1110,8 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                            var eventTelemetry = new EventTelemetry("test event name");
                            eventTelemetry.Context.InstrumentationKey = "dummy";
                            channel.Send(eventTelemetry);
-                           var flushTask = channel.FlushAsync(default);
-                           try
-                           {
-                               await flushTask;
-                           }
-                           catch
-                           {
-                           }
-
-                           Assert.IsTrue(flushTask.Result);
+                           var flushResult = await channel.FlushAsync(default);
+                           Assert.IsTrue(flushResult);
                        });
                     Thread.Sleep(SleepInMilliseconds);
 

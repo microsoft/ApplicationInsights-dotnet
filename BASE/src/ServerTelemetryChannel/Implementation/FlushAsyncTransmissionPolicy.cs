@@ -49,7 +49,7 @@
                     }
                 }
 
-                // Disable sending and buffer capacity to move items from buffer to the Storage)
+                // Disable sending and buffer capacity to move items from buffer to the Storage
                 this.MaxSenderCapacity = 0;
                 this.MaxBufferCapacity = 0;
                 this.LogCapacityChanged();

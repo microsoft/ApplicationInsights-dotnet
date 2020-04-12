@@ -437,19 +437,10 @@
                 };
 
                 var telemetryBuffer = new TelemetryBuffer(serializer, new StubApplicationLifecycle());
-                var task = telemetryBuffer.FlushAsync(default);
-
-                try
-                {
-                    await task;
-                }
-                catch
-                {
-                    // Swallow Exception
-                }
+                var taskResult = await telemetryBuffer.FlushAsync(default);
 
                 Assert.IsFalse(telemetrySerialized);
-                Assert.IsTrue(task.Result);
+                Assert.IsTrue(taskResult);
             }
 
             [TestMethod]
@@ -472,19 +463,10 @@
                 var expectedTelemetry = new StubTelemetry();
                 telemetryBuffer.Process(expectedTelemetry);
 
-                var task = telemetryBuffer.FlushAsync(default);
-
-                try
-                {
-                    await task;
-                }
-                catch
-                {
-                    // Swallow exception
-                }
+                var taskResult = await telemetryBuffer.FlushAsync(default);
 
                 Assert.AreSame(expectedTelemetry, serializedTelemetry.Single());
-                Assert.IsTrue(task.Result);
+                Assert.IsTrue(taskResult);
             }
 
             [TestMethod]
@@ -503,19 +485,10 @@
                 buffer.Capacity = 10;
                 buffer.Process(new StubTelemetry());
 
-                var task = buffer.FlushAsync(default);
-
-                try
-                {
-                    await task;
-                }
-                catch
-                {
-                    // swallow exception
-                }
+                var taskResult = await buffer.FlushAsync(default);
 
                 Assert.AreEqual(0, buffer.Count());
-                Assert.IsTrue(task.Result);
+                Assert.IsTrue(taskResult);
             }
 
             [TestMethod]
@@ -542,19 +515,10 @@
                         callback(state);
                     };
 
-                    var task = buffer.FlushAsync(default);
-
-                    try
-                    {
-                        await task;
-                    }
-                    catch
-                    {
-                        // swallow exception
-                    }
+                    var taskResult = await buffer.FlushAsync(default);
 
                     Assert.IsFalse(postedBack);
-                    Assert.IsTrue(task.Result);
+                    Assert.IsTrue(taskResult);
                 }
             }
 

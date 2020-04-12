@@ -205,16 +205,7 @@
                 };
 
                 var serializer = new TelemetrySerializer(transmitter) { EndpointAddress = new Uri("http://expected.uri") };
-                var task = serializer.SerializeAsync(new[] { new StubTelemetry() }, default);
-
-                try
-                {
-                    await task;
-                }
-                catch
-                {
-                    // Swallow Exception
-                }
+                var taskResult = await serializer.SerializeAsync(new[] { new StubTelemetry() }, default);
 
                 Assert.AreEqual(serializer.EndpointAddress, transmission.EndpointAddress);
                 Assert.AreEqual("application/x-json-stream", transmission.ContentType);
@@ -227,7 +218,7 @@
                             "\"name\":\"ConvertedTelemetry\"}" +
                         "}" +
                     "}", Unzip(transmission.Content));
-                Assert.IsTrue(task.Result);
+                Assert.IsTrue(taskResult);
             }
 
             [TestMethod]
@@ -242,16 +233,7 @@
                 };
 
                 var serializer = new TelemetrySerializer(transmitter) { EndpointAddress = new Uri("http://expected.uri") };
-                var task = serializer.SerializeAsync(new[] { new StubSerializableTelemetry() }, default);
-
-                try
-                {
-                    await task;
-                }
-                catch (Exception)
-                {
-                    // Swallow Exception
-                }
+                var taskResult = await serializer.SerializeAsync(new[] { new StubSerializableTelemetry() }, default);
 
                 Assert.AreEqual(serializer.EndpointAddress, transmission.EndpointAddress);
                 Assert.AreEqual("application/x-json-stream", transmission.ContentType);
@@ -265,7 +247,7 @@
                         "}" +
                     "}";
                 Assert.AreEqual(expectedContent, Unzip(transmission.Content));
-                Assert.IsTrue(task.Result);
+                Assert.IsTrue(taskResult);
             }
 
             [TestMethod]
