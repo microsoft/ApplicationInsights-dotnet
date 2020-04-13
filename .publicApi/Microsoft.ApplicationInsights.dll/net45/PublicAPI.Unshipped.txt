@@ -11,14 +11,3 @@ Microsoft.ApplicationInsights.Channel.Transmission.Serialize(System.Uri address,
 Microsoft.ApplicationInsights.Channel.Transmission.SetFlushTaskCompletionSource(System.Threading.Tasks.TaskCompletionSource<bool> flushTaskCompletionSource) -> void
 Microsoft.ApplicationInsights.Channel.Transmission.TransmissionCancellationToken.get -> System.Threading.CancellationToken
 Microsoft.ApplicationInsights.TelemetryClient.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
-Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxTraceCloudRoleInstanceValuesToDiscover.get -> int
-Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxTraceCloudRoleInstanceValuesToDiscover.set -> void
-Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxTraceCloudRoleNameValuesToDiscover.get -> int
-Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxTraceCloudRoleNameValuesToDiscover.set -> void
-Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxExceptionCloudRoleInstanceValuesToDiscover.get -> int
-Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxExceptionCloudRoleInstanceValuesToDiscover.set -> void
-Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxExceptionCloudRoleNameValuesToDiscover.get -> int
-Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxExceptionCloudRoleNameValuesToDiscover.set -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryExtensions
-static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryExtensions.GetEnvelopeName(this Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> string
-static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryExtensions.TrySetEnvelopeName(this Microsoft.ApplicationInsights.Channel.ITelemetry telemetry, string envelopeName) -> bool
