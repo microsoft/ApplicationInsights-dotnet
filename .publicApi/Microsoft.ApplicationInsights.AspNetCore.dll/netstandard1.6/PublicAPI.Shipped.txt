@@ -71,6 +71,7 @@ Microsoft.ApplicationInsights.AspNetCore.ITelemetryProcessorFactory.Create(Micro
 Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet
 Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet.FullScript.get -> string
 Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet.JavaScriptSnippet(Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration telemetryConfiguration, Microsoft.Extensions.Options.IOptions<Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions> serviceOptions, Microsoft.AspNetCore.Http.IHttpContextAccessor httpContextAccessor, System.Text.Encodings.Web.JavaScriptEncoder encoder = null) -> void
+Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet.ScriptBody.get -> string
 Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerOptions
 Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerOptions.ApplicationInsightsLoggerOptions() -> void
 Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerOptions.IncludeEventId.get -> bool
