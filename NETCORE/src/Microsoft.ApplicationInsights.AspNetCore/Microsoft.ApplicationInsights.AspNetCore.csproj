@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="$(PropsRoot)\Product.props" />
   
-  <Import Project="$(SourceRoot)\Signing.props" Condition=" '$(OS)' == 'Windows_NT' " />
-
 
   <PropertyGroup>
     <!-- Override settings from Nupkg.props. I don't know why the NetCore projects need this and the others don't. -->
@@ -17,7 +15,7 @@
   <PropertyGroup>
     <AssemblyName>Microsoft.ApplicationInsights.AspNetCore</AssemblyName>
     <LangVersion>7.2</LangVersion>
-    <TargetFrameworks>netstandard2.0;net451;net46;netstandard1.6</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net451;net46;net461;netstandard1.6</TargetFrameworks>
     
     <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard1.6;netstandard2.0</TargetFrameworks>
     <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.6' ">1.6.1</NetStandardImplicitPackageVersion>	
@@ -74,12 +72,12 @@
     <PackageReference Include="System.Memory" Version="4.5.4" /> <!-- This is a temporary explicit dependency. We're waiting on the next version of System.Diagnostics.DiagnosticSource. https://github.com/microsoft/ApplicationInsights-dotnet/issues/1707 -->
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard2.0' ">
+  <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard2.0' AND '$(TargetFramework)' != 'net461' ">
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.0.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="1.0.2" />    
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">  
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net461' ">  
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.0" />
     <ProjectReference Include="..\..\..\LOGGING\src\ILogger\ILogger.csproj" />
     <ProjectReference Include="..\..\..\WEB\Src\EventCounterCollector\EventCounterCollector\EventCounterCollector.csproj" />
