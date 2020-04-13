@@ -445,12 +445,20 @@ Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxDep
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxDependencyTargetValuesToDiscover.set -> void
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxDependencyTypesToDiscover.get -> int
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxDependencyTypesToDiscover.set -> void
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxExceptionCloudRoleInstanceValuesToDiscover.get -> int
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxExceptionCloudRoleInstanceValuesToDiscover.set -> void
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxExceptionCloudRoleNameValuesToDiscover.get -> int
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxExceptionCloudRoleNameValuesToDiscover.set -> void
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxRequestCloudRoleInstanceValuesToDiscover.get -> int
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxRequestCloudRoleInstanceValuesToDiscover.set -> void
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxRequestCloudRoleNameValuesToDiscover.get -> int
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxRequestCloudRoleNameValuesToDiscover.set -> void
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxRequestResponseCodeValuesToDiscover.get -> int
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxRequestResponseCodeValuesToDiscover.set -> void
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxTraceCloudRoleInstanceValuesToDiscover.get -> int
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxTraceCloudRoleInstanceValuesToDiscover.set -> void
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxTraceCloudRoleNameValuesToDiscover.get -> int
+Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.MaxTraceCloudRoleNameValuesToDiscover.set -> void
 Microsoft.ApplicationInsights.Extensibility.AutocollectedMetricsExtractor.Process(Microsoft.ApplicationInsights.Channel.ITelemetry item) -> void
 Microsoft.ApplicationInsights.Extensibility.IApplicationIdProvider
 Microsoft.ApplicationInsights.Extensibility.IApplicationIdProvider.TryGetApplicationId(string instrumentationKey, out string applicationId) -> bool
@@ -554,6 +562,7 @@ Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryConfiguratio
 Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryContextExtensions
 Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryDebugWriter
 Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryDebugWriter.TelemetryDebugWriter() -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryExtensions
 Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryModules
 Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryModules.Modules.get -> System.Collections.Generic.IList<Microsoft.ApplicationInsights.Extensibility.ITelemetryModule>
 Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryModules.TelemetryModules() -> void
@@ -946,6 +955,8 @@ static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryConte
 static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryDebugWriter.IsTracingDisabled.get -> bool
 static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryDebugWriter.IsTracingDisabled.set -> void
 static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryDebugWriter.WriteTelemetry(Microsoft.ApplicationInsights.Channel.ITelemetry telemetry, string filteredBy = null) -> void
+static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryExtensions.GetEnvelopeName(this Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> string
+static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryExtensions.TrySetEnvelopeName(this Microsoft.ApplicationInsights.Channel.ITelemetry telemetry, string envelopeName) -> bool
 static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryModules.Instance.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryModules
 static Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Extensions.ToInvariantString(this System.Exception exception) -> string
 static Microsoft.ApplicationInsights.Extensibility.SdkInternalOperationsMonitor.Enter() -> void
