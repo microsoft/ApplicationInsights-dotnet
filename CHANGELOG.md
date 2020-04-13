@@ -2,6 +2,10 @@
 
 ## VNext
 
+
+## Version 2.14.0
+- no changes since beta.
+
 ## Version 2.14.0-beta5
 - [Stop collecting EventCounters from Microsoft.AspNetCore.Hosting](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1759)
 - [Enable ILogger provider for apps targetting .NET Framework](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1312)
