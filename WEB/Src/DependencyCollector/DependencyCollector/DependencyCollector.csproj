@@ -35,6 +35,9 @@
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="2.9.8">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -74,6 +77,11 @@
     <Content Include="ApplicationInsights.config.install.xdt" />
     <Content Include="ApplicationInsights.config.uninstall.xdt" />
     <Content Include="Microsoft.ApplicationInsights.DependencyCollector.targets" PackagePath="build" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\$(TargetFramework)\PublicAPI.Shipped.txt" />
+    <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\$(TargetFramework)\PublicAPI.Unshipped.txt" />
   </ItemGroup>
   
   <Import Project="..\Shared\DependencyCollector.Shared.projitems" Label="Shared" />
