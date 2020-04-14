@@ -89,6 +89,7 @@
             }
 
             this.EnsureSizeIsCalculated();
+            this.IsEnqueueSuccess = true;
 
             if (this.size < this.Capacity)
             {
