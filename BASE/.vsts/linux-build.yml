@@ -45,7 +45,7 @@ steps:
     version: 2.2.x
 
 - task: DotNetCoreCLI@1
-  displayName: DotNetCoreCLI - Test NetCore 2.0
+  displayName: DotNetCoreCLI - Test NetCore 2.1
   inputs:
     command: "test"
     projects: "BASE/Test/**/Microsoft.ApplicationInsights.Tests.csproj"
