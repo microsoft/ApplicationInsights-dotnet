@@ -31,7 +31,7 @@
         }
 
 #if NETCOREAPP2_1 || NETCOREAPP3_1
-        [Ignore]
+        [Ignore("Missing netstandard dependencies.")]
 #endif
         [TestMethod]
         public void AppInsightsDllCouldRunStandalone()

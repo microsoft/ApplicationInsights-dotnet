@@ -22,10 +22,6 @@
     <TargetFrameworks>netstandard1.3;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
 
-  <ItemGroup Condition="$(TargetFramework) == 'netcoreapp3.1'">
-    <Reference Include="netstandard" />
-  </ItemGroup>
-
   <ItemGroup Condition="$(OS) == 'Windows_NT'">
     <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
     <ProjectReference Include="..\..\..\Test\Microsoft.ApplicationInsights.Test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj" />
