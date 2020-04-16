@@ -1,6 +1,7 @@
 ﻿# Changelog
 
 ## VNext
+[WorkerService package is modified to depend on 2.1.1 on Microsoft.Extensions.DependencyInjection so that it can be used in .NET Core 2.1 projects without nuget errors.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1677)
 
 
 ## Version 2.14.0
