@@ -504,7 +504,7 @@
         }
 
         [TestMethod]
-#if NETCOREAPP3_0
+#if NETCOREAPP3_0 || NETCOREAPP3_1
         [ExpectedExceptionWithMessage(typeof(ArgumentException), "Failed to parse configuration value. Property: 'TimeSpanProperty' Reason: String 'TestValue' was not recognized as a valid TimeSpan.")]
 #else
         [ExpectedExceptionWithMessage(typeof(ArgumentException), "Failed to parse configuration value. Property: 'TimeSpanProperty' Reason: String was not recognized as a valid TimeSpan.")]
