@@ -24,7 +24,7 @@
     <PackageId>Microsoft.ApplicationInsights.WorkerService</PackageId>
     <AssemblyTitle>Application Insights for .NET Core Worker Service Applications</AssemblyTitle>
     <Title>Application Insights for .NET Core Worker Service Applications</Title>
-    <Description>Application Insights for .NET Core Worker Service (messaging, background tasks, and any non-HTTP workloads) applications. See https://azure.microsoft.com/documentation/articles/app-insights-asp-net-five/ for more information. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
+    <Description>Application Insights for .NET Core Worker Service (messaging, background tasks, and any non-HTTP workloads) applications. See https://docs.microsoft.com/azure/azure-monitor/app/worker-service for more information. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
     <PackageTags>$(PackageTags)worker;console;backgroundtasks;</PackageTags>
   </PropertyGroup>
 
@@ -62,7 +62,7 @@
     <ProjectReference Include="..\..\..\WEB\Src\PerformanceCollector\PerformanceCollector\Perf.csproj" />
     <ProjectReference Include="..\..\..\WEB\Src\WindowsServer\WindowsServer\WindowsServer.csproj" />
     
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.1" />
   </ItemGroup>
 
   <ItemGroup>
