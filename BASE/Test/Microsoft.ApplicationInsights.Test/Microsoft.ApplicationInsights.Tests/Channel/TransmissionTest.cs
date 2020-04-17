@@ -17,7 +17,6 @@
     using System.CodeDom;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using System.Diagnostics.Tracing;
-    using System.Diagnostics;
 
     public class TransmissionTest
     {
