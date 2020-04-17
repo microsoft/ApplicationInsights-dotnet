@@ -15,6 +15,9 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.CodeDom;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using System.Diagnostics.Tracing;
+    using System.Diagnostics;
 
     public class TransmissionTest
     {
@@ -86,6 +89,7 @@
         public class SendAsync
         {
             private readonly Uri testUri = new Uri("https://127.0.0.1/");
+            private const long AllKeywords = -1;
 
             [TestMethod]
             public async Task SendAsyncUsesPostMethodToSpecifiedHttpEndpoint()
@@ -362,6 +366,54 @@
                     Assert.IsNull(result.Content, "Content is not to be read except in partial response (206) status.");
                 }
 
+            }
+
+            [TestMethod]
+            public async Task SendAsyncLogsBreezeReponseTimeAndStatusCode()
+            {
+                var handler = new HandlerForFakeHttpClient
+                {
+                    InnerHandler = new HttpClientHandler(),
+                    OnSendAsync = (req, cancellationToken) =>
+                    {
+                        // VALIDATE
+                        Assert.AreEqual(testUri, req.RequestUri);
+                        Assert.AreEqual(HttpMethod.Post, req.Method);
+                        return Task.FromResult<HttpResponseMessage>(new HttpResponseMessage());
+                    }
+                };
+
+                using (var fakeHttpClient = new HttpClient(handler))
+                {
+                    var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
+
+                    // Instantiate Transmission with the mock HttpClient
+                    Transmission transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
+                    // transmission.Timeout = TimeSpan.FromMilliseconds(1);
+
+                    using (var listener = new TestEventListener())
+                    {
+                        var eventCounterArguments = new Dictionary<string, string>
+                        {
+                            {"EventCounterIntervalSec", "1"}
+                        };
+
+                        listener.EnableEvents(CoreEventSource.Log, EventLevel.LogAlways, (EventKeywords)AllKeywords, eventCounterArguments);
+
+                        HttpWebResponseWrapper result = await transmission.SendAsync();
+
+                        // VERIFY
+                        // We validate by checking SDK traces.
+                        var allTraces = listener.Messages.ToList();
+                        // Event 67 is logged after response from breeze.
+                        var traces = allTraces.Where(item => item.EventId == 67).ToList();
+                        Assert.AreEqual(1, traces.Count);
+#if NETSTANDARD2_0
+                        traces = allTraces.Where(item => item.EventName == "EventCounters").ToList();
+                        Assert.AreEqual(1, traces.Count);
+#endif
+                    }
+                }
             }
         }
     }
