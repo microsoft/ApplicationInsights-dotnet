@@ -1,7 +1,7 @@
 ﻿# Changelog
 
 ## VNext
-
+- [Added EventCounter to track breeze response time] (https://github.com/microsoft/ApplicationInsights-dotnet/issues/1735)
 
 ## Version 2.14.0
 - no changes since beta.
