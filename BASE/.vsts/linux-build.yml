@@ -29,13 +29,6 @@ steps:
     projects: "BASE/Test/**/Microsoft.ApplicationInsights.Tests.csproj"
     arguments: "--configuration Release --framework netcoreapp3.1 -l trx --filter TestCategory!=WindowsOnly"
 
-- task: DotNetCoreCLI@1
-  displayName: DotNetCoreCLI - Test NetCore 3.0
-  inputs:
-    command: "test"
-    projects: "BASE/Test/**/Microsoft.ApplicationInsights.Tests.csproj"
-    arguments: "--configuration Release --framework netcoreapp3.0 -l trx --filter TestCategory!=WindowsOnly"
-
 
 ## Install and test NetCore 2.2
 
@@ -50,13 +43,6 @@ steps:
     command: "test"
     projects: "BASE/Test/**/Microsoft.ApplicationInsights.Tests.csproj"
     arguments: "--configuration Release --framework netcoreapp2.1 -l trx --filter TestCategory!=WindowsOnly"
-
-- task: DotNetCoreCLI@1
-  displayName: DotNetCoreCLI - Test NetCore 2.0
-  inputs:
-    command: "test"
-    projects: "BASE/Test/**/Microsoft.ApplicationInsights.Tests.csproj"
-    arguments: "--configuration Release --framework netcoreapp2.0 -l trx --filter TestCategory!=WindowsOnly"
 
 
  ## Install and test NetCore 1.1
