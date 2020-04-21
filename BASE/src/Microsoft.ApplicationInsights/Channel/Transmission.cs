@@ -167,6 +167,8 @@
                             {
                                 stopwatch.Stop();
                                 CoreEventSource.Log.BreezeResponseTime(response != null ? (int)response.StatusCode : -1, stopwatch.ElapsedMilliseconds);
+                                // Log breeze respose time as event counter metric.
+                                CoreEventSource.Log.BreezeResponseTimeEventCounter(stopwatch.ElapsedMilliseconds);
 
                                 if (response != null)
                                 {

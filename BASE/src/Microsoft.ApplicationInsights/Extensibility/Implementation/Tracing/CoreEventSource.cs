@@ -629,16 +629,18 @@
         [Event(66, Message = "Call to WindowsIdentity.Current failed with the exception: {0}.", Level = EventLevel.Warning)]
         public void LogWindowsIdentityAccessSecurityException(string error, string appDomainName = "Incorrect") => this.WriteEvent(66, error ?? string.Empty, this.nameProvider.Name);
 
-        [Event(67, Message = "Backend has responded with {0} status code in {1}ms.", Level = EventLevel.Warning)]
-        public void BreezeResponseTime(int responseCode, float responseDurationInMs, string appDomainName = "Incorrect")
+        #endregion
+
+        [Event(67, Message = "Backend has responded with {0} status code in {1}ms.", Level = EventLevel.Informational)]
+        public void BreezeResponseTime(int responseCode, float responseDurationInMs, string appDomainName = "Incorrect") => this.WriteEvent(67, responseCode, responseDurationInMs, this.nameProvider.Name);
+
+        [NonEvent]
+        public void BreezeResponseTimeEventCounter(float responseDurationInMs)
         {
-            this.WriteEvent(67, responseCode, responseDurationInMs, this.nameProvider.Name);
 #if NETSTANDARD2_0
             this.BreezeResponseTimeCounter.WriteMetric(responseDurationInMs);
 #endif
         }
-
-        #endregion
 
         /// <summary>
         /// Keywords for the PlatformEventSource.
