@@ -407,10 +407,6 @@
                         // Event 67 is logged after response from breeze.
                         var traces = allTraces.Where(item => item.EventId == 67).ToList();
                         Assert.AreEqual(1, traces.Count);
-#if NETSTANDARD2_0
-                        traces = allTraces.Where(item => item.EventName == "EventCounters").ToList();
-                        Assert.AreEqual(1, traces.Count);
-#endif
                     }
                 }
             }
