@@ -39,6 +39,12 @@
     <PackageReleaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</PackageReleaseNotes>
     <!-- <PackageOutputPath>Defined in Directory.props</PackageOutputPath> -->
     <PackageTags>Analytics Azure ApplicationInsights Telemetry Monitoring SDK</PackageTags>
+    
+    <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+    <!-- Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
 
   <ItemGroup>
