@@ -48,7 +48,7 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" $(OS) == 'Windows_NT'">
     <!--Build Infrastructure-->
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>

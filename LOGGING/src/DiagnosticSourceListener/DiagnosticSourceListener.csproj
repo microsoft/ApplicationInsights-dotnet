@@ -4,9 +4,9 @@
     <RootNamespace>Microsoft.ApplicationInsights.DiagnosticSourceListener</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.DiagnosticSourceListener</AssemblyName>
   </PropertyGroup>
-  
+
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
-  
+
   <Import Project="$(PropsRoot)\Product.props" />
 
   <PropertyGroup>
@@ -38,7 +38,7 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" $(OS) == 'Windows_NT'">
     <!--Build Infrastructure-->
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>
@@ -52,7 +52,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.6.0" />
-    <PackageReference Include="System.Memory" Version="4.5.4" /> <!-- This is a temporary explicit dependency. We're waiting on the next version of System.Diagnostics.DiagnosticSource. https://github.com/microsoft/ApplicationInsights-dotnet/issues/1707 -->
+    <PackageReference Include="System.Memory" Version="4.5.4" />
+    <!-- This is a temporary explicit dependency. We're waiting on the next version of System.Diagnostics.DiagnosticSource. https://github.com/microsoft/ApplicationInsights-dotnet/issues/1707 -->
   </ItemGroup>
 
   <ItemGroup>
