@@ -25,12 +25,12 @@
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether Request-Context header is injected into the response.
+        /// Gets or sets a value indicating whether the Request-Context header is to be injected into the response.
         /// </summary>
         public bool InjectResponseHeaders { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether exceptions are be tracked by the RequestCollectionModule.
+        /// Gets or sets a value indicating whether exceptions are to be tracked by the RequestCollectionModule.
         /// Exceptions could be tracked by ApplicationInsightsLoggerProvider as well which is not affected by
         /// this setting.
         /// </summary>
