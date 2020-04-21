@@ -3,6 +3,8 @@ pool:
 steps:
 
 
+## Install NetCore 3.1, Restore Solution, Build Solution, Test NetCore 3.1
+
 - task: DotNetCoreInstaller@1
   displayName: install dotnet core 3.1
   inputs:
@@ -21,7 +23,6 @@ steps:
     projects: "BASE/*.sln"
     arguments: "--configuration Release"
 
-    
 - task: DotNetCoreCLI@1
   displayName: DotNetCoreCLI - Test NetCore 3.1
   inputs:
@@ -30,7 +31,7 @@ steps:
     arguments: "--configuration Release --framework netcoreapp3.1 -l trx --filter TestCategory!=WindowsOnly"
 
 
-## Install and test NetCore 2.2
+## Install and Test NetCore 2.2
 
 - task: DotNetCoreInstaller@1
   displayName: install dotnet core 2.2
@@ -45,7 +46,7 @@ steps:
     arguments: "--configuration Release --framework netcoreapp2.1 -l trx --filter TestCategory!=WindowsOnly"
 
 
- ## Install and test NetCore 1.1
+ ## Install and Test NetCore 1.1
 
 - task: DotNetCoreInstaller@0
   displayName: install dotnet core 1.1
@@ -59,7 +60,7 @@ steps:
     projects: "BASE/Test/**/Microsoft.ApplicationInsights.Tests.csproj"
     arguments: "--configuration Release --framework netcoreapp1.1 -l trx --filter TestCategory!=WindowsOnly"
 
-## Publish test results
+## Publish Test results
 
 - task: PublishTestResults@2
   condition: always()
