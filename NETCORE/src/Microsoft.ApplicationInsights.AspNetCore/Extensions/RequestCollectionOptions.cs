@@ -30,7 +30,7 @@
         public bool InjectResponseHeaders { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether exceptions are be tracked by the RequestCOllectionModule.
+        /// Gets or sets a value indicating whether exceptions are be tracked by the RequestCollectionModule.
         /// Exceptions could be tracked by ApplicationInsightsLoggerProvider as well which is not affected by
         /// this setting.
         /// </summary>
