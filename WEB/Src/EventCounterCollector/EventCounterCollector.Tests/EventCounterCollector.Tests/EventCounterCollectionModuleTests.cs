@@ -7,6 +7,7 @@ using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
 using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector.Implementation;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -69,6 +70,7 @@ namespace EventCounterCollector.Tests
             const int refreshTimeInSecs = 1;
             ConcurrentQueue<ITelemetry> itemsReceived = new ConcurrentQueue<ITelemetry>();
             string expectedName = this.TestEventCounterSourceName + "|" + this.TestEventCounterName1;
+            string expectedMetricNamespace = String.Empty;
             double expectedMetricValue = (1000 + 1500 + 1500 + 400) / 4;
             int expectedMetricCount = 4;
 
@@ -90,7 +92,7 @@ namespace EventCounterCollector.Tests
                 PrintTelemetryItems(itemsReceived);
 
                 // VALIDATE
-                ValidateTelemetry(itemsReceived, expectedName, expectedMetricValue, expectedMetricCount);
+                ValidateTelemetry(itemsReceived, expectedName, expectedMetricNamespace, expectedMetricValue, expectedMetricCount);
 
                 // Clear the items.
                 Trace.WriteLine("Clearing items received.");
@@ -101,11 +103,43 @@ namespace EventCounterCollector.Tests
                 Task.Delay(((int)refreshTimeInSecs * 1000)).Wait();                
                 Assert.IsTrue(itemsReceived.Count >= 1);
                 PrintTelemetryItems(itemsReceived);                
-                ValidateTelemetry(itemsReceived, expectedName, 0.0, 0);
+                ValidateTelemetry(itemsReceived, expectedName, expectedMetricNamespace, 0.0, 0);
             }
         }
 
-        private void ValidateTelemetry(ConcurrentQueue<ITelemetry> metricTelemetries, string expectedName, double expectedSum, double expectedCount)
+        [TestMethod]
+        [TestCategory("EventCounter")]
+        public void ValidateConfiguredNamingOptions()
+        {
+            // ARRANGE
+            const int refreshTimeInSecs = 1;
+            ConcurrentQueue<ITelemetry> itemsReceived = new ConcurrentQueue<ITelemetry>();
+            string expectedName = this.TestEventCounterName1;
+            string expectedMetricNamespace = this.TestEventCounterSourceName;
+            double expectedMetricValue = 1000;
+            int expectedMetricCount = 1;
+
+            using (var module = new EventCounterCollectionModule(refreshTimeInSecs))
+            {
+                module.UseEventSourceNameAsMetricsNamespace = true;
+                module.Counters.Add(new EventCounterCollectionRequest() { EventSourceName = this.TestEventCounterSourceName, EventCounterName = this.TestEventCounterName1 });
+                module.Initialize(GetTestTelemetryConfiguration(itemsReceived));
+
+                // ACT
+                // Making a call with 1000
+                TestEventCounter.Log.SampleCounter1(1000);
+
+                // Wait at least for refresh time.
+                Task.Delay(((int)refreshTimeInSecs * 1000) + 500).Wait();
+
+                PrintTelemetryItems(itemsReceived);
+
+                // VALIDATE
+                ValidateTelemetry(itemsReceived, expectedName, expectedMetricNamespace, expectedMetricValue, expectedMetricCount);
+            }
+        }
+
+        private void ValidateTelemetry(ConcurrentQueue<ITelemetry> metricTelemetries, string expectedName, string expectedMetricNamespace, double expectedSum, double expectedCount)
         {
             double sum = 0.0;
             int count = 0;
@@ -118,6 +152,7 @@ namespace EventCounterCollector.Tests
 
                 Assert.IsTrue(metricTelemetry.Context.GetInternalContext().SdkVersion.StartsWith("evtc"));
                 Assert.AreEqual(expectedName, metricTelemetry.Name);
+                Assert.AreEqual(expectedMetricNamespace, metricTelemetry.MetricNamespace);
                 Assert.IsFalse((telemetry as ISupportProperties).Properties.ContainsKey("CustomPerfCounter"));
             }
 
@@ -133,6 +168,7 @@ namespace EventCounterCollector.Tests
                 if (item is MetricTelemetry metric)
                 {
                     Trace.WriteLine("Metric.Name:" + metric.Name);
+                    Trace.WriteLine("Metric.MetricNamespace:" + metric.MetricNamespace);
                     Trace.WriteLine("Metric.Sum:" + metric.Sum);
                     Trace.WriteLine("Metric.Count:" + metric.Count);
                     Trace.WriteLine("Metric.Timestamp:" + metric.Timestamp);
