@@ -18,7 +18,7 @@
 #if NETSTANDARD2_0
         private CoreEventSource()
         {
-            this.BreezeResponseTimeCounter = new EventCounter("breeze-response-time", this);
+            this.BreezeResponseTimeCounter = new EventCounter("IngestionEndpoint-ResponseTimeMsec", this);
         }
 #endif
 
