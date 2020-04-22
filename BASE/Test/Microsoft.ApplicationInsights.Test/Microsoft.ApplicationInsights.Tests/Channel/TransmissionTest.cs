@@ -395,6 +395,8 @@
                         listener.EnableEvents(CoreEventSource.Log, EventLevel.LogAlways, (EventKeywords)AllKeywords, eventCounterArguments);
 
                         HttpWebResponseWrapper result = await transmission.SendAsync();
+                        //Sleep for a second as the event counter is sampled on a second basis - EventCounterIntervalSec
+                        Thread.Sleep(TimeSpan.FromSeconds(1));
 
                         // VERIFY
                         // We validate by checking SDK traces.
