@@ -367,7 +367,7 @@
 
             }
 
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1 || NETCOREAPP3_1
             [TestMethod]
             public async Task SendAsyncLogsIngestionReponseTimeEventCounter()
             {
@@ -376,6 +376,7 @@
                     InnerHandler = new HttpClientHandler(),
                     OnSendAsync = (req, cancellationToken) =>
                     {
+                        Thread.Sleep(TimeSpan.FromMilliseconds(30));
                         return Task.FromResult<HttpResponseMessage>(new HttpResponseMessage());
                     }
                 };
@@ -385,27 +386,27 @@
                     // Instantiate Transmission with the mock HttpClient
                     Transmission transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
 
-                    using (var listener = new TestEventListener())
+                    using (var listener = new EventCounterListener())
                     {
-                        var eventCounterArguments = new Dictionary<string, string>
-                        {
-                            {"EventCounterIntervalSec", "1"}
-                        };
-
-                        listener.EnableEvents(CoreEventSource.Log, EventLevel.LogAlways, (EventKeywords)AllKeywords, eventCounterArguments);
-
                         HttpWebResponseWrapper result = await transmission.SendAsync();
-                        //Sleep for a second as the event counter is sampled on a second basis - EventCounterIntervalSec
-                        Thread.Sleep(TimeSpan.FromSeconds(1));
+                        //Sleep for few seconds as the event counter is sampled on a second basis
+                        Thread.Sleep(TimeSpan.FromSeconds(2));
 
                         // VERIFY
                         // We validate by checking SDK traces.
-                        var allTraces = listener.Messages.ToList();
+                        var allTraces = listener.EventsReceived.ToList();
                         var traces = allTraces.Where(item => item.EventName == "EventCounters").ToList();
-                        Assert.AreEqual(1, traces.Count);
+                        Assert.IsTrue(traces?.Count >= 1);
                         var payload = (IDictionary<string, object>)traces[0].Payload[0];
                         Assert.AreEqual("IngestionEndpoint-ResponseTimeMsec", payload["Name"].ToString());
-                        Assert.AreNotEqual(0, (float)payload["IntervalSec"]);
+                        // Mean should be more than 30 ms, as we introduced a delay in SendAsync.
+#if NETCOREAPP2_1
+                        Assert.IsTrue((float)payload["Mean"] >= 30);
+#endif
+
+#if NETCOREAPP3_1
+                        Assert.IsTrue((double)payload["Mean"] >= 30);
+#endif
                     }
                 }
             }
