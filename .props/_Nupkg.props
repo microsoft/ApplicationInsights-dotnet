@@ -47,7 +47,7 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
     
-  <PropertyGroup Condition="'$(BuildServer)' != 'true'">
+  <PropertyGroup Condition="'$(BuildServer)' == 'true'">
     <!-- These properties are required for SourceLink and should only be set to true on a CI/Build Server -->
     
     <!-- indicate that the build executes on a build/CI server -->
