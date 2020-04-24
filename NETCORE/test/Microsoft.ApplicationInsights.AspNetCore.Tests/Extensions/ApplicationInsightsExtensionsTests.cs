@@ -21,7 +21,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
-#if NETCOREAPP2_0
+#if NETCOREAPP2_1
     using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
 #endif
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -584,7 +584,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
 
-#if NETCOREAPP2_0
+#if NETCOREAPP2_1
                 Assert.Equal(7, modules.Count());
 #else
                 Assert.Equal(6, modules.Count());
@@ -593,7 +593,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var perfCounterModule = modules.OfType<PerformanceCollectorModule>().Single();
                 Assert.NotNull(perfCounterModule);
 
-#if NETCOREAPP2_0
+#if NETCOREAPP2_1
                 var eventCounterModule = modules.OfType<EventCounterCollectionModule>().Single();
                 Assert.NotNull(eventCounterModule);
 #endif
@@ -615,7 +615,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.NotNull(quickPulseModuleDescriptor);
             }
 
-#if NETCOREAPP2_0
+#if NETCOREAPP2_1
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesEventCounterCollectorWithDefaultListOfCounters()
             {
@@ -663,7 +663,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 // to this test project
             }
 
-#if NETCOREAPP2_0
+#if NETCOREAPP2_1
             [Fact]
             public static void UserCanDisableEventCounterCollectorModule()
             {
@@ -983,7 +983,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                                                                                                                 == typeof(RequestTrackingTelemetryModule));
 
                 Assert.True(requestTrackingModule.CollectionOptions.InjectResponseHeaders);
-#if NETCOREAPP2_0 || NET461
+#if NETCOREAPP2_1 || NET461
                 Assert.False(requestTrackingModule.CollectionOptions.TrackExceptions);
 #else
                 Assert.True(requestTrackingModule.CollectionOptions.TrackExceptions);
