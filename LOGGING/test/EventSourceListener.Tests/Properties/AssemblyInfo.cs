@@ -11,8 +11,8 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("EventSource.Net46.Tests")]
-[assembly: AssemblyProduct("EventSource.Net46.Tests")]
+[assembly: AssemblyTitle("Microsoft.ApplicationInsights.EventSourceListener.Tests")]
+[assembly: AssemblyProduct("Microsoft.ApplicationInsights.EventSourceListener.Tests")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
