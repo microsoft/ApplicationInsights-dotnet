@@ -2,15 +2,11 @@
 
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.TraceListener.Tests</RootNamespace>
-    <AssemblyName>Microsoft.ApplicationInsights.TraceListener.Net45.Tests</AssemblyName>
-    <TargetFramework>net45</TargetFramework>
+    <AssemblyName>Microsoft.ApplicationInsights.TraceListener.Tests</AssemblyName>
+    <TargetFrameworks>net45;netcoreapp1.1;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Include="..\Shared\ApplicationInsightsTraceFilterTests.cs" Link="ApplicationInsightsTraceFilterTests.cs" />
-    <Compile Include="..\Shared\ApplicationInsightsTraceListenerTests.cs" Link="ApplicationInsightsTraceListenerTests.cs" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.1.0" />
@@ -19,10 +15,12 @@
     <PackageReference Include="log4net" Version="2.0.8" />
     <ProjectReference Include="..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
     <ProjectReference Include="..\..\src\TraceListener\TraceListener.csproj" />
-    <Reference Include="System.Net.Http" />
-
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+  
   <ItemGroup>
     <!-- Identifies the project as test project -->
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
