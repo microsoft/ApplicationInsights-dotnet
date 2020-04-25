@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests</RootNamespace>
-    <AssemblyName>Microsoft.ApplicationInsights.DiagnosticSourceListener.NetCoreApp10.Tests</AssemblyName>
-    <TargetFramework>netcoreapp1.0</TargetFramework>
+    <AssemblyName>Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests</AssemblyName>
+    <TargetFrameworks>netcoreapp1.1;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
