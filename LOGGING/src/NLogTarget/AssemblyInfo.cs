@@ -30,8 +30,7 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("44abc834-bd19-449f-ad64-f8c83ca078ed")]
 
-[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.NLogTarget.Net45.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
-[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.NLogTarget.NetCoreApp10.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.NLogTarget.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 
 internal static class AssemblyInfo
 {

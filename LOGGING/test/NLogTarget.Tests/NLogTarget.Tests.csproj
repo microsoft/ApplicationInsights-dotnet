@@ -2,22 +2,23 @@
 
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.NLogTarget.Tests</RootNamespace>
-    <AssemblyName>Microsoft.ApplicationInsights.NLogTarget.NetCoreApp10.Tests</AssemblyName>
-    <TargetFramework>netcoreapp1.0</TargetFramework>
+    <AssemblyName>Microsoft.ApplicationInsights.NLogTarget.Tests</AssemblyName>
+    <TargetFrameworks>net45;netcoreapp1.1;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Include="..\NLogTarget.Net45.Tests\NLogTargetTests.cs" Link="NLogTargetTests.cs" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.1.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
     <PackageReference Include="NLog" Version="4.6.8" />
+    <ProjectReference Include="..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
     <ProjectReference Include="..\..\src\NLogTarget\NLogTarget.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
 
   <ItemGroup>
