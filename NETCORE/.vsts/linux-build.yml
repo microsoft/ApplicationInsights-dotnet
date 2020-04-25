@@ -37,7 +37,7 @@ steps:
   continueOnError: true
   inputs:
     command: "test"
-    projects: "NETCORE/test/**/Microsoft.ApplicationInsights.AspNetCore.Tests.csproj"
+    projects: "NETCORE/test/Microsoft.ApplicationInsights.AspNetCore.Tests/Microsoft.ApplicationInsights.AspNetCore.Tests.csproj"
     arguments: "--configuration Release --framework netcoreapp3.1 -l trx"
     
 
