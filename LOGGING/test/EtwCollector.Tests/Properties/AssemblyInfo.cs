@@ -5,8 +5,8 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Etw.Net451.Tests")]
-[assembly: AssemblyProduct("Etw.Net451.Tests")]
+[assembly: AssemblyTitle("Microsoft.ApplicationInsights.EtwCollector.Tests")]
+[assembly: AssemblyProduct("Microsoft.ApplicationInsights.EtwCollector.Tests")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
