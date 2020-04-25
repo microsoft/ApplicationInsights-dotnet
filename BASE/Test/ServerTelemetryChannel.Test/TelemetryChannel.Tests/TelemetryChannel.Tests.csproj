@@ -15,8 +15,8 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>net45;netcoreapp1.1;netcoreapp2.0;netcoreapp3.0</TargetFrameworks>
-    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netcoreapp1.1;netcoreapp2.0;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>net45;netcoreapp1.1;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netcoreapp1.1;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
 
     <AssemblyName>Microsoft.ApplicationInsights.TelemetryChannel.Tests</AssemblyName>
 
@@ -45,7 +45,7 @@
 
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
