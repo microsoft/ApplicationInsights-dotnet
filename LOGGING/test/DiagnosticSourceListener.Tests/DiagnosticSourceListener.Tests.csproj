@@ -1,27 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>Microsoft.ApplicationInsights.TraceListener.Tests</RootNamespace>
-    <AssemblyName>Microsoft.ApplicationInsights.TraceListener.NetCoreApp10.Tests</AssemblyName>
-    <TargetFramework>netcoreapp1.0</TargetFramework>
+    <RootNamespace>Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests</RootNamespace>
+    <AssemblyName>Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests</AssemblyName>
+    <TargetFrameworks>netcoreapp1.1;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <IsPackable>false</IsPackable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Include="..\Shared\ApplicationInsightsTraceFilterTests.cs" Link="ApplicationInsightsTraceFilterTests.cs" />
-    <Compile Include="..\Shared\ApplicationInsightsTraceListenerTests.cs" Link="ApplicationInsightsTraceListenerTests.cs" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.1.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
-    <PackageReference Include="System.Diagnostics.TraceSource" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\TraceListener\TraceListener.csproj" />
+    <ProjectReference Include="..\..\src\DiagnosticSourceListener\DiagnosticSourceListener.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -108,7 +108,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
             {
                 logger.Debug("Trace Debug" + i + DateTime.Now);
             }
-
+            
             Assert.AreEqual(instrumentationKey, aiAppender.TelemetryClient.Context.InstrumentationKey);
             Assert.IsNull(errorHandler.Exception);
         }
