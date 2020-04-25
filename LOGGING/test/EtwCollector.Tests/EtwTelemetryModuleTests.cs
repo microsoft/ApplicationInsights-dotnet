@@ -492,7 +492,11 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                     && string.Equals(eventName, "Request/Stop", StringComparison.Ordinal));
                 Assert.IsNotNull(requestStopEvent, "Request/Stop event not found");
                 Assert.IsTrue(requestStopEvent.Properties.TryGetValue("ActivityID", out string activityID), "Event does not have ActivityID property");
+#if NETCOREAPP
+                Assert.IsTrue(activityID.StartsWith("/#", StringComparison.Ordinal), "The activity ID is not a hierarchical one");
+#else
                 Assert.IsTrue(activityID.StartsWith("//", StringComparison.Ordinal), "The activity ID is not a hierarchical one");
+#endif
             }
         }
 
@@ -533,7 +537,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                 {
                     // Timed out waiting for new events to arrive.
                     return;
-                }                
+                }
             }
             while (itemsCaptured.Value < count);
         }
