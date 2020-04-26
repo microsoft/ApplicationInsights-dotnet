@@ -11,9 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)GlobalSuppressions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpWebRequestUtils.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\EnumerableAssert.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\MockTelemetryInitializer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)OperationDetailsInitializer.cs" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFrameworkVersion)' == 'v4.5.1' OR '$(TargetFrameworkVersion)' == 'v4.5.2'">
     <Compile Include="$(MSBuildThisFileDirectory)DependencyTrackingTelemetryModuleTest.cs" />
