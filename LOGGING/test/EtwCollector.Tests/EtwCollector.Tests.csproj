@@ -3,7 +3,7 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.EtwCollector.Tests</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.EtwCollector.Tests</AssemblyName>
-    <TargetFrameworks>net46;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net46</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -19,10 +19,6 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net46'">
     <Reference Include="System.Net.Http" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' != 'net46'">
-    <PackageReference Include="System.Security.Principal.Windows" Version="4.7.0" />
   </ItemGroup>
   
   <ItemGroup>

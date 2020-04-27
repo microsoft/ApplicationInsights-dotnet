@@ -323,12 +323,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                 Assert.AreEqual(TestProvider.ComplexEventId.ToString(InvariantCulture), actual.Properties["EventId"]);
                 Assert.AreEqual(nameof(TestProvider.Complex) + "/Extension", actual.Properties["EventName"]);
                 Assert.AreEqual(activityId.ToString(), actual.Properties["ActivityID"]);
-
-#if NETCOREAPP
-                Assert.AreEqual("0x0000F00000000001", actual.Properties["Keywords"]);
-#else
                 Assert.AreEqual("0x8000F00000000001", actual.Properties["Keywords"]);
-#endif
                 Assert.AreEqual(((int)EventChannel.Debug).ToString(InvariantCulture), actual.Properties["Channel"]);
                 Assert.AreEqual("Extension", actual.Properties["Opcode"]);
                 Assert.AreEqual("0x00000020", actual.Properties["Task"]);
@@ -492,11 +487,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                     && string.Equals(eventName, "Request/Stop", StringComparison.Ordinal));
                 Assert.IsNotNull(requestStopEvent, "Request/Stop event not found");
                 Assert.IsTrue(requestStopEvent.Properties.TryGetValue("ActivityID", out string activityID), "Event does not have ActivityID property");
-#if NETCOREAPP
-                Assert.IsTrue(activityID.StartsWith("/#", StringComparison.Ordinal), "The activity ID is not a hierarchical one");
-#else
                 Assert.IsTrue(activityID.StartsWith("//", StringComparison.Ordinal), "The activity ID is not a hierarchical one");
-#endif
             }
         }
 
