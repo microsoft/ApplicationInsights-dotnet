@@ -388,9 +388,12 @@
 
                     using (var listener = new EventCounterListener())
                     {
-                        HttpWebResponseWrapper result = await transmission.SendAsync();
+                        for (int i = 0; i < 5; i++)
+                        {
+                            HttpWebResponseWrapper result = await transmission.SendAsync();
+                        }
                         //Sleep for few seconds as the event counter is sampled on a second basis
-                        Thread.Sleep(TimeSpan.FromSeconds(2));
+                        Thread.Sleep(TimeSpan.FromSeconds(3));
 
                         // VERIFY
                         // We validate by checking SDK traces.
@@ -399,7 +402,57 @@
                         Assert.IsTrue(traces?.Count >= 1);
                         var payload = (IDictionary<string, object>)traces[0].Payload[0];
                         Assert.AreEqual("IngestionEndpoint-ResponseTimeMsec", payload["Name"].ToString());
-                        // Mean should be more than 30 ms, as we introduced a delay in SendAsync.
+                        Assert.AreEqual(5, (int)payload["Count"]);
+                        // Mean should be more than 30 ms, as we introduced a delay of 30ms in SendAsync.
+#if NETCOREAPP2_1
+                        Assert.IsTrue((float)payload["Mean"] >= 30);
+#endif
+
+#if NETCOREAPP3_1
+                        Assert.IsTrue((double)payload["Mean"] >= 30);
+#endif
+                    }
+                }
+            }
+
+            [TestMethod]
+            public async Task SendAsyncLogsIngestionReponseTimeOnFailureEventCounter()
+            {
+                var handler = new HandlerForFakeHttpClient
+                {
+                    InnerHandler = new HttpClientHandler(),
+                    OnSendAsync = (req, cancellationToken) =>
+                    {
+                        Thread.Sleep(TimeSpan.FromMilliseconds(30));
+                        HttpResponseMessage response = new HttpResponseMessage();
+                        response.StatusCode = HttpStatusCode.ServiceUnavailable;
+                        return Task.FromResult<HttpResponseMessage>(response);
+                    }
+                };
+
+                using (var fakeHttpClient = new HttpClient(handler))
+                {
+                    // Instantiate Transmission with the mock HttpClient
+                    Transmission transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
+
+                    using (var listener = new EventCounterListener())
+                    {
+                        for (int i = 0; i < 5; i++)
+                        {
+                            HttpWebResponseWrapper result = await transmission.SendAsync();
+                        }
+                        //Sleep for few seconds as the event counter is sampled on a second basis
+                        Thread.Sleep(TimeSpan.FromSeconds(3));
+
+                        // VERIFY
+                        // We validate by checking SDK traces.
+                        var allTraces = listener.EventsReceived.ToList();
+                        var traces = allTraces.Where(item => item.EventName == "EventCounters").ToList();
+                        Assert.IsTrue(traces?.Count >= 1);
+                        var payload = (IDictionary<string, object>)traces[0].Payload[0];
+                        Assert.AreEqual("IngestionEndpoint-ResponseTimeMsec", payload["Name"].ToString());
+                        Assert.AreEqual(5, (int)payload["Count"]);
+                        // Mean should be more than 30 ms, as we introduced a delay of 30ms in SendAsync.
 #if NETCOREAPP2_1
                         Assert.IsTrue((float)payload["Mean"] >= 30);
 #endif
@@ -442,7 +495,7 @@
                         // VERIFY
                         // We validate by checking SDK traces.
                         var allTraces = listener.Messages.ToList();
-                        // Event 67 is logged after response from breeze.
+                        // Event 67 is logged after response from Ingestion Service.
                         var traces = allTraces.Where(item => item.EventId == 67).ToList();
                         Assert.AreEqual(1, traces.Count);
                     }

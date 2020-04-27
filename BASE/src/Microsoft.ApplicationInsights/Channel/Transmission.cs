@@ -166,9 +166,9 @@
                             using (var response = await client.SendAsync(request, ct.Token).ConfigureAwait(false))
                             {
                                 stopwatch.Stop();
-                                CoreEventSource.Log.BreezeResponseTime(response != null ? (int)response.StatusCode : -1, stopwatch.ElapsedMilliseconds);
-                                // Log breeze respose time as event counter metric.
-                                CoreEventSource.Log.BreezeResponseTimeEventCounter(stopwatch.ElapsedMilliseconds);
+                                CoreEventSource.Log.IngestionResponseTime(response != null ? (int)response.StatusCode : -1, stopwatch.ElapsedMilliseconds);
+                                // Log ingestion respose time as event counter metric.
+                                CoreEventSource.Log.IngestionResponseTimeEventCounter(stopwatch.ElapsedMilliseconds);
 
                                 if (response != null)
                                 {

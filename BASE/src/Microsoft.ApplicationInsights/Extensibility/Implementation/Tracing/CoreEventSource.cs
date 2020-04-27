@@ -10,7 +10,7 @@
         public static readonly CoreEventSource Log = new CoreEventSource();
 
 #if NETSTANDARD2_0
-        public EventCounter BreezeResponseTimeCounter;
+        public EventCounter IngestionResponseTimeCounter;
 #endif
 
         private readonly ApplicationNameProvider nameProvider = new ApplicationNameProvider();
@@ -18,7 +18,7 @@
 #if NETSTANDARD2_0
         private CoreEventSource()
         {
-            this.BreezeResponseTimeCounter = new EventCounter("IngestionEndpoint-ResponseTimeMsec", this);
+            this.IngestionResponseTimeCounter = new EventCounter("IngestionEndpoint-ResponseTimeMsec", this);
         }
 #endif
 
@@ -632,13 +632,13 @@
         #endregion
 
         [Event(67, Message = "Backend has responded with {0} status code in {1}ms.", Level = EventLevel.Informational)]
-        public void BreezeResponseTime(int responseCode, float responseDurationInMs, string appDomainName = "Incorrect") => this.WriteEvent(67, responseCode, responseDurationInMs, this.nameProvider.Name);
+        public void IngestionResponseTime(int responseCode, float responseDurationInMs, string appDomainName = "Incorrect") => this.WriteEvent(67, responseCode, responseDurationInMs, this.nameProvider.Name);
 
         [NonEvent]
-        public void BreezeResponseTimeEventCounter(float responseDurationInMs)
+        public void IngestionResponseTimeEventCounter(float responseDurationInMs)
         {
 #if NETSTANDARD2_0
-            this.BreezeResponseTimeCounter.WriteMetric(responseDurationInMs);
+            this.IngestionResponseTimeCounter.WriteMetric(responseDurationInMs);
 #endif
         }
 
