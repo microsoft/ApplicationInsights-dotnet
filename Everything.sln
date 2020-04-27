@@ -137,25 +137,11 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "WindowsServer.Shared", "WEB
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "WindowsServer.Shared.Tests", "WEB\Src\WindowsServer\WindowsServer.Shared.Tests\WindowsServer.Shared.Tests.shproj", "{7916AE39-AE89-4886-8842-33AC9883905A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiagnosticSourceListener.netcoreapp1.Tests", "LOGGING\test\DiagnosticSourceListener.netcoreapp10.Tests\DiagnosticSourceListener.netcoreapp1.Tests.csproj", "{7CBC11F0-9D80-458F-A8DA-BF45EA648917}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtwCollector.Net46.Tests", "LOGGING\test\EtwCollector.Net46.Tests\EtwCollector.Net46.Tests.csproj", "{46167FB8-2B4B-40B4-ACB3-B20615B14682}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventSourceListener.netcoreapp10.Tests", "LOGGING\test\EventSourceListener.netcoreapp10.Tests\EventSourceListener.netcoreapp10.Tests.csproj", "{6673D8EC-04F3-491F-B3C4-5C26C1228F80}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ILogger.NetStandard.Tests", "LOGGING\test\ILogger.NetStandard.Tests\ILogger.NetStandard.Tests.csproj", "{108411B2-F1F8-48CD-B373-44A9ECCE7FEE}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Log4NetAppender.Net45.Tests", "LOGGING\test\Log4NetAppender.Net45.Tests\Log4NetAppender.Net45.Tests.csproj", "{547AFF05-FB87-41FB-ACDA-B5429F89727C}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Log4NetAppender.NetCoreApp10.Tests", "LOGGING\test\Log4NetAppender.NetCoreApp10.Tests\Log4NetAppender.NetCoreApp10.Tests.csproj", "{AC88FC19-68DC-41E5-8AE7-2567C5D7B58D}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NLogTarget.Net45.Tests", "LOGGING\test\NLogTarget.Net45.Tests\NLogTarget.Net45.Tests.csproj", "{782C7465-F521-42AA-A4DE-9ADD727CBC05}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NLogTarget.NetCoreApp10.Tests", "LOGGING\test\NLogTarget.NetCoreApp10.Tests\NLogTarget.NetCoreApp10.Tests.csproj", "{CFD15B50-0555-49FD-8B3E-87D97074A251}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TraceListener.Net45.Tests", "LOGGING\test\TraceListener.Net45.Tests\TraceListener.Net45.Tests.csproj", "{D57AD915-7C54-405A-BC0B-299983089C7C}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TraceListener.netcoreapp10.Tests", "LOGGING\test\TraceListener.netcoreapp10.Tests\TraceListener.netcoreapp10.Tests.csproj", "{11CF7798-376B-477F-B160-9A226E8E9E19}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "L) GenericTests", "L) GenericTests", "{D2A0AA36-57F7-436C-A7AF-7322927F1734}"
 EndProject
@@ -193,6 +179,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyCollector.Tests",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel.Tests", "BASE\Test\ServerTelemetryChannel.Test\TelemetryChannel.Tests\TelemetryChannel.Tests.csproj", "{D3E44A53-6998-4C85-AD8F-E52C2B3843EA}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiagnosticSourceListener.Tests", "LOGGING\test\DiagnosticSourceListener.Tests\DiagnosticSourceListener.Tests.csproj", "{CA21ED5E-AB4E-4277-A28D-E8840E92833F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Log4NetAppender.Tests", "LOGGING\test\Log4NetAppender.Tests\Log4NetAppender.Tests.csproj", "{B1650E9B-6764-4DC0-8C71-96F0FF335C80}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NLogTarget.Tests", "LOGGING\test\NLogTarget.Tests\NLogTarget.Tests.csproj", "{93A35062-6AA4-4778-9769-428A942ADCF9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TraceListener.Tests", "LOGGING\test\TraceListener.Tests\TraceListener.Tests.csproj", "{305F1C02-F984-43E7-A07E-E2514CFE29A0}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		WEB\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{0196259c-3582-4f4e-a01f-a8f9ae83b0f3}*SharedItemsImports = 13
@@ -201,13 +195,13 @@ Global
 		WEB\Src\TestFramework\Shared\TestFramework.Shared.projitems*{07620299-b0e7-44bb-be85-c4d1b25104f6}*SharedItemsImports = 5
 		LOGGING\test\CommonTestShared\CommonTestShared.projitems*{108411b2-f1f8-48cd-b373-44a9ecce7fee}*SharedItemsImports = 5
 		LOGGING\test\Shared\Adapters.Shared.Tests.projitems*{108411b2-f1f8-48cd-b373-44a9ecce7fee}*SharedItemsImports = 5
-		LOGGING\test\CommonTestShared\CommonTestShared.projitems*{11cf7798-376b-477f-b160-9a226e8e9e19}*SharedItemsImports = 5
-		LOGGING\test\Shared\Adapters.Shared.Tests.projitems*{11cf7798-376b-477f-b160-9a226e8e9e19}*SharedItemsImports = 5
 		WEB\Src\Common\Common.projitems*{13335eb8-3936-407a-9363-1c428318bea8}*SharedItemsImports = 5
 		LOGGING\src\CommonShared\CommonShared.projitems*{1b0f54bf-078a-421c-9708-2d817d4bce30}*SharedItemsImports = 5
 		LOGGING\src\EventSource.Shared\EventSource.Shared\EventSource.Shared.projitems*{1b0f54bf-078a-421c-9708-2d817d4bce30}*SharedItemsImports = 5
 		LOGGING\src\CommonShared\CommonShared.projitems*{2612ac44-5ff3-4533-b5a5-e5dbf96f5c83}*SharedItemsImports = 5
 		LOGGING\src\CommonShared\CommonShared.projitems*{2e283031-425b-421f-9e81-34abfefab618}*SharedItemsImports = 5
+		LOGGING\test\CommonTestShared\CommonTestShared.projitems*{305f1c02-f984-43e7-a07e-e2514cfe29a0}*SharedItemsImports = 5
+		LOGGING\test\Shared\Adapters.Shared.Tests.projitems*{305f1c02-f984-43e7-a07e-e2514cfe29a0}*SharedItemsImports = 5
 		WEB\Src\PerformanceCollector\Perf.Shared.NetStandard.Stubs\Perf.Shared.NetStandard.Stubs.projitems*{30a45441-0849-48fe-ad37-5d29d0e3068a}*SharedItemsImports = 13
 		LOGGING\src\CommonShared\CommonShared.projitems*{3774003c-91fd-4d79-99c7-9beac5b9a48e}*SharedItemsImports = 5
 		WEB\Src\Web\Web.Shared.Net\Web.Shared.Net.projitems*{395e03bb-d061-4c9d-9d47-18676566444d}*SharedItemsImports = 13
@@ -217,8 +211,6 @@ Global
 		LOGGING\test\Shared\Adapters.Shared.Tests.projitems*{46167fb8-2b4b-40b4-acb3-b20615b14682}*SharedItemsImports = 5
 		LOGGING\src\CommonShared\CommonShared.projitems*{52b3c054-c686-4bb8-a4b7-9e8d6c49491f}*SharedItemsImports = 5
 		LOGGING\src\EventSource.Shared\EventSource.Shared\EventSource.Shared.projitems*{52b3c054-c686-4bb8-a4b7-9e8d6c49491f}*SharedItemsImports = 5
-		LOGGING\test\CommonTestShared\CommonTestShared.projitems*{547aff05-fb87-41fb-acda-b5429f89727c}*SharedItemsImports = 5
-		LOGGING\test\Shared\Adapters.Shared.Tests.projitems*{547aff05-fb87-41fb-acda-b5429f89727c}*SharedItemsImports = 5
 		WEB\Src\PerformanceCollector\Filtering.Shared\Filtering.Shared.projitems*{568aeb4f-ba4c-47a5-9fa3-68f06cd11fed}*SharedItemsImports = 13
 		WEB\Src\WindowsServer\WindowsServer.Shared\WindowsServer.Shared.projitems*{579f42e8-b711-411e-be52-4a3fd208507f}*SharedItemsImports = 13
 		LOGGING\src\CommonShared\CommonShared.projitems*{587b624b-8c64-498e-93d7-a2d2abc17eab}*SharedItemsImports = 13
@@ -230,18 +222,16 @@ Global
 		WEB\Src\TestFramework\Shared\TestFramework.Shared.projitems*{74051bfb-87ed-4d99-927f-c40e7717e4e5}*SharedItemsImports = 5
 		WEB\Src\WindowsServer\WindowsServer.Shared.Tests\WindowsServer.Shared.Tests.projitems*{74051bfb-87ed-4d99-927f-c40e7717e4e5}*SharedItemsImports = 5
 		WEB\Src\PerformanceCollector\Perf.Shared.NetStandard16.Stubs\Perf.Shared.NetStandard16.Stubs.projitems*{76b21faa-270d-47de-b14b-bec87edc34f1}*SharedItemsImports = 13
-		LOGGING\test\CommonTestShared\CommonTestShared.projitems*{782c7465-f521-42aa-a4de-9add727cbc05}*SharedItemsImports = 5
-		LOGGING\test\Shared\Adapters.Shared.Tests.projitems*{782c7465-f521-42aa-a4de-9add727cbc05}*SharedItemsImports = 5
 		WEB\Src\WindowsServer\WindowsServer.Shared.Tests\WindowsServer.Shared.Tests.projitems*{7916ae39-ae89-4886-8842-33ac9883905a}*SharedItemsImports = 13
 		WEB\Src\Common\Common.projitems*{7b5d95ee-50ee-4222-a03c-fae5905b3dfd}*SharedItemsImports = 5
 		WEB\Src\WindowsServer\WindowsServer.Shared\WindowsServer.Shared.projitems*{7b5d95ee-50ee-4222-a03c-fae5905b3dfd}*SharedItemsImports = 5
-		LOGGING\test\CommonTestShared\CommonTestShared.projitems*{7cbc11f0-9d80-458f-a8da-bf45ea648917}*SharedItemsImports = 5
-		LOGGING\test\Shared\Adapters.Shared.Tests.projitems*{7cbc11f0-9d80-458f-a8da-bf45ea648917}*SharedItemsImports = 5
 		WEB\Src\Common\Common.projitems*{8293bc71-7ddc-4dd1-8807-280eef7e752d}*SharedItemsImports = 5
 		WEB\Src\Web\Web.Shared.Net\Web.Shared.Net.projitems*{8293bc71-7ddc-4dd1-8807-280eef7e752d}*SharedItemsImports = 5
 		WEB\Src\PerformanceCollector\Perf.Shared.Tests\Perf.Shared.Tests.projitems*{8f641c0b-a57a-43ec-b91f-4258f6dc0cd5}*SharedItemsImports = 5
 		WEB\Src\TestFramework\Shared\TestFramework.Shared.projitems*{8f641c0b-a57a-43ec-b91f-4258f6dc0cd5}*SharedItemsImports = 5
 		BASE\src\Common\Common\Common.projitems*{936af739-4297-4016-9d70-4280042709be}*SharedItemsImports = 13
+		LOGGING\test\CommonTestShared\CommonTestShared.projitems*{93a35062-6aa4-4778-9769-428a942adcf9}*SharedItemsImports = 5
+		LOGGING\test\Shared\Adapters.Shared.Tests.projitems*{93a35062-6aa4-4778-9769-428a942adcf9}*SharedItemsImports = 5
 		WEB\Src\Common\Common.projitems*{96a6e04e-ceda-4c30-8eca-48113382afba}*SharedItemsImports = 5
 		WEB\Src\DependencyCollector\Shared\DependencyCollector.Shared.projitems*{96a6e04e-ceda-4c30-8eca-48113382afba}*SharedItemsImports = 5
 		WEB\Src\TestFramework\Shared\TestFramework.Shared.projitems*{9718f051-147f-4f5f-9ff3-c926430efcf7}*SharedItemsImports = 13
@@ -256,17 +246,15 @@ Global
 		LOGGING\src\EventSource.Shared\EventSource.Shared\EventSource.Shared.projitems*{a964de6d-9750-4013-8be2-79c2afc056e5}*SharedItemsImports = 13
 		WEB\Src\Web\Web.Shared.Net.Tests\Web.Shared.Net.Tests.projitems*{ac2e85bb-05f7-43cb-b966-3611ccf47156}*SharedItemsImports = 13
 		NETCORE\src\Shared\Shared.projitems*{ac399f09-b465-4cfd-8d82-f1d1c5c9347e}*SharedItemsImports = 5
-		LOGGING\test\CommonTestShared\CommonTestShared.projitems*{ac88fc19-68dc-41e5-8ae7-2567c5d7b58d}*SharedItemsImports = 5
-		LOGGING\test\Shared\Adapters.Shared.Tests.projitems*{ac88fc19-68dc-41e5-8ae7-2567c5d7b58d}*SharedItemsImports = 5
 		WEB\Src\DependencyCollector\Shared.Tests\DependencyCollector.Shared.Tests.projitems*{ace58393-3419-4fca-87cc-c33eb756c7e4}*SharedItemsImports = 13
+		LOGGING\test\CommonTestShared\CommonTestShared.projitems*{b1650e9b-6764-4dc0-8c71-96f0ff335c80}*SharedItemsImports = 5
+		LOGGING\test\Shared\Adapters.Shared.Tests.projitems*{b1650e9b-6764-4dc0-8c71-96f0ff335c80}*SharedItemsImports = 5
 		BASE\src\Common\Common\Common.projitems*{c30a7eb8-a86c-49ee-927e-7d9e03572e82}*SharedItemsImports = 5
+		LOGGING\test\CommonTestShared\CommonTestShared.projitems*{ca21ed5e-ab4e-4277-a28d-e8840e92833f}*SharedItemsImports = 5
+		LOGGING\test\Shared\Adapters.Shared.Tests.projitems*{ca21ed5e-ab4e-4277-a28d-e8840e92833f}*SharedItemsImports = 5
 		WEB\Src\Common\Common.projitems*{ccab7a34-8dc5-4a6f-b637-46ceba93c687}*SharedItemsImports = 13
-		LOGGING\test\CommonTestShared\CommonTestShared.projitems*{cfd15b50-0555-49fd-8b3e-87d97074a251}*SharedItemsImports = 5
-		LOGGING\test\Shared\Adapters.Shared.Tests.projitems*{cfd15b50-0555-49fd-8b3e-87d97074a251}*SharedItemsImports = 5
 		WEB\Src\PerformanceCollector\Perf.Shared.NetStandard\Perf.Shared.NetStandard.projitems*{d13c3ec7-b300-4158-9054-216156b203be}*SharedItemsImports = 13
 		NETCORE\src\Shared\Shared.projitems*{d56f2979-d6bc-4ef2-bb9b-4077b3290599}*SharedItemsImports = 13
-		LOGGING\test\CommonTestShared\CommonTestShared.projitems*{d57ad915-7c54-405a-bc0b-299983089c7c}*SharedItemsImports = 5
-		LOGGING\test\Shared\Adapters.Shared.Tests.projitems*{d57ad915-7c54-405a-bc0b-299983089c7c}*SharedItemsImports = 5
 		WEB\Src\Common\Common.projitems*{deeaf599-83f9-4a05-add6-f612cdabe570}*SharedItemsImports = 5
 		BASE\src\Common\Common\Common.projitems*{e3d160e8-7f8c-416f-946f-6fdfc6787461}*SharedItemsImports = 5
 		WEB\Src\TestFramework\Shared\TestFramework.Shared.projitems*{f05eb480-b209-47dd-90e3-1ddc47efc579}*SharedItemsImports = 4
@@ -397,10 +385,6 @@ Global
 		{74051BFB-87ED-4D99-927F-C40E7717E4E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{74051BFB-87ED-4D99-927F-C40E7717E4E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{74051BFB-87ED-4D99-927F-C40E7717E4E5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7CBC11F0-9D80-458F-A8DA-BF45EA648917}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7CBC11F0-9D80-458F-A8DA-BF45EA648917}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7CBC11F0-9D80-458F-A8DA-BF45EA648917}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7CBC11F0-9D80-458F-A8DA-BF45EA648917}.Release|Any CPU.Build.0 = Release|Any CPU
 		{46167FB8-2B4B-40B4-ACB3-B20615B14682}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{46167FB8-2B4B-40B4-ACB3-B20615B14682}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46167FB8-2B4B-40B4-ACB3-B20615B14682}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -413,30 +397,6 @@ Global
 		{108411B2-F1F8-48CD-B373-44A9ECCE7FEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{108411B2-F1F8-48CD-B373-44A9ECCE7FEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{108411B2-F1F8-48CD-B373-44A9ECCE7FEE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{547AFF05-FB87-41FB-ACDA-B5429F89727C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{547AFF05-FB87-41FB-ACDA-B5429F89727C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{547AFF05-FB87-41FB-ACDA-B5429F89727C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{547AFF05-FB87-41FB-ACDA-B5429F89727C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AC88FC19-68DC-41E5-8AE7-2567C5D7B58D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AC88FC19-68DC-41E5-8AE7-2567C5D7B58D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AC88FC19-68DC-41E5-8AE7-2567C5D7B58D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AC88FC19-68DC-41E5-8AE7-2567C5D7B58D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{782C7465-F521-42AA-A4DE-9ADD727CBC05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{782C7465-F521-42AA-A4DE-9ADD727CBC05}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{782C7465-F521-42AA-A4DE-9ADD727CBC05}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{782C7465-F521-42AA-A4DE-9ADD727CBC05}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CFD15B50-0555-49FD-8B3E-87D97074A251}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CFD15B50-0555-49FD-8B3E-87D97074A251}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CFD15B50-0555-49FD-8B3E-87D97074A251}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CFD15B50-0555-49FD-8B3E-87D97074A251}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D57AD915-7C54-405A-BC0B-299983089C7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D57AD915-7C54-405A-BC0B-299983089C7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D57AD915-7C54-405A-BC0B-299983089C7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D57AD915-7C54-405A-BC0B-299983089C7C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{11CF7798-376B-477F-B160-9A226E8E9E19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{11CF7798-376B-477F-B160-9A226E8E9E19}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{11CF7798-376B-477F-B160-9A226E8E9E19}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{11CF7798-376B-477F-B160-9A226E8E9E19}.Release|Any CPU.Build.0 = Release|Any CPU
 		{262792BF-31A8-4FCD-BBC7-341EB29FAE96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{262792BF-31A8-4FCD-BBC7-341EB29FAE96}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{262792BF-31A8-4FCD-BBC7-341EB29FAE96}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -497,6 +457,22 @@ Global
 		{D3E44A53-6998-4C85-AD8F-E52C2B3843EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3E44A53-6998-4C85-AD8F-E52C2B3843EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3E44A53-6998-4C85-AD8F-E52C2B3843EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA21ED5E-AB4E-4277-A28D-E8840E92833F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA21ED5E-AB4E-4277-A28D-E8840E92833F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA21ED5E-AB4E-4277-A28D-E8840E92833F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA21ED5E-AB4E-4277-A28D-E8840E92833F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1650E9B-6764-4DC0-8C71-96F0FF335C80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1650E9B-6764-4DC0-8C71-96F0FF335C80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1650E9B-6764-4DC0-8C71-96F0FF335C80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1650E9B-6764-4DC0-8C71-96F0FF335C80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93A35062-6AA4-4778-9769-428A942ADCF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93A35062-6AA4-4778-9769-428A942ADCF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93A35062-6AA4-4778-9769-428A942ADCF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93A35062-6AA4-4778-9769-428A942ADCF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{305F1C02-F984-43E7-A07E-E2514CFE29A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{305F1C02-F984-43E7-A07E-E2514CFE29A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{305F1C02-F984-43E7-A07E-E2514CFE29A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{305F1C02-F984-43E7-A07E-E2514CFE29A0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -545,16 +521,9 @@ Global
 		{74051BFB-87ED-4D99-927F-C40E7717E4E5} = {11AC7235-167E-40B5-B2E3-9CBF08700064}
 		{579F42E8-B711-411E-BE52-4A3FD208507F} = {11AC7235-167E-40B5-B2E3-9CBF08700064}
 		{7916AE39-AE89-4886-8842-33AC9883905A} = {11AC7235-167E-40B5-B2E3-9CBF08700064}
-		{7CBC11F0-9D80-458F-A8DA-BF45EA648917} = {60CDB555-C5FE-4010-A37B-014B04C5EAC3}
 		{46167FB8-2B4B-40B4-ACB3-B20615B14682} = {05E05465-F285-4689-BFC5-F78FC5761992}
 		{6673D8EC-04F3-491F-B3C4-5C26C1228F80} = {DB0D10AF-7DA5-49CE-B90E-67F896BEED1C}
 		{108411B2-F1F8-48CD-B373-44A9ECCE7FEE} = {477A1BA0-0155-404C-A6E0-C2409C0FFE70}
-		{547AFF05-FB87-41FB-ACDA-B5429F89727C} = {DDA01098-8272-4C5A-BB97-BCB4FA65CFE6}
-		{AC88FC19-68DC-41E5-8AE7-2567C5D7B58D} = {DDA01098-8272-4C5A-BB97-BCB4FA65CFE6}
-		{782C7465-F521-42AA-A4DE-9ADD727CBC05} = {39474EE1-28E8-456E-889F-553F129411C8}
-		{CFD15B50-0555-49FD-8B3E-87D97074A251} = {39474EE1-28E8-456E-889F-553F129411C8}
-		{D57AD915-7C54-405A-BC0B-299983089C7C} = {AFEB7CAA-A8BF-4D03-A5CB-BFC5AE378201}
-		{11CF7798-376B-477F-B160-9A226E8E9E19} = {AFEB7CAA-A8BF-4D03-A5CB-BFC5AE378201}
 		{262792BF-31A8-4FCD-BBC7-341EB29FAE96} = {D2A0AA36-57F7-436C-A7AF-7322927F1734}
 		{058A0843-A95F-4B0D-91DB-33B9D3FD7324} = {E9AEB857-E8AA-4ED6-A020-DF4D8486CEB0}
 		{B90EDEA5-3CC8-4282-80A0-7116905E2427} = {D8483C3E-C386-48AD-B935-700A54FDCF31}
@@ -570,6 +539,10 @@ Global
 		{4BAA7AF2-3C5B-4C7C-9A9C-26F561218A86} = {632FB9CE-540D-4451-9FF2-12E89C1492BD}
 		{FAC049E4-7011-45FF-BD06-69ACA28921E8} = {005BD823-60AF-406E-AC20-842D7653FE60}
 		{D3E44A53-6998-4C85-AD8F-E52C2B3843EA} = {FBAFD313-0139-4DA3-BCB3-EE54DC3B6CCD}
+		{CA21ED5E-AB4E-4277-A28D-E8840E92833F} = {60CDB555-C5FE-4010-A37B-014B04C5EAC3}
+		{B1650E9B-6764-4DC0-8C71-96F0FF335C80} = {DDA01098-8272-4C5A-BB97-BCB4FA65CFE6}
+		{93A35062-6AA4-4778-9769-428A942ADCF9} = {39474EE1-28E8-456E-889F-553F129411C8}
+		{305F1C02-F984-43E7-A07E-E2514CFE29A0} = {AFEB7CAA-A8BF-4D03-A5CB-BFC5AE378201}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0E0415AF-37CC-4999-8E5B-DD36F75BFD4D}
