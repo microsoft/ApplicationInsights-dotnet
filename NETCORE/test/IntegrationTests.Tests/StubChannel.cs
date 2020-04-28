@@ -1,7 +1,7 @@
 ﻿using Microsoft.ApplicationInsights.Channel;
 using System;
 
-namespace TestApp30.Tests
+namespace IntegrationTests.Tests
 {
     internal class StubChannel : ITelemetryChannel
     {
