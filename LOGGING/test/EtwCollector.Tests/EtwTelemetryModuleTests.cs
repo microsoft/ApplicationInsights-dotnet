@@ -528,7 +528,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                 {
                     // Timed out waiting for new events to arrive.
                     return;
-                }                
+                }
             }
             while (itemsCaptured.Value < count);
         }
