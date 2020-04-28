@@ -1,19 +1,25 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="AssemblyInfo.cs" company="Microsoft">
 // Copyright (c) Microsoft Corporation. 
-// All rights reserved.
+// All rights reserved.  2013
 // </copyright>
 // -----------------------------------------------------------------------
 
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("EventSource.Net46.Tests")]
-[assembly: AssemblyProduct("EventSource.Net46.Tests")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyTitle("HostingStartup.Tests")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("HostingStartup.Tests")]
+[assembly: AssemblyCopyright("Copyright ©  2015")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
@@ -21,7 +27,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("5d68573b-41f5-41e9-96e5-54c6a70a52ba")]
+[assembly: Guid("8e16d10d-0483-429c-bbf1-3627e8ccc43b")]
 
 // Version information for an assembly consists of the following four values:
 //

@@ -294,7 +294,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
                 expected.Properties.Add("EventId", TestEventSource.ComplexEventId.ToString(InvariantCulture));
                 expected.Properties.Add("EventName", nameof(TestEventSource.ComplexEvent));
                 expected.Properties.Add("ActivityId", activityId.ToString());
-                expected.Properties.Add("Keywords", "0x8000F00000000001");
+                expected.Properties.Add("Keywords", "0x0000F00000000001");
                 expected.Properties.Add("Channel", "Debug");
                 expected.Properties.Add("Opcode", "Extension");
                 expected.Properties.Add("Tags", "0x00000011");
