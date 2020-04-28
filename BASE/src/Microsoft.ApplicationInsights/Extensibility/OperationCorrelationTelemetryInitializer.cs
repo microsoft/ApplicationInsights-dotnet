@@ -7,6 +7,7 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// Telemetry initializer that populates OperationContext for the telemetry item from Activity.
@@ -30,8 +31,8 @@
             var itemOperationContext = telemetryItem.Context.Operation;
             var telemetryProp = telemetryItem as ISupportProperties;            
 
-            bool isActivityAvailable = false;
-            isActivityAvailable = ActivityExtensions.TryRun(() =>
+            bool isActivityAvailable = true;
+            try
             {
                 var currentActivity = Activity.Current;
                 if (currentActivity != null)
@@ -96,7 +97,12 @@
                         }
                     }
                 }
-            });
+            }
+            catch (Exception exc)
+            {
+                CoreEventSource.Log.ActivityNotAvailable(exc.ToInvariantString());
+                isActivityAvailable = false;
+            }
 
             if (!isActivityAvailable)
             {

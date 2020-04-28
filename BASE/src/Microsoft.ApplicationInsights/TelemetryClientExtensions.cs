@@ -15,7 +15,7 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static class TelemetryClientExtensions
     {
-        private const string ChildActivityName = "Microsoft.ApplicationInsights.OperationContext";        
+        private const string ChildActivityName = "Microsoft.ApplicationInsights.OperationContext";
 
         /// <summary>
         /// Start operation creates an operation object with a respective telemetry item. 
@@ -54,7 +54,8 @@
 
             if (string.IsNullOrEmpty(operationTelemetry.Context.Operation.Id) && !string.IsNullOrEmpty(operationId))
             {
-                var isActivityAvailable = ActivityExtensions.TryRun(() =>
+                var isActivityAvailable = true;
+                try
                 {
                     if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
                     {
@@ -75,7 +76,12 @@
                     {
                         operationTelemetry.Context.Operation.Id = operationId;
                     }
-                });
+                }
+                catch (Exception exc)
+                {
+                    CoreEventSource.Log.ActivityNotAvailable(exc.ToInvariantString());
+                    isActivityAvailable = false;
+                }
 
                 if (!isActivityAvailable)
                 {
@@ -139,7 +145,8 @@
 
             OperationHolder<T> operationHolder = null;
 
-            var isActivityAvailable = ActivityExtensions.TryRun(() =>
+            var isActivityAvailable = true;
+            try
             {
                 var parentActivity = Activity.Current;
                 var operationActivity = new Activity(ChildActivityName);
@@ -201,7 +208,12 @@
                 }
 
                 operationHolder = new OperationHolder<T>(telemetryClient, operationTelemetry, parentActivity == operationActivity.Parent ? null : parentActivity);
-            });
+            }
+            catch (Exception exc)
+            {
+                CoreEventSource.Log.ActivityNotAvailable(exc.ToInvariantString());
+                isActivityAvailable = false;
+            }
 
             if (!isActivityAvailable)
             {
@@ -296,7 +308,7 @@
             }
 
             Activity originalActivity = null;
-            
+
             // not started activity, default case
             if (activity.Id == null)
             {
@@ -363,8 +375,8 @@
             var telemetry = new T { Name = activity.OperationName };
 
             OperationContext operationContext = telemetry.Context.Operation;
-            operationContext.Name = activity.GetOperationName();            
-            
+            operationContext.Name = activity.GetOperationName();
+
             if (activity.IdFormat == ActivityIdFormat.W3C)
             {
                 operationContext.Id = activity.TraceId.ToHexString();

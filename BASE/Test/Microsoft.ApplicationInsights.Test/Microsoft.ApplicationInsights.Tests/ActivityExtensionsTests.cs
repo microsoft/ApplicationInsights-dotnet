@@ -8,12 +8,6 @@
     public class ActivityExtensionsTests
     {
         [TestMethod]
-        public void CanLoadDiagnosticSourceAssembly()
-        {
-            Assert.IsTrue(ActivityExtensions.TryRun(() => Assert.IsNull(Activity.Current)));
-        }
-
-        [TestMethod]
         public void GetOperationNameReturnsNullIfThereIsNoOperationName()
         {
             var activity = new Activity("test me");

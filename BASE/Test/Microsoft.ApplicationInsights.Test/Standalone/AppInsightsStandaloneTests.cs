@@ -34,7 +34,7 @@
         [Ignore("Missing netstandard dependencies.")]
 #endif
         [TestMethod]
-        public void AppInsightsDllCouldRunStandalone()
+        public void AppInsightsDllShouldNotRunStandalone()
         {
             // This tests if ApplicationInsights.dll can work standalone without System.DiagnosticSource (for uses like in a powershell script)
             // Its hard to mock this with plain unit tests, so we spin up a dummy application, copy just ApplicationInsights.dll
@@ -111,7 +111,7 @@
             Assert.IsTrue(p.WaitForExit(10000));
             Trace.WriteLine(p.StandardOutput.ReadToEnd());
             Trace.WriteLine(p.StandardError.ReadToEnd());
-            Assert.AreEqual(0, p.ExitCode);
+            Assert.AreNotEqual(0, p.ExitCode);
            
 
             return p.StandardOutput.ReadToEnd();

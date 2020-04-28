@@ -61,7 +61,7 @@
                 msg ?? string.Empty,
                 this.nameProvider.Name);
         }
-        
+
         [Event(
             4,
             Keywords = Keywords.Diagnostics | Keywords.UserActionable,
@@ -97,7 +97,7 @@
             string appDomainName = "Incorrect")
         {
             this.WriteEvent(
-                6, 
+                6,
                 exception ?? string.Empty,
                 this.nameProvider.Name);
         }
@@ -123,7 +123,7 @@
         {
             this.WriteEvent(8, this.nameProvider.Name);
         }
-        
+
         [Event(
             9,
             Message = "No Telemetry Configuration provided. Using the default TelemetryConfiguration.Active.",
@@ -140,8 +140,8 @@
         public void PopulateRequiredStringWithValue(string parameterName, string telemetryType, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
-                10, 
-                parameterName ?? string.Empty, 
+                10,
+                parameterName ?? string.Empty,
                 telemetryType ?? string.Empty,
                 this.nameProvider.Name);
         }
@@ -181,7 +181,7 @@
         public void LogError(string msg, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
-                14, 
+                14,
                 msg ?? string.Empty,
                 this.nameProvider.Name);
         }
@@ -377,7 +377,7 @@
         {
             this.WriteEvent(
                 29,
-                maxBacklogSize,               
+                maxBacklogSize,
                 this.nameProvider.Name);
         }
 
@@ -576,7 +576,7 @@
 
         [Event(50, Message = "Connection String contains invalid delimiters and cannot be parsed.", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
         public void ConnectionStringInvalidDelimiters(string appDomainName = "Incorrect") => this.WriteEvent(50, this.nameProvider.Name);
-        
+
         [Event(51, Message = "Connection String cannot be NULL.", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
         public void ConnectionStringNull(string appDomainName = "Incorrect") => this.WriteEvent(51, this.nameProvider.Name);
 
@@ -639,6 +639,9 @@
 
         [Event(69, Message = "{0}", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
         public void ConnectionStringParseError(string message, string appDomainName = "Incorrect") => this.WriteEvent(69, message, this.nameProvider.Name);
+
+        [Event(70, Message = "Activity not available: {0}.", Level = EventLevel.Error)]
+        public void ActivityNotAvailable(string exception, string appDomainName = "Incorrect") => this.WriteEvent(70, exception ?? string.Empty, this.nameProvider.Name);
 
         [NonEvent]
         [SuppressMessage("Microsoft.Performance", "CA1822: MarkMembersAsStatic", Justification = "This method does access instance data in NetStandard 2.0 scenarios.")]

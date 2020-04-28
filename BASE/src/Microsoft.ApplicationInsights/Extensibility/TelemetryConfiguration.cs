@@ -56,14 +56,18 @@
         /// </summary>
         static TelemetryConfiguration()
         {
-            ActivityExtensions.TryRun(() =>
+            try
             {
                 if (!Activity.ForceDefaultIdFormat)
                 {
                     Activity.DefaultIdFormat = ActivityIdFormat.W3C;
                     Activity.ForceDefaultIdFormat = true;
                 }                
-            });
+            }
+            catch (Exception exc)
+            {
+                CoreEventSource.Log.ActivityNotAvailable(exc.ToInvariantString());
+            }
         }
 
         /// <summary>

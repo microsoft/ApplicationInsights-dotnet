@@ -74,12 +74,12 @@
                         var operationTelemetry = this.Telemetry;
                         operationTelemetry.Stop();
 
-                        bool isActivityAvailable = false;
-                        isActivityAvailable = ActivityExtensions.TryRun(() =>
+                        bool isActivityAvailable = true;
+                        try
                         {
                             var currentActivity = Activity.Current;
-                            if (currentActivity == null 
-                            || (Activity.DefaultIdFormat != ActivityIdFormat.W3C && operationTelemetry.Id != currentActivity.Id) 
+                            if (currentActivity == null
+                            || (Activity.DefaultIdFormat != ActivityIdFormat.W3C && operationTelemetry.Id != currentActivity.Id)
                             || (Activity.DefaultIdFormat == ActivityIdFormat.W3C && operationTelemetry.Id != currentActivity.SpanId.ToHexString()))
                             {
                                 // W3COperationCorrelationTelemetryInitializer changes Id
@@ -107,13 +107,18 @@
 
                             currentActivity?.Stop();
 
-                            if (this.originalActivity != null && 
-                                Activity.Current != this.originalActivity && 
+                            if (this.originalActivity != null &&
+                                Activity.Current != this.originalActivity &&
                                 this.originalActivity is Activity activity)
                             {
                                 Activity.Current = activity;
                             }
-                        });
+                        }
+                        catch (Exception exc)
+                        {
+                            CoreEventSource.Log.ActivityNotAvailable(exc.ToInvariantString());
+                            isActivityAvailable = false;
+                        }
 
                         if (!isActivityAvailable)
                         {
