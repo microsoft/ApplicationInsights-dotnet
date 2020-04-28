@@ -156,9 +156,9 @@ The following is our tentative release schedule for 2020.
 | March     	| Early 	|   	| 2.14 Beta2 	|             	|
 |           	| Mid   	|   	| 2.14 Beta3 	|             	|
 | April     	| Early 	|   	|            	| 2.14 Stable 	|
-|           	| Mid   	|   	| 2.15 Beta1 	|             	|
-| May       	| Early 	|   	| 2.15 Beta2 	|             	|
-|           	| Mid   	|   	| 2.15 Beta3 	|             	|
+|           	| Mid   	|   	|         	|             	|
+| May       	| Early 	|   	| 2.15 Beta1 	|             	|
+|           	| Mid   	|   	| 2.15 Beta2 	|             	|
 | June      	| Early 	|   	|            	| 2.15 Stable 	|
 |           	| Mid   	|   	| 2.16 Beta1 	|             	|
 | **2020H2**   	|       	|   	|            	|             	|
