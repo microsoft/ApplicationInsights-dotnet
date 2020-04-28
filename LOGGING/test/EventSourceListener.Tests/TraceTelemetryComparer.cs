@@ -31,9 +31,6 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
                 return 0;
             }
 
-            var templateHash = template.GetHashCode();
-            var actualHash = template.GetHashCode();
-
             return template.GetHashCode() < actual.GetHashCode() ? -1 : 1;
         }
 
