@@ -48,7 +48,6 @@
     /// </summary>
     public static partial class ApplicationInsightsExtensions
     {
-        private const string VersionKeyFromConfig = "version";
         private const string InstrumentationKeyFromConfig = "ApplicationInsights:InstrumentationKey";
         private const string ConnectionStringFromConfig = "ApplicationInsights:ConnectionString";
         private const string DeveloperModeFromConfig = "ApplicationInsights:TelemetryChannel:DeveloperMode";
@@ -58,6 +57,12 @@
         private const string ConnectionStringEnvironmentVariable = "APPLICATIONINSIGHTS_CONNECTION_STRING";
         private const string DeveloperModeForWebSites = "APPINSIGHTS_DEVELOPER_MODE";
         private const string EndpointAddressForWebSites = "APPINSIGHTS_ENDPOINTADDRESS";
+
+        [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "Used in NetStandard2.0 build.")]
+        private const string ApplicationInsightsSectionFromConfig = "ApplicationInsights";
+
+        [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "Used in NetStandard2.0 build.")]
+        private const string TelemetryChannelSectionFromConfig = "ApplicationInsights:TelemetryChannel";
 
         [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "Used in NetStandard2.0 build.")]
         private const string EventSourceNameForSystemRuntime = "System.Runtime";
@@ -256,19 +261,46 @@
             IConfiguration config,
             ApplicationInsightsServiceOptions serviceOptions)
         {
+            ApplicationInsightsServiceOptionsHelper(config, serviceOptions);
+        }
+
+        /// <summary>
+        /// Read configuration from appSettings.json, appsettings.{env.EnvironmentName}.json
+        /// EnvironmentVariables and IConfiguation used in an application. 
+        /// Bind configuration to ApplicationInsightsServiceOptions.
+        /// </summary>
+        /// <param name="config">Configuration to read variables from.</param>
+        /// <param name="userConfig">IConfiguration from an application.</param>
+        /// <param name="serviceOptions">Telemetry configuration to populate.</param>
+        internal static void AddTelemetryConfiguration(
+            IConfiguration config,
+            IConfiguration userConfig,
+            ApplicationInsightsServiceOptions serviceOptions)
+        {
+            ApplicationInsightsServiceOptionsHelper(config, serviceOptions, userConfig);
+        }
+
+        private static void ApplicationInsightsServiceOptionsHelper(IConfiguration config, ApplicationInsightsServiceOptions serviceOptions, IConfiguration userConfig = null)
+        {
+            var configuration = userConfig ?? config;
+
+#if NETSTANDARD2_0 || NET461
+            configuration.GetSection(ApplicationInsightsSectionFromConfig).Bind(serviceOptions);
+            configuration.GetSection(TelemetryChannelSectionFromConfig).Bind(serviceOptions);
+#endif
             try
             {
-                if (config.TryGetValue(primaryKey: ConnectionStringEnvironmentVariable, backupKey: ConnectionStringFromConfig, value: out string connectionStringValue))
+                if (configuration.TryGetValue(primaryKey: ConnectionStringEnvironmentVariable, backupKey: ConnectionStringFromConfig, value: out string connectionStringValue))
                 {
                     serviceOptions.ConnectionString = connectionStringValue;
                 }
 
-                if (config.TryGetValue(primaryKey: InstrumentationKeyForWebSites, backupKey: InstrumentationKeyFromConfig, value: out string instrumentationKey))
+                if (configuration.TryGetValue(primaryKey: InstrumentationKeyForWebSites, backupKey: InstrumentationKeyFromConfig, value: out string instrumentationKey))
                 {
                     serviceOptions.InstrumentationKey = instrumentationKey;
                 }
 
-                if (config.TryGetValue(primaryKey: DeveloperModeForWebSites, backupKey: DeveloperModeFromConfig, value: out string developerModeValue))
+                if (configuration.TryGetValue(primaryKey: DeveloperModeForWebSites, backupKey: DeveloperModeFromConfig, value: out string developerModeValue))
                 {
                     if (bool.TryParse(developerModeValue, out bool developerMode))
                     {
@@ -276,14 +308,9 @@
                     }
                 }
 
-                if (config.TryGetValue(primaryKey: EndpointAddressForWebSites, backupKey: EndpointAddressFromConfig, value: out string endpointAddress))
+                if (configuration.TryGetValue(primaryKey: EndpointAddressForWebSites, backupKey: EndpointAddressFromConfig, value: out string endpointAddress))
                 {
                     serviceOptions.EndpointAddress = endpointAddress;
-                }
-
-                if (config.TryGetValue(primaryKey: VersionKeyFromConfig, value: out string version))
-                {
-                    serviceOptions.ApplicationVersion = version;
                 }
             }
             catch (Exception ex)

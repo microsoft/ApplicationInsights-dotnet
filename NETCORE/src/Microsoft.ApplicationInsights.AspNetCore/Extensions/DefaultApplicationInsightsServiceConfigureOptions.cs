@@ -15,14 +15,17 @@
     internal class DefaultApplicationInsightsServiceConfigureOptions : IConfigureOptions<ApplicationInsightsServiceOptions>
     {
         private readonly IHostingEnvironment hostingEnvironment;
+        private readonly IConfiguration userConfiguration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultApplicationInsightsServiceConfigureOptions"/> class.
         /// </summary>
         /// <param name="hostingEnvironment"><see cref="IHostingEnvironment"/> to use for retreiving ContentRootPath.</param>
-        public DefaultApplicationInsightsServiceConfigureOptions(IHostingEnvironment hostingEnvironment)
+        /// <param name="configuration"><see cref="IConfiguration"/>  from an application.</param>
+        public DefaultApplicationInsightsServiceConfigureOptions(IHostingEnvironment hostingEnvironment, IConfiguration configuration = null)
         {
             this.hostingEnvironment = hostingEnvironment;
+            this.userConfiguration = configuration;
         }
 
         /// <inheritdoc />
@@ -33,7 +36,7 @@
                 .AddJsonFile("appsettings.json", true)
                 .AddJsonFile(string.Format(CultureInfo.InvariantCulture, "appsettings.{0}.json", this.hostingEnvironment.EnvironmentName), true)
                 .AddEnvironmentVariables();
-            ApplicationInsightsExtensions.AddTelemetryConfiguration(configBuilder.Build(), options);
+            ApplicationInsightsExtensions.AddTelemetryConfiguration(configBuilder.Build(), this.userConfiguration, options);
 
             if (Debugger.IsAttached)
             {
