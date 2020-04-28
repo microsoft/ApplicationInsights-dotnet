@@ -46,9 +46,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi20.FunctionalTests20"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationInsightsTypes", "test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj", "{9DA7024F-216F-4FA5-9B6D-CE4216C2DD72}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApp30", "test\TestApp30\TestApp30.csproj", "{8E71FECF-E090-409E-8551-C597F9DFB91C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests.WebApp", "test\IntegrationTests.WebApp\IntegrationTests.WebApp.csproj", "{8E71FECF-E090-409E-8551-C597F9DFB91C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApp30.Tests30", "test\TestApp30.Tests\TestApp30.Tests30.csproj", "{FE9DB9A7-D9AE-4188-945C-393D70022D9A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests.Tests", "test\IntegrationTests.Tests\IntegrationTests.Tests.csproj", "{FE9DB9A7-D9AE-4188-945C-393D70022D9A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights.WorkerService", "src\Microsoft.ApplicationInsights.WorkerService\Microsoft.ApplicationInsights.WorkerService.csproj", "{AECEE8DD-09AE-4DEA-8690-F76A37C0534B}"
 EndProject

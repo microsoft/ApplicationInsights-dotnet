@@ -10,15 +10,15 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace TestApp30.Tests
+namespace IntegrationTests.Tests
 {
-    public class BasicTestWithCorrelation : IClassFixture<CustomWebApplicationFactory<TestApp30.Startup>>
+    public class BasicTestWithCorrelation : IClassFixture<CustomWebApplicationFactory<IntegrationTests.WebApp.Startup>>
     {
-        private readonly CustomWebApplicationFactory<TestApp30.Startup> _factory;
+        private readonly CustomWebApplicationFactory<IntegrationTests.WebApp.Startup> _factory;
         protected readonly ITestOutputHelper output;
 
 
-        public BasicTestWithCorrelation(CustomWebApplicationFactory<TestApp30.Startup> factory, ITestOutputHelper output)
+        public BasicTestWithCorrelation(CustomWebApplicationFactory<IntegrationTests.WebApp.Startup> factory, ITestOutputHelper output)
         {
             this.output = output;
             _factory = factory;
