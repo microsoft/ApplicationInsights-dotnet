@@ -42,6 +42,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Implementation\SqlClientDiagnosticSourceListener.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!--Build Infrastructure-->
     <PackageReference Include="Microsoft.VisualStudioEng.MicroBuild.Core" Version="0.4.1">
       <PrivateAssets>All</PrivateAssets>
@@ -86,6 +90,5 @@
     <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\$(TargetFramework)\PublicAPI.Unshipped.txt" />
   </ItemGroup>
 
-  <Import Project="..\Shared\DependencyCollector.Shared.projitems" Label="Shared" />
   <Import Project="..\..\Common\Common.projitems" Label="Shared" />
 </Project>

@@ -1,3 +1,4 @@
+#if NET45
 namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
@@ -496,3 +497,4 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         }
     }
 }
+#endif

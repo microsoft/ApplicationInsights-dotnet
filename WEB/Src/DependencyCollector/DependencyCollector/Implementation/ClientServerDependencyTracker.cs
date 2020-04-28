@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
+﻿#if NET45
+namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
     using System.Data.SqlClient;
@@ -223,3 +224,4 @@
         }
     }
 }
+#endif
