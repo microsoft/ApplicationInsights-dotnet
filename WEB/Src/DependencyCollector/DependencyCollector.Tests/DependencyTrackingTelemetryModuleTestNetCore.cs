@@ -548,7 +548,11 @@
                     .UseUrls(url)
                     .Build();
 
+#if NETCOREAPP3_1
+                Task.Run(() => this.host.RunAsync(this.cts.Token).GetAwaiter().GetResult());
+#else
                 Task.Run(() => this.host.Run(this.cts.Token));
+#endif
             }
 
             public void Dispose()
@@ -578,4 +582,4 @@
         }
     }
 #endif
-}
+            }
