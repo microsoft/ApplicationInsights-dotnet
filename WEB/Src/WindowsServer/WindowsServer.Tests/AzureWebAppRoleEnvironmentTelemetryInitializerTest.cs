@@ -1,18 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer
 {
     using System;
-    using System.Globalization;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-//#if !NETCOREAPP
-//    using Microsoft.ApplicationInsights.WindowsServer.Azure;
-//    using Microsoft.ApplicationInsights.WindowsServer.Azure.Emulation;
-//#endif
-    using Microsoft.ApplicationInsights.WindowsServer.Implementation;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
-    
+
     [TestClass]
     public class AzureWebAppRoleEnvironmentTelemetryInitializerTest
     {
