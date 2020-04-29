@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.WindowsServer.Implementation
+﻿#if NET45
+namespace Microsoft.ApplicationInsights.WindowsServer.Implementation
 {
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -13,3 +14,4 @@
         }
     }
 }
+#endif

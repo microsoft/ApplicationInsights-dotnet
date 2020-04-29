@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.WindowsServer
+﻿#if NET45
+namespace Microsoft.ApplicationInsights.WindowsServer
 {
     using System;
     using System.Collections.Generic;
@@ -13,10 +14,7 @@
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
-
-#if NET45
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     [TestClass]
     public class UnhandledExceptionTelemetryModuleTest
@@ -193,3 +191,4 @@
         }
     }
 }
+#endif

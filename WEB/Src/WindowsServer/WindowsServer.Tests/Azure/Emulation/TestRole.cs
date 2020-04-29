@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.WindowsServer.Azure.Emulation
+﻿#if NET45
+namespace Microsoft.ApplicationInsights.WindowsServer.Azure.Emulation
 {
     using System;
     
@@ -31,3 +32,4 @@
         }
     }
 }
+#endif
