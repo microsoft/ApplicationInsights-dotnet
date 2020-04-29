@@ -4,7 +4,7 @@
     using System.Net;
     using System.Threading;    
     using System.Threading.Tasks;
-#if NETCORE
+#if NETCOREAPP
     using System.Collections.Generic;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -13,14 +13,14 @@
 
     internal class AzureInstanceMetadataServiceMock : IDisposable
     {
-#if NETCORE
+#if NETCOREAPP
         private readonly IWebHost host;
 #else
         private readonly HttpListener listener;
 #endif
         private readonly CancellationTokenSource cts;
 
-#if NETCORE
+#if NETCOREAPP
 
         internal AzureInstanceMetadataServiceMock(string baseUrl, string testName, Action<HttpResponse> onRequest = null)
         {
@@ -72,7 +72,7 @@
         public void Dispose()
         {
             this.cts.Cancel(false);
-#if NETCORE
+#if NETCOREAPP
             this.host.Dispose();
 #else
             this.listener.Abort();
@@ -81,7 +81,7 @@
             this.cts.Dispose();
         }
 
-#if NETCORE
+#if NETCOREAPP
 
         public class ResponseHandlerMock
         {

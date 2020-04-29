@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.WindowsServer.Implementation
+﻿#if NET45
+namespace Microsoft.ApplicationInsights.WindowsServer.Implementation
 {
     using System;
     using System.Globalization;
@@ -147,3 +148,4 @@
         }
     }
 }
+#endif

@@ -3,7 +3,7 @@
     using System.IO;
     using System.Net;
     using System.Text;
-#if NETCORE
+#if NETCOREAPP
     using Microsoft.AspNetCore.Http;
 #endif
 
@@ -12,7 +12,7 @@
     /// </summary>
     internal static class NetPlatformHttpResponseTypesExtension
     {
-#if NETCORE
+#if NETCOREAPP
 
         public static void SetContentLength(this HttpResponse resp, long len)
         {
@@ -44,8 +44,6 @@
         {
             resp.ContentEncoding = enc;
         }
-#else
-#error Unkown framework
 #endif
     }
 }

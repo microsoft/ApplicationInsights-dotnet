@@ -9,7 +9,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
     using Microsoft.ApplicationInsights.WindowsServer.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.Implementation.DataContracts;
     using Microsoft.ApplicationInsights.WindowsServer.Mock;
-#if NETCORE
+#if NETCOREAPP
     using Microsoft.AspNetCore.Http;
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;

@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.WindowsServer.Azure
+﻿#if NET45
+namespace Microsoft.ApplicationInsights.WindowsServer.Azure
 {
     using System;
     using System.IO;
@@ -57,3 +58,4 @@
         public static string TestWithServiceRuntimePath { get; set; }
     }
 }
+#endif
