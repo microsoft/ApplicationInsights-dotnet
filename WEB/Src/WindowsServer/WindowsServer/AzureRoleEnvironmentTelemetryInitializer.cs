@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.WindowsServer
+﻿#if NET45
+namespace Microsoft.ApplicationInsights.WindowsServer
 {
     using System;    
     using Microsoft.ApplicationInsights.Channel;
@@ -91,3 +92,4 @@
         }
     }
 }
+#endif

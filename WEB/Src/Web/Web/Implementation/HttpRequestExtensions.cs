@@ -4,6 +4,7 @@
     using System.Collections.Specialized;
     using System.Web;
     using Microsoft.ApplicationInsights.Common;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// HttpRequest Extensions.
@@ -42,6 +43,25 @@
         public static NameValueCollection UnvalidatedGetHeaders(this HttpRequest httpRequest)
         {
             return httpRequest.Unvalidated.Headers;
+        }
+
+        public static string GetUserHostAddress(this HttpRequest httpRequest)
+        {
+            if (httpRequest == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                return httpRequest.UserHostAddress;
+            }
+            catch (ArgumentException exp)
+            {
+                // System.ArgumentException: Value does not fall within the expected range. Fails in IIS7, WCF OneWay.
+                WebEventSource.Log.UserHostNotCollectedWarning(exp.ToInvariantString());
+                return null;
+            }
         }
     }
 }
