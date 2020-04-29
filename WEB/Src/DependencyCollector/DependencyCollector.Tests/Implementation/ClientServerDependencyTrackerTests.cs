@@ -17,6 +17,7 @@ namespace Microsoft.ApplicationInsights.Tests
     /// Tests for client server dependency tracker.
     /// </summary>
     [TestClass]
+    [Ignore("Test class out of date. Github Issue 1830")]
     public class ClientServerDependencyTrackerTests : IDisposable
     {
         private List<ITelemetry> sendItems;
