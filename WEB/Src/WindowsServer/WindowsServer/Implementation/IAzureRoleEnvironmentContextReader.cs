@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.WindowsServer.Implementation
+﻿#if NET45
+namespace Microsoft.ApplicationInsights.WindowsServer.Implementation
 {
     /// <summary>
     /// The user context reader interface used while reading user related information in a platform specific way.
@@ -23,3 +24,4 @@
         string GetRoleInstanceName();
     }
 }
+#endif
