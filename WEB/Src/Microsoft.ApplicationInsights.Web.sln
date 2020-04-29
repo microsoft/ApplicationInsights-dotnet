@@ -108,8 +108,6 @@ Global
 		Common\Common.projitems*{30ae1a5d-775a-4dec-9f87-849d8ae93e3a}*SharedItemsImports = 5
 		..\..\BASE\src\Common\Common\Common.projitems*{41301181-f4be-4c36-b78d-a29c55cb0469}*SharedItemsImports = 5
 		PerformanceCollector\Filtering.Shared\Filtering.Shared.projitems*{568aeb4f-ba4c-47a5-9fa3-68f06cd11fed}*SharedItemsImports = 13
-		WindowsServer\WindowsServer.Shared\WindowsServer.Shared.projitems*{579f42e8-b711-411e-be52-4a3fd208507f}*SharedItemsImports = 13
-		DependencyCollector\Shared\DependencyCollector.Shared.projitems*{669e7e58-072d-4b0a-a4dd-4eb2ae2ea4d4}*SharedItemsImports = 13
 		PerformanceCollector\Perf.Shared.NetStandard16.Stubs\Perf.Shared.NetStandard16.Stubs.projitems*{76b21faa-270d-47de-b14b-bec87edc34f1}*SharedItemsImports = 13
 		WindowsServer\WindowsServer.Shared.Tests\WindowsServer.Shared.Tests.projitems*{7916ae39-ae89-4886-8842-33ac9883905a}*SharedItemsImports = 13
 		Common\Common.projitems*{80f0481a-66c7-4442-96d3-5fd841132c4b}*SharedItemsImports = 5
