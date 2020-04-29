@@ -59,6 +59,12 @@
     <ProjectReference Include="..\WindowsServer\WindowsServer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Microsoft.ApplicationInsights.Log4NetAppender.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <Import Project="..\..\TestFramework\Shared\TestFramework.Shared.projitems" Label="Shared" />
 
 </Project>
