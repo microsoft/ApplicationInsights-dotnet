@@ -12,16 +12,16 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <TargetFrameworks>net46</TargetFrameworks>
+    <TargetFrameworks>net46;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
     <DebugType>pdbonly</DebugType> 
     <DebugSymbols>true</DebugSymbols> 
   </PropertyGroup>
 
   <PropertyGroup Condition="$(OS) != 'Windows_NT'">
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <TargetFrameworks>netstandard1.3</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
-  
+
   <ItemGroup Condition="$(OS) == 'Windows_NT'">
     <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
     <ProjectReference Include="..\..\..\Test\Microsoft.ApplicationInsights.Test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj" />
@@ -32,9 +32,9 @@
     <Reference Include="System" />
 
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
-    <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="16.1.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
+    <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="16.2.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.1.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.1.1" />
     <PackageReference Include="System.Collections.Immutable" Version="1.3.1" />
     <Reference Include="System.ComponentModel.Composition" />
     <PackageReference Include="System.Console" Version="4.3.0" />
