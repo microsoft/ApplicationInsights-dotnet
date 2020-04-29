@@ -121,8 +121,6 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared.NetStandard20Ne
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared.Tests", "WEB\Src\PerformanceCollector\Perf.Shared.Tests\Perf.Shared.Tests.shproj", "{9B524BD3-682D-4B6F-9251-D4B2911DF0FD}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Web.Shared", "WEB\Src\Web\Web.Shared.Net\Web.Shared.shproj", "{395E03BB-D061-4C9D-9D47-18676566444D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsServer.Net45.Tests", "WEB\Src\WindowsServer\WindowsServer.Net45.Tests\WindowsServer.Net45.Tests.csproj", "{F05EB480-B209-47DD-90E3-1DDC47EFC579}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsServer.NetCore.Tests", "WEB\Src\WindowsServer\WindowsServer.NetCore.Tests\WindowsServer.NetCore.Tests.csproj", "{74051BFB-87ED-4D99-927F-C40E7717E4E5}"
@@ -202,7 +200,6 @@ Global
 		LOGGING\src\CommonShared\CommonShared.projitems*{3774003c-91fd-4d79-99c7-9beac5b9a48e}*SharedItemsImports = 5
 		LOGGING\test\CommonTestShared\CommonTestShared.projitems*{37e15186-87a4-42eb-ab59-cedb99ca2640}*SharedItemsImports = 5
 		LOGGING\test\Shared\Adapters.Shared.Tests.projitems*{37e15186-87a4-42eb-ab59-cedb99ca2640}*SharedItemsImports = 5
-		WEB\Src\Web\Web.Shared.Net\Web.Shared.Net.projitems*{395e03bb-d061-4c9d-9d47-18676566444d}*SharedItemsImports = 13
 		LOGGING\test\CommonTestShared\CommonTestShared.projitems*{3b9ab7fa-562d-4e4e-86e3-3348426bc0d9}*SharedItemsImports = 13
 		NETCORE\src\Shared\Shared.projitems*{3cab7f66-3cc4-4b46-9b0d-765c460fe2bf}*SharedItemsImports = 5
 		LOGGING\src\CommonShared\CommonShared.projitems*{52b3c054-c686-4bb8-a4b7-9e8d6c49491f}*SharedItemsImports = 5
@@ -222,7 +219,6 @@ Global
 		WEB\Src\Common\Common.projitems*{7b5d95ee-50ee-4222-a03c-fae5905b3dfd}*SharedItemsImports = 5
 		WEB\Src\WindowsServer\WindowsServer.Shared\WindowsServer.Shared.projitems*{7b5d95ee-50ee-4222-a03c-fae5905b3dfd}*SharedItemsImports = 5
 		WEB\Src\Common\Common.projitems*{8293bc71-7ddc-4dd1-8807-280eef7e752d}*SharedItemsImports = 5
-		WEB\Src\Web\Web.Shared.Net\Web.Shared.Net.projitems*{8293bc71-7ddc-4dd1-8807-280eef7e752d}*SharedItemsImports = 5
 		WEB\Src\PerformanceCollector\Perf.Shared.Tests\Perf.Shared.Tests.projitems*{8f641c0b-a57a-43ec-b91f-4258f6dc0cd5}*SharedItemsImports = 5
 		WEB\Src\TestFramework\Shared\TestFramework.Shared.projitems*{8f641c0b-a57a-43ec-b91f-4258f6dc0cd5}*SharedItemsImports = 5
 		BASE\src\Common\Common\Common.projitems*{936af739-4297-4016-9d70-4280042709be}*SharedItemsImports = 13
@@ -509,7 +505,6 @@ Global
 		{A8BA3BD0-19CE-488D-B2BD-0B9B677F4E03} = {3EDBC945-E531-4CEE-A038-A6AE1EF9AA96}
 		{054C25DC-E545-4712-95C4-81F30CF65CE8} = {3EDBC945-E531-4CEE-A038-A6AE1EF9AA96}
 		{9B524BD3-682D-4B6F-9251-D4B2911DF0FD} = {3EDBC945-E531-4CEE-A038-A6AE1EF9AA96}
-		{395E03BB-D061-4C9D-9D47-18676566444D} = {07076842-9CAA-4B4A-8AEF-88DE88CD37AC}
 		{F05EB480-B209-47DD-90E3-1DDC47EFC579} = {11AC7235-167E-40B5-B2E3-9CBF08700064}
 		{74051BFB-87ED-4D99-927F-C40E7717E4E5} = {11AC7235-167E-40B5-B2E3-9CBF08700064}
 		{579F42E8-B711-411E-BE52-4A3FD208507F} = {11AC7235-167E-40B5-B2E3-9CBF08700064}
