@@ -91,8 +91,6 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TestFramework.Shared.Base",
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TestFramework.Shared.Web", "WEB\Src\TestFramework\Shared\TestFramework.Shared.Web.shproj", "{9718F051-147F-4F5F-9FF3-C926430EFCF7}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DependencyCollector.Shared.Tests", "WEB\Src\DependencyCollector\Shared.Tests\DependencyCollector.Shared.Tests.shproj", "{ACE58393-3419-4FCA-87CC-C33EB756C7E4}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventCounterCollector.Tests", "WEB\Src\EventCounterCollector\EventCounterCollector.Tests\EventCounterCollector.Tests\EventCounterCollector.Tests.csproj", "{BECFC6B1-E04E-431C-A4D9-6F330F7DE22D}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Filtering.Shared", "WEB\Src\PerformanceCollector\Filtering.Shared\Filtering.Shared.shproj", "{568AEB4F-BA4C-47A5-9FA3-68F06CD11FED}"
@@ -231,7 +229,6 @@ Global
 		WEB\Src\PerformanceCollector\Perf.Shared.NetStandard20\Perf.Shared.NetStandard20.projitems*{a8ba3bd0-19ce-488d-b2bd-0b9b677f4e03}*SharedItemsImports = 13
 		LOGGING\src\EventSource.Shared\EventSource.Shared\EventSource.Shared.projitems*{a964de6d-9750-4013-8be2-79c2afc056e5}*SharedItemsImports = 13
 		NETCORE\src\Shared\Shared.projitems*{ac399f09-b465-4cfd-8d82-f1d1c5c9347e}*SharedItemsImports = 5
-		WEB\Src\DependencyCollector\Shared.Tests\DependencyCollector.Shared.Tests.projitems*{ace58393-3419-4fca-87cc-c33eb756c7e4}*SharedItemsImports = 13
 		LOGGING\test\CommonTestShared\CommonTestShared.projitems*{b1650e9b-6764-4dc0-8c71-96f0ff335c80}*SharedItemsImports = 5
 		LOGGING\test\Shared\Adapters.Shared.Tests.projitems*{b1650e9b-6764-4dc0-8c71-96f0ff335c80}*SharedItemsImports = 5
 		BASE\src\Common\Common\Common.projitems*{c30a7eb8-a86c-49ee-927e-7d9e03572e82}*SharedItemsImports = 5
@@ -249,7 +246,6 @@ Global
 		WEB\Src\TestFramework\Shared\TestFramework.Shared.projitems*{f254d4fb-428d-408e-8251-39bca7b4b5ce}*SharedItemsImports = 4
 		BASE\Test\TestFramework\Shared\TestFramework.Shared.projitems*{f76c6cbd-29b0-4564-bdcb-c969f8fec136}*SharedItemsImports = 13
 		LOGGING\test\Shared\Adapters.Shared.Tests.projitems*{fa775630-7917-4a99-a78c-fba46edf685c}*SharedItemsImports = 13
-		WEB\Src\DependencyCollector\Shared.Tests\DependencyCollector.Shared.Tests.projitems*{fac049e4-7011-45ff-bd06-69aca28921e8}*SharedItemsImports = 5
 		WEB\Src\TestFramework\Shared\TestFramework.Shared.projitems*{fac049e4-7011-45ff-bd06-69aca28921e8}*SharedItemsImports = 5
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -482,7 +478,6 @@ Global
 		{4B0BC3B7-C7FC-4333-9E28-5790D9153F07} = {632FB9CE-540D-4451-9FF2-12E89C1492BD}
 		{2759BC71-7F47-44DA-8579-AE2D8C8C684D} = {632FB9CE-540D-4451-9FF2-12E89C1492BD}
 		{21CB9A8A-F25B-4DEB-92CB-ACB6920EB8BC} = {FBAFD313-0139-4DA3-BCB3-EE54DC3B6CCD}
-		{ACE58393-3419-4FCA-87CC-C33EB756C7E4} = {005BD823-60AF-406E-AC20-842D7653FE60}
 		{BECFC6B1-E04E-431C-A4D9-6F330F7DE22D} = {DFCBB4ED-976C-4239-BCAF-8AA21E684E8C}
 		{568AEB4F-BA4C-47A5-9FA3-68F06CD11FED} = {3EDBC945-E531-4CEE-A038-A6AE1EF9AA96}
 		{8F641C0B-A57A-43EC-B91F-4258F6DC0CD5} = {3EDBC945-E531-4CEE-A038-A6AE1EF9AA96}

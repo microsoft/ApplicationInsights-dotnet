@@ -1,13 +1,12 @@
-﻿namespace Microsoft.ApplicationInsights.Tests
+﻿#if NET45
+namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
     using System.Collections.Generic;
     using System.Data;
     using System.Data.SqlClient;
     using System.Diagnostics;
-#if NET45
     using System.Diagnostics.Tracing;
-#endif
     using System.Globalization;
     using System.Linq;
     using System.Threading;
@@ -53,10 +52,9 @@
             this.sendItems = new List<ITelemetry>();
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
             this.configuration.InstrumentationKey = Guid.NewGuid().ToString();
-            this.sqlCommandProcessingProfiler = new ProfilerSqlCommandProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder());
-            this.sqlCommandProcessingProfiler = new ProfilerSqlCommandProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), true);
-            this.sqlCommandProcessingProfilerWithDisabledCommandText = new ProfilerSqlCommandProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), false);
-            this.sqlConnectionProcessingProfiler = new ProfilerSqlConnectionProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder());
+            this.sqlCommandProcessingProfiler = new ProfilerSqlCommandProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder<DependencyTelemetry>(), true);
+            this.sqlCommandProcessingProfilerWithDisabledCommandText = new ProfilerSqlCommandProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder<DependencyTelemetry>(), false);
+            this.sqlConnectionProcessingProfiler = new ProfilerSqlConnectionProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder<DependencyTelemetry>());
         }
 
         [TestCleanup]
@@ -791,3 +789,4 @@
         }
     }
 }
+#endif
