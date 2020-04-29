@@ -82,7 +82,5 @@
     <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\$(TargetFramework)\PublicAPI.Shipped.txt" />
     <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\$(TargetFramework)\PublicAPI.Unshipped.txt" />
   </ItemGroup>
-  
-  <Import Project="..\WindowsServer.Shared\WindowsServer.Shared.projitems" Label="Shared" />
   <Import Project="..\..\Common\Common.projitems" Label="Shared" />
 </Project>
