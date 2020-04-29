@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
+﻿#if NET45
+namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using Microsoft.Diagnostics.Instrumentation.Extensions.Intercept;
 
@@ -341,3 +342,4 @@
         }
     }
 }
+#endif

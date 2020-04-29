@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation
+﻿#if NET45
+namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation
 {
     using System;
     using System.Globalization;
@@ -63,3 +64,4 @@
         }
     }
 }
+#endif
