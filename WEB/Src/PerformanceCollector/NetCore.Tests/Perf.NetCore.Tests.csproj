@@ -56,7 +56,14 @@
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
 
-  <Import Project="..\Perf.Shared.Tests\Perf.Shared.Tests.projitems" Label="Shared" />
+  <ItemGroup>
+    <None Update="WebAppPerformanceCollector\SampleFiles\RemoteEnvironmentVariablesAllSampleOne.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="WebAppPerformanceCollector\SampleFiles\RemoteEnvironmentVariablesAllSampleTwo.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
   <Import Project="..\..\TestFramework\Shared\TestFramework.Shared.projitems" Label="Shared" />
 </Project>
