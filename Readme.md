@@ -13,9 +13,21 @@ Please review our How-to guides to review which packages are appropriate for you
 
 
 
-
-## Understanding our SDK
+### Understanding our SDK
 We've gathered a list of concepts, code examples, and links to full guides [here](.docs/concepts.md).
+
+
+
+## Contributing
+We strongly welcome and encourage contributions to this project. 
+
+Please review our [Contributing guide](.github/CONTRIBUTING.md).
+
+
+
+## Branches
+- [master][https://github.com/Microsoft/ApplicationInsights-dotnet/tree/master] contains the *latest* published release located on [NuGet](https://www.nuget.org/packages/Microsoft.ApplicationInsights).
+- [develop][https://github.com/Microsoft/ApplicationInsights-dotnet/tree/develop] contains the code for the *next* release. 
 
 
 
@@ -50,19 +62,6 @@ The following packages are published from this repository:
 Nightly Builds are available on our MyGet feed:
 `https://www.myget.org/F/applicationinsights-dotnet-nightly/api/v3/index.json`
 These builds come from the develop branch. These are not signed and are not intended for production workloads.
-
-
-
-## Branches
-- [master][https://github.com/Microsoft/ApplicationInsights-dotnet/tree/master] contains the *latest* published release located on [NuGet](https://www.nuget.org/packages/Microsoft.ApplicationInsights).
-- [develop][https://github.com/Microsoft/ApplicationInsights-dotnet/tree/develop] contains the code for the *next* release. 
-
-
-
-## Contributing
-We strongly welcome and encourage contributions to this project. 
-
-Please review our [Contributing guide](.github/CONTRIBUTING.md).
 
 
 
