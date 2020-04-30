@@ -15,7 +15,7 @@ Please review our How-to guides to review which packages are appropriate for you
 
 
 ## Understanding our SDK
-We've gathered a list of concepts, code examples, and links to full guides [here](.\.docs\concepts.md).
+We've gathered a list of concepts, code examples, and links to full guides [here](.docs\concepts.md).
 
 
 
@@ -62,7 +62,7 @@ These builds come from the develop branch. These are not signed and are not inte
 ## Contributing
 We strongly welcome and encourage contributions to this project. 
 
-Please review our [Contributing guide](.\.github\CONTRIBUTING.md).
+Please review our [Contributing guide](.github\CONTRIBUTING.md).
 
 
 
