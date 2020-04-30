@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.Tests
+﻿#if !NETCOREAPP1_0
+namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
     using System.Collections.Concurrent;
@@ -127,16 +128,10 @@
             Uri serviceEndpoint = new Uri(string.Format(CultureInfo.InvariantCulture, "http://localhost:{0}", port));
             this.TestContext.Properties[ServiceEndpointPropertyName] = serviceEndpoint;
 
-#if NETCOREAPP1_0
-            this.Listener = new HttpListener(IPAddress.Loopback, port);
-#else
             this.Listener = new HttpListener();
             string uriPrefix = string.Format(CultureInfo.InvariantCulture, "http://localhost:{0}/", port);
             this.Listener.Prefixes.Add(uriPrefix);
-#endif
-
             this.Listener.Start();
-
             this.AssertionSync = new SemaphoreSlim(0);
 
             var eventListenerReady = new AutoResetEvent(false);
@@ -163,13 +158,13 @@
             }
         }
 
-    [TestMethod]
+        [TestMethod]
         public void QuickPulseServiceClientPingsTheService()
         {
             // ARRANGE
             string instance = Guid.NewGuid().ToString();
             var timestamp = DateTimeOffset.UtcNow;
-                        
+
             var serviceClient = new QuickPulseServiceClient(this.TestContext.Properties[ServiceEndpointPropertyName] as Uri, instance, instance, instance, string.Empty, new Clock(), false, 0);
 
             // ACT
@@ -1775,7 +1770,7 @@
                     new Exception("Exception2"),
                     Tuple.Create("Prop2", "Val2")),
             };
-            
+
             // ACT
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(
@@ -2010,11 +2005,8 @@
                 try
                 {
                     ev.Set();
-#if NETCOREAPP1_0
-                    HttpListenerContext context = listener.GetContextAsync().GetAwaiter().GetResult();
-#else
+
                     HttpListenerContext context = listener.GetContext();
-#endif
 
                     var request = context.Request;
 
@@ -2027,64 +2019,64 @@
                     switch (request.Url.LocalPath)
                     {
                         case "/ping":
-                        {
-                            this.pingCount++;
+                            {
+                                this.pingCount++;
 
-                            this.pingResponse(context.Response);
+                                this.pingResponse(context.Response);
 
-                            var dataPoint =
-                                (MonitoringDataPoint) serializerDataPoint.ReadObject(context.Request.InputStream);
-                            var transmissionTime = long.Parse(
-                                context.Request.Headers[QuickPulseConstants.XMsQpsTransmissionTimeHeaderName],
-                                CultureInfo.InvariantCulture);
-                            var instanceName =
-                                context.Request.Headers[QuickPulseConstants.XMsQpsInstanceNameHeaderName];
-                            var machineName = context.Request.Headers[QuickPulseConstants.XMsQpsMachineNameHeaderName];
-                            var invariantVersion =
-                                context.Request.Headers[QuickPulseConstants.XMsQpsInvariantVersionHeaderName];
-                            var streamId = context.Request.Headers[QuickPulseConstants.XMsQpsStreamIdHeaderName];
-                            var collectionConfigurationETag =
-                                context.Request.Headers[QuickPulseConstants.XMsQpsConfigurationETagHeaderName];
+                                var dataPoint =
+                                    (MonitoringDataPoint)serializerDataPoint.ReadObject(context.Request.InputStream);
+                                var transmissionTime = long.Parse(
+                                    context.Request.Headers[QuickPulseConstants.XMsQpsTransmissionTimeHeaderName],
+                                    CultureInfo.InvariantCulture);
+                                var instanceName =
+                                    context.Request.Headers[QuickPulseConstants.XMsQpsInstanceNameHeaderName];
+                                var machineName = context.Request.Headers[QuickPulseConstants.XMsQpsMachineNameHeaderName];
+                                var invariantVersion =
+                                    context.Request.Headers[QuickPulseConstants.XMsQpsInvariantVersionHeaderName];
+                                var streamId = context.Request.Headers[QuickPulseConstants.XMsQpsStreamIdHeaderName];
+                                var collectionConfigurationETag =
+                                    context.Request.Headers[QuickPulseConstants.XMsQpsConfigurationETagHeaderName];
 
-                            this.pings.Add(
-                                Tuple.Create(
-                                    new PingHeaders()
-                                    {
-                                        TransmissionTime = new DateTimeOffset(transmissionTime, TimeSpan.Zero),
-                                        InstanceName = instanceName,
-                                        MachineName = machineName,
-                                        InvariantVersion = int.Parse(invariantVersion, CultureInfo.InvariantCulture),
-                                        StreamId = streamId
-                                    },
-                                    collectionConfigurationETag,
-                                    dataPoint));
+                                this.pings.Add(
+                                    Tuple.Create(
+                                        new PingHeaders()
+                                        {
+                                            TransmissionTime = new DateTimeOffset(transmissionTime, TimeSpan.Zero),
+                                            InstanceName = instanceName,
+                                            MachineName = machineName,
+                                            InvariantVersion = int.Parse(invariantVersion, CultureInfo.InvariantCulture),
+                                            StreamId = streamId
+                                        },
+                                        collectionConfigurationETag,
+                                        dataPoint));
 
-                            this.lastPingTimestamp = dataPoint.Timestamp;
-                            this.lastPingInstance = dataPoint.Instance;
-                            this.lastVersion = dataPoint.Version;
-                        }
+                                this.lastPingTimestamp = dataPoint.Timestamp;
+                                this.lastPingInstance = dataPoint.Instance;
+                                this.lastVersion = dataPoint.Version;
+                            }
 
                             break;
                         case "/post":
-                        {
-                            this.submitCount++;
+                            {
+                                this.submitCount++;
 
-                            this.submitResponse(context.Response);
+                                this.submitResponse(context.Response);
 
-                            var dataPoints =
-                                serializerDataPointArray.ReadObject(context.Request.InputStream) as MonitoringDataPoint
-                                    [];
-                            var transmissionTime = long.Parse(
-                                context.Request.Headers[QuickPulseConstants.XMsQpsTransmissionTimeHeaderName],
-                                CultureInfo.InvariantCulture);
-                            var collectionConfigurationETag =
-                                context.Request.Headers[QuickPulseConstants.XMsQpsConfigurationETagHeaderName];
+                                var dataPoints =
+                                    serializerDataPointArray.ReadObject(context.Request.InputStream) as MonitoringDataPoint
+                                        [];
+                                var transmissionTime = long.Parse(
+                                    context.Request.Headers[QuickPulseConstants.XMsQpsTransmissionTimeHeaderName],
+                                    CultureInfo.InvariantCulture);
+                                var collectionConfigurationETag =
+                                    context.Request.Headers[QuickPulseConstants.XMsQpsConfigurationETagHeaderName];
 
-                            this.samples.AddRange(
-                                dataPoints.Select(
-                                    dp => Tuple.Create(new DateTimeOffset(transmissionTime, TimeSpan.Zero),
-                                        collectionConfigurationETag, dp)));
-                        }
+                                this.samples.AddRange(
+                                    dataPoints.Select(
+                                        dp => Tuple.Create(new DateTimeOffset(transmissionTime, TimeSpan.Zero),
+                                            collectionConfigurationETag, dp)));
+                            }
 
                             break;
                         default:
@@ -2118,7 +2110,7 @@
                 message: string.Format(CultureInfo.InvariantCulture, "Not all requests finished processing: expected {0}, actual: {1}", requestCount, waitTasks.Count(task => task.Result)));
         }
 
-#endregion
+        #endregion
 
         private class PingHeaders
         {
@@ -2134,3 +2126,4 @@
         }
     }
 }
+#endif

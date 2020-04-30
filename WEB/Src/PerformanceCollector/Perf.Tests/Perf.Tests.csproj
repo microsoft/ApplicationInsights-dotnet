@@ -22,10 +22,6 @@
     <PackageReference Include="MSTest.TestFramework" Version="2.1.1" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp1.0'">
-    <PackageReference Include="NETStandard.HttpListener" Version="1.0.2" />
-  </ItemGroup>
-
   <ItemGroup Condition="'$(TargetFramework)' != 'net45'">
     <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
   </ItemGroup>
