@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.Tests
+﻿#if NETCOREAPP2_0
+namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
     using System.Diagnostics;
@@ -82,3 +83,4 @@
         }        
     }
 }
+#endif
