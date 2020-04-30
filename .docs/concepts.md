@@ -1,4 +1,4 @@
-# Application Insights SDK Concepts
+# Application Insights DotNet SDK Concepts
 This lists the high level concepts of our SDK and links to detailed guides to help you get started.
 
 
@@ -23,7 +23,7 @@ var configuration = new TelemetryConfiguration
 {
     // Please use either an Instrumentation Key or a Connection String but not both.
     InstrumentationKey = "YOUR INSTRUMENTAATION KEY",
-	ConnectionString = "YOUR CONNECTION STRING"
+    ConnectionString = "YOUR CONNECTION STRING",
 };
 var tc = new TelemetryClient(configuration);
 ```
