@@ -7,9 +7,7 @@ using System.Runtime.InteropServices;
 
 [assembly: InternalsVisibleTo("TestApp40, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("TestApp45, PublicKey=" + AssemblyInfo.PublicKey)]
-[assembly: InternalsVisibleTo("Microsoft.AI.PerformanceCollector.Net45.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.AI.PerformanceCollector.NetCore.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
-[assembly: InternalsVisibleTo("Microsoft.AI.PerformanceCollector.NetCore20.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 
 internal static class AssemblyInfo
 {

@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.Tests.QuickPulse
+﻿#if NET45
+namespace Microsoft.ApplicationInsights.Tests.QuickPulse
 {
     using System;
     using System.Collections.Generic;
@@ -115,3 +116,4 @@
         }
     }
 }
+#endif

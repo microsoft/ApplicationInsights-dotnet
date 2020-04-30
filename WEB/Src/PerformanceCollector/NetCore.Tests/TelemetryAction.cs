@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.TestFramework
+﻿#if NET45
+namespace Microsoft.ApplicationInsights.TestFramework
 {
     using Microsoft.ApplicationInsights.Channel;
 
@@ -7,3 +8,4 @@
     /// </summary>
     public delegate void TelemetryAction(ITelemetry telemetry);
 }
+#endif
