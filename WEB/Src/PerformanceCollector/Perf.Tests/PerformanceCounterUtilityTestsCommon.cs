@@ -53,7 +53,7 @@
         [TestMethod]
         public void GetCollectorReturnsXPlatformCollectorForWebAppForLinux()
         {
-#if NETCOREAPP2_0
+#if NETCOREAPP2_1 || NETCOREAPP3_1
             var original = PerformanceCounterUtility.IsWindows;
             try
             {
@@ -75,7 +75,7 @@
         [TestMethod]
         public void GetCollectorReturnsXPlatformCollectorForNonWindows()
         {
-#if NETCOREAPP2_0
+#if NETCOREAPP2_1 || NETCOREAPP3_1
             var original = PerformanceCounterUtility.IsWindows;
             try
             {                
