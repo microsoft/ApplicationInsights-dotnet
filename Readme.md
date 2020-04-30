@@ -32,6 +32,12 @@ As of October 25, The contents of each former repo can be found in the sub folde
 | - [Microsoft.ApplicationInsights.EventSourceListener](http://www.nuget.org/packages/Microsoft.ApplicationInsights.EventSourceListener/)                       	| [![Nightly](https://img.shields.io/myget/applicationinsights-dotnet-nightly/v/Microsoft.ApplicationInsights.EventSourceListener?label=)](https://www.myget.org/feed/applicationinsights-dotnet-nightly/package/nuget/Microsoft.ApplicationInsights.EventSourceListener)                           	| [![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.EventSourceListener.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.EventSourceListener/)                       	|
 
 
+Nightly Builds are available on our myget feed:
+`https://www.myget.org/F/applicationinsights-dotnet-nightly/api/v3/index.json`
+
+These builds come from the develop branch. These are not signed and are not intended for production workloads.
+
+
 
 # Application Insights for .NET
 
