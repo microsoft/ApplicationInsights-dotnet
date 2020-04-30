@@ -131,7 +131,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsigh
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights.WorkerService.Tests", "NETCORE\test\Microsoft.ApplicationInsights.WorkerService.Tests\Microsoft.ApplicationInsights.WorkerService.Tests.csproj", "{B90EDEA5-3CC8-4282-80A0-7116905E2427}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmptyApp20.FunctionalTests20", "NETCORE\test\EmptyApp20.FunctionalTests\EmptyApp20.FunctionalTests20.csproj", "{8C764C9F-1078-47AF-87B8-AF62C7CD6447}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunctionalTests.EmptyApp.Tests", "NETCORE\test\EmptyApp20.FunctionalTests\FunctionalTests.EmptyApp.Tests.csproj", "{8C764C9F-1078-47AF-87B8-AF62C7CD6447}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunctionalTestUtils20", "NETCORE\test\FunctionalTestUtils20\FunctionalTestUtils20.csproj", "{CF1818F5-CB8E-41A2-B3A8-344A80B79CEC}"
 EndProject

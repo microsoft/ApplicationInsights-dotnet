@@ -1,4 +1,4 @@
-﻿namespace EmptyApp20.FunctionalTests.FunctionalTest
+﻿namespace FunctionalTests.EmptyApp.Tests.FunctionalTest
 {
     using System.Collections.Generic;
     using System.Linq;

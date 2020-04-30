@@ -3,7 +3,7 @@ using Xunit;
 using Xunit.Abstractions;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
-namespace EmptyApp20.FunctionalTests.FunctionalTest
+namespace FunctionalTests.EmptyApp.Tests.FunctionalTest
 {
     using System;
     using System.Reflection;

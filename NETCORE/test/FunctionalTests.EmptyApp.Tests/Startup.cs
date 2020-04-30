@@ -1,4 +1,4 @@
-﻿namespace EmptyApp.FunctionalTests
+﻿namespace FunctionalTests.EmptyApp.Tests
 {
     using System;
 
