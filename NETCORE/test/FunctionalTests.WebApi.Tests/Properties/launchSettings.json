@@ -16,7 +16,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "WebApi20.FunctionalTests": {
+    "FunctionalTests.WebApi.Tests": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "api/values",

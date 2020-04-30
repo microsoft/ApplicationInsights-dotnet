@@ -35,8 +35,6 @@
         [Fact]
         public void TestIloggerWarningOrAboveIsCapturedByDefault()
         {
-
-#if NETCOREAPP2_0 || NET461
             using (var server = new InProcessServer(assemblyName, this.output))
             {                
                 // Make request to this path, which sents one log of each severity  Error, Warning, Information, Trace
@@ -52,14 +50,11 @@
                 ValidateMessage(actual[0], new string[] {"error", "warning" });
                 ValidateMessage(actual[1], new string[] { "error", "warning" });
             }
-#endif
         }
 
         [Fact]
         public void TestIloggerDefaultsCanBeOverridenByUserForAllCategories()
         {
-
-#if NETCOREAPP2_0 || NET461
             void ConfigureServices(IServiceCollection services)
             {
                 // ARRANGE
@@ -81,19 +76,16 @@
 
                 ValidateMessage(actual[0], new string[] { "error"});                
             }
-#endif
         }
 
         [Fact]
         public void TestIloggerDefaultsCanBeOverridenByUserForSpecificCategory()
         {
-
-#if NETCOREAPP2_0 || NET461
             void ConfigureServices(IServiceCollection services)
             {
                 // ARRANGE
                 // AddFilter to capture Trace or above for user category. This is expected to override default behavior.                
-                services.AddLogging(builder => builder.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>("WebApi20.FunctionalTests.Controllers", LogLevel.Trace));
+                services.AddLogging(builder => builder.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>("FunctionalTests.WebApi.Tests.Controllers", LogLevel.Trace));
             }
 
             using (var server = new InProcessServer(assemblyName, this.output, null, ConfigureServices))
@@ -114,7 +106,6 @@
                 ValidateMessage(actual[2], new string[] { "information" });
                 ValidateMessage(actual[3], new string[] { "trace" });
             }
-#endif
         }
 
 
