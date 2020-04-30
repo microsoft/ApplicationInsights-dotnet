@@ -1,4 +1,4 @@
-﻿namespace FunctionalTestUtils
+﻿namespace FunctionalTests.Utils
 {
     using System;
     using System.Diagnostics;
