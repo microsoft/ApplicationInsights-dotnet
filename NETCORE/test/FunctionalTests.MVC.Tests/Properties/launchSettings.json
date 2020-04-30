@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "MVCFramework20.FunctionalTests": {
+    "FunctionalTests.MVC.Tests": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {

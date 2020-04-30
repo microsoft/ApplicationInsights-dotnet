@@ -8,11 +8,10 @@
     using AI;
     using Xunit;
     using Xunit.Abstractions;
-    using FunctionalTests.Utils;
 
     public class CorrelationMvcTests : TelemetryTestsBase
     {
-        private const string assemblyName = "MVCFramework20.FunctionalTests20";
+        private const string assemblyName = "FunctionalTests.MVC.Tests";
 
         public CorrelationMvcTests(ITestOutputHelper output) : base(output)
         {
