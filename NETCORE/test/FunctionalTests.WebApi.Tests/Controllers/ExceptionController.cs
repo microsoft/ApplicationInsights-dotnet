@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 
-namespace WebApi20.FunctionalTests.Controllers
+namespace FunctionalTests.WebApi.Tests.Controllers
 {
     [Route("api/[controller]")]
     public class ExceptionController : Controller

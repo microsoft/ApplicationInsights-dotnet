@@ -1,4 +1,4 @@
-﻿namespace WebApi20.FuncTests
+﻿namespace FunctionalTests.WebApi.Tests.FunctionalTest
 {
     using System;
     using System.Diagnostics;

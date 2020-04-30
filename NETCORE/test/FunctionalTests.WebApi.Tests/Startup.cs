@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ApplicationInsights.Channel;
 using FunctionalTests.Utils;
 
-namespace WebApi20.FunctionalTests
+namespace FunctionalTests.WebApi.Tests
 {
     public class Startup
     {

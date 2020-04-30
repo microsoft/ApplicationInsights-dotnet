@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace WebApi20.FunctionalTests.Controllers
+namespace FunctionalTests.WebApi.Tests.Controllers
 {
     [Route("api/[controller]")]
     public class ValuesController : Controller
