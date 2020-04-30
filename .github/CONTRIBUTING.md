@@ -1,14 +1,19 @@
 # How to Contribute
 
-If you're interested in contributing, take a look at the general [contributer's guide](https://github.com/Microsoft/ApplicationInsights-Home/blob/master/CONTRIBUTING.md) first and continue here.
+- Please read the general [contributor's guide][https://github.com/Microsoft/ApplicationInsights-Home/blob/master/CONTRIBUTING.md] located in the ApplicationInsights-Home repository 
+- If making a large change we request that you open an [issue][https://github.com/Microsoft/ApplicationInsights-dotnet/issues] first. 
+- We follow the [Git Flow][http://nvie.com/posts/a-successful-git-branching-model/] approach to branching. 
+- This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
 
 ## Solutions
 
-- Everything.sln - this will build all projects and tests.
+- Everything.sln - this will build all projects and unit tests.
 - ProjectsForSigning.sln - this builds all shipping projects.
+- IntegrationTests.sln - this builds all Net Core Integration tests.
 - BASE\Microsoft.ApplicationInsights.sln - this builds the Base SDK and ServerTelemetryChannel.
 - WEB\Microsoft.ApplicationInsights.Web.sln - this builds the ASP.Net projects.
+- WEB\dirs.proj - this builds the functional tests which rely on docker.
 - NETCORE\ApplicationInsights.AspNetCore.sln - this builds the .Net Core projects.
 - LOGGING\Logging.sln - this builds the logging adapters.
 
@@ -17,41 +22,16 @@ If you're interested in contributing, take a look at the general [contributer's 
 ## Build
 
 To successfully build the sources on your machine, make sure you've installed the following prerequisites:
-* Visual Studio 2017 Community or Enterprise
-* .NET 4.6
-* .NET Core SDK 1.1.7
-* .NET Core SDK 2.0 or above.(https://www.microsoft.com/net/download/windows)
+- Visual Studio 2019 Community or Enterprise
+- .NET SDKs (https://dotnet.microsoft.com/download)
+    - .NET 4.8
+	- .NET Core 3.1 SDK 
 
-If using Azure VM, the following image from Microsoft contains the above pre-requisites already installed.
-
-_Visual Studio Enterprise 2017 (latest release) on Windows Server 2016._
-
-Once you've installed the prerequisites execute either ```buildDebug.cmd``` or ```buildRelease.cmd``` script in the repository root to build the project (excluding functional tests) locally.
-
-```buildRelease.cmd``` also runs StlyeCop checks, and is required before merging any pull requests.
-
-You can also open the solutions in Visual Studio and build directly from there.
 
 
 ## Unit Tests
 
-Several tests require that you configure a strong name verification exception for Microsoft.WindowsAzure.ServiceRuntime.dll using the [Strong Name Tool](https://msdn.microsoft.com/en-us/library/k5b5tt23(v=vs.110).aspx). 
-
-Using the Developer Command Prompt as Administrator, run this command from the repository root to register the assembly for verification skipping. (after building Microsoft.ApplicationInsights.Web.sln)
-
-    "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.7.1 Tools\sn.exe" -Vr ..\bin\Debug\Src\WindowsServer\WindowsServer.Net45.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
-	
-(Depending on you OS version, the above exe may be located in different folder. Modify the path according to local path).	
-    
-Once you've configured the strong name verification, execute the ```runUnitTests.cmd``` script in the repository root.
-
-If the script fail with errors like unable to find path to Visual Studio Test runner, please edit the helper script to match you local installation of Visual Studio.
-
-You can also run the tests within Visual Studio using the test explorer. If test explorer is not showing all the tests, please make sure you have installed all updates to Visual Studio.
-
-You can remove the strong name verification exception by running this command as Administrator:
-
-    "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.7.1 Tools\sn.exe" -Vr ..\bin\Debug\Src\WindowsServer\WindowsServer.Net45.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
+Unit tests can be run in either the Visual Studio Test Exploror or via command line `dotnet test`.
 
 ## Functional Tests
 It is recommended to rely on unit tests to test functionalities wherever possible. For doing end-to-end validation, functional tests exists for all the modules. Unless doing significant changes,
@@ -62,7 +42,7 @@ These tests works like described below:
 Functional tests contain test apps which refers to the product dlls from the local build. Tests deploy the Test apps to IIS/Docker and http requests are fired against it to trigger various scenarios.
 Tests apps are modified to send telemetry to a fake ingestion endpoint controlled by tests. Tests then validate the telemetry received by this endpoint.
 
-Pre-requisites:
+### Pre-requisites:
 
 To execute the functional tests, you need to install some additional prerequisites:
 
@@ -73,7 +53,7 @@ For Dependency Collector, you need to install Docker for windows as these tests 
 		After installation switch Docker engine to Windows Containers.(https://blogs.msdn.microsoft.com/webdev/2017/09/07/getting-started-with-windows-containers/)
 		And finally, make sure you can run ```docker run hello-world``` successfully to confirm that your machine is Docker ready.
 				
-Running functional tests:
+### Running functional tests:
 
 Before running the functional tests, the product code should be built following 'Build' instructions above.
 
@@ -96,7 +76,7 @@ Helper script to build product and run all tests in this solution - ```runFuncti
 
 "..bin\Debug\Test\E2ETests" -- Binary location for Test and Test apps.
 
-Special Notes regarding DependencyCollectionTests
+### Special Notes regarding DependencyCollectionTests
 1. All Docker images are downloaded from internet when ran for first time and this could take several minutes (depends on network speed as **around 20GB will be downloaded on first time on a machine**.). Tests may appear hung during this time. 
 2. If using Visual Studio Test Explorer to run tests, group the tests by namespace and run each namespaces separately to avoid test conflicts. ```runFunctionalTestsDependencyCollector``` does this automatically.
 
@@ -107,7 +87,7 @@ Edit the helper scripts to change between 'Release' and 'Debug' as per your buil
 Its is important to note that functional tests do not trigger product code build, so explicit build of product code is required before running functional tests.
 A typical work flow would be make-produce-change followed by build-product followed by build-functest-solution and finally run-func-tests. (This helpers scripts does this.)
 
-## Known issues/workarounds with running functional tests.
+### Known issues/workarounds with running functional tests.
 
 If any tests fail, please retry first to see if it helps. If not, try one of the known issues below. 
 
