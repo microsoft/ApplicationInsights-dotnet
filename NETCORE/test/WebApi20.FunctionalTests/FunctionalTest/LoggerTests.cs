@@ -6,7 +6,6 @@
     using System.Linq;
     using System.Text.RegularExpressions;
 
-    using FunctionalTestUtils;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -16,6 +15,7 @@
     using AI;
     using Microsoft.Extensions.Logging;
     using System.Reflection;
+    using global::FunctionalTests.Utils;
 
     /// <summary>
     /// These are Functional Tests validating E2E ILogger integration. Though filtering mechanism is done by the ILogger framework itself, we 

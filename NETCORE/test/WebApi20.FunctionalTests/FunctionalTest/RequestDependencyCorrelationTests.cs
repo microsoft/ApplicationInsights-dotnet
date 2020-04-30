@@ -1,6 +1,5 @@
 ﻿namespace WebApi20.FuncTests
 {
-    using FunctionalTestUtils;
     using System;
     using System.Diagnostics;
     using System.Linq;
@@ -11,6 +10,7 @@
     using Xunit;
     using Xunit.Abstractions;
     using System.Reflection;
+    using global::FunctionalTests.Utils;
 
     public class RequestDependencyCorrelationTests : TelemetryTestsBase, IDisposable
     {

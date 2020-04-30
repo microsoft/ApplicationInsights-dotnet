@@ -3,13 +3,13 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using FunctionalTestUtils;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
     using Xunit.Abstractions;
     using System.Reflection;
+    using global::FunctionalTests.Utils;
 
     public class RequestCollectionTests : TelemetryTestsBase
     {

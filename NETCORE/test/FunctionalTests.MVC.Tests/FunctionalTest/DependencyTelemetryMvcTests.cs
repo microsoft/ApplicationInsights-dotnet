@@ -1,4 +1,4 @@
-﻿namespace MVC20.FuncTests
+﻿namespace FunctionalTests.MVC.Tests.FunctionalTest
 {
     using System;
     using System.Linq;
@@ -7,7 +7,7 @@
     using System.Text;
 
     using AI;
-    using FunctionalTestUtils;
+    using FunctionalTests.Utils;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.Extensions.DependencyInjection;

@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using FunctionalTestUtils;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -14,6 +13,7 @@
     using System.Text.RegularExpressions;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using System.Reflection;
+    using global::FunctionalTests.Utils;
 
     public class RequestCorrelationTests : TelemetryTestsBase
     {

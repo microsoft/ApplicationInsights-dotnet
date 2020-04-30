@@ -1,7 +1,7 @@
 ﻿namespace FunctionalTests.EmptyApp.Tests.FunctionalTest
 {
     using System.Reflection;
-    using FunctionalTestUtils;
+    using FunctionalTests.Utils;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
     using Xunit.Abstractions;

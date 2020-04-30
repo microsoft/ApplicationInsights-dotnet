@@ -7,7 +7,7 @@ namespace FunctionalTests.EmptyApp.Tests.FunctionalTest
 {
     using System;
     using System.Reflection;
-    using FunctionalTestUtils;
+    using FunctionalTests.Utils;
     using Microsoft.ApplicationInsights.DataContracts;
 
     public class ExceptionTelemetryEmptyAppTests : TelemetryTestsBase

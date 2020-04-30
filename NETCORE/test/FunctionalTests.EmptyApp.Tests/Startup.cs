@@ -2,7 +2,7 @@
 {
     using System;
 
-    using FunctionalTestUtils;
+    using FunctionalTests.Utils;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.Channel;

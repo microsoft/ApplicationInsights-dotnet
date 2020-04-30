@@ -5,7 +5,7 @@
     using System.Net.Http;
     using System.Reflection;
     using AI;
-    using FunctionalTestUtils;
+    using FunctionalTests.Utils;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
     using Xunit.Abstractions;    

@@ -1,4 +1,4 @@
-﻿namespace FunctionalTestUtils
+﻿namespace FunctionalTests.Utils
 {
     using System;
     using System.Collections.Generic;
@@ -6,10 +6,8 @@
     using System.IO;
     using System.IO.Compression;
     using System.Net;
-    using System.Net.Http;
-    using System.Text;
-    using System.Threading.Tasks;
     using AI;
+    using FunctionalTests.Utils;
     using Xunit.Abstractions;
 
     public class TelemetryHttpListenerObservable : HttpListenerObservableBase<Envelope>

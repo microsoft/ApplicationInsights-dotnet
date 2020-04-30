@@ -26,6 +26,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.ApplicationInsights.AspNetCore\Microsoft.ApplicationInsights.AspNetCore.csproj" />
+    <ProjectReference Include="..\FunctionalTests.Utils\FunctionalTests.Utils.csproj" />
   </ItemGroup>
 
   <ItemGroup>     

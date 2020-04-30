@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using FunctionalTestUtils;
 using Microsoft.ApplicationInsights.Channel;
+using FunctionalTests.Utils;
 
 namespace WebApi20.FunctionalTests
 {

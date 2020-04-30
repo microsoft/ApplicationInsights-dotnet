@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using MVCFramework20.FunctionalTests.Models;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
+using FunctionalTests.MVC.Tests.Models;
 
-namespace MVCFramework20.FunctionalTests.Controllers
+namespace FunctionalTests.MVC.Tests.Controllers
 {
     public class HomeController : Controller
     {

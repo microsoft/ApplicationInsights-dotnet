@@ -1,6 +1,6 @@
-﻿namespace MVC20.FuncTests
+﻿namespace FunctionalTests.MVC.Tests.FunctionalTest
 {
-    using FunctionalTestUtils;
+    using FunctionalTests.Utils;
     using Microsoft.ApplicationInsights.DataContracts;
     using System;
     using System.Linq;
@@ -8,6 +8,7 @@
     using AI;
     using Xunit;
     using Xunit.Abstractions;
+    using FunctionalTests.Utils;
 
     public class CorrelationMvcTests : TelemetryTestsBase
     {

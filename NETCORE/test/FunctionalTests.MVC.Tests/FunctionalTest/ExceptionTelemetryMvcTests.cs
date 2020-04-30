@@ -1,11 +1,11 @@
 ﻿using Xunit;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
-namespace MVC20.FuncTests
+namespace FunctionalTests.MVC.Tests.FunctionalTest
 {
     using System;
     using System.Reflection;
-    using FunctionalTestUtils;
+    using FunctionalTests.Utils;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
     using Xunit.Abstractions;

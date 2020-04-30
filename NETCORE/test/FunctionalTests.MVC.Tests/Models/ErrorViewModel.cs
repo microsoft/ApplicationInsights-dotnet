@@ -1,6 +1,6 @@
 using System;
 
-namespace MVCFramework20.FunctionalTests.Models
+namespace FunctionalTests.MVC.Tests.Models
 {
     public class ErrorViewModel
     {

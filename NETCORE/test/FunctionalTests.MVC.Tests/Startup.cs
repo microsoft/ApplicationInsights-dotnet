@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ApplicationInsights.Channel;
-using FunctionalTestUtils;
+using FunctionalTests.Utils;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 
-namespace MVCFramework20.FunctionalTests
+namespace FunctionalTests.MVC.Tests
 {
     public class Startup
     {
