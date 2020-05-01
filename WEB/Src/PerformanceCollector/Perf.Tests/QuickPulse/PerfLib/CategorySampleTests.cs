@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.Tests
+﻿#if NET45
+namespace Microsoft.ApplicationInsights.Tests
 {
     using System.Collections.Generic;
     using System.IO;
@@ -51,3 +52,4 @@
         }
     }
 }
+#endif

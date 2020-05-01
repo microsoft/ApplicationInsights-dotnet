@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.Tests
+﻿#if NET45
+namespace Microsoft.ApplicationInsights.Tests
 {
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerfCollector;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -52,3 +53,4 @@
         }
     }
 }
+#endif
