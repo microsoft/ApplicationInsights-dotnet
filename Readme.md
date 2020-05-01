@@ -20,14 +20,13 @@ We've gathered a list of concepts, code examples, and links to full guides [here
 
 ## Contributing
 We strongly welcome and encourage contributions to this project. 
-
 Please review our [Contributing guide](.github/CONTRIBUTING.md).
 
 
 
 ## Branches
-- [master][https://github.com/Microsoft/ApplicationInsights-dotnet/tree/master] contains the *latest* published release located on [NuGet](https://www.nuget.org/packages/Microsoft.ApplicationInsights).
-- [develop][https://github.com/Microsoft/ApplicationInsights-dotnet/tree/develop] contains the code for the *next* release. 
+- [master](https://github.com/Microsoft/ApplicationInsights-dotnet/tree/master) contains the *latest* published release located on [NuGet](https://www.nuget.org/packages/Microsoft.ApplicationInsights).
+- [develop](https://github.com/Microsoft/ApplicationInsights-dotnet/tree/develop) contains the code for the *next* release. 
 
 
 

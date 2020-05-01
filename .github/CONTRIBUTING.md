@@ -1,6 +1,6 @@
 # How to Contribute
 
-- Please read the general [contributor's guide][https://github.com/Microsoft/ApplicationInsights-Home/blob/master/CONTRIBUTING.md] located in the ApplicationInsights-Home repository 
+- Please read the general [contributor's guide](https://github.com/Microsoft/ApplicationInsights-Home/blob/master/CONTRIBUTING.md) located in the ApplicationInsights-Home repository 
 - If making a large change we request that you open an [issue](https://github.com/Microsoft/ApplicationInsights-dotnet/issues) first. 
 - We follow the [Git Flow](http://nvie.com/posts/a-successful-git-branching-model/) approach to branching. 
 - This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
