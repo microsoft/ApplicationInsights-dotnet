@@ -2,7 +2,7 @@
 {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     using System;
-#if NETCORE
+#if NETCOREAPP
     using System.Collections.Generic;
 #endif
     using System.Linq;
@@ -12,7 +12,7 @@
     {
         public static string GetExpectedSdkVersion(Type assemblyType, string prefix)
         {
-#if NETCORE
+#if NETCOREAPP
             IEnumerable<Attribute> assemblyCustomAttributes = assemblyType.GetTypeInfo().Assembly.GetCustomAttributes();
 #else
             object[] assemblyCustomAttributes = assemblyType.Assembly.GetCustomAttributes(false);
