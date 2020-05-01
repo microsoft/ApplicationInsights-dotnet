@@ -35,13 +35,12 @@
                 .SetBasePath(this.hostingEnvironment.ContentRootPath ?? Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", true)
                 .AddJsonFile(string.Format(CultureInfo.InvariantCulture, "appsettings.{0}.json", this.hostingEnvironment.EnvironmentName), true);
+#if NETSTANDARD2_0 || NET461
             if (this.userConfiguration != null)
             {
-#if NETSTANDARD2_0 || NET461
                 configBuilder.AddConfiguration(this.userConfiguration);
-#endif
             }
-
+#endif
             configBuilder.AddEnvironmentVariables();
             ApplicationInsightsExtensions.AddTelemetryConfiguration(configBuilder.Build(), options);
 
