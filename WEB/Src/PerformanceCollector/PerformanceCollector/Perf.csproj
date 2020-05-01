@@ -81,18 +81,6 @@
     <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\$(TargetFramework)\PublicAPI.Unshipped.txt" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Implementation\QuickPulse\QuickPulseDataAccumulator.cs">
-      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
-    </Compile>
-    <Compile Update="QuickPulseTelemetryModule.cs">
-      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
-    </Compile>
-    <Compile Update="QuickPulseTelemetryProcessor.cs">
-      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
-    </Compile>
-  </ItemGroup>
-
   <Import Project="..\Filtering.Shared\Filtering.Shared.projitems" Label="Shared" />
   <Import Project="..\..\Common\Common.projitems" Label="Shared" />
   <Import Project="..\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems" Label="Shared" Condition="'$(TargetFramework)' == 'net45'" />

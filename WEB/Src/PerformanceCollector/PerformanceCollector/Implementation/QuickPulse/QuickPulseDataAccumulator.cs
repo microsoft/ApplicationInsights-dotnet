@@ -11,7 +11,7 @@
     /// </summary>
     /// <remarks>This is performance-critical DTO that needs to be quickly accessed in a thread-safe manner.</remarks>
     internal class QuickPulseDataAccumulator
-    {
+    {     
         public DateTimeOffset? StartTimestamp = null;
 
         public DateTimeOffset? EndTimestamp = null;
@@ -35,12 +35,12 @@
         public bool GlobalDocumentQuotaReached;
 
         /// <summary>
-        /// 2^19 - 1.
+        /// MaxCount = 2^19 - 1.
         /// </summary>
         private const long MaxCount = 524287;
 
         /// <summary>
-        /// 2^44 - 1.
+        /// MaxDuration = 2^44 - 1.
         /// </summary>
         private const long MaxDuration = 17592186044415;
 
@@ -48,7 +48,19 @@
         {
             this.CollectionConfigurationAccumulator = new CollectionConfigurationAccumulator(collectionConfiguration);
         }
-        
+
+        public long AIRequestCount => QuickPulseDataAccumulator.DecodeCountAndDuration(this.AIRequestCountAndDurationInTicks).Item1;
+
+        public long AIRequestDurationInTicks => QuickPulseDataAccumulator.DecodeCountAndDuration(this.AIRequestCountAndDurationInTicks).Item2;
+
+        public long AIDependencyCallCount => QuickPulseDataAccumulator.DecodeCountAndDuration(this.AIDependencyCallCountAndDurationInTicks).Item1;
+
+        public long AIDependencyCallDurationInTicks => QuickPulseDataAccumulator.DecodeCountAndDuration(this.AIDependencyCallCountAndDurationInTicks).Item2;
+
+        public ConcurrentStack<ITelemetryDocument> TelemetryDocuments { get; set; } = new ConcurrentStack<ITelemetryDocument>();
+
+        public CollectionConfigurationAccumulator CollectionConfigurationAccumulator { get; private set; }
+
         public static long EncodeCountAndDuration(long count, long duration)
         {
             if (count > MaxCount || duration > MaxDuration)
@@ -64,17 +76,5 @@
         {
             return Tuple.Create(countAndDuration >> 44, countAndDuration & MaxDuration);
         }
-
-        public long AIRequestCount => QuickPulseDataAccumulator.DecodeCountAndDuration(this.AIRequestCountAndDurationInTicks).Item1;
-
-        public long AIRequestDurationInTicks => QuickPulseDataAccumulator.DecodeCountAndDuration(this.AIRequestCountAndDurationInTicks).Item2;
-
-        public long AIDependencyCallCount => QuickPulseDataAccumulator.DecodeCountAndDuration(this.AIDependencyCallCountAndDurationInTicks).Item1;
-        
-        public long AIDependencyCallDurationInTicks => QuickPulseDataAccumulator.DecodeCountAndDuration(this.AIDependencyCallCountAndDurationInTicks).Item2;
-
-        public ConcurrentStack<ITelemetryDocument> TelemetryDocuments { get; set; } = new ConcurrentStack<ITelemetryDocument>();
-        
-        public CollectionConfigurationAccumulator CollectionConfigurationAccumulator { get; private set; }
     }
 }
