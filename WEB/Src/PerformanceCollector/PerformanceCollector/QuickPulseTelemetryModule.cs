@@ -27,9 +27,9 @@
     public sealed class QuickPulseTelemetryModule : ITelemetryModule, IDisposable
     {
 #if NETSTANDARD1_6 || NETSTANDARD2_0
-        internal static IQuickPulseModuleScheduler moduleScheduler = QuickPulseTaskModuleScheduler.Instance;
+        internal static IQuickPulseModuleScheduler ModuleScheduler = QuickPulseTaskModuleScheduler.Instance;
 #else
-        internal static IQuickPulseModuleScheduler moduleScheduler = QuickPulseThreadModuleScheduler.Instance;
+        internal static IQuickPulseModuleScheduler ModuleScheduler = QuickPulseThreadModuleScheduler.Instance;
 #endif
 
         internal readonly LinkedList<IQuickPulseTelemetryProcessor> TelemetryProcessors = new LinkedList<IQuickPulseTelemetryProcessor>();
@@ -181,7 +181,7 @@
                         this.timeProvider = this.timeProvider ?? new Clock();
                         this.topCpuCollector = this.topCpuCollector
                                                ?? new QuickPulseTopCpuCollector(this.timeProvider, new QuickPulseProcessProvider(PerfLib.GetPerfLib()));
-                        this.timings = timings ?? QuickPulseTimings.Default;
+                        this.timings = this.timings ?? QuickPulseTimings.Default;
 
                         CollectionConfigurationError[] errors;
                         this.collectionConfiguration = new CollectionConfiguration(
@@ -259,6 +259,41 @@
             }            
         }
 
+        private static string GetInstanceName(TelemetryConfiguration configuration)
+        {
+            // we need to initialize an item to get instance information
+            var fakeItem = new EventTelemetry();
+
+            try
+            {
+                new TelemetryClient(configuration).Initialize(fakeItem);
+            }
+            catch (Exception)
+            {
+                // we don't care what happened there
+            }
+
+            return string.IsNullOrWhiteSpace(fakeItem.Context?.Cloud?.RoleInstance) ? Environment.MachineName : fakeItem.Context.Cloud.RoleInstance;
+        }
+
+        private static string GetStreamId()
+        {
+            return Guid.NewGuid().ToStringInvariant("N");
+        }
+
+        private static QuickPulseDataSample CreateDataSample(
+            QuickPulseDataAccumulator accumulator,
+            IEnumerable<Tuple<PerformanceCounterData, double>> perfData,
+            IEnumerable<Tuple<string, int>> topCpuData,
+            bool topCpuDataAccessDenied)
+        {
+            return new QuickPulseDataSample(
+                accumulator,
+                perfData.ToDictionary(tuple => tuple.Item1.ReportAs, tuple => tuple),
+                topCpuData,
+                topCpuDataAccessDenied);
+        }
+
         private void UpdatePerformanceCollector(IEnumerable<Tuple<string, string>> performanceCountersToCollect, out CollectionConfigurationError[] errors)
         {
             // all counters that need to be collected according to the new configuration - remove duplicates
@@ -321,7 +356,7 @@
                                 string.Format(CultureInfo.InvariantCulture, "Unexpected error processing counter '{0}': {1}", counter, e.Message),
                                 e,
                                 Tuple.Create("MetricId", counter.Item1)));
-                        QuickPulseEventSource.Log.CounterRegistrationFailedEvent(e.Message, counter.Item2);                        
+                        QuickPulseEventSource.Log.CounterRegistrationFailedEvent(e.Message, counter.Item2);
                     }
                 }
 
@@ -331,9 +366,9 @@
 
         private void CreateStateThread()
         {
-            this.stateThread = QuickPulseTelemetryModule.moduleScheduler.Execute(this.StateThreadWorker);
+            this.stateThread = QuickPulseTelemetryModule.ModuleScheduler.Execute(this.StateThreadWorker);
         }
-        
+
         private void InitializeServiceClient(TelemetryConfiguration configuration)
         {
             if (this.ServiceClient != null)
@@ -376,7 +411,7 @@
                 serviceEndpointUri,
                 instanceName,
                 streamId,
-                ServerId,
+                this.ServerId,
                 assemblyVersion,
                 this.timeProvider,
                 isWebApp,
@@ -395,41 +430,6 @@
                     serviceEndpointUri,
                     instanceName,
                     assemblyVersion));
-        }
-
-        private static string GetInstanceName(TelemetryConfiguration configuration)
-        {
-            // we need to initialize an item to get instance information
-            var fakeItem = new EventTelemetry();
-
-            try
-            {
-                new TelemetryClient(configuration).Initialize(fakeItem);
-            }
-            catch (Exception)
-            {
-                // we don't care what happened there
-            }
-
-            return string.IsNullOrWhiteSpace(fakeItem.Context?.Cloud?.RoleInstance) ? Environment.MachineName : fakeItem.Context.Cloud.RoleInstance;
-        }
-
-        private static string GetStreamId()
-        {
-            return Guid.NewGuid().ToStringInvariant("N");
-        }
-
-        private static QuickPulseDataSample CreateDataSample(
-            QuickPulseDataAccumulator accumulator,
-            IEnumerable<Tuple<PerformanceCounterData, double>> perfData,
-            IEnumerable<Tuple<string, int>> topCpuData,
-            bool topCpuDataAccessDenied)
-        {
-            return new QuickPulseDataSample(
-                accumulator,
-                perfData.ToDictionary(tuple => tuple.Item1.ReportAs, tuple => tuple),
-                topCpuData,
-                topCpuDataAccessDenied);
         }
 
         private void StateThreadWorker(CancellationToken cancellationToken)
@@ -628,7 +628,7 @@
 
         private void CreateCollectionThread()
         {
-            this.collectionThread = QuickPulseTelemetryModule.moduleScheduler.Execute(this.CollectionThreadWorker);
+            this.collectionThread = QuickPulseTelemetryModule.ModuleScheduler.Execute(this.CollectionThreadWorker);
         }
 
         private void EndCollectionThread()

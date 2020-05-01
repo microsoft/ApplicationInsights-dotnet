@@ -23,11 +23,6 @@
     public class QuickPulseTelemetryProcessor : ITelemetryProcessor, ITelemetryModule, IQuickPulseTelemetryProcessor
     {
         /// <summary>
-        /// An overall, cross-stream quota tracker.
-        /// </summary>
-        private readonly QuickPulseQuotaTracker globalQuotaTracker;
-
-        /// <summary>
         /// 1.0 - initial release.
         /// 1.1 - added DocumentStreamId, EventTelemetryDocument, TraceTelemetryDocument.
         /// </summary>
@@ -45,19 +40,12 @@
 
         private const string ExceptionMessageSeparator = " <--- ";
 
-        private IQuickPulseDataAccumulatorManager dataAccumulatorManager = null;
-
         /// <summary>
-        /// Gets or sets an endpoint that is compared against telemetry to remove our requests from customer telemetry.
+        /// An overall, cross-stream quota tracker.
         /// </summary>
-        /// <remarks>
-        /// This is set from the QuickPulseTelemetryModule. 
-        /// </remarks>
-        Uri IQuickPulseTelemetryProcessor.ServiceEndpoint
-        {
-            get { return this.serviceEndpoint; }
-            set { this.serviceEndpoint = value; }
-        }
+        private readonly QuickPulseQuotaTracker globalQuotaTracker;
+
+        private IQuickPulseDataAccumulatorManager dataAccumulatorManager = null;
 
         private Uri serviceEndpoint = QuickPulseDefaults.QuickPulseServiceEndpoint;
 
@@ -99,6 +87,18 @@
                 timeProvider,
                 maxGlobalTelemetryQuota ?? MaxGlobalTelemetryQuota,
                 initialGlobalTelemetryQuota ?? InitialGlobalTelemetryQuota);
+        }
+
+        /// <summary>
+        /// Gets or sets an endpoint that is compared against telemetry to remove our requests from customer telemetry.
+        /// </summary>
+        /// <remarks>
+        /// This is set from the QuickPulseTelemetryModule. 
+        /// </remarks>
+        Uri IQuickPulseTelemetryProcessor.ServiceEndpoint
+        {
+            get { return this.serviceEndpoint; }
+            set { this.serviceEndpoint = value; }
         }
 
         /// <summary>
@@ -193,46 +193,6 @@
                     this.Next.Process(telemetry);
                 }
             }
-        }
-
-        private ITelemetryDocument ConvertRequestToTelemetryDocument(RequestTelemetry requestTelemetry)
-        {
-            var url = requestTelemetry.Url;
-#if NET45
-            if (this.EvaluateDisabledTrackingProperties && url == null)
-            {
-                try
-                {
-                    // some of the requestTelemetry properties might be deferred by using RequestTrackingTelemetryModule.DisableTrackingProperties.
-                    // evaluate them now
-                    // note: RequestTrackingUtilities.UpdateRequestTelemetryFromRequest is not used here, since not all fields need to be populated
-                    var request = System.Web.HttpContext.Current?.Request;
-                    url = request?.Unvalidated.Url;
-                }
-                catch (Exception e)
-                {
-                    QuickPulseEventSource.Log.UnknownErrorEvent(e.ToInvariantString());
-                }
-            }
-#endif
-
-            ITelemetryDocument telemetryDocument = new RequestTelemetryDocument()
-            {
-                Id = Guid.NewGuid(),
-                Version = TelemetryDocumentContractVersion,
-                Timestamp = requestTelemetry.Timestamp,
-                OperationId = TruncateValue(requestTelemetry.Context?.Operation?.Id),
-                Name = TruncateValue(requestTelemetry.Name),
-                Success = requestTelemetry.Success,
-                Duration = requestTelemetry.Duration,
-                ResponseCode = requestTelemetry.ResponseCode,
-                Url = url,
-                Properties = GetProperties(requestTelemetry),
-            };
-
-            SetCommonTelemetryDocumentData(telemetryDocument, requestTelemetry);
-
-            return telemetryDocument;
         }
 
         private static ITelemetryDocument ConvertDependencyToTelemetryDocument(DependencyTelemetry dependencyTelemetry)
@@ -372,38 +332,6 @@
             }
         }
 
-        private static KeyValuePair<string, string>[] GetProperties(ISupportProperties telemetry, string specialPropertyName = null)
-        {
-            Dictionary<string, string> properties = null;
-
-            if (telemetry.Properties != null && telemetry.Properties.Count > 0)
-            {
-                properties = new Dictionary<string, string>(MaxPropertyCount + 1);
-
-                foreach (var prop in
-                    telemetry.Properties.Where(p => !string.Equals(p.Key, specialPropertyName, StringComparison.Ordinal)).Take(MaxPropertyCount))
-                {
-                    string truncatedKey = TruncateValue(prop.Key);
-
-                    if (!properties.ContainsKey(truncatedKey))
-                    {
-                        properties.Add(truncatedKey, TruncateValue(prop.Value));
-                    }
-                }
-
-                if (specialPropertyName != null)
-                {
-                    string specialPropertyValue;
-                    if (telemetry.Properties.TryGetValue(specialPropertyName, out specialPropertyValue))
-                    {
-                        properties.Add(TruncateValue(specialPropertyName), TruncateValue(specialPropertyValue));
-                    }
-                }
-            }
-
-            return properties != null ? properties.ToArray() : null;
-        }
-
         private static bool IsRequestSuccessful(RequestTelemetry request)
         {
             string responseCode = request.ResponseCode;
@@ -436,6 +364,67 @@
             }
 
             return value;
+        }
+
+        private static KeyValuePair<string, string>[] GetProperties(ISupportProperties telemetry, string specialPropertyName = null)
+        {
+            Dictionary<string, string> properties = null;
+
+            if (telemetry.Properties != null && telemetry.Properties.Count > 0)
+            {
+                properties = new Dictionary<string, string>(MaxPropertyCount + 1);
+
+                foreach (var prop in
+                    telemetry.Properties.Where(p => !string.Equals(p.Key, specialPropertyName, StringComparison.Ordinal)).Take(MaxPropertyCount))
+                {
+                    string truncatedKey = TruncateValue(prop.Key);
+
+                    if (!properties.ContainsKey(truncatedKey))
+                    {
+                        properties.Add(truncatedKey, TruncateValue(prop.Value));
+                    }
+                }
+
+                if (specialPropertyName != null)
+                {
+                    string specialPropertyValue;
+                    if (telemetry.Properties.TryGetValue(specialPropertyName, out specialPropertyValue))
+                    {
+                        properties.Add(TruncateValue(specialPropertyName), TruncateValue(specialPropertyValue));
+                    }
+                }
+            }
+
+            return properties != null ? properties.ToArray() : null;
+        }
+
+        private static void ProcessMetrics<TTelemetry>(
+            CollectionConfigurationAccumulator configurationAccumulatorLocal,
+            IEnumerable<CalculatedMetric<TTelemetry>> metrics,
+            TTelemetry telemetry,
+            out CollectionConfigurationError[] filteringErrors,
+            ref string projectionError)
+        {
+            filteringErrors = ArrayExtensions.Empty<CollectionConfigurationError>();
+
+            foreach (CalculatedMetric<TTelemetry> metric in metrics)
+            {
+                if (metric.CheckFilters(telemetry, out filteringErrors))
+                {
+                    // the telemetry document has passed the filters, count it in and project
+                    try
+                    {
+                        double projection = metric.Project(telemetry);
+
+                        configurationAccumulatorLocal.MetricAccumulators[metric.Id].AddValue(projection);
+                    }
+                    catch (Exception e)
+                    {
+                        // most likely the projection did not result in a value parsable by double.Parse()
+                        projectionError = e.ToString();
+                    }
+                }
+            }
         }
 
         private void ProcessTelemetry(ITelemetry telemetry)
@@ -610,6 +599,46 @@
             }
         }
 
+        private ITelemetryDocument ConvertRequestToTelemetryDocument(RequestTelemetry requestTelemetry)
+        {
+            var url = requestTelemetry.Url;
+#if NET45
+            if (this.EvaluateDisabledTrackingProperties && url == null)
+            {
+                try
+                {
+                    // some of the requestTelemetry properties might be deferred by using RequestTrackingTelemetryModule.DisableTrackingProperties.
+                    // evaluate them now
+                    // note: RequestTrackingUtilities.UpdateRequestTelemetryFromRequest is not used here, since not all fields need to be populated
+                    var request = System.Web.HttpContext.Current?.Request;
+                    url = request?.Unvalidated.Url;
+                }
+                catch (Exception e)
+                {
+                    QuickPulseEventSource.Log.UnknownErrorEvent(e.ToInvariantString());
+                }
+            }
+#endif
+
+            ITelemetryDocument telemetryDocument = new RequestTelemetryDocument()
+            {
+                Id = Guid.NewGuid(),
+                Version = TelemetryDocumentContractVersion,
+                Timestamp = requestTelemetry.Timestamp,
+                OperationId = TruncateValue(requestTelemetry.Context?.Operation?.Id),
+                Name = TruncateValue(requestTelemetry.Name),
+                Success = requestTelemetry.Success,
+                Duration = requestTelemetry.Duration,
+                ResponseCode = requestTelemetry.ResponseCode,
+                Url = url,
+                Properties = GetProperties(requestTelemetry),
+            };
+
+            SetCommonTelemetryDocumentData(telemetryDocument, requestTelemetry);
+
+            return telemetryDocument;
+        }
+
         private ITelemetryDocument CreateTelemetryDocument<TTelemetry>(
             TTelemetry telemetry,
             IEnumerable<DocumentStream> documentStreams,
@@ -642,35 +671,6 @@
             }
 
             return telemetryDocument;
-        }
-
-        private static void ProcessMetrics<TTelemetry>(
-            CollectionConfigurationAccumulator configurationAccumulatorLocal,
-            IEnumerable<CalculatedMetric<TTelemetry>> metrics,
-            TTelemetry telemetry,
-            out CollectionConfigurationError[] filteringErrors,
-            ref string projectionError)
-        {
-            filteringErrors = ArrayExtensions.Empty<CollectionConfigurationError>();
-
-            foreach (CalculatedMetric<TTelemetry> metric in metrics)
-            {
-                if (metric.CheckFilters(telemetry, out filteringErrors))
-                {
-                    // the telemetry document has passed the filters, count it in and project
-                    try
-                    {
-                        double projection = metric.Project(telemetry);
-
-                        configurationAccumulatorLocal.MetricAccumulators[metric.Id].AddValue(projection);
-                    }
-                    catch (Exception e)
-                    {
-                        // most likely the projection did not result in a value parsable by double.Parse()
-                        projectionError = e.ToString();
-                    }
-                }
-            }
         }
 
         private void UpdateExceptionAggregates()
