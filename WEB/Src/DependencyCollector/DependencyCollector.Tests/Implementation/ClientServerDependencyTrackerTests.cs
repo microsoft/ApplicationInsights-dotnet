@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.Tests
+﻿#if NET45
+namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
     using System.Collections.Generic;
@@ -16,6 +17,7 @@
     /// Tests for client server dependency tracker.
     /// </summary>
     [TestClass]
+    [Ignore("Test class out of date. Github Issue 1830")]
     public class ClientServerDependencyTrackerTests : IDisposable
     {
         private List<ITelemetry> sendItems;
@@ -357,3 +359,4 @@
         }
     }
 }
+#endif

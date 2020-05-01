@@ -1,11 +1,10 @@
-﻿namespace Microsoft.ApplicationInsights.Tests
+﻿#if NET45
+namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-#if NET45
     using System.Diagnostics.Tracing;
-#endif
     using System.Globalization;
     using System.Linq;
     using System.Net;
@@ -24,6 +23,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
+    [Ignore("Test class out of date. Github Issue 1830")]
     public sealed class ProfilerHttpProcessingTest : IDisposable
     {
         #region Fields
@@ -66,7 +66,7 @@
             this.httpProcessingProfiler = new ProfilerHttpProcessing(
                 this.configuration,
                 null,
-                new ObjectInstanceBasedOperationHolder(),
+                new ObjectInstanceBasedOperationHolder<DependencyTelemetry>(),
                 setCorrelationHeaders: true,
                 correlationDomainExclusionList: new List<string>(),
                 injectLegacyHeaders: false,
@@ -186,7 +186,7 @@
             var httpProcessingLegacyHeaders = new ProfilerHttpProcessing(
                 this.configuration,
                 null,
-                new ObjectInstanceBasedOperationHolder(),
+                new ObjectInstanceBasedOperationHolder<DependencyTelemetry>(),
                 setCorrelationHeaders: true,
                 correlationDomainExclusionList: new List<string>(),
                 injectLegacyHeaders: true,
@@ -414,7 +414,7 @@
             var httpProcessingProfiler = new ProfilerHttpProcessing(
                 this.configuration, 
                 null, 
-                new ObjectInstanceBasedOperationHolder(), 
+                new ObjectInstanceBasedOperationHolder<DependencyTelemetry>(), 
                 setCorrelationHeaders: false,
                 correlationDomainExclusionList: new List<string>(),
                 injectLegacyHeaders: true,
@@ -427,7 +427,7 @@
             httpProcessingProfiler = new ProfilerHttpProcessing(
                 this.configuration, 
                 null, 
-                new ObjectInstanceBasedOperationHolder(), 
+                new ObjectInstanceBasedOperationHolder<DependencyTelemetry>(), 
                 setCorrelationHeaders: true,
                     correlationDomainExclusionList: exclusionList,
                     injectLegacyHeaders: true,
@@ -1064,3 +1064,4 @@
         #endregion Helpers
     }
 }
+#endif

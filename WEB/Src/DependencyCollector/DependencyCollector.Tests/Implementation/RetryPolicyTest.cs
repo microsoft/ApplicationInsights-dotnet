@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.Tests
+﻿#if NET45
+namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
@@ -76,3 +77,4 @@
         }
     }
 }
+#endif

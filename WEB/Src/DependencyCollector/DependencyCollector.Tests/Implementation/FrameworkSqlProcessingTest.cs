@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.Tests
+﻿#if NET45
+namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
     using System.Collections.Generic;
@@ -16,8 +17,9 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
+
     [TestClass]
+    [Ignore("Test class out of date. Github Issue 1830")]
     public sealed class FrameworkSqlProcessingTest : IDisposable
     {
         private const int TimeAccuracyMilliseconds = 50;
@@ -33,7 +35,7 @@
             Activity.ForceDefaultIdFormat = true;
 
             this.configuration = new TelemetryConfiguration();
-            this.sendItems = new List<ITelemetry>(); 
+            this.sendItems = new List<ITelemetry>();
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
             this.configuration.InstrumentationKey = Guid.NewGuid().ToString();
             this.configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
@@ -49,7 +51,7 @@
             }
         }
 
-#region ExecuteReader
+        #region ExecuteReader
 
         /// <summary>
         /// Validates SQLProcessingFramework sends correct telemetry for non stored procedure in async call.
@@ -58,9 +60,9 @@
         [Description("Validates SQLProcessingFramework sends correct telemetry for non stored procedure in async call.")]
         public void RddTestSqlProcessingFrameworkSendsCorrectTelemetrySqlQuerySuccess()
         {
-            Stopwatch stopwatchMax = Stopwatch.StartNew();            
+            Stopwatch stopwatchMax = Stopwatch.StartNew();
             this.sqlProcessingFramework.OnBeginExecuteCallback(
-                id: 1111, 
+                id: 1111,
                 database: "mydatabase",
                 dataSource: "ourdatabase.database.windows.net",
                 commandText: string.Empty);
@@ -281,9 +283,9 @@
         {
             Stopwatch stopwatchMax = Stopwatch.StartNew();
             this.sqlProcessingFramework.OnBeginExecuteCallback(
-                id: 1111, 
-                dataSource: "ourdatabase.database.windows.net", 
-                database: "mydatabase", 
+                id: 1111,
+                dataSource: "ourdatabase.database.windows.net",
+                database: "mydatabase",
                 commandText: "apm.MyFavouriteStoredProcedure");
             Stopwatch stopwatchMin = Stopwatch.StartNew();
 
@@ -302,27 +304,27 @@
                 RemoteDependencyConstants.SQL,
                 true,
                 stopwatchMin.Elapsed.TotalMilliseconds,
-                stopwatchMax.Elapsed.TotalMilliseconds, 
+                stopwatchMax.Elapsed.TotalMilliseconds,
                 string.Empty,
                 null);
         }
-#endregion
+        #endregion
 
-#region Disposable
+        #region Disposable
         public void Dispose()
         {
-            this.configuration.Dispose();            
+            this.configuration.Dispose();
             GC.SuppressFinalize(this);
         }
-#endregion Disposable
+        #endregion Disposable
 
-#region Helpers
+        #region Helpers
 
         private static void ValidateTelemetryPacket(
-            DependencyTelemetry remoteDependencyTelemetryActual, 
-            string target, 
-            string name, 
-            string type, 
+            DependencyTelemetry remoteDependencyTelemetryActual,
+            string target,
+            string name,
+            string type,
             bool success,
             double minDependencyDurationMs,
             double maxDependencyDurationMs,
@@ -375,6 +377,7 @@
             }
         }
 
-#endregion Helpers
+        #endregion Helpers
     }
 }
+#endif

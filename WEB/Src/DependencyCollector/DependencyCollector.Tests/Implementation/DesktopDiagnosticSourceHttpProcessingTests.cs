@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.Tests
+﻿#if NET45
+namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
     using System.Collections.Generic;
@@ -20,6 +21,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
+    [Ignore("Test class out of date. Github Issue 1830")]
     public class DesktopDiagnosticSourceHttpProcessingTests
     {
         #region Fields
@@ -471,3 +473,4 @@
         }
     }
 }
+#endif

@@ -1,11 +1,10 @@
-﻿namespace Microsoft.ApplicationInsights.Tests
+﻿#if NET45
+namespace Microsoft.ApplicationInsights.Tests
 {
     using System.Collections;
     using System.Collections.Generic;
     using System.Data.SqlClient;
-#if NET45
     using System.Diagnostics.Tracing;
-#endif
     using System.Globalization;
     using System.Linq;
     using System.Net;
@@ -103,3 +102,4 @@
         }
     }
 }
+#endif
