@@ -1,12 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
-#if NETCORE
+#if NETCOREAPP
     using System.Reflection;
 #endif
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-#if !NETCORE
+#if !NETCOREAPP
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 #endif
 
@@ -23,7 +23,7 @@
 
         private static void SetPrivateStaticField(Type type, string fieldName, object value)
         {
-#if NETCORE
+#if NETCOREAPP
             TypeInfo typeInfo = type.GetTypeInfo();
             FieldInfo field = typeInfo.GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Static);
             field.SetValue(null, value);

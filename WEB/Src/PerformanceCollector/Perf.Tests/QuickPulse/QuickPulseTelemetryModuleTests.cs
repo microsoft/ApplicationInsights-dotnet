@@ -23,7 +23,7 @@
     {
 #pragma warning disable 0162
         // TODO: Stabilize sleep-based tests
-#if NETCORE
+#if NETCOREAPP
         private const bool Ignored = true;
 #else
         private const bool Ignored = false;

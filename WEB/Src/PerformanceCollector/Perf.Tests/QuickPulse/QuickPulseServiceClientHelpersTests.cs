@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Tests.QuickPulse
+﻿#if NETCOREAPP
+namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Tests.QuickPulse
 {
     using System.Net.Http.Headers;
     using Microsoft.ApplicationInsights.Common.Internal;
@@ -80,3 +81,4 @@
         }
     }
 }
+#endif
