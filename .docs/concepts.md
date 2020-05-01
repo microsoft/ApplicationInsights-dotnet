@@ -31,10 +31,9 @@ You can populate common context on the `TelemetryClient.context` property which 
 You can also attach additional property data to each telemetry item sent. 
 The `TelemetryClient` also exposes several `Track` methods that can be used to send all telemetry types understood by the Application Insights service. Some example use cases are shown below.
 
-Please review the [API summary for custom events and metrics](https://docs.microsoft.com/azure/azure-monitor/app/api-custom-events-metrics) for more examples.
+Please review the full [API summary for custom events and metrics](https://docs.microsoft.com/azure/azure-monitor/app/api-custom-events-metrics) for more examples.
 
 ```C#
-tc.Context.User.Id = "unique id"; // Consider PII while using this field.
 tc.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
 
 tc.TrackTrace(message: "Custom message.");
@@ -51,16 +50,14 @@ try
 }
 catch(Exception ex)
 {
-	tc.TrackException(ex);
+    tc.TrackException(ex);
 }
 ``` 
 
 
 
-
-
 ## Telemetry Channels
-Telemetry channels are responsible for buffering telemetry items and sending them to the Application Insights service, where they're stored for querying and analysis.
+Telemetry channels are responsible for sending the telemetry data to the designated place. Optional features can be provided by the telemetry channels, for example, buffering the data and sending in them in batches, persisting the data to a local storage in case of transmission failure (e.g. network outage), traffic shaping and retry mechanisms
 
 The .NET and .NET Core versions of the SDKs provide two built-in telemetry channels:
 - [InMemoryChannel](https://github.com/microsoft/ApplicationInsights-dotnet/blob/develop/BASE/src/Microsoft.ApplicationInsights/Channel/InMemoryChannel.cs): A lightweight channel that buffers items in memory until they're sent. Items are buffered in memory and flushed once every 30 seconds, or whenever 500 items are buffered.
