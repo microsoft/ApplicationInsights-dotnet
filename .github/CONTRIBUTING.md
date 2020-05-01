@@ -91,7 +91,7 @@ A typical work flow would be make-produce-change followed by build-product follo
 
 If any tests fail, please retry first to see if it helps. If not, try one of the known issues below. 
 
-If these don't help, please open an issue in Github describing the problem.
+If these don't help, please open an [issue](https://github.com/Microsoft/ApplicationInsights-dotnet/issues) in Github describing the problem.
 
 -  Tests fail with error like "It was not possible to find any compatible framework version The specified framework 'Microsoft.NETCore.App', version '1.0.4' was not found"
 

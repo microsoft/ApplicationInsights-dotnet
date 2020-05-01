@@ -1,11 +1,11 @@
-# Application Insights for .NET
-This is the .NET SDK for [Azure Monitor](https://docs.microsoft.com/azure/azure-monitor/overview) & [Application Insights](https://docs.microsoft.com/azure/azure-monitor/app/app-insights-overview).
+# Application Insights for .NET Apps
+This is the .NET SDK for sending data to [Azure Monitor](https://docs.microsoft.com/azure/azure-monitor/overview) & [Application Insights](https://docs.microsoft.com/azure/azure-monitor/app/app-insights-overview).
 
 
 
 ## Getting Started
 Please review our How-to guides to review which packages are appropriate for your project:
-- [.NET Console](https://docs.microsoft.com/azure/azure-monitor/app/console)
+- [Console App](https://docs.microsoft.com/azure/azure-monitor/app/console)
 - [ASP.NET](https://docs.microsoft.com/azure/azure-monitor/app/asp-net)
 - [ASP.NET Core](https://docs.microsoft.com/azure/azure-monitor/app/asp-net-core)
 - [ILogger](https://docs.microsoft.com/azure/azure-monitor/app/ilogger)

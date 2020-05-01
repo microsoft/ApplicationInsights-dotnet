@@ -1,5 +1,5 @@
 # Application Insights DotNet SDK Concepts
-This lists the high level concepts of our SDK and links to detailed guides to help you get started.
+This lists the high level concepts of the AI DotNet SDK and links to detailed guides to help you get started.
 
 
 To use the Application Insights SDK you must configure an Instrumentation Key which can be [obtained from an Application Insights resource](https://docs.microsoft.com/azure/azure-monitor/app/create-new-resource).
@@ -21,8 +21,6 @@ using Microsoft.ApplicationInsights.Extensibility;
 
 var configuration = new TelemetryConfiguration
 {
-    // Please use either an Instrumentation Key or a Connection String but not both.
-    InstrumentationKey = "YOUR INSTRUMENTAATION KEY",
     ConnectionString = "YOUR CONNECTION STRING",
 };
 var tc = new TelemetryClient(configuration);
@@ -43,7 +41,7 @@ tc.TrackEvent("PurchaseOrderSubmitted", new Dictionary<string, string>() { {"Cou
 	
 try
 {
-	...
+    ...
 }
 catch(Exception e)
 {
@@ -52,16 +50,16 @@ catch(Exception e)
 ``` 
 
 ### TelemetryClient API
-The TelemetryClient provides several Track methods to collect different types of logs
+The `TelemetryClient` provides several Track methods to collect different types of telemetry data.
 
-Please review our [Api summary for custom events and metrics](https://docs.microsoft.com/azure/azure-monitor/app/api-custom-events-metrics).
+Please review the [API summary for custom events and metrics](https://docs.microsoft.com/azure/azure-monitor/app/api-custom-events-metrics).
 
 
 
 ## Telemetry Channels
 Telemetry channels are responsible for buffering telemetry items and sending them to the Application Insights service, where they're stored for querying and analysis.
 
-The .NET and .NET Core versions of the SDKs provide two built-in telemetry channels::
+The .NET and .NET Core versions of the SDKs provide two built-in telemetry channels:
 - [InMemoryChannel](https://github.com/microsoft/ApplicationInsights-dotnet/blob/develop/BASE/src/Microsoft.ApplicationInsights/Channel/InMemoryChannel.cs): A lightweight channel that buffers items in memory until they're sent. Items are buffered in memory and flushed once every 30 seconds, or whenever 500 items are buffered.
 - [ServerTelemetryChannel](https://github.com/microsoft/ApplicationInsights-dotnet/blob/develop/BASE/src/ServerTelemetryChannel/ServerTelemetryChannel.cs): A more advanced channel that has retry policies and the capability to store data on a local disk.
 
