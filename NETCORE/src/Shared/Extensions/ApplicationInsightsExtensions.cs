@@ -233,26 +233,9 @@
         }
 
         /// <summary>
-        /// Read from configuration
-        /// Config.json will look like this:
-        /// <para>
-        ///      "ApplicationInsights": {
-        ///          "InstrumentationKey": "11111111-2222-3333-4444-555555555555",
-        ///          "TelemetryChannel": {
-        ///              "EndpointAddress": "http://dc.services.visualstudio.com/v2/track",
-        ///              "DeveloperMode": true
-        ///          }
-        ///      }.
-        /// </para>
-        /// Or.
-        /// <para>
-        ///      "ApplicationInsights": {
-        ///          "ConnectionString" : "InstrumentationKey=11111111-2222-3333-4444-555555555555;IngestionEndpoint=http://dc.services.visualstudio.com"
-        ///          "TelemetryChannel": {
-        ///              "DeveloperMode": true
-        ///          }
-        ///      }.
-        /// </para>
+        /// Read configuration from appSettings.json, appsettings.{env.EnvironmentName}.json,
+        /// IConfiguation used in an application and EnvironmentVariables. 
+        /// Bind configuration to ApplicationInsightsServiceOptions.
         /// Values can also be read from environment variables to support azure web sites configuration.
         /// </summary>
         /// <param name="config">Configuration to read variables from.</param>
@@ -261,46 +244,24 @@
             IConfiguration config,
             ApplicationInsightsServiceOptions serviceOptions)
         {
-            ApplicationInsightsServiceOptionsHelper(config, serviceOptions);
-        }
-
-        /// <summary>
-        /// Read configuration from appSettings.json, appsettings.{env.EnvironmentName}.json
-        /// EnvironmentVariables and IConfiguation used in an application. 
-        /// Bind configuration to ApplicationInsightsServiceOptions.
-        /// </summary>
-        /// <param name="config">Configuration to read variables from.</param>
-        /// <param name="userConfig">IConfiguration from an application.</param>
-        /// <param name="serviceOptions">Telemetry configuration to populate.</param>
-        internal static void AddTelemetryConfiguration(
-            IConfiguration config,
-            IConfiguration userConfig,
-            ApplicationInsightsServiceOptions serviceOptions)
-        {
-            ApplicationInsightsServiceOptionsHelper(config, serviceOptions, userConfig);
-        }
-
-        private static void ApplicationInsightsServiceOptionsHelper(IConfiguration config, ApplicationInsightsServiceOptions serviceOptions, IConfiguration userConfig = null)
-        {
-            var configuration = userConfig ?? config;
-
-#if NETSTANDARD2_0 || NET461
-            configuration.GetSection(ApplicationInsightsSectionFromConfig).Bind(serviceOptions);
-            configuration.GetSection(TelemetryChannelSectionFromConfig).Bind(serviceOptions);
-#endif
             try
             {
-                if (configuration.TryGetValue(primaryKey: ConnectionStringEnvironmentVariable, backupKey: ConnectionStringFromConfig, value: out string connectionStringValue))
+#if NETSTANDARD2_0 || NET461
+                config.GetSection(ApplicationInsightsSectionFromConfig).Bind(serviceOptions);
+                config.GetSection(TelemetryChannelSectionFromConfig).Bind(serviceOptions);
+#endif
+
+                if (config.TryGetValue(primaryKey: ConnectionStringEnvironmentVariable, backupKey: ConnectionStringFromConfig, value: out string connectionStringValue))
                 {
                     serviceOptions.ConnectionString = connectionStringValue;
                 }
 
-                if (configuration.TryGetValue(primaryKey: InstrumentationKeyForWebSites, backupKey: InstrumentationKeyFromConfig, value: out string instrumentationKey))
+                if (config.TryGetValue(primaryKey: InstrumentationKeyForWebSites, backupKey: InstrumentationKeyFromConfig, value: out string instrumentationKey))
                 {
                     serviceOptions.InstrumentationKey = instrumentationKey;
                 }
 
-                if (configuration.TryGetValue(primaryKey: DeveloperModeForWebSites, backupKey: DeveloperModeFromConfig, value: out string developerModeValue))
+                if (config.TryGetValue(primaryKey: DeveloperModeForWebSites, backupKey: DeveloperModeFromConfig, value: out string developerModeValue))
                 {
                     if (bool.TryParse(developerModeValue, out bool developerMode))
                     {
@@ -308,7 +269,7 @@
                     }
                 }
 
-                if (configuration.TryGetValue(primaryKey: EndpointAddressForWebSites, backupKey: EndpointAddressFromConfig, value: out string endpointAddress))
+                if (config.TryGetValue(primaryKey: EndpointAddressForWebSites, backupKey: EndpointAddressFromConfig, value: out string endpointAddress))
                 {
                     serviceOptions.EndpointAddress = endpointAddress;
                 }

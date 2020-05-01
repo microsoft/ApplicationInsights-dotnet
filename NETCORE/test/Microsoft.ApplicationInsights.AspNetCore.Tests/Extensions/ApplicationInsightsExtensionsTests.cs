@@ -45,7 +45,11 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         public const string TestInstrumentationKey = "11111111-2222-3333-4444-555555555555";
         private const string TestConnectionString = "InstrumentationKey=11111111-2222-3333-4444-555555555555;IngestionEndpoint=http://127.0.0.1";
         private const string InstrumentationKeyFromConfig = "ApplicationInsights:InstrumentationKey";
+        private const string InstrumentationKeyEnvironmentVariable = "APPINSIGHTS_INSTRUMENTATIONKEY";
         private const string ConnectionStringEnvironmentVariable = "APPLICATIONINSIGHTS_CONNECTION_STRING";
+        private const string TestEndPointEnvironmentVariable = "APPINSIGHTS_ENDPOINTADDRESS";
+        private const string DeveloperModeEnvironmentVariable = "APPINSIGHTS_DEVELOPER_MODE";
+        public const string TestEndPoint = "http://127.0.0.1/v2/track";
 
         public static ServiceCollection GetServiceCollectionWithContextAccessor()
         {
@@ -116,10 +120,16 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// <summary>
             /// Tests that the instrumentation key configuration can be read from a JSON file by the configuration factory.            
             /// </summary>
-            [Fact]
-            public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromConfiguration()
-            {                
-                var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content", "config-instrumentation-key.json"), null);
+            /// <param name="useDefaultConfig">
+            /// Calls services.AddApplicationInsightsTelemetry() when the value is true and reads IConfiguration from user application automatically.
+            /// Else, it invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
+            /// </param>
+            [Theory]
+            [InlineData(true)]
+            [InlineData(false)]
+            public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromConfiguration(bool useDefaultConfig)
+            {
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content", "config-instrumentation-key.json"), null, null, true, useDefaultConfig);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
@@ -129,11 +139,17 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// <summary>
             /// Tests that the connection string can be read from a JSON file by the configuration factory.            
             /// </summary>
-            [Fact]
+            /// <param name="useDefaultConfig">
+            /// Calls services.AddApplicationInsightsTelemetry() when the value is true and reads IConfiguration from user application automatically.
+            /// Else, it invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
+            /// </param>
+            [Theory]
+            [InlineData(true)]
+            [InlineData(false)]
             [Trait("Trait", "ConnectionString")]
-            public static void RegistersTelemetryConfigurationFactoryMethodThatReadsConnectionStringFromConfiguration()
+            public static void RegistersTelemetryConfigurationFactoryMethodThatReadsConnectionStringFromConfiguration(bool useDefaultConfig)
             {
-                var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content", "config-connection-string.json"), null);
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content", "config-connection-string.json"), null, null, true, useDefaultConfig);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
@@ -193,20 +209,38 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.Equal(1, defaultConfig.TelemetryInitializers.Count);
             }
 
-            [Fact]
-            public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromConfiguration()
+            /// <summary>
+            /// Tests that the developer mode can be read from a JSON file by the configuration factory.
+            /// </summary>
+            /// <param name="useDefaultConfig">
+            /// Calls services.AddApplicationInsightsTelemetry() when the value is true and reads IConfiguration from user application automatically.
+            /// Else, it invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
+            /// </param>
+            [Theory]
+            [InlineData(true)]  
+            [InlineData(false)] 
+            public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromConfiguration(bool useDefaultConfig)
             {
-                var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content", "config-developer-mode.json"), null);                
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content", "config-developer-mode.json"), null, null, true, useDefaultConfig);                
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 Assert.True(telemetryConfiguration.TelemetryChannel.DeveloperMode);
             }
 
-            [Fact]
-            public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromConfiguration()
+            /// <summary>
+            /// Tests that the endpoint address can be read from a JSON file by the configuration factory.
+            /// </summary>
+            /// <param name="useDefaultConfig">
+            /// Calls services.AddApplicationInsightsTelemetry() when the value is true and reads IConfiguration from user application automatically.
+            /// Else, it invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
+            /// </param>
+            [Theory]
+            [InlineData(true)]  
+            [InlineData(false)] 
+            public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromConfiguration(bool useDefaultConfig)
             {
-                var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content", "config-endpoint-address.json"), null);                
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content", "config-endpoint-address.json"), null, null, true, useDefaultConfig);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
@@ -314,11 +348,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             {
                 string ikeyExpected = Guid.NewGuid().ToString();
                 string hostExpected = "http://ainewhost/v2/track/";
+                string iKeyInAppSettings = "33333333-2222-3333-4444-555555555555";
                 string text = File.ReadAllText("appsettings.json");
                 string originalText = text;
                 try
                 {
-                    text = text.Replace("ikeyhere", ikeyExpected);
+                    text = text.Replace(iKeyInAppSettings, ikeyExpected);
                     text = text.Replace("http://hosthere/v2/track/", hostExpected);
                     File.WriteAllText("appsettings.json", text);
 
@@ -344,10 +379,11 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             {
                 string suppliedIKey = "suppliedikey";
                 string ikey = Guid.NewGuid().ToString();
+                string iKeyInAppSettings = "33333333-2222-3333-4444-555555555555";
                 string text = File.ReadAllText("appsettings.json");
                 try
                 {
-                    text = text.Replace("ikeyhere", ikey);
+                    text = text.Replace(iKeyInAppSettings, ikey);
                     File.WriteAllText("appsettings.json", text);
 
                     var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
@@ -358,7 +394,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 }
                 finally
                 {
-                    text = text.Replace(ikey, "ikeyhere");
+                    text = text.Replace(ikey, iKeyInAppSettings);
                     File.WriteAllText("appsettings.json", text);
                 }
             }
@@ -373,10 +409,11 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 string suppliedIKey = "suppliedikey";
                 var options = new ApplicationInsightsServiceOptions() { InstrumentationKey = suppliedIKey };
                 string ikey = Guid.NewGuid().ToString();
+                string iKeyInAppSettings = "33333333-2222-3333-4444-555555555555";
                 string text = File.ReadAllText("appsettings.json");
                 try
                 {
-                    text = text.Replace("ikeyhere", ikey);
+                    text = text.Replace(iKeyInAppSettings, ikey);
                     File.WriteAllText("appsettings.json", text);
 
                     var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
@@ -387,7 +424,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 }
                 finally
                 {
-                    text = text.Replace(ikey, "ikeyhere");
+                    text = text.Replace(ikey, iKeyInAppSettings);
                     File.WriteAllText("appsettings.json", text);
                 }
             }
@@ -403,10 +440,11 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 // Create new options, which will be default have null ikey and endpoint.
                 var options = new ApplicationInsightsServiceOptions();
                 string ikey = Guid.NewGuid().ToString();
+                string ikeyInAppSettingsFile = "33333333-2222-3333-4444-555555555555";
                 string text = File.ReadAllText("appsettings.json");
                 try
                 {
-                    text = text.Replace("ikeyhere", ikey);
+                    text = text.Replace(ikeyInAppSettingsFile, ikey);
                     text = text.Replace("hosthere", "newhost");
                     File.WriteAllText("appsettings.json", text);
 
@@ -419,7 +457,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 }
                 finally
                 {
-                    text = text.Replace(ikey, "ikeyhere");
+                    text = text.Replace(ikey, ikeyInAppSettingsFile);
                     text = text.Replace("newhost", "hosthere");
                     File.WriteAllText("appsettings.json", text);
                 }
@@ -641,14 +679,36 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.NotNull(cpuCounterRequest);                
             }
 #endif
-
-            [Fact]
-            public static void UserCanDisablePerfCollectorModule()
+            /// <summary>
+            /// User could enable or disable PerformanceCounterCollectionModule by setting EnablePerformanceCounterCollectionModule.
+            /// This configuration can be read from a JSON file by the configuration factory or through code by passing ApplicationInsightsServiceOptions. 
+            /// </summary>
+            /// <param name="configType">
+            /// DefaultConfiguration - calls services.AddApplicationInsightsTelemetry() which reads IConfiguration from user application automatically.
+            /// SuppliedConfiguration - invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
+            /// Code - Caller creates an instance of ApplicationInsightsServiceOptions and passes it. This option overrides all configuration being used in JSON file. 
+            /// There is a special case where NULL values in these properties - InstrumentationKey, ConnectionString, EndpointAddress and DeveloperMode are overwritten. We check IConfiguration object to see if these properties have values, if values are present then we override it. 
+            /// </param>
+            /// <param name="isEnable">Sets the value for property EnablePerformanceCounterCollectionModule.</param>
+            [Theory]
+            [InlineData("DefaultConfiguration", true)]
+            [InlineData("DefaultConfiguration", false)]
+            [InlineData("SuppliedConfiguration", true)]
+            [InlineData("SuppliedConfiguration", false)]
+            [InlineData("Code", true)]            
+            [InlineData("Code", false)]
+            public static void UserCanEnableAndDisablePerfCollectorModule(string configType, bool isEnable)
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var aiOptions = new ApplicationInsightsServiceOptions();
-                aiOptions.EnablePerformanceCounterCollectionModule = false;
-                services.AddApplicationInsightsTelemetry(aiOptions);
+                Action<ApplicationInsightsServiceOptions> serviceOptions = null;
+                var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+
+                if (configType == "Code")
+                {
+                    serviceOptions = o => { o.EnablePerformanceCounterCollectionModule = isEnable; };
+                    filePath = null;
+                }
+
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
@@ -657,21 +717,48 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 // Even if a module is disabled its still added to DI.
                 Assert.NotEmpty(modules.OfType<PerformanceCollectorModule>());
 
-                // TODO add unit test to validate that module.isInitialized is false.
-                // similar to being done in UserCanDisableRequestCounterCollectorModule
-                // It requires some restructuring as internals are not accessible
-                // to this test project
+                // Get telemetry client to trigger TelemetryConfig setup.
+                var tc = serviceProvider.GetService<TelemetryClient>();
+
+                Type perfModuleType = typeof(PerformanceCollectorModule);
+                PerformanceCollectorModule perfModule = (PerformanceCollectorModule)modules.FirstOrDefault(m => m.GetType() == perfModuleType);
+                // Get the PerformanceCollectorModule private field value for isInitialized.
+                FieldInfo isInitializedField = perfModuleType.GetField("isInitialized", BindingFlags.NonPublic | BindingFlags.Instance);
+                // PerformanceCollectorModule.isInitialized is set to true when EnablePerformanceCounterCollectionModule is enabled, else it is set to false.
+                Assert.Equal(isEnable, (bool)isInitializedField.GetValue(perfModule));
             }
 
 #if NETCOREAPP
-            [Fact]
-            public static void UserCanDisableEventCounterCollectorModule()
+            /// <summary>
+            /// User could enable or disable EventCounterCollectionModule by setting EnableEventCounterCollectionModule.
+            /// This configuration can be read from a JSON file by the configuration factory or through code by passing ApplicationInsightsServiceOptions. 
+            /// </summary>
+            /// <param name="configType">
+            /// DefaultConfiguration - calls services.AddApplicationInsightsTelemetry() which reads IConfiguration from user application automatically.
+            /// SuppliedConfiguration - invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
+            /// Code - Caller creates an instance of ApplicationInsightsServiceOptions and passes it. This option overrides all configuration being used in JSON file. 
+            /// There is a special case where NULL values in these properties - InstrumentationKey, ConnectionString, EndpointAddress and DeveloperMode are overwritten. We check IConfiguration object to see if these properties have values, if values are present then we override it. 
+            /// </param>
+            /// <param name="isEnable">Sets the value for property EnableEventCounterCollectionModule.</param>
+            [Theory]
+            [InlineData("DefaultConfiguration", true)]
+            [InlineData("DefaultConfiguration", false)]
+            [InlineData("SuppliedConfiguration", true)]
+            [InlineData("SuppliedConfiguration", false)]
+            [InlineData("Code", true)]
+            [InlineData("Code", false)]
+            public static void UserCanDisableEventCounterCollectorModule(string configType, bool isEnable)
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var aiOptions = new ApplicationInsightsServiceOptions();
-                aiOptions.EnableEventCounterCollectionModule = false;
-                services.AddApplicationInsightsTelemetry(aiOptions);
+                Action<ApplicationInsightsServiceOptions> serviceOptions = null;
+                var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
 
+                if (configType == "Code")
+                {
+                    serviceOptions = o => { o.EnableEventCounterCollectionModule = isEnable; };
+                    filePath = null;
+                }
+
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
@@ -679,21 +766,48 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 // Even if a module is disabled its still added to DI.
                 Assert.NotEmpty(modules.OfType<EventCounterCollectionModule>());
 
-                // TODO add unit test to validate that module.isInitialized is false.
-                // similar to being done in UserCanDisableRequestCounterCollectorModule
-                // It requires some restructuring as internals are not accessible
-                // to this test project
+                // Get telemetry client to trigger TelemetryConfig setup.
+                var tc = serviceProvider.GetService<TelemetryClient>();
+
+                Type eventCollectorModuleType = typeof(EventCounterCollectionModule);
+                EventCounterCollectionModule eventCollectorModule = (EventCounterCollectionModule)modules.FirstOrDefault(m => m.GetType() == eventCollectorModuleType);
+                // Get the EventCounterCollectionModule private field value for isInitialized.
+                FieldInfo isInitializedField = eventCollectorModuleType.GetField("isInitialized", BindingFlags.NonPublic | BindingFlags.Instance);
+                // EventCounterCollectionModule.isInitialized is set to true when EnableEventCounterCollectionModule is enabled, else it is set to false.
+                Assert.Equal(isEnable, (bool)isInitializedField.GetValue(eventCollectorModule));
             }
 #endif
 
-            [Fact]
-            public static void UserCanDisableRequestCounterCollectorModule()
+            /// <summary>
+            /// User could enable or disable RequestTrackingTelemetryModule by setting EnableRequestTrackingTelemetryModule.
+            /// This configuration can be read from a JSON file by the configuration factory or through code by passing ApplicationInsightsServiceOptions. 
+            /// </summary>
+            /// <param name="configType">
+            /// DefaultConfiguration - calls services.AddApplicationInsightsTelemetry() which reads IConfiguration from user application automatically.
+            /// SuppliedConfiguration - invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
+            /// Code - Caller creates an instance of ApplicationInsightsServiceOptions and passes it. This option overrides all configuration being used in JSON file. 
+            /// There is a special case where NULL values in these properties - InstrumentationKey, ConnectionString, EndpointAddress and DeveloperMode are overwritten. We check IConfiguration object to see if these properties have values, if values are present then we override it. 
+            /// </param>
+            /// <param name="isEnable">Sets the value for property EnableRequestTrackingTelemetryModule.</param>
+            [Theory]
+            [InlineData("DefaultConfiguration", true)]
+            [InlineData("DefaultConfiguration", false)]
+            [InlineData("SuppliedConfiguration", true)]
+            [InlineData("SuppliedConfiguration", false)]
+            [InlineData("Code", true)]
+            [InlineData("Code", false)]
+            public static void UserCanDisableRequestCounterCollectorModule(string configType, bool isEnable)
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var aiOptions = new ApplicationInsightsServiceOptions();
-                aiOptions.EnableRequestTrackingTelemetryModule = false;
-                services.AddApplicationInsightsTelemetry(aiOptions);
+                Action<ApplicationInsightsServiceOptions> serviceOptions = null;
+                var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
 
+                if (configType == "Code")
+                {
+                    serviceOptions = o => { o.EnableRequestTrackingTelemetryModule = isEnable; };
+                    filePath = null;
+                }
+
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 // Get telemetry client to trigger TelemetryConfig setup.
                 var tc = serviceProvider.GetService<TelemetryClient>();
@@ -703,19 +817,40 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 // Even if a module is disabled its still added to DI.
                 Assert.NotEmpty(modules.OfType<RequestTrackingTelemetryModule>());
                 var req = modules.OfType<RequestTrackingTelemetryModule>().First();
-
-                // But the module will not be initialized.
-                Assert.False(req.IsInitialized);
+                // RequestTrackingTelemetryModule.isInitialized is set to true when EnableRequestTrackingTelemetryModule is enabled, else it is set to false.
+                Assert.Equal(isEnable, req.IsInitialized);
             }
 
-            [Fact]
-            public static void UserCanDisableDependencyCollectorModule()
+            /// <summary>
+            /// User could enable or disable DependencyTrackingTelemetryModule by setting EnableDependencyTrackingTelemetryModule.
+            /// This configuration can be read from a JSON file by the configuration factory or through code by passing ApplicationInsightsServiceOptions. 
+            /// </summary>
+            /// <param name="configType">
+            /// DefaultConfiguration - calls services.AddApplicationInsightsTelemetry() which reads IConfiguration from user application automatically.
+            /// SuppliedConfiguration - invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
+            /// Code - Caller creates an instance of ApplicationInsightsServiceOptions and passes it. This option overrides all configuration being used in JSON file. 
+            /// There is a special case where NULL values in these properties - InstrumentationKey, ConnectionString, EndpointAddress and DeveloperMode are overwritten. We check IConfiguration object to see if these properties have values, if values are present then we override it. 
+            /// </param>
+            /// <param name="isEnable">Sets the value for property EnableDependencyTrackingTelemetryModule.</param>
+            [Theory]
+            [InlineData("DefaultConfiguration", true)]
+            [InlineData("DefaultConfiguration", false)]
+            [InlineData("SuppliedConfiguration", true)]
+            [InlineData("SuppliedConfiguration", false)]
+            [InlineData("Code", true)]
+            [InlineData("Code", false)]
+            public static void UserCanDisableDependencyCollectorModule(string configType, bool isEnable)
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var aiOptions = new ApplicationInsightsServiceOptions();
-                aiOptions.EnableDependencyTrackingTelemetryModule = false;
-                services.AddApplicationInsightsTelemetry(aiOptions);
+                Action<ApplicationInsightsServiceOptions> serviceOptions = null;
+                var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
 
+                if (configType == "Code")
+                {
+                    serviceOptions = o => { o.EnableDependencyTrackingTelemetryModule = isEnable; };
+                    filePath = null;
+                }
+
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var modules = serviceProvider.GetServices<ITelemetryModule>();                
                 Assert.NotNull(modules);
@@ -723,20 +858,47 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 // Even if a module is disabled its still added to DI.
                 Assert.NotEmpty(modules.OfType<DependencyTrackingTelemetryModule>());
 
-                // TODO add unit test to validate that module.isInitialized is false.
-                // similar to being done in UserCanDisableRequestCounterCollectorModule
-                // It requires some restructuring as internals are not accessible
-                // to this test project
+                // Get telemetry client to trigger TelemetryConfig setup.
+                var tc = serviceProvider.GetService<TelemetryClient>();
+
+                Type dependencyModuleType = typeof(DependencyTrackingTelemetryModule);
+                DependencyTrackingTelemetryModule dependencyModule = (DependencyTrackingTelemetryModule)modules.FirstOrDefault(m => m.GetType() == dependencyModuleType);
+                // Get the DependencyTrackingTelemetryModule private field value for isInitialized.
+                FieldInfo isInitializedField = dependencyModuleType.GetField("isInitialized", BindingFlags.NonPublic | BindingFlags.Instance);
+                // DependencyTrackingTelemetryModule.isInitialized is set to true when EnableDependencyTrackingTelemetryModule is enabled, else it is set to false.
+                Assert.Equal(isEnable, (bool)isInitializedField.GetValue(dependencyModule));
             }
 
-            [Fact]
-            public static void UserCanDisableQuickPulseCollectorModule()
+            /// <summary>
+            /// User could enable or disable QuickPulseCollectorModule by setting EnableQuickPulseMetricStream.
+            /// This configuration can be read from a JSON file by the configuration factory or through code by passing ApplicationInsightsServiceOptions. 
+            /// </summary>
+            /// <param name="configType">
+            /// DefaultConfiguration - calls services.AddApplicationInsightsTelemetry() which reads IConfiguration from user application automatically.
+            /// SuppliedConfiguration - invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
+            /// Code - Caller creates an instance of ApplicationInsightsServiceOptions and passes it. This option overrides all configuration being used in JSON file. 
+            /// There is a special case where NULL values in these properties - InstrumentationKey, ConnectionString, EndpointAddress and DeveloperMode are overwritten. We check IConfiguration object to see if these properties have values, if values are present then we override it. 
+            /// </param>
+            /// <param name="isEnable">Sets the value for property EnableQuickPulseMetricStream.</param>
+            [Theory]
+            [InlineData("DefaultConfiguration", true)]
+            [InlineData("DefaultConfiguration", false)]
+            [InlineData("SuppliedConfiguration", true)]
+            [InlineData("SuppliedConfiguration", false)]
+            [InlineData("Code", true)]
+            [InlineData("Code", false)]
+            public static void UserCanEnableAndDisableQuickPulseCollectorModule(string configType, bool isEnable)
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var aiOptions = new ApplicationInsightsServiceOptions();
-                aiOptions.EnableQuickPulseMetricStream = false;
-                services.AddApplicationInsightsTelemetry(aiOptions);
+                Action<ApplicationInsightsServiceOptions> serviceOptions = null;
+                var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
 
+                if (configType == "Code")
+                {
+                    serviceOptions = o => { o.EnableQuickPulseMetricStream = isEnable; };
+                    filePath = null;
+                }
+
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
@@ -744,20 +906,47 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 // Even if a module is disabled its still added to DI.
                 Assert.NotEmpty(modules.OfType<QuickPulseTelemetryModule>());
 
-                // TODO add unit test to validate that module.isInitialized is false.
-                // similar to being done in UserCanDisableRequestCounterCollectorModule
-                // It requires some restructuring as internals are not accessible
-                // to this test project
+                // Get telemetry client to trigger TelemetryConfig setup.
+                var tc = serviceProvider.GetService<TelemetryClient>();
+
+                Type quickPulseModuleType = typeof(QuickPulseTelemetryModule);
+                QuickPulseTelemetryModule quickPulseModule = (QuickPulseTelemetryModule)modules.FirstOrDefault(m => m.GetType() == quickPulseModuleType);
+                // Get the QuickPulseTelemetryModule private field value for isInitialized.
+                FieldInfo isInitializedField = quickPulseModuleType.GetField("isInitialized", BindingFlags.NonPublic | BindingFlags.Instance);
+                // QuickPulseTelemetryModule.isInitialized is set to true when EnableQuickPulseMetricStream is enabled, else it is set to false.
+                Assert.Equal(isEnable, (bool)isInitializedField.GetValue(quickPulseModule));
             }
 
-            [Fact]
-            public static void UserCanDisableAppServiceHeartbeatModule()
+            /// <summary>
+            /// User could enable or disable AppServiceHeartbeatModule by setting EnableAppServicesHeartbeatTelemetryModule.
+            /// This configuration can be read from a JSON file by the configuration factory or through code by passing ApplicationInsightsServiceOptions. 
+            /// </summary>
+            /// <param name="configType">
+            /// DefaultConfiguration - calls services.AddApplicationInsightsTelemetry() which reads IConfiguration from user application automatically.
+            /// SuppliedConfiguration - invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
+            /// Code - Caller creates an instance of ApplicationInsightsServiceOptions and passes it. This option overrides all configuration being used in JSON file. 
+            /// There is a special case where NULL values in these properties - InstrumentationKey, ConnectionString, EndpointAddress and DeveloperMode are overwritten. We check IConfiguration object to see if these properties have values, if values are present then we override it. 
+            /// </param>
+            /// <param name="isEnable">Sets the value for property EnableAppServicesHeartbeatTelemetryModule.</param>
+            [Theory]
+            [InlineData("DefaultConfiguration", true)]
+            [InlineData("DefaultConfiguration", false)]
+            [InlineData("SuppliedConfiguration", true)]
+            [InlineData("SuppliedConfiguration", false)]
+            [InlineData("Code", true)]
+            [InlineData("Code", false)]
+            public static void UserCanDisableAppServiceHeartbeatModule(string configType, bool isEnable)
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var aiOptions = new ApplicationInsightsServiceOptions();
-                aiOptions.EnableAppServicesHeartbeatTelemetryModule = false;
-                services.AddApplicationInsightsTelemetry(aiOptions);
+                Action<ApplicationInsightsServiceOptions> serviceOptions = null;
+                var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
 
+                if (configType == "Code")
+                {
+                    serviceOptions = o => { o.EnableAppServicesHeartbeatTelemetryModule = isEnable; };
+                    filePath = null;
+                }
+
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
@@ -765,19 +954,47 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 // Even if a module is disabled its still added to DI.
                 Assert.NotEmpty(modules.OfType<AppServicesHeartbeatTelemetryModule>());
 
-                // TODO add unit test to validate that module.isInitialized is false.
-                // similar to being done in UserCanDisableRequestCounterCollectorModule
-                // It requires some restructuring as internals are not accessible
-                // to this test project
+                // Get telemetry client to trigger TelemetryConfig setup.
+                var tc = serviceProvider.GetService<TelemetryClient>();
+
+                Type appServHBModuleType = typeof(AppServicesHeartbeatTelemetryModule);
+                AppServicesHeartbeatTelemetryModule appServHBModule = (AppServicesHeartbeatTelemetryModule)modules.FirstOrDefault(m => m.GetType() == appServHBModuleType);
+                // Get the AppServicesHeartbeatTelemetryModule private field value for isInitialized.             
+                FieldInfo isInitializedField = appServHBModuleType.GetField("isInitialized", BindingFlags.NonPublic | BindingFlags.Instance);
+                // AppServicesHeartbeatTelemetryModule.isInitialized is set to true when EnableAppServicesHeartbeatTelemetryModule is enabled, else it is set to false.
+                Assert.Equal(isEnable, (bool)isInitializedField.GetValue(appServHBModule));
             }
 
-            [Fact]
-            public static void UserCanDisableAzureInstanceMetadataModule()
+            /// <summary>
+            /// User could enable or disable AzureInstanceMetadataModule by setting EnableAzureInstanceMetadataTelemetryModule.
+            /// This configuration can be read from a JSON file by the configuration factory or through code by passing ApplicationInsightsServiceOptions. 
+            /// </summary>
+            /// <param name="configType">
+            /// DefaultConfiguration - calls services.AddApplicationInsightsTelemetry() which reads IConfiguration from user application automatically.
+            /// SuppliedConfiguration - invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
+            /// Code - Caller creates an instance of ApplicationInsightsServiceOptions and passes it. This option overrides all configuration being used in JSON file. 
+            /// There is a special case where NULL values in these properties - InstrumentationKey, ConnectionString, EndpointAddress and DeveloperMode are overwritten. We check IConfiguration object to see if these properties have values, if values are present then we override it. 
+            /// </param>
+            /// <param name="isEnable">Sets the value for property EnableAzureInstanceMetadataTelemetryModule.</param>
+            [Theory]
+            [InlineData("DefaultConfiguration", true)]
+            [InlineData("DefaultConfiguration", false)]
+            [InlineData("SuppliedConfiguration", true)]
+            [InlineData("SuppliedConfiguration", false)]
+            [InlineData("Code", true)]
+            [InlineData("Code", false)]
+            public static void UserCanEnableAndDisableAzureInstanceMetadataModule(string configType, bool isEnable)
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var aiOptions = new ApplicationInsightsServiceOptions();
-                aiOptions.EnableAzureInstanceMetadataTelemetryModule = false;
-                services.AddApplicationInsightsTelemetry(aiOptions);
+                Action<ApplicationInsightsServiceOptions> serviceOptions = null;
+                var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+
+                if (configType == "Code")
+                {
+                    serviceOptions = o => { o.EnableAzureInstanceMetadataTelemetryModule = isEnable; };
+                    filePath = null;
+                }
+
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
@@ -786,10 +1003,15 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 // Even if a module is disabled its still added to DI.
                 Assert.NotEmpty(modules.OfType<AzureInstanceMetadataTelemetryModule>());
 
-                // TODO add unit test to validate that module.isInitialized is false.
-                // similar to being done in UserCanDisableRequestCounterCollectorModule
-                // It requires some restructuring as internals are not accessible
-                // to this test project
+                // Get telemetry client to trigger TelemetryConfig setup.
+                var tc = serviceProvider.GetService<TelemetryClient>();
+
+                Type azureInstanceMetadataModuleType = typeof(AzureInstanceMetadataTelemetryModule);
+                AzureInstanceMetadataTelemetryModule perfModule = (AzureInstanceMetadataTelemetryModule)modules.FirstOrDefault(m => m.GetType() == azureInstanceMetadataModuleType);
+                // Get the AzureInstanceMetadataTelemetryModule private field value for isInitialized.
+                FieldInfo isInitializedField = azureInstanceMetadataModuleType.GetField("isInitialized", BindingFlags.NonPublic | BindingFlags.Instance);
+                // AzureInstanceMetadataTelemetryModule.isInitialized is set to true when EnableAzureInstanceMetadataTelemetryModule is enabled, else it is set to false.
+                Assert.Equal(isEnable, (bool)isInitializedField.GetValue(perfModule));
             }
 
             [Fact]
@@ -813,16 +1035,37 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.False(dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Contains("127.0.0.1"));
             }
 
-            [Fact]
-            public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesDependencyCollectorWithCustomValues()
+            /// <summary>
+            /// User could enable or disable LegacyCorrelationHeadersInjection of DependencyCollectorOptions.
+            /// This configuration can be read from a JSON file by the configuration factory or through code by passing ApplicationInsightsServiceOptions. 
+            /// </summary>
+            /// <param name="configType">
+            /// DefaultConfiguration - calls services.AddApplicationInsightsTelemetry() which reads IConfiguration from user application automatically.
+            /// SuppliedConfiguration - invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
+            /// Code - Caller creates an instance of ApplicationInsightsServiceOptions and passes it. This option overrides all configuration being used in JSON file. 
+            /// There is a special case where NULL values in these properties - InstrumentationKey, ConnectionString, EndpointAddress and DeveloperMode are overwritten. We check IConfiguration object to see if these properties have values, if values are present then we override it. 
+            /// </param>
+            /// <param name="isEnable">Sets the value for property EnableLegacyCorrelationHeadersInjection.</param>
+            [Theory]
+            [InlineData("DefaultConfiguration", true)]
+            [InlineData("DefaultConfiguration", false)]
+            [InlineData("SuppliedConfiguration", true)]
+            [InlineData("SuppliedConfiguration", false)]
+            [InlineData("Code", true)]
+            [InlineData("Code", false)]
+            public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesDependencyCollectorWithCustomValues(string configType, bool isEnable)
             {
                 //ARRANGE
-                var services = CreateServicesAndAddApplicationinsightsTelemetry(
-                    null,
-                    null,
-                    o => { o.DependencyCollectionOptions.EnableLegacyCorrelationHeadersInjection = true; },
-                    false);
+                Action<ApplicationInsightsServiceOptions> serviceOptions = null;
+                var filePath = Path.Combine("content", "config-req-dep-settings-" + isEnable.ToString() + ".json");
 
+                if (configType == "Code")
+                {
+                    serviceOptions = o => { o.DependencyCollectionOptions.EnableLegacyCorrelationHeadersInjection = isEnable; };
+                    filePath = null;
+                }
+
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
 
@@ -832,11 +1075,13 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
                 //ACT
                 var dependencyModule = modules.OfType<DependencyTrackingTelemetryModule>().Single();
+                // Get telemetry client to trigger TelemetryConfig setup.
+                var tc = serviceProvider.GetService<TelemetryClient>();
 
                 //VALIDATE
-                Assert.Equal(6, dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Count);
-                Assert.True(dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Contains("localhost"));
-                Assert.True(dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Contains("127.0.0.1"));
+                Assert.Equal(isEnable ? 6 : 4, dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Count);
+                Assert.Equal(isEnable, dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Contains("localhost") ? true : false);
+                Assert.Equal(isEnable, dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Contains("127.0.0.1") ? true : false);
             }
 
             [Fact]
@@ -990,19 +1235,41 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 #endif
             }
 
-            [Fact]
-            public static void ConfigureRequestTrackingTelemetryCustomOptions()
+            /// <summary>
+            /// User could enable or disable RequestCollectionOptions by setting InjectResponseHeaders, TrackExceptions and EnableW3CDistributedTracing.
+            /// This configuration can be read from a JSON file by the configuration factory or through code by passing ApplicationInsightsServiceOptions. 
+            /// </summary>
+            /// <param name="configType">
+            /// DefaultConfiguration - calls services.AddApplicationInsightsTelemetry() which reads IConfiguration from user application automatically.
+            /// SuppliedConfiguration - invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
+            /// Code - Caller creates an instance of ApplicationInsightsServiceOptions and passes it. This option overrides all configuration being used in JSON file. 
+            /// There is a special case where NULL values in these properties - InstrumentationKey, ConnectionString, EndpointAddress and DeveloperMode are overwritten. We check IConfiguration object to see if these properties have values, if values are present then we override it. 
+            /// </param>
+            /// <param name="isEnable">Sets the value for property InjectResponseHeaders, TrackExceptions and EnableW3CDistributedTracing.</param>
+            [Theory]
+            [InlineData("DefaultConfiguration", true)]
+            [InlineData("DefaultConfiguration", false)]
+            [InlineData("SuppliedConfiguration", true)]
+            [InlineData("SuppliedConfiguration", false)]
+            [InlineData("Code", true)]
+            [InlineData("Code", false)]
+            public static void ConfigureRequestTrackingTelemetryCustomOptions(string configType, bool isEnable)
             {
-                //ARRANGE
-                Action<ApplicationInsightsServiceOptions> serviceOptions = options =>
-                {
-                    options.RequestCollectionOptions.InjectResponseHeaders = false;
-                    options.RequestCollectionOptions.TrackExceptions = false;
-                };
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                Action<ApplicationInsightsServiceOptions> serviceOptions = null;
+                var filePath = Path.Combine("content", "config-req-dep-settings-" + isEnable.ToString() + ".json");
 
-                //ACT
-                services.AddApplicationInsightsTelemetry(serviceOptions);
+                if (configType == "Code")
+                {
+                    serviceOptions = o => 
+                    { 
+                        o.RequestCollectionOptions.InjectResponseHeaders = isEnable;
+                        o.RequestCollectionOptions.TrackExceptions = isEnable;
+                        o.RequestCollectionOptions.EnableW3CDistributedTracing = isEnable;
+                    };
+                    filePath = null;
+                }
+
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
 
@@ -1010,8 +1277,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var requestTrackingModule = (RequestTrackingTelemetryModule) serviceProvider
                     .GetServices<ITelemetryModule>().FirstOrDefault(x => x.GetType() == typeof(RequestTrackingTelemetryModule));
 
-                Assert.False(requestTrackingModule.CollectionOptions.InjectResponseHeaders);
-                Assert.False(requestTrackingModule.CollectionOptions.TrackExceptions);
+                Assert.Equal(isEnable, requestTrackingModule.CollectionOptions.InjectResponseHeaders);
+                Assert.Equal(isEnable, requestTrackingModule.CollectionOptions.TrackExceptions);
+                Assert.Equal(isEnable, requestTrackingModule.CollectionOptions.EnableW3CDistributedTracing);
             }
 
             [Fact]
@@ -1065,15 +1333,41 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.Equal(2, adaptiveSamplingProcessorCount);
             }
 
-            [Fact]
-            public static void DoesNotAddSamplingToConfigurationIfExplicitlyControlledThroughParameter()
-            {                
-                Action<ApplicationInsightsServiceOptions> serviceOptions = options => options.EnableAdaptiveSampling = false;
-                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
+            /// <summary>
+            /// User could enable or disable sampling by setting EnableAdaptiveSampling.
+            /// This configuration can be read from a JSON file by the configuration factory or through code by passing ApplicationInsightsServiceOptions. 
+            /// </summary>
+            /// <param name="configType">
+            /// DefaultConfiguration - calls services.AddApplicationInsightsTelemetry() which reads IConfiguration from user application automatically.
+            /// SuppliedConfiguration - invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
+            /// Code - Caller creates an instance of ApplicationInsightsServiceOptions and passes it. This option overrides all configuration being used in JSON file. 
+            /// There is a special case where NULL values in these properties - InstrumentationKey, ConnectionString, EndpointAddress and DeveloperMode are overwritten. We check IConfiguration object to see if these properties have values, if values are present then we override it. 
+            /// </param>
+            /// <param name="isEnable">Sets the value for property EnableAdaptiveSampling.</param>
+            [Theory]
+            [InlineData("DefaultConfiguration", true)]
+            [InlineData("DefaultConfiguration", false)]
+            [InlineData("SuppliedConfiguration", true)]
+            [InlineData("SuppliedConfiguration", false)]
+            [InlineData("Code", true)]
+            [InlineData("Code", false)]
+            public static void DoesNotAddSamplingToConfigurationIfExplicitlyControlledThroughParameter(string configType, bool isEnable)
+            {
+                Action<ApplicationInsightsServiceOptions> serviceOptions = null;
+                var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+
+                if (configType == "Code")
+                {
+                    serviceOptions = o => { o.EnableAdaptiveSampling = isEnable; };
+                    filePath = null;
+                }
+
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 var qpProcessorCount = GetTelemetryProcessorsCountInConfigurationDefaultSink<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
-                Assert.Equal(0, qpProcessorCount);
+                // There will be 2 separate SamplingTelemetryProcessors - one for Events, and other for everything else.
+                Assert.Equal(isEnable ? 2 : 0, qpProcessorCount);
             }
 
             [Fact]
@@ -1249,19 +1543,41 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.Equal(1, metricExtractorProcessorCount);
             }
 
-            [Fact]
-            public static void DoesNotAddAutoCollectedMetricsExtractorToConfigurationIfExplicitlyControlledThroughParameter()
+            /// <summary>
+            /// User could enable or disable auto collected metrics by setting AddAutoCollectedMetricExtractor.
+            /// This configuration can be read from a JSON file by the configuration factory or through code by passing ApplicationInsightsServiceOptions. 
+            /// </summary>
+            /// <param name="configType">
+            /// DefaultConfiguration - calls services.AddApplicationInsightsTelemetry() which reads IConfiguration from user application automatically.
+            /// SuppliedConfiguration - invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
+            /// Code - Caller creates an instance of ApplicationInsightsServiceOptions and passes it. This option overrides all configuration being used in JSON file. 
+            /// There is a special case where NULL values in these properties - InstrumentationKey, ConnectionString, EndpointAddress and DeveloperMode are overwritten. We check IConfiguration object to see if these properties have values, if values are present then we override it. 
+            /// </param>
+            /// <param name="isEnable">Sets the value for property AddAutoCollectedMetricExtractor.</param>
+            [Theory]
+            [InlineData("DefaultConfiguration", true)]
+            [InlineData("DefaultConfiguration", false)]
+            [InlineData("SuppliedConfiguration", true)]
+            [InlineData("SuppliedConfiguration", false)]
+            [InlineData("Code", true)]
+            [InlineData("Code", false)]
+            public static void DoesNotAddAutoCollectedMetricsExtractorToConfigurationIfExplicitlyControlledThroughParameter(string configType, bool isEnable)
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                ApplicationInsightsServiceOptions serviceOptions = new ApplicationInsightsServiceOptions();
-                serviceOptions.AddAutoCollectedMetricExtractor = false;
+                Action<ApplicationInsightsServiceOptions> serviceOptions = null;
+                var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
 
-                services.AddApplicationInsightsTelemetry(serviceOptions);
+                if (configType == "Code")
+                {
+                    serviceOptions = o => { o.AddAutoCollectedMetricExtractor = isEnable; };
+                    filePath = null;
+                }
+
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 var metricExtractorProcessorCount = GetTelemetryProcessorsCountInConfigurationDefaultSink<AutocollectedMetricsExtractor>(telemetryConfiguration);
-                Assert.Equal(0, metricExtractorProcessorCount);
+                Assert.Equal(isEnable ? 1 : 0, metricExtractorProcessorCount);
             }
 
             [Fact]
@@ -1273,6 +1589,49 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 var qpProcessorCount = GetTelemetryProcessorsCountInConfigurationDefaultSink<QuickPulseTelemetryProcessor>(telemetryConfiguration);
                 Assert.Equal(0, qpProcessorCount);
+            }
+
+            /// <summary>
+            /// User could enable or disable JavaScript by setting EnableAuthenticationTrackingJavaScript.
+            /// This configuration can be read from a JSON file by the configuration factory or through code by passing ApplicationInsightsServiceOptions. 
+            /// </summary>
+            /// <param name="configType">
+            /// DefaultConfiguration - calls services.AddApplicationInsightsTelemetry() which reads IConfiguration from user application automatically.
+            /// SuppliedConfiguration - invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
+            /// Code - Caller creates an instance of ApplicationInsightsServiceOptions and passes it. This option overrides all configuration being used in JSON file. 
+            /// There is a special case where NULL values in these properties - InstrumentationKey, ConnectionString, EndpointAddress and DeveloperMode are overwritten. We check IConfiguration object to see if these properties have values, if values are present then we override it. 
+            /// </param>
+            /// <param name="isEnable">Sets the value for property EnableAuthenticationTrackingJavaScript.</param>
+            [Theory]
+            [InlineData("DefaultConfiguration", true)]
+            [InlineData("DefaultConfiguration", false)]
+            [InlineData("SuppliedConfiguration", true)]
+            [InlineData("SuppliedConfiguration", false)]
+            [InlineData("Code", true)]
+            [InlineData("Code", false)]
+            public static void UserCanEnableAndDisableJavaScriptSnippet(string configType, bool isEnable)
+            {
+                Action<ApplicationInsightsServiceOptions> serviceOptions = null;
+                var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+
+                if (configType == "Code")
+                {
+                    serviceOptions = o => { o.EnableAuthenticationTrackingJavaScript = isEnable; };
+                    filePath = null;
+                }
+
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+
+                // Get telemetry client to trigger TelemetryConfig setup.
+                var tc = serviceProvider.GetService<TelemetryClient>();
+
+                Type javaScriptSnippetType = typeof(JavaScriptSnippet);
+                var javaScriptSnippet = serviceProvider.GetService<JavaScriptSnippet>();
+                // Get the JavaScriptSnippet private field value for enableAuthSnippet.
+                FieldInfo enableAuthSnippetField = javaScriptSnippetType.GetField("enableAuthSnippet", BindingFlags.NonPublic | BindingFlags.Instance);
+                // JavaScriptSnippet.enableAuthSnippet is set to true when EnableAuthenticationTrackingJavaScript is enabled, else it is set to false.
+                Assert.Equal(isEnable, (bool)enableAuthSnippetField.GetValue(javaScriptSnippet));
             }
 
             [Fact]
@@ -1297,19 +1656,43 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.NotNull(modules.OfType<AzureInstanceMetadataTelemetryModule>().Single());
             }
 
-            [Fact]
-            public static void HeartbeatIsDisabledWithServiceOptions()
+            /// <summary>
+            /// User could enable or disable heartbeat by setting EnableHeartbeat.
+            /// This configuration can be read from a JSON file by the configuration factory or through code by passing ApplicationInsightsServiceOptions. 
+            /// </summary>
+            /// <param name="configType">
+            /// DefaultConfiguration - calls services.AddApplicationInsightsTelemetry() which reads IConfiguration from user application automatically.
+            /// SuppliedConfiguration - invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
+            /// Code - Caller creates an instance of ApplicationInsightsServiceOptions and passes it. This option overrides all configuration being used in JSON file. 
+            /// There is a special case where NULL values in these properties - InstrumentationKey, ConnectionString, EndpointAddress and DeveloperMode are overwritten. We check IConfiguration object to see if these properties have values, if values are present then we override it. 
+            /// </param>
+            /// <param name="isEnable">Sets the value for property EnableHeartbeat.</param>
+            [Theory]
+            [InlineData("DefaultConfiguration", true)]
+            [InlineData("DefaultConfiguration", false)]
+            [InlineData("SuppliedConfiguration", true)]
+            [InlineData("SuppliedConfiguration", false)]
+            [InlineData("Code", true)]
+            [InlineData("Code", false)]
+            public static void UserCanEnableAndDisableHeartbeat(string configType, bool isEnable)
             {
-                var heartbeatModulePRE = TelemetryModules.Instance.Modules.OfType<IHeartbeatPropertyManager>().First();
-                Assert.True(heartbeatModulePRE.IsHeartbeatEnabled);
+                Action<ApplicationInsightsServiceOptions> serviceOptions = null;
+                var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
 
-                Action<ApplicationInsightsServiceOptions> serviceOptions = options => options.EnableHeartbeat = false;
-                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
+                if (configType == "Code")
+                {
+                    serviceOptions = o => { o.EnableHeartbeat = isEnable; };
+                    filePath = null;
+                }
+
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                var heartbeatModule = TelemetryModules.Instance.Modules.OfType<IHeartbeatPropertyManager>().First();
+                var modules = serviceProvider.GetServices<ITelemetryModule>();
+                var heartbeatModule = TelemetryModules.Instance.Modules.OfType<IHeartbeatPropertyManager>().First();     
+                
                 Assert.NotNull(heartbeatModule);
-                Assert.False(heartbeatModule.IsHeartbeatEnabled);
+                Assert.Equal(isEnable, heartbeatModule.IsHeartbeatEnabled);
             }
 
             [Fact]
@@ -1374,6 +1757,181 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 loggerProvider.AddApplicationInsights(serviceProvider, (s, level) => true, null);
                 loggerProvider.AddApplicationInsights(serviceProvider, (s, level) => true, null);
             }
+
+#if NETCOREAPP || NET461
+
+            /// <summary>
+            /// Creates two copies of ApplicationInsightsServiceOptions. First object is created by calling services.AddApplicationInsightsTelemetry() or services.AddApplicationInsightsTelemetry(config).
+            /// Second object is created directly from configuration file without using any of SDK functionality.
+            /// Compares ApplicationInsightsServiceOptions object from dependency container and one created directly from configuration. 
+            /// This proves all that SDK read configuration successfully from configuration file. 
+            /// Properties from appSettings.json, appsettings.{env.EnvironmentName}.json and Environmental Variables are read if no IConfiguration is supplied or used in an application.
+            /// </summary>
+            /// <param name="readFromAppSettings">If this is set, read value from appsettings.json, else from passed file.</param>
+            /// <param name="useDefaultConfig">
+            /// Calls services.AddApplicationInsightsTelemetry() when the value is true and reads IConfiguration from user application automatically.
+            /// Else, it invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
+            /// </param>
+            [Theory]
+            [InlineData(true, true)]
+            [InlineData(true, false)]
+            [InlineData(false, true)] 
+            [InlineData(false, false)] 
+            public static void ReadsSettingsFromDefaultAndSuppliedConfiguration(bool readFromAppSettings, bool useDefaultConfig)
+            {
+                IServiceCollection services = null;
+                IConfigurationRoot config = null;
+                IConfigurationBuilder configBuilder = null;
+                var fileName = "config-all-default.json";
+
+                services = CreateServicesAndAddApplicationinsightsTelemetry(
+                    readFromAppSettings ? null : Path.Combine("content", fileName),
+                    null, null, true, useDefaultConfig);
+
+                // Generate config and don't pass to services
+                // this is directly generated from config file 
+                // which could be used to validate the data from dependency container
+
+                if (!readFromAppSettings)
+                {
+                    configBuilder = new ConfigurationBuilder()
+                        .SetBasePath(Directory.GetCurrentDirectory())
+                        .AddJsonFile("appsettings.json", false)
+                        .AddJsonFile(Path.Combine("content", fileName));
+                }
+                else
+                {
+                    configBuilder = new ConfigurationBuilder()
+                        .SetBasePath(Directory.GetCurrentDirectory())
+                        .AddJsonFile("appsettings.json", false);
+                }
+
+                config = configBuilder.Build();
+
+                // VALIDATE
+                // Compare ApplicationInsightsServiceOptions from dependency container and configuration
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                // ApplicationInsightsServiceOptions from dependency container
+                var servicesOptions = serviceProvider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
+
+                // Create ApplicationInsightsServiceOptions from configuration for validation.
+                var aiOptions = new ApplicationInsightsServiceOptions();
+                config.GetSection("ApplicationInsights").Bind(aiOptions);
+                config.GetSection("ApplicationInsights:TelemetryChannel").Bind(aiOptions);
+
+                Type optionsType = typeof(ApplicationInsightsServiceOptions);
+                PropertyInfo[] properties = optionsType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                Assert.True(properties.Length > 0);
+                foreach (PropertyInfo property in properties)
+                {
+                    Assert.Equal(property.GetValue(aiOptions)?.ToString(), property.GetValue(servicesOptions)?.ToString());
+                }
+            }
+
+            [Fact]
+            public static void ReadsSettingsFromDefaultConfigurationWithEnvOverridingConfig()
+            {
+                // Host.CreateDefaultBuilder() in .NET Core 3.0  adds appsetting.json and env variable
+                // to configuration and is made available for constructor injection.
+                // this test validates that SDK reads settings from this configuration by default
+                // and gives priority to the ENV variables than the one from config.
+
+                // ARRANGE
+                Environment.SetEnvironmentVariable(InstrumentationKeyEnvironmentVariable, TestInstrumentationKey);
+                Environment.SetEnvironmentVariable(ConnectionStringEnvironmentVariable, TestConnectionString);
+                Environment.SetEnvironmentVariable(TestEndPointEnvironmentVariable, TestEndPoint);
+                Environment.SetEnvironmentVariable(DeveloperModeEnvironmentVariable, "true");
+
+                try
+                {
+                    var jsonFullPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "config-all-default.json");
+
+                    // This config will have ikey,endpoint from json and env. ENV one is expected to win.
+                    var config = new ConfigurationBuilder().AddJsonFile(jsonFullPath).AddEnvironmentVariables().Build();
+                    var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+
+                    // This line mimics the default behavior by CreateDefaultBuilder
+                    services.AddSingleton<IConfiguration>(config);
+
+                    // ACT             
+                    services.AddApplicationInsightsTelemetry();
+
+                    // VALIDATE
+                    IServiceProvider serviceProvider = services.BuildServiceProvider();
+                    var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
+                    Assert.Equal(TestInstrumentationKey, telemetryConfiguration.InstrumentationKey);
+                    Assert.Equal(TestConnectionString, telemetryConfiguration.ConnectionString);
+                    Assert.Equal(TestEndPoint, telemetryConfiguration.TelemetryChannel.EndpointAddress);
+                    Assert.True(telemetryConfiguration.TelemetryChannel.DeveloperMode);
+                }
+                finally
+                {
+                    Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
+                    Environment.SetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING", null);
+                    Environment.SetEnvironmentVariable("APPINSIGHTS_ENDPOINTADDRESS", null);
+                    Environment.SetEnvironmentVariable("APPINSIGHTS_DEVELOPER_MODE", null);
+                }
+            }
+
+            [Fact]
+            public static void VerifiesIkeyProvidedInAddApplicationInsightsAlwaysWinsOverOtherOptions()
+            {
+                // ARRANGE
+                Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", TestInstrumentationKey);
+                try
+                {
+                    var jsonFullPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "config-instrumentation-key.json");
+
+                    // This config will have ikey,endpoint from json and env. But the one
+                    // user explicitly provider is expected to win.
+                    var config = new ConfigurationBuilder().AddJsonFile(jsonFullPath).AddEnvironmentVariables().Build();
+                    var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+
+                    // This line mimics the default behavior by CreateDefaultBuilder
+                    services.AddSingleton<IConfiguration>(config);
+
+                    // ACT             
+                    services.AddApplicationInsightsTelemetry("userkey");
+
+                    // VALIDATE
+                    IServiceProvider serviceProvider = services.BuildServiceProvider();
+                    var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
+                    Assert.Equal("userkey", telemetryConfiguration.InstrumentationKey);
+                }
+                finally
+                {
+                    Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
+                }
+            }
+
+            [Fact]
+            public static void ReadsFromAppSettingsIfNoSettingsFoundInDefaultConfiguration()
+            {
+                // Host.CreateDefaultBuilder() in .NET Core 3.0  adds appsetting.json and env variable
+                // to configuration and is made available for constructor injection.
+                // This test validates that SDK does not throw any error if it cannot find 
+                // application insights configuration in default IConfiguration.
+                // ARRANGE
+                var jsonFullPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "sample-appsettings_dontexist.json");
+                var config = new ConfigurationBuilder().AddJsonFile(jsonFullPath, true).Build();
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                // This line mimics the default behavior by CreateDefaultBuilder
+                services.AddSingleton<IConfiguration>(config);
+
+                // ACT             
+                services.AddApplicationInsightsTelemetry();
+
+                // VALIDATE
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
+                // Create a configuration from appSettings.json for validation.
+                var appSettingsConfig = new ConfigurationBuilder()
+                        .SetBasePath(Directory.GetCurrentDirectory())
+                        .AddJsonFile("appsettings.json", false).Build();
+
+                Assert.Equal(appSettingsConfig["ApplicationInsights:InstrumentationKey"], telemetryConfiguration.InstrumentationKey);
+            }
+#endif
         }
 
         public static class AddApplicationInsightsSettings
@@ -1407,7 +1965,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromSettings()
             {
-                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/");
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", null, true, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 Assert.Equal("http://localhost:1234/v2/track/", telemetryConfiguration.TelemetryChannel.EndpointAddress);
@@ -1444,7 +2002,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             return serviceProvider.GetRequiredService<IOptions<TelemetryConfiguration>>().Value;
         }
 
-        public static ServiceCollection CreateServicesAndAddApplicationinsightsTelemetry(string jsonPath, string channelEndPointAddress, Action<ApplicationInsightsServiceOptions> serviceOptions = null, bool addChannel = true)
+        public static ServiceCollection CreateServicesAndAddApplicationinsightsTelemetry(string jsonPath, string channelEndPointAddress, Action<ApplicationInsightsServiceOptions> serviceOptions = null, bool addChannel = true, bool useDefaultConfig = true)
         {
             var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
             if (addChannel)
@@ -1477,11 +2035,21 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 config = new ConfigurationBuilder().Build();
             }
 
-            services.AddApplicationInsightsTelemetry(config);
+            if (useDefaultConfig)
+            {
+                services.AddSingleton<IConfiguration>(config);
+                services.AddApplicationInsightsTelemetry();
+            }
+            else
+            {
+                services.AddApplicationInsightsTelemetry(config);
+            }
+            
             if (serviceOptions != null)
             {
                 services.Configure(serviceOptions);
             }
+
             return services;
         }
 
