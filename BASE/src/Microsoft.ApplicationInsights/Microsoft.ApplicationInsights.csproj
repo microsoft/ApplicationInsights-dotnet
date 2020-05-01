@@ -6,12 +6,8 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights</AssemblyName>
-    <TargetFrameworks>net45;net46;netstandard1.3;netstandard2.0</TargetFrameworks>
-    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard1.3;netstandard2.0</TargetFrameworks>
-
-
-    <!-- this constant is set for all other netcore targets except 1-->
-    <DefineConstants Condition="'$(TargetFramework)' == 'netstandard1.3'">$(DefineConstants);NETSTANDARD;</DefineConstants>
+    <TargetFrameworks>net45;net46;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard2.0</TargetFrameworks>
   </PropertyGroup>
   
   <PropertyGroup>
@@ -59,14 +55,6 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'net46'">
     <Reference Include="System.Net.Http" />
   </ItemGroup>  
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
-    <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
-    <PackageReference Include="System.Net.Requests" Version="4.3.0" />
-    <PackageReference Include="System.Net.Security" Version="4.3.2" />
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
-  </ItemGroup>
 
   <ItemGroup>
     <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\$(TargetFramework)\PublicAPI.Shipped.txt" />

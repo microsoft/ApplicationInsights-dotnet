@@ -20,7 +20,7 @@
 
   <PropertyGroup Condition="$(OS) != 'Windows_NT'">
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <TargetFrameworks>netstandard1.3</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
   
   <ItemGroup Condition="$(OS) == 'Windows_NT'">
