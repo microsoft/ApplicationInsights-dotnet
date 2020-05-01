@@ -21,7 +21,7 @@ using Microsoft.ApplicationInsights.Extensibility;
 
 var configuration = new TelemetryConfiguration
 {
-    ConnectionString = "YOUR CONNECTION STRING",
+    ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000",
 };
 var tc = new TelemetryClient(configuration);
 ```
@@ -29,30 +29,33 @@ var tc = new TelemetryClient(configuration);
 ### Using the TelemetryClient to send telemetry
 You can populate common context on the `TelemetryClient.context` property which will be automatically attached to each telemetry item sent. 
 You can also attach additional property data to each telemetry item sent. 
-The `TelemetryClient` also exposes a number of `Track` methods that can be used to send all telemetry types understood by the Application Insights service. Some example use cases are shown below.
+The `TelemetryClient` also exposes several `Track` methods that can be used to send all telemetry types understood by the Application Insights service. Some example use cases are shown below.
+
+Please review the [API summary for custom events and metrics](https://docs.microsoft.com/azure/azure-monitor/app/api-custom-events-metrics) for more examples.
 
 ```C#
-tc.Context.User.Id = Environment.GetUserName(); // This is probably a bad idea from a PII perspective.
+tc.Context.User.Id = "unique id"; // Consider PII while using this field.
 tc.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
 
-tc.TrackPageView("Form1");
+tc.TrackTrace(message: "Custom message.");
 
-tc.TrackEvent("PurchaseOrderSubmitted", new Dictionary<string, string>() { {"CouponCode", "JULY2015" } }, new Dictionary<string, double>() { {"OrderTotal", 68.99 }, {"ItemsOrdered", 5} });
+tc.TrackEvent(
+    eventName: "PurchaseOrderSubmitted", 
+    properties: new Dictionary<string, string>() { { "CouponCode", "JULY2015" } }, 
+    metrics: new Dictionary<string, double>() { { "OrderTotal", 68.99 }, { "ItemsOrdered", 5 } }
+    );
 	
 try
 {
-    ...
+    // do something
 }
-catch(Exception e)
+catch(Exception ex)
 {
-	tc.TrackException(e);
+	tc.TrackException(ex);
 }
 ``` 
 
-### TelemetryClient API
-The `TelemetryClient` provides several Track methods to collect different types of telemetry data.
 
-Please review the [API summary for custom events and metrics](https://docs.microsoft.com/azure/azure-monitor/app/api-custom-events-metrics).
 
 
 
