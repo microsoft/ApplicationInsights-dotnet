@@ -25,7 +25,7 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("9becfb0f-4f6d-4a84-931f-70da3e4e2813")]
 
-[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.EtwCollector.Net46.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.EtwCollector.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 
 internal static class AssemblyInfo
 {

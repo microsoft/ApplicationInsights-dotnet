@@ -15,6 +15,8 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.CodeDom;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using System.Diagnostics.Tracing;
 
     public class TransmissionTest
     {
@@ -86,6 +88,7 @@
         public class SendAsync
         {
             private readonly Uri testUri = new Uri("https://127.0.0.1/");
+            private const long AllKeywords = -1;
 
             [TestMethod]
             public async Task SendAsyncUsesPostMethodToSpecifiedHttpEndpoint()
@@ -362,6 +365,141 @@
                     Assert.IsNull(result.Content, "Content is not to be read except in partial response (206) status.");
                 }
 
+            }
+
+#if NETCOREAPP2_1 || NETCOREAPP3_1
+            [TestMethod]
+            public async Task SendAsyncLogsIngestionReponseTimeEventCounter()
+            {
+                var handler = new HandlerForFakeHttpClient
+                {
+                    InnerHandler = new HttpClientHandler(),
+                    OnSendAsync = (req, cancellationToken) =>
+                    {
+                        Thread.Sleep(TimeSpan.FromMilliseconds(30));
+                        return Task.FromResult<HttpResponseMessage>(new HttpResponseMessage());
+                    }
+                };
+
+                using (var fakeHttpClient = new HttpClient(handler))
+                {
+                    // Instantiate Transmission with the mock HttpClient
+                    Transmission transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
+
+                    using (var listener = new EventCounterListener())
+                    {
+                        for (int i = 0; i < 5; i++)
+                        {
+                            HttpWebResponseWrapper result = await transmission.SendAsync();
+                        }
+                        //Sleep for few seconds as the event counter is sampled on a second basis
+                        Thread.Sleep(TimeSpan.FromSeconds(3));
+
+                        // VERIFY
+                        // We validate by checking SDK traces.
+                        var allTraces = listener.EventsReceived.ToList();
+                        var traces = allTraces.Where(item => item.EventName == "EventCounters").ToList();
+                        Assert.IsTrue(traces?.Count >= 1);
+                        var payload = (IDictionary<string, object>)traces[0].Payload[0];
+                        Assert.AreEqual("IngestionEndpoint-ResponseTimeMsec", payload["Name"].ToString());
+                        Assert.IsTrue((int)payload["Count"] >= 5);
+                        // Mean should be more than 30 ms, as we introduced a delay of 30ms in SendAsync.
+#if NETCOREAPP2_1
+                        Assert.IsTrue((float)payload["Mean"] >= 30);
+#endif
+
+#if NETCOREAPP3_1
+                        Assert.IsTrue((double)payload["Mean"] >= 30);
+#endif
+                    }
+                }
+            }
+
+            [TestMethod]
+            public async Task SendAsyncLogsIngestionReponseTimeOnFailureEventCounter()
+            {
+                var handler = new HandlerForFakeHttpClient
+                {
+                    InnerHandler = new HttpClientHandler(),
+                    OnSendAsync = (req, cancellationToken) =>
+                    {
+                        Thread.Sleep(TimeSpan.FromMilliseconds(30));
+                        HttpResponseMessage response = new HttpResponseMessage();
+                        response.StatusCode = HttpStatusCode.ServiceUnavailable;
+                        return Task.FromResult<HttpResponseMessage>(response);
+                    }
+                };
+
+                using (var fakeHttpClient = new HttpClient(handler))
+                {
+                    // Instantiate Transmission with the mock HttpClient
+                    Transmission transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
+
+                    using (var listener = new EventCounterListener())
+                    {
+                        for (int i = 0; i < 5; i++)
+                        {
+                            HttpWebResponseWrapper result = await transmission.SendAsync();
+                        }
+                        //Sleep for few seconds as the event counter is sampled on a second basis
+                        Thread.Sleep(TimeSpan.FromSeconds(3));
+
+                        // VERIFY
+                        // We validate by checking SDK traces.
+                        var allTraces = listener.EventsReceived.ToList();
+                        var traces = allTraces.Where(item => item.EventName == "EventCounters").ToList();
+                        Assert.IsTrue(traces?.Count >= 1);
+                        var payload = (IDictionary<string, object>)traces[0].Payload[0];
+                        Assert.AreEqual("IngestionEndpoint-ResponseTimeMsec", payload["Name"].ToString());
+                        Assert.IsTrue((int)payload["Count"] >= 5);
+                        // Mean should be more than 30 ms, as we introduced a delay of 30ms in SendAsync.
+#if NETCOREAPP2_1
+                        Assert.IsTrue((float)payload["Mean"] >= 30);
+#endif
+
+#if NETCOREAPP3_1
+                        Assert.IsTrue((double)payload["Mean"] >= 30);
+#endif
+                    }
+                }
+            }
+#endif
+            [TestMethod]
+            public async Task SendAsyncLogsIngestionReponseTimeAndStatusCode()
+            {
+                var handler = new HandlerForFakeHttpClient
+                {
+                    InnerHandler = new HttpClientHandler(),
+                    OnSendAsync = (req, cancellationToken) =>
+                    {
+                        return Task.FromResult<HttpResponseMessage>(new HttpResponseMessage());
+                    }
+                };
+
+                using (var fakeHttpClient = new HttpClient(handler))
+                {
+                    // Instantiate Transmission with the mock HttpClient
+                    Transmission transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
+
+                    using (var listener = new TestEventListener())
+                    {
+                        var eventCounterArguments = new Dictionary<string, string>
+                        {
+                            {"EventCounterIntervalSec", "1"}
+                        };
+
+                        listener.EnableEvents(CoreEventSource.Log, EventLevel.LogAlways, (EventKeywords)AllKeywords, eventCounterArguments);
+
+                        HttpWebResponseWrapper result = await transmission.SendAsync();
+
+                        // VERIFY
+                        // We validate by checking SDK traces.
+                        var allTraces = listener.Messages.ToList();
+                        // Event 67 is logged after response from Ingestion Service.
+                        var traces = allTraces.Where(item => item.EventId == 67).ToList();
+                        Assert.AreEqual(1, traces.Count);
+                    }
+                }
             }
         }
     }
