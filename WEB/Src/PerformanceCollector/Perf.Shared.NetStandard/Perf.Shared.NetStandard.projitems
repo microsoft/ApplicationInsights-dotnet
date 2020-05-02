@@ -10,15 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)CounterFactoryXPlatform.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementaion\QuickPulse\Process\PerfLib\NativeMethods.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementaion\QuickPulse\Process\PerfLib\PerformanceMonitor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementaion\QuickPulse\Process\QuickPulseTopCpuCollector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseServiceClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseServiceClientHelpers.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)PerformanceCollectorXPlatform.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)XPlatProcessCPUPerformanceCounter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)XPlatProcessCPUPerformanceCounterNormalized.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)XPlatProcessMemoryPerformanceCounter.cs" />
   </ItemGroup>
 </Project>
