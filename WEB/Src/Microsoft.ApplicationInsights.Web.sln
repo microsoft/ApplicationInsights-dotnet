@@ -43,8 +43,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "Web\Web\Web.csproj",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyCollector", "DependencyCollector\DependencyCollector\DependencyCollector.csproj", "{95D90911-2909-4914-920E-7710F7BB6C32}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared.NetStandard16.Stubs", "PerformanceCollector\Perf.Shared.NetStandard16.Stubs\Perf.Shared.NetStandard16.Stubs.shproj", "{76B21FAA-270D-47DE-B14B-BEC87EDC34F1}"
-EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared.NetStandard", "PerformanceCollector\Perf.Shared.NetStandard\Perf.Shared.NetStandard.shproj", "{D13C3EC7-B300-4158-9054-216156B203BE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Perf", "PerformanceCollector\PerformanceCollector\Perf.csproj", "{00BF736C-B562-4251-9836-EF80282956AF}"
@@ -91,7 +89,6 @@ Global
 		Common\Common.projitems*{30ae1a5d-775a-4dec-9f87-849d8ae93e3a}*SharedItemsImports = 5
 		..\..\BASE\src\Common\Common\Common.projitems*{41301181-f4be-4c36-b78d-a29c55cb0469}*SharedItemsImports = 5
 		PerformanceCollector\Filtering.Shared\Filtering.Shared.projitems*{568aeb4f-ba4c-47a5-9fa3-68f06cd11fed}*SharedItemsImports = 13
-		PerformanceCollector\Perf.Shared.NetStandard16.Stubs\Perf.Shared.NetStandard16.Stubs.projitems*{76b21faa-270d-47de-b14b-bec87edc34f1}*SharedItemsImports = 13
 		Common\Common.projitems*{80f0481a-66c7-4442-96d3-5fd841132c4b}*SharedItemsImports = 5
 		Common\Common.projitems*{94127fd9-e516-4891-98d4-ef7523117f32}*SharedItemsImports = 5
 		Common\Common.projitems*{95d90911-2909-4914-920e-7710f7bb6c32}*SharedItemsImports = 5
@@ -243,7 +240,6 @@ Global
 		{94127FD9-E516-4891-98D4-EF7523117F32} = {D87119AF-CD35-46F2-84A6-ED54CC42027E}
 		{E166D200-0687-4E6D-B836-029AE690AEAB} = {1A75535C-B8E5-4C31-BC6E-50456C8C4052}
 		{95D90911-2909-4914-920E-7710F7BB6C32} = {DF56FBAD-8745-404B-94A1-E83BFC4AD7CB}
-		{76B21FAA-270D-47DE-B14B-BEC87EDC34F1} = {A318CC6C-51C8-4BD6-BC85-2B4F35123BE7}
 		{D13C3EC7-B300-4158-9054-216156B203BE} = {A318CC6C-51C8-4BD6-BC85-2B4F35123BE7}
 		{00BF736C-B562-4251-9836-EF80282956AF} = {A318CC6C-51C8-4BD6-BC85-2B4F35123BE7}
 		{30A45441-0849-48FE-AD37-5D29D0E3068A} = {A318CC6C-51C8-4BD6-BC85-2B4F35123BE7}
