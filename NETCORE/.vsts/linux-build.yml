@@ -24,11 +24,11 @@ steps:
     arguments: "--configuration Release"
 
 - task: DotNetCoreCLI@1
-  displayName: Functional Tests 3.0
+  displayName: Integration Tests
   continueOnError: true
   inputs:
     command: "test"
-    projects: "NETCORE/test/**/TestApp30.Tests30.csproj"
+    projects: "NETCORE/test/**/IntegrationTests.Tests.csproj"
     arguments: "--configuration Release -l trx"
 
 - task: DotNetCoreCLI@1
