@@ -691,10 +691,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// </param>
             /// <param name="isEnable">Sets the value for property EnablePerformanceCounterCollectionModule.</param>
             [Theory]
+#if !NET46
             [InlineData("DefaultConfiguration", true)]
             [InlineData("DefaultConfiguration", false)]
             [InlineData("SuppliedConfiguration", true)]
             [InlineData("SuppliedConfiguration", false)]
+#endif
             [InlineData("Code", true)]            
             [InlineData("Code", false)]
             public static void UserCanEnableAndDisablePerfCollectorModule(string configType, bool isEnable)
@@ -790,10 +792,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// </param>
             /// <param name="isEnable">Sets the value for property EnableRequestTrackingTelemetryModule.</param>
             [Theory]
+#if !NET46
             [InlineData("DefaultConfiguration", true)]
             [InlineData("DefaultConfiguration", false)]
             [InlineData("SuppliedConfiguration", true)]
             [InlineData("SuppliedConfiguration", false)]
+#endif
             [InlineData("Code", true)]
             [InlineData("Code", false)]
             public static void UserCanDisableRequestCounterCollectorModule(string configType, bool isEnable)
@@ -833,10 +837,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// </param>
             /// <param name="isEnable">Sets the value for property EnableDependencyTrackingTelemetryModule.</param>
             [Theory]
+#if !NET46
             [InlineData("DefaultConfiguration", true)]
             [InlineData("DefaultConfiguration", false)]
             [InlineData("SuppliedConfiguration", true)]
             [InlineData("SuppliedConfiguration", false)]
+#endif
             [InlineData("Code", true)]
             [InlineData("Code", false)]
             public static void UserCanDisableDependencyCollectorModule(string configType, bool isEnable)
@@ -881,10 +887,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// </param>
             /// <param name="isEnable">Sets the value for property EnableQuickPulseMetricStream.</param>
             [Theory]
+#if !NET46
             [InlineData("DefaultConfiguration", true)]
             [InlineData("DefaultConfiguration", false)]
             [InlineData("SuppliedConfiguration", true)]
             [InlineData("SuppliedConfiguration", false)]
+#endif
             [InlineData("Code", true)]
             [InlineData("Code", false)]
             public static void UserCanEnableAndDisableQuickPulseCollectorModule(string configType, bool isEnable)
@@ -929,10 +937,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// </param>
             /// <param name="isEnable">Sets the value for property EnableAppServicesHeartbeatTelemetryModule.</param>
             [Theory]
+#if !NET46
             [InlineData("DefaultConfiguration", true)]
             [InlineData("DefaultConfiguration", false)]
             [InlineData("SuppliedConfiguration", true)]
             [InlineData("SuppliedConfiguration", false)]
+#endif
             [InlineData("Code", true)]
             [InlineData("Code", false)]
             public static void UserCanDisableAppServiceHeartbeatModule(string configType, bool isEnable)
@@ -977,10 +987,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// </param>
             /// <param name="isEnable">Sets the value for property EnableAzureInstanceMetadataTelemetryModule.</param>
             [Theory]
+#if !NET46
             [InlineData("DefaultConfiguration", true)]
             [InlineData("DefaultConfiguration", false)]
             [InlineData("SuppliedConfiguration", true)]
             [InlineData("SuppliedConfiguration", false)]
+#endif
             [InlineData("Code", true)]
             [InlineData("Code", false)]
             public static void UserCanEnableAndDisableAzureInstanceMetadataModule(string configType, bool isEnable)
@@ -1047,10 +1059,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// </param>
             /// <param name="isEnable">Sets the value for property EnableLegacyCorrelationHeadersInjection.</param>
             [Theory]
+#if !NET46
             [InlineData("DefaultConfiguration", true)]
             [InlineData("DefaultConfiguration", false)]
             [InlineData("SuppliedConfiguration", true)]
             [InlineData("SuppliedConfiguration", false)]
+#endif
             [InlineData("Code", true)]
             [InlineData("Code", false)]
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesDependencyCollectorWithCustomValues(string configType, bool isEnable)
@@ -1247,10 +1261,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// </param>
             /// <param name="isEnable">Sets the value for property InjectResponseHeaders, TrackExceptions and EnableW3CDistributedTracing.</param>
             [Theory]
+#if !NET46
             [InlineData("DefaultConfiguration", true)]
             [InlineData("DefaultConfiguration", false)]
             [InlineData("SuppliedConfiguration", true)]
             [InlineData("SuppliedConfiguration", false)]
+#endif
             [InlineData("Code", true)]
             [InlineData("Code", false)]
             public static void ConfigureRequestTrackingTelemetryCustomOptions(string configType, bool isEnable)
@@ -1270,6 +1286,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 }
 
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
+
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
 
@@ -1345,10 +1362,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// </param>
             /// <param name="isEnable">Sets the value for property EnableAdaptiveSampling.</param>
             [Theory]
+#if !NET46
             [InlineData("DefaultConfiguration", true)]
             [InlineData("DefaultConfiguration", false)]
             [InlineData("SuppliedConfiguration", true)]
             [InlineData("SuppliedConfiguration", false)]
+#endif
             [InlineData("Code", true)]
             [InlineData("Code", false)]
             public static void DoesNotAddSamplingToConfigurationIfExplicitlyControlledThroughParameter(string configType, bool isEnable)
@@ -1555,10 +1574,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// </param>
             /// <param name="isEnable">Sets the value for property AddAutoCollectedMetricExtractor.</param>
             [Theory]
+#if !NET46
             [InlineData("DefaultConfiguration", true)]
             [InlineData("DefaultConfiguration", false)]
             [InlineData("SuppliedConfiguration", true)]
             [InlineData("SuppliedConfiguration", false)]
+#endif
             [InlineData("Code", true)]
             [InlineData("Code", false)]
             public static void DoesNotAddAutoCollectedMetricsExtractorToConfigurationIfExplicitlyControlledThroughParameter(string configType, bool isEnable)
@@ -1603,10 +1624,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// </param>
             /// <param name="isEnable">Sets the value for property EnableAuthenticationTrackingJavaScript.</param>
             [Theory]
+#if !NET46
             [InlineData("DefaultConfiguration", true)]
             [InlineData("DefaultConfiguration", false)]
             [InlineData("SuppliedConfiguration", true)]
             [InlineData("SuppliedConfiguration", false)]
+#endif
             [InlineData("Code", true)]
             [InlineData("Code", false)]
             public static void UserCanEnableAndDisableJavaScriptSnippet(string configType, bool isEnable)
@@ -1666,22 +1689,20 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// Code - Caller creates an instance of ApplicationInsightsServiceOptions and passes it. This option overrides all configuration being used in JSON file. 
             /// There is a special case where NULL values in these properties - InstrumentationKey, ConnectionString, EndpointAddress and DeveloperMode are overwritten. We check IConfiguration object to see if these properties have values, if values are present then we override it. 
             /// </param>
-            /// <param name="isEnable">Sets the value for property EnableHeartbeat.</param>
             [Theory]
-            [InlineData("DefaultConfiguration", true)]
-            [InlineData("DefaultConfiguration", false)]
-            [InlineData("SuppliedConfiguration", true)]
-            [InlineData("SuppliedConfiguration", false)]
-            [InlineData("Code", true)]
-            [InlineData("Code", false)]
-            public static void UserCanEnableAndDisableHeartbeat(string configType, bool isEnable)
+#if !NET46
+            [InlineData("DefaultConfiguration")]
+            [InlineData("SuppliedConfiguration")]
+#endif
+            [InlineData("Code")]
+            public static void UserCanDisableHeartbeat(string configType)
             {
                 Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-                var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+                var filePath = Path.Combine("content", "config-all-settings-false.json");
 
                 if (configType == "Code")
                 {
-                    serviceOptions = o => { o.EnableHeartbeat = isEnable; };
+                    serviceOptions = o => { o.EnableHeartbeat = false; };
                     filePath = null;
                 }
 
@@ -1692,7 +1713,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var heartbeatModule = TelemetryModules.Instance.Modules.OfType<IHeartbeatPropertyManager>().First();     
                 
                 Assert.NotNull(heartbeatModule);
-                Assert.Equal(isEnable, heartbeatModule.IsHeartbeatEnabled);
+                Assert.False(heartbeatModule.IsHeartbeatEnabled);
             }
 
             [Fact]
@@ -2037,8 +2058,13 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             if (useDefaultConfig)
             {
+#if NET46
+                // In NET46, we don't read from default configuration, hence pass in services.AddApplicationInsightsTelemetry()
+                services.AddApplicationInsightsTelemetry(config);
+#else
                 services.AddSingleton<IConfiguration>(config);
                 services.AddApplicationInsightsTelemetry();
+#endif
             }
             else
             {

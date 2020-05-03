@@ -21,7 +21,7 @@
       "EnableW3CDistributedTracing": true
     },
     "DependencyCollectionOptions": {
-      "EnableLegacyCorrelationHeaders": false
+      "EnableLegacyCorrelationHeadersInjection": false
     },
     "TelemetryChannel": {
       "EndpointAddress": "http://testendpoint/v2/track",
