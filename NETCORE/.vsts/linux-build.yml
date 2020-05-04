@@ -24,12 +24,20 @@ steps:
     arguments: "--configuration Release"
 
 - task: DotNetCoreCLI@1
-  displayName: Functional Tests 3.0
+  displayName: Integration Tests
   continueOnError: true
   inputs:
     command: "test"
-    projects: "NETCORE/test/**/TestApp30.Tests30.csproj"
+    projects: "NETCORE/test/**/IntegrationTests.Tests.csproj"
     arguments: "--configuration Release -l trx"
+
+- task: DotNetCoreCLI@1
+  displayName: Functional MVC Tests
+  continueOnError: true
+  inputs:
+    command: "test"
+    projects: "NETCORE/test/**/*FunctionalTests.MVC.Tests.csproj"
+    arguments: "--configuration Release --framework netcoreapp3.1 -l trx"
 
 - task: DotNetCoreCLI@1
   displayName: Unit Tests for AspNetCore 3.1
@@ -55,12 +63,12 @@ steps:
     version: 2.2.x
     
 - task: DotNetCoreCLI@1
-  displayName: Functional Tests 2.0
+  displayName: Functional MVC Tests
   continueOnError: true
   inputs:
     command: "test"
-    projects: "NETCORE/test/**/*Tests20.csproj"
-    arguments: "--configuration Release -l trx"
+    projects: "NETCORE/test/**/*FunctionalTests.MVC.Tests.csproj"
+    arguments: "--configuration Release --framework netcoreapp2.1 -l trx"
 
 - task: DotNetCoreCLI@1
   displayName: Unit Tests for AspNetCore 2.1
