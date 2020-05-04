@@ -48,6 +48,7 @@
     /// </summary>
     public static partial class ApplicationInsightsExtensions
     {
+        private const string VersionKeyFromConfig = "version";
         private const string InstrumentationKeyFromConfig = "ApplicationInsights:InstrumentationKey";
         private const string ConnectionStringFromConfig = "ApplicationInsights:ConnectionString";
         private const string DeveloperModeFromConfig = "ApplicationInsights:TelemetryChannel:DeveloperMode";
@@ -272,6 +273,11 @@
                 if (config.TryGetValue(primaryKey: EndpointAddressForWebSites, backupKey: EndpointAddressFromConfig, value: out string endpointAddress))
                 {
                     serviceOptions.EndpointAddress = endpointAddress;
+                }
+
+                if (config.TryGetValue(primaryKey: VersionKeyFromConfig, value: out string version))
+                {
+                    serviceOptions.ApplicationVersion = version;
                 }
             }
             catch (Exception ex)

@@ -701,6 +701,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [InlineData("Code", false)]
             public static void UserCanEnableAndDisablePerfCollectorModule(string configType, bool isEnable)
             {
+                // ARRANGE
                 Action<ApplicationInsightsServiceOptions> serviceOptions = null;
                 var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
 
@@ -710,8 +711,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     filePath = null;
                 }
 
+                // ACT
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
 
+                // VALIDATE
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
@@ -749,8 +752,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [InlineData("SuppliedConfiguration", false)]
             [InlineData("Code", true)]
             [InlineData("Code", false)]
-            public static void UserCanDisableEventCounterCollectorModule(string configType, bool isEnable)
+            public static void UserCanEnableAndDisableEventCounterCollectorModule(string configType, bool isEnable)
             {
+                // ARRANGE
                 Action<ApplicationInsightsServiceOptions> serviceOptions = null;
                 var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
 
@@ -760,7 +764,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     filePath = null;
                 }
 
+                // ACT
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
+
+                // VALIDATE
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
@@ -800,18 +807,22 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 #endif
             [InlineData("Code", true)]
             [InlineData("Code", false)]
-            public static void UserCanDisableRequestCounterCollectorModule(string configType, bool isEnable)
+            public static void UserCanEnableAndDisableRequestCounterCollectorModule(string configType, bool isEnable)
             {
+                // ARRANGE
                 Action<ApplicationInsightsServiceOptions> serviceOptions = null;
                 var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
-
+              
                 if (configType == "Code")
                 {
                     serviceOptions = o => { o.EnableRequestTrackingTelemetryModule = isEnable; };
                     filePath = null;
                 }
 
+                // ACT
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
+                
+                // VALIDATE
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 // Get telemetry client to trigger TelemetryConfig setup.
                 var tc = serviceProvider.GetService<TelemetryClient>();
@@ -845,8 +856,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 #endif
             [InlineData("Code", true)]
             [InlineData("Code", false)]
-            public static void UserCanDisableDependencyCollectorModule(string configType, bool isEnable)
+            public static void UserCanEnableAndDisableDependencyCollectorModule(string configType, bool isEnable)
             {
+                // ARRANGE
                 Action<ApplicationInsightsServiceOptions> serviceOptions = null;
                 var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
 
@@ -856,7 +868,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     filePath = null;
                 }
 
+                // ACT
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
+
+                // VALIDATE
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var modules = serviceProvider.GetServices<ITelemetryModule>();                
                 Assert.NotNull(modules);
@@ -897,6 +912,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [InlineData("Code", false)]
             public static void UserCanEnableAndDisableQuickPulseCollectorModule(string configType, bool isEnable)
             {
+                // ARRANGE
                 Action<ApplicationInsightsServiceOptions> serviceOptions = null;
                 var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
 
@@ -906,7 +922,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     filePath = null;
                 }
 
+                // ACT
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
+
+                // VALIDATE
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
@@ -945,8 +964,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 #endif
             [InlineData("Code", true)]
             [InlineData("Code", false)]
-            public static void UserCanDisableAppServiceHeartbeatModule(string configType, bool isEnable)
+            public static void UserCanEnableAndDisableAppServiceHeartbeatModule(string configType, bool isEnable)
             {
+                // ARRANGE
                 Action<ApplicationInsightsServiceOptions> serviceOptions = null;
                 var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
 
@@ -956,7 +976,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     filePath = null;
                 }
 
+                // ACT
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
+                
+                // VALIDATE
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
@@ -997,6 +1020,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [InlineData("Code", false)]
             public static void UserCanEnableAndDisableAzureInstanceMetadataModule(string configType, bool isEnable)
             {
+                // ARRANGE
                 Action<ApplicationInsightsServiceOptions> serviceOptions = null;
                 var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
 
@@ -1006,8 +1030,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     filePath = null;
                 }
 
+                // ACT
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
 
+                // VALIDATE
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
@@ -1019,11 +1045,11 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var tc = serviceProvider.GetService<TelemetryClient>();
 
                 Type azureInstanceMetadataModuleType = typeof(AzureInstanceMetadataTelemetryModule);
-                AzureInstanceMetadataTelemetryModule perfModule = (AzureInstanceMetadataTelemetryModule)modules.FirstOrDefault(m => m.GetType() == azureInstanceMetadataModuleType);
+                AzureInstanceMetadataTelemetryModule azureInstanceMetadataModule = (AzureInstanceMetadataTelemetryModule)modules.FirstOrDefault(m => m.GetType() == azureInstanceMetadataModuleType);
                 // Get the AzureInstanceMetadataTelemetryModule private field value for isInitialized.
                 FieldInfo isInitializedField = azureInstanceMetadataModuleType.GetField("isInitialized", BindingFlags.NonPublic | BindingFlags.Instance);
                 // AzureInstanceMetadataTelemetryModule.isInitialized is set to true when EnableAzureInstanceMetadataTelemetryModule is enabled, else it is set to false.
-                Assert.Equal(isEnable, (bool)isInitializedField.GetValue(perfModule));
+                Assert.Equal(isEnable, (bool)isInitializedField.GetValue(azureInstanceMetadataModule));
             }
 
             [Fact]
@@ -1069,7 +1095,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [InlineData("Code", false)]
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesDependencyCollectorWithCustomValues(string configType, bool isEnable)
             {
-                //ARRANGE
+                // ARRANGE
                 Action<ApplicationInsightsServiceOptions> serviceOptions = null;
                 var filePath = Path.Combine("content", "config-req-dep-settings-" + isEnable.ToString() + ".json");
 
@@ -1079,20 +1105,21 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     filePath = null;
                 }
 
+                // ACT
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
+
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
 
                 // Requesting TelemetryConfiguration from services trigger constructing the TelemetryConfiguration
                 // which in turn trigger configuration of all modules.
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-
-                //ACT
+                
                 var dependencyModule = modules.OfType<DependencyTrackingTelemetryModule>().Single();
                 // Get telemetry client to trigger TelemetryConfig setup.
                 var tc = serviceProvider.GetService<TelemetryClient>();
 
-                //VALIDATE
+                // VALIDATE
                 Assert.Equal(isEnable ? 6 : 4, dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Count);
                 Assert.Equal(isEnable, dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Contains("localhost") ? true : false);
                 Assert.Equal(isEnable, dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Contains("127.0.0.1") ? true : false);
@@ -1271,6 +1298,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [InlineData("Code", false)]
             public static void ConfigureRequestTrackingTelemetryCustomOptions(string configType, bool isEnable)
             {
+                // ARRANGE
                 Action<ApplicationInsightsServiceOptions> serviceOptions = null;
                 var filePath = Path.Combine("content", "config-req-dep-settings-" + isEnable.ToString() + ".json");
 
@@ -1285,12 +1313,13 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     filePath = null;
                 }
 
+                // ACT
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
 
+                // VALIDATE
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
 
-                //VALIDATE
                 var requestTrackingModule = (RequestTrackingTelemetryModule) serviceProvider
                     .GetServices<ITelemetryModule>().FirstOrDefault(x => x.GetType() == typeof(RequestTrackingTelemetryModule));
 
@@ -1372,6 +1401,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [InlineData("Code", false)]
             public static void DoesNotAddSamplingToConfigurationIfExplicitlyControlledThroughParameter(string configType, bool isEnable)
             {
+                // ARRANGE
                 Action<ApplicationInsightsServiceOptions> serviceOptions = null;
                 var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
 
@@ -1381,7 +1411,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     filePath = null;
                 }
 
+                // ACT
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
+                
+                // VALIDATE
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 var qpProcessorCount = GetTelemetryProcessorsCountInConfigurationDefaultSink<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
@@ -1584,6 +1617,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [InlineData("Code", false)]
             public static void DoesNotAddAutoCollectedMetricsExtractorToConfigurationIfExplicitlyControlledThroughParameter(string configType, bool isEnable)
             {
+                // ARRANGE
                 Action<ApplicationInsightsServiceOptions> serviceOptions = null;
                 var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
 
@@ -1593,8 +1627,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     filePath = null;
                 }
 
+                // ACT
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
 
+                // VALIDATE
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 var metricExtractorProcessorCount = GetTelemetryProcessorsCountInConfigurationDefaultSink<AutocollectedMetricsExtractor>(telemetryConfiguration);
@@ -1613,7 +1649,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             /// <summary>
-            /// User could enable or disable JavaScript by setting EnableAuthenticationTrackingJavaScript.
+            /// User could enable or disable AuthenticationTrackingJavaScript by setting EnableAuthenticationTrackingJavaScript.
             /// This configuration can be read from a JSON file by the configuration factory or through code by passing ApplicationInsightsServiceOptions. 
             /// </summary>
             /// <param name="configType">
@@ -1632,8 +1668,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 #endif
             [InlineData("Code", true)]
             [InlineData("Code", false)]
-            public static void UserCanEnableAndDisableJavaScriptSnippet(string configType, bool isEnable)
+            public static void UserCanEnableAndDisableAuthenticationTrackingJavaScript(string configType, bool isEnable)
             {
+                // ARRANGE
                 Action<ApplicationInsightsServiceOptions> serviceOptions = null;
                 var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
 
@@ -1643,9 +1680,11 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     filePath = null;
                 }
 
+                // ACT
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
 
+                // VALIDATE
                 // Get telemetry client to trigger TelemetryConfig setup.
                 var tc = serviceProvider.GetService<TelemetryClient>();
 
@@ -1697,6 +1736,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [InlineData("Code")]
             public static void UserCanDisableHeartbeat(string configType)
             {
+                // ARRANGE
                 Action<ApplicationInsightsServiceOptions> serviceOptions = null;
                 var filePath = Path.Combine("content", "config-all-settings-false.json");
 
@@ -1706,7 +1746,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     filePath = null;
                 }
 
+                // ACT
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
+                
+                // VALIDATE
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
@@ -1800,14 +1843,16 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [InlineData(false, false)] 
             public static void ReadsSettingsFromDefaultAndSuppliedConfiguration(bool readFromAppSettings, bool useDefaultConfig)
             {
-                IServiceCollection services = null;
-                IConfigurationRoot config = null;
+                // ARRANGE
                 IConfigurationBuilder configBuilder = null;
                 var fileName = "config-all-default.json";
 
-                services = CreateServicesAndAddApplicationinsightsTelemetry(
+                // ACT
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(
                     readFromAppSettings ? null : Path.Combine("content", fileName),
                     null, null, true, useDefaultConfig);
+
+                // VALIDATE
 
                 // Generate config and don't pass to services
                 // this is directly generated from config file 
@@ -1827,9 +1872,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                         .AddJsonFile("appsettings.json", false);
                 }
 
-                config = configBuilder.Build();
+                var config = configBuilder.Build();
 
-                // VALIDATE
                 // Compare ApplicationInsightsServiceOptions from dependency container and configuration
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 // ApplicationInsightsServiceOptions from dependency container
@@ -1986,7 +2030,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromSettings()
             {
-                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", null, true, false);
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/");
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 Assert.Equal("http://localhost:1234/v2/track/", telemetryConfiguration.TelemetryChannel.EndpointAddress);
@@ -2056,26 +2100,24 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 config = new ConfigurationBuilder().Build();
             }
 
+#if NET46
+            // In NET46, we don't read from default configuration or bind configuration. 
+            services.AddApplicationInsightsTelemetry(config);
+#else
             if (useDefaultConfig)
             {
-#if NET46
-                // In NET46, we don't read from default configuration, hence pass in services.AddApplicationInsightsTelemetry()
-                services.AddApplicationInsightsTelemetry(config);
-#else
                 services.AddSingleton<IConfiguration>(config);
                 services.AddApplicationInsightsTelemetry();
-#endif
             }
             else
             {
                 services.AddApplicationInsightsTelemetry(config);
             }
-            
+#endif
             if (serviceOptions != null)
             {
                 services.Configure(serviceOptions);
             }
-
             return services;
         }
 
