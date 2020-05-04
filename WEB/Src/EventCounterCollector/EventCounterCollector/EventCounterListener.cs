@@ -18,6 +18,7 @@
         private readonly int refreshInternalInSecInt;
         private readonly EventLevel level = EventLevel.Critical;
         private bool isInitialized = false;
+        private bool useEventSourceNameAsMetricsNamespace = false;
         private TelemetryClient telemetryClient;
         private Dictionary<string, string> refreshIntervalDictionary;
 
@@ -29,7 +30,7 @@
         // The value will be the corresponding ICollection of counter names.
         private IDictionary<string, ICollection<string>> countersToCollect = new Dictionary<string, ICollection<string>>();
 
-        public EventCounterListener(TelemetryClient telemetryClient, IList<EventCounterCollectionRequest> eventCounterCollectionRequests, int refreshIntervalSecs)
+        public EventCounterListener(TelemetryClient telemetryClient, IList<EventCounterCollectionRequest> eventCounterCollectionRequests, int refreshIntervalSecs, bool useEventSourceNameAsMetricsNamespace)
         {
             try
             {
@@ -37,6 +38,8 @@
                 this.refreshIntervalInSecs = refreshIntervalSecs.ToString(CultureInfo.InvariantCulture);
                 this.refreshIntervalDictionary = new Dictionary<string, string>();
                 this.refreshIntervalDictionary.Add("EventCounterIntervalSec", this.refreshIntervalInSecs);
+
+                this.useEventSourceNameAsMetricsNamespace = useEventSourceNameAsMetricsNamespace;
 
                 this.telemetryClient = telemetryClient;
 
@@ -240,7 +243,16 @@
 
                 // DisplayName is the recommended name. We fallback to counterName is DisplayName not available.
                 var name = string.IsNullOrEmpty(counterDisplayName) ? counterName : counterDisplayName;
-                metricTelemetry.Name = eventSourceName + "|" + name;
+
+                if (this.useEventSourceNameAsMetricsNamespace)
+                {
+                    metricTelemetry.Name = name;
+                    metricTelemetry.MetricNamespace = eventSourceName;
+                }
+                else
+                {
+                    metricTelemetry.Name = eventSourceName + "|" + name;
+                }
 
                 metricTelemetry.Properties.Add("AggregationInterval", actualInterval.ToString(CultureInfo.InvariantCulture));
                 if (!string.IsNullOrEmpty(counterDisplayUnit))

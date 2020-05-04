@@ -50,6 +50,11 @@
         public IList<EventCounterCollectionRequest> Counters { get; private set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the eventsource name and metric name are stored separately.
+        /// </summary>
+        public bool UseEventSourceNameAsMetricsNamespace { get; set; }
+
+        /// <summary>
         /// IDisposable implementation.
         /// </summary>
         public void Dispose()
@@ -76,7 +81,7 @@
 
                     this.client = new TelemetryClient(configuration);                    
                     this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("evtc:");
-                    this.eventCounterListener = new EventCounterListener(this.client, this.Counters, this.refreshInternalInSecs);
+                    this.eventCounterListener = new EventCounterListener(this.client, this.Counters, this.refreshInternalInSecs, this.UseEventSourceNameAsMetricsNamespace);
                     this.isInitialized = true;
                     EventCounterCollectorEventSource.Log.ModuleInitializedSuccess();
                 }
