@@ -302,7 +302,6 @@ namespace Microsoft.ApplicationInsights.WindowsServer
             {
                 foreach (KeyValuePair<string, string> property in metric.Dimensions)
                 {
-#if !NETSTANDARD1_6
                     if (string.Compare(property.Key, FirstChanceExceptionStatisticsTelemetryModule.OperationNameTag, StringComparison.Ordinal) == 0)
                     {
                         if (string.IsNullOrEmpty(property.Value) == false)
@@ -311,7 +310,6 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                         }
                     }
                     else
-#endif
                     {
                         telemetry.Properties.Add(property);
                     }

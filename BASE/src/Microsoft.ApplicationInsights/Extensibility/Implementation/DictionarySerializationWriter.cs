@@ -98,11 +98,7 @@
             {
                 if (value.HasValue)
                 {
-#if NETSTANDARD1_3
-                    this.AccumulatedDictionary[key] = value.Value.ToString();
-#else
                     this.AccumulatedDictionary[key] = value.Value.ToString(CultureInfo.InvariantCulture);
-#endif
                 }
                 else
                 {
