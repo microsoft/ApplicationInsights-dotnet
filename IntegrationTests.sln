@@ -38,7 +38,6 @@ Global
 		WEB\Src\Common\Common.projitems*{56c361c2-724c-4688-b4e1-f94c0681ec33}*SharedItemsImports = 5
 		BASE\src\Common\Common\Common.projitems*{893dfa71-0f4f-4bbf-ae8f-72208be237ba}*SharedItemsImports = 5
 		WEB\Src\Common\Common.projitems*{a8d39e66-af60-4f51-aedc-2464a2d86dea}*SharedItemsImports = 5
-		WEB\Src\PerformanceCollector\Filtering.Shared\Filtering.Shared.projitems*{a8d39e66-af60-4f51-aedc-2464a2d86dea}*SharedItemsImports = 5
 		WEB\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{a8d39e66-af60-4f51-aedc-2464a2d86dea}*SharedItemsImports = 5
 		LOGGING\src\CommonShared\CommonShared.projitems*{dd8682e9-bdcf-459b-b1a6-97966c3e9b6a}*SharedItemsImports = 5
 		WEB\Src\Common\Common.projitems*{e524a10f-7b80-481b-9b7a-a478d4ca264c}*SharedItemsImports = 5

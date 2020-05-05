@@ -50,7 +50,6 @@ Global
 		..\..\Src\Common\Common.projitems*{5171849e-f678-4bb1-b3ca-9754e9d94821}*SharedItemsImports = 5
 		..\..\Src\Common\Common.projitems*{634a3177-56b4-44b1-9c81-32ba3959eaa5}*SharedItemsImports = 5
 		..\..\Src\Common\Common.projitems*{a73a7554-a7af-451d-b611-2f98a6259d79}*SharedItemsImports = 5
-		..\..\Src\PerformanceCollector\Filtering.Shared\Filtering.Shared.projitems*{a73a7554-a7af-451d-b611-2f98a6259d79}*SharedItemsImports = 5
 		..\..\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{a73a7554-a7af-451d-b611-2f98a6259d79}*SharedItemsImports = 5
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

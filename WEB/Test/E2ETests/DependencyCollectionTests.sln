@@ -45,7 +45,6 @@ Global
 		..\..\Src\Common\Common.projitems*{3d729610-dbc2-4cde-9969-cbdb93db6102}*SharedItemsImports = 5
 		..\..\Src\Common\Common.projitems*{4605eefe-6a7f-4568-a55c-5541d390b013}*SharedItemsImports = 5
 		..\..\Src\Common\Common.projitems*{69638973-00ed-4468-85ce-548fe6bd859b}*SharedItemsImports = 5
-		..\..\Src\PerformanceCollector\Filtering.Shared\Filtering.Shared.projitems*{69638973-00ed-4468-85ce-548fe6bd859b}*SharedItemsImports = 5
 		..\..\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{69638973-00ed-4468-85ce-548fe6bd859b}*SharedItemsImports = 5
 		..\..\..\BASE\src\Common\Common\Common.projitems*{b03d7034-2a49-4fe1-b9b1-4df16b136b2c}*SharedItemsImports = 5
 		..\..\Src\Common\Common.projitems*{f68e18ca-00b6-4129-85a6-afc4ffe1ca9b}*SharedItemsImports = 5
