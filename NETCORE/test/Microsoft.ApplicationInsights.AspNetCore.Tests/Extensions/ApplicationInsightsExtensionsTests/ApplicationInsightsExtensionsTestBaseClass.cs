@@ -30,7 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
         public static ServiceCollection CreateServicesAndAddApplicationinsightsTelemetry(string jsonPath, string channelEndPointAddress, Action<ApplicationInsightsServiceOptions> serviceOptions = null, bool addChannel = true, bool useDefaultConfig = true)
         {
-            var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+            var services = GetServiceCollectionWithContextAccessor();
             if (addChannel)
             {
                 services.AddSingleton<ITelemetryChannel>(new InMemoryChannel());

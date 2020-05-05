@@ -43,7 +43,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         [Fact]
         public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromSettings()
         {
-            var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+            var services = GetServiceCollectionWithContextAccessor();
             services.AddSingleton<ITelemetryChannel>(new InMemoryChannel());
             var config = new ConfigurationBuilder().AddApplicationInsightsSettings(instrumentationKey: TestInstrumentationKey).Build();
             services.AddApplicationInsightsTelemetry(config);
@@ -56,7 +56,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         [Fact]
         public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromSettings()
         {
-            var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+            var services = GetServiceCollectionWithContextAccessor();
             services.AddSingleton<ITelemetryChannel>(new InMemoryChannel());
             var config = new ConfigurationBuilder().AddApplicationInsightsSettings(developerMode: true).Build();
             services.AddApplicationInsightsTelemetry(config);
@@ -83,7 +83,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             string expected = Environment.MachineName;
-            var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+            var services = GetServiceCollectionWithContextAccessor();
             services.AddApplicationInsightsTelemetry();
             IServiceProvider serviceProvider = services.BuildServiceProvider();
 

@@ -39,9 +39,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.Extensions.Options;
 
 #pragma warning disable CS0618 // TelemetryConfiguration.Active is obsolete. We still test with this for backwards compatibility.
-    public class ApplicationInsightsExtensionsTests : ApplicationInsightsExtensionsTestsBaseClass
+    public class ApplicationInsightsExtensionsTests 
     {
-        public static class AddApplicationInsightsTelemetry
+        public class AddApplicationInsightsTelemetry : ApplicationInsightsExtensionsTestsBaseClass
         {
             [Theory]
             [InlineData(typeof(ITelemetryInitializer), typeof(ApplicationInsights.AspNetCore.TelemetryInitializers.DomainNameRoleInstanceTelemetryInitializer), ServiceLifetime.Singleton)]
@@ -232,7 +232,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromEnvironment()
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
                 services.AddSingleton<ITelemetryChannel>(new InMemoryChannel());
                 Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", TestInstrumentationKey);
                 var config = new ConfigurationBuilder().AddEnvironmentVariables().Build();
@@ -258,7 +258,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [Trait("Trait", "ConnectionString")]
             public static void AddApplicationInsightsTelemetry_ReadsConnectionString_FromEnvironment()
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
                 Environment.SetEnvironmentVariable(ConnectionStringEnvironmentVariable, TestConnectionString);
                 try
                 {
@@ -282,7 +282,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [Fact]
             public static void AddApplicationInsightsTelemetryReadsInstrumentationKeyFromEnvironment()
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
                 Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", TestInstrumentationKey);
                 try
                 {
@@ -305,7 +305,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void AddApplicationInsightsTelemetryDoesNotReadInstrumentationKeyFromEnvironmentIfSupplied()
             {
                 Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", TestInstrumentationKey);
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
                 string ikeyExpected = Guid.NewGuid().ToString();
 
                 try
@@ -339,7 +339,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     text = text.Replace("http://hosthere/v2/track/", hostExpected);
                     File.WriteAllText("appsettings.json", text);
 
-                    var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                    var services = GetServiceCollectionWithContextAccessor();
                     services.AddApplicationInsightsTelemetry();
                     IServiceProvider serviceProvider = services.BuildServiceProvider();
                     var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
@@ -368,7 +368,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     text = text.Replace(iKeyInAppSettings, ikey);
                     File.WriteAllText("appsettings.json", text);
 
-                    var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                    var services = GetServiceCollectionWithContextAccessor();
                     services.AddApplicationInsightsTelemetry(suppliedIKey);
                     IServiceProvider serviceProvider = services.BuildServiceProvider();
                     var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
@@ -398,7 +398,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     text = text.Replace(iKeyInAppSettings, ikey);
                     File.WriteAllText("appsettings.json", text);
 
-                    var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                    var services = GetServiceCollectionWithContextAccessor();
                     services.AddApplicationInsightsTelemetry(options);
                     IServiceProvider serviceProvider = services.BuildServiceProvider();
                     var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
@@ -430,7 +430,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     text = text.Replace("hosthere", "newhost");
                     File.WriteAllText("appsettings.json", text);
 
-                    var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                    var services = GetServiceCollectionWithContextAccessor();
                     services.AddApplicationInsightsTelemetry(options);
                     IServiceProvider serviceProvider = services.BuildServiceProvider();
                     var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
@@ -448,7 +448,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromEnvironment()
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
                 services.AddSingleton<ITelemetryChannel>(new InMemoryChannel());
                 Environment.SetEnvironmentVariable("APPINSIGHTS_DEVELOPER_MODE", "true");
                 var config = new ConfigurationBuilder().AddEnvironmentVariables().Build();
@@ -469,7 +469,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromEnvironment()
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
                 services.AddSingleton<ITelemetryChannel>(new InMemoryChannel());
                 Environment.SetEnvironmentVariable("APPINSIGHTS_ENDPOINTADDRESS", "http://localhost:1234/v2/track/");
                 var config = new ConfigurationBuilder().AddEnvironmentVariables().Build();
@@ -491,7 +491,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithTelemetryInitializersFromContainer()
             {
                 var telemetryInitializer = new FakeTelemetryInitializer();
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
                 services.AddSingleton<ITelemetryInitializer>(telemetryInitializer);
                 services.AddSingleton<ITelemetryChannel>(new InMemoryChannel());
 
@@ -506,7 +506,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithTelemetryChannelFromContainer()
             {
                 var telemetryChannel = new FakeTelemetryChannel();
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
                 services.AddSingleton<ITelemetryChannel>(telemetryChannel);
 
                 services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
@@ -562,7 +562,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [Fact]
             public static void AppApplicationInsightsTelemetryFromApplicationInsightsServiceOptionsCopiesAllSettings()
             {
-                ServiceCollection services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                ServiceCollection services = GetServiceCollectionWithContextAccessor();
                 ApplicationInsightsServiceOptions options = new ApplicationInsightsServiceOptions()
                 {
                     ApplicationVersion = "test",
@@ -1110,7 +1110,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithTelemetryProcessorFactoriesFromContainer()
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
                 services.AddApplicationInsightsTelemetryProcessor<FakeTelemetryProcessor>();
 
                 services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
@@ -1126,14 +1126,14 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [Fact]
             public static void AddApplicationInsightsTelemetryProcessorWithNullTelemetryProcessorTypeThrows()
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
                 Assert.Throws<ArgumentNullException>(() => services.AddApplicationInsightsTelemetryProcessor(null));
             }
 
             [Fact]
             public static void AddApplicationInsightsTelemetryProcessorWithNonTelemetryProcessorTypeThrows()
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
                 Assert.Throws<ArgumentException>(() => services.AddApplicationInsightsTelemetryProcessor(typeof(string)));
                 Assert.Throws<ArgumentException>(() => services.AddApplicationInsightsTelemetryProcessor(typeof(ITelemetryProcessor)));
             }
@@ -1141,7 +1141,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [Fact]
             public static void AddApplicationInsightsTelemetryProcessorWithImportingConstructor()
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
                 services.AddApplicationInsightsTelemetryProcessor<FakeTelemetryProcessorWithImportingConstructor>();
                 services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -1157,7 +1157,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void ConfigureApplicationInsightsTelemetryModuleWorks()
             {
                 //ARRANGE
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
                 services.AddSingleton<ITelemetryModule, TestTelemetryModule>();
 
                 //ACT
@@ -1185,7 +1185,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             {
                 //ARRANGE
                 Action<ApplicationInsightsServiceOptions> serviceOptions = options => options.ApplicationVersion = "123";
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
                 services.AddSingleton<ITelemetryModule, TestTelemetryModule>();
 
                 //ACT
@@ -1212,7 +1212,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void ConfigureApplicationInsightsTelemetryModuleWorksWithoutOptions()
             {
                 //ARRANGE
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
                 services.AddSingleton<ITelemetryModule, TestTelemetryModule>();
 
                 //ACT
@@ -1239,7 +1239,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void ConfigureRequestTrackingTelemetryDefaultOptions()
             {
                 //ARRANGE
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
 
                 //ACT
                 services.AddApplicationInsightsTelemetry();
@@ -1314,7 +1314,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void ConfigureApplicationInsightsTelemetryModuleThrowsIfConfigureIsNull()
             {
                 //ARRANGE
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
                 services.AddSingleton<ITelemetryModule, TestTelemetryModule>();
 
                 //ACT and VALIDATE
@@ -1326,7 +1326,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void ConfigureApplicationInsightsTelemetryModuleDoesNotThrowIfModuleNotFound()
             {
                 //ARRANGE
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
                 // Intentionally NOT adding the module
                 // services.AddSingleton<ITelemetryModule, TestTelemetryModule>();
 
@@ -1429,7 +1429,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [Trait("Trait", "ConnectionString")]
             public static void AddApplicationInsightsSettings_SetsConnectionString()
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
                 services.AddSingleton<ITelemetryChannel>(new InMemoryChannel());
                 var config = new ConfigurationBuilder().AddApplicationInsightsSettings(connectionString: TestConnectionString).Build();
                 services.AddApplicationInsightsTelemetry(config);
@@ -1447,7 +1447,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             {
                 var testEndpoint = "http://localhost:1234/v2/track/";
 
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
                 services.AddSingleton<ITelemetryChannel, InMemoryChannel>();
                 var config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: testEndpoint).Build();
                 services.AddApplicationInsightsTelemetry(config);
@@ -1464,7 +1464,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var testEndpoint = "http://localhost:1234/v2/track/";
 
                 // ARRANGE
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();                                
+                var services = GetServiceCollectionWithContextAccessor();                                
                 var config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: testEndpoint).Build();
                 services.AddApplicationInsightsTelemetry(config);
 
@@ -1490,7 +1490,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void VerifyNoExceptionWhenAppIdProviderNotFoundInDI()
             {
                 // ARRANGE
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
                 var config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: "http://localhost:1234/v2/track/").Build();
                 services.AddApplicationInsightsTelemetry(config);
 
@@ -1517,7 +1517,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [Fact]
             public static void VerifyUserCanOverrideAppIdProvider()
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
                 services.AddSingleton<IApplicationIdProvider, MockApplicationIdProvider>(); // assume user tries to define own implementation
                 var config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: "http://localhost:1234/v2/track/").Build();
                 services.AddApplicationInsightsTelemetry(config);
@@ -1895,7 +1895,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
                     // This config will have ikey,endpoint from json and env. ENV one is expected to win.
                     var config = new ConfigurationBuilder().AddJsonFile(jsonFullPath).AddEnvironmentVariables().Build();
-                    var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                    var services = GetServiceCollectionWithContextAccessor();
 
                     // This line mimics the default behavior by CreateDefaultBuilder
                     services.AddSingleton<IConfiguration>(config);
@@ -1932,7 +1932,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     // This config will have ikey,endpoint from json and env. But the one
                     // user explicitly provider is expected to win.
                     var config = new ConfigurationBuilder().AddJsonFile(jsonFullPath).AddEnvironmentVariables().Build();
-                    var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                    var services = GetServiceCollectionWithContextAccessor();
 
                     // This line mimics the default behavior by CreateDefaultBuilder
                     services.AddSingleton<IConfiguration>(config);
@@ -1961,7 +1961,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 // ARRANGE
                 var jsonFullPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "sample-appsettings_dontexist.json");
                 var config = new ConfigurationBuilder().AddJsonFile(jsonFullPath, true).Build();
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var services = GetServiceCollectionWithContextAccessor();
                 // This line mimics the default behavior by CreateDefaultBuilder
                 services.AddSingleton<IConfiguration>(config);
 
