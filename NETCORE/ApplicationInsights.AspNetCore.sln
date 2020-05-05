@@ -72,8 +72,6 @@ Global
 		..\WEB\Src\Common\Common.projitems*{3c157fc2-2e52-45fc-87e8-76e4fced4260}*SharedItemsImports = 5
 		..\WEB\Src\PerformanceCollector\Filtering.Shared\Filtering.Shared.projitems*{3c157fc2-2e52-45fc-87e8-76e4fced4260}*SharedItemsImports = 5
 		..\WEB\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{3c157fc2-2e52-45fc-87e8-76e4fced4260}*SharedItemsImports = 5
-		..\WEB\Src\PerformanceCollector\Perf.Shared.NetStandard20Net45\Perf.Shared.NetStandard20Net45.projitems*{3c157fc2-2e52-45fc-87e8-76e4fced4260}*SharedItemsImports = 5
-		..\WEB\Src\PerformanceCollector\Perf.Shared\Perf.Shared.projitems*{3c157fc2-2e52-45fc-87e8-76e4fced4260}*SharedItemsImports = 5
 		..\LOGGING\src\CommonShared\CommonShared.projitems*{4a9ec531-f8b2-4cd1-bd6b-745f33e52e7b}*SharedItemsImports = 5
 		..\WEB\Src\Common\Common.projitems*{8d13f3c8-d938-44fd-a0d8-b5d1712c95db}*SharedItemsImports = 5
 		src\Shared\Shared.projitems*{95ec3635-22e4-4c3a-a066-f5823a0648da}*SharedItemsImports = 5
