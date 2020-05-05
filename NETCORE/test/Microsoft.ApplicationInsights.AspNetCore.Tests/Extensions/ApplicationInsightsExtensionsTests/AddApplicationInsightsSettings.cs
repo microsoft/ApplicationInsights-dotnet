@@ -1,6 +1,5 @@
 ﻿using Xunit;
 
-//[assembly: CollectionBehavior(DisableTestParallelization = true)]
 namespace Microsoft.Extensions.DependencyInjection.Test
 {
     using System;
@@ -8,9 +7,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-#if NETCOREAPP
-    using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
-#endif
+
     using Microsoft.Extensions.Configuration;
 
     public class AddApplicationInsightsSettings : BaseTestClass

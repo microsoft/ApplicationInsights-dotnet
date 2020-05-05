@@ -1,6 +1,5 @@
 ﻿using Xunit;
 
-//[assembly: CollectionBehavior(DisableTestParallelization = true)]
 namespace Microsoft.Extensions.DependencyInjection.Test
 {
     using System;

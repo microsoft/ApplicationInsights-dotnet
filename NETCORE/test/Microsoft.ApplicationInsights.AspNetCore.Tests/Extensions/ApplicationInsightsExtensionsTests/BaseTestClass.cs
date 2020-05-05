@@ -13,7 +13,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.AspNetCore.Hosting.Internal;
     using Microsoft.Extensions.Configuration;
 
-#pragma warning disable CS0618 // TelemetryConfiguration.Active is obsolete. We still test with this for backwards compatibility.
     public abstract class BaseTestClass
     {
         internal const string TestInstrumentationKey = "11111111-2222-3333-4444-555555555555";
