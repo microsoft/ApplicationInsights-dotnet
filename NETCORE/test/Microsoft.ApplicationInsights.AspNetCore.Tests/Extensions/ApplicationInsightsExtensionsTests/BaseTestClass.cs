@@ -1,7 +1,6 @@
-﻿
-using Xunit;
+﻿using Xunit;
 
-[assembly: CollectionBehavior(DisableTestParallelization = true)]
+[assembly: CollectionBehavior(DisableTestParallelization = true)] // this is an XUnit api setting
 namespace Microsoft.Extensions.DependencyInjection.Test
 {
     using System;
@@ -15,8 +14,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.Extensions.Configuration;
 
 #pragma warning disable CS0618 // TelemetryConfiguration.Active is obsolete. We still test with this for backwards compatibility.
-    //[CollectionDefinition(nameof(ApplicationInsightsExtensionsTestsBaseClass), DisableParallelization = true)]
-    public abstract class ApplicationInsightsExtensionsTestsBaseClass
+    public abstract class BaseTestClass
     {
         internal const string TestInstrumentationKey = "11111111-2222-3333-4444-555555555555";
         internal const string TestConnectionString = "InstrumentationKey=11111111-2222-3333-4444-555555555555;IngestionEndpoint=http://127.0.0.1";

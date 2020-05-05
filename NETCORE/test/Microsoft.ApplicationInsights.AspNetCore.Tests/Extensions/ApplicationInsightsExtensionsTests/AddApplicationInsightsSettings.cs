@@ -4,41 +4,16 @@
 namespace Microsoft.Extensions.DependencyInjection.Test
 {
     using System;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
-    using Logging;
+
     using Microsoft.ApplicationInsights;
-    using Microsoft.ApplicationInsights.AspNetCore;
-    using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
-    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
-    using Microsoft.ApplicationInsights.AspNetCore.Logging;
-    using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
-    using Microsoft.ApplicationInsights.AspNetCore.Tests;
-    using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.DependencyCollector;
-    using Microsoft.ApplicationInsights.Extensibility;
 #if NETCOREAPP
     using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
 #endif
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
-    using Microsoft.ApplicationInsights.Extensibility.W3C;
-    using Microsoft.ApplicationInsights.WindowsServer;
-    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
-    using Microsoft.AspNetCore.Hosting;
-    using Microsoft.AspNetCore.Hosting.Internal;
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Http.Internal;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Options;
 
-    public class AddApplicationInsightsSettings : ApplicationInsightsExtensionsTestsBaseClass
+    public class AddApplicationInsightsSettings : BaseTestClass
     {
         [Fact]
         public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromSettings()
