@@ -1,14 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.Channel.Implementation
 {
     using System;
-    using System.Runtime.Serialization;
-#if NETSTANDARD1_3
-    using Newtonsoft.Json;
-#else
     using System.IO;
+    using System.Runtime.Serialization;
     using System.Runtime.Serialization.Json;
     using System.Text;
-#endif
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
     internal class BackoffLogicManager
@@ -77,14 +73,10 @@
             {
                 if (!string.IsNullOrEmpty(responseContent))
                 {
-#if NETSTANDARD1_3
-                    backendResponse = JsonConvert.DeserializeObject<BackendResponse>(responseContent);
-#else
                     using (MemoryStream ms = new MemoryStream(Encoding.Unicode.GetBytes(responseContent)))
                     {
                         backendResponse = Serializer.ReadObject(ms) as BackendResponse;
-                    }
-#endif  
+                    }  
                 }
             }
             catch (ArgumentException exp)
@@ -102,18 +94,7 @@
                 TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, responseContent);
                 backendResponse = null;
             }
-#if NETSTANDARD1_3
-            catch (JsonReaderException exp)
-            {
-                TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, responseContent);
-                backendResponse = null;
-            }
-            catch (JsonSerializationException exp)
-            {
-                TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, responseContent);
-                backendResponse = null;
-            }
-#endif
+
             return backendResponse;
         }
 

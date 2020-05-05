@@ -77,36 +77,10 @@
 
         public static bool IsPerfCounterSupported()
         {
-#if NETSTANDARD1_6
-            // PerfCounter is limited to only when running in WebApp
-            return IsWebAppRunningInAzure();
-#else
             return true;
-#endif
         }
 
-#if NETSTANDARD1_6
-        public static IPerformanceCollector GetPerformanceCollector()
-        {
-            IPerformanceCollector collector;
-
-            // NetStandard1.6 has perf counter only on web apps.
-
-            if (PerformanceCounterUtility.IsWebAppRunningInAzure())
-            {
-                collector = (IPerformanceCollector)new WebAppPerformanceCollector();
-                PerformanceCollectorEventSource.Log.InitializedWithCollector(collector.GetType().Name);
-            }
-            else
-            {
-                // This will be the Stub collector which won't do anything.
-                collector = (IPerformanceCollector)new StandardPerformanceCollectorStub();
-                PerformanceCollectorEventSource.Log.InitializedWithCollector(collector.GetType().Name);
-            }
-
-            return collector;
-            }
-#elif NET45
+#if NET45
         public static IPerformanceCollector GetPerformanceCollector()
         {
             IPerformanceCollector collector;
@@ -230,7 +204,7 @@
         {
             if (IsWebAppRunningInAzure())
             {
-#if NETSTANDARD1_6 || NETSTANDARD2_0
+#if NETSTANDARD2_0
                 return AzureWebAppCoreSdkVersionPrefix;
 #else
                 return AzureWebAppSdkVersionPrefix;
@@ -363,7 +337,7 @@
 
         internal static string GetInstanceForCurrentW3SvcWorker()
         {
-#if NETSTANDARD1_6 || NETSTANDARD2_0
+#if NETSTANDARD2_0
             string name = new AssemblyName(Assembly.GetEntryAssembly().FullName).Name;
 #else
             string name = AppDomain.CurrentDomain.FriendlyName;
@@ -388,29 +362,21 @@
         [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "This method has different code for Net45/NetCore")]
         internal static string GetInstanceForWin32Process(IEnumerable<string> win32Instances)
         {
-#if NETSTANDARD1_6
-            return string.Empty;
-#else
             return FindProcessInstance(
                 Process.GetCurrentProcess().Id,
                 win32Instances,
                 Win32ProcessCategoryName,
                 Win32ProcessCounterName);
-#endif
         }
 
         [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "This method has different code for Net45/NetCore")]
         internal static string GetInstanceForClrProcess(IEnumerable<string> clrInstances)
         {
-#if NETSTANDARD1_6
-            return string.Empty;
-#else
             return FindProcessInstance(
                 Process.GetCurrentProcess().Id,
                 clrInstances,
                 ClrProcessCategoryName,
                 ClrProcessCounterName);
-#endif
         }
 
 #if !NETSTANDARD1_6

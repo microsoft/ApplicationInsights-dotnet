@@ -2,9 +2,6 @@
 {
     using System;
     using System.Diagnostics.Tracing;
-#if NETSTANDARD1_6
-    using System.Reflection;
-#endif
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
