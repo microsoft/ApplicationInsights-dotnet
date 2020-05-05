@@ -1,0 +1,84 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29424.173
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights", "BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj", "{E3D160E8-7F8C-416F-946F-6FDFC6787461}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel", "BASE\src\ServerTelemetryChannel\TelemetryChannel.csproj", "{C30A7EB8-A86C-49EE-927E-7D9E03572E82}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common.Base", "BASE\src\Common\Common\Common.Base.shproj", "{936AF739-4297-4016-9D70-4280042709BE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "B) ApplicationInsights", "B) ApplicationInsights", "{632FB9CE-540D-4451-9FF2-12E89C1492BD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "B) TelemetryChannel", "B) TelemetryChannel", "{FBAFD313-0139-4DA3-BCB3-EE54DC3B6CCD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationInsightsTypes", "BASE\Test\Microsoft.ApplicationInsights.Test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj", "{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights.Isolated.Tests", "BASE\Test\Microsoft.ApplicationInsights.Test\Standalone\Microsoft.ApplicationInsights.Isolated.Tests.csproj", "{2759BC71-7F47-44DA-8579-AE2D8C8C684D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel.Nuget.Tests", "BASE\Test\ServerTelemetryChannel.Test\TelemetryChannel.Nuget.Tests\TelemetryChannel.Nuget.Tests.csproj", "{21CB9A8A-F25B-4DEB-92CB-ACB6920EB8BC}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TestFramework.Shared.Base", "BASE\Test\TestFramework\Shared\TestFramework.Shared.Base.shproj", "{F76C6CBD-29B0-4564-BDCB-C969F8FEC136}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights.Tests", "BASE\Test\Microsoft.ApplicationInsights.Test\Microsoft.ApplicationInsights.Tests\Microsoft.ApplicationInsights.Tests.csproj", "{4BAA7AF2-3C5B-4C7C-9A9C-26F561218A86}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel.Tests", "BASE\Test\ServerTelemetryChannel.Test\TelemetryChannel.Tests\TelemetryChannel.Tests.csproj", "{D3E44A53-6998-4C85-AD8F-E52C2B3843EA}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		BASE\src\Common\Common\Common.projitems*{936af739-4297-4016-9d70-4280042709be}*SharedItemsImports = 13
+		BASE\src\Common\Common\Common.projitems*{c30a7eb8-a86c-49ee-927e-7d9e03572e82}*SharedItemsImports = 5
+		BASE\src\Common\Common\Common.projitems*{e3d160e8-7f8c-416f-946f-6fdfc6787461}*SharedItemsImports = 5
+		BASE\Test\TestFramework\Shared\TestFramework.Shared.projitems*{f76c6cbd-29b0-4564-bdcb-c969f8fec136}*SharedItemsImports = 13
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E3D160E8-7F8C-416F-946F-6FDFC6787461}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3D160E8-7F8C-416F-946F-6FDFC6787461}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3D160E8-7F8C-416F-946F-6FDFC6787461}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3D160E8-7F8C-416F-946F-6FDFC6787461}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C30A7EB8-A86C-49EE-927E-7D9E03572E82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C30A7EB8-A86C-49EE-927E-7D9E03572E82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C30A7EB8-A86C-49EE-927E-7D9E03572E82}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C30A7EB8-A86C-49EE-927E-7D9E03572E82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2759BC71-7F47-44DA-8579-AE2D8C8C684D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2759BC71-7F47-44DA-8579-AE2D8C8C684D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2759BC71-7F47-44DA-8579-AE2D8C8C684D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2759BC71-7F47-44DA-8579-AE2D8C8C684D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21CB9A8A-F25B-4DEB-92CB-ACB6920EB8BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21CB9A8A-F25B-4DEB-92CB-ACB6920EB8BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21CB9A8A-F25B-4DEB-92CB-ACB6920EB8BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21CB9A8A-F25B-4DEB-92CB-ACB6920EB8BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BAA7AF2-3C5B-4C7C-9A9C-26F561218A86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BAA7AF2-3C5B-4C7C-9A9C-26F561218A86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BAA7AF2-3C5B-4C7C-9A9C-26F561218A86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BAA7AF2-3C5B-4C7C-9A9C-26F561218A86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3E44A53-6998-4C85-AD8F-E52C2B3843EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3E44A53-6998-4C85-AD8F-E52C2B3843EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3E44A53-6998-4C85-AD8F-E52C2B3843EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3E44A53-6998-4C85-AD8F-E52C2B3843EA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E3D160E8-7F8C-416F-946F-6FDFC6787461} = {632FB9CE-540D-4451-9FF2-12E89C1492BD}
+		{C30A7EB8-A86C-49EE-927E-7D9E03572E82} = {FBAFD313-0139-4DA3-BCB3-EE54DC3B6CCD}
+		{4B0BC3B7-C7FC-4333-9E28-5790D9153F07} = {632FB9CE-540D-4451-9FF2-12E89C1492BD}
+		{2759BC71-7F47-44DA-8579-AE2D8C8C684D} = {632FB9CE-540D-4451-9FF2-12E89C1492BD}
+		{21CB9A8A-F25B-4DEB-92CB-ACB6920EB8BC} = {FBAFD313-0139-4DA3-BCB3-EE54DC3B6CCD}
+		{4BAA7AF2-3C5B-4C7C-9A9C-26F561218A86} = {632FB9CE-540D-4451-9FF2-12E89C1492BD}
+		{D3E44A53-6998-4C85-AD8F-E52C2B3843EA} = {FBAFD313-0139-4DA3-BCB3-EE54DC3B6CCD}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0E0415AF-37CC-4999-8E5B-DD36F75BFD4D}
+	EndGlobalSection
+EndGlobal
