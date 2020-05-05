@@ -15,10 +15,7 @@
         private const int DefaultBackoffEnabledReportingIntervalInMin = 30;
 
         private static readonly Random Random = new Random();
-
-#if !NETSTANDARD1_3
         private static readonly DataContractJsonSerializer Serializer = new DataContractJsonSerializer(typeof(BackendResponse));
-#endif  
 
         private readonly object lockConsecutiveErrors = new object();
         private readonly TimeSpan minIntervalToUpdateConsecutiveErrors;

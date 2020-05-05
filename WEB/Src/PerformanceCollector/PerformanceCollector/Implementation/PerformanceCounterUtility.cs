@@ -10,7 +10,7 @@
     using System.Reflection;
     using System.Runtime.InteropServices;
     using System.Text.RegularExpressions;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerfCollector;    
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerfCollector;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerfCollector;
 #if NETSTANDARD2_0
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.XPlatform;
@@ -49,10 +49,7 @@
         private const string WebSiteIsolationEnvironmentVariable = "WEBSITE_ISOLATION";
         private const string WebSiteIsolationHyperV = "hyperv";
 
-#if !NETSTANDARD1_6
         private static readonly ConcurrentDictionary<string, Tuple<DateTime, PerformanceCounterCategory, InstanceDataCollectionCollection>> cache = new ConcurrentDictionary<string, Tuple<DateTime, PerformanceCounterCategory, InstanceDataCollectionCollection>>();
-#endif
-
         private static readonly ConcurrentDictionary<string, string> PlaceholderCache =
             new ConcurrentDictionary<string, string>();
 
@@ -65,7 +62,6 @@
                 @"^\\(?<categoryName>[^(]+)(\((?<instanceName>[^)]+)\)){0,1}\\(?<counterName>[\s\S]+)$",
                 RegexOptions.Compiled);
 
-#if !NETSTANDARD1_6
         /// <summary>
         /// Formats a counter into a readable string.
         /// </summary>
@@ -73,7 +69,6 @@
         {
             return FormatPerformanceCounter(pc.CategoryName, pc.CounterName, pc.InstanceName);
         }
-#endif
 
         public static bool IsPerfCounterSupported()
         {
@@ -379,7 +374,6 @@
                 ClrProcessCounterName);
         }
 
-#if !NETSTANDARD1_6
         internal static IList<string> GetWin32ProcessInstances()
         {
             return GetInstances(Win32ProcessCategoryName);
@@ -389,8 +383,6 @@
         {
             return GetInstances(ClrProcessCategoryName);
         }
-
-#endif
 
         private static string ExpandInstanceName(
             string instanceName,
@@ -449,7 +441,6 @@
             return cachedResult;
         }
 
-#if !NETSTANDARD1_6
         private static string FindProcessInstance(int pid, IEnumerable<string> instances, string categoryName, string counterName)
         {
             Tuple<DateTime, PerformanceCounterCategory, InstanceDataCollectionCollection> cached;
@@ -519,6 +510,5 @@
 #endif
             }
         }
-#endif
-            }
+    }
 }
