@@ -1,6 +1,6 @@
 ﻿using Xunit;
 
-[assembly: CollectionBehavior(DisableTestParallelization = true)]
+//[assembly: CollectionBehavior(DisableTestParallelization = true)]
 namespace Microsoft.Extensions.DependencyInjection.Test
 {
     using System;
@@ -39,26 +39,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.Extensions.Options;
 
 #pragma warning disable CS0618 // TelemetryConfiguration.Active is obsolete. We still test with this for backwards compatibility.
-    public static class ApplicationInsightsExtensionsTests
+    public class ApplicationInsightsExtensionsTests : ApplicationInsightsExtensionsTestsBaseClass
     {
-        /// <summary>Constant instrumentation key value for testintg.</summary>
-        public const string TestInstrumentationKey = "11111111-2222-3333-4444-555555555555";
-        private const string TestConnectionString = "InstrumentationKey=11111111-2222-3333-4444-555555555555;IngestionEndpoint=http://127.0.0.1";
-        private const string InstrumentationKeyFromConfig = "ApplicationInsights:InstrumentationKey";
-        private const string InstrumentationKeyEnvironmentVariable = "APPINSIGHTS_INSTRUMENTATIONKEY";
-        private const string ConnectionStringEnvironmentVariable = "APPLICATIONINSIGHTS_CONNECTION_STRING";
-        private const string TestEndPointEnvironmentVariable = "APPINSIGHTS_ENDPOINTADDRESS";
-        private const string DeveloperModeEnvironmentVariable = "APPINSIGHTS_DEVELOPER_MODE";
-        public const string TestEndPoint = "http://127.0.0.1/v2/track";
-
-        public static ServiceCollection GetServiceCollectionWithContextAccessor()
-        {
-            var services = new ServiceCollection();
-            services.AddSingleton<IHostingEnvironment>(new HostingEnvironment() { ContentRootPath = Directory.GetCurrentDirectory()});
-            services.AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
-            return services;
-        }
-
         public static class AddApplicationInsightsTelemetry
         {
             [Theory]
@@ -2060,60 +2042,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 // VERIFY                
                 Assert.Contains(expected,mockItem.Context.Cloud.RoleInstance, StringComparison.CurrentCultureIgnoreCase);                                
             }
-        }
-
-        public static ServiceCollection CreateServicesAndAddApplicationinsightsTelemetry(string jsonPath, string channelEndPointAddress, Action<ApplicationInsightsServiceOptions> serviceOptions = null, bool addChannel = true, bool useDefaultConfig = true)
-        {
-            var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-            if (addChannel)
-            {
-                services.AddSingleton<ITelemetryChannel>(new InMemoryChannel());
-            }
-
-            IConfigurationRoot config = null;
-
-            if (jsonPath != null)
-            {
-                var jsonFullPath = Path.Combine(Directory.GetCurrentDirectory(), jsonPath);
-                Console.WriteLine("json:" + jsonFullPath);
-                Trace.WriteLine("json:" + jsonFullPath);
-                try
-                {
-                    config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile(jsonFullPath).Build();
-                }
-                catch(Exception)
-                {
-                    throw new Exception("Unable to build with json:" + jsonFullPath);
-                }
-            }
-            else  if (channelEndPointAddress != null)
-            {
-                config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: channelEndPointAddress).Build();
-            }
-            else
-            {
-                config = new ConfigurationBuilder().Build();
-            }
-
-#if NET46
-            // In NET46, we don't read from default configuration or bind configuration. 
-            services.AddApplicationInsightsTelemetry(config);
-#else
-            if (useDefaultConfig)
-            {
-                services.AddSingleton<IConfiguration>(config);
-                services.AddApplicationInsightsTelemetry();
-            }
-            else
-            {
-                services.AddApplicationInsightsTelemetry(config);
-            }
-#endif
-            if (serviceOptions != null)
-            {
-                services.Configure(serviceOptions);
-            }
-            return services;
         }
     }
 #pragma warning restore CS0618 // TelemetryConfiguration.Active is obsolete. We still test with this for backwards compatibility.
