@@ -65,9 +65,6 @@
             Assert.AreEqual(itemsProduced, sentTelemetry.Count);
         }
 
-#if !NETCOREAPP1_1 
-// Sampling tests are not stable on linux  Azure pipelines agent on .NET Core 1.1. 
-// considering .NET Core 1.1 is no longer supported, let's not run sampling tests there at all
         [TestMethod]
         public void ProactivelySampledInTelemetryCapturedWhenProactiveSamplingRateIsLowerThanTarget()
         {
@@ -364,7 +361,6 @@
             Assert.IsTrue(sentTelemetry.Count > targetItemCount - tolerance);
             Assert.IsTrue(sentTelemetry.Count < targetItemCount + tolerance);
         }
-#endif
 
         private class AdaptiveTesterMessageSink : ITelemetryProcessor
         {
@@ -514,17 +510,10 @@
         {
             // Regular Dispose() does not wait for all callbacks to complete
             // so TelemetryConfiguration could be disposed while callback still runs
-
-#if (NETCOREAPP1_1)
-            timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
-            timer.Dispose();
-            Thread.Sleep(1000);
-#else
             AutoResetEvent allDone = new AutoResetEvent(false);
             timer.Dispose(allDone);
             // this will wait for all callbacks to complete
             allDone.WaitOne();
-#endif
         }
     }
 }
