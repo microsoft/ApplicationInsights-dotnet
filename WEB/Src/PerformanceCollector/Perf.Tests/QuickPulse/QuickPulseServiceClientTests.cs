@@ -1,5 +1,4 @@
-﻿#if !NETCOREAPP1_0
-namespace Microsoft.ApplicationInsights.Tests
+﻿namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
     using System.Collections.Concurrent;
@@ -2126,4 +2125,3 @@ namespace Microsoft.ApplicationInsights.Tests
         }
     }
 }
-#endif
