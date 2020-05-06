@@ -1439,11 +1439,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
         }
 
-        public static TelemetryConfiguration GetTelemetryConfiguration(this IServiceProvider serviceProvider)
-        {
-            return serviceProvider.GetRequiredService<IOptions<TelemetryConfiguration>>().Value;
-        }
-
         public static ServiceCollection CreateServicesAndAddApplicationinsightsTelemetry(string jsonPath, string channelEndPointAddress, Action<ApplicationInsightsServiceOptions> serviceOptions = null, bool addChannel = true)
         {
             var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
@@ -1483,22 +1478,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 services.Configure(serviceOptions);
             }
             return services;
-        }
-
-        private class MockLoggingFactory : ILoggerFactory
-        {
-            public void Dispose()
-            {
-            }
-
-            public ILogger CreateLogger(string categoryName)
-            {
-                return null;
-            }
-
-            public void AddProvider(ILoggerProvider provider)
-            {
-            }
         }
     }
 #pragma warning restore CS0618 // TelemetryConfiguration.Active is obsolete. We still test with this for backwards compatibility.

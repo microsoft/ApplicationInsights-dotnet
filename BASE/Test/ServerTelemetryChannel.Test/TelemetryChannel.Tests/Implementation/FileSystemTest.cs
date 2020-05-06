@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
-#if !NETCOREAPP1_1
     using System;
     using System.IO;
     using System.Linq;
@@ -74,5 +73,4 @@
             return platformFile.Open(FileMode.Open);
         }
     }
-#endif
 }

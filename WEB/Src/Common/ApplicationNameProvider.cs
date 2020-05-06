@@ -1,9 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Common
 {
     using System;
-#if NETSTANDARD1_6
-    using System.Reflection;
-#endif
 
     internal sealed class ApplicationNameProvider
     {
@@ -19,11 +16,7 @@
             string name;
             try
             {
-#if NETSTANDARD1_6
-                name = Assembly.GetEntryAssembly().FullName;
-#else
                 name = AppDomain.CurrentDomain.FriendlyName;
-#endif
             }
             catch (Exception exp)
             {

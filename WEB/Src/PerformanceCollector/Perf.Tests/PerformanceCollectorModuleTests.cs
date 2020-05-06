@@ -465,7 +465,7 @@
             try
             {
                 module.Initialize(new TelemetryConfiguration());
-#if !NETCOREAPP1_0
+
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\Process(??APP_WIN32_PROC??)\% Processor Time"));
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\Process(??APP_WIN32_PROC??)\% Processor Time Normalized"));
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\Process(??APP_WIN32_PROC??)\Private Bytes"));
@@ -486,9 +486,6 @@
 #else
                 Assert.AreEqual(6, module.DefaultCounters.Count);
 #endif
-
-#endif
-
             }
             finally
             {

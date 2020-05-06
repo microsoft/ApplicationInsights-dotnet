@@ -22,9 +22,6 @@
                 return string.Empty;
             }
 
-#if NETSTANDARD1_3
-            return exception.ToString();
-#else
             CultureInfo originalUICulture = Thread.CurrentThread.CurrentUICulture;
             try
             {
@@ -35,7 +32,6 @@
             {
                 Thread.CurrentThread.CurrentUICulture = originalUICulture;
             }
-#endif
         }
     }
 }
