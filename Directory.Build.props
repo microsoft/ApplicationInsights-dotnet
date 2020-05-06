@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <!-- USE THESE VARIABLES TO CONTROL THE BUILD TASKS.-->
-    <Internal_Logging>false</Internal_Logging>
+    <Internal_Logging>true</Internal_Logging>
   </PropertyGroup>
 
   <Target Name="Info_InternalSettings"  BeforeTargets="Build">
