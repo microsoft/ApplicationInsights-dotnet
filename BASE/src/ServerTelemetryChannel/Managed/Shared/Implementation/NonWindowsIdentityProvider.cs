@@ -18,15 +18,25 @@
 
         string IIdentityProvider.GetName()
         {
+#if NETSTANDARD2_0
+            if (Environment.UserName != null)
+            {
+                return Environment.UserName;
+            }
+#endif
+
             // This variable is not guaranteed to be present. eg: in Docker containers.
             if (this.environment["USER"] != null)
             {
                 return this.environment["USER"].ToString();
-            }            
-            else
-            {
-                return string.Empty;
             }
+
+            if (this.environment["USERNAME"] != null)
+            {
+                return this.environment["USERNAME"].ToString();
+            }
+
+            return string.Empty;
         }
     }
 }

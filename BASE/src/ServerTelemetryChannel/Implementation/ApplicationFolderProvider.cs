@@ -21,6 +21,10 @@
         private readonly string customFolderName;
         private readonly IIdentityProvider identityProvider;
 
+        // Creating readonly instead of constant, from test we could use reflection to replace the value of these fields.
+        private readonly string nonWindowsStorageProbePathVarTmp = "/var/tmp/";
+        private readonly string nonWindowsStorageProbePathTmp = "/tmp/";
+
         public ApplicationFolderProvider(string folderName = null)
             : this(Environment.GetEnvironmentVariables(), folderName)
         {
@@ -56,22 +60,47 @@
             var errors = new List<string>(this.environment.Count + 1);
 
             var result = this.CreateAndValidateApplicationFolder(this.customFolderName, createSubFolder: false, errors: errors);
-            
-            if (result == null)
+
+            // In the constructor, for windows environment we set the value of ApplySecurityToDirectory to SetSecurityPermissionsToAdminAndCurrentUserWindows.
+            if (this.ApplySecurityToDirectory.Method.Name == nameof(this.SetSecurityPermissionsToAdminAndCurrentUserWindows))
             {
-                object localAppData = this.environment["LOCALAPPDATA"];
-                if (localAppData != null)
+                if (result == null)
                 {
-                    result = this.CreateAndValidateApplicationFolder(localAppData.ToString(), createSubFolder: true, errors: errors);
+                    object localAppData = this.environment["LOCALAPPDATA"];
+                    if (localAppData != null)
+                    {
+                        result = this.CreateAndValidateApplicationFolder(localAppData.ToString(), createSubFolder: true, errors: errors);
+                    }
+                }
+
+                if (result == null)
+                {
+                    object temp = this.environment["TEMP"];
+                    if (temp != null)
+                    {
+                        result = this.CreateAndValidateApplicationFolder(temp.ToString(), createSubFolder: true, errors: errors);
+                    }
                 }
             }
-
-            if (result == null)
-            {
-                object temp = this.environment["TEMP"];
-                if (temp != null)
+            else
+            { 
+                if (result == null)
                 {
-                    result = this.CreateAndValidateApplicationFolder(temp.ToString(), createSubFolder: true, errors: errors);
+                    object tmpdir = this.environment["TMPDIR"];
+                    if (tmpdir != null)
+                    {
+                        result = this.CreateAndValidateApplicationFolder(tmpdir.ToString(), createSubFolder: true, errors: errors);
+                    }
+                }
+
+                if (result == null)
+                {
+                    result = this.CreateAndValidateApplicationFolder(this.nonWindowsStorageProbePathVarTmp, createSubFolder: true, errors: errors);
+                }
+
+                if (result == null)
+                {
+                    result = this.CreateAndValidateApplicationFolder(this.nonWindowsStorageProbePathTmp, createSubFolder: true, errors: errors);
                 }
             }
 
@@ -228,9 +257,9 @@
 
         private bool SetSecurityPermissionsToAdminAndCurrentUserNonWindows(DirectoryInfo subdirectory)
         {
-            // For non-windows simply return false to indicate that security policy is not applied.
+            // For non-windows simply return true to skip security policy.
             // This is until .net core exposes an Api to do this. 
-            return false;
+            return true;
         }
 
         private bool SetSecurityPermissionsToAdminAndCurrentUserWindows(DirectoryInfo subdirectory)
