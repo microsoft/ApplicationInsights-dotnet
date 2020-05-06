@@ -1,6 +1,7 @@
 ﻿# Changelog
 
 ## VNext
+- [End support for NetStandard 1.x, Add support for NetStandard 2.0](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1160)
 - [Fix: ServerTelemetryChannel stores telemetry data in default folder during transient errors in all environments](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1792)
 
 ## Version 2.15.0-beta1
