@@ -599,9 +599,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             Assert.NotNull(modules);
 
 #if NETCOREAPP
-            Assert.Equal(7, modules.Count());
+            // Developer Note: Expected modules:
+            //      RequestTrackingTelemetryModule, PerformanceCollectorModule, AppServicesHeartbeatTelemetryModule, AzureInstanceMetadataTelemetryModule, 
+            //      QuickPulseTelemetryModule, DiagnosticsTelemetryModule, DependencyTrackingTelemetryModule, EventCollectorCollectionModule
+            Assert.Equal(8, modules.Count());
 #else
-                Assert.Equal(6, modules.Count());
+            Assert.Equal(7, modules.Count());
 #endif
 
             var perfCounterModule = modules.OfType<PerformanceCollectorModule>().Single();
