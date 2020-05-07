@@ -97,10 +97,5 @@
     <AssemblyAttributesPath>$(IntermediateOutputPath)\AssemblyInfo.g.cs</AssemblyAttributesPath>
     <GenerateAdditionalSources>true</GenerateAdditionalSources>
   </PropertyGroup>
-  
-
-  <ItemGroup>
-    <SourceRoot Include="$(MSBuildProjectDirectory)\" />
-  </ItemGroup>
    
 </Project>

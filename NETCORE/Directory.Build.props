@@ -18,10 +18,10 @@
     <TargetsRoot>$(EnlistmentRoot)\.targets</TargetsRoot>
     <PublicApiRoot>$(EnlistmentRoot)\.publicApi</PublicApiRoot>
 
-
+    
     <BinRoot>$(EnlistmentRoot)\..\bin</BinRoot>
     <BinRoot>$([System.IO.Path]::GetFullPath( $(BinRoot) ))</BinRoot>
-
+    
     <ObjRoot>$(EnlistmentRoot)\..\obj</ObjRoot>
     <ObjRoot>$([System.IO.Path]::GetFullPath( $(ObjRoot) ))</ObjRoot>
 
@@ -42,8 +42,6 @@
     <IntermediateOutputPath>$([System.IO.Path]::GetFullPath( $(IntermediateOutputPath) ))\</IntermediateOutputPath>
   </PropertyGroup>
 
-  <ItemGroup>
-    <SourceRoot Include="$(MSBuildProjectDirectory)\" />
-  </ItemGroup>
+
 
 </Project>
