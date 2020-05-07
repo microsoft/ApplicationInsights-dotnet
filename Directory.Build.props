@@ -48,8 +48,4 @@
     <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
   </PropertyGroup>
 
-  <ItemGroup>
-    <SourceRoot Include="$(MSBuildProjectDirectory)\" RepositoryUrl="https://github.com/microsoft/ApplicationInsights-dotnet" SourceControl="git" />
-  </ItemGroup>
-
 </Project>

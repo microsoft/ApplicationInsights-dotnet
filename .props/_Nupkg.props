@@ -54,7 +54,7 @@
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     
     <!-- mapping all source paths included in the project outputs to deterministic values -->
-    <DeterministicSourcePaths>true</DeterministicSourcePaths>
+    <!-- <DeterministicSourcePaths>true</DeterministicSourcePaths> -->
 
     <!-- produce an assembly whose byte-for-byte output is identical across compilations for identical inputs-->
     <Deterministic>true</Deterministic>
