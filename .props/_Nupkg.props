@@ -51,7 +51,7 @@
 
   <PropertyGroup Condition="$(BuildServer) == 'true'">
     <!-- indicate that the build executes on a build/CI server -->
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <!-- <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild> -->
     
     <!-- mapping all source paths included in the project outputs to deterministic values -->
     <!-- <DeterministicSourcePaths>true</DeterministicSourcePaths> -->
