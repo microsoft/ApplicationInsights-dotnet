@@ -29,16 +29,13 @@
         // Cache the heartbeat property manager across updates. Note that tests can also override the heartbeat manager.
         internal IHeartbeatPropertyManager HeartbeatManager;
 
-        // Used to determine if we call Add or Set heartbeat properties in the case of updates.
-        private bool isInitialized = false;
-        
         /// <summary>
         /// Initializes a new instance of the<see cref="AppServicesHeartbeatTelemetryModule" /> class.
         /// </summary>
         public AppServicesHeartbeatTelemetryModule() : this(null)
         {            
         }
-
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="AppServicesHeartbeatTelemetryModule" /> class. This is
         /// internal, and allows for overriding the Heartbeat Property Manager to test this module with.
@@ -48,6 +45,9 @@
         {
             this.HeartbeatManager = hbeatPropManager;
         }
+
+        // Used to determine if we call Add or Set heartbeat properties in the case of updates.
+        internal bool IsInitialized { get; private set; } = false;
 
         /// <summary>
         /// Initialize the default heartbeat provider for Azure App Services. This module
@@ -72,7 +72,7 @@
                 var hbeatManager = this.GetHeartbeatPropertyManager();
                 if (hbeatManager != null)
                 {
-                    this.isInitialized = this.AddAppServiceEnvironmentVariablesToHeartbeat(hbeatManager, isUpdateOperation: this.isInitialized);
+                    this.IsInitialized = this.AddAppServiceEnvironmentVariablesToHeartbeat(hbeatManager, isUpdateOperation: this.IsInitialized);
                 }
             }
             catch (Exception appSrvEnvVarHbeatFailure)
