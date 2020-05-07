@@ -109,4 +109,8 @@
     <GenerateAdditionalSources>true</GenerateAdditionalSources>
   </PropertyGroup>
 
+  <ItemGroup>
+    <SourceRoot Include="$(MSBuildProjectDirectory)\" />
+  </ItemGroup>
+
 </Project>
