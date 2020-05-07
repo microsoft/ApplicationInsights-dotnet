@@ -265,7 +265,7 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
             // TelemetryModules
             var modules = serviceProvider.GetServices<ITelemetryModule>();
             Assert.NotNull(modules);
-            Assert.Equal(6, modules.Count());
+            Assert.Equal(7, modules.Count());
 
             var perfCounterModule = modules.FirstOrDefault<ITelemetryModule>(t => t.GetType() == typeof(PerformanceCollectorModule));
             Assert.NotNull(perfCounterModule);
