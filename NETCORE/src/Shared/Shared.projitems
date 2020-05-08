@@ -12,6 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\ApplicationInsightsExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\ApplicationInsightsServiceOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\DependencyCollectionOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HeartbeatHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ITelemetryModuleConfigurator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ITelemetryProcessorFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\NoOpTelemetryModule.cs" />

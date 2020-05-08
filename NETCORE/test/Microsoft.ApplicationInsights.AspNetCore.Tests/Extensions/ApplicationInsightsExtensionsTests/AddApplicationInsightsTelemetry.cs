@@ -34,7 +34,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
 
-#pragma warning disable CS0618 // TelemetryConfiguration.Active is obsolete. We still test with this for backwards compatibility.
     public class AddApplicationInsightsTelemetry : BaseTestClass
     {
         [Theory]
@@ -160,17 +159,17 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         public static void ConfigurationFactoryMethodUpdatesTheActiveConfigurationSingletonByDefault()
         {
             // Clear off Active before beginning test to avoid being affected by previous tests.
-            TelemetryConfiguration.Active.InstrumentationKey = "";
-            TelemetryConfiguration.Active.TelemetryInitializers.Clear();
+            //TelemetryConfiguration.Active.InstrumentationKey = "";
+            //TelemetryConfiguration.Active.TelemetryInitializers.Clear();
 
-            var activeConfig = TelemetryConfiguration.Active;
+            //var activeConfig = TelemetryConfiguration.Active;
             var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content", "config-instrumentation-key.json"), null);
 
             IServiceProvider serviceProvider = services.BuildServiceProvider();
             TelemetryConfiguration telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
             Assert.Equal(TestInstrumentationKey, telemetryConfiguration.InstrumentationKey);
-            Assert.Equal(TestInstrumentationKey, activeConfig.InstrumentationKey);
-            Assert.NotEqual(activeConfig, telemetryConfiguration);
+            //Assert.Equal(TestInstrumentationKey, activeConfig.InstrumentationKey);
+            //Assert.NotEqual(activeConfig, telemetryConfiguration);
         }
 
         /// <summary>
@@ -969,12 +968,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             // Get telemetry client to trigger TelemetryConfig setup.
             var tc = serviceProvider.GetService<TelemetryClient>();
 
-            Type appServHBModuleType = typeof(AppServicesHeartbeatTelemetryModule);
-            AppServicesHeartbeatTelemetryModule appServHBModule = (AppServicesHeartbeatTelemetryModule)modules.FirstOrDefault(m => m.GetType() == appServHBModuleType);
-            // Get the AppServicesHeartbeatTelemetryModule private field value for isInitialized.             
-            FieldInfo isInitializedField = appServHBModuleType.GetField("isInitialized", BindingFlags.NonPublic | BindingFlags.Instance);
+            AppServicesHeartbeatTelemetryModule appServHBModule = modules.OfType<AppServicesHeartbeatTelemetryModule>().Single();
+
             // AppServicesHeartbeatTelemetryModule.isInitialized is set to true when EnableAppServicesHeartbeatTelemetryModule is enabled, else it is set to false.
-            Assert.Equal(isEnable, (bool)isInitializedField.GetValue(appServHBModule));
+            Assert.Equal(isEnable, appServHBModule.IsInitialized);
         }
 
         /// <summary>
@@ -1732,7 +1729,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             IServiceProvider serviceProvider = services.BuildServiceProvider();
             var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
             var modules = serviceProvider.GetServices<ITelemetryModule>();
-            var heartbeatModule = TelemetryModules.Instance.Modules.OfType<IHeartbeatPropertyManager>().First();
+            var heartbeatModule = modules.OfType<IHeartbeatPropertyManager>().Single();
 
             Assert.NotNull(heartbeatModule);
             Assert.False(heartbeatModule.IsHeartbeatEnabled);
@@ -1746,7 +1743,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
 
             Assert.DoesNotContain(telemetryConfiguration.TelemetryInitializers, t => t is W3COperationCorrelationTelemetryInitializer);
-            Assert.DoesNotContain(TelemetryConfiguration.Active.TelemetryInitializers, t => t is W3COperationCorrelationTelemetryInitializer);
 
             var modules = serviceProvider.GetServices<ITelemetryModule>().ToList();
 
@@ -1977,6 +1973,4 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         }
 #endif
     }
-
-#pragma warning restore CS0618 // TelemetryConfiguration.Active is obsolete. We still test with this for backwards compatibility.
 }

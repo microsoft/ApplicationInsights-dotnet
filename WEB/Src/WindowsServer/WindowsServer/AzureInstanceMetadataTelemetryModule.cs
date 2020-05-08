@@ -12,6 +12,9 @@
     /// </summary>
     public sealed class AzureInstanceMetadataTelemetryModule : ITelemetryModule
     {
+        // Cache the heartbeat property manager across updates. Note that tests can also override the heartbeat manager.
+        internal IHeartbeatPropertyManager HeartbeatManager;
+
         private bool isInitialized = false;
         private object lockObject = new object();
 
@@ -31,26 +34,24 @@
                 {
                     if (!this.isInitialized)
                     {
-                        var telemetryModules = TelemetryModules.Instance;
+                        var telemetryModules = TelemetryModules.Instance; // TODO: THIS
 
-                        foreach (var module in telemetryModules.Modules)
+                        var hbeatManager = this.GetHeartbeatPropertyManager();
+                        if (hbeatManager != null)
                         {
-                            if (module is IHeartbeatPropertyManager hbeatManager)
+                            // start off the heartbeat property collection process, but don't wait for it nor report
+                            // any status from here, fire and forget. The thread running the collection will report 
+                            // to the core event log.
+                            try
                             {
-                                // start off the heartbeat property collection process, but don't wait for it nor report
-                                // any status from here, fire and forget. The thread running the collection will report 
-                                // to the core event log.
-                                try
-                                {
-                                    var heartbeatProperties = new AzureComputeMetadataHeartbeatPropertyProvider();
-                                    Task.Factory.StartNew(
-                                        async () => await heartbeatProperties.SetDefaultPayloadAsync(hbeatManager)
-                                        .ConfigureAwait(false));
-                                }
-                                catch (Exception heartbeatAquisitionException)
-                                {
-                                    WindowsServerEventSource.Log.AzureInstanceMetadataFailureWithException(heartbeatAquisitionException.Message, heartbeatAquisitionException.InnerException?.Message);
-                                }
+                                var heartbeatProperties = new AzureComputeMetadataHeartbeatPropertyProvider();
+                                Task.Factory.StartNew(
+                                    async () => await heartbeatProperties.SetDefaultPayloadAsync(hbeatManager)
+                                    .ConfigureAwait(false));
+                            }
+                            catch (Exception heartbeatAquisitionException)
+                            {
+                                WindowsServerEventSource.Log.AzureInstanceMetadataFailureWithException(heartbeatAquisitionException.Message, heartbeatAquisitionException.InnerException?.Message);
                             }
                         }
 
@@ -58,6 +59,39 @@
                     }
                 }
             }
+        }
+
+        private IHeartbeatPropertyManager GetHeartbeatPropertyManager()
+        {
+            if (this.HeartbeatManager == null)
+            {
+                // TODO: THIS CAUSES THE HEARTBEAT TEST TO FAIL BECAUSE IT'S LOOKING AT THE WRONG COLLECTION OF MODULES
+                var telemetryModules = TelemetryModules.Instance;
+
+                try
+                {
+                    foreach (var module in telemetryModules.Modules)
+                    {
+                        if (module is IHeartbeatPropertyManager hman)
+                        {
+                            this.HeartbeatManager = hman;
+                        }
+                    }
+                }
+                catch (Exception hearbeatManagerAccessException)
+                {
+                    // TODO: MISSING LOGGING HERE FOR AzureInstanceMetadataTelemetryModule
+                    // WindowsServerEventSource.Log.AppServiceHeartbeatManagerAccessFailure(hearbeatManagerAccessException.ToInvariantString());
+                }
+
+                if (this.HeartbeatManager == null)
+                {
+                    // TODO: MISSING LOGGING HERE FOR AzureInstanceMetadataTelemetryModule
+                    // WindowsServerEventSource.Log.AppServiceHeartbeatManagerNotAvailable();
+                }
+            }
+
+            return this.HeartbeatManager;
         }
     }
 }
