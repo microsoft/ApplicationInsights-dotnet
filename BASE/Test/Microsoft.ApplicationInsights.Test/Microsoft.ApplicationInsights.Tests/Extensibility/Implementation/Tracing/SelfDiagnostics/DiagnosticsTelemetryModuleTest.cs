@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementation.Tracing.SelfDiagnostics
 {
-#if !NETCOREAPP1_1
     using System;
     using System.Diagnostics.Tracing;
     using System.IO;
@@ -199,5 +198,4 @@
             }
         }
     }
-#endif
 }

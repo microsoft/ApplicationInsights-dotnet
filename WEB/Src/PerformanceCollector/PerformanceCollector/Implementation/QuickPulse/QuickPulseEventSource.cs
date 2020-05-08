@@ -169,7 +169,7 @@
             string name;
             try
             {
-#if NETSTANDARD1_6 || NETSTANDARD2_0
+#if NETSTANDARD2_0
                 name = new AssemblyName(Assembly.GetEntryAssembly().FullName).Name;
 #else
                 name = AppDomain.CurrentDomain.FriendlyName;

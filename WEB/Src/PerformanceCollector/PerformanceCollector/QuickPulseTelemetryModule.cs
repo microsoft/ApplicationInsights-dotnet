@@ -26,7 +26,7 @@
     /// </summary>
     public sealed class QuickPulseTelemetryModule : ITelemetryModule, IDisposable
     {
-#if NETSTANDARD1_6 || NETSTANDARD2_0
+#if NETSTANDARD2_0
         internal static IQuickPulseModuleScheduler ModuleScheduler = QuickPulseTaskModuleScheduler.Instance;
 #else
         internal static IQuickPulseModuleScheduler ModuleScheduler = QuickPulseThreadModuleScheduler.Instance;

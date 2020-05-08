@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.FileDiagnosticsModule
 {
-#if !NETSTANDARD1_3
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -202,5 +201,4 @@
             }
         }
     }
-#endif
 }
