@@ -18,9 +18,7 @@
             try
             {
                 var actual = PerformanceCounterUtility.GetPerformanceCollector();
-#if NETCOREAPP1_0
-                Assert.AreEqual("StandardPerformanceCollectorStub", actual.GetType().Name);
-#elif NETCOREAPP2_0
+#if NETCOREAPP2_0
             Assert.AreEqual("StandardPerformanceCollector", actual.GetType().Name);
 #else // NET45
             Assert.AreEqual("StandardPerformanceCollector", actual.GetType().Name);

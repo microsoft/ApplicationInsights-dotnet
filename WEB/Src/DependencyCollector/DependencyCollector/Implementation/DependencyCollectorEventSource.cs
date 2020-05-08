@@ -4,9 +4,6 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
     using System.Globalization;
-#if NETSTANDARD1_6
-    using System.Reflection;
-#endif
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 

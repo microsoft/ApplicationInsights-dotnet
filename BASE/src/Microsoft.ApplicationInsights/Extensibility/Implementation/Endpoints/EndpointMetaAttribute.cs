@@ -20,15 +20,9 @@
 
         public static EndpointMetaAttribute GetAttribute(EndpointName enumValue)
         {
-#if NETSTANDARD1_3
-            Type type = enumValue.GetType();
-            string name = Enum.GetName(type, enumValue);
-            return type.GetRuntimeField(name).GetCustomAttribute<EndpointMetaAttribute>();
-#else
             Type type = enumValue.GetType();
             string name = Enum.GetName(type, enumValue);
             return type.GetField(name).GetCustomAttribute<EndpointMetaAttribute>();
-#endif
         }
     }
 }

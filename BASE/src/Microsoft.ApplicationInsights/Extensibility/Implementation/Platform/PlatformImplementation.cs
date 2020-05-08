@@ -1,5 +1,4 @@
-﻿#if !NETSTANDARD1_3 // netstandard1.3 has it's own implementation
-namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
 {
     using System;
     using System.Collections;
@@ -143,81 +142,3 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
         }
     }
 }
-#else
-namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
-{
-    using System;
-    using System.Collections.Generic;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-
-    internal class PlatformImplementation : IPlatform
-    {
-        private IDebugOutput debugOutput = null;
-
-        public IDictionary<string, object> GetApplicationSettings()
-        {
-            return null;
-        }
-
-        public string ReadConfigurationXml()
-        {
-            return null;
-        }
-
-        public ExceptionDetails GetExceptionDetails(Exception exception, ExceptionDetails parentExceptionDetails)
-        {
-            return ExceptionConverter.ConvertToExceptionDetails(exception, parentExceptionDetails);
-        }
-
-        /// <summary>
-        /// Returns the platform specific Debugger writer to the VS output console.
-        /// </summary>
-        public IDebugOutput GetDebugOutput()
-        {
-            if (this.debugOutput == null)
-            {
-                this.debugOutput = new TelemetryDebugWriter();
-            }
-
-            return this.debugOutput;
-        }
-
-        /// <inheritdoc />
-        public bool TryGetEnvironmentVariable(string name, out string value)
-        {
-            value = string.Empty;
-
-            try
-            {
-                value = Environment.GetEnvironmentVariable(name);
-                return !string.IsNullOrEmpty(value);
-            }
-            catch (Exception e)
-            {
-                CoreEventSource.Log.FailedToLoadEnvironmentVariables(e.ToString());
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Returns the machine name.
-        /// </summary>
-        /// <returns>The machine name.</returns>
-        public string GetMachineName()
-        {
-            try
-            {
-                return Environment.GetEnvironmentVariable("COMPUTERNAME");
-            }
-            catch (Exception e)
-            {
-                CoreEventSource.Log.FailedToLoadEnvironmentVariables(e.ToString());
-            }
-
-            return string.Empty;
-        }
-    }
-}
-#endif
