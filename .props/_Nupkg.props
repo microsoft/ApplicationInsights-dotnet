@@ -16,7 +16,7 @@
     <!-- Creating symbol packages (.snupkg) https://docs.microsoft.com/en-us/nuget/create-packages/symbol-packages-snupkg -->
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    
+
     <!-- Include the PDB in the built .nupkg -->
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
@@ -39,10 +39,14 @@
     <PackageReleaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</PackageReleaseNotes>
     <!-- <PackageOutputPath>Defined in Directory.props</PackageOutputPath> -->
     <PackageTags>Analytics Azure ApplicationInsights Telemetry Monitoring SDK</PackageTags>
+    <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <!-- Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
 
   <ItemGroup>
-      <None Include="$(EnlistmentRoot)\.images\icon.png" Pack="true" PackagePath="\"/>
+    <None Include="$(EnlistmentRoot)\.images\icon.png" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
   <PropertyGroup>
@@ -67,7 +71,7 @@
     <!-- This target will add an English localization tag to our xml documentation file. -->
     <InjectXmlLanguage FilePath="$(OutputPath)\$(AssemblyName).XML" />
   </Target>
-  
+
   <UsingTask TaskName="InjectXmlLanguage" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
     <ParameterGroup>
       <FilePath ParameterType="System.String" Required="true" />

@@ -42,7 +42,7 @@
             await ExecuteReaderAsyncInternal(connectionString, commandText, commandType);
         }
 
-#if !NETCOREAPP3_0 && !NETCOREAPP2_0 && !NETCOREAPP1_0
+#if !NETCOREAPP3_0 && !NETCOREAPP2_0
         public static void BeginExecuteReader(string connectionString, string commandText, int numberOfAsyncArgs)
         {
             ManualResetEvent mre = new ManualResetEvent(false);
@@ -130,7 +130,7 @@
             await ExecuteNonQueryAsyncInternal(connectionString, commandText);
         }
 
-#if !NETCOREAPP3_0 && !NETCOREAPP2_0 && !NETCOREAPP1_0
+#if !NETCOREAPP3_0 && !NETCOREAPP2_0
         public static void BeginExecuteNonQuery(string connectionString, string commandText, int numberOfArgs)
         {
             ManualResetEvent mre = new ManualResetEvent(false);
@@ -190,7 +190,7 @@
             await ExecuteXmlReaderAsyncInternal(connectionString, commandText);
         }
 
-#if !NETCOREAPP3_0 && !NETCOREAPP2_0 && !NETCOREAPP1_0
+#if !NETCOREAPP3_0 && !NETCOREAPP2_0
         public static void BeginExecuteXmlReader(string connectionString, string commandText)
         {
             ManualResetEvent mre = new ManualResetEvent(false);
@@ -306,7 +306,7 @@
             }
         }
 
-#if !NETCOREAPP3_0 && !NETCOREAPP2_0 && !NETCOREAPP1_0
+#if !NETCOREAPP3_0 && !NETCOREAPP2_0
         private sealed class AsyncExecuteReaderWrapper : IDisposable
         {
             private readonly SqlCommand command;
