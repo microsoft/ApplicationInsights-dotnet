@@ -44,6 +44,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// <summary>Constant instrumentation key value for testintg.</summary>
         public const string TestInstrumentationKey = "11111111-2222-3333-4444-555555555555";
         private const string TestConnectionString = "InstrumentationKey=11111111-2222-3333-4444-555555555555;IngestionEndpoint=http://127.0.0.1";
+        private const string InstrumentationKeyInAppSettings = "33333333-2222-3333-4444-555555555555";
         private const string InstrumentationKeyFromConfig = "ApplicationInsights:InstrumentationKey";
         private const string InstrumentationKeyEnvironmentVariable = "APPINSIGHTS_INSTRUMENTATIONKEY";
         private const string ConnectionStringEnvironmentVariable = "APPLICATIONINSIGHTS_CONNECTION_STRING";
@@ -125,7 +126,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// Else, it invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
             /// </param>
             [Theory]
+#if !NET46
             [InlineData(true)]
+#endif
             [InlineData(false)]
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromConfiguration(bool useDefaultConfig)
             {
@@ -133,7 +136,14 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                Assert.Equal(TestInstrumentationKey, telemetryConfiguration.InstrumentationKey);
+                if (useDefaultConfig)
+                {
+                    Assert.Equal(InstrumentationKeyInAppSettings, telemetryConfiguration.InstrumentationKey);
+                }
+                else
+                {
+                    Assert.Equal(TestInstrumentationKey, telemetryConfiguration.InstrumentationKey);
+                }
             }
 
             /// <summary>
@@ -188,7 +198,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 TelemetryConfiguration.Active.TelemetryInitializers.Clear();
 
                 var activeConfig = TelemetryConfiguration.Active;
-                var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content","config-instrumentation-key.json"), null);
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content","config-instrumentation-key.json"), null, null, true, false);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 TelemetryConfiguration telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
@@ -236,7 +246,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// Else, it invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
             /// </param>
             [Theory]
-            [InlineData(true)]  
+#if !NET46
+            [InlineData(true)]
+#endif
             [InlineData(false)] 
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromConfiguration(bool useDefaultConfig)
             {
@@ -244,7 +256,16 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                Assert.Equal("http://localhost:1234/v2/track/", telemetryConfiguration.TelemetryChannel.EndpointAddress);
+
+                if (useDefaultConfig)
+                {
+                    // Endpoint comes from appSettings 
+                    Assert.Equal("http://hosthere/v2/track/", telemetryConfiguration.TelemetryChannel.EndpointAddress);
+                }
+                else
+                {
+                    Assert.Equal("http://localhost:1234/v2/track/", telemetryConfiguration.TelemetryChannel.EndpointAddress);
+                }
             }
 
             [Fact]
@@ -348,12 +369,11 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             {
                 string ikeyExpected = Guid.NewGuid().ToString();
                 string hostExpected = "http://ainewhost/v2/track/";
-                string iKeyInAppSettings = "33333333-2222-3333-4444-555555555555";
                 string text = File.ReadAllText("appsettings.json");
                 string originalText = text;
                 try
                 {
-                    text = text.Replace(iKeyInAppSettings, ikeyExpected);
+                    text = text.Replace(InstrumentationKeyInAppSettings, ikeyExpected);
                     text = text.Replace("http://hosthere/v2/track/", hostExpected);
                     File.WriteAllText("appsettings.json", text);
 
@@ -379,11 +399,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             {
                 string suppliedIKey = "suppliedikey";
                 string ikey = Guid.NewGuid().ToString();
-                string iKeyInAppSettings = "33333333-2222-3333-4444-555555555555";
                 string text = File.ReadAllText("appsettings.json");
                 try
                 {
-                    text = text.Replace(iKeyInAppSettings, ikey);
+                    text = text.Replace(InstrumentationKeyInAppSettings, ikey);
                     File.WriteAllText("appsettings.json", text);
 
                     var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
@@ -394,7 +413,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 }
                 finally
                 {
-                    text = text.Replace(ikey, iKeyInAppSettings);
+                    text = text.Replace(ikey, InstrumentationKeyInAppSettings);
                     File.WriteAllText("appsettings.json", text);
                 }
             }
@@ -409,11 +428,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 string suppliedIKey = "suppliedikey";
                 var options = new ApplicationInsightsServiceOptions() { InstrumentationKey = suppliedIKey };
                 string ikey = Guid.NewGuid().ToString();
-                string iKeyInAppSettings = "33333333-2222-3333-4444-555555555555";
                 string text = File.ReadAllText("appsettings.json");
                 try
                 {
-                    text = text.Replace(iKeyInAppSettings, ikey);
+                    text = text.Replace(InstrumentationKeyInAppSettings, ikey);
                     File.WriteAllText("appsettings.json", text);
 
                     var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
@@ -424,7 +442,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 }
                 finally
                 {
-                    text = text.Replace(ikey, iKeyInAppSettings);
+                    text = text.Replace(ikey, InstrumentationKeyInAppSettings);
                     File.WriteAllText("appsettings.json", text);
                 }
             }
@@ -440,11 +458,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 // Create new options, which will be default have null ikey and endpoint.
                 var options = new ApplicationInsightsServiceOptions();
                 string ikey = Guid.NewGuid().ToString();
-                string ikeyInAppSettingsFile = "33333333-2222-3333-4444-555555555555";
                 string text = File.ReadAllText("appsettings.json");
                 try
                 {
-                    text = text.Replace(ikeyInAppSettingsFile, ikey);
+                    text = text.Replace(InstrumentationKeyInAppSettings, ikey);
                     text = text.Replace("hosthere", "newhost");
                     File.WriteAllText("appsettings.json", text);
 
@@ -457,7 +474,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 }
                 finally
                 {
-                    text = text.Replace(ikey, ikeyInAppSettingsFile);
+                    text = text.Replace(ikey, InstrumentationKeyInAppSettings);
                     text = text.Replace("newhost", "hosthere");
                     File.WriteAllText("appsettings.json", text);
                 }
@@ -1862,8 +1879,11 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 {
                     configBuilder = new ConfigurationBuilder()
                         .SetBasePath(Directory.GetCurrentDirectory())
-                        .AddJsonFile("appsettings.json", false)
                         .AddJsonFile(Path.Combine("content", fileName));
+                    if (useDefaultConfig)
+                    {
+                        configBuilder.AddJsonFile("appsettings.json", false);
+                    }                        
                 }
                 else
                 {
@@ -1967,6 +1987,22 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 {
                     Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
                 }
+            }
+
+            [Fact]
+            public static void VerifiesIkeyProvidedInAppSettingsWinsOverOtherConfigurationOptions()
+            {
+                // ARRANGE
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "content", "config-instrumentation-key.json");
+
+                // ACT
+                // Calls services.AddApplicationInsightsTelemetry(), which by default reads from appSettings.json
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, null, true, true);
+
+                // VALIDATE
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
+                Assert.Equal(InstrumentationKeyInAppSettings, telemetryConfiguration.InstrumentationKey);
             }
 
             [Fact]
