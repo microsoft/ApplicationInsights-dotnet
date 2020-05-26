@@ -4,9 +4,6 @@
     using System.Globalization;
     using System.Linq;
     using System.Reflection;
-#if NETSTANDARD1_6
-    using System.Collections.Generic;
-#endif
 
     internal class SdkVersionUtils
     {
@@ -16,11 +13,7 @@
             // For directly using TrackDependency(), version will be simply what is set by core
             Type sdkVersionUtilsType = typeof(SdkVersionUtils);
 
-#if NETSTANDARD1_6
-            IEnumerable<Attribute> assemblyCustomAttributes = sdkVersionUtilsType.GetTypeInfo().Assembly.GetCustomAttributes();
-#else
             object[] assemblyCustomAttributes = sdkVersionUtilsType.Assembly.GetCustomAttributes(false);
-#endif
             string versionStr = assemblyCustomAttributes
                     .OfType<AssemblyFileVersionAttribute>()
                     .First()

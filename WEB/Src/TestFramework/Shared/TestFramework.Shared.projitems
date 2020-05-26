@@ -21,8 +21,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)TaskExceptionObserver.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryConfigurationFactoryHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TestEventListener.cs" />
-  </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' != 'netcoreapp1.0' ">
     <Compile Include="$(MSBuildThisFileDirectory)EventSourceTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubTransmission.cs" />
   </ItemGroup>

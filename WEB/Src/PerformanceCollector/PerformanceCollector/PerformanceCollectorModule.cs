@@ -213,10 +213,6 @@
 
         private static bool IsRunningUnderIisExpress()
         {
-#if NETSTANDARD1_6
-            // For netstandard1.6 target, only time perfcounter is active is if running as Azure WebApp
-            return false;
-#else
             var iisExpressProcessName = "iisexpress";
 
             try
@@ -231,7 +227,6 @@
 
                 return false;
             }
-#endif
         }
 
         /// <summary>

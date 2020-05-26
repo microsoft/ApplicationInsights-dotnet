@@ -2,16 +2,12 @@ namespace Microsoft.ApplicationInsights.DataContracts
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
-#if !NETSTANDARD1_3
     using System.Runtime.Serialization;
-#endif
 
     /// <summary>
     /// This exception is used to notify the user that the set of inner exceptions has been trimmed because it exceeded our allowed send limit.
     /// </summary>
-#if !NETSTANDARD1_3
     [Serializable]
-#endif
     [SuppressMessage("Microsoft.Design", "CA1064:ExceptionsShouldBePublic", Justification = "We expect that this exception will be caught within the internal scope and should never be exposed to an end user.")]
     internal class InnerExceptionCountExceededException : Exception
     {
@@ -37,7 +33,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
         public InnerExceptionCountExceededException(string message, Exception innerException) : base(message, innerException)
         {
         }
-#if !NETSTANDARD1_3
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InnerExceptionCountExceededException"/> class with serialized data.
@@ -49,6 +44,5 @@ namespace Microsoft.ApplicationInsights.DataContracts
         protected InnerExceptionCountExceededException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
-#endif
     }
 }
