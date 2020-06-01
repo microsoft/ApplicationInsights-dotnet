@@ -122,6 +122,22 @@
         }
 
         /// <summary>
+        /// Gets or Sets the subscriber to an event in Transmission to track ingestion status metrics.
+        /// </summary>
+        public EventHandler<TransmissionStatusEventArgs> TransmissionStatusEvent
+        {
+            get
+            {
+                return this.TelemetrySerializer.TransmissionStatusEvent;
+            }
+
+            set
+            {
+                this.TelemetrySerializer.TransmissionStatusEvent = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the maximum telemetry batching interval. Once the interval expires, <see cref="TelemetryChannel"/> 
         /// serializes the accumulated telemetry items for transmission.
         /// </summary>

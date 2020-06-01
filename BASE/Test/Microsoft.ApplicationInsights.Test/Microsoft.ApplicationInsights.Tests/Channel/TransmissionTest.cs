@@ -403,13 +403,13 @@
                         var payload = (IDictionary<string, object>)traces[0].Payload[0];
                         Assert.AreEqual("IngestionEndpoint-ResponseTimeMsec", payload["Name"].ToString());
                         Assert.IsTrue((int)payload["Count"] >= 5);
-                        // Mean should be more than 30 ms, as we introduced a delay of 30ms in SendAsync.
+                        // Max should be more than 30 ms, as we introduced a delay of 30ms in SendAsync.
 #if NETCOREAPP2_1
-                        Assert.IsTrue((float)payload["Mean"] >= 30);
+                        Assert.IsTrue((float)payload["Max"] >= 30);
 #endif
 
 #if NETCOREAPP3_1
-                        Assert.IsTrue((double)payload["Mean"] >= 30);
+                        Assert.IsTrue((double)payload["Max"] >= 30);
 #endif
                     }
                 }
@@ -499,6 +499,31 @@
                         var traces = allTraces.Where(item => item.EventId == 67).ToList();
                         Assert.AreEqual(1, traces.Count);
                     }
+                }
+            }
+
+            [TestMethod]
+            public async Task TestTransmissionStatusEventHandler()
+            {
+                var handler = new HandlerForFakeHttpClient
+                {
+                    InnerHandler = new HttpClientHandler(),
+                    OnSendAsync = (req, cancellationToken) =>
+                    {
+                        return Task.FromResult<HttpResponseMessage>(new HttpResponseMessage());
+                    }
+                };
+
+                using (var fakeHttpClient = new HttpClient(handler))
+                {
+                    // Instantiate Transmission with the mock HttpClient                  
+                    Transmission transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
+                    transmission.TransmissionStatusEvent += delegate(object sender, TransmissionStatusEventArgs args)
+                    {
+                        Assert.AreEqual(200, (int)args.Response.StatusCode);
+                    };
+
+                    HttpWebResponseWrapper result = await transmission.SendAsync();
                 }
             }
         }

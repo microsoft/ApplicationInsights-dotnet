@@ -21,7 +21,7 @@
 
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
         private static HttpClient client = new HttpClient() { Timeout = System.Threading.Timeout.InfiniteTimeSpan };
-
+                
         private int isSending;
 
         /// <summary>
@@ -40,7 +40,7 @@
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Transmission"/> class.
-        /// </summary>
+        /// </summary>        
         public Transmission(Uri address, ICollection<ITelemetry> telemetryItems, TimeSpan timeout = default(TimeSpan))
             : this(address, JsonSerializer.Serialize(telemetryItems, true), JsonSerializer.ContentType, JsonSerializer.CompressionType, timeout)
         {
@@ -71,6 +71,11 @@
         {
         }
 
+        /// <summary>
+        /// Gets or Sets an event notification to track ingestion status metrics.
+        /// </summary>
+        public EventHandler<TransmissionStatusEventArgs> TransmissionStatusEvent { get; set; }
+        
         /// <summary>
         /// Gets the Address of the endpoint to which transmission will be sent.
         /// </summary>
@@ -169,6 +174,9 @@
                                 CoreEventSource.Log.IngestionResponseTime(response != null ? (int)response.StatusCode : -1, stopwatch.ElapsedMilliseconds);
                                 // Log ingestion respose time as event counter metric.
                                 CoreEventSource.Log.IngestionResponseTimeEventCounter(stopwatch.ElapsedMilliseconds);
+
+                                // Initiates event notification for subscriber to extract metrics from Transmission and TransmissionStatusEventArgs.
+                                this.TransmissionStatusEvent?.Invoke(this, new TransmissionStatusEventArgs(response));
 
                                 if (response != null)
                                 {
