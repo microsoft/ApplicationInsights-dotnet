@@ -23,37 +23,42 @@ steps:
     projects: "NETCORE/*.sln"
     arguments: "--configuration Release"
 
-- task: DotNetCoreCLI@1
+- task: DotNetCoreCLI@2
   displayName: Integration Tests
   continueOnError: true
   inputs:
     command: "test"
     projects: "NETCORE/test/**/IntegrationTests.Tests.csproj"
-    arguments: "--configuration Release -l trx"
+    arguments: "--configuration Release"
+    publishTestResults: true
 
-- task: DotNetCoreCLI@1
+
+- task: DotNetCoreCLI@2
   displayName: Functional MVC Tests
   continueOnError: true
   inputs:
     command: "test"
     projects: "NETCORE/test/**/*FunctionalTests.MVC.Tests.csproj"
-    arguments: "--configuration Release --framework netcoreapp3.1 -l trx"
+    arguments: "--configuration Release --framework netcoreapp3.1"
+    publishTestResults: true
 
-- task: DotNetCoreCLI@1
+- task: DotNetCoreCLI@2
   displayName: Unit Tests for AspNetCore 3.1
   continueOnError: true
   inputs:
     command: "test"
     projects: "NETCORE/test/**/*AspNetCore.Tests.csproj"
-    arguments: "--configuration Release --framework netcoreapp3.1 -l trx"
+    arguments: "--configuration Release --framework netcoreapp3.1"
+    publishTestResults: true
     
-- task: DotNetCoreCLI@1
+- task: DotNetCoreCLI@2
   displayName: Unit Tests + Func Tests for WorkerService for AspNetCore 3.1
   continueOnError: true
   inputs:
     command: "test"
     projects: "NETCORE/test/**/*WorkerService.Tests.csproj"
-    arguments: "--configuration Release --framework netcoreapp3.1 -l trx"
+    arguments: "--configuration Release --framework netcoreapp3.1"
+    publishTestResults: true
 
 ## Install and Test NetCore 2.2
 
@@ -62,38 +67,41 @@ steps:
   inputs:
     version: 2.2.x
     
-- task: DotNetCoreCLI@1
+- task: DotNetCoreCLI@2
   displayName: Functional MVC Tests
   continueOnError: true
   inputs:
     command: "test"
     projects: "NETCORE/test/**/*FunctionalTests.MVC.Tests.csproj"
-    arguments: "--configuration Release --framework netcoreapp2.1 -l trx"
+    arguments: "--configuration Release --framework netcoreapp2.1"
+    publishTestResults: true
 
-- task: DotNetCoreCLI@1
+- task: DotNetCoreCLI@2
   displayName: Unit Tests for AspNetCore 2.1
   continueOnError: true
   inputs:
     command: "test"
     projects: "NETCORE/test/**/*AspNetCore.Tests.csproj"
-    arguments: "--configuration Release --framework netcoreapp2.1 -l trx"
+    arguments: "--configuration Release --framework netcoreapp2.1"
+    publishTestResults: true
     
-- task: DotNetCoreCLI@1
+- task: DotNetCoreCLI@2
   displayName: Unit Tests + Func Tests for WorkerService for AspNetCore 2.1
   continueOnError: true
   inputs:
     command: "test"
     projects: "NETCORE/test/**/*WorkerService.Tests.csproj"
-    arguments: "--configuration Release --framework netcoreapp2.1 -l trx"
+    arguments: "--configuration Release --framework netcoreapp2.1"
+    publishTestResults: true
 
 
 ## Publish Test results
 
-- task: PublishTestResults@2
-  condition: always()
-  inputs:
-    testRunner: "VSTest"
-    testResultsFiles: "**/*.trx"
+# - task: PublishTestResults@2
+#  condition: always()
+#  inputs:
+#    testRunner: "VSTest"
+#    testResultsFiles: "**/*.trx"
 
 #- task: DotNetCoreCLI@1
 #  displayName: Package Nuget
