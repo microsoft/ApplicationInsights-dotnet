@@ -170,7 +170,11 @@
                 target.InstrumentationKey = this.InstrumentationKey;
             }
 
-            target.ConnectionString = this.ConnectionString;
+            if (!string.IsNullOrEmpty(this.ConnectionString))
+            {
+                target.ConnectionString = this.ConnectionString;
+            }
+
             target.ApplicationVersion = this.ApplicationVersion;
             target.EnableAdaptiveSampling = this.EnableAdaptiveSampling;
             target.EnableDebugLogger = this.EnableDebugLogger;
