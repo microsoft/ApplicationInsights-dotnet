@@ -25,7 +25,6 @@ steps:
 
 - task: DotNetCoreCLI@1
   displayName: Integration Tests
-  continueOnError: true
   inputs:
     command: "test"
     projects: "NETCORE/test/**/IntegrationTests.Tests.csproj"
@@ -33,7 +32,6 @@ steps:
 
 - task: DotNetCoreCLI@1
   displayName: Functional MVC Tests
-  continueOnError: true
   inputs:
     command: "test"
     projects: "NETCORE/test/**/*FunctionalTests.MVC.Tests.csproj"
@@ -41,7 +39,6 @@ steps:
 
 - task: DotNetCoreCLI@1
   displayName: Unit Tests for AspNetCore 3.1
-  continueOnError: true
   inputs:
     command: "test"
     projects: "NETCORE/test/**/*AspNetCore.Tests.csproj"
@@ -49,7 +46,6 @@ steps:
     
 - task: DotNetCoreCLI@1
   displayName: Unit Tests + Func Tests for WorkerService for AspNetCore 3.1
-  continueOnError: true
   inputs:
     command: "test"
     projects: "NETCORE/test/**/*WorkerService.Tests.csproj"
@@ -64,7 +60,6 @@ steps:
     
 - task: DotNetCoreCLI@1
   displayName: Functional MVC Tests
-  continueOnError: true
   inputs:
     command: "test"
     projects: "NETCORE/test/**/*FunctionalTests.MVC.Tests.csproj"
@@ -72,7 +67,6 @@ steps:
 
 - task: DotNetCoreCLI@1
   displayName: Unit Tests for AspNetCore 2.1
-  continueOnError: true
   inputs:
     command: "test"
     projects: "NETCORE/test/**/*AspNetCore.Tests.csproj"
@@ -80,7 +74,6 @@ steps:
     
 - task: DotNetCoreCLI@1
   displayName: Unit Tests + Func Tests for WorkerService for AspNetCore 2.1
-  continueOnError: true
   inputs:
     command: "test"
     projects: "NETCORE/test/**/*WorkerService.Tests.csproj"
