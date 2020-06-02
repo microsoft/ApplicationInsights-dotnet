@@ -59,6 +59,11 @@
         private const string DeveloperModeForWebSites = "APPINSIGHTS_DEVELOPER_MODE";
         private const string EndpointAddressForWebSites = "APPINSIGHTS_ENDPOINTADDRESS";
 
+#if NETSTANDARD2_0 || NET461
+        private const string ApplicationInsightsSectionFromConfig = "ApplicationInsights";
+        private const string TelemetryChannelSectionFromConfig = "ApplicationInsights:TelemetryChannel";
+#endif
+
         [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "Used in NetStandard2.0 build.")]
         private const string ApplicationInsightsSectionFromConfig = "ApplicationInsights";
 

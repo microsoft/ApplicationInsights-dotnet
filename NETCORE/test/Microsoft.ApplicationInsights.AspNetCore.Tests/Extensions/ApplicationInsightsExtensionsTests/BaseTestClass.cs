@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿
+using Xunit;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)] // this is an XUnit api setting
 namespace Microsoft.Extensions.DependencyInjection.Test
@@ -17,6 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     {
         internal const string TestInstrumentationKey = "11111111-2222-3333-4444-555555555555";
         internal const string TestConnectionString = "InstrumentationKey=11111111-2222-3333-4444-555555555555;IngestionEndpoint=http://127.0.0.1";
+        internal const string InstrumentationKeyInAppSettings = "33333333-2222-3333-4444-555555555555";
         internal const string InstrumentationKeyFromConfig = "ApplicationInsights:InstrumentationKey";
         internal const string InstrumentationKeyEnvironmentVariable = "APPINSIGHTS_INSTRUMENTATIONKEY";
         internal const string ConnectionStringEnvironmentVariable = "APPLICATIONINSIGHTS_CONNECTION_STRING";

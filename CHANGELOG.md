@@ -1,7 +1,7 @@
 ﻿# Changelog
 
 ## VNext
-- [Application Insights ASP.NET Core SDK by default reads application's IConfiguration and all properties of ApplicationInsightsServiceOptions from configuration](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1850)
+- [Read all properties of ApplicationInsightsServiceOptions from IConfiguration](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1882)
 - [End support for NetStandard 1.x, Add support for NetStandard 2.0](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1160)
 - [Add support for SourceLink.Github to all SDKs.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1760)
 
