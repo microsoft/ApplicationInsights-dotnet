@@ -50,6 +50,7 @@ steps:
   inputs:
     testRunner: "VSTest"
     testResultsFiles: "**/*.trx"
+    failTaskOnFailedTests: true
 
 #- task: DotNetCoreCLI@1
 #  inputs:
