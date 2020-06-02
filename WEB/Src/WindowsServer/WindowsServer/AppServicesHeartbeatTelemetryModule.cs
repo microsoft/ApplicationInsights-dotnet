@@ -35,7 +35,7 @@
         public AppServicesHeartbeatTelemetryModule() : this(null)
         {            
         }
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="AppServicesHeartbeatTelemetryModule" /> class. This is
         /// internal, and allows for overriding the Heartbeat Property Manager to test this module with.
@@ -46,7 +46,8 @@
             this.HeartbeatManager = hbeatPropManager;
         }
 
-        // Used to determine if we call Add or Set heartbeat properties in the case of updates.
+        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
+        /// <remarks>Used to determine if we call Add or Set heartbeat properties in the case of updates.</remarks>
         internal bool IsInitialized { get; private set; } = false;
 
         /// <summary>
