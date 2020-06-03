@@ -490,7 +490,7 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -542,7 +542,7 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -594,7 +594,7 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -646,7 +646,7 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -698,7 +698,7 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -750,7 +750,7 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-req-dep-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-req-dep-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -800,7 +800,7 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -841,7 +841,7 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
