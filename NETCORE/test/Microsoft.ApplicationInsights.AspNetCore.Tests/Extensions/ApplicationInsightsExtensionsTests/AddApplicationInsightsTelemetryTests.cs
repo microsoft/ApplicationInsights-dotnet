@@ -698,7 +698,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -751,7 +751,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -806,7 +806,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -855,7 +855,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -909,7 +909,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -963,7 +963,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -1013,7 +1013,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -1088,7 +1088,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-req-dep-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-req-dep-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -1291,7 +1291,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-req-dep-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-req-dep-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -1394,7 +1394,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -1610,7 +1610,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -1663,7 +1663,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
