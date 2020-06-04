@@ -28,9 +28,6 @@
 
         private IHeartbeatPropertyManager heartbeatManager;
 
-        // Used to determine if we call Add or Set heartbeat properties in the case of updates.
-        private bool isInitialized = false;
-        
         /// <summary>
         /// Initializes a new instance of the<see cref="AppServicesHeartbeatTelemetryModule" /> class.
         /// </summary>
@@ -47,6 +44,10 @@
         {
             this.HeartbeatPropertyManager = hbeatPropManager;
         }
+
+        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
+        /// <remarks>Used to determine if we call Add or Set heartbeat properties in the case of updates.</remarks>
+        internal bool IsInitialized { get; private set; } = false;
 
         /// <summary>
         /// Gets or sets an instance of IHeartbeatPropertyManager. 
@@ -93,7 +94,7 @@
                 var hbeatManager = this.HeartbeatPropertyManager;
                 if (hbeatManager != null)
                 {
-                    this.isInitialized = this.AddAppServiceEnvironmentVariablesToHeartbeat(hbeatManager, isUpdateOperation: this.isInitialized);
+                    this.IsInitialized = this.AddAppServiceEnvironmentVariablesToHeartbeat(hbeatManager, isUpdateOperation: this.IsInitialized);
                 }
             }
             catch (Exception appSrvEnvVarHbeatFailure)

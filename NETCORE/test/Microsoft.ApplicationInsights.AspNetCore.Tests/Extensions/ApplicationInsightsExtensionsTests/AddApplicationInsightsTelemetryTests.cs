@@ -982,12 +982,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             // Get telemetry client to trigger TelemetryConfig setup.
             var tc = serviceProvider.GetService<TelemetryClient>();
 
-            Type appServHBModuleType = typeof(AppServicesHeartbeatTelemetryModule);
-            AppServicesHeartbeatTelemetryModule appServHBModule = (AppServicesHeartbeatTelemetryModule)modules.FirstOrDefault(m => m.GetType() == appServHBModuleType);
-            // Get the AppServicesHeartbeatTelemetryModule private field value for isInitialized.             
-            FieldInfo isInitializedField = appServHBModuleType.GetField("isInitialized", BindingFlags.NonPublic | BindingFlags.Instance);
-            // AppServicesHeartbeatTelemetryModule.isInitialized is set to true when EnableAppServicesHeartbeatTelemetryModule is enabled, else it is set to false.
-            Assert.Equal(isEnable, (bool)isInitializedField.GetValue(appServHBModule));
+            AppServicesHeartbeatTelemetryModule appServHBModule = modules.OfType<AppServicesHeartbeatTelemetryModule>().Single();
+            Assert.Equal(isEnable, appServHBModule.IsInitialized);
         }
 
         /// <summary>
