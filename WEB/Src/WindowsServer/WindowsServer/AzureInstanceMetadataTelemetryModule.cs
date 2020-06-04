@@ -14,6 +14,29 @@
     {
         private bool isInitialized = false;
         private object lockObject = new object();
+        private IHeartbeatPropertyManager heartbeatManager;
+
+        /// <summary>
+        /// Gets or sets an instance of IHeartbeatPropertyManager. 
+        /// </summary>
+        /// <remarks>
+        /// This is expected to be an instance of <see cref="DiagnosticsTelemetryModule"/>.
+        /// Note that tests can also override the heartbeat manager.
+        /// </remarks>
+        internal IHeartbeatPropertyManager HeartbeatPropertyManager
+        {
+            get
+            {
+                if (this.heartbeatManager == null)
+                {
+                    this.heartbeatManager = HeartbeatPropertyManagerProvider.GetHeartbeatPropertyManager();
+                }
+
+                return this.heartbeatManager;
+            }
+
+            set => this.heartbeatManager = value;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AzureInstanceMetadataTelemetryModule" /> class.
@@ -31,26 +54,22 @@
                 {
                     if (!this.isInitialized)
                     {
-                        var telemetryModules = TelemetryModules.Instance;
-
-                        foreach (var module in telemetryModules.Modules)
+                        var hbeatManager = this.HeartbeatPropertyManager;
+                        if (hbeatManager != null)
                         {
-                            if (module is IHeartbeatPropertyManager hbeatManager)
+                            // start off the heartbeat property collection process, but don't wait for it nor report
+                            // any status from here, fire and forget. The thread running the collection will report 
+                            // to the core event log.
+                            try
                             {
-                                // start off the heartbeat property collection process, but don't wait for it nor report
-                                // any status from here, fire and forget. The thread running the collection will report 
-                                // to the core event log.
-                                try
-                                {
-                                    var heartbeatProperties = new AzureComputeMetadataHeartbeatPropertyProvider();
-                                    Task.Factory.StartNew(
-                                        async () => await heartbeatProperties.SetDefaultPayloadAsync(hbeatManager)
-                                        .ConfigureAwait(false));
-                                }
-                                catch (Exception heartbeatAquisitionException)
-                                {
-                                    WindowsServerEventSource.Log.AzureInstanceMetadataFailureWithException(heartbeatAquisitionException.Message, heartbeatAquisitionException.InnerException?.Message);
-                                }
+                                var heartbeatProperties = new AzureComputeMetadataHeartbeatPropertyProvider();
+                                Task.Factory.StartNew(
+                                    async () => await heartbeatProperties.SetDefaultPayloadAsync(hbeatManager)
+                                    .ConfigureAwait(false));
+                            }
+                            catch (Exception heartbeatAquisitionException)
+                            {
+                                WindowsServerEventSource.Log.AzureInstanceMetadataFailureWithException(heartbeatAquisitionException.Message, heartbeatAquisitionException.InnerException?.Message);
                             }
                         }
 
