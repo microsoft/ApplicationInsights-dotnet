@@ -12,9 +12,11 @@
     /// </summary>
     public sealed class AzureInstanceMetadataTelemetryModule : ITelemetryModule
     {
-        private bool isInitialized = false;
         private object lockObject = new object();
         private IHeartbeatPropertyManager heartbeatManager;
+
+        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
+        internal bool IsInitialized { get; private set; } = false;
 
         /// <summary>
         /// Gets or sets an instance of IHeartbeatPropertyManager. 
@@ -48,11 +50,11 @@
         public void Initialize(TelemetryConfiguration unused)
         {
             // Core SDK creates 1 instance of a module but calls Initialize multiple times
-            if (!this.isInitialized)
+            if (!this.IsInitialized)
             {
                 lock (this.lockObject)
                 {
-                    if (!this.isInitialized)
+                    if (!this.IsInitialized)
                     {
                         var hbeatManager = this.HeartbeatPropertyManager;
                         if (hbeatManager != null)
@@ -73,7 +75,7 @@
                             }
                         }
 
-                        this.isInitialized = true;
+                        this.IsInitialized = true;
                     }
                 }
             }
