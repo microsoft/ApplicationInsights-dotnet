@@ -71,10 +71,6 @@
             set => this.heartbeatManager = value;
         }
 
-        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
-        /// <remarks>Used to determine if we call Add or Set heartbeat properties in the case of updates.</remarks>
-        internal bool IsInitialized { get; private set; } = false;
-
         /// <summary>
         /// Initialize the default heartbeat provider for Azure App Services. This module
         /// looks for specific environment variables and sets them into the heartbeat 
