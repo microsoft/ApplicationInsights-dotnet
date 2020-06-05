@@ -13,14 +13,6 @@
     public class ApplicationInsightsServiceOptions
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ApplicationInsightsServiceOptions" /> class.
-        /// Application Insights service options that controls the default behavior of application insights features.
-        /// </summary>
-        public ApplicationInsightsServiceOptions()
-        {
-        }
-
-        /// <summary>
         /// Gets or sets a value indicating whether QuickPulseTelemetryModule and QuickPulseTelemetryProcessor are registered with the configuration.
         /// Setting EnableQuickPulseMetricStream to <value>false</value>, will disable the default quick pulse metric stream. Defaults to <value>true</value>.
         /// </summary>
