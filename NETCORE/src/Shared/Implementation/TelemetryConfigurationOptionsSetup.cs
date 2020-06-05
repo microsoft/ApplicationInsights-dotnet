@@ -141,8 +141,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     configuration.TelemetryInitializers.Add(initializer);
                 }
 
-                // Find the IHeartbeatPropertyManager. This is expected to be the DiagnosticsTelemetryModule. This can be null.
-                var heartbeatPropertyManager = this.modules.OfType<IHeartbeatPropertyManager>().FirstOrDefault(); 
+                // Find the IHeartbeatPropertyManager. This is expected to be the DiagnosticsTelemetryModule, but will return null if doesn't exist.
+                var heartbeatPropertyManager = this.modules.OfType<IHeartbeatPropertyManager>().SingleOrDefault();
 
                 foreach (ITelemetryModule module in this.modules)
                 {
@@ -155,7 +155,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
                     if (module is DiagnosticsTelemetryModule)
                     {
-                        // TODO: ALLOW CUSTOMERS TO DISABLE DIAGNOSTICTELEMETRYMODULE
+                        if (!this.applicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule)
+                        {
+                            DisposeIfDisposable(module);
+                            continue;
+                        }
                     }
 
                     // DependencyTrackingTelemetryModule

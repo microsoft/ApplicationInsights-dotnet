@@ -145,6 +145,11 @@
 #endif
 
         /// <summary>
+        /// Gets or sets a value indicating whether the <see cref="Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule"/> should be enabled.
+        /// </summary>
+        public bool EnableDiagnosticsTelemetryModule { get; set; } = true;
+
+        /// <summary>
         /// Gets <see cref="DependencyCollectionOptions"/> that allow to manage <see cref="DependencyTrackingTelemetryModule"/>.
         /// </summary>
         public DependencyCollectionOptions DependencyCollectionOptions { get; }
@@ -185,6 +190,7 @@
             target.EnableDependencyTrackingTelemetryModule = this.EnableDependencyTrackingTelemetryModule;
             target.EnableAppServicesHeartbeatTelemetryModule = this.EnableAppServicesHeartbeatTelemetryModule;
             target.EnableAzureInstanceMetadataTelemetryModule = this.EnableAzureInstanceMetadataTelemetryModule;
+            target.EnableDiagnosticsTelemetryModule = this.EnableDiagnosticsTelemetryModule;
 #if NETSTANDARD2_0
             target.EnableEventCounterCollectionModule = this.EnableEventCounterCollectionModule;
 #endif
