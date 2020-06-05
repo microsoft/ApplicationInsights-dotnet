@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Shared.Implementation
 {
     using System;
+    using System.Diagnostics;
     using System.Reflection;
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -27,8 +28,9 @@
             if (heartbeatPropertyManager != null)
             {
                 Type appServicesHeartbeatTelemetryModuleType = typeof(AppServicesHeartbeatTelemetryModule);
-                FieldInfo field = appServicesHeartbeatTelemetryModuleType.GetField("HeartbeatManager", BindingFlags.NonPublic | BindingFlags.Instance);
-                field.SetValue(module, heartbeatPropertyManager);
+                var property = appServicesHeartbeatTelemetryModuleType.GetProperty("HeartbeatPropertyManager", BindingFlags.NonPublic | BindingFlags.Instance);
+                Debug.Assert(property != null, "Reflection failed, property not found.");
+                property.SetValue(module, heartbeatPropertyManager);
             }
         }
 
@@ -42,8 +44,9 @@
             if (heartbeatPropertyManager != null)
             {
                 Type appServicesHeartbeatTelemetryModuleType = typeof(AzureInstanceMetadataTelemetryModule);
-                FieldInfo field = appServicesHeartbeatTelemetryModuleType.GetField("HeartbeatManager", BindingFlags.NonPublic | BindingFlags.Instance);
-                field.SetValue(module, heartbeatPropertyManager);
+                var property = appServicesHeartbeatTelemetryModuleType.GetProperty("HeartbeatPropertyManager", BindingFlags.NonPublic | BindingFlags.Instance);
+                Debug.Assert(property != null, "Reflection failed, property not found.");
+                property.SetValue(module, heartbeatPropertyManager);
             }
         }
     }

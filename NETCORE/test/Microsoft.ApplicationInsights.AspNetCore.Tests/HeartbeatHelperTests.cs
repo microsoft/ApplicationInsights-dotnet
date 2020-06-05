@@ -14,10 +14,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             var module = new AppServicesHeartbeatTelemetryModule();
             var diagnosticsTelemetryModule = new DiagnosticsTelemetryModule();
 
-            Assert.Null(module.HeartbeatManager);
+            Assert.Null(module.HeartbeatPropertyManager);
             HeartbeatHelper.SetHeartbeatPropertyManager(module, diagnosticsTelemetryModule);
-            Assert.NotNull(module.HeartbeatManager);
-            Assert.Equal(diagnosticsTelemetryModule, module.HeartbeatManager);
+            Assert.NotNull(module.HeartbeatPropertyManager);
+            Assert.Equal(diagnosticsTelemetryModule, module.HeartbeatPropertyManager);
         }
 
         [Fact]
@@ -26,10 +26,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             var module = new AzureInstanceMetadataTelemetryModule();
             var diagnosticsTelemetryModule = new DiagnosticsTelemetryModule();
 
-            Assert.Null(module.HeartbeatManager);
+            Assert.Null(module.HeartbeatPropertyManager);
             HeartbeatHelper.SetHeartbeatPropertyManager(module, diagnosticsTelemetryModule);
-            Assert.NotNull(module.HeartbeatManager);
-            Assert.Equal(diagnosticsTelemetryModule, module.HeartbeatManager);
+            Assert.NotNull(module.HeartbeatPropertyManager);
+            Assert.Equal(diagnosticsTelemetryModule, module.HeartbeatPropertyManager);
         }
 
         [Fact]
@@ -37,9 +37,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
         {
             var module = new AppServicesHeartbeatTelemetryModule();
 
-            Assert.Null(module.HeartbeatManager);
+            Assert.Null(module.HeartbeatPropertyManager);
             HeartbeatHelper.SetHeartbeatPropertyManager(module, null);
-            Assert.Null(module.HeartbeatManager);
+            Assert.Null(module.HeartbeatPropertyManager);
         }
 
         [Fact]
@@ -47,9 +47,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
         {
             var module = new AzureInstanceMetadataTelemetryModule();
 
-            Assert.Null(module.HeartbeatManager);
+            Assert.Null(module.HeartbeatPropertyManager);
             HeartbeatHelper.SetHeartbeatPropertyManager(module, null);
-            Assert.Null(module.HeartbeatManager);
+            Assert.Null(module.HeartbeatPropertyManager);
         }
     }
 }
