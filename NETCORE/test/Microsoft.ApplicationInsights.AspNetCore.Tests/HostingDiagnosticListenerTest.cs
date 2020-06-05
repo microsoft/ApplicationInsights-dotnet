@@ -26,6 +26,7 @@
     using AspNetCoreMajorVersion = Microsoft.ApplicationInsights.AspNetCore.Tests.AspNetCoreMajorVersion;
     using RequestResponseHeaders = Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.RequestResponseHeaders;
 
+
     public class HostingDiagnosticListenerTest : IDisposable
     {
         private const string HttpRequestScheme = "http";

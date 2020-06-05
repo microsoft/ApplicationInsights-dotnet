@@ -12,11 +12,33 @@
     /// </summary>
     public sealed class AzureInstanceMetadataTelemetryModule : ITelemetryModule
     {
-        // Cache the heartbeat property manager across updates. Note that tests can also override the heartbeat manager.
-        internal IHeartbeatPropertyManager HeartbeatManager;
-
-        private bool isInitialized = false;
         private object lockObject = new object();
+        private IHeartbeatPropertyManager heartbeatManager;
+
+        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
+        internal bool IsInitialized { get; private set; } = false;
+
+        /// <summary>
+        /// Gets or sets an instance of IHeartbeatPropertyManager. 
+        /// </summary>
+        /// <remarks>
+        /// This is expected to be an instance of <see cref="DiagnosticsTelemetryModule"/>.
+        /// Note that tests can also override the heartbeat manager.
+        /// </remarks>
+        internal IHeartbeatPropertyManager HeartbeatPropertyManager
+        {
+            get
+            {
+                if (this.heartbeatManager == null)
+                {
+                    this.heartbeatManager = HeartbeatPropertyManagerProvider.GetHeartbeatPropertyManager();
+                }
+
+                return this.heartbeatManager;
+            }
+
+            set => this.heartbeatManager = value;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AzureInstanceMetadataTelemetryModule" /> class.
@@ -28,15 +50,13 @@
         public void Initialize(TelemetryConfiguration unused)
         {
             // Core SDK creates 1 instance of a module but calls Initialize multiple times
-            if (!this.isInitialized)
+            if (!this.IsInitialized)
             {
                 lock (this.lockObject)
                 {
-                    if (!this.isInitialized)
+                    if (!this.IsInitialized)
                     {
-                        var telemetryModules = TelemetryModules.Instance; // TODO: THIS
-
-                        var hbeatManager = this.GetHeartbeatPropertyManager();
+                        var hbeatManager = this.HeartbeatPropertyManager;
                         if (hbeatManager != null)
                         {
                             // start off the heartbeat property collection process, but don't wait for it nor report
@@ -55,43 +75,10 @@
                             }
                         }
 
-                        this.isInitialized = true;
+                        this.IsInitialized = true;
                     }
                 }
             }
-        }
-
-        private IHeartbeatPropertyManager GetHeartbeatPropertyManager()
-        {
-            if (this.HeartbeatManager == null)
-            {
-                // TODO: THIS CAUSES THE HEARTBEAT TEST TO FAIL BECAUSE IT'S LOOKING AT THE WRONG COLLECTION OF MODULES
-                var telemetryModules = TelemetryModules.Instance;
-
-                try
-                {
-                    foreach (var module in telemetryModules.Modules)
-                    {
-                        if (module is IHeartbeatPropertyManager hman)
-                        {
-                            this.HeartbeatManager = hman;
-                        }
-                    }
-                }
-                catch (Exception hearbeatManagerAccessException)
-                {
-                    // TODO: MISSING LOGGING HERE FOR AzureInstanceMetadataTelemetryModule
-                    // WindowsServerEventSource.Log.AppServiceHeartbeatManagerAccessFailure(hearbeatManagerAccessException.ToInvariantString());
-                }
-
-                if (this.HeartbeatManager == null)
-                {
-                    // TODO: MISSING LOGGING HERE FOR AzureInstanceMetadataTelemetryModule
-                    // WindowsServerEventSource.Log.AppServiceHeartbeatManagerNotAvailable();
-                }
-            }
-
-            return this.HeartbeatManager;
         }
     }
 }
