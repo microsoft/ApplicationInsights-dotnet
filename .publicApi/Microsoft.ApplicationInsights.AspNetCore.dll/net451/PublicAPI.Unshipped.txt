@@ -1,0 +1,2 @@
+Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule.get -> bool
+Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule.set -> void
