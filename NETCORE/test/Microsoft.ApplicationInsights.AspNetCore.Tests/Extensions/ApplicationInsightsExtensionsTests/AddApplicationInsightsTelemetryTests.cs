@@ -34,7 +34,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
 
-//#pragma warning disable CS0618 // TelemetryConfiguration.Active is obsolete. We still test with this for backwards compatibility.
     public class AddApplicationInsightsTelemetryTests : BaseTestClass
     {
         [Theory]
@@ -168,18 +167,11 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         [Fact]
         public static void ConfigurationFactoryMethodUpdatesTheActiveConfigurationSingletonByDefault()
         {
-            // Clear off Active before beginning test to avoid being affected by previous tests.
-            //TelemetryConfiguration.Active.InstrumentationKey = "";
-            //TelemetryConfiguration.Active.TelemetryInitializers.Clear();
-
-            //var activeConfig = TelemetryConfiguration.Active;
             var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content", "config-instrumentation-key.json"), null, null, true, false);
 
             IServiceProvider serviceProvider = services.BuildServiceProvider();
             TelemetryConfiguration telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
             Assert.Equal(TestInstrumentationKey, telemetryConfiguration.InstrumentationKey);
-            //Assert.Equal(TestInstrumentationKey, activeConfig.InstrumentationKey);
-            //Assert.NotEqual(activeConfig, telemetryConfiguration);
         }
 
         /// <summary>
@@ -2003,5 +1995,4 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         }
 #endif
     }
-//#pragma warning restore CS0618 // TelemetryConfiguration.Active is obsolete. We still test with this for backwards compatibility.
 }
