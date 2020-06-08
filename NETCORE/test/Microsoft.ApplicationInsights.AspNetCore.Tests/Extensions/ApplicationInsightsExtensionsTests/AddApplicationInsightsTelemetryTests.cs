@@ -695,7 +695,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -748,7 +748,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -803,7 +803,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -852,7 +852,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -906,7 +906,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -960,7 +960,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -982,12 +982,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             // Get telemetry client to trigger TelemetryConfig setup.
             var tc = serviceProvider.GetService<TelemetryClient>();
 
-            Type appServHBModuleType = typeof(AppServicesHeartbeatTelemetryModule);
-            AppServicesHeartbeatTelemetryModule appServHBModule = (AppServicesHeartbeatTelemetryModule)modules.FirstOrDefault(m => m.GetType() == appServHBModuleType);
-            // Get the AppServicesHeartbeatTelemetryModule private field value for isInitialized.             
-            FieldInfo isInitializedField = appServHBModuleType.GetField("isInitialized", BindingFlags.NonPublic | BindingFlags.Instance);
-            // AppServicesHeartbeatTelemetryModule.isInitialized is set to true when EnableAppServicesHeartbeatTelemetryModule is enabled, else it is set to false.
-            Assert.Equal(isEnable, (bool)isInitializedField.GetValue(appServHBModule));
+            AppServicesHeartbeatTelemetryModule appServHBModule = modules.OfType<AppServicesHeartbeatTelemetryModule>().Single();
+            Assert.Equal(isEnable, appServHBModule.IsInitialized);
         }
 
         /// <summary>
@@ -1014,7 +1010,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -1036,12 +1032,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             // Get telemetry client to trigger TelemetryConfig setup.
             var tc = serviceProvider.GetService<TelemetryClient>();
 
-            Type azureInstanceMetadataModuleType = typeof(AzureInstanceMetadataTelemetryModule);
-            AzureInstanceMetadataTelemetryModule azureInstanceMetadataModule = (AzureInstanceMetadataTelemetryModule)modules.FirstOrDefault(m => m.GetType() == azureInstanceMetadataModuleType);
-            // Get the AzureInstanceMetadataTelemetryModule private field value for isInitialized.
-            FieldInfo isInitializedField = azureInstanceMetadataModuleType.GetField("isInitialized", BindingFlags.NonPublic | BindingFlags.Instance);
-            // AzureInstanceMetadataTelemetryModule.isInitialized is set to true when EnableAzureInstanceMetadataTelemetryModule is enabled, else it is set to false.
-            Assert.Equal(isEnable, (bool)isInitializedField.GetValue(azureInstanceMetadataModule));
+            AzureInstanceMetadataTelemetryModule azureInstanceMetadataModule = modules.OfType<AzureInstanceMetadataTelemetryModule>().Single();
+            Assert.Equal(isEnable, azureInstanceMetadataModule.IsInitialized);
         }
 
         [Fact]
@@ -1089,7 +1081,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-req-dep-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-req-dep-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -1292,7 +1284,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-req-dep-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-req-dep-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -1395,7 +1387,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -1611,7 +1603,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
@@ -1664,7 +1656,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString() + ".json");
+            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
 
             if (configType == "Code")
             {
