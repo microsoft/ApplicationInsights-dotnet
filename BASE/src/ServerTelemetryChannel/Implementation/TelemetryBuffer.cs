@@ -14,6 +14,8 @@
     {
         private static readonly TimeSpan DefaultFlushDelay = TimeSpan.FromSeconds(30);
 
+        private static readonly object LockObj = new object();
+
         private readonly TaskTimerInternal flushTimer;
         private readonly TelemetrySerializer serializer;
 
@@ -141,7 +143,7 @@
                 this.flushTimer.Start(this.FlushAsync);
             }
 
-            lock (this)
+            lock (LockObj)
             {
                 if (this.itemBuffer.Count >= this.BacklogSize)
                 {
@@ -170,7 +172,7 @@
             List<ITelemetry> telemetryToFlush = null;
             if (this.itemBuffer.Count > 0)
             {
-                lock (this)
+                lock (LockObj)
                 {
                     if (this.itemBuffer.Count > 0)
                     {

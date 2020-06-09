@@ -13,13 +13,10 @@
 
   <ItemGroup Condition=" $(OS) == 'Windows_NT' And $(Configuration) == 'Release'">
     <!--Analyzers-->
-    <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.0.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="2.9.8">

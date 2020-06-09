@@ -96,7 +96,7 @@
                     }
                 }
 
-                this.SelectInstrumentationKey(configuration);
+                SelectInstrumentationKey(configuration);
 
                 InitializeComponents(configuration, modules);
             }
@@ -469,7 +469,7 @@
             return attributeDefinitions.Concat(elementDefinitions);
         }
 
-        private void SelectInstrumentationKey(TelemetryConfiguration configuration)
+        private static void SelectInstrumentationKey(TelemetryConfiguration configuration)
         {
             if (PlatformSingleton.Current.TryGetEnvironmentVariable(ConnectionStringEnvironmentVariable, out string connectionStringEnVar))
             {
