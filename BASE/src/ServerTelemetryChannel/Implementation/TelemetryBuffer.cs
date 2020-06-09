@@ -3,6 +3,7 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -10,11 +11,10 @@
     /// <summary>
     /// Accumulates <see cref="ITelemetry"/> items for efficient transmission.
     /// </summary>
+    [SuppressMessage("Microsoft.Reliability", "CA2002:DoNotLockObjectsWithWeakIdentity", Justification = "This should be removed, but there is currently a dependency on this behavior.")]
     internal class TelemetryBuffer : IEnumerable<ITelemetry>, ITelemetryProcessor, IDisposable
     {
         private static readonly TimeSpan DefaultFlushDelay = TimeSpan.FromSeconds(30);
-
-        private static readonly object LockObj = new object();
 
         private readonly TaskTimerInternal flushTimer;
         private readonly TelemetrySerializer serializer;
@@ -143,7 +143,7 @@
                 this.flushTimer.Start(this.FlushAsync);
             }
 
-            lock (LockObj)
+            lock (this)
             {
                 if (this.itemBuffer.Count >= this.BacklogSize)
                 {
@@ -172,7 +172,7 @@
             List<ITelemetry> telemetryToFlush = null;
             if (this.itemBuffer.Count > 0)
             {
-                lock (LockObj)
+                lock (this)
                 {
                     if (this.itemBuffer.Count > 0)
                     {
