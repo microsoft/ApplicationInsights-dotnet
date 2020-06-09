@@ -14,6 +14,7 @@
     /// </summary>
     internal class EventCounterListener : EventListener
     {
+        private static readonly object LockObj = new object();
         private readonly string refreshIntervalInSecs;
         private readonly int refreshInternalInSecInt;
         private readonly EventLevel level = EventLevel.Critical;
@@ -80,7 +81,7 @@
         protected override void OnEventSourceCreated(EventSource eventSource)
         {
             // Keeping track of all EventSources here, as this call may happen before initialization.
-            lock (this)
+            lock (LockObj)
             {
                 if (this.allEventSourcesCreated == null)
                 {
