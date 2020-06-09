@@ -19,7 +19,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.0.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="2.9.8">
+    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="3.0.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
 
