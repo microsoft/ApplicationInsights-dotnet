@@ -1,13 +1,16 @@
 ﻿# Changelog
 
 ## VNext
+- [Read all properties of ApplicationInsightsServiceOptions from IConfiguration](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1882)
 - [End support for NetStandard 1.x, Add support for NetStandard 2.0](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1160)
+- [Add support for SourceLink.Github to all SDKs.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1760)
 - [Fix: ServerTelemetryChannel stores telemetry data in default folder during transient errors in all environments](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1792)
+
 
 ## Version 2.15.0-beta1
 - [WorkerService package is modified to depend on 2.1.1 on Microsoft.Extensions.DependencyInjection so that it can be used in .NET Core 2.1 projects without nuget errors.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1677)
 - [Adding a flag to EventCounterCollector to enable/disable storing the EventSource name in the MetricNamespace and simplify the metric name](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1341)
-- [New: EventCounter to track Ingestion Endpoint Response Time] (https://github.com/microsoft/ApplicationInsights-dotnet/pull/1796)
+- [New: EventCounter to track Ingestion Endpoint Response Time](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1796)
 
 ## Version 2.14.0
 - no changes since beta.

@@ -6,12 +6,7 @@
     {
         string IIdentityProvider.GetName()
         {
-            if (Environment.UserName != null)
-            {
-                return Environment.UserName;
-            }
-
-            return string.Empty;
+            return Environment.UserName;
         }
     }
 }
