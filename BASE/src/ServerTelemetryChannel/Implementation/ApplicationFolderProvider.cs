@@ -6,6 +6,7 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.IO;
+    using System.Runtime.InteropServices;
     using System.Security;
     using System.Security.AccessControl;
     using System.Security.Cryptography;
@@ -47,7 +48,7 @@
             }
             catch (Exception)
             {
-                this.identityProvider = new NonWindowsIdentityProvider(environment);
+                this.identityProvider = new NonWindowsIdentityProvider();
                 this.ApplySecurityToDirectory = this.SetSecurityPermissionsToAdminAndCurrentUserNonWindows;
             }
              
@@ -61,8 +62,7 @@
 
             var result = this.CreateAndValidateApplicationFolder(this.customFolderName, createSubFolder: false, errors: errors);
 
-            // In the constructor, for windows environment we set the value of ApplySecurityToDirectory to SetSecurityPermissionsToAdminAndCurrentUserWindows.
-            if (this.ApplySecurityToDirectory.Method.Name == nameof(this.SetSecurityPermissionsToAdminAndCurrentUserWindows))
+            if (IsWindowsOperatingSystem())
             {
                 if (result == null)
                 {
@@ -163,6 +163,22 @@
             }
 
             return hashString.ToString();
+        }
+
+        private static bool IsWindowsOperatingSystem()
+        {
+#if NET45
+            return true;
+#else
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+#endif
         }
 
         private static SHA256 CreateSHA256()
