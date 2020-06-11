@@ -38,15 +38,12 @@
                 throw new ArgumentNullException(nameof(environment));
             }
 
-            try
+            if(IsWindowsOperatingSystem())
             {
-                // In NETSTANDARD 1.3 Most reliable way to know if WindowsIdentityProvider can be used                 
-                // is to check if it throws exception.
-                WindowsIdentity.GetCurrent();
                 this.identityProvider = new WindowsIdentityProvider();
                 this.ApplySecurityToDirectory = this.SetSecurityPermissionsToAdminAndCurrentUserWindows;
             }
-            catch (Exception)
+            else
             {
                 this.identityProvider = new NonWindowsIdentityProvider();
                 this.ApplySecurityToDirectory = this.SetSecurityPermissionsToAdminAndCurrentUserNonWindows;
