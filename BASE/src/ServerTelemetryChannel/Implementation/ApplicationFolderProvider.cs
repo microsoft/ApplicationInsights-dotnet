@@ -118,6 +118,22 @@
             this.ApplySecurityToDirectory = applySecurityToDirectory;
         }
 
+        internal static bool IsWindowsOperatingSystem()
+        {
+#if NET45
+            return true;
+#else
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+#endif
+        }
+
         private static string GetPathAccessFailureErrorMessage(Exception exp, string path)
         {
             return "Path: " + path + "; Error: " + exp.Message + Environment.NewLine;
@@ -160,22 +176,6 @@
             }
 
             return hashString.ToString();
-        }
-
-        private static bool IsWindowsOperatingSystem()
-        {
-#if NET45
-            return true;
-#else
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-#endif
         }
 
         private static SHA256 CreateSHA256()

@@ -303,7 +303,7 @@
         [TestMethod]
         public void GetApplicationFolderReturnsSubfolderFromTmpDirFolderInNonWindows()
         {
-            if (!IsWindowsOperatingSystem())
+            if (!ApplicationFolderProvider.IsWindowsOperatingSystem())
             {
                 DirectoryInfo tmpDir = this.testDirectory.CreateSubdirectory(@"tmpdir");
                 var environmentVariables = new Hashtable { { "TMPDIR", tmpDir.FullName } };
@@ -319,7 +319,7 @@
         [TestMethod]
         public void GetApplicationFolderReturnsSubfolderFromCustomFolderFirstInNonWindows()
         {
-            if (!IsWindowsOperatingSystem())
+            if (!ApplicationFolderProvider.IsWindowsOperatingSystem())
             {
                 DirectoryInfo tmpDir = this.testDirectory.CreateSubdirectory(@"tmpdir");
                 DirectoryInfo customFolder = this.testDirectory.CreateSubdirectory(@"Custom");
@@ -340,7 +340,7 @@
         [TestMethod]
         public void GetApplicationFolderReturnsSubfolderFromVarTmpFolderIfTmpDirIsNotAvailableInNonWindows()
         {
-            if (!IsWindowsOperatingSystem())
+            if (!ApplicationFolderProvider.IsWindowsOperatingSystem())
             {
                 var dir = new System.IO.DirectoryInfo(NonWindowsStorageProbePathVarTmp);
                 var provider = new ApplicationFolderProvider();
@@ -358,7 +358,7 @@
         [TestMethod]
         public void GetApplicationFolderReturnsSubfolderFromTmpFolderIfVarTmpIsNotAvailableInNonWindows()
         {
-            if (!IsWindowsOperatingSystem())
+            if (!ApplicationFolderProvider.IsWindowsOperatingSystem())
             {
                 var dir = new System.IO.DirectoryInfo(NonWindowsStorageProbePathTmp);
 
@@ -379,7 +379,7 @@
         [TestMethod]
         public void GetApplicationFolderReturnsNullWhenNoFolderAvailableToStoreDataInNonWindows()
         {
-            if (!IsWindowsOperatingSystem())
+            if (!ApplicationFolderProvider.IsWindowsOperatingSystem())
             {
                 var provider = new ApplicationFolderProvider();
                 var vartmpPathFieldInfo = provider.GetType().GetField("nonWindowsStorageProbePathVarTmp", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -395,7 +395,7 @@
         [TestMethod]
         public void GetApplicationFolderReturnsSubfolderFromVarTmpIfTmpDirIsTooLongInNonWindows()
         {
-            if (!IsWindowsOperatingSystem())
+            if (!ApplicationFolderProvider.IsWindowsOperatingSystem())
             {
                 string longDirectoryName = Path.Combine(this.testDirectory.FullName, new string('A', 300));
                 var varTmpdir = new System.IO.DirectoryInfo(NonWindowsStorageProbePathVarTmp);
@@ -452,22 +452,6 @@
             security.AddAccessRule(new FileSystemAccessRule(WindowsIdentity.GetCurrent().Name, rights, access));
             directory.SetAccessControl(security);
             return directory;
-        }
-
-        private bool IsWindowsOperatingSystem()
-        {
-#if NET45
-            return true;
-#else
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-#endif
         }
     }
 }
