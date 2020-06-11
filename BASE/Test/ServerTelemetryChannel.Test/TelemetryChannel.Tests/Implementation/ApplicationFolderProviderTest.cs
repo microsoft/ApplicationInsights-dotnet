@@ -393,7 +393,7 @@
         }
 
         [TestMethod]
-        public void GetApplicationFolderReturnsSubfolderFromTmpDirFolderIfTmpDirIsTooLongInNonWindows()
+        public void GetApplicationFolderReturnsSubfolderFromVarTmpIfTmpDirIsTooLongInNonWindows()
         {
             if (!IsWindowsOperatingSystem())
             {
