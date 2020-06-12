@@ -22,14 +22,16 @@
     <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="3.0.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
+  </ItemGroup>
 
+  <ItemGroup>
     <!--Build Infrastructure-->
     <PackageReference Include="Microsoft.VisualStudioEng.MicroBuild.Core" Version="0.4.1">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>    
+  <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
