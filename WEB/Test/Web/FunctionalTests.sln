@@ -45,18 +45,12 @@ EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		..\..\Src\Common\Common.projitems*{00e2f973-3be4-4ae5-b3e9-21f97c45e5e7}*SharedItemsImports = 5
-		..\..\Src\Web\Web.Shared.Net\Web.Shared.Net.projitems*{00e2f973-3be4-4ae5-b3e9-21f97c45e5e7}*SharedItemsImports = 5
 		..\..\..\BASE\src\Common\Common\Common.projitems*{3a5be8ff-4571-48c0-bf28-5dbcb509900e}*SharedItemsImports = 5
 		..\..\..\BASE\src\Common\Common\Common.projitems*{4d3aed61-d670-4817-affd-91ecbe03fff2}*SharedItemsImports = 5
 		..\..\Src\Common\Common.projitems*{5171849e-f678-4bb1-b3ca-9754e9d94821}*SharedItemsImports = 5
-		..\..\Src\DependencyCollector\Shared\DependencyCollector.Shared.projitems*{5171849e-f678-4bb1-b3ca-9754e9d94821}*SharedItemsImports = 5
 		..\..\Src\Common\Common.projitems*{634a3177-56b4-44b1-9c81-32ba3959eaa5}*SharedItemsImports = 5
-		..\..\Src\WindowsServer\WindowsServer.Shared\WindowsServer.Shared.projitems*{634a3177-56b4-44b1-9c81-32ba3959eaa5}*SharedItemsImports = 5
 		..\..\Src\Common\Common.projitems*{a73a7554-a7af-451d-b611-2f98a6259d79}*SharedItemsImports = 5
-		..\..\Src\PerformanceCollector\Filtering.Shared\Filtering.Shared.projitems*{a73a7554-a7af-451d-b611-2f98a6259d79}*SharedItemsImports = 5
 		..\..\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{a73a7554-a7af-451d-b611-2f98a6259d79}*SharedItemsImports = 5
-		..\..\Src\PerformanceCollector\Perf.Shared.NetStandard20Net45\Perf.Shared.NetStandard20Net45.projitems*{a73a7554-a7af-451d-b611-2f98a6259d79}*SharedItemsImports = 5
-		..\..\Src\PerformanceCollector\Perf.Shared\Perf.Shared.projitems*{a73a7554-a7af-451d-b611-2f98a6259d79}*SharedItemsImports = 5
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

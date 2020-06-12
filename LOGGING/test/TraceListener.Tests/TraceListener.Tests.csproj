@@ -3,7 +3,7 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.TraceListener.Tests</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.TraceListener.Tests</AssemblyName>
-    <TargetFrameworks>net45;netcoreapp1.1;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net45;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsPackable>false</IsPackable>
   </PropertyGroup>

@@ -59,6 +59,11 @@
         private const string DeveloperModeForWebSites = "APPINSIGHTS_DEVELOPER_MODE";
         private const string EndpointAddressForWebSites = "APPINSIGHTS_ENDPOINTADDRESS";
 
+#if NETSTANDARD2_0 || NET461
+        private const string ApplicationInsightsSectionFromConfig = "ApplicationInsights";
+        private const string TelemetryChannelSectionFromConfig = "ApplicationInsights:TelemetryChannel";
+#endif
+
         [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "Used in NetStandard2.0 build.")]
         private const string EventSourceNameForSystemRuntime = "System.Runtime";
 
@@ -193,11 +198,7 @@
             {
                 telemetryConfigValues.Add(new KeyValuePair<string, string>(
                     DeveloperModeForWebSites,
-#if !NETSTANDARD1_6
                     developerMode.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)));
-#else
-                    developerMode.Value.ToString()));
-#endif
                 wasAnythingSet = true;
             }
 
@@ -228,26 +229,9 @@
         }
 
         /// <summary>
-        /// Read from configuration
-        /// Config.json will look like this:
-        /// <para>
-        ///      "ApplicationInsights": {
-        ///          "InstrumentationKey": "11111111-2222-3333-4444-555555555555",
-        ///          "TelemetryChannel": {
-        ///              "EndpointAddress": "http://dc.services.visualstudio.com/v2/track",
-        ///              "DeveloperMode": true
-        ///          }
-        ///      }.
-        /// </para>
-        /// Or.
-        /// <para>
-        ///      "ApplicationInsights": {
-        ///          "ConnectionString" : "InstrumentationKey=11111111-2222-3333-4444-555555555555;IngestionEndpoint=http://dc.services.visualstudio.com"
-        ///          "TelemetryChannel": {
-        ///              "DeveloperMode": true
-        ///          }
-        ///      }.
-        /// </para>
+        /// Read configuration from appSettings.json, appsettings.{env.EnvironmentName}.json,
+        /// IConfiguation used in an application and EnvironmentVariables. 
+        /// Bind configuration to ApplicationInsightsServiceOptions.
         /// Values can also be read from environment variables to support azure web sites configuration.
         /// </summary>
         /// <param name="config">Configuration to read variables from.</param>
@@ -258,6 +242,11 @@
         {
             try
             {
+#if NETSTANDARD2_0 || NET461
+                config.GetSection(ApplicationInsightsSectionFromConfig).Bind(serviceOptions);
+                config.GetSection(TelemetryChannelSectionFromConfig).Bind(serviceOptions);
+#endif
+
                 if (config.TryGetValue(primaryKey: ConnectionStringEnvironmentVariable, backupKey: ConnectionStringFromConfig, value: out string connectionStringValue))
                 {
                     serviceOptions.ConnectionString = connectionStringValue;

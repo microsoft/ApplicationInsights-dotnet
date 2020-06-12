@@ -6,8 +6,8 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.WindowsServer</RootNamespace>
     <AssemblyName>Microsoft.AI.WindowsServer</AssemblyName>
-    <TargetFrameworks>net45;netstandard1.6;netstandard2.0</TargetFrameworks>
-    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard1.6;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -18,32 +18,9 @@
     <PackageTags>Azure Monitoring Analytics ApplicationInsights Telemetry AppInsights</PackageTags>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.6' OR '$(TargetFramework)' == 'netstandard2.0'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <DefineConstants>$(DefineConstants);NETSTANDARD;</DefineConstants>
   </PropertyGroup>
-
-  <ItemGroup Condition=" $(OS) == 'Windows_NT'">
-    <!--Analyzers-->
-    <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="2.9.8">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <!--Build Infrastructure-->
-    <PackageReference Include="Microsoft.VisualStudioEng.MicroBuild.Core" Version="0.4.1">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
 
   <ItemGroup>
     <!--Common Dependencies-->
@@ -53,7 +30,7 @@
     <PackageReference Include="System.Memory" Version="4.5.4" /> <!-- This is a temporary explicit dependency. We're waiting on the next version of System.Diagnostics.DiagnosticSource. https://github.com/microsoft/ApplicationInsights-dotnet/issues/1707 -->
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.6' OR '$(TargetFramework)' == 'netstandard2.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <!-- NetCore Dependencies -->
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.3.0" />
     <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />

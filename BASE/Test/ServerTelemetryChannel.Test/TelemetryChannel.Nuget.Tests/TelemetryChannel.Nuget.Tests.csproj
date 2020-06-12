@@ -18,11 +18,12 @@
     <DebugSymbols>true</DebugSymbols> 
   </PropertyGroup>
 
+  <!-- This can be removed. Requires update to .yml -->
   <PropertyGroup Condition="$(OS) != 'Windows_NT'">
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <TargetFrameworks>netstandard1.3</TargetFrameworks>
   </PropertyGroup>
-  
+
   <ItemGroup Condition="$(OS) == 'Windows_NT'">
     <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
     <ProjectReference Include="..\..\..\Test\Microsoft.ApplicationInsights.Test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj" />

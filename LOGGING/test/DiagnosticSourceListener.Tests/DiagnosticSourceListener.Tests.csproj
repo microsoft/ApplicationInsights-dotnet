@@ -3,7 +3,7 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests</AssemblyName>
-    <TargetFrameworks>netcoreapp1.1;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
