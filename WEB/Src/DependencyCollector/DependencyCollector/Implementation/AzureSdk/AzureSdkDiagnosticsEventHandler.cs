@@ -52,7 +52,7 @@
                         }
                     }
 
-                    string type = this.GetType(currentActivity);
+                    string type = GetType(currentActivity);
 
                     if (telemetry == null)
                     {
@@ -61,12 +61,12 @@
 
                     if (type != null && type.EndsWith(RemoteDependencyConstants.AzureEventHubs, StringComparison.Ordinal))
                     {
-                        this.SetEventHubsProperties(currentActivity, telemetry);
+                        SetEventHubsProperties(currentActivity, telemetry);
                     }
 
                     if (this.linksPropertyFetcher.Fetch(evnt.Value) is IEnumerable<Activity> activityLinks)
                     {
-                        this.PopulateLinks(activityLinks, telemetry);
+                        PopulateLinks(activityLinks, telemetry);
 
                         if (telemetry is RequestTelemetry request &&
                             TryGetAverageTimeInQueueForBatch(activityLinks, currentActivity.StartTimeUtc, out long enqueuedTime))
@@ -85,7 +85,7 @@
 
                     if (telemetry is DependencyTelemetry dependency && dependency.Type == RemoteDependencyConstants.HTTP)
                     {
-                        this.SetHttpProperties(currentActivity, dependency);
+                        SetHttpProperties(currentActivity, dependency);
                         if (evnt.Value != null)
                         {
                             dependency.SetOperationDetail(evnt.Value.GetType().FullName, evnt.Value);
@@ -190,7 +190,7 @@
             return false;
         }
 
-        private string GetType(Activity currentActivity)
+        private static string GetType(Activity currentActivity)
         {
             string kind = RemoteDependencyConstants.InProc;
             string component = null;
@@ -242,7 +242,7 @@
             return kind ?? string.Empty;
         }
 
-        private void SetHttpProperties(Activity activity, DependencyTelemetry dependency)
+        private static void SetHttpProperties(Activity activity, DependencyTelemetry dependency)
         {
             string method = null;
             string url = null;
@@ -290,7 +290,7 @@
             }
         }
 
-        private void SetEventHubsProperties(Activity activity, OperationTelemetry telemetry)
+        private static void SetEventHubsProperties(Activity activity, OperationTelemetry telemetry)
         {
             string endpoint = null;
             string queueName = null;
@@ -332,7 +332,7 @@
             }
         }
 
-        private void PopulateLinks(IEnumerable<Activity> links, OperationTelemetry telemetry)
+        private static void PopulateLinks(IEnumerable<Activity> links, OperationTelemetry telemetry)
         {
             if (links.Any())
             {

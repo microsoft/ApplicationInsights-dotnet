@@ -163,26 +163,6 @@
 
         #endregion
 
-        [NonEvent]
-        private string GetApplicationName()
-        {
-            string name;
-            try
-            {
-#if NETSTANDARD2_0
-                name = new AssemblyName(Assembly.GetEntryAssembly().FullName).Name;
-#else
-                name = AppDomain.CurrentDomain.FriendlyName;
-#endif
-            }
-            catch (Exception exp)
-            {
-                name = "Undefined " + exp.Message ?? exp.ToString();
-            }
-
-            return name;
-        }
-
         public class Keywords
         {
             public const EventKeywords UserActionable = (EventKeywords)0x1;
