@@ -3,6 +3,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Net;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -13,6 +14,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     /// Concrete class with all processing logic to generate RDD data from the callbacks
     /// received from Profiler instrumentation for HTTP .   
     /// </summary>
+    [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "These methods have extra parameters to match callbacks with specific number of parameters.")]
     internal sealed class ProfilerHttpProcessing : HttpProcessing
     {
         internal ObjectInstanceBasedOperationHolder<DependencyTelemetry> TelemetryTable;
