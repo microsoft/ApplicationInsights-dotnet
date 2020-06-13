@@ -8,6 +8,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
     using System.Linq;
     using Microsoft.ApplicationInsights.EventSourceListener.Implementation;
@@ -182,6 +183,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         /// <param name="eventSource">EventSource instance.</param>
         /// <remarks>When an instance of an EventListener is created, it will immediately receive notifications about all EventSources already existing in the AppDomain.
         /// Then, as new EventSources are created, the EventListener will receive notifications about them.</remarks>
+        [SuppressMessage("Microsoft.Reliability", "CA2002:DoNotLockObjectsWithWeakIdentity", Justification = "This was done intentionally for a bug fix.")]
         protected override void OnEventSourceCreated(EventSource eventSource)
         {
             if (eventSource == null)

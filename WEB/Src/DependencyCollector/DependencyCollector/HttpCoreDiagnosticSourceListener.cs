@@ -99,7 +99,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.injectLegacyHeaders = injectLegacyHeaders;
             this.httpInstrumentationVersion = instrumentationVersion != HttpInstrumentationVersion.Unknown ? 
                 instrumentationVersion :
-                this.GetInstrumentationVersion();
+                GetInstrumentationVersion();
             this.injectRequestIdInW3CMode = injectRequestIdInW3CMode;
             this.subscriber = new HttpCoreDiagnosticSourceSubscriber(
                 this,
@@ -493,6 +493,45 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             }
         }
 
+        private static HttpInstrumentationVersion GetInstrumentationVersion()
+        {
+            HttpInstrumentationVersion version = HttpInstrumentationVersion.Unknown;
+
+            var httpClientAssembly = typeof(HttpClient).GetTypeInfo().Assembly;
+            var httpClientVersion = httpClientAssembly.GetName().Version;
+            string httpClientInformationalVersion =
+                httpClientAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ??
+                string.Empty;
+
+            if (httpClientInformationalVersion.StartsWith("3.", StringComparison.Ordinal))
+            {
+                version = HttpInstrumentationVersion.V3;
+            }
+            else if (httpClientVersion.Major == 4 && httpClientVersion.Minor == 2)
+            {
+                // .NET Core 3.0 has the same version of http client lib as 2.*
+                // but AssemblyInformationalVersionAttribute is different.
+                version = HttpInstrumentationVersion.V2;
+            }
+            else if (httpClientVersion.Major == 4 && httpClientVersion.Minor < 2)
+            {
+                version = HttpInstrumentationVersion.V1;
+            }
+            else
+            {
+                // fallback to V3 assuming unknown SDKs are from future versions
+                version = HttpInstrumentationVersion.V3;
+            }
+
+            DependencyCollectorEventSource.Log.HttpCoreDiagnosticListenerInstrumentationVersion(
+                (int)version,
+                httpClientVersion.Major,
+                httpClientVersion.Minor,
+                httpClientInformationalVersion);
+
+            return version;
+        }
+
         private void InjectRequestHeaders(HttpRequestMessage request, string instrumentationKey)
         {
             try
@@ -635,45 +674,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     this.subscriber.Dispose();
                 }
             }
-        }
-
-        private HttpInstrumentationVersion GetInstrumentationVersion()
-        {
-            HttpInstrumentationVersion version = HttpInstrumentationVersion.Unknown;
-
-            var httpClientAssembly = typeof(HttpClient).GetTypeInfo().Assembly;
-            var httpClientVersion = httpClientAssembly.GetName().Version;
-            string httpClientInformationalVersion =
-                httpClientAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ??
-                string.Empty;
-
-            if (httpClientInformationalVersion.StartsWith("3.", StringComparison.Ordinal))
-            {
-                version = HttpInstrumentationVersion.V3;
-            }
-            else if (httpClientVersion.Major == 4 && httpClientVersion.Minor == 2)
-            {
-                // .NET Core 3.0 has the same version of http client lib as 2.*
-                // but AssemblyInformationalVersionAttribute is different.
-                version = HttpInstrumentationVersion.V2;
-            }
-            else if (httpClientVersion.Major == 4 && httpClientVersion.Minor < 2)
-            {
-                version = HttpInstrumentationVersion.V1;
-            }
-            else
-            {
-                // fallback to V3 assuming unknown SDKs are from future versions
-                version = HttpInstrumentationVersion.V3;
-            }
-
-            DependencyCollectorEventSource.Log.HttpCoreDiagnosticListenerInstrumentationVersion(
-                (int)version,
-                httpClientVersion.Major,
-                httpClientVersion.Minor,
-                httpClientInformationalVersion);
-
-            return version;
         }
 
         /// <summary>
