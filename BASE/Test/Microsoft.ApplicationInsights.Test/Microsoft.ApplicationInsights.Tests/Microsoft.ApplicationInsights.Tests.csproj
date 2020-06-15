@@ -1,6 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
-
   <Import Project="$(PropsRoot)\Test.props" />
 
   <PropertyGroup>
@@ -16,8 +14,6 @@
   <PropertyGroup>
     <TargetFrameworks>net45;net46;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
     <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
-    <DebugType>pdbonly</DebugType> 
-    <DebugSymbols>true</DebugSymbols> 
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
