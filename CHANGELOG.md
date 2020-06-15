@@ -1,6 +1,9 @@
 ﻿# Changelog
 
 ## VNext
+
+
+## Version 2.15.0-beta2
 - [Read all properties of ApplicationInsightsServiceOptions from IConfiguration](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1882)
 - [End support for NetStandard 1.x, Add support for NetStandard 2.0](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1160)
 - [Add support for SourceLink.Github to all SDKs.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1760)

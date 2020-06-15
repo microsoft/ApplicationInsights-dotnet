@@ -635,6 +635,7 @@
         public void IngestionResponseTime(int responseCode, float responseDurationInMs, string appDomainName = "Incorrect") => this.WriteEvent(67, responseCode, responseDurationInMs, this.nameProvider.Name);
 
         [NonEvent]
+        [SuppressMessage("Microsoft.Performance", "CA1822: MarkMembersAsStatic", Justification = "This method does access instance data in NetStandard 2.0 scenarios.")]
         public void IngestionResponseTimeEventCounter(float responseDurationInMs)
         {
 #if NETSTANDARD2_0
