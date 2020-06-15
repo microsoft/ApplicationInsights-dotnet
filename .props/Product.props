@@ -34,5 +34,12 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
+  
+  <PropertyGroup>
+    <!--Removing the SRC folder from the output directory-->
+    <CorePath>$(RelativeOutputPathBase)</CorePath>
+    <OutputPath>$(BinRoot)\$(Configuration)\$(CorePath)</OutputPath>
+    <OutputPath>$([System.IO.Path]::GetFullPath( $(OutputPath) ))\</OutputPath>
+  </PropertyGroup>
 
 </Project>

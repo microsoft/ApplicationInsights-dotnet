@@ -1,7 +1,6 @@
-﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">  
-  <!-- temp: remove when we merge ApplicationInsightsTypes -->
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
-  
+﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
+  <!--temp while we dont merge application insights types -->
+  <Import Project="$(PropsRoot)\Product.props" />
   <Import Project="$(PropsRoot)\Test.props" />
   <PropertyGroup>
     <Company>Microsoft</Company>
