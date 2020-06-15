@@ -43,7 +43,7 @@
     <PackageOutputDir>$(BinRoot)\$(Configuration)\NuGet</PackageOutputDir>
     <PackageOutputPath>$(PackageOutputDir)</PackageOutputPath>
 
-    <IntermediateOutputPath>$(ObjRoot)\$(Configuration)\$(RelativeOutputPathBase)</IntermediateOutputPath>
+    <IntermediateOutputPath>$(ObjRoot)\$(Configuration)\$(MSBuildProjectName)</IntermediateOutputPath>
     <IntermediateOutputPath>$([System.IO.Path]::GetFullPath( $(IntermediateOutputPath) ))\</IntermediateOutputPath>
 
     <!-- Testing fix for https://github.com/dotnet/sdk/issues/2523 -->
