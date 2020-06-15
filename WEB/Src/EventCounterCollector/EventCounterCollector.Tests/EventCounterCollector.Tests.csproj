@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\EventCounterCollector\EventCounterCollector.csproj" />
+    <ProjectReference Include="..\EventCounterCollector\EventCounterCollector.csproj" />
   </ItemGroup>
 
 </Project>
