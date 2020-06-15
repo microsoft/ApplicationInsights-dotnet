@@ -1,5 +1,5 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
-  <Import Project="$(SourceRoot)\Product.props" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
 
   <Import Project="$(PropsRoot)\Product.props" />
 
@@ -9,7 +9,7 @@
     <TargetFrameworks>net45;net46;netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard2.0</TargetFrameworks>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <!--Nupkg properties-->
     <PackageId>Microsoft.ApplicationInsights</PackageId>
@@ -26,12 +26,13 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.6.0" />
-    <PackageReference Include="System.Memory" Version="4.5.4" /> <!-- This is a temporary explicit dependency. We're waiting on the next version of System.Diagnostics.DiagnosticSource. https://github.com/microsoft/ApplicationInsights-dotnet/issues/1707 -->
+    <!-- This is a temporary explicit dependency. We're waiting on the next version of System.Diagnostics.DiagnosticSource. https://github.com/microsoft/ApplicationInsights-dotnet/issues/1707 -->
+    <PackageReference Include="System.Memory" Version="4.5.4" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'net46'">
     <Reference Include="System.Net.Http" />
-  </ItemGroup>  
+  </ItemGroup>
 
   <ItemGroup>
     <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\$(TargetFramework)\PublicAPI.Shipped.txt" />

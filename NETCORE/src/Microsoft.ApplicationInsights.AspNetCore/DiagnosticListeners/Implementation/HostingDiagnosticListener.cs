@@ -138,18 +138,12 @@
         /// <inheritdoc/>
         public string ListenerName { get; } = "Microsoft.AspNetCore";
 
-        /// <inheritdoc />
-        public void OnSubscribe()
-        {
-            SubscriptionManager.Attach(this);
-        }
-
         /// <summary>
         /// Diagnostic event handler method for 'Microsoft.AspNetCore.Mvc.BeforeAction' event.
         /// </summary>
         /// <param name="httpContext">HttpContext is used to retrieve information about the Request and Response.</param>
         /// <param name="routeValues">Used to get the name of the request.</param>
-        public void OnBeforeAction(HttpContext httpContext, IDictionary<string, object> routeValues)
+        public static void OnBeforeAction(HttpContext httpContext, IDictionary<string, object> routeValues)
         {
             var telemetry = httpContext.Features.Get<RequestTelemetry>();
 
@@ -162,6 +156,12 @@
                     telemetry.Name = name;
                 }
             }
+        }
+
+        /// <inheritdoc />
+        public void OnSubscribe()
+        {
+            SubscriptionManager.Attach(this);
         }
 
         /// <summary>
@@ -506,7 +506,7 @@
 
                     if (context != null && routeValues != null)
                     {
-                        this.OnBeforeAction(context, routeValues);
+                        OnBeforeAction(context, routeValues);
                     }
                 }
                 else if (value.Key == "Microsoft.AspNetCore.Hosting.BeginRequest")
