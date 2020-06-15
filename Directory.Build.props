@@ -30,10 +30,13 @@
     <ObjRoot>$(EnlistmentRoot)\..\obj</ObjRoot>
     <ObjRoot>$([System.IO.Path]::GetFullPath( $(ObjRoot) ))</ObjRoot>
 
+    <PackagesDir>$(EnlistmentRoot)\..\packages</PackagesDir>
+    <PackagesDir>$([System.IO.Path]::GetFullPath( $(PackagesDir) ))</PackagesDir>
+
     <RelativeOutputPathBase>$(MSBuildProjectDirectory.Substring($(EnlistmentRoot.Length)))</RelativeOutputPathBase>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
 
-    <OutputPath>$(BinRoot)\$(Configuration)\$(RelativeOutputPathBase)</OutputPath>
+    <OutputPath>$(BinRoot)\$(Configuration)\test\$(MSBuildProjectName)</OutputPath>
     <OutputPath>$([System.IO.Path]::GetFullPath( $(OutputPath) ))\</OutputPath>
 
     <!-- Collect all NuGet packages in the same folder for convenience during testing -->
@@ -46,6 +49,15 @@
     <!-- Testing fix for https://github.com/dotnet/sdk/issues/2523 -->
     <!-- If this works, should move to common and not the directory props -->
     <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
+  </PropertyGroup>
+
+  <PropertyGroup>
+
+    <LangVersion>7.3</LangVersion>
+
+    <!-- Enable NuGet package restore during build -->
+    <RestorePackages>true</RestorePackages>
+    <RequireRestoreConsent>false</RequireRestoreConsent>
   </PropertyGroup>
 
 </Project>
