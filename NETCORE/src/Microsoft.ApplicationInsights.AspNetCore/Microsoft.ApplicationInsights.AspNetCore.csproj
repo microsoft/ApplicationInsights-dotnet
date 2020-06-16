@@ -41,7 +41,6 @@
     <ProjectReference Include="..\..\..\WEB\Src\PerformanceCollector\PerformanceCollector\Perf.csproj" />
     <ProjectReference Include="..\..\..\WEB\Src\WindowsServer\WindowsServer\WindowsServer.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="1.0.2" />
-    <PackageReference Include="System.Text.Encodings.Web" Version="4.3.1" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.6.0" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
     <!-- This is a temporary explicit dependency. We're waiting on the next version of System.Diagnostics.DiagnosticSource. https://github.com/microsoft/ApplicationInsights-dotnet/issues/1707 -->
@@ -56,7 +55,6 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.0" />
     <ProjectReference Include="..\..\..\LOGGING\src\ILogger\ILogger.csproj" />
     <ProjectReference Include="..\..\..\WEB\Src\EventCounterCollector\EventCounterCollector\EventCounterCollector.csproj" />
-    <PackageReference Include="System.Text.Encodings.Web" Version="4.3.1" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net451' OR '$(TargetFramework)' == 'net46' ">
