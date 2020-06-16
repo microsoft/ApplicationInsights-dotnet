@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(PropsRoot)\Test.props" />
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,7 +17,6 @@
     <ProjectReference Include="..\..\src\ILogger\ILogger.csproj" />
   </ItemGroup>
   
-  <Import Project="$(PropsRoot)\Test.props" />
 
   <Import Project="..\Shared\Adapters.Shared.Tests.projitems" Label="Shared" Condition="Exists('..\Shared\Adapters.Shared.Tests.projitems')" />
   <Import Project="..\CommonTestShared\CommonTestShared.projitems" Label="Shared" Condition="Exists('..\CommonTestShared\CommonTestShared.projitems')" />
