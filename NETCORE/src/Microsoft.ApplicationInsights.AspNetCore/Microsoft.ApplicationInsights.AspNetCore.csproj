@@ -2,16 +2,6 @@
   <Import Project="$(PropsRoot)\Product.props" />
 
   <PropertyGroup>
-    <!-- Override settings from Nupkg.props. I don't know why the NetCore projects need this and the others don't. -->
-    <GenerateAssemblyVersionAttribute>true</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyFileVersionAttribute>true</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>true</GenerateAssemblyInformationalVersionAttribute>
-    <GenerateAssemblyDescriptionAttribute>true</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyProductAttribute>true</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <AssemblyName>Microsoft.ApplicationInsights.AspNetCore</AssemblyName>
     <TargetFrameworks>netstandard2.0;net451;net46;net461</TargetFrameworks>
 

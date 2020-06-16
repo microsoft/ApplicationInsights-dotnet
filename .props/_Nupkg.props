@@ -64,14 +64,6 @@
     <!-- <PackageTags>$(PackageTags) newTag1 newTag2</PackageTags> -->
   </PropertyGroup>
 
-  <PropertyGroup>
-    <!-- Disable auto generation of package attributes. This resolves the 'Duplicate attribute' error. -->
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-  </PropertyGroup>
-
   <Target Name="FixXmlDocumentation" AfterTargets="AfterBuild" DependsOnTargets="AfterBuild"  Condition="$(OS) == 'Windows_NT'">
     <!-- This target will add an English localization tag to our xml documentation file. -->
     <InjectXmlLanguage FilePath="$(OutputPath)\$(AssemblyName).XML" />
@@ -107,5 +99,12 @@
       </Code>
     </Task>
   </UsingTask>
+
+  <PropertyGroup>
+    <TargetFrameworkMonikerAssemblyAttributesPath>$([System.IO.Path]::Combine('$(IntermediateOutputPath)','$(TargetFrameworkMoniker).AssemblyAttributes$(DefaultLanguageSourceExtension)'))</TargetFrameworkMonikerAssemblyAttributesPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedFiles Include="$(GeneratedAssemblyInfoFile)"/>
+  </ItemGroup>
 
 </Project>

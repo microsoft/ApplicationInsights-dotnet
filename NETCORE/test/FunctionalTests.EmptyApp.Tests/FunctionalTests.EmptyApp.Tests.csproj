@@ -7,8 +7,6 @@
     <AssemblyName>FunctionalTests.EmptyApp.Tests</AssemblyName>
     <PackageId>FunctionalTests.EmptyApp.Tests</PackageId>
     <DependsOnNETStandard Condition=" '$(TargetFramework)' == 'net461'">true</DependsOnNETStandard>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

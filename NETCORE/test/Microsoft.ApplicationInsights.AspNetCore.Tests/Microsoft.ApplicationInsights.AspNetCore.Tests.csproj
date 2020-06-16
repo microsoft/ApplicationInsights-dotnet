@@ -11,8 +11,6 @@
     <AssemblyName>Microsoft.ApplicationInsights.AspNetCore.Tests</AssemblyName>
     <PackageId>Microsoft.ApplicationInsights.AspNetCore.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <DebugType>pdbonly</DebugType>
-    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>
