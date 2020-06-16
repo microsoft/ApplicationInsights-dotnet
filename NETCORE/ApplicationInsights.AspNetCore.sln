@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solutio
 		build.ps1 = build.ps1
 		..\CHANGELOG.md = ..\CHANGELOG.md
 		Common.targets = Common.targets
+		Directory.Build.props = Directory.Build.props
 		dirs.proj = dirs.proj
 		NuGet.config = NuGet.config
 		Readme.md = Readme.md
