@@ -17,9 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solutio
 		Directory.Build.props = Directory.Build.props
 		NuGet.config = NuGet.config
 		Package.targets = Package.targets
-		src\Product.props = src\Product.props
 		README.md = README.md
-		Test.props = Test.props
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServerTelemetryChannel", "ServerTelemetryChannel", "{E7B0521E-DA4D-40EA-B55D-ADCBDA69027C}"
