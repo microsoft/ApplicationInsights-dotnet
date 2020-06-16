@@ -39,7 +39,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="1.0.3" />
   </ItemGroup>
   
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' OR '$(TargetFramework)' == 'netcoreapp3.1' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' OR '$(TargetFramework)' == 'netcoreapp3.1' OR '$(TargetFramework)' == 'net461' ">
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.0.0" />
   </ItemGroup>
