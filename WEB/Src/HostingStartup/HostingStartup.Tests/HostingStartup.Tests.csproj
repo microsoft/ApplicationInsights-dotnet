@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  <Import Project="$(PropsRoot)\Test.props" />
+  
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.HostingStartup.Tests</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.HostingStartup.Tests</AssemblyName>

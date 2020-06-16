@@ -1,6 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\Product.props" />
-
   <Import Project="$(PropsRoot)\Product.props" />
 
   <PropertyGroup>
