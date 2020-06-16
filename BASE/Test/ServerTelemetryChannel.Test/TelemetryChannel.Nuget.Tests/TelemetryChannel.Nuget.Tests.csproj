@@ -3,13 +3,6 @@
 
   <PropertyGroup>
     <ProjectGuid>{21CB9A8A-F25B-4DEB-92CB-ACB6920EB8BC}</ProjectGuid>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <TargetFrameworks>net45</TargetFrameworks>
     <AssemblyName>TelemetryChannel.Nuget.Tests</AssemblyName>
   </PropertyGroup>
