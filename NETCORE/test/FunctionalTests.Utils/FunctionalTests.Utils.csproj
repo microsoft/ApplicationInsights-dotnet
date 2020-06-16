@@ -6,8 +6,6 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>FunctionalTests.Utils</AssemblyName>
     <PackageId>FunctionalTests.Utils</PackageId>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
