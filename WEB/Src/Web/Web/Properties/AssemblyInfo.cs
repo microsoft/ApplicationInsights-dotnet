@@ -6,10 +6,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("Microsoft.ApplicationInsights.Web")]
-[assembly: AssemblyDescription("Application Insights for Web Applications")]
-[assembly: AssemblyProduct("Application Insights .NET SDK")]
-
 [assembly: ComVisible(false)]
 
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Web.Tests, PublicKey=" + AssemblyInfo.PublicKey)]

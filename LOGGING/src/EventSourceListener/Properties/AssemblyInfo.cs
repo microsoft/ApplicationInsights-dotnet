@@ -10,14 +10,6 @@ using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyTitle("Microsoft.ApplicationInsights.EventSourceListener")]
-[assembly: AssemblyDescription("EventSourceListener is an Application Insights telemetry module that collects data from EventSource class instances.")]
-
-[assembly: NeutralResourcesLanguageAttribute("en-US")]
-
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM

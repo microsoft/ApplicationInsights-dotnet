@@ -1,13 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), NetCore.props))\NetCore.props" />
-
   <Import Project="$(PropsRoot)\Test.props" />
   
   <PropertyGroup>
     <AssemblyName>Microsoft.ApplicationInsights.Web.Tests</AssemblyName>
     <TargetFrameworks>net45</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -40,7 +37,7 @@
     <PackageReference Include="Microsoft.AspNet.TelemetryCorrelation" Version="1.0.7" />
     <PackageReference Include="Microsoft.AspNet.WebApi" Version="5.2.4" />
     <PackageReference Include="Moq" Version="4.8.2" />
-    <PackageReference Include="OpenCover" Version="4.6.519" />
+    <PackageReference Include="OpenCover" Version="4.7.922" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="xunit" Version="2.1.0" />
   </ItemGroup>
