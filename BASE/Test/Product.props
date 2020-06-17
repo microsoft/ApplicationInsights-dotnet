@@ -1,12 +1,11 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(SourceRoot)\Common.props"/>
 
   <PropertyGroup>
     <!--Removing the SRC folder from the output directory-->
-    <CorePath>$(RelativeOutputPathBase.Substring(4))</CorePath>	
+    <CorePath>$(RelativeOutputPathBase)</CorePath>
     <OutputPath>$(BinRoot)\$(Configuration)\$(CorePath)</OutputPath>
     <OutputPath>$([System.IO.Path]::GetFullPath( $(OutputPath) ))\</OutputPath>
   </PropertyGroup>
-  
+
 </Project>

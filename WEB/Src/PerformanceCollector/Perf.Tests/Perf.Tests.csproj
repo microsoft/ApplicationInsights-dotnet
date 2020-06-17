@@ -1,7 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), NetCore.props))\NetCore.props" />
-
   <Import Project="$(PropsRoot)\Test.props" />
 
   <PropertyGroup>
@@ -57,8 +54,5 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="obj\" />
-  </ItemGroup>
   <Import Project="..\..\TestFramework\Shared\TestFramework.Shared.projitems" Label="Shared" />
 </Project>
