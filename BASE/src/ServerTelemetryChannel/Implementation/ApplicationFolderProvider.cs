@@ -38,7 +38,7 @@
                 throw new ArgumentNullException(nameof(environment));
             }
 
-            if(IsWindowsOperatingSystem())
+            if (IsWindowsOperatingSystem())
             {
                 this.identityProvider = new WindowsIdentityProvider();
                 this.ApplySecurityToDirectory = this.SetSecurityPermissionsToAdminAndCurrentUserWindows;
@@ -109,15 +109,6 @@
             return result;
         }
 
-        /// <summary>
-        /// Test hook to allow testing of non-windows scenario.
-        /// </summary>
-        /// <param name="applySecurityToDirectory">The method to be invoked to set directory access.</param>
-        internal void OverrideApplySecurityToDirectory(Func<DirectoryInfo, bool> applySecurityToDirectory)
-        {
-            this.ApplySecurityToDirectory = applySecurityToDirectory;
-        }
-
         internal static bool IsWindowsOperatingSystem()
         {
 #if NET45
@@ -132,6 +123,15 @@
                 return false;
             }
 #endif
+        }
+
+        /// <summary>
+        /// Test hook to allow testing of non-windows scenario.
+        /// </summary>
+        /// <param name="applySecurityToDirectory">The method to be invoked to set directory access.</param>
+        internal void OverrideApplySecurityToDirectory(Func<DirectoryInfo, bool> applySecurityToDirectory)
+        {
+            this.ApplySecurityToDirectory = applySecurityToDirectory;
         }
 
         private static string GetPathAccessFailureErrorMessage(Exception exp, string path)

@@ -11,7 +11,7 @@
   <Import Project=".\_GlobalStaticVersion.props" />
   <Import Project=".\_Nupkg.props" />
 
-  <ItemGroup Condition=" $(OS) == 'Windows_NT' And $(Configuration) == 'Release'">
+  <ItemGroup Condition=" $(OS) == 'Windows_NT'">
     <!--Analyzers-->
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>All</PrivateAssets>
