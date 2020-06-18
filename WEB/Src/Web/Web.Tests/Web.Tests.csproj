@@ -4,7 +4,6 @@
   <PropertyGroup>
     <AssemblyName>Microsoft.ApplicationInsights.Web.Tests</AssemblyName>
     <TargetFrameworks>net45</TargetFrameworks>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <ItemGroup>
