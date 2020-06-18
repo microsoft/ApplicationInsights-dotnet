@@ -32,6 +32,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection.Extensions;
     using Microsoft.Extensions.Options;
 
     public class AddApplicationInsightsTelemetryTests : BaseTestClass
@@ -1176,6 +1177,67 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             Assert.Equal("mycustomvalue", testTelemetryModule.CustomProperty);
             Assert.True(testTelemetryModule.IsInitialized);
         }
+
+        //[Theory]
+        //[InlineData(true)]
+        //[InlineData(false)]
+        //public static void TestingAddDiagnosticsTelemetryModule(bool manualAdd)
+        //{
+        //    //ARRANGE
+        //    var services = GetServiceCollectionWithContextAccessor();
+
+        //    if (manualAdd)
+        //    {
+        //        // previously a customer could manually add the diagnosticsTelemetryModule to DI.
+        //        services.AddSingleton<ITelemetryModule>(new DiagnosticsTelemetryModule());
+        //    }
+
+        //    // now we will include this by default in the AspNetCore configuration.
+        //    services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
+
+        //    // TODO: HOW TO TEST TELEMETRY?
+
+        //    //ACT
+        //    IServiceProvider serviceProvider = services.BuildServiceProvider();
+
+        //    // I expect this would add two instance of this module.
+        //    //VALIDATE
+        //    var modules = serviceProvider.GetServices<ITelemetryModule>();
+        //    var count = modules.OfType<DiagnosticsTelemetryModule>().Count();
+
+        //    Assert.Equal(1, count);
+        //}
+
+        //[Theory]
+        //[InlineData(true)]
+        //[InlineData(false)]
+        //public static void TestingAddSingleton(bool manualAdd)
+        //{
+        //    //ARRANGE
+        //    var services = GetServiceCollectionWithContextAccessor();
+
+        //    if (manualAdd)
+        //    {
+        //        // previously a customer could manually add the diagnosticsTelemetryModule to DI.
+        //        services.AddSingleton<ITelemetryModule>(new DiagnosticsTelemetryModule());
+        //    }
+
+        //    // TODO: HOW TO DETECT INSTANCE?
+        //    //var test = services[3].ImplementationInstance;
+        //    //var test2 = test.GetType();
+
+        //    services.AddSingleton<ITelemetryModule, FakeTelemetryModule>();
+        //    services.TryAddSingleton<ITelemetryModule, DiagnosticsTelemetryModule>(); // this never adds DiagnosticTelemetryModule because something has already been registered for ITelemetryModule
+        //    //services.AddSingleton<ITelemetryModule, DiagnosticsTelemetryModule>(); // this always add DiagnosticTelemetryModule regardless if an instance was already added by user.
+
+
+        //    //VALIDATE
+        //    IServiceProvider serviceProvider = services.BuildServiceProvider();
+        //    var modules = serviceProvider.GetServices<ITelemetryModule>();
+        //    var count = modules.OfType<DiagnosticsTelemetryModule>().Count();
+
+        //    Assert.Equal(1, count);
+        //}
 
         [Fact]
         public static void ConfigureApplicationInsightsTelemetryModuleWorksWithOptions()

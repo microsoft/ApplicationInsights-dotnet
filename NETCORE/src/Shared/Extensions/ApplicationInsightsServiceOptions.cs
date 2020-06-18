@@ -127,6 +127,15 @@
         public DependencyCollectionOptions DependencyCollectionOptions { get; } = new DependencyCollectionOptions();
 
         /// <summary>
+        /// Gets or sets a value indicating whether TelemetryConfiguration.Active should be initialized.
+        /// Former versions of this library had a dependency on this static instance. 
+        /// This dependency has been removed and we no longer initialize this by default.
+        /// If users depended on this behavior you should enable this.
+        /// However, we recommend migrating away from using TelemetryConfiguration.Active in your projects.
+        /// </summary>
+        public bool EnableTelemetryConfigurationActiveBackwardsCompatibility { get; set; } = false;
+
+        /// <summary>
         /// Copy the properties from this <see cref="ApplicationInsightsServiceOptions"/> to a target instance.
         /// </summary>
         /// <param name="target">Target instance to copy properties to.</param>
@@ -163,6 +172,7 @@
             target.EnableAppServicesHeartbeatTelemetryModule = this.EnableAppServicesHeartbeatTelemetryModule;
             target.EnableAzureInstanceMetadataTelemetryModule = this.EnableAzureInstanceMetadataTelemetryModule;
             target.EnableDiagnosticsTelemetryModule = this.EnableDiagnosticsTelemetryModule;
+            target.EnableTelemetryConfigurationActiveBackwardsCompatibility = this.EnableTelemetryConfigurationActiveBackwardsCompatibility;
 #if NETSTANDARD2_0
             target.EnableEventCounterCollectionModule = this.EnableEventCounterCollectionModule;
 #endif

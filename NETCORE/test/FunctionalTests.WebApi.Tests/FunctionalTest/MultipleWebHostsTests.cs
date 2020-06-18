@@ -5,6 +5,8 @@ using AI;
 using FunctionalTests.Utils;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.Extensions.DependencyInjection;
+
 using Xunit;
 using Xunit.Abstractions;
 
@@ -141,7 +143,15 @@ namespace FunctionalTests.WebApi.Tests.FunctionalTest
 
             var activeConfig = TelemetryConfiguration.Active;
 
-            using (var server = new InProcessServer(assemblyName, this.output))
+            using (var server = new InProcessServer(assemblyName, this.output, builder =>
+            {
+                return builder.ConfigureServices(
+                    services =>
+                    {
+                        services.AddApplicationInsightsTelemetry(
+                            o => o.EnableTelemetryConfigurationActiveBackwardsCompatibility = true);
+                    });
+            }))
             {
                 this.ExecuteRequest(server.BaseHost + requestPath);
 

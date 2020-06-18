@@ -142,7 +142,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 }
 
                 // Find the IHeartbeatPropertyManager. This is expected to be the DiagnosticsTelemetryModule, but will return null if doesn't exist.
-                var heartbeatPropertyManager = this.modules.OfType<IHeartbeatPropertyManager>().SingleOrDefault();
+                var heartbeatPropertyManager = this.modules.OfType<IHeartbeatPropertyManager>().FirstOrDefault();
+                // TODO: SHOULD WE LOG A WARNING WHEN MORE THAN 1 IS DISCOVERED?
 
                 foreach (ITelemetryModule module in this.modules)
                 {
