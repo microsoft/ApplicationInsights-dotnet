@@ -34,14 +34,14 @@
             {
                 lock (LockObject)
                 {
-                    // workaround for Microsoft/ApplicationInsights-dotnet#613	
-                    // as we expect some customers to use TelemetryConfiguration.Active together with dependency injection	
-                    // we make sure it has been set up, it must be done only once even if there are multiple Web Hosts in the process	
+                    // workaround for Microsoft/ApplicationInsights-dotnet#613
+                    // as we expect some customers to use TelemetryConfiguration.Active together with dependency injection
+                    // we make sure it has been set up, it must be done only once even if there are multiple Web Hosts in the process
                     if (!IsActiveConfigured(this.Value.InstrumentationKey))
                     {
                         foreach (var c in configureOptionsArray)
                         {
-#pragma warning disable CS0618 // This must be maintained for backwards compatibility.	
+#pragma warning disable CS0618 // This must be maintained for backwards compatibility.
                             c.Configure(TelemetryConfiguration.Active);
 #pragma warning restore CS0618
                         }
@@ -53,14 +53,14 @@
         /// <inheritdoc />
         public TelemetryConfiguration Value { get; }
 
-        /// <summary>	
-        /// Determines if TelemetryConfiguration.Active needs to be configured.	
-        /// </summary>	
-        /// <param name="instrumentationKey">Instrumentation key.</param>	
-        /// <returns>True is TelemertryConfiguration.Active was previously configured.</returns>	
+        /// <summary>
+        /// Determines if TelemetryConfiguration.Active needs to be configured.
+        /// </summary>
+        /// <param name="instrumentationKey">Instrumentation key.</param>
+        /// <returns>True is TelemertryConfiguration.Active was previously configured.</returns>
         private static bool IsActiveConfigured(string instrumentationKey)
         {
-#pragma warning disable CS0618 // This must be maintained for backwards compatibility.	
+#pragma warning disable CS0618 // This must be maintained for backwards compatibility.
             var active = TelemetryConfiguration.Active;
 #pragma warning restore CS0618
             if (string.IsNullOrEmpty(active.InstrumentationKey) && !string.IsNullOrEmpty(instrumentationKey))
