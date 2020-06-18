@@ -28,8 +28,8 @@
         {
         }
 
-#elif NET45
-        
+#elif NET45 || NET452
+
         public static void SetContentLength(this HttpListenerResponse resp, long len)
         {
             resp.ContentLength64 = (int)len;

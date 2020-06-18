@@ -4,7 +4,7 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.WindowsServer</RootNamespace>
     <AssemblyName>Microsoft.AI.WindowsServer</AssemblyName>
-    <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net45;net452;netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
@@ -42,7 +42,7 @@
     <Content Include="Microsoft.ApplicationInsights.WindowsServer.targets" PackagePath="build" />
   </ItemGroup>
   
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45' OR '$(TargetFramework)' == 'net452'">
     <!--Framework References-->    
     <Reference Include="System.Management" />
     <Reference Include="System.Net.Http" />

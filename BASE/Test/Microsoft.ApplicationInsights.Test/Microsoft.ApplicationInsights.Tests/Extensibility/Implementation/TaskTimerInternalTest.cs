@@ -94,7 +94,7 @@
         [TestClass]
         public class Start
         {
-#if NET45
+#if NET45 || NET452
             [TestMethod]
             public void DoesNotLogErrorsIfCallbackReturnsNull()
             {

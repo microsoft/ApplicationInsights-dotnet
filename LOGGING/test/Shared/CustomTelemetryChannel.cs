@@ -21,7 +21,7 @@ namespace Microsoft.ApplicationInsights
         public CustomTelemetryChannel()
         {
             this.waitHandle = new AutoResetEvent(false);
-#if NET45
+#if NET45 || NET452
             this.SentItems = new ITelemetry[0];
 #else
             this.SentItems = Array.Empty<ITelemetry>();
@@ -89,7 +89,7 @@ namespace Microsoft.ApplicationInsights
         {
             lock (this)
             {
-#if NET45
+#if NET45 || NET452
                 this.SentItems = new ITelemetry[0];
 #else
                 this.SentItems = Array.Empty<ITelemetry>();

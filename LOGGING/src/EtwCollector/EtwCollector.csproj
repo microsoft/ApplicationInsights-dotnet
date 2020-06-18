@@ -2,7 +2,7 @@
   <Import Project="$(PropsRoot)\Product.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net451</TargetFrameworks>
+    <TargetFrameworks>net451;net452</TargetFrameworks>
     <RootNamespace>Microsoft.ApplicationInsights.EtwCollector</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.EtwCollector</AssemblyName>
   </PropertyGroup>
