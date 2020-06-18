@@ -1,20 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
-
   <Import Project="$(PropsRoot)\Test.props" />
 
   <PropertyGroup>
     <ProjectGuid>{2759BC71-7F47-44DA-8579-AE2D8C8C684D}</ProjectGuid>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <TargetFrameworks>net46;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
-    <DebugType>pdbonly</DebugType> 
-    <DebugSymbols>true</DebugSymbols> 
   </PropertyGroup>
 
   <PropertyGroup Condition="$(OS) != 'Windows_NT'">

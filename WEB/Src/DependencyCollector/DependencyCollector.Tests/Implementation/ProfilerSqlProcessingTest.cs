@@ -6,6 +6,7 @@ namespace Microsoft.ApplicationInsights.Tests
     using System.Data;
     using System.Data.SqlClient;
     using System.Diagnostics;
+    using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
     using System.Globalization;
     using System.Linq;
@@ -23,14 +24,15 @@ namespace Microsoft.ApplicationInsights.Tests
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable", Justification = "Disposing TelemetryConfiguration after each test.")]
+    [SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable", Justification = "Disposing TelemetryConfiguration after each test.")]
     [TestClass]
     public sealed class ProfilerSqlProcessingTest
     {
         private const string DatabaseServer = "ourdatabase.database.windows.net";
         private const string DataBaseName = "mydatabase";
         private const string MyStoredProcName = "apm.MyFavouriteStoredProcedure";
-        
+
+        [SuppressMessage("Microsoft.Security", "CS002:SecretInNextLine", Justification = "Fake password used for testing.")]
         private static readonly string ConnectionString = string.Format(CultureInfo.InvariantCulture, "Server={0};DataBase={1};User=myusername;Password=supersecret", DatabaseServer, DataBaseName);
         private static readonly string ExpectedResourceName = DatabaseServer + " | " + DataBaseName + " | " + MyStoredProcName;
         private static readonly string ExpectedData = MyStoredProcName;
