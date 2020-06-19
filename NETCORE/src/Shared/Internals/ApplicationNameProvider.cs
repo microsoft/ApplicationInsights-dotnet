@@ -29,7 +29,7 @@
 
                 if (assembly == null)
                 {
-                    // https://docs.microsoft.com/en-us/dotnet/api/system.reflection.assembly.getentryassembly?view=netcore-3.1#remarks
+                    // https://docs.microsoft.com/dotnet/api/system.reflection.assembly.getentryassembly
                     return "The GetEntryAssembly method can return null when a managed assembly has been loaded from an unmanaged application.";
                 }
                 else
