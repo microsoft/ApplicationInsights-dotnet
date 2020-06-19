@@ -25,7 +25,8 @@
         {
             try
             {
-                return Assembly.GetEntryAssembly().GetName().Name;
+                var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly();
+                return assembly.GetName().Name;
             }
             catch (Exception exp)
             {
