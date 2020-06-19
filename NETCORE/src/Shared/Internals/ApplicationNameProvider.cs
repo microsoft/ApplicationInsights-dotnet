@@ -25,8 +25,17 @@
         {
             try
             {
-                var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly();
-                return assembly.GetName().Name;
+                var assembly = Assembly.GetEntryAssembly();
+
+                if (assembly == null)
+                {
+                    // https://docs.microsoft.com/en-us/dotnet/api/system.reflection.assembly.getentryassembly?view=netcore-3.1#remarks
+                    return "The GetEntryAssembly method can return null when a managed assembly has been loaded from an unmanaged application.";
+                }
+                else
+                {
+                    return assembly.GetName().Name;
+                }
             }
             catch (Exception exp)
             {

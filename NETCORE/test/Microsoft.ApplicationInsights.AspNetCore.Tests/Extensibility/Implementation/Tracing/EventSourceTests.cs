@@ -13,11 +13,15 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensibility.Implement
     using System.Linq;
     using System.Reflection;
 
+    using Microsoft.ApplicationInsights.Shared.Internals;
+
     /// <summary>
     /// Event source testing helper methods.
     /// </summary>
     internal static class EventSourceTests
     {
+        static ApplicationNameProvider applicationNameProvider = new ApplicationNameProvider();
+
         /// <summary>
         /// Tests event source method implementation consistency.
         /// </summary>
@@ -141,16 +145,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensibility.Implement
         /// <param name="actualEvent">An actual event arguments to compare to.</param>
         private static void VerifyEventApplicationName(MethodInfo eventMethod, EventWrittenEventArgs actualEvent)
         {
-            string expectedApplicationName;
-            try
-            {
-                var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly();
-                expectedApplicationName = assembly.GetName().Name;
-            }
-            catch (Exception exp)
-            {
-                expectedApplicationName = "Undefined " + exp.Message;
-            }
+            string expectedApplicationName = applicationNameProvider.Name;
 
             string actualApplicationName = actualEvent.Payload.Last().ToString();
             AssertEqual(expectedApplicationName, actualApplicationName, "Application Name");
