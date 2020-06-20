@@ -316,7 +316,13 @@
 
         private static void AddCommonTelemetryModules(IServiceCollection services)
         {
-            services.AddSingleton<ITelemetryModule, DiagnosticsTelemetryModule>();
+            // Previously users were encouraged to manually add the DiagnosticsTelemetryModule.
+            // They could have added this either as an INSTANCE or as a TYPE. 
+            if (!services.Any(o => typeof(IHeartbeatPropertyManager).IsAssignableFrom(o.ImplementationType ?? o.ImplementationInstance.GetType())))
+            {
+                services.AddSingleton<ITelemetryModule, DiagnosticsTelemetryModule>();
+            }
+
             services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
             services.AddSingleton<ITelemetryModule, AppServicesHeartbeatTelemetryModule>();
             services.AddSingleton<ITelemetryModule, AzureInstanceMetadataTelemetryModule>();

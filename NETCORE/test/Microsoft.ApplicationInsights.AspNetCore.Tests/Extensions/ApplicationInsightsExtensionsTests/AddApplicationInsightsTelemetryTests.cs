@@ -1218,66 +1218,98 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             Assert.True(testTelemetryModule.IsInitialized);
         }
 
-        //[Theory]
-        //[InlineData(true)]
-        //[InlineData(false)]
-        //public static void TestingAddDiagnosticsTelemetryModule(bool manualAdd)
-        //{
-        //    //ARRANGE
-        //    var services = GetServiceCollectionWithContextAccessor();
+        [Fact]
+        /// <summary>
+        /// We've added the DiagnosticsTelemetryModule to the default TelemetryModules in AspNetCore DI.
+        /// During setup, we expect this module to be discovered and set on the other Heartbeat TelemetryModules.
+        /// </summary>
+        public static void VerifyIfHeartbeatPropertyManagerSetOnOtherModules_Default()
+        {
+            //ARRANGE
+            var services = GetServiceCollectionWithContextAccessor();
+            services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+            var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
 
-        //    if (manualAdd)
-        //    {
-        //        // previously a customer could manually add the diagnosticsTelemetryModule to DI.
-        //        services.AddSingleton<ITelemetryModule>(new DiagnosticsTelemetryModule());
-        //    }
+            //VALIDATE
+            var modules = serviceProvider.GetServices<ITelemetryModule>();
+            var count = modules.OfType<DiagnosticsTelemetryModule>().Count();
+            Assert.Equal(1, count);
 
-        //    // now we will include this by default in the AspNetCore configuration.
-        //    services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
+            var appServicesHeartbeatTelemetryModule = modules.OfType<AppServicesHeartbeatTelemetryModule>().Single();
+            Assert.NotNull(appServicesHeartbeatTelemetryModule.HeartbeatPropertyManager);
 
-        //    // TODO: HOW TO TEST TELEMETRY?
+            var azureInstanceMetadataTelemetryModule = modules.OfType<AzureInstanceMetadataTelemetryModule>().Single();
+            Assert.NotNull(azureInstanceMetadataTelemetryModule.HeartbeatPropertyManager);
+        }
 
-        //    //ACT
-        //    IServiceProvider serviceProvider = services.BuildServiceProvider();
+        [Fact]
+        /// <summary>
+        /// A user can configure an instance of DiagnosticsTelemetryModule.
+        /// During setup, we expect this module to be discovered and set on the other Heartbeat TelemetryModules.
+        /// </summary>
+        public static void VerifyIfHeartbeatPropertyManagerSetOnOtherModules_Instance()
+        {
+            //ARRANGE
+            var services = GetServiceCollectionWithContextAccessor();
 
-        //    // I expect this would add two instance of this module.
-        //    //VALIDATE
-        //    var modules = serviceProvider.GetServices<ITelemetryModule>();
-        //    var count = modules.OfType<DiagnosticsTelemetryModule>().Count();
+            var testValue = TimeSpan.FromDays(9);
+            var diagnosticsTelemetryModule = new DiagnosticsTelemetryModule { HeartbeatInterval = testValue };
+            services.AddSingleton<ITelemetryModule>(diagnosticsTelemetryModule);
 
-        //    Assert.Equal(1, count);
-        //}
+            //ACT
+            services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+            var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
 
-        //[Theory]
-        //[InlineData(true)]
-        //[InlineData(false)]
-        //public static void TestingAddSingleton(bool manualAdd)
-        //{
-        //    //ARRANGE
-        //    var services = GetServiceCollectionWithContextAccessor();
+            //VALIDATE
+            var modules = serviceProvider.GetServices<ITelemetryModule>();
+            var count = modules.OfType<DiagnosticsTelemetryModule>().Count();
+            Assert.Equal(1, count);
 
-        //    if (manualAdd)
-        //    {
-        //        // previously a customer could manually add the diagnosticsTelemetryModule to DI.
-        //        services.AddSingleton<ITelemetryModule>(new DiagnosticsTelemetryModule());
-        //    }
+            var appServicesHeartbeatTelemetryModule = modules.OfType<AppServicesHeartbeatTelemetryModule>().Single();
+            Assert.NotNull(appServicesHeartbeatTelemetryModule.HeartbeatPropertyManager);
+            Assert.Equal(testValue, appServicesHeartbeatTelemetryModule.HeartbeatPropertyManager.HeartbeatInterval);
 
-        //    // TODO: HOW TO DETECT INSTANCE?
-        //    //var test = services[3].ImplementationInstance;
-        //    //var test2 = test.GetType();
+            var azureInstanceMetadataTelemetryModule = modules.OfType<AzureInstanceMetadataTelemetryModule>().Single();
+            Assert.NotNull(azureInstanceMetadataTelemetryModule.HeartbeatPropertyManager);
+            Assert.Equal(testValue, azureInstanceMetadataTelemetryModule.HeartbeatPropertyManager.HeartbeatInterval);
+        }
 
-        //    services.AddSingleton<ITelemetryModule, FakeTelemetryModule>();
-        //    services.TryAddSingleton<ITelemetryModule, DiagnosticsTelemetryModule>(); // this never adds DiagnosticTelemetryModule because something has already been registered for ITelemetryModule
-        //    //services.AddSingleton<ITelemetryModule, DiagnosticsTelemetryModule>(); // this always add DiagnosticTelemetryModule regardless if an instance was already added by user.
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        /// <summary>
+        /// Previously we encouraged users to add the DiagnosticsTelemetryModule manually.
+        /// Users could have added this either as an INSTANCE or as a TYPE.
+        /// We don't want to add it a second time so need to confirm that we catch both cases.
+        /// </summary>
+        public static void TestingAddDiagnosticsTelemetryModule(bool manualAddInstance, bool manualAddType)
+        {
+            //ARRANGE
+            var services = GetServiceCollectionWithContextAccessor();
 
+            if (manualAddInstance)
+            {
+                services.AddSingleton<ITelemetryModule>(new DiagnosticsTelemetryModule());
+            }
+            else if (manualAddType)
+            {
+                services.AddSingleton<ITelemetryModule, DiagnosticsTelemetryModule>();
+            }
 
-        //    //VALIDATE
-        //    IServiceProvider serviceProvider = services.BuildServiceProvider();
-        //    var modules = serviceProvider.GetServices<ITelemetryModule>();
-        //    var count = modules.OfType<DiagnosticsTelemetryModule>().Count();
+            //ACT
+            services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
 
-        //    Assert.Equal(1, count);
-        //}
+            //VALIDATE
+            var modules = serviceProvider.GetServices<ITelemetryModule>();
+            var count = modules.OfType<DiagnosticsTelemetryModule>().Count();
+
+            Assert.Equal(1, count);
+        }
+
 
         [Fact]
         public static void ConfigureApplicationInsightsTelemetryModuleWorksWithOptions()
