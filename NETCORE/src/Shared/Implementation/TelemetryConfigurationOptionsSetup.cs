@@ -248,7 +248,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     {
                         module.Initialize(configuration);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         throw new Exception($"Failed to initialize module '{module.GetType()}'", ex);
                     }

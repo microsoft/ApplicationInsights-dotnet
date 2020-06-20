@@ -1035,6 +1035,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
+        /// <summary>
+        /// This SDK previously had a hidden dependency on TelemetryConfiguration.Active.
+        /// We've removed that, but users may have taken a dependency on the former behavior.
+        /// This test verifies that users can enable "backwards compat".
+        /// Enabling this will copy the AspNetCore config to the TC.Active static instance.
+        /// </summary>
         public static void UserCanEnableAndDisableTelemetryConfigurationActive(bool isEnable)
         {
             string testString = "hello world";
