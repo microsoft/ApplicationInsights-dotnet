@@ -14,7 +14,7 @@
             {
                 try
                 {
-                    foreach (var module in telemetryModules.Modules) 
+                    foreach (var module in telemetryModules.Modules)
                     {
                         if (module is IHeartbeatPropertyManager hman)
                         {
