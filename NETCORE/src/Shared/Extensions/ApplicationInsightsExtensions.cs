@@ -318,7 +318,7 @@
         {
             // Previously users were encouraged to manually add the DiagnosticsTelemetryModule.
             // They could have added this either as an INSTANCE or as a TYPE. 
-            if (!services.Any(o => typeof(IHeartbeatPropertyManager).IsAssignableFrom(o.ImplementationType ?? o.ImplementationInstance.GetType())))
+            if (!services.Any(o => o.ImplementationFactory == null && typeof(IHeartbeatPropertyManager).IsAssignableFrom(o.ImplementationType ?? o.ImplementationInstance.GetType())))
             {
                 services.AddSingleton<ITelemetryModule, DiagnosticsTelemetryModule>();
             }
