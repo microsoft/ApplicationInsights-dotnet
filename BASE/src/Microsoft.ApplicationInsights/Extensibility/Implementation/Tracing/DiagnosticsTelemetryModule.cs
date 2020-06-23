@@ -61,7 +61,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the delay interval between heartbeats.
+        /// Gets or sets the delay interval between heartbeats. Setting this value will immediately reset the heartbeat timer.
         /// 
         /// <remarks>
         /// Note that there is a minimum interval <see cref="HeartbeatProvider.MinimumHeartbeatInterval"/> and if an 

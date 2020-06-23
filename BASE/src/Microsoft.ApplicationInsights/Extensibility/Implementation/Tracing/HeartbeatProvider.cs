@@ -89,6 +89,8 @@
                 {
                     this.interval = value;
                 }
+
+                this.InitTimer();
             }
         }
 
@@ -118,20 +120,8 @@
             get => this.isEnabled;
             set
             {
-                if (!this.isEnabled && value)
-                {
-                    // we need to start calling the timer again                    
-                    this.HeartbeatTimer?.Change(this.HeartbeatInterval, this.HeartbeatInterval);
-                }
-                else if (this.isEnabled && !value)
-                {
-                    // heartbeat was enabled previously, and being disabled now.
-                    // dispose timers so they never fire again.
-                    this.HeartbeatTimer?.Change(Timeout.Infinite, Timeout.Infinite);
-                    this.HeartbeatTimer?.Dispose();
-                }
-
                 this.isEnabled = value;
+                this.InitTimer();
             }
         }
 
@@ -163,12 +153,7 @@
 
             Task.Factory.StartNew(async () => await HeartbeatDefaultPayload.PopulateDefaultPayload(this.ExcludedHeartbeatProperties, this.ExcludedHeartbeatPropertyProviders, this).ConfigureAwait(false));
 
-            // Note: if this is a subsequent initialization, the interval between heartbeats will be updated in the next cycle so no .Change call necessary here
-            if (this.HeartbeatTimer == null)
-            {
-                int interval = this.IsHeartbeatEnabled ? (int)this.HeartbeatInterval.TotalMilliseconds : Timeout.Infinite;
-                this.HeartbeatTimer = new Timer(this.HeartbeatPulse, this, interval, interval);
-            }
+            this.InitTimer();
         }
 
         public bool AddHeartbeatProperty(string heartbeatPropertyName, string heartbeatPropertyValue, bool isHealthy)
@@ -279,6 +264,27 @@
             hbeat.Sequence = string.Format(CultureInfo.CurrentCulture, "{0}", this.heartbeatsSent++);
 
             return hbeat;
+        }
+
+        /// <summary>
+        /// This method is intended to be called from the INITIALIZE() method, or whenever ENABLED or INTERVAL properties have been set.
+        /// </summary>
+        internal void InitTimer()
+        {
+            if (this.IsHeartbeatEnabled && this.HeartbeatTimer == null)
+            {
+                this.HeartbeatTimer = new Timer(callback: this.HeartbeatPulse, state: this, dueTime: this.HeartbeatInterval, period: this.HeartbeatInterval);
+            }
+            else if (this.IsHeartbeatEnabled)
+            {
+                this.HeartbeatTimer.Change(this.HeartbeatInterval, this.HeartbeatInterval);
+            }
+            else
+            {
+                this.HeartbeatTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                this.HeartbeatTimer.Dispose();
+                this.HeartbeatTimer = null;
+            }
         }
 
         protected void Dispose(bool disposing)
