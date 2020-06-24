@@ -317,11 +317,7 @@
         private static void AddCommonTelemetryModules(IServiceCollection services)
         {
             // Previously users were encouraged to manually add the DiagnosticsTelemetryModule.
-            // They could have added this either as an INSTANCE or as a TYPE. 
-            if (!services.Any(o => o.ImplementationFactory == null && typeof(IHeartbeatPropertyManager).IsAssignableFrom(o.ImplementationType ?? o.ImplementationInstance.GetType())))
-            {
-                services.AddSingleton<ITelemetryModule, DiagnosticsTelemetryModule>();
-            }
+            services.AddSingletonIfNotExists<ITelemetryModule, DiagnosticsTelemetryModule>();
 
             services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
             services.AddSingleton<ITelemetryModule, AppServicesHeartbeatTelemetryModule>();
@@ -473,6 +469,27 @@
                             null)));
             });
 #endif
+        }
+
+
+        /// <summary>
+        /// The AddSingleton method will not check if a class has already been added as an ImplementationType. 
+        /// This extension method is to encapsulate those checks.
+        /// </summary>
+        /// <remarks>
+        /// Must check all three properties to avoid duplicates or null ref exceptions.
+        /// </remarks>
+        /// <typeparam name="TService">The type of the service to add.</typeparam>
+        /// <typeparam name="TImplementation">The type of the implementation to use.</typeparam>
+        /// <param name="services">The Microsoft.Extensions.DependencyInjection.IServiceCollection to add the service to.</param>
+        internal static void AddSingletonIfNotExists<TService, TImplementation>(this IServiceCollection services)
+            where TService : class
+            where TImplementation : class, TService
+        {
+            if (!services.Any(o => o.ImplementationFactory == null && typeof(TImplementation).IsAssignableFrom(o.ImplementationType ?? o.ImplementationInstance.GetType())))
+            {
+                services.AddSingleton<TService, TImplementation>();
+            }
         }
     }
 }
