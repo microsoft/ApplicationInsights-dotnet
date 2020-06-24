@@ -1,16 +1,18 @@
 ---
-name: Bug Report
-about: Create a report to help us improve
+name: Bug Report(.Net SDK)
+about: Create a report to help us improve AI .NET SDK
 labels: bug
 ---
 
-**Describe your environment.** Describe any aspect of your environment relevant to the problem:
+**Is this a bug in .NET SDK?**
+             If yes, proceed to Bug Template. 
+             If not, please file it under the appropriate AI SDK repro path: [Javascript SDK](https://github.com/Microsoft/ApplicationInsights-js/issues) ; [Java SDK](https://github.com/Microsoft/ApplicationInsights-Java/issues) ; [Node.JS SDK](https://github.com/Microsoft/ApplicationInsights-node.js/issues)
+
+
+-----------------Bug Template--------------------------------------------------------------
+
 * SDK version: 
 * .NET runtime version (.NET or .NET Core, TargetFramework in the .csproj file): 
-* Hosting Info (IIS/Azure WebApps/etc): 
-* Platform and OS version: 
-
-If you're reporting a problem with a specific version of a library in this repo, please check whether the problem has been fixed on master.
 
 **Steps to reproduce.**
 Describe exactly how to reproduce the error. Include a code sample if applicable.
@@ -21,5 +23,4 @@ What did you expect to see?
 **What is the actual behavior?**
 What did you see instead?
 
-**Additional context.**
-Add any other context about the problem here.
+-------------------------------------------------------------------------------------------
