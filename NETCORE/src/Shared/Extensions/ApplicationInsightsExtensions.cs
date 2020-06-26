@@ -317,11 +317,43 @@
         private static void AddCommonTelemetryModules(IServiceCollection services)
         {
             // Previously users were encouraged to manually add the DiagnosticsTelemetryModule.
+            // THIS WORKS, BUT NEEDS REFLECTION TO SET PROPERTIES ON OTHER MODULES. 
             services.AddSingletonIfNotExists<ITelemetryModule, DiagnosticsTelemetryModule>();
 
-            services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
+            // THIS WORKS, BUT HOW TO HANDLE USER REGISTRATION
+            services.AddSingleton<DiagnosticsTelemetryModule>(new DiagnosticsTelemetryModule());
+            services.AddSingleton<ITelemetryModule>(x => x.GetRequiredService<DiagnosticsTelemetryModule>());
+            services.AddSingleton<IHeartbeatPropertyManager>(x => x.GetRequiredService<DiagnosticsTelemetryModule>());
+
+            // THIS DOES NOT WORK. CAUSES INFINITATE RECURSION AND FALILS
+            //services.AddSingleton<ITelemetryModule>((sp) => {
+            //    var tm = sp.GetServices<ITelemetryModule>();
+            //    var dtm = tm.OfType<DiagnosticsTelemetryModule>().FirstOrDefault();
+            //    return new AppServicesHeartbeatTelemetryModule(dtm); 
+            //});
+
+
+            // THIS DOES NOT WORK, CAUSES 
+            //services.AddSingleton<ITelemetryModule>((sp) =>
+            //{
+            //    var tm = sp.GetServices<ITelemetryModule>();
+            //    var dtm = tm.OfType<DiagnosticsTelemetryModule>().FirstOrDefault();
+            //    var test = sp.GetRequiredService<DiagnosticsTelemetryModule>();
+            //    return new AppServicesHeartbeatTelemetryModule(test);
+            //});
+
+            //services.AddSingleton<ITelemetryModule>((sp) =>
+            //{
+            //    var test = sp.GetRequiredService<DiagnosticsTelemetryModule>();
+            //    return new AzureInstanceMetadataTelemetryModule(test);
+            //});
+
+
+            // THIS IS THE OLD WAY.
             services.AddSingleton<ITelemetryModule, AppServicesHeartbeatTelemetryModule>();
             services.AddSingleton<ITelemetryModule, AzureInstanceMetadataTelemetryModule>();
+
+            services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
             services.AddSingleton<ITelemetryModule, QuickPulseTelemetryModule>();
 
             AddAndConfigureDependencyTracking(services);

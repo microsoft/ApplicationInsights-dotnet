@@ -1233,6 +1233,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             //ARRANGE
             var services = GetServiceCollectionWithContextAccessor();
+
+            //ACT
             services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
             IServiceProvider serviceProvider = services.BuildServiceProvider();
             var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
@@ -1243,10 +1245,14 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             Assert.Equal(1, count);
 
             var appServicesHeartbeatTelemetryModule = modules.OfType<AppServicesHeartbeatTelemetryModule>().Single();
-            Assert.NotNull(appServicesHeartbeatTelemetryModule.HeartbeatPropertyManager);
+            var hpm1 = appServicesHeartbeatTelemetryModule.HeartbeatPropertyManager;
+            Assert.NotNull(hpm1);
 
             var azureInstanceMetadataTelemetryModule = modules.OfType<AzureInstanceMetadataTelemetryModule>().Single();
-            Assert.NotNull(azureInstanceMetadataTelemetryModule.HeartbeatPropertyManager);
+            var hpm2 = azureInstanceMetadataTelemetryModule.HeartbeatPropertyManager;
+            Assert.NotNull(hpm2);
+
+            Assert.Same(hpm1, hpm2);
         }
 
         [Fact]
@@ -1254,11 +1260,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// A user can configure an instance of DiagnosticsTelemetryModule.
         /// During setup, we expect this module to be discovered and set on the other Heartbeat TelemetryModules.
         /// </summary>
-        public static void VerifyIfHeartbeatPropertyManagerSetOnOtherModules_Instance()
+        public static void VerifyIfHeartbeatPropertyManagerSetOnOtherModules_UserDefinedInstance()
         {
             //ARRANGE
             var services = GetServiceCollectionWithContextAccessor();
 
+            // VERIFY THAT A USER CAN SPECIFY THEIR OWN INSTANCE
             var testValue = TimeSpan.FromDays(9);
             var diagnosticsTelemetryModule = new DiagnosticsTelemetryModule { HeartbeatInterval = testValue };
             services.AddSingleton<ITelemetryModule>(diagnosticsTelemetryModule);
@@ -1274,12 +1281,51 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             Assert.Equal(1, count);
 
             var appServicesHeartbeatTelemetryModule = modules.OfType<AppServicesHeartbeatTelemetryModule>().Single();
-            Assert.NotNull(appServicesHeartbeatTelemetryModule.HeartbeatPropertyManager);
-            Assert.Equal(testValue, appServicesHeartbeatTelemetryModule.HeartbeatPropertyManager.HeartbeatInterval);
+            var hpm1 = appServicesHeartbeatTelemetryModule.HeartbeatPropertyManager;
+            Assert.NotNull(hpm1);
+            Assert.Same(diagnosticsTelemetryModule, hpm1);
+            Assert.Equal(testValue, hpm1.HeartbeatInterval);
 
             var azureInstanceMetadataTelemetryModule = modules.OfType<AzureInstanceMetadataTelemetryModule>().Single();
-            Assert.NotNull(azureInstanceMetadataTelemetryModule.HeartbeatPropertyManager);
-            Assert.Equal(testValue, azureInstanceMetadataTelemetryModule.HeartbeatPropertyManager.HeartbeatInterval);
+            var hpm2 = azureInstanceMetadataTelemetryModule.HeartbeatPropertyManager;
+            Assert.NotNull(hpm2);
+            Assert.Same(diagnosticsTelemetryModule, hpm2);
+            Assert.Equal(testValue, hpm2.HeartbeatInterval);
+        }
+
+
+        [Fact]
+        /// <summary>
+        /// A user can configure an instance of DiagnosticsTelemetryModule.
+        /// During setup, we expect this module to be discovered and set on the other Heartbeat TelemetryModules.
+        /// </summary>
+        public static void VerifyIfHeartbeatPropertyManagerSetOnOtherModules_UserDefinedType()
+        {
+            //ARRANGE
+            var services = GetServiceCollectionWithContextAccessor();
+
+            // VERIFY THAT A USER CAN SPECIFY THEIR OWN TYPE
+            services.AddSingleton<ITelemetryModule, DiagnosticsTelemetryModule>();
+
+            //act
+            services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+            var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+
+            //VALIDATE
+            var modules = serviceProvider.GetServices<ITelemetryModule>();
+            var count = modules.OfType<DiagnosticsTelemetryModule>().Count();
+            Assert.Equal(1, count);
+
+            var appServicesHeartbeatTelemetryModule = modules.OfType<AppServicesHeartbeatTelemetryModule>().Single();
+            var hpm1 = appServicesHeartbeatTelemetryModule.HeartbeatPropertyManager;
+            Assert.NotNull(hpm1);
+
+            var azureInstanceMetadataTelemetryModule = modules.OfType<AzureInstanceMetadataTelemetryModule>().Single();
+            var hpm2 = azureInstanceMetadataTelemetryModule.HeartbeatPropertyManager;
+            Assert.NotNull(hpm2);
+
+            Assert.Same(hpm1, hpm2);
         }
 
         [Theory]

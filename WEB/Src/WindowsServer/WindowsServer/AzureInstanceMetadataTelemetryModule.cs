@@ -15,6 +15,18 @@
         private object lockObject = new object();
         private IHeartbeatPropertyManager heartbeatManager;
 
+        public AzureInstanceMetadataTelemetryModule()
+        {
+            this.ToString();
+        }
+
+        public AzureInstanceMetadataTelemetryModule(IHeartbeatPropertyManager heartbeatPropertyManager) => this.HeartbeatPropertyManager = heartbeatPropertyManager;
+
+        //public AzureInstanceMetadataTelemetryModule(System.Collections.Generic.IEnumerable<ITelemetryModule> telemetryModules)
+        //{
+        //    telemetryModules.ToString();
+        //}
+
         /// <summary>Gets a value indicating whether this module has been initialized.</summary>
         internal bool IsInitialized { get; private set; } = false;
 

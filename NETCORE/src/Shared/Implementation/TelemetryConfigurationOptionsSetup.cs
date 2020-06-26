@@ -142,7 +142,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 }
 
                 // Find the IHeartbeatPropertyManager. This is expected to be the DiagnosticsTelemetryModule, but will return null if doesn't exist.
-                var heartbeatPropertyManager = this.modules.OfType<IHeartbeatPropertyManager>().FirstOrDefault();
+                // var heartbeatPropertyManager = this.modules.OfType<IHeartbeatPropertyManager>().FirstOrDefault();
 
                 foreach (ITelemetryModule module in this.modules)
                 {
@@ -216,7 +216,8 @@ namespace Microsoft.Extensions.DependencyInjection
                         }
                         else
                         {
-                            HeartbeatHelper.SetHeartbeatPropertyManager(appServicesHeartbeatTelemetryModule, heartbeatPropertyManager);
+                            // DISABLED WHILE INVESTIGATING A WORKAROUND
+                            //HeartbeatHelper.SetHeartbeatPropertyManager(appServicesHeartbeatTelemetryModule, heartbeatPropertyManager);
                         }
                     }
 
@@ -230,7 +231,8 @@ namespace Microsoft.Extensions.DependencyInjection
                         }
                         else
                         {
-                            HeartbeatHelper.SetHeartbeatPropertyManager(azureInstanceMetadataTelemetryModule, heartbeatPropertyManager);
+                            // DISABLED WHILE INVESTIGATING A WORKAROUND
+                            //HeartbeatHelper.SetHeartbeatPropertyManager(azureInstanceMetadataTelemetryModule, heartbeatPropertyManager);
                         }
                     }
 
