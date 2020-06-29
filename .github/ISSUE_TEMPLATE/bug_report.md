@@ -1,6 +1,6 @@
 ---
-name: Bug Report(.Net SDK)
-about: Create a report to help us improve AI .NET SDK
+name: Bug Report (.NET Framework)
+about: Create a report to help us improve
 labels: bug
 ---
 
@@ -12,7 +12,7 @@ labels: bug
 -----------------Bug Template--------------------------------------------------------------
 
 * SDK version: 
-* .NET runtime version (.NET or .NET Core, TargetFramework in the .csproj file): 
+* .NET runtime version (.NET TargetFramework in the .csproj file):
 
 **Steps to reproduce.**
 Describe exactly how to reproduce the error. Include a code sample if applicable.
