@@ -6,7 +6,7 @@ labels: bug
 
 **Is this a bug in .NET SDK?**
              If yes, proceed to Bug Template. 
-             If not, please file it under the appropriate AI SDK repro path: [Javascript SDK](https://github.com/Microsoft/ApplicationInsights-js/issues) ; [Java SDK](https://github.com/Microsoft/ApplicationInsights-Java/issues) ; [Node.JS SDK](https://github.com/Microsoft/ApplicationInsights-node.js/issues)
+             If not, please file it under the appropriate AI SDK repro path: [Javascript SDK](https://github.com/Microsoft/ApplicationInsights-js/issues) ; [Java SDK](https://github.com/Microsoft/ApplicationInsights-Java/issues) ; [Node.JS SDK](https://github.com/Microsoft/ApplicationInsights-node.js/issues); [Azure Functions](https://github.com/Azure/Azure-Functions/issues) 
 
 
 -----------------Bug Template--------------------------------------------------------------
