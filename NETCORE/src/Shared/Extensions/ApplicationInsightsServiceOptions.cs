@@ -126,6 +126,7 @@
         /// </summary>
         public DependencyCollectionOptions DependencyCollectionOptions { get; } = new DependencyCollectionOptions();
 
+#if AI_ASPNETCORE_WEB
         /// <summary>
         /// Gets or sets a value indicating whether TelemetryConfiguration.Active should be initialized.
         /// Former versions of this library had a dependency on this static instance. 
@@ -134,6 +135,7 @@
         /// However, we recommend migrating away from using TelemetryConfiguration.Active in your projects.
         /// </summary>
         public bool EnableActiveTelemetryConfigurationSetup { get; set; } = false;
+#endif
 
         /// <summary>
         /// Copy the properties from this <see cref="ApplicationInsightsServiceOptions"/> to a target instance.
@@ -172,13 +174,14 @@
             target.EnableAppServicesHeartbeatTelemetryModule = this.EnableAppServicesHeartbeatTelemetryModule;
             target.EnableAzureInstanceMetadataTelemetryModule = this.EnableAzureInstanceMetadataTelemetryModule;
             target.EnableDiagnosticsTelemetryModule = this.EnableDiagnosticsTelemetryModule;
-            target.EnableActiveTelemetryConfigurationSetup = this.EnableActiveTelemetryConfigurationSetup;
+            
 #if NETSTANDARD2_0
             target.EnableEventCounterCollectionModule = this.EnableEventCounterCollectionModule;
 #endif
 #if AI_ASPNETCORE_WEB
             target.EnableAuthenticationTrackingJavaScript = this.EnableAuthenticationTrackingJavaScript;
             target.EnableRequestTrackingTelemetryModule = this.EnableRequestTrackingTelemetryModule;
+            target.EnableActiveTelemetryConfigurationSetup = this.EnableActiveTelemetryConfigurationSetup;
 #endif
         }
     }
