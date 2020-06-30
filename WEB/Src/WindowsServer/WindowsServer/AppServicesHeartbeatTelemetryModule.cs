@@ -42,16 +42,11 @@
         /// <param name="hbeatPropManager">The heartbeat property manager to use when setting/updating env var values.</param>
         internal AppServicesHeartbeatTelemetryModule(IHeartbeatPropertyManager hbeatPropManager) => this.HeartbeatPropertyManager = hbeatPropManager;
 
-        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
-        /// <remarks>Used to determine if we call Add or Set heartbeat properties in the case of updates.</remarks>
-        internal bool IsInitialized { get; private set; } = false;
-
         /// <summary>
         /// Gets or sets an instance of IHeartbeatPropertyManager. 
         /// </summary>
         /// <remarks>
         /// This is expected to be an instance of <see cref="DiagnosticsTelemetryModule"/>.
-        /// Note that tests can also override the heartbeat manager.
         /// </remarks>
         public IHeartbeatPropertyManager HeartbeatPropertyManager
         {
@@ -67,6 +62,10 @@
 
             set => this.heartbeatManager = value;
         }
+
+        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
+        /// <remarks>Used to determine if we call Add or Set heartbeat properties in the case of updates.</remarks>
+        internal bool IsInitialized { get; private set; } = false;
 
         /// <summary>
         /// Initialize the default heartbeat provider for Azure App Services. This module

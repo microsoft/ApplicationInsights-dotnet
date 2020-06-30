@@ -15,20 +15,20 @@
         private object lockObject = new object();
         private IHeartbeatPropertyManager heartbeatManager;
 
+        /// <summary>
+        /// Initializes a new instance of the<see cref="AzureInstanceMetadataTelemetryModule" /> class.
+        /// </summary>
         public AzureInstanceMetadataTelemetryModule() : this(null)
         {
         }
-        internal AzureInstanceMetadataTelemetryModule(IHeartbeatPropertyManager heartbeatPropertyManager) => this.HeartbeatPropertyManager = heartbeatPropertyManager;
 
-        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
-        internal bool IsInitialized { get; private set; } = false;
+        internal AzureInstanceMetadataTelemetryModule(IHeartbeatPropertyManager heartbeatPropertyManager) => this.HeartbeatPropertyManager = heartbeatPropertyManager;
 
         /// <summary>
         /// Gets or sets an instance of IHeartbeatPropertyManager. 
         /// </summary>
         /// <remarks>
         /// This is expected to be an instance of <see cref="DiagnosticsTelemetryModule"/>.
-        /// Note that tests can also override the heartbeat manager.
         /// </remarks>
         public IHeartbeatPropertyManager HeartbeatPropertyManager
         {
@@ -44,6 +44,9 @@
 
             set => this.heartbeatManager = value;
         }
+
+        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
+        internal bool IsInitialized { get; private set; } = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AzureInstanceMetadataTelemetryModule" /> class.
