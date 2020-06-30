@@ -1051,7 +1051,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
 
             serviceOptions = o => { 
-                o.EnableTelemetryConfigurationActiveBackwardsCompatibility = isEnable;
+                o.EnableActiveTelemetryConfigurationSetup = isEnable;
                 o.InstrumentationKey = testString;
             };
 

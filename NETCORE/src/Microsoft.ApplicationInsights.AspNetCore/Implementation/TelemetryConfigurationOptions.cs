@@ -30,7 +30,7 @@
                 c.Configure(this.Value);
             }
 
-            if (applicationInsightsServiceOptions.Value.EnableTelemetryConfigurationActiveBackwardsCompatibility)
+            if (applicationInsightsServiceOptions.Value.EnableActiveTelemetryConfigurationSetup)
             {
                 lock (LockObject)
                 {

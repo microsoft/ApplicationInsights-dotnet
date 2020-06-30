@@ -133,7 +133,7 @@
         /// If users depended on this behavior you should enable this.
         /// However, we recommend migrating away from using TelemetryConfiguration.Active in your projects.
         /// </summary>
-        public bool EnableTelemetryConfigurationActiveBackwardsCompatibility { get; set; } = false;
+        public bool EnableActiveTelemetryConfigurationSetup { get; set; } = false;
 
         /// <summary>
         /// Copy the properties from this <see cref="ApplicationInsightsServiceOptions"/> to a target instance.
@@ -172,7 +172,7 @@
             target.EnableAppServicesHeartbeatTelemetryModule = this.EnableAppServicesHeartbeatTelemetryModule;
             target.EnableAzureInstanceMetadataTelemetryModule = this.EnableAzureInstanceMetadataTelemetryModule;
             target.EnableDiagnosticsTelemetryModule = this.EnableDiagnosticsTelemetryModule;
-            target.EnableTelemetryConfigurationActiveBackwardsCompatibility = this.EnableTelemetryConfigurationActiveBackwardsCompatibility;
+            target.EnableActiveTelemetryConfigurationSetup = this.EnableActiveTelemetryConfigurationSetup;
 #if NETSTANDARD2_0
             target.EnableEventCounterCollectionModule = this.EnableEventCounterCollectionModule;
 #endif

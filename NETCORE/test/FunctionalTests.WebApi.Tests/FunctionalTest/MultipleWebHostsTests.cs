@@ -149,7 +149,7 @@ namespace FunctionalTests.WebApi.Tests.FunctionalTest
                     services =>
                     {
                         services.AddApplicationInsightsTelemetry(
-                            o => o.EnableTelemetryConfigurationActiveBackwardsCompatibility = true);
+                            o => o.EnableActiveTelemetryConfigurationSetup = true);
                     });
             }))
             {
