@@ -321,33 +321,9 @@
             services.AddSingletonIfNotExists<ITelemetryModule, DiagnosticsTelemetryModule>();
 
             // THIS WORKS, BUT HOW TO HANDLE USER REGISTRATION
-            services.AddSingleton<DiagnosticsTelemetryModule>(new DiagnosticsTelemetryModule());
-            services.AddSingleton<ITelemetryModule>(x => x.GetRequiredService<DiagnosticsTelemetryModule>());
-            services.AddSingleton<IHeartbeatPropertyManager>(x => x.GetRequiredService<DiagnosticsTelemetryModule>());
-
-            // THIS DOES NOT WORK. CAUSES INFINITATE RECURSION AND FALILS
-            //services.AddSingleton<ITelemetryModule>((sp) => {
-            //    var tm = sp.GetServices<ITelemetryModule>();
-            //    var dtm = tm.OfType<DiagnosticsTelemetryModule>().FirstOrDefault();
-            //    return new AppServicesHeartbeatTelemetryModule(dtm); 
-            //});
-
-
-            // THIS DOES NOT WORK, CAUSES 
-            //services.AddSingleton<ITelemetryModule>((sp) =>
-            //{
-            //    var tm = sp.GetServices<ITelemetryModule>();
-            //    var dtm = tm.OfType<DiagnosticsTelemetryModule>().FirstOrDefault();
-            //    var test = sp.GetRequiredService<DiagnosticsTelemetryModule>();
-            //    return new AppServicesHeartbeatTelemetryModule(test);
-            //});
-
-            //services.AddSingleton<ITelemetryModule>((sp) =>
-            //{
-            //    var test = sp.GetRequiredService<DiagnosticsTelemetryModule>();
-            //    return new AzureInstanceMetadataTelemetryModule(test);
-            //});
-
+            //services.AddSingleton<DiagnosticsTelemetryModule>(new DiagnosticsTelemetryModule());
+            //services.AddSingleton<ITelemetryModule>(x => x.GetRequiredService<DiagnosticsTelemetryModule>());
+            //services.AddSingleton<IHeartbeatPropertyManager>(x => x.GetRequiredService<DiagnosticsTelemetryModule>());
 
             // THIS IS THE OLD WAY.
             services.AddSingleton<ITelemetryModule, AppServicesHeartbeatTelemetryModule>();

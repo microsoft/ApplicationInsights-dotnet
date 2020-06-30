@@ -24,7 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
-    using Microsoft.ApplicationInsights.Shared.Implementation;
+    //using Microsoft.ApplicationInsights.Shared.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer;
     using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
     using Microsoft.Extensions.Options;
@@ -143,6 +143,15 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 // Find the IHeartbeatPropertyManager. This is expected to be the DiagnosticsTelemetryModule, but will return null if doesn't exist.
                 // var heartbeatPropertyManager = this.modules.OfType<IHeartbeatPropertyManager>().FirstOrDefault();
+                DiagnosticsTelemetryModule diagModule = null;
+                foreach (ITelemetryModule module in this.modules)
+                {
+                    if (module is DiagnosticsTelemetryModule dm)
+                    {
+                        diagModule = dm;
+                        break;
+                    }
+                }
 
                 foreach (ITelemetryModule module in this.modules)
                 {
@@ -216,8 +225,10 @@ namespace Microsoft.Extensions.DependencyInjection
                         }
                         else
                         {
-                            // DISABLED WHILE INVESTIGATING A WORKAROUND
-                            //HeartbeatHelper.SetHeartbeatPropertyManager(appServicesHeartbeatTelemetryModule, heartbeatPropertyManager);
+                            if (diagModule != null)
+                            {
+                                appServicesHeartbeatTelemetryModule.HeartbeatPropertyManager = diagModule;
+                            }
                         }
                     }
 
@@ -231,8 +242,10 @@ namespace Microsoft.Extensions.DependencyInjection
                         }
                         else
                         {
-                            // DISABLED WHILE INVESTIGATING A WORKAROUND
-                            //HeartbeatHelper.SetHeartbeatPropertyManager(azureInstanceMetadataTelemetryModule, heartbeatPropertyManager);
+                            if (diagModule != null)
+                            {
+                                azureInstanceMetadataTelemetryModule.HeartbeatPropertyManager = diagModule;
+                            }
                         }
                     }
 

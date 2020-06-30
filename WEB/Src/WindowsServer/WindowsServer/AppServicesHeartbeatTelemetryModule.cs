@@ -40,7 +40,7 @@
         /// internal, and allows for overriding the Heartbeat Property Manager to test this module with.
         /// </summary>
         /// <param name="hbeatPropManager">The heartbeat property manager to use when setting/updating env var values.</param>
-        public AppServicesHeartbeatTelemetryModule(IHeartbeatPropertyManager hbeatPropManager) => this.HeartbeatPropertyManager = hbeatPropManager;
+        internal AppServicesHeartbeatTelemetryModule(IHeartbeatPropertyManager hbeatPropManager) => this.HeartbeatPropertyManager = hbeatPropManager;
 
         /// <summary>Gets a value indicating whether this module has been initialized.</summary>
         /// <remarks>Used to determine if we call Add or Set heartbeat properties in the case of updates.</remarks>
@@ -53,7 +53,7 @@
         /// This is expected to be an instance of <see cref="DiagnosticsTelemetryModule"/>.
         /// Note that tests can also override the heartbeat manager.
         /// </remarks>
-        internal IHeartbeatPropertyManager HeartbeatPropertyManager
+        public IHeartbeatPropertyManager HeartbeatPropertyManager
         {
             get
             {
