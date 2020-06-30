@@ -5,7 +5,7 @@ labels: bug
 ---
 
 * List of [NuGet packages](https://github.com/microsoft/ApplicationInsights-dotnet#nuget-packages) and version that you are using:
-* Runtime version (e.g. net461, net48, netcoreapp2.1, netcoreapp3.1):
+* Runtime version (e.g. net461, net48, netcoreapp2.1, netcoreapp3.1, you can find this information from the `*.csproj` file):
 * Application type (Console/ASP.NET/ASP.NET Core):
 * Hosting environment (e.g. Windows Server 2016 + IIS, Ubuntu 20.04 LTS self-hosted, Azure WebApp):
 
