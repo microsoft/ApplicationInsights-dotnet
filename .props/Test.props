@@ -8,4 +8,8 @@
   <Import Project=".\_Common.props" />
   <Import Project=".\_AnalyzerSettings.props" />
 
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
 </Project>
