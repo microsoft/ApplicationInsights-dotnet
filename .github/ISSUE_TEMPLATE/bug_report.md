@@ -8,8 +8,6 @@ labels: bug
 * Runtime version (e.g. net461, net48, netcoreapp2.1, netcoreapp3.1):
 * Application type (Console/ASP.NET/ASP.NET Core):
 * Hosting environment (e.g. Windows Server 2016 + IIS, Ubuntu 20.04 LTS self-hosted, Azure WebApp):
-  * If you're running the application in Azure Functions, get support [here](TBD).
-  * If you're using [auto-instrumentation](https://docs.microsoft.com/en-us/azure/azure-monitor/app/codeless-overview), get support from [Azure Support Center](https://azure.microsoft.com/en-us/support/create-ticket/).
 
 **Steps to reproduce.**
 Describe exactly how to reproduce the error. Include a code sample if applicable.
