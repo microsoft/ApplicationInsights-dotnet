@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.ApplicationInsights.Extensibility;
 #if NETCOREAPP
 using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
-#endif 
+using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+#endif
 using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
 using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
 using Microsoft.ApplicationInsights.WindowsServer;
@@ -19,6 +17,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Test;
 
 using Xunit;
 
@@ -268,6 +267,81 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
 
             var modules = serviceProvider.GetServices<ITelemetryModule>();
             var module = modules.OfType<AppServicesHeartbeatTelemetryModule>().Single();
+            Assert.Equal(isEnable, module.IsInitialized);
+        }
+
+
+        /// <summary>
+        /// User could enable or disable TelemetryConfiguration.Active by setting EnableAppServicesHeartbeatTelemetryModule.
+        /// </summary>
+        /// /// <summary>
+        /// This SDK previously had a hidden dependency on TelemetryConfiguration.Active.
+        /// We've removed that, but users may have taken a dependency on the former behavior.
+        /// This test verifies that users can enable "backwards compat".
+        /// Enabling this will copy the AspNetCore config to the TC.Active static instance.
+        /// </summary>
+        [Theory]
+#if !NET46
+        [InlineData("DefaultConfiguration", true)]
+        [InlineData("DefaultConfiguration", false)]
+        [InlineData("SuppliedConfiguration", true)]
+        [InlineData("SuppliedConfiguration", false)]
+#endif
+        [InlineData("Code", true)]
+        [InlineData("Code", false)]
+        public static void UserCanEnableAndDisableTelemetryConfigurationActive(string configType, bool isEnable)
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            // Dispose .Active to force a new .Active to be created during this test.
+
+            TelemetryConfiguration.Active.Dispose();
+
+
+            string testString = "hello world";
+
+            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable, 
+                testConfig: (o, b) => {
+                    o.EnableActiveTelemetryConfigurationSetup = b;
+                    o.InstrumentationKey = testString;
+                });
+
+            // Requesting TelemetryConfiguration from services trigger constructing the TelemetryConfiguration
+            // which in turn trigger configuration of all modules.
+            var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+
+            // TelemetryConfiguration from DI should have custom set InstrumentationKey
+            Assert.Equal(testString, telemetryConfiguration.InstrumentationKey);
+
+            // TelemetryConfiguration.Active will only have custom set InstrumentationKey if BackwardsCompat was enabled.
+            if (isEnable)
+            {
+                Assert.Equal(testString, TelemetryConfiguration.Active.InstrumentationKey);
+            }
+            else
+            {
+                Assert.NotEqual(testString, TelemetryConfiguration.Active.InstrumentationKey);
+            }
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
+
+        /// <summary>
+        /// User could enable or disable DiagnosticsTelemetryModule by setting EnableDiagnosticsTelemetryModule.
+        /// </summary>
+        [Theory]
+#if !NET46
+        [InlineData("DefaultConfiguration", true)]
+        [InlineData("DefaultConfiguration", false)]
+        [InlineData("SuppliedConfiguration", true)]
+        [InlineData("SuppliedConfiguration", false)]
+#endif
+        [InlineData("Code", true)]
+        [InlineData("Code", false)]
+        public static void UserCanEnableAndDisableDiagnosticsTelemetryModule(string configType, bool isEnable)
+        {
+            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable, testConfig: (o, b) => o.EnableDiagnosticsTelemetryModule = b);
+
+            var modules = serviceProvider.GetServices<ITelemetryModule>();
+            var module = modules.OfType<DiagnosticsTelemetryModule>().Single();
             Assert.Equal(isEnable, module.IsInitialized);
         }
     }

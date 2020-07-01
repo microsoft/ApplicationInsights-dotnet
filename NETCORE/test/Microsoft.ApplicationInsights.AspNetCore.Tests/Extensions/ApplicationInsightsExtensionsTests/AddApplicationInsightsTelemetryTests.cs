@@ -668,51 +668,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         }
 #endif
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        /// <summary>
-        /// This SDK previously had a hidden dependency on TelemetryConfiguration.Active.
-        /// We've removed that, but users may have taken a dependency on the former behavior.
-        /// This test verifies that users can enable "backwards compat".
-        /// Enabling this will copy the AspNetCore config to the TC.Active static instance.
-        /// </summary>
-        public static void UserCanEnableAndDisableTelemetryConfigurationActive(bool isEnable)
-        {
-            string testString = "hello world";
-
-            TelemetryConfiguration.Active.Dispose();
-
-            // ARRANGE
-            Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-
-            serviceOptions = o => { 
-                o.EnableActiveTelemetryConfigurationSetup = isEnable;
-                o.InstrumentationKey = testString;
-            };
-
-            // ACT
-            var services = CreateServicesAndAddApplicationinsightsTelemetry(null, null, serviceOptions);
-            
-            IServiceProvider serviceProvider = services.BuildServiceProvider();
-
-            // Requesting TelemetryConfiguration from services trigger constructing the TelemetryConfiguration
-            // which in turn trigger configuration of all modules.
-            var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-
-            // TelemetryConfiguration from DI should have custom set InstrumentationKey
-            Assert.Equal(testString, telemetryConfiguration.InstrumentationKey);
-
-            // TelemetryConfiguration.Active will only have custom set InstrumentationKey if BackwardsCompat was enabled.
-            if (isEnable)
-            {
-                Assert.Equal(testString, TelemetryConfiguration.Active.InstrumentationKey);
-            }
-            else
-            {
-                Assert.NotEqual(testString, TelemetryConfiguration.Active.InstrumentationKey);
-            }
-        }
 
         [Fact]
         public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesDependencyCollectorWithDefaultValues()

@@ -13,15 +13,13 @@
     public sealed class DiagnosticsTelemetryModule : ITelemetryModule, IHeartbeatPropertyManager, IDisposable
     {
         internal readonly IList<IDiagnosticsSender> Senders = new List<IDiagnosticsSender>();
-
         internal readonly DiagnosticsListener EventListener;
-
         internal readonly IHeartbeatProvider HeartbeatProvider = null;
+
         private readonly object lockObject = new object();
         private readonly IDiagnoisticsEventThrottlingScheduler throttlingScheduler = new DiagnoisticsEventThrottlingScheduler();
         private volatile bool disposed = false;
         private string instrumentationKey;
-        private bool isInitialized = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DiagnosticsTelemetryModule"/> class. 
@@ -158,6 +156,9 @@
             }
         }
 
+        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
+        internal bool IsInitialized { get; private set; } = false;
+
         /// <summary>
         /// Initializes this telemetry module.
         /// </summary>
@@ -171,11 +172,11 @@
 
             // Temporary fix to make sure that we initialize module once.
             // It should be removed when configuration reading logic is moved to Web SDK.
-            if (!this.isInitialized)
+            if (!this.IsInitialized)
             {
                 lock (this.lockObject)
                 {
-                    if (!this.isInitialized)
+                    if (!this.IsInitialized)
                     {
                         var queueSender = this.Senders.OfType<PortalDiagnosticsQueueSender>().First();
                         queueSender.IsDisabled = true;
@@ -201,7 +202,7 @@
                         // set up heartbeat
                         this.HeartbeatProvider.Initialize(configuration);
 
-                        this.isInitialized = true;
+                        this.IsInitialized = true;
                     }
                 }
             }
