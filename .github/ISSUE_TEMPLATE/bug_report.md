@@ -5,13 +5,18 @@ labels: bug
 ---
 
 * List of [NuGet packages](https://github.com/microsoft/ApplicationInsights-dotnet#nuget-packages) and version that you are using:
-* Runtime version (e.g. net461, net48, netcoreapp2.1, netcoreapp3.1, you can find this information from the `*.csproj` file):
-* Application type (Console/ASP.NET/ASP.NET Core):
-* Hosting environment (e.g. Windows Server 2016 + IIS, Ubuntu 20.04 LTS self-hosted, Azure WebApp):
+* Runtime version (e.g. net461, net48, netcoreapp2.1, netcoreapp3.1, etc. You can find this information from the `*.csproj` file):
+* Hosting environment (e.g. Azure Web App, App Service on Linux, Windows, Ubuntu, etc.):
 
-**Steps to reproduce.**
-Describe exactly how to reproduce the error. Include a code sample if applicable.
+### Describe the bug
 
-**What is the expected behavior?**
+A clear and concise description of what the bug is.
 
-**What is the actual behavior?**
+### To Reproduce
+
+Create a self-contained project using the template of your choice, apply the minimum required code to result in the issue you're observing.
+
+We will close this issue if:
+
+* The repro project you share with us is complex. We can't investigate custom projects, so don't point us to such, please.
+* If we will not be able to repro the behavior you're reporting
