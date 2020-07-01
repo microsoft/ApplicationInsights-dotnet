@@ -5,7 +5,6 @@
     <RootNamespace>Microsoft.ApplicationInsights.HostingStartup.Tests</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.HostingStartup.Tests</AssemblyName>
     <TargetFrameworks>net45</TargetFrameworks>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <ItemGroup>

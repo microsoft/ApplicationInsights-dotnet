@@ -4,8 +4,6 @@
     <RootNamespace>Microsoft.ApplicationInsights.EtwCollector.Tests</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.EtwCollector.Tests</AssemblyName>
     <TargetFrameworks>net46</TargetFrameworks>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

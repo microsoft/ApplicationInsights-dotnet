@@ -6,7 +6,6 @@
     <AssemblyName>Xdt.Tests</AssemblyName>
     <TargetFrameworks>net45</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <IsPackable>false</IsPackable>
   </PropertyGroup>
   
   <ItemGroup>
