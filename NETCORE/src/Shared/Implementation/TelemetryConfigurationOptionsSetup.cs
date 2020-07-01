@@ -141,18 +141,13 @@ namespace Microsoft.Extensions.DependencyInjection
                     configuration.TelemetryInitializers.Add(initializer);
                 }
 
-                // Find the IHeartbeatPropertyManager. This is expected to be the DiagnosticsTelemetryModule, but will return null if doesn't exist.
-                // var heartbeatPropertyManager = this.modules.OfType<IHeartbeatPropertyManager>().FirstOrDefault();
-                DiagnosticsTelemetryModule diagModule = null;
-                foreach (ITelemetryModule module in this.modules)
-                {
-                    if (module is DiagnosticsTelemetryModule dm)
-                    {
-                        diagModule = dm;
-                        break;
-                    }
-                }
+                // Find the DiagnosticsTelemetryModule, this is needed to initialize AzureInstanceMetadataTelemetryModule and AppServicesHeartbeatTelemetryModule.
+                DiagnosticsTelemetryModule diagModule =
+                    (this.applicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule && this.applicationInsightsServiceOptions.EnableHeartbeat)
+                    ? this.modules.OfType<DiagnosticsTelemetryModule>().FirstOrDefault()
+                    : null;
 
+                // Checks ApplicationInsightsServiceOptions and disable TelemetryModules if explicitly disabled.
                 foreach (ITelemetryModule module in this.modules)
                 {
                     // If any of the modules are disabled explicitly using aioptions,
@@ -223,12 +218,10 @@ namespace Microsoft.Extensions.DependencyInjection
                             DisposeIfDisposable(module);
                             continue;
                         }
-                        else
+                        else if (diagModule != null)
                         {
-                            if (diagModule != null)
-                            {
-                                appServicesHeartbeatTelemetryModule.HeartbeatPropertyManager = diagModule;
-                            }
+                            // diagModule is set to Null above if (applicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule || this.applicationInsightsServiceOptions.EnableHeartbeat) == false.
+                            appServicesHeartbeatTelemetryModule.HeartbeatPropertyManager = diagModule;
                         }
                     }
 
@@ -240,12 +233,10 @@ namespace Microsoft.Extensions.DependencyInjection
                             DisposeIfDisposable(module);
                             continue;
                         }
-                        else
+                        else if (diagModule != null)
                         {
-                            if (diagModule != null)
-                            {
-                                azureInstanceMetadataTelemetryModule.HeartbeatPropertyManager = diagModule;
-                            }
+                            // diagModule is set to Null above if (applicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule || this.applicationInsightsServiceOptions.EnableHeartbeat) == false.
+                            azureInstanceMetadataTelemetryModule.HeartbeatPropertyManager = diagModule;
                         }
                     }
 
