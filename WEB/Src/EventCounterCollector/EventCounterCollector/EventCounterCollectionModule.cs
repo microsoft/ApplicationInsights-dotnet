@@ -1,10 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.EventCounterCollector
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
-    using System.Globalization;
-    using System.Text;
+
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector.Implementation;
@@ -26,10 +24,6 @@
         private TelemetryClient client = null;        
         private EventCounterListener eventCounterListener;
         private bool disposed = false;
-
-
-        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
-        internal bool IsInitialized { get; private set; } = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EventCounterCollectionModule"/> class.
@@ -56,6 +50,9 @@
         /// Gets or sets a value indicating whether the eventsource name and metric name are stored separately.
         /// </summary>
         public bool UseEventSourceNameAsMetricsNamespace { get; set; }
+
+        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
+        internal bool IsInitialized { get; private set; } = false;
 
         /// <summary>
         /// IDisposable implementation.

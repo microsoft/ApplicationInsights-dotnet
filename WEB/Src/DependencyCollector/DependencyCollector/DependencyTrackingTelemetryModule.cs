@@ -42,9 +42,6 @@
 #endif
         private TelemetryConfiguration telemetryConfiguration;
 
-        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
-        internal bool IsInitialized { get; private set; } = false;
-
         private bool disposed = false;
 
         /// <summary>
@@ -103,6 +100,9 @@
         /// </summary>
         [Obsolete("This field has been deprecated. Please set TelemetryConfiguration.Active.ApplicationIdProvider = new ApplicationInsightsApplicationIdProvider() and customize ApplicationInsightsApplicationIdProvider.ProfileQueryEndpoint.")]
         public string ProfileQueryEndpoint { get; set; }
+
+        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
+        internal bool IsInitialized { get; private set; } = false;
 
         /// <summary>
         /// IDisposable implementation.
