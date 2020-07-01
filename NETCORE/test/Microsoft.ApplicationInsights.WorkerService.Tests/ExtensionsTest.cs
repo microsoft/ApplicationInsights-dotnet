@@ -35,6 +35,38 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
             this.output.WriteLine("Initialized");
         }
 
+        private static IServiceProvider TestShim(string configType, bool isEnabled, Action<ApplicationInsightsServiceOptions, bool> testConfig)
+        {
+            // ARRANGE
+            Action<ApplicationInsightsServiceOptions> serviceOptions = null;
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "content", "config-all-settings-" + isEnabled.ToString().ToLower() + ".json");
+
+            if (configType == "Code")
+            {
+                filePath = null;
+
+                // This will set the property defined in the test.
+                serviceOptions = o => { testConfig(o, isEnabled); };
+            }
+
+            // ACT
+            var services = CreateServicesAndAddApplicationinsightsWorker(
+                jsonPath: filePath,
+                serviceOptions: serviceOptions,
+                useDefaultConfig: configType == "DefaultConfiguration" ? true : false);
+
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+
+            // Get telemetry client to trigger TelemetryConfig setup.
+            var tc = serviceProvider.GetService<TelemetryClient>();
+
+            // Verify that Modules were added to DI.
+            var modules = serviceProvider.GetServices<ITelemetryModule>();
+            Assert.NotNull(modules);
+
+            return serviceProvider;
+        }
+
         public static ServiceCollection CreateServicesAndAddApplicationinsightsWorker(string jsonPath, Action<ApplicationInsightsServiceOptions> serviceOptions = null, bool useDefaultConfig = true)
         {
             IConfigurationRoot config;
@@ -488,36 +520,11 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
         [InlineData("Code", false)]
         public static void UserCanEnableAndDisablePerfCollectorModule(string configType, bool isEnable)
         {
-            // ARRANGE
-            Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
+            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable, testConfig: (o, b) => o.EnablePerformanceCounterCollectionModule = b);
 
-            if (configType == "Code")
-            {
-                serviceOptions = o => { o.EnablePerformanceCounterCollectionModule = isEnable; };
-                filePath = null;
-            }
-
-            // ACT
-            var services = CreateServicesAndAddApplicationinsightsWorker(filePath, serviceOptions, configType == "DefaultConfiguration" ? true : false);
-
-            // VALIDATE
-            IServiceProvider serviceProvider = services.BuildServiceProvider();
             var modules = serviceProvider.GetServices<ITelemetryModule>();
-            Assert.NotNull(modules);
-
-            // Even if a module is disabled its still added to DI.
-            Assert.NotEmpty(modules.OfType<PerformanceCollectorModule>());
-
-            // Get telemetry client to trigger TelemetryConfig setup.
-            var tc = serviceProvider.GetService<TelemetryClient>();
-
-            Type perfModuleType = typeof(PerformanceCollectorModule);
-            PerformanceCollectorModule perfModule = (PerformanceCollectorModule)modules.FirstOrDefault(m => m.GetType() == perfModuleType);
-            // Get the PerformanceCollectorModule private field value for isInitialized.
-            FieldInfo isInitializedField = perfModuleType.GetField("isInitialized", BindingFlags.NonPublic | BindingFlags.Instance);
-            // PerformanceCollectorModule.isInitialized is set to true when EnablePerformanceCounterCollectionModule is enabled, else it is set to false.
-            Assert.Equal(isEnable, (bool)isInitializedField.GetValue(perfModule));
+            var module = modules.OfType<PerformanceCollectorModule>().Single();
+            Assert.Equal(isEnable, module.IsInitialized);
         }
 
         /// <summary>
@@ -540,36 +547,11 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
         [InlineData("Code", false)]
         public static void UserCanEnableAndDisableEventCounterCollectorModule(string configType, bool isEnable)
         {
-            // ARRANGE
-            Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
+            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable, testConfig: (o, b) => o.EnableEventCounterCollectionModule = b);
 
-            if (configType == "Code")
-            {
-                serviceOptions = o => { o.EnableEventCounterCollectionModule = isEnable; };
-                filePath = null;
-            }
-
-            // ACT
-            var services = CreateServicesAndAddApplicationinsightsWorker(filePath, serviceOptions, configType == "DefaultConfiguration" ? true : false);
-
-            // VALIDATE
-            IServiceProvider serviceProvider = services.BuildServiceProvider();
             var modules = serviceProvider.GetServices<ITelemetryModule>();
-            Assert.NotNull(modules);
-
-            // Even if a module is disabled its still added to DI.
-            Assert.NotEmpty(modules.OfType<EventCounterCollectionModule>());
-
-            // Get telemetry client to trigger TelemetryConfig setup.
-            var tc = serviceProvider.GetService<TelemetryClient>();
-
-            Type eventCollectorModuleType = typeof(EventCounterCollectionModule);
-            EventCounterCollectionModule eventCollectorModule = (EventCounterCollectionModule)modules.FirstOrDefault(m => m.GetType() == eventCollectorModuleType);
-            // Get the EventCounterCollectionModule private field value for isInitialized.
-            FieldInfo isInitializedField = eventCollectorModuleType.GetField("isInitialized", BindingFlags.NonPublic | BindingFlags.Instance);
-            // EventCounterCollectionModule.isInitialized is set to true when EnableEventCounterCollectionModule is enabled, else it is set to false.
-            Assert.Equal(isEnable, (bool)isInitializedField.GetValue(eventCollectorModule));
+            var module = modules.OfType<EventCounterCollectionModule>().Single();
+            Assert.Equal(isEnable, module.IsInitialized);
         }
 
         /// <summary>
@@ -592,36 +574,11 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
         [InlineData("Code", false)]
         public static void UserCanEnableAndDisableDependencyCollectorModule(string configType, bool isEnable)
         {
-            // ARRANGE
-            Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
+            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable, testConfig: (o, b) => o.EnableDependencyTrackingTelemetryModule = b);
 
-            if (configType == "Code")
-            {
-                serviceOptions = o => { o.EnableDependencyTrackingTelemetryModule = isEnable; };
-                filePath = null;
-            }
-
-            // ACT
-            var services = CreateServicesAndAddApplicationinsightsWorker(filePath, serviceOptions, configType == "DefaultConfiguration" ? true : false);
-
-            // VALIDATE
-            IServiceProvider serviceProvider = services.BuildServiceProvider();
             var modules = serviceProvider.GetServices<ITelemetryModule>();
-            Assert.NotNull(modules);
-
-            // Even if a module is disabled its still added to DI.
-            Assert.NotEmpty(modules.OfType<DependencyTrackingTelemetryModule>());
-
-            // Get telemetry client to trigger TelemetryConfig setup.
-            var tc = serviceProvider.GetService<TelemetryClient>();
-
-            Type dependencyModuleType = typeof(DependencyTrackingTelemetryModule);
-            DependencyTrackingTelemetryModule dependencyModule = (DependencyTrackingTelemetryModule)modules.FirstOrDefault(m => m.GetType() == dependencyModuleType);
-            // Get the DependencyTrackingTelemetryModule private field value for isInitialized.
-            FieldInfo isInitializedField = dependencyModuleType.GetField("isInitialized", BindingFlags.NonPublic | BindingFlags.Instance);
-            // DependencyTrackingTelemetryModule.isInitialized is set to true when EnableDependencyTrackingTelemetryModule is enabled, else it is set to false.
-            Assert.Equal(isEnable, (bool)isInitializedField.GetValue(dependencyModule));
+            var module = modules.OfType<DependencyTrackingTelemetryModule>().Single();
+            Assert.Equal(isEnable, module.IsInitialized);
         }
 
         /// <summary>
@@ -644,36 +601,11 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
         [InlineData("Code", false)]
         public static void UserCanEnableAndDisableQuickPulseCollectorModule(string configType, bool isEnable)
         {
-            // ARRANGE
-            Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
+            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable, testConfig: (o, b) => o.EnableQuickPulseMetricStream = b);
 
-            if (configType == "Code")
-            {
-                serviceOptions = o => { o.EnableQuickPulseMetricStream = isEnable; };
-                filePath = null;
-            }
-
-            // ACT
-            var services = CreateServicesAndAddApplicationinsightsWorker(filePath, serviceOptions, configType == "DefaultConfiguration" ? true : false);
-
-            // VALIDATE
-            IServiceProvider serviceProvider = services.BuildServiceProvider();
             var modules = serviceProvider.GetServices<ITelemetryModule>();
-            Assert.NotNull(modules);
-
-            // Even if a module is disabled its still added to DI.
-            Assert.NotEmpty(modules.OfType<QuickPulseTelemetryModule>());
-
-            // Get telemetry client to trigger TelemetryConfig setup.
-            var tc = serviceProvider.GetService<TelemetryClient>();
-
-            Type quickPulseModuleType = typeof(QuickPulseTelemetryModule);
-            QuickPulseTelemetryModule quickPulseModule = (QuickPulseTelemetryModule)modules.FirstOrDefault(m => m.GetType() == quickPulseModuleType);
-            // Get the QuickPulseTelemetryModule private field value for isInitialized.
-            FieldInfo isInitializedField = quickPulseModuleType.GetField("isInitialized", BindingFlags.NonPublic | BindingFlags.Instance);
-            // QuickPulseTelemetryModule.isInitialized is set to true when EnableQuickPulseMetricStream is enabled, else it is set to false.
-            Assert.Equal(isEnable, (bool)isInitializedField.GetValue(quickPulseModule));
+            var module = modules.OfType<QuickPulseTelemetryModule>().Single();
+            Assert.Equal(isEnable, module.IsInitialized);
         }
 
         /// <summary>
@@ -696,32 +628,11 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
         [InlineData("Code", false)]
         public static void UserCanEnableAndDisableAzureInstanceMetadataModule(string configType, bool isEnable)
         {
-            // ARRANGE
-            Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
+            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable, testConfig: (o, b) => o.EnableAzureInstanceMetadataTelemetryModule = b);
 
-            if (configType == "Code")
-            {
-                serviceOptions = o => { o.EnableAzureInstanceMetadataTelemetryModule = isEnable; };
-                filePath = null;
-            }
-
-            // ACT
-            var services = CreateServicesAndAddApplicationinsightsWorker(filePath, serviceOptions, configType == "DefaultConfiguration" ? true : false);
-
-            // VALIDATE
-            IServiceProvider serviceProvider = services.BuildServiceProvider();
             var modules = serviceProvider.GetServices<ITelemetryModule>();
-            Assert.NotNull(modules);
-
-            // Even if a module is disabled its still added to DI.
-            Assert.NotEmpty(modules.OfType<AzureInstanceMetadataTelemetryModule>());
-
-            // Get telemetry client to trigger TelemetryConfig setup.
-            var tc = serviceProvider.GetService<TelemetryClient>();
-
-            AzureInstanceMetadataTelemetryModule azureInstanceMetadataModule = modules.OfType<AzureInstanceMetadataTelemetryModule>().Single();
-            Assert.Equal(isEnable, azureInstanceMetadataModule.IsInitialized);
+            var module = modules.OfType<AzureInstanceMetadataTelemetryModule>().Single();
+            Assert.Equal(isEnable, module.IsInitialized);
         }
 
         /// <summary>

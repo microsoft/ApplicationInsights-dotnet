@@ -62,7 +62,8 @@
 
         private QuickPulseTimings timings;
 
-        private bool isInitialized = false;
+        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
+        internal bool IsInitialized { get; private set; } = false;
 
         private QuickPulseCollectionTimeSlotManager collectionTimeSlotManager = null;
 
@@ -157,11 +158,11 @@
         /// <param name="configuration">TelemetryConfiguration passed to the module.</param>
         public void Initialize(TelemetryConfiguration configuration)
         {
-            if (!this.isInitialized)
+            if (!this.IsInitialized)
             {
                 lock (this.moduleInitializationLock)
                 {
-                    if (!this.isInitialized)
+                    if (!this.IsInitialized)
                     {
                         QuickPulseEventSource.Log.ModuleIsBeingInitializedEvent(
                             this.QuickPulseServiceEndpoint,
@@ -204,7 +205,7 @@
 
                         this.CreateStateThread();
 
-                        this.isInitialized = true;
+                        this.IsInitialized = true;
                     }
                 }
             }
