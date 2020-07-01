@@ -9,4 +9,5 @@ labels: question
 * Hosting environment (e.g. Azure Web App, App Service on Linux, Windows, Ubuntu, etc.):
 
 **What are you trying to achieve?**
-What did you expect to see?
+
+**What have you tried so far?**
