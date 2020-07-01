@@ -41,7 +41,10 @@
         private ProfilerHttpProcessing httpProcessing;
 #endif
         private TelemetryConfiguration telemetryConfiguration;
-        private bool isInitialized = false;
+
+        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
+        internal bool IsInitialized { get; private set; } = false;
+
         private bool disposed = false;
 
         /// <summary>
@@ -119,11 +122,11 @@
 
             // Temporary fix to make sure that we initialize module once.
             // It should be removed when configuration reading logic is moved to Web SDK.
-            if (!this.isInitialized)
+            if (!this.IsInitialized)
             {
                 lock (this.lockObject)
                 {
-                    if (!this.isInitialized)
+                    if (!this.IsInitialized)
                     {
                         try
                         {
@@ -175,7 +178,7 @@
 
                         PrepareFirstActivity();
 
-                        this.isInitialized = true;
+                        this.IsInitialized = true;
                     }
                 }
             }

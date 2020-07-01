@@ -26,7 +26,10 @@
         private TelemetryClient client = null;        
         private EventCounterListener eventCounterListener;
         private bool disposed = false;
-        private bool isInitialized = false;        
+
+
+        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
+        internal bool IsInitialized { get; private set; } = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EventCounterCollectionModule"/> class.
@@ -70,7 +73,7 @@
         {
             try
             {                
-                if (!this.isInitialized)
+                if (!this.IsInitialized)
                 {
                     EventCounterCollectorEventSource.Log.ModuleIsBeingInitializedEvent(this.Counters?.Count ?? 0);
 
@@ -82,7 +85,7 @@
                     this.client = new TelemetryClient(configuration);                    
                     this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("evtc:");
                     this.eventCounterListener = new EventCounterListener(this.client, this.Counters, this.refreshInternalInSecs, this.UseEventSourceNameAsMetricsNamespace);
-                    this.isInitialized = true;
+                    this.IsInitialized = true;
                     EventCounterCollectorEventSource.Log.ModuleInitializedSuccess();
                 }
             }
