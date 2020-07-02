@@ -43,7 +43,7 @@
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether or not the Heartbeat feature is enabled.
+        /// Gets or sets a value indicating whether or not the Heartbeat feature is disabled.
         /// </summary>
         public bool IsHeartbeatEnabled
         {
