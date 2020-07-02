@@ -15,7 +15,7 @@
         internal readonly IList<IDiagnosticsSender> Senders = new List<IDiagnosticsSender>();
         internal readonly DiagnosticsListener EventListener;
         internal readonly IHeartbeatProvider HeartbeatProvider = null;
-
+        
         private readonly object lockObject = new object();
         private readonly IDiagnoisticsEventThrottlingScheduler throttlingScheduler = new DiagnoisticsEventThrottlingScheduler();
         private volatile bool disposed = false;
