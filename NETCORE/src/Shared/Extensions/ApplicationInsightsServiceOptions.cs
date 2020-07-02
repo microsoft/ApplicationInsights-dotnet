@@ -27,12 +27,14 @@
         /// <summary>
         /// Gets or sets a value indicating whether AppServicesHeartbeatTelemetryModule should be enabled.
         /// Defaults to <value>true</value>.
+        /// IMPORTANT: This setting will be disabled if <see cref="EnableDiagnosticsTelemetryModule"/> is set to false.
         /// </summary>
         public bool EnableAppServicesHeartbeatTelemetryModule { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether AzureInstanceMetadataTelemetryModule should be enabled.
         /// Defaults to <value>true</value>.
+        /// IMPORTANT: This setting will be disabled if <see cref="EnableDiagnosticsTelemetryModule"/> is set to false.
         /// </summary>
         public bool EnableAzureInstanceMetadataTelemetryModule { get; set; } = true;
 
@@ -88,6 +90,7 @@
 
         /// <summary>
         /// Gets or sets a value indicating whether heartbeats are enabled.
+        /// IMPORTANT: This setting will be disabled if <see cref="EnableDiagnosticsTelemetryModule"/> is set to false.
         /// </summary>
         public bool EnableHeartbeat { get; set; } = true;
 
@@ -118,7 +121,10 @@
 
         /// <summary>
         /// Gets or sets a value indicating whether the <see cref="Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule"/> should be enabled.
-        /// IMPORTANT NOTICE: Disabling this will also disable ***TODO LIST OTHER SETTINGS AFFECTED BY THIS***.
+        /// IMPORTANT: Disabling this will also disable the following settings:
+        /// <see cref="EnableHeartbeat"/>.
+        /// <see cref="EnableAzureInstanceMetadataTelemetryModule"/>.
+        /// <see cref="EnableAppServicesHeartbeatTelemetryModule"/>.
         /// </summary>
         public bool EnableDiagnosticsTelemetryModule { get; set; } = true;
 
