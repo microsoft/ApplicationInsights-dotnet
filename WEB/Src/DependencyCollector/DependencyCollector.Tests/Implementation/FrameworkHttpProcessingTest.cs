@@ -19,7 +19,6 @@ namespace Microsoft.ApplicationInsights.Tests
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    [Ignore("Test class out of date. Github Issue 1830")]
     public sealed class FrameworkHttpProcessingTest : IDisposable
     {
         #region Fields
@@ -108,6 +107,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 null);
         }
 
+#if !NET45
         [TestMethod]
         public void RddTestHttpProcessingFrameworkOnEndHttpCallbackSuccessParentActivity()
         {
@@ -133,6 +133,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 "200",
                 parentActivity);
         }
+#endif
 
         [TestMethod]
         public void RddTestHttpProcessingFrameworkOnEndHttpCallbackSuccessParentActivityW3COff()
@@ -371,9 +372,9 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.AreEqual(expectedTarget, receivedItem.Target, "HttpProcessingFramework returned incorrect target for non standard port.");
         }
 
-        #endregion //BeginEndCallBacks
+#endregion //BeginEndCallBacks
 
-        #region AsyncScenarios
+#region AsyncScenarios
 
         /// <summary>
         /// Validates HttpProcessingFramework calculates startTime from the start of very first OnRequestSend if any
@@ -409,17 +410,17 @@ namespace Microsoft.ApplicationInsights.Tests
                 null);
         }
 
-        #endregion AsyncScenarios
+#endregion AsyncScenarios
 
-        #region Disposable
+#region Disposable
         public void Dispose()
         {
             this.configuration.Dispose();
             GC.SuppressFinalize(this);
         }
-        #endregion Disposable
+#endregion Disposable
 
-        #region Helpers
+#region Helpers
         private static void ValidateTelemetryPacketForOnBeginHttpCallback(
             DependencyTelemetry remoteDependencyTelemetryActual,
             Uri url,
@@ -491,7 +492,7 @@ namespace Microsoft.ApplicationInsights.Tests
             }
         }
 
-        #endregion Helpers
+#endregion Helpers
     }
 }
 #endif
