@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net45;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
-    <AssemblyName>Microsoft.ApplicationInsights.DependencyCollector.NetCore.Tests</AssemblyName>
+    <AssemblyName>Microsoft.ApplicationInsights.DependencyCollector.Tests</AssemblyName>
     <PackageId>Microsoft.AI.DependencyCollector.Tests</PackageId>
 
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>

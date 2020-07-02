@@ -71,7 +71,8 @@
         /// </summary>
         private Timer timer = null;
 
-        private bool isInitialized = false;
+        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
+        internal bool IsInitialized { get; private set; } = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PerformanceCollectorModule"/> class.
@@ -135,11 +136,11 @@
         /// </summary>
         public void Initialize(TelemetryConfiguration configuration)
         {
-            if (!this.isInitialized)
+            if (!this.IsInitialized)
             {
                 lock (this.lockObject)
                 {
-                    if (!this.isInitialized)
+                    if (!this.IsInitialized)
                     {
                         PerformanceCollectorEventSource.Log.ModuleIsBeingInitializedEvent(
                             string.Format(
@@ -196,7 +197,7 @@
 
                         // schedule the first tick
                         this.timer.ScheduleNextTick(this.collectionPeriod);
-                        this.isInitialized = true;
+                        this.IsInitialized = true;
                     }
                 }
             }
