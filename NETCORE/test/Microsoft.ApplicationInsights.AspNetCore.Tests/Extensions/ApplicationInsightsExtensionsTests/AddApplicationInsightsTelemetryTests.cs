@@ -1473,47 +1473,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             Assert.NotNull(modules.OfType<AzureInstanceMetadataTelemetryModule>().Single());
         }
 
-        /// <summary>
-        /// User could enable or disable heartbeat by setting EnableHeartbeat.
-        /// This configuration can be read from a JSON file by the configuration factory or through code by passing ApplicationInsightsServiceOptions. 
-        /// </summary>
-        /// <param name="configType">
-        /// DefaultConfiguration - calls services.AddApplicationInsightsTelemetry() which reads IConfiguration from user application automatically.
-        /// SuppliedConfiguration - invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
-        /// Code - Caller creates an instance of ApplicationInsightsServiceOptions and passes it. This option overrides all configuration being used in JSON file. 
-        /// There is a special case where NULL values in these properties - InstrumentationKey, ConnectionString, EndpointAddress and DeveloperMode are overwritten. We check IConfiguration object to see if these properties have values, if values are present then we override it. 
-        /// </param>
-        [Theory]
-#if !NET46
-        [InlineData("DefaultConfiguration")]
-        [InlineData("SuppliedConfiguration")]
-#endif
-        [InlineData("Code")]
-        public static void UserCanDisableHeartbeat(string configType)
-        {
-            // ARRANGE
-            Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-false.json");
-
-            if (configType == "Code")
-            {
-                serviceOptions = o => { o.EnableHeartbeat = false; };
-                filePath = null;
-            }
-
-            // ACT
-            var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
-
-            // VALIDATE
-            IServiceProvider serviceProvider = services.BuildServiceProvider();
-            var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-            var modules = serviceProvider.GetServices<ITelemetryModule>();
-            var heartbeatModule = modules.OfType<IHeartbeatPropertyManager>().Single();
-
-            Assert.NotNull(heartbeatModule);
-            Assert.False(heartbeatModule.IsHeartbeatEnabled);
-        }
-
         [Fact]
         public static void W3CIsEnabledByDefault()
         {

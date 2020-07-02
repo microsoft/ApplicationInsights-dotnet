@@ -92,6 +92,11 @@
         public bool EnableHeartbeat { get; set; } = true;
 
         /// <summary>
+        /// Gets or sets a value indicating whether diagnostics are enabled.
+        /// </summary>
+        public bool EnableDiagnostics { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets a value indicating whether AutoCollectedMetricExtractors are added or not.
         /// Defaults to <value>true</value>.
         /// </summary>
@@ -118,6 +123,7 @@
 
         /// <summary>
         /// Gets or sets a value indicating whether the <see cref="Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule"/> should be enabled.
+        /// IMPORTANT NOTICE: Disabling this will also disable ***TODO LIST OTHER SETTINGS AFFECTED BY THIS***.
         /// </summary>
         public bool EnableDiagnosticsTelemetryModule { get; set; } = true;
 

@@ -8,8 +8,8 @@ using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.ApplicationInsights.Extensibility;
 #if NETCOREAPP
 using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
-using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 #endif
+using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
 using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
 using Microsoft.ApplicationInsights.WindowsServer;
@@ -325,7 +325,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         }
 
         /// <summary>
-        /// User could enable or disable DiagnosticsTelemetryModule by setting EnableDiagnosticsTelemetryModule.
+        /// User could enable or disable <see cref="DiagnosticsTelemetryModule"/> by setting <see cref="ApplicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule"/>.
         /// </summary>
         [Theory]
 #if !NET46
@@ -343,6 +343,52 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
             var modules = serviceProvider.GetServices<ITelemetryModule>();
             var module = modules.OfType<DiagnosticsTelemetryModule>().Single();
             Assert.Equal(isEnable, module.IsInitialized);
+        }
+
+        /// <summary>
+        /// User could enable or disable the Heartbeat feature by setting <see cref="ApplicationInsightsServiceOptions.EnableHeartbeat"/>.
+        /// </summary>
+        [Theory]
+#if !NET46
+        [InlineData("DefaultConfiguration", true)]
+        [InlineData("DefaultConfiguration", false)]
+        [InlineData("SuppliedConfiguration", true)]
+        [InlineData("SuppliedConfiguration", false)]
+#endif
+        [InlineData("Code", true)]
+        [InlineData("Code", false)]
+        public static void UserCanEnableAndDisableHeartbeatFeature(string configType, bool isEnable)
+        {
+            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable, testConfig: (o, b) => o.EnableHeartbeat = b);
+
+            var modules = serviceProvider.GetServices<ITelemetryModule>();
+            var module = modules.OfType<DiagnosticsTelemetryModule>().Single();
+            Assert.True(module.IsInitialized);
+            Assert.True(module.IsDiagnosticsEnabled);
+            Assert.Equal(isEnable, module.IsHeartbeatEnabled);
+        }
+
+        /// <summary>
+        /// User could enable or disable <see cref="DiagnosticsTelemetryModule"/> by setting <see cref="ApplicationInsightsServiceOptions.EnableDiagnostics"/>.
+        /// </summary>
+        [Theory]
+#if !NET46
+        [InlineData("DefaultConfiguration", true)]
+        [InlineData("DefaultConfiguration", false)]
+        [InlineData("SuppliedConfiguration", true)]
+        [InlineData("SuppliedConfiguration", false)]
+#endif
+        [InlineData("Code", true)]
+        [InlineData("Code", false)]
+        public static void UserCanEnableAndDisableDiagnosticsFeature(string configType, bool isEnable)
+        {
+            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable, testConfig: (o, b) => o.EnableDiagnostics = b);
+
+            var modules = serviceProvider.GetServices<ITelemetryModule>();
+            var module = modules.OfType<DiagnosticsTelemetryModule>().Single();
+            Assert.True(module.IsInitialized);
+            Assert.True(module.IsHeartbeatEnabled);
+            Assert.Equal(isEnable, module.IsDiagnosticsEnabled);
         }
     }
 }

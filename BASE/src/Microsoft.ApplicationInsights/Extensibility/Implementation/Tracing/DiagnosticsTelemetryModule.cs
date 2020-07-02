@@ -43,7 +43,7 @@
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether or not the Heartbeat feature is disabled.
+        /// Gets or sets a value indicating whether or not the Heartbeat feature is enabled.
         /// </summary>
         public bool IsHeartbeatEnabled
         {
@@ -57,6 +57,11 @@
                 this.HeartbeatProvider.IsHeartbeatEnabled = value;
             }
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether or not the Diagnostics feature is enabled.
+        /// </summary>
+        public bool IsDiagnosticsEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets the delay interval between heartbeats.

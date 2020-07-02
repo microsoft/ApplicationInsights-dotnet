@@ -1,2 +1,4 @@
+Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableDiagnostics.get -> bool
+Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableDiagnostics.set -> void
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule.get -> bool
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule.set -> void
