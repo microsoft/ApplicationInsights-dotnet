@@ -25,17 +25,7 @@
         {
             try
             {
-                var assembly = Assembly.GetEntryAssembly();
-
-                if (assembly == null)
-                {
-                    // https://docs.microsoft.com/dotnet/api/system.reflection.assembly.getentryassembly
-                    return "The GetEntryAssembly method can return null when a managed assembly has been loaded from an unmanaged application.";
-                }
-                else
-                {
-                    return assembly.GetName().Name;
-                }
+                return Assembly.GetEntryAssembly().GetName().Name;
             }
             catch (Exception exp)
             {
