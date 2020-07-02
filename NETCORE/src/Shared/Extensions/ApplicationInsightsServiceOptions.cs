@@ -92,11 +92,6 @@
         public bool EnableHeartbeat { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether diagnostics are enabled.
-        /// </summary>
-        public bool EnableDiagnostics { get; set; } = true;
-
-        /// <summary>
         /// Gets or sets a value indicating whether AutoCollectedMetricExtractors are added or not.
         /// Defaults to <value>true</value>.
         /// </summary>

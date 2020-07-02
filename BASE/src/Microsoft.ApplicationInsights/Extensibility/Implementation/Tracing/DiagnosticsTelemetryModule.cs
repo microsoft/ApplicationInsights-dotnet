@@ -59,11 +59,6 @@
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether or not the Diagnostics feature is enabled.
-        /// </summary>
-        public bool IsDiagnosticsEnabled { get; set; }
-
-        /// <summary>
         /// Gets or sets the delay interval between heartbeats.
         /// 
         /// <remarks>

@@ -293,11 +293,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         {
 #pragma warning disable CS0618 // Type or member is obsolete
             // Dispose .Active to force a new .Active to be created during this test.
-
             TelemetryConfiguration.Active.Dispose();
 
-
-            string testString = "hello world";
+            // IMPORTANT: This is the same ikey specified in the config files that will be used for this test.
+            string testString = "22222222-2222-3333-4444-555555555555";
 
             IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable, 
                 testConfig: (o, b) => {
@@ -305,22 +304,13 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
                     o.InstrumentationKey = testString;
                 });
 
-            // Requesting TelemetryConfiguration from services trigger constructing the TelemetryConfiguration
-            // which in turn trigger configuration of all modules.
-            var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-
             // TelemetryConfiguration from DI should have custom set InstrumentationKey
+            var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
             Assert.Equal(testString, telemetryConfiguration.InstrumentationKey);
 
             // TelemetryConfiguration.Active will only have custom set InstrumentationKey if BackwardsCompat was enabled.
-            if (isEnable)
-            {
-                Assert.Equal(testString, TelemetryConfiguration.Active.InstrumentationKey);
-            }
-            else
-            {
-                Assert.NotEqual(testString, TelemetryConfiguration.Active.InstrumentationKey);
-            }
+            Assert.Equal(testString.Equals(TelemetryConfiguration.Active.InstrumentationKey), isEnable);
+
 #pragma warning restore CS0618 // Type or member is obsolete
         }
 
@@ -348,47 +338,25 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         /// <summary>
         /// User could enable or disable the Heartbeat feature by setting <see cref="ApplicationInsightsServiceOptions.EnableHeartbeat"/>.
         /// </summary>
+        /// <remarks>
+        /// Config file tests are not valid in this test because they set ALL settings to either TRUE/FALSE.
+        /// This test is specifically evaluating what happens when the DiagnosticsTelemetryModule is enabled, but the Heartbeat feature is disabled.
+        /// </remarks>
         [Theory]
-#if !NET46
-        [InlineData("DefaultConfiguration", true)]
-        [InlineData("DefaultConfiguration", false)]
-        [InlineData("SuppliedConfiguration", true)]
-        [InlineData("SuppliedConfiguration", false)]
-#endif
         [InlineData("Code", true)]
         [InlineData("Code", false)]
         public static void UserCanEnableAndDisableHeartbeatFeature(string configType, bool isEnable)
         {
-            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable, testConfig: (o, b) => o.EnableHeartbeat = b);
+            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable, 
+                testConfig: (o, b) => {
+                    o.EnableDiagnosticsTelemetryModule = true;
+                    o.EnableHeartbeat = b;
+                });
 
             var modules = serviceProvider.GetServices<ITelemetryModule>();
             var module = modules.OfType<DiagnosticsTelemetryModule>().Single();
-            Assert.True(module.IsInitialized);
-            Assert.True(module.IsDiagnosticsEnabled);
+            Assert.True(module.IsInitialized, "module was not initialized");
             Assert.Equal(isEnable, module.IsHeartbeatEnabled);
-        }
-
-        /// <summary>
-        /// User could enable or disable <see cref="DiagnosticsTelemetryModule"/> by setting <see cref="ApplicationInsightsServiceOptions.EnableDiagnostics"/>.
-        /// </summary>
-        [Theory]
-#if !NET46
-        [InlineData("DefaultConfiguration", true)]
-        [InlineData("DefaultConfiguration", false)]
-        [InlineData("SuppliedConfiguration", true)]
-        [InlineData("SuppliedConfiguration", false)]
-#endif
-        [InlineData("Code", true)]
-        [InlineData("Code", false)]
-        public static void UserCanEnableAndDisableDiagnosticsFeature(string configType, bool isEnable)
-        {
-            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable, testConfig: (o, b) => o.EnableDiagnostics = b);
-
-            var modules = serviceProvider.GetServices<ITelemetryModule>();
-            var module = modules.OfType<DiagnosticsTelemetryModule>().Single();
-            Assert.True(module.IsInitialized);
-            Assert.True(module.IsHeartbeatEnabled);
-            Assert.Equal(isEnable, module.IsDiagnosticsEnabled);
         }
     }
 }
