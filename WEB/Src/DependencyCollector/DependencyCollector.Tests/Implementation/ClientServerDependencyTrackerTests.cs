@@ -53,6 +53,7 @@ namespace Microsoft.ApplicationInsights.Tests
             ClientServerDependencyTracker.PretendProfilerIsAttached = false;
         }
 
+#if !NET45
         /// <summary>
         /// Tests if BeginWebTracking() returns operation with associated telemetry item (with start time and time stamp).
         /// </summary>
@@ -67,6 +68,7 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.IsTrue(telemetry.Id.StartsWith('|' + telemetry.Context.Operation.Id, StringComparison.Ordinal));
             Assert.AreEqual(0, telemetry.Properties.Count);
         }
+#endif
 
         /// <summary>
         /// Tests if BeginWebTracking() returns operation with associated telemetry item (with operation context).

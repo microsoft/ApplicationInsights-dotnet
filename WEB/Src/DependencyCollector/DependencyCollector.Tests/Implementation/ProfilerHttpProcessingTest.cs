@@ -173,6 +173,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 RequestResponseHeaders.RequestContextCorrelationSourceKey));
         }
 
+#if !NET45
         /// <summary>
         /// Ensures that the source request header is added when request is sent.
         /// </summary>
@@ -208,6 +209,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 Assert.AreEqual(actualParentIdHeader, request.Headers[RequestResponseHeaders.RequestIdHeader]);
             }
         }
+#endif
 
         /// <summary>
         /// Ensures that the parent id header is added when request is sent.
@@ -321,6 +323,7 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.IsTrue(actualCorrelationContextHeader == "Key2=Value2,Key1=Value1" || actualCorrelationContextHeader == "Key1=Value1,Key2=Value2");
         }
 
+#if !NET45
         [TestMethod]
         public void RddTestHttpProcessingProfilerOnBeginOnEnd()
         {
@@ -360,6 +363,7 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.IsTrue(dependency.Properties.TryGetValue("k", out var baggageK));
             Assert.AreEqual("v", baggageK);
         }
+#endif
 
         [TestMethod]
         public void RddTestHttpProcessingProfilerOnBeginOnEndW3COff()
@@ -562,9 +566,9 @@ namespace Microsoft.ApplicationInsights.Tests
             }
         }
 
-        #endregion //GetResponse
+#endregion //GetResponse
 
-        #region GetRequestStream
+#region GetRequestStream
 
         /// <summary>
         /// Validates HttpProcessingProfiler returns correct operation for OnBeginForGetRequestStream.
@@ -605,9 +609,9 @@ namespace Microsoft.ApplicationInsights.Tests
             this.ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, false, stopwatch.Elapsed.TotalMilliseconds, string.Empty, responseExpected: false);
         }
 
-        #endregion //GetRequestStream
+#endregion //GetRequestStream
 
-        #region BeginGetResponse-EndGetResponse
+#region BeginGetResponse-EndGetResponse
 
         /// <summary>
         /// Validates HttpProcessingProfiler returns correct operation for OnBeginForBeginGetResponse.
@@ -696,9 +700,9 @@ namespace Microsoft.ApplicationInsights.Tests
             this.ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, false, stopwatch.Elapsed.TotalMilliseconds, string.Empty, responseExpected: false);
         }
 
-        #endregion //BeginGetResponse-EndGetResponse
+#endregion //BeginGetResponse-EndGetResponse
 
-        #region BeginGetRequestStream-EndGetRequestStream
+#region BeginGetRequestStream-EndGetRequestStream
 
         /// <summary>
         /// Validates HttpProcessingProfiler returns correct operation for OnBeginForBeginGetRequestStream.
@@ -739,9 +743,9 @@ namespace Microsoft.ApplicationInsights.Tests
             this.ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, false, stopwatch.Elapsed.TotalMilliseconds, string.Empty, responseExpected: false);
         }
 
-        #endregion //BeginGetRequestStream-EndGetRequestStream
+#endregion //BeginGetRequestStream-EndGetRequestStream
 
-        #region SyncScenarios
+#region SyncScenarios
 
         /// <summary>
         /// Validates HttpProcessingProfiler calculates startTime from the start of very first GetRequestStream
@@ -803,9 +807,9 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.AreEqual(1, this.sendItems.Count, "Exactly one telemetry item should be sent");
             this.ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, false, 0, string.Empty, responseExpected: false);
         }
-        #endregion //SyncScenarios
+#endregion //SyncScenarios
 
-        #region AsyncScenarios
+#region AsyncScenarios
 
         /// <summary>
         /// Validates HttpProcessingProfiler calculates startTime from the start of very first BeginGetRequestStream if any
@@ -840,9 +844,9 @@ namespace Microsoft.ApplicationInsights.Tests
             this.ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, true, stopwatch.Elapsed.TotalMilliseconds, "200");
         }
 
-        #endregion AsyncScenarios
+#endregion AsyncScenarios
 
-        #region ProfilerCorrectlyPreventsRecursion
+#region ProfilerCorrectlyPreventsRecursion
         
         /// <summary>
         /// Validates HttpProcessingProfiler sends correct telemetry on calling OnEndForGetResponse.
@@ -891,9 +895,9 @@ namespace Microsoft.ApplicationInsights.Tests
             }
         }
 
-        #endregion
+#endregion
 
-        #region Misc
+#region Misc
 
         /// <summary>
         /// Validates HttpProcessingProfiler determines resource name correctly for simple url.
@@ -967,9 +971,9 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.AreEqual(expectedTarget, receivedItem.Target, "HttpProcessingProfiler returned incorrect target for non standard port.");
         }
 
-        #endregion //Misc
+#endregion //Misc
 
-        #region LoggingTests
+#region LoggingTests
 
         /// <summary>
         /// Validates HttpProcessingProfiler logs to event log when resource name is null or empty.
@@ -994,17 +998,17 @@ namespace Microsoft.ApplicationInsights.Tests
             }
         }
 
-        #endregion //LoggingTests
+#endregion //LoggingTests
 
-        #region Disposable
+#region Disposable
         public void Dispose()
         {
             this.configuration.Dispose();
             GC.SuppressFinalize(this);
         }
-        #endregion Disposable
+#endregion Disposable
 
-        #region Helpers
+#region Helpers
 
         private void ValidateTelemetryPacket(
             DependencyTelemetry remoteDependencyTelemetryActual,
@@ -1060,7 +1064,7 @@ namespace Microsoft.ApplicationInsights.Tests
         {
             return string.Format(CultureInfo.InvariantCulture, "{0}={1}", RequestResponseHeaders.RequestContextCorrelationTargetKey, appId);
         }
-        #endregion Helpers
+#endregion Helpers
     }
 }
 #endif

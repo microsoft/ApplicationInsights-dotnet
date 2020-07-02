@@ -273,6 +273,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 null);
         }
 
+#if !NET45
         /// <summary>
         /// Validates SQLProcessingFramework sends correct telemetry.
         /// </summary>
@@ -307,6 +308,8 @@ namespace Microsoft.ApplicationInsights.Tests
                 string.Empty,
                 null);
         }
+#endif
+
         #endregion
 
         #region Disposable
