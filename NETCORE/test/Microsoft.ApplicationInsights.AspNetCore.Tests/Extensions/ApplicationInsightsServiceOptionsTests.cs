@@ -54,8 +54,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
 
             // ACT
             var services = CreateServicesAndAddApplicationinsightsWorker(
-                jsonPath: filePath, 
-                serviceOptions: serviceOptions, 
+                jsonPath: filePath,
+                serviceOptions: serviceOptions,
                 useDefaultConfig: configType == "DefaultConfiguration" ? true : false);
 
             IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -122,6 +122,49 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         }
 
         /// <summary>
+        /// User could enable or disable TelemetryConfiguration.Active by setting EnableAppServicesHeartbeatTelemetryModule.
+        /// </summary>
+        /// /// <summary>
+        /// This SDK previously had a hidden dependency on TelemetryConfiguration.Active.
+        /// We've removed that, but users may have taken a dependency on the former behavior.
+        /// This test verifies that users can enable "backwards compat".
+        /// Enabling this will copy the AspNetCore config to the TC.Active static instance.
+        /// </summary>
+        [Theory]
+#if !NET46
+        [InlineData("DefaultConfiguration", true)]
+        [InlineData("DefaultConfiguration", false)]
+        [InlineData("SuppliedConfiguration", true)]
+        [InlineData("SuppliedConfiguration", false)]
+#endif
+        [InlineData("Code", true)]
+        [InlineData("Code", false)]
+        public static void UserCanEnableAndDisableTelemetryConfigurationActive(string configType, bool isEnable)
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            // Dispose .Active to force a new .Active to be created during this test.
+            TelemetryConfiguration.Active.Dispose();
+
+            // IMPORTANT: This is the same ikey specified in the config files that will be used for this test.
+            string testString = "22222222-2222-3333-4444-555555555555";
+
+            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable,
+                testConfig: (o, b) => {
+                    o.EnableActiveTelemetryConfigurationSetup = b;
+                    o.InstrumentationKey = testString;
+                });
+
+            // TelemetryConfiguration from DI should have custom set InstrumentationKey
+            var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+            Assert.Equal(testString, telemetryConfiguration.InstrumentationKey);
+
+            // TelemetryConfiguration.Active will only have custom set InstrumentationKey if BackwardsCompat was enabled.
+            Assert.Equal(testString.Equals(TelemetryConfiguration.Active.InstrumentationKey), isEnable);
+
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
+
+        /// <summary>
         /// User could enable or disable PerformanceCounterCollectionModule by setting EnablePerformanceCounterCollectionModule.
         /// </summary>
         [Theory]
@@ -135,7 +178,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         [InlineData("Code", false)]
         public static void UserCanEnableAndDisablePerfCollectorModule(string configType, bool isEnable)
         {
-            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable, testConfig: (o, b) => o.EnablePerformanceCounterCollectionModule = b );
+            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable, testConfig: (o, b) => o.EnablePerformanceCounterCollectionModule = b);
 
             var modules = serviceProvider.GetServices<ITelemetryModule>();
             var module = modules.OfType<PerformanceCollectorModule>().Single();
@@ -270,50 +313,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
             Assert.Equal(isEnable, module.IsInitialized);
         }
 
-
-        /// <summary>
-        /// User could enable or disable TelemetryConfiguration.Active by setting EnableAppServicesHeartbeatTelemetryModule.
-        /// </summary>
-        /// /// <summary>
-        /// This SDK previously had a hidden dependency on TelemetryConfiguration.Active.
-        /// We've removed that, but users may have taken a dependency on the former behavior.
-        /// This test verifies that users can enable "backwards compat".
-        /// Enabling this will copy the AspNetCore config to the TC.Active static instance.
-        /// </summary>
-        [Theory]
-#if !NET46
-        [InlineData("DefaultConfiguration", true)]
-        [InlineData("DefaultConfiguration", false)]
-        [InlineData("SuppliedConfiguration", true)]
-        [InlineData("SuppliedConfiguration", false)]
-#endif
-        [InlineData("Code", true)]
-        [InlineData("Code", false)]
-        public static void UserCanEnableAndDisableTelemetryConfigurationActive(string configType, bool isEnable)
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            // Dispose .Active to force a new .Active to be created during this test.
-            TelemetryConfiguration.Active.Dispose();
-
-            // IMPORTANT: This is the same ikey specified in the config files that will be used for this test.
-            string testString = "22222222-2222-3333-4444-555555555555";
-
-            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable, 
-                testConfig: (o, b) => {
-                    o.EnableActiveTelemetryConfigurationSetup = b;
-                    o.InstrumentationKey = testString;
-                });
-
-            // TelemetryConfiguration from DI should have custom set InstrumentationKey
-            var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-            Assert.Equal(testString, telemetryConfiguration.InstrumentationKey);
-
-            // TelemetryConfiguration.Active will only have custom set InstrumentationKey if BackwardsCompat was enabled.
-            Assert.Equal(testString.Equals(TelemetryConfiguration.Active.InstrumentationKey), isEnable);
-
-#pragma warning restore CS0618 // Type or member is obsolete
-        }
-
         /// <summary>
         /// User could enable or disable <see cref="DiagnosticsTelemetryModule"/> by setting <see cref="ApplicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule"/>.
         /// </summary>
@@ -347,7 +346,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         [InlineData("Code", false)]
         public static void UserCanEnableAndDisableHeartbeatFeature(string configType, bool isEnable)
         {
-            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable, 
+            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable,
                 testConfig: (o, b) => {
                     o.EnableDiagnosticsTelemetryModule = true;
                     o.EnableHeartbeat = b;
@@ -357,6 +356,37 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
             var module = modules.OfType<DiagnosticsTelemetryModule>().Single();
             Assert.True(module.IsInitialized, "module was not initialized");
             Assert.Equal(isEnable, module.IsHeartbeatEnabled);
+        }
+
+        [Fact]
+        public static void VerifyCouplingOfHeartbeatSettingsWithDiagnosticTelemetryModule()
+        {
+            var options = new ApplicationInsightsServiceOptions();
+
+            // Verify default values
+            Assert.True(options.EnableHeartbeat);
+            Assert.True(options.EnableAzureInstanceMetadataTelemetryModule);
+            Assert.True(options.EnableAppServicesHeartbeatTelemetryModule);
+            Assert.True(options.EnableDiagnosticsTelemetryModule);
+
+            // Verify disabling DiagnosticsTelemetryModule also disables all heartbeat settings
+            options.EnableDiagnosticsTelemetryModule = false;
+            Assert.False(options.EnableHeartbeat);
+            Assert.False(options.EnableAzureInstanceMetadataTelemetryModule);
+            Assert.False(options.EnableAppServicesHeartbeatTelemetryModule);
+            Assert.False(options.EnableDiagnosticsTelemetryModule);
+
+            // Verify that heartbeat can be disabled but DiagnosticsTelemetryModule will remain enabled.
+            options = new ApplicationInsightsServiceOptions
+            {
+                EnableHeartbeat = false,
+                EnableAzureInstanceMetadataTelemetryModule = false,
+                EnableAppServicesHeartbeatTelemetryModule = false,
+            };
+            Assert.False(options.EnableHeartbeat);
+            Assert.False(options.EnableAzureInstanceMetadataTelemetryModule);
+            Assert.False(options.EnableAppServicesHeartbeatTelemetryModule);
+            Assert.True(options.EnableDiagnosticsTelemetryModule);
         }
     }
 }
