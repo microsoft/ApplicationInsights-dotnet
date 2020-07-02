@@ -20,7 +20,7 @@
         private readonly IDiagnoisticsEventThrottlingScheduler throttlingScheduler = new DiagnoisticsEventThrottlingScheduler();
         private volatile bool disposed = false;
         private string instrumentationKey;
-
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="DiagnosticsTelemetryModule"/> class. 
         /// </summary>
