@@ -19,7 +19,6 @@ namespace Microsoft.ApplicationInsights.Tests
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    [Ignore("Test class out of date. Github Issue 1830")]
     public sealed class FrameworkHttpProcessingTest : IDisposable
     {
         #region Fields
