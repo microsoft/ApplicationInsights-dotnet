@@ -6,8 +6,6 @@
     <RuntimeIdentifier Condition=" '$(TargetFramework)' == 'net461' ">win7-x86</RuntimeIdentifier>
     <AssemblyName>FunctionalTests.WebApi.Tests</AssemblyName>
     <PackageId>FunctionalTests.WebApi.Tests</PackageId>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

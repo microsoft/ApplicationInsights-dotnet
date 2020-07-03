@@ -50,10 +50,7 @@
 
   <PropertyGroup Condition="$(BuildServer) == 'true'">
     <!-- indicate that the build executes on a build/CI server -->
-    <!-- <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild> -->
-
-    <!-- mapping all source paths included in the project outputs to deterministic values -->
-    <!-- <DeterministicSourcePaths>true</DeterministicSourcePaths> -->
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 
     <!-- produce an assembly whose byte-for-byte output is identical across compilations for identical inputs-->
     <Deterministic>true</Deterministic>
@@ -65,16 +62,6 @@
     <Title>UNDEFINED</Title>
     <Description>UNDEFINED</Description>
     <!-- <PackageTags>$(PackageTags) newTag1 newTag2</PackageTags> -->
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <!-- Disable auto generation of package attributes. This resolves the 'Duplicate attribute' error. -->
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
   </PropertyGroup>
 
   <Target Name="FixXmlDocumentation" AfterTargets="AfterBuild" DependsOnTargets="AfterBuild"  Condition="$(OS) == 'Windows_NT'">

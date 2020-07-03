@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(PropsRoot)\Test.props" />
 
   <PropertyGroup>
     <RootNamespace>Xdt.Tests</RootNamespace>
     <AssemblyName>Xdt.Tests</AssemblyName>
     <TargetFramework>net45</TargetFramework>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <ItemGroup>
@@ -91,5 +91,4 @@
     <ProjectReference Include="..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
   </ItemGroup>
 
-  <Import Project="$(PropsRoot)\Test.props" />
 </Project>
