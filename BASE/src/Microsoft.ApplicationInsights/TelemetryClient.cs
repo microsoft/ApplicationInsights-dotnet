@@ -83,7 +83,7 @@
 
         /// <summary>
         /// Gets the <see cref="TelemetryConfiguration"/> object associated with this telemetry client instance.
-        /// This property is an internal part of Application Insights infrastructure. Changes made to the configuration will not be applied in. Do not use.
+        /// Changes made to the configuration can affect other clients.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public TelemetryConfiguration TelemetryConfiguration
