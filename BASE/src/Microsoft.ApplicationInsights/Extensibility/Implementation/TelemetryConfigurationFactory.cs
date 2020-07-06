@@ -64,7 +64,7 @@
 
                 try
                 {
-                    this.EvaluateSelfDiagnosticsMode(modules);
+                    EvaluateSelfDiagnosticsMode(modules);
                 }
                 catch (Exception ex)
                 {
@@ -127,7 +127,7 @@
 
         [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "We want objects created in this method to live for the life of the application.")]
         [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "This value is not used in NetStandard1.3 but is used for all other frameworks..")]
-        internal void EvaluateSelfDiagnosticsMode(TelemetryModules modules)
+        internal static void EvaluateSelfDiagnosticsMode(TelemetryModules modules)
         {
 #if !NETSTANDARD1_3
             if (PlatformSingleton.Current.TryGetEnvironmentVariable(SelfDiagnosticsEnvironmentVariable, out string selfDiagnosticsConfigurationString))
