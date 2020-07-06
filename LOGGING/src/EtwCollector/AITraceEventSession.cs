@@ -35,6 +35,11 @@ namespace Microsoft.ApplicationInsights.EtwCollector
             }
         }
 
+        public static bool? IsElevated()
+        {
+            return TraceEventSession.IsElevated();
+        }
+
         public void DisableProvider(Guid providerGuid)
         {
             this.session.DisableProvider(providerGuid);
@@ -58,11 +63,6 @@ namespace Microsoft.ApplicationInsights.EtwCollector
         public bool EnableProvider(string providerName, TraceEventLevel providerLevel = TraceEventLevel.Verbose, ulong matchAnyKeywords = ulong.MaxValue, TraceEventProviderOptions options = null)
         {
             return this.session.EnableProvider(providerName, providerLevel, matchAnyKeywords, options);
-        }
-
-        public bool? IsElevated()
-        {
-            return TraceEventSession.IsElevated();
         }
 
         public bool Stop(bool noThrow = false)

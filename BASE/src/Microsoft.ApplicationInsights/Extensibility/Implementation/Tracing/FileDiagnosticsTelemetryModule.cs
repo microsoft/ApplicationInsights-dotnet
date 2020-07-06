@@ -1,7 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
-#if !NETSTANDARD1_3
-
     using System;
     using System.Diagnostics;
     using System.Diagnostics.Tracing;
@@ -230,5 +228,4 @@
             return result;
         }
     }
-#endif
 }

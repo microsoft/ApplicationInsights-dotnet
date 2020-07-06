@@ -9,7 +9,18 @@
     {
         public static readonly CoreEventSource Log = new CoreEventSource();
 
+#if NETSTANDARD2_0
+        public EventCounter IngestionResponseTimeCounter;
+#endif
+
         private readonly ApplicationNameProvider nameProvider = new ApplicationNameProvider();
+
+#if NETSTANDARD2_0
+        private CoreEventSource()
+        {
+            this.IngestionResponseTimeCounter = new EventCounter("IngestionEndpoint-ResponseTimeMsec", this);
+        }
+#endif
 
         public static bool IsVerboseEnabled
         {
@@ -622,8 +633,20 @@
 
         #endregion
 
-        [Event(67, Message = "{0}", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
-        public void ConfigurationStringError(string message, string appDomainName = "Incorrect") => this.WriteEvent(67, message, this.nameProvider.Name);
+        [Event(67, Message = "Backend has responded with {0} status code in {1}ms.", Level = EventLevel.Informational)]
+        public void IngestionResponseTime(int responseCode, float responseDurationInMs, string appDomainName = "Incorrect") => this.WriteEvent(67, responseCode, responseDurationInMs, this.nameProvider.Name);
+
+        [NonEvent]
+        [SuppressMessage("Microsoft.Performance", "CA1822: MarkMembersAsStatic", Justification = "This method does access instance data in NetStandard 2.0 scenarios.")]
+        public void IngestionResponseTimeEventCounter(float responseDurationInMs)
+        {
+#if NETSTANDARD2_0
+            this.IngestionResponseTimeCounter.WriteMetric(responseDurationInMs);
+#endif
+        }
+
+        [Event(68, Message = "{0}", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
+        public void ConfigurationStringError(string message, string appDomainName = "Incorrect") => this.WriteEvent(68, message, this.nameProvider.Name);
 
         /// <summary>
         /// Keywords for the PlatformEventSource.

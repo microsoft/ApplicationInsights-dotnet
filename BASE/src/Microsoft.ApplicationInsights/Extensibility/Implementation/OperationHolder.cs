@@ -16,6 +16,8 @@
         /// </summary>
         public OperationContextForCallContext ParentContext;
 
+        private static readonly object LockObj = new object();
+
         private readonly TelemetryClient telemetryClient;
 
         private readonly object originalActivity = null;
@@ -65,7 +67,7 @@
             {
                 // We need to compare the operation id and name of telemetry with operation id and name of current call context before tracking it 
                 // to make sure that the customer is tracking the right telemetry.
-                lock (this)
+                lock (LockObj)
                 {
                     if (!this.isDisposed)
                     {

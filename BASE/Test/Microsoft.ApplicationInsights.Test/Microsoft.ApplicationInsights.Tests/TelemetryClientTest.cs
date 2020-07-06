@@ -108,7 +108,6 @@
             Assert.IsTrue(telemetry.Timestamp != default(DateTimeOffset));
         }
 
-#if !NETCOREAPP1_1
         /// <summary>
         /// Tests the scenario if Initialize assigns current precise time to start time.
         /// </summary>
@@ -137,7 +136,6 @@
                 Assert.IsTrue(ComputeSomethingHeavy() > 0);
             }
         }
-#endif
 
         [TestMethod]
         public void InitializeSetsRoleInstance()

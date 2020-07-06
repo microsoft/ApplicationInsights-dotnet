@@ -17,7 +17,7 @@
 
             // In NetStandard20, ApplicationInsightsLoggerProvider is enabled by default,
             // which captures Exceptions. Disabling it in RequestCollectionModule to avoid duplication.
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NET461
             this.TrackExceptions = false;
 #else
             this.TrackExceptions = true;
@@ -25,12 +25,12 @@
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether Request-Context header is injected into the response.
+        /// Gets or sets a value indicating whether the Request-Context header is to be injected into the response.
         /// </summary>
         public bool InjectResponseHeaders { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether exceptions are be tracked by the RequestCOllectionModule.
+        /// Gets or sets a value indicating whether exceptions are to be tracked by the RequestCollectionModule.
         /// Exceptions could be tracked by ApplicationInsightsLoggerProvider as well which is not affected by
         /// this setting.
         /// </summary>

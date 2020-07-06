@@ -1,6 +1,27 @@
 ﻿# Changelog
 
 ## VNext
+
+
+## Version 2.15.0-beta2
+- [Read all properties of ApplicationInsightsServiceOptions from IConfiguration](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1882)
+- [End support for NetStandard 1.x, Add support for NetStandard 2.0](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1160)
+- [Add support for SourceLink.Github to all SDKs.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1760)
+- [ServerTelemetryChannel by default uses local disk storage in non Windows, to store telemetry during transient errors](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1792)
+
+## Version 2.15.0-beta1
+- [WorkerService package is modified to depend on 2.1.1 on Microsoft.Extensions.DependencyInjection so that it can be used in .NET Core 2.1 projects without nuget errors.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1677)
+- [Adding a flag to EventCounterCollector to enable/disable storing the EventSource name in the MetricNamespace and simplify the metric name](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1341)
+- [New: EventCounter to track Ingestion Endpoint Response Time](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1796)
+
+## Version 2.14.0
+- no changes since beta.
+
+## Version 2.14.0-beta5
+- [Stop collecting EventCounters from Microsoft.AspNetCore.Hosting](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1759)
+- [Enable ILogger provider for apps targetting .NET Framework](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1312)
+
+## Version 2.14.0-beta4
 - [Fix: SQL dependency names are bloated when running under the .NET Framework and using Microsoft.Data.SqlClient package](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1723)
 - [Fix: Disabling HeartBeats in Asp.Net Core projects causes Error traces every heart beat interval (15 minutes defualt)](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1681)
 - [Standard Metric extractor (Exception,Trace) populates all standard dimensions.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1738)
