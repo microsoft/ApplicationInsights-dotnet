@@ -21,7 +21,6 @@ namespace Microsoft.ApplicationInsights.Tests
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    [Ignore("Test class out of date. Github Issue 1830")]
     public class DesktopDiagnosticSourceHttpProcessingTests
     {
         #region Fields
@@ -207,6 +206,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 RequestResponseHeaders.RequestContextCorrelationSourceKey));
         }
 
+#if !NET45
         /// <summary>
         /// Ensures that the legacy correlation headers are NOT added when request is sent if HttpProcessing is configured to.
         /// </summary>
@@ -242,6 +242,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 Assert.AreEqual(Activity.Current.RootId, actualRootIdHeader);
             }
         }
+#endif
 
         /// <summary>
         /// Ensures that the legacy correlation headers are added when request is sent if HttpProcessing is configured to.
