@@ -33,7 +33,7 @@
 
     <PackageReference Include="Castle.Core" Version="4.4.0" />
     <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.4" />
-    <PackageReference Include="Microsoft.AspNet.TelemetryCorrelation" Version="1.0.7" />
+    <PackageReference Include="Microsoft.AspNet.TelemetryCorrelation" Version="1.0.8" />
     <PackageReference Include="Microsoft.AspNet.WebApi" Version="5.2.4" />
     <PackageReference Include="Moq" Version="4.8.2" />
     <PackageReference Include="OpenCover" Version="4.7.922" />

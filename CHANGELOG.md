@@ -1,7 +1,7 @@
 ﻿# Changelog
 
 ## VNext
-
+- [Create single request telemetry when URL-rewrite rewrites a request](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1744)
 
 ## Version 2.15.0-beta2
 - [Read all properties of ApplicationInsightsServiceOptions from IConfiguration](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1882)
