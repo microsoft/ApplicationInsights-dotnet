@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.ApplicationInsights.Extensibility;
 #if NETCOREAPP
@@ -38,7 +39,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
     /// </remarks>
     public class ApplicationInsightsServiceOptionsTests
     {
-        private static IServiceProvider TestShim(string configType, bool isEnabled, Action<ApplicationInsightsServiceOptions, bool> testConfig)
+        private static IServiceProvider TestShim(string configType, bool isEnabled, Action<ApplicationInsightsServiceOptions, bool> testConfig, Action<IServiceCollection> servicesConfig = null)
         {
             // ARRANGE
             Action<ApplicationInsightsServiceOptions> serviceOptions = null;
@@ -56,6 +57,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
             var services = CreateServicesAndAddApplicationinsightsWorker(
                 jsonPath: filePath,
                 serviceOptions: serviceOptions,
+                servicesConfig: servicesConfig,
                 useDefaultConfig: configType == "DefaultConfiguration" ? true : false);
 
             IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -70,7 +72,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
             return serviceProvider;
         }
 
-        private static ServiceCollection CreateServicesAndAddApplicationinsightsWorker(string jsonPath, Action<ApplicationInsightsServiceOptions> serviceOptions = null, bool useDefaultConfig = true)
+        private static ServiceCollection CreateServicesAndAddApplicationinsightsWorker(string jsonPath, Action<ApplicationInsightsServiceOptions> serviceOptions = null, Action<IServiceCollection> servicesConfig = null, bool useDefaultConfig = true)
         {
             IConfigurationRoot config;
             var services = new ServiceCollection()
@@ -113,6 +115,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
             }
 #endif
 
+            servicesConfig?.Invoke(services);
+
             if (serviceOptions != null)
             {
                 services.Configure(serviceOptions);
@@ -147,19 +151,37 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
 
             // IMPORTANT: This is the same ikey specified in the config files that will be used for this test.
             string testString = "22222222-2222-3333-4444-555555555555";
+            var testTelemetryInitializer = new FakeTelemetryInitializer();
 
-            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable,
-                testConfig: (o, b) => {
+            IServiceProvider serviceProvider = TestShim(
+                configType: configType,
+                isEnabled: isEnable,
+                testConfig: (o, b) =>
+                {
                     o.EnableActiveTelemetryConfigurationSetup = b;
                     o.InstrumentationKey = testString;
-                });
+                },
+                servicesConfig: (services) => services.AddSingleton<ITelemetryInitializer>(testTelemetryInitializer)
+                );
 
-            // TelemetryConfiguration from DI should have custom set InstrumentationKey
+            // TelemetryConfiguration from DI should have custom set InstrumentationKey and TelemetryInitializer
             var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
             Assert.Equal(testString, telemetryConfiguration.InstrumentationKey);
+            Assert.Same(testTelemetryInitializer, telemetryConfiguration.TelemetryInitializers.OfType<FakeTelemetryInitializer>().Single());
 
-            // TelemetryConfiguration.Active will only have custom set InstrumentationKey if BackwardsCompat was enabled.
+            // TelemetryConfiguration.Active will only have custom set InstrumentationKey if .Active was enabled.
             Assert.Equal(testString.Equals(TelemetryConfiguration.Active.InstrumentationKey), isEnable);
+            
+            // TelemetryConfiguration.Active will only have custom TelemetryInitializer if .Active was enabled
+            var activeTelemetryInitializer = TelemetryConfiguration.Active.TelemetryInitializers.OfType<FakeTelemetryInitializer>().SingleOrDefault();
+            if (isEnable)
+            {
+                Assert.Same(testTelemetryInitializer, activeTelemetryInitializer);
+            }
+            else
+            {
+                Assert.Null(activeTelemetryInitializer);
+            }
 
 #pragma warning restore CS0618 // Type or member is obsolete
         }
@@ -356,37 +378,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
             var module = modules.OfType<DiagnosticsTelemetryModule>().Single();
             Assert.True(module.IsInitialized, "module was not initialized");
             Assert.Equal(isEnable, module.IsHeartbeatEnabled);
-        }
-
-        [Fact]
-        public static void VerifyCouplingOfHeartbeatSettingsWithDiagnosticTelemetryModule()
-        {
-            var options = new ApplicationInsightsServiceOptions();
-
-            // Verify default values
-            Assert.True(options.EnableHeartbeat);
-            Assert.True(options.EnableAzureInstanceMetadataTelemetryModule);
-            Assert.True(options.EnableAppServicesHeartbeatTelemetryModule);
-            Assert.True(options.EnableDiagnosticsTelemetryModule);
-
-            // Verify disabling DiagnosticsTelemetryModule also disables all heartbeat settings
-            options.EnableDiagnosticsTelemetryModule = false;
-            Assert.False(options.EnableHeartbeat);
-            Assert.False(options.EnableAzureInstanceMetadataTelemetryModule);
-            Assert.False(options.EnableAppServicesHeartbeatTelemetryModule);
-            Assert.False(options.EnableDiagnosticsTelemetryModule);
-
-            // Verify that heartbeat can be disabled but DiagnosticsTelemetryModule will remain enabled.
-            options = new ApplicationInsightsServiceOptions
-            {
-                EnableHeartbeat = false,
-                EnableAzureInstanceMetadataTelemetryModule = false,
-                EnableAppServicesHeartbeatTelemetryModule = false,
-            };
-            Assert.False(options.EnableHeartbeat);
-            Assert.False(options.EnableAzureInstanceMetadataTelemetryModule);
-            Assert.False(options.EnableAppServicesHeartbeatTelemetryModule);
-            Assert.True(options.EnableDiagnosticsTelemetryModule);
         }
     }
 }

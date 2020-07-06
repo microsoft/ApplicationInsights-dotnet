@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
+
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -48,6 +50,7 @@
         /// <remarks>
         /// This is expected to be an instance of <see cref="DiagnosticsTelemetryModule"/>.
         /// </remarks>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public IHeartbeatPropertyManager HeartbeatPropertyManager
         {
             get

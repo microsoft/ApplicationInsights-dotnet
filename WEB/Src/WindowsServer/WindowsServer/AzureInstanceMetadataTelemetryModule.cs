@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer
 {
     using System;
+    using System.ComponentModel;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -30,6 +31,7 @@
         /// <remarks>
         /// This is expected to be an instance of <see cref="DiagnosticsTelemetryModule"/>.
         /// </remarks>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public IHeartbeatPropertyManager HeartbeatPropertyManager
         {
             get

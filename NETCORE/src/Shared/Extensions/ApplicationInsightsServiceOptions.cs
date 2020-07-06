@@ -12,10 +12,6 @@
     /// </summary>
     public class ApplicationInsightsServiceOptions
     {
-        private bool enableAppServicesHeartbeatTelemetryModule = true;
-        private bool enableAzureInstanceMetadataTelemetryModule = true;
-        private bool enableHeartbeat = true;
-
         /// <summary>
         /// Gets or sets a value indicating whether QuickPulseTelemetryModule and QuickPulseTelemetryProcessor are registered with the configuration.
         /// Setting EnableQuickPulseMetricStream to <value>false</value>, will disable the default quick pulse metric stream. Defaults to <value>true</value>.
@@ -31,24 +27,16 @@
         /// <summary>
         /// Gets or sets a value indicating whether AppServicesHeartbeatTelemetryModule should be enabled.
         /// Defaults to <value>true</value>.
-        /// IMPORTANT: This setting will be disabled if <see cref="EnableDiagnosticsTelemetryModule"/> is set to false.
+        /// IMPORTANT: This setting will be ignored if <see cref="EnableDiagnosticsTelemetryModule"/> is set to false.
         /// </summary>
-        public bool EnableAppServicesHeartbeatTelemetryModule
-        {
-            get => this.enableAppServicesHeartbeatTelemetryModule && this.EnableDiagnosticsTelemetryModule;
-            set => this.enableAppServicesHeartbeatTelemetryModule = value;
-        }
+        public bool EnableAppServicesHeartbeatTelemetryModule { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether AzureInstanceMetadataTelemetryModule should be enabled.
         /// Defaults to <value>true</value>.
-        /// IMPORTANT: This setting will be disabled if <see cref="EnableDiagnosticsTelemetryModule"/> is set to false.
+        /// IMPORTANT: This setting will be ignored if <see cref="EnableDiagnosticsTelemetryModule"/> is set to false.
         /// </summary>
-        public bool EnableAzureInstanceMetadataTelemetryModule 
-        { 
-            get => this.enableAzureInstanceMetadataTelemetryModule && this.EnableDiagnosticsTelemetryModule;
-            set => this.enableAzureInstanceMetadataTelemetryModule = value; 
-        }
+        public bool EnableAzureInstanceMetadataTelemetryModule { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether DependencyTrackingTelemetryModule should be enabled.
@@ -102,13 +90,9 @@
 
         /// <summary>
         /// Gets or sets a value indicating whether heartbeats are enabled.
-        /// IMPORTANT: This setting will be disabled if <see cref="EnableDiagnosticsTelemetryModule"/> is set to false.
+        /// IMPORTANT: This setting will be ignored if <see cref="EnableDiagnosticsTelemetryModule"/> is set to false.
         /// </summary>
-        public bool EnableHeartbeat 
-        { 
-            get => this.enableHeartbeat && this.EnableDiagnosticsTelemetryModule; 
-            set => this.enableHeartbeat = value; 
-        }
+        public bool EnableHeartbeat { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether AutoCollectedMetricExtractors are added or not.
