@@ -18,6 +18,7 @@ using Xunit;
 using Xunit.Abstractions;
 using System.Reflection;
 using Microsoft.Extensions.Options;
+using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
 namespace Microsoft.ApplicationInsights.WorkerService.Tests
 {
@@ -350,7 +351,7 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
             // TelemetryModules
             var modules = serviceProvider.GetServices<ITelemetryModule>();
             Assert.NotNull(modules);
-            Assert.Equal(6, modules.Count());
+            Assert.Equal(7, modules.Count());
 
             var perfCounterModule = modules.FirstOrDefault<ITelemetryModule>(t => t.GetType() == typeof(PerformanceCollectorModule));
             Assert.NotNull(perfCounterModule);
@@ -633,6 +634,68 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
             var modules = serviceProvider.GetServices<ITelemetryModule>();
             var module = modules.OfType<AzureInstanceMetadataTelemetryModule>().Single();
             Assert.Equal(isEnable, module.IsInitialized);
+        }
+
+        /// <summary>
+        /// User could enable or disable AppServiceHeartbeatModule by setting EnableAppServicesHeartbeatTelemetryModule.
+        /// </summary>
+        [Theory]
+        [InlineData("DefaultConfiguration", true)]
+        [InlineData("DefaultConfiguration", false)]
+        [InlineData("SuppliedConfiguration", true)]
+        [InlineData("SuppliedConfiguration", false)]
+        [InlineData("Code", true)]
+        [InlineData("Code", false)]
+        public static void UserCanEnableAndDisableAppServiceHeartbeatModule(string configType, bool isEnable)
+        {
+            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable, testConfig: (o, b) => o.EnableAppServicesHeartbeatTelemetryModule = b);
+
+            var modules = serviceProvider.GetServices<ITelemetryModule>();
+            var module = modules.OfType<AppServicesHeartbeatTelemetryModule>().Single();
+            Assert.Equal(isEnable, module.IsInitialized);
+        }
+
+        /// <summary>
+        /// User could enable or disable <see cref="DiagnosticsTelemetryModule"/> by setting <see cref="ApplicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule"/>.
+        /// </summary>
+        [Theory]
+        [InlineData("DefaultConfiguration", true)]
+        [InlineData("DefaultConfiguration", false)]
+        [InlineData("SuppliedConfiguration", true)]
+        [InlineData("SuppliedConfiguration", false)]
+        [InlineData("Code", true)]
+        [InlineData("Code", false)]
+        public static void UserCanEnableAndDisableDiagnosticsTelemetryModule(string configType, bool isEnable)
+        {
+            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable, testConfig: (o, b) => o.EnableDiagnosticsTelemetryModule = b);
+
+            var modules = serviceProvider.GetServices<ITelemetryModule>();
+            var module = modules.OfType<DiagnosticsTelemetryModule>().Single();
+            Assert.Equal(isEnable, module.IsInitialized);
+        }
+
+        /// <summary>
+        /// User could enable or disable the Heartbeat feature by setting <see cref="ApplicationInsightsServiceOptions.EnableHeartbeat"/>.
+        /// </summary>
+        /// <remarks>
+        /// Config file tests are not valid in this test because they set ALL settings to either TRUE/FALSE.
+        /// This test is specifically evaluating what happens when the DiagnosticsTelemetryModule is enabled, but the Heartbeat feature is disabled.
+        /// </remarks>
+        [Theory]
+        [InlineData("Code", true)]
+        [InlineData("Code", false)]
+        public static void UserCanEnableAndDisableHeartbeatFeature(string configType, bool isEnable)
+        {
+            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable,
+                testConfig: (o, b) => {
+                    o.EnableDiagnosticsTelemetryModule = true;
+                    o.EnableHeartbeat = b;
+                });
+
+            var modules = serviceProvider.GetServices<ITelemetryModule>();
+            var module = modules.OfType<DiagnosticsTelemetryModule>().Single();
+            Assert.True(module.IsInitialized, "module was not initialized");
+            Assert.Equal(isEnable, module.IsHeartbeatEnabled);
         }
 
         /// <summary>
