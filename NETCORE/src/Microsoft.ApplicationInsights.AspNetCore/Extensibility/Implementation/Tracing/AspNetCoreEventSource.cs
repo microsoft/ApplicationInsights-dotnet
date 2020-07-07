@@ -251,12 +251,12 @@
         }
 
         /// <summary>
-        /// Logs an event when TelemetryConfiguration configure has failed.
+        /// Logs an event when TelemetryModule initialization has failed.
         /// </summary>
         [Event(
             25,
             Keywords = Keywords.Diagnostics,
-            Message = "An error has occurred while initializing a TelemetryModule: '{0}'. Error message: '{1}' ",
+            Message = "An error has occurred while initializing the TelemetryModule: '{0}'. Error message: '{1}' ",
             Level = EventLevel.Error)]
         public void TelemetryModuleInitialziationSetupFailure(string moduleName, string errorMessage, string appDomainName = "Incorrect")
         {
