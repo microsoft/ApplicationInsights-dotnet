@@ -27,14 +27,14 @@
         /// <summary>
         /// Gets or sets a value indicating whether AppServicesHeartbeatTelemetryModule should be enabled.
         /// Defaults to <value>true</value>.
-        /// IMPORTANT: This setting will be ignored if <see cref="EnableDiagnosticsTelemetryModule"/> is set to false.
+        /// IMPORTANT: This setting will be ignored if either <see cref="EnableDiagnosticsTelemetryModule"/> or <see cref="EnableHeartbeat"/> are set to false.
         /// </summary>
         public bool EnableAppServicesHeartbeatTelemetryModule { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether AzureInstanceMetadataTelemetryModule should be enabled.
         /// Defaults to <value>true</value>.
-        /// IMPORTANT: This setting will be ignored if <see cref="EnableDiagnosticsTelemetryModule"/> is set to false.
+        /// IMPORTANT: This setting will be ignored if either <see cref="EnableDiagnosticsTelemetryModule"/> or <see cref="EnableHeartbeat"/> are set to false.
         /// </summary>
         public bool EnableAzureInstanceMetadataTelemetryModule { get; set; } = true;
 
@@ -91,6 +91,9 @@
         /// <summary>
         /// Gets or sets a value indicating whether heartbeats are enabled.
         /// IMPORTANT: This setting will be ignored if <see cref="EnableDiagnosticsTelemetryModule"/> is set to false.
+        /// IMPORTANT: Disabling this will cause the following settings to be ignored:
+        /// <see cref="EnableAzureInstanceMetadataTelemetryModule"/>.
+        /// <see cref="EnableAppServicesHeartbeatTelemetryModule"/>.
         /// </summary>
         public bool EnableHeartbeat { get; set; } = true;
 
@@ -121,7 +124,7 @@
 
         /// <summary>
         /// Gets or sets a value indicating whether the <see cref="Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule"/> should be enabled.
-        /// IMPORTANT: Disabling this will also disable the following settings:
+        /// IMPORTANT: Disabling this will cause the following settings to be ignored:
         /// <see cref="EnableHeartbeat"/>.
         /// <see cref="EnableAzureInstanceMetadataTelemetryModule"/>.
         /// <see cref="EnableAppServicesHeartbeatTelemetryModule"/>.

@@ -251,6 +251,19 @@
         }
 
         /// <summary>
+        /// Logs an event when TelemetryConfiguration configure has failed.
+        /// </summary>
+        [Event(
+            25,
+            Keywords = Keywords.Diagnostics,
+            Message = "An error has occurred while initializing a TelemetryModule: '{0}'. Error message: '{1}' ",
+            Level = EventLevel.Error)]
+        public void TelemetryModuleInitialziationSetupFailure(string moduleName, string errorMessage, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(25, moduleName, errorMessage, this.applicationNameProvider.Name);
+        }
+
+        /// <summary>
         /// Keywords for the AspNetEventSource.
         /// </summary>
         public sealed class Keywords

@@ -255,11 +255,10 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
                     catch (Exception ex)
                     {
-                        var tempEx = new Exception($"Failed to initialize module '{module.GetType()}'", ex);
 #if AI_ASPNETCORE_WEB
-                        AspNetCoreEventSource.Instance.TelemetryConfigurationSetupFailure(tempEx.ToInvariantString());
+                        AspNetCoreEventSource.Instance.TelemetryModuleInitialziationSetupFailure(module.GetType().FullName, ex.ToInvariantString());
 #else
-                        WorkerServiceEventSource.Instance.TelemetryConfigurationSetupFailure(tempEx.ToInvariantString());
+                        WorkerServiceEventSource.Instance.TelemetryModuleInitialziationSetupFailure(module.GetType().FullName, ex.ToInvariantString());
 #endif
                     }
                 }
