@@ -22,7 +22,7 @@
             return this.OnGetDebugOutput();
         }
 
-        public bool TryGetEnvironmentVariable(string name, out string value)
+        public virtual bool TryGetEnvironmentVariable(string name, out string value)
         {
             value = string.Empty;
 
