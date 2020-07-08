@@ -58,3 +58,6 @@ The following packages are published from this repository:
 Nightly Builds are available on our MyGet feed:
 `https://www.myget.org/F/applicationinsights-dotnet-nightly/api/v3/index.json`
 These builds come from the develop branch. These are not signed and are not intended for production workloads.
+
+## Releases 
+Refer to our [Milestones](https://github.com/microsoft/ApplicationInsights-dotnet/milestones) for progress on our next releases.
