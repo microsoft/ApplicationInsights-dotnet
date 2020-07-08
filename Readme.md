@@ -59,35 +59,5 @@ Nightly Builds are available on our MyGet feed:
 `https://www.myget.org/F/applicationinsights-dotnet-nightly/api/v3/index.json`
 These builds come from the develop branch. These are not signed and are not intended for production workloads.
 
-## Release Schedule
-
-The following is our tentative release schedule for 2020.
-
-| **Release Schedule** |         |    |             |              |
-|--------------------- |-------- | -- |------------ |------------- |
-| **2020H1**           |         |    |             |              |
-| January              | Early   |    | 2.13 Beta2  |              |
-|                      | Mid     |    | 2.13 Beta3  |              |
-| February             | Early   |    |             | 2.13 Stable  |
-|                      | Mid     |    | 2.14 Beta1  |              |
-| March                | Early   |    | 2.14 Beta2  |              |
-|                      | Mid     |    | 2.14 Beta3  |              |
-| April                | Early   |    |             | 2.14 Stable  |
-|                      | Mid     |    |             |              |
-| May                  | Early   |    | 2.15 Beta1  |              |
-|                      | Mid     |    | 2.15 Beta2  |              |
-| June                 | Early   |    |             | 2.15 Stable  |
-|                      | Mid     |    | 2.16 Beta1  |              |
-| **2020H2**           |         |    |             |              |
-| July                 | Early   |    | 2.16 Beta2  |              |
-|                      | Mid     |    | 2.16 Beta3  |              |
-| August               | Early   |    |             | 2.16 Stable  |
-|                      | Mid     |    | 2.17 Beta1  |              |
-| September            | Early   |    | 2.17 Beta2  |              |
-|                      | Mid     |    | 2.17 Beta3  |              |
-| October              | Early   |    |             | 2.17 Stable  |
-|                      | Mid     |    | 2.18 Beta1  |              |
-| November             | Early   |    | 2.18 Beta2  |              |
-|                      | Mid     |    | 2.18 Beta3  |              |
-| December             | Early   |    |             | 2.18 Stable  |
-|                      | Mid     |    | 2.19 Beta1  |              |
+## Releases 
+Refer to our [Milestones](https://github.com/microsoft/ApplicationInsights-dotnet/milestones) for progress on our next releases.
