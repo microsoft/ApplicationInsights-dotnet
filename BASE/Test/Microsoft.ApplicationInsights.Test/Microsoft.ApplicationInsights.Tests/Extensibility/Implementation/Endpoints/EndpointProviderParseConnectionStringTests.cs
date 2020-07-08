@@ -36,7 +36,7 @@
         [TestMethod]
         public void TestParseConnectionString()
         {
-            var test = EndpointProvider.ParseConnectionString("key1=value1;key2=value2;key3=value3");
+            var test = (Dictionary<string, string>)EndpointProvider.ParseConnectionString("key1=value1;key2=value2;key3=value3");
 
             var expected = new Dictionary<string, string>
             {
@@ -51,7 +51,7 @@
         [TestMethod]
         public void TestParseConnectionString_WithTrailingSemicolon()
         {
-            var test = EndpointProvider.ParseConnectionString("key1=value1;key2=value2;key3=value3;");
+            var test = (Dictionary<string, string>)EndpointProvider.ParseConnectionString("key1=value1;key2=value2;key3=value3;");
 
             var expected = new Dictionary<string, string>
             {
@@ -66,7 +66,7 @@
         [TestMethod]
         public void TestParseConnectionString_WithExtraSpaces()
         {
-            var test = EndpointProvider.ParseConnectionString(" key1 =  value1   ; key2 = value2 ; key3    =value3   ");
+            var test = (Dictionary<string, string>)EndpointProvider.ParseConnectionString(" key1 =  value1   ; key2 = value2 ; key3    =value3   ");
 
             var expected = new Dictionary<string, string>
             {
@@ -85,7 +85,7 @@
         [TestMethod]
         public void VerifyConnectionStringDictionary_IsCaseInsensitive()
         {
-            var test = EndpointProvider.ParseConnectionString("UPPERCASE=value1;lowercase=value2;MixedCase=value3");
+            var test = (Dictionary<string, string>)EndpointProvider.ParseConnectionString("UPPERCASE=value1;lowercase=value2;MixedCase=value3");
 
             var expected = new Dictionary<string, string>
             {
