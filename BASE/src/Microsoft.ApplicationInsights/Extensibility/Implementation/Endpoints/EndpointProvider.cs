@@ -130,7 +130,16 @@
         /// <returns>A dictionary parsed from the input connection string.</returns>
         internal static IDictionary<string, string> ParseConnectionString(string connectionString)
         {
-            return ConfigStringParser.Parse(connectionString, configName: "Connection String");
+            try
+            {
+                return ConfigStringParser.Parse(connectionString);
+            }
+            catch (Exception ex)
+            {
+                string message = "There was an error parsing the Connection String: " + ex.Message;
+                CoreEventSource.Log.ConnectionStringParseError(message);
+                throw new ArgumentException(message, ex);
+            }
         }
 
         /// <summary>

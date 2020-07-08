@@ -568,7 +568,6 @@
         [Event(47, Message = "Connection String exceeds max length of {0} characters.", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
         public void ConnectionStringExceedsMaxLength(int maxLength, string appDomainName = "Incorrect") => this.WriteEvent(47, maxLength, this.nameProvider.Name);
 
-        /*
         [Event(48, Message = "Connection String cannot be empty.", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
         public void ConnectionStringEmpty(string appDomainName = "Incorrect") => this.WriteEvent(48, this.nameProvider.Name);
 
@@ -580,7 +579,6 @@
         
         [Event(51, Message = "Connection String cannot be NULL.", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
         public void ConnectionStringNull(string appDomainName = "Incorrect") => this.WriteEvent(51, this.nameProvider.Name);
-        */
 
         [Event(52, Message = "Connection String could not create an endpoint. {0}.", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
         public void ConnectionStringInvalidEndpoint(string exceptionMessage, string appDomainName = "Incorrect") => this.WriteEvent(52, exceptionMessage, this.nameProvider.Name);
@@ -636,8 +634,11 @@
         [Event(67, Message = "Backend has responded with {0} status code in {1}ms.", Level = EventLevel.Informational)]
         public void IngestionResponseTime(int responseCode, float responseDurationInMs, string appDomainName = "Incorrect") => this.WriteEvent(67, responseCode, responseDurationInMs, this.nameProvider.Name);
 
-        [Event(68, Message = "{0}", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
-        public void ConfigurationStringError(string message, string appDomainName = "Incorrect") => this.WriteEvent(68, message, this.nameProvider.Name);
+        [Event(68, Message = "{0}", Level = EventLevel.Warning, Keywords = Keywords.UserActionable)]
+        public void ConfigurationStringParseWarning(string message, string appDomainName = "Incorrect") => this.WriteEvent(68, message, this.nameProvider.Name);
+
+        [Event(69, Message = "{0}", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
+        public void ConnectionStringParseError(string message, string appDomainName = "Incorrect") => this.WriteEvent(69, message, this.nameProvider.Name);
 
         [NonEvent]
         [SuppressMessage("Microsoft.Performance", "CA1822: MarkMembersAsStatic", Justification = "This method does access instance data in NetStandard 2.0 scenarios.")]
