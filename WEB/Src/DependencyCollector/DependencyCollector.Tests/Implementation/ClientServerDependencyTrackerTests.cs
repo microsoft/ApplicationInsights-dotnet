@@ -53,7 +53,7 @@ namespace Microsoft.ApplicationInsights.Tests
             ClientServerDependencyTracker.PretendProfilerIsAttached = false;
         }
 
-#if !NET45
+#if !NET45 && !NET452
         /// <summary>
         /// Tests if BeginWebTracking() returns operation with associated telemetry item (with start time and time stamp).
         /// </summary>
