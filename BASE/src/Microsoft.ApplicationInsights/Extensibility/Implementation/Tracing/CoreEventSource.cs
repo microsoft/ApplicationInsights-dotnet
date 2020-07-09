@@ -654,9 +654,6 @@
 #endif
         }
 
-        [Event(68, Message = "{0}", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
-        public void ConfigurationStringError(string message, string appDomainName = "Incorrect") => this.WriteEvent(68, message, this.nameProvider.Name);
-
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>
