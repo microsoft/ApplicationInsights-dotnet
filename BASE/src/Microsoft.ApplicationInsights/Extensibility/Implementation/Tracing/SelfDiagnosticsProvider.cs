@@ -24,7 +24,18 @@
         /// <returns>A dictionary parsed from the input configuration string.</returns>
         internal static IDictionary<string, string> ParseConfigurationString(string configurationString)
         {
-            var keyValuePairs = ConfigStringParser.Parse(configurationString, configName: "Self-Diagnostics Configuration String");
+            IDictionary<string, string> keyValuePairs;
+
+            try
+            {
+                keyValuePairs = ConfigStringParser.Parse(configurationString);
+            }
+            catch (Exception ex)
+            {
+                string message = "There was an error parsing the Self-Diagnostics Configuration String: " + ex.Message;
+                CoreEventSource.Log.SelfDiagnosticsParseError(message);
+                throw new ArgumentException(message, ex);
+            }
 
             if (keyValuePairs.ContainsKey(KeyDestination))
             {
