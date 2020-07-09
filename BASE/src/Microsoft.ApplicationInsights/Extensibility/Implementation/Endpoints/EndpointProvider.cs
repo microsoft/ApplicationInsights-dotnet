@@ -2,8 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
+
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.ConfigString;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
@@ -22,12 +23,10 @@
         /// </remarks>
         internal const int ConnectionStringMaxLength = 4096;
 
-        private static readonly char[] SplitSemicolon = new char[] { ';' };
-
         private static readonly char[] TrimPeriod = new char[] { '.' };
 
         private string connectionString;
-        private Dictionary<string, string> connectionStringParsed = new Dictionary<string, string>(0);
+        private IDictionary<string, string> connectionStringParsed = new Dictionary<string, string>(0);
 
         /// <summary>
         /// Gets or sets the connection string. 
@@ -129,46 +128,18 @@
         /// </summary>
         /// <remarks>Example: "key1=value1;key2=value2;key3=value3".</remarks>
         /// <returns>A dictionary parsed from the input connection string.</returns>
-        internal static Dictionary<string, string> ParseConnectionString(string connectionString)
+        internal static IDictionary<string, string> ParseConnectionString(string connectionString)
         {
-            if (connectionString == null)
+            try
             {
-                CoreEventSource.Log.ConnectionStringNull();
-                throw new ArgumentNullException(nameof(connectionString));
+                return ConfigStringParser.Parse(connectionString);
             }
-
-            var keyValuePairs = connectionString.Split(SplitSemicolon, StringSplitOptions.RemoveEmptyEntries);
-
-            if (keyValuePairs.Length == 0)
+            catch (Exception ex)
             {
-                CoreEventSource.Log.ConnectionStringEmpty();
-                throw new ArgumentException("Connection string cannot be empty.");
+                string message = "There was an error parsing the Connection String: " + ex.Message;
+                CoreEventSource.Log.ConnectionStringParseError(message);
+                throw new ArgumentException(message, ex);
             }
-
-            var dictionary = new Dictionary<string, string>(keyValuePairs.Length, StringComparer.OrdinalIgnoreCase);
-
-            foreach (var pair in keyValuePairs)
-            {
-                var keyAndValue = pair.Split('=');
-                if (keyAndValue.Length != 2)
-                {
-                    CoreEventSource.Log.ConnectionStringInvalidDelimiters();
-                    throw new ArgumentException("Connection String Invalid: Unexpected delimiter can not be parsed. Expected: 'key1=value1;key2=value2;key3=value3'");
-                }
-
-                var key = keyAndValue[0].Trim();
-                var value = keyAndValue[1].Trim();
-
-                if (dictionary.ContainsKey(key))
-                {
-                    CoreEventSource.Log.ConnectionStringDuplicateKey();
-                    throw new ArgumentException(FormattableString.Invariant($"Connection String Invalid: Contains duplicate key: '{key}'."));
-                }
-
-                dictionary.Add(key, value);
-            }
-
-            return dictionary;
         }
 
         /// <summary>
