@@ -24,7 +24,7 @@
     {
         private readonly object lockObject = new object();
 
-#if NET45 || NET452
+#if NET452
         private HttpDesktopDiagnosticSourceListener httpDesktopDiagnosticSourceListener;
         private FrameworkHttpEventListener httpEventListener;
         private FrameworkSqlEventListener sqlEventListener;
@@ -134,11 +134,11 @@
 
 #if !NETSTANDARD
                             // Net40 only supports runtime instrumentation
-                            // Net45/net452 supports either but not both to avoid duplication
+                            // net452 supports either but not both to avoid duplication
                             this.InitializeForRuntimeInstrumentationOrFramework();
 #endif
 
-                            // NET45/net452 referencing .net core System.Net.Http supports diagnostic listener
+                            // net452 referencing .net core System.Net.Http supports diagnostic listener
                             this.httpCoreDiagnosticSourceListener = new HttpCoreDiagnosticSourceListener(
                                 configuration,
                                 this.SetComponentCorrelationHttpHeaders,
@@ -231,7 +231,7 @@
             {
                 if (disposing)
                 {
-#if NET45 || NET452
+#if NET452
                     // Net40 does not support framework event source and diagnostic source
                     if (this.httpDesktopDiagnosticSourceListener != null)
                     {

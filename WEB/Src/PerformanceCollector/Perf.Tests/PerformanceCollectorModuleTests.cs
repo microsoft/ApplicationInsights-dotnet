@@ -20,7 +20,7 @@
     [TestClass]
     public class PerformanceCollectorModulesTests
     {
-#if NET45 || NET452
+#if NET452
         [TestMethod]
         [SuppressMessage(category: "Microsoft.Globalization", checkId: "CA1305:SpecifyIFormatProvider", Justification = "Don't care about invariant in unit tests.")]
         public void TimerTest()
@@ -434,7 +434,7 @@
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\Memory\Available Bytes"));
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\Process(??APP_WIN32_PROC??)\IO Data Bytes/sec"));
 
-#if NET45 || NET452
+#if NET452
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests/Sec"));
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\.NET CLR Exceptions(??APP_CLR_PROC??)\# of Exceps Thrown / sec"));
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Execution Time"));
@@ -473,7 +473,7 @@
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\Memory\Available Bytes"));
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\Process(??APP_WIN32_PROC??)\IO Data Bytes/sec"));
 
-#if NET45 || NET452
+#if NET452
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests/Sec"));
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\.NET CLR Exceptions(??APP_CLR_PROC??)\# of Exceps Thrown / sec"));
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Execution Time"));
@@ -481,7 +481,7 @@
 #endif
 
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\Processor(_Total)\% Processor Time"));
-#if NET45 || NET452
+#if NET452
                 Assert.AreEqual(10, module.DefaultCounters.Count);
 #else
                 Assert.AreEqual(6, module.DefaultCounters.Count);

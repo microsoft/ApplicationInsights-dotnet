@@ -1,4 +1,4 @@
-﻿#if NET45 || NET452
+﻿#if NET452
 namespace Microsoft.ApplicationInsights.Tests
 {
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerfCollector;

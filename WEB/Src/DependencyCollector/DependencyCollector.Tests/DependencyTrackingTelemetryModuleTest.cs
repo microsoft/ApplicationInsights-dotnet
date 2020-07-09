@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Tests
 {
-#if NET45 || NET452
+#if NET452
     using System;
     using System.Reflection;
 

@@ -1054,8 +1054,8 @@
 
         private long ToUnixTimeStamp(DateTimeOffset datetime)
         {
-#if NET45 || NET452
-            return (long)(datetime - EpochStart).TotalMilliseconds;
+#if NET452
+           return (long)(datetime - EpochStart).TotalMilliseconds;
 #else
            return datetime.ToUnixTimeMilliseconds();
 #endif

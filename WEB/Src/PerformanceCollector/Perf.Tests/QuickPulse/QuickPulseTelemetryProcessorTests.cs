@@ -2988,7 +2988,7 @@
             Assert.AreEqual(taskCount - 1, allBadSlowMaxValue);
         }
 
-#if NET45 || NET452
+#if NET452
         [TestMethod]
         public void VerifyInitializationWhenDeferredIsTrue()
         {

@@ -1,4 +1,4 @@
-﻿#if !NET45 && !NET452// .Net 4.5 and .NET 4.5.2 have a private implementation of this
+﻿#if !NET452// .NET 4.5.2 have a private implementation of this
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
