@@ -298,7 +298,7 @@
             localAppData.Delete(true);
         }
 
-#if !NET45
+#if !NET45 && !NET452
 
         [TestMethod]
         public void GetApplicationFolderReturnsSubfolderFromTmpDirFolderInNonWindows()

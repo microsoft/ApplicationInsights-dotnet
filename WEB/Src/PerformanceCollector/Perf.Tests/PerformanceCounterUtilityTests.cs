@@ -1,4 +1,4 @@
-﻿#if NET45
+﻿#if NET45 || NET452
 namespace Microsoft.ApplicationInsights.Tests
 {
     using System.Collections.Concurrent;

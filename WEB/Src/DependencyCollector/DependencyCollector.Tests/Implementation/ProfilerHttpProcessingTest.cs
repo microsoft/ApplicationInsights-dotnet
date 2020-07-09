@@ -1,4 +1,4 @@
-﻿#if NET45
+﻿#if NET45 || NET452
 namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
@@ -173,7 +173,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 RequestResponseHeaders.RequestContextCorrelationSourceKey));
         }
 
-#if !NET45
+#if !NET45 && !NET452
         /// <summary>
         /// Ensures that the source request header is added when request is sent.
         /// </summary>
@@ -323,7 +323,7 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.IsTrue(actualCorrelationContextHeader == "Key2=Value2,Key1=Value1" || actualCorrelationContextHeader == "Key1=Value1,Key2=Value2");
         }
 
-#if !NET45
+#if !NET45 && !NET452
         [TestMethod]
         public void RddTestHttpProcessingProfilerOnBeginOnEnd()
         {

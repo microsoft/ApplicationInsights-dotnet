@@ -75,7 +75,7 @@
             return true;
         }
 
-#if NET45
+#if NET45 || NET452
         public static IPerformanceCollector GetPerformanceCollector()
         {
             IPerformanceCollector collector;

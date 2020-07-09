@@ -19,7 +19,7 @@ namespace Microsoft.ApplicationInsights.Tracing.Tests
     {
         public string InstrumentationKey { get; }
 
-#if NET45 || NET46
+#if NET45 || NET452 || NET46
         private static readonly string ApplicationInsightsConfigFilePath =
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ApplicationInsights.config");
 #else

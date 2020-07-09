@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <ProjectGuid>{21CB9A8A-F25B-4DEB-92CB-ACB6920EB8BC}</ProjectGuid>
-    <TargetFrameworks>net45</TargetFrameworks>
+    <TargetFrameworks>net45;net452</TargetFrameworks>
     <AssemblyName>TelemetryChannel.Nuget.Tests</AssemblyName>
   </PropertyGroup>
 

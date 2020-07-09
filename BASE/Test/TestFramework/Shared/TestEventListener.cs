@@ -6,13 +6,13 @@
     using System.Collections.Generic;
     using System.Diagnostics.Tracing;
     using System.Threading;
-#if NET45
+#if NET45 || NET452
     using System.Runtime.Remoting.Messaging;
 #endif
 
     internal class TestEventListener : EventListener
     {
-#if NET45
+#if NET45 || NET452
 
         public static class CurrentContextEvents
         {
