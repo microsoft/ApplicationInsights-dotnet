@@ -16,6 +16,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)EventSourceTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExpectedExceptionWithMessageAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MockProcessorModule.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StubEnvironmentVariablePlatform.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubEnvironmentVariablePlatform.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubSynchronizationContext.cs" />
