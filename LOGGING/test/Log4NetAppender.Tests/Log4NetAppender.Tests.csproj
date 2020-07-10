@@ -4,7 +4,7 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.Log4NetAppender.Tests</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.Log4NetAppender.Tests</AssemblyName>
-    <TargetFrameworks>net45;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net452;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,7 +16,7 @@
     <ProjectReference Include="..\..\src\Log4NetAppender\Log4NetAppender.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <Reference Include="System.Net.Http" />
   </ItemGroup>
 
