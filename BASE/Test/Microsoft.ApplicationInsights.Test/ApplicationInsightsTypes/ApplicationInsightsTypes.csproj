@@ -6,7 +6,7 @@
     <Company>Microsoft</Company>
     <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>
 
-    <TargetFrameworks>net45;net452;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard2.0</TargetFrameworks>
 
     <ProjectGuid>{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}</ProjectGuid>

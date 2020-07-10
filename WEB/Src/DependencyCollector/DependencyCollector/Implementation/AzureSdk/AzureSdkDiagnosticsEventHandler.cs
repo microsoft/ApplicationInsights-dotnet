@@ -15,7 +15,7 @@
 
     internal class AzureSdkDiagnosticsEventHandler : DiagnosticsEventHandlerBase
     {
-#if NET45 || NET452
+#if NET452
         private static readonly DateTimeOffset EpochStart = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
 #endif
 
@@ -155,7 +155,7 @@
                 }
                 
                 long startEpochTime = 0;
-#if NET45 || NET452
+#if NET452
                 startEpochTime = (long)(requestStartTime - EpochStart).TotalMilliseconds;
 #else
                 startEpochTime = requestStartTime.ToUnixTimeMilliseconds();

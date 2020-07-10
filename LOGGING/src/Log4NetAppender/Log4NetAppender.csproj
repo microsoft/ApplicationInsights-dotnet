@@ -2,7 +2,7 @@
   <Import Project="$(PropsRoot)\Product.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net45;net452;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
     <RootNamespace>Microsoft.ApplicationInsights.Log4NetAppender</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.Log4NetAppender</AssemblyName>
   </PropertyGroup>

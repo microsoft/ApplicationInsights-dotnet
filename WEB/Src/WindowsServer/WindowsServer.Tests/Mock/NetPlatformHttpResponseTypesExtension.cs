@@ -28,7 +28,7 @@
         {
         }
 
-#elif NET45 || NET452
+#elif NET452
 
         public static void SetContentLength(this HttpListenerResponse resp, long len)
         {

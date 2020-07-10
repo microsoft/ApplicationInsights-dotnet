@@ -1,4 +1,4 @@
-﻿#if NET45 || NET452
+﻿#if NET452
 namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
@@ -206,7 +206,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 RequestResponseHeaders.RequestContextCorrelationSourceKey));
         }
 
-#if !NET45 && !NET452
+#if !NET452
         /// <summary>
         /// Ensures that the legacy correlation headers are NOT added when request is sent if HttpProcessing is configured to.
         /// </summary>

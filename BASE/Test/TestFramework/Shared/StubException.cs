@@ -2,7 +2,7 @@
 {
     using System;
 
-#if NET45 || NET452
+#if NET452
     [Serializable]
 #endif
     internal class StubException : Exception

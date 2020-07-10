@@ -1,4 +1,4 @@
-﻿#if NET45 || NET452
+﻿#if NET452
 namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
@@ -273,7 +273,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 null);
         }
 
-#if !NET45 && !NET452
+#if !NET452
         /// <summary>
         /// Validates SQLProcessingFramework sends correct telemetry.
         /// </summary>

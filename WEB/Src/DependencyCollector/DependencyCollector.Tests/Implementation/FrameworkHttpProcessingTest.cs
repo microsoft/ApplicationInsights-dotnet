@@ -1,4 +1,4 @@
-﻿#if NET45 || NET452
+﻿#if NET452
 namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
@@ -107,7 +107,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 null);
         }
 
-#if !NET45 && !NET452
+#if !NET452
         [TestMethod]
         public void RddTestHttpProcessingFrameworkOnEndHttpCallbackSuccessParentActivity()
         {
