@@ -1,4 +1,4 @@
-﻿#if NET45
+﻿#if NET452
 namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
@@ -21,7 +21,7 @@ namespace Microsoft.ApplicationInsights.Tests
     [TestClass]
     public sealed class FrameworkHttpProcessingTest : IDisposable
     {
-        #region Fields
+#region Fields
         private const string RandomAppIdEndpoint = "http://app.id.endpoint"; // appIdEndpoint - this really won't be used for tests because of the app id provider override.
         private const int TimeAccuracyMilliseconds = 50;
         private const string TestInstrumentationKey = nameof(TestInstrumentationKey);
@@ -33,9 +33,9 @@ namespace Microsoft.ApplicationInsights.Tests
         private List<ITelemetry> sendItems = new List<ITelemetry>();
         private FrameworkHttpProcessing httpProcessingFramework;
         private CacheBasedOperationHolder cache = new CacheBasedOperationHolder("testCache", 100 * 1000);
-        #endregion //Fields
+#endregion //Fields
 
-        #region TestInitialize
+#region TestInitialize
 
         [TestInitialize]
         public void TestInitialize()
@@ -59,9 +59,9 @@ namespace Microsoft.ApplicationInsights.Tests
             Activity.Current = null;
             DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = false;
         }
-        #endregion //TestInitiliaze
+#endregion //TestInitiliaze
 
-        #region BeginEndCallBacks
+#region BeginEndCallBacks
 
         [TestMethod]
         public void OnBeginDoesNotThrowForIncorrectUrl()
@@ -107,7 +107,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 null);
         }
 
-#if !NET45
+#if !NET452
         [TestMethod]
         public void RddTestHttpProcessingFrameworkOnEndHttpCallbackSuccessParentActivity()
         {

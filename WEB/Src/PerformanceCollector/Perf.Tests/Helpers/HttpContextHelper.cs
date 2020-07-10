@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Tests.Helpers
 {
-#if NET45
+#if NET452
     using System;
     using System.Collections.Generic;
     using System.Globalization;
@@ -12,7 +12,7 @@
 
     public static class HttpContextHelper
     {
-#if NET45
+#if NET452
         /// <summary>
         /// Sets the static HttpContext.Current for use in unit tests.
         /// Request URL is set specifically to evaluate httpContext.Request.Url during tests.

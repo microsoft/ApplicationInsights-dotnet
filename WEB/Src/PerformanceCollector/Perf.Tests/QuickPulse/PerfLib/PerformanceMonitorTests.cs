@@ -1,4 +1,4 @@
-﻿#if NET45
+﻿#if NET452
 namespace Microsoft.ApplicationInsights.Tests
 {
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse.PerfLib;

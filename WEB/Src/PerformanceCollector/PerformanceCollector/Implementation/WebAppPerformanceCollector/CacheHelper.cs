@@ -13,7 +13,7 @@
     /// <summary>
     /// Class to contain the one cache for all Gauges.
     /// </summary>
-    [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification="This class targets both net45 and netstandard. Net Standard implementation has instance members.")]
+    [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification="This class targets both net452 and netstandard. Net Standard implementation has instance members.")]
     internal class CacheHelper : ICachedEnvironmentVariableAccess, IDisposable
     {
         /// <summary>

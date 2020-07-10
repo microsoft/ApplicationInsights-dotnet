@@ -527,7 +527,7 @@
 
                     Assert.IsNotNull(actualEvent);
                     Assert.AreEqual(client.InstrumentationKey, actualEvent.Payload[0]);
-#if !NET45
+#if !NET452
                     // adding logging to confirm what executable is being tested.
                     var sdkAssembly = AppDomain.CurrentDomain.GetAssemblies().Single(x => x.GetName().Name == "Microsoft.ApplicationInsights");
                     var sdkVersion = sdkAssembly.GetName().Version.ToString();
@@ -686,7 +686,7 @@
         private static void VerifyOperationEvent(OperationTelemetry expectedOperation, string expectedName, EventOpcode expectedOpCode, EventWrittenEventArgs actualEvent)
         {
             Assert.AreEqual(expectedOpCode, actualEvent.Opcode);
-#if !NET45
+#if !NET452
             Assert.AreEqual(expectedName, actualEvent.EventName);
 #endif
             VerifyOperationPayload(expectedOperation, actualEvent.Payload);

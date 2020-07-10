@@ -2,7 +2,7 @@
   <Import Project="$(PropsRoot)\Test.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net45;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net452;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
     <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
 
     <AssemblyName>Microsoft.ApplicationInsights.TelemetryChannel.Tests</AssemblyName>
@@ -34,7 +34,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.2.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
     <Reference Include="System.Web" />
     <Reference Include="System.Net.Http" />

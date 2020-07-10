@@ -15,7 +15,7 @@
         [TestCleanup]
         public void Cleanup()
         {
-#if NET45
+#if NET452
             while (Activity.Current != null)
             {
                 Activity.Current.Stop();
