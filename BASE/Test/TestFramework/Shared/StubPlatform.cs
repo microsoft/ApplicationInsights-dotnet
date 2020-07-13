@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.TestFramework
 {
     using System;
+    using System.IO;
 
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -43,5 +44,12 @@
         {
             return this.OnGetMachineName();
         }
+
+        public void TestDirectoryPermissions(DirectoryInfo directory)
+        {
+            // no op
+        }
+
+        public string GetCurrentIdentityName() => nameof(StubPlatform);
     }
 }

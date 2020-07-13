@@ -21,6 +21,7 @@
 
         private IDebugOutput debugOutput = null;
         private string hostName;
+        private string identityName;
 
         /// <summary>
         /// Initializes a new instance of the PlatformImplementation class.
@@ -117,6 +118,48 @@
         public string GetMachineName()
         {
             return this.hostName ?? (this.hostName = GetHostName());
+        }
+
+        public void TestDirectoryPermissions(DirectoryInfo directory)
+        {
+            string testFileName = Path.GetRandomFileName();
+            string testFilePath = Path.Combine(directory.FullName, testFileName);
+
+            if (!Directory.Exists(directory.FullName))
+            {
+                Directory.CreateDirectory(directory.FullName);
+            }
+
+            // Create a test file, will auto-delete this file. 
+            using (var testFile = new FileStream(testFilePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None, 4096, FileOptions.DeleteOnClose))
+            {
+                testFile.Write(new[] { default(byte) }, 0, 1);
+            }
+        }
+
+        public string GetCurrentIdentityName()
+        {
+            if (this.identityName == null)
+            {
+                try
+                {
+#if NETSTANDARD // This constant is defined for all versions of NetStandard https://docs.microsoft.com/en-us/dotnet/core/tutorials/libraries#how-to-multitarget
+                    this.identityName = System.Environment.UserName;
+#else
+                    using (var identity = System.Security.Principal.WindowsIdentity.GetCurrent())
+                    {
+                        this.identityName = identity.Name;
+                    }
+#endif
+                }
+                catch (SecurityException exp)
+                {
+                    CoreEventSource.Log.LogWindowsIdentityAccessSecurityException(exp.Message);
+                    this.identityName = "Unknown";
+                }
+            }
+            
+            return this.identityName;
         }
 
         private static string GetHostName()
