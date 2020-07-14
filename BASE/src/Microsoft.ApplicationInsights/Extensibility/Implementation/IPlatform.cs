@@ -1,5 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
+    using System.IO;
+
     using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
@@ -33,5 +35,17 @@
         /// </summary>
         /// <returns>The machine name.</returns>
         string GetMachineName();
+
+        /// <summary>
+        /// Test that this process can read and write to a given directory.
+        /// </summary>
+        /// <param name="directory">The directory to be evaluated.</param>
+        void TestDirectoryPermissions(DirectoryInfo directory);
+
+        /// <summary>
+        /// Get the current process's identity.
+        /// </summary>
+        /// <returns>Returns the current identity of the process.</returns>
+        string GetCurrentIdentityName();
     }
 }
