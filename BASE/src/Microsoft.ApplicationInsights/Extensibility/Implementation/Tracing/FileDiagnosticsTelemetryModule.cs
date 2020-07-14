@@ -4,8 +4,6 @@
     using System.Diagnostics;
     using System.Diagnostics.Tracing;
     using System.IO;
-    using System.Security;
-    using System.Threading;
 
     using Microsoft.ApplicationInsights.Common.Extensions;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;

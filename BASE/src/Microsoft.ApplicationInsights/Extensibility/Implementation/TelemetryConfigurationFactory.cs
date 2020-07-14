@@ -140,9 +140,10 @@
                         modules.Modules.Remove(module);
                     }
 
+                    // TODO: REPLACE THIS WITH FileDiagnosticsSender
                     modules.Modules.Add(new FileDiagnosticsTelemetryModule
                     {
-                        SelfDiagnosticsConfig = selfDiagnosticsConfigurationString,
+                        // SelfDiagnosticsConfig = selfDiagnosticsConfigurationString,
                         Severity = level,
                         LogFilePath = path,
                     });

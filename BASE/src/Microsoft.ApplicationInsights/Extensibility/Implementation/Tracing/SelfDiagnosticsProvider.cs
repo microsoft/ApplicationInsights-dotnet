@@ -16,6 +16,8 @@
         internal const string KeyFilePath = "Directory";
         internal const string KeyLevel = "Level";
         internal const string ValueDestinationFile = "file";
+        internal const string DefaultFilePath = "%TEMP%";
+        internal const string DefaultLevel = "Verbose";
 
         /// <summary>
         /// Parse a configuration string and return a Dictionary.
@@ -58,8 +60,8 @@
         {
             if (keyValuePairs[KeyDestination].Equals(ValueDestinationFile, StringComparison.OrdinalIgnoreCase))
             {
-                TryGetValueWithDefault(keyValuePairs, key: KeyFilePath, defaultValue: "%TEMP%", value: out path);
-                TryGetValueWithDefault(keyValuePairs, key: KeyLevel, defaultValue: "Verbose", value: out level);
+                TryGetValueWithDefault(keyValuePairs, key: KeyFilePath, defaultValue: DefaultFilePath, value: out path);
+                TryGetValueWithDefault(keyValuePairs, key: KeyLevel, defaultValue: DefaultLevel, value: out level);
 
                 return true;
             }

@@ -26,5 +26,13 @@
                 this.EventData.Add(eventData);
             }
         }
+
+        public void Flush(IDiagnosticsSender sender)
+        {
+            foreach (var traceEvent in this.EventData)
+            {
+                sender.Send(traceEvent);
+            }
+        }
     }
 }

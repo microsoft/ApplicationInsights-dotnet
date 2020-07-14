@@ -178,6 +178,7 @@
                 {
                     if (!this.IsInitialized)
                     {
+                        // Swap out the PortalDiagnosticsQueueSender for the PortalDiagnosticsSender
                         var queueSender = this.Senders.OfType<PortalDiagnosticsQueueSender>().First();
                         queueSender.IsDisabled = true;
                         this.Senders.Remove(queueSender);
@@ -194,12 +195,16 @@
 
                         this.Senders.Add(portalSender);
 
-                        foreach (TraceEvent traceEvent in queueSender.EventData)
-                        {
-                            portalSender.Send(traceEvent);
-                        }
+                        queueSender.Flush(portalSender);
 
-                        // set up heartbeat
+                        // Set up File Diagnostics
+                        this.Senders.Add(new FileDiagnosticsSender
+                        {
+                            // TODO: THIS
+                            // QUESTION: Where to parse the Environment Variable
+                        });
+
+                        // Set up heartbeat
                         this.HeartbeatProvider.Initialize(configuration);
 
                         this.IsInitialized = true;

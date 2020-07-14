@@ -10,16 +10,6 @@
     /// </summary>
     internal class PortalDiagnosticsSender : IDiagnosticsSender
     {
-        /// <summary>
-        /// Prefix of the traces in portal.
-        /// </summary>
-        private const string AiPrefix = "AI: ";
-
-        /// <summary>
-        /// For user non actionable traces use AI Internal prefix.
-        /// </summary>
-        private const string AiNonUserActionable = "AI (Internal): ";
-
         private const string SdkTelemetrySyntheticSourceName = "SDKTelemetry";
         
         private readonly TelemetryClient telemetryClient;
@@ -95,24 +85,11 @@
                 return;
             }
 
-            var traceTelemetry = new TraceTelemetry();
-            
-            string message = eventData.Payload != null ? 
-                string.Format(CultureInfo.CurrentCulture, eventData.MetaData.MessageFormat, eventData.Payload.ToArray()) : 
-                eventData.MetaData.MessageFormat;
-
-            // Add "AI: " prefix (if keyword does not contain UserActionable = (EventKeywords)0x1, than prefix should be "AI (Internal):" )
-            if ((eventData.MetaData.Keywords & EventSourceKeywords.UserActionable) == EventSourceKeywords.UserActionable)
+            var traceTelemetry = new TraceTelemetry
             {
-                message = AiPrefix + message;
-            }
-            else
-            {
-                string eventSourceName = '[' + eventData.MetaData.EventSourceName + "] ";
-                message = AiNonUserActionable + eventSourceName + message;
-            }
+                Message = eventData.ToString(),
+            };
 
-            traceTelemetry.Message = message;
             if (!string.IsNullOrEmpty(this.DiagnosticsInstrumentationKey))
             {
                 traceTelemetry.Context.InstrumentationKey = this.DiagnosticsInstrumentationKey;
