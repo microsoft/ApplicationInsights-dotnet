@@ -32,6 +32,7 @@
         {
             // Adding a dummy queue sender to keep the data to be sent to the portal before the initialize method is called
             this.Senders.Add(new PortalDiagnosticsQueueSender());
+
             this.Senders.Add(new FileDiagnosticsSender());
 
             this.EventListener = new DiagnosticsListener(this.Senders);
@@ -173,7 +174,7 @@
 
                         this.Senders.Add(portalSender);
 
-                        queueSender.Flush(portalSender);
+                        queueSender.FlushQueue(portalSender);
 
                         // Set up heartbeat
                         this.HeartbeatProvider.Initialize(configuration);
@@ -183,7 +184,7 @@
                 }
             }
 
-            // TODO: HOW TO FORCE ENVIRONMENT VARIABLES TO TAKE PRIORITY HERE?
+            // TODO: HOW TO GUARENTEE ENVIRONMENT VARIABLES TO TAKE PRIORITY HERE?
         }
 
         /// <summary>
@@ -251,8 +252,11 @@
                     var keyValuePairs = SelfDiagnosticsProvider.ParseConfigurationString(selfDiagnosticsConfigurationString);
                     if (SelfDiagnosticsProvider.IsFileDiagnostics(keyValuePairs, out string path, out string level))
                     {
-                        // TODO: CONFIGURE
+                        // TODO: CONFIGURE HERE
                         this.Severity = level;
+
+                        var fileDiagnosticsSender = this.Senders.OfType<FileDiagnosticsSender>().First();
+                        fileDiagnosticsSender.FileDirectory = path;
                     }
                 }
             }

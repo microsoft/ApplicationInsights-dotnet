@@ -27,7 +27,7 @@
             }
         }
 
-        public void Flush(IDiagnosticsSender sender)
+        public void FlushQueue(IDiagnosticsSender sender)
         {
             foreach (var traceEvent in this.EventData)
             {
