@@ -2,9 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Tracing;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
+
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsModule;
 
     /// <summary>
@@ -12,6 +14,8 @@
     /// </summary>
     public sealed class DiagnosticsTelemetryModule : ITelemetryModule, IHeartbeatPropertyManager, IDisposable
     {
+        internal const string SelfDiagnosticsEnvironmentVariable = "APPLICATIONINSIGHTS_SELF_DIAGNOSTICS";
+
         internal readonly IList<IDiagnosticsSender> Senders = new List<IDiagnosticsSender>();
         internal readonly DiagnosticsListener EventListener;
         internal readonly IHeartbeatProvider HeartbeatProvider = null;
@@ -28,34 +32,27 @@
         {
             // Adding a dummy queue sender to keep the data to be sent to the portal before the initialize method is called
             this.Senders.Add(new PortalDiagnosticsQueueSender());
+            this.Senders.Add(new FileDiagnosticsSender());
 
             this.EventListener = new DiagnosticsListener(this.Senders);
 
             this.HeartbeatProvider = new HeartbeatProvider();
+
+            this.EvaluateSelfDiagnosticsConfig();
         }
 
         /// <summary>
         /// Finalizes an instance of the <see cref="DiagnosticsTelemetryModule" /> class.
         /// </summary>
-        ~DiagnosticsTelemetryModule()
-        {
-            this.Dispose(false);
-        }
+        ~DiagnosticsTelemetryModule() => this.Dispose(false);
 
         /// <summary>
         /// Gets or sets a value indicating whether or not the Heartbeat feature is disabled.
         /// </summary>
         public bool IsHeartbeatEnabled
         {
-            get
-            {
-                return this.HeartbeatProvider.IsHeartbeatEnabled;
-            }
-
-            set
-            {
-                this.HeartbeatProvider.IsHeartbeatEnabled = value;
-            }
+            get => this.HeartbeatProvider.IsHeartbeatEnabled;
+            set => this.HeartbeatProvider.IsHeartbeatEnabled = value;
         }
 
         /// <summary>
@@ -96,10 +93,7 @@
         /// </summary>
         public IList<string> ExcludedHeartbeatProperties
         {
-            get
-            {
-                return this.HeartbeatProvider.ExcludedHeartbeatProperties;
-            }
+            get => this.HeartbeatProvider.ExcludedHeartbeatProperties;
         }
 
         /// <summary>
@@ -108,24 +102,8 @@
         /// </summary>
         public string Severity
         {
-            get
-            {
-                return this.EventListener.LogLevel.ToString();
-            }
-
-            set
-            {
-                // Once logLevel is set from configuration, restart listener with new value
-                if (!string.IsNullOrEmpty(value))
-                {
-                    EventLevel parsedValue;
-                    if (Enum.IsDefined(typeof(EventLevel), value) == true)
-                    {
-                        parsedValue = (EventLevel)Enum.Parse(typeof(EventLevel), value, true);
-                        this.EventListener.LogLevel = parsedValue;
-                    }
-                }
-            }
+            get => this.EventListener.LogLevel.ToString();
+            set => this.EventListener.SetLogLevel(value);
         }
 
         /// <summary>
@@ -197,13 +175,6 @@
 
                         queueSender.Flush(portalSender);
 
-                        // Set up File Diagnostics
-                        this.Senders.Add(new FileDiagnosticsSender
-                        {
-                            // TODO: THIS
-                            // QUESTION: Where to parse the Environment Variable
-                        });
-
                         // Set up heartbeat
                         this.HeartbeatProvider.Initialize(configuration);
 
@@ -211,6 +182,8 @@
                     }
                 }
             }
+
+            // TODO: HOW TO FORCE ENVIRONMENT VARIABLES TO TAKE PRIORITY HERE?
         }
 
         /// <summary>
@@ -266,6 +239,27 @@
         {
             this.Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "We want objects created in this method to live for the life of the application.")]
+        internal void EvaluateSelfDiagnosticsConfig()
+        {
+            try
+            {
+                if (PlatformSingleton.Current.TryGetEnvironmentVariable(SelfDiagnosticsEnvironmentVariable, out string selfDiagnosticsConfigurationString))
+                {
+                    var keyValuePairs = SelfDiagnosticsProvider.ParseConfigurationString(selfDiagnosticsConfigurationString);
+                    if (SelfDiagnosticsProvider.IsFileDiagnostics(keyValuePairs, out string path, out string level))
+                    {
+                        // TODO: CONFIGURE
+                        this.Severity = level;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to parse Self-Diagnostics config string. You must fix or remove this configuration.", ex);
+            }
         }
 
         /// <summary>

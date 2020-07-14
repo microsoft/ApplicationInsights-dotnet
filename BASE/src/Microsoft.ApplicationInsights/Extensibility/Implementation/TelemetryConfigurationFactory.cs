@@ -21,8 +21,6 @@
         internal const string InstrumentationKeyEnvironmentVariable = "APPINSIGHTS_INSTRUMENTATIONKEY";
         internal const string ConnectionStringEnvironmentVariable = "APPLICATIONINSIGHTS_CONNECTION_STRING";
 
-        internal const string SelfDiagnosticsEnvironmentVariable = "APPLICATIONINSIGHTS_SELF_DIAGNOSTICS";
-
         private const string AddElementName = "Add";
         private const string TypeAttributeName = "Type";
         private const string NameAttributeName = "Name";
@@ -61,15 +59,6 @@
             try
             {
                 SdkInternalOperationsMonitor.Enter();
-
-                try
-                {
-                    EvaluateSelfDiagnosticsMode(modules);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception("Failed to parse Self-Diagnostics config string. You must fix or remove this configuration.", ex);
-                }
 
                 if (modules != null && !modules.Modules.Any(module => module is DiagnosticsTelemetryModule))
                 {
@@ -123,32 +112,6 @@
         {
             // Load customizations from the ApplicationsInsights.config file
             this.Initialize(configuration, modules, PlatformSingleton.Current.ReadConfigurationXml());
-        }
-
-        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "We want objects created in this method to live for the life of the application.")]
-        internal static void EvaluateSelfDiagnosticsMode(TelemetryModules modules)
-        {
-            if (PlatformSingleton.Current.TryGetEnvironmentVariable(SelfDiagnosticsEnvironmentVariable, out string selfDiagnosticsConfigurationString))
-            {
-                var keyValuePairs = SelfDiagnosticsProvider.ParseConfigurationString(selfDiagnosticsConfigurationString);
-
-                if (SelfDiagnosticsProvider.IsFileDiagnostics(keyValuePairs, out string path, out string level))
-                {
-                    var module = modules?.Modules.SingleOrDefault(x => x is FileDiagnosticsTelemetryModule);
-                    if (module != null)
-                    {
-                        modules.Modules.Remove(module);
-                    }
-
-                    // TODO: REPLACE THIS WITH FileDiagnosticsSender
-                    modules.Modules.Add(new FileDiagnosticsTelemetryModule
-                    {
-                        // SelfDiagnosticsConfig = selfDiagnosticsConfigurationString,
-                        Severity = level,
-                        LogFilePath = path,
-                    });
-                }
-            }
         }
 
         protected static object CreateInstance(Type interfaceType, string typeName, object[] constructorArgs = null)

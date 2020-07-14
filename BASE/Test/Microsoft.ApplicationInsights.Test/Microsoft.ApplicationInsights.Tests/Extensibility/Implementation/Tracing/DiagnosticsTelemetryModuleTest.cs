@@ -22,8 +22,9 @@
                 Assert.IsTrue(string.IsNullOrEmpty(initializedModule.DiagnosticsInstrumentationKey));
                 Assert.AreEqual("Error", initializedModule.Severity);
 
-                Assert.AreEqual(1, initializedModule.Senders.Count);
+                Assert.AreEqual(2, initializedModule.Senders.Count);
                 Assert.AreEqual(1, initializedModule.Senders.OfType<PortalDiagnosticsSender>().Count());
+                Assert.AreEqual(1, initializedModule.Senders.OfType<FileDiagnosticsSender>().Count());
             }
         }
 
