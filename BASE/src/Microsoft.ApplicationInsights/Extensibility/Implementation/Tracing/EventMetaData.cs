@@ -16,5 +16,7 @@
         public long Keywords { get; set; }
 
         public EventLevel Level { get; set; }
+
+        public bool IsUserActionable() => (this.Keywords & EventSourceKeywords.UserActionable) == EventSourceKeywords.UserActionable;
     }
 }
