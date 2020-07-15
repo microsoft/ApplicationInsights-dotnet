@@ -79,10 +79,7 @@
         /// default heartbeat properties. The only default heartbeat property provide currently defined is named
         /// 'Base'.
         /// </summary>
-        public IList<string> ExcludedHeartbeatPropertyProviders
-        {
-            get => this.HeartbeatProvider.ExcludedHeartbeatPropertyProviders;
-        }
+        public IList<string> ExcludedHeartbeatPropertyProviders => this.HeartbeatProvider.ExcludedHeartbeatPropertyProviders;
 
         /// <summary>
         /// Gets a list of property names that are not to be sent with the heartbeats. null/empty list means allow all default properties through.
@@ -92,10 +89,7 @@
         /// baseSdkTargetFramework, osType, processSessionId
         /// </remarks>
         /// </summary>
-        public IList<string> ExcludedHeartbeatProperties
-        {
-            get => this.HeartbeatProvider.ExcludedHeartbeatProperties;
-        }
+        public IList<string> ExcludedHeartbeatProperties => this.HeartbeatProvider.ExcludedHeartbeatProperties;
 
         /// <summary>
         /// Gets or sets diagnostics Telemetry Module LogLevel configuration setting. 

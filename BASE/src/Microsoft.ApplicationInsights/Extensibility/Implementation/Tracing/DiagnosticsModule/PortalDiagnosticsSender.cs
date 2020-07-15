@@ -3,6 +3,7 @@
     using System;
     using System.Globalization;
     using System.Linq;
+
     using Microsoft.ApplicationInsights.DataContracts;
 
     /// <summary>
@@ -11,7 +12,7 @@
     internal class PortalDiagnosticsSender : IDiagnosticsSender
     {
         private const string SdkTelemetrySyntheticSourceName = "SDKTelemetry";
-        
+
         private readonly TelemetryClient telemetryClient;
         private readonly IDiagnoisticsEventThrottlingManager throttlingManager;
 
