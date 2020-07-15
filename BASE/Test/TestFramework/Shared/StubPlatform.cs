@@ -47,7 +47,19 @@
 
         public void TestDirectoryPermissions(DirectoryInfo directory)
         {
-            // no op
+            string testFileName = Path.GetRandomFileName();
+            string testFilePath = Path.Combine(directory.FullName, testFileName);
+
+            if (!Directory.Exists(directory.FullName))
+            {
+                Directory.CreateDirectory(directory.FullName);
+            }
+
+            // Create a test file, will auto-delete this file. 
+            using (var testFile = new FileStream(testFilePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None, 4096, FileOptions.DeleteOnClose))
+            {
+                testFile.Write(new[] { default(byte) }, 0, 1);
+            }
         }
 
         public string GetCurrentIdentityName() => nameof(StubPlatform);
