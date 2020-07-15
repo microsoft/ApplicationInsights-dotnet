@@ -66,7 +66,7 @@
 
         public static WeakConcurrentRandom Instance
         {
-#if NET45 || NET46
+#if NET452 || NET46
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
             get

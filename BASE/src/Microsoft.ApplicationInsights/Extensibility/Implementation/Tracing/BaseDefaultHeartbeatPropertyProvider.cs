@@ -84,7 +84,7 @@
         /// <returns>a string representing the version of the current .NET framework.</returns>
         private static string GetRuntimeFrameworkVer()
         {
-#if NET45 || NET46
+#if NET452 || NET46
             Assembly assembly = typeof(Object).GetTypeInfo().Assembly;
             AssemblyFileVersionAttribute objectAssemblyFileVer =
                         assembly.GetCustomAttributes(typeof(AssemblyFileVersionAttribute))
@@ -105,8 +105,8 @@
         /// <returns>standard string representing the target framework.</returns>
         private static string GetBaseSdkTargetFramework()
         {
-#if NET45
-            return "net45";
+#if NET452
+            return "net452";
 #elif NET46
             return "net46";
 #elif NETSTANDARD2_0
@@ -119,7 +119,7 @@
 
         /// <summary>
         /// Runtime information for the underlying OS, should include Linux information here as well.
-        /// Note that in NET45/46 the PlatformId is returned which have slightly different (more specific,
+        /// Note that in NET452/46 the PlatformId is returned which have slightly different (more specific,
         /// such as Win32NT/Win32S/MacOSX/Unix) values than in NETSTANDARD assemblies where you will get
         /// the OS platform Windows/Linux/OSX.
         /// </summary>
@@ -127,7 +127,7 @@
         private static string GetRuntimeOsType()
         {
             string osValue = "unknown";
-#if NET45 || NET46
+#if NET452 || NET46
 
             osValue = Environment.OSVersion.Platform.ToString();
 

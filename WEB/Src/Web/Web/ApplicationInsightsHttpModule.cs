@@ -18,7 +18,7 @@
         private static readonly MethodInfo OnStepMethodInfo;
         private static readonly bool AddOnSendingHeadersMethodExists;
 
-        // Delegate preferred over Invoke to gain performance, only in NET45 or above as ISubscriptionToken is not available in Net40
+        // Delegate preferred over Invoke to gain performance, only in NET452 or above as ISubscriptionToken is not available in Net40
         private static readonly Func<HttpResponse, Action<HttpContext>, ISubscriptionToken> OpenDelegateForInvokingAddOnSendingHeadersMethod;
 
         private readonly RequestTrackingTelemetryModule requestModule;

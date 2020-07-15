@@ -20,14 +20,14 @@
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
+        [ExpectedException(typeof(ArgumentException), "There was an error parsing the Connection String: Input cannot be null.")]
         public void TestParseConnectionString_Null()
         {
             EndpointProvider.ParseConnectionString(null);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [ExpectedException(typeof(ArgumentException), "There was an error parsing the Connection String: Input cannot be empty.")]
         public void TestParseConnectionString_Empty()
         {
             EndpointProvider.ParseConnectionString("");
@@ -36,7 +36,7 @@
         [TestMethod]
         public void TestParseConnectionString()
         {
-            var test = EndpointProvider.ParseConnectionString("key1=value1;key2=value2;key3=value3");
+            var test = (Dictionary<string, string>)EndpointProvider.ParseConnectionString("key1=value1;key2=value2;key3=value3");
 
             var expected = new Dictionary<string, string>
             {
@@ -51,7 +51,7 @@
         [TestMethod]
         public void TestParseConnectionString_WithTrailingSemicolon()
         {
-            var test = EndpointProvider.ParseConnectionString("key1=value1;key2=value2;key3=value3;");
+            var test = (Dictionary<string, string>)EndpointProvider.ParseConnectionString("key1=value1;key2=value2;key3=value3;");
 
             var expected = new Dictionary<string, string>
             {
@@ -66,7 +66,7 @@
         [TestMethod]
         public void TestParseConnectionString_WithExtraSpaces()
         {
-            var test = EndpointProvider.ParseConnectionString(" key1 =  value1   ; key2 = value2 ; key3    =value3   ");
+            var test = (Dictionary<string, string>)EndpointProvider.ParseConnectionString(" key1 =  value1   ; key2 = value2 ; key3    =value3   ");
 
             var expected = new Dictionary<string, string>
             {
@@ -85,7 +85,7 @@
         [TestMethod]
         public void VerifyConnectionStringDictionary_IsCaseInsensitive()
         {
-            var test = EndpointProvider.ParseConnectionString("UPPERCASE=value1;lowercase=value2;MixedCase=value3");
+            var test = (Dictionary<string, string>)EndpointProvider.ParseConnectionString("UPPERCASE=value1;lowercase=value2;MixedCase=value3");
 
             var expected = new Dictionary<string, string>
             {
@@ -105,28 +105,28 @@
         }
 
         [TestMethod]
-        [ExpectedExceptionWithMessage(typeof(ArgumentException), "Connection String Invalid: Contains duplicate key: 'key1'.")]
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "There was an error parsing the Connection String: Input cannot contain duplicate keys. Duplicate key: 'key1'.")]
         public void TestParseConnectionString_DuplaceKeys()
         {
             EndpointProvider.ParseConnectionString("key1=value1;key1=value2");
         }
 
         [TestMethod]
-        [ExpectedExceptionWithMessage(typeof(ArgumentException), "Connection String Invalid: Contains duplicate key: 'key1'.")]
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "There was an error parsing the Connection String: Input cannot contain duplicate keys. Duplicate key: 'key1'.")]
         public void TestParseConnectionString_DuplaceKeysWithSpaces()
         {
             EndpointProvider.ParseConnectionString("key1=value1;key1  =value2");
         }
 
         [TestMethod]
-        [ExpectedExceptionWithMessage(typeof(ArgumentException), "Connection String Invalid: Unexpected delimiter can not be parsed. Expected: 'key1=value1;key2=value2;key3=value3'")]
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "There was an error parsing the Connection String: Input contains invalid delimiters and cannot be parsed. Expected example: 'key1=value1;key2=value2;key3=value3'.")]
         public void TestParseConnectionString_InvalidDelimiters()
         {
             EndpointProvider.ParseConnectionString("key1;key2=value2");
         }
 
         [TestMethod]
-        [ExpectedExceptionWithMessage(typeof(ArgumentException), "Connection String Invalid: Unexpected delimiter can not be parsed. Expected: 'key1=value1;key2=value2;key3=value3'")]
+        [ExpectedExceptionWithMessage(typeof(ArgumentException), "There was an error parsing the Connection String: Input contains invalid delimiters and cannot be parsed. Expected example: 'key1=value1;key2=value2;key3=value3'.")]
         public void TestParseConnectionString_InvalidCharInValue()
         {
             EndpointProvider.ParseConnectionString("key1=value1=value2");
