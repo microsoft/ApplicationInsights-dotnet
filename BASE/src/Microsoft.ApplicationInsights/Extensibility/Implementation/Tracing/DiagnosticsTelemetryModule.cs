@@ -28,6 +28,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="DiagnosticsTelemetryModule"/> class. 
         /// </summary>
+        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "All senders are disposed in the Dispose method.")]
         public DiagnosticsTelemetryModule()
         {
             // Adding a dummy queue sender to keep the data to be sent to the portal before the initialize method is called
@@ -250,7 +251,7 @@
                         this.Severity = level;
 
                         var fileDiagnosticsSender = this.Senders.OfType<FileDiagnosticsSender>().First();
-                        fileDiagnosticsSender.FileDirectory = path;
+                        fileDiagnosticsSender.LogDirectory = path;
                     }
                 }
             }

@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsModule
 {
     using System;
+    using System.Diagnostics;
     using System.IO;
 
     using static System.FormattableString;
@@ -8,82 +9,93 @@
     /// <summary>
     /// This sender works with the DiagnosticTelemetryModule. This will subscribe to events and output to a text file log.
     /// </summary>
-    internal class FileDiagnosticsSender : IDiagnosticsSender
+    internal class FileDiagnosticsSender : IDiagnosticsSender, IDisposable
     {
+        private readonly DefaultTraceListener defaultTraceListener;
+        private bool disposedValue;
+        private string logFileName = FileHelper.GenerateFileName();
+        private string logDirectory = Environment.ExpandEnvironmentVariables("%TEMP%");
+
         public FileDiagnosticsSender()
         {
-            this.CreateNewFile();
+            this.defaultTraceListener = new DefaultTraceListener();
         }
 
+        public string LogDirectory 
+        {
+            get => this.logDirectory;
+            set
+            {
+                string expandedPath = Environment.ExpandEnvironmentVariables(value);
+                if (this.SetAndValidateLogsFolder(expandedPath, this.logFileName))
+                {
+                    this.logDirectory = expandedPath;
+                }
+            }
+        }
+
+        public bool Enabled { get; set; } = true;
+
         /// <summary>
-        /// Gets or sets the self-diagnostics configuration string used to setup this module.
+        /// Gets the log file path.
         /// </summary>
-        /// <remarks>
-        /// This module can be setup by the Self-Diagnostics Environment Variable and we want to include that string in the file.
-        /// </remarks>
-        internal string SelfDiagnosticsConfig { get; set; }
-
-        internal string FileDirectory { get; set; } = Environment.ExpandEnvironmentVariables("%TEMP%");
-
-        /// <summary>
-        /// Gets or sets a value indicating the max size of a flog file.
-        /// Int32.MaxValue = 2,147,483,648 which is 2.1 Gigabytes.
-        /// </summary>
-        internal int MaxSizeBytes { get; set; }
-
-        private FileInfo LogFile { get; set; }
+        public string LogFilePath
+        {
+            get => this.defaultTraceListener.LogFileName;
+            private set => this.defaultTraceListener.LogFileName = value;
+        }
 
         /// <summary>
         /// Write a trace to file.
         /// </summary>
-        /// <remarks>
-        /// Copied from DefaultTraceListener https://referencesource.microsoft.com/#System/compmod/system/diagnostics/DefaultTraceListener.cs,131 .
-        /// </remarks>
         /// <param name="eventData">TraceEvent to be written to file.</param>
         public void Send(TraceEvent eventData)
         {
-            try
+            if (this.Enabled)
             {
-                using (Stream stream = this.LogFile.Open(FileMode.OpenOrCreate))
-                using (StreamWriter writer = new StreamWriter(stream))
-                {
-                    stream.Position = stream.Length;
-                    writer.WriteLine(eventData.ToString());
-                }
-            }
-            catch (Exception)
-            {
-                // We were trying to send traces out and failed. 
-                // No reason to try to trace something else again
-            }
-            finally
-            {
-                if (this.LogFile.Length > this.MaxSizeBytes)
-                {
-                    this.CreateNewFile();
-                }
+                // https://referencesource.microsoft.com/#System/compmod/system/diagnostics/DefaultTraceListener.cs,131
+                this.defaultTraceListener.WriteLine(eventData.ToString());
             }
         }
 
-        private void CreateNewFile()
+        public void Dispose()
         {
+            this.Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposedValue)
+            {
+                if (disposing)
+                {
+                    this.defaultTraceListener.Dispose();
+                }
+
+                this.disposedValue = true;
+            }
+        }
+
+        private bool SetAndValidateLogsFolder(string filePath, string fileName)
+        {
+            bool result = false;
             try
             {
-                var directory = new DirectoryInfo(this.FileDirectory);
-                FileHelper.TestDirectoryPermissions(directory);
-
-                var fileName = FileHelper.GenerateFileName();
-                string filePath = Path.Combine(directory.FullName, fileName);
-                this.LogFile = new FileInfo(filePath);
-
-                string[] fileHeader =
+                if (!string.IsNullOrWhiteSpace(filePath) && !string.IsNullOrWhiteSpace(fileName))
                 {
-                    this.SelfDiagnosticsConfig,
-                    ".NET SDK version: " + SdkVersionUtils.GetSdkVersion(string.Empty),
-                    string.Empty,
-                };
+                    // Validate
+                    var logsDirectory = new DirectoryInfo(filePath);
+                    FileHelper.TestDirectoryPermissions(logsDirectory);
 
-                System.IO.File.WriteAllLines(filePath, fileHeader);
+                    string fullLogFileName = Path.Combine(filePath, fileName);
+                    CoreEventSource.Log.LogsFileName(fullLogFileName);
+
+                    // Set
+                    this.LogFilePath = fullLogFileName;
+
+                    result = true;
+                }
             }
             catch (Exception ex)
             {
@@ -95,9 +107,11 @@
                 // SecurityException: The caller does not have code access permission to create the directory.
 
                 CoreEventSource.Log.LogStorageAccessDeniedError(
-                    error: Invariant($"Path: {this.FileDirectory} Error: {ex.Message}"),
+                    error: Invariant($"Path: {this.logDirectory} File: {this.logFileName}; Error: {ex.Message}{Environment.NewLine}"),
                     user: FileHelper.IdentityName);
             }
+
+            return result;
         }
     }
 }
