@@ -602,7 +602,7 @@
         private ITelemetryDocument ConvertRequestToTelemetryDocument(RequestTelemetry requestTelemetry)
         {
             var url = requestTelemetry.Url;
-#if NET45
+#if NET452
             if (this.EvaluateDisabledTrackingProperties && url == null)
             {
                 try

@@ -32,9 +32,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection.Extensions;
     using Microsoft.Extensions.Options;
 
-#pragma warning disable CS0618 // TelemetryConfiguration.Active is obsolete. We still test with this for backwards compatibility.
     public class AddApplicationInsightsTelemetryTests : BaseTestClass
     {
         [Theory]
@@ -168,18 +168,11 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         [Fact]
         public static void ConfigurationFactoryMethodUpdatesTheActiveConfigurationSingletonByDefault()
         {
-            // Clear off Active before beginning test to avoid being affected by previous tests.
-            TelemetryConfiguration.Active.InstrumentationKey = "";
-            TelemetryConfiguration.Active.TelemetryInitializers.Clear();
-
-            var activeConfig = TelemetryConfiguration.Active;
             var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content", "config-instrumentation-key.json"), null, null, true, false);
 
             IServiceProvider serviceProvider = services.BuildServiceProvider();
             TelemetryConfiguration telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
             Assert.Equal(TestInstrumentationKey, telemetryConfiguration.InstrumentationKey);
-            Assert.Equal(TestInstrumentationKey, activeConfig.InstrumentationKey);
-            Assert.NotEqual(activeConfig, telemetryConfiguration);
         }
 
         /// <summary>
@@ -615,9 +608,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             Assert.NotNull(modules);
 
 #if NETCOREAPP
-            Assert.Equal(7, modules.Count());
+            // Developer Note: Expected modules:
+            //      RequestTrackingTelemetryModule, PerformanceCollectorModule, AppServicesHeartbeatTelemetryModule, AzureInstanceMetadataTelemetryModule, 
+            //      QuickPulseTelemetryModule, DiagnosticsTelemetryModule, DependencyTrackingTelemetryModule, EventCollectorCollectionModule
+            Assert.Equal(8, modules.Count());
 #else
-                Assert.Equal(6, modules.Count());
+            Assert.Equal(7, modules.Count());
 #endif
 
             var perfCounterModule = modules.OfType<PerformanceCollectorModule>().Single();
@@ -671,6 +667,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             Assert.NotNull(cpuCounterRequest);
         }
 #endif
+
 
         [Fact]
         public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesDependencyCollectorWithDefaultValues()
@@ -817,6 +814,145 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             Assert.Equal("mycustomvalue", testTelemetryModule.CustomProperty);
             Assert.True(testTelemetryModule.IsInitialized);
         }
+
+        [Fact]
+        /// <summary>
+        /// We've added the DiagnosticsTelemetryModule to the default TelemetryModules in AspNetCore DI.
+        /// During setup, we expect this module to be discovered and set on the other Heartbeat TelemetryModules.
+        /// </summary>
+        public static void VerifyIfHeartbeatPropertyManagerSetOnOtherModules_Default()
+        {
+            //ARRANGE
+            var services = GetServiceCollectionWithContextAccessor();
+
+            //ACT
+            services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+            var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+
+            //VALIDATE
+            var modules = serviceProvider.GetServices<ITelemetryModule>();
+            var count = modules.OfType<DiagnosticsTelemetryModule>().Count();
+            Assert.Equal(1, count);
+
+            var appServicesHeartbeatTelemetryModule = modules.OfType<AppServicesHeartbeatTelemetryModule>().Single();
+            var hpm1 = appServicesHeartbeatTelemetryModule.HeartbeatPropertyManager;
+            Assert.NotNull(hpm1);
+
+            var azureInstanceMetadataTelemetryModule = modules.OfType<AzureInstanceMetadataTelemetryModule>().Single();
+            var hpm2 = azureInstanceMetadataTelemetryModule.HeartbeatPropertyManager;
+            Assert.NotNull(hpm2);
+
+            Assert.Same(hpm1, hpm2);
+        }
+
+        [Fact]
+        /// <summary>
+        /// A user can configure an instance of DiagnosticsTelemetryModule.
+        /// During setup, we expect this module to be discovered and set on the other Heartbeat TelemetryModules.
+        /// </summary>
+        public static void VerifyIfHeartbeatPropertyManagerSetOnOtherModules_UserDefinedInstance()
+        {
+            //ARRANGE
+            var services = GetServiceCollectionWithContextAccessor();
+
+            // VERIFY THAT A USER CAN SPECIFY THEIR OWN INSTANCE
+            var testValue = TimeSpan.FromDays(9);
+            var diagnosticsTelemetryModule = new DiagnosticsTelemetryModule { HeartbeatInterval = testValue };
+            services.AddSingleton<ITelemetryModule>(diagnosticsTelemetryModule);
+
+            //ACT
+            services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+            var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+
+            //VALIDATE
+            var modules = serviceProvider.GetServices<ITelemetryModule>();
+            var count = modules.OfType<DiagnosticsTelemetryModule>().Count();
+            Assert.Equal(1, count);
+
+            var appServicesHeartbeatTelemetryModule = modules.OfType<AppServicesHeartbeatTelemetryModule>().Single();
+            var hpm1 = appServicesHeartbeatTelemetryModule.HeartbeatPropertyManager;
+            Assert.NotNull(hpm1);
+            Assert.Same(diagnosticsTelemetryModule, hpm1);
+            Assert.Equal(testValue, hpm1.HeartbeatInterval);
+
+            var azureInstanceMetadataTelemetryModule = modules.OfType<AzureInstanceMetadataTelemetryModule>().Single();
+            var hpm2 = azureInstanceMetadataTelemetryModule.HeartbeatPropertyManager;
+            Assert.NotNull(hpm2);
+            Assert.Same(diagnosticsTelemetryModule, hpm2);
+            Assert.Equal(testValue, hpm2.HeartbeatInterval);
+        }
+
+
+        [Fact]
+        /// <summary>
+        /// A user can configure an instance of DiagnosticsTelemetryModule.
+        /// During setup, we expect this module to be discovered and set on the other Heartbeat TelemetryModules.
+        /// </summary>
+        public static void VerifyIfHeartbeatPropertyManagerSetOnOtherModules_UserDefinedType()
+        {
+            //ARRANGE
+            var services = GetServiceCollectionWithContextAccessor();
+
+            // VERIFY THAT A USER CAN SPECIFY THEIR OWN TYPE
+            services.AddSingleton<ITelemetryModule, DiagnosticsTelemetryModule>();
+
+            //act
+            services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+            var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+
+            //VALIDATE
+            var modules = serviceProvider.GetServices<ITelemetryModule>();
+            var count = modules.OfType<DiagnosticsTelemetryModule>().Count();
+            Assert.Equal(1, count);
+
+            var appServicesHeartbeatTelemetryModule = modules.OfType<AppServicesHeartbeatTelemetryModule>().Single();
+            var hpm1 = appServicesHeartbeatTelemetryModule.HeartbeatPropertyManager;
+            Assert.NotNull(hpm1);
+
+            var azureInstanceMetadataTelemetryModule = modules.OfType<AzureInstanceMetadataTelemetryModule>().Single();
+            var hpm2 = azureInstanceMetadataTelemetryModule.HeartbeatPropertyManager;
+            Assert.NotNull(hpm2);
+
+            Assert.Same(hpm1, hpm2);
+        }
+
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        /// <summary>
+        /// Previously we encouraged users to add the DiagnosticsTelemetryModule manually.
+        /// Users could have added this either as an INSTANCE or as a TYPE.
+        /// We don't want to add it a second time so need to confirm that we catch both cases.
+        /// </summary>
+        public static void TestingAddDiagnosticsTelemetryModule(bool manualAddInstance, bool manualAddType)
+        {
+            //ARRANGE
+            var services = GetServiceCollectionWithContextAccessor();
+
+            if (manualAddInstance)
+            {
+                services.AddSingleton<ITelemetryModule>(new DiagnosticsTelemetryModule());
+            }
+            else if (manualAddType)
+            {
+                services.AddSingleton<ITelemetryModule, DiagnosticsTelemetryModule>();
+            }
+
+            //ACT
+            services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+
+            //VALIDATE
+            var modules = serviceProvider.GetServices<ITelemetryModule>();
+            var count = modules.OfType<DiagnosticsTelemetryModule>().Count();
+
+            Assert.Equal(1, count);
+        }
+
 
         [Fact]
         public static void ConfigureApplicationInsightsTelemetryModuleWorksWithOptions()
@@ -1337,47 +1473,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             Assert.NotNull(modules.OfType<AzureInstanceMetadataTelemetryModule>().Single());
         }
 
-        /// <summary>
-        /// User could enable or disable heartbeat by setting EnableHeartbeat.
-        /// This configuration can be read from a JSON file by the configuration factory or through code by passing ApplicationInsightsServiceOptions. 
-        /// </summary>
-        /// <param name="configType">
-        /// DefaultConfiguration - calls services.AddApplicationInsightsTelemetry() which reads IConfiguration from user application automatically.
-        /// SuppliedConfiguration - invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
-        /// Code - Caller creates an instance of ApplicationInsightsServiceOptions and passes it. This option overrides all configuration being used in JSON file. 
-        /// There is a special case where NULL values in these properties - InstrumentationKey, ConnectionString, EndpointAddress and DeveloperMode are overwritten. We check IConfiguration object to see if these properties have values, if values are present then we override it. 
-        /// </param>
-        [Theory]
-#if !NET46
-        [InlineData("DefaultConfiguration")]
-        [InlineData("SuppliedConfiguration")]
-#endif
-        [InlineData("Code")]
-        public static void UserCanDisableHeartbeat(string configType)
-        {
-            // ARRANGE
-            Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-false.json");
-
-            if (configType == "Code")
-            {
-                serviceOptions = o => { o.EnableHeartbeat = false; };
-                filePath = null;
-            }
-
-            // ACT
-            var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
-
-            // VALIDATE
-            IServiceProvider serviceProvider = services.BuildServiceProvider();
-            var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-            var modules = serviceProvider.GetServices<ITelemetryModule>();
-            var heartbeatModule = TelemetryModules.Instance.Modules.OfType<IHeartbeatPropertyManager>().First();
-
-            Assert.NotNull(heartbeatModule);
-            Assert.False(heartbeatModule.IsHeartbeatEnabled);
-        }
-
         [Fact]
         public static void W3CIsEnabledByDefault()
         {
@@ -1386,7 +1481,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
 
             Assert.DoesNotContain(telemetryConfiguration.TelemetryInitializers, t => t is W3COperationCorrelationTelemetryInitializer);
-            Assert.DoesNotContain(TelemetryConfiguration.Active.TelemetryInitializers, t => t is W3COperationCorrelationTelemetryInitializer);
 
             var modules = serviceProvider.GetServices<ITelemetryModule>().ToList();
 
@@ -1636,5 +1730,4 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         }
 #endif
     }
-#pragma warning restore CS0618 // TelemetryConfiguration.Active is obsolete. We still test with this for backwards compatibility.
 }

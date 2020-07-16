@@ -285,6 +285,26 @@
             }
         }
 
+        /// <summary>
+        /// The AddSingleton method will not check if a class has already been added as an ImplementationType. 
+        /// This extension method is to encapsulate those checks.
+        /// </summary>
+        /// <remarks>
+        /// Must check all three properties to avoid duplicates or null ref exceptions.
+        /// </remarks>
+        /// <typeparam name="TService">The type of the service to add.</typeparam>
+        /// <typeparam name="TImplementation">The type of the implementation to use.</typeparam>
+        /// <param name="services">The Microsoft.Extensions.DependencyInjection.IServiceCollection to add the service to.</param>
+        internal static void AddSingletonIfNotExists<TService, TImplementation>(this IServiceCollection services)
+            where TService : class
+            where TImplementation : class, TService
+        {
+            if (!services.Any(o => o.ImplementationFactory == null && typeof(TImplementation).IsAssignableFrom(o.ImplementationType ?? o.ImplementationInstance.GetType())))
+            {
+                services.AddSingleton<TService, TImplementation>();
+            }
+        }
+
         private static bool TryGetValue(this IConfiguration config, string primaryKey, out string value, string backupKey = null)
         {
             value = config[primaryKey];
@@ -316,9 +336,14 @@
 
         private static void AddCommonTelemetryModules(IServiceCollection services)
         {
-            services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
+            // Previously users were encouraged to manually add the DiagnosticsTelemetryModule.
+            services.AddSingletonIfNotExists<ITelemetryModule, DiagnosticsTelemetryModule>();
+
+            // These modules add properties to Heartbeat and expect the DiagnosticsTelemetryModule to be configured in DI.
             services.AddSingleton<ITelemetryModule, AppServicesHeartbeatTelemetryModule>();
             services.AddSingleton<ITelemetryModule, AzureInstanceMetadataTelemetryModule>();
+
+            services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
             services.AddSingleton<ITelemetryModule, QuickPulseTelemetryModule>();
 
             AddAndConfigureDependencyTracking(services);

@@ -14,6 +14,8 @@
     "EnableDebugLogger": true,
     "EnableHeartbeat": true,
     "EnableAuthenticationTrackingJavaScript": true,
+    "EnableDiagnosticsTelemetryModule": true,
+    "EnableActiveTelemetryConfigurationSetup": true,
     "RequestCollectionOptions": {
       "InjectResponseHeaders": true,
       "TrackExceptions": true,
