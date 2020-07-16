@@ -1,7 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
-    using System.IO;
-
     using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
