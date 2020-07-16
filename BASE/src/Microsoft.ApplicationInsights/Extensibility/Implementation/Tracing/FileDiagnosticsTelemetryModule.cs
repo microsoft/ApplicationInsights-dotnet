@@ -5,8 +5,6 @@
     using System.Diagnostics.Tracing;
     using System.IO;
 
-    using Microsoft.ApplicationInsights.Common.Extensions;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.FileDiagnosticsModule;
 
     using static System.FormattableString;
@@ -29,8 +27,7 @@
         {
             this.logFilePath = Environment.ExpandEnvironmentVariables("%TEMP%");
 
-            var process = Process.GetCurrentProcess();
-            this.logFileName = Invariant($"ApplicationInsightsLog_{DateTime.UtcNow.ToInvariantString("yyyyMMdd_HHmmss")}_{process.ProcessName}_{process.Id}.txt");
+            this.logFileName = FileHelper.GenerateFileName();
 
             this.SetAndValidateLogsFolder(this.logFilePath, this.logFileName);
 
@@ -129,13 +126,14 @@
             {
                 if (!string.IsNullOrWhiteSpace(filePath) && !string.IsNullOrWhiteSpace(fileName))
                 {
+                    // Validate
                     var logsDirectory = new DirectoryInfo(filePath);
-
-                    PlatformSingleton.Current.TestDirectoryPermissions(logsDirectory);
+                    FileHelper.TestDirectoryPermissions(logsDirectory);
 
                     string fullLogFileName = Path.Combine(filePath, fileName);
                     CoreEventSource.Log.LogsFileName(fullLogFileName);
 
+                    // Set
                     this.listener.LogFileName = fullLogFileName;
 
                     result = true;
@@ -152,7 +150,7 @@
 
                 CoreEventSource.Log.LogStorageAccessDeniedError(
                     error: Invariant($"Path: {this.logFilePath} File: {this.logFileName}; Error: {ex.Message}{Environment.NewLine}"),
-                    user: PlatformSingleton.Current.GetCurrentIdentityName());
+                    user: FileHelper.IdentityName);
             }
 
             return result;

@@ -1,16 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsModule
 {
     using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
     using System.IO;
-    using System.Linq;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
-
-    using Microsoft.ApplicationInsights.Common.Extensions;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
 
     using static System.FormattableString;
 
@@ -79,10 +70,9 @@
             try
             {
                 var directory = new DirectoryInfo(this.FileDirectory);
-                PlatformSingleton.Current.TestDirectoryPermissions(directory);
+                FileHelper.TestDirectoryPermissions(directory);
 
-                var process = Process.GetCurrentProcess();
-                var fileName = Invariant($"ApplicationInsightsLog_{DateTime.UtcNow.ToInvariantString("yyyyMMdd_HHmmss")}_{process.ProcessName}_{process.Id}.txt");
+                var fileName = FileHelper.GenerateFileName();
                 string filePath = Path.Combine(directory.FullName, fileName);
                 this.LogFile = new FileInfo(filePath);
 
@@ -106,7 +96,7 @@
 
                 CoreEventSource.Log.LogStorageAccessDeniedError(
                     error: Invariant($"Path: {this.FileDirectory} Error: {ex.Message}"),
-                    user: PlatformSingleton.Current.GetCurrentIdentityName());
+                    user: FileHelper.IdentityName);
             }
         }
     }

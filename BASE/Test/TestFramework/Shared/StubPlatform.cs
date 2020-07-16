@@ -44,12 +44,5 @@
         {
             return this.OnGetMachineName();
         }
-
-        public void TestDirectoryPermissions(DirectoryInfo directory)
-        {
-            // no op
-        }
-
-        public string GetCurrentIdentityName() => nameof(StubPlatform);
     }
 }
