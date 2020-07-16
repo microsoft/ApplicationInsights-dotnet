@@ -43,9 +43,8 @@
         void TestDirectoryPermissions(DirectoryInfo directory);
 
         /// <summary>
-        /// Get the current process's identity.
+        /// Get the current identity.
         /// </summary>
-        /// <returns>Returns the current identity of the process.</returns>
         string GetCurrentIdentityName();
     }
 }
