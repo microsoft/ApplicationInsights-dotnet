@@ -15,11 +15,6 @@
     <Description>This nuget provides a telemetry channel to Application Insights Windows Server SDK that will preserve telemetry in offline scenarios. This is a dependent package, for the best experience please install the platform specific package. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
-    <IsNetStandardBuild>True</IsNetStandardBuild>
-  </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
   </ItemGroup>
@@ -40,14 +35,9 @@
     <Content Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets" PackagePath="build" />
   </ItemGroup>
 
-
   <ItemGroup>
     <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\$(TargetFramework)\PublicAPI.Shipped.txt" />
     <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\$(TargetFramework)\PublicAPI.Unshipped.txt" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(IsNetStandardBuild)'=='True'">
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
