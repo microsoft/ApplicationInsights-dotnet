@@ -880,6 +880,7 @@ Microsoft.ApplicationInsights.TelemetryClient.Initialize(Microsoft.ApplicationIn
 Microsoft.ApplicationInsights.TelemetryClient.InitializeInstrumentationKey(Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> void
 Microsoft.ApplicationInsights.TelemetryClient.InstrumentationKey.get -> string
 Microsoft.ApplicationInsights.TelemetryClient.InstrumentationKey.set -> void
+Microsoft.ApplicationInsights.TelemetryClient.TelemetryConfiguration.get -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
 Microsoft.ApplicationInsights.TelemetryClient.IsEnabled() -> bool
 Microsoft.ApplicationInsights.TelemetryClient.TelemetryClient() -> void
 Microsoft.ApplicationInsights.TelemetryClient.TelemetryClient(Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration configuration) -> void
