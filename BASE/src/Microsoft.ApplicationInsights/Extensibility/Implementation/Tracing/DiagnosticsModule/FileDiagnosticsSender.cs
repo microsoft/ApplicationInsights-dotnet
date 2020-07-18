@@ -4,6 +4,8 @@
     using System.Diagnostics;
     using System.IO;
 
+    using Microsoft.ApplicationInsights.Common.Extensions;
+
     using static System.FormattableString;
 
     /// <summary>
@@ -14,11 +16,14 @@
         private readonly DefaultTraceListener defaultTraceListener;
         private bool disposedValue;
         private string logFileName = FileHelper.GenerateFileName();
-        private string logDirectory = Environment.ExpandEnvironmentVariables("%TEMP%");
+        private string logDirectory = "C:\\TEMP\\"; // Environment.ExpandEnvironmentVariables("%TEMP%");
+        private object lockObj = new object();
 
         public FileDiagnosticsSender()
         {
             this.defaultTraceListener = new DefaultTraceListener();
+            this.SetAndValidateLogsFolder(this.LogDirectory, this.logFileName);
+
         }
 
         public string LogDirectory 
@@ -39,11 +44,13 @@
         /// <summary>
         /// Gets the log file path.
         /// </summary>
-        public string LogFilePath
-        {
-            get => this.defaultTraceListener.LogFileName;
-            private set => this.defaultTraceListener.LogFileName = value;
-        }
+        public string LogFilePath { get; set; }
+        //{
+        //    get => this.defaultTraceListener.LogFileName;
+        //    private set => this.defaultTraceListener.LogFileName = value;
+        //}
+
+        public string Severity { get; set; }
 
         /// <summary>
         /// Write a trace to file.
@@ -53,8 +60,33 @@
         {
             if (this.Enabled)
             {
+                // https://referencesource.microsoft.com/#System/compmod/system/diagnostics/TraceSource.cs,239
+                // https://referencesource.microsoft.com/#System/compmod/system/diagnostics/TraceEventCache.cs,46
+                // https://referencesource.microsoft.com/#System/compmod/system/diagnostics/TraceListener.cs,409
                 // https://referencesource.microsoft.com/#System/compmod/system/diagnostics/DefaultTraceListener.cs,131
-                this.defaultTraceListener.WriteLine(eventData.ToString());
+
+                var message = Invariant($"{DateTime.UtcNow.ToInvariantString("o")}: {eventData.MetaData.Level}: {eventData}");
+                //this.defaultTraceListener.WriteLine(message);
+
+                lock (this.lockObj)
+                {
+                    try
+                    {
+                        FileInfo file = new FileInfo(this.LogFilePath);
+                        using (Stream stream = file.Open(FileMode.OpenOrCreate))
+                        {
+                            using (StreamWriter writer = new StreamWriter(stream))
+                            {
+                                stream.Position = stream.Length;
+                                writer.WriteLine(message);
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        // no op
+                    }
+                }
             }
         }
 
@@ -112,6 +144,19 @@
             }
 
             return result;
+        }
+
+        private void WriteFileHeader(string logFilePath)
+        {
+            string[] lines =
+            {
+                // this.SelfDiagnosticsConfig,
+                ".NET SDK version: " + SdkVersionUtils.GetSdkVersion(string.Empty),
+                "Severity: " + this.Severity,
+                string.Empty,
+            };
+
+            System.IO.File.WriteAllLines(logFilePath, lines);
         }
     }
 }

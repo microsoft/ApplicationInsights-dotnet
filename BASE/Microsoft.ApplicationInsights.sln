@@ -42,6 +42,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsigh
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel.Tests", "Test\ServerTelemetryChannel.Test\TelemetryChannel.Tests\TelemetryChannel.Tests.csproj", "{7AB3D817-9CAC-45A7-BA4D-25FA4D690DA4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFileLogConsoleApp", "TestFileLogConsoleApp\TestFileLogConsoleApp.csproj", "{5179DF29-0B4B-4A42-9E0A-E972DD714036}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\Common\Common\Common.projitems*{3273d899-d9b3-44fe-b3ab-578e18b2ef90}*SharedItemsImports = 5
@@ -202,6 +204,26 @@ Global
 		{7AB3D817-9CAC-45A7-BA4D-25FA4D690DA4}.Release|x64.Build.0 = Release|Any CPU
 		{7AB3D817-9CAC-45A7-BA4D-25FA4D690DA4}.Release|x86.ActiveCfg = Release|Any CPU
 		{7AB3D817-9CAC-45A7-BA4D-25FA4D690DA4}.Release|x86.Build.0 = Release|Any CPU
+		{5179DF29-0B4B-4A42-9E0A-E972DD714036}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5179DF29-0B4B-4A42-9E0A-E972DD714036}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5179DF29-0B4B-4A42-9E0A-E972DD714036}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{5179DF29-0B4B-4A42-9E0A-E972DD714036}.Debug|ARM.Build.0 = Debug|Any CPU
+		{5179DF29-0B4B-4A42-9E0A-E972DD714036}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{5179DF29-0B4B-4A42-9E0A-E972DD714036}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{5179DF29-0B4B-4A42-9E0A-E972DD714036}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5179DF29-0B4B-4A42-9E0A-E972DD714036}.Debug|x64.Build.0 = Debug|Any CPU
+		{5179DF29-0B4B-4A42-9E0A-E972DD714036}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5179DF29-0B4B-4A42-9E0A-E972DD714036}.Debug|x86.Build.0 = Debug|Any CPU
+		{5179DF29-0B4B-4A42-9E0A-E972DD714036}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5179DF29-0B4B-4A42-9E0A-E972DD714036}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5179DF29-0B4B-4A42-9E0A-E972DD714036}.Release|ARM.ActiveCfg = Release|Any CPU
+		{5179DF29-0B4B-4A42-9E0A-E972DD714036}.Release|ARM.Build.0 = Release|Any CPU
+		{5179DF29-0B4B-4A42-9E0A-E972DD714036}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{5179DF29-0B4B-4A42-9E0A-E972DD714036}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{5179DF29-0B4B-4A42-9E0A-E972DD714036}.Release|x64.ActiveCfg = Release|Any CPU
+		{5179DF29-0B4B-4A42-9E0A-E972DD714036}.Release|x64.Build.0 = Release|Any CPU
+		{5179DF29-0B4B-4A42-9E0A-E972DD714036}.Release|x86.ActiveCfg = Release|Any CPU
+		{5179DF29-0B4B-4A42-9E0A-E972DD714036}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -215,6 +237,7 @@ Global
 		{3273D899-D9B3-44FE-B3AB-578E18B2EF90} = {E7B0521E-DA4D-40EA-B55D-ADCBDA69027C}
 		{EF007559-EA01-4D4A-9BEB-8CC661797BE5} = {C2FEEDE5-8CAE-41A4-8932-42D284A86EA7}
 		{7AB3D817-9CAC-45A7-BA4D-25FA4D690DA4} = {A61B048F-ECEA-4BED-A2ED-22834E7D4DFB}
+		{5179DF29-0B4B-4A42-9E0A-E972DD714036} = {68CC2924-E162-44BE-8D7A-DBA385365585}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F70D4C7C-02FB-4EE9-875A-A2F95EC90EAC}
