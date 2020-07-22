@@ -13,17 +13,14 @@
     /// </summary>
     internal class FileDiagnosticsSender : IDiagnosticsSender, IDisposable
     {
-        private readonly DefaultTraceListener defaultTraceListener;
         private bool disposedValue;
         private string logFileName = FileHelper.GenerateFileName();
-        private string logDirectory = "C:\\TEMP\\"; // Environment.ExpandEnvironmentVariables("%TEMP%");
+        private string logDirectory = "C:\\TEMP\\"; // Environment.ExpandEnvironmentVariables("%TEMP%"); // TODO: REVERT, THIS IS FOR TESTING ONLY
         private object lockObj = new object();
 
         public FileDiagnosticsSender()
         {
-            this.defaultTraceListener = new DefaultTraceListener();
             this.SetAndValidateLogsFolder(this.LogDirectory, this.logFileName);
-
         }
 
         public string LogDirectory 
@@ -45,12 +42,6 @@
         /// Gets the log file path.
         /// </summary>
         public string LogFilePath { get; set; }
-        //{
-        //    get => this.defaultTraceListener.LogFileName;
-        //    private set => this.defaultTraceListener.LogFileName = value;
-        //}
-
-        public string Severity { get; set; }
 
         /// <summary>
         /// Write a trace to file.
@@ -60,13 +51,15 @@
         {
             if (this.Enabled)
             {
+                // We previously depended on the DefaultTraceListener for writing to file. 
+                // This has some overhead, but the path we were utilizing calls a lock and uses a StreamWriter.
+                // I've copied the implementation below, but this should be replaced to be more performant.
                 // https://referencesource.microsoft.com/#System/compmod/system/diagnostics/TraceSource.cs,239
                 // https://referencesource.microsoft.com/#System/compmod/system/diagnostics/TraceEventCache.cs,46
                 // https://referencesource.microsoft.com/#System/compmod/system/diagnostics/TraceListener.cs,409
                 // https://referencesource.microsoft.com/#System/compmod/system/diagnostics/DefaultTraceListener.cs,131
 
                 var message = Invariant($"{DateTime.UtcNow.ToInvariantString("o")}: {eventData.MetaData.Level}: {eventData}");
-                //this.defaultTraceListener.WriteLine(message);
 
                 lock (this.lockObj)
                 {
@@ -138,9 +131,10 @@
                 // IOException: The subdirectory cannot be created. -or- A file or directory already has the name specified by path. -or-  The specified path, file name, or both exceed the system-defined maximum length.
                 // SecurityException: The caller does not have code access permission to create the directory.
 
-                CoreEventSource.Log.LogStorageAccessDeniedError(
-                    error: Invariant($"Path: {this.logDirectory} File: {this.logFileName}; Error: {ex.Message}{Environment.NewLine}"),
-                    user: FileHelper.IdentityName);
+                // TODO: IS IT SAFE TO LOG HERE?
+                // CoreEventSource.Log.LogStorageAccessDeniedError(
+                //    error: Invariant($"Path: {this.logDirectory} File: {this.logFileName}; Error: {ex.Message}{Environment.NewLine}"),
+                //    user: FileHelper.IdentityName);
             }
 
             return result;
@@ -152,7 +146,6 @@
             {
                 // this.SelfDiagnosticsConfig,
                 ".NET SDK version: " + SdkVersionUtils.GetSdkVersion(string.Empty),
-                "Severity: " + this.Severity,
                 string.Empty,
             };
 
