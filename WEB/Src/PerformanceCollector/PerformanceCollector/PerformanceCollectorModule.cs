@@ -71,7 +71,8 @@
         /// </summary>
         private Timer timer = null;
 
-        private bool isInitialized = false;
+        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
+        internal bool IsInitialized { get; private set; } = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PerformanceCollectorModule"/> class.
@@ -135,11 +136,11 @@
         /// </summary>
         public void Initialize(TelemetryConfiguration configuration)
         {
-            if (!this.isInitialized)
+            if (!this.IsInitialized)
             {
                 lock (this.lockObject)
                 {
-                    if (!this.isInitialized)
+                    if (!this.IsInitialized)
                     {
                         PerformanceCollectorEventSource.Log.ModuleIsBeingInitializedEvent(
                             string.Format(
@@ -159,7 +160,7 @@
                             this.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\Process(??APP_WIN32_PROC??)\% Processor Time Normalized", @"\Process(??APP_WIN32_PROC??)\% Processor Time Normalized"));
                             this.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\Process(??APP_WIN32_PROC??)\Private Bytes", @"\Process(??APP_WIN32_PROC??)\Private Bytes"));
 
-#if NET45                   // The following are Asp.Net specific counters.
+#if NET452         // The following are Asp.Net specific counters.
                             this.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests/Sec", @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests/Sec"));
                             this.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\.NET CLR Exceptions(??APP_CLR_PROC??)\# of Exceps Thrown / sec", @"\.NET CLR Exceptions(??APP_CLR_PROC??)\# of Exceps Thrown / sec"));
                             this.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Execution Time", @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Execution Time"));
@@ -196,7 +197,7 @@
 
                         // schedule the first tick
                         this.timer.ScheduleNextTick(this.collectionPeriod);
-                        this.isInitialized = true;
+                        this.IsInitialized = true;
                     }
                 }
             }

@@ -1,12 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\Product.props" />
-
   <Import Project="$(PropsRoot)\Product.props" />
 
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.Extensibility.HostingStartup</RootNamespace>
     <AssemblyName>Microsoft.AspNet.ApplicationInsights.HostingStartup</AssemblyName>
-    <TargetFramework>net45</TargetFramework>
+    <TargetFrameworks>net452</TargetFrameworks>
     <Prefer32Bit>false</Prefer32Bit>
     <DefineConstants>$(DefineConstants);ALLOW_AGGRESSIVE_INLIGNING_ATTRIBUTE</DefineConstants>
   </PropertyGroup>
@@ -35,7 +33,7 @@
 
   <ItemGroup>
     <!--Nuget Transforms (install.xdt, uninstall.xdt, config.transform): "nupkg\content\<framework>\*.*-->
-    <Content Include="net45\*" />
+    <Content Include="net452\*" />
   </ItemGroup>
 
   <ItemGroup>

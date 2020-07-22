@@ -43,7 +43,7 @@ namespace Microsoft.ApplicationInsights.WorkerService.TelemetryInitializers
             string hostName = Dns.GetHostName();
 
             // Issue #61: For dnxcore machine name does not have domain name like in full framework
-#if NET451 || NET46 || NET461
+#if NET452 || NET46 || NET461
             string domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
             if (!hostName.EndsWith(domainName, StringComparison.OrdinalIgnoreCase))
             {

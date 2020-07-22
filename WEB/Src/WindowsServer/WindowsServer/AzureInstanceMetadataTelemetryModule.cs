@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer
 {
     using System;
+    using System.ComponentModel;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -15,17 +16,23 @@
         private object lockObject = new object();
         private IHeartbeatPropertyManager heartbeatManager;
 
-        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
-        internal bool IsInitialized { get; private set; } = false;
+        /// <summary>
+        /// Initializes a new instance of the<see cref="AzureInstanceMetadataTelemetryModule" /> class.
+        /// </summary>
+        public AzureInstanceMetadataTelemetryModule() : this(null)
+        {
+        }
+
+        internal AzureInstanceMetadataTelemetryModule(IHeartbeatPropertyManager heartbeatPropertyManager) => this.HeartbeatPropertyManager = heartbeatPropertyManager;
 
         /// <summary>
         /// Gets or sets an instance of IHeartbeatPropertyManager. 
         /// </summary>
         /// <remarks>
         /// This is expected to be an instance of <see cref="DiagnosticsTelemetryModule"/>.
-        /// Note that tests can also override the heartbeat manager.
         /// </remarks>
-        internal IHeartbeatPropertyManager HeartbeatPropertyManager
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public IHeartbeatPropertyManager HeartbeatPropertyManager
         {
             get
             {
@@ -39,6 +46,9 @@
 
             set => this.heartbeatManager = value;
         }
+
+        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
+        internal bool IsInitialized { get; private set; } = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AzureInstanceMetadataTelemetryModule" /> class.

@@ -1,4 +1,4 @@
-﻿#if NET45
+﻿#if NET452
 namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
@@ -19,7 +19,6 @@ namespace Microsoft.ApplicationInsights.Tests
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    [Ignore("Test class out of date. Github Issue 1830")]
     public sealed class FrameworkSqlProcessingTest : IDisposable
     {
         private const int TimeAccuracyMilliseconds = 50;
@@ -274,6 +273,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 null);
         }
 
+#if !NET452
         /// <summary>
         /// Validates SQLProcessingFramework sends correct telemetry.
         /// </summary>
@@ -308,6 +308,8 @@ namespace Microsoft.ApplicationInsights.Tests
                 string.Empty,
                 null);
         }
+#endif
+
         #endregion
 
         #region Disposable

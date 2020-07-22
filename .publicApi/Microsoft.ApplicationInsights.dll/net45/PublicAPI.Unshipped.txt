@@ -1,5 +1,0 @@
-Microsoft.ApplicationInsights.Channel.Transmission.TransmissionStatusEvent.get -> System.EventHandler<Microsoft.ApplicationInsights.Channel.TransmissionStatusEventArgs>
-Microsoft.ApplicationInsights.Channel.Transmission.TransmissionStatusEvent.set -> void
-Microsoft.ApplicationInsights.Channel.TransmissionStatusEventArgs
-Microsoft.ApplicationInsights.Channel.TransmissionStatusEventArgs.Response.get -> System.Net.Http.HttpResponseMessage
-Microsoft.ApplicationInsights.Channel.TransmissionStatusEventArgs.TransmissionStatusEventArgs(System.Net.Http.HttpResponseMessage response = null) -> void

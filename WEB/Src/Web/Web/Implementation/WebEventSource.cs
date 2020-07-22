@@ -2,7 +2,7 @@
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
-#if NET45
+#if NET452
     using System.Diagnostics.Tracing;
 #endif
     using Microsoft.ApplicationInsights.Common;

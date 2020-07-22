@@ -1,3 +1,4 @@
+Microsoft.ApplicationInsights.TelemetryClient.TelemetryConfiguration.get -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
 Microsoft.ApplicationInsights.Channel.Transmission.TransmissionStatusEvent.get -> System.EventHandler<Microsoft.ApplicationInsights.Channel.TransmissionStatusEventArgs>
 Microsoft.ApplicationInsights.Channel.Transmission.TransmissionStatusEvent.set -> void
 Microsoft.ApplicationInsights.Channel.TransmissionStatusEventArgs

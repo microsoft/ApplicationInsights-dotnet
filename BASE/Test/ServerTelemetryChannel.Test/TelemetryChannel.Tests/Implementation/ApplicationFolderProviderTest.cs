@@ -3,7 +3,8 @@
     using System.Collections;
     using System.Diagnostics;
     using System.IO;
-    using System.Linq; 
+    using System.Linq;
+    using System.Runtime.InteropServices;
     using System.Security.AccessControl;
     using System.Security.Principal;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
@@ -11,7 +12,10 @@
 
     [TestClass]
     public class ApplicationFolderProviderTest
-    { 
+    {
+        private const string NonWindowsStorageProbePathVarTmp = "/var/tmp/";
+        private const string NonWindowsStorageProbePathTmp = "/tmp/";
+
         private DirectoryInfo testDirectory;
 
         [TestInitialize]
@@ -30,7 +34,6 @@
         }
 
         [TestMethod]
-        [TestCategory("WindowsOnly")]
         public void GetApplicationFolderReturnsValidPlatformFolder()
         {
             IApplicationFolderProvider provider = new ApplicationFolderProvider();
@@ -294,6 +297,129 @@
 
             localAppData.Delete(true);
         }
+
+#if !NET452
+
+        [TestMethod]
+        public void GetApplicationFolderReturnsSubfolderFromTmpDirFolderInNonWindows()
+        {
+            if (!ApplicationFolderProvider.IsWindowsOperatingSystem())
+            {
+                DirectoryInfo tmpDir = this.testDirectory.CreateSubdirectory(@"tmpdir");
+                var environmentVariables = new Hashtable { { "TMPDIR", tmpDir.FullName } };
+                var provider = new ApplicationFolderProvider(environmentVariables);
+
+                IPlatformFolder applicationFolder = provider.GetApplicationFolder();
+                Assert.IsNotNull(applicationFolder);
+                Assert.AreEqual(1, tmpDir.GetDirectories().Length);
+                tmpDir.Delete(true);
+            }
+        }
+
+        [TestMethod]
+        public void GetApplicationFolderReturnsSubfolderFromCustomFolderFirstInNonWindows()
+        {
+            if (!ApplicationFolderProvider.IsWindowsOperatingSystem())
+            {
+                DirectoryInfo tmpDir = this.testDirectory.CreateSubdirectory(@"tmpdir");
+                DirectoryInfo customFolder = this.testDirectory.CreateSubdirectory(@"Custom");
+
+                var environmentVariables = new Hashtable { { "TMPDIR", tmpDir.FullName } };
+                var provider = new ApplicationFolderProvider(environmentVariables, customFolder.FullName);
+
+                IPlatformFolder applicationFolder = provider.GetApplicationFolder();
+
+                Assert.IsNotNull(applicationFolder);
+                Assert.AreEqual(((PlatformFolder)applicationFolder).Folder.Name, customFolder.Name, "Sub-folder for custom folder should not be created.");
+
+                tmpDir.Delete(true);
+                customFolder.Delete(true);
+            }
+        }
+
+        [TestMethod]
+        public void GetApplicationFolderReturnsSubfolderFromVarTmpFolderIfTmpDirIsNotAvailableInNonWindows()
+        {
+            if (!ApplicationFolderProvider.IsWindowsOperatingSystem())
+            {
+                var dir = new System.IO.DirectoryInfo(NonWindowsStorageProbePathVarTmp);
+                var provider = new ApplicationFolderProvider();
+
+                IPlatformFolder applicationFolder = provider.GetApplicationFolder();
+
+                Assert.IsNotNull(applicationFolder);
+                Assert.IsTrue(dir.GetDirectories().Any(r => r.Name.Equals("Microsoft")));
+
+
+                dir.EnumerateDirectories().ToList().ForEach(d => { if (d.Name == "Microsoft") d.Delete(true); });
+            }
+        }
+
+        [TestMethod]
+        public void GetApplicationFolderReturnsSubfolderFromTmpFolderIfVarTmpIsNotAvailableInNonWindows()
+        {
+            if (!ApplicationFolderProvider.IsWindowsOperatingSystem())
+            {
+                var dir = new System.IO.DirectoryInfo(NonWindowsStorageProbePathTmp);
+
+                var provider = new ApplicationFolderProvider();
+                var vartmpPathFieldInfo = provider.GetType().GetField("nonWindowsStorageProbePathVarTmp", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                vartmpPathFieldInfo.SetValue(provider, "");
+
+                IPlatformFolder applicationFolder = provider.GetApplicationFolder();
+
+                Assert.IsNotNull(applicationFolder);
+                Assert.IsTrue(dir.GetDirectories().Any(r => r.Name.Equals("Microsoft")));
+
+
+                dir.EnumerateDirectories().ToList().ForEach(d => { if (d.Name == "Microsoft") d.Delete(true); });
+            }
+        }
+
+        [TestMethod]
+        public void GetApplicationFolderReturnsNullWhenNoFolderAvailableToStoreDataInNonWindows()
+        {
+            if (!ApplicationFolderProvider.IsWindowsOperatingSystem())
+            {
+                var provider = new ApplicationFolderProvider();
+                var vartmpPathFieldInfo = provider.GetType().GetField("nonWindowsStorageProbePathVarTmp", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                vartmpPathFieldInfo.SetValue(provider, "");
+                var tmpPathFieldInfo = provider.GetType().GetField("nonWindowsStorageProbePathTmp", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                tmpPathFieldInfo.SetValue(provider, "");
+
+                IPlatformFolder applicationFolder = provider.GetApplicationFolder();
+                Assert.IsNull(applicationFolder);
+            }
+        }
+
+        [TestMethod]
+        public void GetApplicationFolderReturnsSubfolderFromVarTmpIfTmpDirIsTooLongInNonWindows()
+        {
+            if (!ApplicationFolderProvider.IsWindowsOperatingSystem())
+            {
+                string longDirectoryName = Path.Combine(this.testDirectory.FullName, new string('A', 300));
+                var varTmpdir = new System.IO.DirectoryInfo(NonWindowsStorageProbePathVarTmp);
+
+                // Initialize ApplicationfolderProvider
+                var environmentVariables = new Hashtable
+                {
+                    { "TMPDIR", longDirectoryName },
+                };
+
+                var provider = new ApplicationFolderProvider(environmentVariables);
+
+                IPlatformFolder applicationFolder = provider.GetApplicationFolder();
+
+                // Evaluate
+                Assert.IsNotNull(applicationFolder);
+                Assert.IsFalse(Directory.Exists(longDirectoryName), "TEST ERROR: This directory should not be created.");
+                Assert.IsTrue(Directory.Exists(varTmpdir.FullName), "TEST ERROR: This directory should be created.");
+                Assert.IsTrue(varTmpdir.GetDirectories().Any(r => r.Name.Equals("Microsoft")), "TEST FAIL: TEMP subdirectories were not created");
+                varTmpdir.EnumerateDirectories().ToList().ForEach(d => { if (d.Name == "Microsoft") d.Delete(true); });
+            }
+        }
+
+#endif
 
         // TODO: Find way to detect denied FileSystemRights.DeleteSubdirectoriesAndFiles
         public void GetApplicationFolderReturnsNullWhenFolderAlreadyExistsButDeniesRightToDeleteSubdirectoriesAndFiles()

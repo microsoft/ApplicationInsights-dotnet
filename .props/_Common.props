@@ -15,11 +15,6 @@
     
     <!-- https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/warn-compiler-option -->
     <WarningLevel>4</WarningLevel>
-
-    <!-- TODO: NEEDS INVESTIGATION. This has some conflicts with the functional test apps using dirs.proj -->
-    <!-- https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/langversion-compiler-option -->
-    <!-- https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/configure-language-version -->
-    <!--<LangVersion>7.3</LangVersion>-->
     
   </PropertyGroup>
   
