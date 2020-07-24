@@ -11,6 +11,7 @@
 - [End support for NetStandard 1.x, Add support for NetStandard 2.0](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1160)
 - [Add support for SourceLink.Github to all SDKs.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1760)
 - [ServerTelemetryChannel by default uses local disk storage in non Windows, to store telemetry during transient errors](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1792)
+- [Make TelemetryConfiguration property of TelemetryClient public accessible to be able to read the configuration](https://github.com/microsoft/ApplicationInsights-dotnet/issues/581)
 
 ## Version 2.15.0-beta1
 - [WorkerService package is modified to depend on 2.1.1 on Microsoft.Extensions.DependencyInjection so that it can be used in .NET Core 2.1 projects without nuget errors.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1677)
