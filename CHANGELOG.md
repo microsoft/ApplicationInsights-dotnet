@@ -5,6 +5,7 @@
 - [Create single request telemetry when URL-rewrite rewrites a request](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1744)
 - [Remove legacy TelemetryConfiguration.Active from AspNetCore SDK](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1953)
 - [Refactor AspNetCore and WorkerService use of Heartbeat (DiagnosticTelemetryModule)](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1954)
+- [Fix broken correlation and missing in-proc dependency Azure Blob SDK v12](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1915)
 
 ## Version 2.15.0-beta2
 - [Read all properties of ApplicationInsightsServiceOptions from IConfiguration](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1882)
