@@ -72,7 +72,7 @@
         }
 
         /// <summary>
-        /// Gets or Sets an event notification to track ingestion status metrics.
+        /// Gets or Sets an event notification to track ingestion endpoint response.
         /// </summary>
         public EventHandler<TransmissionStatusEventArgs> TransmissionStatusEvent { get; set; }
         
