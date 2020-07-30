@@ -267,7 +267,8 @@
         }
 
         /// <summary>
-        /// This method is intended to be called from the INITIALIZE() method, or whenever ENABLED or INTERVAL properties have been set.
+        /// This method is intended to be called from the <see cref="Initialize"/> method, or whenever <see cref="IsHeartbeatEnabled"/> or <see cref="HeartbeatInterval"/> properties have been set.
+        /// This will ensure that any changes to properties will be immediately applied to the <see cref="HeartbeatTimer"/>.
         /// </summary>
         internal void InitTimer()
         {
@@ -277,11 +278,11 @@
             }
             else if (this.IsHeartbeatEnabled)
             {
-                this.HeartbeatTimer.Change(this.HeartbeatInterval, this.HeartbeatInterval);
+                this.HeartbeatTimer.Change(dueTime: this.HeartbeatInterval, period: this.HeartbeatInterval);
             }
-            else
+            else if (this.HeartbeatTimer != null)
             {
-                this.HeartbeatTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                this.HeartbeatTimer.Change(dueTime: Timeout.Infinite, period: Timeout.Infinite);
                 this.HeartbeatTimer.Dispose();
                 this.HeartbeatTimer = null;
             }
