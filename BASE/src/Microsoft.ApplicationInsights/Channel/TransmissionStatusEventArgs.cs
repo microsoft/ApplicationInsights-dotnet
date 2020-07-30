@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Channel
 {
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using System;
     using System.Net.Http;
 
@@ -12,7 +13,7 @@
         /// Initializes a new instance of the <see cref="TransmissionStatusEventArgs"/> class.
         /// </summary>
         /// <param name="response">Response from ingestion endpoint.</param>
-        public TransmissionStatusEventArgs(HttpResponseMessage response = null)
+        public TransmissionStatusEventArgs(HttpWebResponseWrapper response = null)
         {
             this.Response = response;
         }
@@ -20,6 +21,6 @@
         /// <summary>
         /// Gets the response from ingestion endpoint.
         /// </summary>
-        public HttpResponseMessage Response { get; }
+        public HttpWebResponseWrapper Response { get; }
     }
 }

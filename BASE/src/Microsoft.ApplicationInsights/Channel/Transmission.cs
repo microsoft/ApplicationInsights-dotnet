@@ -175,9 +175,6 @@
                                 // Log ingestion respose time as event counter metric.
                                 CoreEventSource.Log.IngestionResponseTimeEventCounter(stopwatch.ElapsedMilliseconds);
 
-                                // Initiates event notification for subscriber to extract metrics from Transmission and TransmissionStatusEventArgs.
-                                this.TransmissionStatusEvent?.Invoke(this, new TransmissionStatusEventArgs(response));
-
                                 if (response != null)
                                 {
                                     wrapper = new HttpWebResponseWrapper
@@ -217,11 +214,21 @@
                         }
                     }
                     catch (OperationCanceledException)
-                    {                        
+                    {
                         wrapper = new HttpWebResponseWrapper
                         {
                             StatusCode = (int)HttpStatusCode.RequestTimeout,
                         };
+                    }
+
+                    try
+                    {
+                        // Initiates event notification to subscriber with Transmission and TransmissionStatusEventArgs.
+                        this.TransmissionStatusEvent?.Invoke(this, new TransmissionStatusEventArgs(wrapper));
+                    }
+                    catch
+                    {
+                        // Swallow any exception here as this code is for tracing purposes only and should never throw.
                     }
 
                     return wrapper;

@@ -526,7 +526,7 @@
                     // VALIDATE
                     transmission.TransmissionStatusEvent += delegate(object sender, TransmissionStatusEventArgs args)
                     {
-                        Assert.AreEqual(HttpStatusCode.OK, args.Response.StatusCode);
+                        Assert.AreEqual((int)HttpStatusCode.OK, args.Response.StatusCode);
                     };
 
                     // ACT
@@ -543,6 +543,7 @@
                     InnerHandler = new HttpClientHandler(),
                     OnSendAsync = (req, cancellationToken) =>
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
                         return Task.FromResult<HttpResponseMessage>(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));
                     }
                 };
@@ -551,11 +552,12 @@
                 {
                     // Instantiate Transmission with the mock HttpClient                  
                     Transmission transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
+                    transmission.Timeout = TimeSpan.Zero;
 
                     // VALIDATE
                     transmission.TransmissionStatusEvent += delegate (object sender, TransmissionStatusEventArgs args)
                     {
-                        Assert.AreEqual(HttpStatusCode.ServiceUnavailable, args.Response.StatusCode);
+                        Assert.AreEqual((int)HttpStatusCode.RequestTimeout, args.Response.StatusCode);
                     };
 
                     // ACT
@@ -621,7 +623,7 @@
                     {
                         var sendertransmission = sender as Transmission;
                         // convert raw JSON response to Backendresponse object
-                        BackendResponse backendResponse = GetBackendResponse(args.Response);
+                        BackendResponse backendResponse = GetBackendResponse(args.Response.Content);
 
                         // Deserialize telemetry items to identify which items has failed
                         string[] items = JsonSerializer
@@ -637,7 +639,7 @@
                             failedItems[i++] = items[error.Index];
                         }
 
-                        Assert.AreEqual(HttpStatusCode.PartialContent, args.Response.StatusCode);
+                        Assert.AreEqual((int)HttpStatusCode.PartialContent, args.Response.StatusCode);
                         Assert.AreEqual(5, backendResponse.ItemsReceived);
                         Assert.AreEqual(2, backendResponse.ItemsAccepted);
 
@@ -670,11 +672,10 @@
             /// </summary>
             /// <param name="response">Response from ingestion service.</param>
             /// <returns></returns>
-            private BackendResponse GetBackendResponse(HttpResponseMessage response)
+            private BackendResponse GetBackendResponse(string responseContent)
             {
                 BackendResponse backendResponse = null;
                 DataContractJsonSerializer Serializer = new DataContractJsonSerializer(typeof(BackendResponse));
-                var responseContent = response.Content.ReadAsStringAsync().Result;
 
                 try
                 {

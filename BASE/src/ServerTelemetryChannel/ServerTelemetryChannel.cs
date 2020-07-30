@@ -122,7 +122,7 @@
         }
 
         /// <summary>
-        /// Gets or Sets the subscriber to an event in Transmission to track ingestion status metrics.
+        /// Gets or Sets the subscriber to an event with Transmission and HttpWebResponseWrapper.
         /// </summary>
         public EventHandler<TransmissionStatusEventArgs> TransmissionStatusEvent
         {
