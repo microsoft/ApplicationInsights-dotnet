@@ -1,8 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Channel
 {
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using System;
-    using System.Net.Http;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     /// <summary>
     /// Event argument to track response from ingestion endpoint.
