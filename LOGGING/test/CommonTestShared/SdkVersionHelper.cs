@@ -8,7 +8,7 @@
     {
         public static string GetExpectedSdkVersion(string prefix, Type loggerType)
         {
-#if NET45 || NET46
+#if NET452 || NET46
             string versionStr = loggerType.Assembly.GetCustomAttributes(false).OfType<AssemblyFileVersionAttribute>().First().Version;
 #else
             string versionStr = loggerType.GetTypeInfo().Assembly.GetCustomAttributes<AssemblyFileVersionAttribute>().First().Version;

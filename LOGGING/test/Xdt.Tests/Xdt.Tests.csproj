@@ -4,8 +4,7 @@
   <PropertyGroup>
     <RootNamespace>Xdt.Tests</RootNamespace>
     <AssemblyName>Xdt.Tests</AssemblyName>
-    <TargetFramework>net45</TargetFramework>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <TargetFrameworks>net452</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

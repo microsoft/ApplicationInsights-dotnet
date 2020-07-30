@@ -1,4 +1,4 @@
-﻿#if NET45
+﻿#if NET452
 namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
@@ -19,10 +19,9 @@ namespace Microsoft.ApplicationInsights.Tests
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    [Ignore("Test class out of date. Github Issue 1830")]
     public sealed class FrameworkHttpProcessingTest : IDisposable
     {
-        #region Fields
+#region Fields
         private const string RandomAppIdEndpoint = "http://app.id.endpoint"; // appIdEndpoint - this really won't be used for tests because of the app id provider override.
         private const int TimeAccuracyMilliseconds = 50;
         private const string TestInstrumentationKey = nameof(TestInstrumentationKey);
@@ -34,9 +33,9 @@ namespace Microsoft.ApplicationInsights.Tests
         private List<ITelemetry> sendItems = new List<ITelemetry>();
         private FrameworkHttpProcessing httpProcessingFramework;
         private CacheBasedOperationHolder cache = new CacheBasedOperationHolder("testCache", 100 * 1000);
-        #endregion //Fields
+#endregion //Fields
 
-        #region TestInitialize
+#region TestInitialize
 
         [TestInitialize]
         public void TestInitialize()
@@ -60,9 +59,9 @@ namespace Microsoft.ApplicationInsights.Tests
             Activity.Current = null;
             DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = false;
         }
-        #endregion //TestInitiliaze
+#endregion //TestInitiliaze
 
-        #region BeginEndCallBacks
+#region BeginEndCallBacks
 
         [TestMethod]
         public void OnBeginDoesNotThrowForIncorrectUrl()
@@ -108,6 +107,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 null);
         }
 
+#if !NET452
         [TestMethod]
         public void RddTestHttpProcessingFrameworkOnEndHttpCallbackSuccessParentActivity()
         {
@@ -133,6 +133,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 "200",
                 parentActivity);
         }
+#endif
 
         [TestMethod]
         public void RddTestHttpProcessingFrameworkOnEndHttpCallbackSuccessParentActivityW3COff()
@@ -371,9 +372,9 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.AreEqual(expectedTarget, receivedItem.Target, "HttpProcessingFramework returned incorrect target for non standard port.");
         }
 
-        #endregion //BeginEndCallBacks
+#endregion //BeginEndCallBacks
 
-        #region AsyncScenarios
+#region AsyncScenarios
 
         /// <summary>
         /// Validates HttpProcessingFramework calculates startTime from the start of very first OnRequestSend if any
@@ -409,17 +410,17 @@ namespace Microsoft.ApplicationInsights.Tests
                 null);
         }
 
-        #endregion AsyncScenarios
+#endregion AsyncScenarios
 
-        #region Disposable
+#region Disposable
         public void Dispose()
         {
             this.configuration.Dispose();
             GC.SuppressFinalize(this);
         }
-        #endregion Disposable
+#endregion Disposable
 
-        #region Helpers
+#region Helpers
         private static void ValidateTelemetryPacketForOnBeginHttpCallback(
             DependencyTelemetry remoteDependencyTelemetryActual,
             Uri url,
@@ -491,7 +492,7 @@ namespace Microsoft.ApplicationInsights.Tests
             }
         }
 
-        #endregion Helpers
+#endregion Helpers
     }
 }
 #endif

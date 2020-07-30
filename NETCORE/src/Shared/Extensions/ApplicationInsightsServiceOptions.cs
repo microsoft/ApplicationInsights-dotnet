@@ -27,12 +27,14 @@
         /// <summary>
         /// Gets or sets a value indicating whether AppServicesHeartbeatTelemetryModule should be enabled.
         /// Defaults to <value>true</value>.
+        /// IMPORTANT: This setting will be ignored if either <see cref="EnableDiagnosticsTelemetryModule"/> or <see cref="EnableHeartbeat"/> are set to false.
         /// </summary>
         public bool EnableAppServicesHeartbeatTelemetryModule { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether AzureInstanceMetadataTelemetryModule should be enabled.
         /// Defaults to <value>true</value>.
+        /// IMPORTANT: This setting will be ignored if either <see cref="EnableDiagnosticsTelemetryModule"/> or <see cref="EnableHeartbeat"/> are set to false.
         /// </summary>
         public bool EnableAzureInstanceMetadataTelemetryModule { get; set; } = true;
 
@@ -88,6 +90,10 @@
 
         /// <summary>
         /// Gets or sets a value indicating whether heartbeats are enabled.
+        /// IMPORTANT: This setting will be ignored if <see cref="EnableDiagnosticsTelemetryModule"/> is set to false.
+        /// IMPORTANT: Disabling this will cause the following settings to be ignored:
+        /// <see cref="EnableAzureInstanceMetadataTelemetryModule"/>.
+        /// <see cref="EnableAppServicesHeartbeatTelemetryModule"/>.
         /// </summary>
         public bool EnableHeartbeat { get; set; } = true;
 
@@ -117,9 +123,29 @@
 #endif
 
         /// <summary>
+        /// Gets or sets a value indicating whether the <see cref="Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule"/> should be enabled.
+        /// IMPORTANT: Disabling this will cause the following settings to be ignored:
+        /// <see cref="EnableHeartbeat"/>.
+        /// <see cref="EnableAzureInstanceMetadataTelemetryModule"/>.
+        /// <see cref="EnableAppServicesHeartbeatTelemetryModule"/>.
+        /// </summary>
+        public bool EnableDiagnosticsTelemetryModule { get; set; } = true;
+
+        /// <summary>
         /// Gets <see cref="DependencyCollectionOptions"/> that allow to manage <see cref="DependencyTrackingTelemetryModule"/>.
         /// </summary>
         public DependencyCollectionOptions DependencyCollectionOptions { get; } = new DependencyCollectionOptions();
+
+#if AI_ASPNETCORE_WEB
+        /// <summary>
+        /// Gets or sets a value indicating whether TelemetryConfiguration.Active should be initialized.
+        /// Former versions of this library had a dependency on this static instance. 
+        /// This dependency has been removed and we no longer initialize this by default.
+        /// If users depended on this behavior you should enable this.
+        /// However, we recommend migrating away from using TelemetryConfiguration.Active in your projects.
+        /// </summary>
+        public bool EnableActiveTelemetryConfigurationSetup { get; set; } = false;
+#endif
 
         /// <summary>
         /// Copy the properties from this <see cref="ApplicationInsightsServiceOptions"/> to a target instance.
@@ -157,12 +183,15 @@
             target.EnableDependencyTrackingTelemetryModule = this.EnableDependencyTrackingTelemetryModule;
             target.EnableAppServicesHeartbeatTelemetryModule = this.EnableAppServicesHeartbeatTelemetryModule;
             target.EnableAzureInstanceMetadataTelemetryModule = this.EnableAzureInstanceMetadataTelemetryModule;
+            target.EnableDiagnosticsTelemetryModule = this.EnableDiagnosticsTelemetryModule;
+            
 #if NETSTANDARD2_0
             target.EnableEventCounterCollectionModule = this.EnableEventCounterCollectionModule;
 #endif
 #if AI_ASPNETCORE_WEB
             target.EnableAuthenticationTrackingJavaScript = this.EnableAuthenticationTrackingJavaScript;
             target.EnableRequestTrackingTelemetryModule = this.EnableRequestTrackingTelemetryModule;
+            target.EnableActiveTelemetryConfigurationSetup = this.EnableActiveTelemetryConfigurationSetup;
 #endif
         }
     }

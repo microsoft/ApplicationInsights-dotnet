@@ -3,8 +3,7 @@
   
   <PropertyGroup>
     <AssemblyName>Microsoft.ApplicationInsights.Web.Tests</AssemblyName>
-    <TargetFrameworks>net45</TargetFrameworks>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <TargetFrameworks>net452</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,7 +17,7 @@
     <ProjectReference Include="..\Web\Web.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Drawing" />
@@ -34,7 +33,7 @@
 
     <PackageReference Include="Castle.Core" Version="4.4.0" />
     <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.4" />
-    <PackageReference Include="Microsoft.AspNet.TelemetryCorrelation" Version="1.0.7" />
+    <PackageReference Include="Microsoft.AspNet.TelemetryCorrelation" Version="1.0.8" />
     <PackageReference Include="Microsoft.AspNet.WebApi" Version="5.2.4" />
     <PackageReference Include="Moq" Version="4.8.2" />
     <PackageReference Include="OpenCover" Version="4.7.922" />

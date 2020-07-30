@@ -4,15 +4,10 @@ about: Create a question to help us improve our knowledgebase and documentation
 labels: question
 ---
 
-**Describe your environment.**
-Describe any aspect of your environment relevant to the question:
-* SDK version: 
-* .NET runtime version (.NET or .NET Core, TargetFramework in the .csproj file): 
-* Hosting Info (IIS/Azure WebApps/etc): 
-* Platform and OS version: 
+* List of [NuGet packages](https://github.com/microsoft/ApplicationInsights-dotnet#nuget-packages) and version that you are using:
+* Runtime version (e.g. net461, net48, netcoreapp2.1, netcoreapp3.1, etc. You can find this information from the `*.csproj` file):
+* Hosting environment (e.g. Azure Web App, App Service on Linux, Windows, Ubuntu, etc.):
 
 **What are you trying to achieve?**
-What did you expect to see?
 
-**Additional context.**
-Add any other context about the problem here.
+**What have you tried so far?**

@@ -4,8 +4,6 @@
     <RootNamespace>Microsoft.ApplicationInsights.EventSourceListener.Tests</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.EventSourceListener.Tests</AssemblyName>
     <TargetFrameworks>netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>    
