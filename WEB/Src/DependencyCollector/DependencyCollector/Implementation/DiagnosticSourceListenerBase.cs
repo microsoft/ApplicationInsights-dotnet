@@ -15,8 +15,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     /// <typeparamref name="TContext">The type of processing context for given diagnostic source.</typeparamref>
     internal abstract class DiagnosticSourceListenerBase<TContext> : IObserver<DiagnosticListener>, IDisposable
     {
-        protected static readonly ConcurrentDictionary<string, ActiveSubsciptionManager> SubscriptionManagers =
-            new ConcurrentDictionary<string, ActiveSubsciptionManager>();
+        protected static readonly ConcurrentDictionary<DiagnosticListener, ActiveSubsciptionManager> SubscriptionManagers =
+            new ConcurrentDictionary<DiagnosticListener, ActiveSubsciptionManager>();
     
         protected readonly TelemetryClient Client;
         protected readonly TelemetryConfiguration Configuration;
@@ -77,7 +77,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             }
 
             var eventHandler = this.GetEventHandler(value.Name);
-            var manager = SubscriptionManagers.GetOrAdd(value.Name, k => new ActiveSubsciptionManager());
+            var manager = SubscriptionManagers.GetOrAdd(value, k => new ActiveSubsciptionManager());
 
             var individualListener = new IndividualDiagnosticSourceListener(
                 value, 

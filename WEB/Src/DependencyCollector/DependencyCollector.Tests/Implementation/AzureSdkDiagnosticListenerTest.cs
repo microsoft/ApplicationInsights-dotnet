@@ -99,6 +99,36 @@
             }
         }
 
+
+        [TestMethod]
+        public void AzureClientSpansAreCollectedMultipleDiagnosticSourcesSameName()
+        {
+            using (var listener1 = new DiagnosticListener("Azure.SomeClient"))
+            using (var listener2 = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                var telemetry1 = this.TrackOperation<DependencyTelemetry>(
+                    listener1,
+                    "Azure.SomeClient.Send",
+                    null,
+                    () => { });
+
+                Assert.IsNotNull(telemetry1);
+                Assert.AreEqual("SomeClient.Send", telemetry1.Name);
+
+                var telemetry2 = this.TrackOperation<DependencyTelemetry>(
+                    listener2,
+                    "Azure.SomeClient.Send",
+                    null,
+                    () => { });
+
+                Assert.IsNotNull(telemetry2);
+                Assert.AreEqual("SomeClient.Send", telemetry2.Name);
+            }
+        }
+
         [TestMethod]
         public void AzureClientSpansAreCollectedClientKind()
         {
