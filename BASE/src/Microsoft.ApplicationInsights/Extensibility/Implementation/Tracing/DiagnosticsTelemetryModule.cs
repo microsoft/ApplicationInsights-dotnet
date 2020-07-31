@@ -271,6 +271,7 @@
 
                         this.FileLogDirectory = path;
                         this.IsFileLogEnabled = true;
+                        this.FileDiagnosticsSender.IsSetByEnvironmentVariable = true;
                     }
                 }
             }

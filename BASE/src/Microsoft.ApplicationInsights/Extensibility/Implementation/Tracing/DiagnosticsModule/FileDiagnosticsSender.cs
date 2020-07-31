@@ -16,6 +16,7 @@
         private string logFileName = FileHelper.GenerateFileName();
         private string logDirectory = Environment.ExpandEnvironmentVariables("%TEMP%");
         private object lockObj = new object();
+        private bool isEnabled = false; // TODO: NEED MORE PERFORMANT FILE WRITTER BEFORE ENABLING THIS BY DEFAULT
 
         public FileDiagnosticsSender()
         {
@@ -27,6 +28,11 @@
             get => this.logDirectory;
             set
             {
+                if (this.isEnabled)
+                {
+                    return;
+                }
+
                 string expandedPath = Environment.ExpandEnvironmentVariables(value);
                 if (this.SetAndValidateLogsFolder(expandedPath, this.logFileName))
                 {
@@ -35,12 +41,23 @@
             }
         }
 
-        public bool Enabled { get; set; } = false; // TODO: NEED MORE PERFORMANT FILE WRITTER BEFORE ENABLING THIS BY DEFAULT
+        public bool Enabled 
+        { 
+            get => this.isEnabled;
+            set => this.isEnabled = this.IsSetByEnvironmentVariable ? this.isEnabled : value;
+        }
 
         /// <summary>
         /// Gets or sets the log file path.
         /// </summary>
         public string LogFilePath { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this class was configured via Environment Variable.
+        /// If this class is sent by the environment variable, lock the other properties to prevent TelemetryConfigurationFactory or customer code from overriding.
+        /// We are enabling SysAdmins or DevOps to be able to override this behavior via Environment Variable.
+        /// </summary>
+        internal bool IsSetByEnvironmentVariable { get; set; }
 
         /// <summary>
         /// Write a trace to file.
@@ -106,7 +123,6 @@
                     FileHelper.TestDirectoryPermissions(logsDirectory);
 
                     string fullLogFileName = Path.Combine(filePath, fileName);
-                    CoreEventSource.Log.LogsFileName(fullLogFileName);
 
                     // Set
                     this.LogFilePath = fullLogFileName;
