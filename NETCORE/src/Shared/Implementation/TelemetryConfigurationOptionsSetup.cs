@@ -156,8 +156,10 @@ namespace Microsoft.Extensions.DependencyInjection
                     // So this approach of adding all modules to DI, but selectively
                     // disable those modules which user has disabled is chosen.
 
-                    if (module is DiagnosticsTelemetryModule)
+                    if (module is DiagnosticsTelemetryModule diagnosticsTelemetryModule)
                     {
+                        diagnosticsTelemetryModule.IsFileLogEnabled = this.applicationInsightsServiceOptions.EnableSelfDiagnosticsFileLogging;
+
                         if (!this.applicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule)
                         {
                             DisposeIfDisposable(module);

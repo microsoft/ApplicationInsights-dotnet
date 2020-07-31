@@ -148,6 +148,11 @@
 #endif
 
         /// <summary>
+        /// Gets or sets a value indicating whether file logging is enabled.
+        /// </summary>
+        public bool EnableSelfDiagnosticsFileLogging { get; set; } = false;
+
+        /// <summary>
         /// Copy the properties from this <see cref="ApplicationInsightsServiceOptions"/> to a target instance.
         /// </summary>
         /// <param name="target">Target instance to copy properties to.</param>
@@ -184,6 +189,7 @@
             target.EnableAppServicesHeartbeatTelemetryModule = this.EnableAppServicesHeartbeatTelemetryModule;
             target.EnableAzureInstanceMetadataTelemetryModule = this.EnableAzureInstanceMetadataTelemetryModule;
             target.EnableDiagnosticsTelemetryModule = this.EnableDiagnosticsTelemetryModule;
+            target.EnableSelfDiagnosticsFileLogging = this.EnableSelfDiagnosticsFileLogging;
             
 #if NETSTANDARD2_0
             target.EnableEventCounterCollectionModule = this.EnableEventCounterCollectionModule;

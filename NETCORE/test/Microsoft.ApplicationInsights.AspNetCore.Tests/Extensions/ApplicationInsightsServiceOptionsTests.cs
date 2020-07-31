@@ -379,5 +379,22 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
             Assert.True(module.IsInitialized, "module was not initialized");
             Assert.Equal(isEnable, module.IsHeartbeatEnabled);
         }
+
+        [Theory]
+        [InlineData("Code", true)]
+        [InlineData("Code", false)]
+        public static void UserCanEnableAndDisableFileLogging(string configType, bool isEnable)
+        {
+            IServiceProvider serviceProvider = TestShim(configType: configType, isEnabled: isEnable,
+                testConfig: (o, b) => {
+                    o.EnableDiagnosticsTelemetryModule = true;
+                    o.EnableSelfDiagnosticsFileLogging = b;
+                });
+
+            var modules = serviceProvider.GetServices<ITelemetryModule>();
+            var module = modules.OfType<DiagnosticsTelemetryModule>().Single();
+            Assert.True(module.IsInitialized, "module was not initialized");
+            Assert.Equal(isEnable, module.IsFileLogEnabled);
+        }
     }
 }

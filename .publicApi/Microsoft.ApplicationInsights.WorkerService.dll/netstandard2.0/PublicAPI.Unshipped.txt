@@ -1,2 +1,4 @@
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule.get -> bool
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule.set -> void
+Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableSelfDiagnosticsFileLogging.get -> bool
+Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableSelfDiagnosticsFileLogging.set -> void
