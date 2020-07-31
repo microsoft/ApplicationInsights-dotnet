@@ -17,6 +17,7 @@
         internal const string SelfDiagnosticsEnvironmentVariable = "APPLICATIONINSIGHTS_SELF_DIAGNOSTICS";
 
         internal readonly IList<IDiagnosticsSender> Senders = new List<IDiagnosticsSender>();
+        internal FileDiagnosticsSender fileDiagnosticsSender;
         internal readonly DiagnosticsListener EventListener;
         internal readonly IHeartbeatProvider HeartbeatProvider = null;
         
@@ -34,7 +35,8 @@
             // Adding a dummy queue sender to keep the data to be sent to the portal before the initialize method is called
             this.Senders.Add(new PortalDiagnosticsQueueSender());
 
-            this.Senders.Add(new FileDiagnosticsSender());
+            this.fileDiagnosticsSender = new FileDiagnosticsSender();
+            this.Senders.Add(this.fileDiagnosticsSender);
 
             this.EventListener = new DiagnosticsListener(this.Senders);
 
@@ -55,6 +57,18 @@
         {
             get => this.HeartbeatProvider.IsHeartbeatEnabled;
             set => this.HeartbeatProvider.IsHeartbeatEnabled = value;
+        }
+
+        public bool IsFileLogEnabled 
+        {
+            get => this.fileDiagnosticsSender.Enabled;
+            set => this.fileDiagnosticsSender.Enabled = value;
+        }
+
+        public string FileLogDirectory
+        {
+            get => this.fileDiagnosticsSender.LogDirectory;
+            set => this.fileDiagnosticsSender.LogDirectory = value;
         }
 
         /// <summary>
@@ -247,11 +261,10 @@
                     var keyValuePairs = SelfDiagnosticsProvider.ParseConfigurationString(selfDiagnosticsConfigurationString);
                     if (SelfDiagnosticsProvider.IsFileDiagnostics(keyValuePairs, out string path, out string level))
                     {
-                        // TODO: CONFIGURE HERE
                         this.Severity = level;
 
-                        var fileDiagnosticsSender = this.Senders.OfType<FileDiagnosticsSender>().First();
-                        fileDiagnosticsSender.LogDirectory = path;
+                        this.FileLogDirectory = path;
+                        this.IsFileLogEnabled = true;
                     }
                 }
             }

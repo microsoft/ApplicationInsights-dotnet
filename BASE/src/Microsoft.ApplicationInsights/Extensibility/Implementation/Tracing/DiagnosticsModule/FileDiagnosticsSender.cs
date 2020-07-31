@@ -11,11 +11,11 @@
     /// <summary>
     /// This sender works with the DiagnosticTelemetryModule. This will subscribe to events and output to a text file log.
     /// </summary>
-    internal class FileDiagnosticsSender : IDiagnosticsSender, IDisposable
+    internal class FileDiagnosticsSender : IDiagnosticsSender//, IDisposable
     {
         private bool disposedValue;
         private string logFileName = FileHelper.GenerateFileName();
-        private string logDirectory = "C:\\TEMP\\"; // Environment.ExpandEnvironmentVariables("%TEMP%"); // TODO: REVERT, THIS IS FOR TESTING ONLY
+        private string logDirectory = Environment.ExpandEnvironmentVariables("%TEMP%"); // "C:\\TEMP\\"; TODO: REVERT, THIS IS FOR TESTING ONLY
         private object lockObj = new object();
 
         public FileDiagnosticsSender()
@@ -36,7 +36,7 @@
             }
         }
 
-        public bool Enabled { get; set; } = true;
+        public bool Enabled { get; set; } = false; // TODO: NEED MORE PERFORMANT FILE WRITTER BEFORE ENABLING THIS BY DEFAULT
 
         /// <summary>
         /// Gets the log file path.
@@ -83,24 +83,24 @@
             }
         }
 
-        public void Dispose()
-        {
-            this.Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
+        //public void Dispose()
+        //{
+        //    this.Dispose(disposing: true);
+        //    GC.SuppressFinalize(this);
+        //}
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposedValue)
-            {
-                if (disposing)
-                {
-                    this.defaultTraceListener.Dispose();
-                }
+        //protected virtual void Dispose(bool disposing)
+        //{
+        //    if (!this.disposedValue)
+        //    {
+        //        if (disposing)
+        //        {
+        //            this.defaultTraceListener.Dispose();
+        //        }
 
-                this.disposedValue = true;
-            }
-        }
+        //        this.disposedValue = true;
+        //    }
+        //}
 
         private bool SetAndValidateLogsFolder(string filePath, string fileName)
         {
