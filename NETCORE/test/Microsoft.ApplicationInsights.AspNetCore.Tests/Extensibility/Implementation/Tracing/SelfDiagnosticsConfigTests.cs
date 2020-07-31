@@ -1,7 +1,6 @@
 ﻿using System;
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -21,7 +20,7 @@ using Xunit;
 namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensibility.Implementation.Tracing
 {
 #if !NET46
-    public class SelfDiagnosticsConfigTests : IDisposable
+    public class SelfDiagnosticsConfigTests
     {
         [Fact]
         public void VerifyDefaultConfiguration()
@@ -44,29 +43,36 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensibility.Implement
             Assert.False(diagnosticsTelemetryModule.IsFileLogEnabled);
         }
 
-        [Fact]
+        [Fact(Skip = "This test works, but causes significant performance issues on the build server.")]
         public void VerifyCanConfigureViaEnvironmentVariable()
         {
-            string testLogDirectory = "C:\\Temp";
-            this.SetEnvironmentVariable(testLogDirectory);
+            try
+            {
+                string testLogDirectory = "C:\\Temp";
+                this.SetEnvironmentVariable(testLogDirectory);
 
-            IServiceCollection services = new ServiceCollection()
-                .AddSingleton<IHostingEnvironment>(new HostingEnvironment() { ContentRootPath = Directory.GetCurrentDirectory() })
-                .AddApplicationInsightsTelemetry();
+                IServiceCollection services = new ServiceCollection()
+                    .AddSingleton<IHostingEnvironment>(new HostingEnvironment() { ContentRootPath = Directory.GetCurrentDirectory() })
+                    .AddApplicationInsightsTelemetry();
 
-            IServiceProvider serviceProvider = services.BuildServiceProvider();
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
 
-            // Get telemetry client to trigger TelemetryConfig setup.
-            var tc = serviceProvider.GetService<TelemetryClient>();
+                // Get telemetry client to trigger TelemetryConfig setup.
+                var tc = serviceProvider.GetService<TelemetryClient>();
 
-            // Verify that Modules were added to DI.
-            var modules = serviceProvider.GetServices<ITelemetryModule>();
-            Assert.NotNull(modules);
+                // Verify that Modules were added to DI.
+                var modules = serviceProvider.GetServices<ITelemetryModule>();
+                Assert.NotNull(modules);
 
-            var diagnosticsTelemetryModule = modules.OfType<DiagnosticsTelemetryModule>().Single();
-            Assert.True(diagnosticsTelemetryModule.IsInitialized);
-            Assert.True(diagnosticsTelemetryModule.IsFileLogEnabled);
-            Assert.Equal(testLogDirectory, diagnosticsTelemetryModule.FileLogDirectory);
+                var diagnosticsTelemetryModule = modules.OfType<DiagnosticsTelemetryModule>().Single();
+                Assert.True(diagnosticsTelemetryModule.IsInitialized);
+                Assert.True(diagnosticsTelemetryModule.IsFileLogEnabled);
+                Assert.Equal(testLogDirectory, diagnosticsTelemetryModule.FileLogDirectory);
+            }
+            finally
+            {
+                PlatformSingleton.Current = null; // Force reinitialization in future tests so that new environment variables will be loaded.
+            }
         }
 
         [Theory]
@@ -95,37 +101,43 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensibility.Implement
             Assert.Equal(enableSelfDiagnosticsFileLogging, diagnosticsTelemetryModule.IsFileLogEnabled);
         }
 
-        [Fact]
+        [Fact(Skip = "This test works, but causes significant performance issues on the build server.")]
         public void VerifyEnvironmentVariableOverridesManualConfig()
         {
-            string testLogDirectory = "C:\\Temp";
-            this.SetEnvironmentVariable(testLogDirectory);
+            try
+            {
+                string testLogDirectory = "C:\\Temp";
+                this.SetEnvironmentVariable(testLogDirectory);
 
-            IServiceCollection services = new ServiceCollection()
-                .AddSingleton<IHostingEnvironment>(new HostingEnvironment() { ContentRootPath = Directory.GetCurrentDirectory() })
-                .AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
-                {
-                    EnableSelfDiagnosticsFileLogging = false
-                })
-                .ConfigureTelemetryModule<DiagnosticsTelemetryModule>((module, options) =>
-                {
-                    module.FileLogDirectory = "C:\\Temp2";
-                });
+                IServiceCollection services = new ServiceCollection()
+                    .AddSingleton<IHostingEnvironment>(new HostingEnvironment() { ContentRootPath = Directory.GetCurrentDirectory() })
+                    .AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
+                    {
+                        EnableSelfDiagnosticsFileLogging = false
+                    })
+                    .ConfigureTelemetryModule<DiagnosticsTelemetryModule>((module, options) =>
+                    {
+                        module.FileLogDirectory = "C:\\Temp2";
+                    });
 
-            IServiceProvider serviceProvider = services.BuildServiceProvider();
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
 
-            // Get telemetry client to trigger TelemetryConfig setup.
-            var tc = serviceProvider.GetService<TelemetryClient>();
+                // Get telemetry client to trigger TelemetryConfig setup.
+                var tc = serviceProvider.GetService<TelemetryClient>();
 
-            // Verify that Modules were added to DI.
-            var modules = serviceProvider.GetServices<ITelemetryModule>();
-            Assert.NotNull(modules);
+                // Verify that Modules were added to DI.
+                var modules = serviceProvider.GetServices<ITelemetryModule>();
+                Assert.NotNull(modules);
 
-            var diagnosticsTelemetryModule = modules.OfType<DiagnosticsTelemetryModule>().Single();
-            Assert.True(diagnosticsTelemetryModule.IsInitialized);
-            Assert.True(diagnosticsTelemetryModule.IsFileLogEnabled);
-            Assert.Equal(testLogDirectory, diagnosticsTelemetryModule.FileLogDirectory);
-
+                var diagnosticsTelemetryModule = modules.OfType<DiagnosticsTelemetryModule>().Single();
+                Assert.True(diagnosticsTelemetryModule.IsInitialized);
+                Assert.True(diagnosticsTelemetryModule.IsFileLogEnabled);
+                Assert.Equal(testLogDirectory, diagnosticsTelemetryModule.FileLogDirectory);
+            }
+            finally
+            {
+                PlatformSingleton.Current = null; // Force reinitialization in future tests so that new environment variables will be loaded.
+            }
         }
 
         [Theory]
@@ -168,83 +180,32 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensibility.Implement
             platform.SetEnvironmentVariable(DiagnosticsTelemetryModule.SelfDiagnosticsEnvironmentVariable, $"{SelfDiagnosticsProvider.KeyDestination}={SelfDiagnosticsProvider.ValueDestinationFile};{SelfDiagnosticsProvider.KeyFilePath}={logDirectory}");
             PlatformSingleton.Current = platform;
         }
-
-        public void Dispose()
-        {
-            PlatformSingleton.Current = null; // Force reinitialization in future tests so that new environment variables will be loaded.
-        }
     }
 
-
-    internal class StubDebugOutput : IDebugOutput
+    internal class FakeDebugOutput : IDebugOutput
     {
-        public Action<string> OnWriteLine = message => { };
-
-        public Func<bool> OnIsAttached = () => System.Diagnostics.Debugger.IsAttached;
-
         public void WriteLine(string message)
         {
-            this.OnWriteLine(message);
         }
 
-        public bool IsLogging()
-        {
-            return true;
-        }
+        public bool IsLogging() => false;
 
-        public bool IsAttached()
-        {
-            return this.OnIsAttached();
-        }
+        public bool IsAttached() => false;
     }
 
-    internal class StubPlatform : IPlatform
-    {
-        public Func<IDebugOutput> OnGetDebugOutput = () => new StubDebugOutput();
-        public Func<string> OnReadConfigurationXml = () => null;
-        public Func<string> OnGetMachineName = () => null;
-
-        public string ReadConfigurationXml()
-        {
-            return this.OnReadConfigurationXml();
-        }
-
-        public IDebugOutput GetDebugOutput()
-        {
-            return this.OnGetDebugOutput();
-        }
-
-        public virtual bool TryGetEnvironmentVariable(string name, out string value)
-        {
-            value = string.Empty;
-
-            try
-            {
-                value = Environment.GetEnvironmentVariable(name);
-                return !string.IsNullOrEmpty(value);
-            }
-            catch (Exception e)
-            {
-                CoreEventSource.Log.FailedToLoadEnvironmentVariables(e.ToString());
-            }
-
-            return false;
-        }
-
-        public string GetMachineName()
-        {
-            return this.OnGetMachineName();
-        }
-    }
-
-    internal class StubEnvironmentVariablePlatform : StubPlatform
+    internal class StubEnvironmentVariablePlatform : IPlatform
     {
         private readonly Dictionary<string, string> environmentVariables = new Dictionary<string, string>();
 
         public void SetEnvironmentVariable(string name, string value) => this.environmentVariables.Add(name, value);
 
-        public override bool TryGetEnvironmentVariable(string name, out string value) => this.environmentVariables.TryGetValue(name, out value);
+        public bool TryGetEnvironmentVariable(string name, out string value) => this.environmentVariables.TryGetValue(name, out value);
 
+        public string ReadConfigurationXml() => null;
+
+        public IDebugOutput GetDebugOutput() => new FakeDebugOutput();
+
+        public string GetMachineName() => nameof(SelfDiagnosticsConfigTests);
     }
 
     static class IConfigurationBuilderExtensions
