@@ -74,14 +74,11 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensibility.Implement
         [InlineData(false)]
         public void VerifyCanManuallyConfigure(bool enableSelfDiagnosticsFileLogging)
         {
-            // https://docs.microsoft.com/en-us/azure/azure-monitor/app/asp-net-core#configuring-or-removing-default-telemetrymodules
-
             IServiceCollection services = new ServiceCollection()
                 .AddSingleton<IHostingEnvironment>(new HostingEnvironment() { ContentRootPath = Directory.GetCurrentDirectory() })
-                .AddApplicationInsightsTelemetry()
-                .ConfigureTelemetryModule<DiagnosticsTelemetryModule>((module, options) =>
+                .AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
                 {
-                    module.IsFileLogEnabled = enableSelfDiagnosticsFileLogging;
+                    EnableSelfDiagnosticsFileLogging = enableSelfDiagnosticsFileLogging
                 });
 
             IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -106,10 +103,12 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensibility.Implement
 
             IServiceCollection services = new ServiceCollection()
                 .AddSingleton<IHostingEnvironment>(new HostingEnvironment() { ContentRootPath = Directory.GetCurrentDirectory() })
-                .AddApplicationInsightsTelemetry()
+                .AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
+                {
+                    EnableSelfDiagnosticsFileLogging = false
+                })
                 .ConfigureTelemetryModule<DiagnosticsTelemetryModule>((module, options) =>
                 {
-                    module.IsFileLogEnabled = false;
                     module.FileLogDirectory = "C:\\Temp2";
                 });
 
