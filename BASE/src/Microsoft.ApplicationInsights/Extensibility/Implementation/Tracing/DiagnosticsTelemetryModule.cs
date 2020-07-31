@@ -17,7 +17,7 @@
         internal const string SelfDiagnosticsEnvironmentVariable = "APPLICATIONINSIGHTS_SELF_DIAGNOSTICS";
 
         internal readonly IList<IDiagnosticsSender> Senders = new List<IDiagnosticsSender>();
-        internal FileDiagnosticsSender fileDiagnosticsSender;
+        internal readonly FileDiagnosticsSender FileDiagnosticsSender;
         internal readonly DiagnosticsListener EventListener;
         internal readonly IHeartbeatProvider HeartbeatProvider = null;
         
@@ -35,8 +35,8 @@
             // Adding a dummy queue sender to keep the data to be sent to the portal before the initialize method is called
             this.Senders.Add(new PortalDiagnosticsQueueSender());
 
-            this.fileDiagnosticsSender = new FileDiagnosticsSender();
-            this.Senders.Add(this.fileDiagnosticsSender);
+            this.FileDiagnosticsSender = new FileDiagnosticsSender();
+            this.Senders.Add(this.FileDiagnosticsSender);
 
             this.EventListener = new DiagnosticsListener(this.Senders);
 
@@ -59,16 +59,22 @@
             set => this.HeartbeatProvider.IsHeartbeatEnabled = value;
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether file logging is enabled.
+        /// </summary>
         public bool IsFileLogEnabled 
         {
-            get => this.fileDiagnosticsSender.Enabled;
-            set => this.fileDiagnosticsSender.Enabled = value;
+            get => this.FileDiagnosticsSender.Enabled;
+            set => this.FileDiagnosticsSender.Enabled = value;
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating the file logging directory.
+        /// </summary>
         public string FileLogDirectory
         {
-            get => this.fileDiagnosticsSender.LogDirectory;
-            set => this.fileDiagnosticsSender.LogDirectory = value;
+            get => this.FileDiagnosticsSender.LogDirectory;
+            set => this.FileDiagnosticsSender.LogDirectory = value;
         }
 
         /// <summary>

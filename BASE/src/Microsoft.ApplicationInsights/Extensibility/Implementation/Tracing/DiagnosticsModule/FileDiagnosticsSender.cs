@@ -11,11 +11,10 @@
     /// <summary>
     /// This sender works with the DiagnosticTelemetryModule. This will subscribe to events and output to a text file log.
     /// </summary>
-    internal class FileDiagnosticsSender : IDiagnosticsSender//, IDisposable
+    internal class FileDiagnosticsSender : IDiagnosticsSender
     {
-        private bool disposedValue;
         private string logFileName = FileHelper.GenerateFileName();
-        private string logDirectory = Environment.ExpandEnvironmentVariables("%TEMP%"); // "C:\\TEMP\\"; TODO: REVERT, THIS IS FOR TESTING ONLY
+        private string logDirectory = Environment.ExpandEnvironmentVariables("%TEMP%");
         private object lockObj = new object();
 
         public FileDiagnosticsSender()
@@ -39,7 +38,7 @@
         public bool Enabled { get; set; } = false; // TODO: NEED MORE PERFORMANT FILE WRITTER BEFORE ENABLING THIS BY DEFAULT
 
         /// <summary>
-        /// Gets the log file path.
+        /// Gets or sets the log file path.
         /// </summary>
         public string LogFilePath { get; set; }
 
@@ -83,24 +82,17 @@
             }
         }
 
-        //public void Dispose()
-        //{
-        //    this.Dispose(disposing: true);
-        //    GC.SuppressFinalize(this);
-        //}
+        private static void WriteFileHeader(string logFilePath)
+        {
+            string[] lines =
+            {
+                // this.SelfDiagnosticsConfig,
+                ".NET SDK version: " + SdkVersionUtils.GetSdkVersion(string.Empty),
+                string.Empty,
+            };
 
-        //protected virtual void Dispose(bool disposing)
-        //{
-        //    if (!this.disposedValue)
-        //    {
-        //        if (disposing)
-        //        {
-        //            this.defaultTraceListener.Dispose();
-        //        }
-
-        //        this.disposedValue = true;
-        //    }
-        //}
+            System.IO.File.WriteAllLines(logFilePath, lines);
+        }
 
         private bool SetAndValidateLogsFolder(string filePath, string fileName)
         {
@@ -118,11 +110,12 @@
 
                     // Set
                     this.LogFilePath = fullLogFileName;
+                    WriteFileHeader(fullLogFileName);
 
                     result = true;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // NotSupportedException: The given path's format is not supported
                 // UnauthorizedAccessException
@@ -138,18 +131,6 @@
             }
 
             return result;
-        }
-
-        private void WriteFileHeader(string logFilePath)
-        {
-            string[] lines =
-            {
-                // this.SelfDiagnosticsConfig,
-                ".NET SDK version: " + SdkVersionUtils.GetSdkVersion(string.Empty),
-                string.Empty,
-            };
-
-            System.IO.File.WriteAllLines(logFilePath, lines);
         }
     }
 }
