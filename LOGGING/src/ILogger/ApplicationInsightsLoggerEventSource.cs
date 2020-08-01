@@ -13,7 +13,7 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
     /// <summary>
     /// EventSource for reporting errors and warnings from Logging module.
     /// </summary>
-    [EventSource(Name = "Microsoft-ApplicationInsights-Logger-EventSourceListener")]
+    [EventSource(Name = "Microsoft-ApplicationInsights-LoggerProvider")]
     internal sealed class ApplicationInsightsLoggerEventSource : EventSource
     {
         public static readonly ApplicationInsightsLoggerEventSource Log = new ApplicationInsightsLoggerEventSource();
