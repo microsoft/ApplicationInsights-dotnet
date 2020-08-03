@@ -13,9 +13,10 @@
     /// </summary>
     internal class FileDiagnosticsSender : IDiagnosticsSender
     {
-        private string logFileName = FileHelper.GenerateFileName();
+        private readonly object lockObj = new object();
+        private readonly string logFileName = FileHelper.GenerateFileName();
+
         private string logDirectory = Environment.ExpandEnvironmentVariables("%TEMP%");
-        private object lockObj = new object();
         private bool isEnabled = false; // TODO: NEED MORE PERFORMANT FILE WRITTER BEFORE ENABLING THIS BY DEFAULT
 
         public FileDiagnosticsSender()
@@ -28,15 +29,9 @@
             get => this.logDirectory;
             set
             {
-                if (this.isEnabled)
+                if (this.isEnabled && !this.IsSetByEnvironmentVariable && this.SetAndValidateLogsFolder(value, this.logFileName))
                 {
-                    return;
-                }
-
-                string expandedPath = Environment.ExpandEnvironmentVariables(value);
-                if (this.SetAndValidateLogsFolder(expandedPath, this.logFileName))
-                {
-                    this.logDirectory = expandedPath;
+                    this.logDirectory = value;
                 }
             }
         }
@@ -48,16 +43,16 @@
         }
 
         /// <summary>
-        /// Gets or sets the log file path.
-        /// </summary>
-        public string LogFilePath { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether this class was configured via Environment Variable.
         /// If this class is set by the environment variable, lock the other properties to prevent TelemetryConfigurationFactory or customer code from overriding.
         /// We are enabling SysAdmins or DevOps to be able to override this behavior via Environment Variable.
         /// </summary>
         internal bool IsSetByEnvironmentVariable { get; set; }
+
+        /// <summary>
+        /// Gets or sets the log file path.
+        /// </summary>
+        private string LogFilePath { get; set; }
 
         /// <summary>
         /// Write a trace to file.
@@ -111,18 +106,19 @@
             System.IO.File.WriteAllLines(logFilePath, lines);
         }
 
-        private bool SetAndValidateLogsFolder(string filePath, string fileName)
+        private bool SetAndValidateLogsFolder(string fileDirectory, string fileName)
         {
             bool result = false;
             try
             {
-                if (!string.IsNullOrWhiteSpace(filePath) && !string.IsNullOrWhiteSpace(fileName))
+                if (!string.IsNullOrWhiteSpace(fileDirectory) && !string.IsNullOrWhiteSpace(fileName))
                 {
                     // Validate
-                    var logsDirectory = new DirectoryInfo(filePath);
+                    string expandedDirectory = Environment.ExpandEnvironmentVariables(fileDirectory);
+                    var logsDirectory = new DirectoryInfo(expandedDirectory);
                     FileHelper.TestDirectoryPermissions(logsDirectory);
 
-                    string fullLogFileName = Path.Combine(filePath, fileName);
+                    string fullLogFileName = Path.Combine(expandedDirectory, fileName);
 
                     // Set
                     this.LogFilePath = fullLogFileName;

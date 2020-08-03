@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
     using Microsoft.ApplicationInsights.Extensibility;
@@ -29,7 +28,6 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="DiagnosticsTelemetryModule"/> class. 
         /// </summary>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "All senders are disposed in the Dispose method.")]
         public DiagnosticsTelemetryModule()
         {
             // Adding a dummy queue sender to keep the data to be sent to the portal before the initialize method is called
@@ -255,7 +253,6 @@
             GC.SuppressFinalize(this);
         }
 
-        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "We want objects created in this method to live for the life of the application.")]
         internal void EvaluateSelfDiagnosticsConfig()
         {
             try
