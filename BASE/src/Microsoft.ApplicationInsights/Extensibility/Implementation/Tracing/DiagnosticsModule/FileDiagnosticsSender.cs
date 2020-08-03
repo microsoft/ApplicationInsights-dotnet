@@ -54,7 +54,7 @@
 
         /// <summary>
         /// Gets or sets a value indicating whether this class was configured via Environment Variable.
-        /// If this class is sent by the environment variable, lock the other properties to prevent TelemetryConfigurationFactory or customer code from overriding.
+        /// If this class is set by the environment variable, lock the other properties to prevent TelemetryConfigurationFactory or customer code from overriding.
         /// We are enabling SysAdmins or DevOps to be able to override this behavior via Environment Variable.
         /// </summary>
         internal bool IsSetByEnvironmentVariable { get; set; }

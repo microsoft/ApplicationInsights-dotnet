@@ -262,12 +262,10 @@
             {
                 if (PlatformSingleton.Current.TryGetEnvironmentVariable(SelfDiagnosticsEnvironmentVariable, out string selfDiagnosticsConfigurationString))
                 {
-                    var keyValuePairs = SelfDiagnosticsProvider.ParseConfigurationString(selfDiagnosticsConfigurationString);
-                    if (SelfDiagnosticsProvider.IsFileDiagnostics(keyValuePairs, out string path, out string level))
+                    if (SelfDiagnosticsProvider.IsFileDiagnosticsEnabled(selfDiagnosticsConfigurationString, out string directory, out string level))
                     {
                         this.Severity = level;
-
-                        this.FileLogDirectory = path;
+                        this.FileLogDirectory = directory;
                         this.IsFileLogEnabled = true;
                         this.FileDiagnosticsSender.IsSetByEnvironmentVariable = true;
                     }

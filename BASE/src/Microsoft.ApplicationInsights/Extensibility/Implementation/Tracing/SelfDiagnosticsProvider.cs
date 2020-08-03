@@ -13,10 +13,10 @@
     internal class SelfDiagnosticsProvider
     {
         internal const string KeyDestination = "Destination";
-        internal const string KeyFilePath = "Directory";
+        internal const string KeyDirectory = "Directory";
         internal const string KeyLevel = "Level";
-        internal const string ValueDestinationFile = "file";
-        internal const string DefaultFilePath = "%TEMP%";
+        internal const string ValueFile = "file";
+        internal const string DefaultDirectory = "%TEMP%";
         internal const string DefaultLevel = "Verbose";
 
         /// <summary>
@@ -50,24 +50,25 @@
         }
 
         /// <summary>
-        /// Evaluates if the key-value pairs specifies writing to file. If so, parses and returns params.
+        /// Evaluates a configuration string to determine if file logging was enabled. 
         /// </summary>
-        /// <param name="keyValuePairs">The key-value pairs from the config string.</param>
-        /// <param name="path">File directory for logging.</param>
+        /// <param name="configurationString">The key-value pairs from the config string.</param>
+        /// <param name="directory">File directory for logging.</param>
         /// <param name="level">Log level.</param>
         /// <returns>Returns true if file has been specified in config string.</returns>
-        internal static bool IsFileDiagnostics(IDictionary<string, string> keyValuePairs, out string path, out string level)
+        internal static bool IsFileDiagnosticsEnabled(string configurationString, out string directory, out string level)
         {
-            if (keyValuePairs[KeyDestination].Equals(ValueDestinationFile, StringComparison.OrdinalIgnoreCase))
-            {
-                TryGetValueWithDefault(keyValuePairs, key: KeyFilePath, defaultValue: DefaultFilePath, value: out path);
-                TryGetValueWithDefault(keyValuePairs, key: KeyLevel, defaultValue: DefaultLevel, value: out level);
+            var keyValuePairs = ParseConfigurationString(configurationString);
 
+            if (keyValuePairs[KeyDestination].Equals(ValueFile, StringComparison.OrdinalIgnoreCase))
+            {
+                TryGetValueWithDefault(keyValuePairs, key: KeyDirectory, defaultValue: DefaultDirectory, value: out directory);
+                TryGetValueWithDefault(keyValuePairs, key: KeyLevel, defaultValue: DefaultLevel, value: out level);
                 return true;
             }
             else
             {
-                path = level = null;
+                directory = level = null;
                 return false;
             }
         }
