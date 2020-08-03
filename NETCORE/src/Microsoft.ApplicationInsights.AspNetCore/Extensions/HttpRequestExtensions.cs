@@ -33,6 +33,7 @@
                     request.Scheme,
                     "://",
                     request.Host.HasValue ? (request.Host.Value.IndexOf(Comma, StringComparison.Ordinal) > 0 ? MultipleHostName : request.Host.Value) : UnknownHostName,
+                    request.PathBase.HasValue ? request.PathBase.Value : string.Empty,
                     request.Path.HasValue ? request.Path.Value : string.Empty,
                     request.QueryString.HasValue ? request.QueryString.Value : string.Empty));
         }
