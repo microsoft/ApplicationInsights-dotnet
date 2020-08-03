@@ -13,6 +13,7 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
     using System.Text;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// Application insights logger implementation for <see cref="ILogger"/>.
@@ -83,33 +84,40 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
                 throw new ArgumentNullException(nameof(formatter));
             }
 
-            if (this.IsEnabled(logLevel))
+            try
             {
-                if (exception == null || !this.applicationInsightsLoggerOptions.TrackExceptionsAsExceptionTelemetry)
+                if (this.IsEnabled(logLevel))
                 {
-                    TraceTelemetry traceTelemetry = new TraceTelemetry(
-                        formatter(state, exception),
-                        ApplicationInsightsLogger.GetSeverityLevel(logLevel));
-                    this.PopulateTelemetry(traceTelemetry, state, eventId);
-                    if (exception != null)
+                    if (exception == null || !this.applicationInsightsLoggerOptions.TrackExceptionsAsExceptionTelemetry)
                     {
-                        traceTelemetry.Properties.Add("ExceptionMessage", exception.Message);
+                        TraceTelemetry traceTelemetry = new TraceTelemetry(
+                            formatter(state, exception),
+                            ApplicationInsightsLogger.GetSeverityLevel(logLevel));
+                        this.PopulateTelemetry(traceTelemetry, state, eventId);
+                        if (exception != null)
+                        {
+                            traceTelemetry.Properties.Add("ExceptionMessage", exception.Message);
+                        }
+
+                        this.telemetryClient.TrackTrace(traceTelemetry);
                     }
-
-                    this.telemetryClient.TrackTrace(traceTelemetry);
-                }
-                else
-                {
-                    ExceptionTelemetry exceptionTelemetry = new ExceptionTelemetry(exception)
+                    else
                     {
-                        Message = exception.Message,
-                        SeverityLevel = ApplicationInsightsLogger.GetSeverityLevel(logLevel),
-                    };
+                        ExceptionTelemetry exceptionTelemetry = new ExceptionTelemetry(exception)
+                        {
+                            Message = exception.Message,
+                            SeverityLevel = ApplicationInsightsLogger.GetSeverityLevel(logLevel),
+                        };
 
-                    exceptionTelemetry.Properties.Add("FormattedMessage", formatter(state, exception));
-                    this.PopulateTelemetry(exceptionTelemetry, state, eventId);
-                    this.telemetryClient.TrackException(exceptionTelemetry);
+                        exceptionTelemetry.Properties.Add("FormattedMessage", formatter(state, exception));
+                        this.PopulateTelemetry(exceptionTelemetry, state, eventId);
+                        this.telemetryClient.TrackException(exceptionTelemetry);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                ApplicationInsightsLoggerEventSource.Log.FailedToLog(ex.ToInvariantString());
             }
         }
 
