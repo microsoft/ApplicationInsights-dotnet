@@ -6,6 +6,8 @@
 - [Remove legacy TelemetryConfiguration.Active from AspNetCore SDK](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1953)
 - [Refactor AspNetCore and WorkerService use of Heartbeat (DiagnosticTelemetryModule)](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1954)
 - [Fix broken correlation and missing in-proc dependency Azure Blob SDK v12](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1915)
+- [Fix Heartbeat interval not applied until after first heartbeat](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1298)
+- [Fix: ApplicationInsightsLoggerProvider does not catch exceptions](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1969)
 - [Ingestion service data delivery status](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1887)
 
 ## Version 2.15.0-beta2
