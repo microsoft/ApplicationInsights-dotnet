@@ -24,7 +24,7 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
             this.ApplicationName = GetApplicationName();
         }
 
-        [Event(1, Message = "Writing an entry to log has failed. Error: {0}", Level = EventLevel.Error)]
+        [Event(1, Message = "Sending log to ApplicationInsightsLoggerProvider has failed. Error: {0}", Level = EventLevel.Error)]
         public void FailedToLog(string error, string applicationName = null) => this.WriteEvent(1, error, applicationName ?? this.ApplicationName);
 
         [NonEvent]
