@@ -126,11 +126,7 @@
         /// </summary>
         public string DiagnosticsInstrumentationKey
         {
-            get
-            {
-                return this.instrumentationKey;
-            }
-
+            get => this.instrumentationKey;
             set
             {
                 if (!string.IsNullOrEmpty(value))

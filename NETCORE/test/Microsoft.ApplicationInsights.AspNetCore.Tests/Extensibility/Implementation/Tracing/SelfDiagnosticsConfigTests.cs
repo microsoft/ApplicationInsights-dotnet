@@ -177,7 +177,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensibility.Implement
         private void SetEnvironmentVariable(string logDirectory)
         {
             var platform = new StubEnvironmentVariablePlatform();
-            platform.SetEnvironmentVariable(DiagnosticsTelemetryModule.SelfDiagnosticsEnvironmentVariable, $"{SelfDiagnosticsProvider.KeyDestination}={SelfDiagnosticsProvider.ValueDestinationFile};{SelfDiagnosticsProvider.KeyFilePath}={logDirectory}");
+            platform.SetEnvironmentVariable(DiagnosticsTelemetryModule.SelfDiagnosticsEnvironmentVariable, $"{SelfDiagnosticsProvider.KeyDestination}={SelfDiagnosticsProvider.ValueFile};{SelfDiagnosticsProvider.KeyDirectory}={logDirectory}");
             PlatformSingleton.Current = platform;
         }
     }
