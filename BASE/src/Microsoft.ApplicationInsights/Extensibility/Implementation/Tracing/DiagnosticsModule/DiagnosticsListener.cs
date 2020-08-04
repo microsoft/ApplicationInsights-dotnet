@@ -10,7 +10,7 @@
     internal class DiagnosticsListener : IDisposable
     {
         private readonly IList<IDiagnosticsSender> diagnosticsSenders = new List<IDiagnosticsSender>();
-        private EventLevel logLevel = EventLevel.Verbose; // TODO: REVERT WHEN FINISHED TESTING
+        private EventLevel logLevel = EventLevel.Error;
         private DiagnosticsEventListener eventListener;
 
         public DiagnosticsListener(IList<IDiagnosticsSender> senders)

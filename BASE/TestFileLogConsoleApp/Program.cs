@@ -34,7 +34,8 @@ namespace TestFileLogConsoleApp
             TelemetryModules.Instance.Modules.Add(old);
 
             var dtm = TelemetryModules.Instance.Modules.OfType<DiagnosticsTelemetryModule>().Single();
-
+            dtm.IsFileLogEnabled = true;
+            dtm.Severity = "Verbose";
 
             var client = new TelemetryClient(config);
 
@@ -44,7 +45,7 @@ namespace TestFileLogConsoleApp
             Thread.Sleep(10000);
 
 
-            var test = Console.ReadKey();
+            _ = Console.ReadKey();
         }
     }
 }
