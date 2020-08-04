@@ -29,7 +29,7 @@
             get => this.logDirectory;
             set
             {
-                if (this.isEnabled && !this.IsSetByEnvironmentVariable && this.SetAndValidateLogsFolder(value, this.logFileName))
+                if (!this.IsSetByEnvironmentVariable && this.SetAndValidateLogsFolder(value, this.logFileName))
                 {
                     this.logDirectory = value;
                 }

@@ -22,7 +22,6 @@
             PlatformSingleton.Current = null; // Force reinitialization in future tests so that new environment variables will be loaded.
         }
 
-
         [TestMethod]
         public void VerifyConfigCanStillSetFileDiagnosticsModule()
         {

@@ -3,17 +3,13 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
-    using System.Diagnostics.Tracing;
     using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
     using System.Xml.Linq;
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsModule;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
+
     [TestClass]
     public class DiagnosticsTelemetryModuleSelfDiagnosticsTests
     {
