@@ -122,6 +122,7 @@ namespace FunctionalTests.WebApi.Tests.FunctionalTest
             }
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         [Fact]
         public void ActiveConfigurationIsNotCorruptedAfterWebHostIsDisposed()
         {
@@ -134,14 +135,7 @@ namespace FunctionalTests.WebApi.Tests.FunctionalTest
             }
 
             // Active config could be used multiple times in the same process before this test
-            // let's reassign it
-
             TelemetryConfiguration.Active.Dispose();
-            MethodInfo setActive =
-                typeof(TelemetryConfiguration).GetMethod("set_Active", BindingFlags.Static | BindingFlags.NonPublic);
-            setActive.Invoke(null, new object[] { TelemetryConfiguration.CreateDefault() });
-
-            var activeConfig = TelemetryConfiguration.Active;
 
             using (var server = new InProcessServer(assemblyName, this.output, builder =>
             {
@@ -149,10 +143,15 @@ namespace FunctionalTests.WebApi.Tests.FunctionalTest
                     services =>
                     {
                         services.AddApplicationInsightsTelemetry(
-                            o => o.EnableActiveTelemetryConfigurationSetup = true);
+                            o => {
+                                o.InstrumentationKey = "testIkey";
+                                o.EnableActiveTelemetryConfigurationSetup = true;
+                                }
+                            );
                     });
             }))
             {
+                var activeConfig = TelemetryConfiguration.Active;
                 this.ExecuteRequest(server.BaseHost + requestPath);
 
                 server.DisposeHost();
@@ -161,14 +160,15 @@ namespace FunctionalTests.WebApi.Tests.FunctionalTest
                 var telemetryClient = new TelemetryClient(activeConfig);
                 telemetryClient.TrackTrace("some message after web host is disposed");
 
-                var message = server.Listener.ReceiveItemsOfType<TelemetryItem<MessageData>>(1, TestListenerTimeoutInMs);
-                Assert.Single(message);
+                var messages = server.Listener.ReceiveItemsOfType<TelemetryItem<MessageData>>(1, TestListenerTimeoutInMs);
+                Assert.Single(messages);
 
-                this.output.WriteLine(((TelemetryItem<MessageData>)message.Single()).data.baseData.message);
-
-                Assert.Equal("some message after web host is disposed", ((TelemetryItem<MessageData>)message.Single()).data.baseData.message);
+                var message = ((TelemetryItem<MessageData>)messages.Single()).data.baseData.message;
+                this.output.WriteLine(message);
+                Assert.Equal("some message after web host is disposed", message);
             }
         }
+#pragma warning restore CS0618 // Type or member is obsolete
 
         private bool IsServiceDependencyCall(Envelope item)
         {
