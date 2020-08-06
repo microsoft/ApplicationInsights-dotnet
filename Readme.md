@@ -14,7 +14,7 @@ Please review our How-to guides to review which packages are appropriate for you
 
 ### Understanding our SDK
 
-We've gathered a list of concepts, code examples, and links to full guides [here](.docs/concepts.md).
+We've gathered a list of concepts, code examples, and links to full guides [here](docs/concepts.md).
 
 ## Contributing
 
