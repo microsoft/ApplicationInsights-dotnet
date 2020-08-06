@@ -10,6 +10,9 @@
 
     using static System.FormattableString;
 
+    /// <summary>
+    /// This class contains helper methods that can be shared across file loggers.
+    /// </summary>
     internal static class FileHelper
     {
         private static string identityName = null;

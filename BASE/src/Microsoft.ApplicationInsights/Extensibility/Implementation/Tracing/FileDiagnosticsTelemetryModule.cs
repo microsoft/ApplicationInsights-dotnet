@@ -16,7 +16,7 @@
     {
         private readonly TraceSourceForEventSource traceSource = new TraceSourceForEventSource(EventLevel.Error);
         private readonly DefaultTraceListener listener = new DefaultTraceListener();
-        
+
         private string logFileName;
         private string logFilePath;
 
@@ -82,7 +82,7 @@
 
             set
             {
-                string expandedPath = Environment.ExpandEnvironmentVariables(value);                
+                string expandedPath = Environment.ExpandEnvironmentVariables(value);
                 if (this.SetAndValidateLogsFolder(expandedPath, this.logFileName))
                 {
                     this.logFilePath = expandedPath;
@@ -96,7 +96,7 @@
         /// <param name="configuration">Telemetry configuration object.</param>
         public void Initialize(TelemetryConfiguration configuration)
         {
-        }        
+        }
 
         /// <summary>
         /// Disposes event listener.
