@@ -12,11 +12,16 @@
     /// <summary>
     /// This sender works with the DiagnosticTelemetryModule. This will subscribe to events and output to a text file log.
     /// </summary>
-    internal class FileDiagnosticsSender2 : IDiagnosticsSender, IDisposable
+    public class FileDiagnosticsSender2 : IDiagnosticsSender, IDisposable
     {
+        public int dequeueInvokedCount = 0;
+
         private readonly string logFileName = FileHelper.GenerateFileName();
         private readonly ConcurrentQueue<string> queue = new ConcurrentQueue<string>();
-        private readonly TimeSpan dequeueInterval = TimeSpan.FromSeconds(30.0);
+        private readonly TimeSpan dequeueInterval = TimeSpan.FromMilliseconds(500);
+
+        // This is set to zero to prevent the timer from re-initializing itself.
+        private readonly TimeSpan dequeuePeriod = TimeSpan.FromMilliseconds(0);
 
         private Timer dequeueTimer;
 
@@ -25,9 +30,10 @@
 
         public FileDiagnosticsSender2()
         {
+            //this.logFileName = FileHelper.GenerateFileName();
             this.SetAndValidateLogsFolder(this.LogDirectory, this.logFileName);
             this.dequeueTimer = new Timer(new TimerCallback(this.Dequeue));
-            this.dequeueTimer.Change(this.dequeueInterval, TimeSpan.FromMilliseconds(0));
+            this.dequeueTimer.Change(this.dequeueInterval, this.dequeuePeriod);
         }
 
         public string LogDirectory 
@@ -68,7 +74,15 @@
         {
             if (this.Enabled)
             {
-                this.queue.Enqueue(Invariant($"{DateTime.UtcNow.ToInvariantString("o")}: {eventData.MetaData.Level}: {eventData}"));
+                this.Send(Invariant($"{DateTime.UtcNow.ToInvariantString("o")}: {eventData.MetaData.Level}: {eventData}"));
+            }
+        }
+
+        public void Send(string message)
+        {
+            if (this.Enabled)
+            {
+                this.queue.Enqueue(message);
             }
         }
 
@@ -125,6 +139,7 @@
 
         private void Dequeue(object state)
         {
+            dequeueInvokedCount++;
             // TODO: STOP TIMER. I think it auto stops, but need to test and confirm.
 
             if (!this.queue.IsEmpty)
@@ -132,7 +147,7 @@
                 try
                 {
                     FileInfo file = new FileInfo(this.LogFilePath);
-                    using (Stream stream = file.Open(FileMode.Append))
+                    using (Stream stream = file.Open(mode: FileMode.Append, access: FileAccess.Write))
                     using (StreamWriter writer = new StreamWriter(stream))
                     {
                         //stream.Position = stream.Length; // I think this is unnecessary if using FileMode.Append
@@ -150,6 +165,13 @@
             }
 
             // TODO: RESET TIMER
+            this.dequeueTimer.Change(this.dequeueInterval, this.dequeuePeriod);
+        }
+
+        public void Flush()
+        {
+            this.dequeueTimer.Change(dueTime: Timeout.Infinite, period: Timeout.Infinite);
+            this.Dequeue(null);
         }
 
         public void Dispose()

@@ -51,7 +51,7 @@
         public static string GenerateFileName()
         {
             var process = Process.GetCurrentProcess();
-            return Invariant($"ApplicationInsightsLog_{DateTime.UtcNow.ToInvariantString("yyyyMMdd_HHmmss")}_{process.ProcessName}_{process.Id}.txt");
+            return Invariant($"ApplicationInsightsLog_{DateTime.UtcNow.ToInvariantString("yyyyMMdd_HHmmssfff")}_{process.ProcessName}_{process.Id}.txt");
         }
 
         /// <summary>

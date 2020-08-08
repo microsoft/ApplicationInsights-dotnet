@@ -7,7 +7,7 @@
     /// Event Source event wrapper.
     /// Contains description information for trace event.
     /// </summary>
-    internal class TraceEvent
+    public class TraceEvent
     {
         /// <summary>
         /// Prefix for user-actionable traces.

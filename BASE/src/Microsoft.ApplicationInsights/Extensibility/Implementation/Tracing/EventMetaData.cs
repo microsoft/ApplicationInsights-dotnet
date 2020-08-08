@@ -5,7 +5,7 @@
     /// <summary>
     /// Event metadata from event source method attribute.
     /// </summary>
-    internal class EventMetaData
+    public class EventMetaData
     {
         public string EventSourceName { get; set; }
 

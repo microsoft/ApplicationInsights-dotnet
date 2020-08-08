@@ -11,7 +11,7 @@
     /// <summary>
     /// This sender works with the DiagnosticTelemetryModule. This will subscribe to events and output to a text file log.
     /// </summary>
-    internal class FileDiagnosticsSender : IDiagnosticsSender
+    public class FileDiagnosticsSender : IDiagnosticsSender
     {
         private readonly object lockObj = new object();
         private readonly string logFileName = FileHelper.GenerateFileName();
@@ -62,6 +62,15 @@
         {
             if (this.Enabled)
             {
+                var message = Invariant($"{DateTime.UtcNow.ToInvariantString("o")}: {eventData.MetaData.Level}: {eventData}");
+                this.Send(message);
+            }
+        }
+
+        public void Send(string message)
+        {
+            if (this.Enabled)
+            {
                 // We previously depended on the DefaultTraceListener for writing to file. 
                 // This has some overhead, but the path we were utilizing calls a lock and uses a StreamWriter.
                 // I've copied the implementation below, but this should be replaced to be more performant.
@@ -70,7 +79,6 @@
                 // https://referencesource.microsoft.com/#System/compmod/system/diagnostics/TraceListener.cs,409
                 // https://referencesource.microsoft.com/#System/compmod/system/diagnostics/DefaultTraceListener.cs,131
 
-                var message = Invariant($"{DateTime.UtcNow.ToInvariantString("o")}: {eventData.MetaData.Level}: {eventData}");
 
                 lock (this.lockObj)
                 {
