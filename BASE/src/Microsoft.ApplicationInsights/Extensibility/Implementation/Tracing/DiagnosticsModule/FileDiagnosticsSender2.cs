@@ -137,10 +137,13 @@
             return result;
         }
 
+        /// <summary>
+        /// When the timer ticks, this method will dequeue all items and then restart the timer.
+        /// </summary>
+        /// <param name="state"></param>
         private void Dequeue(object state)
         {
             dequeueInvokedCount++;
-            // TODO: STOP TIMER. I think it auto stops, but need to test and confirm.
 
             if (!this.queue.IsEmpty)
             {
@@ -164,7 +167,7 @@
                 }
             }
 
-            // TODO: RESET TIMER
+            // Reset Timer
             this.dequeueTimer.Change(this.dequeueInterval, this.dequeuePeriod);
         }
 
