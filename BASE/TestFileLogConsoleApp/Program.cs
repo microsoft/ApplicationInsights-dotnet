@@ -139,7 +139,7 @@ namespace TestFileLogConsoleApp
             sender2.Flush();
             stopwatch.Stop();
 
-            Console.WriteLine($"Two - MultiThread - Time elapsed: {stopwatch.Elapsed.TotalMilliseconds}ms; Timer invoked {sender2.dequeueInvokedCount} times.");
+            Console.WriteLine($"Two - SingleThread - Time elapsed: {stopwatch.Elapsed.TotalMilliseconds}ms; Timer invoked {sender2.dequeueInvokedCount} times.");
         }
 
         private static void TwoMultiThread()
