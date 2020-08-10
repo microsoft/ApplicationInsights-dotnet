@@ -116,7 +116,7 @@
         }
 
         /// <summary>
-        /// Deserializes and decompress the telemetry items into a JSON string.
+        /// Deserializes and decompress the telemetry items into a JSON string. Empty lines are omitted.
         /// </summary>
         /// <param name="telemetryItemsData">Serialized telemetry items.</param>
         /// <param name="compress">Should deserialization also perform decompression.</param>
@@ -133,6 +133,7 @@
 
                     while (line != null)
                     {
+                        // this IF filters out empty lines.
                         if (line.Length != 0)
                         {
                             yield return line;

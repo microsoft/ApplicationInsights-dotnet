@@ -2,7 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Drawing.Imaging;
     using System.IO;
+    using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -85,10 +87,9 @@
             else
             {
                 bool compress = this.ContentEncoding == JsonSerializer.CompressionType;
-                string[] payloadItems = JsonSerializer
-                    .Deserialize(this.Content, compress)
-                    .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                return payloadItems.Length;
+
+                var payloadItems = JsonSerializer.DeserializeToStrings(this.Content, compress);
+                return payloadItems.Count();
             }
         }
     }

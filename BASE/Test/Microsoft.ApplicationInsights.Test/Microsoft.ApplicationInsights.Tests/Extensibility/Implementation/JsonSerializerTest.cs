@@ -6,8 +6,10 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
-    using System;    
+    using System;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Text;
 
     /// <summary>
@@ -83,12 +85,24 @@
         }
 
         [TestMethod]
-        public void IfCallConvertToArrayAndThanDeserializeYouGetSameResult()
+        public void VerifySerializeAndDeserialize()
         {
             byte[] array = JsonSerializer.ConvertToByteArray("test");
-            string result = JsonSerializer.Deserialize(array);
+            var result = new List<string>(JsonSerializer.DeserializeToStrings(array));
 
-            Assert.AreEqual("test", result);
+            Assert.AreEqual(1, result.Count());
+            Assert.AreEqual("test", result[0]);
+        }
+
+        [TestMethod]
+        public void VerifySerializeAndDeserializeHandlesEmptyString()
+        {
+            byte[] array = JsonSerializer.ConvertToByteArray("test1\n\n\ntest2");
+            var result = new List<string>(JsonSerializer.DeserializeToStrings(array));
+
+            Assert.AreEqual(2, result.Count());
+            Assert.AreEqual("test1", result[0]);
+            Assert.AreEqual("test2", result[1]);
         }
 
         [TestMethod]

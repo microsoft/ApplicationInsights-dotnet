@@ -138,11 +138,9 @@
 
             transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
 
-            string[] newItems = JsonSerializer
-                .Deserialize(enqueuedTransmissions[0].Content)
-                .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            var newItems = new List<string>(JsonSerializer.DeserializeToStrings(enqueuedTransmissions[0].Content));
 
-            Assert.AreEqual(2, newItems.Length);
+            Assert.AreEqual(2, newItems.Count);
             Assert.IsTrue(newItems[0].Contains("\"name\":\"1\""));
             Assert.IsTrue(newItems[1].Contains("\"name\":\"2\""));
         }
