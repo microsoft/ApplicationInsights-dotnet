@@ -1,1 +1,2 @@
 Microsoft.ApplicationInsights.TelemetryClient.TelemetryConfiguration.get -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
+static Microsoft.ApplicationInsights.Extensibility.Implementation.JsonSerializer.DeserializeToStrings(byte[] telemetryItemsData, bool compress = true) -> System.Collections.Generic.IEnumerable<string>

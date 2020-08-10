@@ -99,6 +99,7 @@
         /// <param name="telemetryItemsData">Serialized telemetry items.</param>
         /// <param name="compress">Should deserialization also perform decompression.</param>
         /// <returns>Telemetry items serialized as a string.</returns>
+        [Obsolete("Use DeserializeToStrings() instead.")]
         public static string Deserialize(byte[] telemetryItemsData, bool compress = true)
         {
             var memoryStream = new MemoryStream(telemetryItemsData);
@@ -110,6 +111,35 @@
                     decompressedStream.CopyTo(str);
                     byte[] output = str.ToArray();
                     return Encoding.UTF8.GetString(output, 0, output.Length);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Deserializes and decompress the telemetry items into a JSON string.
+        /// </summary>
+        /// <param name="telemetryItemsData">Serialized telemetry items.</param>
+        /// <param name="compress">Should deserialization also perform decompression.</param>
+        /// <returns>Telemetry items serialized as a string.</returns>
+        public static IEnumerable<string> DeserializeToStrings(byte[] telemetryItemsData, bool compress = true)
+        {
+            var memoryStream = new MemoryStream(telemetryItemsData);
+
+            using (Stream decompressedStream = compress ? (Stream)new GZipStream(memoryStream, CompressionMode.Decompress) : memoryStream)
+            {
+                using (StreamReader reader = new StreamReader(decompressedStream))
+                {
+                    string line = reader.ReadLine();
+
+                    while (line != null)
+                    {
+                        if (line.Length != 0)
+                        {
+                            yield return line;
+                        }
+
+                        line = reader.ReadLine();
+                    }
                 }
             }
         }

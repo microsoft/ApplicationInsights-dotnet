@@ -279,17 +279,17 @@
             {
                 // We have to decode the payload in order to split
                 bool compress = this.ContentEncoding == JsonSerializer.CompressionType;
-                string[] payloadItems = JsonSerializer
-                    .Deserialize(this.Content, compress)
-                    .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                int numItems = calculateLength(payloadItems.Length);
 
-                if (numItems != payloadItems.Length)
+                List<string> payloadItems = new List<string>(JsonSerializer.DeserializeToStrings(this.Content, compress));
+
+                int numItems = calculateLength(payloadItems.Count);
+
+                if (numItems != payloadItems.Count)
                 {
                     string itemsA = string.Empty;
                     string itemsB = string.Empty;
 
-                    for (int i = 0; i < payloadItems.Length; i++)
+                    for (int i = 0; i < payloadItems.Count; i++)
                     {
                         if (i < numItems)
                         {

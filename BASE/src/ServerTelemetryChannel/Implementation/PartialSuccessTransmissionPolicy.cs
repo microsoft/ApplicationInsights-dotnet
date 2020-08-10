@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Channel.Implementation;
@@ -48,17 +49,15 @@
             string newTransmissions = null;
             if (backendResponse.ItemsAccepted != backendResponse.ItemsReceived)
             {
-                string[] items = JsonSerializer
-                    .Deserialize(initialTransmission.Content)
-                    .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                List<string> items = new List<string>(JsonSerializer.DeserializeToStrings(initialTransmission.Content));
 
                 foreach (var error in backendResponse.Errors)
                 {
                     if (error != null)
                     {
-                        if (error.Index >= items.Length || error.Index < 0)
+                        if (error.Index >= items.Count || error.Index < 0)
                         {
-                            TelemetryChannelEventSource.Log.UnexpectedBreezeResponseWarning(items.Length, error.Index);
+                            TelemetryChannelEventSource.Log.UnexpectedBreezeResponseWarning(items.Count, error.Index);
                             continue;
                         }
 
@@ -93,7 +92,7 @@
         {
             if (args.Exception == null && (args.Response == null || args.Response.StatusCode == ResponseStatusCodes.Success))
             {
-                // We successfully sent transmittion
+                // We successfully sent transmission
                 this.backoffLogicManager.ResetConsecutiveErrors();
                 return;
             }
