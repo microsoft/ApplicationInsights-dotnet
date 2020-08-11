@@ -8,6 +8,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TestFramework
 {
     static class IConfigurationBuilderExtensions
     {
+#if !NET46
         public static IConfigurationBuilder AddMockJsonWithFileLoggingConfig(this IConfigurationBuilder builder, bool enableDiagnosticsTelemetryModule, bool enableSelfDiagnosticsFileLogging)
         {
             var appSettings = $@"{{
@@ -20,5 +21,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TestFramework
 
             return builder.AddJsonStream(new MemoryStream(Encoding.UTF8.GetBytes(appSettings)));
         }
+#endif
     }
 }
