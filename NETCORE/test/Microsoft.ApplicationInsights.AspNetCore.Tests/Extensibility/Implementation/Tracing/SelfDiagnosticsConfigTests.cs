@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+using Microsoft.ApplicationInsights.AspNetCore.Tests.TestFramework;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
@@ -179,48 +180,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensibility.Implement
             var platform = new StubEnvironmentVariablePlatform();
             platform.SetEnvironmentVariable(DiagnosticsTelemetryModule.SelfDiagnosticsEnvironmentVariable, $"{SelfDiagnosticsProvider.KeyDestination}={SelfDiagnosticsProvider.ValueFile};{SelfDiagnosticsProvider.KeyDirectory}={logDirectory}");
             PlatformSingleton.Current = platform;
-        }
-    }
-
-    internal class FakeDebugOutput : IDebugOutput
-    {
-        public void WriteLine(string message)
-        {
-        }
-
-        public bool IsLogging() => false;
-
-        public bool IsAttached() => false;
-    }
-
-    internal class StubEnvironmentVariablePlatform : IPlatform
-    {
-        private readonly Dictionary<string, string> environmentVariables = new Dictionary<string, string>();
-
-        public void SetEnvironmentVariable(string name, string value) => this.environmentVariables.Add(name, value);
-
-        public bool TryGetEnvironmentVariable(string name, out string value) => this.environmentVariables.TryGetValue(name, out value);
-
-        public string ReadConfigurationXml() => null;
-
-        public IDebugOutput GetDebugOutput() => new FakeDebugOutput();
-
-        public string GetMachineName() => nameof(SelfDiagnosticsConfigTests);
-    }
-
-    static class IConfigurationBuilderExtensions
-    {
-        public static IConfigurationBuilder AddMockJsonWithFileLoggingConfig(this IConfigurationBuilder builder, bool enableDiagnosticsTelemetryModule, bool enableSelfDiagnosticsFileLogging)
-        {
-            var appSettings = $@"{{
-                ""ApplicationInsights"": {{
-                    ""{nameof(ApplicationInsightsServiceOptions.InstrumentationKey)}"": ""testIkey"",
-                    ""{nameof(ApplicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule)}"": ""{enableDiagnosticsTelemetryModule}"",
-                    ""{nameof(ApplicationInsightsServiceOptions.EnableSelfDiagnosticsFileLogging)}"": ""{enableSelfDiagnosticsFileLogging}"",
-                    }}
-                }}";
-
-            return builder.AddJsonStream(new MemoryStream(Encoding.UTF8.GetBytes(appSettings)));
         }
     }
 #endif
