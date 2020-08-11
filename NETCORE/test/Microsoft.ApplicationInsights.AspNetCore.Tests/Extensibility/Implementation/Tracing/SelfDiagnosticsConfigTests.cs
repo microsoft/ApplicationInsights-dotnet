@@ -1,14 +1,10 @@
 ﻿using System;
-
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.AspNetCore.Tests.TestFramework;
 using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
 using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 using Microsoft.AspNetCore.Hosting;
