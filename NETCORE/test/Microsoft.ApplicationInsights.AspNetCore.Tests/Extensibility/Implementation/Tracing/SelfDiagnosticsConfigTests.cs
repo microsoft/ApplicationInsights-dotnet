@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 
-using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.AspNetCore.Tests.TestFramework;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
@@ -79,9 +78,11 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensibility.Implement
         {
             IServiceCollection services = new ServiceCollection()
                 .AddSingleton<IHostingEnvironment>(new HostingEnvironment() { ContentRootPath = Directory.GetCurrentDirectory() })
-                .AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
+                .AddApplicationInsightsTelemetry()
+                .ConfigureTelemetryModule<DiagnosticsTelemetryModule>((module, options) =>
                 {
-                    EnableSelfDiagnosticsFileLogging = enableSelfDiagnosticsFileLogging
+                    module.IsFileLogEnabled = enableSelfDiagnosticsFileLogging;
+                    module.FileLogDirectory = "C:\\Temp2";
                 });
 
             IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -103,18 +104,18 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensibility.Implement
         {
             try
             {
-                string testLogDirectory = "C:\\Temp";
-                this.SetEnvironmentVariable(testLogDirectory);
+                string testLogDirectory1 = "C:\\Temp1";
+                string testLogDirectory2 = "C:\\Temp2";
+
+                this.SetEnvironmentVariable(testLogDirectory1);
 
                 IServiceCollection services = new ServiceCollection()
                     .AddSingleton<IHostingEnvironment>(new HostingEnvironment() { ContentRootPath = Directory.GetCurrentDirectory() })
-                    .AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
-                    {
-                        EnableSelfDiagnosticsFileLogging = false
-                    })
+                    .AddApplicationInsightsTelemetry()
                     .ConfigureTelemetryModule<DiagnosticsTelemetryModule>((module, options) =>
                     {
-                        module.FileLogDirectory = "C:\\Temp2";
+                        module.IsFileLogEnabled = false;
+                        module.FileLogDirectory = testLogDirectory2;
                     });
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -129,7 +130,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensibility.Implement
                 var diagnosticsTelemetryModule = modules.OfType<DiagnosticsTelemetryModule>().Single();
                 Assert.True(diagnosticsTelemetryModule.IsInitialized);
                 Assert.True(diagnosticsTelemetryModule.IsFileLogEnabled);
-                Assert.Equal(testLogDirectory, diagnosticsTelemetryModule.FileLogDirectory);
+                Assert.Equal(testLogDirectory1, diagnosticsTelemetryModule.FileLogDirectory);
             }
             finally
             {
@@ -145,13 +146,17 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensibility.Implement
         public void VerifyCanConfigureFromJson(bool enableDiagnosticsTelemetryModule, bool enableSelfDiagnosticsFileLogging)
         {
             IConfigurationRoot config = new ConfigurationBuilder()
-                .AddMockJsonWithFileLoggingConfig(enableDiagnosticsTelemetryModule, enableSelfDiagnosticsFileLogging)
+                .AddMockJsonWithDiagnostics(enableDiagnosticsTelemetryModule)
                 .Build();
 
             IServiceCollection services = new ServiceCollection()
                 .AddSingleton<IHostingEnvironment>(new HostingEnvironment() { ContentRootPath = Directory.GetCurrentDirectory() })
                 .AddSingleton<IConfiguration>(config)
-                .AddApplicationInsightsTelemetry();
+                .AddApplicationInsightsTelemetry()
+                .ConfigureTelemetryModule<DiagnosticsTelemetryModule>((module, options) =>
+                {
+                    module.IsFileLogEnabled = enableSelfDiagnosticsFileLogging;
+                });
 
             IServiceProvider serviceProvider = services.BuildServiceProvider();
 

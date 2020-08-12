@@ -158,8 +158,6 @@ namespace Microsoft.Extensions.DependencyInjection
 
                     if (module is DiagnosticsTelemetryModule diagnosticsTelemetryModule)
                     {
-                        diagnosticsTelemetryModule.IsFileLogEnabled = this.applicationInsightsServiceOptions.EnableSelfDiagnosticsFileLogging;
-
                         if (!this.applicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule)
                         {
                             DisposeIfDisposable(module);

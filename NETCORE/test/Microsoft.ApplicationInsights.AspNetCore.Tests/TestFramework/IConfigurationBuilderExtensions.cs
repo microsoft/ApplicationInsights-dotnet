@@ -9,13 +9,12 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TestFramework
     static class IConfigurationBuilderExtensions
     {
 #if !NET46
-        public static IConfigurationBuilder AddMockJsonWithFileLoggingConfig(this IConfigurationBuilder builder, bool enableDiagnosticsTelemetryModule, bool enableSelfDiagnosticsFileLogging)
+        public static IConfigurationBuilder AddMockJsonWithDiagnostics(this IConfigurationBuilder builder, bool enableDiagnosticsTelemetryModule)
         {
             var appSettings = $@"{{
                 ""ApplicationInsights"": {{
                     ""{nameof(ApplicationInsightsServiceOptions.InstrumentationKey)}"": ""testIkey"",
                     ""{nameof(ApplicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule)}"": ""{enableDiagnosticsTelemetryModule}"",
-                    ""{nameof(ApplicationInsightsServiceOptions.EnableSelfDiagnosticsFileLogging)}"": ""{enableSelfDiagnosticsFileLogging}"",
                     }}
                 }}";
 
