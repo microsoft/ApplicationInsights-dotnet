@@ -34,6 +34,8 @@ Vance Morrison's blog has several articles for getting started:
 | | | |
 | AspNetCore SDK    | Microsoft-ApplicationInsights-AspNetCore                              |dbf4c9d9-6cb3-54e3-0a54-9d138a74b116|
 | | | |
+| AspNet.TelemetryCorrelation    | Microsoft-AspNet-Telemetry-Correlation                   |ace2021e-e82c-5502-d81d-657f27612673|
+| | | |
 | Extensions  | Microsoft-ApplicationInsights-FrameworkLightup                             	|323adc25-e39b-5c87-8658-2c1af1a92dc5   <sup>*1</sup>|
 |             | Microsoft-ApplicationInsights-IIS-ManagedHttpModuleHelper                  	|61f6ca3b-4b5f-5602-fa60-759a2a2d1fbd   <sup>*1</sup>|
 |             | Microsoft-ApplicationInsights-Redfield-Configurator                        	|090fc833-b744-4805-a6dd-4cb0b840a11f   <sup>*1</sup>|
