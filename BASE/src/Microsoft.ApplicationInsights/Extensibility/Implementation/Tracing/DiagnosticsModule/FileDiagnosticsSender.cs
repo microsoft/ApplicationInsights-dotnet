@@ -11,13 +11,15 @@
     /// <summary>
     /// This sender works with the DiagnosticTelemetryModule. This will subscribe to events and output to a text file log.
     /// </summary>
-    internal class FileDiagnosticsSender : IDiagnosticsSender
+    internal class FileDiagnosticsSender : IDiagnosticsSender, IDisposable
     {
         private readonly object lockObj = new object();
         private readonly string logFileName = FileHelper.GenerateFileName();
+        private readonly DefaultTraceListener defaultTraceListener = new DefaultTraceListener();
 
         private string logDirectory = Environment.ExpandEnvironmentVariables("%TEMP%");
         private bool isEnabled = false; // TODO: NEED MORE PERFORMANT FILE WRITTER BEFORE ENABLING THIS BY DEFAULT
+        private bool disposedValue;
 
         public FileDiagnosticsSender()
         {
@@ -52,7 +54,11 @@
         /// <summary>
         /// Gets or sets the log file path.
         /// </summary>
-        private string LogFilePath { get; set; }
+        private string LogFilePath 
+        {
+            get => this.defaultTraceListener.LogFileName;
+            set => this.defaultTraceListener.LogFileName = value;
+        }
 
         /// <summary>
         /// Write a trace to file.
@@ -62,35 +68,36 @@
         {
             if (this.Enabled)
             {
-                // We previously depended on the DefaultTraceListener for writing to file. 
-                // This has some overhead, but the path we were utilizing calls a lock and uses a StreamWriter.
-                // I've copied the implementation below, but this should be replaced to be more performant.
-                // https://referencesource.microsoft.com/#System/compmod/system/diagnostics/TraceSource.cs,239
-                // https://referencesource.microsoft.com/#System/compmod/system/diagnostics/TraceEventCache.cs,46
-                // https://referencesource.microsoft.com/#System/compmod/system/diagnostics/TraceListener.cs,409
-                // https://referencesource.microsoft.com/#System/compmod/system/diagnostics/DefaultTraceListener.cs,131
+                //// TraceSource shows the lock encapsulating the TraceListener, which has been copied here.
+                //// https://referencesource.microsoft.com/#System/compmod/system/diagnostics/TraceSource.cs,260
+                //// DefaultTraceListener shows the implementation of WriteLine
+                //// https://referencesource.microsoft.com/#System/compmod/system/diagnostics/DefaultTraceListener.cs,204
 
                 var message = Invariant($"{DateTime.UtcNow.ToInvariantString("o")}: {eventData.MetaData.Level}: {eventData}");
 
                 lock (this.lockObj)
                 {
-                    try
-                    {
-                        FileInfo file = new FileInfo(this.LogFilePath);
-                        using (Stream stream = file.Open(FileMode.OpenOrCreate))
-                        {
-                            using (StreamWriter writer = new StreamWriter(stream))
-                            {
-                                stream.Position = stream.Length;
-                                writer.WriteLine(message);
-                            }
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        // no op
-                    }
+                    this.defaultTraceListener.WriteLine(message);
                 }
+            }
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposedValue)
+            {
+                if (disposing)
+                {
+                    this.defaultTraceListener.Dispose();
+                }
+
+                this.disposedValue = true;
             }
         }
 
@@ -127,7 +134,7 @@
                     result = true;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // NotSupportedException: The given path's format is not supported
                 // UnauthorizedAccessException
@@ -136,10 +143,7 @@
                 // IOException: The subdirectory cannot be created. -or- A file or directory already has the name specified by path. -or-  The specified path, file name, or both exceed the system-defined maximum length.
                 // SecurityException: The caller does not have code access permission to create the directory.
 
-                // TODO: IS IT SAFE TO LOG HERE?
-                // CoreEventSource.Log.LogStorageAccessDeniedError(
-                //    error: Invariant($"Path: {this.logDirectory} File: {this.logFileName}; Error: {ex.Message}{Environment.NewLine}"),
-                //    user: FileHelper.IdentityName);
+                Trace.WriteLine(new Exception(Invariant($"{nameof(FileDiagnosticsSender)}.{nameof(this.SetAndValidateLogsFolder)} failed. Path: {this.logDirectory} File: {this.logFileName}; Error: {ex.Message}{Environment.NewLine}")));
             }
 
             return result;

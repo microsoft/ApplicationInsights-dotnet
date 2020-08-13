@@ -286,6 +286,7 @@
                 }
 
                 this.HeartbeatProvider.Dispose();
+                this.FileDiagnosticsSender.Dispose();
             }
 
             this.disposed = true;
