@@ -57,7 +57,7 @@
 
         protected override void OnEventSourceCreated(EventSource eventSource)
         {
-            if (this.ShouldSubscribe(eventSource))
+            if (ShouldSubscribe(eventSource))
             {
                 // If our constructor hasn't run yet (we're in a callback from the base class
                 // constructor), just make a note of the event source. Otherwise logLevel is
@@ -84,7 +84,7 @@
         /// <summary>
         /// This method checks if the given EventSource Name matches known EventSources that we want to subscribe to.
         /// </summary>
-        private bool ShouldSubscribe(EventSource eventSource)
+        private static bool ShouldSubscribe(EventSource eventSource)
         {
             if (eventSource.Name.StartsWith("Microsoft-A", StringComparison.Ordinal))
             {
