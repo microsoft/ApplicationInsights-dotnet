@@ -31,6 +31,7 @@ Vance Morrison's blog has several articles for getting started:
 |             | Microsoft-ApplicationInsights-WindowsServer-Core                           	|b38dc757-fc28-52f1-9241-fd6310c28590|
 | | | |
 | Logging SDK | Microsoft-ApplicationInsights-Extensibility-EventSourceListener            	|e0b8ecfa-7c08-54f7-ac08-3cf0f7ba965e|
+|             | Microsoft-ApplicationInsights-LoggerProvider					          	|95aa10d3-5f9e-5213-9cdb-5de65b5dca0d|
 | | | |
 | AspNetCore SDK    | Microsoft-ApplicationInsights-AspNetCore                              |dbf4c9d9-6cb3-54e3-0a54-9d138a74b116|
 | | | |
@@ -43,10 +44,18 @@ Vance Morrison's blog has several articles for getting started:
 |             	| Microsoft-ApplicationInsights-Redfield-VmExtensionHandler                	|7014a441-75d7-444f-b1c6-4b2ec9b06f20   <sup>*1</sup>|
 
 
-
 ### Footnotes
 1. These are custom defined GUIDS. Because they are not generated from the provider name they must be subscribed to via the GUID.
 
+
+### Developer Note
+Provider GUIDs are determined at runtime based on the Provider Name.
+You can lookup any GUID for a Provider Name by using:
+```
+var session = new TraceEventSession("test");
+session.EnableProvider(providerName: "Microsoft-ApplicationInsights-Core");
+```
+Then Debug to inspect the private field: `session.m_enabledProviders`
 
 
 ## Tools to collect ETW

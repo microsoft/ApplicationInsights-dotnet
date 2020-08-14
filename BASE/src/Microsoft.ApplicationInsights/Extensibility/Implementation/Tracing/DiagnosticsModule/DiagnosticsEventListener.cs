@@ -105,6 +105,7 @@
                     case "Microsoft-ApplicationInsights-WindowsServer-Core":
                     case "Microsoft-ApplicationInsights-Extensibility-EventSourceListener":
                     case "Microsoft-ApplicationInsights-AspNetCore":
+                    case "Microsoft-ApplicationInsights-LoggerProvider":
                     case "Microsoft-AspNet-Telemetry-Correlation": // https://github.com/aspnet/Microsoft.AspNet.TelemetryCorrelation/blob/master/src/Microsoft.AspNet.TelemetryCorrelation/AspNetTelemetryCorrelationEventSource.cs
                         return true;
                     default:
