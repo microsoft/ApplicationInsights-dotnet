@@ -130,7 +130,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
             }
         }
 
-        [EventSource(Name = "Microsoft-ApplicationInsights-" + nameof(TestEventSource))]
+        /// <summary>
+        /// Our <see cref="DiagnosticsListener"/> subscribes to a list of known EventSources. 
+        /// This class is meant to mimic one of those classes for testing purposes.
+        /// </summary>
+        [EventSource(Name = "Microsoft-ApplicationInsights-Core")]
         private class TestEventSource : EventSource
         {
         }
