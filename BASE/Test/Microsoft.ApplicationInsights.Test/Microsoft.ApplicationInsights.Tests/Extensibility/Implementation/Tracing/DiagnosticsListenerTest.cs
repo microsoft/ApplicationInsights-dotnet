@@ -37,8 +37,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
         [TestMethod]
         public void TestListenerWithDifferentSeverity()
         {
-            const EventKeywords AllKeyword = (EventKeywords)(-1);
-
             // Ensure there are no left-over DiagnosticTelemetryModules
             // from previous tests that will mess up this one.
             TelemetryConfiguration.Active.Dispose();
