@@ -117,15 +117,17 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
                 var senders = new List<IDiagnosticsSender> { senderMock };
                 using (var listener = new DiagnosticsListener(senders))
                 {
+                    Assert.IsTrue(testEventSource.IsEnabled(), "Fail: testEventSource should be enabled.");
+
                     const EventKeywords AllKeyword = (EventKeywords)(-1);
                     // The default level is EventLevel.Error
-                    Assert.IsTrue(testEventSource.IsEnabled(EventLevel.Error, AllKeyword));
+                    Assert.IsTrue(testEventSource.IsEnabled(EventLevel.Error, AllKeyword), "Fail: testEventSource should be enabled for EventLevel.Error.");
 
                     // So Verbose should not be enabled
-                    Assert.IsFalse(testEventSource.IsEnabled(EventLevel.Verbose, AllKeyword));
+                    Assert.IsFalse(testEventSource.IsEnabled(EventLevel.Verbose, AllKeyword), "Fail: testEventSource should not be enabled for EventLevel.Verbose.");
 
                     listener.LogLevel = EventLevel.Verbose;
-                    Assert.IsTrue(testEventSource.IsEnabled(EventLevel.Verbose, AllKeyword));
+                    Assert.IsTrue(testEventSource.IsEnabled(EventLevel.Verbose, AllKeyword), "Fail: testEventSource should be enabled for EventLevel.Verbose.");
                 }
             }
         }
