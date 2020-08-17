@@ -55,10 +55,14 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
             var senders = new List<IDiagnosticsSender> { senderMock };
             using (var listener = new DiagnosticsListener(senders))
             {
+                const EventKeywords AllKeyword = (EventKeywords)(-1);
                 Assert.IsTrue(CoreEventSource.Log.IsEnabled(), "Fail: eventSource should be enabled.");
+                Assert.IsTrue(CoreEventSource.Log.IsEnabled(EventLevel.Error, AllKeyword), "Fail: Error is expected to be enabled by default");
+
 
                 listener.LogLevel = EventLevel.Informational;
-                
+                Assert.IsTrue(CoreEventSource.Log.IsEnabled(EventLevel.Informational, AllKeyword), "Fail: Informational is expected to be enabled");
+
                 CoreEventSource.Log.LogVerbose("Some verbose tracing");
                 Assert.AreEqual(0, senderMock.Messages.Count);
 
@@ -68,6 +72,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
                 senderMock.Messages.Clear();
 
                 listener.LogLevel = EventLevel.Verbose;
+                Assert.IsTrue(CoreEventSource.Log.IsEnabled(EventLevel.Verbose, AllKeyword), "Fail: Verbose is expected to be enabled");
+
                 CoreEventSource.Log.LogVerbose("Some verbose tracing");
                 Assert.AreEqual(1, senderMock.Messages.Count);
 
@@ -79,6 +85,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
                 senderMock.Messages.Clear();
 
                 listener.LogLevel = EventLevel.Error;
+                Assert.IsTrue(CoreEventSource.Log.IsEnabled(EventLevel.Error, AllKeyword), "Fail: Error is expected to be enabled");
+
                 CoreEventSource.Log.LogError("Logging an error");
 
                 // If you see the following assert fail, it's because another test has
@@ -98,39 +106,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
                 Assert.AreEqual(1, senderMock.Messages.Count);
             }
         }
-
-        //[TestMethod]
-        //public void TestEventSourceLogLevelWhenEventSourceIsAlreadyCreated()
-        //{
-        //    using (var testEventSource = new CoreEventSource())//= new TestEventSource())
-        //    {
-        //        var senderMock = new DiagnosticsSenderMock();
-        //        var senders = new List<IDiagnosticsSender> { senderMock };
-        //        using (var listener = new DiagnosticsListener(senders))
-        //        {
-        //            Assert.IsTrue(testEventSource.IsEnabled(), "Fail: testEventSource should be enabled.");
-
-        //            const EventKeywords AllKeyword = (EventKeywords)(-1);
-        //            // The default level is EventLevel.Error
-        //            Assert.IsTrue(testEventSource.IsEnabled(EventLevel.Error, AllKeyword), "Fail: testEventSource should be enabled for EventLevel.Error.");
-
-        //            // So Verbose should not be enabled
-        //            Assert.IsFalse(testEventSource.IsEnabled(EventLevel.Verbose, AllKeyword), "Fail: testEventSource should not be enabled for EventLevel.Verbose.");
-
-        //            listener.LogLevel = EventLevel.Verbose;
-        //            Assert.IsTrue(testEventSource.IsEnabled(EventLevel.Verbose, AllKeyword), "Fail: testEventSource should be enabled for EventLevel.Verbose.");
-        //        }
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Our <see cref="DiagnosticsListener"/> subscribes to a list of known EventSources. 
-        ///// This class is meant to mimic one of those classes for testing purposes.
-        ///// </summary>
-        //[EventSource(Name = "Microsoft-ApplicationInsights-Core")]
-        //private class TestEventSource : EventSource
-        //{
-        //}
     }
 }
+
 #pragma warning restore 612, 618  // obsolete TelemetryConfigration.Active
