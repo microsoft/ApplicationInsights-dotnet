@@ -68,16 +68,32 @@
         {
             if (this.Enabled)
             {
-                //// TraceSource shows the lock encapsulating the TraceListener, which has been copied here.
+                //// We previously depended on TraceSource & DefaultTraceListener for writing to file. 
+                //// This has some overhead, but the path we were utilizing calls a lock and uses a StreamWriter.
+                //// I've copied the implementation below.
                 //// https://referencesource.microsoft.com/#System/compmod/system/diagnostics/TraceSource.cs,260
-                //// DefaultTraceListener shows the implementation of WriteLine
                 //// https://referencesource.microsoft.com/#System/compmod/system/diagnostics/DefaultTraceListener.cs,204
 
                 var message = Invariant($"{DateTime.UtcNow.ToInvariantString("o")}: {eventData.MetaData.Level}: {eventData}");
 
                 lock (this.lockObj)
                 {
-                    this.defaultTraceListener.WriteLine(message);
+                    try
+                    {
+                        FileInfo file = new FileInfo(this.LogFilePath);
+                        using (Stream stream = file.Open(FileMode.OpenOrCreate))
+                        {
+                            using (StreamWriter writer = new StreamWriter(stream))
+                            {
+                                stream.Position = stream.Length;
+                                writer.WriteLine(message);
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        // no op
+                    }
                 }
             }
         }
