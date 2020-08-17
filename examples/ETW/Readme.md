@@ -16,14 +16,12 @@ Vance Morrison's blog has several articles for getting started:
 | Repo       	| Provider Name                                                              	| Provider Guid |
 |------------	|----------------------------------------------------------------------------	|---------------|
 | Base SDK    | Microsoft-ApplicationInsights-Core                                         	|74af9f20-af6a-5582-9382-f21f674fb271|
-|             | Microsoft-ApplicationInsights-Data                                         	|a62adddb-6b4b-519d-7ba1-f983d81623e0|
 |             | Microsoft-ApplicationInsights-WindowsServer-TelemetryChannel               	|4c4280fb-382a-56be-9a13-fab0d03395f6|
 | | | |
 | Web SDK     | Microsoft-ApplicationInsights-Extensibility-AppMapCorrelation-Dependency   	|08037ff3-aed4-5081-a6e0-f05fa0bd1f42|
 |             | Microsoft-ApplicationInsights-Extensibility-AppMapCorrelation-Web          	|0a458c93-c7fb-5fbe-1135-21b01e192abc|
 |             | Microsoft-ApplicationInsights-Extensibility-DependencyCollector            	|9e925f53-f61b-51a7-d10f-1148a547b70f|
 |             | Microsoft-ApplicationInsights-Extensibility-EventCounterCollector         	|3a5cd921-6470-5a93-a62f-5827813b3968|
-|             | Microsoft-ApplicationInsights-Extensibility-HostingStartup                 	|8be90d99-6348-569a-0517-642982a0623b|
 |             | Microsoft-ApplicationInsights-Extensibility-PerformanceCollector           	|47e5de30-9965-58bd-dfc8-64c697aa1908|
 |             | Microsoft-ApplicationInsights-Extensibility-PerformanceCollector-QuickPulse	|70faf222-f29d-5dee-433d-d3b77846888e|
 |             | Microsoft-ApplicationInsights-Extensibility-Web                            	|d6a4f609-0e40-51c8-0344-8d1a0c91cb10|
