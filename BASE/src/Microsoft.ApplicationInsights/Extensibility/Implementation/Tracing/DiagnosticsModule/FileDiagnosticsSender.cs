@@ -150,16 +150,9 @@
                     result = true;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // NotSupportedException: The given path's format is not supported
-                // UnauthorizedAccessException
-                // ArgumentException: // Path does not specify a valid file path or contains invalid DirectoryInfo characters.
-                // DirectoryNotFoundException: The specified path is invalid, such as being on an unmapped drive.
-                // IOException: The subdirectory cannot be created. -or- A file or directory already has the name specified by path. -or-  The specified path, file name, or both exceed the system-defined maximum length.
-                // SecurityException: The caller does not have code access permission to create the directory.
-
-                Trace.WriteLine(new Exception(Invariant($"{nameof(FileDiagnosticsSender)}.{nameof(this.SetAndValidateLogsFolder)} failed. Path: {this.logDirectory} File: {this.logFileName}; Error: {ex.Message}{Environment.NewLine}")));
+                // no op.
             }
 
             return result;

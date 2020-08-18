@@ -640,9 +640,6 @@
         [Event(69, Message = "{0}", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
         public void ConnectionStringParseError(string message, string appDomainName = "Incorrect") => this.WriteEvent(69, message, this.nameProvider.Name);
 
-        [Event(71, Message = "{0}", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
-        public void SelfDiagnosticsParseError(string message, string appDomainName = "Incorrect") => this.WriteEvent(71, message, this.nameProvider.Name);
-
         [NonEvent]
         [SuppressMessage("Microsoft.Performance", "CA1822: MarkMembersAsStatic", Justification = "This method does access instance data in NetStandard 2.0 scenarios.")]
         public void IngestionResponseTimeEventCounter(float responseDurationInMs)
@@ -654,6 +651,9 @@
 
         [Event(70, Message = "Updating Exception has failed. Error: {0}", Level = EventLevel.Error)]
         public void UpdateDataFailed(string error, string appDomainName = "Incorrect") => this.WriteEvent(70, error, this.nameProvider.Name);
+
+        [Event(71, Message = "{0}", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
+        public void SelfDiagnosticsParseError(string message, string appDomainName = "Incorrect") => this.WriteEvent(71, message, this.nameProvider.Name);
 
         /// <summary>
         /// Keywords for the PlatformEventSource.
