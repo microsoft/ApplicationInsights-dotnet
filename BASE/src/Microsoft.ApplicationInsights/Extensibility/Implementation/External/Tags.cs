@@ -68,11 +68,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         {
             if (tagValue.HasValue)
             {
-#if NETSTANDARD1_3
-                string value = tagValue.Value.ToString();
-#else
                 string value = tagValue.Value.ToString(CultureInfo.InvariantCulture);
-#endif
                 tags.Add(tagKey, value);
             }
         }

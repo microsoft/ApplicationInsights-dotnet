@@ -1,4 +1,4 @@
-﻿#if NET45 || NETSTANDARD1_1 
+﻿#if NET452
 
 // FormattableString & Co are available in NetFx 4.6+, but not in NetFx 4.5 or NetStandard 1.1
 

@@ -84,7 +84,7 @@
             Assert.AreEqual(0, stackFrame.line);
         }
 
-#if (!NETCOREAPP1_1 && !NETCOREAPP2_0)
+#if !NETCOREAPP2_0
 
         [TestMethod]
         public void CheckThatFileNameAndLineAreCorrectIfAvailable()
@@ -112,7 +112,7 @@
         }
 #endif
 
-#if !NETCOREAPP1_1 || NETCOREAPP2_0
+#if NETCOREAPP2_0
 
         [TestMethod]
         public void CheckThatAssemblyNameHasCorrectValue()

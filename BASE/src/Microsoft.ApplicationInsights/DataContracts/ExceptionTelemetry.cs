@@ -9,6 +9,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// Telemetry type used to track exceptions. This will capture TypeName, Message, and CallStack.
@@ -420,34 +421,41 @@
                 throw new InvalidOperationException("Operation is not supported given the state of the object.");
             }
 
-            // collect the set of exceptions detail info from the passed in exception
-            List<ExceptionDetails> exceptions = new List<ExceptionDetails>();
-            this.ConvertExceptionTree(exception, null, exceptions);
-
-            // trim if we have too many, also add a custom exception to let the user know we're trimmed
-            if (exceptions.Count > Constants.MaxExceptionCountToSave)
+            try
             {
-                // TODO: when we localize these messages, we should consider not using InvariantCulture
-                // create our "message" exception.
-                InnerExceptionCountExceededException countExceededException =
-                    new InnerExceptionCountExceededException(
-                        string.Format(
-                            CultureInfo.InvariantCulture,
-                            "The number of inner exceptions was {0} which is larger than {1}, the maximum number allowed during transmission. All but the first {1} have been dropped.",
-                            exceptions.Count,
-                            Constants.MaxExceptionCountToSave));
+                // collect the set of exceptions detail info from the passed in exception
+                List<ExceptionDetails> exceptions = new List<ExceptionDetails>();
+                this.ConvertExceptionTree(exception, null, exceptions);
 
-                // remove all but the first N exceptions
-                exceptions.RemoveRange(Constants.MaxExceptionCountToSave,
-                    exceptions.Count - Constants.MaxExceptionCountToSave);
+                // trim if we have too many, also add a custom exception to let the user know we're trimmed
+                if (exceptions.Count > Constants.MaxExceptionCountToSave)
+                {
+                    // TODO: when we localize these messages, we should consider not using InvariantCulture
+                    // create our "message" exception.
+                    InnerExceptionCountExceededException countExceededException =
+                        new InnerExceptionCountExceededException(
+                            string.Format(
+                                CultureInfo.InvariantCulture,
+                                "The number of inner exceptions was {0} which is larger than {1}, the maximum number allowed during transmission. All but the first {1} have been dropped.",
+                                exceptions.Count,
+                                Constants.MaxExceptionCountToSave));
 
-                // we'll add our new exception and parent it to the root exception (first one in the list)
-                exceptions.Add(ExceptionConverter.ConvertToExceptionDetails(countExceededException, exceptions[0]));
+                    // remove all but the first N exceptions
+                    exceptions.RemoveRange(Constants.MaxExceptionCountToSave,
+                        exceptions.Count - Constants.MaxExceptionCountToSave);
+
+                    // we'll add our new exception and parent it to the root exception (first one in the list)
+                    exceptions.Add(ExceptionConverter.ConvertToExceptionDetails(countExceededException, exceptions[0]));
+                }
+
+                this.Data = new ExceptionInfo(exceptions.Select(ex => new ExceptionDetailsInfo(ex)), this.SeverityLevel,
+                    this.ProblemId, this.Properties, this.Metrics);
+                this.context = new TelemetryContext(this.Data.Properties);
             }
-
-            this.Data = new ExceptionInfo(exceptions.Select(ex => new ExceptionDetailsInfo(ex)), this.SeverityLevel,
-                this.ProblemId, this.Properties, this.Metrics);
-            this.context = new TelemetryContext(this.Data.Properties);
+            catch (Exception ex)
+            {
+                CoreEventSource.Log.UpdateDataFailed(ex.ToInvariantString());
+            }
         }
 
         private void UpdateData(ExceptionInfo exceptionInfo)

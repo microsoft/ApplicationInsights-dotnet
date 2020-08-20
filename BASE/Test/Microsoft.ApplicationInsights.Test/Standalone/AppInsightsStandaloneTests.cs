@@ -30,6 +30,9 @@
             Directory.Delete(this.tempPath, true);
         }
 
+#if NETCOREAPP2_1 || NETCOREAPP3_1
+        [Ignore("Missing netstandard dependencies.")]
+#endif
         [TestMethod]
         public void AppInsightsDllCouldRunStandalone()
         {
@@ -89,7 +92,7 @@
         {
             var fileName = $"{this.tempPath}\\ActivityTest.exe";
 
-            Assert.IsTrue(CreateTestApplication(fileName));
+            Assert.IsTrue(CreateTestApplication(fileName), "Failed to create a test application. See console output for details.");
 
             Process p = new Process
             {
@@ -164,7 +167,20 @@
                 references: references,
                 options: new CSharpCompilationOptions(OutputKind.ConsoleApplication));
 
-            return compilation.Emit(fileName).Success;
+            var emitResult = compilation.Emit(fileName);
+            if (emitResult.Success)
+            {
+                return true;
+            }
+            else
+            {
+                foreach(var d in emitResult.Diagnostics)
+                {
+                    Console.WriteLine(d.ToString());
+                }
+
+                return false;
+            }
         }
     }
 }

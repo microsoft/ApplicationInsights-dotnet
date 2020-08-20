@@ -7,8 +7,39 @@
 
   <Import Project=".\_Common.props" />
   <Import Project=".\_AnalyzerSettings.props" />
-  
+
   <Import Project=".\_GlobalStaticVersion.props" />
   <Import Project=".\_Nupkg.props" />
+
+  <ItemGroup Condition=" $(OS) == 'Windows_NT'">
+    <!--Analyzers-->
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.0.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="3.0.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--Build Infrastructure-->
+    <PackageReference Include="Microsoft.VisualStudioEng.MicroBuild.Core" Version="0.4.1">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+  
+  <PropertyGroup>
+    <!--Removing the SRC folder from the output directory-->
+    <CorePath>$(RelativeOutputPathBase)</CorePath>
+    <OutputPath>$(BinRoot)\$(Configuration)\$(CorePath)</OutputPath>
+    <OutputPath>$([System.IO.Path]::GetFullPath( $(OutputPath) ))\</OutputPath>
+  </PropertyGroup>
 
 </Project>

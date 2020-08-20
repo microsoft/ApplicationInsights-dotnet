@@ -59,6 +59,11 @@
         private const string DeveloperModeForWebSites = "APPINSIGHTS_DEVELOPER_MODE";
         private const string EndpointAddressForWebSites = "APPINSIGHTS_ENDPOINTADDRESS";
 
+#if NETSTANDARD2_0 || NET461
+        private const string ApplicationInsightsSectionFromConfig = "ApplicationInsights";
+        private const string TelemetryChannelSectionFromConfig = "ApplicationInsights:TelemetryChannel";
+#endif
+
         [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "Used in NetStandard2.0 build.")]
         private const string EventSourceNameForSystemRuntime = "System.Runtime";
 
@@ -193,11 +198,7 @@
             {
                 telemetryConfigValues.Add(new KeyValuePair<string, string>(
                     DeveloperModeForWebSites,
-#if !NETSTANDARD1_6
                     developerMode.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)));
-#else
-                    developerMode.Value.ToString()));
-#endif
                 wasAnythingSet = true;
             }
 
@@ -228,26 +229,9 @@
         }
 
         /// <summary>
-        /// Read from configuration
-        /// Config.json will look like this:
-        /// <para>
-        ///      "ApplicationInsights": {
-        ///          "InstrumentationKey": "11111111-2222-3333-4444-555555555555",
-        ///          "TelemetryChannel": {
-        ///              "EndpointAddress": "http://dc.services.visualstudio.com/v2/track",
-        ///              "DeveloperMode": true
-        ///          }
-        ///      }.
-        /// </para>
-        /// Or.
-        /// <para>
-        ///      "ApplicationInsights": {
-        ///          "ConnectionString" : "InstrumentationKey=11111111-2222-3333-4444-555555555555;IngestionEndpoint=http://dc.services.visualstudio.com"
-        ///          "TelemetryChannel": {
-        ///              "DeveloperMode": true
-        ///          }
-        ///      }.
-        /// </para>
+        /// Read configuration from appSettings.json, appsettings.{env.EnvironmentName}.json,
+        /// IConfiguation used in an application and EnvironmentVariables. 
+        /// Bind configuration to ApplicationInsightsServiceOptions.
         /// Values can also be read from environment variables to support azure web sites configuration.
         /// </summary>
         /// <param name="config">Configuration to read variables from.</param>
@@ -258,6 +242,11 @@
         {
             try
             {
+#if NETSTANDARD2_0 || NET461
+                config.GetSection(ApplicationInsightsSectionFromConfig).Bind(serviceOptions);
+                config.GetSection(TelemetryChannelSectionFromConfig).Bind(serviceOptions);
+#endif
+
                 if (config.TryGetValue(primaryKey: ConnectionStringEnvironmentVariable, backupKey: ConnectionStringFromConfig, value: out string connectionStringValue))
                 {
                     serviceOptions.ConnectionString = connectionStringValue;
@@ -296,6 +285,26 @@
             }
         }
 
+        /// <summary>
+        /// The AddSingleton method will not check if a class has already been added as an ImplementationType. 
+        /// This extension method is to encapsulate those checks.
+        /// </summary>
+        /// <remarks>
+        /// Must check all three properties to avoid duplicates or null ref exceptions.
+        /// </remarks>
+        /// <typeparam name="TService">The type of the service to add.</typeparam>
+        /// <typeparam name="TImplementation">The type of the implementation to use.</typeparam>
+        /// <param name="services">The Microsoft.Extensions.DependencyInjection.IServiceCollection to add the service to.</param>
+        internal static void AddSingletonIfNotExists<TService, TImplementation>(this IServiceCollection services)
+            where TService : class
+            where TImplementation : class, TService
+        {
+            if (!services.Any(o => o.ImplementationFactory == null && typeof(TImplementation).IsAssignableFrom(o.ImplementationType ?? o.ImplementationInstance.GetType())))
+            {
+                services.AddSingleton<TService, TImplementation>();
+            }
+        }
+
         private static bool TryGetValue(this IConfiguration config, string primaryKey, out string value, string backupKey = null)
         {
             value = config[primaryKey];
@@ -327,9 +336,14 @@
 
         private static void AddCommonTelemetryModules(IServiceCollection services)
         {
-            services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
+            // Previously users were encouraged to manually add the DiagnosticsTelemetryModule.
+            services.AddSingletonIfNotExists<ITelemetryModule, DiagnosticsTelemetryModule>();
+
+            // These modules add properties to Heartbeat and expect the DiagnosticsTelemetryModule to be configured in DI.
             services.AddSingleton<ITelemetryModule, AppServicesHeartbeatTelemetryModule>();
             services.AddSingleton<ITelemetryModule, AzureInstanceMetadataTelemetryModule>();
+
+            services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
             services.AddSingleton<ITelemetryModule, QuickPulseTelemetryModule>();
 
             AddAndConfigureDependencyTracking(services);

@@ -85,8 +85,10 @@
 
         /// <summary>
         /// Gets the <see cref="TelemetryConfiguration"/> object associated with this telemetry client instance.
+        /// Changes made to the configuration can affect other clients.
         /// </summary>
-        internal TelemetryConfiguration TelemetryConfiguration
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public TelemetryConfiguration TelemetryConfiguration
         {
             get { return this.configuration; }
         }

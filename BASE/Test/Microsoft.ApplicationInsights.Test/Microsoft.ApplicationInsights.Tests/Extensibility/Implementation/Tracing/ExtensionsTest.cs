@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
-#if (!NETCOREAPP1_1 && !NETCOREAPP2_0)
+#if !NETCOREAPP2_0
     using System;
     using System.Globalization;
     using System.Threading;

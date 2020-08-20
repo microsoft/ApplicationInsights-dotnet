@@ -12,7 +12,7 @@
         /// <returns>Canceled task.</returns>
         internal static Task FromCanceled(CancellationToken cancellationToken)
         {
-#if NET45
+#if NET452
             return Task.Factory.StartNew(() => { }, cancellationToken);
 #else
             return Task.FromCanceled(cancellationToken);
@@ -27,7 +27,7 @@
         /// <returns>Return cancelled task of specified type.</returns>
         internal static Task<TResult> FromCanceled<TResult>(CancellationToken cancellationToken)
         {
-#if NET45
+#if NET452
             return new Task<TResult>(() => { return default; }, cancellationToken);
 #else
             return Task.FromCanceled<TResult>(cancellationToken);

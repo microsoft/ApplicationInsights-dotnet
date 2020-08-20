@@ -6,28 +6,17 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
     using System.Diagnostics.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsModule;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+
     using Tracing.Mocks;
 
     [TestClass]
     public class DiagnosticsListenerTest
     {
         [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
         public void TestConstructorThrowsArgumentException()
         {
-            bool failedWithExpectedException = false;
-            try
-            {
-                using (var listener = new DiagnosticsListener(null))
-                {
-                    // nop
-                }
-            }
-            catch (ArgumentNullException)
-            {
-                failedWithExpectedException = true;
-            }
-
-            Assert.IsTrue(failedWithExpectedException);
+            var listener = new DiagnosticsListener(null);
         }
 
         [TestMethod]
@@ -66,7 +55,13 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
             var senders = new List<IDiagnosticsSender> { senderMock };
             using (var listener = new DiagnosticsListener(senders))
             {
+                const EventKeywords AllKeyword = (EventKeywords)(-1);
+                Assert.IsTrue(CoreEventSource.Log.IsEnabled(), "Fail: eventSource should be enabled.");
+                Assert.IsTrue(CoreEventSource.Log.IsEnabled(EventLevel.Error, AllKeyword), "Fail: Error is expected to be enabled by default");
+
+
                 listener.LogLevel = EventLevel.Informational;
+                Assert.IsTrue(CoreEventSource.Log.IsEnabled(EventLevel.Informational, AllKeyword), "Fail: Informational is expected to be enabled");
 
                 CoreEventSource.Log.LogVerbose("Some verbose tracing");
                 Assert.AreEqual(0, senderMock.Messages.Count);
@@ -77,6 +72,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
                 senderMock.Messages.Clear();
 
                 listener.LogLevel = EventLevel.Verbose;
+                Assert.IsTrue(CoreEventSource.Log.IsEnabled(EventLevel.Verbose, AllKeyword), "Fail: Verbose is expected to be enabled");
+
                 CoreEventSource.Log.LogVerbose("Some verbose tracing");
                 Assert.AreEqual(1, senderMock.Messages.Count);
 
@@ -88,6 +85,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
                 senderMock.Messages.Clear();
 
                 listener.LogLevel = EventLevel.Error;
+                Assert.IsTrue(CoreEventSource.Log.IsEnabled(EventLevel.Error, AllKeyword), "Fail: Error is expected to be enabled");
+
                 CoreEventSource.Log.LogError("Logging an error");
 
                 // If you see the following assert fail, it's because another test has
@@ -107,33 +106,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
                 Assert.AreEqual(1, senderMock.Messages.Count);
             }
         }
-
-        [TestMethod]
-        public void TestEventSourceLogLevelWhenEventSourceIsAlreadyCreated()
-        {
-            using (var testEventSource = new TestEventSource())
-            {
-                var senderMock = new DiagnosticsSenderMock();
-                var senders = new List<IDiagnosticsSender> { senderMock };
-                using (var listener = new DiagnosticsListener(senders))
-                {
-                    const EventKeywords AllKeyword = (EventKeywords)(-1);
-                    // The default level is EventLevel.Error
-                    Assert.IsTrue(testEventSource.IsEnabled(EventLevel.Error, AllKeyword));
-
-                    // So Verbose should not be enabled
-                    Assert.IsFalse(testEventSource.IsEnabled(EventLevel.Verbose, AllKeyword));
-
-                    listener.LogLevel = EventLevel.Verbose;
-                    Assert.IsTrue(testEventSource.IsEnabled(EventLevel.Verbose, AllKeyword));
-                }
-            }
-        }
-
-        [EventSource(Name = "Microsoft-ApplicationInsights-" + nameof(TestEventSource))]
-        private class TestEventSource : EventSource
-        {
-        }
     }
 }
+
 #pragma warning restore 612, 618  // obsolete TelemetryConfigration.Active

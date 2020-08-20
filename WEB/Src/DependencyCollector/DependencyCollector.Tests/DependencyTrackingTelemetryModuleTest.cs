@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Tests
 {
-#if NET45
+#if NET452
     using System;
     using System.Reflection;
 
@@ -78,6 +78,23 @@
             using (var module = new DependencyTrackingTelemetryModule())
             {
                 Assert.IsTrue(module.EnableRequestIdHeaderInjectionInW3CMode);
+            }
+        }
+
+        [TestMethod]
+        public void DependencyTrackingTelemetryModuleIsNotInitializedTwiceToPreventProfilerAttachFailure()
+        {
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                PrivateObject privateObject = new PrivateObject(module);
+
+                module.Initialize(TelemetryConfiguration.CreateDefault());
+                object config1 = privateObject.GetField("telemetryConfiguration");
+
+                module.Initialize(TelemetryConfiguration.CreateDefault());
+                object config2 = privateObject.GetField("telemetryConfiguration");
+
+                Assert.AreSame(config1, config2);
             }
         }
 

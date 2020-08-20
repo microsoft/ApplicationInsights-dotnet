@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.IO;
     using System.Net;
     using System.Net.Http;
@@ -259,9 +260,16 @@
                             // "The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout."
                             // i.e for Server errors (500 status code), no exception is thrown. Hence this method should read the response and status code,
                             // and return correct HttpWebResponseWrapper to give any Retry policies a chance to retry as needed.
+                            var stopwatch = new Stopwatch();
+                            stopwatch.Start();
 
                             using (var response = await client.SendAsync(request, ct.Token).ConfigureAwait(false))
                             {
+                                stopwatch.Stop();
+                                CoreEventSource.Log.IngestionResponseTime(response != null ? (int)response.StatusCode : -1, stopwatch.ElapsedMilliseconds);
+                                // Log ingestion respose time as event counter metric.
+                                CoreEventSource.Log.IngestionResponseTimeEventCounter(stopwatch.ElapsedMilliseconds);
+
                                 if (response != null)
                                 {
                                     wrapper = new HttpWebResponseWrapper

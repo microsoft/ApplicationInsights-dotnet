@@ -3,6 +3,7 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
@@ -11,6 +12,7 @@
     /// <summary>
     /// Accumulates <see cref="ITelemetry"/> items for efficient transmission.
     /// </summary>
+    [SuppressMessage("Microsoft.Reliability", "CA2002:DoNotLockObjectsWithWeakIdentity", Justification = "This should be removed, but there is currently a dependency on this behavior.")]
     internal class TelemetryBuffer : IEnumerable<ITelemetry>, ITelemetryProcessor, IDisposable
     {
         private static readonly TimeSpan DefaultFlushDelay = TimeSpan.FromSeconds(30);

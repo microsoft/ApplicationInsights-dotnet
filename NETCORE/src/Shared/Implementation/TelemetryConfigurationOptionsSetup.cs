@@ -140,6 +140,13 @@ namespace Microsoft.Extensions.DependencyInjection
                     configuration.TelemetryInitializers.Add(initializer);
                 }
 
+                // Find the DiagnosticsTelemetryModule, this is needed to initialize AzureInstanceMetadataTelemetryModule and AppServicesHeartbeatTelemetryModule.
+                DiagnosticsTelemetryModule diagModule =
+                    (this.applicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule && this.applicationInsightsServiceOptions.EnableHeartbeat)
+                    ? this.modules.OfType<DiagnosticsTelemetryModule>().FirstOrDefault()
+                    : null;
+
+                // Checks ApplicationInsightsServiceOptions and disable TelemetryModules if explicitly disabled.
                 foreach (ITelemetryModule module in this.modules)
                 {
                     // If any of the modules are disabled explicitly using aioptions,
@@ -148,6 +155,15 @@ namespace Microsoft.Extensions.DependencyInjection
                     // cannot be done to maintain backward compatibility.
                     // So this approach of adding all modules to DI, but selectively
                     // disable those modules which user has disabled is chosen.
+
+                    if (module is DiagnosticsTelemetryModule)
+                    {
+                        if (!this.applicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule)
+                        {
+                            DisposeIfDisposable(module);
+                            continue;
+                        }
+                    }
 
                     // DependencyTrackingTelemetryModule
                     if (module is DependencyTrackingTelemetryModule)
@@ -194,22 +210,32 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
 
                     // AppServicesHeartbeatTelemetryModule
-                    if (module is AppServicesHeartbeatTelemetryModule)
+                    if (module is AppServicesHeartbeatTelemetryModule appServicesHeartbeatTelemetryModule)
                     {
                         if (!this.applicationInsightsServiceOptions.EnableAppServicesHeartbeatTelemetryModule)
                         {
                             DisposeIfDisposable(module);
                             continue;
                         }
+                        else if (diagModule != null)
+                        {
+                            // diagModule is set to Null above if (applicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule || this.applicationInsightsServiceOptions.EnableHeartbeat) == false.
+                            appServicesHeartbeatTelemetryModule.HeartbeatPropertyManager = diagModule;
+                        }
                     }
 
                     // AzureInstanceMetadataTelemetryModule
-                    if (module is AzureInstanceMetadataTelemetryModule)
+                    if (module is AzureInstanceMetadataTelemetryModule azureInstanceMetadataTelemetryModule)
                     {
                         if (!this.applicationInsightsServiceOptions.EnableAzureInstanceMetadataTelemetryModule)
                         {
                             DisposeIfDisposable(module);
                             continue;
+                        }
+                        else if (diagModule != null)
+                        {
+                            // diagModule is set to Null above if (applicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule || this.applicationInsightsServiceOptions.EnableHeartbeat) == false.
+                            azureInstanceMetadataTelemetryModule.HeartbeatPropertyManager = diagModule;
                         }
                     }
 
@@ -223,7 +249,18 @@ namespace Microsoft.Extensions.DependencyInjection
                         }
                     }
 
-                    module.Initialize(configuration);
+                    try
+                    {
+                        module.Initialize(configuration);
+                    }
+                    catch (Exception ex)
+                    {
+#if AI_ASPNETCORE_WEB
+                        AspNetCoreEventSource.Instance.TelemetryModuleInitialziationSetupFailure(module.GetType().FullName, ex.ToInvariantString());
+#else
+                        WorkerServiceEventSource.Instance.TelemetryModuleInitialziationSetupFailure(module.GetType().FullName, ex.ToInvariantString());
+#endif
+                    }
                 }
 
                 foreach (ITelemetryProcessor processor in configuration.TelemetryProcessors)
@@ -320,7 +357,7 @@ namespace Microsoft.Extensions.DependencyInjection
             // Disable heartbeat if user sets it (by default it is on)
             if (!this.applicationInsightsServiceOptions.EnableHeartbeat)
             {
-                foreach (var module in TelemetryModules.Instance.Modules)
+                foreach (var module in this.modules)
                 {
                     if (module is IHeartbeatPropertyManager hbeatMan)
                     {

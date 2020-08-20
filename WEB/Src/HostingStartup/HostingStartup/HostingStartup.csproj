@@ -1,12 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\Product.props" />
-
   <Import Project="$(PropsRoot)\Product.props" />
 
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.Extensibility.HostingStartup</RootNamespace>
     <AssemblyName>Microsoft.AspNet.ApplicationInsights.HostingStartup</AssemblyName>
-    <TargetFramework>net45</TargetFramework>
+    <TargetFrameworks>net452</TargetFrameworks>
     <Prefer32Bit>false</Prefer32Bit>
     <DefineConstants>$(DefineConstants);ALLOW_AGGRESSIVE_INLIGNING_ATTRIBUTE</DefineConstants>
   </PropertyGroup>
@@ -18,29 +16,6 @@
     <Description>Application Insights Hosting Startup for .NET web applications. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156 </Description>
     <PackageTags>Azure Monitoring Analytics ApplicationInsights Telemetry AppInsights</PackageTags>
   </PropertyGroup>
-
-  <ItemGroup Condition=" $(OS) == 'Windows_NT'">
-    <!--Analyzers-->
-    <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="2.9.8">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <!--Build Infrastructure-->
-    <PackageReference Include="Microsoft.VisualStudioEng.MicroBuild.Core" Version="0.4.1">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
 
   <ItemGroup>
     <!--Common Dependencies-->
@@ -58,7 +33,7 @@
 
   <ItemGroup>
     <!--Nuget Transforms (install.xdt, uninstall.xdt, config.transform): "nupkg\content\<framework>\*.*-->
-    <Content Include="net45\*" />
+    <Content Include="net452\*" />
   </ItemGroup>
 
   <ItemGroup>

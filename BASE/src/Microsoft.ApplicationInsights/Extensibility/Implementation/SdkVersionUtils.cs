@@ -15,17 +15,10 @@
         /// <returns>String representation of the version with prefix added.</returns>
         internal static string GetSdkVersion(string versionPrefix)
         {
-#if !NETSTANDARD1_3
             string versionStr = typeof(TelemetryClient).Assembly.GetCustomAttributes(false)
                     .OfType<AssemblyFileVersionAttribute>()
                     .First()
                     .Version;
-
-#else
-            string versionStr = typeof(TelemetryClient).GetTypeInfo().Assembly.GetCustomAttributes<AssemblyFileVersionAttribute>()
-                    .FirstOrDefault()
-                    ?.Version;
-#endif
 
             Version version;
 

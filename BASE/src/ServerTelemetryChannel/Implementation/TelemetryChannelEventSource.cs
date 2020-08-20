@@ -555,11 +555,7 @@
             string name;
             try
             {
-#if !NETSTANDARD1_3
                 name = AppDomain.CurrentDomain.FriendlyName;
-#else
-                name = string.Empty;
-#endif
             }
             catch (Exception exp)
             {

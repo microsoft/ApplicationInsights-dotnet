@@ -14,13 +14,13 @@
         private readonly Type exceptionType;
         private readonly string expectedMessage;
 
-        public ExpectedExceptionWithMessageAttribute(Type exceptionType) : this(exceptionType, null)
+        public ExpectedExceptionWithMessageAttribute(Type expectedType) : this(expectedType, null)
         {
         }
 
-        public ExpectedExceptionWithMessageAttribute(Type exceptionType, string expectedMessage)
+        public ExpectedExceptionWithMessageAttribute(Type expectedType, string expectedMessage)
         {
-            this.exceptionType = exceptionType;
+            this.exceptionType = expectedType;
             this.expectedMessage = expectedMessage;
         }
 
@@ -28,12 +28,12 @@
         {
             if (ex.GetType() != this.exceptionType)
             {
-                Assert.Fail($"Test method threw exception {this.exceptionType.FullName}, but exception {ex.GetType().FullName} was expected. Exception message: {ex.Message}");
+                Assert.Fail($"Test method threw exception '{ex.GetType().FullName}', but exception '{this.exceptionType.FullName}' was expected. Actual exception message: '{ex.Message}'");
             }
 
             if (this.expectedMessage != null && this.expectedMessage != ex.Message)
             {
-                Assert.Fail($"Test method threw the expected exception type, but with an unexpected message: {ex.Message}");
+                Assert.Fail($"Test method threw the expected exception type, but with an unexpected message: '{ex.Message}'");
             }
 
             Console.Write("ExpectedExceptionWithMessageAttribute:" + ex.Message);

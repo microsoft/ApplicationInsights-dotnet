@@ -1,10 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.EventCounterCollector
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
-    using System.Globalization;
-    using System.Text;
+
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector.Implementation;
@@ -26,7 +24,6 @@
         private TelemetryClient client = null;        
         private EventCounterListener eventCounterListener;
         private bool disposed = false;
-        private bool isInitialized = false;        
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EventCounterCollectionModule"/> class.
@@ -50,6 +47,14 @@
         public IList<EventCounterCollectionRequest> Counters { get; private set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the eventsource name and metric name are stored separately.
+        /// </summary>
+        public bool UseEventSourceNameAsMetricsNamespace { get; set; }
+
+        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
+        internal bool IsInitialized { get; private set; } = false;
+
+        /// <summary>
         /// IDisposable implementation.
         /// </summary>
         public void Dispose()
@@ -65,7 +70,7 @@
         {
             try
             {                
-                if (!this.isInitialized)
+                if (!this.IsInitialized)
                 {
                     EventCounterCollectorEventSource.Log.ModuleIsBeingInitializedEvent(this.Counters?.Count ?? 0);
 
@@ -76,8 +81,8 @@
 
                     this.client = new TelemetryClient(configuration);                    
                     this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("evtc:");
-                    this.eventCounterListener = new EventCounterListener(this.client, this.Counters, this.refreshInternalInSecs);
-                    this.isInitialized = true;
+                    this.eventCounterListener = new EventCounterListener(this.client, this.Counters, this.refreshInternalInSecs, this.UseEventSourceNameAsMetricsNamespace);
+                    this.IsInitialized = true;
                     EventCounterCollectorEventSource.Log.ModuleInitializedSuccess();
                 }
             }

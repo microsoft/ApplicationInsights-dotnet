@@ -191,11 +191,7 @@
 
         private static string GetUniqueFileName(string extension)
         {
-#if NETSTANDARD1_3
-            string fileName = Guid.NewGuid().ToString("N");
-#else
             string fileName = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
-#endif
             return Path.ChangeExtension(fileName, extension);
         }
 
