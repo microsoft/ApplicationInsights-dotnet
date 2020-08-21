@@ -14,6 +14,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Sampling;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics;
     using Microsoft.ApplicationInsights.Metrics;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
@@ -29,7 +30,8 @@
         internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
 
         private static object syncRoot = new object();
-        private static TelemetryConfiguration active;        
+        private static TelemetryConfiguration active;
+        private static ISelfDiagnostics selfDiagnostics;
 
         private readonly SnapshottingList<ITelemetryInitializer> telemetryInitializers = new SnapshottingList<ITelemetryInitializer>();
         private readonly TelemetrySinkCollection telemetrySinks = new TelemetrySinkCollection();
@@ -64,6 +66,8 @@
                     Activity.ForceDefaultIdFormat = true;
                 }                
             });
+
+            selfDiagnostics = SelfDiagnosticsProvider.EvaluateSelfDiagnosticsConfig<SelfDiagnosticsFileWriter>();
         }
 
         /// <summary>

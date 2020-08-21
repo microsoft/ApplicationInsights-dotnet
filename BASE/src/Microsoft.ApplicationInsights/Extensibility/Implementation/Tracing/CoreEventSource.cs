@@ -652,6 +652,9 @@
         [Event(70, Message = "Updating Exception has failed. Error: {0}", Level = EventLevel.Error)]
         public void UpdateDataFailed(string error, string appDomainName = "Incorrect") => this.WriteEvent(70, error, this.nameProvider.Name);
 
+        [Event(71, Message = "{0}", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
+        public void SelfDiagnosticsParseError(string message, string appDomainName = "Incorrect") => this.WriteEvent(71, message, this.nameProvider.Name);
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>
