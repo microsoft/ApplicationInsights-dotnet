@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics
 {
-    internal class SelfDiagnosticsFileWriter : ISelfDiagnostics
+    internal class SelfDiagnosticsFileWriter : ISelfDiagnosticsFileWriter
     {
         public void Initialize(string level, string fileDirectory)
         {

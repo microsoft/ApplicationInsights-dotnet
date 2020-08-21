@@ -29,7 +29,7 @@
     {
         internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
 
-        private static readonly ISelfDiagnostics SelfDiagnostics;
+        private static readonly ISelfDiagnosticsFileWriter SelfDiagnostics;
         private static object syncRoot = new object();
         private static TelemetryConfiguration active;
 

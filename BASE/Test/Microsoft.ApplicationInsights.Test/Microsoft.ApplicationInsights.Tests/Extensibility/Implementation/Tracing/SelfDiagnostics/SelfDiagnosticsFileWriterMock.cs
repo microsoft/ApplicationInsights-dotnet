@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics;
+﻿using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics;
 
 namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementation.Tracing.SelfDiagnostics
 {
-    public class SelfDiagnosticsMock : ISelfDiagnostics
+    public class SelfDiagnosticsFileWriterMock : ISelfDiagnosticsFileWriter
     {
         public string Level { get; set; }
         public string FileDirectory { get; set; }

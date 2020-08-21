@@ -22,7 +22,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         [TestMethod]
         public void VerifyEvaluateSelfDiagnosticsReturnsNullIfNoEnvironmentVariable()
         {
-            var selfDiagnosticsMock = SelfDiagnosticsProvider.EvaluateSelfDiagnosticsConfig<SelfDiagnosticsMock>();
+            var selfDiagnosticsMock = SelfDiagnosticsProvider.EvaluateSelfDiagnosticsConfig<SelfDiagnosticsFileWriterMock>();
             Assert.IsNull(selfDiagnosticsMock);
         }
 
@@ -37,7 +37,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
             string testDirectory1 = "C:\\TEST1";
             this.SetEnvironmentVariable(testLevel1, testDirectory1);
 
-            var selfDiagnosticsMock1 = SelfDiagnosticsProvider.EvaluateSelfDiagnosticsConfig<SelfDiagnosticsMock>();
+            var selfDiagnosticsMock1 = SelfDiagnosticsProvider.EvaluateSelfDiagnosticsConfig<SelfDiagnosticsFileWriterMock>();
 
             Assert.AreEqual(testLevel1, selfDiagnosticsMock1.Level);
             Assert.AreEqual(testDirectory1, selfDiagnosticsMock1.FileDirectory);
@@ -46,7 +46,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
             string testDirectory2 = "C:\\TEST2";
             this.SetEnvironmentVariable(testLevel2, testDirectory2);
 
-            var selfDiagnosticsMock2 = SelfDiagnosticsProvider.EvaluateSelfDiagnosticsConfig<SelfDiagnosticsMock>();
+            var selfDiagnosticsMock2 = SelfDiagnosticsProvider.EvaluateSelfDiagnosticsConfig<SelfDiagnosticsFileWriterMock>();
 
             Assert.AreEqual(testLevel2, selfDiagnosticsMock2.Level);
             Assert.AreEqual(testDirectory2, selfDiagnosticsMock2.FileDirectory);

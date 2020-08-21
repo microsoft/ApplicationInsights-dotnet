@@ -29,7 +29,7 @@
         /// Throws an exception if the configuration string is invalid. 
         /// This is expected to crash the application and provide immediate feedback to the end user if the config is invalid.
         /// </exception>
-        internal static T EvaluateSelfDiagnosticsConfig<T>() where T : ISelfDiagnostics, new()
+        internal static T EvaluateSelfDiagnosticsConfig<T>() where T : ISelfDiagnosticsFileWriter, new()
         { 
             try
             {
