@@ -29,9 +29,9 @@
     {
         internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
 
+        private static readonly ISelfDiagnostics SelfDiagnostics;
         private static object syncRoot = new object();
         private static TelemetryConfiguration active;
-        private static ISelfDiagnostics selfDiagnostics;
 
         private readonly SnapshottingList<ITelemetryInitializer> telemetryInitializers = new SnapshottingList<ITelemetryInitializer>();
         private readonly TelemetrySinkCollection telemetrySinks = new TelemetrySinkCollection();
@@ -49,13 +49,17 @@
         /// </summary>
         private bool isDisposed = false;
 
+
         /// <summary>
         /// Static Constructor which sets ActivityID Format to W3C if Format not enforced.
-        /// This ensures SDK operates in W3C mode, unless turned off explicitily with the following 2 lines
-        /// in user code in application startup.
-        /// Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical
-        /// Activity.ForceDefaultIdFormat = true.
+        /// This ensures SDK operates in W3C mode, unless turned off explicitly with the following 2 lines in user code in application startup.
+        /// <code>
+        /// Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
+        /// Activity.ForceDefaultIdFormat = true;
+        /// </code>
+        /// Static Constructor will also evaluate if self diagnostics have been enabled.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1810:Initialize reference type static fields inline", Justification = "Intentionally organizing static fields in this constructor.")]
         static TelemetryConfiguration()
         {
             ActivityExtensions.TryRun(() =>
@@ -67,7 +71,7 @@
                 }                
             });
 
-            selfDiagnostics = SelfDiagnosticsProvider.EvaluateSelfDiagnosticsConfig<SelfDiagnosticsFileWriter>();
+            SelfDiagnostics = SelfDiagnosticsProvider.EvaluateSelfDiagnosticsConfig<SelfDiagnosticsFileWriter>();
         }
 
         /// <summary>

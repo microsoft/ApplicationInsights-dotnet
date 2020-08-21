@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Microsoft.ApplicationInsights.Extensibility.Implementation.ConfigString;
-using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
-
-using static System.FormattableString;
-
-namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics
 {
+    using System;
+    using System.Collections.Generic;
+
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.ConfigString;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
+
+    using static System.FormattableString;
+
     /// <summary>
     /// This class encapsulates parsing and interpreting the self diagnostics configuration string.
     /// </summary>
@@ -26,11 +23,13 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Sel
 
         /// <summary>
         /// Parse the environment variable and determine if self diagnostics logging has been enabled. 
-        /// If so, will return an instance of the generic class specified.
-        /// If not, will return null.
         /// </summary>
-        /// <returns></returns>
-        internal static T EvaluateSelfDiagnosticsConfig<T>() where T:ISelfDiagnostics, new()
+        /// <returns>If the config is valid, will return an instance of the generic class specified. If not, will return null.</returns>
+        /// <exception cref="Exception">
+        /// Throws an exception if the configuration string is invalid. 
+        /// This is expected to crash the application and provide immediate feedback to the end user if the config is invalid.
+        /// </exception>
+        internal static T EvaluateSelfDiagnosticsConfig<T>() where T : ISelfDiagnostics, new()
         { 
             try
             {
@@ -43,7 +42,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Sel
                 }
                 else
                 {
-                    // return null;
                     return default(T);
                 }
             }
