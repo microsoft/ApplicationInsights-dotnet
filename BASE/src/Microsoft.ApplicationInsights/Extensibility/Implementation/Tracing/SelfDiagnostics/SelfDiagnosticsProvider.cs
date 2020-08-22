@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.Tracing;
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation.ConfigString;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
@@ -19,7 +20,7 @@
         internal const string KeyLevel = "Level";
         internal const string ValueFile = "file";
         internal const string DefaultDirectory = "%TEMP%";
-        internal const string DefaultLevel = "Verbose";
+        internal const EventLevel DefaultLevel = EventLevel.Verbose;
 
         /// <summary>
         /// Parse the environment variable and determine if self diagnostics logging has been enabled. 
@@ -97,7 +98,7 @@
             if (keyValuePairs[KeyDestination].Equals(ValueFile, StringComparison.OrdinalIgnoreCase))
             {
                 TryGetValueWithDefault(keyValuePairs, key: KeyDirectory, defaultValue: DefaultDirectory, value: out directory);
-                TryGetValueWithDefault(keyValuePairs, key: KeyLevel, defaultValue: DefaultLevel, value: out level);
+                TryGetValueWithDefault(keyValuePairs, key: KeyLevel, defaultValue: DefaultLevel.ToString(), value: out level);
                 return true;
             }
             else
