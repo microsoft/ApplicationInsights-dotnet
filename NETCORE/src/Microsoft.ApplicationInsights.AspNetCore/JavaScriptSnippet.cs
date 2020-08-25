@@ -115,7 +115,7 @@
 
                 Snippet = Snippet.Replace("instrumentationKey: \"INSTRUMENTATION_KEY\"",insertConfig );
                 // Return snippet
-                return string.Format(CultureInfo.InvariantCulture, "{0}{1}" , Snippet , insertAuthUserContext);
+                return string.Concat(Snippet, insertAuthUserContext);
             }
         }
 
