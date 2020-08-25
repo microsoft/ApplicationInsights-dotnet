@@ -9,6 +9,7 @@
 - [Fix broken correlation and missing in-proc dependency Azure Blob SDK v12](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1915)
 - [Fix Heartbeat interval not applied until after first heartbeat](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1298)
 - [Fix: ApplicationInsightsLoggerProvider does not catch exceptions](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1969)
+- Update AppInsights JS snippet used in the code to [latest version](https://github.com/microsoft/ApplicationInsights-JS)
 - [ServerTelemetryChannel does not fall back to any default directory if user explicitly configures StorageFolder, and have trouble read/write to it](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2000)
 
 ## Version 2.15.0-beta2
