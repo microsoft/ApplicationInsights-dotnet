@@ -17,9 +17,6 @@
         private const string ScriptTagBegin = @"<script type=""text/javascript"">";
         private const string ScriptTagEnd = "</script>";
 
-        /// <summary>JavaScript snippet.</summary>
-        private string Snippet = Resources.JavaScriptSnippet;
-
         /// <summary>JavaScript authenticated user tracking snippet.</summary>
         private static readonly string AuthSnippet = Resources.JavaScriptAuthSnippet;
 
@@ -33,6 +30,9 @@
         private readonly bool enableAuthSnippet;
 
         private readonly JavaScriptEncoder encoder;
+
+        /// <summary>JavaScript snippet.</summary>
+        private string snippet = Resources.JavaScriptSnippet;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="JavaScriptSnippet"/> class.
@@ -113,9 +113,9 @@
                     }
                 }
 
-                Snippet = Snippet.Replace("instrumentationKey: \"INSTRUMENTATION_KEY\"",insertConfig );
+                this.snippet = this.snippet.Replace("instrumentationKey: \"INSTRUMENTATION_KEY\"", insertConfig);
                 // Return snippet
-                return string.Concat(Snippet, insertAuthUserContext);
+                return string.Concat(this.snippet, insertAuthUserContext);
             }
         }
 
