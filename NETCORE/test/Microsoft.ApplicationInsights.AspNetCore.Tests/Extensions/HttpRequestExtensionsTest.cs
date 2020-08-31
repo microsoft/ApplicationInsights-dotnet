@@ -13,6 +13,7 @@
         const string ExpectedDefaultHostName = "unknown-host";
         const string ExpectedMulltipleHostName = "multiple-host";
         const string ExpectedPath = "/path/path/";
+        const string ExpectedPathBase = "/pathbase";
         const string ExpectedQueryString = "?queryType=1";
 
         [Fact]
@@ -76,7 +77,7 @@
             var uri = HttpRequestExtensions.GetUri(request);
 
             Assert.Equal(
-                new Uri(string.Format(CultureInfo.InvariantCulture, "{0}://{1}", ExpectedSchema, ExpectedHostName)), 
+                new Uri(string.Format(CultureInfo.InvariantCulture, "{0}://{1}", ExpectedSchema, ExpectedHostName)),
                 uri);
         }
 
@@ -92,7 +93,7 @@
             var uri = HttpRequestExtensions.GetUri(request);
 
             Assert.Equal(
-                new Uri(string.Format(CultureInfo.InvariantCulture, "{0}://{1}{2}", ExpectedSchema, ExpectedHostName, ExpectedPath)), 
+                new Uri(string.Format(CultureInfo.InvariantCulture, "{0}://{1}{2}", ExpectedSchema, ExpectedHostName, ExpectedPath)),
                 uri);
         }
 
@@ -110,6 +111,24 @@
 
             Assert.Equal(
                 new Uri(string.Format(CultureInfo.InvariantCulture, "{0}://{1}{2}{3}", ExpectedSchema, ExpectedHostName, ExpectedPath, ExpectedQueryString)),
+                uri);
+        }
+
+        [Fact]
+        public void TestGetUriReturnsCorrectUriIfRequestObjectSchemeAndHostAndPathBaseAndPathAndQueryStringAreSpecified()
+        {
+            var request = new DefaultHttpContext().Request;
+
+            request.Scheme = ExpectedSchema;
+            request.Host = new HostString(ExpectedHostName);
+            request.PathBase = new PathString(ExpectedPathBase);
+            request.Path = new PathString(ExpectedPath);
+            request.QueryString = new QueryString(ExpectedQueryString);
+
+            var uri = HttpRequestExtensions.GetUri(request);
+
+            Assert.Equal(
+                new Uri(string.Format(CultureInfo.InvariantCulture, "{0}://{1}{2}{3}{4}", ExpectedSchema, ExpectedHostName, ExpectedPathBase, ExpectedPath, ExpectedQueryString)),
                 uri);
         }
     }
