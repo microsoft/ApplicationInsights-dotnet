@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
-#if !NETCOREAPP2_0
     using System;
     using System.IO;
     using System.Reflection;
@@ -52,7 +51,11 @@
             CreateConfigurationFile("42");
             try
             {
+#if NETCOREAPP
+                Assert.IsNull(PlatformSingleton.Current.ReadConfigurationXml());
+#else
                 Assert.AreEqual("42", PlatformSingleton.Current.ReadConfigurationXml());
+#endif
             }
             finally
             {
@@ -64,8 +67,12 @@
         public void ReadConfigurationXmlIgnoresMissingApplicationInsightsConfigurationFileByReturningEmptyString()
         {
             string configuration = PlatformSingleton.Current.ReadConfigurationXml();
+#if NETCOREAPP
+            Assert.IsNull(PlatformSingleton.Current.ReadConfigurationXml());
+#else
             Assert.IsNotNull(configuration);
             Assert.AreEqual(0, configuration.Length);
+#endif
         }
 
         private static void CreateConfigurationFile(string content)
@@ -87,5 +94,4 @@
             return File.OpenWrite(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ApplicationInsights.config"));
         }
     }
-#endif
 }
