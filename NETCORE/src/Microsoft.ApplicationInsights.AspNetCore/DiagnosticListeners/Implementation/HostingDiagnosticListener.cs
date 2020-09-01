@@ -69,17 +69,12 @@
         private readonly PropertyFetcher routeValuesFetcher = new PropertyFetcher("Values");
         private readonly PropertyFetcher httpContextFetcherStart = new PropertyFetcher("HttpContext");
         private readonly PropertyFetcher httpContextFetcherStop = new PropertyFetcher("HttpContext");
-        private readonly PropertyFetcher httpContextFetcherBeginRequest = new PropertyFetcher("httpContext");
-        private readonly PropertyFetcher httpContextFetcherEndRequest = new PropertyFetcher("httpContext");
         private readonly PropertyFetcher httpContextFetcherDiagExceptionUnhandled = new PropertyFetcher("httpContext");
         private readonly PropertyFetcher httpContextFetcherDiagExceptionHandled = new PropertyFetcher("httpContext");
         private readonly PropertyFetcher httpContextFetcherHostingExceptionUnhandled = new PropertyFetcher("httpContext");
         private readonly PropertyFetcher exceptionFetcherDiagExceptionUnhandled = new PropertyFetcher("exception");
         private readonly PropertyFetcher exceptionFetcherDiagExceptionHandled = new PropertyFetcher("exception");
         private readonly PropertyFetcher exceptionFetcherHostingExceptionUnhandled = new PropertyFetcher("exception");
-
-        private readonly PropertyFetcher timestampFetcherBeginRequest = new PropertyFetcher("timestamp");
-        private readonly PropertyFetcher timestampFetcherEndRequest = new PropertyFetcher("timestamp");
 
         private string lastIKeyLookedUp;
         private string lastAppIdUsed;
@@ -303,100 +298,6 @@
         }
 
         /// <summary>
-        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.BeginRequest' event. This is from 1.XX runtime.
-        /// </summary>
-        /// <param name="httpContext">HttpContext is used to retrieve information about the Request and Response.</param>
-        /// <param name="timestamp">Used to set the request start property.</param>
-        public void OnBeginRequest(HttpContext httpContext, long timestamp)
-        {
-            if (this.client.IsEnabled() && this.aspNetCoreMajorVersion == AspNetCoreMajorVersion.One)
-            {
-                // It's possible to host multiple apps (ASP.NET Core or generic hosts) in the same process
-                // Each of this apps has it's own HostingDiagnosticListener and corresponding Http listener.
-                // We should ignore events for all of them except one
-                if (!SubscriptionManager.IsActive(this))
-                {
-                    AspNetCoreEventSource.Instance.NotActiveListenerNoTracking(
-                        "Microsoft.AspNetCore.Hosting.BeginRequest", Activity.Current?.Id);
-                    return;
-                }
-
-                // 1.XX does not create Activity and SDK is responsible for creating Activity.
-                var activity = new Activity(ActivityCreatedByHostingDiagnosticListener);
-                IHeaderDictionary requestHeaders = httpContext.Request.Headers;
-
-                // Update the static RoleName while we have access to the httpContext.
-                RoleNameContainer.Instance?.Set(requestHeaders);
-
-                string originalParentId = null;
-                string legacyRootId = null;
-
-                // W3C-TraceParent
-                if (Activity.DefaultIdFormat == ActivityIdFormat.W3C &&
-                    requestHeaders.TryGetValue(W3C.W3CConstants.TraceParentHeader, out StringValues traceParentValues) &&
-                    traceParentValues != StringValues.Empty)
-                {
-                    var parentTraceParent = StringUtilities.EnforceMaxLength(traceParentValues.First(), InjectionGuardConstants.TraceParentHeaderMaxLength);
-                    activity.SetParentId(parentTraceParent);
-                    originalParentId = parentTraceParent;
-
-                    ReadTraceState(requestHeaders, activity);
-                }
-
-                // Request-Id
-                else if (requestHeaders.TryGetValue(RequestResponseHeaders.RequestIdHeader, out StringValues requestIdValues) &&
-                    requestIdValues != StringValues.Empty)
-                {
-                    originalParentId = StringUtilities.EnforceMaxLength(requestIdValues.First(), InjectionGuardConstants.RequestHeaderMaxLength);
-                    if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
-                    {
-                        if (TryGetW3CCompatibleTraceId(originalParentId, out var traceId))
-                        {
-                            activity.SetParentId(ActivityTraceId.CreateFromString(traceId), default(ActivitySpanId), ActivityTraceFlags.None);
-                        }
-                        else
-                        {
-                            // store rootIdFromOriginalParentId in custom Property
-                            legacyRootId = ExtractOperationIdFromRequestId(originalParentId);
-                        }
-                    }
-                    else
-                    {
-                        activity.SetParentId(originalParentId);
-                    }
-                }
-
-                // no headers
-                else
-                {
-                    // No need of doing anything. When Activity starts, it'll generate IDs in W3C or Hierarchical format as configured,
-                }
-
-                activity.Start();
-
-                ReadCorrelationContext(requestHeaders, activity);
-                var requestTelemetry = this.InitializeRequestTelemetry(httpContext, activity, timestamp, legacyRootId);
-
-                requestTelemetry.Context.Operation.ParentId = GetParentId(activity, originalParentId);
-
-                this.AddAppIdToResponseIfRequired(httpContext, requestTelemetry);
-            }
-        }
-
-        /// <summary>
-        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.EndRequest' event. This is from 1.XX runtime.
-        /// </summary>
-        /// <param name="httpContext">HttpContext is used to retrieve information about the Request and Response.</param>
-        /// <param name="timestamp">Used to set request stop property.</param>
-        public void OnEndRequest(HttpContext httpContext, long timestamp)
-        {
-            if (this.aspNetCoreMajorVersion == AspNetCoreMajorVersion.One)
-            {
-                this.EndRequest(httpContext, timestamp);
-            }
-        }
-
-        /// <summary>
         /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.UnhandledException' event.
         /// </summary>
         /// <param name="httpContext">HttpContext is used to retrieve information about the Request and Response.</param>
@@ -444,7 +345,6 @@
         {
             HttpContext httpContext = null;
             Exception exception = null;
-            long? timestamp = null;
 
             try
             {
@@ -507,24 +407,6 @@
                     if (context != null && routeValues != null)
                     {
                         OnBeforeAction(context, routeValues);
-                    }
-                }
-                else if (value.Key == "Microsoft.AspNetCore.Hosting.BeginRequest")
-                {
-                    httpContext = this.httpContextFetcherBeginRequest.Fetch(value.Value) as HttpContext;
-                    timestamp = this.timestampFetcherBeginRequest.Fetch(value.Value) as long?;
-                    if (httpContext != null && timestamp.HasValue)
-                    {
-                        this.OnBeginRequest(httpContext, timestamp.Value);
-                    }
-                }
-                else if (value.Key == "Microsoft.AspNetCore.Hosting.EndRequest")
-                {
-                    httpContext = this.httpContextFetcherEndRequest.Fetch(value.Value) as HttpContext;
-                    timestamp = this.timestampFetcherEndRequest.Fetch(value.Value) as long?;
-                    if (httpContext != null && timestamp.HasValue)
-                    {
-                        this.OnEndRequest(httpContext, timestamp.Value);
                     }
                 }
                 else if (value.Key == "Microsoft.AspNetCore.Diagnostics.UnhandledException")

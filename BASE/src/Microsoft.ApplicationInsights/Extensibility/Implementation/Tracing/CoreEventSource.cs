@@ -15,12 +15,12 @@
 
         private readonly ApplicationNameProvider nameProvider = new ApplicationNameProvider();
 
-#if NETSTANDARD2_0
-        private CoreEventSource()
+        internal CoreEventSource()
         {
+#if NETSTANDARD2_0
             this.IngestionResponseTimeCounter = new EventCounter("IngestionEndpoint-ResponseTimeMsec", this);
-        }
 #endif
+        }
 
         public static bool IsVerboseEnabled
         {

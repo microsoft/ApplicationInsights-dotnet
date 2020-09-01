@@ -36,8 +36,8 @@
         }
 
         // Verbosity is Error - so it is always sent to portal; Keyword is Diagnostics so throttling is not applied.
-        [Event(2, 
-            Message = "Diagnostic message: backoff logic was enabled. Backoff internal exceeded {0} min. Last status code received from the backend was {1}.", 
+        [Event(2,
+            Message = "Diagnostic message: backoff logic was enabled. Backoff internal exceeded {0} min. Last status code received from the backend was {1}.",
             Level = EventLevel.Error,
             Keywords = Keywords.Diagnostics | Keywords.UserActionable)]
         public void BackoffEnabled(double intervalInMin, int statusCode, string appDomainName = "Incorrect")
@@ -146,7 +146,7 @@
         {
             this.WriteEvent(19, this.ApplicationName);
         }
-        
+
         [Event(20, Message = "{0} passed to channel with iKey {1}...", Level = EventLevel.Verbose)]
         public void TelemetryChannelSend(string type, string key, string appDomainName = "Incorrect")
         {
@@ -368,9 +368,9 @@
         }
 
         [Event(
-            55, 
+            55,
             Keywords = Keywords.UserActionable,
-            Message = "Local storage access has resulted in an error (User: {1}) (CustomFolder: {2}). If you want Application Insights SDK to store telemetry locally on disk in case of transient network issues please give the process access to %LOCALAPPDATA% or %TEMP% folder. If application is running in non-windows platform, create StorageFolder yourself, and set ServerTelemetryChannel.StorageFolder to the custom folder name. After you gave access to the folder you need to restart the process. Currently monitoring will continue but if telemetry cannot be sent it will be dropped. Error message: {0}.", 
+            Message = "Local storage access has resulted in an error (User: {1}) (CustomFolder: {2}). If you want Application Insights SDK to store telemetry locally on disk in case of transient network issues please give the process access to %LOCALAPPDATA% or %TEMP% folder. If application is running in non-windows platform, create StorageFolder yourself, and set ServerTelemetryChannel.StorageFolder to the custom folder name. After you gave access to the folder you need to restart the process. Currently monitoring will continue but if telemetry cannot be sent it will be dropped. Error message: {0}.",
             Level = EventLevel.Error)]
         public void TransmissionStorageAccessDeniedError(string error, string user, string customFolder, string appDomainName = "Incorrect")
         {
@@ -538,11 +538,26 @@
             this.WriteEvent(74, this.ApplicationName);
         }
 
+        [Event(
+            75,
+            Keywords = Keywords.UserActionable,
+            Message = "Unable to use configured StorageFolder: {2}. Please make sure the folder exist and the application has read/write permissions to the same. Currently monitoring will continue but if telemetry cannot be sent it will be dropped. User: {1} Error message: {0}.",
+            Level = EventLevel.Error)]
+        public void TransmissionCustomStorageError(string error, string user, string customFolder, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                75,
+                error ?? string.Empty,
+                user ?? string.Empty,
+                customFolder ?? string.Empty,
+                this.ApplicationName);
+        }
+
         private static string GetApplicationName()
         {
             //// We want to add application name to all events BUT
             //// It is prohibited by EventSource rules to have more parameters in WriteEvent that in event source method
-            //// Parameter will be available in payload but in the next versions EventSource may 
+            //// Parameter will be available in payload but in the next versions EventSource may
             //// start validating that number of parameters match
             //// It is not allowed to call additional methods, only WriteEvent
 
