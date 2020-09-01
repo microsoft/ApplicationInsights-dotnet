@@ -652,6 +652,9 @@
         [Event(70, Message = "Updating Exception has failed. Error: {0}", Level = EventLevel.Error)]
         public void UpdateDataFailed(string error, string appDomainName = "Incorrect") => this.WriteEvent(70, error, this.nameProvider.Name);
 
+        [Event(71, Keywords = Keywords.UserActionable, Message = "TransmissionStatusEvent has failed. Error: {0}", Level = EventLevel.Error)]
+        public void TransmissionStatusEventError(string error, string appDomainName = "Incorrect") => this.WriteEvent(71, error, this.nameProvider.Name);
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>

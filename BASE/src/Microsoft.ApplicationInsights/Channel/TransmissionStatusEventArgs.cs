@@ -12,7 +12,7 @@
         /// Initializes a new instance of the <see cref="TransmissionStatusEventArgs"/> class.
         /// </summary>
         /// <param name="response">Response from ingestion endpoint.</param>
-        public TransmissionStatusEventArgs(HttpWebResponseWrapper response = null)
+        public TransmissionStatusEventArgs(HttpWebResponseWrapper response)
         {
             this.Response = response;
         }

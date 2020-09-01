@@ -522,9 +522,9 @@
                 {
                     // Instantiate Transmission with the mock HttpClient                  
                     Transmission transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
-                    
+
                     // VALIDATE
-                    transmission.TransmissionStatusEvent += delegate(object sender, TransmissionStatusEventArgs args)
+                    transmission.TransmissionStatusEvent += delegate (object sender, TransmissionStatusEventArgs args)
                     {
                         Assert.AreEqual((int)HttpStatusCode.OK, args.Response.StatusCode);
                     };
@@ -535,7 +535,7 @@
             }
 
             [TestMethod]
-            public async Task TestTransmissionStatusEventHandlerWithFailureTransmission()
+            public async Task TestTransmissionStatusEventHandlerWithKnownFailureTransmission()
             {
                 // ARRANGE
                 var handler = new HandlerForFakeHttpClient
@@ -562,6 +562,83 @@
 
                     // ACT
                     HttpWebResponseWrapper result = await transmission.SendAsync();
+                }
+            }
+
+            [TestMethod]
+            public async Task TestTransmissionStatusEventHandlerWithUnKnownFailureTransmission()
+            {
+                // ARRANGE
+                var handler = new HandlerForFakeHttpClient
+                {
+                    InnerHandler = new HttpClientHandler(),
+                    OnSendAsync = (req, cancellationToken) =>
+                    {
+                        throw new Exception("test");
+                    }
+                };
+
+                using (var fakeHttpClient = new HttpClient(handler))
+                {
+                    // Instantiate Transmission with the mock HttpClient                  
+                    Transmission transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
+                    transmission.Timeout = TimeSpan.Zero;
+
+                    // VALIDATE
+                    transmission.TransmissionStatusEvent += delegate (object sender, TransmissionStatusEventArgs args)
+                    {
+                        Assert.AreEqual(0, args.Response.StatusCode);
+                    };
+
+                    // ACT
+                    try
+                    {
+                        HttpWebResponseWrapper result = await transmission.SendAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        Assert.AreEqual("test", ex.Message);
+                    }
+                }
+            }
+
+            [TestMethod]
+            public async Task TestTransmissionStatusEventHandlerFails()
+            {
+                // ARRANGE
+                var handler = new HandlerForFakeHttpClient
+                {
+                    InnerHandler = new HttpClientHandler(),
+                    OnSendAsync = (req, cancellationToken) =>
+                    {
+                        return Task.FromResult<HttpResponseMessage>(new HttpResponseMessage());
+                    }
+                };
+
+                using (var listener = new TestEventListener())
+                {
+                    listener.EnableEvents(CoreEventSource.Log, EventLevel.LogAlways,
+                        (EventKeywords)AllKeywords);
+
+                    using (var fakeHttpClient = new HttpClient(handler))
+                    {
+                        // Instantiate Transmission with the mock HttpClient                  
+                        Transmission transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
+
+                        // VALIDATE
+                        transmission.TransmissionStatusEvent += delegate (object sender, TransmissionStatusEventArgs args)
+                        {
+                            throw new Exception("test");
+                        };
+
+                        // ACT
+                        HttpWebResponseWrapper result = await transmission.SendAsync();
+                    }
+
+                    // Assert:
+                    var allTraces = listener.Messages.ToList();
+                    var traces = allTraces.Where(item => item.EventId == 71).ToList();
+                    Assert.AreEqual(1, traces.Count);
                 }
             }
 

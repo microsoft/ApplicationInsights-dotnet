@@ -220,15 +220,17 @@
                             StatusCode = (int)HttpStatusCode.RequestTimeout,
                         };
                     }
-
-                    try
+                    finally
                     {
-                        // Initiates event notification to subscriber with Transmission and TransmissionStatusEventArgs.
-                        this.TransmissionStatusEvent?.Invoke(this, new TransmissionStatusEventArgs(wrapper));
-                    }
-                    catch
-                    {
-                        // Swallow any exception here as this code is for tracing purposes only and should never throw.
+                        try
+                        {
+                            // Initiates event notification to subscriber with Transmission and TransmissionStatusEventArgs.
+                            this.TransmissionStatusEvent?.Invoke(this, new TransmissionStatusEventArgs(wrapper ?? new HttpWebResponseWrapper() { StatusCode = 0 }));
+                        }
+                        catch (Exception ex)
+                        {
+                            CoreEventSource.Log.TransmissionStatusEventError(ex.ToInvariantString());
+                        }
                     }
 
                     return wrapper;
