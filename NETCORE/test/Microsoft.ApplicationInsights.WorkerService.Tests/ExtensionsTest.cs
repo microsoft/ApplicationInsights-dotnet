@@ -393,29 +393,19 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
         [Fact]
         public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesEventCounterCollectorWithDefaultListOfCounters()
         {
-            //ARRANGE
+            // ARRANGE
             var services = new ServiceCollection();
             services.AddApplicationInsightsTelemetryWorkerService();
 
-            //ACT
+            // ACT
             IServiceProvider serviceProvider = services.BuildServiceProvider();
             var modules = serviceProvider.GetServices<ITelemetryModule>();            
             var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
             var eventCounterModule = modules.OfType<EventCounterCollectionModule>().Single();
 
-            //VALIDATE
-            Assert.Equal(19, eventCounterModule.Counters.Count);
-
-            // sanity check with a sample counter.
-            var cpuCounterRequest = eventCounterModule.Counters.FirstOrDefault<EventCounterCollectionRequest>(
-                eventCounterCollectionRequest => eventCounterCollectionRequest.EventSourceName == "System.Runtime"
-                && eventCounterCollectionRequest.EventCounterName == "cpu-usage");
-            Assert.NotNull(cpuCounterRequest);
-
-            // sanity check - no asp.net counters should be added
-            var aspnetCounterRequest = eventCounterModule.Counters.FirstOrDefault<EventCounterCollectionRequest>(
-                eventCounterCollectionRequest => eventCounterCollectionRequest.EventSourceName == "Microsoft.AspNetCore.Hosting");
-            Assert.Null(aspnetCounterRequest);
+            // VALIDATE
+            // By default, no counters are collected.
+            Assert.Equal(0, eventCounterModule.Counters.Count);
         }
 
         [Fact]
