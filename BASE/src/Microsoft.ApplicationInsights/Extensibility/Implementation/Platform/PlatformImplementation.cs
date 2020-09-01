@@ -37,6 +37,15 @@
             }
         }
 
+#if NETSTANDARD
+        /// <summary>
+        /// Returns contents of the ApplicationInsights.config file in the application directory.
+        /// </summary>
+        public string ReadConfigurationXml()
+        {
+            return null;
+        }
+#else
         /// <summary>
         /// Returns contents of the ApplicationInsights.config file in the application directory.
         /// </summary>
@@ -88,6 +97,7 @@
 
             return string.Empty;
         }
+#endif
 
         /// <summary>
         /// Returns the platform specific Debugger writer to the VS output console.
