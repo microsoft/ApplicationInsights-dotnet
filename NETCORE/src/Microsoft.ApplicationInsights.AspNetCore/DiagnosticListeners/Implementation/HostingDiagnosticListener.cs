@@ -69,17 +69,12 @@
         private readonly PropertyFetcher routeValuesFetcher = new PropertyFetcher("Values");
         private readonly PropertyFetcher httpContextFetcherStart = new PropertyFetcher("HttpContext");
         private readonly PropertyFetcher httpContextFetcherStop = new PropertyFetcher("HttpContext");
-        private readonly PropertyFetcher httpContextFetcherBeginRequest = new PropertyFetcher("httpContext");
-        private readonly PropertyFetcher httpContextFetcherEndRequest = new PropertyFetcher("httpContext");
         private readonly PropertyFetcher httpContextFetcherDiagExceptionUnhandled = new PropertyFetcher("httpContext");
         private readonly PropertyFetcher httpContextFetcherDiagExceptionHandled = new PropertyFetcher("httpContext");
         private readonly PropertyFetcher httpContextFetcherHostingExceptionUnhandled = new PropertyFetcher("httpContext");
         private readonly PropertyFetcher exceptionFetcherDiagExceptionUnhandled = new PropertyFetcher("exception");
         private readonly PropertyFetcher exceptionFetcherDiagExceptionHandled = new PropertyFetcher("exception");
         private readonly PropertyFetcher exceptionFetcherHostingExceptionUnhandled = new PropertyFetcher("exception");
-
-        private readonly PropertyFetcher timestampFetcherBeginRequest = new PropertyFetcher("timestamp");
-        private readonly PropertyFetcher timestampFetcherEndRequest = new PropertyFetcher("timestamp");
 
         private string lastIKeyLookedUp;
         private string lastAppIdUsed;
