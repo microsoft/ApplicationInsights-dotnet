@@ -657,14 +657,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
             var eventCounterModule = modules.OfType<EventCounterCollectionModule>().Single();
 
-            //VALIDATE
-            Assert.Equal(19, eventCounterModule.Counters.Count);
-
-            // sanity check with a sample counter.
-            var cpuCounterRequest = eventCounterModule.Counters.FirstOrDefault<EventCounterCollectionRequest>(
-                eventCounterCollectionRequest => eventCounterCollectionRequest.EventSourceName == "System.Runtime"
-                && eventCounterCollectionRequest.EventCounterName == "cpu-usage");
-            Assert.NotNull(cpuCounterRequest);
+            // VALIDATE
+            // By default, no counters are collected.
+            Assert.Equal(0, eventCounterModule.Counters.Count);
         }
 #endif
 
