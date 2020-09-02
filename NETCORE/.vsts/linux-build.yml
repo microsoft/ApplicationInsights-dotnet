@@ -2,12 +2,12 @@ pool:
   vmImage: 'ubuntu-16.04'
   
 strategy:
-matrix:
-netcoreapp2_1:
-  framework: $(framework)
-netcoreapp3_1:
-  framework: netcoreapp3.1
-maxParallel: 2
+    matrix:
+        netcoreapp2_1:
+            framework: $(framework)
+        netcoreapp3_1:
+            framework: netcoreapp3.1
+        maxParallel: 2
 
 steps:
 
