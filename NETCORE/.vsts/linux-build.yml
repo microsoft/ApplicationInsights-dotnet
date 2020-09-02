@@ -4,7 +4,7 @@ pool:
 strategy:
     matrix:
         netcoreapp2_1:
-            framework: $(framework)
+            framework: netcoreapp2.1
         netcoreapp3_1:
             framework: netcoreapp3.1
     maxParallel: 2
