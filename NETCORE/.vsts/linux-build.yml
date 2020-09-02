@@ -26,13 +26,27 @@ steps:
   inputs:
     script: rsync -a ${DOTNET_ROOT/3.1.301/2.1.807}/* $DOTNET_ROOT/
     
+- task: DotNetCoreCLI@2
+  displayName:  DotNetCoreCLI - Restore Solution
+  inputs:
+    command: "restore"
+    projects: "NETCORE/*.sln"
+  continueOnError: true
+
+- task: DotNetCoreCLI@2
+  displayName: DotNetCoreCLI - Build Solution
+  inputs:
+    command: "build"
+    projects: "NETCORE/*.sln"
+    arguments: "--configuration Release --no-restore"    
+    
 - task: DotNetCoreCLI@1
   displayName: Integration Tests $(framework)
   continueOnError: true
   inputs:
     command: "test"
     projects: "NETCORE/test/**/IntegrationTests.Tests.csproj"
-    arguments: "--configuration Release --framework $(framework) -l trx"
+    arguments: "--configuration Release --framework $(framework) --no-build -l trx"
 
 - task: DotNetCoreCLI@1
   displayName: Functional MVC Tests $(framework)
@@ -40,7 +54,7 @@ steps:
   inputs:
     command: "test"
     projects: "NETCORE/test/**/*FunctionalTests.MVC.Tests.csproj"
-    arguments: "--configuration Release --framework $(framework) -l trx"
+    arguments: "--configuration Release --framework $(framework) --no-build -l trx"
 
 - task: DotNetCoreCLI@1
   displayName: Unit Tests for AspNetCore $(framework)
@@ -48,7 +62,7 @@ steps:
   inputs:
     command: "test"
     projects: "NETCORE/test/**/*AspNetCore.Tests.csproj"
-    arguments: "--configuration Release --framework $(framework) -l trx"
+    arguments: "--configuration Release --framework $(framework) --no-build -l trx"
     
 - task: DotNetCoreCLI@1
   displayName: Unit Tests + Func Tests for WorkerService for AspNetCore $(framework)
@@ -56,7 +70,7 @@ steps:
   inputs:
     command: "test"
     projects: "NETCORE/test/**/*WorkerService.Tests.csproj"
-    arguments: "--configuration Release --framework $(framework) -l trx"
+    arguments: "--configuration Release --framework $(framework) --no-build -l trx"
 
 ## Publish Test results
 
