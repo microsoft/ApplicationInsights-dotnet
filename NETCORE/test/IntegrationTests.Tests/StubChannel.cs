@@ -17,12 +17,10 @@ namespace IntegrationTests.Tests
 
         public void Dispose()
         {
-            throw new NotImplementedException();
         }
 
         public void Flush()
         {
-            throw new NotImplementedException();
         }
 
         public void Send(ITelemetry item)

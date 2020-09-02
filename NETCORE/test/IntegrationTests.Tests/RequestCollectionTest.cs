@@ -9,16 +9,21 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+#if NETCOREAPP2_1
+using IntegrationTests.WebApp._2._1;
+#else
+using IntegrationTests.WebApp._3._1;
+#endif
 
 namespace IntegrationTests.Tests
 {
-    public class BasicTestWithCorrelation : IClassFixture<CustomWebApplicationFactory<IntegrationTests.WebApp.Startup>>
+    public class RequestCollectionTest : IClassFixture<CustomWebApplicationFactory<Startup>>
     {
-        private readonly CustomWebApplicationFactory<IntegrationTests.WebApp.Startup> _factory;
+        private readonly CustomWebApplicationFactory<Startup> _factory;
         protected readonly ITestOutputHelper output;
 
 
-        public BasicTestWithCorrelation(CustomWebApplicationFactory<IntegrationTests.WebApp.Startup> factory, ITestOutputHelper output)
+        public RequestCollectionTest(CustomWebApplicationFactory<Startup> factory, ITestOutputHelper output)
         {
             this.output = output;
             _factory = factory;

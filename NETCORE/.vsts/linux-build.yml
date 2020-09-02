@@ -24,12 +24,12 @@ steps:
     arguments: "--configuration Release"
 
 - task: DotNetCoreCLI@1
-  displayName: Integration Tests
+  displayName: Integration Tests NetCore 3.1
   continueOnError: true
   inputs:
     command: "test"
     projects: "NETCORE/test/**/IntegrationTests.Tests.csproj"
-    arguments: "--configuration Release -l trx"
+    arguments: "--configuration Release --framework netcoreapp3.1 -l trx"
 
 - task: DotNetCoreCLI@1
   displayName: Functional MVC Tests
@@ -55,12 +55,20 @@ steps:
     projects: "NETCORE/test/**/*WorkerService.Tests.csproj"
     arguments: "--configuration Release --framework netcoreapp3.1 -l trx"
 
-## Install and Test NetCore 2.2
+## Install and Test NetCore 2.1
 
 - task: DotNetCoreInstaller@1
-  displayName: install dotnet core 2.2
+  displayName: install dotnet core 2.1
   inputs:
-    version: 2.2.x
+    version: 2.1.x
+
+- task: DotNetCoreCLI@1
+  displayName: Integration Tests NetCore 2.1
+  continueOnError: true
+  inputs:
+    command: "test"
+    projects: "NETCORE/test/**/IntegrationTests.Tests.csproj"
+    arguments: "--configuration Release --framework netcoreapp2.1 -l trx"
     
 - task: DotNetCoreCLI@1
   displayName: Functional MVC Tests

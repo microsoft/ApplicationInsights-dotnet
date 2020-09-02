@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace IntegrationTests.WebApp
+namespace IntegrationTests.WebApp._3._1
 {
     public class Startup
     {
