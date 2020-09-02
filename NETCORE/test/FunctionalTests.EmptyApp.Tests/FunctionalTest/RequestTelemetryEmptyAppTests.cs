@@ -8,7 +8,7 @@
     using FunctionalTests.Utils;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
-    using Xunit.Abstractions;    
+    using Xunit.Abstractions;
 
     public class RequestTelemetryEmptyAppTests : TelemetryTestsBase
     {
@@ -17,52 +17,6 @@
         public RequestTelemetryEmptyAppTests(ITestOutputHelper output) : base (output)
         {
             this.assemblyName = this.GetType().GetTypeInfo().Assembly.GetName().Name;
-        }
-
-        [Fact]
-        public void TestBasicRequestPropertiesAfterRequestingBasicPage()
-        {
-            using (var server = new InProcessServer(assemblyName, this.output))
-            {
-                const string RequestPath = "/";
-
-                var expectedRequestTelemetry = new RequestTelemetry();
-                expectedRequestTelemetry.Name = "GET /";
-                expectedRequestTelemetry.ResponseCode = "200";
-                expectedRequestTelemetry.Success = true;
-                expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
-
-                Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
-                {
-                    { "Request-Id", ""},
-                    { "Request-Context", "appId=value"},
-                };
-
-                this.ValidateRequestWithHeaders(server, RequestPath, requestHeaders, expectedRequestTelemetry, expectRequestContextInResponse: true);
-            }
-        }
-
-        [Fact]
-        public void TestBasicRequestPropertiesAfterRequestingNotExistingPage()
-        {
-            using (var server = new InProcessServer(assemblyName, this.output))
-            {
-                const string RequestPath = "/not/existing/controller";
-
-                var expectedRequestTelemetry = new RequestTelemetry();
-                expectedRequestTelemetry.Name = "GET /not/existing/controller";
-                expectedRequestTelemetry.ResponseCode = "404";
-                expectedRequestTelemetry.Success = false;
-                expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
-
-                Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
-                {
-                    { "Request-Id", ""},
-                    { "Request-Context", "appId=value"},
-                };
-
-                this.ValidateRequestWithHeaders(server, RequestPath, requestHeaders, expectedRequestTelemetry, expectRequestContextInResponse: true);
-            }
         }
 
         [Fact]
@@ -77,7 +31,7 @@
 
                 Assert.True(telemetries.Length >= 5);
 
-                Assert.Contains(telemetries.OfType<TelemetryItem<RemoteDependencyData>>(), 
+                Assert.Contains(telemetries.OfType<TelemetryItem<RemoteDependencyData>>(),
                     t => ((TelemetryItem<RemoteDependencyData>)t).data.baseData.name == "GET /Mixed");
 
                 Assert.Contains(telemetries.OfType<TelemetryItem<RequestData>>(),
