@@ -5,9 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using IntegrationTests.WebApp.Models;
+using IntegrationTests.WebApp._2._1.Models;
 
-namespace IntegrationTests.WebApp.Controllers
+namespace IntegrationTests.WebApp._2._1.Controllers
 {
     public class HomeController : Controller
     {
@@ -24,6 +24,20 @@ namespace IntegrationTests.WebApp.Controllers
             return View();
         }
 
+        public IActionResult About()
+        {
+            ViewData["Message"] = "Your application description page.";
+
+            return View();
+        }
+
+        public IActionResult Contact()
+        {
+            ViewData["Message"] = "Your contact page.";
+
+            return View();
+        }
+
         public IActionResult Privacy()
         {
             return View();
@@ -33,7 +47,6 @@ namespace IntegrationTests.WebApp.Controllers
         public IActionResult Error()
         {
             throw new Exception("sample exception");
-            // return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }
