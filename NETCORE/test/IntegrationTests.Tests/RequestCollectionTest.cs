@@ -95,7 +95,6 @@ namespace IntegrationTests.Tests
 
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
-            this.output.WriteLine(await response.Content.ReadAsStringAsync());
 
             WaitForTelemetryToArrive();
             var items = _factory.sentItems;
@@ -139,7 +138,6 @@ namespace IntegrationTests.Tests
 
             // Assert
             response.EnsureSuccessStatusCode();
-            this.output.WriteLine(await response.Content.ReadAsStringAsync());
 
             WaitForTelemetryToArrive();
             var items = _factory.sentItems;
@@ -173,7 +171,7 @@ namespace IntegrationTests.Tests
             var client = _factory.CreateClient();
             var url = "Home/Error";
 
-            // Act            
+            // Act
             Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
                 {
                     { "Request-Id", "|40d1a5a08a68c0998e4a3b7c91915ca6.b9e41c35_1."}
@@ -185,7 +183,6 @@ namespace IntegrationTests.Tests
 
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
-            this.output.WriteLine(await response.Content.ReadAsStringAsync());
 
             WaitForTelemetryToArrive();
             var items = _factory.sentItems;
@@ -229,7 +226,6 @@ namespace IntegrationTests.Tests
 
             // Assert
             response.EnsureSuccessStatusCode();
-            this.output.WriteLine(await response.Content.ReadAsStringAsync());
 
             WaitForTelemetryToArrive();
             var items = _factory.sentItems;
