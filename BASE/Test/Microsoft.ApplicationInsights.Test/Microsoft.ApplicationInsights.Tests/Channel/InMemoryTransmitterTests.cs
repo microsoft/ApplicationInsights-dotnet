@@ -7,6 +7,7 @@
     using Extensibility;
     using System.Net.Http;
     using System.Threading;
+    using Microsoft.ApplicationInsights.TestFramework;
 
     public class InMemoryTransmitterTests
     {
@@ -86,6 +87,23 @@
                 }
 
                 Assert.IsTrue(buffer.WasCalled);
+            }
+
+            [TestMethod]
+            public void EnqueuesTransmissionWithSetTransmissionStatusEvent()
+            {
+                bool eventFired = false;
+                var buffer = new TelemetryBuffer();
+                var transmitter = new InMemoryTransmitter(buffer);
+                transmitter.EndpointAddress = new Uri("http://testendpoint");
+                transmitter.TransmissionStatusEvent += delegate (object sender, TransmissionStatusEventArgs args) { 
+                    eventFired = true; 
+                };
+                
+                buffer.Enqueue(new StubTelemetry());
+                transmitter.Flush(TimeSpan.FromSeconds(1));
+
+                Assert.IsTrue(eventFired);
             }
         }
     }
