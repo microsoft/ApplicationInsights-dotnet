@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace IntegrationTests.WebApp
+namespace IntegrationTests.WebApp._3._1
 {
     public class Program
     {
