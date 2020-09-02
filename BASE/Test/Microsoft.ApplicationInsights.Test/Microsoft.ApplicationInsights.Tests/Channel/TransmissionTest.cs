@@ -588,7 +588,7 @@
                     // VALIDATE
                     transmission.TransmissionStatusEvent += delegate (object sender, TransmissionStatusEventArgs args)
                     {
-                        Assert.AreEqual(0, args.Response.StatusCode);
+                        Assert.AreEqual(999, args.Response.StatusCode);
                     };
 
                     // ACT
