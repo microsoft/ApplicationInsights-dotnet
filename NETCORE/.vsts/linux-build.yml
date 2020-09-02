@@ -7,7 +7,7 @@ steps:
 - task: UseDotNet@2
   displayName: install dotnet core 2.1
   inputs:
-    version: 1.1.x
+    version: 2.1.x
     
 - task: DotNetCoreCLI@1
   displayName:  DotNetCoreCLI - Restore Solution
