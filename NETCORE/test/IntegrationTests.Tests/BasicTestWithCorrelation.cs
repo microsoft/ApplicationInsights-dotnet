@@ -17,7 +17,6 @@ namespace IntegrationTests.Tests
         private readonly CustomWebApplicationFactory<IntegrationTests.WebApp.Startup> _factory;
         protected readonly ITestOutputHelper output;
 
-
         public BasicTestWithCorrelation(CustomWebApplicationFactory<IntegrationTests.WebApp.Startup> factory, ITestOutputHelper output)
         {
             this.output = output;

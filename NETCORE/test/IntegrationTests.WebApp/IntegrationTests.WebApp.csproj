@@ -9,11 +9,13 @@
   -->
   
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.ApplicationInsights.AspNetCore\Microsoft.ApplicationInsights.AspNetCore.csproj" />
+
+    <PackageReference Include="Microsoft.AspNetCore.App" Condition="'$(TargetFramework)' == 'netcoreapp2.1'" />
   </ItemGroup>
 
 </Project>

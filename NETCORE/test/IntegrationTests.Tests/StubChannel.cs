@@ -22,7 +22,9 @@ namespace IntegrationTests.Tests
 
         public void Flush()
         {
+#if NETCOREAPP3_1
             throw new NotImplementedException();
+#endif
         }
 
         public void Send(ITelemetry item)
