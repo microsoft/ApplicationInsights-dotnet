@@ -1,6 +1,6 @@
 using System;
 
-namespace IntegrationTests.WebApp.Models
+namespace IntegrationTests.WebApp._3._1.Models
 {
     public class ErrorViewModel
     {
