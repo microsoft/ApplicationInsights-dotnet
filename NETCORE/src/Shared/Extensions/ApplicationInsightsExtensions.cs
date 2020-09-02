@@ -230,7 +230,7 @@
 
         /// <summary>
         /// Read configuration from appSettings.json, appsettings.{env.EnvironmentName}.json,
-        /// IConfiguation used in an application and EnvironmentVariables. 
+        /// IConfiguation used in an application and EnvironmentVariables.
         /// Bind configuration to ApplicationInsightsServiceOptions.
         /// Values can also be read from environment variables to support azure web sites configuration.
         /// </summary>
@@ -286,7 +286,7 @@
         }
 
         /// <summary>
-        /// The AddSingleton method will not check if a class has already been added as an ImplementationType. 
+        /// The AddSingleton method will not check if a class has already been added as an ImplementationType.
         /// This extension method is to encapsulate those checks.
         /// </summary>
         /// <remarks>
@@ -401,61 +401,6 @@
                 }
             });
         }
-
-#if NETSTANDARD2_0
-        private static void AddEventCounterIfNotExist(EventCounterCollectionModule eventCounterModule, string eventSource, string eventCounterName)
-        {
-            if (!eventCounterModule.Counters.Any(req => req.EventSourceName.Equals(eventSource, StringComparison.Ordinal) && req.EventCounterName.Equals(eventCounterName, StringComparison.Ordinal)))
-            {
-                eventCounterModule.Counters.Add(new EventCounterCollectionRequest(eventSource, eventCounterName));
-            }
-        }
-
-        private static void ConfigureEventCounterModuleWithSystemCounters(IServiceCollection services)
-        {
-            services.ConfigureTelemetryModule<EventCounterCollectionModule>((eventCounterModule, options) =>
-            {
-                if (options.EnableEventCounterCollectionModule)
-                {
-                    // Ref this code for actual names. https://github.com/dotnet/coreclr/blob/dbc5b56c48ce30635ee8192c9814c7de998043d5/src/System.Private.CoreLib/src/System/Diagnostics/Eventing/RuntimeEventSource.cs
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "cpu-usage");
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "working-set");
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gc-heap-size");
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-0-gc-count");
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-1-gc-count");
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-2-gc-count");
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "time-in-gc");
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-0-size");
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-1-size");
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "gen-2-size");
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "loh-size");
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "alloc-rate");
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "assembly-count");
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "exception-count");
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "threadpool-thread-count");
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "monitor-lock-contention-count");
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "threadpool-queue-length");
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "threadpool-completed-items-count");
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForSystemRuntime, "active-timer-count");
-                }
-            });
-        }
-
-        private static void ConfigureEventCounterModuleWithAspNetCounters(IServiceCollection services)
-        {
-            services.ConfigureTelemetryModule<EventCounterCollectionModule>((eventCounterModule, options) =>
-            {
-                if (options.EnableEventCounterCollectionModule)
-                {
-                    // Ref this code for actual names. https://github.com/aspnet/AspNetCore/blob/f3f9a1cdbcd06b298035b523732b9f45b1408461/src/Hosting/Hosting/src/Internal/HostingEventSource.cs
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForAspNetCoreHosting, "requests-per-second");
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForAspNetCoreHosting, "total-requests");
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForAspNetCoreHosting, "current-requests");
-                    AddEventCounterIfNotExist(eventCounterModule, EventSourceNameForAspNetCoreHosting, "failed-requests");
-                }
-            });
-        }
-#endif
 
         [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "services parameter is used in only NetStandard 2.0 build.")]
         private static void AddApplicationInsightsLoggerProvider(IServiceCollection services)
