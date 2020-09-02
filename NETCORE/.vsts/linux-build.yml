@@ -7,7 +7,7 @@ strategy:
             framework: $(framework)
         netcoreapp3_1:
             framework: netcoreapp3.1
-        maxParallel: 2
+    maxParallel: 2
 
 steps:
 
