@@ -225,11 +225,11 @@
                         try
                         {
                             // Initiates event notification to subscriber with Transmission and TransmissionStatusEventArgs.
-                            this.TransmissionStatusEvent?.Invoke(this, new TransmissionStatusEventArgs(wrapper ?? new HttpWebResponseWrapper() { StatusCode = 0 }));
+                            this.TransmissionStatusEvent?.Invoke(this, new TransmissionStatusEventArgs(wrapper ?? new HttpWebResponseWrapper() { StatusCode = 999 }));
                         }
                         catch (Exception ex)
                         {
-                            CoreEventSource.Log.TransmissionStatusEventError(ex.ToInvariantString());
+                            CoreEventSource.Log.TransmissionStatusEventFailed(ex);
                         }
                     }
 

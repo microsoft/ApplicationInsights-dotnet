@@ -526,6 +526,7 @@
                     // VALIDATE
                     transmission.TransmissionStatusEvent += delegate (object sender, TransmissionStatusEventArgs args)
                     {
+                        Assert.IsTrue(sender is Transmission);
                         Assert.AreEqual((int)HttpStatusCode.OK, args.Response.StatusCode);
                     };
 
