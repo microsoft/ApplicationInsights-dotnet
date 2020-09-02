@@ -9,16 +9,21 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+#if NETCOREAPP2_1
+using IntegrationTests.WebApp._2._1;
+#else
+using IntegrationTests.WebApp._3._1;
+#endif
 
 namespace IntegrationTests.Tests
 {
-    public class BasicTestWithCorrelation : IClassFixture<CustomWebApplicationFactory<IntegrationTests.WebApp.Startup>>
+    public class RequestCollectionTest : IClassFixture<CustomWebApplicationFactory<Startup>>
     {
-        private readonly CustomWebApplicationFactory<IntegrationTests.WebApp.Startup> _factory;
+        private readonly CustomWebApplicationFactory<Startup> _factory;
         protected readonly ITestOutputHelper output;
 
 
-        public BasicTestWithCorrelation(CustomWebApplicationFactory<IntegrationTests.WebApp.Startup> factory, ITestOutputHelper output)
+        public RequestCollectionTest(CustomWebApplicationFactory<Startup> factory, ITestOutputHelper output)
         {
             this.output = output;
             _factory = factory;
@@ -90,7 +95,6 @@ namespace IntegrationTests.Tests
 
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
-            this.output.WriteLine(await response.Content.ReadAsStringAsync());
 
             WaitForTelemetryToArrive();
             var items = _factory.sentItems;
@@ -134,7 +138,6 @@ namespace IntegrationTests.Tests
 
             // Assert
             response.EnsureSuccessStatusCode();
-            this.output.WriteLine(await response.Content.ReadAsStringAsync());
 
             WaitForTelemetryToArrive();
             var items = _factory.sentItems;
@@ -168,7 +171,7 @@ namespace IntegrationTests.Tests
             var client = _factory.CreateClient();
             var url = "Home/Error";
 
-            // Act            
+            // Act
             Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
                 {
                     { "Request-Id", "|40d1a5a08a68c0998e4a3b7c91915ca6.b9e41c35_1."}
@@ -180,7 +183,6 @@ namespace IntegrationTests.Tests
 
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
-            this.output.WriteLine(await response.Content.ReadAsStringAsync());
 
             WaitForTelemetryToArrive();
             var items = _factory.sentItems;
@@ -224,7 +226,6 @@ namespace IntegrationTests.Tests
 
             // Assert
             response.EnsureSuccessStatusCode();
-            this.output.WriteLine(await response.Content.ReadAsStringAsync());
 
             WaitForTelemetryToArrive();
             var items = _factory.sentItems;
