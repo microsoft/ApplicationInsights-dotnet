@@ -2,27 +2,13 @@ pool:
   vmImage: 'ubuntu-16.04'
 steps:
 
-## Install NetCore 3.1, Restore Solution, Build Solution, Test NetCore 3.1
+## Install NetCore 2.1, Restore Solution, Build Solution, Test NetCore 2.1
 
 - task: UseDotNet@2
   displayName: install dotnet core 2.1
   inputs:
     version: 2.1.x
     
-- task: DotNetCoreCLI@1
-  displayName:  DotNetCoreCLI - Restore Solution
-  inputs:
-    command: "restore"
-    projects: "NETCORE/*.sln"
-  continueOnError: true
-
-- task: DotNetCoreCLI@1
-  displayName: DotNetCoreCLI - Build Solution
-  inputs:
-    command: "build"
-    projects: "NETCORE/*.sln"
-    arguments: "--configuration Release"
-
 - task: DotNetCoreCLI@1
   displayName: Integration Tests NetCore 2.1
   continueOnError: true
