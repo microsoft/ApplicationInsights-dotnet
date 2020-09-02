@@ -1,5 +1,14 @@
 pool:
   vmImage: 'ubuntu-16.04'
+  
+strategy:
+matrix:
+netcoreapp2_1:
+  framework: $(framework)
+netcoreapp3_1:
+  framework: netcoreapp3.1
+maxParallel: 2
+
 steps:
 
 - task: UseDotNet@2
@@ -17,74 +26,37 @@ steps:
   inputs:
     script: rsync -a ${DOTNET_ROOT/3.1.301/2.1.807}/* $DOTNET_ROOT/
     
-## Test NetCore 2.1
-  
 - task: DotNetCoreCLI@1
-  displayName: Integration Tests NetCore 2.1
+  displayName: Integration Tests $(framework)
   continueOnError: true
   inputs:
     command: "test"
     projects: "NETCORE/test/**/IntegrationTests.Tests.csproj"
-    arguments: "--configuration Release --framework netcoreapp2.1 -l trx"
+    arguments: "--configuration Release --framework $(framework) -l trx"
 
 - task: DotNetCoreCLI@1
-  displayName: Functional MVC Tests
+  displayName: Functional MVC Tests $(framework)
   continueOnError: true
   inputs:
     command: "test"
     projects: "NETCORE/test/**/*FunctionalTests.MVC.Tests.csproj"
-    arguments: "--configuration Release --framework netcoreapp2.1 -l trx"
+    arguments: "--configuration Release --framework $(framework) -l trx"
 
 - task: DotNetCoreCLI@1
-  displayName: Unit Tests for AspNetCore 2.1
+  displayName: Unit Tests for AspNetCore $(framework)
   continueOnError: true
   inputs:
     command: "test"
     projects: "NETCORE/test/**/*AspNetCore.Tests.csproj"
-    arguments: "--configuration Release --framework netcoreapp2.1 -l trx"
+    arguments: "--configuration Release --framework $(framework) -l trx"
     
 - task: DotNetCoreCLI@1
-  displayName: Unit Tests + Func Tests for WorkerService for AspNetCore 2.1
+  displayName: Unit Tests + Func Tests for WorkerService for AspNetCore $(framework)
   continueOnError: true
   inputs:
     command: "test"
     projects: "NETCORE/test/**/*WorkerService.Tests.csproj"
-    arguments: "--configuration Release --framework netcoreapp2.1 -l trx"
-
-## Test NetCore 2.1
-
-- task: DotNetCoreCLI@1
-  displayName: Integration Tests NetCore 3.1
-  continueOnError: true
-  inputs:
-    command: "test"
-    projects: "NETCORE/test/**/IntegrationTests.Tests.csproj"
-    arguments: "--configuration Release --framework netcoreapp3.1 -l trx"
-    
-- task: DotNetCoreCLI@1
-  displayName: Functional MVC Tests
-  continueOnError: true
-  inputs:
-    command: "test"
-    projects: "NETCORE/test/**/*FunctionalTests.MVC.Tests.csproj"
-    arguments: "--configuration Release --framework netcoreapp3.1 -l trx"
-
-- task: DotNetCoreCLI@1
-  displayName: Unit Tests for AspNetCore 3.1
-  continueOnError: true
-  inputs:
-    command: "test"
-    projects: "NETCORE/test/**/*AspNetCore.Tests.csproj"
-    arguments: "--configuration Release --framework netcoreapp3.1 -l trx"
-    
-- task: DotNetCoreCLI@1
-  displayName: Unit Tests + Func Tests for WorkerService for AspNetCore 3.1
-  continueOnError: true
-  inputs:
-    command: "test"
-    projects: "NETCORE/test/**/*WorkerService.Tests.csproj"
-    arguments: "--configuration Release --framework netcoreapp3.1 -l trx"
-
+    arguments: "--configuration Release --framework $(framework) -l trx"
 
 ## Publish Test results
 
