@@ -20,52 +20,6 @@
         }
 
         [Fact]
-        public void TestBasicRequestPropertiesAfterRequestingActionWithParameter()
-        {
-            using (var server = new InProcessServer(assemblyName, this.output))
-            {
-                const string RequestPath = "/Home/About/5";
-
-                var expectedRequestTelemetry = new RequestTelemetry();
-                expectedRequestTelemetry.Name = "GET Home/About [id]";
-                expectedRequestTelemetry.ResponseCode = "200";
-                expectedRequestTelemetry.Success = true;
-                expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
-
-                Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
-                {
-                    { "Request-Id", ""},
-                    { "Request-Context", "appId=value"},
-                };
-
-                this.ValidateRequestWithHeaders(server, RequestPath, requestHeaders, expectedRequestTelemetry, expectRequestContextInResponse: true);
-            }
-        }
-
-        [Fact]
-        public void TestBasicRequestPropertiesAfterRequestingNotExistingController()
-        {
-            using (var server = new InProcessServer(assemblyName, this.output))
-            {
-                const string RequestPath = "/not/existing/controller";
-
-                var expectedRequestTelemetry = new RequestTelemetry();
-                expectedRequestTelemetry.Name = "GET /not/existing/controller";
-                expectedRequestTelemetry.ResponseCode = "404";
-                expectedRequestTelemetry.Success = false;
-                expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
-
-                Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
-                {
-                    { "Request-Id", ""},
-                    { "Request-Context", "appId=value"},
-                };
-
-                this.ValidateRequestWithHeaders(server, RequestPath, requestHeaders, expectedRequestTelemetry, expectRequestContextInResponse: true);
-            }
-        }
-
-        [Fact]
         public void TestMixedTelemetryItemsReceived()
         {
             using (var server = new InProcessServer(assemblyName, this.output))
