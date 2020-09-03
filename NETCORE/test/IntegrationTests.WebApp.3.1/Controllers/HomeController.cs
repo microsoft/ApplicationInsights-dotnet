@@ -21,6 +21,7 @@ namespace IntegrationTests.WebApp._3._1.Controllers
         public IActionResult Index(int index)
         {
             _logger.LogWarning("sample warning");
+            _logger.LogInformation("sample information");
             return View();
         }
 
