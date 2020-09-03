@@ -5,6 +5,7 @@
     using System.Diagnostics.Tracing;
     using System.Globalization;
     using System.Linq;
+    using System.Threading;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsModule;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Mocks;
@@ -32,7 +33,7 @@
         private DiagnosticsEventCollectingMock sender;
 
         private DiagnosticsListener listener;
-        
+
         [TestInitialize]
         public void TestInitialize()
         {
@@ -69,6 +70,9 @@
         public void TestCleanup()
         {
             this.listener.Dispose();
+
+            // Give some time as listener is not instantly disposed.
+            Thread.Sleep(1000);
         }
 
         [TestMethod]
