@@ -120,22 +120,6 @@
             set { this.buffer.BacklogSize = value; }
         }
 
-        /// <summary>
-        /// Gets or Sets the subscriber to an event with Transmission and HttpWebResponseWrapper.
-        /// </summary>
-        public EventHandler<TransmissionStatusEventArgs> TransmissionStatusEvent
-        {
-            get
-            {
-                return this.transmitter.TransmissionStatusEvent;
-            }
-
-            set
-            {
-                this.transmitter.TransmissionStatusEvent = value;
-            }
-        }
-
         internal bool IsDisposed => this.isDisposed;
 
         /// <summary>

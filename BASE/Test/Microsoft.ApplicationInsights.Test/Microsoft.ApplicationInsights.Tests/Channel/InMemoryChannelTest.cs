@@ -51,25 +51,6 @@
             }
         }
 
-        [TestMethod]
-        public void TransmissionStatusEventIsCalled()
-        {
-            bool eventFired = false;
-            var telemetryBuffer = new TelemetryBuffer();
-            var channel = new InMemoryChannel(telemetryBuffer, new InMemoryTransmitter(telemetryBuffer));
-            channel.TransmissionStatusEvent += delegate (object sender, TransmissionStatusEventArgs args)
-            {
-                eventFired = true;
-            };
-            channel.EndpointAddress = "http://localhost/";
-
-            var sentTelemetry = new StubTelemetry();
-            sentTelemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
-            channel.Send(sentTelemetry);
-            channel.Flush();
-            Assert.IsTrue(eventFired);
-        }
-
 #if (!NETCOREAPP) // This constant is defined for all versions of NetCore https://docs.microsoft.com/en-us/dotnet/core/tutorials/libraries#how-to-multitarget
 
         [Ignore("This test is failing intermittently and needs to be investigated. ~Timothy")]

@@ -64,11 +64,6 @@ namespace Microsoft.ApplicationInsights.Channel
         }
 
         /// <summary>
-        /// Gets or Sets the subscriber to an event with Transmission and HttpWebResponseWrapper.
-        /// </summary>
-        internal EventHandler<TransmissionStatusEventArgs> TransmissionStatusEvent { get; set; }
-
-        /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
@@ -167,8 +162,7 @@ namespace Microsoft.ApplicationInsights.Channel
                 return Task.FromResult<object>(null);
             }
 
-            var transmission = new Transmission(this.EndpointAddress, data, JsonSerializer.ContentType, JsonSerializer.CompressionType, timeout)
-                                        { TransmissionStatusEvent = this.TransmissionStatusEvent };
+            var transmission = new Transmission(this.EndpointAddress, data, JsonSerializer.ContentType, JsonSerializer.CompressionType, timeout);
 
             return transmission.SendAsync();
         }
