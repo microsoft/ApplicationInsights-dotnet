@@ -55,17 +55,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel", "..\BASE
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights", "..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj", "{2C7CEEDD-BB15-48DF-B12A-B268E9D74859}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunctionalTests.EmptyApp.Tests", "test\FunctionalTests.EmptyApp.Tests\FunctionalTests.EmptyApp.Tests.csproj", "{C7A8D822-CA6C-497D-AA26-C36F25BA61FD}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunctionalTests.Utils", "test\FunctionalTests.Utils\FunctionalTests.Utils.csproj", "{63F64005-CDC7-4062-8CBC-A40B049E342A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunctionalTests.MVC.Tests", "test\FunctionalTests.MVC.Tests\FunctionalTests.MVC.Tests.csproj", "{9693CC30-A3E6-48A7-A68E-6E0DD098D779}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunctionalTests.WebApi.Tests", "test\FunctionalTests.WebApi.Tests\FunctionalTests.WebApi.Tests.csproj", "{E78404EA-CBAA-4366-B659-C3A46BC9DF15}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests.WebApp.3.1", "test\IntegrationTests.WebApp.3.1\IntegrationTests.WebApp.3.1.csproj", "{2EB6FF02-DB25-423A-A8FC-1E249BE4CEDB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests.WebApp.3.1", "test\IntegrationTests.WebApp.3.1\IntegrationTests.WebApp.3.1.csproj", "{2EB6FF02-DB25-423A-A8FC-1E249BE4CEDB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests.WebApp.2.1", "test\IntegrationTests.WebApp.2.1\IntegrationTests.WebApp.2.1.csproj", "{78A86267-EBB6-4720-8AC8-102B47D26D21}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests.WebApp.2.1", "test\IntegrationTests.WebApp.2.1\IntegrationTests.WebApp.2.1.csproj", "{78A86267-EBB6-4720-8AC8-102B47D26D21}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -138,10 +136,6 @@ Global
 		{2C7CEEDD-BB15-48DF-B12A-B268E9D74859}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C7CEEDD-BB15-48DF-B12A-B268E9D74859}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C7CEEDD-BB15-48DF-B12A-B268E9D74859}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C7A8D822-CA6C-497D-AA26-C36F25BA61FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C7A8D822-CA6C-497D-AA26-C36F25BA61FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C7A8D822-CA6C-497D-AA26-C36F25BA61FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C7A8D822-CA6C-497D-AA26-C36F25BA61FD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{63F64005-CDC7-4062-8CBC-A40B049E342A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{63F64005-CDC7-4062-8CBC-A40B049E342A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{63F64005-CDC7-4062-8CBC-A40B049E342A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -182,7 +176,6 @@ Global
 		{8D13F3C8-D938-44FD-A0D8-B5D1712C95DB} = {042C2916-4BB7-4CCB-BD61-A8BAAB0129B9}
 		{0C91D961-B21E-4760-A192-14193F10B831} = {042C2916-4BB7-4CCB-BD61-A8BAAB0129B9}
 		{2C7CEEDD-BB15-48DF-B12A-B268E9D74859} = {042C2916-4BB7-4CCB-BD61-A8BAAB0129B9}
-		{C7A8D822-CA6C-497D-AA26-C36F25BA61FD} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
 		{63F64005-CDC7-4062-8CBC-A40B049E342A} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
 		{9693CC30-A3E6-48A7-A68E-6E0DD098D779} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
 		{E78404EA-CBAA-4366-B659-C3A46BC9DF15} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
