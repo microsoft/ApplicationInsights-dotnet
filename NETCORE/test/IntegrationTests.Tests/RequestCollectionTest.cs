@@ -56,7 +56,53 @@ namespace IntegrationTests.Tests
             Assert.Single(reqs);
             var req = reqs[0];
             Assert.NotNull(req);
-            ValidateRequest(req, "200", "GET " + path, url, true);
+            ValidateRequest(
+                 requestTelemetry: req,
+                 expectedResponseCode: "200",
+                 expectedName: "GET " + path,
+                 expectedUrl: url,
+                 expectedSuccess: true);
+        }
+
+        [Fact]
+        public async Task RequestSuccessActionWithParameter()
+        {
+            // Arrange
+            var client = _factory.CreateClient();
+            var path = "Home/Index/5";
+            var expectedName = "GET Home/Index [id]";
+            var url = client.BaseAddress + path;
+
+            // Act
+            var request = CreateRequestMessage();
+            request.RequestUri = new Uri(url);
+            var response = await client.SendAsync(request);
+
+            // Assert
+            response.EnsureSuccessStatusCode();
+
+            WaitForTelemetryToArrive();
+
+            var items = _factory.sentItems;
+            PrintItems(items);
+            Assert.Equal(2, items.Count);
+
+            var reqs = GetTelemetryOfType<RequestTelemetry>(items);
+            Assert.Single(reqs);
+            var req = reqs[0];
+            Assert.NotNull(req);
+
+            var traces = GetTelemetryOfType<TraceTelemetry>(items);
+            Assert.Single(traces);
+            var trace = traces[0];
+            Assert.NotNull(trace);
+
+            ValidateRequest(
+                 requestTelemetry: req,
+                 expectedResponseCode: "200",
+                 expectedName: expectedName,
+                 expectedUrl: url,
+                 expectedSuccess: true);
         }
 
         [Fact]
@@ -92,7 +138,12 @@ namespace IntegrationTests.Tests
             Assert.NotNull(exc);
 
             Assert.Equal(exc.Context.Operation.Id, req.Context.Operation.Id);
-            ValidateRequest(req, "500", "GET " + path, url, false);
+            ValidateRequest(
+                 requestTelemetry: req,
+                 expectedResponseCode: "500",
+                 expectedName: "GET " + path,
+                 expectedUrl: url,
+                 expectedSuccess: false);
         }
 
         [Fact]
@@ -122,7 +173,12 @@ namespace IntegrationTests.Tests
             var req = reqs[0];
             Assert.NotNull(req);
 
-            ValidateRequest(req, "404", "GET /" + path, url, false);
+            ValidateRequest(
+                 requestTelemetry: req,
+                 expectedResponseCode: "404",
+                 expectedName: "GET /" + path,
+                 expectedUrl: url,
+                 expectedSuccess: false);
         }
 
         [Fact]
@@ -130,7 +186,8 @@ namespace IntegrationTests.Tests
         {
             // Arrange
             var client = _factory.CreateClient();
-            var url = "Home/Index";
+            var path = "Home/Index";
+            var url = client.BaseAddress + path;
 
             // Act
             Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
@@ -138,7 +195,7 @@ namespace IntegrationTests.Tests
                     { "traceparent", "00-4e3083444c10254ba40513c7316332eb-e2a5f830c0ee2c46-00"}
                 };
             var request = CreateRequestMessage(requestHeaders);
-            request.RequestUri = new Uri(client.BaseAddress + url);
+            request.RequestUri = new Uri(url);
             var response = await client.SendAsync(request);
 
             // Assert
@@ -167,8 +224,12 @@ namespace IntegrationTests.Tests
             Assert.Equal("4e3083444c10254ba40513c7316332eb", trace.Context.Operation.Id);
             Assert.Equal(req.Id, trace.Context.Operation.ParentId);
 
-            Assert.Equal("http://localhost/" + url, req.Url.ToString());
-            Assert.True(req.Success);
+            ValidateRequest(
+                 requestTelemetry: req,
+                 expectedResponseCode: "200",
+                 expectedName: "GET " + path,
+                 expectedUrl: url,
+                 expectedSuccess: true);
         }
 
         [Fact]
@@ -176,7 +237,8 @@ namespace IntegrationTests.Tests
         {
             // Arrange
             var client = _factory.CreateClient();
-            var url = "Home/Error";
+            var path = "Home/Error";
+            var url = client.BaseAddress + path;
 
             // Act
             Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
@@ -184,7 +246,7 @@ namespace IntegrationTests.Tests
                     { "traceparent", "00-4e3083444c10254ba40513c7316332eb-e2a5f830c0ee2c46-00"}
                 };
             var request = CreateRequestMessage(requestHeaders);
-            request.RequestUri = new Uri(client.BaseAddress + url);
+            request.RequestUri = new Uri(url);
 
             var response = await client.SendAsync(request);
 
@@ -210,8 +272,12 @@ namespace IntegrationTests.Tests
             Assert.Equal("e2a5f830c0ee2c46", req.Context.Operation.ParentId);
             Assert.Equal(req.Id, exception.Context.Operation.ParentId);
 
-            Assert.Equal("http://localhost/" + url, req.Url.ToString());
-            Assert.False(req.Success);
+            ValidateRequest(
+                 requestTelemetry: req,
+                 expectedResponseCode: "500",
+                 expectedName: "GET " + path,
+                 expectedUrl: url,
+                 expectedSuccess: false);
         }
 
         [Fact]
@@ -219,7 +285,8 @@ namespace IntegrationTests.Tests
         {
             // Arrange
             var client = _factory.CreateClient();
-            var url = "Home/Index";
+            var path = "Home/Index";
+            var url = client.BaseAddress + path;
 
             // Act
             Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
@@ -227,7 +294,7 @@ namespace IntegrationTests.Tests
                     { "Request-Id", "|40d1a5a08a68c0998e4a3b7c91915ca6.b9e41c35_1."}
                 };
             var request = CreateRequestMessage(requestHeaders);
-            request.RequestUri = new Uri(client.BaseAddress + url);
+            request.RequestUri = new Uri(url);
 
             var response = await client.SendAsync(request);
 
@@ -255,8 +322,12 @@ namespace IntegrationTests.Tests
             Assert.Equal("|40d1a5a08a68c0998e4a3b7c91915ca6.b9e41c35_1.", req.Context.Operation.ParentId);
             Assert.Equal(req.Id, trace.Context.Operation.ParentId);
 
-            Assert.Equal("http://localhost/" + url, req.Url.ToString());
-            Assert.True(req.Success);
+            ValidateRequest(
+                 requestTelemetry: req,
+                 expectedResponseCode: "200",
+                 expectedName: "GET " + path,
+                 expectedUrl: url,
+                 expectedSuccess: true);
         }
 
         [Fact]
@@ -264,7 +335,8 @@ namespace IntegrationTests.Tests
         {
             // Arrange
             var client = _factory.CreateClient();
-            var url = "Home/Error";
+            var path = "Home/Error";
+            var url = client.BaseAddress + path;
 
             // Act
             Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
@@ -272,7 +344,7 @@ namespace IntegrationTests.Tests
                     { "Request-Id", "|40d1a5a08a68c0998e4a3b7c91915ca6.b9e41c35_1."}
                 };
             var request = CreateRequestMessage(requestHeaders);
-            request.RequestUri = new Uri(client.BaseAddress + url);
+            request.RequestUri = new Uri(url);
 
             var response = await client.SendAsync(request);
 
@@ -298,8 +370,12 @@ namespace IntegrationTests.Tests
 
             Assert.Equal(req.Id, exception.Context.Operation.ParentId);
             Assert.Equal("|40d1a5a08a68c0998e4a3b7c91915ca6.b9e41c35_1.", req.Context.Operation.ParentId);
-            Assert.Equal("http://localhost/" + url, req.Url.ToString());
-            Assert.False(req.Success);
+            ValidateRequest(
+                 requestTelemetry: req,
+                 expectedResponseCode: "500",
+                 expectedName: "GET " + path,
+                 expectedUrl: url,
+                 expectedSuccess: false);
         }
 
         [Fact]
@@ -307,7 +383,8 @@ namespace IntegrationTests.Tests
         {
             // Arrange
             var client = _factory.CreateClient();
-            var url = "Home/Index";
+            var path = "Home/Index";
+            var url = client.BaseAddress + path;
 
             // Act
             Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
@@ -315,7 +392,7 @@ namespace IntegrationTests.Tests
                     { "Request-Id", "|noncompatible.b9e41c35_1."}
                 };
             var request = CreateRequestMessage(requestHeaders);
-            request.RequestUri = new Uri(client.BaseAddress + url);
+            request.RequestUri = new Uri(url);
 
             var response = await client.SendAsync(request);
 
@@ -344,8 +421,12 @@ namespace IntegrationTests.Tests
             Assert.Equal(req.Id, trace.Context.Operation.ParentId);
             Assert.Equal("noncompatible", req.Properties["ai_legacyRootId"]);
 
-            Assert.Equal("http://localhost/" + url, req.Url.ToString());
-            Assert.True(req.Success);
+            ValidateRequest(
+                 requestTelemetry: req,
+                 expectedResponseCode: "200",
+                 expectedName: "GET " + path,
+                 expectedUrl: url,
+                 expectedSuccess: true);
         }
 
         private void WaitForTelemetryToArrive()
