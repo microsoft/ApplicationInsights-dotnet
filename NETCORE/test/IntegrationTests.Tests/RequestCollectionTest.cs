@@ -31,6 +31,101 @@ namespace IntegrationTests.Tests
         }
 
         [Fact]
+        public async Task RequestSuccess()
+        {
+            // Arrange
+            var client = _factory.CreateClient();
+            var path = "Home/Privacy";
+            var url = client.BaseAddress + path;
+
+            // Act
+            var request = CreateRequestMessage();
+            request.RequestUri = new Uri(url);
+            var response = await client.SendAsync(request);
+
+            // Assert
+            response.EnsureSuccessStatusCode();
+
+            WaitForTelemetryToArrive();
+
+            var items = _factory.sentItems;
+            PrintItems(items);
+            Assert.Equal(1, items.Count);
+
+            var reqs = GetTelemetryOfType<RequestTelemetry>(items);
+            Assert.Single(reqs);
+            var req = reqs[0];
+            Assert.NotNull(req);
+            ValidateRequest(req, "200", "GET " + path, url, true);
+        }
+
+        [Fact]
+        public async Task RequestFailed()
+        {
+            // Arrange
+            var client = _factory.CreateClient();
+            var path = "Home/Error";
+            var url = client.BaseAddress + path;
+
+            // Act
+            var request = CreateRequestMessage();
+            request.RequestUri = new Uri(url);
+            var response = await client.SendAsync(request);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+
+            WaitForTelemetryToArrive();
+
+            var items = _factory.sentItems;
+            PrintItems(items);
+            Assert.Equal(2, items.Count);
+
+            var reqs = GetTelemetryOfType<RequestTelemetry>(items);
+            var exceptions = GetTelemetryOfType<ExceptionTelemetry>(items);
+            Assert.Single(reqs);
+            Assert.Single(exceptions);
+
+            var req = reqs[0];
+            var exc = exceptions[0];
+            Assert.NotNull(req);
+            Assert.NotNull(exc);
+
+            Assert.Equal(exc.Context.Operation.Id, req.Context.Operation.Id);
+            ValidateRequest(req, "500", "GET " + path, url, false);
+        }
+
+        [Fact]
+        public async Task RequestNonExistentPage()
+        {
+            // Arrange
+            var client = _factory.CreateClient();
+            var path = "Home/Nonexistent";
+            var url = client.BaseAddress + path;
+
+            // Act
+            var request = CreateRequestMessage();
+            request.RequestUri = new Uri(url);
+            var response = await client.SendAsync(request);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+            WaitForTelemetryToArrive();
+
+            var items = _factory.sentItems;
+            PrintItems(items);
+            Assert.Equal(1, items.Count);
+
+            var reqs = GetTelemetryOfType<RequestTelemetry>(items);
+            Assert.Single(reqs);
+            var req = reqs[0];
+            Assert.NotNull(req);
+
+            ValidateRequest(req, "404", "GET /" + path, url, false);
+        }
+
+        [Fact]
         public async Task RequestSuccessWithTraceParent()
         {
             // Arrange
@@ -264,7 +359,21 @@ namespace IntegrationTests.Tests
             Task.Delay(1000).Wait();
         }
 
-        private HttpRequestMessage CreateRequestMessage(Dictionary<string, string> requestHeaders)
+        private void ValidateRequest(RequestTelemetry requestTelemetry,
+            string expectedResponseCode,
+            string expectedName,
+            string expectedUrl,
+            bool expectedSuccess)
+        {
+            Assert.Equal(expectedResponseCode, requestTelemetry.ResponseCode);
+            Assert.Equal(expectedName, requestTelemetry.Name);
+            Assert.Equal(expectedSuccess, requestTelemetry.Success);
+            Assert.Equal(expectedUrl, requestTelemetry.Url.ToString());
+            Assert.True(requestTelemetry.Duration.TotalMilliseconds > 0);
+            // requestTelemetry.Timestamp
+        }
+
+        private HttpRequestMessage CreateRequestMessage(Dictionary<string, string> requestHeaders = null)
         {
             HttpRequestMessage httpRequestMessage = new HttpRequestMessage();
             httpRequestMessage.Method = HttpMethod.Get;
