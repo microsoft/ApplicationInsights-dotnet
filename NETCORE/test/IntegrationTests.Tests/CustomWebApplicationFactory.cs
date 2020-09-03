@@ -37,10 +37,6 @@ namespace IntegrationTests.Tests
                 aiOptions.EnableAdaptiveSampling = false;
                 aiOptions.InstrumentationKey = "ikey";
                 services.AddApplicationInsightsTelemetry(aiOptions);
-
-                // Build the service provider.
-                var sp = services.BuildServiceProvider();
-                var tc = sp.GetRequiredService<TelemetryClient>();
             });
         }
     }
