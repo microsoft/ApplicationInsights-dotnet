@@ -42,8 +42,6 @@ namespace FunctionalTests.Utils
         private string url;
 
         private TelemetryHttpListenerObservable listener;
-        private readonly Func<IWebHostBuilder, IWebHostBuilder> configureHost;
-        private readonly Action<IServiceCollection> configureServices;
         private readonly Action<ApplicationInsightsServiceOptions> configureApplicationInsights;
 
         public InProcessServer(string assemblyName, ITestOutputHelper output,
@@ -54,8 +52,6 @@ namespace FunctionalTests.Utils
             // localhost instead of machine name, as its not possible to get machine name when running non windows.
             var machineName = "localhost";
             this.url = "http://" + machineName + ":" + random.Next(5000, 14000).ToString();
-            this.configureHost = configureHost;
-            this.configureServices = configureServices;
             this.configureApplicationInsights = configureApplicationInsights;
             this.httpListenerConnectionString = LauchApplicationAndStartListener(assemblyName);
         }
@@ -164,16 +160,6 @@ namespace FunctionalTests.Utils
                     services.Configure<ApplicationInsightsServiceOptions>(this.configureApplicationInsights);
                 }
             });
-
-            if (this.configureHost != null)
-            {
-                builder = this.configureHost(builder);
-            }
-
-            if (this.configureServices != null)
-            {
-                builder.ConfigureServices(services => this.configureServices(services));
-            }
 
             this.hostingEngine = builder.Build();
             this.hostingEngine.Start();
