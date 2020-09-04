@@ -488,14 +488,14 @@
                     }
                     else
                     {
-#if NETCOREAPP2_1
+//#if NETCOREAPP2_1
                         // even though we don't inject back-compatible request-id, .NET Core 2.0 will inject one that will look like traceparent
                         Assert.AreEqual(expectedTraceParentHeader, request.Headers.GetValues(RequestResponseHeaders.RequestIdHeader).Single());
-#elif NETCOREAPP3_1
+//#elif NETCOREAPP3_1
                         // It appears that .NET CORE 3 does not inject a Request-Id header. Need to verify with Liudmila.
-#else
-#error This condition is unexpected
-#endif
+//#else
+//#error This condition is unexpected
+//#endif
                     }
                 }
                 else
