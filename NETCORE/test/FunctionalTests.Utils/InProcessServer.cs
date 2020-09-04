@@ -144,9 +144,6 @@ namespace FunctionalTests.Utils
 
         private string Start(string assemblyName)
         {
-            var aiOptions = new ApplicationInsightsServiceOptions();
-            aiOptions.InstrumentationKey = IKey;
-            this.configureApplicationInsights?.Invoke(aiOptions);
             var builder = new WebHostBuilder()
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseUrls(this.BaseHost)
@@ -166,10 +163,6 @@ namespace FunctionalTests.Utils
                 {
                     services.Configure<ApplicationInsightsServiceOptions>(this.configureApplicationInsights);
                 }
-
-                // var endpointAddress = new EndpointAddress();
-                // services.AddSingleton<EndpointAddress>(endpointAddress);
-                // services.AddApplicationInsightsTelemetry(aiOptions);
             });
 
             if (this.configureHost != null)
