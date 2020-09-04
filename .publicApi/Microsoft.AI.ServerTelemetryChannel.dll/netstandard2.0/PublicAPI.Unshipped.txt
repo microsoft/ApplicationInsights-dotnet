@@ -1,0 +1,2 @@
+Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel.TransmissionStatusEvent.get -> System.EventHandler<Microsoft.ApplicationInsights.Channel.TransmissionStatusEventArgs>
+Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel.TransmissionStatusEvent.set -> void
