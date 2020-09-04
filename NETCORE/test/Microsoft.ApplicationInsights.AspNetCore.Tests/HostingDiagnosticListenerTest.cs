@@ -1024,30 +1024,6 @@
         [Theory]
         [InlineData(AspNetCoreMajorVersion.Two)]
         [InlineData(AspNetCoreMajorVersion.Three)]
-        public void ExceptionsAreNotTrackedInjectedWhenDisabled(AspNetCoreMajorVersion aspNetCoreMajorVersion)
-        {
-            HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
-            using (var noExceptionsMiddleware = new HostingDiagnosticListener(
-                CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry.Enqueue(telemetry)),
-                CommonMocks.GetMockApplicationIdProvider(),
-                injectResponseHeaders: true,
-                trackExceptions: false,
-                enableW3CHeaders: false,
-                aspNetCoreMajorVersion: GetAspNetCoreMajorVersion(aspNetCoreMajorVersion)))
-            {
-                noExceptionsMiddleware.OnSubscribe();
-                noExceptionsMiddleware.OnHostingException(context, new Exception("HostingException"));
-                noExceptionsMiddleware.OnDiagnosticsHandledException(context,
-                    new Exception("DiagnosticsHandledException"));
-                noExceptionsMiddleware.OnDiagnosticsUnhandledException(context, new Exception("UnhandledException"));
-            }
-
-            Assert.Empty(sentTelemetry);
-        }
-
-        [Theory]
-        [InlineData(AspNetCoreMajorVersion.Two)]
-        [InlineData(AspNetCoreMajorVersion.Three)]
         public void DoesntAddSourceIfRequestHeadersDontHaveSource(AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
