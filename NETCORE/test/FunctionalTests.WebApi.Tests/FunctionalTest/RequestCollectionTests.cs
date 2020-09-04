@@ -71,7 +71,7 @@
                 expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
 
                 Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
-                {                    
+                {
                     { "Request-Context", "appId=value"},
                 };
 
@@ -126,15 +126,7 @@
         [Fact]
         public void TestNoHeadersInjectedInResponseWhenConfiguredAndNoIncomingRequestContext()
         {
-            IWebHostBuilder Config(IWebHostBuilder builder)
-            {
-                return builder.ConfigureServices(services =>
-                {
-                    services.AddApplicationInsightsTelemetry(options => { options.RequestCollectionOptions.InjectResponseHeaders = false; });
-                });
-            }
-
-            using (var server = new InProcessServer(assemblyName, this.output, Config))
+            using (var server = new InProcessServer(assemblyName, this.output, (aiOptions) => aiOptions.RequestCollectionOptions.InjectResponseHeaders = false))
             {
                 const string RequestPath = "/api/values/1";
 
@@ -151,15 +143,7 @@
         [Fact]
         public void TestNoHeadersInjectedInResponseWhenConfiguredAndWithIncomingRequestContext()
         {
-            IWebHostBuilder Config(IWebHostBuilder builder)
-            {
-                return builder.ConfigureServices(services =>
-                {
-                    services.AddApplicationInsightsTelemetry(options => { options.RequestCollectionOptions.InjectResponseHeaders = false; });
-                });
-            }
-
-            using (var server = new InProcessServer(assemblyName, this.output, Config))
+            using (var server = new InProcessServer(assemblyName, this.output, (aiOptions) => aiOptions.RequestCollectionOptions.InjectResponseHeaders = false))
             {
                 const string RequestPath = "/api/values/1";
 
