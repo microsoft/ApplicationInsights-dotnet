@@ -5,8 +5,8 @@
     /// <summary>
     /// Partial class to add the EventData attribute and any additional customizations to the generated type.
     /// </summary>
-#if !NET45
-    // .Net 4.5 has a custom implementation of RichPayloadEventSource
+#if !NET452
+    // .NET 4.5.2 have a custom implementation of RichPayloadEventSource
     [System.Diagnostics.Tracing.EventData(Name = "PartB_PageViewData")]
 #endif
     internal partial class PageViewData

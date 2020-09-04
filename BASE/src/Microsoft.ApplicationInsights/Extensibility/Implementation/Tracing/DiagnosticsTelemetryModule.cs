@@ -13,16 +13,14 @@
     public sealed class DiagnosticsTelemetryModule : ITelemetryModule, IHeartbeatPropertyManager, IDisposable
     {
         internal readonly IList<IDiagnosticsSender> Senders = new List<IDiagnosticsSender>();
-
         internal readonly DiagnosticsListener EventListener;
-
         internal readonly IHeartbeatProvider HeartbeatProvider = null;
+        
         private readonly object lockObject = new object();
         private readonly IDiagnoisticsEventThrottlingScheduler throttlingScheduler = new DiagnoisticsEventThrottlingScheduler();
         private volatile bool disposed = false;
         private string instrumentationKey;
-        private bool isInitialized = false;
-
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="DiagnosticsTelemetryModule"/> class. 
         /// </summary>
@@ -39,29 +37,19 @@
         /// <summary>
         /// Finalizes an instance of the <see cref="DiagnosticsTelemetryModule" /> class.
         /// </summary>
-        ~DiagnosticsTelemetryModule()
-        {
-            this.Dispose(false);
-        }
+        ~DiagnosticsTelemetryModule() => this.Dispose(false);
 
         /// <summary>
         /// Gets or sets a value indicating whether or not the Heartbeat feature is disabled.
         /// </summary>
         public bool IsHeartbeatEnabled
         {
-            get
-            {
-                return this.HeartbeatProvider.IsHeartbeatEnabled;
-            }
-
-            set
-            {
-                this.HeartbeatProvider.IsHeartbeatEnabled = value;
-            }
+            get => this.HeartbeatProvider.IsHeartbeatEnabled;
+            set => this.HeartbeatProvider.IsHeartbeatEnabled = value;
         }
 
         /// <summary>
-        /// Gets or sets the delay interval between heartbeats.
+        /// Gets or sets the delay interval between heartbeats. Setting this value will immediately reset the heartbeat timer.
         /// 
         /// <remarks>
         /// Note that there is a minimum interval <see cref="HeartbeatProvider.MinimumHeartbeatInterval"/> and if an 
@@ -83,10 +71,7 @@
         /// default heartbeat properties. The only default heartbeat property provide currently defined is named
         /// 'Base'.
         /// </summary>
-        public IList<string> ExcludedHeartbeatPropertyProviders
-        {
-            get => this.HeartbeatProvider.ExcludedHeartbeatPropertyProviders;
-        }
+        public IList<string> ExcludedHeartbeatPropertyProviders => this.HeartbeatProvider.ExcludedHeartbeatPropertyProviders;
 
         /// <summary>
         /// Gets a list of property names that are not to be sent with the heartbeats. null/empty list means allow all default properties through.
@@ -96,13 +81,7 @@
         /// baseSdkTargetFramework, osType, processSessionId
         /// </remarks>
         /// </summary>
-        public IList<string> ExcludedHeartbeatProperties
-        {
-            get
-            {
-                return this.HeartbeatProvider.ExcludedHeartbeatProperties;
-            }
-        }
+        public IList<string> ExcludedHeartbeatProperties => this.HeartbeatProvider.ExcludedHeartbeatProperties;
 
         /// <summary>
         /// Gets or sets diagnostics Telemetry Module LogLevel configuration setting. 
@@ -110,24 +89,8 @@
         /// </summary>
         public string Severity
         {
-            get
-            {
-                return this.EventListener.LogLevel.ToString();
-            }
-
-            set
-            {
-                // Once logLevel is set from configuration, restart listener with new value
-                if (!string.IsNullOrEmpty(value))
-                {
-                    EventLevel parsedValue;
-                    if (Enum.IsDefined(typeof(EventLevel), value) == true)
-                    {
-                        parsedValue = (EventLevel)Enum.Parse(typeof(EventLevel), value, true);
-                        this.EventListener.LogLevel = parsedValue;
-                    }
-                }
-            }
+            get => this.EventListener.LogLevel.ToString();
+            set => this.EventListener.SetLogLevel(value);
         }
 
         /// <summary>
@@ -158,6 +121,9 @@
             }
         }
 
+        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
+        internal bool IsInitialized { get; private set; } = false;
+
         /// <summary>
         /// Initializes this telemetry module.
         /// </summary>
@@ -171,12 +137,13 @@
 
             // Temporary fix to make sure that we initialize module once.
             // It should be removed when configuration reading logic is moved to Web SDK.
-            if (!this.isInitialized)
+            if (!this.IsInitialized)
             {
                 lock (this.lockObject)
                 {
-                    if (!this.isInitialized)
+                    if (!this.IsInitialized)
                     {
+                        // Swap out the PortalDiagnosticsQueueSender for the PortalDiagnosticsSender
                         var queueSender = this.Senders.OfType<PortalDiagnosticsQueueSender>().First();
                         queueSender.IsDisabled = true;
                         this.Senders.Remove(queueSender);
@@ -193,15 +160,12 @@
 
                         this.Senders.Add(portalSender);
 
-                        foreach (TraceEvent traceEvent in queueSender.EventData)
-                        {
-                            portalSender.Send(traceEvent);
-                        }
+                        queueSender.FlushQueue(portalSender);
 
                         // set up heartbeat
                         this.HeartbeatProvider.Initialize(configuration);
 
-                        this.isInitialized = true;
+                        this.IsInitialized = true;
                     }
                 }
             }

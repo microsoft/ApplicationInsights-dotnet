@@ -3,6 +3,8 @@
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
+
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.Extensions.Options;
 
@@ -17,7 +19,8 @@
         /// Initializes a new instance of the <see cref="TelemetryConfigurationOptions"/> class.
         /// </summary>
         /// <param name="configureOptions">Options to be configured.</param>
-        public TelemetryConfigurationOptions(IEnumerable<IConfigureOptions<TelemetryConfiguration>> configureOptions)
+        /// <param name="applicationInsightsServiceOptions">User defined serviceOptions.</param>
+        public TelemetryConfigurationOptions(IEnumerable<IConfigureOptions<TelemetryConfiguration>> configureOptions, IOptions<ApplicationInsightsServiceOptions> applicationInsightsServiceOptions)
         {
             this.Value = TelemetryConfiguration.CreateDefault();
 
@@ -27,18 +30,21 @@
                 c.Configure(this.Value);
             }
 
-            lock (LockObject)
+            if (applicationInsightsServiceOptions.Value.EnableActiveTelemetryConfigurationSetup)
             {
-                // workaround for Microsoft/ApplicationInsights-dotnet#613
-                // as we expect some customers to use TelemetryConfiguration.Active together with dependency injection
-                // we make sure it has been set up, it must be done only once even if there are multiple Web Hosts in the process
-                if (!IsActiveConfigured(this.Value.InstrumentationKey))
+                lock (LockObject)
                 {
-                    foreach (var c in configureOptionsArray)
+                    // workaround for Microsoft/ApplicationInsights-dotnet#613
+                    // as we expect some customers to use TelemetryConfiguration.Active together with dependency injection
+                    // we make sure it has been set up, it must be done only once even if there are multiple Web Hosts in the process
+                    if (!IsActiveConfigured(this.Value.InstrumentationKey))
                     {
+                        foreach (var c in configureOptionsArray)
+                        {
 #pragma warning disable CS0618 // This must be maintained for backwards compatibility.
-                        c.Configure(TelemetryConfiguration.Active); 
+                            c.Configure(TelemetryConfiguration.Active);
 #pragma warning restore CS0618
+                        }
                     }
                 }
             }

@@ -2,12 +2,28 @@
 
 ## VNext
 
+## Version 2.15.0-beta3
+- Support Request.PathBase for AspNetCore telemetry
+- [End support for .NET Framework 4.5 / 4.5.1, Add support for .NET Framework 4.5.2](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1161)
+- [Create single request telemetry when URL-rewrite rewrites a request](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1744)
+- [Remove legacy TelemetryConfiguration.Active from AspNetCore SDK](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1953)
+- [Refactor AspNetCore and WorkerService use of Heartbeat (DiagnosticTelemetryModule)](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1954)
+- [Fix broken correlation and missing in-proc dependency Azure Blob SDK v12](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1915)
+- [Fix Heartbeat interval not applied until after first heartbeat](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1298)
+- [Fix: ApplicationInsightsLoggerProvider does not catch exceptions](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1969)
+- [Update AppInsights JS snippet used in the code to latest version](https://github.com/microsoft/ApplicationInsights-JS)
+- [ServerTelemetryChannel does not fall back to any default directory if user explicitly configures StorageFolder, and have trouble read/write to it](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2002)
+- [Fixed a bug which caused ApplicationInsights.config file being read for populating TelemetryConfiguration in .NET Core projects](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1795)
+- [Remove System.RunTime EventCounters by default](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2009)
+- [Ingestion service data delivery status](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1887)
+- [Update version of Microsoft.AspNetCore.Hosting to 2.1.0](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1902)
 
 ## Version 2.15.0-beta2
 - [Read all properties of ApplicationInsightsServiceOptions from IConfiguration](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1882)
 - [End support for NetStandard 1.x, Add support for NetStandard 2.0](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1160)
 - [Add support for SourceLink.Github to all SDKs.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1760)
 - [ServerTelemetryChannel by default uses local disk storage in non Windows, to store telemetry during transient errors](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1792)
+- [Make TelemetryConfiguration property of TelemetryClient public accessible to be able to read the configuration](https://github.com/microsoft/ApplicationInsights-dotnet/issues/581)
 
 ## Version 2.15.0-beta1
 - [WorkerService package is modified to depend on 2.1.1 on Microsoft.Extensions.DependencyInjection so that it can be used in .NET Core 2.1 projects without nuget errors.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1677)

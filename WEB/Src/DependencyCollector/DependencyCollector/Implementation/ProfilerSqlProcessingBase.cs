@@ -1,9 +1,10 @@
-﻿#if NET45
+﻿#if NET452
 namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
     using System.Data.SqlClient;
     using System.Diagnostics;
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Common;
@@ -15,6 +16,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     /// <summary>
     /// Base class with all processing logic to generate dependencies from the callbacks received from Profiler instrumentation for SQL.    
     /// </summary>
+    [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "These methods have extra parameters to match callbacks with specific number of parameters.")]
     internal abstract class ProfilerSqlProcessingBase
     {
         internal ObjectInstanceBasedOperationHolder<DependencyTelemetry> TelemetryTable;

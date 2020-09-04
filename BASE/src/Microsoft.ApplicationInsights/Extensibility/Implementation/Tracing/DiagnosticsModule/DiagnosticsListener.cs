@@ -26,10 +26,7 @@
 
         public EventLevel LogLevel
         {
-            get
-            {
-                return this.logLevel;
-            }
+            get => this.logLevel;
 
             set
             {
@@ -41,6 +38,23 @@
                 }
 
                 this.logLevel = value;
+            }
+        }
+
+        /// <summary>
+        /// Sets LogLevel. Possible values LogAlways, Critical, Error, Warning, Informational and Verbose.
+        /// </summary>
+        public void SetLogLevel(string value)
+        {
+            // Once logLevel is set from configuration, restart listener with new value
+            if (!string.IsNullOrEmpty(value))
+            {
+                EventLevel parsedValue;
+                if (Enum.IsDefined(typeof(EventLevel), value) == true)
+                {
+                    parsedValue = (EventLevel)Enum.Parse(typeof(EventLevel), value, true);
+                    this.LogLevel = parsedValue;
+                }
             }
         }
 

@@ -21,7 +21,7 @@
 
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
         private static HttpClient client = new HttpClient() { Timeout = System.Threading.Timeout.InfiniteTimeSpan };
-
+                
         private int isSending;
 
         /// <summary>
@@ -40,7 +40,7 @@
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Transmission"/> class.
-        /// </summary>
+        /// </summary>        
         public Transmission(Uri address, ICollection<ITelemetry> telemetryItems, TimeSpan timeout = default(TimeSpan))
             : this(address, JsonSerializer.Serialize(telemetryItems, true), JsonSerializer.ContentType, JsonSerializer.CompressionType, timeout)
         {
@@ -71,6 +71,11 @@
         {
         }
 
+        /// <summary>
+        /// Gets or Sets an event notification to track ingestion endpoint response.
+        /// </summary>
+        public EventHandler<TransmissionStatusEventArgs> TransmissionStatusEvent { get; set; }
+        
         /// <summary>
         /// Gets the Address of the endpoint to which transmission will be sent.
         /// </summary>
@@ -209,11 +214,23 @@
                         }
                     }
                     catch (OperationCanceledException)
-                    {                        
+                    {
                         wrapper = new HttpWebResponseWrapper
                         {
                             StatusCode = (int)HttpStatusCode.RequestTimeout,
                         };
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            // Initiates event notification to subscriber with Transmission and TransmissionStatusEventArgs.
+                            this.TransmissionStatusEvent?.Invoke(this, new TransmissionStatusEventArgs(wrapper ?? new HttpWebResponseWrapper() { StatusCode = 999 }));
+                        }
+                        catch (Exception ex)
+                        {
+                            CoreEventSource.Log.TransmissionStatusEventFailed(ex);
+                        }
                     }
 
                     return wrapper;

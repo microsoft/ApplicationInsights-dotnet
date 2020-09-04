@@ -1,47 +1,50 @@
 pool:
-  vmImage: 'ubuntu-16.04'
+  vmImage: 'ubuntu-latest'
+
+strategy:
+    matrix:
+        netcoreapp2_1:
+            framework: netcoreapp2.1
+        netcoreapp3_1:
+            framework: netcoreapp3.1
+    maxParallel: 2
+
 steps:
 
-## Install NetCore 3.1, Restore Solution, Build Solution, Test NetCore 3.1
-
-- task: DotNetCoreInstaller@1
+- task: UseDotNet@2
+  displayName: install dotnet core 2.1
+  inputs:
+    version: 2.1.807
+    
+- task: UseDotNet@2
   displayName: install dotnet core 3.1
   inputs:
-    version: 3.1.x
+    version: 3.1.301
+    
+- task: CmdLine@2
+  displayName: Run dotnet side by side.
+  inputs:
+    script: rsync -a ${DOTNET_ROOT/3.1.301/2.1.807}/* $DOTNET_ROOT/
 
-- task: DotNetCoreCLI@1
+- task: DotNetCoreCLI@2
   displayName: DotNetCoreCLI - Restore Solution
   inputs:
     command: "restore"
     projects: "BASE/*.sln"
 
-- task: DotNetCoreCLI@1
+- task: DotNetCoreCLI@2
   displayName: DotNetCoreCLI - Build Solution
   inputs:
     command: "build"
     projects: "BASE/*.sln"
-    arguments: "--configuration Release"
+    arguments: "--configuration Release --no-restore"
 
-- task: DotNetCoreCLI@1
-  displayName: DotNetCoreCLI - Test NetCore 3.1
+- task: DotNetCoreCLI@2
+  displayName: DotNetCoreCLI - Test $(framework)
   inputs:
     command: "test"
     projects: "BASE/Test/**/Microsoft.ApplicationInsights.Tests.csproj"
-    arguments: "--configuration Release --framework netcoreapp3.1 -l trx --filter TestCategory!=WindowsOnly"
-
-## Install and Test NetCore 2.2
-
-- task: DotNetCoreInstaller@1
-  displayName: install dotnet core 2.2
-  inputs:
-    version: 2.2.x
-
-- task: DotNetCoreCLI@1
-  displayName: DotNetCoreCLI - Test NetCore 2.1
-  inputs:
-    command: "test"
-    projects: "BASE/Test/**/Microsoft.ApplicationInsights.Tests.csproj"
-    arguments: "--configuration Release --framework netcoreapp2.1 -l trx --filter TestCategory!=WindowsOnly"
+    arguments: "--configuration Release --framework $(framework) --no-build -l trx --filter TestCategory!=WindowsOnly"
 
 ## Publish Test results
 
@@ -52,7 +55,7 @@ steps:
     testResultsFiles: "**/*.trx"
     failTaskOnFailedTests: true
 
-#- task: DotNetCoreCLI@1
+#- task: DotNetCoreCLI@2
 #  inputs:
 #    command: "publish"
 #    publishWebProjects: "True"

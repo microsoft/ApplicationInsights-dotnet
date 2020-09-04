@@ -26,6 +26,11 @@
             set { this.endpoindAddress = value ?? throw new ArgumentNullException(nameof(this.EndpointAddress)); }
         }
 
+        /// <summary>
+        /// Gets or Sets the subscriber to an event with Transmission and HttpWebResponseWrapper.
+        /// </summary>
+        public EventHandler<TransmissionStatusEventArgs> TransmissionStatusEvent { get; set; }
+
         public virtual void Serialize(ICollection<ITelemetry> items)
         {
             if (items == null)
@@ -43,7 +48,8 @@
                 throw new Exception("TelemetrySerializer.EndpointAddress was not set.");
             }
 
-            var transmission = new Transmission(this.EndpointAddress, items);
+            var transmission = new Transmission(this.EndpointAddress, items) 
+                                        { TransmissionStatusEvent = this.TransmissionStatusEvent };
             this.Transmitter.Enqueue(transmission);
         }
     }

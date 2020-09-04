@@ -36,7 +36,8 @@ services:
 
     sql-server:
         image: microsoft/mssql-server-windows-express
-        environment:            
+        environment:
+            # [SuppressMessage("Microsoft.Security", "CS002:SecretInNextLine", Justification="Admin password needed for SQL in Docker.")]
             sa_password: MSDNm4g4z!n4
             accept_eula: "Y"
 networks:

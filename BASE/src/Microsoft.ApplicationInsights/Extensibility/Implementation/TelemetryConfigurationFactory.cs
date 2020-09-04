@@ -96,7 +96,7 @@
                     }
                 }
 
-                this.SelectInstrumentationKey(configuration);
+                SelectInstrumentationKey(configuration);
 
                 InitializeComponents(configuration, modules);
             }
@@ -399,7 +399,7 @@
                 {
                     instance = TimeSpan.Parse(valueString, CultureInfo.InvariantCulture);
                 }
-#if NET45 || NET46
+#if NET452 || NET46
                 else if (expectedType.IsEnum)
 #else
                 else if (expectedType.GetTypeInfo().IsEnum)
@@ -469,7 +469,7 @@
             return attributeDefinitions.Concat(elementDefinitions);
         }
 
-        private void SelectInstrumentationKey(TelemetryConfiguration configuration)
+        private static void SelectInstrumentationKey(TelemetryConfiguration configuration)
         {
             if (PlatformSingleton.Current.TryGetEnvironmentVariable(ConnectionStringEnvironmentVariable, out string connectionStringEnVar))
             {

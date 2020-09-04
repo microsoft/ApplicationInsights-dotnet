@@ -21,12 +21,8 @@ namespace FunctionalTests.WebApi.Tests
         {
             var endpointAddress = new EndpointAddress();
             services.AddSingleton<EndpointAddress>(endpointAddress);
-
-            var builder = new ConfigurationBuilder();
-            builder.AddApplicationInsightsSettings(instrumentationKey: InProcessServer.IKey, endpointAddress: endpointAddress.ConnectionString, developerMode: true);
-            services.AddSingleton(typeof(ITelemetryChannel), new InMemoryChannel());
-            services.AddApplicationInsightsTelemetry(builder.Build());
-
+            services.AddSingleton(typeof(ITelemetryChannel), new InMemoryChannel() { EndpointAddress = endpointAddress.ConnectionString, DeveloperMode = true });
+            services.AddApplicationInsightsTelemetry(InProcessServer.IKey);
             services.AddMvc();
         }
 
@@ -37,7 +33,7 @@ namespace FunctionalTests.WebApi.Tests
             {
                 app.UseDeveloperExceptionPage();
             }
-            
+
             app.UseMvc(routes =>
             {
                 // Add the following route for porting Web API 2 controllers.

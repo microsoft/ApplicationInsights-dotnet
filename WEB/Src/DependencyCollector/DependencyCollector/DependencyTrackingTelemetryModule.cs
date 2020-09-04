@@ -24,7 +24,7 @@
     {
         private readonly object lockObject = new object();
 
-#if NET45
+#if NET452
         private HttpDesktopDiagnosticSourceListener httpDesktopDiagnosticSourceListener;
         private FrameworkHttpEventListener httpEventListener;
         private FrameworkSqlEventListener sqlEventListener;
@@ -41,7 +41,7 @@
         private ProfilerHttpProcessing httpProcessing;
 #endif
         private TelemetryConfiguration telemetryConfiguration;
-        private bool isInitialized = false;
+
         private bool disposed = false;
 
         /// <summary>
@@ -101,6 +101,9 @@
         [Obsolete("This field has been deprecated. Please set TelemetryConfiguration.Active.ApplicationIdProvider = new ApplicationInsightsApplicationIdProvider() and customize ApplicationInsightsApplicationIdProvider.ProfileQueryEndpoint.")]
         public string ProfileQueryEndpoint { get; set; }
 
+        /// <summary>Gets a value indicating whether this module has been initialized.</summary>
+        internal bool IsInitialized { get; private set; } = false;
+
         /// <summary>
         /// IDisposable implementation.
         /// </summary>
@@ -119,11 +122,11 @@
 
             // Temporary fix to make sure that we initialize module once.
             // It should be removed when configuration reading logic is moved to Web SDK.
-            if (!this.isInitialized)
+            if (!this.IsInitialized)
             {
                 lock (this.lockObject)
                 {
-                    if (!this.isInitialized)
+                    if (!this.IsInitialized)
                     {
                         try
                         {
@@ -131,11 +134,11 @@
 
 #if !NETSTANDARD
                             // Net40 only supports runtime instrumentation
-                            // Net45 supports either but not both to avoid duplication
+                            // net452 supports either but not both to avoid duplication
                             this.InitializeForRuntimeInstrumentationOrFramework();
 #endif
 
-                            // NET45 referencing .net core System.Net.Http supports diagnostic listener
+                            // net452 referencing .net core System.Net.Http supports diagnostic listener
                             this.httpCoreDiagnosticSourceListener = new HttpCoreDiagnosticSourceListener(
                                 configuration,
                                 this.SetComponentCorrelationHttpHeaders,
@@ -175,7 +178,7 @@
 
                         PrepareFirstActivity();
 
-                        this.isInitialized = true;
+                        this.IsInitialized = true;
                     }
                 }
             }
@@ -228,7 +231,7 @@
             {
                 if (disposing)
                 {
-#if NET45
+#if NET452
                     // Net40 does not support framework event source and diagnostic source
                     if (this.httpDesktopDiagnosticSourceListener != null)
                     {

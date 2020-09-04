@@ -13,7 +13,7 @@
     /// </summary>
     internal sealed class TaskExceptionObserver : IDisposable
     {
-#if NET45
+#if NET452
         private static readonly MethodInfo GetScheduledTasksMethod = typeof(TaskScheduler).GetMethod("GetScheduledTasks", BindingFlags.Instance | BindingFlags.NonPublic);
 #endif
         private List<AggregateException> unobservedExceptions = new List<AggregateException>();
@@ -37,7 +37,7 @@
 
         private static void WaitForCurrentTasksToFinish()
         {
-#if NET45
+#if NET452
             IEnumerable<Task> scheduledTasks;
             do
             {

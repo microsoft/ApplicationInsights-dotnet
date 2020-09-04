@@ -4,6 +4,8 @@ using Microsoft.ApplicationInsights.Channel;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -16,13 +18,17 @@ namespace IntegrationTests.Tests
     : WebApplicationFactory<TStartup> where TStartup : class
     {
         internal ConcurrentBag<ITelemetry> sentItems = new ConcurrentBag<ITelemetry>();
-        
+
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
+
             builder.ConfigureServices(services =>
             {
-                services.AddSingleton<ITelemetryChannel>(new StubChannel() 
+                services.AddLogging(loggingBuilder =>
+                loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager", LogLevel.None));
+
+                services.AddSingleton<ITelemetryChannel>(new StubChannel()
                 {
                     OnSend = (item) => this.sentItems.Add(item)
                 });
@@ -31,10 +37,6 @@ namespace IntegrationTests.Tests
                 aiOptions.EnableAdaptiveSampling = false;
                 aiOptions.InstrumentationKey = "ikey";
                 services.AddApplicationInsightsTelemetry(aiOptions);
-
-                // Build the service provider.
-                var sp = services.BuildServiceProvider();
-                var tc = sp.GetRequiredService<TelemetryClient>();
             });
         }
     }

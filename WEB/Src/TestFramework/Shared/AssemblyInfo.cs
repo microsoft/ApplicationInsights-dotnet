@@ -4,19 +4,18 @@ using System.Runtime.InteropServices;
 
 #pragma warning disable CS0436
 
-[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Web.Net45.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Web.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 
-[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.DependencyCollector.Net45.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
-[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.DependencyCollector.Net46.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.DependencyCollector.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 
 [assembly: InternalsVisibleTo("Microsoft.AI.PerformanceCollector.NetCore.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.AI.PerformanceCollector.NetFull.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 
-[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Web.Net45.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Web.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 
-[assembly: InternalsVisibleTo("WindowsServer.Net45.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
+[assembly: InternalsVisibleTo("WindowsServer.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 
-[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Operation.Net45.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Operation.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 
 internal static class AssemblyInfo
 {

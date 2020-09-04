@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
+    using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
 
@@ -15,12 +16,12 @@
 
         private readonly ApplicationNameProvider nameProvider = new ApplicationNameProvider();
 
-#if NETSTANDARD2_0
-        private CoreEventSource()
+        internal CoreEventSource()
         {
+#if NETSTANDARD2_0
             this.IngestionResponseTimeCounter = new EventCounter("IngestionEndpoint-ResponseTimeMsec", this);
-        }
 #endif
+        }
 
         public static bool IsVerboseEnabled
         {
@@ -634,12 +635,34 @@
         [Event(67, Message = "Backend has responded with {0} status code in {1}ms.", Level = EventLevel.Informational)]
         public void IngestionResponseTime(int responseCode, float responseDurationInMs, string appDomainName = "Incorrect") => this.WriteEvent(67, responseCode, responseDurationInMs, this.nameProvider.Name);
 
+        [Event(68, Message = "{0}", Level = EventLevel.Warning, Keywords = Keywords.UserActionable)]
+        public void ConfigurationStringParseWarning(string message, string appDomainName = "Incorrect") => this.WriteEvent(68, message, this.nameProvider.Name);
+
+        [Event(69, Message = "{0}", Level = EventLevel.Error, Keywords = Keywords.UserActionable)]
+        public void ConnectionStringParseError(string message, string appDomainName = "Incorrect") => this.WriteEvent(69, message, this.nameProvider.Name);
+
         [NonEvent]
+        [SuppressMessage("Microsoft.Performance", "CA1822: MarkMembersAsStatic", Justification = "This method does access instance data in NetStandard 2.0 scenarios.")]
         public void IngestionResponseTimeEventCounter(float responseDurationInMs)
         {
 #if NETSTANDARD2_0
             this.IngestionResponseTimeCounter.WriteMetric(responseDurationInMs);
 #endif
+        }
+
+        [Event(70, Message = "Updating Exception has failed. Error: {0}", Level = EventLevel.Error)]
+        public void UpdateDataFailed(string error, string appDomainName = "Incorrect") => this.WriteEvent(70, error, this.nameProvider.Name);
+
+        [Event(71, Keywords = Keywords.UserActionable, Message = "TransmissionStatusEvent has failed. Error: {0}. Monitoring will continue.", Level = EventLevel.Error)]
+        public void TransmissionStatusEventError(string error, string appDomainName = "Incorrect") => this.WriteEvent(71, error, this.nameProvider.Name);
+
+        [NonEvent]
+        public void TransmissionStatusEventFailed(Exception ex)
+        {
+            if (this.IsEnabled(EventLevel.Error, (EventKeywords)(-1)))
+            {
+                this.TransmissionStatusEventError(ex.ToInvariantString());
+            }
         }
 
         /// <summary>

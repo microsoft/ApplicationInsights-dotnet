@@ -56,15 +56,9 @@ namespace Microsoft.ApplicationInsights.Tests
             }
         }
 
-        /// <summary>
-        /// This test was failing in XUnit + Net45, so i converted it to MSTest
-        /// </summary>
         [TestMethod]
         public void TracksCommandErrorWhenSqlException_Sql() => this.RunTest(SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlErrorExecuteCommand);
 
-        /// <summary>
-        /// This test was failing in XUnit + Net45, so i converted it to MSTest
-        /// </summary>
         [TestMethod]
         public void TracksCommandErrorWhenSqlException_SqlMicrosoft() => this.RunTest(SqlClientDiagnosticSourceListener.SqlMicrosoftBeforeExecuteCommand, SqlClientDiagnosticSourceListener.SqlMicrosoftErrorExecuteCommand);
 

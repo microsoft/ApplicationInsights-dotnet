@@ -20,7 +20,7 @@
                 var actual = PerformanceCounterUtility.GetPerformanceCollector();
 #if NETCOREAPP2_0
             Assert.AreEqual("StandardPerformanceCollector", actual.GetType().Name);
-#else // NET45
+#else // NET452
             Assert.AreEqual("StandardPerformanceCollector", actual.GetType().Name);
 #endif
             }

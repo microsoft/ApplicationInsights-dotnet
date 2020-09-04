@@ -19,7 +19,7 @@
     [SuppressMessage("Documentation Rules", "SA1614:ElementParameterDocumentationMustHaveText", Justification = "This class is obsolete and will not be completely documented.")]
     internal class ApplicationInsightsLogger : ILogger
     {
-#if NET451 || NET46 || NET461
+#if NET452 || NET46 || NET461
         /// <summary>
         /// SDK Version Prefix.
         /// </summary>
@@ -72,7 +72,7 @@
                 var stateDictionary = state as IReadOnlyList<KeyValuePair<string, object>>;
                 if (exception == null || this.options?.TrackExceptionsAsExceptionTelemetry == false)
                 {
-                    var traceTelemetry = new TraceTelemetry(formatter(state, exception), this.GetSeverityLevel(logLevel));
+                    var traceTelemetry = new TraceTelemetry(formatter(state, exception), GetSeverityLevel(logLevel));
                     this.PopulateTelemetry(traceTelemetry, stateDictionary, eventId);
                     this.telemetryClient.TrackTrace(traceTelemetry);
                 }
@@ -80,12 +80,31 @@
                 {
                     var exceptionTelemetry = new ExceptionTelemetry(exception);
                     exceptionTelemetry.Message = formatter(state, exception);
-                    exceptionTelemetry.SeverityLevel = this.GetSeverityLevel(logLevel);
+                    exceptionTelemetry.SeverityLevel = GetSeverityLevel(logLevel);
                     exceptionTelemetry.Properties["Exception"] = exception.ToString();
                     exception.Data.Cast<DictionaryEntry>().ToList().ForEach((item) => exceptionTelemetry.Properties[item.Key.ToString()] = (item.Value ?? "null").ToString());
                     this.PopulateTelemetry(exceptionTelemetry, stateDictionary, eventId);
                     this.telemetryClient.TrackException(exceptionTelemetry);
                 }
+            }
+        }
+
+        private static SeverityLevel GetSeverityLevel(LogLevel logLevel)
+        {
+            switch (logLevel)
+            {
+                case LogLevel.Critical:
+                    return SeverityLevel.Critical;
+                case LogLevel.Error:
+                    return SeverityLevel.Error;
+                case LogLevel.Warning:
+                    return SeverityLevel.Warning;
+                case LogLevel.Information:
+                    return SeverityLevel.Information;
+                case LogLevel.Debug:
+                case LogLevel.Trace:
+                default:
+                    return SeverityLevel.Verbose;
             }
         }
 
@@ -120,25 +139,6 @@
             }
 
             telemetry.Context.GetInternalContext().SdkVersion = this.sdkVersion;
-        }
-
-        private SeverityLevel GetSeverityLevel(LogLevel logLevel)
-        {
-            switch (logLevel)
-            {
-                case LogLevel.Critical:
-                    return SeverityLevel.Critical;
-                case LogLevel.Error:
-                    return SeverityLevel.Error;
-                case LogLevel.Warning:
-                    return SeverityLevel.Warning;
-                case LogLevel.Information:
-                    return SeverityLevel.Information;
-                case LogLevel.Debug:
-                case LogLevel.Trace:
-                default:
-                    return SeverityLevel.Verbose;
-            }
         }
     }
 #pragma warning restore CS0618

@@ -57,6 +57,60 @@
             localAppData.Delete(true);
         }
 
+        [TestCategory("WindowsOnly")]
+        [TestMethod]
+        public void GetApplicationFolderReturnsCustomFolderWhenConfiguredAndExists()
+        {
+            DirectoryInfo localAppData = this.CreateTestDirectory(@"AppData\Local");
+            DirectoryInfo customFolder = this.CreateTestDirectory(@"Custom");
+
+            try
+            {
+                var environmentVariables = new Hashtable { { "LOCALAPPDATA", localAppData.FullName } };
+                var provider = new ApplicationFolderProvider(environmentVariables, customFolder.FullName);
+                IPlatformFolder applicationFolder = provider.GetApplicationFolder();
+                Assert.IsNotNull(applicationFolder);
+                Assert.AreEqual(customFolder.Name, ((PlatformFolder)applicationFolder).Folder.Name, "Configured custom folder should be used when available.");
+            }
+            finally
+            {
+                DeleteIfExists(localAppData);
+                DeleteIfExists(customFolder);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("WindowsOnly")]
+        public void GetApplicationFolderReturnsNullWhenCustomFolderConfiguredAndNotExists()
+        {
+            DirectoryInfo localAppData = this.CreateTestDirectory(@"AppData\Local");
+            DirectoryInfo temp = this.CreateTestDirectory(@"AppData\Temp");
+            DirectoryInfo customFolder = new DirectoryInfo(@"Custom");
+            Assert.IsFalse(customFolder.Exists);
+            try
+            {
+                var environmentVariables = new Hashtable();
+                environmentVariables.Add("LOCALAPPDATA", localAppData.FullName);
+                environmentVariables.Add("TEMP", localAppData.FullName);
+                var provider = new ApplicationFolderProvider(environmentVariables, customFolder.FullName);
+                IPlatformFolder applicationFolder = provider.GetApplicationFolder();
+
+                // VALIDATE
+                // That the applicationfolder returned is null.
+                Assert.IsNull(applicationFolder);
+
+                // Also validate that SDK does not
+                // create the customFolder.
+                Assert.IsFalse(customFolder.Exists);
+            }
+            finally
+            {
+                DeleteIfExists(localAppData);
+                DeleteIfExists(temp);
+                DeleteIfExists(customFolder);
+            }
+        }
+
         [TestMethod]
         [TestCategory("WindowsOnly")]
         public void GetApplicationFolderReturnsSubfolderFromCustomFolderFirst()
@@ -98,8 +152,8 @@
         {
             DirectoryInfo localAppData = this.CreateTestDirectory(@"AppData\Local", FileSystemRights.CreateDirectories, AccessControlType.Deny);
             DirectoryInfo temp = this.CreateTestDirectory("Temp");
-            var environmentVariables = new Hashtable 
-            { 
+            var environmentVariables = new Hashtable
+            {
                 { "LOCALAPPDATA", localAppData.FullName },
                 { "TEMP", temp.FullName },
             };
@@ -119,8 +173,8 @@
         public void GetApplicationFolderReturnsSubfolderFromTempFolderIfLocalAppDataIsInvalid()
         {
             DirectoryInfo temp = this.CreateTestDirectory("Temp");
-            var environmentVariables = new Hashtable 
-            { 
+            var environmentVariables = new Hashtable
+            {
                 { "LOCALAPPDATA", " " },
                 { "TEMP", temp.FullName },
             };
@@ -139,8 +193,8 @@
         public void GetApplicationFolderReturnsSubfolderFromTempFolderIfLocalAppDataIsUnmappedDrive()
         {
             DirectoryInfo temp = this.CreateTestDirectory("Temp");
-            var environmentVariables = new Hashtable 
-            { 
+            var environmentVariables = new Hashtable
+            {
                 { "LOCALAPPDATA", @"L:\Temp" },
                 { "TEMP", temp.FullName },
             };
@@ -163,8 +217,8 @@
             DirectoryInfo temp = this.CreateTestDirectory("Temp");
 
             // Initialize ApplicationfolderProvider
-            var environmentVariables = new Hashtable 
-            { 
+            var environmentVariables = new Hashtable
+            {
                 { "LOCALAPPDATA", longDirectoryName },
                 { "TEMP", temp.FullName },
             };
@@ -184,8 +238,8 @@
         [TestCategory("WindowsOnly")]
         public void GetApplicationFolderReturnsNullWhenNeitherLocalAppDataNorTempFoldersAreAccessible()
         {
-            var environmentVariables = new Hashtable 
-            { 
+            var environmentVariables = new Hashtable
+            {
                 { "LOCALAPPDATA", this.CreateTestDirectory(@"AppData\Local", FileSystemRights.CreateDirectories, AccessControlType.Deny).FullName },
                 { "TEMP", this.CreateTestDirectory("Temp", FileSystemRights.CreateDirectories, AccessControlType.Deny).FullName },
             };
@@ -234,7 +288,7 @@
         [TestCategory("WindowsOnly")]
         public void GetApplicationFolderReturnsNullWhenFolderAlreadyExistsButDeniesRightToWrite()
         {
-            this.GetApplicationFolderReturnsNullWhenFolderAlreadyExistsButNotAccessible(FileSystemRights.Write);            
+            this.GetApplicationFolderReturnsNullWhenFolderAlreadyExistsButNotAccessible(FileSystemRights.Write);
         }
 
         [TestMethod]
@@ -298,7 +352,7 @@
             localAppData.Delete(true);
         }
 
-#if !NET45
+#if !NET452
 
         [TestMethod]
         public void GetApplicationFolderReturnsSubfolderFromTmpDirFolderInNonWindows()
@@ -439,7 +493,7 @@
             DirectoryInfo applicationInsights = microsoft.GetDirectories().Single();
             DirectoryInfo application = applicationInsights.GetDirectories().Single();
             using (new DirectoryAccessDenier(application, rights))
-            { 
+            {
                 // Try getting the inaccessible folder
                 Assert.IsNull(provider.GetApplicationFolder());
             }
@@ -452,6 +506,14 @@
             security.AddAccessRule(new FileSystemAccessRule(WindowsIdentity.GetCurrent().Name, rights, access));
             directory.SetAccessControl(security);
             return directory;
+        }
+
+        private void DeleteIfExists(DirectoryInfo directoryToDelete)
+        {
+            if (directoryToDelete.Exists)
+            {
+                directoryToDelete.Delete(true);
+            }
         }
     }
 }
