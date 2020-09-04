@@ -16,7 +16,7 @@
         Two,
 
         /// <summary>
-        /// .NET Core Version 3.0
+        /// .NET Core Version 3.0 or higher
         /// </summary>
         Three,
     }

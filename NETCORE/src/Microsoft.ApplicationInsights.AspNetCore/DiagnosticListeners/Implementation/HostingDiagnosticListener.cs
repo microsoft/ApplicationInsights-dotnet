@@ -160,7 +160,8 @@
         }
 
         /// <summary>
-        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.HttpRequestIn.Start' event. This is from 2.XX runtime.
+        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.HttpRequestIn.Start' event.
+        /// This is from 2.XX and higher runtime.
         /// </summary>
         /// <param name="httpContext">HttpContext is used to retrieve information about the Request and Response.</param>
         public void OnHttpRequestInStart(HttpContext httpContext)
@@ -289,7 +290,8 @@
         }
 
         /// <summary>
-        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.HttpRequestIn.Stop' event. This is from 2.XX runtime.
+        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.HttpRequestIn.Stop' event.
+        /// This is from 2.XX and higher runtime.
         /// </summary>
         /// <param name="httpContext">HttpContext is used to retrieve information about the Request and Response.</param>
         public void OnHttpRequestInStop(HttpContext httpContext)
@@ -298,24 +300,7 @@
         }
 
         /// <summary>
-        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.UnhandledException' event.
-        /// </summary>
-        /// <param name="httpContext">HttpContext is used to retrieve information about the Request and Response.</param>
-        /// <param name="exception">Used to create exception telemetry.</param>
-        public void OnHostingException(HttpContext httpContext, Exception exception)
-        {
-            this.OnException(httpContext, exception);
-
-            // In AspNetCore 1.0, when an exception is unhandled it will only send the UnhandledException event, but not the EndRequest event, so we need to call EndRequest here.
-            // In AspNetCore 2.0, after sending UnhandledException, it will stop the created activity, which will send HttpRequestIn.Stop event, so we will just end the request there.
-            if (this.aspNetCoreMajorVersion == AspNetCoreMajorVersion.One)
-            {
-                this.EndRequest(httpContext, Stopwatch.GetTimestamp());
-            }
-        }
-
-        /// <summary>
-        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.HandledException' event.
+        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Diagnostics.HandledException' event.
         /// </summary>
         /// <param name="httpContext">HttpContext is used to retrieve information about the Request and Response.</param>
         /// <param name="exception">Used to create exception telemetry.</param>
@@ -349,8 +334,8 @@
             try
             {
                 //// Top messages in if-else are the most often used messages.
-                //// It starts with ASP.NET Core 2.0 events, then 1.0 events, then exception events.
-                //// Switch is compiled into GetHashCode() and binary search, if-else without GetHashCode() is faster if 2.0 events are used.
+                //// Switch is compiled into GetHashCode() and binary search, if-else without GetHashCode()
+                //// is faster if 2.0 or higher events are used.
                 if (value.Key == "Microsoft.AspNetCore.Hosting.HttpRequestIn.Start")
                 {
                     httpContext = this.httpContextFetcherStart.Fetch(value.Value) as HttpContext;
@@ -409,7 +394,7 @@
                         OnBeforeAction(context, routeValues);
                     }
                 }
-                else if (value.Key == "Microsoft.AspNetCore.Diagnostics.UnhandledException")
+                else if (this.trackExceptions && value.Key == "Microsoft.AspNetCore.Diagnostics.UnhandledException")
                 {
                     httpContext = this.httpContextFetcherDiagExceptionUnhandled.Fetch(value.Value) as HttpContext;
                     exception = this.exceptionFetcherDiagExceptionUnhandled.Fetch(value.Value) as Exception;
@@ -418,22 +403,13 @@
                         this.OnDiagnosticsUnhandledException(httpContext, exception);
                     }
                 }
-                else if (value.Key == "Microsoft.AspNetCore.Diagnostics.HandledException")
+                else if (this.trackExceptions && value.Key == "Microsoft.AspNetCore.Diagnostics.HandledException")
                 {
                     httpContext = this.httpContextFetcherDiagExceptionHandled.Fetch(value.Value) as HttpContext;
                     exception = this.exceptionFetcherDiagExceptionHandled.Fetch(value.Value) as Exception;
                     if (httpContext != null && exception != null)
                     {
                         this.OnDiagnosticsHandledException(httpContext, exception);
-                    }
-                }
-                else if (value.Key == "Microsoft.AspNetCore.Hosting.UnhandledException")
-                {
-                    httpContext = this.httpContextFetcherHostingExceptionUnhandled.Fetch(value.Value) as HttpContext;
-                    exception = this.exceptionFetcherHostingExceptionUnhandled.Fetch(value.Value) as Exception;
-                    if (httpContext != null && exception != null)
-                    {
-                        this.OnHostingException(httpContext, exception);
                     }
                 }
             }
@@ -811,7 +787,7 @@
 
         private void OnException(HttpContext httpContext, Exception exception)
         {
-            if (this.trackExceptions && this.client.IsEnabled())
+            if (this.client.IsEnabled())
             {
                 // It's possible to host multiple apps (ASP.NET Core or generic hosts) in the same process
                 // Each of this apps has it's own HostingDiagnosticListener and corresponding Http listener.
