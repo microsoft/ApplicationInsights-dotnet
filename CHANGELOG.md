@@ -1,6 +1,8 @@
 ﻿# Changelog
 
 ## VNext
+
+## Version 2.15.0-beta3
 - Support Request.PathBase for AspNetCore telemetry
 - [End support for .NET Framework 4.5 / 4.5.1, Add support for .NET Framework 4.5.2](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1161)
 - [Create single request telemetry when URL-rewrite rewrites a request](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1744)
@@ -9,7 +11,7 @@
 - [Fix broken correlation and missing in-proc dependency Azure Blob SDK v12](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1915)
 - [Fix Heartbeat interval not applied until after first heartbeat](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1298)
 - [Fix: ApplicationInsightsLoggerProvider does not catch exceptions](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1969)
-- Update AppInsights JS snippet used in the code to [latest version](https://github.com/microsoft/ApplicationInsights-JS)
+- [Update AppInsights JS snippet used in the code to latest version](https://github.com/microsoft/ApplicationInsights-JS)
 - [ServerTelemetryChannel does not fall back to any default directory if user explicitly configures StorageFolder, and have trouble read/write to it](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2002)
 - [Fixed a bug which caused ApplicationInsights.config file being read for populating TelemetryConfiguration in .NET Core projects](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1795)
 - [Remove System.RunTime EventCounters by default](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2009)
