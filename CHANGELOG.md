@@ -14,6 +14,7 @@
 - [Fixed a bug which caused ApplicationInsights.config file being read for populating TelemetryConfiguration in .NET Core projects](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1795)
 - [Remove System.RunTime EventCounters by default](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2009)
 - [Ingestion service data delivery status](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1887)
+- [Update version of Microsoft.AspNetCore.Hosting to 2.1.0](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1902)
 
 ## Version 2.15.0-beta2
 - [Read all properties of ApplicationInsightsServiceOptions from IConfiguration](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1882)

@@ -16,7 +16,7 @@ namespace FunctionalTests.WebApi.Tests.FunctionalTest
     {
         private readonly string assemblyName;
         private const string requestPath = "/api/dependency";
-        
+
         public MultipleWebHostsTests(ITestOutputHelper output) : base(output)
         {
             this.assemblyName = this.GetType().GetTypeInfo().Assembly.GetName().Name;
@@ -109,7 +109,7 @@ namespace FunctionalTests.WebApi.Tests.FunctionalTest
                 Assert.NotNull(config1.TelemetryChannel);
 
                 this.ExecuteRequest(server1.BaseHost + requestPath);
-                
+
                 var telemetry = server1.Listener.ReceiveItems(TestListenerTimeoutInMs);
                 this.DebugTelemetryItems(telemetry);
 
@@ -142,16 +142,7 @@ namespace FunctionalTests.WebApi.Tests.FunctionalTest
             setActive.Invoke(null, new object[] { TelemetryConfiguration.CreateDefault() });
 
             var activeConfig = TelemetryConfiguration.Active;
-
-            using (var server = new InProcessServer(assemblyName, this.output, builder =>
-            {
-                return builder.ConfigureServices(
-                    services =>
-                    {
-                        services.AddApplicationInsightsTelemetry(
-                            o => o.EnableActiveTelemetryConfigurationSetup = true);
-                    });
-            }))
+            using (var server = new InProcessServer(assemblyName, this.output, (aiOptions) => aiOptions.EnableActiveTelemetryConfigurationSetup = true))
             {
                 this.ExecuteRequest(server.BaseHost + requestPath);
 
