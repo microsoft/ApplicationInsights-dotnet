@@ -24,7 +24,7 @@ steps:
     version: 3.1.301
     
 - task: UseDotNet@2
-  displayName: install dotnet core 5
+  displayName: install dotnet 5
   inputs:
     version: 5.0.100-preview.8.20417.9
     includePreviewVersions: true
@@ -32,7 +32,7 @@ steps:
 - task: CmdLine@2
   displayName: Run dotnet side by side.
   inputs:
-    script: rsync -a ${DOTNET_ROOT/3.1.301/2.1.807}/* $DOTNET_ROOT/
+    script: rsync -a ${DOTNET_ROOT/5.0.100-preview.8.20417.9/3.1.301/2.1.807}/* $DOTNET_ROOT/
     
 - task: DotNetCoreCLI@2
   displayName:  DotNetCoreCLI - Restore Solution
