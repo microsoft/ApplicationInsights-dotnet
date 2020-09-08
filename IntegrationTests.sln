@@ -32,6 +32,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests.WebApp.2.1
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests.WebApp.3.1", "NETCORE\test\IntegrationTests.WebApp.3.1\IntegrationTests.WebApp.3.1.csproj", "{97F94E43-702E-49B0-8570-9EF7547E1FE0}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests.WebApp.5.0", "NETCORE\test\IntegrationTests.WebApp.5.0\IntegrationTests.WebApp.5.0.csproj", "{2FF06805-B8B6-4B7D-8084-F6718F9C7054}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		NETCORE\src\Shared\Shared.projitems*{079e8118-28b3-4567-a384-ea337a0ed9fb}*SharedItemsImports = 5
@@ -93,6 +95,10 @@ Global
 		{97F94E43-702E-49B0-8570-9EF7547E1FE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97F94E43-702E-49B0-8570-9EF7547E1FE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97F94E43-702E-49B0-8570-9EF7547E1FE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FF06805-B8B6-4B7D-8084-F6718F9C7054}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FF06805-B8B6-4B7D-8084-F6718F9C7054}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FF06805-B8B6-4B7D-8084-F6718F9C7054}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FF06805-B8B6-4B7D-8084-F6718F9C7054}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
