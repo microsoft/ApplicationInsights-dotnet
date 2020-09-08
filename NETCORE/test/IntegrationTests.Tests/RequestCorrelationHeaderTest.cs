@@ -9,10 +9,12 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-#if NETCOREAPP2_1
-using IntegrationTests.WebApp._2._1;
-#else
+#if NET5_0
+using IntegrationTests.WebApp._5._0;
+#elif NETCOREAPP3_1
 using IntegrationTests.WebApp._3._1;
+#else
+using IntegrationTests.WebApp._2._1;
 #endif
 
 namespace IntegrationTests.Tests

@@ -3,17 +3,19 @@ using Microsoft.ApplicationInsights.DataContracts;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-#if NETCOREAPP2_1
-using IntegrationTests.WebApp._2._1;
-#else
+#if NET5_0
+using IntegrationTests.WebApp._5._0;
+#elif NETCOREAPP3_1
 using IntegrationTests.WebApp._3._1;
+#else
+using IntegrationTests.WebApp._2._1;
 #endif
+
 
 namespace IntegrationTests.Tests
 {
