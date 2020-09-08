@@ -89,6 +89,11 @@ Microsoft.ApplicationInsights.Channel.Transmission.Timeout.get -> System.TimeSpa
 Microsoft.ApplicationInsights.Channel.Transmission.Transmission() -> void
 Microsoft.ApplicationInsights.Channel.Transmission.Transmission(System.Uri address, byte[] content, string contentType, string contentEncoding, System.TimeSpan timeout = default(System.TimeSpan)) -> void
 Microsoft.ApplicationInsights.Channel.Transmission.Transmission(System.Uri address, System.Collections.Generic.ICollection<Microsoft.ApplicationInsights.Channel.ITelemetry> telemetryItems, System.TimeSpan timeout = default(System.TimeSpan)) -> void
+Microsoft.ApplicationInsights.Channel.Transmission.TransmissionStatusEvent.get -> System.EventHandler<Microsoft.ApplicationInsights.Channel.TransmissionStatusEventArgs>
+Microsoft.ApplicationInsights.Channel.Transmission.TransmissionStatusEvent.set -> void
+Microsoft.ApplicationInsights.Channel.TransmissionStatusEventArgs
+Microsoft.ApplicationInsights.Channel.TransmissionStatusEventArgs.Response.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.HttpWebResponseWrapper
+Microsoft.ApplicationInsights.Channel.TransmissionStatusEventArgs.TransmissionStatusEventArgs(Microsoft.ApplicationInsights.Extensibility.Implementation.HttpWebResponseWrapper response) -> void
 Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry
 Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.AvailabilityTelemetry() -> void
 Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.AvailabilityTelemetry(string name, System.DateTimeOffset timeStamp, System.TimeSpan duration, string runLocation, bool success, string message = null) -> void
@@ -883,6 +888,7 @@ Microsoft.ApplicationInsights.TelemetryClient.InstrumentationKey.set -> void
 Microsoft.ApplicationInsights.TelemetryClient.IsEnabled() -> bool
 Microsoft.ApplicationInsights.TelemetryClient.TelemetryClient() -> void
 Microsoft.ApplicationInsights.TelemetryClient.TelemetryClient(Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration configuration) -> void
+Microsoft.ApplicationInsights.TelemetryClient.TelemetryConfiguration.get -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
 Microsoft.ApplicationInsights.TelemetryClient.Track(Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackAvailability(Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry telemetry) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackAvailability(string name, System.DateTimeOffset timeStamp, System.TimeSpan duration, string runLocation, bool success, string message = null, System.Collections.Generic.IDictionary<string, string> properties = null, System.Collections.Generic.IDictionary<string, double> metrics = null) -> void
