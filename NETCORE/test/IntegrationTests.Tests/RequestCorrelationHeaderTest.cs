@@ -43,7 +43,7 @@ namespace IntegrationTests.Tests
 
             this.output.WriteLine(await response.Content.ReadAsStringAsync());
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
 
             var items = _factory.sentItems;
             PrintItems(items);
@@ -93,7 +93,7 @@ namespace IntegrationTests.Tests
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
             var items = _factory.sentItems;
             PrintItems(items);
             Assert.Equal(2, items.Count);
@@ -141,7 +141,7 @@ namespace IntegrationTests.Tests
             // Assert
             response.EnsureSuccessStatusCode();
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
             var items = _factory.sentItems;
             PrintItems(items);
             // 1 Trace from Ilogger, 1 Request
@@ -191,7 +191,7 @@ namespace IntegrationTests.Tests
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
             var items = _factory.sentItems;
             PrintItems(items);
             Assert.Equal(2, items.Count);
@@ -239,7 +239,7 @@ namespace IntegrationTests.Tests
             // Assert
             response.EnsureSuccessStatusCode();
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
             var items = _factory.sentItems;
             PrintItems(items);
             // 1 Trace from Ilogger, 1 Request

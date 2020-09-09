@@ -54,7 +54,7 @@ namespace IntegrationTests.Tests
             // Assert
             response.EnsureSuccessStatusCode();
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
 
             var items = _factory.sentItems;
             PrintItems(items);
@@ -98,7 +98,7 @@ namespace IntegrationTests.Tests
             // Assert
             response.EnsureSuccessStatusCode();
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
 
             var items = _factory.sentItems;
             PrintItems(items);
