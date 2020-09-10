@@ -2,21 +2,14 @@ strategy:
   matrix:
     linux:
       imageName: 'ubuntu-latest'
-      netcoreapp2_1:
-        framework: netcoreapp2.1
-      netcoreapp3_1:
-        framework: netcoreapp3.1
-      net5:
-        framework: net5
-    
+      framework: netcoreapp2.1
+      framework: netcoreapp3.1
+      framework: net5
     windows:
       imageName: 'windows-latest'
-      netcoreapp2_1:
-        framework: netcoreapp2.1
-      netcoreapp3_1:
-        framework: netcoreapp3.1
-      net5:
-        framework: net5
+      framework: netcoreapp2.1
+      framework: netcoreapp3.1
+      framework: net5
 
 pool:
   vmImage: $(imageName)
