@@ -101,10 +101,10 @@ steps:
     testResultsFiles: "**/*.trx"
     failTaskOnFailedTests: true
   
-  - task: PublishPipelineArtifact@1
-    inputs:
-      targetPath: "**/*.dmp"
-      artifactName: "*.dmp"
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: "**/*.dmp"
+    artifactName: "*.dmp"
 
 #- task: DotNetCoreCLI@1
 #  displayName: Package Nuget
