@@ -66,7 +66,7 @@ steps:
   inputs:
     command: "test"
     projects: "NETCORE/test/**/IntegrationTests.Tests.csproj"
-    arguments: "--configuration Release --framework $(framework) --no-build -l trx --blame-hang --blame-hang-dump-type full --blame-hang-timeout 60000"
+    arguments: "--configuration Release --framework $(framework) --no-build -l trx --blame-hang --blame-hang-dump-type full --blame-hang-timeout 300000"
 
 - task: DotNetCoreCLI@1
   displayName: Functional MVC Tests $(framework)
@@ -104,7 +104,7 @@ steps:
 - task: PublishPipelineArtifact@1
   inputs:
     targetPath: "**/*.dmp"
-    artifactName: "*.dmp"
+    artifactName: $(imageName).dmp
 
 #- task: DotNetCoreCLI@1
 #  displayName: Package Nuget
