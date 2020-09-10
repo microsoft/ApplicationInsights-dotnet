@@ -34,7 +34,7 @@ steps:
 
 - task: CmdLine@2
   displayName: Run dotnet side by side.
-  condition: $(imageName) == 'ubuntu-latest'
+  condition: $(imageName) = 'ubuntu-latest'
   inputs:
     script: rsync -a ${DOTNET_ROOT/5.0.100-preview.8.20417.9/3.1.301/2.1.807}/* $DOTNET_ROOT/
     
