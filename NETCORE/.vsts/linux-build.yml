@@ -103,7 +103,7 @@ steps:
   
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: "**/*.dmp"
+    targetPath: "NETCORE/test/IntegrationTests.Tests/TestResults/"
     artifactName: $(imageName).dmp
 
 #- task: DotNetCoreCLI@1
