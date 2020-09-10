@@ -104,7 +104,7 @@ steps:
 - task: PublishPipelineArtifact@1
   inputs:
     targetPath: "NETCORE/test/IntegrationTests.Tests/TestResults/"
-    artifactName: $(imageName).dmp
+    artifactName: $(imageName).$(framework).dmp
 
 #- task: DotNetCoreCLI@1
 #  displayName: Package Nuget
