@@ -8,7 +8,7 @@ strategy:
       framework: netcoreapp3.1
     linux_net5:
       imageName: 'ubuntu-latest'
-      framework: net5
+      framework: net5.0
     windows_netcore2_1:
       imageName: 'windows-latest'
       framework: netcoreapp2.1
@@ -17,7 +17,7 @@ strategy:
       framework: netcoreapp3.1
     windows_net5:
       imageName: 'windows-latest'
-      framework: net5
+      framework: net5.0
 
 pool:
   vmImage: $(imageName)
