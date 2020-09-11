@@ -100,11 +100,12 @@ steps:
     testRunner: "VSTest"
     testResultsFiles: "**/*.trx"
     failTaskOnFailedTests: true
-  
-- task: PublishPipelineArtifact@1
-  inputs:
-    targetPath: "NETCORE/test/IntegrationTests.Tests/TestResults/"
-    artifactName: $(imageName).$(framework).dmp
+
+# Enable if we have hangs, crashes in tests 
+#- task: PublishPipelineArtifact@1
+#  inputs:
+#    targetPath: "NETCORE/test/IntegrationTests.Tests/TestResults/"
+#    artifactName: $(imageName).$(framework).dmp
 
 #- task: DotNetCoreCLI@1
 #  displayName: Package Nuget
