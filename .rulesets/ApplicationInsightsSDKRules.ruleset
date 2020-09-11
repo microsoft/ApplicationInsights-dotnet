@@ -457,7 +457,8 @@
     <Rule Id="C6995" Action="Warning" />
     <Rule Id="C6997" Action="Warning" />
   </Rules>
-  <Rules AnalyzerId="Analyzers" RuleNamespace="Analyzers">	
+  <Rules AnalyzerId="Analyzers" RuleNamespace="Analyzers">
+    <!--Analyzers can sometimes fail, which fails our builds. Turning off AD0001 to ignore these errors-->
     <Rule Id="AD0001" Action="None" />	
   </Rules>
   <Rules AnalyzerId="PublicApiAnalyzer" RuleNamespace="PublicApiAnalyzer">
