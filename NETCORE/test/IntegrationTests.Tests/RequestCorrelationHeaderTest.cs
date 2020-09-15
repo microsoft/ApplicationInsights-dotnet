@@ -9,10 +9,12 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-#if NETCOREAPP2_1
-using IntegrationTests.WebApp._2._1;
-#else
+#if NET5_0
+using IntegrationTests.WebApp._5._0;
+#elif NETCOREAPP3_1
 using IntegrationTests.WebApp._3._1;
+#else
+using IntegrationTests.WebApp._2._1;
 #endif
 
 namespace IntegrationTests.Tests
@@ -41,7 +43,7 @@ namespace IntegrationTests.Tests
 
             this.output.WriteLine(await response.Content.ReadAsStringAsync());
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
 
             var items = _factory.sentItems;
             PrintItems(items);
@@ -91,7 +93,7 @@ namespace IntegrationTests.Tests
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
             var items = _factory.sentItems;
             PrintItems(items);
             Assert.Equal(2, items.Count);
@@ -139,7 +141,7 @@ namespace IntegrationTests.Tests
             // Assert
             response.EnsureSuccessStatusCode();
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
             var items = _factory.sentItems;
             PrintItems(items);
             // 1 Trace from Ilogger, 1 Request
@@ -189,7 +191,7 @@ namespace IntegrationTests.Tests
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
             var items = _factory.sentItems;
             PrintItems(items);
             Assert.Equal(2, items.Count);
@@ -237,7 +239,7 @@ namespace IntegrationTests.Tests
             // Assert
             response.EnsureSuccessStatusCode();
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
             var items = _factory.sentItems;
             PrintItems(items);
             // 1 Trace from Ilogger, 1 Request

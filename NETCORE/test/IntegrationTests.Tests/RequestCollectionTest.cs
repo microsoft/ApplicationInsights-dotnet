@@ -3,17 +3,19 @@ using Microsoft.ApplicationInsights.DataContracts;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-#if NETCOREAPP2_1
-using IntegrationTests.WebApp._2._1;
-#else
+#if NET5_0
+using IntegrationTests.WebApp._5._0;
+#elif NETCOREAPP3_1
 using IntegrationTests.WebApp._3._1;
+#else
+using IntegrationTests.WebApp._2._1;
 #endif
+
 
 namespace IntegrationTests.Tests
 {
@@ -46,7 +48,7 @@ namespace IntegrationTests.Tests
             // Assert
             response.EnsureSuccessStatusCode();
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
 
             var items = _factory.sentItems;
             PrintItems(items);
@@ -81,7 +83,7 @@ namespace IntegrationTests.Tests
             // Assert
             response.EnsureSuccessStatusCode();
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
 
             var items = _factory.sentItems;
             PrintItems(items);
@@ -121,7 +123,7 @@ namespace IntegrationTests.Tests
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
 
             var items = _factory.sentItems;
             PrintItems(items);
@@ -162,7 +164,7 @@ namespace IntegrationTests.Tests
             // Assert
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
 
             var items = _factory.sentItems;
             PrintItems(items);
@@ -181,7 +183,7 @@ namespace IntegrationTests.Tests
                  expectedSuccess: false);
         }
 
-        private void WaitForTelemetryToArrive()
+        private async Task WaitForTelemetryToArrive()
         {
             // The response to the test server request is completed
             // before the actual telemetry is sent from HostingDiagnosticListener.
@@ -189,7 +191,7 @@ namespace IntegrationTests.Tests
             // sent to the user until TrackRequest() is called.)
             // The simplest workaround is to do a wait here.
             // This could be improved when entire functional tests are migrated to use this pattern.
-            Task.Delay(1000).Wait();
+            await Task.Delay(1000);
         }
 
         private void ValidateRequest(RequestTelemetry requestTelemetry,

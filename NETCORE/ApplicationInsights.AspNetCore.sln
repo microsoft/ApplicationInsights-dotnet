@@ -65,6 +65,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests.WebApp.3.1
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests.WebApp.2.1", "test\IntegrationTests.WebApp.2.1\IntegrationTests.WebApp.2.1.csproj", "{78A86267-EBB6-4720-8AC8-102B47D26D21}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests.WebApp.5.0", "test\IntegrationTests.WebApp.5.0\IntegrationTests.WebApp.5.0.csproj", "{851ECB16-8469-4D92-B6B8-B6F3DC3A4C57}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		..\BASE\src\Common\Common\Common.projitems*{0c91d961-b21e-4760-a192-14193f10b831}*SharedItemsImports = 5
@@ -156,6 +158,10 @@ Global
 		{78A86267-EBB6-4720-8AC8-102B47D26D21}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{78A86267-EBB6-4720-8AC8-102B47D26D21}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{78A86267-EBB6-4720-8AC8-102B47D26D21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{851ECB16-8469-4D92-B6B8-B6F3DC3A4C57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{851ECB16-8469-4D92-B6B8-B6F3DC3A4C57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{851ECB16-8469-4D92-B6B8-B6F3DC3A4C57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{851ECB16-8469-4D92-B6B8-B6F3DC3A4C57}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -181,6 +187,7 @@ Global
 		{E78404EA-CBAA-4366-B659-C3A46BC9DF15} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
 		{2EB6FF02-DB25-423A-A8FC-1E249BE4CEDB} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
 		{78A86267-EBB6-4720-8AC8-102B47D26D21} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
+		{851ECB16-8469-4D92-B6B8-B6F3DC3A4C57} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {047855A4-470F-43B1-8B74-69651DD6B8A6}

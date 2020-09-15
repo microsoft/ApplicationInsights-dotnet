@@ -13,10 +13,12 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.ApplicationInsights;
-#if NETCOREAPP2_1
-using IntegrationTests.WebApp._2._1;
-#else
+#if NET5_0
+using IntegrationTests.WebApp._5._0;
+#elif NETCOREAPP3_1
 using IntegrationTests.WebApp._3._1;
+#else
+using IntegrationTests.WebApp._2._1;
 #endif
 
 namespace IntegrationTests.Tests
@@ -27,11 +29,14 @@ namespace IntegrationTests.Tests
         public async Task RequestILoggerUserConfigOverRidesDefaultLevel()
         {
             // Arrange
-#if NETCOREAPP2_1
-            var loggerCategory = "IntegrationTests.WebApp._2._1.Controllers.HomeController";
-#else
+#if NET5_0
+            var loggerCategory = "IntegrationTests.WebApp._5._0.Controllers.HomeController";
+#elif NETCOREAPP3_1
             var loggerCategory = "IntegrationTests.WebApp._3._1.Controllers.HomeController";
+#else
+            var loggerCategory = "IntegrationTests.WebApp._2._1.Controllers.HomeController";
 #endif
+
 
             var client = _factory.WithWebHostBuilder(builder =>
             builder.ConfigureTestServices((services) =>
@@ -49,7 +54,7 @@ namespace IntegrationTests.Tests
             // Assert
             response.EnsureSuccessStatusCode();
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
 
             var items = _factory.sentItems;
             PrintItems(items);
@@ -93,7 +98,7 @@ namespace IntegrationTests.Tests
             // Assert
             response.EnsureSuccessStatusCode();
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
 
             var items = _factory.sentItems;
             PrintItems(items);
