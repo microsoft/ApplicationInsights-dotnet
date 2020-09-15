@@ -19,27 +19,23 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions.ApplicationI
     public class AddApplicationInsightsTelemetry_TelemetryProcessors : BaseTestClass
     {
         [Fact]
-        public static void VerifyCanAddInstanceOfTelemetryProcessor_UsingFactory()
+        public static void VerifyCanAddInstanceOfTelemetryProcessor_AddProcessor()
         {
-            var testConfig = new MyTelemetryProcessorConfiguration
-            {
-                IntValue = 123,
-                BoolValue = true
-            };
-
             // SETUP
             var services = GetServiceCollectionWithContextAccessor();
-            services.AddSingleton<ITelemetryProcessorFactory>(new MyTelemetryProcessorFactory(testConfig));
-            services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
+
+            services.AddApplicationInsightsTelemetryProcessor<MyTelemetryProcessor1>();
+
+            // We inject some of our own TelemetryProcessors here and then call TelemetryProcessorChainBuilder.Build().
+            services.AddApplicationInsightsTelemetry();
 
             // ACT
             IServiceProvider serviceProvider = services.BuildServiceProvider();
             var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
 
             // ASSERT
-            var telemetryProcessor = telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessors.OfType<MyTelemetryProcessor>().FirstOrDefault();
-            Assert.NotNull(telemetryProcessor);
-            Assert.Same(testConfig, telemetryProcessor.Configuration);
+            var telemetryProcessor1 = telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessors.OfType<MyTelemetryProcessor1>().FirstOrDefault();
+            Assert.NotNull(telemetryProcessor1);
         }
 
         [Fact]
@@ -53,9 +49,20 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions.ApplicationI
 
             // SETUP
             var services = GetServiceCollectionWithContextAccessor();
-            services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
+
+            services.AddSingleton<ITelemetryChannel, MyTelemetryChannel>();
+
+            // Before calling AddApplicationInsightsTelemetry(), this is all that's needed.
             services.Configure<TelemetryConfiguration>(config => {
-                config.DefaultTelemetrySink.TelemetryProcessorChainBuilder.Use(next => new MyTelemetryProcessor(next, testConfig));
+                config.DefaultTelemetrySink.TelemetryProcessorChainBuilder.Use(next => new MyTelemetryProcessor2(next, testConfig));
+            });
+
+            // We inject some of our own TelemetryProcessors here and then call TelemetryProcessorChainBuilder.Build().
+            services.AddApplicationInsightsTelemetry();
+
+            // After calling AddApplicationInsightsTelemetry(), all new processors must to call Build()
+            services.Configure<TelemetryConfiguration>(config => {
+                config.DefaultTelemetrySink.TelemetryProcessorChainBuilder.Use(next => new MyTelemetryProcessor3(next, testConfig));
                 config.DefaultTelemetrySink.TelemetryProcessorChainBuilder.Build();
             });
 
@@ -64,9 +71,40 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions.ApplicationI
             var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
 
             // ASSERT
-            var telemetryProcessor = telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessors.OfType<MyTelemetryProcessor>().FirstOrDefault();
-            Assert.NotNull(telemetryProcessor);
-            Assert.Same(testConfig, telemetryProcessor.Configuration);
+            var telemetryProcessor2 = telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessors.OfType<MyTelemetryProcessor2>().FirstOrDefault();
+            Assert.NotNull(telemetryProcessor2);
+            Assert.Same(testConfig, telemetryProcessor2.Configuration);
+
+            var telemetryProcessor3 = telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessors.OfType<MyTelemetryProcessor3>().FirstOrDefault();
+            Assert.NotNull(telemetryProcessor3);
+        }
+
+        [Fact]
+        public static void VerifyCanAddInstanceOfTelemetryProcessor_UsingAddProcessor_PlusSingleton()
+        {
+            var testConfig = new MyTelemetryProcessorConfiguration
+            {
+                IntValue = 123,
+                BoolValue = true
+            };
+
+            // SETUP
+            var services = GetServiceCollectionWithContextAccessor();
+
+            // If a customer's TelemetryProcessor is customizable via the constructor, this is safe.
+            services.AddSingleton<MyTelemetryProcessorConfiguration>(testConfig);
+            services.AddApplicationInsightsTelemetryProcessor<MyTelemetryProcessor2>();
+
+            services.AddApplicationInsightsTelemetry();
+
+            // ACT
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+            var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+
+            // ASSERT
+            var telemetryProcessor2 = telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessors.OfType<MyTelemetryProcessor2>().FirstOrDefault();
+            Assert.NotNull(telemetryProcessor2);
+            Assert.Same(testConfig, telemetryProcessor2.Configuration);
         }
 
         private class MyTelemetryProcessorConfiguration
@@ -75,7 +113,19 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions.ApplicationI
             public bool BoolValue { get; set; }
         }
 
-        private class MyTelemetryProcessor : ITelemetryProcessor
+        private class MyTelemetryProcessor1 : ITelemetryProcessor
+        {
+            private ITelemetryProcessor Next { get; }
+
+            public MyTelemetryProcessor1(ITelemetryProcessor next) => this.Next = next;
+
+            public void Process(ITelemetry item)
+            {
+                this.Next.Process(item);
+            }
+        }
+
+        private class MyTelemetryProcessor2 : ITelemetryProcessor
         {
             public MyTelemetryProcessorConfiguration Configuration { get; private set; }
 
@@ -83,7 +133,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions.ApplicationI
 
             public int Counter { get; private set; }
 
-            public MyTelemetryProcessor(ITelemetryProcessor next, MyTelemetryProcessorConfiguration configuration)
+            public MyTelemetryProcessor2(ITelemetryProcessor next, MyTelemetryProcessorConfiguration configuration)
             {
                 this.Configuration = configuration;
             }
@@ -96,18 +146,45 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions.ApplicationI
             }
         }
 
-        private class MyTelemetryProcessorFactory : ITelemetryProcessorFactory
+        private class MyTelemetryProcessor3 : ITelemetryProcessor
         {
-            private readonly MyTelemetryProcessorConfiguration configuration;
+            public MyTelemetryProcessorConfiguration Configuration { get; private set; }
 
-            public MyTelemetryProcessorFactory(MyTelemetryProcessorConfiguration configuration)
+            private ITelemetryProcessor Next { get; }
+
+            public int Counter { get; private set; }
+
+            public MyTelemetryProcessor3(ITelemetryProcessor next, MyTelemetryProcessorConfiguration configuration)
             {
-                this.configuration = configuration;
+                this.Configuration = configuration;
             }
 
-            public ITelemetryProcessor Create(ITelemetryProcessor nextProcessor)
+            public void Process(ITelemetry item)
             {
-                return new MyTelemetryProcessor(nextProcessor, configuration: configuration);
+                this.Counter++;
+
+                this.Next.Process(item);
+            }
+        }
+
+        private class MyTelemetryChannel : ITelemetryChannel
+        {
+            public bool? DeveloperMode { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+            public string EndpointAddress { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+            public void Dispose()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Flush()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Send(ITelemetry item)
+            {
+                throw new NotImplementedException();
             }
         }
     }
