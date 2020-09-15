@@ -4,7 +4,7 @@
 
 
 ## Version 2.15.0
-- no changes since beta.
+- EventCounterCollector module does not add AggregationInterval as a dimension to the metric.
 
 ## Version 2.15.0-beta3
 - [Support Request.PathBase for AspNetCore telemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1983)
