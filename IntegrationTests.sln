@@ -28,11 +28,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsServer", "WEB\Src\Wi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel", "BASE\src\ServerTelemetryChannel\TelemetryChannel.csproj", "{893DFA71-0F4F-4BBF-AE8F-72208BE237BA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests.WebApp.2.1", "NETCORE\test\IntegrationTests.WebApp.2.1\IntegrationTests.WebApp.2.1.csproj", "{FB0D665A-FB75-487C-9164-57023369527F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests.WebApp.3.1", "NETCORE\test\IntegrationTests.WebApp.3.1\IntegrationTests.WebApp.3.1.csproj", "{97F94E43-702E-49B0-8570-9EF7547E1FE0}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests.WebApp.5.0", "NETCORE\test\IntegrationTests.WebApp.5.0\IntegrationTests.WebApp.5.0.csproj", "{2FF06805-B8B6-4B7D-8084-F6718F9C7054}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests.WebApp", "NETCORE\test\IntegrationTests.WebApp\IntegrationTests.WebApp.csproj", "{B0899552-34A3-4BFB-8502-F966BF409FDA}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -87,18 +83,10 @@ Global
 		{893DFA71-0F4F-4BBF-AE8F-72208BE237BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{893DFA71-0F4F-4BBF-AE8F-72208BE237BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{893DFA71-0F4F-4BBF-AE8F-72208BE237BA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FB0D665A-FB75-487C-9164-57023369527F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FB0D665A-FB75-487C-9164-57023369527F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FB0D665A-FB75-487C-9164-57023369527F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FB0D665A-FB75-487C-9164-57023369527F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{97F94E43-702E-49B0-8570-9EF7547E1FE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{97F94E43-702E-49B0-8570-9EF7547E1FE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{97F94E43-702E-49B0-8570-9EF7547E1FE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{97F94E43-702E-49B0-8570-9EF7547E1FE0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2FF06805-B8B6-4B7D-8084-F6718F9C7054}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2FF06805-B8B6-4B7D-8084-F6718F9C7054}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2FF06805-B8B6-4B7D-8084-F6718F9C7054}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2FF06805-B8B6-4B7D-8084-F6718F9C7054}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0899552-34A3-4BFB-8502-F966BF409FDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0899552-34A3-4BFB-8502-F966BF409FDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0899552-34A3-4BFB-8502-F966BF409FDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0899552-34A3-4BFB-8502-F966BF409FDA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
