@@ -1,4 +1,5 @@
-﻿using Microsoft.ApplicationInsights.Channel;
+﻿using IntegrationTests.WebApp;
+using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using System;
 using System.Collections.Concurrent;
@@ -8,24 +9,37 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-#if NET5_0
-using IntegrationTests.WebApp._5._0;
-#elif NETCOREAPP3_1
-using IntegrationTests.WebApp._3._1;
-#else
-using IntegrationTests.WebApp._2._1;
-#endif
-
 
 namespace IntegrationTests.Tests
 {
-    public partial class RequestCollectionTest : IClassFixture<CustomWebApplicationFactory<Startup>>
+    public partial class RequestCollectionTest :
+#if NET5_0
+        IClassFixture<CustomWebApplicationFactory<Startup_net_5_0>>
+#elif NETCOREAPP3_1
+        IClassFixture<CustomWebApplicationFactory<Startup_netcoreapp_3_1>>
+#else
+        IClassFixture<CustomWebApplicationFactory<Startup_netcoreapp_2_1>>
+#endif
     {
-        private readonly CustomWebApplicationFactory<Startup> _factory;
+#if NET5_0
+        private readonly CustomWebApplicationFactory<Startup_net_5_0> _factory;
+#elif NETCOREAPP3_1
+        private readonly CustomWebApplicationFactory<Startup_netcoreapp_3_1> _factory;
+#else
+        private readonly CustomWebApplicationFactory<Startup_netcoreapp_2_1> _factory;
+#endif
+
         protected readonly ITestOutputHelper output;
 
-
-        public RequestCollectionTest(CustomWebApplicationFactory<Startup> factory, ITestOutputHelper output)
+        public RequestCollectionTest(CustomWebApplicationFactory<
+ #if NET5_0
+        Startup_net_5_0
+#elif NETCOREAPP3_1
+        Startup_netcoreapp_3_1
+#else
+        Startup_netcoreapp_2_1 
+#endif            
+            > factory, ITestOutputHelper output)
         {
             this.output = output;
             _factory = factory;
@@ -37,7 +51,7 @@ namespace IntegrationTests.Tests
         {
             // Arrange
             var client = _factory.CreateClient();
-            var path = "Home/Privacy";
+            var path = "Home/Empty";
             var url = client.BaseAddress + path;
 
             // Act
@@ -71,8 +85,8 @@ namespace IntegrationTests.Tests
         {
             // Arrange
             var client = _factory.CreateClient();
-            var path = "Home/Index/5";
-            var expectedName = "GET Home/Index [id]";
+            var path = "Home/5";
+            var expectedName = "GET Home/Get [id]";
             var url = client.BaseAddress + path;
 
             // Act
@@ -153,7 +167,7 @@ namespace IntegrationTests.Tests
         {
             // Arrange
             var client = _factory.CreateClient();
-            var path = "Home/Nonexistent";
+            var path = "Nonexistent";
             var url = client.BaseAddress + path;
 
             // Act
