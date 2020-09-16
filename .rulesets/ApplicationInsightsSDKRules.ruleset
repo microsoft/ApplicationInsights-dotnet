@@ -31,9 +31,12 @@
     <Rule Id="CA1410" Action="Warning" />
     <!-- Suppressing Message "Identifiers should not match keywords" because class TplActivities is part of our public api and can't be changed -->
     <Rule Id="CA1716" Action="None" />
+    <!-- Errors shown after FxCop upgrade to 3.3.0. Turning off CA1805 to ignore these errors-->
     <Rule Id="CA1805" Action="None" />
     <Rule Id="CA1821" Action="Warning" />
+    <!-- Errors shown after FxCop upgrade to 3.3.0. Turning off CA1829 to ignore these errors-->
     <Rule Id="CA1829" Action="None" />
+    <!-- Errors shown after FxCop upgrade to 3.3.0. Turning off CA1834 to ignore these errors-->
     <Rule Id="CA1834" Action="None" />
     <Rule Id="CA1900" Action="Warning" />
     <Rule Id="CA2001" Action="Warning" />
