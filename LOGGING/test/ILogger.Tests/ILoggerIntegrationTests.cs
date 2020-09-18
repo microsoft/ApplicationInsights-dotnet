@@ -121,6 +121,16 @@ namespace Microsoft.ApplicationInsights
             ILogger<ILoggerIntegrationTests> testLogger = serviceProvider.GetRequiredService<ILogger<ILoggerIntegrationTests>>();
 
             testLogger.LogInformation("Testing");
+
+            try
+            {
+                ThrowException();
+            }
+            catch (Exception ex)
+            {
+                testLogger.LogError(ex, "LoggerMessage");
+            }
+
             testLogger.LogError(new Exception("ExceptionMessage"), "LoggerMessage");
 
             Assert.IsInstanceOfType(itemsReceived[0], typeof(TraceTelemetry));
@@ -132,7 +142,14 @@ namespace Microsoft.ApplicationInsights
             Assert.AreEqual(SeverityLevel.Error, (itemsReceived[1] as TraceTelemetry).SeverityLevel);
             Assert.AreEqual("LoggerMessage", (itemsReceived[1] as TraceTelemetry).Message);
             
-            Assert.AreEqual("ExceptionMessage", (itemsReceived[1] as TraceTelemetry).Properties["ExceptionMessage"]);
+            Assert.IsTrue((itemsReceived[1] as TraceTelemetry).Properties["ExceptionMessage"].Contains("StackTraceEnabled"));
+
+            Assert.IsTrue((itemsReceived[1] as TraceTelemetry).Properties["ExceptionMessage"].Length > "StackTraceEnabled".Length);
+
+            void ThrowException()
+            {
+                throw new Exception("StackTraceEnabled");
+            }
         }
 
         /// <summary>
