@@ -96,7 +96,7 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
                         this.PopulateTelemetry(traceTelemetry, state, eventId);
                         if (exception != null)
                         {
-                            traceTelemetry.Properties.Add("ExceptionMessage", exception.Message);
+                            traceTelemetry.Properties.Add("ExceptionMessage", exception.ToInvariantString());
                         }
 
                         this.telemetryClient.TrackTrace(traceTelemetry);
