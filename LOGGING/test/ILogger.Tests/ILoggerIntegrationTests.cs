@@ -144,7 +144,7 @@ namespace Microsoft.ApplicationInsights
             
             Assert.IsTrue((itemsReceived[1] as TraceTelemetry).Properties["ExceptionMessage"].Contains("StackTraceEnabled"));
 
-            Assert.IsTrue((itemsReceived[1] as TraceTelemetry).Properties["ExceptionMessage"].Length > "StackTraceEnabled".Length);
+            Assert.IsTrue((itemsReceived[1] as TraceTelemetry).Properties.ContainsKey("ExceptionStackTrace"));
 
             void ThrowException()
             {

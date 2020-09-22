@@ -1,7 +1,7 @@
 ﻿# Changelog
 
 ## VNext
-- [ILogger LogError and LogWarning variants write exception StackTrace when `TrackExceptionsAsExceptionTelemetry` flag is set to `false`](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2065)
+- [ILogger LogError and LogWarning variants write exception `ExceptionStackTrace` when `TrackExceptionsAsExceptionTelemetry` flag is set to `false`](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2065)
 
 ## Version 2.15.0
 - EventCounterCollector module does not add AggregationInterval as a dimension to the metric.
