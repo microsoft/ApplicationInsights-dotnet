@@ -146,6 +146,11 @@ namespace Microsoft.ApplicationInsights
 
             Assert.IsTrue((itemsReceived[1] as TraceTelemetry).Properties.ContainsKey("ExceptionStackTrace"));
 
+            // This test will break if the code is moved around.
+            Assert.AreEqual(
+                "System.Exception: StackTraceEnabled\r\n   at Microsoft.ApplicationInsights.ILoggerIntegrationTests.<ApplicationInsightsLoggerLogsExceptionAsTraceWhenSwitchIsFalse>g__ThrowException|2_2() in E:\\Code\\ApplicationInsights-dotnet-ramjsing\\LOGGING\\test\\ILogger.Tests\\ILoggerIntegrationTests.cs:line 156\r\n   at Microsoft.ApplicationInsights.ILoggerIntegrationTests.ApplicationInsightsLoggerLogsExceptionAsTraceWhenSwitchIsFalse() in E:\\Code\\ApplicationInsights-dotnet-ramjsing\\LOGGING\\test\\ILogger.Tests\\ILoggerIntegrationTests.cs:line 127",
+                (itemsReceived[1] as TraceTelemetry).Properties["ExceptionStackTrace"]);
+
             void ThrowException()
             {
                 throw new Exception("StackTraceEnabled");
