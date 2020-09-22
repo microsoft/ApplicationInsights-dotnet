@@ -10,6 +10,7 @@ namespace Microsoft.ApplicationInsights
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Logging.ApplicationInsights;
@@ -122,12 +123,14 @@ namespace Microsoft.ApplicationInsights
 
             testLogger.LogInformation("Testing");
 
+            Exception trackingException = null;
             try
             {
                 ThrowException();
             }
             catch (Exception ex)
             {
+                trackingException = ex;
                 testLogger.LogError(ex, "LoggerMessage");
             }
 
@@ -146,9 +149,8 @@ namespace Microsoft.ApplicationInsights
 
             Assert.IsTrue((itemsReceived[1] as TraceTelemetry).Properties.ContainsKey("ExceptionStackTrace"));
 
-            // This test will break if the code is moved around.
             Assert.AreEqual(
-                "System.Exception: StackTraceEnabled\r\n   at Microsoft.ApplicationInsights.ILoggerIntegrationTests.<ApplicationInsightsLoggerLogsExceptionAsTraceWhenSwitchIsFalse>g__ThrowException|2_2() in E:\\Code\\ApplicationInsights-dotnet-ramjsing\\LOGGING\\test\\ILogger.Tests\\ILoggerIntegrationTests.cs:line 156\r\n   at Microsoft.ApplicationInsights.ILoggerIntegrationTests.ApplicationInsightsLoggerLogsExceptionAsTraceWhenSwitchIsFalse() in E:\\Code\\ApplicationInsights-dotnet-ramjsing\\LOGGING\\test\\ILogger.Tests\\ILoggerIntegrationTests.cs:line 127",
+                trackingException.ToInvariantString(),
                 (itemsReceived[1] as TraceTelemetry).Properties["ExceptionStackTrace"]);
 
             void ThrowException()
