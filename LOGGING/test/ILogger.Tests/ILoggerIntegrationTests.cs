@@ -134,8 +134,6 @@ namespace Microsoft.ApplicationInsights
                 testLogger.LogError(ex, "LoggerMessage");
             }
 
-            testLogger.LogError(new Exception("ExceptionMessage"), "LoggerMessage");
-
             Assert.IsInstanceOfType(itemsReceived[0], typeof(TraceTelemetry));
             Assert.IsInstanceOfType(itemsReceived[1], typeof(TraceTelemetry));
 
