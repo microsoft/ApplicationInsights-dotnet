@@ -32,9 +32,9 @@
     <Reference Include="System.XML" />
     <PackageReference Include="Microsoft.Diagnostics.Tracing.EventSource.Redist" Version="1.1.28" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.6.0" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="5.0.0-rc.1.20451.14" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.3" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="5.0.0-rc.1.20451.14" />
   </ItemGroup>
 
   <ItemGroup>
