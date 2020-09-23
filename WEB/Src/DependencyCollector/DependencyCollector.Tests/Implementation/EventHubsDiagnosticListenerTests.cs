@@ -398,10 +398,10 @@
             if (listener.IsEnabled(activityName))
             {
                 activity = new Activity(activityName);
-                activity.SetTag("peer.hostname", "eventhubname.servicebus.windows.net");
-                activity.SetTag("eh.event_hub_name", "ehname");
-                activity.SetTag("eh.partition_key", "SomePartitionKeyHere");
-                activity.SetTag("eh.client_id", "EventHubClient1(ehname)");
+                activity.AddTag("peer.hostname", "eventhubname.servicebus.windows.net");
+                activity.AddTag("eh.event_hub_name", "ehname");
+                activity.AddTag("eh.partition_key", "SomePartitionKeyHere");
+                activity.AddTag("eh.client_id", "EventHubClient1(ehname)");
 
                 if (Activity.Current == null && parentId != null)
                 {

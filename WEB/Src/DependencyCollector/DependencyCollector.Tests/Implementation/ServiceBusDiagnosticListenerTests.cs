@@ -556,7 +556,7 @@
             if (listener.IsEnabled(activityName))
             {
                 activity = new Activity(activityName);
-                activity.SetTag("MessageId", "messageId");
+                activity.AddTag("MessageId", "messageId");
                 if (Activity.Current == null && parentId != null)
                 {
                     activity.SetParentId(parentId);

@@ -449,7 +449,7 @@
         {
             foreach (var tag in currentActivity.Tags)
             {
-                newActivity.SetTag(tag.Key, tag.Value);
+                newActivity.AddTag(tag.Key, tag.Value);
             }
 
             foreach (var baggage in currentActivity.Baggage)

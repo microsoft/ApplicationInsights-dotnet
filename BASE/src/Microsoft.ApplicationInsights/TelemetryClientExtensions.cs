@@ -409,7 +409,7 @@
 
             foreach (var tag in from.Tags)
             {
-                copy.SetTag(tag.Key, tag.Value);
+                copy.AddTag(tag.Key, tag.Value);
             }
 
             foreach (var baggage in from.Baggage)

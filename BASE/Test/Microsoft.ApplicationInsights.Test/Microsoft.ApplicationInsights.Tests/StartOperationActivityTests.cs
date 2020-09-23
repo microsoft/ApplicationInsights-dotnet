@@ -49,7 +49,7 @@
         [TestMethod]
         public void BasicStartOperationWithActivity()
         {
-            var activity = new Activity("name").AddBaggage("b1", "v1").SetTag("t1", "v1");
+            var activity = new Activity("name").AddBaggage("b1", "v1").AddTag("t1", "v1");
 
             RequestTelemetry telemetry;
             using (var operation = this.telemetryClient.StartOperation<RequestTelemetry>(activity))
@@ -70,7 +70,7 @@
             var activity = new Activity("name")
                 .SetParentId("parentId")
                 .AddBaggage("b1", "v1")
-                .SetTag("t1", "v1");
+                .AddTag("t1", "v1");
 
             activity.ActivityTraceFlags = ActivityTraceFlags.Recorded;
             activity.TraceStateString = "state=some";
@@ -96,7 +96,7 @@
             var activity = new Activity("name")
                 .SetParentId("|parentId.123.")
                 .AddBaggage("b1", "v1")
-                .SetTag("t1", "v1");
+                .AddTag("t1", "v1");
 
             activity.ActivityTraceFlags = ActivityTraceFlags.Recorded;
             activity.TraceStateString = "state=some";
@@ -122,7 +122,7 @@
             var activity = new Activity("name")
                 .SetParentId("|00112233445566778899aabbccddeeff.123.")
                 .AddBaggage("b1", "v1")
-                .SetTag("t1", "v1");
+                .AddTag("t1", "v1");
 
             activity.ActivityTraceFlags = ActivityTraceFlags.Recorded;
             activity.TraceStateString = "state=some";
@@ -150,7 +150,7 @@
         {
             var outerActivity = new Activity("foo").Start();
 
-            var activity = new Activity("name").SetParentId("parentId").AddBaggage("b1", "v1").SetTag("t1", "v1");
+            var activity = new Activity("name").SetParentId("parentId").AddBaggage("b1", "v1").AddTag("t1", "v1");
 
             RequestTelemetry telemetry;
             using (var operation = this.telemetryClient.StartOperation<RequestTelemetry>(activity))
@@ -183,7 +183,7 @@
             var activity = new Activity("name")
                 .SetParentId(ActivityTraceId.CreateRandom(), ActivitySpanId.CreateRandom())
                 .AddBaggage("b1", "v1")
-                .SetTag("t1", "v1")
+                .AddTag("t1", "v1")
                 .Start();
 
             RequestTelemetry telemetry;
@@ -212,7 +212,7 @@
         [TestMethod]
         public void InvalidStartOperationWithStartedActivity()
         {
-            var activity = new Activity("name").AddBaggage("b1", "v1").SetTag("t1", "v1").Start();
+            var activity = new Activity("name").AddBaggage("b1", "v1").AddTag("t1", "v1").Start();
 
             DependencyTelemetry telemetry;
             using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(activity))

@@ -44,7 +44,7 @@
         {
             Debug.Assert(!string.IsNullOrEmpty(operationName), "OperationName must not be null or empty");
             Debug.Assert(activity != null, "Activity must not be null");
-            activity.SetTag(OperationNameTag, operationName);
+            activity.AddTag(OperationNameTag, operationName);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]

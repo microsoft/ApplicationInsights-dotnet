@@ -45,10 +45,10 @@
 #pragma warning restore CA2000 // Dispose objects before losing scope
                             backCompatActivity.SetParentId(ActivityTraceId.CreateFromString(traceId), default, currentActivity.ActivityTraceFlags);
                             backCompatActivity.Start();
-                            backCompatActivity.SetTag("__legacyParentId", currentActivity.ParentId);
+                            backCompatActivity.AddTag("__legacyParentId", currentActivity.ParentId);
                             foreach (var tag in currentActivity.Tags)
                             {
-                                backCompatActivity.SetTag(tag.Key, tag.Value);
+                                backCompatActivity.AddTag(tag.Key, tag.Value);
                             }
 
                             foreach (var baggage in currentActivity.Baggage)
@@ -58,7 +58,7 @@
                         }
                         else
                         {
-                            currentActivity.SetTag(W3C.W3CConstants.LegacyRootPropertyIdKey, W3CUtilities.GetRootId(currentActivity.ParentId));
+                            currentActivity.AddTag(W3C.W3CConstants.LegacyRootPropertyIdKey, W3CUtilities.GetRootId(currentActivity.ParentId));
                         }
                     }
 

@@ -138,7 +138,7 @@
                 module.Initialize(this.configuration);
 
                 Activity sendActivity = new Activity("Azure.SomeClient.Send");
-                sendActivity.SetTag("kind", "client");
+                sendActivity.AddTag("kind", "client");
 
                 listener.StartActivity(sendActivity, null);
                 listener.StopActivity(sendActivity, null);
@@ -165,7 +165,7 @@
                 module.Initialize(this.configuration);
 
                 Activity sendActivity = new Activity("Azure.SomeClient.Send");
-                sendActivity.SetTag("kind", "producer");
+                sendActivity.AddTag("kind", "producer");
 
                 listener.StartActivity(sendActivity, null);
                 listener.StopActivity(sendActivity, null);
@@ -192,7 +192,7 @@
                 module.Initialize(this.configuration);
 
                 Activity sendActivity = new Activity("Azure.SomeClient.Send");
-                sendActivity.SetTag("kind", "internal");
+                sendActivity.AddTag("kind", "internal");
 
                 listener.StartActivity(sendActivity, null);
                 listener.StopActivity(sendActivity, null);
@@ -219,8 +219,8 @@
                 module.Initialize(this.configuration);
 
                 Activity sendActivity = new Activity("Azure.SomeClient.Send");
-                sendActivity.SetTag("kind", "producer");
-                sendActivity.SetTag("component", "eventhubs");
+                sendActivity.AddTag("kind", "producer");
+                sendActivity.AddTag("component", "eventhubs");
 
                 listener.StartActivity(sendActivity, null);
                 listener.StopActivity(sendActivity, null);
@@ -247,8 +247,8 @@
                 module.Initialize(this.configuration);
 
                 Activity sendActivity = new Activity("Azure.SomeClient.Send");
-                sendActivity.SetTag("kind", "internal");
-                sendActivity.SetTag("component", "eventhubs");
+                sendActivity.AddTag("kind", "internal");
+                sendActivity.AddTag("component", "eventhubs");
 
                 listener.StartActivity(sendActivity, null);
                 listener.StopActivity(sendActivity, null);
@@ -275,8 +275,8 @@
                 module.Initialize(this.configuration);
 
                 Activity sendActivity = new Activity("Azure.SomeClient.Send");
-                sendActivity.SetTag("kind", "producer");
-                sendActivity.SetTag("component", "foo");
+                sendActivity.AddTag("kind", "producer");
+                sendActivity.AddTag("component", "foo");
 
                 listener.StartActivity(sendActivity, null);
                 listener.StopActivity(sendActivity, null);
@@ -303,8 +303,8 @@
                 module.Initialize(this.configuration);
 
                 Activity sendActivity = new Activity("Azure.SomeClient.Send");
-                sendActivity.SetTag("kind", "internal");
-                sendActivity.SetTag("component", "foo");
+                sendActivity.AddTag("kind", "internal");
+                sendActivity.AddTag("component", "foo");
 
                 listener.StartActivity(sendActivity, null);
                 listener.StopActivity(sendActivity, null);
@@ -331,8 +331,8 @@
                 module.Initialize(this.configuration);
 
                 Activity sendActivity = new Activity("Azure.SomeClient.Send");
-                sendActivity.SetTag("kind", "producer");
-                sendActivity.SetTag("az.namespace", "Microsoft.EventHub");
+                sendActivity.AddTag("kind", "producer");
+                sendActivity.AddTag("az.namespace", "Microsoft.EventHub");
 
                 listener.StartActivity(sendActivity, null);
                 listener.StopActivity(sendActivity, null);
@@ -359,10 +359,10 @@
                 module.Initialize(this.configuration);
 
                 Activity sendActivity = new Activity("Azure.SomeClient.Send");
-                sendActivity.SetTag("kind", "producer");
-                sendActivity.SetTag("az.namespace", "Microsoft.EventHub");
-                sendActivity.SetTag("peer.address", "amqps://eventHub.servicebus.windows.net/");
-                sendActivity.SetTag("message_bus.destination", "queueName");
+                sendActivity.AddTag("kind", "producer");
+                sendActivity.AddTag("az.namespace", "Microsoft.EventHub");
+                sendActivity.AddTag("peer.address", "amqps://eventHub.servicebus.windows.net/");
+                sendActivity.AddTag("message_bus.destination", "queueName");
 
                 listener.StartActivity(sendActivity, null);
                 listener.StopActivity(sendActivity, null);
@@ -390,8 +390,8 @@
                 module.Initialize(this.configuration);
 
                 Activity sendActivity = new Activity("Azure.SomeClient.Send");
-                sendActivity.SetTag("kind", "internal");
-                sendActivity.SetTag("az.namespace", "Microsoft.EventHub");
+                sendActivity.AddTag("kind", "internal");
+                sendActivity.AddTag("az.namespace", "Microsoft.EventHub");
 
                 listener.StartActivity(sendActivity, null);
                 listener.StopActivity(sendActivity, null);
@@ -418,8 +418,8 @@
                 module.Initialize(this.configuration);
 
                 Activity sendActivity = new Activity("Azure.SomeClient.Send");
-                sendActivity.SetTag("kind", "producer");
-                sendActivity.SetTag("az.namespace", "foo");
+                sendActivity.AddTag("kind", "producer");
+                sendActivity.AddTag("az.namespace", "foo");
 
                 listener.StartActivity(sendActivity, null);
                 listener.StopActivity(sendActivity, null);
@@ -446,8 +446,8 @@
                 module.Initialize(this.configuration);
 
                 Activity sendActivity = new Activity("Azure.SomeClient.Send");
-                sendActivity.SetTag("kind", "internal");
-                sendActivity.SetTag("az.namespace", "foo");
+                sendActivity.AddTag("kind", "internal");
+                sendActivity.AddTag("az.namespace", "foo");
 
                 listener.StartActivity(sendActivity, null);
                 listener.StopActivity(sendActivity, null);
@@ -474,7 +474,7 @@
                 module.Initialize(this.configuration);
 
                 Activity sendActivity = new Activity("Azure.SomeClient.Send");
-                sendActivity.SetTag("kind", "server");
+                sendActivity.AddTag("kind", "server");
 
                 listener.StartActivity(sendActivity, null);
                 listener.StopActivity(sendActivity, null);
@@ -501,10 +501,10 @@
                 module.Initialize(this.configuration);
 
                 Activity sendActivity = new Activity("Azure.SomeClient.Send");
-                sendActivity.SetTag("kind", "server");
-                sendActivity.SetTag("az.namespace", "Microsoft.EventHub");
-                sendActivity.SetTag("peer.address", "amqps://eventHub.servicebus.windows.net");
-                sendActivity.SetTag("message_bus.destination", "queueName");
+                sendActivity.AddTag("kind", "server");
+                sendActivity.AddTag("az.namespace", "Microsoft.EventHub");
+                sendActivity.AddTag("peer.address", "amqps://eventHub.servicebus.windows.net");
+                sendActivity.AddTag("message_bus.destination", "queueName");
 
                 listener.StartActivity(sendActivity, null);
                 listener.StopActivity(sendActivity, null);
@@ -532,10 +532,10 @@
                 module.Initialize(this.configuration);
 
                 Activity sendActivity = new Activity("Azure.SomeClient.Send");
-                sendActivity.SetTag("kind", "consumer");
-                sendActivity.SetTag("az.namespace", "Microsoft.EventHub");
-                sendActivity.SetTag("peer.address", "amqps://eventHub.servicebus.windows.net/");
-                sendActivity.SetTag("message_bus.destination", "queueName");
+                sendActivity.AddTag("kind", "consumer");
+                sendActivity.AddTag("az.namespace", "Microsoft.EventHub");
+                sendActivity.AddTag("peer.address", "amqps://eventHub.servicebus.windows.net/");
+                sendActivity.AddTag("message_bus.destination", "queueName");
 
                 listener.StartActivity(sendActivity, null);
                 listener.StopActivity(sendActivity, null);
@@ -617,7 +617,7 @@
                 module.Initialize(this.configuration);
 
                 var sendActivity = new Activity("Azure.SomeClient.Send");
-                sendActivity.SetTag("kind", "server");
+                sendActivity.AddTag("kind", "server");
 
                 var link0TraceId = "70545f717a9aa6a490d820438b9d2bf6";
                 var link1TraceId = "c5aa06717eef0c4592af26323ade92f7";
@@ -673,7 +673,7 @@
                 module.Initialize(this.configuration);
 
                 var sendActivity = new Activity("Azure.SomeClient.Send");
-                sendActivity.SetTag("kind", "consumer");
+                sendActivity.AddTag("kind", "consumer");
 
                 long enqueued0 = ToUnixTimeStamp(DateTimeOffset.UtcNow.AddMilliseconds(-100));
                 long enqueued1 = ToUnixTimeStamp(DateTimeOffset.UtcNow.AddMilliseconds(-200));
@@ -722,10 +722,10 @@
                 module.Initialize(this.configuration);
 
                 var sendActivity = new Activity("Azure.SomeClient.Send");
-                sendActivity.SetTag("kind", "consumer");
+                sendActivity.AddTag("kind", "consumer");
 
                 var link = new Activity("foo").SetParentId(ActivityTraceId.CreateRandom(), ActivitySpanId.CreateRandom());
-                link.SetTag("enqueuedTime", "not long");
+                link.AddTag("enqueuedTime", "not long");
 
                 var payload = new PayloadWithLinks { Links = new List<Activity> { link, }, };
 
@@ -755,7 +755,7 @@
                 module.Initialize(this.configuration);
 
                 var sendActivity = new Activity("Azure.SomeClient.Send");
-                sendActivity.SetTag("kind", "consumer");
+                sendActivity.AddTag("kind", "consumer");
 
                 long enqueued0 = ToUnixTimeStamp(DateTimeOffset.UtcNow.AddMilliseconds(-100));
                 long enqueued1 = ToUnixTimeStamp(DateTimeOffset.UtcNow.AddMilliseconds(-200));
@@ -836,15 +836,15 @@
                 module.Initialize(this.configuration);
 
                 Activity httpActivity = new Activity("Azure.SomeClient.Http.Request")
-                    .SetTag("http.method", "PATCH")
-                    .SetTag("http.url", "http://host:8080/path?query#fragment")
-                    .SetTag("requestId", "client-request-id");
+                    .AddTag("http.method", "PATCH")
+                    .AddTag("http.url", "http://host:8080/path?query#fragment")
+                    .AddTag("requestId", "client-request-id");
 
                 var payload = new HttpRequestMessage();
                 listener.StartActivity(httpActivity, payload);
                 httpActivity
-                    .SetTag("http.status_code", "206")
-                    .SetTag("serviceRequestId", "service-request-id");
+                    .AddTag("http.status_code", "206")
+                    .AddTag("serviceRequestId", "service-request-id");
 
                 listener.StopActivity(httpActivity, payload);
                 
@@ -875,12 +875,12 @@
                 module.Initialize(this.configuration);
 
                 Activity httpActivity = new Activity("Azure.SomeClient.Http.Request")
-                    .SetTag("http.method", "PATCH")
-                    .SetTag("http.url", "http://host/path?query#fragment");
+                    .AddTag("http.method", "PATCH")
+                    .AddTag("http.url", "http://host/path?query#fragment");
 
                 var payload = new HttpRequestMessage();
                 listener.StartActivity(httpActivity, payload);
-                httpActivity.SetTag("http.status_code", "503");
+                httpActivity.AddTag("http.status_code", "503");
 
                 listener.StopActivity(httpActivity, payload);
 
@@ -910,8 +910,8 @@
 
                 var exception = new InvalidOperationException();
                 Activity httpActivity = new Activity("Azure.SomeClient.Http.Request")
-                    .SetTag("http.method", "PATCH")
-                    .SetTag("http.url", "http://host/path?query#fragment");
+                    .AddTag("http.method", "PATCH")
+                    .AddTag("http.url", "http://host/path?query#fragment");
 
                 listener.StartActivity(httpActivity, null);
                 listener.Write("Azure.SomeClient.Send.Exception", exception);
@@ -945,10 +945,10 @@
 
                 var exception = new InvalidOperationException();
                 Activity sendActivity = new Activity("Azure.SomeClient.Send")
-                    .SetTag("peer.address", "amqps://eventHub.servicebus.windows.net")
-                    .SetTag("message_bus.destination", "queueName")
-                    .SetTag("kind", "client")
-                    .SetTag("component", "eventhubs");
+                    .AddTag("peer.address", "amqps://eventHub.servicebus.windows.net")
+                    .AddTag("message_bus.destination", "queueName")
+                    .AddTag("kind", "client")
+                    .AddTag("component", "eventhubs");
 
                 listener.StartActivity(sendActivity, null);
                 listener.Write("Azure.SomeClient.Send.Exception", exception);
@@ -980,10 +980,10 @@
 
                 var exception = new InvalidOperationException();
                 Activity sendActivity = new Activity("Azure.SomeClient.Send")
-                    .SetTag("peer.address", "amqps://eventHub.servicebus.windows.net")
-                    .SetTag("message_bus.destination", "queueName")
-                    .SetTag("kind", "producer")
-                    .SetTag("component", "eventhubs");
+                    .AddTag("peer.address", "amqps://eventHub.servicebus.windows.net")
+                    .AddTag("message_bus.destination", "queueName")
+                    .AddTag("kind", "producer")
+                    .AddTag("component", "eventhubs");
 
                 listener.StartActivity(sendActivity, null);
                 listener.Write("Azure.SomeClient.Send.Exception", exception);
@@ -1014,10 +1014,10 @@
                 module.Initialize(this.configuration);
 
                 Activity sendActivity = new Activity("Azure.SomeClient.Send")
-                    .SetTag("peer.address", "amqps://eventHub.servicebus.windows.net")
-                    .SetTag("message_bus.destination", "queueName")
-                    .SetTag("kind", "client")
-                    .SetTag("component", "eventhubs");
+                    .AddTag("peer.address", "amqps://eventHub.servicebus.windows.net")
+                    .AddTag("message_bus.destination", "queueName")
+                    .AddTag("kind", "client")
+                    .AddTag("component", "eventhubs");
 
                 listener.StartActivity(sendActivity, null);
                 listener.StopActivity(sendActivity, null);
@@ -1077,7 +1077,7 @@
         private Activity CreateRandomLink(long enqueuedTimeMs)
         {
             var activity = new Activity("foo").SetParentId(ActivityTraceId.CreateRandom(), ActivitySpanId.CreateRandom(), ActivityTraceFlags.None);
-            activity.SetTag("enqueuedTime", enqueuedTimeMs.ToString());
+            activity.AddTag("enqueuedTime", enqueuedTimeMs.ToString());
 
             return activity;
         }

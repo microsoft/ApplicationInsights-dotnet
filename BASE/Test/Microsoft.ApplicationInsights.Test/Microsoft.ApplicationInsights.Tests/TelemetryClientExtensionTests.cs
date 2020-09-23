@@ -230,7 +230,7 @@
             DependencyTelemetry telemetry = null;
             using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("TestOperationName"))
             {
-                Activity.Current.SetTag("my custom tag", "value");
+                Activity.Current.AddTag("my custom tag", "value");
                 telemetry = operation.Telemetry;
             }
 
