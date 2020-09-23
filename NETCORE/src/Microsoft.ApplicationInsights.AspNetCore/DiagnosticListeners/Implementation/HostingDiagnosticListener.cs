@@ -229,7 +229,9 @@
                 {
                     // Scenario #3. W3C-TraceParent
                     // We need to ignore the Activity created by Hosting, as it did not take W3CTraceParent into consideration.
+#pragma warning disable CA2000 // Dispose objects before losing scope
                     newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
+#pragma warning restore CA2000 // Dispose objects before losing scope
                     CopyActivityPropertiesFromAspNetCore(currentActivity, newActivity);
 
                     newActivity.SetParentId(originalParentId);
@@ -256,7 +258,9 @@
                     {
                         if (TryGetW3CCompatibleTraceId(originalParentId, out var traceId))
                         {
+#pragma warning disable CA2000 // Dispose objects before losing scope
                             newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
+#pragma warning restore CA2000 // Dispose objects before losing scope
                             CopyActivityPropertiesFromAspNetCore(currentActivity, newActivity);
                             newActivity.SetParentId(ActivityTraceId.CreateFromString(traceId), default(ActivitySpanId), ActivityTraceFlags.None);
                             AspNetCoreEventSource.Instance.HostingListenerInformational(this.aspNetCoreMajorVersion, "Ignoring original Activity from Hosting to create new one using w3c compatible request-id.");

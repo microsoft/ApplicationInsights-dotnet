@@ -40,7 +40,9 @@
                         // if hierarchical parent has compatible rootId, reuse it and keep legacy parentId
                         if (W3CUtilities.TryGetTraceId(currentActivity.ParentId, out var traceId))
                         {
+#pragma warning disable CA2000 // Dispose objects before losing scope
                             var backCompatActivity = new Activity(currentActivity.OperationName);
+#pragma warning restore CA2000 // Dispose objects before losing scope
                             backCompatActivity.SetParentId(ActivityTraceId.CreateFromString(traceId), default, currentActivity.ActivityTraceFlags);
                             backCompatActivity.Start();
                             backCompatActivity.SetTag("__legacyParentId", currentActivity.ParentId);
