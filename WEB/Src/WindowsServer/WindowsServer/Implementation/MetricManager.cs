@@ -374,7 +374,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                 aggregationIntervalDuation = aggregationPeriod;
             }
 
-            if (aggregatorSnapshot.Count > 0)
+            if (!aggregatorSnapshot.IsEmpty)
             {
                 foreach (KeyValuePair<Metric, SimpleMetricStatisticsAggregator> aggregatorWithStats in aggregatorSnapshot)
                 {
