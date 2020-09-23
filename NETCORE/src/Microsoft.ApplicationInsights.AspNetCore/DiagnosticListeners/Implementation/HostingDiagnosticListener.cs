@@ -445,7 +445,7 @@
         {
             foreach (var tag in currentActivity.Tags)
             {
-                newActivity.AddTag(tag.Key, tag.Value);
+                newActivity.SetTag(tag.Key, tag.Value);
             }
 
             foreach (var baggage in currentActivity.Baggage)

@@ -43,10 +43,10 @@
                             var backCompatActivity = new Activity(currentActivity.OperationName);
                             backCompatActivity.SetParentId(ActivityTraceId.CreateFromString(traceId), default, currentActivity.ActivityTraceFlags);
                             backCompatActivity.Start();
-                            backCompatActivity.AddTag("__legacyParentId", currentActivity.ParentId);
+                            backCompatActivity.SetTag("__legacyParentId", currentActivity.ParentId);
                             foreach (var tag in currentActivity.Tags)
                             {
-                                backCompatActivity.AddTag(tag.Key, tag.Value);
+                                backCompatActivity.SetTag(tag.Key, tag.Value);
                             }
 
                             foreach (var baggage in currentActivity.Baggage)
@@ -56,7 +56,7 @@
                         }
                         else
                         {
-                            currentActivity.AddTag(W3C.W3CConstants.LegacyRootPropertyIdKey, W3CUtilities.GetRootId(currentActivity.ParentId));
+                            currentActivity.SetTag(W3C.W3CConstants.LegacyRootPropertyIdKey, W3CUtilities.GetRootId(currentActivity.ParentId));
                         }
                     }
 

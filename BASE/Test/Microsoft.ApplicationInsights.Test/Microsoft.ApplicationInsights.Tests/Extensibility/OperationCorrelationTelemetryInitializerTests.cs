@@ -148,7 +148,7 @@
         public void InitializeDoesntOverrideContextIfOperationIdSet()
         {
             var currentActivity = new Activity("test");
-            currentActivity.AddTag("OperationName", "operation");
+            currentActivity.SetTag("OperationName", "operation");
             currentActivity.AddBaggage("k1", "v1");
             currentActivity.AddBaggage("k2", "v2");
             currentActivity.Start();
@@ -169,7 +169,7 @@
         public void InitializeOverridesContextIfOperationIdIsNotSet()
         {
             var currentActivity = new Activity("test");
-            currentActivity.AddTag("OperationName", "operation");
+            currentActivity.SetTag("OperationName", "operation");
             currentActivity.AddBaggage("k1", "v1");
             currentActivity.Start();
             var telemetry = new TraceTelemetry();
@@ -190,7 +190,7 @@
         public void TelemetryContextIsUpdatedWithOperationNameForDependencyTelemetry()
         {
             Activity parent = new Activity("parent");
-            parent.AddTag("OperationName", "OperationName");
+            parent.SetTag("OperationName", "OperationName");
             parent.Start();
 
             var telemetry = new DependencyTelemetry();
@@ -216,7 +216,7 @@
         public void InitializeWithActivityWithOperationName()
         {
             var currentActivity = new Activity("test");
-            currentActivity.AddTag("OperationName", "OperationName");
+            currentActivity.SetTag("OperationName", "OperationName");
             currentActivity.Start();
             var telemetry = new RequestTelemetry();
 
@@ -230,7 +230,7 @@
         public void InitializeDoesNotUpdateOperationNameIfItExists()
         {
             Activity parent = new Activity("parent");
-            parent.AddTag("OperationName", "OperationName");
+            parent.SetTag("OperationName", "OperationName");
             parent.Start();
 
             var telemetry = new DependencyTelemetry();
@@ -245,7 +245,7 @@
         public void InitializeSetsBaggage()
         {
             var currentActivity = new Activity("test");
-            currentActivity.AddTag("OperationName", "operation");
+            currentActivity.SetTag("OperationName", "operation");
             currentActivity.AddBaggage("k1", "v1");
             currentActivity.AddBaggage("k2", "v2");
             currentActivity.AddBaggage("existingkey", "exitingvalue");
@@ -270,7 +270,7 @@
         {
             CallContextHelpers.SaveOperationContext(new OperationContextForCallContext { RootOperationId = "callContextRoot" });
             var currentActivity = new Activity("test");
-            currentActivity.AddTag("OperationName", "operation");
+            currentActivity.SetTag("OperationName", "operation");
             currentActivity.AddBaggage("k1", "v1");
             currentActivity.Start();
             var telemetry = new RequestTelemetry();

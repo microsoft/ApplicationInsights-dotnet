@@ -1156,7 +1156,7 @@
                     {
                         foreach (var tag in tags)
                         {
-                            activity.AddTag(tag.Key, tag.Value);
+                            activity.SetTag(tag.Key, tag.Value);
                         }
                     }
 
@@ -1196,7 +1196,7 @@
                     {
                         foreach (var tag in tags)
                         {
-                            activity.AddTag(tag.Key, tag.Value);
+                            activity.SetTag(tag.Key, tag.Value);
                         }
                     }
 
