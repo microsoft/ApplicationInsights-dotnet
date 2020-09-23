@@ -10,6 +10,7 @@ namespace Microsoft.ApplicationInsights
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Logging.ApplicationInsights;
@@ -121,7 +122,17 @@ namespace Microsoft.ApplicationInsights
             ILogger<ILoggerIntegrationTests> testLogger = serviceProvider.GetRequiredService<ILogger<ILoggerIntegrationTests>>();
 
             testLogger.LogInformation("Testing");
-            testLogger.LogError(new Exception("ExceptionMessage"), "LoggerMessage");
+
+            Exception trackingException = null;
+            try
+            {
+                ThrowException();
+            }
+            catch (Exception ex)
+            {
+                trackingException = ex;
+                testLogger.LogError(ex, "LoggerMessage");
+            }
 
             Assert.IsInstanceOfType(itemsReceived[0], typeof(TraceTelemetry));
             Assert.IsInstanceOfType(itemsReceived[1], typeof(TraceTelemetry));
@@ -132,7 +143,18 @@ namespace Microsoft.ApplicationInsights
             Assert.AreEqual(SeverityLevel.Error, (itemsReceived[1] as TraceTelemetry).SeverityLevel);
             Assert.AreEqual("LoggerMessage", (itemsReceived[1] as TraceTelemetry).Message);
             
-            Assert.AreEqual("ExceptionMessage", (itemsReceived[1] as TraceTelemetry).Properties["ExceptionMessage"]);
+            Assert.IsTrue((itemsReceived[1] as TraceTelemetry).Properties["ExceptionMessage"].Contains("StackTraceEnabled"));
+
+            Assert.IsTrue((itemsReceived[1] as TraceTelemetry).Properties.ContainsKey("ExceptionStackTrace"));
+
+            Assert.AreEqual(
+                trackingException.ToInvariantString(),
+                (itemsReceived[1] as TraceTelemetry).Properties["ExceptionStackTrace"]);
+
+            void ThrowException()
+            {
+                throw new Exception("StackTraceEnabled");
+            }
         }
 
         /// <summary>
