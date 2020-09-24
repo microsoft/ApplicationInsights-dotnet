@@ -43,7 +43,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 // in case of HTTP it will be propagated into the request header.
                 // So, we will create a new Activity for the dependency, just to generate an Id.
 #pragma warning disable CA2000 // Dispose objects before losing scope
-                // Since we don't know when it will finish, we will not dispose
+                // Even though we lose activity scope here, its retrieved using Activity.Current in end call back (HttpProcessing), and disposed/ended there
                 activity = new Activity(DependencyActivityName);
 #pragma warning restore CA2000 // Dispose objects before losing scope
                 activity.Start();

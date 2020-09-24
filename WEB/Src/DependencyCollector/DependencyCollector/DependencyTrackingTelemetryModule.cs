@@ -285,7 +285,6 @@
             using (var activity = new Activity("Microsoft.ApplicationInights.Init"))
             {
                 activity.Start();
-                activity.Stop();
             }
         }
 
