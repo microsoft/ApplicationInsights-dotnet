@@ -41,6 +41,7 @@
                         if (W3CUtilities.TryGetTraceId(currentActivity.ParentId, out var traceId))
                         {
 #pragma warning disable CA2000 // Dispose objects before losing scope
+                            // Since we don't know when it will finish, we will not dispose
                             var backCompatActivity = new Activity(currentActivity.OperationName);
 #pragma warning restore CA2000 // Dispose objects before losing scope
                             backCompatActivity.SetParentId(ActivityTraceId.CreateFromString(traceId), default, currentActivity.ActivityTraceFlags);

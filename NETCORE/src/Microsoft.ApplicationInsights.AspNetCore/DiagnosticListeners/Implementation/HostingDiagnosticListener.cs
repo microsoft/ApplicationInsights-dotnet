@@ -230,6 +230,7 @@
                     // Scenario #3. W3C-TraceParent
                     // We need to ignore the Activity created by Hosting, as it did not take W3CTraceParent into consideration.
 #pragma warning disable CA2000 // Dispose objects before losing scope
+                    // Since we don't know when it will finish, we will not dispose
                     newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
 #pragma warning restore CA2000 // Dispose objects before losing scope
                     CopyActivityPropertiesFromAspNetCore(currentActivity, newActivity);
@@ -259,6 +260,7 @@
                         if (TryGetW3CCompatibleTraceId(originalParentId, out var traceId))
                         {
 #pragma warning disable CA2000 // Dispose objects before losing scope
+                            // Since we don't know when it will finish, we will not dispose
                             newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
 #pragma warning restore CA2000 // Dispose objects before losing scope
                             CopyActivityPropertiesFromAspNetCore(currentActivity, newActivity);
