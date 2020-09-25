@@ -174,7 +174,14 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
                 {
                     foreach (KeyValuePair<string, object> item in stateDictionary)
                     {
-                        dict[item.Key] = Convert.ToString(item.Value, CultureInfo.InvariantCulture);
+                        if (item.Key == "{OriginalFormat}")
+                        {
+                            dict["OriginalFormat"] = Convert.ToString(item.Value, CultureInfo.InvariantCulture);
+                        }
+                        else
+                        {
+                            dict[item.Key] = Convert.ToString(item.Value, CultureInfo.InvariantCulture);
+                        }
                     }
                 }
 
