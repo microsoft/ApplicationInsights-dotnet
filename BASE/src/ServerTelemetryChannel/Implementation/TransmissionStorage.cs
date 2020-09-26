@@ -269,11 +269,11 @@
 
         private void LoadFilesOrderedByDateFromFolder()
         {
-            if (this.files.Count == 0)
+            if (this.files.IsEmpty)
             {
                 lock (this.loadFilesLock)
                 {
-                    if (this.files.Count == 0)
+                    if (this.files.IsEmpty)
                     {
                         // Sleep a tiny bit before (re)loading the list so that any other thread still processing
                         // a file has time to finish and delete it so that it does not get re-added to the new list.

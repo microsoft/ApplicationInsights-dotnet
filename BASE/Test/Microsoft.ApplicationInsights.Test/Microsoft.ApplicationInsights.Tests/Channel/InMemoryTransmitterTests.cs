@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-   
+
     using Extensibility;
     using System.Net.Http;
     using System.Threading;
@@ -52,20 +52,22 @@
             public void SendingLogicMarkedAsInternalSdkOperation()
             {
                 var buffer = new TelemetryBufferWithInternalOperationValidation();
-                var transmitter = new InMemoryTransmitter(buffer);
-                buffer.OnFull();
-
-                for (int i = 0; i < 10; i++)
+                using (var transmitter = new InMemoryTransmitter(buffer))
                 {
-                    if (buffer.WasCalled)
+                    buffer.OnFull();
+
+                    for (int i = 0; i < 10; i++)
                     {
-                        break;
+                        if (buffer.WasCalled)
+                        {
+                            break;
+                        }
+
+                        Thread.Sleep(TimeSpan.FromSeconds(1));
                     }
 
-                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    Assert.IsTrue(buffer.WasCalled);
                 }
-
-                Assert.IsTrue(buffer.WasCalled);
             }
 
             [TestMethod]

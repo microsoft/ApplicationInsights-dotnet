@@ -97,6 +97,7 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
                         if (exception != null)
                         {
                             traceTelemetry.Properties.Add("ExceptionMessage", exception.Message);
+                            traceTelemetry.Properties.Add("ExceptionStackTrace", exception.ToInvariantString());
                         }
 
                         this.telemetryClient.TrackTrace(traceTelemetry);
@@ -173,7 +174,14 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
                 {
                     foreach (KeyValuePair<string, object> item in stateDictionary)
                     {
-                        dict[item.Key] = Convert.ToString(item.Value, CultureInfo.InvariantCulture);
+                        if (item.Key == "{OriginalFormat}")
+                        {
+                            dict["OriginalFormat"] = Convert.ToString(item.Value, CultureInfo.InvariantCulture);
+                        }
+                        else
+                        {
+                            dict[item.Key] = Convert.ToString(item.Value, CultureInfo.InvariantCulture);
+                        }
                     }
                 }
 

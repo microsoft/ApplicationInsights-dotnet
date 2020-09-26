@@ -21,9 +21,6 @@
 
     <PackageReference Include="CompareNETObjects" Version="4.59.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.6.0" />
-
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">

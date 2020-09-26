@@ -38,7 +38,10 @@
                 // will not be correlated  properly to telemetry reported within the request 
                 // Here we simply maintaining backward compatibility with this behavior...
 
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                // Since we don't know when it will finish, we will not dispose
                 currentActivity = new Activity(ActivityHelpers.RequestActivityItemName);
+#pragma warning restore CA2000 // Dispose objects before losing scope
                 if (!currentActivity.Extract(headers))
                 {
                     if (ActivityHelpers.ParentOperationIdHeaderName != null &&
@@ -65,7 +68,10 @@
                 if (W3CUtilities.TryGetTraceId(currentActivity.ParentId, out var traceId))
                 {
                     legacyParentId = currentActivity.ParentId;
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                    // Since we don't know when it will finish, we will not dispose
                     currentActivity = CreateSubstituteActivityFromCompatibleRootId(currentActivity, traceId);
+#pragma warning restore CA2000 // Dispose objects before losing scope
                 }
                 else
                 {
@@ -193,7 +199,10 @@
 
         private static Activity CreateSubstituteActivityFromCompatibleRootId(Activity currentActivity, ReadOnlySpan<char> traceId)
         {
+#pragma warning disable CA2000 // Dispose objects before losing scope
+            // Since we don't know when it will finish, we will not dispose
             var activity = new Activity(currentActivity.OperationName);
+#pragma warning restore CA2000 // Dispose objects before losing scope
             activity.SetParentId(ActivityTraceId.CreateFromString(traceId), default, ActivityTraceFlags.None);
 
             foreach (var baggage in currentActivity.Baggage)
