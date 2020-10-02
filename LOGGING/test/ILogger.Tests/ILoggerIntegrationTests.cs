@@ -32,7 +32,7 @@ namespace Microsoft.ApplicationInsights
         {
             List<ITelemetry> itemsReceived = new List<ITelemetry>();
 
-            // Disable scope
+            // Scopes are enabled.
             IServiceProvider serviceProvider = ILoggerIntegrationTests.SetupApplicationInsightsLoggerIntegration(
                 (telemetryItem, telemetryProcessor) => itemsReceived.Add(telemetryItem),
                 configureTelemetryConfiguration: null,
