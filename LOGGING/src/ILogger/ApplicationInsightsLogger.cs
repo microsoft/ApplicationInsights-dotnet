@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="ApplicationInsightsLogger.cs" company="Microsoft">
-// Copyright (c) Microsoft Corporation. 
+// Copyright (c) Microsoft Corporation.
 // All rights reserved.  2013
 // </copyright>
 // -----------------------------------------------------------------------
@@ -168,23 +168,23 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
                 dict["EventName"] = eventId.Name;
             }
 
-            if (this.applicationInsightsLoggerOptions.IncludeScopes)
+            if (state is IReadOnlyCollection<KeyValuePair<string, object>> stateDictionary)
             {
-                if (state is IReadOnlyCollection<KeyValuePair<string, object>> stateDictionary)
+                foreach (KeyValuePair<string, object> item in stateDictionary)
                 {
-                    foreach (KeyValuePair<string, object> item in stateDictionary)
+                    if (item.Key == "{OriginalFormat}")
                     {
-                        if (item.Key == "{OriginalFormat}")
-                        {
-                            dict["OriginalFormat"] = Convert.ToString(item.Value, CultureInfo.InvariantCulture);
-                        }
-                        else
-                        {
-                            dict[item.Key] = Convert.ToString(item.Value, CultureInfo.InvariantCulture);
-                        }
+                        dict["OriginalFormat"] = Convert.ToString(item.Value, CultureInfo.InvariantCulture);
+                    }
+                    else
+                    {
+                        dict[item.Key] = Convert.ToString(item.Value, CultureInfo.InvariantCulture);
                     }
                 }
+            }
 
+            if (this.applicationInsightsLoggerOptions.IncludeScopes)
+            {
                 if (this.ExternalScopeProvider != null)
                 {
                     StringBuilder stringBuilder = new StringBuilder();
