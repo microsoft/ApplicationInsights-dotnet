@@ -326,7 +326,7 @@ function Start-EvaluateNupkg ($nupkgPath) {
         [xml]$nuspecXml = Get-Content $_.FullName
         Get-IsValidPackageId $nuspecXml;
         Get-IsValidAuthors $nuspecXml;
-        Get-IsValidOwners $nuspecXml;
+        #Get-IsValidOwners $nuspecXml; dotnet stopped building this property. Disabling the check.
         Get-IsValidProjectUrl $nuspecXml;
         Get-IsValidLicense $nuspecXml;
         Get-IsValidLicenseAcceptance $nuspecXml;
