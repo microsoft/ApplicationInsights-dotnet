@@ -255,7 +255,6 @@
                     metricTelemetry.Name = eventSourceName + "|" + name;
                 }
 
-                metricTelemetry.Properties.Add("AggregationInterval", actualInterval.ToString(CultureInfo.InvariantCulture));
                 if (!string.IsNullOrEmpty(counterDisplayUnit))
                 {
                     metricTelemetry.Properties.Add("DisplayUnits", counterDisplayUnit);

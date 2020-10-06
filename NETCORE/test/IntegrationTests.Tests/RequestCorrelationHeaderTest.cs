@@ -9,22 +9,25 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-#if NETCOREAPP2_1
-using IntegrationTests.WebApp._2._1;
-#else
-using IntegrationTests.WebApp._3._1;
-#endif
+using IntegrationTests.WebApp;
 
 namespace IntegrationTests.Tests
 {
-    public partial class RequestCollectionTest : IClassFixture<CustomWebApplicationFactory<Startup>>
+    public partial class RequestCollectionTest :
+#if NET5_0
+        IClassFixture<CustomWebApplicationFactory<Startup_net_5_0>>
+#elif NETCOREAPP3_1
+        IClassFixture<CustomWebApplicationFactory<Startup_netcoreapp_3_1>>
+#else
+        IClassFixture<CustomWebApplicationFactory<Startup_netcoreapp_2_1>>
+#endif
     {
         [Fact]
         public async Task RequestSuccessWithTraceParent()
         {
             // Arrange
             var client = _factory.CreateClient();
-            var path = "Home/Index";
+            var path = "Home";
             var url = client.BaseAddress + path;
 
             // Act
@@ -41,7 +44,7 @@ namespace IntegrationTests.Tests
 
             this.output.WriteLine(await response.Content.ReadAsStringAsync());
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
 
             var items = _factory.sentItems;
             PrintItems(items);
@@ -65,7 +68,7 @@ namespace IntegrationTests.Tests
             ValidateRequest(
                  requestTelemetry: req,
                  expectedResponseCode: "200",
-                 expectedName: "GET " + path,
+                 expectedName: "GET " + path + "/Get",
                  expectedUrl: url,
                  expectedSuccess: true);
         }
@@ -91,7 +94,7 @@ namespace IntegrationTests.Tests
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
             var items = _factory.sentItems;
             PrintItems(items);
             Assert.Equal(2, items.Count);
@@ -123,7 +126,7 @@ namespace IntegrationTests.Tests
         {
             // Arrange
             var client = _factory.CreateClient();
-            var path = "Home/Index";
+            var path = "Home";
             var url = client.BaseAddress + path;
 
             // Act
@@ -139,7 +142,7 @@ namespace IntegrationTests.Tests
             // Assert
             response.EnsureSuccessStatusCode();
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
             var items = _factory.sentItems;
             PrintItems(items);
             // 1 Trace from Ilogger, 1 Request
@@ -163,7 +166,7 @@ namespace IntegrationTests.Tests
             ValidateRequest(
                  requestTelemetry: req,
                  expectedResponseCode: "200",
-                 expectedName: "GET " + path,
+                 expectedName: "GET " + path + "/Get",
                  expectedUrl: url,
                  expectedSuccess: true);
         }
@@ -189,7 +192,7 @@ namespace IntegrationTests.Tests
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
             var items = _factory.sentItems;
             PrintItems(items);
             Assert.Equal(2, items.Count);
@@ -221,7 +224,7 @@ namespace IntegrationTests.Tests
         {
             // Arrange
             var client = _factory.CreateClient();
-            var path = "Home/Index";
+            var path = "Home";
             var url = client.BaseAddress + path;
 
             // Act
@@ -237,7 +240,7 @@ namespace IntegrationTests.Tests
             // Assert
             response.EnsureSuccessStatusCode();
 
-            WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive();
             var items = _factory.sentItems;
             PrintItems(items);
             // 1 Trace from Ilogger, 1 Request
@@ -262,7 +265,7 @@ namespace IntegrationTests.Tests
             ValidateRequest(
                  requestTelemetry: req,
                  expectedResponseCode: "200",
-                 expectedName: "GET " + path,
+                 expectedName: "GET " + path + "/Get",
                  expectedUrl: url,
                  expectedSuccess: true);
         }

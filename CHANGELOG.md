@@ -1,10 +1,12 @@
 ﻿# Changelog
 
 ## VNext
-
+- [ILogger LogError and LogWarning variants write exception `ExceptionStackTrace` when `TrackExceptionsAsExceptionTelemetry` flag is set to `false`](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2065)
+- [The `{OriginalFormat}` field in ILogger will be emitted as `OriginalFormat` with the braces removed](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2071)
+- ApplicationInsightsLoggerProvider populates structured logging key/values irrespective of whether Scopes are enabled or not.
 
 ## Version 2.15.0
-- no changes since beta.
+- EventCounterCollector module does not add AggregationInterval as a dimension to the metric.
 
 ## Version 2.15.0-beta3
 - [Support Request.PathBase for AspNetCore telemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1983)
