@@ -32,6 +32,7 @@ namespace ConsoleAppWithApplicationInsights
             // Add custom TelemetryProcessor
             services.AddApplicationInsightsTelemetryProcessor<MyCustomTelemetryProcessor>();
 
+            // [SuppressMessage("Microsoft.Security", "CS002:SecretInNextLine", Justification="Not a real api key, this is example code.")]
             // Example on Configuring TelemetryModules.
             services.ConfigureTelemetryModule<QuickPulseTelemetryModule>((module, opt) => module.AuthenticationApiKey = "putactualauthenticationkey");
 
