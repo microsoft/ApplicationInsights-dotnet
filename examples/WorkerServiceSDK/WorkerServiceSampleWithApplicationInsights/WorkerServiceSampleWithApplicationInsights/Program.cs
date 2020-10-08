@@ -30,8 +30,8 @@ namespace WorkerServiceSampleWithApplicationInsights
                     // Add custom TelemetryProcessor
                     services.AddApplicationInsightsTelemetryProcessor<MyCustomTelemetryProcessor>();
 
-                    // [SuppressMessage("Microsoft.Security", "CS002:SecretInNextLine", Justification="Not a real api key, this is example code.")]
                     // Example on Configuring TelemetryModules.
+                    // [SuppressMessage("Microsoft.Security", "CS002:SecretInNextLine", Justification="Not a real api key, this is example code.")]
                     services.ConfigureTelemetryModule<QuickPulseTelemetryModule>((mod, opt) => mod.AuthenticationApiKey = "putactualauthenticationkey");
 
                     // instrumentation key is read automatically from appsettings.json
