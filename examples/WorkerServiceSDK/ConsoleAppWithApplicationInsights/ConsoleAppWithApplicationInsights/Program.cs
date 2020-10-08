@@ -27,14 +27,14 @@ namespace ConsoleAppWithApplicationInsights
 
             // Being a regular console app, there is no appsettings.json or configuration providers enabled by default.
             // Hence instrumentation key must be specified here.
-            services.AddApplicationInsightsTelemetryWorkerService("0eb18de0-7268-473c-ae06-c87ca480d2d2");
+            services.AddApplicationInsightsTelemetryWorkerService("put_actual_ikey_here");
 
             // Add custom TelemetryProcessor
             services.AddApplicationInsightsTelemetryProcessor<MyCustomTelemetryProcessor>();
 
             // Example on Configuring TelemetryModules.
             // [SuppressMessage("Microsoft.Security", "CS002:SecretInNextLine", Justification="Not a real api key, this is example code.")]
-            services.ConfigureTelemetryModule<QuickPulseTelemetryModule>((module, opt) => module.AuthenticationApiKey = "putactualauthenticationkey");
+            services.ConfigureTelemetryModule<QuickPulseTelemetryModule>((module, opt) => module.AuthenticationApiKey = "put_actual_authentication_key_here");
 
             // Build ServiceProvider.
             IServiceProvider serviceProvider = services.BuildServiceProvider();
