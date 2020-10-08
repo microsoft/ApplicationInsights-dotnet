@@ -32,7 +32,7 @@ namespace WorkerServiceSampleWithApplicationInsights
 
                     // Example on Configuring TelemetryModules.
                     // [SuppressMessage("Microsoft.Security", "CS002:SecretInNextLine", Justification="Not a real api key, this is example code.")]
-                    services.ConfigureTelemetryModule<QuickPulseTelemetryModule>((mod, opt) => mod.AuthenticationApiKey = "putactualauthenticationkey");
+                    services.ConfigureTelemetryModule<QuickPulseTelemetryModule>((mod, opt) => mod.AuthenticationApiKey = "put_actual_authentication_key_here");
 
                     // instrumentation key is read automatically from appsettings.json
                     services.AddApplicationInsightsTelemetryWorkerService();
