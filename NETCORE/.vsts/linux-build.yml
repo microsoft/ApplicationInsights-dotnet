@@ -37,7 +37,7 @@ steps:
 - task: UseDotNet@2
   displayName: install dotnet 5
   inputs:
-    version: 5.0.100-preview.8.20417.9
+    version: 5.0.100-rc.2.20479.15
     includePreviewVersions: true
     
 - task: DotNetCoreCLI@2
