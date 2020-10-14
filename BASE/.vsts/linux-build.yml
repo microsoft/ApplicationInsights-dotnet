@@ -14,17 +14,17 @@ steps:
 - task: UseDotNet@2
   displayName: install dotnet core 2.1
   inputs:
-    version: 2.1.807
+    version: 2.1.811
     
 - task: UseDotNet@2
   displayName: install dotnet core 3.1
   inputs:
-    version: 3.1.301
+    version: 3.1.403
     
 - task: CmdLine@2
   displayName: Run dotnet side by side.
   inputs:
-    script: rsync -a ${DOTNET_ROOT/3.1.301/2.1.807}/* $DOTNET_ROOT/
+    script: rsync -a ${DOTNET_ROOT/3.1.403/2.1.811}/* $DOTNET_ROOT/
 
 - task: DotNetCoreCLI@2
   displayName: DotNetCoreCLI - Restore Solution
