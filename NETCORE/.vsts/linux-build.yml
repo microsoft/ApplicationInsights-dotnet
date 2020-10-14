@@ -27,12 +27,12 @@ steps:
 - task: UseDotNet@2
   displayName: install dotnet core 2.1
   inputs:
-    version: 2.1.811
+    version: 2.1.*
     
 - task: UseDotNet@2
   displayName: install dotnet core 3.1
   inputs:
-    version: 3.1.403
+    version: 3.1.*
     
 - task: UseDotNet@2
   displayName: install dotnet 5
