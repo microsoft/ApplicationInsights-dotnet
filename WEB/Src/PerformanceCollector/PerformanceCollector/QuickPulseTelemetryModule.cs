@@ -170,6 +170,10 @@
                             this.DisableTopCpuProcesses,
                             this.AuthenticationApiKey);
 
+
+
+
+
                         QuickPulseEventSource.Log.TroubleshootingMessageEvent("Validating configuration...");
                         ValidateConfiguration(configuration);
                         this.config = configuration;
@@ -275,6 +279,22 @@
             }
 
             return string.IsNullOrWhiteSpace(fakeItem.Context?.Cloud?.RoleInstance) ? Environment.MachineName : fakeItem.Context.Cloud.RoleInstance;
+        }
+        private static string GetRoleName(TelemetryConfiguration configuration)
+        {
+            // we need to initialize an item to get instance information
+            var fakeItem = new EventTelemetry();
+
+            try
+            {
+                new TelemetryClient(configuration).Initialize(fakeItem);
+            }
+            catch (Exception)
+            {
+                // we don't care what happened there
+            }
+
+            return fakeItem.Context?.Cloud?.RoleName;
         }
 
         private static string GetStreamId()
@@ -404,6 +424,7 @@
 
             // create the default production implementation of the service client with the best service endpoint we could get
             string instanceName = GetInstanceName(configuration);
+            string roleName = GetRoleName(configuration);
             string streamId = GetStreamId();
             var assemblyVersion = SdkVersionUtils.GetSdkVersion(null);
             bool isWebApp = PerformanceCounterUtility.IsWebAppRunningInAzure();
@@ -411,6 +432,7 @@
             this.ServiceClient = new QuickPulseServiceClient(
                 serviceEndpointUri,
                 instanceName,
+                roleName,
                 streamId,
                 this.ServerId,
                 assemblyVersion,
