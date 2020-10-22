@@ -30,9 +30,7 @@
     <ProjectReference Include="..\..\..\WEB\Src\DependencyCollector\DependencyCollector\DependencyCollector.csproj" />
     <ProjectReference Include="..\..\..\WEB\Src\PerformanceCollector\PerformanceCollector\Perf.csproj" />
     <ProjectReference Include="..\..\..\WEB\Src\WindowsServer\WindowsServer\WindowsServer.csproj" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.6.0" />
-    <PackageReference Include="System.Memory" Version="4.5.4" />
-    <!-- This is a temporary explicit dependency. We're waiting on the next version of System.Diagnostics.DiagnosticSource. https://github.com/microsoft/ApplicationInsights-dotnet/issues/1707 -->
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="5.0.0-rc.2.20475.5" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard2.0' AND '$(TargetFramework)' != 'net461' ">

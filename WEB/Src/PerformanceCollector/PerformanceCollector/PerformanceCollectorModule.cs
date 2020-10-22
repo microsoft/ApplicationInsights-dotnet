@@ -272,7 +272,9 @@
                 stopwatch.Stop();
 
                 PerformanceCollectorEventSource.Log.CounterCollectionSuccessEvent(
+#pragma warning disable CA1829 // Use Length/Count property instead of Count() when available
                     results.LongCount(),
+#pragma warning restore CA1829 // Use Length/Count property instead of Count() when available
                     stopwatch.ElapsedMilliseconds);
 
                 foreach (var result in results)

@@ -42,7 +42,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 // if dependency is tracked with profiler of event source, we need to generate a proper Id for it
                 // in case of HTTP it will be propagated into the request header.
                 // So, we will create a new Activity for the dependency, just to generate an Id.
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                // Even though we lose activity scope here, its retrieved using Activity.Current in end call back (HttpProcessing), and disposed/ended there
                 activity = new Activity(DependencyActivityName);
+#pragma warning restore CA2000 // Dispose objects before losing scope
                 activity.Start();
             }
 

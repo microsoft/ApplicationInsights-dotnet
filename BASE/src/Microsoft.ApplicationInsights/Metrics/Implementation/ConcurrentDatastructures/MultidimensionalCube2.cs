@@ -258,7 +258,11 @@
 
                 if (i > 0)
                 {
+#pragma warning disable CA1834 // Consider using 'StringBuilder.Append(char)' when applicable
+                    // TODO: check if we can change from string to char, this will have some work
+                    // since it's used as separator in split and contains
                     builder.Append(PointMonikerSeparator);
+#pragma warning restore CA1834 // Consider using 'StringBuilder.Append(char)' when applicable
                 }
 
                 builder.Append(coordinates[i]);
