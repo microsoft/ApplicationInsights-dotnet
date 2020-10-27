@@ -170,10 +170,6 @@
                             this.DisableTopCpuProcesses,
                             this.AuthenticationApiKey);
 
-
-
-
-
                         QuickPulseEventSource.Log.TroubleshootingMessageEvent("Validating configuration...");
                         ValidateConfiguration(configuration);
                         this.config = configuration;
