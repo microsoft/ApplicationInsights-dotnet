@@ -1211,7 +1211,7 @@
         }
 
         [TestMethod]
-        public void QuickPulseServiceClientSubmitsInstanceNameToServiceWithPing()
+        public void QuickPulseServiceClientSubmitsRoleAndInstanceNameToServiceWithPing()
         {
             // ARRANGE
             var instanceName = "this instance";
@@ -1242,7 +1242,7 @@
         }
 
         [TestMethod]
-        public void QuickPulseServiceClientSubmitsInstanceNameToServiceWithSubmitSamples()
+        public void QuickPulseServiceClientSubmitsRoleAndInstanceNameToServiceWithSubmitSamples()
         {
             // ARRANGE
             var now = DateTimeOffset.UtcNow;
