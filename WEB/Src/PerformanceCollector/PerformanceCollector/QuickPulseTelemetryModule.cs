@@ -276,6 +276,7 @@
 
             return string.IsNullOrWhiteSpace(fakeItem.Context?.Cloud?.RoleInstance) ? Environment.MachineName : fakeItem.Context.Cloud.RoleInstance;
         }
+
         private static string GetRoleName(TelemetryConfiguration configuration)
         {
             // we need to initialize an item to get instance information
