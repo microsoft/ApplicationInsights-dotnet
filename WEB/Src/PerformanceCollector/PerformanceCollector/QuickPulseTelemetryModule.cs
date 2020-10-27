@@ -1,6 +1,4 @@
-﻿using Microsoft.ApplicationInsights.Extensibility.Implementation;
-
-namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse
 {
     using System;
     using System.Collections.Generic;
@@ -14,6 +12,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Filtering;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
@@ -278,6 +277,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
 
             return fakeItem.Context?.Cloud;
         }
+
         private static string GetStreamId()
         {
             return Guid.NewGuid().ToStringInvariant("N");
