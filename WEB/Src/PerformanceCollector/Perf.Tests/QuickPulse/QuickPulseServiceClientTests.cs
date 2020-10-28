@@ -1260,10 +1260,9 @@
             CollectionConfigurationInfo configurationInfo;
             serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo);
 
-            // SYNC
-            this.WaitForProcessing(requestCount: 1);
 
             // ASSERT
+            this.WaitForProcessing(requestCount: 1);
             Assert.AreEqual(1, this.pings.Count);
             Assert.IsNull(this.pings[0].Item3.RoleName);
         }
