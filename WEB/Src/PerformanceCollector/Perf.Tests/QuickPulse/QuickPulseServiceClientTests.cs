@@ -1242,6 +1242,33 @@
         }
 
         [TestMethod]
+        public void QuickPulseServiceClientSubmitsRoleNameWithNullValueValidation()
+        {
+            // ARRANGE
+            var serviceClient = new QuickPulseServiceClient(
+                this.TestContext.Properties[ServiceEndpointPropertyName] as Uri,
+                string.Empty,
+                null,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                new Clock(),
+                false,
+                0);
+
+            // ACT
+            CollectionConfigurationInfo configurationInfo;
+            serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
+            // ASSERT
+            Assert.AreEqual(1, this.pings.Count);
+            Assert.IsNull(this.pings[0].Item3.RoleName);
+        }
+
+        [TestMethod]
         public void QuickPulseServiceClientSubmitsRoleAndInstanceNameToServiceWithSubmitSamples()
         {
             // ARRANGE
