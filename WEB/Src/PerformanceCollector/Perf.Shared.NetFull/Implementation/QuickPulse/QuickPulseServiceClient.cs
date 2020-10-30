@@ -20,6 +20,8 @@
     {
         private readonly string instanceName;
 
+        private readonly string roleName;
+
         private readonly string streamId;
 
         private readonly string machineName;
@@ -45,6 +47,7 @@
         public QuickPulseServiceClient(
             Uri serviceUri,
             string instanceName,
+            string roleName,
             string streamId,
             string machineName,
             string version,
@@ -55,6 +58,7 @@
         {
             this.ServiceUri = serviceUri;
             this.instanceName = instanceName;
+            this.roleName = roleName;
             this.streamId = streamId;
             this.machineName = machineName;
             this.version = version;
@@ -230,6 +234,7 @@
                 InvariantVersion = MonitoringDataPoint.CurrentInvariantVersion,
                 // InstrumentationKey = instrumentationKey, // ikey is currently set in query string parameter
                 Instance = this.instanceName,
+                RoleName = this.roleName,
                 StreamId = this.streamId,
                 MachineName = this.machineName,
                 Timestamp = timestamp.UtcDateTime,
@@ -268,6 +273,7 @@
                     InvariantVersion = MonitoringDataPoint.CurrentInvariantVersion,
                     InstrumentationKey = instrumentationKey,
                     Instance = this.instanceName,
+                    RoleName = this.roleName,
                     StreamId = this.streamId,
                     MachineName = this.machineName,
                     Timestamp = sample.EndTimestamp.UtcDateTime,
