@@ -45,7 +45,7 @@ If your application does not have web.config then it can also be configured manu
 		<add assembly="Microsoft.ApplicationInsights.NLogTarget" />
     </extensions>
 	<targets>
-		<target xsi:type="ApplicationInsightsTarget" name="aiTarget">
+		<target xsi:type="ApplicationInsightsTarget" name="aiTarget" includeEventProperties="true" includeMdlc="false">
 			<instrumentationKey>Your_Resource_Key</instrumentationKey>	<!-- Only required if not using ApplicationInsights.config -->
 			<contextproperty name="threadid" layout="${threadid}" />	<!-- Can be repeated with more context -->
 		</target>
