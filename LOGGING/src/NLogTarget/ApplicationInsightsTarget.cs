@@ -23,7 +23,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
     /// The messages will be uploaded to the Application Insights cloud service.
     /// </summary>
     [Target("ApplicationInsightsTarget")]
-    public sealed class ApplicationInsightsTarget : TargetWithLayout
+    public sealed class ApplicationInsightsTarget : TargetWithContext
     {
         private const string ConnectionStringRequiredMessage = "Azure Monitor connection string is required. Please provide a valid connection string.";
 
@@ -39,6 +39,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         {
             this.Layout = @"${message}";
             this.OptimizeBufferReuse = true;
+            this.IncludeEventProperties = true;
         }
 
         /// <summary>
@@ -49,12 +50,6 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             get => (this.connectionStringLayout as NLog.Layouts.SimpleLayout)?.Text ?? null;
             set => this.connectionStringLayout = value ?? string.Empty;
         }
-
-        /// <summary>
-        /// Gets the array of custom attributes to be passed into the logevent context.
-        /// </summary>
-        [ArrayParameter(typeof(TargetPropertyWithContext), "contextproperty")]
-        public IList<TargetPropertyWithContext> ContextProperties { get; } = new List<TargetPropertyWithContext>();
 
         /// <summary>
         /// Gets the logging controller we will be using.
@@ -89,20 +84,25 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                 propertyBag.Add("UserStackFrame", logEvent.UserStackFrame.ToString());
                 propertyBag.Add("UserStackFrameNumber", logEvent.UserStackFrameNumber.ToString(CultureInfo.InvariantCulture));
             }
-
-            for (int i = 0; i < this.ContextProperties.Count; ++i)
+            else
             {
-                var contextProperty = this.ContextProperties[i];
-                if (!string.IsNullOrEmpty(contextProperty.Name) && contextProperty.Layout != null)
-                {
-                    string propertyValue = this.RenderLogEvent(contextProperty.Layout, logEvent);
-                    PopulatePropertyBag(propertyBag, contextProperty.Name, propertyValue);
-                }
+                var callsiteClassName = logEvent.CallerClassName;
+                if (!string.IsNullOrEmpty(callsiteClassName))
+                    propertyBag.Add("UserStackClassName", callsiteClassName);
+                var callsiteMemberName = logEvent.CallerMemberName;
+                if (!string.IsNullOrEmpty(callsiteMemberName))
+                    propertyBag.Add("UserStackMemberName", callsiteMemberName);
+                var callsiteSourceFilePath = logEvent.CallerFilePath;
+                if (!string.IsNullOrEmpty(callsiteSourceFilePath))
+                    propertyBag.Add("UserStackSourceFile", callsiteSourceFilePath);
+                var callsiteSourceLineNumber = logEvent.CallerLineNumber;
+                if (callsiteSourceLineNumber != 0)
+                    propertyBag.Add("UserStackSourceLine", callsiteSourceLineNumber.ToString());
             }
 
-            if (logEvent.HasProperties)
+            if (ShouldIncludeProperties(logEvent) || ContextProperties.Count > 0)
             {
-                LoadLogEventProperties(logEvent, propertyBag);
+                this.GetAllProperties(logEvent, new StringDictionaryConverter(propertyBag));
             }
         }
 
@@ -220,40 +220,6 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             {
                 asyncContinuation(ex);
             }
-        }
-
-        private static void LoadLogEventProperties(LogEventInfo logEvent, IDictionary<string, string> propertyBag)
-        {
-            if (logEvent.Properties?.Count > 0)
-            {
-                foreach (var keyValuePair in logEvent.Properties)
-                {
-                    string key = keyValuePair.Key.ToString();
-                    object valueObj = keyValuePair.Value;
-                    PopulatePropertyBag(propertyBag, key, valueObj);
-                }
-            }
-        }
-
-        private static void PopulatePropertyBag(IDictionary<string, string> propertyBag, string key, object valueObj)
-        {
-            if (valueObj == null)
-            {
-                return;
-            }
-
-            string value = Convert.ToString(valueObj, CultureInfo.InvariantCulture);
-            if (propertyBag.ContainsKey(key))
-            {
-                if (string.Equals(value, propertyBag[key], StringComparison.Ordinal))
-                {
-                    return;
-                }
-
-                key += "_1";
-            }
-
-            propertyBag.Add(key, value);
         }
 
         private static SeverityLevel? GetSeverityLevel(LogLevel logEventLevel)
