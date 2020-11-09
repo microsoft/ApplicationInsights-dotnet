@@ -2,6 +2,7 @@
 
 ## VNext
 - [QuickPulseTelemetryModule and MonitoringDataPoint have a new Cloud Role Name field for sending with ping and post requests to QuickPulse Service.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2100)
+- [Upgrade to System.Diagnostics.DiagnosticSource v5.0.0](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1960)
 
 ## Version 2.16.0-beta1
 - [ILogger LogError and LogWarning variants write exception `ExceptionStackTrace` when `TrackExceptionsAsExceptionTelemetry` flag is set to `false`](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2065)
