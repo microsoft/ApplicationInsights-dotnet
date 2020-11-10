@@ -21,7 +21,7 @@
     <!--Common Dependencies-->
     <ProjectReference Include="..\..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
     <PackageReference Include="Microsoft.AspNet.TelemetryCorrelation" Version="1.0.8" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="5.0.0-rc.2.20475.5" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,9 +33,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\WindowsServer\WindowsServer\WindowsServer.csproj" />
   </ItemGroup>
-  
+
   <ItemGroup>
-    <!--Framework References-->  
+    <!--Framework References-->
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
