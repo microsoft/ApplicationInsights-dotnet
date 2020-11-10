@@ -12,6 +12,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Filtering;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
@@ -260,7 +261,7 @@
             }            
         }
 
-        private static string GetInstanceName(TelemetryConfiguration configuration)
+        private static CloudContext GetCloudContext(TelemetryConfiguration configuration)
         {
             // we need to initialize an item to get instance information
             var fakeItem = new EventTelemetry();
@@ -274,7 +275,7 @@
                 // we don't care what happened there
             }
 
-            return string.IsNullOrWhiteSpace(fakeItem.Context?.Cloud?.RoleInstance) ? Environment.MachineName : fakeItem.Context.Cloud.RoleInstance;
+            return fakeItem.Context?.Cloud;
         }
 
         private static string GetStreamId()
@@ -403,7 +404,9 @@
             }
 
             // create the default production implementation of the service client with the best service endpoint we could get
-            string instanceName = GetInstanceName(configuration);
+            CloudContext cloudContext = GetCloudContext(configuration);
+            string instanceName = string.IsNullOrWhiteSpace(cloudContext?.RoleInstance) ? Environment.MachineName : cloudContext.RoleInstance;
+            string roleName = cloudContext?.RoleName ?? string.Empty;
             string streamId = GetStreamId();
             var assemblyVersion = SdkVersionUtils.GetSdkVersion(null);
             bool isWebApp = PerformanceCounterUtility.IsWebAppRunningInAzure();
@@ -411,6 +414,7 @@
             this.ServiceClient = new QuickPulseServiceClient(
                 serviceEndpointUri,
                 instanceName,
+                roleName,
                 streamId,
                 this.ServerId,
                 assemblyVersion,
