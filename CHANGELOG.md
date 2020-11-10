@@ -1,6 +1,9 @@
 ﻿# Changelog
 
 ## VNext
+
+
+## Version 2.16.0
 - [QuickPulseTelemetryModule and MonitoringDataPoint have a new Cloud Role Name field for sending with ping and post requests to QuickPulse Service.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2100)
 - [Upgrade to System.Diagnostics.DiagnosticSource v5.0.0](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1960)
 
@@ -9,6 +12,7 @@
 - [Upgrade to System.Diagnostics.DiagnosticSource v5.0.0-rc.2.20475.5](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2091)
 - [The `{OriginalFormat}` field in ILogger will be emitted as `OriginalFormat` with the braces removed](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2071)
 - ApplicationInsightsLoggerProvider populates structured logging key/values irrespective of whether Scopes are enabled or not.
+
 ## Version 2.15.0
 - EventCounterCollector module does not add AggregationInterval as a dimension to the metric.
 
