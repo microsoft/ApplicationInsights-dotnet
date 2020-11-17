@@ -354,6 +354,7 @@
                 request.Headers.Add(QuickPulseConstants.XMsQpsInstanceNameHeaderName, this.instanceName);
                 request.Headers.Add(QuickPulseConstants.XMsQpsStreamIdHeaderName, this.streamId);
                 request.Headers.Add(QuickPulseConstants.XMsQpsMachineNameHeaderName, this.machineName);
+                request.Headers.Add(QuickPulseConstants.XMsQpsRoleNameHeaderName, this.roleName);
                 request.Headers.Add(QuickPulseConstants.XMsQpsInvariantVersionHeaderName,
                     MonitoringDataPoint.CurrentInvariantVersion.ToString(CultureInfo.InvariantCulture));
             }
