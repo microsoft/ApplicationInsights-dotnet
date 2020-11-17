@@ -1305,7 +1305,7 @@
         }
 
         [TestMethod]
-        public void QuickPulseServiceClientSubmitsStreamIdToServiceWithPing()
+        public void QuickPulseServiceClientSubmitsStreamIdAndRoleNameToServiceWithPing()
         {
             // ARRANGE
             var streamId = "this stream";
