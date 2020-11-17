@@ -1309,10 +1309,11 @@
         {
             // ARRANGE
             var streamId = "this stream";
+            var roleName = "Role-Name-1";
             var serviceClient = new QuickPulseServiceClient(
                 this.TestContext.Properties[ServiceEndpointPropertyName] as Uri,
                 string.Empty,
-                string.Empty,
+                roleName,
                 streamId,
                 string.Empty,
                 string.Empty,
@@ -1331,6 +1332,7 @@
             Assert.AreEqual(1, this.pings.Count);
             Assert.AreEqual(streamId, this.pings[0].Item1.StreamId);
             Assert.AreEqual(streamId, this.pings[0].Item3.StreamId);
+            Assert.AreEqual(roleName, this.pings[0].Item1.RoleName);
         }
 
         [TestMethod]
