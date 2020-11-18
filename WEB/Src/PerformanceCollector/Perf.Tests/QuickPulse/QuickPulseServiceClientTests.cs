@@ -1305,14 +1305,15 @@
         }
 
         [TestMethod]
-        public void QuickPulseServiceClientSubmitsStreamIdToServiceWithPing()
+        public void QuickPulseServiceClientSubmitsStreamIdAndRoleNameToServiceWithPing()
         {
             // ARRANGE
             var streamId = "this stream";
+            var roleName = "Role-Name-1";
             var serviceClient = new QuickPulseServiceClient(
                 this.TestContext.Properties[ServiceEndpointPropertyName] as Uri,
                 string.Empty,
-                string.Empty,
+                roleName,
                 streamId,
                 string.Empty,
                 string.Empty,
@@ -1331,6 +1332,7 @@
             Assert.AreEqual(1, this.pings.Count);
             Assert.AreEqual(streamId, this.pings[0].Item1.StreamId);
             Assert.AreEqual(streamId, this.pings[0].Item3.StreamId);
+            Assert.AreEqual(roleName, this.pings[0].Item1.RoleName);
         }
 
         [TestMethod]
@@ -2115,6 +2117,7 @@
                                 var invariantVersion =
                                     context.Request.Headers[QuickPulseConstants.XMsQpsInvariantVersionHeaderName];
                                 var streamId = context.Request.Headers[QuickPulseConstants.XMsQpsStreamIdHeaderName];
+                                var roleName = context.Request.Headers[QuickPulseConstants.XMsQpsRoleNameHeaderName];
                                 var collectionConfigurationETag =
                                     context.Request.Headers[QuickPulseConstants.XMsQpsConfigurationETagHeaderName];
 
@@ -2125,6 +2128,7 @@
                                             TransmissionTime = new DateTimeOffset(transmissionTime, TimeSpan.Zero),
                                             InstanceName = instanceName,
                                             MachineName = machineName,
+                                            RoleName = roleName,
                                             InvariantVersion = int.Parse(invariantVersion, CultureInfo.InvariantCulture),
                                             StreamId = streamId
                                         },
@@ -2204,6 +2208,8 @@
             public int InvariantVersion { get; set; }
 
             public string StreamId { get; set; }
+
+            public string RoleName { get; set; }
         }
     }
 }
