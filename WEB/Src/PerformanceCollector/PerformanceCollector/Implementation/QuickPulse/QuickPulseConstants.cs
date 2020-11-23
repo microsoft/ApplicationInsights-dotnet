@@ -36,6 +36,11 @@
         internal const string XMsQpsMachineNameHeaderName = "x-ms-qps-machine-name";
 
         /// <summary>
+        /// Role name header.
+        /// </summary>
+        internal const string XMsQpsRoleNameHeaderName = "x-ms-qps-role-name";
+
+        /// <summary>
         /// Invariant version header.
         /// </summary>
         internal const string XMsQpsInvariantVersionHeaderName = "x-ms-qps-invariant-version";

@@ -383,6 +383,7 @@
                 request.Headers.TryAddWithoutValidation(QuickPulseConstants.XMsQpsInstanceNameHeaderName, this.instanceName);
                 request.Headers.TryAddWithoutValidation(QuickPulseConstants.XMsQpsStreamIdHeaderName, this.streamId);
                 request.Headers.TryAddWithoutValidation(QuickPulseConstants.XMsQpsMachineNameHeaderName, this.machineName);
+                request.Headers.TryAddWithoutValidation(QuickPulseConstants.XMsQpsRoleNameHeaderName, this.roleName);
                 request.Headers.TryAddWithoutValidation(QuickPulseConstants.XMsQpsInvariantVersionHeaderName,
                     MonitoringDataPoint.CurrentInvariantVersion.ToString(CultureInfo.InvariantCulture));
             }
