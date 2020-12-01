@@ -1,8 +1,8 @@
-﻿# Changelog
+# Changelog
 
 ## VNext
 - [Add RoleName as a header with Ping Reuests to QuickPulse.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2113)
-- [QuickPulseTelemetryModule takes hints from the service regarding the endpoint to ping and how often to ping it]()
+- [QuickPulseTelemetryModule takes hints from the service regarding the endpoint to ping and how often to ping it](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2120)
 
 ## Version 2.16.0
 - [QuickPulseTelemetryModule and MonitoringDataPoint have a new Cloud Role Name field for sending with ping and post requests to QuickPulse Service.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2100)
