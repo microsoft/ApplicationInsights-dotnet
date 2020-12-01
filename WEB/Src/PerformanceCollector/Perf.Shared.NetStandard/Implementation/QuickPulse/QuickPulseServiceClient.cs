@@ -48,9 +48,9 @@
 
         private readonly Dictionary<string, string> authOpaqueHeaderValues = new Dictionary<string, string>(StringComparer.Ordinal);
 
-        private Uri currentServiceUri;
-
         private readonly HttpClient httpClient = new HttpClient();
+
+        private Uri currentServiceUri;
 
         public QuickPulseServiceClient(
             Uri serviceUri,
