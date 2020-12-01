@@ -172,9 +172,9 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping(string.Empty, timestamp, string.Empty, string.Empty, out configurationInfo);
-            serviceClient.Ping(string.Empty, timestamp, string.Empty, string.Empty, out configurationInfo);
-            serviceClient.Ping(string.Empty, timestamp, string.Empty, string.Empty, out configurationInfo);
+            serviceClient.Ping(string.Empty, timestamp, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
+            serviceClient.Ping(string.Empty, timestamp, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
+            serviceClient.Ping(string.Empty, timestamp, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 3);
@@ -581,7 +581,7 @@
             // ACT
             this.pingResponse = r => { r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, true.ToString()); };
             CollectionConfigurationInfo configurationInfo;
-            bool? response = serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo);
+            bool? response = serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -608,7 +608,7 @@
             // ACT
             this.pingResponse = r => { r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, false.ToString()); };
             CollectionConfigurationInfo configurationInfo;
-            bool? response = serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo);
+            bool? response = serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -635,7 +635,7 @@
             // ACT
             this.pingResponse = r => { r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, "bla"); };
             CollectionConfigurationInfo configurationInfo;
-            bool? response = serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo);
+            bool? response = serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -662,7 +662,7 @@
             // ACT
             this.pingResponse = r => { };
             CollectionConfigurationInfo configurationInfo;
-            bool? response = serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo);
+            bool? response = serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -823,7 +823,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo);
+            serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -900,7 +900,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping("ikey", now, "ETag1", string.Empty, out configurationInfo);
+            serviceClient.Ping("ikey", now, "ETag1", string.Empty, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -991,7 +991,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping("ikey", now, "ETag1", string.Empty, out configurationInfo);
+            serviceClient.Ping("ikey", now, "ETag1", string.Empty, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1082,7 +1082,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping("ikey", now, "ETag2", string.Empty, out configurationInfo);
+            serviceClient.Ping("ikey", now, "ETag2", string.Empty, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1229,7 +1229,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo);
+            serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1258,7 +1258,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo);
+            serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
 
 
             // ASSERT
@@ -1323,7 +1323,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo);
+            serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1388,7 +1388,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo);
+            serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1451,7 +1451,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo);
+            serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1514,7 +1514,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping(Guid.NewGuid().ToString(), timeProvider.UtcNow, string.Empty, string.Empty, out configurationInfo);
+            serviceClient.Ping(Guid.NewGuid().ToString(), timeProvider.UtcNow, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1581,7 +1581,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping("some ikey", now, string.Empty, string.Empty, out configurationInfo);
+            serviceClient.Ping("some ikey", now, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1646,7 +1646,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping("some ikey", now, string.Empty, authApiKey, out configurationInfo);
+            serviceClient.Ping("some ikey", now, string.Empty, authApiKey, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1714,10 +1714,10 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping("some ikey", now, string.Empty, string.Empty, out configurationInfo);
+            serviceClient.Ping("some ikey", now, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
 
             // received the proper headers, now re-submit them
-            serviceClient.Ping("some ikey", now, string.Empty, string.Empty, out configurationInfo);
+            serviceClient.Ping("some ikey", now, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 2);
@@ -1803,7 +1803,7 @@
             // ACT
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(new[] { sample }, string.Empty, "ETag1", string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
-            serviceClient.Ping(string.Empty, now, "ETag1", string.Empty, out configurationInfo);
+            serviceClient.Ping(string.Empty, now, "ETag1", string.Empty, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -2057,6 +2057,195 @@
             // ASSERT
             Assert.AreEqual(1, this.samples.Count);
             Assert.IsTrue(this.samples[0].Item3.TopCpuDataAccessDenied);
+        }
+
+        [TestMethod]
+        public void QuickPulseServiceClientReturnsServicePollingIntervalHintWhenValid()
+        {
+            // ARRANGE
+            var now = DateTimeOffset.UtcNow;
+            var serviceClient = new QuickPulseServiceClient(
+                this.TestContext.Properties[ServiceEndpointPropertyName] as Uri,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                new Clock(),
+                false,
+                0);
+
+            int ms = 12345;
+            this.pingResponse = r =>
+            {
+                r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, false.ToString());
+                r.Headers.Add(QuickPulseConstants.XMsQpsServicePollingIntervalHintHeaderName, ms.ToString());
+            };
+
+            // ACT
+            serviceClient.Ping("ikey", now, string.Empty, string.Empty, out _, out TimeSpan? servicePollingIntervalHint);
+
+            // ASSERT
+            Assert.AreEqual(TimeSpan.FromMilliseconds(ms), servicePollingIntervalHint);
+        }
+
+        [TestMethod]
+        public void QuickPulseServiceClientReturnsNullForServicePollingIntervalHintWhenNaN()
+        {
+            // ARRANGE
+            var now = DateTimeOffset.UtcNow;
+            var serviceClient = new QuickPulseServiceClient(
+                this.TestContext.Properties[ServiceEndpointPropertyName] as Uri,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                new Clock(),
+                false,
+                0);
+
+            this.pingResponse = r =>
+            {
+                r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, false.ToString());
+                r.Headers.Add(QuickPulseConstants.XMsQpsServicePollingIntervalHintHeaderName, "not a number");
+            };
+
+            // ACT
+            serviceClient.Ping("ikey", now, string.Empty, string.Empty, out _, out TimeSpan? servicePollingIntervalHint);
+
+            // ASSERT
+            Assert.IsNull(servicePollingIntervalHint);
+        }
+
+        [TestMethod]
+        public void QuickPulseServiceClientReturnsNullForServicePollingIntervalHintWhenEmpty()
+        {
+            // ARRANGE
+            var now = DateTimeOffset.UtcNow;
+            var serviceClient = new QuickPulseServiceClient(
+                this.TestContext.Properties[ServiceEndpointPropertyName] as Uri,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                new Clock(),
+                false,
+                0);
+
+            this.pingResponse = r =>
+            {
+                r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, false.ToString());
+                r.Headers.Add(QuickPulseConstants.XMsQpsServicePollingIntervalHintHeaderName, string.Empty);
+            };
+
+            // ACT
+            serviceClient.Ping("ikey", now, string.Empty, string.Empty, out _, out TimeSpan? servicePollingIntervalHint);
+
+            // ASSERT
+            Assert.IsNull(servicePollingIntervalHint);
+        }
+
+        [TestMethod]
+        public void QuickPulseServiceClientUpdatesServiceEndpointWhenRedirectValid()
+        {
+            // ARRANGE
+            var now = DateTimeOffset.UtcNow;
+            var serviceClient = new QuickPulseServiceClient(
+                this.TestContext.Properties[ServiceEndpointPropertyName] as Uri,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                new Clock(),
+                false,
+                0);
+
+            string endpointRedirect = "https://bing.com";
+            this.pingResponse = r =>
+            {
+                r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, false.ToString());
+                r.Headers.Add(QuickPulseConstants.XMsQpsServiceEndpointRedirectHeaderName, endpointRedirect);
+            };
+
+            // ACT
+            serviceClient.Ping("ikey", now, string.Empty, string.Empty, out _, out _);
+
+            // SYNC
+            this.WaitForProcessing(1);
+
+            // ASSERT
+            Assert.AreEqual(new Uri(endpointRedirect), serviceClient.CurrentServiceUri);
+        }
+
+        [TestMethod]
+        public void QuickPulseServiceClientIgnoresServiceEndpointWhenRedirectInvalid()
+        {
+            // ARRANGE
+            var now = DateTimeOffset.UtcNow;
+            var serviceClient = new QuickPulseServiceClient(
+                this.TestContext.Properties[ServiceEndpointPropertyName] as Uri,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                new Clock(),
+                false,
+                0);
+
+            Uri initialEndpoint = serviceClient.CurrentServiceUri;
+
+            this.pingResponse = r =>
+            {
+                r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, false.ToString());
+                r.Headers.Add(QuickPulseConstants.XMsQpsServiceEndpointRedirectHeaderName, "/not-a-valid-absolute-url");
+            };
+
+            // ACT
+            serviceClient.Ping("ikey", now, string.Empty, string.Empty, out _, out _);
+
+            // SYNC
+            this.WaitForProcessing(1);
+
+            // ASSERT
+            Assert.AreEqual(initialEndpoint, serviceClient.CurrentServiceUri);
+        }
+
+        [TestMethod]
+        public void QuickPulseServiceClientIgnoresServiceEndpointWhenRedirectEmpty()
+        {
+            // ARRANGE
+            var now = DateTimeOffset.UtcNow;
+            var serviceClient = new QuickPulseServiceClient(
+                this.TestContext.Properties[ServiceEndpointPropertyName] as Uri,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                new Clock(),
+                false,
+                0);
+
+            Uri initialEndpoint = serviceClient.CurrentServiceUri;
+
+            this.pingResponse = r =>
+            {
+                r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, false.ToString());
+                r.Headers.Add(QuickPulseConstants.XMsQpsServiceEndpointRedirectHeaderName, string.Empty);
+            };
+
+            // ACT
+            serviceClient.Ping("ikey", now, string.Empty, string.Empty, out _, out _);
+
+            // SYNC
+            this.WaitForProcessing(1);
+
+            // ASSERT
+            Assert.AreEqual(initialEndpoint, serviceClient.CurrentServiceUri);
         }
 
         public void Dispose()

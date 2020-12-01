@@ -51,6 +51,18 @@
         internal const string XMsQpsAuthApiKeyHeaderName = "x-ms-qps-auth-api-key";
 
         /// <summary>
+        /// Service polling interval hint.
+        /// </summary>
+        /// <remarks>Contains a recommended time (in milliseconds) before we ping the service again.</remarks>
+        internal const string XMsQpsServicePollingIntervalHintHeaderName = "x-ms-qps-service-polling-interval-hint";
+
+        /// <summary>
+        /// Service endpoint redirect.
+        /// </summary>
+        /// <remarks>Contains a URI of the service endpoint we must permanently use <b>for the particular resource</b>.</remarks>
+        internal const string XMsQpsServiceEndpointRedirectHeaderName = "x-ms-qps-service-endpoint-redirect";
+
+        /// <summary>
         /// The following authentication headers must be received and submitted back to the service with no modification.
         /// </summary>
         internal static readonly string[] XMsQpsAuthOpaqueHeaderNames =
