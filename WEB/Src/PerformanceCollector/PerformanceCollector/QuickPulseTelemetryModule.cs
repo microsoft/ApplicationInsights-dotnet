@@ -202,7 +202,8 @@
                             this.OnStopCollection,
                             this.OnSubmitSamples,
                             this.OnReturnFailedSamples,
-                            this.OnUpdatedConfiguration);
+                            this.OnUpdatedConfiguration,
+                            this.OnUpdatedServiceEndpoint);
 
                         this.CreateStateThread();
 
@@ -239,7 +240,7 @@
 
                     if (this.ServiceClient != null)
                     {
-                        quickPulseTelemetryProcessor.ServiceEndpoint = this.ServiceClient.ServiceUri;
+                        quickPulseTelemetryProcessor.ServiceEndpoint = this.ServiceClient.CurrentServiceUri;
                     }
 
                     QuickPulseEventSource.Log.ProcessorRegistered(this.TelemetryProcessors.Count.ToString(CultureInfo.InvariantCulture));
@@ -622,7 +623,7 @@
                 {
                     telemetryProcessor.StartCollection(
                         this.dataAccumulatorManager,
-                        this.ServiceClient.ServiceUri,
+                        this.ServiceClient.CurrentServiceUri,
                         this.config,
                         this.DisableFullTelemetryItems);
                 }
@@ -711,7 +712,19 @@
             return errorsConfig.Concat(errorsPerformanceCounters).ToArray();
         }
 
-#endregion
+        private void OnUpdatedServiceEndpoint(Uri newServiceEndpoint)
+        {
+            QuickPulseEventSource.Log.TroubleshootingMessageEvent("Service endpoint updated.");
+            
+            lock (this.telemetryProcessorsLock)
+            {
+                foreach (var telemetryProcessor in this.TelemetryProcessors)
+                {
+                    telemetryProcessor.ServiceEndpoint = newServiceEndpoint;
+                }
+            }
+        }
+        #endregion
 
         /// <summary>
         /// Dispose implementation.

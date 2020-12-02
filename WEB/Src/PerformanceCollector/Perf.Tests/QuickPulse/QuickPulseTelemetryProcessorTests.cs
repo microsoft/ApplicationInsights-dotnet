@@ -395,6 +395,80 @@
         }
 
         [TestMethod]
+        public void QuickPulseTelemetryProcessorFiltersOutDependencyCallsToQuickPulseServiceDuringCollectionOnceRedirected()
+        {
+            // ARRANGE
+            var accumulatorManager = new QuickPulseDataAccumulatorManager(EmptyCollectionConfiguration);
+            var simpleTelemetryProcessorSpy = new SimpleTelemetryProcessorSpy();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(simpleTelemetryProcessorSpy);
+            var config = new TelemetryConfiguration() { InstrumentationKey = "some ikey" };
+
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("https://qps.cloudapp.net/endpoint.svc"),
+                config);
+
+            // ACT
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).ServiceEndpoint = new Uri("https://bing.com");
+            telemetryProcessor.Process(
+                new DependencyTelemetry() { Target = "microsoft.ru", Context = { InstrumentationKey = config.InstrumentationKey } });
+            telemetryProcessor.Process(
+                new DependencyTelemetry() { Target = "qps.cloudapp.net", Context = { InstrumentationKey = config.InstrumentationKey } });
+            telemetryProcessor.Process(
+                new DependencyTelemetry() { Target = "bing.com", Context = { InstrumentationKey = config.InstrumentationKey } });
+            
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).ServiceEndpoint = new Uri("https://microsoft.ru");
+            telemetryProcessor.Process(
+                new DependencyTelemetry() { Target = "microsoft.ru", Context = { InstrumentationKey = config.InstrumentationKey } });
+            telemetryProcessor.Process(
+                new DependencyTelemetry() { Target = "qps.cloudapp.net", Context = { InstrumentationKey = config.InstrumentationKey } });
+            telemetryProcessor.Process(
+                new DependencyTelemetry() { Target = "bing.com", Context = { InstrumentationKey = config.InstrumentationKey } });
+            
+            // ASSERT
+            Assert.AreEqual(4, simpleTelemetryProcessorSpy.ReceivedCalls);
+            Assert.AreEqual("microsoft.ru", (simpleTelemetryProcessorSpy.ReceivedItems[0] as DependencyTelemetry).Target);
+            Assert.AreEqual("qps.cloudapp.net", (simpleTelemetryProcessorSpy.ReceivedItems[1] as DependencyTelemetry).Target);
+            Assert.AreEqual("qps.cloudapp.net", (simpleTelemetryProcessorSpy.ReceivedItems[2] as DependencyTelemetry).Target);
+            Assert.AreEqual("bing.com", (simpleTelemetryProcessorSpy.ReceivedItems[3] as DependencyTelemetry).Target);
+
+            Assert.AreEqual(4, accumulatorManager.CurrentDataAccumulator.AIDependencyCallCount);
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryProcessorFiltersOutDependencyCallsToQuickPulseServiceEndpointInIdleModeOnceRedirected()
+        {
+            // ARRANGE
+            var simpleTelemetryProcessorSpy = new SimpleTelemetryProcessorSpy();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(simpleTelemetryProcessorSpy);
+            var config = new TelemetryConfiguration() {InstrumentationKey = "some ikey"};
+
+            // ACT
+            ((IQuickPulseTelemetryProcessor) telemetryProcessor).ServiceEndpoint = new Uri("https://bing.com");
+            telemetryProcessor.Process(
+                new DependencyTelemetry() {Target = "microsoft.ru", Context = {InstrumentationKey = config.InstrumentationKey}});
+            telemetryProcessor.Process(
+                new DependencyTelemetry() {Target = "qps.cloudapp.net", Context = {InstrumentationKey = config.InstrumentationKey}});
+            telemetryProcessor.Process(
+                new DependencyTelemetry() {Target = "bing.com", Context = {InstrumentationKey = config.InstrumentationKey}});
+
+            ((IQuickPulseTelemetryProcessor) telemetryProcessor).ServiceEndpoint = new Uri("https://microsoft.ru");
+            telemetryProcessor.Process(
+                new DependencyTelemetry() {Target = "microsoft.ru", Context = {InstrumentationKey = config.InstrumentationKey}});
+            telemetryProcessor.Process(
+                new DependencyTelemetry() {Target = "qps.cloudapp.net", Context = {InstrumentationKey = config.InstrumentationKey}});
+            telemetryProcessor.Process(
+                new DependencyTelemetry() {Target = "bing.com", Context = {InstrumentationKey = config.InstrumentationKey}});
+
+            // ASSERT
+            Assert.AreEqual(4, simpleTelemetryProcessorSpy.ReceivedCalls);
+            Assert.AreEqual("microsoft.ru", (simpleTelemetryProcessorSpy.ReceivedItems[0] as DependencyTelemetry).Target);
+            Assert.AreEqual("qps.cloudapp.net", (simpleTelemetryProcessorSpy.ReceivedItems[1] as DependencyTelemetry).Target);
+            Assert.AreEqual("qps.cloudapp.net", (simpleTelemetryProcessorSpy.ReceivedItems[2] as DependencyTelemetry).Target);
+            Assert.AreEqual("bing.com", (simpleTelemetryProcessorSpy.ReceivedItems[3] as DependencyTelemetry).Target);
+        }
+
+        [TestMethod]
         public void QuickPulseTelemetryProcessorCollectsFullTelemetryItemsAndDistributesThemAmongDocumentStreamsCorrectly()
         {
             // ARRANGE
