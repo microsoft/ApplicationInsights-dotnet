@@ -1458,8 +1458,8 @@
 
             // ASSERT
             Assert.AreEqual(1, this.pings.Count);
-            Assert.AreEqual(4, this.pings[0].Item1.InvariantVersion);
-            Assert.AreEqual(4, this.pings[0].Item3.InvariantVersion);
+            Assert.AreEqual(5, this.pings[0].Item1.InvariantVersion);
+            Assert.AreEqual(5, this.pings[0].Item3.InvariantVersion);
         }
 
         [TestMethod]
@@ -1493,7 +1493,7 @@
 
             // ASSERT
             Assert.AreEqual(1, this.samples.Count);
-            Assert.AreEqual(4, this.samples[0].Item3.InvariantVersion);
+            Assert.AreEqual(5, this.samples[0].Item3.InvariantVersion);
         }
 
         [TestMethod]
