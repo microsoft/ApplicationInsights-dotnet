@@ -181,7 +181,7 @@ function Get-DoesDllVersionsMatch ([string]$dllPath) {
 
     $message = "File Version: '$fileVersion' Assembly Version: '$assemblyVersion";
     $requirement = "Versions should match."
-    Test-Condition ($fileVersion.Equals($assemblyVersion)) $message $requirement;
+    Test-Condition ([version]$fileVersion -eq [version]$assemblyVersion) $message $requirement;
 }
 
 function Get-IsValidPackageId([xml]$nuspecXml) {
