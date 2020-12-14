@@ -28,6 +28,8 @@
 
         private readonly Func<CollectionConfigurationInfo, CollectionConfigurationError[]> onUpdatedConfiguration;
 
+        private readonly Action<Uri> onUpdatedServiceEndpoint;
+
         private readonly TimeSpan coolDownTimeout;
 
         private readonly List<CollectionConfigurationError> collectionConfigurationErrors = new List<CollectionConfigurationError>();
@@ -42,6 +44,8 @@
 
         private string currentConfigurationETag = string.Empty;
 
+        private TimeSpan? latestServicePollingIntervalHint = null;
+
         public QuickPulseCollectionStateManager(
             IQuickPulseServiceClient serviceClient, 
             Clock timeProvider, 
@@ -50,7 +54,8 @@
             Action onStopCollection, 
             Func<IList<QuickPulseDataSample>> onSubmitSamples, 
             Action<IList<QuickPulseDataSample>> onReturnFailedSamples,
-            Func<CollectionConfigurationInfo, CollectionConfigurationError[]> onUpdatedConfiguration)
+            Func<CollectionConfigurationInfo, CollectionConfigurationError[]> onUpdatedConfiguration,
+            Action<Uri> onUpdatedServiceEndpoint)
         {
             if (serviceClient == null)
             {
@@ -92,6 +97,11 @@
                 throw new ArgumentNullException(nameof(onUpdatedConfiguration));
             }
 
+            if (onUpdatedServiceEndpoint == null)
+            {
+                throw new ArgumentNullException(nameof(onUpdatedServiceEndpoint));
+            }
+
             this.serviceClient = serviceClient;
             this.timeProvider = timeProvider;
             this.timings = timings;
@@ -100,6 +110,7 @@
             this.onSubmitSamples = onSubmitSamples;
             this.onReturnFailedSamples = onReturnFailedSamples;
             this.onUpdatedConfiguration = onUpdatedConfiguration;
+            this.onUpdatedServiceEndpoint = onUpdatedServiceEndpoint;
 
             this.coolDownTimeout = TimeSpan.FromMilliseconds(timings.CollectionInterval.TotalMilliseconds / 20);
         }
@@ -202,8 +213,11 @@
                     this.timeProvider.UtcNow,
                     this.currentConfigurationETag,
                     authApiKey,
-                    out configurationInfo);
+                    out configurationInfo,
+                    out TimeSpan? servicePollingIntervalHint);
 
+                this.latestServicePollingIntervalHint = servicePollingIntervalHint ?? this.latestServicePollingIntervalHint;
+                
                 QuickPulseEventSource.Log.PingSentEvent(this.currentConfigurationETag, configurationInfo?.ETag, startCollection.ToString());
 
                 switch (startCollection)
@@ -226,6 +240,8 @@
                 this.lastSuccessfulPing = startCollection.HasValue ? this.timeProvider.UtcNow : this.lastSuccessfulPing;
                 this.IsCollectingData = startCollection ?? this.IsCollectingData;
             }
+
+            this.onUpdatedServiceEndpoint?.Invoke(this.serviceClient.CurrentServiceUri);
 
             return this.DetermineBackOffs();
         }
@@ -291,7 +307,7 @@
                 TimeSpan timeSinceLastSuccessfulPing = this.timeProvider.UtcNow - this.lastSuccessfulPing;
 
                 return timeSinceLastSuccessfulPing < this.timings.TimeToServicePollingBackOff
-                           ? this.timings.ServicePollingInterval
+                           ? this.latestServicePollingIntervalHint ?? this.timings.ServicePollingInterval
                            : this.timings.ServicePollingBackedOffInterval;
             }
         }

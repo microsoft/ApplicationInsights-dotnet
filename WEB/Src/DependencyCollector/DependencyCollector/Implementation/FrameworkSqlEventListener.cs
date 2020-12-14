@@ -24,6 +24,11 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         private const string AdoNetEventSourceName = "Microsoft-AdoNet-SystemData";
 
         /// <summary>
+        /// The Microsoft.Data.SqlClient EventSource name for SQL. 
+        /// </summary>
+        private const string MdsEventSourceName = "Microsoft.Data.SqlClient.EventSource";
+
+        /// <summary>
         /// BeginExecute Event ID.
         /// </summary>
         private const int BeginExecuteEventId = 1;
@@ -61,6 +66,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             {
                 this.EnableEvents(eventSource, EventLevel.Informational, (EventKeywords)1);
                 DependencyCollectorEventSource.Log.RemoteDependencyModuleVerbose("SqlEventListener initialized for event source:" + AdoNetEventSourceName);
+            }
+
+            if (eventSource != null && eventSource.Name == MdsEventSourceName)
+            {
+                this.EnableEvents(eventSource, EventLevel.Informational, (EventKeywords)1);
+                DependencyCollectorEventSource.Log.RemoteDependencyModuleVerbose("SqlEventListener initialized for event source:" + MdsEventSourceName);
             }
 
             base.OnEventSourceCreated(eventSource);

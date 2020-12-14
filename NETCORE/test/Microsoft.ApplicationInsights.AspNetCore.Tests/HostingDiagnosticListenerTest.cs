@@ -117,7 +117,6 @@
         }
 
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
         [InlineData(AspNetCoreMajorVersion.Three)]
         public void TestConditionalAppIdFlagIsRespected(AspNetCoreMajorVersion aspNetCoreMajorVersion)
@@ -155,7 +154,6 @@
         }
 
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
         [InlineData(AspNetCoreMajorVersion.Three)]
         public void TestSdkVersionIsPopulatedByMiddleware(AspNetCoreMajorVersion aspNetCoreMajorVersion)
@@ -185,7 +183,6 @@
         }
 
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
         [InlineData(AspNetCoreMajorVersion.Three)]
         public void TestRequestUriIsPopulatedByMiddleware(AspNetCoreMajorVersion aspNetCoreMajorVersion)
@@ -217,7 +214,6 @@
         }
 
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
         [InlineData(AspNetCoreMajorVersion.Three)]
         public void RequestWillBeMarkedAsFailedForRunawayException(AspNetCoreMajorVersion aspNetCoreMajorVersion)
@@ -252,10 +248,8 @@
         }
 
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One,true)]
         [InlineData(AspNetCoreMajorVersion.Two,true)]
         [InlineData(AspNetCoreMajorVersion.Three, true)]
-        [InlineData(AspNetCoreMajorVersion.One, false)]
         [InlineData(AspNetCoreMajorVersion.Two, false)]
         [InlineData(AspNetCoreMajorVersion.Three, false)]
         public void RequestWithNoHeadersCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
@@ -270,11 +264,6 @@
                 var activity = Activity.Current;
                 Assert.NotNull(activity);
                 
-                if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.One)
-                {
-                    Assert.Equal(ActivityCreatedByHostingDiagnosticListener, Activity.Current.OperationName);
-                }
-
                 Assert.NotNull(context.Features.Get<RequestTelemetry>());
 
                 HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
@@ -287,10 +276,8 @@
         }
 
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One, true)]
         [InlineData(AspNetCoreMajorVersion.Two, true)]
         [InlineData(AspNetCoreMajorVersion.Three, true)]
-        [InlineData(AspNetCoreMajorVersion.One, false)]
         [InlineData(AspNetCoreMajorVersion.Two, false)]
         [InlineData(AspNetCoreMajorVersion.Three, false)]
         public void RequestWithW3CCompatibleRequestIdCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
@@ -314,21 +301,15 @@
 
                 var activity = Activity.Current;
                 Assert.NotNull(activity);
-                if(aspNetCoreMajorVersion == AspNetCoreMajorVersion.One)
+
+                // Hosting in 2,3 creates Activity which are ignored by SDK in W3C Mode to use the w3c compatible trace-id from Request-Id
+                // Validate that activity is the one created by SDK HostingListener
+                if (IsW3C)
                 {
                     Assert.Equal(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
                 }
-                else
-                {
-                    // Hosting in 2,3 creates Activity which are ignored by SDK in W3C Mode to use the w3c compatible trace-id from Request-Id
-                    // Validate that activity is the one created by SDK HostingListener
-                    if (IsW3C)
-                    {
-                        Assert.Equal(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
-                    }
 
-                    Assert.Equal(tags, activity.Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
-                }
+                Assert.Equal(tags, activity.Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
 
                 Assert.Single(activity.Baggage.Where(b => b.Key == "prop1" && b.Value == "value1"));
                 Assert.Single(activity.Baggage.Where(b => b.Key == "prop2" && b.Value == "value2"));
@@ -347,10 +328,8 @@
         }
 
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One, true)]
         [InlineData(AspNetCoreMajorVersion.Two, true)]
         [InlineData(AspNetCoreMajorVersion.Three, true)]
-        [InlineData(AspNetCoreMajorVersion.One, false)]
         [InlineData(AspNetCoreMajorVersion.Two, false)]
         [InlineData(AspNetCoreMajorVersion.Three, false)]
         public void RequestWithNonW3CCompatibleRequestIdCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
@@ -374,18 +353,12 @@
 
                 var activity = Activity.Current;
                 Assert.NotNull(activity);
-                if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.One)
-                {
-                    Assert.Equal(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
-                }
-                else
-                {
-                    // Hosting in 2,3 creates Activity ignoring the request-id. The request-id is not w3c compatible
-                    // hence SDK also ignores them, and just uses Activity from Hosting. 
-                    // Validate that activity is Not created by SDK Hosting
-                    Assert.NotEqual(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
-                    Assert.Equal(tags, activity.Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
-                }
+
+                // Hosting in 2,3 creates Activity ignoring the request-id. The request-id is not w3c compatible
+                // hence SDK also ignores them, and just uses Activity from Hosting. 
+                // Validate that activity is Not created by SDK Hosting
+                Assert.NotEqual(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
+                Assert.Equal(tags, activity.Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
 
                 Assert.Single(activity.Baggage.Where(b => b.Key == "prop1" && b.Value == "value1"));
                 Assert.Single(activity.Baggage.Where(b => b.Key == "prop2" && b.Value == "value2"));
@@ -414,10 +387,8 @@
         }
 
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One, true)]
         [InlineData(AspNetCoreMajorVersion.Two, true)]
         [InlineData(AspNetCoreMajorVersion.Three, true)]
-        [InlineData(AspNetCoreMajorVersion.One, false)]
         [InlineData(AspNetCoreMajorVersion.Two, false)]
         [InlineData(AspNetCoreMajorVersion.Three, false)]
         public void RequestWithNonW3CCompatibleNonHierarchicalRequestIdCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
@@ -441,18 +412,12 @@
 
                 var activity = Activity.Current;
                 Assert.NotNull(activity);
-                if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.One)
-                {
-                    Assert.Equal(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
-                }
-                else
-                {
-                    // Hosting in 2,3 creates Activity ignoring the request-id. The request-id is not w3c compatible
-                    // hence SDK also ignores them, and just uses Activity from Hosting. 
-                    // Validate that activity is Not created by SDK Hosting
-                    Assert.NotEqual(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
-                    Assert.Equal(tags, activity.Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
-                }
+
+                // Hosting in 2,3 creates Activity ignoring the request-id. The request-id is not w3c compatible
+                // hence SDK also ignores them, and just uses Activity from Hosting. 
+                // Validate that activity is Not created by SDK Hosting
+                Assert.NotEqual(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
+                Assert.Equal(tags, activity.Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
 
                 Assert.Single(activity.Baggage.Where(b => b.Key == "prop1" && b.Value == "value1"));
                 Assert.Single(activity.Baggage.Where(b => b.Key == "prop2" && b.Value == "value2"));
@@ -481,10 +446,8 @@
         }
 
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One, true)]
         [InlineData(AspNetCoreMajorVersion.Two, true)]
         [InlineData(AspNetCoreMajorVersion.Three, true)]
-        [InlineData(AspNetCoreMajorVersion.One, false)]
         [InlineData(AspNetCoreMajorVersion.Two, false)]
         [InlineData(AspNetCoreMajorVersion.Three, false)]
         public void RequestWithW3CTraceParentCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, 
@@ -510,11 +473,7 @@
                 var activity = Activity.Current;
                 Assert.NotNull(activity);
 
-                if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.One)
-                {
-                    Assert.Equal(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
-                }
-                else if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two && isW3C)
+                if (aspNetCoreMajorVersion == AspNetCoreMajorVersion.Two && isW3C)
                 {
                     Assert.Equal(ActivityCreatedByHostingDiagnosticListener, activity.OperationName);
                     Assert.Equal(tags, activity.Tags.ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
@@ -552,10 +511,8 @@
         }
 
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One, true)]
         [InlineData(AspNetCoreMajorVersion.Two, true)]
         [InlineData(AspNetCoreMajorVersion.Three, true)]
-        [InlineData(AspNetCoreMajorVersion.One, false)]
         [InlineData(AspNetCoreMajorVersion.Two, false)]
         [InlineData(AspNetCoreMajorVersion.Three, false)]
         public void RequestWithW3CTraceParentButInvalidEntryCreateNewActivityAndPopulateRequestTelemetry(
@@ -601,10 +558,8 @@
         }
 
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One, true)]
         [InlineData(AspNetCoreMajorVersion.Two, true)]
         [InlineData(AspNetCoreMajorVersion.Three, true)]
-        [InlineData(AspNetCoreMajorVersion.One, false)]
         [InlineData(AspNetCoreMajorVersion.Two, false)]
         // Commenting out unsupported scenario. We may support this in future. [InlineData(AspNetCoreMajorVersion.Three, false)]
         public void RequestWithBothW3CAndRequestIdCreateNewActivityAndPopulateRequestTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool IsW3C)
@@ -650,10 +605,8 @@
         }
 
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One, true)]
         [InlineData(AspNetCoreMajorVersion.Two, true)]
         [InlineData(AspNetCoreMajorVersion.Three, true)]
-        [InlineData(AspNetCoreMajorVersion.One, false)]
         [InlineData(AspNetCoreMajorVersion.Two, false)]
         [InlineData(AspNetCoreMajorVersion.Three, false)]
         public void RequestWithOutCorrelationHeaderStillReadsCorrelationContextIntoActivity(AspNetCoreMajorVersion aspNetCoreMajorVersion, bool isW3C)
@@ -689,19 +642,23 @@
         }
 
         [Theory]
-        [InlineData("prop1")]
-        [InlineData(", , ,,")]
-        [InlineData(",")]
-        [InlineData(" ")]
-        public void RequestPopulateCorrelationHeaderVariousInputsNone(string correlationcontext)
+        [InlineData("prop1", AspNetCoreMajorVersion.Three)]
+        [InlineData(", , ,,", AspNetCoreMajorVersion.Three)]
+        [InlineData(",", AspNetCoreMajorVersion.Three)]
+        [InlineData(" ", AspNetCoreMajorVersion.Three)]
+        [InlineData("prop1", AspNetCoreMajorVersion.Two)]
+        [InlineData(", , ,,", AspNetCoreMajorVersion.Two)]
+        [InlineData(",", AspNetCoreMajorVersion.Two)]
+        [InlineData(" ", AspNetCoreMajorVersion.Two)]
+        public void RequestPopulateCorrelationHeaderVariousInputsNone(string correlationcontext, AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             // Tests Correlation-Context is read and populated even when neither request-id nor traceparent is present.
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
             context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = correlationcontext;
 
-            using (var hostingListener = CreateHostingListener(AspNetCoreMajorVersion.One))
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion))
             {
-                HandleRequestBegin(hostingListener, context, 0, AspNetCoreMajorVersion.One);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
                 var activity = Activity.Current;
                 Assert.NotNull(activity);
 
@@ -713,7 +670,7 @@
 
                 Assert.NotNull(context.Features.Get<RequestTelemetry>());
 
-                HandleRequestEnd(hostingListener, context, 0, AspNetCoreMajorVersion.One);
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 Assert.Single(sentTelemetry);
                 var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
@@ -723,19 +680,23 @@
         }
 
         [Theory]
-        [InlineData("prop1=value1, prop2=")]
-        [InlineData("prop1=value1, prop2")]
-        [InlineData("123, prop1=value1")]
-        [InlineData("prop1=value1")]
-        public void RequestPopulateCorrelationHeaderVariousInputsOne(string correlationcontext)
+        [InlineData("prop1=value1, prop2=", AspNetCoreMajorVersion.Three)]
+        [InlineData("prop1=value1, prop2", AspNetCoreMajorVersion.Three)]
+        [InlineData("123, prop1=value1", AspNetCoreMajorVersion.Three)]
+        [InlineData("prop1=value1", AspNetCoreMajorVersion.Three)]
+        [InlineData("prop1=value1, prop2=", AspNetCoreMajorVersion.Two)]
+        [InlineData("prop1=value1, prop2", AspNetCoreMajorVersion.Two)]
+        [InlineData("123, prop1=value1", AspNetCoreMajorVersion.Two)]
+        [InlineData("prop1=value1", AspNetCoreMajorVersion.Two)]
+        public void RequestPopulateCorrelationHeaderVariousInputsOne(string correlationcontext, AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             // Tests Correlation-Context is read and populated even when neither request-id nor traceparent is present.
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
             context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = correlationcontext;
 
-            using (var hostingListener = CreateHostingListener(AspNetCoreMajorVersion.One))
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion))
             {
-                HandleRequestBegin(hostingListener, context, 0, AspNetCoreMajorVersion.One);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
                 var activity = Activity.Current;
                 Assert.NotNull(activity);
 
@@ -747,7 +708,7 @@
 
                 Assert.NotNull(context.Features.Get<RequestTelemetry>());
 
-                HandleRequestEnd(hostingListener, context, 0, AspNetCoreMajorVersion.One);
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 Assert.Single(sentTelemetry);
                 var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
@@ -757,18 +718,21 @@
         }
 
         [Theory]
-        [InlineData("prop1=value1,prop2=value2")]
-        [InlineData("prop1=value1 , prop2= value2")]
-        [InlineData("123, prop1=value1, prop2=value2,567,=")]
-        public void RequestPopulateCorrelationHeaderVariousInputsTwo(string correlationcontext)
+        [InlineData("prop1=value1,prop2=value2", AspNetCoreMajorVersion.Three)]
+        [InlineData("prop1=value1 , prop2= value2", AspNetCoreMajorVersion.Three)]
+        [InlineData("123, prop1=value1, prop2=value2,567,=", AspNetCoreMajorVersion.Three)]
+        [InlineData("prop1=value1,prop2=value2", AspNetCoreMajorVersion.Two)]
+        [InlineData("prop1=value1 , prop2= value2", AspNetCoreMajorVersion.Two)]
+        [InlineData("123, prop1=value1, prop2=value2,567,=", AspNetCoreMajorVersion.Two)]
+        public void RequestPopulateCorrelationHeaderVariousInputsTwo(string correlationcontext, AspNetCoreMajorVersion aspNetCoreMajorVersion)
         {
             // Tests Correlation-Context is read and populated even when neither request-id nor traceparent is present.
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
             context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = correlationcontext;            
 
-            using (var hostingListener = CreateHostingListener(AspNetCoreMajorVersion.One))
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion))
             {
-                HandleRequestBegin(hostingListener, context, 0, AspNetCoreMajorVersion.One);
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
                 var activity = Activity.Current;
                 Assert.NotNull(activity);
 
@@ -781,7 +745,7 @@
                 
                 Assert.NotNull(context.Features.Get<RequestTelemetry>());
 
-                HandleRequestEnd(hostingListener, context, 0, AspNetCoreMajorVersion.One);
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
 
                 Assert.Single(sentTelemetry);
                 var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
@@ -835,7 +799,6 @@
         }
 
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
         [InlineData(AspNetCoreMajorVersion.Three)]
         public void OnEndRequestSetsRequestNameToMethodAndPathForPostRequest(AspNetCoreMajorVersion aspNetCoreMajorVersion)
@@ -867,7 +830,6 @@
         }
 
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
         [InlineData(AspNetCoreMajorVersion.Three)]
         public void OnEndRequestSetsRequestNameToMethodAndPath(AspNetCoreMajorVersion aspNetCoreMajorVersion)
@@ -898,7 +860,6 @@
         }
 
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
         [InlineData(AspNetCoreMajorVersion.Three)]
         public void OnEndRequestFromSameInstrumentationKey(AspNetCoreMajorVersion aspNetCoreMajorVersion)
@@ -931,7 +892,6 @@
         }
 
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
         [InlineData(AspNetCoreMajorVersion.Three)]
         public void OnEndRequestFromDifferentInstrumentationKey(AspNetCoreMajorVersion aspNetCoreMajorVersion)
@@ -965,7 +925,6 @@
         }
 
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
         [InlineData(AspNetCoreMajorVersion.Three)]
         public async void SimultaneousRequestsGetDifferentIds(AspNetCoreMajorVersion aspNetCoreMajorVersion)
@@ -1013,65 +972,7 @@
             }
         }
 
-        [Fact]
-        public void SimultaneousRequestsGetCorrectDurations()
-        {
-            var context1 = new DefaultHttpContext();
-            context1.Request.Scheme = HttpRequestScheme;
-            context1.Request.Host = HttpRequestHost;
-            context1.Request.Method = "GET";
-            context1.Request.Path = "/Test?id=1";
-
-            var context2 = new DefaultHttpContext();
-            context2.Request.Scheme = HttpRequestScheme;
-            context2.Request.Host = HttpRequestHost;
-            context2.Request.Method = "GET";
-            context2.Request.Path = "/Test?id=2";
-
-            long startTime = Stopwatch.GetTimestamp();
-            long simulatedSeconds = Stopwatch.Frequency;
-
-            using (var hostingListener = CreateHostingListener(AspNetCoreMajorVersion.One))
-            {
-                HandleRequestBegin(hostingListener, context1, startTime, AspNetCoreMajorVersion.One);
-                HandleRequestBegin(hostingListener, context2, startTime + simulatedSeconds, AspNetCoreMajorVersion.One);
-                HandleRequestEnd(hostingListener, context1, startTime + simulatedSeconds * 5, AspNetCoreMajorVersion.One);
-                HandleRequestEnd(hostingListener, context2, startTime + simulatedSeconds * 10, AspNetCoreMajorVersion.One);
-            }
-
-            var telemetries = this.sentTelemetry.ToArray();
-            Assert.Equal(2, telemetries.Length);
-            Assert.Equal(TimeSpan.FromSeconds(5), ((RequestTelemetry)telemetries[0]).Duration);
-            Assert.Equal(TimeSpan.FromSeconds(9), ((RequestTelemetry)telemetries[1]).Duration);
-        }
-
-        [Fact]
-        public void OnEndRequestSetsPreciseDurations()
-        {
-            var context = new DefaultHttpContext();
-            context.Request.Scheme = HttpRequestScheme;
-            context.Request.Host = HttpRequestHost;
-            context.Request.Method = "GET";
-            context.Request.Path = "/Test?id=1";
-
-            long startTime = Stopwatch.GetTimestamp();
-            using (var hostingListener = CreateHostingListener(AspNetCoreMajorVersion.One))
-            {
-                HandleRequestBegin(hostingListener, context, startTime, AspNetCoreMajorVersion.One);
-
-                var expectedDuration = TimeSpan.Parse("00:00:01.2345670");
-                double durationInStopwatchTicks = Stopwatch.Frequency * expectedDuration.TotalSeconds;
-
-                HandleRequestEnd(hostingListener, context, startTime + (long) durationInStopwatchTicks, AspNetCoreMajorVersion.One);
-
-                Assert.Single(sentTelemetry);
-                Assert.Equal(Math.Round(expectedDuration.TotalMilliseconds, 3),
-                    Math.Round(((RequestTelemetry) sentTelemetry.First()).Duration.TotalMilliseconds, 3));
-            }
-        }
-
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
         [InlineData(AspNetCoreMajorVersion.Three)]
         public void SetsSourceProvidedInHeaders(AspNetCoreMajorVersion aspNetCoreMajorVersion)
@@ -1093,7 +994,6 @@
         }
 
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
         [InlineData(AspNetCoreMajorVersion.Three)]
         public void ResponseHeadersAreNotInjectedWhenDisabled(AspNetCoreMajorVersion aspNetCoreMajorVersion)
@@ -1122,32 +1022,6 @@
         }
 
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One)]
-        [InlineData(AspNetCoreMajorVersion.Two)]
-        [InlineData(AspNetCoreMajorVersion.Three)]
-        public void ExceptionsAreNotTrackedInjectedWhenDisabled(AspNetCoreMajorVersion aspNetCoreMajorVersion)
-        {
-            HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
-            using (var noExceptionsMiddleware = new HostingDiagnosticListener(
-                CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry.Enqueue(telemetry)),
-                CommonMocks.GetMockApplicationIdProvider(),
-                injectResponseHeaders: true,
-                trackExceptions: false,
-                enableW3CHeaders: false,
-                aspNetCoreMajorVersion: GetAspNetCoreMajorVersion(aspNetCoreMajorVersion)))
-            {
-                noExceptionsMiddleware.OnSubscribe();
-                noExceptionsMiddleware.OnHostingException(context, new Exception("HostingException"));
-                noExceptionsMiddleware.OnDiagnosticsHandledException(context,
-                    new Exception("DiagnosticsHandledException"));
-                noExceptionsMiddleware.OnDiagnosticsUnhandledException(context, new Exception("UnhandledException"));
-            }
-
-            Assert.Empty(sentTelemetry);
-        }
-
-        [Theory]
-        [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
         [InlineData(AspNetCoreMajorVersion.Three)]
         public void DoesntAddSourceIfRequestHeadersDontHaveSource(AspNetCoreMajorVersion aspNetCoreMajorVersion)
@@ -1168,7 +1042,6 @@
         }
 
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
         [InlineData(AspNetCoreMajorVersion.Three)]
         public void RequestTelemetryIsProactivelySampledOutIfFeatureFlagIsOn(AspNetCoreMajorVersion aspNetCoreMajorVersion)
@@ -1194,7 +1067,6 @@
         }
 
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
         [InlineData(AspNetCoreMajorVersion.Three)]
         public void RequestTelemetryIsProactivelySampledInIfFeatureFlagIsOnButActivityIsRecorded(AspNetCoreMajorVersion aspNetCoreMajorVersion)
@@ -1222,7 +1094,6 @@
         }
 
         [Theory]
-        [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
         [InlineData(AspNetCoreMajorVersion.Three)]
         public void RequestTelemetryIsNotProactivelySampledOutIfFeatureFlagIfOff(AspNetCoreMajorVersion aspNetCoreMajorVersion)
@@ -1248,7 +1119,6 @@
 
         [Theory]
         [Trait("Trait", "RoleName")]
-        [InlineData(AspNetCoreMajorVersion.One)]
         [InlineData(AspNetCoreMajorVersion.Two)]
         [InlineData(AspNetCoreMajorVersion.Three)]
         public void VerifyRequestsUpdateRoleNameContainer(AspNetCoreMajorVersion aspNetCoreMajorVersion)
@@ -1363,10 +1233,6 @@
                 }
                 hostingListener.OnHttpRequestInStart(context);
             }
-            else
-            {
-                hostingListener.OnBeginRequest(context, timestamp);
-            }
         }
 
         private void HandleRequestEnd(HostingDiagnosticListener hostingListener, HttpContext context, long timestamp, AspNetCoreMajorVersion aspNetCoreMajorVersion)
@@ -1377,7 +1243,6 @@
             }
             else
             {
-                hostingListener.OnEndRequest(context, timestamp);
             }
         }
 

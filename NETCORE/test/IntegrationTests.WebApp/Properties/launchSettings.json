@@ -1,9 +1,9 @@
 ﻿{
   "iisSettings": {
-    "windowsAuthentication": false, 
-    "anonymousAuthentication": true, 
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:1792",
+      "applicationUrl": "http://localhost:2469",
       "sslPort": 0
     }
   },
@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "TestApp30": {
+    "IntegrationTests.WebApp._2._1": {
       "commandName": "Project",
       "launchBrowser": true,
       "applicationUrl": "http://localhost:5000",

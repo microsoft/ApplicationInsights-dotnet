@@ -9,7 +9,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
     using Xunit.Abstractions;
-    
+
     public class RequestTelemetryMvcTests : TelemetryTestsBase
     {
         private readonly string assemblyName;
@@ -17,75 +17,6 @@
         public RequestTelemetryMvcTests(ITestOutputHelper output) : base(output)
         {
             this.assemblyName = this.GetType().GetTypeInfo().Assembly.GetName().Name;
-        }
-
-        [Fact]
-        public void TestBasicRequestPropertiesAfterRequestingHomeController()
-        {
-            using (var server = new InProcessServer(assemblyName, this.output))
-            {
-                const string RequestPath = "/";
-
-                var expectedRequestTelemetry = new RequestTelemetry();
-                expectedRequestTelemetry.Name = "GET Home/Index";
-                expectedRequestTelemetry.ResponseCode = "200";
-                expectedRequestTelemetry.Success = true;
-                expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
-
-                Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
-                {
-                    { "Request-Id", ""},
-                    { "Request-Context", "appId=value"},
-                };
-
-                this.ValidateRequestWithHeaders(server, RequestPath, requestHeaders, expectedRequestTelemetry, expectRequestContextInResponse: true);
-            }
-        }
-
-        [Fact]
-        public void TestBasicRequestPropertiesAfterRequestingActionWithParameter()
-        {
-            using (var server = new InProcessServer(assemblyName, this.output))
-            {
-                const string RequestPath = "/Home/About/5";
-
-                var expectedRequestTelemetry = new RequestTelemetry();
-                expectedRequestTelemetry.Name = "GET Home/About [id]";
-                expectedRequestTelemetry.ResponseCode = "200";
-                expectedRequestTelemetry.Success = true;
-                expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
-
-                Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
-                {
-                    { "Request-Id", ""},
-                    { "Request-Context", "appId=value"},
-                };
-
-                this.ValidateRequestWithHeaders(server, RequestPath, requestHeaders, expectedRequestTelemetry, expectRequestContextInResponse: true);
-            }
-        }
-
-        [Fact]
-        public void TestBasicRequestPropertiesAfterRequestingNotExistingController()
-        {
-            using (var server = new InProcessServer(assemblyName, this.output))
-            {
-                const string RequestPath = "/not/existing/controller";
-
-                var expectedRequestTelemetry = new RequestTelemetry();
-                expectedRequestTelemetry.Name = "GET /not/existing/controller";
-                expectedRequestTelemetry.ResponseCode = "404";
-                expectedRequestTelemetry.Success = false;
-                expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
-
-                Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
-                {
-                    { "Request-Id", ""},
-                    { "Request-Context", "appId=value"},
-                };
-
-                this.ValidateRequestWithHeaders(server, RequestPath, requestHeaders, expectedRequestTelemetry, expectRequestContextInResponse: true);
-            }
         }
 
         [Fact]
@@ -98,7 +29,7 @@
                 var telemetries = server.Listener.ReceiveItems(TestListenerTimeoutInMs);
                 this.DebugTelemetryItems(telemetries);
 
-                // In linux 6 items as it'll always have an Error trace from SDK itself about 
+                // In linux 6 items as it'll always have an Error trace from SDK itself about
                 // local storage folder.
                 Assert.InRange(telemetries.Length, 5, 6);
 

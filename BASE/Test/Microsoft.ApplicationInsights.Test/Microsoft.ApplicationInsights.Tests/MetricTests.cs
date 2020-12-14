@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Metrics;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
@@ -12,8 +11,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Microsoft.ApplicationInsights
 {
-    
-
     /// <summary />
     [TestClass]
     public class MetricTests
@@ -189,7 +186,7 @@ namespace Microsoft.ApplicationInsights
                 Assert.IsNotNull(metric);
                 Assert.AreEqual(1, metric.Identifier.DimensionsCount);
                 Assert.AreEqual("D1", metric.Identifier.GetDimensionName(1));
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.Identifier.GetDimensionName(2) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.Identifier.GetDimensionName(2));
             }
             {
                 Metric metric = InvokeMetricCtor(
@@ -201,8 +198,8 @@ namespace Microsoft.ApplicationInsights
                                     configuration: MetricConfigurations.Common.Measurement());
                 Assert.IsNotNull(metric);
                 Assert.AreEqual(0, metric.Identifier.DimensionsCount);
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.Identifier.GetDimensionName(1) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.Identifier.GetDimensionName(2) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.Identifier.GetDimensionName(1));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.Identifier.GetDimensionName(2));
             }
 
 
@@ -472,11 +469,11 @@ namespace Microsoft.ApplicationInsights
                                         dimension2Name: null,
                                         configuration: MetricConfigurations.Common.Measurement());
 
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.Identifier.GetDimensionName(-1) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.Identifier.GetDimensionName(0) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.Identifier.GetDimensionName(1) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.Identifier.GetDimensionName(2) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.Identifier.GetDimensionName(3) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.Identifier.GetDimensionName(-1));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.Identifier.GetDimensionName(0));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.Identifier.GetDimensionName(1));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.Identifier.GetDimensionName(2));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.Identifier.GetDimensionName(3));
             }
             {
                 Metric metric = InvokeMetricCtor(
@@ -487,11 +484,11 @@ namespace Microsoft.ApplicationInsights
                                         dimension2Name: null,
                                         configuration: MetricConfigurations.Common.Measurement());
 
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.Identifier.GetDimensionName(-1) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.Identifier.GetDimensionName(0) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.Identifier.GetDimensionName(-1));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.Identifier.GetDimensionName(0));
                 Assert.AreEqual("D1", metric.Identifier.GetDimensionName(1));
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.Identifier.GetDimensionName(2) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.Identifier.GetDimensionName(3) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.Identifier.GetDimensionName(2));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.Identifier.GetDimensionName(3));
             }
             {
                 Metric metric = InvokeMetricCtor(
@@ -502,11 +499,11 @@ namespace Microsoft.ApplicationInsights
                                         dimension2Name: "D2",
                                         configuration: MetricConfigurations.Common.Measurement());
 
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.Identifier.GetDimensionName(-1) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.Identifier.GetDimensionName(0) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.Identifier.GetDimensionName(-1));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.Identifier.GetDimensionName(0));
                 Assert.AreEqual("D1", metric.Identifier.GetDimensionName(1));
                 Assert.AreEqual("D2", metric.Identifier.GetDimensionName(2));
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.Identifier.GetDimensionName(3) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.Identifier.GetDimensionName(3));
             }
 
             TestUtil.CompleteDefaultAggregationCycle(metricManager);
@@ -529,8 +526,8 @@ namespace Microsoft.ApplicationInsights
                                         dimension2Name: "D2",
                                         configuration: MetricConfigurations.Common.Measurement());
 
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(-1) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(0) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(-1));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(0));
 
                 IReadOnlyCollection<string> dimVals = metric.GetDimensionValues(1);
                 Assert.AreEqual(0, dimVals.Count);
@@ -538,7 +535,7 @@ namespace Microsoft.ApplicationInsights
                 dimVals = metric.GetDimensionValues(2);
                 Assert.AreEqual(0, dimVals.Count);
 
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(3) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(3));
 
 
                 metric.TrackValue(1);
@@ -565,9 +562,9 @@ namespace Microsoft.ApplicationInsights
                 Assert.IsFalse(dimVals.Contains("b"));
                 Assert.IsFalse(dimVals.Contains("c"));
 
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(-1) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(0) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(3) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(-1));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(0));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(3));
             }
             {
                 Metric metric = InvokeMetricCtor(
@@ -578,14 +575,14 @@ namespace Microsoft.ApplicationInsights
                                         dimension2Name: null,
                                         configuration: MetricConfigurations.Common.Measurement());
 
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(-1) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(0) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(-1));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(0));
 
                 IReadOnlyCollection<string> dimVals = metric.GetDimensionValues(1);
                 Assert.AreEqual(0, dimVals.Count);
 
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(2) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(3) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(2));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(3));
 
 
                 metric.TrackValue(1);
@@ -605,10 +602,10 @@ namespace Microsoft.ApplicationInsights
                 Assert.IsTrue(dimVals.Contains("Y"));
                 Assert.IsFalse(dimVals.Contains("y"));
 
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(-1) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(0) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(2) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(3) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(-1));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(0));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(2));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(3));
             }
             {
                 MetricConfiguration config = new MetricConfiguration(
@@ -643,9 +640,9 @@ namespace Microsoft.ApplicationInsights
                 Assert.AreEqual(1, dimVals.Count);
                 Assert.IsTrue(dimVals.Contains("B"));
 
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(-1) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(0) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(3) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(-1));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(0));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(3));
             }
             {
                 MetricConfiguration config = new MetricConfiguration(
@@ -676,10 +673,10 @@ namespace Microsoft.ApplicationInsights
                 Assert.IsTrue(dimVals.Contains("X"));
                 Assert.IsFalse(dimVals.Contains("Y"));
 
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(-1) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(0) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(2) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(3) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(-1));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(0));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(2));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(3));
             }
             {
                 MetricConfiguration config = new MetricConfiguration(
@@ -715,9 +712,9 @@ namespace Microsoft.ApplicationInsights
                 Assert.IsTrue(dimVals.Contains("B"));
                 Assert.IsTrue(dimVals.Contains("C"));
 
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(-1) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(0) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(3) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(-1));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(0));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(3));
             }
             {
                 MetricConfiguration config = new MetricConfiguration(
@@ -745,9 +742,9 @@ namespace Microsoft.ApplicationInsights
                 Assert.IsTrue(dimVals.Contains("A"));
                 Assert.IsTrue(dimVals.Contains("a"));
 
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(-1) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(0) );
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(3) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(-1));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(0));
+                Assert.ThrowsException<ArgumentOutOfRangeException>(() => metric.GetDimensionValues(3));
             }
 
             TestUtil.CompleteDefaultAggregationCycle(metricManager);
@@ -761,85 +758,83 @@ namespace Microsoft.ApplicationInsights
             MemoryMetricTelemetryPipeline telemetryCollector = new MemoryMetricTelemetryPipeline();
             MetricManager metricManager = new MetricManager(telemetryCollector);
 
-            {
-                MetricConfiguration config = new MetricConfiguration(
-                                                            5,
-                                                            1000,
-                                                            new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
+            MetricConfiguration config = new MetricConfiguration(
+                                                        5,
+                                                        1000,
+                                                        new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
 
-                Metric metric = InvokeMetricCtor(
-                                        metricManager,
-                                        metricNamespace: "ns",
-                                        metricId: "Foo",
-                                        dimension1Name: "D1",
-                                        dimension2Name: "D2",
-                                        configuration: config);
+            Metric metric = InvokeMetricCtor(
+                                    metricManager,
+                                    metricNamespace: "ns",
+                                    metricId: "Foo",
+                                    dimension1Name: "D1",
+                                    dimension2Name: "D2",
+                                    configuration: config);
 
-                IReadOnlyList<KeyValuePair<string[], MetricSeries>> series = metric.GetAllSeries();
-                Assert.AreEqual(1, series.Count);
-                AssertSeries(
-                            series[0],
-                            expectedKeys:                       new string[0],
-                            expectedMetricId:                   "Foo",
-                            expectedDimensionNamesAndValues:    new Dictionary<string, string> { },
-                            expectedCount:                      null,
-                            expectedSum:                        null);
+            IReadOnlyList<KeyValuePair<string[], MetricSeries>> series = metric.GetAllSeries();
+            Assert.AreEqual(1, series.Count);
+            AssertSeries(
+                        series[0],
+                        expectedKeys: new string[0],
+                        expectedMetricId: "Foo",
+                        expectedDimensionNamesAndValues: new Dictionary<string, string> { },
+                        expectedCount: null,
+                        expectedSum: null);
 
 
-                metric.TrackValue(1);
-                metric.TrackValue(2);
-                Assert.IsTrue( metric.TrackValue(3, "A", "B") );
-                Assert.IsTrue( metric.TrackValue(4, "a", "B") );
-                Assert.IsTrue( metric.TrackValue(7, "Y", "C") );
-                Assert.IsTrue( metric.TrackValue(5, "X", "B") );
-                Assert.IsFalse( metric.TrackValue(6, "Y", "B") );
-                Assert.IsTrue( metric.TrackValue(8, "A", "B") );
+            metric.TrackValue(1);
+            metric.TrackValue(2);
+            Assert.IsTrue(metric.TrackValue(3, "A", "B"));
+            Assert.IsTrue(metric.TrackValue(4, "a", "B"));
+            Assert.IsTrue(metric.TrackValue(7, "Y", "C"));
+            Assert.IsTrue(metric.TrackValue(5, "X", "B"));
+            Assert.IsFalse(metric.TrackValue(6, "Y", "B"));
+            Assert.IsTrue(metric.TrackValue(8, "A", "B"));
 
-                series = metric.GetAllSeries();
-                Assert.AreEqual(5, series.Count);
+            series = metric.GetAllSeries();
+            Assert.AreEqual(5, series.Count);
 
-                KeyValuePair<string[], MetricSeries>[] sortedSeries = series.OrderBy( (s) => String.Concat(s.Key) ).ToArray();
+            KeyValuePair<string[], MetricSeries>[] sortedSeries = series.OrderBy((s) => String.Concat(s.Key), StringComparer.InvariantCulture).ToArray();
 
-                AssertSeries(
-                            sortedSeries[0],
-                            expectedKeys:                       new string[0],
-                            expectedMetricId:                   "Foo",
-                            expectedDimensionNamesAndValues:    new Dictionary<string, string> { },
-                            expectedCount:                      2,
-                            expectedSum:                        3);
+            AssertSeries(
+                        sortedSeries[0],
+                        expectedKeys: new string[0],
+                        expectedMetricId: "Foo",
+                        expectedDimensionNamesAndValues: new Dictionary<string, string> { },
+                        expectedCount: 2,
+                        expectedSum: 3);
 
-                 AssertSeries(
-                            sortedSeries[1],
-                            expectedKeys:                       new string[] { "a", "B" },
-                            expectedMetricId:                   "Foo",
-                            expectedDimensionNamesAndValues:    new Dictionary<string, string> { ["D1"] = "a", ["D2"] = "B" },
-                            expectedCount:                      1,
-                            expectedSum:                        4);
+            AssertSeries(
+                       sortedSeries[1],
+                       expectedKeys: new string[] { "a", "B" },
+                       expectedMetricId: "Foo",
+                       expectedDimensionNamesAndValues: new Dictionary<string, string> { ["D1"] = "a", ["D2"] = "B" },
+                       expectedCount: 1,
+                       expectedSum: 4);
 
-                AssertSeries(
-                            sortedSeries[2],
-                            expectedKeys:                       new string[] { "A", "B" },
-                            expectedMetricId:                   "Foo",
-                            expectedDimensionNamesAndValues:    new Dictionary<string, string> { ["D1"] = "A", ["D2"] = "B" },
-                            expectedCount:                      2,
-                            expectedSum:                        11);
+            AssertSeries(
+                        sortedSeries[2],
+                        expectedKeys: new string[] { "A", "B" },
+                        expectedMetricId: "Foo",
+                        expectedDimensionNamesAndValues: new Dictionary<string, string> { ["D1"] = "A", ["D2"] = "B" },
+                        expectedCount: 2,
+                        expectedSum: 11);
 
-                AssertSeries(
-                            sortedSeries[3],
-                            expectedKeys:                       new string[] { "X", "B" },
-                            expectedMetricId:                   "Foo",
-                            expectedDimensionNamesAndValues:    new Dictionary<string, string> { ["D1"] = "X", ["D2"] = "B" },
-                            expectedCount:                      1,
-                            expectedSum:                        5);
+            AssertSeries(
+                        sortedSeries[3],
+                        expectedKeys: new string[] { "X", "B" },
+                        expectedMetricId: "Foo",
+                        expectedDimensionNamesAndValues: new Dictionary<string, string> { ["D1"] = "X", ["D2"] = "B" },
+                        expectedCount: 1,
+                        expectedSum: 5);
 
-                AssertSeries(
-                            sortedSeries[4],
-                            expectedKeys:                       new string[] { "Y", "C" },
-                            expectedMetricId:                   "Foo",
-                            expectedDimensionNamesAndValues:    new Dictionary<string, string> { ["D1"] = "Y", ["D2"] = "C" },
-                            expectedCount:                      1,
-                            expectedSum:                        7);
-            }
+            AssertSeries(
+                        sortedSeries[4],
+                        expectedKeys: new string[] { "Y", "C" },
+                        expectedMetricId: "Foo",
+                        expectedDimensionNamesAndValues: new Dictionary<string, string> { ["D1"] = "Y", ["D2"] = "C" },
+                        expectedCount: 1,
+                        expectedSum: 7);
 
             TestUtil.CompleteDefaultAggregationCycle(metricManager);
         }
@@ -859,7 +854,7 @@ namespace Microsoft.ApplicationInsights
             {
                 Assert.AreEqual(expectedKeys[i], series.Key[i]);
             }
-            
+
             Assert.AreEqual(expectedMetricId, series.Value.MetricIdentifier.MetricId);
 
             Assert.AreEqual(expectedDimensionNamesAndValues.Count, series.Value.DimensionNamesAndValues.Count);
@@ -912,13 +907,13 @@ namespace Microsoft.ApplicationInsights
                 Assert.AreEqual("Foo", telemetryCollector[0].MetricId);
                 Assert.AreEqual(0, telemetryCollector[0].Dimensions.Count);
 
-                Assert.ThrowsException<ArgumentException>( () => metric.TryGetDataSeries(out series, "Dim1Value") );
-                Assert.ThrowsException<ArgumentException>( () => metric.TryGetDataSeries(out series, "Dim1Value") );
-                Assert.ThrowsException<ArgumentException>( () => metric.TryGetDataSeries(out series, false, "Dim1Value") );
+                Assert.ThrowsException<ArgumentException>(() => metric.TryGetDataSeries(out series, "Dim1Value"));
+                Assert.ThrowsException<ArgumentException>(() => metric.TryGetDataSeries(out series, "Dim1Value"));
+                Assert.ThrowsException<ArgumentException>(() => metric.TryGetDataSeries(out series, false, "Dim1Value"));
 
-                Assert.ThrowsException<ArgumentException>( () => metric.TryGetDataSeries(out series, "Dim1Value", "Dim2Value") );
-                Assert.ThrowsException<ArgumentException>( () => metric.TryGetDataSeries(out series, "Dim1Value", "Dim2Value") );
-                Assert.ThrowsException<ArgumentException>( () => metric.TryGetDataSeries(out series, false, "Dim1Value", "Dim2Value") );
+                Assert.ThrowsException<ArgumentException>(() => metric.TryGetDataSeries(out series, "Dim1Value", "Dim2Value"));
+                Assert.ThrowsException<ArgumentException>(() => metric.TryGetDataSeries(out series, "Dim1Value", "Dim2Value"));
+                Assert.ThrowsException<ArgumentException>(() => metric.TryGetDataSeries(out series, false, "Dim1Value", "Dim2Value"));
             }
             {
                 telemetryCollector.Clear();
@@ -1012,9 +1007,9 @@ namespace Microsoft.ApplicationInsights
                 Assert.IsTrue(telemetryCollector[1].Dimensions.ContainsKey("Bar"));
                 Assert.AreEqual("Dim1ValueX", telemetryCollector[1].Dimensions["Bar"]);
 
-                Assert.ThrowsException<ArgumentException>( () => metric.TryGetDataSeries(out series, "Dim1", "Dim2") );
-                Assert.ThrowsException<ArgumentException>( () => metric.TryGetDataSeries(out series, "Dim1", "Dim2") );
-                Assert.ThrowsException<ArgumentException>( () => metric.TryGetDataSeries(out series, false, "Dim1", "Dim2") );
+                Assert.ThrowsException<ArgumentException>(() => metric.TryGetDataSeries(out series, "Dim1", "Dim2"));
+                Assert.ThrowsException<ArgumentException>(() => metric.TryGetDataSeries(out series, "Dim1", "Dim2"));
+                Assert.ThrowsException<ArgumentException>(() => metric.TryGetDataSeries(out series, false, "Dim1", "Dim2"));
             }
             {
                 telemetryCollector.Clear();
@@ -1047,9 +1042,9 @@ namespace Microsoft.ApplicationInsights
                 Assert.AreEqual("Foo", telemetryCollector[0].MetricId);
                 Assert.AreEqual(0, telemetryCollector[0].Dimensions.Count);
 
-                Assert.ThrowsException<ArgumentException>( () => metric.TryGetDataSeries(out series, "Dim1Value") );
-                Assert.ThrowsException<ArgumentException>( () => metric.TryGetDataSeries(out series, "Dim1Value") );
-                Assert.ThrowsException<ArgumentException>( () => metric.TryGetDataSeries(out series, false, "Dim1Value") );
+                Assert.ThrowsException<ArgumentException>(() => metric.TryGetDataSeries(out series, "Dim1Value"));
+                Assert.ThrowsException<ArgumentException>(() => metric.TryGetDataSeries(out series, "Dim1Value"));
+                Assert.ThrowsException<ArgumentException>(() => metric.TryGetDataSeries(out series, false, "Dim1Value"));
 
                 telemetryCollector.Clear();
                 MetricSeries series1, series2, series3, series4, series5, series6;
@@ -1121,7 +1116,7 @@ namespace Microsoft.ApplicationInsights
                 Assert.AreEqual("Foo", telemetryCollector[0].MetricId);
                 Assert.AreEqual(3, telemetryCollector[0].Data["Count"]);
                 Assert.AreEqual(60.0, telemetryCollector[0].Data["Sum"]);
-                
+
                 Assert.AreEqual(2, telemetryCollector[0].Dimensions.Count);
                 Assert.IsTrue(telemetryCollector[0].Dimensions.ContainsKey("Bar"));
                 Assert.AreEqual("Dim1Value", telemetryCollector[0].Dimensions["Bar"]);
@@ -1163,7 +1158,7 @@ namespace Microsoft.ApplicationInsights
         [TestMethod]
         public void TryGetDataSeries_NotCreatingWhenLimitsAreReached()
         {
-           // Removed due to duplication. We asserted this in several other tests.
+            // Removed due to duplication. We asserted this in several other tests.
         }
 
         /// <summary />
@@ -1211,8 +1206,8 @@ namespace Microsoft.ApplicationInsights
                 metric.TrackValue("42");
                 metric.TrackValue("-100");
                 metric.TrackValue(null);
-                Assert.ThrowsException<ArgumentException>( () => metric.TrackValue("") );
-                Assert.ThrowsException<ArgumentException>( () => metric.TrackValue("karramba!") );
+                Assert.ThrowsException<ArgumentException>(() => metric.TrackValue(""));
+                Assert.ThrowsException<ArgumentException>(() => metric.TrackValue("karramba!"));
                 metric.TrackValue("0.7");
                 metricManager.Flush();
 
@@ -1258,10 +1253,10 @@ namespace Microsoft.ApplicationInsights
                 Assert.IsTrue(metric.TrackValue(42, "A", "X"));
                 Assert.AreEqual(2, metric.SeriesCount);
 
-                Assert.ThrowsException<ArgumentException>( () => metric.TrackValue(42, "A", ""));
+                Assert.ThrowsException<ArgumentException>(() => metric.TrackValue(42, "A", ""));
                 Assert.AreEqual(2, metric.SeriesCount);
 
-                Assert.ThrowsException<ArgumentNullException>( () => metric.TrackValue(42, "A", null));
+                Assert.ThrowsException<ArgumentNullException>(() => metric.TrackValue(42, "A", null));
                 Assert.AreEqual(2, metric.SeriesCount);
 
                 Assert.IsTrue(metric.TrackValue(42, "B", "X"));
@@ -1273,10 +1268,10 @@ namespace Microsoft.ApplicationInsights
                 Assert.IsFalse(metric.TrackValue(42, "C", "Y"), "Values per Dim1 limit reached.");
                 Assert.AreEqual(3, metric.SeriesCount);
 
-                Assert.ThrowsException<ArgumentException>( () => metric.TrackValue(42, "C", "") );
+                Assert.ThrowsException<ArgumentException>(() => metric.TrackValue(42, "C", ""));
                 Assert.AreEqual(3, metric.SeriesCount);
 
-                Assert.ThrowsException<ArgumentNullException>( () => metric.TrackValue(42, "C", null) );
+                Assert.ThrowsException<ArgumentNullException>(() => metric.TrackValue(42, "C", null));
                 Assert.AreEqual(3, metric.SeriesCount);
 
                 Assert.IsTrue(metric.TrackValue(42, "A", "Y"));
@@ -1399,7 +1394,7 @@ namespace Microsoft.ApplicationInsights
                         Assert.Fail($"Unexpected number of dimensions: {aggregate.Dimensions.Count}.");
                     }
 
-                    if (! isC)
+                    if (!isC)
                     {
                         Assert.AreEqual(1, aggregate.Data["Count"]);
                         Assert.AreEqual(42.0, aggregate.Data["Sum"]);
@@ -1432,10 +1427,10 @@ namespace Microsoft.ApplicationInsights
                 metric.TrackValue(42);
                 Assert.AreEqual(1, metric.SeriesCount);
 
-                Assert.ThrowsException<ArgumentException>( () => metric.TrackValue(42, "A") );
+                Assert.ThrowsException<ArgumentException>(() => metric.TrackValue(42, "A"));
                 Assert.AreEqual(1, metric.SeriesCount);
 
-                Assert.ThrowsException<ArgumentException>( () => metric.TrackValue(42, "A", "X") );
+                Assert.ThrowsException<ArgumentException>(() => metric.TrackValue(42, "A", "X"));
                 Assert.AreEqual(1, metric.SeriesCount);
 
                 metricManager.Flush();
@@ -1461,8 +1456,8 @@ namespace Microsoft.ApplicationInsights
                 metric.TrackValue(42);
                 Assert.AreEqual(1, metric.SeriesCount);
 
-                Assert.ThrowsException<ArgumentException>( () => metric.TrackValue(42, "D1.A", "D2.A", "D3.A", "D4.A", "D5.A") );
-                Assert.ThrowsException<ArgumentException>( () => metric.TrackValue(42, "D1.A", "D2.A", "D3.A") );
+                Assert.ThrowsException<ArgumentException>(() => metric.TrackValue(42, "D1.A", "D2.A", "D3.A", "D4.A", "D5.A"));
+                Assert.ThrowsException<ArgumentException>(() => metric.TrackValue(42, "D1.A", "D2.A", "D3.A"));
 
                 Assert.IsTrue(metric.TrackValue(1111, "D1.A", "D2.A", "D3.A", "D4.A"));
                 Assert.AreEqual(2, metric.SeriesCount);
@@ -1557,8 +1552,8 @@ namespace Microsoft.ApplicationInsights
                 metricManager.Flush();
 
                 Assert.AreEqual(10, telemetryCollector.Count);
-                Assert.AreEqual(1, telemetryCollector.Where( (a) => a.Dimensions.Count == 0 ).Count());
-                Assert.AreEqual(9, telemetryCollector.Where( (a) => a.Dimensions.Count == 4 ).Count());
+                Assert.AreEqual(1, telemetryCollector.Where((a) => a.Dimensions.Count == 0).Count());
+                Assert.AreEqual(9, telemetryCollector.Where((a) => a.Dimensions.Count == 4).Count());
 
                 for (int i = 0; i < telemetryCollector.Count; i++)
                 {
@@ -1578,13 +1573,13 @@ namespace Microsoft.ApplicationInsights
                         Assert.AreEqual(2, aggregate.Data["Count"]);
                         Assert.AreEqual(4, aggregate.Dimensions.Count);
 
-                        int expVal = 1000 * (1 + (int) (aggregate.Dimensions["D1"][3] - 'A'));
-                        expVal += 100 * (1 + (int) (aggregate.Dimensions["D2"][3] - 'A'));
-                        expVal += 10 * (1 + (int) (aggregate.Dimensions["D3"][3] - 'A'));
-                        expVal += 1 * (1 + (int) (aggregate.Dimensions["D4"][3] - 'A'));
+                        int expVal = 1000 * (1 + (int)(aggregate.Dimensions["D1"][3] - 'A'));
+                        expVal += 100 * (1 + (int)(aggregate.Dimensions["D2"][3] - 'A'));
+                        expVal += 10 * (1 + (int)(aggregate.Dimensions["D3"][3] - 'A'));
+                        expVal += 1 * (1 + (int)(aggregate.Dimensions["D4"][3] - 'A'));
                         expVal *= 2;
 
-                        Assert.AreEqual((double) expVal, aggregate.Data["Sum"]);
+                        Assert.AreEqual((double)expVal, aggregate.Data["Sum"]);
                     }
                     else
                     {
@@ -1835,9 +1830,9 @@ namespace Microsoft.ApplicationInsights
         private static Metric InvokeMetricCtor(
                                         MetricManager metricManager,
                                         string metricNamespace,
-                                        string metricId, 
-                                        string dimension1Name, 
-                                        string dimension2Name, 
+                                        string metricId,
+                                        string dimension1Name,
+                                        string dimension2Name,
                                         MetricConfiguration configuration)
         {
             // Metric ctor is private..

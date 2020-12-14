@@ -12,7 +12,7 @@
     using System.Security.Cryptography;
     using System.Security.Principal;
     using System.Text;
-    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Shared.Implementation;    
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Shared.Implementation;
 
     internal class ApplicationFolderProvider : IApplicationFolderProvider
     {
@@ -48,16 +48,24 @@
                 this.identityProvider = new NonWindowsIdentityProvider();
                 this.ApplySecurityToDirectory = this.SetSecurityPermissionsToAdminAndCurrentUserNonWindows;
             }
-             
+
             this.environment = environment;
             this.customFolderName = folderName;
         }
 
         public IPlatformFolder GetApplicationFolder()
-        {            
+        {
             var errors = new List<string>(this.environment.Count + 1);
 
             var result = this.CreateAndValidateApplicationFolder(this.customFolderName, createSubFolder: false, errors: errors);
+
+            // User configured custom folder and SDK is unable to use it.
+            // Log the error message and return without attempting any other folders.
+            if (!string.IsNullOrEmpty(this.customFolderName) && result == null)
+            {
+                TelemetryChannelEventSource.Log.TransmissionCustomStorageError(string.Join(Environment.NewLine, errors), this.identityProvider.GetName(), this.customFolderName);
+                return result;
+            }
 
             if (IsWindowsOperatingSystem())
             {
@@ -80,7 +88,7 @@
                 }
             }
             else
-            { 
+            {
                 if (result == null)
                 {
                     object tmpdir = this.environment["TMPDIR"];
@@ -154,7 +162,7 @@
                 testFile.Write(new[] { default(byte) }, 0, 1);
             }
 
-            // FileSystemRights.ListDirectory and FileSystemRights.Read 
+            // FileSystemRights.ListDirectory and FileSystemRights.Read
             telemetryDirectory.GetFiles(testFileName);
 
             // FileSystemRights.DeleteSubdirectoriesAndFiles
@@ -201,7 +209,7 @@
                     {
                         telemetryDirectory = this.CreateTelemetrySubdirectory(telemetryDirectory);
                         if (!this.ApplySecurityToDirectory(telemetryDirectory))
-                        {                            
+                        {
                             throw new SecurityException("Unable to apply security restrictions to the storage directory.");
                         }
                     }
@@ -264,14 +272,14 @@
             string subdirectoryName = GetSHA256Hash(appIdentity);
             string subdirectoryPath = Path.Combine("Microsoft", "ApplicationInsights", subdirectoryName);
             DirectoryInfo subdirectory = root.CreateSubdirectory(subdirectoryPath);
-            
+
             return subdirectory;
         }
 
         private bool SetSecurityPermissionsToAdminAndCurrentUserNonWindows(DirectoryInfo subdirectory)
         {
             // For non-windows simply return true to skip security policy.
-            // This is until .net core exposes an Api to do this. 
+            // This is until .net core exposes an Api to do this.
             return true;
         }
 

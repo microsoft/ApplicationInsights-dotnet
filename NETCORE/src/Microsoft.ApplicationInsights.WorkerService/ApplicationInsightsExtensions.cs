@@ -95,8 +95,6 @@
                     AddCommonTelemetryModules(services);
                     AddTelemetryChannel(services);
 
-                    ConfigureEventCounterModuleWithSystemCounters(services);
-
                     services
                         .TryAddSingleton<IConfigureOptions<ApplicationInsightsServiceOptions>,
                             DefaultApplicationInsightsServiceConfigureOptions>();

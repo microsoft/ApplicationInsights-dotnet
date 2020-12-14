@@ -21,9 +21,7 @@
     <!--Common Dependencies-->
     <ProjectReference Include="..\..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
     <PackageReference Include="Microsoft.Web.Infrastructure" Version="1.0.0.0" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.6.0" />
-    <PackageReference Include="System.Memory" Version="4.5.4" />
-    <!-- This is a temporary explicit dependency. We're waiting on the next version of System.Diagnostics.DiagnosticSource. https://github.com/microsoft/ApplicationInsights-dotnet/issues/1707 -->
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition="$(OS) == 'Windows_NT'">

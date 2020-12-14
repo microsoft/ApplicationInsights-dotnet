@@ -7,7 +7,10 @@ namespace FunctionalTests.Utils
     using System;
     using System.IO;
     using System.Net;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Xunit.Abstractions;
 
@@ -39,18 +42,17 @@ namespace FunctionalTests.Utils
         private string url;
 
         private TelemetryHttpListenerObservable listener;
-        private readonly Func<IWebHostBuilder, IWebHostBuilder> configureHost;
-        private readonly Action<IServiceCollection> configureServices;
+        private readonly Action<ApplicationInsightsServiceOptions> configureApplicationInsights;
 
-        public InProcessServer(string assemblyName, ITestOutputHelper output, Func<IWebHostBuilder, IWebHostBuilder> configureHost = null, Action<IServiceCollection> configureServices = null)
+        public InProcessServer(string assemblyName, ITestOutputHelper output,
+            Action<ApplicationInsightsServiceOptions> configureApplicationInsights = null)
         {
             this.output = output;
 
             // localhost instead of machine name, as its not possible to get machine name when running non windows.
             var machineName = "localhost";
             this.url = "http://" + machineName + ":" + random.Next(5000, 14000).ToString();
-            this.configureHost = configureHost;
-            this.configureServices = configureServices;
+            this.configureApplicationInsights = configureApplicationInsights;
             this.httpListenerConnectionString = LauchApplicationAndStartListener(assemblyName);
         }
 
@@ -79,7 +81,7 @@ namespace FunctionalTests.Utils
             {
                 throw new Exception("Unable to start listener after 3 attempts. Failing. Read logs above for details about the exceptions.");
             }
-            
+
             return listenerConnectionString;
         }
 
@@ -144,6 +146,7 @@ namespace FunctionalTests.Utils
                 .UseKestrel()
                 .UseStartup(assemblyName)
                 .UseEnvironment("Production");
+
             builder.ConfigureServices(services =>
             {
                 services.AddSingleton<IApplicationIdProvider>(provider =>
@@ -151,17 +154,12 @@ namespace FunctionalTests.Utils
                     {
                         Defined = new Dictionary<string, string> {[IKey] = AppId}
                     });
-            });
-            
-            if (this.configureHost != null)
-            {
-                builder = this.configureHost(builder);
-            }
 
-            if (this.configureServices != null)
-            {
-                builder.ConfigureServices(services => this.configureServices(services));
-            }
+                if (this.configureApplicationInsights != null)
+                {
+                    services.Configure<ApplicationInsightsServiceOptions>(this.configureApplicationInsights);
+                }
+            });
 
             this.hostingEngine = builder.Build();
             this.hostingEngine.Start();
@@ -192,7 +190,7 @@ namespace FunctionalTests.Utils
             if (this.listener != null)
             {
                 output.WriteLine(string.Format("{0}: Stopping listener at: {1}", DateTime.Now.ToString("G"), this.httpListenerConnectionString));
-                this.listener.Stop();                
+                this.listener.Stop();
             }
         }
     }

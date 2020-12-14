@@ -9,20 +9,37 @@
   -->
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net5.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.3" />
     <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+
+    <ProjectReference Include="..\IntegrationTests.WebApp\IntegrationTests.WebApp.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\IntegrationTests.WebApp\IntegrationTests.WebApp.csproj" />
+    <None Update="xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="5.0.0-preview.8.20414.8" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.3" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="2.1.1" />
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,24 @@
-﻿# Changelog
+# Changelog
 
 ## VNext
-- Support Request.PathBase for AspNetCore telemetry
+- [Add RoleName as a header with Ping Reuests to QuickPulse.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2113)
+- [QuickPulseTelemetryModule takes hints from the service regarding the endpoint to ping and how often to ping it](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2120)
+
+## Version 2.16.0
+- [QuickPulseTelemetryModule and MonitoringDataPoint have a new Cloud Role Name field for sending with ping and post requests to QuickPulse Service.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2100)
+- [Upgrade to System.Diagnostics.DiagnosticSource v5.0.0](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1960)
+
+## Version 2.16.0-beta1
+- [ILogger LogError and LogWarning variants write exception `ExceptionStackTrace` when `TrackExceptionsAsExceptionTelemetry` flag is set to `false`](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2065)
+- [Upgrade to System.Diagnostics.DiagnosticSource v5.0.0-rc.2.20475.5](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2091)
+- [The `{OriginalFormat}` field in ILogger will be emitted as `OriginalFormat` with the braces removed](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2071)
+- ApplicationInsightsLoggerProvider populates structured logging key/values irrespective of whether Scopes are enabled or not.
+
+## Version 2.15.0
+- EventCounterCollector module does not add AggregationInterval as a dimension to the metric.
+
+## Version 2.15.0-beta3
+- [Support Request.PathBase for AspNetCore telemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1983)
 - [End support for .NET Framework 4.5 / 4.5.1, Add support for .NET Framework 4.5.2](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1161)
 - [Create single request telemetry when URL-rewrite rewrites a request](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1744)
 - [Remove legacy TelemetryConfiguration.Active from AspNetCore SDK](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1953)
@@ -9,6 +26,12 @@
 - [Fix broken correlation and missing in-proc dependency Azure Blob SDK v12](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1915)
 - [Fix Heartbeat interval not applied until after first heartbeat](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1298)
 - [Fix: ApplicationInsightsLoggerProvider does not catch exceptions](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1969)
+- [Update AppInsights JS snippet used in the code to latest version](https://github.com/microsoft/ApplicationInsights-JS)
+- [ServerTelemetryChannel does not fall back to any default directory if user explicitly configures StorageFolder, and have trouble read/write to it](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2002)
+- [Fixed a bug which caused ApplicationInsights.config file being read for populating TelemetryConfiguration in .NET Core projects](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1795)
+- [Remove System.RunTime EventCounters by default](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2009)
+- [Ingestion service data delivery status](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1887)
+- [Update version of Microsoft.AspNetCore.Hosting to 2.1.0](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1902)
 
 ## Version 2.15.0-beta2
 - [Read all properties of ApplicationInsightsServiceOptions from IConfiguration](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1882)

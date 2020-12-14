@@ -1,15 +1,15 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using IntegrationTests.WebApp.Models;
 
 namespace IntegrationTests.WebApp.Controllers
 {
-    public class HomeController : Controller
+    [Route("[controller]")]
+    [ApiController]
+    public class HomeController : ControllerBase
     {
         private readonly ILogger<HomeController> _logger;
 
@@ -18,22 +18,35 @@ namespace IntegrationTests.WebApp.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        // GET api/values
+        [HttpGet]
+        public ActionResult Get()
         {
             _logger.LogWarning("sample warning");
-            return View();
+            _logger.LogInformation("sample information");
+            return new OkResult();
         }
 
-        public IActionResult Privacy()
+        // GET api/values/5
+        [HttpGet("{id}")]
+        public ActionResult<string> Get(int id)
         {
-            return View();
+            _logger.LogWarning("sample warning");
+            _logger.LogInformation("sample information");
+            return "value";
         }
 
+        [HttpGet("Empty")]
+        public ActionResult Empty()
+        {
+            return new OkResult();
+        }
+
+        [HttpGet("Error")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        public ActionResult Error()
         {
             throw new Exception("sample exception");
-            // return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

@@ -181,7 +181,7 @@ function Get-DoesDllVersionsMatch ([string]$dllPath) {
 
     $message = "File Version: '$fileVersion' Assembly Version: '$assemblyVersion";
     $requirement = "Versions should match."
-    Test-Condition ($fileVersion.Equals($assemblyVersion)) $message $requirement;
+    Test-Condition ([version]$fileVersion -eq [version]$assemblyVersion) $message $requirement;
 }
 
 function Get-IsValidPackageId([xml]$nuspecXml) {
@@ -326,7 +326,7 @@ function Start-EvaluateNupkg ($nupkgPath) {
         [xml]$nuspecXml = Get-Content $_.FullName
         Get-IsValidPackageId $nuspecXml;
         Get-IsValidAuthors $nuspecXml;
-        Get-IsValidOwners $nuspecXml;
+        #Get-IsValidOwners $nuspecXml; dotnet stopped building this property. Disabling the check.
         Get-IsValidProjectUrl $nuspecXml;
         Get-IsValidLicense $nuspecXml;
         Get-IsValidLicenseAcceptance $nuspecXml;

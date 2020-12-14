@@ -11,7 +11,7 @@ Param(
 ) 
 
 # SUMMARY
-# This script will inventory the nuget packages output by a build and create a metadata file.
+# This script will inventory the nuget packages output by a build and create a metadata file (releaseMetaData.xml).
 # This metadata file must be published with the NUPKGs when archived.
 # This metadata file is used by the release infrastructure and informs it on how to publish NUPKGs.
 # This script is included in Gated builds for troubleshooting.

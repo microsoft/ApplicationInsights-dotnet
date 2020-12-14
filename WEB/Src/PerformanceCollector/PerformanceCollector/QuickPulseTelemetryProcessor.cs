@@ -47,7 +47,7 @@
 
         private IQuickPulseDataAccumulatorManager dataAccumulatorManager = null;
 
-        private Uri serviceEndpoint = QuickPulseDefaults.QuickPulseServiceEndpoint;
+        private Uri currentServiceEndpoint = QuickPulseDefaults.QuickPulseServiceEndpoint;
 
         private TelemetryConfiguration config = null;
 
@@ -93,12 +93,12 @@
         /// Gets or sets an endpoint that is compared against telemetry to remove our requests from customer telemetry.
         /// </summary>
         /// <remarks>
-        /// This is set from the QuickPulseTelemetryModule. 
+        /// This is set from the QuickPulseTelemetryModule. The value might be changing as we communicate with the service, so this might be updated in flight.
         /// </remarks>
         Uri IQuickPulseTelemetryProcessor.ServiceEndpoint
         {
-            get { return this.serviceEndpoint; }
-            set { this.serviceEndpoint = value; }
+            get => Volatile.Read(ref this.currentServiceEndpoint);
+            set => Volatile.Write(ref this.currentServiceEndpoint, value);
         }
 
         /// <summary>
@@ -138,7 +138,7 @@
             }
 
             this.dataAccumulatorManager = accumulatorManager;
-            this.serviceEndpoint = serviceEndpoint;
+            Volatile.Write(ref this.currentServiceEndpoint, serviceEndpoint);
             this.config = configuration;
             this.isCollecting = true;
             this.disableFullTelemetryItems = disableFullTelemetryItems;
@@ -163,9 +163,10 @@
             {
                 // filter out QPS requests from dependencies even when we're not collecting (for Pings)
                 var dependency = telemetry as DependencyTelemetry;
-                if (this.serviceEndpoint != null && !string.IsNullOrWhiteSpace(dependency?.Target))
+                Uri localCurrentServiceEndpoint = Volatile.Read(ref this.currentServiceEndpoint);
+                if (localCurrentServiceEndpoint != null && !string.IsNullOrWhiteSpace(dependency?.Target))
                 {
-                    if (dependency.Target.IndexOf(this.serviceEndpoint.Host, StringComparison.OrdinalIgnoreCase) >= 0)
+                    if (dependency.Target.IndexOf(localCurrentServiceEndpoint.Host, StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         // this is an HTTP request to QuickPulse service, we don't want to let it through
                         letTelemetryThrough = false;
@@ -719,7 +720,7 @@
             if (module != null)
             {
                 module.RegisterTelemetryProcessor(this);
-                this.serviceEndpoint = module.ServiceClient?.ServiceUri ?? QuickPulseDefaults.QuickPulseServiceEndpoint;
+                Volatile.Write(ref this.currentServiceEndpoint, module.ServiceClient?.CurrentServiceUri ?? QuickPulseDefaults.QuickPulseServiceEndpoint);
             }
         }
     }

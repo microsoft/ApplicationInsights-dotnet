@@ -27,17 +27,7 @@
         [Fact]
         public void TestRequestWithNoCorrelationHeaders()
         {
-            IWebHostBuilder Config(IWebHostBuilder builder)
-            {
-                return builder.ConfigureServices(services =>
-                {
-                    services.AddApplicationInsightsTelemetry();
-                    // disable Dependency tracking (i.e. header injection)
-                    services.Remove(services.FirstOrDefault(sd => sd.ImplementationType == typeof(DependencyTrackingTelemetryModule)));                    
-                });
-            }
-
-            using (var server = new InProcessServer(assemblyName, this.output, Config))
+            using (var server = new InProcessServer(assemblyName, this.output, (aiOptions) => aiOptions.EnableDependencyTrackingTelemetryModule = false))
             {
                 const string RequestPath = "/api/values/1";
 
@@ -65,18 +55,7 @@
         [Fact]
         public void TestRequestWithRequestIdHeader()
         {
-            IWebHostBuilder Config(IWebHostBuilder builder)
-            {
-                return builder.ConfigureServices(services =>
-                {
-                    var aiOptions = new ApplicationInsightsServiceOptions();
-                    // disable Dependency tracking (i.e. header injection)
-                    aiOptions.EnableDependencyTrackingTelemetryModule = false;
-                    services.AddApplicationInsightsTelemetry(aiOptions);
-                });
-            }
-
-            using (var server = new InProcessServer(assemblyName, this.output, Config))
+            using (var server = new InProcessServer(assemblyName, this.output, (aiOptions) => aiOptions.EnableDependencyTrackingTelemetryModule = false))
             {
                 const string RequestPath = "/api/values";
 
@@ -106,18 +85,7 @@
         [Fact]
         public void TestRequestWithNonW3CCompatibleRequestIdHeader()
         {
-            IWebHostBuilder Config(IWebHostBuilder builder)
-            {
-                return builder.ConfigureServices(services =>
-                {
-                    var aiOptions = new ApplicationInsightsServiceOptions();
-                    // disable Dependency tracking (i.e. header injection)
-                    aiOptions.EnableDependencyTrackingTelemetryModule = false;
-                    services.AddApplicationInsightsTelemetry(aiOptions);
-                });
-            }
-
-            using (var server = new InProcessServer(assemblyName, this.output, Config))
+            using (var server = new InProcessServer(assemblyName, this.output, (aiOptions) => aiOptions.EnableDependencyTrackingTelemetryModule = false))
             {
                 const string RequestPath = "/api/values";
 
@@ -148,18 +116,7 @@
         [Fact]
         public void TestRequestWithNonW3CCompatibleNonHierrachicalRequestIdHeader()
         {
-            IWebHostBuilder Config(IWebHostBuilder builder)
-            {
-                return builder.ConfigureServices(services =>
-                {
-                    var aiOptions = new ApplicationInsightsServiceOptions();
-                    // disable Dependency tracking (i.e. header injection)
-                    aiOptions.EnableDependencyTrackingTelemetryModule = false;
-                    services.AddApplicationInsightsTelemetry(aiOptions);
-                });
-            }
-
-            using (var server = new InProcessServer(assemblyName, this.output, Config))
+            using (var server = new InProcessServer(assemblyName, this.output, (aiOptions) => aiOptions.EnableDependencyTrackingTelemetryModule = false))
             {
                 const string RequestPath = "/api/values";
 
@@ -190,17 +147,7 @@
         [Fact]
         public void TestRequestWithTraceParentHeader()
         {
-            IWebHostBuilder Config(IWebHostBuilder builder)
-            {
-                return builder.ConfigureServices(services =>
-                {
-                    services.AddApplicationInsightsTelemetry();
-                    // disable Dependency tracking (i.e. header injection)
-                    services.Remove(services.FirstOrDefault(sd => sd.ImplementationType == typeof(DependencyTrackingTelemetryModule)));
-                });
-            }
-
-            using (var server = new InProcessServer(assemblyName, this.output, Config))
+            using (var server = new InProcessServer(assemblyName, this.output, (aiOptions) => aiOptions.EnableDependencyTrackingTelemetryModule = false))
             {
                 const string RequestPath = "/api/values";
 
@@ -235,17 +182,7 @@
         [Fact]
         public void TestRequestWithRequestIdAndTraceParentHeader()
         {
-            IWebHostBuilder Config(IWebHostBuilder builder)
-            {
-                return builder.ConfigureServices(services =>
-                {
-                    services.AddApplicationInsightsTelemetry();
-                    // disable Dependency tracking (i.e. header injection)
-                    services.Remove(services.FirstOrDefault(sd => sd.ImplementationType == typeof(DependencyTrackingTelemetryModule)));
-                });
-            }
-
-            using (var server = new InProcessServer(assemblyName, this.output, Config))
+            using (var server = new InProcessServer(assemblyName, this.output, (aiOptions) => aiOptions.EnableDependencyTrackingTelemetryModule = false))
             {
                 const string RequestPath = "/api/values";
 
@@ -282,23 +219,13 @@
         [Fact]
         public void TestRequestWithRequestIdAndTraceParentHeaderWithW3CDisabled()
         {
-            IWebHostBuilder Config(IWebHostBuilder builder)
-            {
-                return builder.ConfigureServices(services =>
-                {
-                    services.AddApplicationInsightsTelemetry();
-
-                    // disable Dependency tracking (i.e. header injection)
-                    services.Remove(services.FirstOrDefault(sd => sd.ImplementationType == typeof(DependencyTrackingTelemetryModule)));
-                });
-            }
             try
             {
                 // disable w3c
                 Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical;
                 Activity.ForceDefaultIdFormat = true;
 
-                using (var server = new InProcessServer(assemblyName, this.output, Config))
+                using (var server = new InProcessServer(assemblyName, this.output, (aiOptions) => aiOptions.EnableDependencyTrackingTelemetryModule = false))
                 {
                     const string RequestPath = "/api/values";
 

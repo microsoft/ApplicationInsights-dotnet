@@ -61,7 +61,8 @@
                 () => { },
                 () => null,
                 _ => { },
-                _ => null);
+                _ => null,
+                _ => { });
 
             // ACT
 
@@ -679,6 +680,40 @@
             Assert.AreEqual(Predicate.Equal.ToString(), errors[3].Data["FilterPredicate"]);
             Assert.AreEqual("Request1", errors[3].Data["FilterComparand"]);
         }
+        
+        [TestMethod]
+        public void QuickPulseCollectionStateManagerRespectsServicePollingIntervalHint()
+        {
+            // ARRANGE
+            var timings = QuickPulseTimings.Default;
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = false };
+            var actions = new List<string>();
+            var returnedSamples = new List<QuickPulseDataSample>();
+            var timeProvider = new ClockMock();
+            var manager = CreateManager(serviceClient, timeProvider, actions, returnedSamples, timings);
+            TimeSpan intervalHint1 = TimeSpan.FromSeconds(65);
+            TimeSpan intervalHint2 = TimeSpan.FromSeconds(75);
+            
+            // ACT
+            serviceClient.ReturnValueFromPing = false;
+
+            TimeSpan oldServicePollingInterval = manager.UpdateState("ikey1", string.Empty);
+
+            serviceClient.ServicePollingIntervalHint = intervalHint1;
+            TimeSpan newServicePollingInterval1 = manager.UpdateState("ikey1", string.Empty);
+
+            serviceClient.ServicePollingIntervalHint = intervalHint2;
+            TimeSpan newServicePollingInterval2 = manager.UpdateState("ikey1", string.Empty);
+
+            serviceClient.ServicePollingIntervalHint = null;
+            TimeSpan newServicePollingInterval3 = manager.UpdateState("ikey1", string.Empty);
+
+            // ASSERT
+            Assert.AreEqual(timings.ServicePollingInterval, oldServicePollingInterval);
+            Assert.AreEqual(intervalHint1, newServicePollingInterval1);
+            Assert.AreEqual(intervalHint2, newServicePollingInterval2);
+            Assert.AreEqual(intervalHint2, newServicePollingInterval3);
+        }
 
         #region Helpers
 
@@ -730,7 +765,8 @@
                         CollectionConfigurationError[] errors;
                         new CollectionConfiguration(collectionConfigurationInfo, out errors, timeProvider);
                         return errors;
-                    });
+                    },
+                _ => { });
 
             return manager;
         }

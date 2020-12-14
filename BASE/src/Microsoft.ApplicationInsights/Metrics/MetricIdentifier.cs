@@ -640,14 +640,14 @@
                 idStr.Append(MetricIdentifier.NoNamespaceIdentifierStringComponent);
             }
             
-            idStr.Append("+");
+            idStr.Append('+');
             idStr.Append(this.MetricId);
 
-            idStr.Append("[");
+            idStr.Append('[');
             idStr.Append(this.DimensionsCount);
-            idStr.Append("]");
+            idStr.Append(']');
 
-            idStr.Append("(");
+            idStr.Append('(');
 
             for (int d = 1; d <= this.DimensionsCount; d++)
             {
@@ -661,7 +661,7 @@
                 idStr.Append('"');
             }
 
-            idStr.Append(")");
+            idStr.Append(')');
 
             return idStr.ToString();
         }

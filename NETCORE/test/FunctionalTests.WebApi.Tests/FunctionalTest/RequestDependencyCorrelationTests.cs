@@ -42,24 +42,7 @@
         {
             const string RequestPath = "/api/values";
 
-            using (var server = new InProcessServer(assemblyName, this.output, builder =>
-            {
-                return builder.ConfigureServices(
-                    services =>
-                    {
-                        services.AddApplicationInsightsTelemetry(
-                            o => o.RequestCollectionOptions.EnableW3CDistributedTracing = true);
-
-                        // enable headers injection on localhost
-                        var dependencyModuleConfigFactoryDescriptor = services.Where(sd => sd.ServiceType == typeof(ITelemetryModuleConfigurator));
-                        services.Remove(dependencyModuleConfigFactoryDescriptor.First());
-
-                        services.ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module, o) =>
-                        {
-                            module.EnableW3CHeadersInjection = true;
-                        });
-                    });
-            }))
+            using (var server = new InProcessServer(assemblyName, this.output))
             {
                 DependencyTelemetry expected = new DependencyTelemetry
                 {

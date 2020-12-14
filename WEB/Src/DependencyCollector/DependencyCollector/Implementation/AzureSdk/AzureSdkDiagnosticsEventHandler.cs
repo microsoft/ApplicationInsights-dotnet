@@ -369,7 +369,7 @@
                     linksJson.Remove(linksJson.Length - 1, 1);
                 }
 
-                linksJson.Append("]");
+                linksJson.Append(']');
                 telemetry.Properties["_MS.links"] = linksJson.ToString();
             }
         }

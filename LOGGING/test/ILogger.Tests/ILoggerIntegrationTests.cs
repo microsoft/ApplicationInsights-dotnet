@@ -10,6 +10,7 @@ namespace Microsoft.ApplicationInsights
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Logging.ApplicationInsights;
@@ -22,6 +23,54 @@ namespace Microsoft.ApplicationInsights
     [TestClass]
     public class ILoggerIntegrationTests
     {
+        /// <summary>
+        /// Ensures that <see cref="ApplicationInsightsLogger"/> populates params for structured logging into custom properties <see cref="ILogger"/>.
+        /// </summary>
+        [TestMethod]
+        [TestCategory("ILogger")]
+        public void ApplicationInsightsLoggerPopulateStructureLoggingParamsIntoCustomProperties()
+        {
+            List<ITelemetry> itemsReceived = new List<ITelemetry>();
+
+            // Scopes are enabled.
+            IServiceProvider serviceProvider = ILoggerIntegrationTests.SetupApplicationInsightsLoggerIntegration(
+                (telemetryItem, telemetryProcessor) => itemsReceived.Add(telemetryItem),
+                configureTelemetryConfiguration: null,
+                configureApplicationInsightsOptions: (appInsightsLoggerOptions) => appInsightsLoggerOptions.IncludeScopes = true);
+
+            ILogger<ILoggerIntegrationTests> testLogger = serviceProvider.GetRequiredService<ILogger<ILoggerIntegrationTests>>();
+            testLogger.LogInformation("Testing structured with {CustomerName} {Age}", "TestCustomerName", 20);
+
+            Assert.AreEqual("Testing structured with TestCustomerName 20", (itemsReceived[0] as TraceTelemetry).Message);
+            var customProperties = (itemsReceived[0] as TraceTelemetry).Properties;
+            Assert.IsTrue(customProperties["CustomerName"].Equals("TestCustomerName"));
+            Assert.IsTrue(customProperties["Age"].Equals("20"));
+        }
+
+        /// <summary>
+        /// Ensures that <see cref="ApplicationInsightsLogger"/> populates params for structured logging into custom properties <see cref="ILogger"/>.
+        /// </summary>
+        [TestMethod]
+        [TestCategory("ILogger")]
+        public void ApplicationInsightsLoggerPopulateStructureLoggingParamsIntoCustomPropertiesWhenScopeDisabled()
+        {
+            List<ITelemetry> itemsReceived = new List<ITelemetry>();
+
+            // Disable scope
+            IServiceProvider serviceProvider = ILoggerIntegrationTests.SetupApplicationInsightsLoggerIntegration(
+                (telemetryItem, telemetryProcessor) => itemsReceived.Add(telemetryItem),
+                configureTelemetryConfiguration: null,
+                configureApplicationInsightsOptions: (appInsightsLoggerOptions) => appInsightsLoggerOptions.IncludeScopes = false);
+
+            ILogger<ILoggerIntegrationTests> testLogger = serviceProvider.GetRequiredService<ILogger<ILoggerIntegrationTests>>();
+            testLogger.LogInformation("Testing structured with {CustomerName} {Age}", "TestCustomerName", 20);
+
+            Assert.AreEqual("Testing structured with TestCustomerName 20", (itemsReceived[0] as TraceTelemetry).Message);
+            var customProperties = (itemsReceived[0] as TraceTelemetry).Properties;
+            Assert.IsTrue(customProperties["CustomerName"].Equals("TestCustomerName"));
+            Assert.IsTrue(customProperties["Age"].Equals("20"));
+        }
+
         /// <summary>
         /// Ensures that <see cref="ApplicationInsightsLogger"/> is invoked when user logs using <see cref="ILogger"/>.
         /// </summary>
@@ -121,7 +170,17 @@ namespace Microsoft.ApplicationInsights
             ILogger<ILoggerIntegrationTests> testLogger = serviceProvider.GetRequiredService<ILogger<ILoggerIntegrationTests>>();
 
             testLogger.LogInformation("Testing");
-            testLogger.LogError(new Exception("ExceptionMessage"), "LoggerMessage");
+
+            Exception trackingException = null;
+            try
+            {
+                ThrowException();
+            }
+            catch (Exception ex)
+            {
+                trackingException = ex;
+                testLogger.LogError(ex, "LoggerMessage");
+            }
 
             Assert.IsInstanceOfType(itemsReceived[0], typeof(TraceTelemetry));
             Assert.IsInstanceOfType(itemsReceived[1], typeof(TraceTelemetry));
@@ -131,8 +190,19 @@ namespace Microsoft.ApplicationInsights
 
             Assert.AreEqual(SeverityLevel.Error, (itemsReceived[1] as TraceTelemetry).SeverityLevel);
             Assert.AreEqual("LoggerMessage", (itemsReceived[1] as TraceTelemetry).Message);
-            
-            Assert.AreEqual("ExceptionMessage", (itemsReceived[1] as TraceTelemetry).Properties["ExceptionMessage"]);
+
+            Assert.IsTrue((itemsReceived[1] as TraceTelemetry).Properties["ExceptionMessage"].Contains("StackTraceEnabled"));
+
+            Assert.IsTrue((itemsReceived[1] as TraceTelemetry).Properties.ContainsKey("ExceptionStackTrace"));
+
+            Assert.AreEqual(
+                trackingException.ToInvariantString(),
+                (itemsReceived[1] as TraceTelemetry).Properties["ExceptionStackTrace"]);
+
+            void ThrowException()
+            {
+                throw new Exception("StackTraceEnabled");
+            }
         }
 
         /// <summary>
@@ -241,7 +311,7 @@ namespace Microsoft.ApplicationInsights
             IServiceProvider serviceProvider = ILoggerIntegrationTests.SetupApplicationInsightsLoggerIntegration(
                 (telemetryItem, telemetryProcessor) => { });
 
-            IOptions<ApplicationInsightsLoggerOptions> registeredOptions = 
+            IOptions<ApplicationInsightsLoggerOptions> registeredOptions =
                 serviceProvider.GetRequiredService<IOptions<ApplicationInsightsLoggerOptions>>();
 
             Assert.IsTrue(registeredOptions.Value.TrackExceptionsAsExceptionTelemetry);

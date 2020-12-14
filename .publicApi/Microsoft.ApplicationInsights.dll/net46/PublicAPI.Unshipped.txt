@@ -1,4 +1,3 @@
-Microsoft.ApplicationInsights.TelemetryClient.TelemetryConfiguration.get -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
 Microsoft.ApplicationInsights.Channel.IAsyncFlushable
 Microsoft.ApplicationInsights.Channel.IAsyncFlushable.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
 Microsoft.ApplicationInsights.Channel.InMemoryChannel.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>

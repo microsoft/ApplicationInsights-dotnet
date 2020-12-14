@@ -310,7 +310,7 @@
             module.OnBeginRequest(context);
             module.OnEndRequest(context);
 
-            Assert.Equal(1, sendItems.Count);
+            Assert.Single(sendItems);
         }
 
         [TestMethod]
