@@ -1,7 +1,12 @@
-﻿# Changelog
+# Changelog
 
 ## VNext
 
+
+## Version 2.17.0-beta1
+- [Fix: Missing Dependencies when using Microsoft.Data.SqlClient v2.0.0](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2032)
+- [Add RoleName as a header with Ping Reuests to QuickPulse.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2113)
+- [QuickPulseTelemetryModule takes hints from the service regarding the endpoint to ping and how often to ping it](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2120)
 
 ## Version 2.16.0
 - [QuickPulseTelemetryModule and MonitoringDataPoint have a new Cloud Role Name field for sending with ping and post requests to QuickPulse Service.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2100)

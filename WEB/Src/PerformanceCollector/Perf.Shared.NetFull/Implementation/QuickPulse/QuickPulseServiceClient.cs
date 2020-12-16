@@ -7,7 +7,7 @@
     using System.Linq;
     using System.Net;
     using System.Runtime.Serialization.Json;
-
+    using System.Threading;
     using Microsoft.ApplicationInsights.Extensibility.Filtering;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse.Helpers;
@@ -44,6 +44,8 @@
 
         private readonly Dictionary<string, string> authOpaqueHeaderValues = new Dictionary<string, string>(StringComparer.Ordinal);
 
+        private Uri currentServiceUri;
+
         public QuickPulseServiceClient(
             Uri serviceUri,
             string instanceName,
@@ -56,7 +58,7 @@
             int processorCount,
             TimeSpan? timeout = null)
         {
-            this.ServiceUri = serviceUri;
+            this.CurrentServiceUri = serviceUri;
             this.instanceName = instanceName;
             this.roleName = roleName;
             this.streamId = streamId;
@@ -73,19 +75,24 @@
             }
         }
 
-        public Uri ServiceUri { get; }
+        public Uri CurrentServiceUri
+        {
+            get => Volatile.Read(ref this.currentServiceUri);
+            private set => Volatile.Write(ref this.currentServiceUri, value);
+        }
 
         public bool? Ping(
             string instrumentationKey,
             DateTimeOffset timestamp,
             string configurationETag,
             string authApiKey,
-            out CollectionConfigurationInfo configurationInfo)
+            out CollectionConfigurationInfo configurationInfo,
+            out TimeSpan? servicePollingIntervalHint)
         {
             var requestUri = string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}/ping?ikey={1}",
-                this.ServiceUri.AbsoluteUri.TrimEnd('/'),
+                this.CurrentServiceUri.AbsoluteUri.TrimEnd('/'),
                 Uri.EscapeUriString(instrumentationKey));
 
             return this.SendRequest(
@@ -94,6 +101,7 @@
                 configurationETag,
                 authApiKey,
                 out configurationInfo,
+                out servicePollingIntervalHint,
                 requestStream => this.WritePingData(timestamp, requestStream));
         }
 
@@ -108,7 +116,7 @@
             var requestUri = string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}/post?ikey={1}",
-                this.ServiceUri.AbsoluteUri.TrimEnd('/'),
+                this.CurrentServiceUri.AbsoluteUri.TrimEnd('/'),
                 Uri.EscapeUriString(instrumentationKey));
 
             return this.SendRequest(
@@ -117,6 +125,7 @@
                 configurationETag,
                 authApiKey,
                 out configurationInfo,
+                out _,
                 requestStream => this.WriteSamples(samples, instrumentationKey, requestStream, collectionConfigurationErrors));
         }
 
@@ -130,6 +139,7 @@
             string configurationETag,
             string authApiKey,
             out CollectionConfigurationInfo configurationInfo,
+            out TimeSpan? servicePollingIntervalHint,
             Action<Stream> onWriteRequestBody)
         {
             try
@@ -149,10 +159,11 @@
                         if (response == null)
                         {
                             configurationInfo = null;
+                            servicePollingIntervalHint = null;
                             return null;
                         }
 
-                        return this.ProcessResponse(response, configurationETag, out configurationInfo);
+                        return this.ProcessResponse(response, configurationETag, out configurationInfo, out servicePollingIntervalHint);
                     }
                 }
             }
@@ -162,13 +173,15 @@
             }
 
             configurationInfo = null;
+            servicePollingIntervalHint = null;
             return null;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "Dispose is known to perform safely on Stream and StreamReader types.")]
-        private bool? ProcessResponse(HttpWebResponse response, string configurationETag, out CollectionConfigurationInfo configurationInfo)
+        private bool? ProcessResponse(HttpWebResponse response, string configurationETag, out CollectionConfigurationInfo configurationInfo, out TimeSpan? servicePollingIntervalHint)
         {
             configurationInfo = null;
+            servicePollingIntervalHint = null;
 
             bool isSubscribed;
             if (!bool.TryParse(response.GetResponseHeader(QuickPulseConstants.XMsQpsSubscribedHeaderName), out isSubscribed))
@@ -200,6 +213,16 @@
             }
 
             string configurationETagHeaderValue = response.GetResponseHeader(QuickPulseConstants.XMsQpsConfigurationETagHeaderName);
+
+            if (long.TryParse(response.GetResponseHeader(QuickPulseConstants.XMsQpsServicePollingIntervalHintHeaderName), out long servicePollingIntervalHintInMs))
+            {
+                servicePollingIntervalHint = TimeSpan.FromMilliseconds(servicePollingIntervalHintInMs);
+            }
+
+            if (Uri.TryCreate(response.GetResponseHeader(QuickPulseConstants.XMsQpsServiceEndpointRedirectHeaderName), UriKind.Absolute, out Uri serviceEndpointRedirect))
+            {
+                this.CurrentServiceUri = serviceEndpointRedirect;
+            }
 
             try
             {
@@ -354,6 +377,7 @@
                 request.Headers.Add(QuickPulseConstants.XMsQpsInstanceNameHeaderName, this.instanceName);
                 request.Headers.Add(QuickPulseConstants.XMsQpsStreamIdHeaderName, this.streamId);
                 request.Headers.Add(QuickPulseConstants.XMsQpsMachineNameHeaderName, this.machineName);
+                request.Headers.Add(QuickPulseConstants.XMsQpsRoleNameHeaderName, this.roleName);
                 request.Headers.Add(QuickPulseConstants.XMsQpsInvariantVersionHeaderName,
                     MonitoringDataPoint.CurrentInvariantVersion.ToString(CultureInfo.InvariantCulture));
             }

@@ -8,9 +8,10 @@
     internal interface IQuickPulseServiceClient : IDisposable
     {
         /// <summary>
-        /// Gets the QPS URI.
+        /// Gets the current QPS URI.
         /// </summary>
-        Uri ServiceUri { get; }
+        /// <remarks>This value may be dynamically updated with each request from within the instance.</remarks>
+        Uri CurrentServiceUri { get; }
 
         /// <summary>
         /// Pings QPS to check if it expects data right now.
@@ -20,13 +21,15 @@
         /// <param name="configurationETag">Current configuration ETag that the client has.</param>
         /// <param name="authApiKey">Authentication API key.</param>
         /// <param name="configurationInfo">When available, the deserialized response data received from the server.</param>
+        /// <param name="servicePollingIntervalHint">When available, a hint regarding what the period should be when pinging the server going forward.</param>
         /// <returns><b>true</b> if data is expected, otherwise <b>false</b>.</returns>
         bool? Ping(
             string instrumentationKey,
             DateTimeOffset timestamp,
             string configurationETag,
             string authApiKey,
-            out CollectionConfigurationInfo configurationInfo);
+            out CollectionConfigurationInfo configurationInfo,
+            out TimeSpan? servicePollingIntervalHint);
 
         /// <summary>
         /// Submits a data samples to QPS.
