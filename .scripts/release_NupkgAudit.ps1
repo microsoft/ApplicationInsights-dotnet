@@ -19,7 +19,7 @@ Param(
 
     [Parameter(Mandatory=$false,HelpMessage="Enable or disable signing verification:")] 
     [bool]
-    $verifySigning = $true
+    $verifySigning = $true,
 
     [Parameter(Mandatory=$false,HelpMessage="Enable or disable signing verification:")] 
     [string]
