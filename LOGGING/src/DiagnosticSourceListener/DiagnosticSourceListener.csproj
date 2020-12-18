@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="$(PropsRoot)\Product.props" />
-    
+
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
     <RootNamespace>Microsoft.ApplicationInsights.DiagnosticSourceListener</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.DiagnosticSourceListener</AssemblyName>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <!--Nupkg properties-->
     <PackageId>Microsoft.ApplicationInsights.DiagnosticSourceListener</PackageId>
@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="5.0.0-rc.1.20451.14" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,5 @@
 # Net Core Integration Tests
+
 Integration Tests are fundamentally different than Unit Tests. 
 Unlike Unit Tests, these cannot be run as a standalone DLL and must be run in the context of their project (*.csproj).
 

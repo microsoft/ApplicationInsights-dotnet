@@ -33,6 +33,9 @@
         public string Instance { get; set; }
 
         [DataMember]
+        public string RoleName { get; set; }
+
+        [DataMember]
         public string StreamId { get; set; }
 
         [DataMember]
