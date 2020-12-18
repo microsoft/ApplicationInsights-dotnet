@@ -61,3 +61,4 @@ These builds come from the develop branch. These are not signed and are not inte
 
 ## Releases 
 Refer to our [Milestones](https://github.com/microsoft/ApplicationInsights-dotnet/milestones) for progress on our next releases.
+Luis
