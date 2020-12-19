@@ -149,3 +149,4 @@ Following pre-requisite is needed to deploy to IIS locally.
 * Create a web application project to test the SDK on, and install the Microsoft.ApplicationInsights.Web NuGet package from the above directory.
 * From your web application, open the .cs file you want your breakpoint in and set it
 * Run your web application. Your breakpoints should be hit now when your web application triggers them.
+Luis
