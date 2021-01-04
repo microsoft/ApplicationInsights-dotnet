@@ -17,10 +17,13 @@ Param(
     [bool]
     $verboseLog,
 
-    [Parameter(Mandatory=$false,HelpMessage="Full Log?:")] 
+    [Parameter(Mandatory=$false,HelpMessage="Enable or disable signing verification:")] 
     [bool]
-    $verifySigning = $true
+    $verifySigning = $true,
 
+    [Parameter(Mandatory=$false,HelpMessage="Enable or disable signing verification:")] 
+    [string]
+    $expectedCertHash = ""
 ) 
 
 
@@ -107,7 +110,7 @@ function Test-MultiCondition ([bool]$requiredCondition, [bool]$recommendedCondit
 
 function Get-IsPackageSigned([string]$nupkgPath) {
     $verifyOutput = "";
-    $null = & $nugetExePath verify -signature -CertificateFingerprint 3F9001EA83C560D712C24CF213C3D312CB3BFF51EE89435D3430BD06B5D0EECE $nupkgPath -verbosity detailed 2>&1 | Tee-Object -Variable verifyOutput
+    $null = & $nugetExePath verify -signature -CertificateFingerprint $expectedCertHash $nupkgPath -verbosity detailed 2>&1 | Tee-Object -Variable verifyOutput
     
 	#TEST OUTPUT
 	Write-Host $verifyOutput
