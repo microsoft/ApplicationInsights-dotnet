@@ -1,7 +1,7 @@
 # Changelog
 
 ## VNext
-
+[Fix: telemetry parent id when using W3C activity format in TelemetryDiagnosticSourceListener](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2142)
 
 ## Version 2.17.0-beta1
 - [Fix: Missing Dependencies when using Microsoft.Data.SqlClient v2.0.0](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2032)
