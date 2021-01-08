@@ -1,7 +1,7 @@
 # Changelog
 
 ## VNext
-
+- [Asp.Net core synthetictelemetryinitializer is not configurable](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1963)
 
 ## Version 2.17.0-beta1
 - [Fix: Missing Dependencies when using Microsoft.Data.SqlClient v2.0.0](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2032)

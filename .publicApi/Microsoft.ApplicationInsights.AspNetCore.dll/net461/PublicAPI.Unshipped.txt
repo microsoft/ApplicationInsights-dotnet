@@ -1,0 +1,3 @@
+Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.SyntheticTelemetryInitializer.SyntheticTelemetryInitializer(Microsoft.AspNetCore.Http.IHttpContextAccessor httpContextAccessor, Microsoft.Extensions.Configuration.IConfiguration configuration) -> void
+Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.SyntheticTelemetryInitializer.SyntheticUserAgentFilters.get -> string
+Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers.SyntheticTelemetryInitializer.SyntheticUserAgentFilters.set -> void
