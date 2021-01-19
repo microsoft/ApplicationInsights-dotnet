@@ -20,7 +20,7 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <ProjectReference Include="..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
-    <PackageReference Include="log4net" Version="2.0.8" />
+    <PackageReference Include="log4net" Version="2.0.10" />
   </ItemGroup>
   
   <ItemGroup>
