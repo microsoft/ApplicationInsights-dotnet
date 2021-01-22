@@ -190,12 +190,12 @@
         {
             List<ITelemetry> telemetryToFlush = this.MoveTelemeteryBufferForFlush();
 
-            if (telemetryToFlush != null && !cancellationToken.IsCancellationRequested)
+            if (!cancellationToken.IsCancellationRequested)
             {
                 return this.serializer.SerializeAsync(telemetryToFlush, cancellationToken);
             }
 
-            return cancellationToken.IsCancellationRequested ? TaskEx.FromCanceled<bool>(cancellationToken) : Task.FromResult(true);
+            return TaskEx.FromCanceled<bool>(cancellationToken);
         }
 
         public IEnumerator<ITelemetry> GetEnumerator()

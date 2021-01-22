@@ -22,6 +22,7 @@
 
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
         private static HttpClient client = new HttpClient() { Timeout = System.Threading.Timeout.InfiniteTimeSpan };
+        private static long flushAsyncCounter = 1;
                 
         private int isSending;
         private TaskCompletionSource<bool> flushTaskCompletionSource;
@@ -87,6 +88,11 @@
             get;
             private set;
         }
+
+        /// <summary>
+        /// Gets the flush async id for the transmission.
+        /// </summary>
+        public long FlushAsyncId { get; } = flushAsyncCounter;
 
 #pragma warning disable CA1819 // "Properties should not return arrays" - part of the public API and too late to change.
         /// <summary>
@@ -175,6 +181,7 @@
                 this.flushTaskCompletionSource = new TaskCompletionSource<bool>();
                 cancellationToken.Register(() => this.CancelFlushTask());
                 this.transmissionCancellationToken = cancellationToken;
+                Interlocked.Increment(ref flushAsyncCounter);
             }
 
             return this.flushTaskCompletionSource.Task;

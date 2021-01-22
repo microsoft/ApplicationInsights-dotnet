@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
     using System.Net;
@@ -16,13 +17,13 @@
 
     internal class TransmissionSender
     {      
-        private static string transmissionBatchId = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
+        // private static string transmissionBatchId = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
         private readonly object lockObj = new object();
         // Stores all inflight requests with a common id, before SendAsync.
         // Removes entry from dictionary after getting response.
         // Changes common id with IAsyncFlushable.FlushAsync, so it starts next batch to track for next IAsyncFlushable.FlushAsync.
-        private ConcurrentDictionary<Task<HttpWebResponseWrapper>, string> inTransmitIds = new ConcurrentDictionary<Task<HttpWebResponseWrapper>, string>();
-
+        // private ConcurrentDictionary<Task<HttpWebResponseWrapper>, string> inTransmitIds = new ConcurrentDictionary<Task<HttpWebResponseWrapper>, string>();
+        private List<InFlightTransmission> inFlightTransmissions = new List<InFlightTransmission>();
         private int transmissionCount = 0;
         private int capacity = 10;
 
@@ -141,20 +142,41 @@
 
                 if (transmission?.HasFlushTask == true)
                 {                   
-                    string lastTransmissionBatchId = transmissionBatchId;
+                    /* string lastTransmissionBatchId = transmissionBatchId;
                     lock (this.lockObj)
                     {
                         // Generate new transmissionBatchId for next transmissions to be ready for next IAsyncFlushable.FlushAsync (if called).
                         transmissionBatchId = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
-                    }
+                    }*/
 
                     // Wait for inflight transmissions to complete.
-                    this.WaitForPreviousTransmissionsToComplete(transmission, lastTransmissionBatchId).ConfigureAwait(false).GetAwaiter().GetResult();
+                    // this.WaitForPreviousTransmissionsToComplete(transmission, lastTransmissionBatchId).ConfigureAwait(false).GetAwaiter().GetResult();
+                    this.WaitForPreviousTransmissionsToComplete(transmission).ConfigureAwait(false).GetAwaiter().GetResult();
                     this.SendTransmissionToDisk(transmission);
                 }
             }
 
             return enqueueSucceded;
+        }
+
+        /// <summary>
+        /// Wait for inflight transmissions to complete. Honors the CancellationToken set by an application on IAsyncFlushable.FlushAsync.
+        /// </summary>
+        internal async Task<bool> WaitForPreviousTransmissionsToComplete(Transmission transmission)
+        {
+            var activeTransmissions = this.inFlightTransmissions.Where(p => p.FlushAsyncId == transmission.FlushAsyncId).Select(p => p.TransmissionTask);
+
+            if (activeTransmissions?.Count() > 0)
+            {
+                // Wait for all transmissions over the wire to complete.
+                var inTransitTasks = Task<HttpWebResponseWrapper>.WhenAll(activeTransmissions);
+                // Respect passed Cancellation token in FlushAsync call
+                var inTransitTasksWithCancellationToken = Task<HttpWebResponseWrapper>.WhenAny(inTransitTasks, new Task<HttpWebResponseWrapper>(() => { return default(HttpWebResponseWrapper); }, transmission.TransmissionCancellationToken));
+                await inTransitTasksWithCancellationToken.ConfigureAwait(false);
+                return inTransitTasksWithCancellationToken.IsCompleted;
+            }
+
+            return true;
         }
 
         protected void OnTransmissionSent(TransmissionProcessedEventArgs args)
@@ -166,7 +188,8 @@
         {
             SdkInternalOperationsMonitor.Enter();
             Task<HttpWebResponseWrapper> transmissionTask = null;
-            string lastTransmissionBatchId = null;
+            InFlightTransmission inFlightTransmission = default;
+            // string lastTransmissionBatchId = null;
 
             try
             {
@@ -181,9 +204,15 @@
                 {
                     TelemetryChannelEventSource.Log.TransmissionSendStarted(acceptedTransmission.Id);
                     transmissionTask = acceptedTransmission.SendAsync();
-                    this.inTransmitIds.TryAdd(transmissionTask, transmissionBatchId);
+                    // this.inTransmitIds.TryAdd(transmissionTask, transmissionBatchId);
 
-                    if (transmission.HasFlushTask)
+                    inFlightTransmission = new InFlightTransmission(acceptedTransmission.FlushAsyncId, transmissionTask);
+                    lock (this.lockObj)
+                    {
+                        this.inFlightTransmissions.Add(inFlightTransmission);
+                    }
+
+                    /*if (acceptedTransmission.HasFlushTask)
                     {
                         lastTransmissionBatchId = transmissionBatchId;
                         lock (this.lockObj)
@@ -191,7 +220,7 @@
                             // Generate new transmissionBatchId for next transmissions to be ready for next IAsyncFlushable.FlushAsync (if called).
                             transmissionBatchId = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
                         }
-                    }
+                    }*/
 
                     responseContent = await transmissionTask.ConfigureAwait(false); 
                 }
@@ -241,13 +270,18 @@
                             StatusCode = ResponseStatusCodes.UnknownNetworkError,
                         };
                     }
-                                        
-                    this.inTransmitIds.TryRemove(transmissionTask, out string ignoreValue);
 
-                    if (transmission.HasFlushTask)
+                    // this.inTransmitIds.TryRemove(transmissionTask, out string ignoreValue);
+                    lock (this.lockObj)
+                    {
+                        this.inFlightTransmissions.Remove(inFlightTransmission);
+                    }
+
+                    if (acceptedTransmission.HasFlushTask)
                     {
                         // Wait for inflight transmissions to complete.
-                        await this.WaitForPreviousTransmissionsToComplete(transmission, lastTransmissionBatchId).ConfigureAwait(false);
+                        // await this.WaitForPreviousTransmissionsToComplete(acceptedTransmission, lastTransmissionBatchId).ConfigureAwait(false);
+                        await this.WaitForPreviousTransmissionsToComplete(acceptedTransmission).ConfigureAwait(false);
                     }
 
                     this.OnTransmissionSent(new TransmissionProcessedEventArgs(acceptedTransmission, exception, responseContent));
@@ -259,6 +293,7 @@
             }
         }
 
+        /*
         /// <summary>
         /// Wait for inflight transmissions to complete. Honors the CancellationToken set by an application on IAsyncFlushable.FlushAsync.
         /// </summary>
@@ -275,7 +310,7 @@
                 // Remove processed transmission items from list to free the memory
                 activeTransmissions.ToList().ForEach(key => this.inTransmitIds.TryRemove(key, out string ignoreValue));
             }
-        }
+        }*/
 
         /// <summary>
         /// Checks if the transmission throttling policy allows for sending another request.

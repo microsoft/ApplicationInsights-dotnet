@@ -47,6 +47,12 @@
             this.HandleTelemetryException(items);
 
             var transmission = new Transmission() { TransmissionStatusEvent = this.TransmissionStatusEvent };
+            
+            if (items == null)
+            {
+                return this.Transmitter.Sender.WaitForPreviousTransmissionsToComplete(transmission);
+            }
+
             Task<bool> resultTask = transmission.GetFlushTask(cancellationToken);
 
             if (!cancellationToken.IsCancellationRequested)

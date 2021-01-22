@@ -1,6 +1,7 @@
 Microsoft.ApplicationInsights.Channel.IAsyncFlushable
 Microsoft.ApplicationInsights.Channel.IAsyncFlushable.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
 Microsoft.ApplicationInsights.Channel.InMemoryChannel.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
+Microsoft.ApplicationInsights.Channel.Transmission.FlushAsyncId.get -> long
 Microsoft.ApplicationInsights.Channel.Transmission.GetFlushTask(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
 Microsoft.ApplicationInsights.Channel.Transmission.CompleteFlushTask(bool success) -> void
 Microsoft.ApplicationInsights.Channel.Transmission.CancelFlushTask() -> void

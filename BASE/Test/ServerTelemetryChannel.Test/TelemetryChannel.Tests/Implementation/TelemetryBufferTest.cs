@@ -424,7 +424,7 @@
         {
             [TestMethod]
             [Timeout(10000)]
-            public async Task DoesntSerializeTelemetryIfBufferIsEmpty()
+            public async Task CallsSerializeTelemetryIfBufferIsEmpty()
             {
                 bool telemetrySerialized = false;
                 var serializer = new StubTelemetrySerializer
@@ -439,7 +439,7 @@
                 var telemetryBuffer = new TelemetryBuffer(serializer, new StubApplicationLifecycle());
                 var taskResult = await telemetryBuffer.FlushAsync(default);
 
-                Assert.IsFalse(telemetrySerialized);
+                Assert.IsTrue(telemetrySerialized);
                 Assert.IsTrue(taskResult);
             }
 

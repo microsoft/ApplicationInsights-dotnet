@@ -553,7 +553,7 @@
                 this.ApplicationName);
         }
 
-        [Event(76, Message = "Transmitter flushed telemetry events using IAsyncFlushable.FlushAsync.", Level = EventLevel.Verbose)]
+        [Event(76, Message = "Flush telemetry events using IAsyncFlushable.FlushAsync.", Level = EventLevel.Verbose)]
         public void TelemetryChannelFlushAsync(string appDomainName = "Incorrect")
         {
             this.WriteEvent(76, this.ApplicationName);

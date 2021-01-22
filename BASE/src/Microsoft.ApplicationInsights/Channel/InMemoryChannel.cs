@@ -202,7 +202,7 @@
         {
             return Task<bool>.Run(() =>
             {
-                this.Flush(default(TimeSpan));
+                this.Flush(default(TimeSpan)); // when default(TimeSpan) is provided, value is ignored and default timeout of 100 sec is used
                 return Task.FromResult(true);
             }, cancellationToken);
         }
