@@ -1,0 +1,2 @@
+Microsoft.ApplicationInsights.Channel.TransmissionStatusEventArgs.ResponseDurationInMs.get -> long
+Microsoft.ApplicationInsights.Channel.TransmissionStatusEventArgs.TransmissionStatusEventArgs(Microsoft.ApplicationInsights.Extensibility.Implementation.HttpWebResponseWrapper response, long responseDurationInMs) -> void
