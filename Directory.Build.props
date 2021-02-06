@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <!-- USE THESE VARIABLES TO CONTROL THE BUILD TASKS.-->
+    <Internal_Logging>false</Internal_Logging>
+  </PropertyGroup>
+
+  <Target Name="Info_InternalSettings"  BeforeTargets="Build">
+    <Message Text="Internal_Logging is set to $(Internal_Logging)." Importance="high"/>
+  </Target>
+
+  <Target Name="Info_DirectoryBuildProps"  BeforeTargets="Build" Condition=" $(Internal_Logging) == 'true' ">
+    <Message Text="Info: Directory.Build.props imported by $(MSBuildProjectName)." Importance="high"/>
+  </Target>
+
+  <PropertyGroup>
+    <!-- EnlistmentRoot identifies the root directory of the repo and is used to dermine all other relative paths. -->
+    <EnlistmentRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'EnlistmentRoot.marker'))</EnlistmentRoot>
+
+    <KeysRoot>$(EnlistmentRoot)\.keys</KeysRoot>
+    <PropsRoot>$(EnlistmentRoot)\.props</PropsRoot>
+    <RulesetsRoot>$(EnlistmentRoot)\.rulesets</RulesetsRoot>
+    <TargetsRoot>$(EnlistmentRoot)\.targets</TargetsRoot>
+    <PublicApiRoot>$(EnlistmentRoot)\.publicApi</PublicApiRoot>
+
+    <BinRoot>$(EnlistmentRoot)\..\bin</BinRoot>
+    <BinRoot>$([System.IO.Path]::GetFullPath( $(BinRoot) ))</BinRoot>
+
+    <ObjRoot>$(EnlistmentRoot)\..\obj</ObjRoot>
+    <ObjRoot>$([System.IO.Path]::GetFullPath( $(ObjRoot) ))</ObjRoot>
+
+    <PackagesDir>$(EnlistmentRoot)\..\packages</PackagesDir>
+    <PackagesDir>$([System.IO.Path]::GetFullPath( $(PackagesDir) ))</PackagesDir>
+
+    <RelativeOutputPathBase>$(MSBuildProjectDirectory.Substring($(EnlistmentRoot.Length)))</RelativeOutputPathBase>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+
+    <!--This is to disable code analysis while devs are working. Default is true.-->
+    <RunAnalyzers Condition=" '$(Configuration)' == 'Debug' ">false</RunAnalyzers>
+
+    <OutputPath>$(BinRoot)\$(Configuration)\test\$(MSBuildProjectName)</OutputPath>
+    <OutputPath>$([System.IO.Path]::GetFullPath( $(OutputPath) ))\</OutputPath>
+
+    <!-- Collect all NuGet packages in the same folder for convenience during testing -->
+    <PackageOutputDir>$(BinRoot)\$(Configuration)\NuGet</PackageOutputDir>
+    <PackageOutputPath>$(PackageOutputDir)</PackageOutputPath>
+
+    <IntermediateOutputPath>$(ObjRoot)\$(Configuration)\$(MSBuildProjectName)</IntermediateOutputPath>
+    <IntermediateOutputPath>$([System.IO.Path]::GetFullPath( $(IntermediateOutputPath) ))\</IntermediateOutputPath>
+
+    <!-- Testing fix for https://github.com/dotnet/sdk/issues/2523 -->
+    <!-- If this works, should move to common and not the directory props -->
+    <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
+  </PropertyGroup>
+
+  <PropertyGroup>
+
+    <LangVersion>7.3</LangVersion>
+
+    <!-- Enable NuGet package restore during build -->
+    <RestorePackages>true</RestorePackages>
+    <RequireRestoreConsent>false</RequireRestoreConsent>
+  </PropertyGroup>
+  
+</Project>

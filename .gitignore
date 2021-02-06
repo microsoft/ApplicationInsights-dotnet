@@ -113,6 +113,7 @@ AppPackages/
 
 # Others
 sql/
+[Vv]swhere/
 *.Cache
 ClientBin/
 [Ss]tyle[Cc]op.*
@@ -165,4 +166,22 @@ $RECYCLE.BIN/
 *.wrn
 *.vsix
 Web/PerformanceTests_Instrumented/
+[Ss]tyle[Cc]op.*
+
+coverage.xml
+
+bondcodegen.done
+bonddefaultcodegen.in
+
 .PreReleaseVersion
+.nugetVersion
+.nuget/
+PublishProfiles/
+*.cache
+*.userprefs
+*.ipch
+bower_components/
+node_modules/
+**/wwwroot/lib
+/Msbuild.*
+**/Nuget.exe

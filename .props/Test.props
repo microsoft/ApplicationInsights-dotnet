@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <Target Name="Info_TestProps"  BeforeTargets="Build" Condition=" $(Internal_Logging) == 'true' ">
+    <Message Text="Info: Test.props imported by $(MSBuildProjectName)." Importance="high"/>
+  </Target>
+
+  <Import Project=".\_Common.props" />
+  <Import Project=".\_AnalyzerSettings.props" />
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+</Project>

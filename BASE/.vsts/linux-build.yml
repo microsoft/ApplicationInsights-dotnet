@@ -1,0 +1,64 @@
+pool:
+  vmImage: 'ubuntu-latest'
+
+strategy:
+    matrix:
+        netcoreapp2_1:
+            framework: netcoreapp2.1
+        netcoreapp3_1:
+            framework: netcoreapp3.1
+    maxParallel: 2
+
+steps:
+
+- task: UseDotNet@2
+  displayName: install dotnet core 2.1
+  inputs:
+    version: 2.1.x
+    
+- task: UseDotNet@2
+  displayName: install dotnet core 3.1
+  inputs:
+    version: 3.1.x
+    
+- task: DotNetCoreCLI@2
+  displayName: DotNetCoreCLI - Restore Solution
+  inputs:
+    command: "restore"
+    projects: "BASE/*.sln"
+
+- task: DotNetCoreCLI@2
+  displayName: DotNetCoreCLI - Build Solution
+  inputs:
+    command: "build"
+    projects: "BASE/*.sln"
+    arguments: "--configuration Release --no-restore"
+
+- task: DotNetCoreCLI@2
+  displayName: DotNetCoreCLI - Test $(framework)
+  inputs:
+    command: "test"
+    projects: "BASE/Test/**/Microsoft.ApplicationInsights.Tests.csproj"
+    arguments: "--configuration Release --framework $(framework) --no-build -l trx --filter TestCategory!=WindowsOnly"
+
+## Publish Test results
+
+- task: PublishTestResults@2
+  condition: always()
+  inputs:
+    testRunner: "VSTest"
+    testResultsFiles: "**/*.trx"
+    failTaskOnFailedTests: true
+
+#- task: DotNetCoreCLI@2
+#  inputs:
+#    command: "publish"
+#    publishWebProjects: "True"
+#    arguments: "--configuration Release --output $(build.artifactstagingdirectory)"
+#    zipAfterPublish: "True"
+
+#- task: PublishBuildArtifacts@1
+#  inputs:
+#    PathtoPublish: "$(build.artifactstagingdirectory)"
+#    ArtifactName: "drop"
+#    ArtifactType: "Container"
