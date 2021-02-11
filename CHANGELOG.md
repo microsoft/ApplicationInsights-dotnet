@@ -1,6 +1,8 @@
 # Changelog
 
 ## VNext
+
+## Version 2.17.0
 - [Fix: telemetry parent id when using W3C activity format in TelemetryDiagnosticSourceListener](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2142)
 - [Add ingestion response duration for transmission to data delivery status - TransmissionStatusEventArgs](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2157)
 - [Update default Profiler and Snapshot Debugger endpoints](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2166)
