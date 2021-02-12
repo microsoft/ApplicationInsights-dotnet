@@ -12,10 +12,10 @@
         internal const string DefaultLiveMetricsEndpoint = "https://rt.services.visualstudio.com/";
 
         /// <summary>Default endpoint for Profiler.</summary>
-        internal const string DefaultProfilerEndpoint = "https://agent.azureserviceprofiler.net/";
+        internal const string DefaultProfilerEndpoint = "https://profiler.monitor.azure.com/";
 
         /// <summary>Default endpoint for Snapshot Debugger.</summary>
-        internal const string DefaultSnapshotEndpoint = "https://agent.azureserviceprofiler.net/";
+        internal const string DefaultSnapshotEndpoint = "https://snapshot.monitor.azure.com/";
 
         /// <summary>Sub-domain for Ingestion endpoint (aka Breeze). (https://dc.applicationinsights.azure.com/).</summary>
         internal const string IngestionPrefix = "dc";
