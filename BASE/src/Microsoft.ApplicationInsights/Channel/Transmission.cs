@@ -263,6 +263,7 @@
                 {
                     HttpRequestMessage request = this.CreateRequestMessage(this.EndpointAddress, contentStream);
                     HttpWebResponseWrapper wrapper = null;
+                    long responseDurationInMs = 0;
 
                     try
                     {
@@ -278,7 +279,8 @@
                             using (var response = await client.SendAsync(request, ct.Token).ConfigureAwait(false))
                             {
                                 stopwatch.Stop();
-                                CoreEventSource.Log.IngestionResponseTime(response != null ? (int)response.StatusCode : -1, stopwatch.ElapsedMilliseconds);
+                                responseDurationInMs = stopwatch.ElapsedMilliseconds;
+                                CoreEventSource.Log.IngestionResponseTime(response != null ? (int)response.StatusCode : -1, responseDurationInMs);
                                 // Log ingestion respose time as event counter metric.
                                 CoreEventSource.Log.IngestionResponseTimeEventCounter(stopwatch.ElapsedMilliseconds);
 
@@ -332,7 +334,7 @@
                         try
                         {
                             // Initiates event notification to subscriber with Transmission and TransmissionStatusEventArgs.
-                            this.TransmissionStatusEvent?.Invoke(this, new TransmissionStatusEventArgs(wrapper ?? new HttpWebResponseWrapper() { StatusCode = 999 }));
+                            this.TransmissionStatusEvent?.Invoke(this, new TransmissionStatusEventArgs(wrapper ?? new HttpWebResponseWrapper() { StatusCode = 999 }, responseDurationInMs));
                         }
                         catch (Exception ex)
                         {
