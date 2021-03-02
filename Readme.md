@@ -61,3 +61,9 @@ These builds come from the develop branch. These are not signed and are not inte
 
 ## Releases 
 Refer to our [Milestones](https://github.com/microsoft/ApplicationInsights-dotnet/milestones) for progress on our next releases.
+
+## Support
+
+For immediate support relating to the Application Insights .NET SDK we encourage you to file a [Azure Support Request](https://docs.microsoft.com/en-us/azure/azure-portal/supportability/how-to-create-azure-support-request) with Microsoft Azure instead of filing a GitHub Issue in this repository. 
+You can do so by going online to the [Azure portal](https://portal.azure.com/) and submitting a support request. Access to subscription management and billing support is included with your Microsoft Azure subscription, and technical support is provided through one of the [Azure Support Plans](https://azure.microsoft.com/en-us/support/plans/). For step-by-step guidance for the Azure portal, see [How to create an Azure support request](https://docs.microsoft.com/en-us/azure/azure-portal/supportability/how-to-create-azure-support-request). Alternatively, you can create and manage your support tickets programmatically using the [Azure Support ticket REST API](https://docs.microsoft.com/en-us/rest/api/support/).
+
