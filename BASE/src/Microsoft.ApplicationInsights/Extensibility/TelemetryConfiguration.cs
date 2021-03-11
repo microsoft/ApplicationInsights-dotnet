@@ -11,6 +11,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Sampling;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -396,6 +397,20 @@
             this.Dispose(true);
             GC.SuppressFinalize(this);
         }
+
+        public ICredentialEnvelope CredentialEnvelope { get; private set; }
+
+#if NETSTANDARD2_0
+        public void SetCredential(Azure.Core.TokenCredential tokenCredential)
+        {
+            this.CredentialEnvelope = new TokenCredentialEnvelope(tokenCredential);
+        }
+#else
+        public void SetCredential(object tokenCredential)
+        {
+            this.CredentialEnvelope = new ReflectionCredentialEnvelope(tokenCredential);
+        }
+#endif
 
         internal MetricManager GetMetricManager(bool createIfNotExists)
         {
