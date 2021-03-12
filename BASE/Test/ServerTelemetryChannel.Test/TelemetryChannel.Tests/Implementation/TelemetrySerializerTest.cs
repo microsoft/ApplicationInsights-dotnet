@@ -209,20 +209,6 @@
         public class SerializeAsyncTask
         {
             [TestMethod]
-            public void ThrowsArgumentNullExceptionWhenTelemetryIsNullToPreventUsageErrors()
-            {
-                var serializer = new TelemetrySerializer(new StubTransmitter());
-                AssertEx.Throws<ArgumentNullException>(() => serializer.SerializeAsync(null, default));
-            }
-
-            [TestMethod]
-            public void ThrowsArgumentExceptionWhenTelemetryIsEmptyToPreventUsageErrors()
-            {
-                var serializer = new TelemetrySerializer(new StubTransmitter());
-                AssertEx.Throws<ArgumentException>(() => serializer.SerializeAsync(new List<ITelemetry>(), default));
-            }
-
-            [TestMethod]
             public async Task EnqueuesTransmissionWithExpectedPropertiesForUnknownTelemetry()
             {
                 Transmission transmission = null;
