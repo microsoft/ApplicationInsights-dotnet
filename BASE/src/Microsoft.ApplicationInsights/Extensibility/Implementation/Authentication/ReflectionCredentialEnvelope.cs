@@ -1,5 +1,4 @@
-﻿#if NET452 || NET46
-namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication
 {
     using System;
     using System.Collections.Generic;
@@ -26,7 +25,14 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Authenticat
         /// <param name="tokenCredential"></param>
         public ReflectionCredentialEnvelope(object tokenCredential)
         {
-            // TODO: VERIFY TYPE USING REFLECTION
+            if (this.IsTokenCredential(tokenCredential.GetType()))
+            {
+                this.Credential = tokenCredential;
+            }
+            else
+            {
+                throw new ArgumentException($"The provided {nameof(tokenCredential)} must inherit Azure.Core.TokenCredential", nameof(tokenCredential));
+            }
         }
 
         public object Credential { get; private set; }
@@ -40,6 +46,18 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Authenticat
         {
             throw new NotImplementedException();
         }
+
+        private bool IsTokenCredential(Type inputType)
+        {
+            for (var evalType = inputType; evalType != null; evalType = evalType.BaseType)
+            {
+                if (evalType.FullName == "Azure.Core.TokenCredential")
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }
-#endif

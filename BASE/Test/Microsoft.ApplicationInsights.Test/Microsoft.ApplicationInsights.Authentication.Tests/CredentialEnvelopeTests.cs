@@ -1,10 +1,6 @@
 namespace Microsoft.ApplicationInsights.Authentication.Tests
 {
     using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-
-    using Azure.Core;
 
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
@@ -36,7 +32,7 @@ namespace Microsoft.ApplicationInsights.Authentication.Tests
 
 #if NET461
         [TestMethod]
-        [ExpectedException(typeof(System.Exception))]
+        [ExpectedException(typeof(ArgumentException))]
         public void VerifyCannotSetInvalidType()
         {
             var telemetryConfiguration = new TelemetryConfiguration();
