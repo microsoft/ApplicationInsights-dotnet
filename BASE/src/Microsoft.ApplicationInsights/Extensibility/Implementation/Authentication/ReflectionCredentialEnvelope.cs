@@ -1,9 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -51,7 +48,8 @@
         {
             for (var evalType = inputType; evalType != null; evalType = evalType.BaseType)
             {
-                if (evalType.FullName == "Azure.Core.TokenCredential")
+                if (evalType.FullName == "Azure.Core.TokenCredential"
+                    && evalType.Assembly.FullName.StartsWith("Azure.Core, Version=1."))
                 {
                     return true;
                 }
