@@ -3,7 +3,7 @@
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
-    internal readonly struct InFlightTransmission
+    internal class InFlightTransmission
     {
         public InFlightTransmission(long flushAsyncId, Task<HttpWebResponseWrapper> transmissionTask)
         {

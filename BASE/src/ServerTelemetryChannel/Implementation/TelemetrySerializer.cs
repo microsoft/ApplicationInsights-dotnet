@@ -44,11 +44,14 @@
 
         public virtual Task<bool> SerializeAsync(ICollection<ITelemetry> items, CancellationToken cancellationToken)
         {
-            this.HandleTelemetryException(items);
+            if (this.EndpointAddress == null)
+            {
+                throw new Exception("TelemetrySerializer.EndpointAddress was not set.");
+            }
 
             var transmission = new Transmission() { TransmissionStatusEvent = this.TransmissionStatusEvent };
-            
-            if (items == null)
+
+            if (items == null || !items.Any())
             {
                 return this.Transmitter.Sender.WaitForPreviousTransmissionsToComplete(transmission);
             }
