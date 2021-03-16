@@ -49,13 +49,12 @@
                 throw new Exception("TelemetrySerializer.EndpointAddress was not set.");
             }
 
-            var transmission = new Transmission() { TransmissionStatusEvent = this.TransmissionStatusEvent };
-
             if (items == null || !items.Any())
             {
-                return this.Transmitter.Sender.WaitForPreviousTransmissionsToComplete(transmission);
+                return this.Transmitter.MoveTransmissionsAndWaitForSender(cancellationToken);
             }
 
+            var transmission = new Transmission() { TransmissionStatusEvent = this.TransmissionStatusEvent };
             Task<bool> resultTask = transmission.GetFlushTask(cancellationToken);
 
             if (!cancellationToken.IsCancellationRequested)
@@ -73,7 +72,7 @@
         private void SerializeTransmissionAndEnqueue(Transmission transmission, ICollection<ITelemetry> items)
         {
             transmission.Serialize(this.EndpointAddress, items);
-            this.Transmitter.Enqueue(transmission);
+            this.Transmitter.Flush(transmission);
         }
 
         private void HandleTelemetryException(ICollection<ITelemetry> items)

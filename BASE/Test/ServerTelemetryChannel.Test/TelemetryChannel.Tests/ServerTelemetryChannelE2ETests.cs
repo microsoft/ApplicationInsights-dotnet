@@ -330,20 +330,15 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                         (EventKeywords)AllKeywords);
                     // ACT 
                     // Data would be sent to the LocalServer which validates it.
-                    channel.Send(telemetry);
-                    var flushTask = channel.FlushAsync(default);
-                    
-                    // Add transmissions to Buffer when we are waiting for data from server
-                    // Set Sender Capacity to to zero, so no items from buffer will be picked for processing
-                    // Sleep for few microseconds so that FlushAsync moves to a state of waiting for data from server
-                    Thread.Sleep(100);
-                    channel.MaxTransmissionSenderCapacity = 0;
 
                     for (int i = 0; i < 10; i++)
                     {
                         channel.Transmitter.Buffer.Enqueue(() => new StubTransmission());
                     }
 
+                    channel.Send(telemetry);
+                    var flushTask = channel.FlushAsync(default);
+                    
                     try
                     {
                         await flushTask;

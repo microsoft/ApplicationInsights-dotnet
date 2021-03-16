@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
@@ -15,10 +16,9 @@
 
     internal class TransmissionSender
     {      
-        private readonly object lockObj = new object();
         // Stores all inflight requests using this list, before SendAsync.
-        // Removes entry from lists after getting response.
-        private List<InFlightTransmission> inFlightTransmissions = new List<InFlightTransmission>();
+        // Removes entry from dictionary after response.
+        private ConcurrentDictionary<long, Task<HttpWebResponseWrapper>> inFlightTransmissions = new ConcurrentDictionary<long, Task<HttpWebResponseWrapper>>();
         private int transmissionCount = 0;
         private int capacity = 10;
 
@@ -134,30 +134,29 @@
             if (!enqueueSucceded)
             {
                 Interlocked.Decrement(ref this.transmissionCount);
-
-                if (transmission?.HasFlushTask == true)
-                {                   
-                    this.WaitForPreviousTransmissionsToComplete(transmission).ConfigureAwait(false).GetAwaiter().GetResult();
-                    this.SendTransmissionToDisk(transmission);
-                }
             }
 
             return enqueueSucceded;
         }
-
+        
         /// <summary>
         /// Wait for inflight transmissions to complete. Honors the CancellationToken set by an application on IAsyncFlushable.FlushAsync.
         /// </summary>
-        internal async Task<bool> WaitForPreviousTransmissionsToComplete(Transmission transmission)
+        internal async Task<bool> WaitForPreviousTransmissionsToComplete(long? transmissionFlushAsyncId, CancellationToken cancellationToken)
         {
-            var activeTransmissions = this.inFlightTransmissions.Where(p => p.FlushAsyncId == transmission.FlushAsyncId).Select(p => p.TransmissionTask);
+            if (transmissionFlushAsyncId == null)
+            {
+                transmissionFlushAsyncId = this.inFlightTransmissions.LastOrDefault().Key;
+            }
+
+            var activeTransmissions = this.inFlightTransmissions.Where(p => p.Key <= transmissionFlushAsyncId).Select(p => p.Value);
 
             if (activeTransmissions?.Count() > 0)
             {
                 // Wait for all transmissions over the wire to complete.
                 var inTransitTasks = Task<HttpWebResponseWrapper>.WhenAll(activeTransmissions);
-                // Respect passed Cancellation token in FlushAsync call
-                var inTransitTasksWithCancellationToken = Task<HttpWebResponseWrapper>.WhenAny(inTransitTasks, new Task<HttpWebResponseWrapper>(() => { return default(HttpWebResponseWrapper); }, transmission.TransmissionCancellationToken));
+                // Respect passed Cancellation token from FlushAsync call
+                var inTransitTasksWithCancellationToken = Task<HttpWebResponseWrapper>.WhenAny(inTransitTasks, new Task<HttpWebResponseWrapper>(() => { return default(HttpWebResponseWrapper); }, cancellationToken));
                 await inTransitTasksWithCancellationToken.ConfigureAwait(false);
                 return inTransitTasksWithCancellationToken.IsCompleted;
             }
@@ -174,7 +173,6 @@
         {
             SdkInternalOperationsMonitor.Enter();
             Task<HttpWebResponseWrapper> transmissionTask = null;
-            InFlightTransmission inFlightTransmission = default;
 
             try
             {
@@ -183,19 +181,13 @@
 
                 // Locally self-throttle this payload before we send it
                 Transmission acceptedTransmission = this.Throttle(transmission);
-                
+
                 // Now that we've self-imposed a throttle, we can try to send the remaining data
                 try
                 {
                     TelemetryChannelEventSource.Log.TransmissionSendStarted(acceptedTransmission.Id);
                     transmissionTask = acceptedTransmission.SendAsync();
-
-                    inFlightTransmission = new InFlightTransmission(acceptedTransmission.FlushAsyncId, transmissionTask);
-                    lock (this.lockObj)
-                    {
-                        this.inFlightTransmissions.Add(inFlightTransmission);
-                    }
-
+                    this.inFlightTransmissions.TryAdd(transmission.FlushAsyncId, transmissionTask);
                     responseContent = await transmissionTask.ConfigureAwait(false); 
                 }
                 catch (Exception e)
@@ -245,17 +237,7 @@
                         };
                     }
 
-                    lock (this.lockObj)
-                    {
-                        this.inFlightTransmissions.Remove(inFlightTransmission);
-                    }
-
-                    if (acceptedTransmission.HasFlushTask)
-                    {
-                        // Wait for inflight transmissions to complete.
-                        await this.WaitForPreviousTransmissionsToComplete(acceptedTransmission).ConfigureAwait(false);
-                    }
-
+                    this.inFlightTransmissions.TryRemove(transmission.FlushAsyncId, out _);
                     this.OnTransmissionSent(new TransmissionProcessedEventArgs(acceptedTransmission, exception, responseContent));
                 }
             }
@@ -341,28 +323,12 @@
                 System.Net.WebExceptionStatus.Success,
                 null);
             this.OnTransmissionSent(new TransmissionProcessedEventArgs(
-                rejectedTransmission, 
-                exception, 
+                rejectedTransmission,
+                exception,
                 new HttpWebResponseWrapper()
                 {
                     StatusCode = ResponseStatusCodes.ResponseCodeTooManyRequests,
                     StatusDescription = statusDescription,
-                    RetryAfterHeader = null,
-                }));
-        }
-
-        /// <summary>
-        /// Called when Sender is out of capacity, AsyncFlushTransmissionPolicy gets invoked and items will be moved to storage.
-        /// </summary>
-        private void SendTransmissionToDisk(Transmission transmission)
-        {
-            this.OnTransmissionSent(new TransmissionProcessedEventArgs(
-                transmission,
-                null,
-                new HttpWebResponseWrapper()
-                {
-                    StatusCode = ResponseStatusCodes.Success,
-                    StatusDescription = "SendToDisk",
                     RetryAfterHeader = null,
                 }));
         }

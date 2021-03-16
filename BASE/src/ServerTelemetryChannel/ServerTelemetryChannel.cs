@@ -48,7 +48,6 @@
                 // We don't have implementation for IApplicationLifecycle for .NET Core
                 new ApplicationLifecycleTransmissionPolicy(applicationLifecycle),
 #endif
-                new FlushAsyncTransmissionPolicy(),
                 new ThrottlingTransmissionPolicy(), 
                 new ErrorHandlingTransmissionPolicy(),
                 new PartialSuccessTransmissionPolicy(), 

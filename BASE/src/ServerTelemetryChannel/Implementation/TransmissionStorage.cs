@@ -16,6 +16,7 @@
         internal const string TemporaryFileExtension = ".tmp";
         internal const string TransmissionFileExtension = ".trn";
         internal const int DefaultCapacityKiloBytes = 50 * 1024;
+        internal volatile bool IsFlushAsyncInProcess = false;
 
         private readonly ConcurrentDictionary<string, string> badFiles;
         private readonly ConcurrentQueue<IPlatformFile> files;
@@ -131,7 +132,7 @@
 
         public virtual Transmission Dequeue()
         {
-            if (this.folder == null)
+            if (this.folder == null || IsFlushAsyncInProcess)
             {
                 return null;
             }
@@ -143,18 +144,21 @@
                 IPlatformFile file = null;
                 try
                 {
-                    file = this.GetOldestTransmissionFileOrNull();
-                    if (file == null)
+                    if (!IsFlushAsyncInProcess)
                     {
-                        return null; // Because there are no more transmission files.
-                    }
+                        file = this.GetOldestTransmissionFileOrNull();
+                        if (file == null)
+                        {
+                            return null; // Because there are no more transmission files.
+                        }
 
-                    long fileSize;
-                    Transmission transmission = LoadFromTransmissionFile(file, out fileSize);
-                    if (transmission != null)
-                    {
-                        Interlocked.Add(ref this.size, -fileSize);
-                        return transmission;
+                        long fileSize;
+                        Transmission transmission = LoadFromTransmissionFile(file, out fileSize);
+                        if (transmission != null)
+                        {
+                            Interlocked.Add(ref this.size, -fileSize);
+                            return transmission;
+                        }
                     }
                 }
                 catch (UnauthorizedAccessException uae)

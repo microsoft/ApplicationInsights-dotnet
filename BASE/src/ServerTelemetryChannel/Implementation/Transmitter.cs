@@ -4,6 +4,8 @@
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Channel.Implementation;
 
@@ -170,7 +172,64 @@
             if (!this.Storage.Enqueue(transmissionGetter))
             {
                 TelemetryChannelEventSource.Log.TransmitterStorageSkipped(transmission.Id);
+                transmission.CompleteFlushTask(false);
             }
+        }
+
+        internal void Flush(Transmission transmission)
+        {
+            if (transmission.TransmissionCancellationToken.IsCancellationRequested)
+            {
+                transmission?.CancelFlushTask();
+                return;
+            }
+
+            this.Enqueue(transmission);
+
+            if (transmission.HasFlushTask)
+            {
+                this.Storage.IsFlushAsyncInProcess = true;
+                Task<bool> taskStatus = null;
+
+                try
+                {
+                    taskStatus = this.MoveTransmissionsAndWaitForSender(transmission.TransmissionCancellationToken, transmission.FlushAsyncId);
+                }
+                catch (Exception exp)
+                {
+                    // Introduce new log message
+                    TelemetryChannelEventSource.Log.ExceptionHandlerStartExceptionWarning(exp.ToString());
+                }
+
+                if (taskStatus?.IsCanceled == true)
+                {
+                    transmission?.CancelFlushTask();
+                }
+                else if (taskStatus?.Result == true)
+                {
+                    transmission?.CompleteFlushTask(true);
+                }
+                else
+                {
+                    transmission?.CompleteFlushTask(false);
+                }
+
+                this.Storage.IsFlushAsyncInProcess = false;
+            }
+        }
+
+        internal Task<bool> MoveTransmissionsAndWaitForSender(CancellationToken cancellationToken, long? transmissionFlushAsyncId = null)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return TaskEx.FromCanceled<bool>(cancellationToken);
+            }
+
+            MoveTransmissions(this.Buffer.Dequeue, this.Storage.Enqueue);
+            TelemetryChannelEventSource.Log.MovedFromBufferToStorage();
+            this.EmptyBuffer();
+            var isSenderComplete = this.Sender.WaitForPreviousTransmissionsToComplete(transmissionFlushAsyncId, cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
+            return isSenderComplete && this.Storage.IsEnqueueSuccess ? Task.FromResult(true) : Task.FromResult(false);
         }
 
         internal virtual void ApplyPolicies()

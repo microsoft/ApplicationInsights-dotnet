@@ -125,11 +125,11 @@
                     TelemetryChannelEventSource.Log.TransmissionDataLossError(e.Transmission.Id,
                         "Unknown Exception Message");
                 }
-            }
 
-            // Complete TaskCompletionSource of IAsyncFlushable.FlushAsync task. 
-            // Data loss due to Unknown Exception.
-            e.Transmission.CompleteFlushTask(false);
+                // Complete TaskCompletionSource of IAsyncFlushable.FlushAsync task. 
+                // Data loss due to Unknown Exception.
+                e.Transmission.CompleteFlushTask(false);
+            }
         }
 
         private void Dispose(bool disposing)
