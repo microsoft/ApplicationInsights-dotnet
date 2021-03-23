@@ -12,7 +12,7 @@
     /// <summary>
     /// The <see cref="ReflectionCredentialEnvelope"/> cannot take a dependency on <see cref="Azure.Core.TokenCredential"/>.
     /// We must use reflection to interact with this class.
-    /// These tests are to confirm that we can correctly identity 
+    /// These tests are to confirm that we can correctly identity classes that implement TokenCredential and address it's methods.
     /// </summary>
     [TestClass]
     public class ReflectionCredentialEnvelopeTests
