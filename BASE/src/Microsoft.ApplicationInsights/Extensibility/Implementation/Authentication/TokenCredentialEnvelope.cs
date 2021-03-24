@@ -10,7 +10,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Authenticat
 
     using Azure.Core;
 
-    public class TokenCredentialEnvelope : CredentialEnvelope
+    public class TokenCredentialEnvelope : ICredentialEnvelope
     {
         private readonly TokenCredential tokenCredential;
         private readonly TokenRequestContext tokenRequestContext;
@@ -18,16 +18,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Authenticat
         public TokenCredentialEnvelope(TokenCredential tokenCredential)
         {
             this.tokenCredential = tokenCredential;
-            this.tokenRequestContext = new TokenRequestContext(scopes: this.Scopes);
+            this.tokenRequestContext = new TokenRequestContext(scopes: AuthConstants.GetScopes());
         }
 
-        public override object Credential => this.tokenCredential;
-
-        public override string GetToken()
-        {
-            var accessToken = this.tokenCredential.GetToken(requestContext: this.tokenRequestContext, cancellationToken: CancellationToken.None);
-            return accessToken.Token;
-        }
+        public object Credential => this.tokenCredential;
 
         /// <summary>
         /// 
@@ -38,7 +32,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Authenticat
         /// </remarks>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public override async Task<string> GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<string> GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var accessToken = await this.tokenCredential.GetTokenAsync(requestContext: this.tokenRequestContext, cancellationToken: cancellationToken);
             return accessToken.Token;

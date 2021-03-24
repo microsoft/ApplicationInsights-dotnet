@@ -37,9 +37,13 @@ namespace Microsoft.ApplicationInsights.Authentication.Tests
         }
 
 #if NET461
+        /// <summary>
+        /// For older frameworks, TelemetryConfiguration accepts an <see cref="Object"/> parameter.
+        /// This test is to verify that we cannot set invalid types.
+        /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
-        public void VerifyCannotSetInvalidType()
+        public void VerifyCannotSetInvalidObjectOnTelemetryConfiguration()
         {
             var telemetryConfiguration = new TelemetryConfiguration();
             telemetryConfiguration.SetCredential(Guid.Empty);
@@ -48,16 +52,16 @@ namespace Microsoft.ApplicationInsights.Authentication.Tests
 
 #if NET5_0
         [TestMethod]
-        public void VerifyCanGetTokenString()
+        public async Task VerifyCanGetTokenString()
         {
             var mockCredential = new MockCredential();
 
             var tokenCredentialEnvelope = new TokenCredentialEnvelope(mockCredential);
-            var token = tokenCredentialEnvelope.GetToken();
+            var token = await tokenCredentialEnvelope.GetTokenAsync();
             Assert.IsNotNull(token);
             
             var reflectionCredentialEnvelope = new ReflectionCredentialEnvelope(mockCredential);
-            var tokenFromReflection = reflectionCredentialEnvelope.GetToken();
+            var tokenFromReflection = await reflectionCredentialEnvelope.GetTokenAsync();
             Assert.IsNotNull(tokenFromReflection);
 
             Assert.AreEqual(token, tokenFromReflection);

@@ -32,6 +32,13 @@
             _ = new ReflectionCredentialEnvelope(notTokenCredential2);
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void VerifyCannotSetInvalidType()
+        {
+            _ = new ReflectionCredentialEnvelope(Guid.Empty);
+        }
+
         #region TestClasses
         private class TestClass1 : Azure.Core.TokenCredential
         {

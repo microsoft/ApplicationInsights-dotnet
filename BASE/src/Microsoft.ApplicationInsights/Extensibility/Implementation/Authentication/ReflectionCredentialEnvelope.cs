@@ -12,10 +12,8 @@
     /// Azure.Core.TokenCredential is only available for netstandard2.0.
     /// I'm introducing this class as a wrapper so we can receive an instance of this class and pass it around within our SDK.
     /// </remarks>
-    public class ReflectionCredentialEnvelope : CredentialEnvelope
+    public class ReflectionCredentialEnvelope : ICredentialEnvelope
     {
-        private readonly object credential;
-
         /// <summary>
         /// 
         /// </summary>
@@ -27,7 +25,7 @@
         {
             if (this.IsTokenCredential(tokenCredential.GetType()))
             {
-                this.credential = tokenCredential;
+                this.Credential = tokenCredential;
             }
             else
             {
@@ -35,14 +33,9 @@
             }
         }
 
-        public override object Credential => this.credential;
+        public object Credential { get; private set; }
 
-        public override string GetToken()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task<string> GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<string> GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }

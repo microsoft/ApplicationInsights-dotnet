@@ -398,18 +398,12 @@
             GC.SuppressFinalize(this);
         }
 
-        public CredentialEnvelope CredentialEnvelope { get; private set; }
+        public ICredentialEnvelope CredentialEnvelope { get; private set; }
 
 #if NETSTANDARD2_0
-        public void SetCredential(Azure.Core.TokenCredential tokenCredential)
-        {
-            this.CredentialEnvelope = new TokenCredentialEnvelope(tokenCredential);
-        }
+        public void SetCredential(Azure.Core.TokenCredential tokenCredential) => this.CredentialEnvelope = new TokenCredentialEnvelope(tokenCredential);
 #else
-        public void SetCredential(object tokenCredential)
-        {
-            this.CredentialEnvelope = new ReflectionCredentialEnvelope(tokenCredential);
-        }
+        public void SetCredential(object tokenCredential) => this.CredentialEnvelope = new ReflectionCredentialEnvelope(tokenCredential);
 #endif
 
         internal MetricManager GetMetricManager(bool createIfNotExists)
