@@ -10,7 +10,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Authenticat
 
     using Azure.Core;
 
-    public class TokenCredentialEnvelope : ICredentialEnvelope
+    internal class TokenCredentialEnvelope : ICredentialEnvelope
     {
         private readonly TokenCredential tokenCredential;
         private readonly TokenRequestContext tokenRequestContext;

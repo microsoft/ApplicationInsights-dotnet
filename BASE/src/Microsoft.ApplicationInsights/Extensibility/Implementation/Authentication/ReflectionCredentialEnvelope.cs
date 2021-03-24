@@ -12,7 +12,7 @@
     /// Azure.Core.TokenCredential is only available for netstandard2.0.
     /// I'm introducing this class as a wrapper so we can receive an instance of this class and pass it around within our SDK.
     /// </remarks>
-    public class ReflectionCredentialEnvelope : ICredentialEnvelope
+    internal class ReflectionCredentialEnvelope : ICredentialEnvelope
     {
         /// <summary>
         /// 

@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Authentication.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.TelemetryChannel.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.AspNetCore.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.WorkerService.Tests, PublicKey=" + AssemblyInfo.PublicKey)]

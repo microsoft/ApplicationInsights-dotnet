@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(PropsRoot)\Test.props" />
 
   <PropertyGroup>
     <TargetFrameworks>net461;net5.0</TargetFrameworks>
