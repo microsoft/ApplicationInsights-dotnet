@@ -17,9 +17,6 @@
     <PackageReference Include="Azure.Core" Version="1.10.0" /> <!-- Supports: net4.6.1, netstandard2.0, net5.0 -->
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != 'net452'">
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" /> <!-- Supports: net4.5.2, net4.6, netstandard2.0-->
   </ItemGroup>
