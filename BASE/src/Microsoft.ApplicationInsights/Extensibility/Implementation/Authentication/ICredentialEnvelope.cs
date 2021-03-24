@@ -7,6 +7,8 @@
     {
         object Credential { get; }
 
+        string GetToken(CancellationToken cancellationToken);
+
         Task<string> GetTokenAsync(CancellationToken cancellationToken);
     }
 }

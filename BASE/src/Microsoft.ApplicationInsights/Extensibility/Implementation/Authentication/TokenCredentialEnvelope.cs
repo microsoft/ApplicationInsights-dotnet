@@ -23,6 +23,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Authenticat
 
         public object Credential => this.tokenCredential;
 
+        public string GetToken(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var accessToken = this.tokenCredential.GetToken(requestContext: this.tokenRequestContext, cancellationToken: cancellationToken);
+            return accessToken.Token;
+        }
+
         /// <summary>
         /// 
         /// </summary>

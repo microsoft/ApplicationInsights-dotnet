@@ -52,7 +52,23 @@ namespace Microsoft.ApplicationInsights.Authentication.Tests
 
 #if NET5_0
         [TestMethod]
-        public async Task VerifyCanGetTokenString()
+        public void VerifyCanGetTokenString()
+        {
+            var mockCredential = new MockCredential();
+
+            var tokenCredentialEnvelope = new TokenCredentialEnvelope(mockCredential);
+            var token = tokenCredentialEnvelope.GetToken();
+            Assert.IsNotNull(token);
+
+            var reflectionCredentialEnvelope = new ReflectionCredentialEnvelope(mockCredential);
+            var tokenFromReflection = reflectionCredentialEnvelope.GetToken();
+            Assert.IsNotNull(tokenFromReflection);
+
+            Assert.AreEqual(token, tokenFromReflection);
+        }
+
+        [TestMethod]
+        public async Task VerifyCanGetTokenStringAsync()
         {
             var mockCredential = new MockCredential();
 
