@@ -18,7 +18,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Authenticat
         public TokenCredentialEnvelope(TokenCredential tokenCredential)
         {
             this.tokenCredential = tokenCredential ?? throw new ArgumentNullException(nameof(tokenCredential));
-            this.tokenRequestContext = new TokenRequestContext(scopes: AuthConstants.GetScopes());
+            this.tokenRequestContext = new TokenRequestContext(scopes: GetScopes());
         }
 
         public override object Credential => this.tokenCredential;

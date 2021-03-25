@@ -16,6 +16,9 @@
     /// </remarks>
     internal class ReflectionCredentialEnvelope : CredentialEnvelope
     {
+        private readonly Type tokenCredentialType = Type.GetType("Azure.Core.TokenCredential, Azure.Core");
+        private readonly Type tokenRequestContextType = Type.GetType("Azure.Core.TokenRequestContext, Azure.Core");
+
         private readonly object tokenCredential;
         private readonly object tokenRequestContext;
         private readonly MethodInfo getTokenAsyncMethod;
@@ -33,12 +36,11 @@
         {
             this.tokenCredential = tokenCredential ?? throw new ArgumentNullException(nameof(tokenCredential));
 
-            if (tokenCredential.GetType().IsSubclassOf(Type.GetType("Azure.Core.TokenCredential, Azure.Core")))
+            if (tokenCredential.GetType().IsSubclassOf(tokenCredentialType))
             {
                 // (https://docs.microsoft.com/en-us/dotnet/api/azure.core.tokenrequestcontext.-ctor?view=azure-dotnet).
                 // Invoking this constructor: Azure.Core.TokenRequestContext(String[], String, String).
-                var tokenRequestContextType = Type.GetType("Azure.Core.TokenRequestContext, Azure.Core");
-                var paramArray = new object[] { AuthConstants.GetScopes(), null, null };
+                var paramArray = new object[] { GetScopes(), null, null };
                 this.tokenRequestContext = Activator.CreateInstance(tokenRequestContextType, args: paramArray);
 
                 // (https://docs.microsoft.com/en-us/dotnet/api/azure.core.tokencredential.gettokenasync?view=azure-dotnet).
@@ -99,17 +101,40 @@
 
         public override async Task<string> GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await Task.Run(() => this.GetToken(cancellationToken));
+            var tokenCredentialType = Type.GetType("Azure.Core.TokenCredential, Azure.Core");
+            var tokenRequestContextType = Type.GetType("Azure.Core.TokenRequestContext, Azure.Core");
+            var accessTokenType = Type.GetType("Azure.Core.AccessToken, Azure.Core");
 
-            // TODO: THIS DOESN'T WORK. CAN CIRCLE BACK AND INVESTIGATE THIS LATER.
-            // 'Unable to cast object of type 'System.Threading.Tasks.ValueTask`1[Azure.Core.AccessToken]' to type 'System.Threading.Tasks.Task'.'
-            // (https://stackoverflow.com/questions/39674988/how-to-call-a-generic-async-method-using-reflection/39679855).
-            //var task = (Task)this.getTokenAsyncMethod.Invoke(this.Credential, new object[] { this.tokenRequestContext, cancellationToken });
-            //await task.ConfigureAwait(false);
-            //var resultProperty = task.GetType().GetProperty("Result");
-            //var accessToken = resultProperty.GetValue(task);
-            //var tokenProperty = accessToken.GetType().GetProperty("Token");
-            //return (string)tokenProperty.GetValue(accessToken);
+            var parameterExpression_requestContext = Expression.Parameter(type: tokenRequestContextType, name: "parameterExpression_requestContext");
+            var parameterExpression_cancellationToken = Expression.Parameter(type: typeof(CancellationToken), name: "parameterExpression_cancellationToken");
+
+            Expression callExpr = Expression.Call(
+                instance: Expression.New(this.Credential.GetType()),
+                method: tokenCredentialType.GetMethod(name: "GetTokenAsync", types: new Type[] { tokenRequestContextType, typeof(CancellationToken) }),
+                arg0: parameterExpression_requestContext,
+                arg1: parameterExpression_cancellationToken
+                );
+
+            var lambdaTest = Expression.Lambda(
+                body: callExpr,
+                new ParameterExpression[]
+                {
+                    parameterExpression_requestContext,
+                    parameterExpression_cancellationToken
+                });
+
+            var compileTest = lambdaTest.Compile(); // TODO: THIS NEEDS TO BE STORED AS A PRIVATE FIELD SO IT CAN BE REUSED.
+            var valueTaskAccessToken = compileTest.DynamicInvoke(this.tokenRequestContext, cancellationToken);
+
+            var asTaskMethod = valueTaskAccessToken.GetType().GetMethod("AsTask");
+
+            var task = (Task)asTaskMethod.Invoke(valueTaskAccessToken, null);
+            await task.ConfigureAwait(false);
+            var resultProperty = task.GetType().GetProperty("Result");
+            var accessToken = resultProperty.GetValue(task);
+
+            var tokenProperty = accessTokenType.GetProperty("Token");
+            return (string)tokenProperty.GetValue(accessToken);
         }
     }
 }
