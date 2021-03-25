@@ -398,7 +398,7 @@
             GC.SuppressFinalize(this);
         }
 
-        public ICredentialEnvelope CredentialEnvelope { get; private set; }
+        public CredentialEnvelope CredentialEnvelope { get; private set; }
 
 #if NETSTANDARD2_0
         public void SetCredential(Azure.Core.TokenCredential tokenCredential) => this.CredentialEnvelope = new TokenCredentialEnvelope(tokenCredential);

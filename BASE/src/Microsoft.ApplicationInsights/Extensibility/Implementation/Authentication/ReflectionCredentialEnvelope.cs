@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication
 {
     using System;
+    using System.Linq.Expressions;
     using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
@@ -13,8 +14,9 @@
     /// Azure.Core.TokenCredential is only available for netstandard2.0.
     /// I'm introducing this class as a wrapper so we can receive an instance of this class and pass it around within our SDK.
     /// </remarks>
-    internal class ReflectionCredentialEnvelope : ICredentialEnvelope
+    internal class ReflectionCredentialEnvelope : CredentialEnvelope
     {
+        private readonly object tokenCredential;
         private readonly object tokenRequestContext;
         private readonly MethodInfo getTokenAsyncMethod;
         private readonly MethodInfo getTokenMethod;
@@ -29,10 +31,10 @@
         /// <param name="tokenCredential"></param>
         public ReflectionCredentialEnvelope(object tokenCredential)
         {
-            if (this.IsTokenCredential(tokenCredential.GetType()))
-            {
-                this.Credential = tokenCredential;
+            this.tokenCredential = tokenCredential ?? throw new ArgumentNullException(nameof(tokenCredential));
 
+            if (tokenCredential.GetType().IsSubclassOf(Type.GetType("Azure.Core.TokenCredential, Azure.Core")))
+            {
                 // (https://docs.microsoft.com/en-us/dotnet/api/azure.core.tokenrequestcontext.-ctor?view=azure-dotnet).
                 // Invoking this constructor: Azure.Core.TokenRequestContext(String[], String, String).
                 var tokenRequestContextType = Type.GetType("Azure.Core.TokenRequestContext, Azure.Core");
@@ -52,16 +54,63 @@
             }
         }
 
-        public object Credential { get; private set; }
+        public override object Credential => this.tokenCredential;
 
-        public string GetToken(CancellationToken cancellationToken = default(CancellationToken))
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// This is a wrapper for the following method:
+        /// <code>public abstract Azure.Core.AccessToken GetToken (Azure.Core.TokenRequestContext requestContext, System.Threading.CancellationToken cancellationToken);</code>.
+        /// (https://docs.microsoft.com/dotnet/api/azure.core.tokencredential.gettoken).
+        /// </remarks>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public override string GetToken(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var accessToken = this.getTokenMethod.Invoke(this.Credential, new object[] { this.tokenRequestContext, cancellationToken });
+            var tokenCredentialType = Type.GetType("Azure.Core.TokenCredential, Azure.Core");
+            var tokenRequestContextType = Type.GetType("Azure.Core.TokenRequestContext, Azure.Core");
+            var accessTokenType = Type.GetType("Azure.Core.AccessToken, Azure.Core");
+
+            var parameterExpression_requestContext = Expression.Parameter(type: tokenRequestContextType, name: "parameterExpression_requestContext");
+            var parameterExpression_cancellationToken = Expression.Parameter(type: typeof(CancellationToken), name: "parameterExpression_cancellationToken");
+
+            Expression callExpr = Expression.Call(
+                instance: Expression.New(this.Credential.GetType()),
+                method: tokenCredentialType.GetMethod(name: "GetToken", types: new Type[] { tokenRequestContextType, typeof(CancellationToken) }),
+                arg0: parameterExpression_requestContext,
+                arg1: parameterExpression_cancellationToken
+                );
+
+            var lambdaTest = Expression.Lambda(
+                body: callExpr,
+                new ParameterExpression[]
+                {
+                    parameterExpression_requestContext,
+                    parameterExpression_cancellationToken
+                });
+
+            var compileTest = lambdaTest.Compile(); // TODO: THIS NEEDS TO BE STORED AS A PRIVATE FIELD SO IT CAN BE REUSED.
+
+            var accessToken = compileTest.DynamicInvoke(this.tokenRequestContext, cancellationToken);
             var tokenProperty = accessToken.GetType().GetProperty("Token");
             return (string)tokenProperty.GetValue(accessToken);
+
+
+            // REILEY'S EXAMPLE
+            //var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            //var ctor = typeof(Batch<T>).GetConstructor(flags, null, new Type[] { typeof(T) }, null);
+            //var value = Expression.Parameter(typeof(T), null);
+            //var lambda = Expression.Lambda<Func<T, Batch<T>>>(Expression.New(ctor, value), value);
+            //CreateBatch = lambda.Compile();
+
+            // THIS WORKS
+            //var accessToken = this.getTokenMethod.Invoke(this.Credential, new object[] { this.tokenRequestContext, cancellationToken });
+            //var tokenProperty = accessToken.GetType().GetProperty("Token");
+            //return (string)tokenProperty.GetValue(accessToken);
         }
 
-        public async Task<string> GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<string> GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return await Task.Run(() => this.GetToken(cancellationToken));
 
@@ -75,10 +124,5 @@
             //var tokenProperty = accessToken.GetType().GetProperty("Token");
             //return (string)tokenProperty.GetValue(accessToken);
         }
-
-        /// <summary>
-        /// Checks if the input inherits <see cref="Azure.Core.TokenCredential"/>
-        /// </summary>
-        private bool IsTokenCredential(Type inputType) => inputType.IsSubclassOf(Type.GetType("Azure.Core.TokenCredential, Azure.Core"));
     }
 }

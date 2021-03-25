@@ -1,14 +1,15 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
 
-    public interface ICredentialEnvelope
+    public abstract class CredentialEnvelope
     {
-        object Credential { get; }
+        public abstract object Credential { get;}
 
-        string GetToken(CancellationToken cancellationToken);
+        public abstract string GetToken(CancellationToken cancellationToken);
 
-        Task<string> GetTokenAsync(CancellationToken cancellationToken);
+        public abstract Task<string> GetTokenAsync(CancellationToken cancellationToken);
     }
 }
