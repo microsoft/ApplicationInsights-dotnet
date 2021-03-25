@@ -91,23 +91,10 @@
                 });
 
             var compileTest = lambdaTest.Compile(); // TODO: THIS NEEDS TO BE STORED AS A PRIVATE FIELD SO IT CAN BE REUSED.
-
             var accessToken = compileTest.DynamicInvoke(this.tokenRequestContext, cancellationToken);
-            var tokenProperty = accessToken.GetType().GetProperty("Token");
+
+            var tokenProperty = accessTokenType.GetProperty("Token");
             return (string)tokenProperty.GetValue(accessToken);
-
-
-            // REILEY'S EXAMPLE
-            //var flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            //var ctor = typeof(Batch<T>).GetConstructor(flags, null, new Type[] { typeof(T) }, null);
-            //var value = Expression.Parameter(typeof(T), null);
-            //var lambda = Expression.Lambda<Func<T, Batch<T>>>(Expression.New(ctor, value), value);
-            //CreateBatch = lambda.Compile();
-
-            // THIS WORKS
-            //var accessToken = this.getTokenMethod.Invoke(this.Credential, new object[] { this.tokenRequestContext, cancellationToken });
-            //var tokenProperty = accessToken.GetType().GetProperty("Token");
-            //return (string)tokenProperty.GetValue(accessToken);
         }
 
         public override async Task<string> GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
