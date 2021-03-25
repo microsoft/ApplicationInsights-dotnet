@@ -21,16 +21,12 @@
 
         private readonly object tokenCredential;
         private readonly object tokenRequestContext;
-        private readonly MethodInfo getTokenAsyncMethod;
-        private readonly MethodInfo getTokenMethod;
-        //private readonly Type accessTokenType;
+        //private readonly MethodInfo getTokenAsyncMethod;
+        //private readonly MethodInfo getTokenMethod;
 
         /// <summary>
         /// 
         /// </summary>
-        /// <remarks>
-        /// Must use reflection to verify that this object is an instance of Azure.Core.TokenCredential.
-        /// </remarks>
         /// <param name="tokenCredential"></param>
         public ReflectionCredentialEnvelope(object tokenCredential)
         {
@@ -42,13 +38,6 @@
                 // Invoking this constructor: Azure.Core.TokenRequestContext(String[], String, String).
                 var paramArray = new object[] { GetScopes(), null, null };
                 this.tokenRequestContext = Activator.CreateInstance(tokenRequestContextType, args: paramArray);
-
-                // (https://docs.microsoft.com/en-us/dotnet/api/azure.core.tokencredential.gettokenasync?view=azure-dotnet).
-                // Getting a handle for this method: Azure.Core.TokenCredential.GetTokenAsync().
-                this.getTokenAsyncMethod = this.Credential.GetType().GetMethod("GetTokenAsync");
-                this.getTokenMethod = this.Credential.GetType().GetMethod("GetToken");
-
-                // this.accessTokenType = Type.GetType("Azure.Core.AccessToken, Azure.Core");
             }
             else
             {
@@ -86,7 +75,7 @@
 
             var lambdaTest = Expression.Lambda(
                 body: callExpr,
-                new ParameterExpression[]
+                parameters: new ParameterExpression[]
                 {
                     parameterExpression_requestContext,
                     parameterExpression_cancellationToken
@@ -117,7 +106,7 @@
 
             var lambdaTest = Expression.Lambda(
                 body: callExpr,
-                new ParameterExpression[]
+                parameters: new ParameterExpression[]
                 {
                     parameterExpression_requestContext,
                     parameterExpression_cancellationToken
