@@ -18,11 +18,10 @@
     {
         private readonly Type tokenCredentialType = Type.GetType("Azure.Core.TokenCredential, Azure.Core");
         private readonly Type tokenRequestContextType = Type.GetType("Azure.Core.TokenRequestContext, Azure.Core");
+        private readonly Type accessTokenType = Type.GetType("Azure.Core.AccessToken, Azure.Core");
 
         private readonly object tokenCredential;
         private readonly object tokenRequestContext;
-        //private readonly MethodInfo getTokenAsyncMethod;
-        //private readonly MethodInfo getTokenMethod;
 
         /// <summary>
         /// 
@@ -34,10 +33,7 @@
 
             if (tokenCredential.GetType().IsSubclassOf(tokenCredentialType))
             {
-                // (https://docs.microsoft.com/en-us/dotnet/api/azure.core.tokenrequestcontext.-ctor?view=azure-dotnet).
-                // Invoking this constructor: Azure.Core.TokenRequestContext(String[], String, String).
-                var paramArray = new object[] { GetScopes(), null, null };
-                this.tokenRequestContext = Activator.CreateInstance(tokenRequestContextType, args: paramArray);
+                this.tokenRequestContext = GetTokenRequestContext();
             }
             else
             {
@@ -48,13 +44,20 @@
         public override object Credential => this.tokenCredential;
 
         /// <summary>
-        /// 
+        /// This is a wrapper for the following constructor:
+        /// <code>public TokenRequestContext (string[] scopes, string? parentRequestId = default, string? claims = default);</code>
+        /// (https://docs.microsoft.com/dotnet/api/azure.core.tokenrequestcontext.-ctor).
         /// </summary>
-        /// <remarks>
+        private object GetTokenRequestContext()
+        {
+            return Activator.CreateInstance(tokenRequestContextType, args: new object[] { GetScopes(), null, null });
+        }
+
+        /// <summary>
         /// This is a wrapper for the following method:
-        /// <code>public abstract Azure.Core.AccessToken GetToken (Azure.Core.TokenRequestContext requestContext, System.Threading.CancellationToken cancellationToken);</code>.
+        /// <code>public abstract Azure.Core.AccessToken GetToken (Azure.Core.TokenRequestContext requestContext, System.Threading.CancellationToken cancellationToken);</code>
         /// (https://docs.microsoft.com/dotnet/api/azure.core.tokencredential.gettoken).
-        /// </remarks>
+        /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public override string GetToken(CancellationToken cancellationToken = default(CancellationToken))
@@ -88,6 +91,13 @@
             return (string)tokenProperty.GetValue(accessToken);
         }
 
+        /// <summary>
+        /// This is a wrapper for the following method:
+        /// <code>public abstract System.Threading.Tasks.ValueTask&lt;Azure.Core.AccessToken> GetTokenAsync (Azure.Core.TokenRequestContext requestContext, System.Threading.CancellationToken cancellationToken);</code>
+        /// (https://docs.microsoft.com/dotnet/api/azure.core.tokencredential.gettokenasync).
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public override async Task<string> GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var tokenCredentialType = Type.GetType("Azure.Core.TokenCredential, Azure.Core");
