@@ -1,6 +1,7 @@
 namespace Microsoft.ApplicationInsights.Authentication.Tests
 {
     using System;
+    using System.Linq.Expressions;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -18,10 +19,10 @@ namespace Microsoft.ApplicationInsights.Authentication.Tests
         [TestMethod]
         public void VerifyCanSetCredential()
         {
-            var defaultTokenCredential = new MockCredential();
+            var mockCredential = new MockCredential();
 
             var telemetryConfiguration = new TelemetryConfiguration();
-            telemetryConfiguration.SetCredential(defaultTokenCredential);
+            telemetryConfiguration.SetCredential(mockCredential);
 
 
             var credentialEnvelope = telemetryConfiguration.CredentialEnvelope;
@@ -33,7 +34,7 @@ namespace Microsoft.ApplicationInsights.Authentication.Tests
             throw new System.Exception("this is a testing gap.");
 #endif
 
-            Assert.AreEqual(defaultTokenCredential, telemetryConfiguration.CredentialEnvelope.Credential);
+            Assert.AreEqual(mockCredential, telemetryConfiguration.CredentialEnvelope.Credential);
         }
 
 #if NET461
@@ -83,20 +84,5 @@ namespace Microsoft.ApplicationInsights.Authentication.Tests
             Assert.AreEqual(token, tokenFromReflection);
         }
 #endif
-        /// <remarks>
-        /// Copied from (https://github.com/Azure/azure-sdk-for-net/blob/master/sdk/core/Azure.Core.TestFramework/src/MockCredential.cs).
-        /// </remarks>
-        private class MockCredential : TokenCredential
-        {
-            public override ValueTask<AccessToken> GetTokenAsync(TokenRequestContext requestContext, CancellationToken cancellationToken)
-            {
-                return new ValueTask<AccessToken>(GetToken(requestContext, cancellationToken));
-            }
-
-            public override AccessToken GetToken(TokenRequestContext requestContext, CancellationToken cancellationToken)
-            {
-                return new AccessToken("TEST TOKEN " + string.Join(" ", requestContext.Scopes), DateTimeOffset.MaxValue);
-            }
-        }
     }
 }
