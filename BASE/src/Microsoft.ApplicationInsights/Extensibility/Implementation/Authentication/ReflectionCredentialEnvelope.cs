@@ -59,36 +59,86 @@
 
         public override string GetToken(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var expression = GetTokenAsExpression(this.tokenCredential, this.tokenRequestContext);
-            var func = expression.Compile(); // TODO: THIS NEEDS TO BE STORED AS A PRIVATE FIELD SO IT CAN BE REUSED.
-            return func(this.tokenCredential, this.tokenRequestContext, cancellationToken);
+            var expression = GetTokenAsLambdaExpression();
+            var @delegate = expression.Compile(); // TODO: THIS NEEDS TO BE STORED AS A PRIVATE FIELD SO IT CAN BE REUSED.
+            return (string)@delegate.DynamicInvoke(this.tokenCredential, this.tokenRequestContext, cancellationToken);
         }
 
+        ///// <summary>
+        ///// This is a wrapper for the following method:
+        ///// <code>public abstract Azure.Core.AccessToken GetToken (Azure.Core.TokenRequestContext requestContext, System.Threading.CancellationToken cancellationToken);</code>
+        ///// (https://docs.microsoft.com/dotnet/api/azure.core.tokencredential.gettoken).
+        ///// </summary>
+        ///// <typeparam name="T1"></typeparam>
+        ///// <typeparam name="T2"></typeparam>
+        ///// <param name="T_TokenCredential"></param>
+        ///// <param name="T_TokenRequestContext"></param>
+        ///// <returns></returns>
+        //internal static Expression<Func<T1, T2, CancellationToken, string>> GetTokenAsExpression<T1, T2>(T1 T_TokenCredential, T2 T_TokenRequestContext)
+        //{
+        //    Type typeTokenCredential = Type.GetType("Azure.Core.TokenCredential, Azure.Core");
+        //    Type typeTokenRequestContext = Type.GetType("Azure.Core.TokenRequestContext, Azure.Core");
+        //    Type typeCancellationToken = typeof(CancellationToken);
+
+        //    if (!T_TokenCredential.GetType().IsSubclassOf(typeTokenCredential))
+        //    {
+        //        throw new ArgumentException("Must be an instance of Azure.Core.TokenCredential", nameof(T_TokenCredential));
+        //    }
+
+        //    if (!T_TokenRequestContext.GetType().IsEquivalentTo(typeTokenRequestContext))
+        //    {
+        //        throw new ArgumentException("Must be an instance of Azure.Core.TokenRequestContext", nameof(T_TokenRequestContext));
+        //    }
+
+        //    var parameterExpression_tokenCredential = Expression.Parameter(type: typeTokenCredential, name: "parameterExpression_TokenCredential");
+        //    var parameterExpression_requestContext = Expression.Parameter(type: typeTokenRequestContext, name: "parameterExpression_RequestContext");
+        //    var parameterExpression_cancellationToken = Expression.Parameter(type: typeCancellationToken, name: "parameterExpression_CancellationToken");
+
+        //    var exprGetToken = Expression.Call(
+        //        instance: parameterExpression_tokenCredential,
+        //        method: typeTokenCredential.GetMethod(name: "GetToken", types: new Type[] { typeTokenRequestContext, typeCancellationToken }),
+        //        arg0: parameterExpression_requestContext,
+        //        arg1: parameterExpression_cancellationToken
+        //        );
+
+        //    var exprTokenProperty = Expression.Property(
+        //        expression: exprGetToken,
+        //        propertyName: "Token"
+        //        );
+
+
+        //    var test = Expression.Lambda(
+        //        body: exprTokenProperty,
+        //        parameters: new ParameterExpression[]
+        //        {
+        //            parameterExpression_tokenCredential,
+        //            parameterExpression_requestContext,
+        //            parameterExpression_cancellationToken
+        //        });
+        //    var test2 = test.Compile();
+        //    var result = test2.DynamicInvoke(T_TokenCredential, T_TokenRequestContext, CancellationToken.None);
+
+
+        //    return Expression.Lambda<Func<T1, T2, CancellationToken, string>>(
+        //        body: exprTokenProperty,
+        //        parameters: new ParameterExpression[]
+        //        {
+        //            parameterExpression_tokenCredential,
+        //            parameterExpression_requestContext,
+        //            parameterExpression_cancellationToken
+        //        });
+        //}
+
         /// <summary>
-        /// This is a wrapper for the following method:
+        /// This creates a wrapper for the following method:
         /// <code>public abstract Azure.Core.AccessToken GetToken (Azure.Core.TokenRequestContext requestContext, System.Threading.CancellationToken cancellationToken);</code>
         /// (https://docs.microsoft.com/dotnet/api/azure.core.tokencredential.gettoken).
         /// </summary>
-        /// <typeparam name="T1"></typeparam>
-        /// <typeparam name="T2"></typeparam>
-        /// <param name="T_TokenCredential"></param>
-        /// <param name="T_TokenRequestContext"></param>
-        /// <returns></returns>
-        internal static Expression<Func<T1, T2, CancellationToken, string>> GetTokenAsExpression<T1, T2>(T1 T_TokenCredential, T2 T_TokenRequestContext)
+        internal static LambdaExpression GetTokenAsLambdaExpression()
         {
             Type typeTokenCredential = Type.GetType("Azure.Core.TokenCredential, Azure.Core");
             Type typeTokenRequestContext = Type.GetType("Azure.Core.TokenRequestContext, Azure.Core");
             Type typeCancellationToken = typeof(CancellationToken);
-
-            if (!T_TokenCredential.GetType().IsSubclassOf(typeTokenCredential))
-            {
-                throw new ArgumentException("Must be an instance of Azure.Core.TokenCredential", nameof(T_TokenCredential));
-            }
-
-            if (!T_TokenRequestContext.GetType().IsEquivalentTo(typeTokenRequestContext))
-            {
-                throw new ArgumentException("Must be an instance of Azure.Core.TokenRequestContext", nameof(T_TokenRequestContext));
-            }
 
             var parameterExpression_tokenCredential = Expression.Parameter(type: typeTokenCredential, name: "parameterExpression_TokenCredential");
             var parameterExpression_requestContext = Expression.Parameter(type: typeTokenRequestContext, name: "parameterExpression_RequestContext");
@@ -106,7 +156,7 @@
                 propertyName: "Token"
                 );
 
-            return Expression.Lambda<Func<T1, T2, CancellationToken, string>>(
+            return Expression.Lambda(
                 body: exprTokenProperty,
                 parameters: new ParameterExpression[]
                 {
@@ -115,6 +165,7 @@
                     parameterExpression_cancellationToken
                 });
         }
+
 
         /// <summary>
         /// This is a wrapper for the following method:

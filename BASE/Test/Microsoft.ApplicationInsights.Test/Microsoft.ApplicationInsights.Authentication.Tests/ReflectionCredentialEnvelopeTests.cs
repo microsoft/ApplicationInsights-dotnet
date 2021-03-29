@@ -39,15 +39,47 @@
             _ = new ReflectionCredentialEnvelope(Guid.Empty);
         }
 
+        //[TestMethod]
+        //public void VerifyGetTokenAsExpression_UsingCompileTimeTypes()
+        //{
+        //    var mockCredential = new MockCredential();
+        //    var requestContext = new TokenRequestContext(new string[] { "test/scope" });
+
+        //    var expression = ReflectionCredentialEnvelope.GetTokenAsExpression(mockCredential, requestContext).Compile();
+
+        //    var testResult = expression(mockCredential, requestContext, CancellationToken.None);
+        //    Assert.AreEqual("TEST TOKEN test/scope", testResult);
+        //}
+
+        ///// <summary>
+        ///// This more closely represents how this would be used in a production environment.
+        ///// </summary>
+        //[TestMethod]
+        //public void VerifyGetTokenAsExpression_UsingDynamicTypes()
+        //{
+        //    // This currently throws ArgumentExceptions:
+        //    // ParameterExpression of type 'Microsoft.ApplicationInsights.Authentication.Tests.MockCredential' cannot be used for delegate parameter of type 'System.Object'
+        //    // ParameterExpression of type 'Azure.Core.TokenRequestContext' cannot be used for delegate parameter of type 'System.Object'
+
+
+        //    var mockCredential = (object)new MockCredential();
+        //    var requestContext = ReflectionCredentialEnvelope.MakeTokenRequestContext(new[] { "test/scope" });
+
+        //    var expression = ReflectionCredentialEnvelope.GetTokenAsExpression(mockCredential, requestContext).Compile();
+
+        //    var testResult = expression(mockCredential, requestContext, CancellationToken.None);
+        //    Assert.AreEqual("TEST TOKEN test/scope", testResult);
+        //}
+
         [TestMethod]
-        public void VerifyGetTokenAsExpression_UsingCompileTimeTypes()
+        public void VerifyGetTokenAsLabmdaExpression_UsingCompileTimeTypes()
         {
             var mockCredential = new MockCredential();
             var requestContext = new TokenRequestContext(new string[] { "test/scope" });
 
-            var expression = ReflectionCredentialEnvelope.GetTokenAsExpression(mockCredential, requestContext).Compile();
+            var expression = ReflectionCredentialEnvelope.GetTokenAsLambdaExpression().Compile();
 
-            var testResult = expression(mockCredential, requestContext, CancellationToken.None);
+            var testResult = expression.DynamicInvoke(mockCredential, requestContext, CancellationToken.None);
             Assert.AreEqual("TEST TOKEN test/scope", testResult);
         }
 
@@ -55,7 +87,7 @@
         /// This more closely represents how this would be used in a production environment.
         /// </summary>
         [TestMethod]
-        public void VerifyGetTokenAsExpression_UsingDynamicTypes()
+        public void VerifyGetTokenAsLabmdaExpression_UsingDynamicTypes()
         {
             // This currently throws ArgumentExceptions:
             // ParameterExpression of type 'Microsoft.ApplicationInsights.Authentication.Tests.MockCredential' cannot be used for delegate parameter of type 'System.Object'
@@ -65,9 +97,9 @@
             var mockCredential = (object)new MockCredential();
             var requestContext = ReflectionCredentialEnvelope.MakeTokenRequestContext(new[] { "test/scope" });
 
-            var expression = ReflectionCredentialEnvelope.GetTokenAsExpression(mockCredential, requestContext).Compile();
+            var expression = ReflectionCredentialEnvelope.GetTokenAsLambdaExpression().Compile();
 
-            var testResult = expression(mockCredential, requestContext, CancellationToken.None);
+            var testResult = expression.DynamicInvoke(mockCredential, requestContext, CancellationToken.None);
             Assert.AreEqual("TEST TOKEN test/scope", testResult);
         }
 
