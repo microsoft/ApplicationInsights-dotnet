@@ -57,8 +57,13 @@
         [TestMethod]
         public void VerifyGetTokenAsExpression_UsingDynamicTypes()
         {
+            // This currently throws ArgumentExceptions:
+            // ParameterExpression of type 'Microsoft.ApplicationInsights.Authentication.Tests.MockCredential' cannot be used for delegate parameter of type 'System.Object'
+            // ParameterExpression of type 'Azure.Core.TokenRequestContext' cannot be used for delegate parameter of type 'System.Object'
+
+
             var mockCredential = (object)new MockCredential();
-            var requestContext = ReflectionCredentialEnvelope.GetTokenRequestContext(new[] { "test/scope" });
+            var requestContext = ReflectionCredentialEnvelope.MakeTokenRequestContext(new[] { "test/scope" });
 
             var expression = ReflectionCredentialEnvelope.GetTokenAsExpression(mockCredential, requestContext).Compile();
 
