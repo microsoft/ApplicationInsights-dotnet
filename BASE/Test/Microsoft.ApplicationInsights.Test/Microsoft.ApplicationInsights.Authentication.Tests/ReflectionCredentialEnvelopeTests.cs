@@ -106,7 +106,9 @@
             var mockCredential = new MockCredential();
             var requestContext = new TokenRequestContext(new string[] { "test/scope" });
 
-            var testResult = await ReflectionCredentialEnvelope.GetTokenAsyncAsExpression(mockCredential, requestContext, CancellationToken.None);
+            var expression = ReflectionCredentialEnvelope.GetTokenAsyncAsExpression();
+
+            var testResult = await expression.Run(mockCredential, requestContext, CancellationToken.None);
 
             Assert.AreEqual("TEST TOKEN test/scope", testResult);
         }
@@ -120,12 +122,11 @@
             var mockCredential = (object)new MockCredential();
             var requestContext = ReflectionCredentialEnvelope.MakeTokenRequestContext(new[] { "test/scope" });
 
-            var testResult = await ReflectionCredentialEnvelope.GetTokenAsyncAsExpression(mockCredential, requestContext, CancellationToken.None);
+            var expression = ReflectionCredentialEnvelope.GetTokenAsyncAsExpression();
+
+            var testResult = await expression.Run(mockCredential, requestContext, CancellationToken.None);
 
             Assert.AreEqual("TEST TOKEN test/scope", testResult);
-
-
-
         }
 
         #region TestClasses

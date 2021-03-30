@@ -275,5 +275,86 @@
 
             return (string)delegateToken.DynamicInvoke(task);
         }
+
+        public static AsyncHack GetTokenAsyncAsExpression()
+        {
+
+            Type typeTokenCredential = Type.GetType("Azure.Core.TokenCredential, Azure.Core");
+            Type typeTokenRequestContext = Type.GetType("Azure.Core.TokenRequestContext, Azure.Core");
+            Type typeCancellationToken = typeof(CancellationToken);
+
+            var parameterExpression_TokenCredential = Expression.Parameter(type: typeTokenCredential, name: "parameterExpression_TokenCredential");
+            var parameterExpression_RequestContext = Expression.Parameter(type: typeTokenRequestContext, name: "parameterExpression_RequestContext");
+            var parameterExpression_CancellationToken = Expression.Parameter(type: typeCancellationToken, name: "parameterExpression_CancellationToken");
+
+            // public abstract System.Threading.Tasks.ValueTask<Azure.Core.AccessToken> GetTokenAsync (Azure.Core.TokenRequestContext requestContext, System.Threading.CancellationToken cancellationToken);
+            var methodInfo_GetTokenAsync = typeTokenCredential.GetMethod(name: "GetTokenAsync", types: new Type[] { typeTokenRequestContext, typeCancellationToken });
+
+            var exprGetTokenAsync = Expression.Call(
+                instance: parameterExpression_TokenCredential,
+                method: methodInfo_GetTokenAsync,
+                arg0: parameterExpression_RequestContext,
+                arg1: parameterExpression_CancellationToken
+                );
+
+            var methodInfo_AsTask = methodInfo_GetTokenAsync.ReturnType.GetMethod("AsTask");
+
+            var exprAsTask = Expression.Call(
+                instance: exprGetTokenAsync,
+                method: methodInfo_AsTask
+                );
+
+            var delegateGetTokenAsync = Expression.Lambda(
+                body: exprAsTask,
+                parameters: new ParameterExpression[]
+                {
+                    parameterExpression_TokenCredential,
+                    parameterExpression_RequestContext,
+                    parameterExpression_CancellationToken
+                }).Compile();
+
+            //var task = (Task)delegateGetTokenAsyncAsTask.DynamicInvoke(tokenCredential, tokenRequestContext, cancellationToken);
+            //await task.ConfigureAwait(false);
+
+            var parameterExpression_Task = Expression.Parameter(type: methodInfo_AsTask.ReturnType, name: "parameterExpression_Task");
+
+            var exprResultProperty = Expression.Property(
+                expression: parameterExpression_Task,
+                propertyName: "Result"
+                );
+
+            var exprTokenProperty = Expression.Property(
+                expression: exprResultProperty,
+                propertyName: "Token"
+                );
+
+            var delegateTokenProperty = Expression.Lambda(
+                body: exprTokenProperty,
+                parameters: new ParameterExpression[]
+                {
+                    parameterExpression_Task,
+                }).Compile();
+
+            return new AsyncHack(delegateGetTokenAsync, delegateTokenProperty);
+        }
+
+        internal class AsyncHack
+        {
+            private readonly Delegate getTokenAsync;
+            private readonly Delegate getTokenProperty;
+
+            public AsyncHack(Delegate gettokenAsync, Delegate getTokenProperty)
+            {
+                this.getTokenAsync = gettokenAsync;
+                this.getTokenProperty = getTokenProperty;
+            }
+
+            public async Task<string> Run(object tokenCredential, object tokenRequestContext, CancellationToken cancellationToken)
+            {
+                var task = (Task)this.getTokenAsync.DynamicInvoke(tokenCredential, tokenRequestContext, cancellationToken);
+                await task.ConfigureAwait(false);
+                return (string)this.getTokenProperty.DynamicInvoke(task);
+            }
+        }
     }
 }
