@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Authentication.Tests
 {
     using System;
-    using System.Linq.Expressions;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -78,9 +77,8 @@
             var mockCredential = new MockCredential();
             var requestContext = new TokenRequestContext(new string[] { "test/scope" });
 
-            var expression = ReflectionCredentialEnvelope.GetTokenAsLambdaExpression().Compile();
+            var testResult = ReflectionCredentialEnvelope.AzureCore.InvokeGetToken(mockCredential, requestContext, CancellationToken.None);
 
-            var testResult = expression.DynamicInvoke(mockCredential, requestContext, CancellationToken.None);
             Assert.AreEqual("TEST TOKEN test/scope", testResult);
         }
 
@@ -91,11 +89,10 @@
         public void VerifyGetToken_AsLambdaExpression_UsingDynamicTypes()
         {
             var mockCredential = (object)new MockCredential();
-            var requestContext = ReflectionCredentialEnvelope.MakeTokenRequestContext(new[] { "test/scope" });
+            var requestContext = ReflectionCredentialEnvelope.AzureCore.MakeTokenRequestContext(new[] { "test/scope" });
 
-            var expression = ReflectionCredentialEnvelope.GetTokenAsLambdaExpression().Compile();
+            var testResult = ReflectionCredentialEnvelope.AzureCore.InvokeGetToken(mockCredential, requestContext, CancellationToken.None);
 
-            var testResult = expression.DynamicInvoke(mockCredential, requestContext, CancellationToken.None);
             Assert.AreEqual("TEST TOKEN test/scope", testResult);
         }
 
@@ -106,9 +103,7 @@
             var mockCredential = new MockCredential();
             var requestContext = new TokenRequestContext(new string[] { "test/scope" });
 
-            var expression = ReflectionCredentialEnvelope.GetTokenAsyncAsExpression();
-
-            var testResult = await expression.Run(mockCredential, requestContext, CancellationToken.None);
+            var testResult = await ReflectionCredentialEnvelope.AzureCore.InvokeGetTokenAsync(mockCredential, requestContext, CancellationToken.None);
 
             Assert.AreEqual("TEST TOKEN test/scope", testResult);
         }
@@ -120,11 +115,9 @@
         public async Task VerifyGetTokenAsync_AsLambdaExpression_UsingDynamicTypes()
         {
             var mockCredential = (object)new MockCredential();
-            var requestContext = ReflectionCredentialEnvelope.MakeTokenRequestContext(new[] { "test/scope" });
+            var requestContext = ReflectionCredentialEnvelope.AzureCore.MakeTokenRequestContext(new[] { "test/scope" });
 
-            var expression = ReflectionCredentialEnvelope.GetTokenAsyncAsExpression();
-
-            var testResult = await expression.Run(mockCredential, requestContext, CancellationToken.None);
+            var testResult = await ReflectionCredentialEnvelope.AzureCore.InvokeGetTokenAsync(mockCredential, requestContext, CancellationToken.None);
 
             Assert.AreEqual("TEST TOKEN test/scope", testResult);
         }

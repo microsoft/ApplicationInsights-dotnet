@@ -334,6 +334,11 @@
         public TelemetrySink DefaultTelemetrySink => this.telemetrySinks.DefaultSink;
 
         /// <summary>
+        /// Gets an envelope for Azure.Core.TokenCredential which provides an AAD Authenticated token.
+        /// </summary>
+        public CredentialEnvelope CredentialEnvelope { get; private set; }
+
+        /// <summary>
         /// Gets or sets the chain of processors.
         /// </summary>
         internal TelemetryProcessorChain TelemetryProcessorChain
@@ -398,8 +403,10 @@
             GC.SuppressFinalize(this);
         }
 
-        public CredentialEnvelope CredentialEnvelope { get; private set; }
-
+        /// <summary>
+        /// Set a TokenCredential for this configuration.
+        /// </summary>
+        /// <param name="tokenCredential">An instance of Azure.Core.TokenCredential.</param>
 #if NETSTANDARD2_0
         public void SetCredential(Azure.Core.TokenCredential tokenCredential) => this.CredentialEnvelope = new TokenCredentialEnvelope(tokenCredential);
 #else

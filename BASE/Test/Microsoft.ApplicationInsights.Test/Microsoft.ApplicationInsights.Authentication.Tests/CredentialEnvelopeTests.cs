@@ -1,13 +1,7 @@
 namespace Microsoft.ApplicationInsights.Authentication.Tests
 {
     using System;
-    using System.Linq.Expressions;
-    using System.Threading;
     using System.Threading.Tasks;
-
-    using Azure.Core;
-    using Azure.Core.Pipeline;
-    using Azure.Identity;
 
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;

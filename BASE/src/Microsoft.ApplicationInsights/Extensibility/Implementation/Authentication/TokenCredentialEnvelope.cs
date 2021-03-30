@@ -2,9 +2,6 @@
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -21,26 +18,20 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Authenticat
             this.tokenRequestContext = new TokenRequestContext(scopes: GetScopes());
         }
 
+        /// <inheritdoc/>
         public override object Credential => this.tokenCredential;
 
+        /// <inheritdoc/>
         public override string GetToken(CancellationToken cancellationToken = default(CancellationToken))
         {
             var accessToken = this.tokenCredential.GetToken(requestContext: this.tokenRequestContext, cancellationToken: cancellationToken);
             return accessToken.Token;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <remarks>
-        /// You can also use the C# default(CancellationToken) statement to create an empty cancellation token.
-        /// Source: (https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken.none).
-        /// </remarks>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public override async Task<string> GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var accessToken = await this.tokenCredential.GetTokenAsync(requestContext: this.tokenRequestContext, cancellationToken: cancellationToken);
+            var accessToken = await this.tokenCredential.GetTokenAsync(requestContext: this.tokenRequestContext, cancellationToken: cancellationToken).ConfigureAwait(false);
             return accessToken.Token;
         }
     }
