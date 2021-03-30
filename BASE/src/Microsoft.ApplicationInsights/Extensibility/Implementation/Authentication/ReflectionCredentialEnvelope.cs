@@ -14,7 +14,9 @@
     /// Azure.Core.TokenCredential is only available for netstandard2.0.
     /// I'm introducing this class as a wrapper so we can receive an instance of this class and pass it around within our SDK.
     /// This class uses compiled Expression Trees.
-    /// Read more here: (https://docs.microsoft.com/dotnet/csharp/programming-guide/concepts/expression-trees/).
+    /// Read more here: 
+    /// (https://docs.microsoft.com/dotnet/csharp/programming-guide/concepts/expression-trees/).
+    /// (https://docs.microsoft.com/dotnet/csharp/expression-trees).
     /// </remarks>
     internal class ReflectionCredentialEnvelope : CredentialEnvelope
     {
@@ -212,5 +214,66 @@
             return (string)tokenProperty.GetValue(accessToken);
         }
 
+        /// TODO: CONVERT THIS INTO A PARAMETER-LESS METHOD THAT RETURNS THE EXPRESSION
+        public static async Task<string> GetTokenAsyncAsExpression(object tokenCredential, object tokenRequestContext, CancellationToken cancellationToken)
+        {
+            Type typeTokenCredential = Type.GetType("Azure.Core.TokenCredential, Azure.Core");
+            Type typeTokenRequestContext = Type.GetType("Azure.Core.TokenRequestContext, Azure.Core");
+            Type typeCancellationToken = typeof(CancellationToken);
+
+            var parameterExpression_TokenCredential = Expression.Parameter(type: typeTokenCredential, name: "parameterExpression_TokenCredential");
+            var parameterExpression_RequestContext = Expression.Parameter(type: typeTokenRequestContext, name: "parameterExpression_RequestContext");
+            var parameterExpression_CancellationToken = Expression.Parameter(type: typeCancellationToken, name: "parameterExpression_CancellationToken");
+
+            // public abstract System.Threading.Tasks.ValueTask<Azure.Core.AccessToken> GetTokenAsync (Azure.Core.TokenRequestContext requestContext, System.Threading.CancellationToken cancellationToken);
+            var methodInfo_GetTokenAsync = typeTokenCredential.GetMethod(name: "GetTokenAsync", types: new Type[] { typeTokenRequestContext, typeCancellationToken });
+
+            var exprGetTokenAsync = Expression.Call(
+                instance: parameterExpression_TokenCredential,
+                method: methodInfo_GetTokenAsync,
+                arg0: parameterExpression_RequestContext,
+                arg1: parameterExpression_CancellationToken
+                );
+
+            var methodInfo_AsTask = methodInfo_GetTokenAsync.ReturnType.GetMethod("AsTask");
+
+            var exprAsTask = Expression.Call(
+                instance: exprGetTokenAsync,
+                method: methodInfo_AsTask
+                );
+
+            var delegateGetTokenAsyncAsTask = Expression.Lambda(
+                body: exprAsTask,
+                parameters: new ParameterExpression[]
+                {
+                    parameterExpression_TokenCredential,
+                    parameterExpression_RequestContext,
+                    parameterExpression_CancellationToken
+                }).Compile();
+
+            var task = (Task)delegateGetTokenAsyncAsTask.DynamicInvoke(tokenCredential, tokenRequestContext, cancellationToken);
+            await task.ConfigureAwait(false);
+
+            var parameterExpression_Task = Expression.Parameter(type: methodInfo_AsTask.ReturnType, name: "parameterExpression_Task");
+
+            var exprResultProperty = Expression.Property(
+                expression: parameterExpression_Task,
+                propertyName: "Result"
+                );
+
+            var exprTokenProperty = Expression.Property(
+                expression: exprResultProperty,
+                propertyName: "Token"
+                );
+
+            var delegateToken = Expression.Lambda(
+                body: exprTokenProperty,
+                parameters: new ParameterExpression[]
+                {
+                    parameterExpression_Task,
+                }).Compile();
+
+            return (string)delegateToken.DynamicInvoke(task);
+        }
     }
 }

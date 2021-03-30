@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Authentication.Tests
 {
     using System;
+    using System.Linq.Expressions;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -72,7 +73,7 @@
         //}
 
         [TestMethod]
-        public void VerifyGetTokenAsLabmdaExpression_UsingCompileTimeTypes()
+        public void VerifyGetToken_AsLambdaExpression_UsingCompileTimeTypes()
         {
             var mockCredential = new MockCredential();
             var requestContext = new TokenRequestContext(new string[] { "test/scope" });
@@ -87,13 +88,8 @@
         /// This more closely represents how this would be used in a production environment.
         /// </summary>
         [TestMethod]
-        public void VerifyGetTokenAsLabmdaExpression_UsingDynamicTypes()
+        public void VerifyGetToken_AsLambdaExpression_UsingDynamicTypes()
         {
-            // This currently throws ArgumentExceptions:
-            // ParameterExpression of type 'Microsoft.ApplicationInsights.Authentication.Tests.MockCredential' cannot be used for delegate parameter of type 'System.Object'
-            // ParameterExpression of type 'Azure.Core.TokenRequestContext' cannot be used for delegate parameter of type 'System.Object'
-
-
             var mockCredential = (object)new MockCredential();
             var requestContext = ReflectionCredentialEnvelope.MakeTokenRequestContext(new[] { "test/scope" });
 
@@ -101,6 +97,35 @@
 
             var testResult = expression.DynamicInvoke(mockCredential, requestContext, CancellationToken.None);
             Assert.AreEqual("TEST TOKEN test/scope", testResult);
+        }
+
+
+        [TestMethod]
+        public async Task VerifyGetTokenAsync_AsLambdaExpression_UsingCompileTimeTypes()
+        {
+            var mockCredential = new MockCredential();
+            var requestContext = new TokenRequestContext(new string[] { "test/scope" });
+
+            var testResult = await ReflectionCredentialEnvelope.GetTokenAsyncAsExpression(mockCredential, requestContext, CancellationToken.None);
+
+            Assert.AreEqual("TEST TOKEN test/scope", testResult);
+        }
+
+        /// <summary>
+        /// This more closely represents how this would be used in a production environment.
+        /// </summary>
+        [TestMethod]
+        public async Task VerifyGetTokenAsync_AsLambdaExpression_UsingDynamicTypes()
+        {
+            var mockCredential = (object)new MockCredential();
+            var requestContext = ReflectionCredentialEnvelope.MakeTokenRequestContext(new[] { "test/scope" });
+
+            var testResult = await ReflectionCredentialEnvelope.GetTokenAsyncAsExpression(mockCredential, requestContext, CancellationToken.None);
+
+            Assert.AreEqual("TEST TOKEN test/scope", testResult);
+
+
+
         }
 
         #region TestClasses
