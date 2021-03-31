@@ -39,13 +39,13 @@
         public override object Credential => this.tokenCredential;
 
         /// <inheritdoc/>
-        public override string GetToken(CancellationToken cancellationToken = default(CancellationToken))
+        public override string GetToken(CancellationToken cancellationToken = default)
         {
             return AzureCore.InvokeGetToken(this.tokenCredential, this.tokenRequestContext, cancellationToken);
         }
 
         /// <inheritdoc/>
-        public override Task<string> GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<string> GetTokenAsync(CancellationToken cancellationToken = default)
         {
             return AzureCore.InvokeGetTokenAsync(this.tokenCredential, this.tokenRequestContext, cancellationToken);
         }
@@ -64,6 +64,7 @@
             private static readonly Delegate GetTokenAsyncValue;
             private static readonly Delegate GetTokenProperty;
 
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1810:Initialize reference type static fields inline", Justification = "For both optimization and readability, I'm building these objects in the same method.")]
             static AzureCore()
             {
                 GetTokenValue = BuildDelegateGetToken();
@@ -141,6 +142,7 @@
             /// First;
             /// The first Delegate is a wrapper around GetTokenAsync which returns a ValueTask of AccessToken.
             /// Then calls ValueTask.GetTask to convert that to a Task which is a known type for older frameworks.
+            /// This Task can be awaited. 
             /// Second;
             /// The second Delegate is a wrapper around Task.Result which returns the AccessToken.
             /// Then calls AccessToken.Token to get the string token.

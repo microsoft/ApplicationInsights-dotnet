@@ -22,14 +22,14 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Authenticat
         public override object Credential => this.tokenCredential;
 
         /// <inheritdoc/>
-        public override string GetToken(CancellationToken cancellationToken = default(CancellationToken))
+        public override string GetToken(CancellationToken cancellationToken = default)
         {
             var accessToken = this.tokenCredential.GetToken(requestContext: this.tokenRequestContext, cancellationToken: cancellationToken);
             return accessToken.Token;
         }
 
         /// <inheritdoc/>
-        public override async Task<string> GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<string> GetTokenAsync(CancellationToken cancellationToken = default)
         {
             var accessToken = await this.tokenCredential.GetTokenAsync(requestContext: this.tokenRequestContext, cancellationToken: cancellationToken).ConfigureAwait(false);
             return accessToken.Token;
