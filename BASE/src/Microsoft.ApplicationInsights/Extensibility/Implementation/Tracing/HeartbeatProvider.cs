@@ -77,7 +77,7 @@
             get => this.interval;
             set
             {
-                if (value == null)
+                if (value == default)
                 {
                     this.interval = DefaultHeartbeatInterval;
                 }
