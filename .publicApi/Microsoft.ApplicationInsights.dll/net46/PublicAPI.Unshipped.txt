@@ -1,20 +1,8 @@
-Microsoft.ApplicationInsights.Channel.Transmission.EndpointAddress.get -> Uri
-Microsoft.ApplicationInsights.Channel.Transmission.Transmission(Uri address, System.Collections.Generic.ICollection<Microsoft.ApplicationInsights.Channel.ITelemetry> telemetryItems, System.TimeSpan timeout = default(System.TimeSpan)) -> void
-Microsoft.ApplicationInsights.Channel.Transmission.Transmission(Uri address, byte[] content, string contentType, string contentEncoding, System.TimeSpan timeout = default(System.TimeSpan)) -> void
-Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Url.get -> Uri
-Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.Url.get -> Uri
-Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Url.get -> Uri
 Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope
 Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope.CredentialEnvelope() -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer.Ingestion.get -> Uri
-Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer.Live.get -> Uri
-Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer.Profiler.get -> Uri
-Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints.EndpointContainer.Snapshot.get -> Uri
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.CredentialEnvelope.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetCredential(object tokenCredential) -> void
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope.Credential.get -> object
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope.GetToken(System.Threading.CancellationToken cancellationToken) -> string
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope.GetTokenAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<string>
 static Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope.GetScopes() -> string[]
-virtual Microsoft.ApplicationInsights.Channel.Transmission.CreateRequest(Uri address) -> WebRequest
-virtual Microsoft.ApplicationInsights.Channel.Transmission.CreateRequestMessage(Uri address, System.IO.Stream contentStream) -> System.Net.Http.HttpRequestMessage
