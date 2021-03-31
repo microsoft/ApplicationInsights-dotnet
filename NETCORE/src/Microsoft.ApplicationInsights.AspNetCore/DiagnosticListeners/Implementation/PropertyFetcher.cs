@@ -44,11 +44,11 @@
         {
             public PropertyFetch(Type type)
             {
-                Type = type;
+                this.Type = type;
             }
 
             /// <summary>
-            /// The type of the object that the property is fetched from. For well-known static methods that
+            /// Gets the type of the object that the property is fetched from. For well-known static methods that
             /// aren't actually property getters this will return null.
             /// </summary>
             internal Type Type { get; }
