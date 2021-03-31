@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -9,9 +10,11 @@
     public abstract class CredentialEnvelope
     {
         /// <summary>
-        /// Source: (https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-acquire-cache-tokens#scopes-when-acquiring-tokens).
+        /// Source: 
+        /// (https://docs.microsoft.com/azure/active-directory/develop/msal-acquire-cache-tokens#scopes-when-acquiring-tokens).
+        /// (https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#the-default-scope).
         /// </summary>
-        private const string Scope = "https://monitor.azure.com"; // TODO: THIS SCOPE IS UNVERIFIED. WAITING FOR SERVICES TEAM TO PROVIDE AN INT ENVIRONMENT FOR E2E TESTING.
+        private const string Scope = "https://monitor.azure.com//.default"; // TODO: THIS SCOPE IS UNVERIFIED. WAITING FOR SERVICES TEAM TO PROVIDE AN INT ENVIRONMENT FOR E2E TESTING.
 
         /// <summary>
         /// Gets the TokenCredential object held by this class.
