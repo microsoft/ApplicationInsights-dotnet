@@ -35,7 +35,20 @@
 
         public virtual void Serialize(ICollection<ITelemetry> items)
         {
-            this.HandleTelemetryException(items);
+            if (items == null)
+            {
+                throw new ArgumentNullException(nameof(items));
+            }
+
+            if (!items.Any())
+            {
+                throw new ArgumentException("One or more telemetry item is expected", nameof(items));
+            }
+
+            if (this.EndpointAddress == null)
+            {
+                throw new Exception("TelemetrySerializer.EndpointAddress was not set.");
+            }
 
             var transmission = new Transmission(this.EndpointAddress, items)
                                     { TransmissionStatusEvent = this.TransmissionStatusEvent };
@@ -73,24 +86,6 @@
         {
             transmission.Serialize(this.EndpointAddress, items);
             this.Transmitter.Flush(transmission);
-        }
-
-        private void HandleTelemetryException(ICollection<ITelemetry> items)
-        {
-            if (items == null)
-            {
-                throw new ArgumentNullException(nameof(items));
-            }
-
-            if (!items.Any())
-            {
-                throw new ArgumentException("One or more telemetry item is expected", nameof(items));
-            }
-
-            if (this.EndpointAddress == null)
-            {
-                throw new Exception("TelemetrySerializer.EndpointAddress was not set.");
-            }
         }
     }
 }

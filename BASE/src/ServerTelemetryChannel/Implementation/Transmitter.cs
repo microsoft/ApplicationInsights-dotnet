@@ -188,7 +188,7 @@
 
             if (transmission.HasFlushTask)
             {
-                this.Storage.IsFlushAsyncInProcess = true;
+                Interlocked.Increment(ref this.Storage.FlushAsyncInProcessCounter);
                 Task<bool> taskStatus = null;
 
                 try
@@ -214,7 +214,7 @@
                     transmission?.CompleteFlushTask(false);
                 }
 
-                this.Storage.IsFlushAsyncInProcess = false;
+                Interlocked.Decrement(ref this.Storage.FlushAsyncInProcessCounter);
             }
         }
 
@@ -231,6 +231,32 @@
             var isSenderComplete = this.Sender.WaitForPreviousTransmissionsToComplete(transmissionFlushAsyncId, cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
             return isSenderComplete && this.Storage.IsEnqueueSuccess ? Task.FromResult(true) : Task.FromResult(false);
         }
+
+        /*
+        internal Task<TaskStatus> MoveTransmissionsAndWaitForSender(CancellationToken cancellationToken, long? transmissionFlushAsyncId = null)
+        {
+            var taskStatus = TaskEx.FromCanceled<TaskStatus>(cancellationToken);
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return taskStatus;
+            }
+
+            MoveTransmissions(this.Buffer.Dequeue, this.Storage.Enqueue);
+            TelemetryChannelEventSource.Log.MovedFromBufferToStorage();
+            this.EmptyBuffer();
+            var isSenderComplete = this.Sender.WaitForPreviousTransmissionsToComplete(transmissionFlushAsyncId, cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            if ((isSenderComplete == TaskStatus.RanToCompletion) && this.Storage.IsEnqueueSuccess)
+            {
+                taskStatus = Task.FromResult(TaskStatus.RanToCompletion);
+            }
+            else if (isSenderComplete != TaskStatus.Canceled)
+            {
+                taskStatus = Task.FromResult(TaskStatus.Faulted);
+            }
+
+            return taskStatus;
+        }*/
 
         internal virtual void ApplyPolicies()
         {

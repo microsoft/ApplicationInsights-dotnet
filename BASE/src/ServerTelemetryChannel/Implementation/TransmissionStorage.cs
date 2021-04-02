@@ -16,7 +16,6 @@
         internal const string TemporaryFileExtension = ".tmp";
         internal const string TransmissionFileExtension = ".trn";
         internal const int DefaultCapacityKiloBytes = 50 * 1024;
-        internal volatile bool IsFlushAsyncInProcess = false;
 
         private readonly ConcurrentDictionary<string, string> badFiles;
         private readonly ConcurrentQueue<IPlatformFile> files;
@@ -28,6 +27,7 @@
         private bool sizeCalculated;
         private Random random = new Random();
         private Timer clearBadFiles;
+        internal long FlushAsyncInProcessCounter = 0;
 
         public TransmissionStorage()
         {
@@ -132,7 +132,7 @@
 
         public virtual Transmission Dequeue()
         {
-            if (this.folder == null || IsFlushAsyncInProcess)
+            if (this.folder == null || FlushAsyncInProcessCounter > 0)
             {
                 return null;
             }
@@ -144,7 +144,7 @@
                 IPlatformFile file = null;
                 try
                 {
-                    if (!IsFlushAsyncInProcess)
+                    if (FlushAsyncInProcessCounter == 0)
                     {
                         file = this.GetOldestTransmissionFileOrNull();
                         if (file == null)

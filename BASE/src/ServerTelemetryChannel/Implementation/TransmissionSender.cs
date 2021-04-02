@@ -16,6 +16,7 @@
 
     internal class TransmissionSender
     {      
+        private static readonly HttpWebResponseWrapper DefaultHttpWebResponseWrapper = default(HttpWebResponseWrapper);
         // Stores all inflight requests using this list, before SendAsync.
         // Removes entry from dictionary after response.
         private ConcurrentDictionary<long, Task<HttpWebResponseWrapper>> inFlightTransmissions = new ConcurrentDictionary<long, Task<HttpWebResponseWrapper>>();
@@ -156,13 +157,39 @@
                 // Wait for all transmissions over the wire to complete.
                 var inTransitTasks = Task<HttpWebResponseWrapper>.WhenAll(activeTransmissions);
                 // Respect passed Cancellation token from FlushAsync call
-                var inTransitTasksWithCancellationToken = Task<HttpWebResponseWrapper>.WhenAny(inTransitTasks, new Task<HttpWebResponseWrapper>(() => { return default(HttpWebResponseWrapper); }, cancellationToken));
+                var inTransitTasksWithCancellationToken = Task<HttpWebResponseWrapper>
+                                                          .WhenAny(inTransitTasks, new Task<HttpWebResponseWrapper>(() => { return DefaultHttpWebResponseWrapper; }, cancellationToken));
                 await inTransitTasksWithCancellationToken.ConfigureAwait(false);
                 return inTransitTasksWithCancellationToken.IsCompleted;
             }
 
             return true;
         }
+
+        /*
+        internal async Task<TaskStatus> WaitForPreviousTransmissionsToComplete(long? transmissionFlushAsyncId, CancellationToken cancellationToken)
+        {
+            if (transmissionFlushAsyncId == null)
+            {
+                transmissionFlushAsyncId = this.inFlightTransmissions.LastOrDefault().Key;
+            }
+
+            var activeTransmissions = this.inFlightTransmissions.Where(p => p.Key <= transmissionFlushAsyncId).Select(p => p.Value);
+
+            if (activeTransmissions?.Count() > 0)
+            {
+                // Wait for all transmissions over the wire to complete.
+                var inTransitTasks = Task<HttpWebResponseWrapper>.WhenAll(activeTransmissions);
+                // Respect passed Cancellation token from FlushAsync call
+                var inTransitTasksWithCancellationToken = Task<HttpWebResponseWrapper>
+                                                          .WhenAny(inTransitTasks, new Task<HttpWebResponseWrapper>(() => { return DefaultHttpWebResponseWrapper; }, cancellationToken));
+                await inTransitTasksWithCancellationToken.ConfigureAwait(false);
+                return inTransitTasksWithCancellationToken.Status;
+            }
+
+            return TaskStatus.RanToCompletion;
+        }
+*/
 
         protected void OnTransmissionSent(TransmissionProcessedEventArgs args)
         {
