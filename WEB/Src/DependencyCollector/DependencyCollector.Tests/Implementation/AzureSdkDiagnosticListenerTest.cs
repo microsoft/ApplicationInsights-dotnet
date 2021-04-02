@@ -93,7 +93,7 @@
                 Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
 
                 Assert.AreEqual("v1", telemetry.Properties["k1"]);
-                
+
                 Assert.IsTrue(telemetry.Properties.TryGetValue("tracestate", out var tracestate));
                 Assert.AreEqual("state=some", tracestate);
             }
@@ -609,6 +609,65 @@
         }
 
         [TestMethod]
+        public void AzureClientSpansAreCollectedLinksFromActivitySource()
+        {
+            // Create the activity listener to make sure that activitySource.StartActivity returns a value
+            using (var activityListener = new ActivityListener()
+            {
+                ShouldListenTo = source => source.Name == "Azure.SomeClient",
+                Sample = (ref ActivityCreationOptions<ActivityContext> options) => ActivitySamplingResult.AllDataAndRecorded
+            })
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var activitySource = new ActivitySource("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                ActivitySource.AddActivityListener(activityListener);
+
+                module.Initialize(this.configuration);
+
+                var link0TraceId = "70545f717a9aa6a490d820438b9d2bf6";
+                var link1TraceId = "c5aa06717eef0c4592af26323ade92f7";
+                var link0SpanId = "8b0b2fb40c84e64a";
+                var link1SpanId = "3a69ce690411bb4f";
+
+                var sendActivity = activitySource.StartActivity("Azure.SomeClient.Send", ActivityKind.Consumer, default(ActivityContext), links: new []
+                {
+                    new ActivityLink(new ActivityContext(ActivityTraceId.CreateFromString(link0TraceId.AsSpan()), ActivitySpanId.CreateFromString(link0SpanId.AsSpan()), ActivityTraceFlags.None)),
+                    new ActivityLink(new ActivityContext(ActivityTraceId.CreateFromString(link1TraceId.AsSpan()), ActivitySpanId.CreateFromString(link1SpanId.AsSpan()), ActivityTraceFlags.None))
+                });
+
+                listener.Write(sendActivity.OperationName + ".Start", sendActivity);
+                listener.Write(sendActivity.OperationName + ".Stop", null);
+
+                var telemetry = this.sentItems.Last() as DependencyTelemetry;
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("SomeClient.Send", telemetry.Name);
+                Assert.IsTrue(telemetry.Success.Value);
+
+                Assert.IsNull(telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(sendActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
+
+                // does not throw
+                Assert.IsTrue(telemetry.Properties.TryGetValue("_MS.links", out var linksStr));
+                var actualLinks = JsonConvert.DeserializeObject<ApplicationInsightsLink[]>(linksStr, JsonSettingThrowOnError);
+
+                Assert.IsNotNull(actualLinks);
+                Assert.AreEqual(2, actualLinks.Length);
+
+                Assert.AreEqual(link0TraceId, actualLinks[0].OperationId);
+                Assert.AreEqual(link1TraceId, actualLinks[1].OperationId);
+
+                Assert.AreEqual(link0SpanId, actualLinks[0].Id);
+                Assert.AreEqual(link1SpanId, actualLinks[1].Id);
+
+                Assert.AreEqual($"[{{\"operation_Id\":\"{link0TraceId}\",\"id\":\"{link0SpanId}\"}},{{\"operation_Id\":\"{link1TraceId}\",\"id\":\"{link1SpanId}\"}}]", linksStr);
+                Assert.IsFalse(telemetry.Metrics.Any());
+            }
+        }
+
+        [TestMethod]
         public void AzureServerSpansAreCollectedLinks()
         {
             using (var listener = new DiagnosticListener("Azure.SomeClient"))
@@ -847,7 +906,7 @@
                     .AddTag("serviceRequestId", "service-request-id");
 
                 listener.StopActivity(httpActivity, payload);
-                
+
                 var telemetry = this.sentItems.Last() as DependencyTelemetry;
 
                 Assert.IsNotNull(telemetry);
