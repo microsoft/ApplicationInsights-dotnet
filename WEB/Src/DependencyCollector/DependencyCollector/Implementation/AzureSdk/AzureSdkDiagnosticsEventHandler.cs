@@ -247,6 +247,7 @@
             string method = null;
             string url = null;
             string status = null;
+            bool? failed = false;
 
             foreach (var tag in activity.Tags)
             {
@@ -270,6 +271,10 @@
                 {
                     status = tag.Value;
                 }
+                else if (tag.Key == "otel.status_code")
+                {
+                    failed = string.Equals(tag.Value, "ERROR", StringComparison.OrdinalIgnoreCase);
+                }
             }
 
             // TODO: could be optimized to avoid full URI parsing and allocation
@@ -283,10 +288,9 @@
             dependency.Data = url;
             dependency.Target = DependencyTargetNameHelper.GetDependencyTargetName(parsedUrl);
             dependency.ResultCode = status;
-
-            if (int.TryParse(status, out var statusCode))
+            if (failed == true)
             {
-                dependency.Success = (statusCode > 0) && (statusCode < 400);
+                dependency.Success = false;
             }
         }
 

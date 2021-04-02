@@ -93,7 +93,7 @@
                 Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
 
                 Assert.AreEqual("v1", telemetry.Properties["k1"]);
-                
+
                 Assert.IsTrue(telemetry.Properties.TryGetValue("tracestate", out var tracestate));
                 Assert.AreEqual("state=some", tracestate);
             }
@@ -847,7 +847,7 @@
                     .AddTag("serviceRequestId", "service-request-id");
 
                 listener.StopActivity(httpActivity, payload);
-                
+
                 var telemetry = this.sentItems.Last() as DependencyTelemetry;
 
                 Assert.IsNotNull(telemetry);
@@ -876,7 +876,8 @@
 
                 Activity httpActivity = new Activity("Azure.SomeClient.Http.Request")
                     .AddTag("http.method", "PATCH")
-                    .AddTag("http.url", "http://host/path?query#fragment");
+                    .AddTag("http.url", "http://host/path?query#fragment")
+                    .AddTag("otel.status_code", "ERROR");
 
                 var payload = new HttpRequestMessage();
                 listener.StartActivity(httpActivity, payload);
