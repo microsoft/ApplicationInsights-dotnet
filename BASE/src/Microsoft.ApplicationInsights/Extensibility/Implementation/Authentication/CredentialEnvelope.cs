@@ -26,14 +26,14 @@
         /// </summary>
         /// <param name="cancellationToken">The System.Threading.CancellationToken to use.</param>
         /// <returns>A valid Azure.Core.AccessToken.</returns>
-        public abstract string GetToken(CancellationToken cancellationToken);
+        public abstract string GetToken(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets an Azure.Core.AccessToken.
         /// </summary>
         /// <param name="cancellationToken">The System.Threading.CancellationToken to use.</param>
         /// <returns>A valid Azure.Core.AccessToken.</returns>
-        public abstract Task<string> GetTokenAsync(CancellationToken cancellationToken);
+        public abstract Task<string> GetTokenAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get scopes for Azure Monitor as an array.
