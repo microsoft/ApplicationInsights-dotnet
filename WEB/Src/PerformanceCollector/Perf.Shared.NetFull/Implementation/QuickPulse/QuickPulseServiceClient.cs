@@ -86,6 +86,7 @@
             DateTimeOffset timestamp,
             string configurationETag,
             string authApiKey,
+            string aadToken,
             out CollectionConfigurationInfo configurationInfo,
             out TimeSpan? servicePollingIntervalHint)
         {
@@ -100,6 +101,7 @@
                 true,
                 configurationETag,
                 authApiKey,
+                aadToken,
                 out configurationInfo,
                 out servicePollingIntervalHint,
                 requestStream => this.WritePingData(timestamp, requestStream));
@@ -110,6 +112,7 @@
             string instrumentationKey,
             string configurationETag,
             string authApiKey,
+            string aadToken,
             out CollectionConfigurationInfo configurationInfo,
             CollectionConfigurationError[] collectionConfigurationErrors)
         {
@@ -124,6 +127,7 @@
                 false,
                 configurationETag,
                 authApiKey,
+                aadToken,
                 out configurationInfo,
                 out _,
                 requestStream => this.WriteSamples(samples, instrumentationKey, requestStream, collectionConfigurationErrors));
@@ -138,6 +142,7 @@
             bool includeIdentityHeaders,
             string configurationETag,
             string authApiKey,
+            string aadToken,
             out CollectionConfigurationInfo configurationInfo,
             out TimeSpan? servicePollingIntervalHint,
             Action<Stream> onWriteRequestBody)
@@ -148,7 +153,7 @@
                 request.Method = "POST";
                 request.Timeout = (int)this.timeout.TotalMilliseconds;
 
-                this.AddHeaders(request, includeIdentityHeaders, configurationETag, authApiKey);
+                this.AddHeaders(request, includeIdentityHeaders, configurationETag, authApiKey, aadToken);
 
                 using (Stream requestStream = request.GetRequestStream())
                 {
@@ -360,7 +365,7 @@
             };
         }
 
-        private void AddHeaders(HttpWebRequest request, bool includeIdentityHeaders, string configurationETag, string authApiKey)
+        private void AddHeaders(HttpWebRequest request, bool includeIdentityHeaders, string configurationETag, string authApiKey, string aadToken)
         {
             request.Headers.Add(QuickPulseConstants.XMsQpsTransmissionTimeHeaderName, this.timeProvider.UtcNow.Ticks.ToString(CultureInfo.InvariantCulture));
 
@@ -380,6 +385,12 @@
                 request.Headers.Add(QuickPulseConstants.XMsQpsRoleNameHeaderName, this.roleName);
                 request.Headers.Add(QuickPulseConstants.XMsQpsInvariantVersionHeaderName,
                     MonitoringDataPoint.CurrentInvariantVersion.ToString(CultureInfo.InvariantCulture));
+            }
+
+            // The AAD token is an optional feature. Only include if it is provided.
+            if (string.IsNullOrEmpty(aadToken))
+            {
+                request.Headers.Add("x-aad-TODO", aadToken); //TODO: WHAT IS THE CORRECT HEADER NAKE?
             }
         }
     }

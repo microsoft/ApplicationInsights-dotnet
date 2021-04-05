@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Filtering;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
@@ -54,6 +55,7 @@
             var serviceClient = new QuickPulseServiceClientMock();
 
             var manager = new QuickPulseCollectionStateManager(
+                TelemetryConfiguration.CreateDefault(),
                 serviceClient,
                 new Clock(),
                 QuickPulseTimings.Default,
@@ -726,6 +728,7 @@
             List<CollectionConfigurationInfo> collectionConfigurationInfos = null)
         {
             var manager = new QuickPulseCollectionStateManager(
+                TelemetryConfiguration.CreateDefault(),
                 serviceClient,
                 timeProvider,
                 timings ?? QuickPulseTimings.Default,

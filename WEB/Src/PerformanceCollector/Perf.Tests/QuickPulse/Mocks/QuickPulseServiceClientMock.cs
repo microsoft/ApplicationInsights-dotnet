@@ -74,6 +74,7 @@
             DateTimeOffset timestamp,
             string configurationETag,
             string authApiKey,
+            string aadToken,
             out CollectionConfigurationInfo configurationInfo,
             out TimeSpan? servicePollingIntervalHint)
         {
@@ -107,6 +108,7 @@
             string instrumentationKey,
             string configurationETag,
             string authApiKey,
+            string aadToken,
             out CollectionConfigurationInfo configurationInfo,
             CollectionConfigurationError[] collectionConfigurationErrors)
         {

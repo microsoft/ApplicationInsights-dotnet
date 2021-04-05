@@ -172,9 +172,9 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping(string.Empty, timestamp, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
-            serviceClient.Ping(string.Empty, timestamp, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
-            serviceClient.Ping(string.Empty, timestamp, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
+            serviceClient.Ping(string.Empty, timestamp, string.Empty, string.Empty, null, out configurationInfo, out TimeSpan? _);
+            serviceClient.Ping(string.Empty, timestamp, string.Empty, string.Empty, null, out configurationInfo, out TimeSpan? _);
+            serviceClient.Ping(string.Empty, timestamp, string.Empty, string.Empty, null, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 3);
@@ -244,6 +244,7 @@
                 string.Empty,
                 string.Empty,
                 string.Empty,
+                null,
                 out configurationInfo,
                 new CollectionConfigurationError[0]);
 
@@ -319,6 +320,7 @@
                 string.Empty,
                 string.Empty,
                 string.Empty,
+                null,
                 out configurationInfo,
                 new CollectionConfigurationError[0]);
 
@@ -362,7 +364,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.SubmitSamples(new[] { sample1 }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.SubmitSamples(new[] { sample1 }, string.Empty, string.Empty, string.Empty, null, out configurationInfo, new CollectionConfigurationError[0]);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -412,7 +414,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.SubmitSamples(new[] { sample1, sample2 }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.SubmitSamples(new[] { sample1, sample2 }, string.Empty, string.Empty, string.Empty, null, out configurationInfo, new CollectionConfigurationError[0]);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -486,7 +488,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, null, out configurationInfo, new CollectionConfigurationError[0]);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -553,7 +555,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.SubmitSamples(new[] { sample1, sample2 }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.SubmitSamples(new[] { sample1, sample2 }, string.Empty, string.Empty, string.Empty, null, out configurationInfo, new CollectionConfigurationError[0]);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -581,7 +583,7 @@
             // ACT
             this.pingResponse = r => { r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, true.ToString()); };
             CollectionConfigurationInfo configurationInfo;
-            bool? response = serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
+            bool? response = serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, null, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -608,7 +610,7 @@
             // ACT
             this.pingResponse = r => { r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, false.ToString()); };
             CollectionConfigurationInfo configurationInfo;
-            bool? response = serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
+            bool? response = serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, null, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -635,7 +637,7 @@
             // ACT
             this.pingResponse = r => { r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, "bla"); };
             CollectionConfigurationInfo configurationInfo;
-            bool? response = serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
+            bool? response = serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, null, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -662,7 +664,7 @@
             // ACT
             this.pingResponse = r => { };
             CollectionConfigurationInfo configurationInfo;
-            bool? response = serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
+            bool? response = serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, null, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -694,6 +696,7 @@
                 string.Empty,
                 string.Empty,
                 string.Empty,
+                null,
                 out configurationInfo,
                 new CollectionConfigurationError[0]);
 
@@ -727,6 +730,7 @@
                 string.Empty,
                 string.Empty,
                 string.Empty,
+                null,
                 out configurationInfo,
                 new CollectionConfigurationError[0]);
 
@@ -760,6 +764,7 @@
                 string.Empty,
                 string.Empty,
                 string.Empty,
+                null,
                 out configurationInfo,
                 new CollectionConfigurationError[0]);
 
@@ -793,6 +798,7 @@
                 string.Empty,
                 string.Empty,
                 string.Empty,
+                null,
                 out configurationInfo,
                 new CollectionConfigurationError[0]);
 
@@ -823,7 +829,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
+            serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, null, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -857,6 +863,7 @@
                 string.Empty,
                 string.Empty,
                 string.Empty,
+                null,
                 out configurationInfo,
                 new CollectionConfigurationError[0]);
 
@@ -900,7 +907,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping("ikey", now, "ETag1", string.Empty, out configurationInfo, out TimeSpan? _);
+            serviceClient.Ping("ikey", now, "ETag1", string.Empty, null, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -949,7 +956,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.SubmitSamples(new[] { sample }, string.Empty, "ETag1", string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.SubmitSamples(new[] { sample }, string.Empty, "ETag1", string.Empty, null, out configurationInfo, new CollectionConfigurationError[0]);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -991,7 +998,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping("ikey", now, "ETag1", string.Empty, out configurationInfo, out TimeSpan? _);
+            serviceClient.Ping("ikey", now, "ETag1", string.Empty, null, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1042,7 +1049,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.SubmitSamples(new[] { sample }, string.Empty, "ETag1", string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.SubmitSamples(new[] { sample }, string.Empty, "ETag1", string.Empty, null, out configurationInfo, new CollectionConfigurationError[0]);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1082,7 +1089,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping("ikey", now, "ETag2", string.Empty, out configurationInfo, out TimeSpan? _);
+            serviceClient.Ping("ikey", now, "ETag2", string.Empty, null, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1127,7 +1134,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.SubmitSamples(new[] { sample }, string.Empty, "ETag2", string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.SubmitSamples(new[] { sample }, string.Empty, "ETag2", string.Empty, null, out configurationInfo, new CollectionConfigurationError[0]);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1195,7 +1202,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.SubmitSamples(new[] { sample }, string.Empty, "ETag1", string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.SubmitSamples(new[] { sample }, string.Empty, "ETag1", string.Empty, null, out configurationInfo, new CollectionConfigurationError[0]);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1229,7 +1236,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
+            serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, null, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1258,7 +1265,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
+            serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, null, out configurationInfo, out TimeSpan? _);
 
 
             // ASSERT
@@ -1293,7 +1300,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, null, out configurationInfo, new CollectionConfigurationError[0]);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1323,7 +1330,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
+            serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, null, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1360,7 +1367,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, null, out configurationInfo, new CollectionConfigurationError[0]);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1388,7 +1395,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
+            serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, null, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1424,7 +1431,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, null, out configurationInfo, new CollectionConfigurationError[0]);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1451,7 +1458,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
+            serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, null, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1486,7 +1493,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, null, out configurationInfo, new CollectionConfigurationError[0]);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1514,7 +1521,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping(Guid.NewGuid().ToString(), timeProvider.UtcNow, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
+            serviceClient.Ping(Guid.NewGuid().ToString(), timeProvider.UtcNow, string.Empty, string.Empty, null, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1552,7 +1559,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, null, out configurationInfo, new CollectionConfigurationError[0]);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1581,7 +1588,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping("some ikey", now, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
+            serviceClient.Ping("some ikey", now, string.Empty, string.Empty, null, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1616,7 +1623,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, null, out configurationInfo, new CollectionConfigurationError[0]);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1646,7 +1653,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping("some ikey", now, string.Empty, authApiKey, out configurationInfo, out TimeSpan? _);
+            serviceClient.Ping("some ikey", now, string.Empty, authApiKey, null, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1681,7 +1688,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, authApiKey, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, authApiKey, null, out configurationInfo, new CollectionConfigurationError[0]);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1714,10 +1721,10 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.Ping("some ikey", now, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
+            serviceClient.Ping("some ikey", now, string.Empty, string.Empty, null, out configurationInfo, out TimeSpan? _);
 
             // received the proper headers, now re-submit them
-            serviceClient.Ping("some ikey", now, string.Empty, string.Empty, out configurationInfo, out TimeSpan? _);
+            serviceClient.Ping("some ikey", now, string.Empty, string.Empty, null, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 2);
@@ -1761,10 +1768,10 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, null, out configurationInfo, new CollectionConfigurationError[0]);
 
             // received the proper headers, now re-submit them
-            serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, null, out configurationInfo, new CollectionConfigurationError[0]);
 
             // SYNC
             this.WaitForProcessing(requestCount: 2);
@@ -1802,8 +1809,8 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.SubmitSamples(new[] { sample }, string.Empty, "ETag1", string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
-            serviceClient.Ping(string.Empty, now, "ETag1", string.Empty, out configurationInfo, out TimeSpan? _);
+            serviceClient.SubmitSamples(new[] { sample }, string.Empty, "ETag1", string.Empty, null, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.Ping(string.Empty, now, "ETag1", string.Empty, null, out configurationInfo, out TimeSpan? _);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1855,6 +1862,7 @@
                 string.Empty,
                 string.Empty,
                 string.Empty,
+                null,
                 out configurationInfo,
                 collectionConfigurationErrors);
 
@@ -1902,7 +1910,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.SubmitSamples(new[] { sample }, ikey, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.SubmitSamples(new[] { sample }, ikey, string.Empty, string.Empty, null, out configurationInfo, new CollectionConfigurationError[0]);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1937,7 +1945,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.SubmitSamples(new[] { sample }, ikey, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.SubmitSamples(new[] { sample }, ikey, string.Empty, string.Empty, null, out configurationInfo, new CollectionConfigurationError[0]);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -1972,7 +1980,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.SubmitSamples(new[] { sample }, ikey, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.SubmitSamples(new[] { sample }, ikey, string.Empty, string.Empty, null, out configurationInfo, new CollectionConfigurationError[0]);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -2009,7 +2017,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.SubmitSamples(new[] { sample }, ikey, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.SubmitSamples(new[] { sample }, ikey, string.Empty, string.Empty, null, out configurationInfo, new CollectionConfigurationError[0]);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -2049,7 +2057,7 @@
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
-            serviceClient.SubmitSamples(new[] { sample }, ikey, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+            serviceClient.SubmitSamples(new[] { sample }, ikey, string.Empty, string.Empty, null, out configurationInfo, new CollectionConfigurationError[0]);
 
             // SYNC
             this.WaitForProcessing(requestCount: 1);
@@ -2083,7 +2091,7 @@
             };
 
             // ACT
-            serviceClient.Ping("ikey", now, string.Empty, string.Empty, out _, out TimeSpan? servicePollingIntervalHint);
+            serviceClient.Ping("ikey", now, string.Empty, string.Empty, null, out _, out TimeSpan? servicePollingIntervalHint);
 
             // ASSERT
             Assert.AreEqual(TimeSpan.FromMilliseconds(ms), servicePollingIntervalHint);
@@ -2112,7 +2120,7 @@
             };
 
             // ACT
-            serviceClient.Ping("ikey", now, string.Empty, string.Empty, out _, out TimeSpan? servicePollingIntervalHint);
+            serviceClient.Ping("ikey", now, string.Empty, string.Empty, null, out _, out TimeSpan? servicePollingIntervalHint);
 
             // ASSERT
             Assert.IsNull(servicePollingIntervalHint);
@@ -2141,7 +2149,7 @@
             };
 
             // ACT
-            serviceClient.Ping("ikey", now, string.Empty, string.Empty, out _, out TimeSpan? servicePollingIntervalHint);
+            serviceClient.Ping("ikey", now, string.Empty, string.Empty, null, out _, out TimeSpan? servicePollingIntervalHint);
 
             // ASSERT
             Assert.IsNull(servicePollingIntervalHint);
@@ -2171,7 +2179,7 @@
             };
 
             // ACT
-            serviceClient.Ping("ikey", now, string.Empty, string.Empty, out _, out _);
+            serviceClient.Ping("ikey", now, string.Empty, string.Empty, null, out _, out _);
 
             // SYNC
             this.WaitForProcessing(1);
@@ -2205,7 +2213,7 @@
             };
 
             // ACT
-            serviceClient.Ping("ikey", now, string.Empty, string.Empty, out _, out _);
+            serviceClient.Ping("ikey", now, string.Empty, string.Empty, null, out _, out _);
 
             // SYNC
             this.WaitForProcessing(1);
@@ -2239,7 +2247,7 @@
             };
 
             // ACT
-            serviceClient.Ping("ikey", now, string.Empty, string.Empty, out _, out _);
+            serviceClient.Ping("ikey", now, string.Empty, string.Empty, null, out _, out _);
 
             // SYNC
             this.WaitForProcessing(1);
