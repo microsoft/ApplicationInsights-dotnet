@@ -27,7 +27,7 @@
         private bool sizeCalculated;
         private Random random = new Random();
         private Timer clearBadFiles;
-        internal long FlushAsyncInProcessCounter = 0;
+        private long flushAsyncInProcessCounter = 0;
 
         public TransmissionStorage()
         {
@@ -60,11 +60,6 @@
             }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether enqueue to storage is success.
-        /// </summary>
-        internal bool IsEnqueueSuccess { get; set; } = true;
-
         public void Dispose()
         {
             this.Dispose(true);
@@ -85,12 +80,10 @@
         {
             if (this.folder == null)
             {
-                this.IsEnqueueSuccess = false;
                 return false;
             }
 
             this.EnsureSizeIsCalculated();
-            this.IsEnqueueSuccess = true;
 
             if (this.size < this.Capacity)
             {
@@ -117,7 +110,6 @@
                 catch (Exception exp)
                 {
                     TelemetryChannelEventSource.Log.TransmissionFailedToStoreWarning(transmission.Id, exp.ToString());
-                    this.IsEnqueueSuccess = false;
                     throw;
                 }
             }
@@ -126,13 +118,12 @@
                 TelemetryChannelEventSource.Log.StorageEnqueueNoCapacityWarning(this.size, this.Capacity);
             }
 
-            this.IsEnqueueSuccess = false;
             return false;
         }
 
         public virtual Transmission Dequeue()
         {
-            if (this.folder == null || FlushAsyncInProcessCounter > 0)
+            if (this.folder == null || this.flushAsyncInProcessCounter > 0)
             {
                 return null;
             }
@@ -144,7 +135,7 @@
                 IPlatformFile file = null;
                 try
                 {
-                    if (FlushAsyncInProcessCounter == 0)
+                    if (this.flushAsyncInProcessCounter == 0)
                     {
                         file = this.GetOldestTransmissionFileOrNull();
                         if (file == null)
@@ -191,6 +182,16 @@
                     continue; // It may be because another thread already loaded this file, we don't know yet.
                 }
             }
+        }
+
+        internal void IncrementFlushAsyncCounter()
+        {
+            Interlocked.Increment(ref this.flushAsyncInProcessCounter);
+        }
+
+        internal void DecrementFlushAsyncCounter()
+        {
+            Interlocked.Decrement(ref this.flushAsyncInProcessCounter);
         }
 
         private static string GetUniqueFileName(string extension)

@@ -188,33 +188,33 @@
 
             if (transmission.HasFlushTask)
             {
-                Interlocked.Increment(ref this.Storage.FlushAsyncInProcessCounter);
-                Task<bool> taskStatus = null;
-
                 try
                 {
-                    taskStatus = this.MoveTransmissionsAndWaitForSender(transmission.TransmissionCancellationToken, transmission.FlushAsyncId);
+                    this.Storage.IncrementFlushAsyncCounter();
+                    var taskStatus = this.MoveTransmissionsAndWaitForSender(transmission.TransmissionCancellationToken, transmission.FlushAsyncId);
+                    
+                    if (taskStatus?.IsCanceled == true)
+                    {
+                        transmission?.CancelFlushTask();
+                    }
+                    else if (taskStatus?.Result == true)
+                    {
+                        transmission?.CompleteFlushTask(true);
+                    }
+                    else
+                    {
+                        transmission?.CompleteFlushTask(false);
+                    }
                 }
                 catch (Exception exp)
                 {
                     // Introduce new log message
                     TelemetryChannelEventSource.Log.ExceptionHandlerStartExceptionWarning(exp.ToString());
                 }
-
-                if (taskStatus?.IsCanceled == true)
+                finally
                 {
-                    transmission?.CancelFlushTask();
-                }
-                else if (taskStatus?.Result == true)
-                {
-                    transmission?.CompleteFlushTask(true);
-                }
-                else
-                {
-                    transmission?.CompleteFlushTask(false);
-                }
-
-                Interlocked.Decrement(ref this.Storage.FlushAsyncInProcessCounter);
+                    this.Storage.DecrementFlushAsyncCounter();
+                }               
             }
         }
 
@@ -225,11 +225,10 @@
                 return TaskEx.FromCanceled<bool>(cancellationToken);
             }
 
-            MoveTransmissions(this.Buffer.Dequeue, this.Storage.Enqueue);
+            var isStorageEnqueueSuccess = MoveTransmissions(this.Buffer.Dequeue, this.Storage.Enqueue, this.Buffer.Size); // Revisit - What if buffer is filled in by other thread. Cancellation Token is not honored. Check if < transmission 
             TelemetryChannelEventSource.Log.MovedFromBufferToStorage();
-            this.EmptyBuffer();
             var isSenderComplete = this.Sender.WaitForPreviousTransmissionsToComplete(transmissionFlushAsyncId, cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
-            return isSenderComplete && this.Storage.IsEnqueueSuccess ? Task.FromResult(true) : Task.FromResult(false);
+            return isSenderComplete && isStorageEnqueueSuccess ? Task.FromResult(true) : Task.FromResult(false); // Revisit - this.Storage.IsEnqueueSuccess - not thread safe
         }
 
         /*
@@ -323,6 +322,26 @@
                 transmissionMoved = enqueue(dequeue);
             }
             while (transmissionMoved);
+        }
+
+        private static bool MoveTransmissions(Func<Transmission> dequeue, Func<Func<Transmission>, bool> enqueue, long size)
+        {          
+            bool transmissionMoved = false;
+            do
+            {
+                var transmission = dequeue();
+                if (transmission == null)
+                {
+                    transmissionMoved = true;
+                    break;
+                }
+
+                transmissionMoved = enqueue(() => transmission);
+                size -= transmission.Content.Length;
+            }
+            while (transmissionMoved && size > 0);
+
+            return transmissionMoved;
         }
 
         private void ApplyPoliciesIfAlreadyApplied()
