@@ -140,7 +140,7 @@
                     authApiKey,
                     this.telemetryConfiguration.CredentialEnvelope?.GetToken(),
                     out configurationInfo,
-                    this.collectionConfigurationErrors.ToArray()); ;
+                    this.collectionConfigurationErrors.ToArray());
 
                 QuickPulseEventSource.Log.SampleSubmittedEvent(this.currentConfigurationETag, configurationInfo?.ETag, keepCollecting.ToString());
 

@@ -11,6 +11,7 @@
     using Microsoft.ApplicationInsights.Common.Extensions;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
 
     internal class TransmissionSender
     {
@@ -101,6 +102,15 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets the <see cref="CredentialEnvelope"/> which is used for AAD.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="ServerTelemetryChannel.CredentialEnvelope"/> sets <see cref="Transmitter.CredentialEnvelope"/> and then sets <see cref="TransmissionSender.CredentialEnvelope"/> 
+        /// which is used to set <see cref="Transmission.CredentialEnvelope"/> just before calling <see cref="Transmission.SendAsync"/>.
+        /// </remarks>
+        public CredentialEnvelope CredentialEnvelope { get; set; }
+
         public virtual bool Enqueue(Func<Transmission> transmissionGetter)
         {
             bool enqueueSucceded = false;
@@ -155,6 +165,7 @@
                 try
                 {
                     TelemetryChannelEventSource.Log.TransmissionSendStarted(acceptedTransmission.Id);
+                    acceptedTransmission.CredentialEnvelope = this.CredentialEnvelope;
                     responseContent = await acceptedTransmission.SendAsync().ConfigureAwait(false);
                 }
                 catch (Exception e)

@@ -419,7 +419,7 @@
             // The AAD token is an optional feature. Only include if it is provided.
             if (string.IsNullOrEmpty(aadToken))
             {
-                request.Headers.TryAddWithoutValidation("authorization", "Bearer " + aadToken); //TODO: WHAT IS THE CORRECT HEADER NAKE?
+                request.Headers.TryAddWithoutValidation("authorization", "Bearer " + aadToken); // TODO: WHAT IS THE CORRECT HEADER NAKE?
             }
         }
 

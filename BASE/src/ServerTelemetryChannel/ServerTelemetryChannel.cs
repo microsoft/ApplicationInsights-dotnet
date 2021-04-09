@@ -8,12 +8,13 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
     /// <summary>
     /// Represents a communication channel for sending telemetry to Application Insights via HTTP/S.
     /// </summary>
-    public sealed class ServerTelemetryChannel : ITelemetryChannel, ITelemetryModule
+    public sealed class ServerTelemetryChannel : ITelemetryChannel, ITelemetryModule, ISupportCredentialEnvelope
     {
         internal TelemetrySerializer TelemetrySerializer;
         internal TelemetryBuffer TelemetryBuffer;
@@ -242,6 +243,21 @@
         }
 
         /// <summary>
+        /// Gets or sets the <see cref="CredentialEnvelope"/> which is used for AAD.
+        /// DO NOT SET DIRECTLY. Use <see cref="TelemetryConfiguration.SetCredential"/> instead.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="ServerTelemetryChannel.CredentialEnvelope"/> sets <see cref="Transmitter.CredentialEnvelope"/> and then sets <see cref="TransmissionSender.CredentialEnvelope"/> 
+        /// which is used to set <see cref="Transmission.CredentialEnvelope"/> just before calling <see cref="Transmission.SendAsync"/>.
+        /// </remarks>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public CredentialEnvelope CredentialEnvelope
+        {
+            get => this.Transmitter.CredentialEnvelope;
+            set => this.Transmitter.CredentialEnvelope = value;
+        }
+
+        /// <summary>
         /// Gets or sets first TelemetryProcessor in processor call chain.
         /// </summary>
         internal ITelemetryProcessor TelemetryProcessor
@@ -336,6 +352,8 @@
             {
                 throw new ArgumentNullException(nameof(configuration));
             }
+
+            this.CredentialEnvelope = configuration.CredentialEnvelope;
 
             this.Transmitter.Initialize();
 

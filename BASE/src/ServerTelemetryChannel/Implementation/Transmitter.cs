@@ -6,6 +6,7 @@
     using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Channel.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
 
     /// <summary>
     /// Implements throttled and persisted transmission of telemetry to Application Insights. 
@@ -55,7 +56,20 @@
 
         public event EventHandler<TransmissionProcessedEventArgs> TransmissionSent;
 
-        public string StorageFolder { get; set; }        
+        public string StorageFolder { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="CredentialEnvelope"/> which is used for AAD.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="ServerTelemetryChannel.CredentialEnvelope"/> sets <see cref="Transmitter.CredentialEnvelope"/> and then sets <see cref="TransmissionSender.CredentialEnvelope"/> 
+        /// which is used to set <see cref="Transmission.CredentialEnvelope"/> just before calling <see cref="Transmission.SendAsync"/>.
+        /// </remarks>
+        public CredentialEnvelope CredentialEnvelope
+        {
+            get => this.Sender.CredentialEnvelope;
+            set => this.Sender.CredentialEnvelope = value;
+        }
 
         public int MaxBufferCapacity
         {

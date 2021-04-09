@@ -14,6 +14,7 @@ namespace Microsoft.ApplicationInsights.Channel
     using Microsoft.ApplicationInsights.Common.Extensions;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
@@ -62,6 +63,15 @@ namespace Microsoft.ApplicationInsights.Channel
             get { return this.sendingInterval; }
             set { this.sendingInterval = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the <see cref="CredentialEnvelope"/> which is used for AAD.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="InMemoryChannel.CredentialEnvelope"/> sets <see cref="InMemoryTransmitter.CredentialEnvelope"/> 
+        /// which is used to set <see cref="Transmission.CredentialEnvelope"/> just before calling <see cref="Transmission.SendAsync"/>.
+        /// </remarks>
+        internal CredentialEnvelope CredentialEnvelope { get; set; }
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -163,7 +173,7 @@ namespace Microsoft.ApplicationInsights.Channel
             }
 
             var transmission = new Transmission(this.EndpointAddress, data, JsonSerializer.ContentType, JsonSerializer.CompressionType, timeout);
-
+            transmission.CredentialEnvelope = this.CredentialEnvelope;
             return transmission.SendAsync();
         }
 

@@ -240,6 +240,7 @@
                 {
                     this.telemetrySinks.DefaultSink.TelemetryChannel = value;
                     SetTelemetryChannelEndpoint(this.telemetrySinks.DefaultSink.TelemetryChannel, this.EndpointContainer.FormattedIngestionEndpoint);
+                    SetTelemetryChannelCredentialEnvelope(value, this.CredentialEnvelope);
                 }
             }
         }
@@ -408,9 +409,17 @@
         /// </summary>
         /// <param name="tokenCredential">An instance of Azure.Core.TokenCredential.</param>
 #if NETSTANDARD2_0
-        public void SetCredential(Azure.Core.TokenCredential tokenCredential) => this.CredentialEnvelope = new TokenCredentialEnvelope(tokenCredential);
+        public void SetCredential(Azure.Core.TokenCredential tokenCredential)
+        {
+            this.CredentialEnvelope = new TokenCredentialEnvelope(tokenCredential);
+            this.SetTelemetryChannelCredentialEnvelope();
+    }
 #else
-        public void SetCredential(object tokenCredential) => this.CredentialEnvelope = new ReflectionCredentialEnvelope(tokenCredential);
+        public void SetCredential(object tokenCredential)
+        {
+            this.CredentialEnvelope = new ReflectionCredentialEnvelope(tokenCredential);
+            this.SetTelemetryChannelCredentialEnvelope();
+        }
 #endif
 
         internal MetricManager GetMetricManager(bool createIfNotExists)
@@ -486,6 +495,22 @@
                         channel.EndpointAddress = endpoint;
                     }
                 }
+            }
+        }
+
+        private static void SetTelemetryChannelCredentialEnvelope(ITelemetryChannel telemetryChannel, CredentialEnvelope credentialEnvelope)
+        {
+            if (telemetryChannel is ISupportCredentialEnvelope tc)
+            {
+                tc.CredentialEnvelope = credentialEnvelope;
+            }
+        }
+
+        private void SetTelemetryChannelCredentialEnvelope()
+        {
+            foreach (var tSink in this.TelemetrySinks)
+            {
+                SetTelemetryChannelCredentialEnvelope(tSink.TelemetryChannel, this.CredentialEnvelope);
             }
         }
 

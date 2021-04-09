@@ -1,0 +1,2 @@
+Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel.CredentialEnvelope.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope
+Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel.CredentialEnvelope.set -> void

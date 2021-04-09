@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Diagnostics;
     using System.IO;
     using System.Net;
@@ -10,6 +11,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
@@ -138,6 +140,13 @@
         {
             get; private set;
         }
+
+        /// <summary>
+        /// Gets or sets the <see cref="CredentialEnvelope"/>. 
+        /// This is used include an AAD token on HTTP Requests sent to ingestion.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public CredentialEnvelope CredentialEnvelope { get; set; }
 
         /// <summary>
         /// Executes the request that the current transmission represents.
@@ -376,6 +385,12 @@
             if (!string.IsNullOrEmpty(this.ContentEncoding))
             {
                 request.Content.Headers.Add(ContentEncodingHeader, this.ContentEncoding);
+            }
+
+            if (this.CredentialEnvelope != null)
+            {
+                var aadToken = this.CredentialEnvelope.GetToken();
+                request.Content.Headers.Add("authorization", "Bearer " + aadToken); // TODO: WHAT IS THE CORRECT HEADER NAKE?
             }
 
             return request;

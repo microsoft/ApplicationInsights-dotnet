@@ -1,15 +1,18 @@
 ﻿namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
+    using System.ComponentModel;
     using System.Diagnostics;
     using Microsoft.ApplicationInsights.Common;
+    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// Represents a communication channel for sending telemetry to Application Insights via HTTPS. There will be a buffer that will not be persisted, to enforce the 
     /// queued telemetry items to be sent, <see cref="ITelemetryChannel.Flush"/> should be called.    
     /// </summary>
-    public class InMemoryChannel : ITelemetryChannel
+    public class InMemoryChannel : ITelemetryChannel, ISupportCredentialEnvelope
     {
         private readonly TelemetryBuffer buffer;
         private readonly InMemoryTransmitter transmitter;
@@ -88,6 +91,21 @@
             {
                 this.transmitter.SendingInterval = value;
             }
+        }
+
+        /// <summary>
+        /// Gets or sets the <see cref="CredentialEnvelope"/> which is used for AAD.
+        /// FOR INTERNAL USE. Customers should use <see cref="TelemetryConfiguration.SetCredential"/> instead.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="InMemoryChannel.CredentialEnvelope"/> sets <see cref="InMemoryTransmitter.CredentialEnvelope"/> 
+        /// which is used to set <see cref="Transmission.CredentialEnvelope"/> just before calling <see cref="Transmission.SendAsync"/>.
+        /// </remarks>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public CredentialEnvelope CredentialEnvelope 
+        { 
+            get => this.transmitter.CredentialEnvelope;
+            set => this.transmitter.CredentialEnvelope = value;
         }
 
         /// <summary>
