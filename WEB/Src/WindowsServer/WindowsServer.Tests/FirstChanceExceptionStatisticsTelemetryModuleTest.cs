@@ -117,17 +117,17 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                 }
             }
 
-            Assert.Equal(1, metrics.Count);
+            Assert.Single(metrics);
             Assert.Equal("Exceptions thrown", metrics[0].Key.Name);
 
             var dims = metrics[0].Key.Dimensions;
             Assert.Equal(1, dims.Count);
 
-            Assert.True(dims["problemId"].StartsWith(typeof(Exception).FullName, StringComparison.Ordinal));
+            Assert.StartsWith(typeof(Exception).FullName, dims["problemId"], StringComparison.Ordinal);
 
             int nameStart = dims["problemId"].IndexOf(" at ", StringComparison.OrdinalIgnoreCase) + 4;
 
-            Assert.True(dims["problemId"].Substring(nameStart).StartsWith(typeof(FirstChanceExceptionStatisticsTelemetryModuleTest).FullName + "." + nameof(this.FirstChanceExceptionStatisticsTelemetryModuleTracksMetricWithTypeAndMethodOnException), StringComparison.Ordinal));
+            Assert.StartsWith(typeof(FirstChanceExceptionStatisticsTelemetryModuleTest).FullName + "." + nameof(this.FirstChanceExceptionStatisticsTelemetryModuleTracksMetricWithTypeAndMethodOnException), dims["problemId"].Substring(nameStart), StringComparison.Ordinal);
         }
 
         [TestMethod]
@@ -175,7 +175,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                 }
             }
 
-            Assert.Equal(1, metrics.Count);
+            Assert.Single(metrics);
             Assert.Equal("Exceptions thrown", metrics[0].Key.Name);
 
             var dims = metrics[0].Key.Dimensions;
@@ -221,7 +221,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                 }
             }
 
-            Assert.Equal(1, metrics.Count);
+            Assert.Single(metrics);
             Assert.Equal("Exceptions thrown", metrics[0].Key.Name);
 
             var dims = metrics[0].Key.Dimensions;
@@ -265,7 +265,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                 }
             }
 
-            Assert.Equal(1, metrics.Count);
+            Assert.Single(metrics);
             Assert.Equal("Exceptions thrown", metrics[0].Key.Name);
 
             var dims = metrics[0].Key.Dimensions;
@@ -520,7 +520,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                 }
             }
 
-            Assert.Equal(1, metrics.Count);
+            Assert.Single(metrics);
             Assert.Equal("Exceptions thrown", metrics[0].Key.Name);
 
             Assert.Equal(1, metrics[0].Value, 15);

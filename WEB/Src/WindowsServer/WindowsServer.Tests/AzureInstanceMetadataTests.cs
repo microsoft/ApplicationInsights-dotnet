@@ -210,7 +210,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
         public void AzureIMSGetFieldByNameFailsWithException()
         {
             AzureInstanceComputeMetadata md = new AzureInstanceComputeMetadata();
-            Assert.Throws(typeof(ArgumentOutOfRangeException), () => md.GetValueForField("not-a-field"));
+            Assert.Throws<ArgumentOutOfRangeException>(() => md.GetValueForField("not-a-field"));
         }
 
         [TestMethod]
