@@ -26,7 +26,6 @@
 
         private int isSending;
 
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Transmission"/> class. This overload seperates telemetryitems serialization from object construction. 
         /// </summary>
@@ -154,7 +153,6 @@
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool HasFlushTask { get; set; } = false;
 
-
         /// <summary>
         /// Serializes telemetry items.
         /// </summary>
@@ -168,7 +166,6 @@
             this.Timeout = timeout == default(TimeSpan) ? DefaultTimeout : timeout;
             this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
         }
-
 
         /// <summary>
         /// Executes the request that the current transmission represents.

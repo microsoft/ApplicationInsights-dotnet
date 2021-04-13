@@ -209,11 +209,11 @@
             }
             else if (taskStatus == TaskStatus.RanToCompletion && transmission.HasFlushTask)
             {
-                flushTaskStatus = successTask;
+                flushTaskStatus = this.successTask;
             }
             else
             {
-                flushTaskStatus = failedTask;
+                flushTaskStatus = this.failedTask;
             }
 
             return flushTaskStatus;
@@ -229,7 +229,7 @@
             var isStorageEnqueueSuccess = MoveTransmissions(this.Buffer.Dequeue, this.Storage.Enqueue, this.Buffer.Size);  
             TelemetryChannelEventSource.Log.MovedFromBufferToStorage();
             var senderStatus = this.Sender.WaitForPreviousTransmissionsToComplete(cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
-            if(senderStatus == TaskStatus.Canceled)
+            if (senderStatus == TaskStatus.Canceled)
             {
                 return TaskEx.FromCanceled<bool>(cancellationToken);
             }

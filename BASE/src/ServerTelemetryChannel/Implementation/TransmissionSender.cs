@@ -154,7 +154,7 @@
         /// </summary>
         internal async Task<TaskStatus> WaitForPreviousTransmissionsToComplete(long transmissionFlushAsyncId, CancellationToken cancellationToken)
         {
-            if(cancellationToken.IsCancellationRequested)
+            if (cancellationToken.IsCancellationRequested)
             {
                 return TaskStatus.Canceled;
             }
@@ -321,6 +321,7 @@
                     acceptedTransmission.HasFlushTask = true;
                     rejectedTransmission.HasFlushTask = true;
                 }
+
                 this.SendTransmissionThrottleRejection(rejectedTransmission);
             }
 
