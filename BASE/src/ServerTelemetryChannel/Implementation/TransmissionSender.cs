@@ -139,41 +139,21 @@
 
             return enqueueSucceded;
         }
-        
+
         /// <summary>
         /// Wait for inflight transmissions to complete. Honors the CancellationToken set by an application on IAsyncFlushable.FlushAsync.
         /// </summary>
-        internal async Task<bool> WaitForPreviousTransmissionsToComplete(long? transmissionFlushAsyncId, CancellationToken cancellationToken)
+        internal Task<TaskStatus> WaitForPreviousTransmissionsToComplete(CancellationToken cancellationToken)
         {
-            if (transmissionFlushAsyncId == null)
-            {
-                transmissionFlushAsyncId = this.inFlightTransmissions.LastOrDefault().Key;
-            }
-
-            var activeTransmissions = this.inFlightTransmissions.Where(p => p.Key <= transmissionFlushAsyncId).Select(p => p.Value);
-
-            if (activeTransmissions?.Count() > 0)
-            {
-                // Wait for all transmissions over the wire to complete.
-                var inTransitTasks = Task<HttpWebResponseWrapper>.WhenAll(activeTransmissions);
-                // Respect passed Cancellation token from FlushAsync call
-                var inTransitTasksWithCancellationToken = Task<HttpWebResponseWrapper>
-                                                          .WhenAny(inTransitTasks, new Task<HttpWebResponseWrapper>(() => { return DefaultHttpWebResponseWrapper; }, cancellationToken));
-                await inTransitTasksWithCancellationToken.ConfigureAwait(false);
-                return inTransitTasksWithCancellationToken.IsCompleted;
-            }
-
-            return true;
+            var transmissionFlushAsyncId = this.inFlightTransmissions.LastOrDefault().Key;
+            return this.WaitForPreviousTransmissionsToComplete(transmissionFlushAsyncId, cancellationToken);
         }
 
-        /*
-        internal async Task<TaskStatus> WaitForPreviousTransmissionsToComplete(long? transmissionFlushAsyncId, CancellationToken cancellationToken)
+        /// <summary>
+        /// Wait for inflight transmissions to complete. Honors the CancellationToken set by an application on IAsyncFlushable.FlushAsync.
+        /// </summary>
+        internal async Task<TaskStatus> WaitForPreviousTransmissionsToComplete(long transmissionFlushAsyncId, CancellationToken cancellationToken)
         {
-            if (transmissionFlushAsyncId == null)
-            {
-                transmissionFlushAsyncId = this.inFlightTransmissions.LastOrDefault().Key;
-            }
-
             var activeTransmissions = this.inFlightTransmissions.Where(p => p.Key <= transmissionFlushAsyncId).Select(p => p.Value);
 
             if (activeTransmissions?.Count() > 0)
@@ -184,12 +164,11 @@
                 var inTransitTasksWithCancellationToken = Task<HttpWebResponseWrapper>
                                                           .WhenAny(inTransitTasks, new Task<HttpWebResponseWrapper>(() => { return DefaultHttpWebResponseWrapper; }, cancellationToken));
                 await inTransitTasksWithCancellationToken.ConfigureAwait(false);
-                return inTransitTasksWithCancellationToken.Status;
+                return cancellationToken.IsCancellationRequested ? TaskStatus.Canceled : inTransitTasksWithCancellationToken.Status;
             }
 
             return TaskStatus.RanToCompletion;
         }
-*/
 
         protected void OnTransmissionSent(TransmissionProcessedEventArgs args)
         {
@@ -332,18 +311,19 @@
             if (rejectedTransmission != null)
             {
                 TelemetryChannelEventSource.Log.TransmissionThrottledWarning(this.ThrottleLimit, attemptedItemsCount, acceptedItemsCount);
-                // On transmission split, TaskCompletionSource is lost. Copy TaskCompletionSource to acceptedTransmission.
-                acceptedTransmission.SetFlushTaskCompletionSource(transmission.GetFlushTaskCompletionSource());
-                // rejectedTransmission calls policy, which inturn moves transmission to storage. 
-                this.SendTransmissionThrottleRejection(rejectedTransmission, transmission.HasFlushTask);
+                if (transmission.HasFlushTask)
+                {
+                    acceptedTransmission.HasFlushTask = true;
+                    rejectedTransmission.HasFlushTask = true;
+                }
+                this.SendTransmissionThrottleRejection(rejectedTransmission);
             }
-            
+
             return acceptedTransmission;
         }
 
-        private void SendTransmissionThrottleRejection(Transmission rejectedTransmission, bool hasFlushTask)
+        private void SendTransmissionThrottleRejection(Transmission rejectedTransmission)
         {
-            var statusDescription = hasFlushTask ? "SendToDisk" : "Internally Throttled";
             WebException exception = new WebException(
                 "Transmission was split by local throttling policy",
                 null,
@@ -355,7 +335,7 @@
                 new HttpWebResponseWrapper()
                 {
                     StatusCode = ResponseStatusCodes.ResponseCodeTooManyRequests,
-                    StatusDescription = statusDescription,
+                    StatusDescription = "Internally Throttled",
                     RetryAfterHeader = null,
                 }));
         }

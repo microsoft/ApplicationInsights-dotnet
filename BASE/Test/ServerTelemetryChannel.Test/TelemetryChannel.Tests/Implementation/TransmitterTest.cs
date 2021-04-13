@@ -14,6 +14,8 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
     using TaskEx = System.Threading.Tasks.Task;
+    using System.Threading.Tasks;
+    using System.Threading;
 
     public class TransmitterTest
     {
@@ -732,6 +734,152 @@
                     EventWrittenEventArgs trace = listener.Messages.First();
                     Assert.AreEqual(21, trace.EventId);
                 }
+            }
+        }
+
+        [TestClass]
+        public class FlushAsync : TransmitterTest
+        {
+            [TestMethod]
+            public async Task PassesTransmissionToSenderAndReturnsTrue()
+            {
+                Transmission sentTransmission = null;
+                var sender = new StubTransmissionSender
+                {
+                    OnEnqueue = getTransmission =>
+                    {
+                        sentTransmission = getTransmission();
+                        return sentTransmission != null;
+                    },
+                };
+
+                Transmitter transmitter = CreateTransmitter(sender: sender);
+
+                var transmission = new StubTransmission();
+                var result = await transmitter.FlushAsync(transmission, default);
+
+                Assert.AreSame(transmission, sentTransmission);
+                Assert.IsTrue(result);
+            }
+
+            [TestMethod]
+            public async Task StoresTransmissionWhenSenderIsFull()
+            {
+                bool isInStorage = false; 
+                var sender = new StubTransmissionSender { OnEnqueue = t => false };
+                var buffer = new TransmissionBuffer();
+                var storage = new StubTransmissionStorage
+                {
+                    OnEnqueue = getTransmission =>
+                    {
+                        isInStorage = true;
+                        return true;
+                    }
+                };
+
+                Transmitter transmitter = CreateTransmitter(sender: sender, buffer: buffer, storage: storage);
+
+                var transmission = new StubTransmission();
+                var result = await transmitter.FlushAsync(transmission, default);
+
+                Assert.IsTrue(isInStorage);
+                Assert.IsTrue(result);
+            }
+
+            [TestMethod]
+            public async Task StoresTransmissionWhenBufferIsFull()
+            {
+                Transmission storedTransmission = null;
+                var storage = new StubTransmissionStorage
+                {
+                    OnEnqueue = transmission =>
+                    {
+                        if (transmission != null)
+                        {
+                            storedTransmission = transmission;
+                            transmission.HasFlushTask = true;
+                            return true;
+                        }
+
+                        return false;
+                    }
+                };
+
+
+                var sender = new StubTransmissionSender { OnEnqueue = t => false };
+                var buffer = new StubTransmissionBuffer { OnEnqueue = t => false };
+                Transmitter transmitter = CreateTransmitter(sender: sender, buffer: buffer, storage: storage);
+
+                var enqueuedTransmission = new StubTransmission();
+                var result = await transmitter.FlushAsync(enqueuedTransmission, default);
+
+                Assert.AreSame(enqueuedTransmission, storedTransmission);
+                Assert.IsTrue(result);
+            }
+
+            [TestMethod]
+            public async Task AppliesTransmistionPoliciesIfTheyNeverBeenAppliedBefore()
+            {
+                var senderPolicy = new StubTransmissionPolicy { MaxSenderCapacity = 0 };
+                var sender = new StubTransmissionSender { Capacity = 1 };
+                Transmitter transmitter = CreateTransmitter(sender: sender, policies: new[] { senderPolicy });
+
+                var result = await transmitter.FlushAsync(new StubTransmission(), default);
+
+                Assert.AreEqual(senderPolicy.MaxSenderCapacity, sender.Capacity);
+                Assert.IsTrue(result);
+            }
+
+            [TestMethod]
+            public async Task DoesNotApplyPolicesIfTheyAlreadyApplied()
+            {
+                var senderPolicy = new StubTransmissionPolicy { MaxSenderCapacity = 0 };
+                var sender = new StubTransmissionSender();
+                Transmitter transmitter = CreateTransmitter(sender: sender, policies: new[] { senderPolicy });
+                transmitter.ApplyPolicies();
+                senderPolicy.MaxSenderCapacity = 2;
+
+                var result = await transmitter.FlushAsync(new StubTransmission(), default);
+
+                Assert.AreNotEqual(senderPolicy.MaxSenderCapacity, sender.Capacity);
+                Assert.IsTrue(result);
+            }
+
+            [TestMethod]
+            public async Task TracesDiagnosticsEvent()
+            {
+                Transmitter transmitter = CreateTransmitter();
+                using (var listener = new TestEventListener())
+                {
+                    const long AllKeywords = -1;
+                    listener.EnableEvents(TelemetryChannelEventSource.Log, EventLevel.LogAlways, (EventKeywords)AllKeywords);
+
+                    var result = await transmitter.FlushAsync(new StubTransmission(), default);
+
+                    EventWrittenEventArgs trace = listener.Messages.First();
+                    Assert.AreEqual(21, trace.EventId);
+                }
+            }
+
+            [TestMethod]
+            public async Task FlushAsyncRespectsCancellationToken()
+            {
+                Transmitter transmitter = CreateTransmitter();
+                await Assert.ThrowsExceptionAsync<TaskCanceledException>(() => transmitter.FlushAsync(new StubTransmission(), new CancellationToken(true)));
+            }
+
+            [TestMethod]
+            public async Task FlushAsyncReturnsFalseWhenTransmissionIsNotSentOrStored()
+            {
+                var sender = new StubTransmissionSender { OnEnqueue = t => false };
+                var buffer = new StubTransmissionBuffer { OnEnqueue = t => false };
+                var storage = new StubTransmissionStorage { OnEnqueue = t => false };
+                Transmitter transmitter = CreateTransmitter(sender: sender, buffer: buffer, storage: storage);
+
+                var enqueuedTransmission = new StubTransmission();
+                var result = await transmitter.FlushAsync(enqueuedTransmission, default);
+
+                Assert.IsFalse(result);
             }
         }
 

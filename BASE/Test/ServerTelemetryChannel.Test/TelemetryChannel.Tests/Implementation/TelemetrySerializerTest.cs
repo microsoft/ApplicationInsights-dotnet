@@ -209,6 +209,31 @@
         public class SerializeAsyncTask
         {
             [TestMethod]
+            public void ThrowsExceptionWhenEndpointAddressIsNull()
+            {
+                var serializer = new TelemetrySerializer(new StubTransmitter());
+                AssertEx.Throws<Exception>(() => serializer.SerializeAsync(null, default));
+            }
+
+            [TestMethod]
+            public void ReturnsBoolenTaskWhenTelemetryIsNullOrEmpty()
+            {
+                Transmission transmission = null;
+                var transmitter = new StubTransmitter();
+                transmitter.OnEnqueue = t =>
+                {
+                    transmission = t;
+                };
+
+                var serializer = new TelemetrySerializer(transmitter) { EndpointAddress = new Uri("http://expected.uri") };
+                var result = serializer.SerializeAsync(null, default);
+                Assert.IsInstanceOfType(result, typeof(Task<bool>));
+
+                result = serializer.SerializeAsync(new List<ITelemetry>(), default);
+                Assert.IsInstanceOfType(result, typeof(Task<bool>));
+            }
+
+            [TestMethod]
             public async Task EnqueuesTransmissionWithExpectedPropertiesForUnknownTelemetry()
             {
                 Transmission transmission = null;
@@ -216,7 +241,7 @@
                 transmitter.OnEnqueue = t =>
                 {
                     transmission = t;
-                    transmission.CompleteFlushTask(true);
+                    transmission.HasFlushTask = true;
                 };
 
                 var serializer = new TelemetrySerializer(transmitter) { EndpointAddress = new Uri("http://expected.uri") };
@@ -244,7 +269,6 @@
                 transmitter.OnEnqueue = t =>
                 {
                     transmission = t;
-                    transmission.CompleteFlushTask(true);
                 };
 
                 var serializer = new TelemetrySerializer(transmitter) { EndpointAddress = new Uri("http://expected.uri") };
@@ -263,6 +287,65 @@
                     "}";
                 Assert.AreEqual(expectedContent, Unzip(transmission.Content));
                 Assert.IsTrue(taskResult);
+            }
+
+            [TestMethod]
+            public async Task ReturnsFalseWhenTransmissionIsNotSentOrStored()
+            {
+                Transmission transmission = null;
+                var transmitter = new StubTransmitter();
+                transmitter.OnEnqueue = t =>
+                {
+                    transmission = t;
+                    transmission.HasFlushTask = false;
+                };
+
+                var serializer = new TelemetrySerializer(transmitter) { EndpointAddress = new Uri("http://expected.uri") };
+                var taskResult = await serializer.SerializeAsync(new[] { new StubSerializableTelemetry() }, default);
+                Assert.IsFalse(taskResult);
+            }
+
+            [TestMethod]
+            public async Task EnqueuesTransmissionWithSetTransmissionStatusEvent()
+            {
+                Transmission transmission = null;
+                var transmitter = new StubTransmitter();
+                transmitter.OnEnqueue = t =>
+                {
+                    transmission = t;
+                };
+
+                var serializer = new TelemetrySerializer(transmitter) { EndpointAddress = new Uri("http://expected.uri") };
+                // Set TransmissionStatusEvent does not change the behavior, only wires up event to transmission.
+                serializer.TransmissionStatusEvent += delegate (object sender, TransmissionStatusEventArgs args) { };
+                var taskResult = await serializer.SerializeAsync(new[] { new StubSerializableTelemetry() }, default);
+
+                Assert.AreEqual(serializer.EndpointAddress, transmission.EndpointAddress);
+                Assert.AreEqual("application/x-json-stream", transmission.ContentType);
+                Assert.AreEqual("gzip", transmission.ContentEncoding);
+
+                var expectedContent = "{" +
+                    "\"name\":\"StubTelemetryName\"," +
+                    "\"time\":\"0001-01-01T00:00:00.0000000Z\"," +
+                    "\"data\":{\"baseType\":\"StubTelemetryBaseType\"," +
+                        "\"baseData\":{}" +
+                        "}" +
+                    "}";
+                Assert.AreEqual(expectedContent, Unzip(transmission.Content));
+            }
+
+            [TestMethod]
+            public async Task SerializeAsyncRespectsCancellationTokenWhenTelemetryIsEmpty()
+            {
+                Transmission transmission = null;
+                var transmitter = new StubTransmitter();
+                transmitter.OnEnqueue = t =>
+                {
+                    transmission = t;
+                };
+
+                var serializer = new TelemetrySerializer(transmitter) { EndpointAddress = new Uri("http://expected.uri") };
+                await Assert.ThrowsExceptionAsync<TaskCanceledException>(() => serializer.SerializeAsync(null, new CancellationToken(true)));
             }
 
             [TestMethod]

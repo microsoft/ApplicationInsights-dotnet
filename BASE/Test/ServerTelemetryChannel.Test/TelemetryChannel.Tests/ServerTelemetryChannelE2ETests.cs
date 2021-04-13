@@ -660,10 +660,13 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
         [TestMethod]
         public async Task ChannelRespectsCancellationTokenTimeOutOnFlushAsync()
         {
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
             using (var localServer = new LocalInProcHttpServer(Localurl))
             {
                 localServer.ServerLogic = async (ctx) =>
                 {
+                    cancellationTokenSource.Cancel();
                     // Delay response from AI Backend.
                     await Task.Delay(DelayfromWebServerInMilliseconds);
                 };
@@ -687,8 +690,6 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var telemetry = new EventTelemetry("test event name");
                     telemetry.Context.InstrumentationKey = "dummy";
                     channel.Send(telemetry);
-                    var cancellationTokenSource = new CancellationTokenSource();
-                    cancellationTokenSource.CancelAfter(CancellationTimeOutInMilliseconds);
 
                     await Assert.ThrowsExceptionAsync<TaskCanceledException>(() => channel.FlushAsync(cancellationTokenSource.Token));
                 }

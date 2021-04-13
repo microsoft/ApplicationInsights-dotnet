@@ -68,24 +68,17 @@
             }
 
             var transmission = new Transmission() { TransmissionStatusEvent = this.TransmissionStatusEvent };
-            Task<bool> resultTask = transmission.GetFlushTask(cancellationToken);
-
-            if (!cancellationToken.IsCancellationRequested)
-            {
-                // serializes transmission and enqueue asynchronously
-                Task.Run(() => this.SerializeTransmissionAndEnqueue(transmission, items), cancellationToken);
-            }
-
-            return resultTask;
+            // serialize transmission and enqueue asynchronously
+            return Task.Run(() => this.SerializeTransmissionAndEnqueue(transmission, items, cancellationToken), cancellationToken);
         }
 
         /// <summary>
         /// Serializes transmission and enqueue.
         /// </summary>
-        private void SerializeTransmissionAndEnqueue(Transmission transmission, ICollection<ITelemetry> items)
+        private Task<bool> SerializeTransmissionAndEnqueue(Transmission transmission, ICollection<ITelemetry> items, CancellationToken cancellationToken)
         {
             transmission.Serialize(this.EndpointAddress, items);
-            this.Transmitter.Flush(transmission);
+            return this.Transmitter.FlushAsync(transmission, cancellationToken);
         }
     }
 }

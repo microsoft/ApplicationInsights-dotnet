@@ -19,25 +19,23 @@
             private const int ResponseCodeTooManyRequestsOverExtendedTime = 439;
             private const int ResponseCodePaymentRequired = 402;
             private const int ResponseCodeUnsupported = 0;
-            private bool hasFlushTask = false;
 
             [TestMethod]
             public void AssertTooManyRequestsStopsSending()
             {
-                this.PositiveTest(ResponseCodeTooManyRequests, 0, null, null);
+                this.PositiveTest(ResponseCodeTooManyRequests, 0, null, null, false);
             }
 
             [TestMethod]
             public void AssertTooManyRequestsStopsSendingWithFlushAsyncTask()
             {
-                hasFlushTask = true;
-                this.PositiveTest(ResponseCodeTooManyRequests, 0, 0, null);
+                this.PositiveTest(ResponseCodeTooManyRequests, 0, 0, null, true);
             }
 
             [TestMethod]
             public void AssertTooManyRequestsOverExtendedTimeStopsSendingAndCleansCache()
             {
-                this.PositiveTest(ResponseCodeTooManyRequestsOverExtendedTime, 0, 0, 0);
+                this.PositiveTest(ResponseCodeTooManyRequestsOverExtendedTime, 0, 0, 0, false);
             }
 
             [TestMethod]
@@ -115,7 +113,7 @@
                 }
             }
 
-            private void PositiveTest(int responseCode, int? expectedSenderCapacity, int? expectedBufferCapacity, int? expectedStorageCapacity)
+            private void PositiveTest(int responseCode, int? expectedSenderCapacity, int? expectedBufferCapacity, int? expectedStorageCapacity, bool hasFlushTask)
             {
                 const int RetryAfterSeconds = 2;
                 string retryAfter = DateTime.Now.ToUniversalTime().AddSeconds(RetryAfterSeconds).ToString("R", CultureInfo.InvariantCulture);
@@ -136,15 +134,10 @@
                 policy.Initialize(transmitter);
 
                 string statusDescription = null;
-                if (hasFlushTask)
-                {
-                    statusDescription = "SendToDisk";
-                    hasFlushTask = false;
-                }
 
                 transmitter.OnTransmissionSent(
                     new TransmissionProcessedEventArgs(
-                        new StubTransmission(), null, new HttpWebResponseWrapper()
+                        new StubTransmission() { HasFlushTask = hasFlushTask }, null, new HttpWebResponseWrapper()
                         {
                             StatusCode = responseCode,
                             StatusDescription = statusDescription,
