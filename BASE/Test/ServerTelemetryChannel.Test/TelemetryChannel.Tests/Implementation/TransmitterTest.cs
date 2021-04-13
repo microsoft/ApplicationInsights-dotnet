@@ -884,6 +884,42 @@
         }
 
         [TestClass]
+        public class MoveTransmissionsAndWaitForSender : TransmitterTest
+        {
+            [TestMethod]
+            public async Task LogsEventAfterMovingTransmissionsToStorage()
+            {
+                var sender = new StubTransmissionSender { OnEnqueue = t => false };
+                var buffer = new TransmissionBuffer();
+                var storage = new StubTransmissionStorage { OnEnqueue = t => false };
+                buffer.Enqueue(() => new StubTransmission());
+
+                Transmitter transmitter = CreateTransmitter(sender: sender, buffer: buffer, storage: storage);
+                using (var listener = new TestEventListener())
+                {
+                    const long AllKeywords = -1;
+                    listener.EnableEvents(TelemetryChannelEventSource.Log, EventLevel.LogAlways, (EventKeywords)AllKeywords);
+
+                    await transmitter.MoveTransmissionsAndWaitForSender(default);
+                    EventWrittenEventArgs trace = listener.Messages.First();
+                    Assert.AreEqual(52, trace.EventId);
+
+                    transmitter.MoveTransmissionsAndWaitForSender(1, default);
+                    trace = listener.Messages.First();
+                    Assert.AreEqual(52, trace.EventId);
+                }
+            }
+
+            [TestMethod]
+            public async Task RespectsCancellationToken()
+            {
+                Transmitter transmitter = CreateTransmitter();
+                await Assert.ThrowsExceptionAsync<TaskCanceledException>(() => transmitter.MoveTransmissionsAndWaitForSender(new CancellationToken(true)));
+                Assert.AreEqual(TaskStatus.Canceled, transmitter.MoveTransmissionsAndWaitForSender(1, new CancellationToken(true)));
+            }
+        }
+
+        [TestClass]
         public class HandleSenderTransmissionSentEvent : TransmitterTest
         {
             [TestMethod]

@@ -19,6 +19,8 @@
         internal readonly TransmissionStorage Storage;        
         private readonly IEnumerable<TransmissionPolicy> policies;
         private readonly BackoffLogicManager backoffLogicManager;
+        private readonly Task<bool> successTask = Task.FromResult(true);
+        private readonly Task<bool> failedTask = Task.FromResult(false);
 
         private bool arePoliciesApplied;
         private int maxSenderCapacity;
@@ -187,13 +189,12 @@
                 try
                 {
                     this.Storage.IncrementFlushAsyncCounter();
-                    taskStatus = this.MoveTransmissionsAndWaitForSender(cancellationToken, transmission.FlushAsyncId);
+                    taskStatus = this.MoveTransmissionsAndWaitForSender(transmission.FlushAsyncId, cancellationToken);
                 }
                 catch (Exception exp)
                 {
-                    // Introduce new log message
                     taskStatus = TaskStatus.Faulted;
-                    TelemetryChannelEventSource.Log.ExceptionHandlerStartExceptionWarning(exp.ToString());
+                    TelemetryChannelEventSource.Log.TransmissionFlushAsyncWarning(exp.ToString());
                 }
                 finally
                 {
@@ -204,15 +205,15 @@
             Task<bool> flushTaskStatus = null;
             if (taskStatus == TaskStatus.Canceled)
             {
-                flushTaskStatus= TaskEx.FromCanceled<bool>(cancellationToken);
+                flushTaskStatus = TaskEx.FromCanceled<bool>(cancellationToken);
             }
             else if (taskStatus == TaskStatus.RanToCompletion && transmission.HasFlushTask)
             {
-                flushTaskStatus= Task.FromResult(true);
+                flushTaskStatus = successTask;
             }
             else
             {
-                flushTaskStatus = Task.FromResult(false);
+                flushTaskStatus = failedTask;
             }
 
             return flushTaskStatus;
@@ -225,17 +226,30 @@
                 return TaskEx.FromCanceled<bool>(cancellationToken);
             }
 
-            var isStorageEnqueueSuccess = MoveTransmissions(this.Buffer.Dequeue, this.Storage.Enqueue, this.Buffer.Size); // Revisit - What if buffer is filled in by other thread. Cancellation Token is not honored. Check if < transmission 
+            var isStorageEnqueueSuccess = MoveTransmissions(this.Buffer.Dequeue, this.Storage.Enqueue, this.Buffer.Size);  
             TelemetryChannelEventSource.Log.MovedFromBufferToStorage();
-            var isSenderComplete = this.Sender.WaitForPreviousTransmissionsToComplete(cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
-            if(isSenderComplete == TaskStatus.Canceled)
+            var senderStatus = this.Sender.WaitForPreviousTransmissionsToComplete(cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
+            if(senderStatus == TaskStatus.Canceled)
             {
                 return TaskEx.FromCanceled<bool>(cancellationToken);
             }
 
-            return isSenderComplete == TaskStatus.RanToCompletion && isStorageEnqueueSuccess ? Task.FromResult(true) : Task.FromResult(false); // Revisit - this.Storage.IsEnqueueSuccess - not thread safe
+            return senderStatus == TaskStatus.RanToCompletion && isStorageEnqueueSuccess ? Task.FromResult(true) : Task.FromResult(false); 
         }
 
+        internal TaskStatus MoveTransmissionsAndWaitForSender(long transmissionFlushAsyncId, CancellationToken cancellationToken)
+        {
+            var isStorageEnqueueSuccess = MoveTransmissions(this.Buffer.Dequeue, this.Storage.Enqueue, this.Buffer.Size);
+            TelemetryChannelEventSource.Log.MovedFromBufferToStorage();
+            var senderStatus = this.Sender.WaitForPreviousTransmissionsToComplete(transmissionFlushAsyncId, cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            if (!isStorageEnqueueSuccess && senderStatus != TaskStatus.Canceled)
+            {
+                return TaskStatus.Faulted;
+            }
+
+            return senderStatus;
+        }
 
         internal virtual void ApplyPolicies()
         {
@@ -292,20 +306,6 @@
         protected void OnTransmissionSent(TransmissionProcessedEventArgs e)
         {
             this.TransmissionSent?.Invoke(this, e);
-        }
-
-        private TaskStatus MoveTransmissionsAndWaitForSender(CancellationToken cancellationToken, long transmissionFlushAsyncId)
-        {
-            var isStorageEnqueueSuccess = MoveTransmissions(this.Buffer.Dequeue, this.Storage.Enqueue, this.Buffer.Size); // Revisit - What if buffer is filled in by other thread. Cancellation Token is not honored. Check if < transmission 
-            TelemetryChannelEventSource.Log.MovedFromBufferToStorage();
-            var senderStatus = this.Sender.WaitForPreviousTransmissionsToComplete(transmissionFlushAsyncId, cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
-            
-            if(!isStorageEnqueueSuccess && senderStatus != TaskStatus.Canceled)
-            {
-                return TaskStatus.Faulted;
-            }
-
-            return senderStatus;
         }
 
         private static void MoveTransmissions(Func<Transmission> dequeue, Func<Func<Transmission>, bool> enqueue)

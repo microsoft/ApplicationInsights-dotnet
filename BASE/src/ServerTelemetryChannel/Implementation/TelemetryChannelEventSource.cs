@@ -559,6 +559,12 @@
             this.WriteEvent(76, this.ApplicationName);
         }
 
+        [Event(77, Message = "TransmissionFlushAsyncFailed. Exception:{0}", Level = EventLevel.Warning)]
+        public void TransmissionFlushAsyncWarning(string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(77, exception ?? string.Empty, this.ApplicationName);
+        }
+
         private static string GetApplicationName()
         {
             //// We want to add application name to all events BUT

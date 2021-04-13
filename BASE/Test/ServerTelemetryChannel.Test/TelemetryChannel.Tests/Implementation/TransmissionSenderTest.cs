@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
@@ -92,7 +93,6 @@
             }
 
             [TestMethod]
-            [Ignore("To support FlushAsync we need to invoke transmission getter.")]
             public void DoesNotInvokeTransmissionGetterWhenMaxNumberOfTransmissionsIsExceededToKeepItBuffered()
             {
                 bool transmissionGetterInvoked = false;
@@ -310,6 +310,95 @@
                 Assert.AreSame(wrapper, eventArgs[1].Response);
                 Assert.AreEqual(sender.ThrottleLimit, ((StubTransmission)eventArgs[0].Transmission).CountOfItems());
                 Assert.AreEqual(10, ((StubTransmission)eventArgs[1].Transmission).CountOfItems());
+            }
+
+            [TestMethod]
+            public void FlushAsyncTransmissionWithThrottle()
+            {
+                var sender = new TransmissionSender();
+                sender.ApplyThrottle = true;
+
+                var eventIsRaised = new ManualResetEventSlim();
+                var firedCount = 0;
+                var eventArgs = new List<Implementation.TransmissionProcessedEventArgs>();
+                sender.TransmissionSent += (s, a) =>
+                {
+                    firedCount++;
+                    eventArgs.Add(a);
+                    if (firedCount == 2)
+                    {
+                        eventIsRaised.Set();
+                    }
+                };
+
+                var telemetryItems = new List<ITelemetry>();
+                for (var i = 0; i < sender.ThrottleLimit + 10; i++)
+                {
+                    telemetryItems.Add(new DataContracts.EventTelemetry());
+                }
+
+                var wrapper = new HttpWebResponseWrapper();
+                Transmission transmission = new StubTransmission(telemetryItems) { OnSend = () => wrapper };
+                transmission.HasFlushTask = true;
+                sender.Enqueue(() => transmission);
+
+                // Both accepted and rejected transmission has flush task
+                Assert.IsTrue(eventArgs[0].Transmission.HasFlushTask);
+                Assert.IsTrue(eventArgs[1].Transmission.HasFlushTask);
+            }
+
+            [TestMethod]
+            public void FlushTaskIsNotSetOnNormalFlushTransmissionWithThrottle()
+            {
+                var sender = new TransmissionSender();
+                sender.ApplyThrottle = true;
+
+                var eventIsRaised = new ManualResetEventSlim();
+                var firedCount = 0;
+                var eventArgs = new List<Implementation.TransmissionProcessedEventArgs>();
+                sender.TransmissionSent += (s, a) =>
+                {
+                    firedCount++;
+                    eventArgs.Add(a);
+                    if (firedCount == 2)
+                    {
+                        eventIsRaised.Set();
+                    }
+                };
+
+                var telemetryItems = new List<ITelemetry>();
+                for (var i = 0; i < sender.ThrottleLimit + 10; i++)
+                {
+                    telemetryItems.Add(new DataContracts.EventTelemetry());
+                }
+
+                var wrapper = new HttpWebResponseWrapper();
+                Transmission transmission = new StubTransmission(telemetryItems) { OnSend = () => wrapper };
+                sender.Enqueue(() => transmission);
+
+                // Both accepted and rejected transmission has flush task
+                Assert.IsFalse(eventArgs[0].Transmission.HasFlushTask);
+                Assert.IsFalse(eventArgs[1].Transmission.HasFlushTask);
+            }
+
+            [TestMethod]
+            public void WaitForPreviousTransmissionsToCompleteCancelationToken()
+            {
+                var sender = new TransmissionSender();
+                Assert.AreEqual(TaskStatus.Canceled,
+                    sender.WaitForPreviousTransmissionsToComplete(new CancellationToken(true)).Result);
+                Assert.AreEqual(TaskStatus.Canceled,
+                    sender.WaitForPreviousTransmissionsToComplete(1, new CancellationToken(true)).Result);
+            }
+
+            [TestMethod]
+            public void WaitForPreviousTransmissionsToCompleteReturnsSuccessWithNoInFlightTransmission()
+            {
+                var sender = new TransmissionSender();
+                Assert.AreEqual(TaskStatus.RanToCompletion,
+                    sender.WaitForPreviousTransmissionsToComplete(default).Result);
+                Assert.AreEqual(TaskStatus.RanToCompletion,
+                    sender.WaitForPreviousTransmissionsToComplete(1, default).Result);
             }
         }
     }

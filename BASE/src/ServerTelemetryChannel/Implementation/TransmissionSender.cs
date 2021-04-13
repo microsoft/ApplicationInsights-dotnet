@@ -112,10 +112,10 @@
             bool enqueueSucceded = false;
 
             int currentCount = Interlocked.Increment(ref this.transmissionCount);
-            var transmission = transmissionGetter();
-
             if (currentCount <= this.capacity)
             {
+                var transmission = transmissionGetter();
+
                 if (transmission != null)
                 {
                     ExceptionHandler.Start(this.StartSending, transmission);
@@ -154,6 +154,11 @@
         /// </summary>
         internal async Task<TaskStatus> WaitForPreviousTransmissionsToComplete(long transmissionFlushAsyncId, CancellationToken cancellationToken)
         {
+            if(cancellationToken.IsCancellationRequested)
+            {
+                return TaskStatus.Canceled;
+            }
+
             var activeTransmissions = this.inFlightTransmissions.Where(p => p.Key <= transmissionFlushAsyncId).Select(p => p.Value);
 
             if (activeTransmissions?.Count() > 0)

@@ -271,5 +271,37 @@
             Assert.AreEqual(0, transmitter.BackoffLogicManager.ConsecutiveErrors);
             Assert.AreEqual(0, enqueuedTransmissions.Count);
         }
+
+        [TestMethod]
+        public void ItemsAreEnqueuedOnFlushAsync()
+        {
+            IList<Transmission> enqueuedTransmissions = new List<Transmission>();
+            var transmitter = new StubTransmitter
+            {
+                OnEnqueue = t => { enqueuedTransmissions.Add(t); }
+            };
+
+            var policy = new PartialSuccessTransmissionPolicy();
+            policy.Initialize(transmitter);
+
+            var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
+            Transmission transmission = new Transmission(new Uri("http://uri"), items, "type", "encoding") { HasFlushTask = true };
+
+            string response = BackendResponseHelper.CreateBackendResponse(
+                itemsReceived: 2,
+                itemsAccepted: 1,
+                errorCodes: new[] { "429" });
+
+            var wrapper = new HttpWebResponseWrapper
+            {
+                StatusCode = 206,
+                Content = response
+            };
+
+            transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
+
+            Assert.AreEqual(1, enqueuedTransmissions.Count);
+            Assert.IsTrue(transmission.HasFlushTask);
+        }
     }
 }
