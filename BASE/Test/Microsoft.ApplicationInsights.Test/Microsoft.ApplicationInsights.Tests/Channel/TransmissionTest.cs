@@ -93,9 +93,8 @@
                 var transmission2 = new Transmission();
                 var transmission3 = new Transmission(testUri, new byte[1], "content/type", "content/encoding");
 
-                Assert.AreEqual(1, transmission1.FlushAsyncId);
-                Assert.AreEqual(2, transmission2.FlushAsyncId);
-                Assert.AreEqual(3, transmission3.FlushAsyncId);
+                Assert.AreEqual(transmission1.FlushAsyncId + 1, transmission2.FlushAsyncId);
+                Assert.AreEqual(transmission1.FlushAsyncId + 2, transmission3.FlushAsyncId);
             }
         }
 
