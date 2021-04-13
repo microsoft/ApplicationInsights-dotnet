@@ -390,7 +390,7 @@
             // The AAD token is an optional feature. Only include if it is provided.
             if (string.IsNullOrEmpty(aadToken))
             {
-                request.Headers.Add("authorization", "Bearer " + aadToken); // TODO: WHAT IS THE CORRECT HEADER NAKE?
+                request.Headers.Add(QuickPulseConstants.AuthorizationHeaderName, QuickPulseConstants.AuthorizationTokenPrefix + aadToken);
             }
         }
     }
