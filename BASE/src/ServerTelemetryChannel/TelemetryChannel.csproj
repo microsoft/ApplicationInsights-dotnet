@@ -44,5 +44,9 @@
     <PackageReference Include="System.IO.FileSystem.AccessControl" Version="4.7.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\Microsoft.ApplicationInsights\Channel\TaskEx.cs" Link="TaskEx.cs" />
+  </ItemGroup>
+
   <Import Project="..\Common\Common\Common.projitems" Label="Shared" />
 </Project>

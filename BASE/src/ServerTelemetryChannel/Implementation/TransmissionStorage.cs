@@ -27,6 +27,8 @@
         private bool sizeCalculated;
         private Random random = new Random();
         private Timer clearBadFiles;
+        // Storage dequeue is not permitted with FlushAsync
+        // When this counter is set, it blocks storage dequeue
         private long flushAsyncInProcessCounter = 0;
 
         public TransmissionStorage()

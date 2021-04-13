@@ -234,7 +234,7 @@
                 return TaskEx.FromCanceled<bool>(cancellationToken);
             }
 
-            return senderStatus == TaskStatus.RanToCompletion && isStorageEnqueueSuccess ? Task.FromResult(true) : Task.FromResult(false); 
+            return senderStatus == TaskStatus.RanToCompletion && isStorageEnqueueSuccess ? this.successTask : this.failedTask; 
         }
 
         internal TaskStatus MoveTransmissionsAndWaitForSender(long transmissionFlushAsyncId, CancellationToken cancellationToken)

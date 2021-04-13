@@ -17,7 +17,7 @@
     internal class TransmissionSender
     {      
         private static readonly HttpWebResponseWrapper DefaultHttpWebResponseWrapper = default(HttpWebResponseWrapper);
-        // Stores all inflight requests using this list, before SendAsync.
+        // Stores all inflight requests using this dictionary, before SendAsync.
         // Removes entry from dictionary after response.
         private ConcurrentDictionary<long, Task<HttpWebResponseWrapper>> inFlightTransmissions = new ConcurrentDictionary<long, Task<HttpWebResponseWrapper>>();
         private int transmissionCount = 0;
