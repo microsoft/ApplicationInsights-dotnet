@@ -137,7 +137,7 @@
 
                 transmitter.OnTransmissionSent(
                     new TransmissionProcessedEventArgs(
-                        new StubTransmission() { HasFlushTask = hasFlushTask }, null, new HttpWebResponseWrapper()
+                        new StubTransmission() { IsFlushAsyncInProgress = hasFlushTask }, null, new HttpWebResponseWrapper()
                         {
                             StatusCode = responseCode,
                             StatusDescription = statusDescription,

@@ -339,12 +339,12 @@
 
                 var wrapper = new HttpWebResponseWrapper();
                 Transmission transmission = new StubTransmission(telemetryItems) { OnSend = () => wrapper };
-                transmission.HasFlushTask = true;
+                transmission.IsFlushAsyncInProgress = true;
                 sender.Enqueue(() => transmission);
 
                 // Both accepted and rejected transmission has flush task
-                Assert.IsTrue(eventArgs[0].Transmission.HasFlushTask);
-                Assert.IsTrue(eventArgs[1].Transmission.HasFlushTask);
+                Assert.IsTrue(eventArgs[0].Transmission.IsFlushAsyncInProgress);
+                Assert.IsTrue(eventArgs[1].Transmission.IsFlushAsyncInProgress);
             }
 
             [TestMethod]
@@ -377,8 +377,8 @@
                 sender.Enqueue(() => transmission);
 
                 // Both accepted and rejected transmission has flush task
-                Assert.IsFalse(eventArgs[0].Transmission.HasFlushTask);
-                Assert.IsFalse(eventArgs[1].Transmission.HasFlushTask);
+                Assert.IsFalse(eventArgs[0].Transmission.IsFlushAsyncInProgress);
+                Assert.IsFalse(eventArgs[1].Transmission.IsFlushAsyncInProgress);
             }
 
             [TestMethod]

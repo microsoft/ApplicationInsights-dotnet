@@ -170,7 +170,7 @@
         /// </summary>
         public virtual async Task FlushAsync()
         {
-            List<ITelemetry> telemetryToFlush = this.MoveTelemeteryBufferForFlush();
+            List<ITelemetry> telemetryToFlush = this.GetBufferTelemetryAndResetBuffer();
 
             if (telemetryToFlush != null)
             {
@@ -188,7 +188,7 @@
         /// </summary>
         public virtual Task<bool> FlushAsync(CancellationToken cancellationToken)
         {
-            List<ITelemetry> telemetryToFlush = this.MoveTelemeteryBufferForFlush();
+            List<ITelemetry> telemetryToFlush = this.GetBufferTelemetryAndResetBuffer();
 
             if (!cancellationToken.IsCancellationRequested)
             {
@@ -208,7 +208,7 @@
             return this.GetEnumerator();
         }
 
-        private List<ITelemetry> MoveTelemeteryBufferForFlush()
+        private List<ITelemetry> GetBufferTelemetryAndResetBuffer()
         {
             List<ITelemetry> telemetryToFlush = null;
             if (this.itemBuffer.Count > 0)

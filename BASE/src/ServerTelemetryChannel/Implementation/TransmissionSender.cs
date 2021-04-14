@@ -316,10 +316,10 @@
             if (rejectedTransmission != null)
             {
                 TelemetryChannelEventSource.Log.TransmissionThrottledWarning(this.ThrottleLimit, attemptedItemsCount, acceptedItemsCount);
-                if (transmission.HasFlushTask)
+                if (transmission.IsFlushAsyncInProgress)
                 {
-                    acceptedTransmission.HasFlushTask = true;
-                    rejectedTransmission.HasFlushTask = true;
+                    acceptedTransmission.IsFlushAsyncInProgress = true;
+                    rejectedTransmission.IsFlushAsyncInProgress = true;
                 }
 
                 this.SendTransmissionThrottleRejection(rejectedTransmission);

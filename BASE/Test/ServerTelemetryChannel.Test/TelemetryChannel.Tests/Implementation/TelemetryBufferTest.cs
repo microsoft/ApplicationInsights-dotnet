@@ -552,6 +552,15 @@
 
                 Assert.IsTrue(anotherThread.Wait(50));
             }
+
+            [TestMethod]
+            public void SerializerThrowsExceptionWhenEndPointIsNull()
+            {
+                var serializer = new TelemetrySerializer(new Transmitter());
+
+                var telemetryBuffer = new TelemetryBuffer(serializer, new StubApplicationLifecycle());
+                AssertEx.Throws<Exception>(() => telemetryBuffer.FlushAsync(default));
+            }
         }
     }
 }

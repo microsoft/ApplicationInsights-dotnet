@@ -285,7 +285,7 @@
             policy.Initialize(transmitter);
 
             var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
-            Transmission transmission = new Transmission(new Uri("http://uri"), items, "type", "encoding") { HasFlushTask = true };
+            Transmission transmission = new Transmission(new Uri("http://uri"), items, "type", "encoding") { IsFlushAsyncInProgress = true };
 
             string response = BackendResponseHelper.CreateBackendResponse(
                 itemsReceived: 2,
@@ -301,7 +301,7 @@
             transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
 
             Assert.AreEqual(1, enqueuedTransmissions.Count);
-            Assert.IsTrue(transmission.HasFlushTask);
+            Assert.IsTrue(transmission.IsFlushAsyncInProgress);
         }
     }
 }

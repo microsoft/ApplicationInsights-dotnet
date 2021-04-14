@@ -106,7 +106,7 @@
 
                 if (!string.IsNullOrEmpty(newTransmissions))
                 {
-                    if (args.Transmission.HasFlushTask)
+                    if (args.Transmission.IsFlushAsyncInProgress)
                     {
                         // Move newTransmission to storage on IAsyncFlushable.FlushAsync
                         transmission = this.SerializeNewTransmission(args, newTransmissions);

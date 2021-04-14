@@ -797,7 +797,7 @@
                         if (transmission != null)
                         {
                             storedTransmission = transmission;
-                            transmission.HasFlushTask = true;
+                            transmission.IsFlushAsyncInProgress = true;
                             return true;
                         }
 

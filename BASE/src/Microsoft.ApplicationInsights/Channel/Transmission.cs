@@ -27,13 +27,6 @@
         private int isSending;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Transmission"/> class. This overload seperates telemetryitems serialization from object construction. 
-        /// </summary>
-        public Transmission()
-        {
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="Transmission"/> class.
         /// </summary>
         public Transmission(Uri address, byte[] content, string contentType, string contentEncoding, TimeSpan timeout = default(TimeSpan))
@@ -71,6 +64,13 @@
             : this(address, content, contentType, contentEncoding, timeout)
         {
             client = passedClient;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Transmission"/> class. This overload is for Test purposes. 
+        /// </summary>
+        protected internal Transmission()
+        {
         }
 
         /// <summary>
@@ -144,28 +144,12 @@
         /// <summary>
         /// Gets the flush async id for the transmission.
         /// </summary>
-        /// [EditorBrowsable(EditorBrowsableState.Never)]
-        public long FlushAsyncId { get; } = Interlocked.Increment(ref flushAsyncCounter);
+        internal long FlushAsyncId { get; } = Interlocked.Increment(ref flushAsyncCounter);
 
         /// <summary>
-        /// Gets or sets a value indicating whether this transmission is created from FlushAsync API call.
+        /// Gets or sets a value indicating whether FlushAsync is in progress.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public bool HasFlushTask { get; set; } = false;
-
-        /// <summary>
-        /// Serializes telemetry items.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public void Serialize(Uri address, IEnumerable<ITelemetry> telemetryItems, TimeSpan timeout = default(TimeSpan))
-        {
-            this.EndpointAddress = address;
-            this.Content = JsonSerializer.Serialize(telemetryItems);
-            this.ContentType = JsonSerializer.ContentType;
-            this.ContentEncoding = JsonSerializer.CompressionType;
-            this.Timeout = timeout == default(TimeSpan) ? DefaultTimeout : timeout;
-            this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
-        }
+        internal bool IsFlushAsyncInProgress { get; set; } = false;
 
         /// <summary>
         /// Executes the request that the current transmission represents.
@@ -384,6 +368,19 @@
             }
 
             return Tuple.Create(transmissionA, transmissionB);
+        }
+
+        /// <summary>
+        /// Serializes telemetry items.
+        /// </summary>
+        internal void Serialize(Uri address, IEnumerable<ITelemetry> telemetryItems, TimeSpan timeout = default(TimeSpan))
+        {
+            this.EndpointAddress = address;
+            this.Content = JsonSerializer.Serialize(telemetryItems);
+            this.ContentType = JsonSerializer.ContentType;
+            this.ContentEncoding = JsonSerializer.CompressionType;
+            this.Timeout = timeout == default(TimeSpan) ? DefaultTimeout : timeout;
+            this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
         }
 
         /// <summary>

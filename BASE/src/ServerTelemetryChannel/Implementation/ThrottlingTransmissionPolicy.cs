@@ -44,7 +44,7 @@
                         this.MaxBufferCapacity = 0;
                         this.MaxStorageCapacity = 0;
                     }
-                    else if (e.Transmission.HasFlushTask)
+                    else if (e.Transmission.IsFlushAsyncInProgress)
                     {
                         // Move rejectedTransmission to storage on IAsyncFlushable.FlushAsync
                         this.MaxBufferCapacity = 0;

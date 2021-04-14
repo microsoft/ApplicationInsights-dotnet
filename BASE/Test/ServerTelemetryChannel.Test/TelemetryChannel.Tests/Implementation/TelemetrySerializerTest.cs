@@ -241,7 +241,7 @@
                 transmitter.OnEnqueue = t =>
                 {
                     transmission = t;
-                    transmission.HasFlushTask = true;
+                    transmission.IsFlushAsyncInProgress = true;
                 };
 
                 var serializer = new TelemetrySerializer(transmitter) { EndpointAddress = new Uri("http://expected.uri") };
@@ -297,7 +297,7 @@
                 transmitter.OnEnqueue = t =>
                 {
                     transmission = t;
-                    transmission.HasFlushTask = false;
+                    transmission.IsFlushAsyncInProgress = false;
                 };
 
                 var serializer = new TelemetrySerializer(transmitter) { EndpointAddress = new Uri("http://expected.uri") };

@@ -173,7 +173,7 @@
 
             if (!this.Storage.Enqueue(transmissionGetter))
             {
-                transmission.HasFlushTask = false;
+                transmission.IsFlushAsyncInProgress = false;
                 TelemetryChannelEventSource.Log.TransmitterStorageSkipped(transmission.Id);
             }
         }
@@ -183,7 +183,7 @@
             TaskStatus taskStatus = TaskStatus.Canceled;
             if (!cancellationToken.IsCancellationRequested)
             {
-                transmission.HasFlushTask = true;
+                transmission.IsFlushAsyncInProgress = true;
                 this.Enqueue(transmission);
 
                 try
@@ -207,7 +207,7 @@
             {
                 flushTaskStatus = TaskEx.FromCanceled<bool>(cancellationToken);
             }
-            else if (taskStatus == TaskStatus.RanToCompletion && transmission.HasFlushTask)
+            else if (taskStatus == TaskStatus.RanToCompletion && transmission.IsFlushAsyncInProgress)
             {
                 flushTaskStatus = this.successTask;
             }

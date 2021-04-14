@@ -105,7 +105,7 @@
                         TelemetryChannelEventSource.Log.TransmissionDataNotRetriedForNonWhitelistedResponse(e.Transmission.Id,
                             httpWebResponseWrapper.StatusCode.ToString(CultureInfo.InvariantCulture));
                         // For non white listed response, set the result of FlushAsync to false.
-                        e.Transmission.HasFlushTask = false;
+                        e.Transmission.IsFlushAsyncInProgress = false;
                         break;
                 }
             }
@@ -126,7 +126,7 @@
                 }
 
                 // For Unknown Exception set the result of FlushAsync to false.
-                e.Transmission.HasFlushTask = false;
+                e.Transmission.IsFlushAsyncInProgress = false;
             }
         }
 

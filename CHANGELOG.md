@@ -3,6 +3,7 @@
 ## VNext
 
 - [Fix PropertyFetcher error when used with multiple types](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2194)
+- [New Task Based Flush API - FlushAsync] (https://github.com/microsoft/ApplicationInsights-dotnet/issues/1743)
 
 ## Version 2.17.0
 - [Fix: telemetry parent id when using W3C activity format in TelemetryDiagnosticSourceListener](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2142)
@@ -68,7 +69,6 @@
 - [Fix: Disabling HeartBeats in Asp.Net Core projects causes Error traces every heart beat interval (15 minutes defualt)](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1681)
 - [Standard Metric extractor (Exception,Trace) populates all standard dimensions.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1738)
 - [Add an explicit reference to System.Memory v4.5.4. This fixes a bug in System.Diagnostics.DiagnosticSource. We will remove this dependency when DiagnosticSource is re-released.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1707)
-- [New Task Based Flush API - FlushAsync] (https://github.com/microsoft/ApplicationInsights-dotnet/issues/1743)
 
 ## Version 2.14.0-beta3
 - [New: JavaScript Property to support Content Security Policy](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1443)

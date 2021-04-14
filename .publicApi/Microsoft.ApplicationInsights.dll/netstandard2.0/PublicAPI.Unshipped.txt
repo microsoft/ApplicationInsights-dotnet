@@ -1,8 +1,4 @@
 Microsoft.ApplicationInsights.Channel.IAsyncFlushable
 Microsoft.ApplicationInsights.Channel.IAsyncFlushable.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
 Microsoft.ApplicationInsights.Channel.InMemoryChannel.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
-Microsoft.ApplicationInsights.Channel.Transmission.FlushAsyncId.get -> long
-Microsoft.ApplicationInsights.Channel.Transmission.HasFlushTask.get -> bool
-Microsoft.ApplicationInsights.Channel.Transmission.HasFlushTask.set -> void
-Microsoft.ApplicationInsights.Channel.Transmission.Serialize(System.Uri address, System.Collections.Generic.IEnumerable<Microsoft.ApplicationInsights.Channel.ITelemetry> telemetryItems, System.TimeSpan timeout = default(System.TimeSpan)) -> void
 Microsoft.ApplicationInsights.TelemetryClient.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
