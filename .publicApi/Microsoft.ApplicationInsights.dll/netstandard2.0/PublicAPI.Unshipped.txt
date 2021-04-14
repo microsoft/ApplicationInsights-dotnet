@@ -3,6 +3,6 @@ Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.Creden
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.CredentialEnvelope.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetCredential(Azure.Core.TokenCredential tokenCredential) -> void
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope.Credential.get -> object
-abstract Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope.GetToken(System.Threading.CancellationToken cancellationToken) -> string
-abstract Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope.GetTokenAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<string>
+abstract Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope.GetToken(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> string
+abstract Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope.GetTokenAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string>
 static Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope.GetScopes() -> string[]
