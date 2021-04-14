@@ -226,7 +226,7 @@
                 return TaskEx.FromCanceled<bool>(cancellationToken);
             }
 
-            var isStorageEnqueueSuccess = MoveTransmissions(this.Buffer.Dequeue, this.Storage.Enqueue, this.Buffer.Size);  
+            var isStorageEnqueueSuccess = MoveTransmissions(this.Buffer.Dequeue, this.Storage.Enqueue, this.Buffer.Size, cancellationToken);  
             TelemetryChannelEventSource.Log.MovedFromBufferToStorage();
             var senderStatus = this.Sender.WaitForPreviousTransmissionsToComplete(cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
             if (senderStatus == TaskStatus.Canceled)
@@ -239,7 +239,7 @@
 
         internal TaskStatus MoveTransmissionsAndWaitForSender(long transmissionFlushAsyncId, CancellationToken cancellationToken)
         {
-            var isStorageEnqueueSuccess = MoveTransmissions(this.Buffer.Dequeue, this.Storage.Enqueue, this.Buffer.Size);
+            var isStorageEnqueueSuccess = MoveTransmissions(this.Buffer.Dequeue, this.Storage.Enqueue, this.Buffer.Size, cancellationToken);
             TelemetryChannelEventSource.Log.MovedFromBufferToStorage();
             var senderStatus = this.Sender.WaitForPreviousTransmissionsToComplete(transmissionFlushAsyncId, cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
 
@@ -318,11 +318,16 @@
             while (transmissionMoved);
         }
 
-        private static bool MoveTransmissions(Func<Transmission> dequeue, Func<Func<Transmission>, bool> enqueue, long size)
+        private static bool MoveTransmissions(Func<Transmission> dequeue, Func<Func<Transmission>, bool> enqueue, long size, CancellationToken cancellationToken)
         {          
             bool transmissionMoved = false;
             do
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
                 var transmission = dequeue();
                 if (transmission == null)
                 {
