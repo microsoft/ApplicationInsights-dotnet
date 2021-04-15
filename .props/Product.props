@@ -9,7 +9,7 @@
   <Import Project=".\_AnalyzerSettings.props" />
 
   <Import Project=".\_GlobalStaticVersion.props" />
-  <Import Project=".\_Nupkg.props" />
+  <Import Project=".\_Nupkg.props"  Condition="'$(IsExamplesSolution)' != 'true'"/>
 
   <ItemGroup Condition=" $(OS) == 'Windows_NT'">
     <!--Analyzers-->
