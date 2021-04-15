@@ -390,7 +390,7 @@
             if (this.CredentialEnvelope != null)
             {
                 var aadToken = this.CredentialEnvelope.GetToken();
-                request.Content.Headers.Add(AuthConstants.AuthorizationHeaderName, AuthConstants.AuthorizationTokenPrefix + aadToken);
+                request.Headers.TryAddWithoutValidation(AuthConstants.AuthorizationHeaderName, AuthConstants.AuthorizationTokenPrefix + aadToken);
             }
 
             return request;

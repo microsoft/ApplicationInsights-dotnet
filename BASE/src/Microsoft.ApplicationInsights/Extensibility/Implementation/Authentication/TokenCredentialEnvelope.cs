@@ -24,15 +24,31 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Authenticat
         /// <inheritdoc/>
         public override string GetToken(CancellationToken cancellationToken = default)
         {
-            var accessToken = this.tokenCredential.GetToken(requestContext: this.tokenRequestContext, cancellationToken: cancellationToken);
-            return accessToken.Token;
+            SdkInternalOperationsMonitor.Enter();
+            try
+            {
+                var accessToken = this.tokenCredential.GetToken(requestContext: this.tokenRequestContext, cancellationToken: cancellationToken);
+                return accessToken.Token;
+            }
+            finally
+            {
+                SdkInternalOperationsMonitor.Exit();
+            }
         }
 
         /// <inheritdoc/>
         public override async Task<string> GetTokenAsync(CancellationToken cancellationToken = default)
         {
-            var accessToken = await this.tokenCredential.GetTokenAsync(requestContext: this.tokenRequestContext, cancellationToken: cancellationToken).ConfigureAwait(false);
-            return accessToken.Token;
+            SdkInternalOperationsMonitor.Enter();
+            try
+            {
+                var accessToken = await this.tokenCredential.GetTokenAsync(requestContext: this.tokenRequestContext, cancellationToken: cancellationToken).ConfigureAwait(false);
+                return accessToken.Token;
+            }
+            finally
+            {
+                SdkInternalOperationsMonitor.Exit();
+            }
         }
     }
 }
