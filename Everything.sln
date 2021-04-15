@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsigh
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel", "BASE\src\ServerTelemetryChannel\TelemetryChannel.csproj", "{C30A7EB8-A86C-49EE-927E-7D9E03572E82}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common.Base", "BASE\src\Common\Common\Common.Base.shproj", "{936AF739-4297-4016-9D70-4280042709BE}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyCollector", "WEB\Src\DependencyCollector\DependencyCollector\DependencyCollector.csproj", "{96A6E04E-CEDA-4C30-8ECA-48113382AFBA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventCounterCollector", "WEB\Src\EventCounterCollector\EventCounterCollector\EventCounterCollector.csproj", "{13335EB8-3936-407A-9363-1C428318BEA8}"
@@ -173,7 +171,6 @@ Global
 		LOGGING\test\CommonTestShared\CommonTestShared.projitems*{7a903abd-d7fb-4610-aed8-32eb2cbaeebf}*SharedItemsImports = 5
 		LOGGING\test\Shared\Adapters.Shared.Tests.projitems*{7a903abd-d7fb-4610-aed8-32eb2cbaeebf}*SharedItemsImports = 5
 		WEB\Src\Common\Common.projitems*{7b5d95ee-50ee-4222-a03c-fae5905b3dfd}*SharedItemsImports = 5
-		BASE\src\Common\Common\Common.projitems*{936af739-4297-4016-9d70-4280042709be}*SharedItemsImports = 13
 		LOGGING\test\CommonTestShared\CommonTestShared.projitems*{93a35062-6aa4-4778-9769-428a942adcf9}*SharedItemsImports = 5
 		LOGGING\test\Shared\Adapters.Shared.Tests.projitems*{93a35062-6aa4-4778-9769-428a942adcf9}*SharedItemsImports = 5
 		WEB\Src\Common\Common.projitems*{96a6e04e-ceda-4c30-8eca-48113382afba}*SharedItemsImports = 5
