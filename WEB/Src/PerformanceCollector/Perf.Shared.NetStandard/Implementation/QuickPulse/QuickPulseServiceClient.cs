@@ -417,7 +417,7 @@
             }
 
             // The AAD token is an optional feature. Only include if it is provided.
-            if (string.IsNullOrEmpty(aadToken))
+            if (!string.IsNullOrEmpty(aadToken))
             {
                 request.Headers.TryAddWithoutValidation(QuickPulseConstants.AuthorizationHeaderName, QuickPulseConstants.AuthorizationTokenPrefix + aadToken);
             }

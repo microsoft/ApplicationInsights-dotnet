@@ -145,6 +145,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "WEB\Src\Web\Web\Web.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xdt.Tests", "LOGGING\test\Xdt.Tests\Xdt.Tests.csproj", "{8AAC8DC7-A2FC-4767-BDA8-380F86B64772}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleApp", "SampleApp\SampleApp.csproj", "{9DCEE07C-3D43-40F8-AAE0-F277F5A0BB76}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		WEB\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{0196259c-3582-4f4e-a01f-a8f9ae83b0f3}*SharedItemsImports = 13
@@ -184,7 +186,6 @@ Global
 		NETCORE\src\Shared\Shared.projitems*{ac399f09-b465-4cfd-8d82-f1d1c5c9347e}*SharedItemsImports = 5
 		LOGGING\test\CommonTestShared\CommonTestShared.projitems*{b1650e9b-6764-4dc0-8c71-96f0ff335c80}*SharedItemsImports = 5
 		LOGGING\test\Shared\Adapters.Shared.Tests.projitems*{b1650e9b-6764-4dc0-8c71-96f0ff335c80}*SharedItemsImports = 5
-		BASE\src\Common\Common\Common.projitems*{c30a7eb8-a86c-49ee-927e-7d9e03572e82}*SharedItemsImports = 5
 		LOGGING\test\CommonTestShared\CommonTestShared.projitems*{ca21ed5e-ab4e-4277-a28d-e8840e92833f}*SharedItemsImports = 5
 		LOGGING\test\Shared\Adapters.Shared.Tests.projitems*{ca21ed5e-ab4e-4277-a28d-e8840e92833f}*SharedItemsImports = 5
 		WEB\Src\Common\Common.projitems*{ccab7a34-8dc5-4a6f-b637-46ceba93c687}*SharedItemsImports = 13
@@ -192,7 +193,6 @@ Global
 		WEB\Src\PerformanceCollector\Perf.Shared.NetStandard\Perf.Shared.NetStandard.projitems*{d13c3ec7-b300-4158-9054-216156b203be}*SharedItemsImports = 13
 		NETCORE\src\Shared\Shared.projitems*{d56f2979-d6bc-4ef2-bb9b-4077b3290599}*SharedItemsImports = 13
 		WEB\Src\Common\Common.projitems*{deeaf599-83f9-4a05-add6-f612cdabe570}*SharedItemsImports = 5
-		BASE\src\Common\Common\Common.projitems*{e3d160e8-7f8c-416f-946f-6fdfc6787461}*SharedItemsImports = 5
 		BASE\Test\TestFramework\Shared\TestFramework.Shared.projitems*{f76c6cbd-29b0-4564-bdcb-c969f8fec136}*SharedItemsImports = 13
 		LOGGING\test\Shared\Adapters.Shared.Tests.projitems*{fa775630-7917-4a99-a78c-fba46edf685c}*SharedItemsImports = 13
 		WEB\Src\TestFramework\Shared\TestFramework.Shared.projitems*{fac049e4-7011-45ff-bd06-69aca28921e8}*SharedItemsImports = 5
@@ -370,6 +370,10 @@ Global
 		{8AAC8DC7-A2FC-4767-BDA8-380F86B64772}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AAC8DC7-A2FC-4767-BDA8-380F86B64772}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8AAC8DC7-A2FC-4767-BDA8-380F86B64772}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DCEE07C-3D43-40F8-AAE0-F277F5A0BB76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DCEE07C-3D43-40F8-AAE0-F277F5A0BB76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DCEE07C-3D43-40F8-AAE0-F277F5A0BB76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DCEE07C-3D43-40F8-AAE0-F277F5A0BB76}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

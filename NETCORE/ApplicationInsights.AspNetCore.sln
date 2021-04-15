@@ -61,13 +61,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunctionalTests.MVC.Tests",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunctionalTests.WebApi.Tests", "test\FunctionalTests.WebApi.Tests\FunctionalTests.WebApi.Tests.csproj", "{E78404EA-CBAA-4366-B659-C3A46BC9DF15}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests.WebApp", "test\IntegrationTests.WebApp\IntegrationTests.WebApp.csproj", "{AFB5577E-1560-468C-91C7-042080202478}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests.WebApp", "test\IntegrationTests.WebApp\IntegrationTests.WebApp.csproj", "{AFB5577E-1560-468C-91C7-042080202478}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleApp", "..\SampleApp\SampleApp.csproj", "{0E049C07-AD2C-4760-B9C4-A8CB284368DE}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		..\BASE\src\Common\Common\Common.projitems*{0c91d961-b21e-4760-a192-14193f10b831}*SharedItemsImports = 5
 		..\WEB\Src\Common\Common.projitems*{1056392c-387c-4530-ba3f-aa687ea453ae}*SharedItemsImports = 5
-		..\BASE\src\Common\Common\Common.projitems*{2c7ceedd-bb15-48df-b12a-b268e9d74859}*SharedItemsImports = 5
 		..\WEB\Src\Common\Common.projitems*{3c157fc2-2e52-45fc-87e8-76e4fced4260}*SharedItemsImports = 5
 		..\WEB\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{3c157fc2-2e52-45fc-87e8-76e4fced4260}*SharedItemsImports = 5
 		..\LOGGING\src\CommonShared\CommonShared.projitems*{4a9ec531-f8b2-4cd1-bd6b-745f33e52e7b}*SharedItemsImports = 5
@@ -150,6 +150,10 @@ Global
 		{AFB5577E-1560-468C-91C7-042080202478}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AFB5577E-1560-468C-91C7-042080202478}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AFB5577E-1560-468C-91C7-042080202478}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E049C07-AD2C-4760-B9C4-A8CB284368DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E049C07-AD2C-4760-B9C4-A8CB284368DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E049C07-AD2C-4760-B9C4-A8CB284368DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E049C07-AD2C-4760-B9C4-A8CB284368DE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
