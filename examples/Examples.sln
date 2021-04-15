@@ -51,6 +51,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "..\WEB\Src\Web\Web\W
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SDKs", "SDKs", "{C5024E50-3350-479B-8628-620B299B9061}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApp.AspNetCore", "WebApp.AspNetCore\WebApp.AspNetCore.csproj", "{5DB76934-58D9-45BD-91A9-E1D78F4AE17D}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		..\WEB\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{0196259c-3582-4f4e-a01f-a8f9ae83b0f3}*SharedItemsImports = 13
@@ -151,6 +153,10 @@ Global
 		{6062A897-6E55-44C9-BA7A-E1C42946EE51}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6062A897-6E55-44C9-BA7A-E1C42946EE51}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6062A897-6E55-44C9-BA7A-E1C42946EE51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5DB76934-58D9-45BD-91A9-E1D78F4AE17D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5DB76934-58D9-45BD-91A9-E1D78F4AE17D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5DB76934-58D9-45BD-91A9-E1D78F4AE17D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5DB76934-58D9-45BD-91A9-E1D78F4AE17D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
