@@ -554,7 +554,7 @@
                     .UseUrls(url)
                     .Build();
 
-                Task.Run(() => this.host.Run(this.cts.Token));
+                Task.Run(() => this.host.RunAsync(this.cts.Token));
             }
 
             public void Dispose()
