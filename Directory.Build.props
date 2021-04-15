@@ -4,6 +4,9 @@
   <PropertyGroup>
     <!-- USE THESE VARIABLES TO CONTROL THE BUILD TASKS.-->
     <Internal_Logging>false</Internal_Logging>
+
+    <!-- This is used to disable some build properties. -->
+    <IsExamplesSolution Condition="'$(SolutionName)' == 'Examples' ">true</IsExamplesSolution>
   </PropertyGroup>
 
   <Target Name="Info_InternalSettings"  BeforeTargets="Build">
@@ -16,11 +19,6 @@
     <Message Text="Info: TargetFramework: $(TargetFramework)." Importance="high"/>
     <Message Text="Info: Directory.Build.props imported by $(MSBuildProjectName)." Importance="high"/>
   </Target>
-
-  <PropertyGroup Condition="'$(SolutionName)' == 'Examples' ">
-    <!-- This is used to disable some build properties. -->
-    <IsExamplesSolution>true</IsExamplesSolution>
-  </PropertyGroup>
 
   <PropertyGroup>
     <!-- EnlistmentRoot identifies the root directory of the repo and is used to dermine all other relative paths. -->
