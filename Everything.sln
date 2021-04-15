@@ -143,8 +143,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "WEB\Src\Web\Web\Web.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xdt.Tests", "LOGGING\test\Xdt.Tests\Xdt.Tests.csproj", "{8AAC8DC7-A2FC-4767-BDA8-380F86B64772}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleApp", "SampleApp\SampleApp.csproj", "{9DCEE07C-3D43-40F8-AAE0-F277F5A0BB76}"
-EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		WEB\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{0196259c-3582-4f4e-a01f-a8f9ae83b0f3}*SharedItemsImports = 13
@@ -367,10 +365,6 @@ Global
 		{8AAC8DC7-A2FC-4767-BDA8-380F86B64772}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AAC8DC7-A2FC-4767-BDA8-380F86B64772}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8AAC8DC7-A2FC-4767-BDA8-380F86B64772}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9DCEE07C-3D43-40F8-AAE0-F277F5A0BB76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9DCEE07C-3D43-40F8-AAE0-F277F5A0BB76}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9DCEE07C-3D43-40F8-AAE0-F277F5A0BB76}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9DCEE07C-3D43-40F8-AAE0-F277F5A0BB76}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
