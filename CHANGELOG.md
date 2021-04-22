@@ -3,6 +3,7 @@
 ## VNext
 
 - [Fix PropertyFetcher error when used with multiple types](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2194)
+- [New Task Based Flush API - FlushAsync] (https://github.com/microsoft/ApplicationInsights-dotnet/issues/1743)
 
 ## Version 2.17.0
 - [Fix: telemetry parent id when using W3C activity format in TelemetryDiagnosticSourceListener](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2142)
