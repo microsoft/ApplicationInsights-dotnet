@@ -373,6 +373,7 @@
         /// <summary>
         /// Serializes telemetry items.
         /// </summary>
+        /// TODO: Refactor this method, it does more than serialization activity.
         internal void Serialize(Uri address, IEnumerable<ITelemetry> telemetryItems, TimeSpan timeout = default(TimeSpan))
         {
             this.EndpointAddress = address;

@@ -686,6 +686,7 @@
         /// Returns false when transfer of telemetry data to server has failed with non-retriable http status.
         /// FlushAsync on InMemoryChannel always returns true, as the channel offers minimal reliability guarantees and doesn't retry sending telemetry after a failure.
         /// </returns>
+        /// TODO: Metrics flush to respect CancellationToken.
         public Task<bool> FlushAsync(CancellationToken cancellationToken)
         {
             if (this.TryGetMetricManager(out MetricManager privateMetricManager))

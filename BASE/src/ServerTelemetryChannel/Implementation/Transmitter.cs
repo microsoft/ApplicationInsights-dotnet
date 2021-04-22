@@ -226,9 +226,26 @@
                 return TaskEx.FromCanceled<bool>(cancellationToken);
             }
 
-            var isStorageEnqueueSuccess = MoveTransmissions(this.Buffer.Dequeue, this.Storage.Enqueue, this.Buffer.Size, cancellationToken);  
-            TelemetryChannelEventSource.Log.MovedFromBufferToStorage();
-            var senderStatus = this.Sender.WaitForPreviousTransmissionsToComplete(cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
+            TaskStatus senderStatus = TaskStatus.Canceled;
+            bool isStorageEnqueueSuccess = false;
+
+            try
+            {
+                this.Storage.IncrementFlushAsyncCounter();
+                isStorageEnqueueSuccess = MoveTransmissions(this.Buffer.Dequeue, this.Storage.Enqueue, this.Buffer.Size, cancellationToken);
+                TelemetryChannelEventSource.Log.MovedFromBufferToStorage();
+                senderStatus = this.Sender.WaitForPreviousTransmissionsToComplete(cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
+            }
+            catch (Exception exp)
+            {
+                senderStatus = TaskStatus.Faulted;
+                TelemetryChannelEventSource.Log.TransmissionFlushAsyncWarning(exp.ToString());
+            }
+            finally
+            {
+                this.Storage.DecrementFlushAsyncCounter();
+            }
+
             if (senderStatus == TaskStatus.Canceled)
             {
                 return TaskEx.FromCanceled<bool>(cancellationToken);

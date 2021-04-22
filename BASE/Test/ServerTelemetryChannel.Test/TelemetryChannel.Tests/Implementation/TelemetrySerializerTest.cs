@@ -228,9 +228,11 @@
                 var serializer = new TelemetrySerializer(transmitter) { EndpointAddress = new Uri("http://expected.uri") };
                 var result = serializer.SerializeAsync(null, default);
                 Assert.IsInstanceOfType(result, typeof(Task<bool>));
+                Assert.IsTrue(result.Result);
 
                 result = serializer.SerializeAsync(new List<ITelemetry>(), default);
                 Assert.IsInstanceOfType(result, typeof(Task<bool>));
+                Assert.IsTrue(result.Result);
             }
 
             [TestMethod]

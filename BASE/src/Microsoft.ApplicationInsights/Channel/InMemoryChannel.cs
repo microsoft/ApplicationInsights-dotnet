@@ -196,7 +196,7 @@
         /// This method is hard-coded to return true. This channel offers minimal reliability guarantees and doesn't retry sending telemetry after a failure.
         /// </returns>
         /// <remarks>
-        /// <a href="https://docs.microsoft.com/en-us/azure/azure-monitor/app/telemetry-channels#built-in-telemetry-channels">Learn more</a>
+        /// <a href="https://docs.microsoft.com/azure/azure-monitor/app/telemetry-channels#built-in-telemetry-channels">Learn more</a>
         /// </remarks>
         public Task<bool> FlushAsync(CancellationToken cancellationToken)
         {
