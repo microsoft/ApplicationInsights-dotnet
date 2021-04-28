@@ -4,6 +4,7 @@
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Common;
@@ -14,7 +15,7 @@
     /// <summary>
     /// Represents a communication channel for sending telemetry to Application Insights via HTTP/S.
     /// </summary>
-    public sealed class ServerTelemetryChannel : ITelemetryChannel, ITelemetryModule
+    public sealed class ServerTelemetryChannel : ITelemetryChannel, IAsyncFlushable, ITelemetryModule
     {
         internal TelemetrySerializer TelemetrySerializer;
         internal TelemetryBuffer TelemetryBuffer;
@@ -325,6 +326,24 @@
 
             TelemetryChannelEventSource.Log.TelemetryChannelFlush();
             this.TelemetryBuffer.FlushAsync().ConfigureAwait(false).GetAwaiter().GetResult(); // Don't use Task.Wait() because it wraps the original exception in an AggregateException.
+        }
+
+        /// <summary>
+        /// Asynchronously flushes the telemetry buffer. 
+        /// </summary>
+        /// <returns>
+        /// Returns true when telemetry data is transferred out of process (application insights server or local storage) and are emitted before the flush invocation.
+        /// Returns false when transfer of telemetry data to server has failed with non-retriable http status code.
+        /// </returns>
+        public Task<bool> FlushAsync(CancellationToken cancellationToken)
+        {
+            if (!this.isInitialized)
+            {
+                TelemetryChannelEventSource.Log.StorageNotInitializedError();
+            }
+
+            TelemetryChannelEventSource.Log.TelemetryChannelFlushAsync();
+            return cancellationToken.IsCancellationRequested ? TaskEx.FromCanceled<bool>(cancellationToken) : this.TelemetryBuffer.FlushAsync(cancellationToken);
         }
 
         /// <summary>
