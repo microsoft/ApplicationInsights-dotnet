@@ -23,7 +23,8 @@
 
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
         private static HttpClient client = new HttpClient() { Timeout = System.Threading.Timeout.InfiniteTimeSpan };
-                
+        private static long flushAsyncCounter = 0;
+
         private int isSending;
 
         /// <summary>
@@ -77,7 +78,7 @@
         /// Gets or Sets an event notification to track ingestion endpoint response.
         /// </summary>
         public EventHandler<TransmissionStatusEventArgs> TransmissionStatusEvent { get; set; }
-        
+
         /// <summary>
         /// Gets the Address of the endpoint to which transmission will be sent.
         /// </summary>
@@ -140,6 +141,16 @@
         {
             get; private set;
         }
+
+        /// <summary>
+        /// Gets the flush async id for the transmission.
+        /// </summary>
+        internal long FlushAsyncId { get; } = Interlocked.Increment(ref flushAsyncCounter);
+
+        /// <summary>
+        /// Gets or sets a value indicating whether FlushAsync is in progress.
+        /// </summary>
+        internal bool IsFlushAsyncInProgress { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the <see cref="CredentialEnvelope"/>. 
@@ -365,6 +376,20 @@
             }
 
             return Tuple.Create(transmissionA, transmissionB);
+        }
+
+        /// <summary>
+        /// Serializes telemetry items.
+        /// </summary>
+        /// TODO: Refactor this method, it does more than serialization activity.
+        internal void Serialize(Uri address, IEnumerable<ITelemetry> telemetryItems, TimeSpan timeout = default(TimeSpan))
+        {
+            this.EndpointAddress = address;
+            this.Content = JsonSerializer.Serialize(telemetryItems);
+            this.ContentType = JsonSerializer.ContentType;
+            this.ContentEncoding = JsonSerializer.CompressionType;
+            this.Timeout = timeout == default(TimeSpan) ? DefaultTimeout : timeout;
+            this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
         }
 
         /// <summary>

@@ -1,2 +1,3 @@
+Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
 Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel.CredentialEnvelope.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope
 Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel.CredentialEnvelope.set -> void
