@@ -6,7 +6,7 @@
     /// Self diagnostics class captures the EventSource events sent by Application Insights
     /// modules and writes them to local file for internal troubleshooting.
     /// </summary>
-    class SelfDiagnosticsModule : IDisposable
+    public class SelfDiagnosticsModule : IDisposable
     {
         /// <summary>
         /// Long-living object that hold relevant resources.
