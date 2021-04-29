@@ -47,6 +47,9 @@
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Disposes config refresher.
+        /// </summary>
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
