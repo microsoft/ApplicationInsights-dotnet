@@ -48,11 +48,24 @@
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="1.1.3" />
+
+    <!-- 
+    System.Text.Encodings.Web has a vulnerability https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2021-26701 
+    Microsoft.AspNetCore.Hosting will not receive any more updates for net452 or net46. 
+    -->
+    <PackageReference Include="System.Text.Encodings.Web" Version="4.5.1" />
   </ItemGroup>
 
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net461' ">
-    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.0" />
+
+    <!-- 
+    System.Text.Encodings.Web has a vulnerability https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2021-26701 
+    We must take a temporary dependency on this newer version until Microsoft.AspNetCore.Hosting updates their dependencies.
+    Microsoft.AspNetCore.Hosting > Microsoft.AspNetCore.Hosting.Abstractions > Microsoft.AspNetCore.Http.Abstractions > System.Text.Encodings.Web
+    -->
+    <PackageReference Include="System.Text.Encodings.Web" Version="4.5.1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' ">
