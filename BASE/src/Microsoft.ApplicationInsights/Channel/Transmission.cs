@@ -143,6 +143,13 @@
         }
 
         /// <summary>
+        /// Gets or sets the <see cref="CredentialEnvelope"/>. 
+        /// This is used include an AAD token on HTTP Requests sent to ingestion.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public CredentialEnvelope CredentialEnvelope { get; set; }
+
+        /// <summary>
         /// Gets the flush async id for the transmission.
         /// </summary>
         internal long FlushAsyncId { get; } = Interlocked.Increment(ref flushAsyncCounter);
@@ -151,13 +158,6 @@
         /// Gets or sets a value indicating whether FlushAsync is in progress.
         /// </summary>
         internal bool IsFlushAsyncInProgress { get; set; } = false;
-
-        /// <summary>
-        /// Gets or sets the <see cref="CredentialEnvelope"/>. 
-        /// This is used include an AAD token on HTTP Requests sent to ingestion.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public CredentialEnvelope CredentialEnvelope { get; set; }
 
         /// <summary>
         /// Executes the request that the current transmission represents.
