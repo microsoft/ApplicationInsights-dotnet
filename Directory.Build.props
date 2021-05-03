@@ -4,13 +4,19 @@
   <PropertyGroup>
     <!-- USE THESE VARIABLES TO CONTROL THE BUILD TASKS.-->
     <Internal_Logging>false</Internal_Logging>
+
+    <!-- This is used to disable some build properties. -->
+    <IsExamplesSolution Condition="'$(SolutionName)' == 'Examples' ">true</IsExamplesSolution>
   </PropertyGroup>
 
   <Target Name="Info_InternalSettings"  BeforeTargets="Build">
-    <Message Text="Internal_Logging is set to $(Internal_Logging)." Importance="high"/>
+    <Message Text="Directory.Build.props: Internal_Logging is set to $(Internal_Logging)." Importance="high"/>
   </Target>
 
   <Target Name="Info_DirectoryBuildProps"  BeforeTargets="Build" Condition=" $(Internal_Logging) == 'true' ">
+    <Message Text="Info: SolutionName: $(SolutionName)." Importance="high"/>
+    <Message Text="Info: ProjectName: $(MSBuildProjectName)." Importance="high"/>
+    <Message Text="Info: TargetFramework: $(TargetFramework)." Importance="high"/>
     <Message Text="Info: Directory.Build.props imported by $(MSBuildProjectName)." Importance="high"/>
   </Target>
 

@@ -576,4 +576,46 @@
             }
         }
     }
+
+    [TestClass]
+    public class FlushAsyncTask : ServerTelemetryChannelTest
+    {
+        [TestMethod]
+        public void FlushesTelemetryBuffer()
+        {
+            var mockTelemetryBuffer = new Mock<TelemetryChannel.Implementation.TelemetryBuffer>();
+            var channel = new ServerTelemetryChannel { TelemetryBuffer = mockTelemetryBuffer.Object };
+            channel.Initialize(TelemetryConfiguration.CreateDefault());
+
+            channel.FlushAsync(default);
+
+            mockTelemetryBuffer.Verify(x => x.FlushAsync(default));
+        }
+
+        [TestMethod]
+        public void WaitsForAsynchronousFlushToCompleteAndAllowsItsExceptionsToBubbleUp()
+        {
+            var expectedException = new Exception();
+            var tcs = new TaskCompletionSource<bool>();
+            tcs.SetException(expectedException);
+            var mockTelemetryBuffer = new Mock<TelemetryChannel.Implementation.TelemetryBuffer>();
+            mockTelemetryBuffer.Setup(x => x.FlushAsync(CancellationToken.None)).Returns(tcs.Task);
+            var channel = new ServerTelemetryChannel { TelemetryBuffer = mockTelemetryBuffer.Object };
+            channel.Initialize(TelemetryConfiguration.CreateDefault());
+
+            var actualException = AssertEx.ThrowsAsync<Exception>(async () => await channel.FlushAsync(default));
+
+            Assert.AreSame(expectedException, actualException.Result);
+        }
+
+        [TestMethod]
+        public async Task FlushAsyncRespectsCancellationToken()
+        {
+            var mockTelemetryBuffer = new Mock<TelemetryChannel.Implementation.TelemetryBuffer>();
+            var channel = new ServerTelemetryChannel { TelemetryBuffer = mockTelemetryBuffer.Object };
+            channel.Initialize(TelemetryConfiguration.CreateDefault());
+
+            await Assert.ThrowsExceptionAsync<TaskCanceledException>(() => channel.FlushAsync(new CancellationToken(true)));
+         }
+    }
 }
