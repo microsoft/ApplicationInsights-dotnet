@@ -247,7 +247,8 @@
             string method = null;
             string url = null;
             string status = null;
-            bool? failed = false;
+            bool failed = false;
+            bool hasExplicitStatus = false;
 
             foreach (var tag in activity.Tags)
             {
@@ -273,6 +274,7 @@
                 }
                 else if (tag.Key == "otel.status_code")
                 {
+                    hasExplicitStatus = true;
                     failed = string.Equals(tag.Value, "ERROR", StringComparison.OrdinalIgnoreCase);
                 }
             }
@@ -288,7 +290,15 @@
             dependency.Data = url;
             dependency.Target = DependencyTargetNameHelper.GetDependencyTargetName(parsedUrl);
             dependency.ResultCode = status;
-            if (failed == true)
+
+            if (!hasExplicitStatus)
+            {
+                if (int.TryParse(status, out var statusCode))
+                {
+                    dependency.Success = (statusCode > 0) && (statusCode < 400);
+                }
+            }
+            else if (failed)
             {
                 dependency.Success = false;
             }
