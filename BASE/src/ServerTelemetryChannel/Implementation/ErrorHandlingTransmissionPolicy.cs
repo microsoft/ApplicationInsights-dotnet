@@ -104,6 +104,8 @@
                         // not in the whitelisted set to attempt retry.
                         TelemetryChannelEventSource.Log.TransmissionDataNotRetriedForNonWhitelistedResponse(e.Transmission.Id,
                             httpWebResponseWrapper.StatusCode.ToString(CultureInfo.InvariantCulture));
+                        // For non white listed response, set the result of FlushAsync to false.
+                        e.Transmission.IsFlushAsyncInProgress = false;
                         break;
                 }
             }
@@ -122,6 +124,9 @@
                     TelemetryChannelEventSource.Log.TransmissionDataLossError(e.Transmission.Id,
                         "Unknown Exception Message");
                 }
+
+                // For Unknown Exception set the result of FlushAsync to false.
+                e.Transmission.IsFlushAsyncInProgress = false;
             }
         }
 
