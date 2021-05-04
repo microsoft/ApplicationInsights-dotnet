@@ -83,7 +83,6 @@ Global
 		test\CommonTestShared\CommonTestShared.projitems*{d46fdab7-289d-4990-8289-c0b0fdb3b8ab}*SharedItemsImports = 5
 		test\Shared\Adapters.Shared.Tests.projitems*{d46fdab7-289d-4990-8289-c0b0fdb3b8ab}*SharedItemsImports = 5
 		src\CommonShared\CommonShared.projitems*{e3766dd1-f376-43f8-b242-6cf06e186179}*SharedItemsImports = 5
-		..\BASE\src\Common\Common\Common.projitems*{ed1e83b0-8656-4e2d-bb8b-158a84c45477}*SharedItemsImports = 5
 		test\Shared\Adapters.Shared.Tests.projitems*{fa775630-7917-4a99-a78c-fba46edf685c}*SharedItemsImports = 13
 		test\CommonTestShared\CommonTestShared.projitems*{fe9b0be5-6ddd-41a2-adab-fdae3017fe47}*SharedItemsImports = 5
 		test\Shared\Adapters.Shared.Tests.projitems*{fe9b0be5-6ddd-41a2-adab-fdae3017fe47}*SharedItemsImports = 5
