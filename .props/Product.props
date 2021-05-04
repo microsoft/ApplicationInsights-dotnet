@@ -44,9 +44,14 @@
   
   <PropertyGroup>
     <!-- Enable all the latest CA rules from 'Microsoft.CodeAnalysis.NetAnalyzers' as build warnings by default -->
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    
     <AnalysisLevel>latest</AnalysisLevel>
     <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    
+    <!-- This appears to create a conflict between using built-in analyzers and the NuGetPackage. -->
+    <!--<EnableNETAnalyzers>true</EnableNETAnalyzers>--> 
+    
+    
 
     <!--Removing the SRC folder from the output directory-->
     <CorePath>$(RelativeOutputPathBase)</CorePath>
