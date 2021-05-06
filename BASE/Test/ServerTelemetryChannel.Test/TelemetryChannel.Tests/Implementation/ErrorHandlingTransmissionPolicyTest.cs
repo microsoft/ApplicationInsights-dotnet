@@ -213,6 +213,8 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
                     Assert.AreEqual(1, traces.Count);
                     Assert.AreEqual(69, traces[0].EventId); // failed to send
                     Assert.AreEqual("Data loss", traces[0].Payload[1]);
+                    // Sets flush task to failure on not whitelisted status code
+                    Assert.IsFalse(failedTransmission.IsFlushAsyncInProgress);
                 }
             }
 
@@ -244,6 +246,8 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
                     Assert.AreEqual(1, traces.Count);
                     Assert.AreEqual(69, traces[0].EventId); // failed to send
                     Assert.AreEqual("Unknown Exception Message", traces[0].Payload[1]);
+                    // Sets flush task to failure on not whitelisted status code
+                    Assert.IsFalse(failedTransmission.IsFlushAsyncInProgress);
                 }
             }
 
@@ -279,6 +283,8 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
                     Assert.AreEqual(1, traces.Count);
                     Assert.AreEqual(71, traces[0].EventId); // failed to send
                     Assert.AreEqual("8989", traces[0].Payload[1]);
+                    // Sets flush task to failure on not whitelisted status code
+                    Assert.IsFalse(failedTransmission.IsFlushAsyncInProgress);
                 }
             }
 

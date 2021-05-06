@@ -3,7 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Globalization;    
+    using System.Globalization;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -674,6 +676,39 @@
                 ITelemetryChannel channel = pipeline.TelemetryChannel;
                 channel?.Flush();
             }
+        }
+
+        /// <summary>
+        /// Asynchronously Flushes the in-memory buffer and any metrics being pre-aggregated.
+        /// </summary>
+        /// <returns>
+        /// Returns true when telemetry data is transferred out of process (application insights server or local storage) and are emitted before the flush invocation.
+        /// Returns false when transfer of telemetry data to server has failed with non-retriable http status.
+        /// FlushAsync on InMemoryChannel always returns true, as the channel offers minimal reliability guarantees and doesn't retry sending telemetry after a failure.
+        /// </returns>
+        /// TODO: Metrics flush to respect CancellationToken.
+        public Task<bool> FlushAsync(CancellationToken cancellationToken)
+        {
+            if (this.TryGetMetricManager(out MetricManager privateMetricManager))
+            {
+                privateMetricManager.Flush(flushDownstreamPipeline: false);
+            }
+
+            TelemetryConfiguration pipeline = this.configuration;
+            if (pipeline != null)
+            {
+                MetricManager sharedMetricManager = pipeline.GetMetricManager(createIfNotExists: false);
+                sharedMetricManager?.Flush(flushDownstreamPipeline: false);
+
+                ITelemetryChannel channel = pipeline.TelemetryChannel;
+
+                if (channel is IAsyncFlushable asyncFlushableChannel && !cancellationToken.IsCancellationRequested)
+                {
+                    return asyncFlushableChannel.FlushAsync(cancellationToken);
+                }
+            }
+
+            return cancellationToken.IsCancellationRequested ? TaskEx.FromCanceled<bool>(cancellationToken) : Task.FromResult(false);
         }
 
         /// <summary>

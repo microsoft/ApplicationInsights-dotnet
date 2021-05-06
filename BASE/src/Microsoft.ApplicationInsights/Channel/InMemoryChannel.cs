@@ -2,6 +2,8 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
@@ -9,7 +11,7 @@
     /// Represents a communication channel for sending telemetry to Application Insights via HTTPS. There will be a buffer that will not be persisted, to enforce the 
     /// queued telemetry items to be sent, <see cref="ITelemetryChannel.Flush"/> should be called.    
     /// </summary>
-    public class InMemoryChannel : ITelemetryChannel
+    public class InMemoryChannel : ITelemetryChannel, IAsyncFlushable
     {
         private readonly TelemetryBuffer buffer;
         private readonly InMemoryTransmitter transmitter;
@@ -184,6 +186,25 @@
             {
                 CoreEventSource.Log.InMemoryChannelFlushedAfterBeingDisposed();
             }
+        }
+
+        /// <summary>
+        /// Will send all the telemetry items stored in the memory asynchronously.
+        /// </summary>
+        /// <param name="cancellationToken">CancellationToken.</param>
+        /// <returns>
+        /// This method is hard-coded to return true. This channel offers minimal reliability guarantees and doesn't retry sending telemetry after a failure.
+        /// </returns>
+        /// <remarks>
+        /// <a href="https://docs.microsoft.com/azure/azure-monitor/app/telemetry-channels#built-in-telemetry-channels">Learn more</a>
+        /// </remarks>
+        public Task<bool> FlushAsync(CancellationToken cancellationToken)
+        {
+            return Task<bool>.Run(() =>
+            {
+                this.Flush(default(TimeSpan)); // when default(TimeSpan) is provided, value is ignored and default timeout of 100 sec is used
+                return Task.FromResult(true);
+            }, cancellationToken);
         }
 
         /// <summary>

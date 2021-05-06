@@ -10,6 +10,8 @@
 
     
     using DataContracts;
+    using System.Threading.Tasks;
+    using System.Threading;
 
     [TestClass]
     public class InMemoryChannelTest
@@ -83,5 +85,17 @@
             }
         }
 #endif
+
+        [TestMethod]
+        public async Task FlushAsyncRespectsCancellationToken()
+        {
+            var telemetryBuffer = new TelemetryBuffer();
+            var channel = new InMemoryChannel(telemetryBuffer, new InMemoryTransmitter(telemetryBuffer));
+            var sentTelemetry = new StubTelemetry();
+            sentTelemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
+
+            channel.Send(sentTelemetry);
+            await Assert.ThrowsExceptionAsync<TaskCanceledException>(() => channel.FlushAsync(new CancellationToken(true)));
+        }
     }
 }
