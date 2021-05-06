@@ -40,7 +40,7 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net461' ">
     <!--
     Microsoft.AspNetCore.Http has a vulnerability https://msrc.microsoft.com/update-guide/vulnerability/CVE-2020-1045
-    System.Text.Encodings.Web has a vulnerability https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2021-26701 
+    System.Text.Encodings.Web has a vulnerability https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-26701 
     
     These are both implicit dependencies from Microsoft.AspNetCore.Hosting.
     (Microsoft.AspNetCore.Hosting > Microsoft.AspNetCore.Http)
