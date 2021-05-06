@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <AssemblyName>Microsoft.ApplicationInsights.AspNetCore</AssemblyName>
-    <TargetFrameworks>netstandard2.0;net452;net46;net461</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
 
     <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.0</TargetFrameworks>
     <DefineConstants>$(DefineConstants);AI_ASPNETCORE_WEB;</DefineConstants>
@@ -30,37 +30,17 @@
     <ProjectReference Include="..\..\..\WEB\Src\DependencyCollector\DependencyCollector\DependencyCollector.csproj" />
     <ProjectReference Include="..\..\..\WEB\Src\PerformanceCollector\PerformanceCollector\Perf.csproj" />
     <ProjectReference Include="..\..\..\WEB\Src\WindowsServer\WindowsServer\WindowsServer.csproj" />
+    <ProjectReference Include="..\..\..\WEB\Src\EventCounterCollector\EventCounterCollector\EventCounterCollector.csproj" />
+    <ProjectReference Include="..\..\..\LOGGING\src\ILogger\ILogger.csproj" />
+    
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.0" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="5.0.0" />
   </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard2.0' AND '$(TargetFramework)' != 'net461' ">
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="1.1.2" />
-  </ItemGroup>
+    
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net461' ">
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.0" />
-    <ProjectReference Include="..\..\..\LOGGING\src\ILogger\ILogger.csproj" />
-    <ProjectReference Include="..\..\..\WEB\Src\EventCounterCollector\EventCounterCollector\EventCounterCollector.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452' OR '$(TargetFramework)' == 'net46' ">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="1.1.3" />
-
-    <!-- 
-    System.Text.Encodings.Web has a vulnerability https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2021-26701 
-    Microsoft.AspNetCore.Hosting will not receive any more updates for net452 or net46. 
-    -->
-    <PackageReference Include="System.Text.Encodings.Web" Version="4.5.1" />
-  </ItemGroup>
-
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net461' ">
-    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.1.1" />
-
-
+    
     <!--
     Microsoft.AspNetCore.Http has a vulnerability https://msrc.microsoft.com/update-guide/vulnerability/CVE-2020-1045
     This is an implicit dependency from Microsoft.AspNetCore.Hosting.
@@ -78,6 +58,7 @@
     We must take a temporary dependency on this newer version until Microsoft.AspNetCore.Hosting updates their dependencies.
     -->
     <PackageReference Include="System.Text.Encodings.Web" Version="4.5.1" />
+
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' ">
