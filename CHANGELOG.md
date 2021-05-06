@@ -2,6 +2,9 @@
 
 ## VNext
 
+
+
+## Version 2.18.0-beta1
 - [Fix PropertyFetcher error when used with multiple types](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2194)
 - [New Task Based Flush API - FlushAsync](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1743)
 - [End support for net45 and net46 in AspNetCore](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2252)
