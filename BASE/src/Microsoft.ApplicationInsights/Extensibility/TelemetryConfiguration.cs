@@ -64,6 +64,7 @@
                     Activity.ForceDefaultIdFormat = true;
                 }                
             });
+            SelfDiagnosticsModule.EnsureInitialized();
         }
 
         /// <summary>

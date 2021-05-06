@@ -57,7 +57,6 @@
             try
             {
                 SdkInternalOperationsMonitor.Enter();
-                SelfDiagnosticsModule.EnsureInitialized();
 
                 if (modules != null && !modules.Modules.Any(module => module is DiagnosticsTelemetryModule))
                 {
