@@ -19,7 +19,7 @@
     [SuppressMessage("Documentation Rules", "SA1614:ElementParameterDocumentationMustHaveText", Justification = "This class is obsolete and will not be completely documented.")]
     internal class ApplicationInsightsLogger : ILogger
     {
-#if NET452 || NET46 || NET461
+#if NET461
         /// <summary>
         /// SDK Version Prefix.
         /// </summary>
