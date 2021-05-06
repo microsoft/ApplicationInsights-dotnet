@@ -342,6 +342,7 @@
                 transmission.IsFlushAsyncInProgress = true;
                 sender.Enqueue(() => transmission);
 
+                Assert.IsTrue(eventIsRaised.Wait(50));
                 // Both accepted and rejected transmission has flush task
                 Assert.IsTrue(eventArgs[0].Transmission.IsFlushAsyncInProgress);
                 Assert.IsTrue(eventArgs[1].Transmission.IsFlushAsyncInProgress);

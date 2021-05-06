@@ -89,6 +89,19 @@
             return newTransmissions;
         }
 
+        private static Transmission SerializeNewTransmission(TransmissionProcessedEventArgs args, string newTransmissions)
+        {
+            byte[] data = JsonSerializer.ConvertToByteArray(newTransmissions);
+            Transmission transmission = new Transmission(
+                args.Transmission.EndpointAddress,
+                data,
+                args.Transmission.ContentType,
+                args.Transmission.ContentEncoding,
+                args.Transmission.Timeout);
+
+            return transmission;
+        }
+
         private void HandleTransmissionSentEvent(object sender, TransmissionProcessedEventArgs args)
         {
             if (args.Exception == null && (args.Response == null || args.Response.StatusCode == ResponseStatusCodes.Success))
@@ -109,13 +122,13 @@
                     if (args.Transmission.IsFlushAsyncInProgress)
                     {
                         // Move newTransmission to storage on IAsyncFlushable.FlushAsync
-                        transmission = this.SerializeNewTransmission(args, newTransmissions);
+                        transmission = SerializeNewTransmission(args, newTransmissions);
                         this.DelayFutureProcessing(args.Response, statusCode);
                     }
                     else
                     {
                         this.DelayFutureProcessing(args.Response, statusCode);
-                        transmission = this.SerializeNewTransmission(args, newTransmissions);
+                        transmission = SerializeNewTransmission(args, newTransmissions);
                     }
 
                     this.Transmitter.Enqueue(transmission);
@@ -126,19 +139,6 @@
                     this.backoffLogicManager.ResetConsecutiveErrors();
                 }
             }
-        }
-
-        private Transmission SerializeNewTransmission(TransmissionProcessedEventArgs args, string newTransmissions)
-        {
-            byte[] data = JsonSerializer.ConvertToByteArray(newTransmissions);
-            Transmission transmission = new Transmission(
-                args.Transmission.EndpointAddress,
-                data,
-                args.Transmission.ContentType,
-                args.Transmission.ContentEncoding,
-                args.Transmission.Timeout);
-
-            return transmission;
         }
 
         private void DelayFutureProcessing(HttpWebResponseWrapper response, int statusCode)
