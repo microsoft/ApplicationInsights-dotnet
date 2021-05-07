@@ -1,7 +1,32 @@
-﻿# Changelog
+# Changelog
 
 ## VNext
+
+
+
+## Version 2.18.0-beta1
+- [Fix PropertyFetcher error when used with multiple types](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2194)
+- [New Task Based Flush API - FlushAsync](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1743)
+- [End support for net45 and net46 in AspNetCore](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2252)
+
+## Version 2.17.0
+- [Fix: telemetry parent id when using W3C activity format in TelemetryDiagnosticSourceListener](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2142)
+- [Add ingestion response duration for transmission to data delivery status - TransmissionStatusEventArgs](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2157)
+- [Update default Profiler and Snapshot Debugger endpoints](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2166)
+
+## Version 2.17.0-beta1
+- [Fix: Missing Dependencies when using Microsoft.Data.SqlClient v2.0.0](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2032)
+- [Add RoleName as a header with Ping Requests to QuickPulse.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2113)
+- [QuickPulseTelemetryModule takes hints from the service regarding the endpoint to ping and how often to ping it](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2120)
+- [Upgrade Log4Net to version 2.0.10 to address CVE-2018-1285](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2149)
+
+## Version 2.16.0
+- [QuickPulseTelemetryModule and MonitoringDataPoint have a new Cloud Role Name field for sending with ping and post requests to QuickPulse Service.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2100)
+- [Upgrade to System.Diagnostics.DiagnosticSource v5.0.0](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1960)
+
+## Version 2.16.0-beta1
 - [ILogger LogError and LogWarning variants write exception `ExceptionStackTrace` when `TrackExceptionsAsExceptionTelemetry` flag is set to `false`](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2065)
+- [Upgrade to System.Diagnostics.DiagnosticSource v5.0.0-rc.2.20475.5](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2091)
 - [The `{OriginalFormat}` field in ILogger will be emitted as `OriginalFormat` with the braces removed](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2071)
 - ApplicationInsightsLoggerProvider populates structured logging key/values irrespective of whether Scopes are enabled or not.
 
@@ -41,11 +66,11 @@
 
 ## Version 2.14.0-beta5
 - [Stop collecting EventCounters from Microsoft.AspNetCore.Hosting](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1759)
-- [Enable ILogger provider for apps targetting .NET Framework](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1312)
+- [Enable ILogger provider for apps targeting .NET Framework](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1312)
 
 ## Version 2.14.0-beta4
 - [Fix: SQL dependency names are bloated when running under the .NET Framework and using Microsoft.Data.SqlClient package](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1723)
-- [Fix: Disabling HeartBeats in Asp.Net Core projects causes Error traces every heart beat interval (15 minutes defualt)](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1681)
+- [Fix: Disabling HeartBeats in Asp.Net Core projects causes Error traces every heart beat interval (15 minutes default)](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1681)
 - [Standard Metric extractor (Exception,Trace) populates all standard dimensions.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1738)
 - [Add an explicit reference to System.Memory v4.5.4. This fixes a bug in System.Diagnostics.DiagnosticSource. We will remove this dependency when DiagnosticSource is re-released.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1707)
 

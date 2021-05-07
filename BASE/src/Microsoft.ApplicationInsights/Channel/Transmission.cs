@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Diagnostics;
     using System.IO;
     using System.Net;
@@ -21,7 +22,8 @@
 
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
         private static HttpClient client = new HttpClient() { Timeout = System.Threading.Timeout.InfiniteTimeSpan };
-                
+        private static long flushAsyncCounter = 0;
+
         private int isSending;
 
         /// <summary>
@@ -75,7 +77,7 @@
         /// Gets or Sets an event notification to track ingestion endpoint response.
         /// </summary>
         public EventHandler<TransmissionStatusEventArgs> TransmissionStatusEvent { get; set; }
-        
+
         /// <summary>
         /// Gets the Address of the endpoint to which transmission will be sent.
         /// </summary>
@@ -140,6 +142,16 @@
         }
 
         /// <summary>
+        /// Gets the flush async id for the transmission.
+        /// </summary>
+        internal long FlushAsyncId { get; } = Interlocked.Increment(ref flushAsyncCounter);
+
+        /// <summary>
+        /// Gets or sets a value indicating whether FlushAsync is in progress.
+        /// </summary>
+        internal bool IsFlushAsyncInProgress { get; set; } = false;
+
+        /// <summary>
         /// Executes the request that the current transmission represents.
         /// </summary>
         /// <returns>The task to await.</returns>
@@ -156,6 +168,7 @@
                 {
                     HttpRequestMessage request = this.CreateRequestMessage(this.EndpointAddress, contentStream);
                     HttpWebResponseWrapper wrapper = null;
+                    long responseDurationInMs = 0;
 
                     try
                     {
@@ -171,7 +184,8 @@
                             using (var response = await client.SendAsync(request, ct.Token).ConfigureAwait(false))
                             {
                                 stopwatch.Stop();
-                                CoreEventSource.Log.IngestionResponseTime(response != null ? (int)response.StatusCode : -1, stopwatch.ElapsedMilliseconds);
+                                responseDurationInMs = stopwatch.ElapsedMilliseconds;
+                                CoreEventSource.Log.IngestionResponseTime(response != null ? (int)response.StatusCode : -1, responseDurationInMs);
                                 // Log ingestion respose time as event counter metric.
                                 CoreEventSource.Log.IngestionResponseTimeEventCounter(stopwatch.ElapsedMilliseconds);
 
@@ -225,7 +239,7 @@
                         try
                         {
                             // Initiates event notification to subscriber with Transmission and TransmissionStatusEventArgs.
-                            this.TransmissionStatusEvent?.Invoke(this, new TransmissionStatusEventArgs(wrapper ?? new HttpWebResponseWrapper() { StatusCode = 999 }));
+                            this.TransmissionStatusEvent?.Invoke(this, new TransmissionStatusEventArgs(wrapper ?? new HttpWebResponseWrapper() { StatusCode = 999 }, responseDurationInMs));
                         }
                         catch (Exception ex)
                         {
@@ -354,6 +368,20 @@
             }
 
             return Tuple.Create(transmissionA, transmissionB);
+        }
+
+        /// <summary>
+        /// Serializes telemetry items.
+        /// </summary>
+        /// TODO: Refactor this method, it does more than serialization activity.
+        internal void Serialize(Uri address, IEnumerable<ITelemetry> telemetryItems, TimeSpan timeout = default(TimeSpan))
+        {
+            this.EndpointAddress = address;
+            this.Content = JsonSerializer.Serialize(telemetryItems);
+            this.ContentType = JsonSerializer.ContentType;
+            this.ContentEncoding = JsonSerializer.CompressionType;
+            this.Timeout = timeout == default(TimeSpan) ? DefaultTimeout : timeout;
+            this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
         }
 
         /// <summary>

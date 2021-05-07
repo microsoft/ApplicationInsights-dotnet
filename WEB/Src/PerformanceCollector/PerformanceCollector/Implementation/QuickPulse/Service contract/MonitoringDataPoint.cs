@@ -14,11 +14,12 @@
     internal struct MonitoringDataPoint
     {
         /*
+         * 5 - adding support for ping interval hint and endpoint redirect hint
          * 4 - adding errors for extended backchannel, adding EventTelemetryDocument and TraceTelemetryDocument, adding DocumentStreamId for full documents,
          *      adding ProcessorCount
          * 3 - adding TopCpuProcesses
         */
-        public const int CurrentInvariantVersion = 4;
+        public const int CurrentInvariantVersion = 5;
 
         [DataMember]
         public string Version { get; set; }
@@ -31,6 +32,9 @@
 
         [DataMember]
         public string Instance { get; set; }
+
+        [DataMember]
+        public string RoleName { get; set; }
 
         [DataMember]
         public string StreamId { get; set; }

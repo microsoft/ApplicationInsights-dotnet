@@ -737,6 +737,30 @@
 
                 Assert.IsNull(dequeued);
             }
+
+            [TestMethod]
+            public void DequeueWithFlushAsyncInProcessCounter()
+            {
+                var address = new Uri("http://address");
+                StubPlatformFile file = CreateTransmissionFile(address);
+
+                var folder = CreateFolder(file);
+                var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
+                
+                storage.IncrementFlushAsyncCounter();
+                Transmission dequeued = storage.Dequeue();
+                // When FlushAsyncCounter is set, dequeue returns null.
+                Assert.IsNull(dequeued);
+
+                // DecrementFlushAsyncCounter resets FlushAsyncCounter
+                // and allows storage to dequeue transmission.
+                storage.DecrementFlushAsyncCounter();
+                dequeued = storage.Dequeue();
+
+                Assert.IsNotNull(dequeued);
+            }
         }
     }
 }

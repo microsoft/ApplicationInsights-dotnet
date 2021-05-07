@@ -24,7 +24,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solutio
 	ProjectSection(SolutionItems) = preProject
 		..\Directory.Build.props = ..\Directory.Build.props
 		..\dirs.proj = ..\dirs.proj
-		..\NuGet.config = ..\NuGet.config
 		Product.props = Product.props
 	EndProjectSection
 EndProject
@@ -74,9 +73,7 @@ Global
 		PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{00bf736c-b562-4251-9836-ef80282956af}*SharedItemsImports = 5
 		PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{0196259c-3582-4f4e-a01f-a8f9ae83b0f3}*SharedItemsImports = 13
 		TestFramework\Shared\TestFramework.Shared.projitems*{1231d63b-e7fa-4ba7-9916-fa7325db936d}*SharedItemsImports = 5
-		..\..\BASE\src\Common\Common\Common.projitems*{2bb7f06b-f094-417f-8c1b-7fcca1192e17}*SharedItemsImports = 5
 		Common\Common.projitems*{30ae1a5d-775a-4dec-9f87-849d8ae93e3a}*SharedItemsImports = 5
-		..\..\BASE\src\Common\Common\Common.projitems*{41301181-f4be-4c36-b78d-a29c55cb0469}*SharedItemsImports = 5
 		Common\Common.projitems*{80f0481a-66c7-4442-96d3-5fd841132c4b}*SharedItemsImports = 5
 		Common\Common.projitems*{94127fd9-e516-4891-98d4-ef7523117f32}*SharedItemsImports = 5
 		Common\Common.projitems*{95d90911-2909-4914-920e-7710f7bb6c32}*SharedItemsImports = 5

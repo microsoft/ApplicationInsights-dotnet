@@ -23,13 +23,19 @@
             [TestMethod]
             public void AssertTooManyRequestsStopsSending()
             {
-                this.PositiveTest(ResponseCodeTooManyRequests, 0, null, null);
+                this.PositiveTest(ResponseCodeTooManyRequests, 0, null, null, false);
+            }
+
+            [TestMethod]
+            public void AssertTooManyRequestsStopsSendingWithFlushAsyncTask()
+            {
+                this.PositiveTest(ResponseCodeTooManyRequests, 0, 0, null, true);
             }
 
             [TestMethod]
             public void AssertTooManyRequestsOverExtendedTimeStopsSendingAndCleansCache()
             {
-                this.PositiveTest(ResponseCodeTooManyRequestsOverExtendedTime, 0, 0, 0);
+                this.PositiveTest(ResponseCodeTooManyRequestsOverExtendedTime, 0, 0, 0, false);
             }
 
             [TestMethod]
@@ -107,7 +113,7 @@
                 }
             }
 
-            private void PositiveTest(int responseCode, int? expectedSenderCapacity, int? expectedBufferCapacity, int? expectedStorageCapacity)
+            private void PositiveTest(int responseCode, int? expectedSenderCapacity, int? expectedBufferCapacity, int? expectedStorageCapacity, bool hasFlushTask)
             {
                 const int RetryAfterSeconds = 2;
                 string retryAfter = DateTime.Now.ToUniversalTime().AddSeconds(RetryAfterSeconds).ToString("R", CultureInfo.InvariantCulture);
@@ -127,11 +133,14 @@
                 var policy = new ThrottlingTransmissionPolicy();
                 policy.Initialize(transmitter);
 
+                string statusDescription = null;
+
                 transmitter.OnTransmissionSent(
                     new TransmissionProcessedEventArgs(
-                        new StubTransmission(), null, new HttpWebResponseWrapper()
+                        new StubTransmission() { IsFlushAsyncInProgress = hasFlushTask }, null, new HttpWebResponseWrapper()
                         {
                             StatusCode = responseCode,
+                            StatusDescription = statusDescription,
                             RetryAfterHeader = retryAfter
                         }));
 

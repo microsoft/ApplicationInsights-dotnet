@@ -24,6 +24,8 @@
     {
         private readonly string instanceName;
 
+        private readonly string roleName;
+
         private readonly string streamId;
 
         private readonly string machineName;
@@ -48,9 +50,12 @@
 
         private readonly HttpClient httpClient = new HttpClient();
 
+        private Uri currentServiceUri;
+
         public QuickPulseServiceClient(
             Uri serviceUri,
             string instanceName,
+            string roleName,
             string streamId,
             string machineName,
             string version,
@@ -59,8 +64,9 @@
             int processorCount,
             TimeSpan? timeout = null)
         {
-            this.ServiceUri = serviceUri;
+            this.CurrentServiceUri = serviceUri;
             this.instanceName = instanceName;
+            this.roleName = roleName;
             this.streamId = streamId;
             this.machineName = machineName;
             this.version = version;
@@ -75,19 +81,24 @@
             }
         }
 
-        public Uri ServiceUri { get; }
+        public Uri CurrentServiceUri
+        {
+            get => Volatile.Read(ref this.currentServiceUri);
+            private set => Volatile.Write(ref this.currentServiceUri, value);
+        }
 
         public bool? Ping(
             string instrumentationKey,
             DateTimeOffset timestamp,
             string configurationETag,
             string authApiKey,
-            out CollectionConfigurationInfo configurationInfo)
+            out CollectionConfigurationInfo configurationInfo,
+            out TimeSpan? servicePollingIntervalHint)
         {
             var requestUri = string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}/ping?ikey={1}",
-                this.ServiceUri.AbsoluteUri.TrimEnd('/'),
+                this.CurrentServiceUri.AbsoluteUri.TrimEnd('/'),
                 Uri.EscapeUriString(instrumentationKey));
 
             return this.SendRequest(
@@ -96,6 +107,7 @@
                 configurationETag,
                 authApiKey,
                 out configurationInfo,
+                out servicePollingIntervalHint,
                 requestStream => this.WritePingData(timestamp, requestStream));
         }
 
@@ -110,7 +122,7 @@
             var requestUri = string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}/post?ikey={1}",
-                this.ServiceUri.AbsoluteUri.TrimEnd('/'),
+                this.CurrentServiceUri.AbsoluteUri.TrimEnd('/'),
                 Uri.EscapeUriString(instrumentationKey));
 
             return this.SendRequest(
@@ -119,6 +131,7 @@
                 configurationETag,
                 authApiKey,
                 out configurationInfo,
+                out _,
                 requestStream => this.WriteSamples(samples, instrumentationKey, requestStream, collectionConfigurationErrors));
         }
 
@@ -134,6 +147,7 @@
             string configurationETag,
             string authApiKey,
             out CollectionConfigurationInfo configurationInfo,
+            out TimeSpan? servicePollingIntervalHint,
             Action<Stream> onWriteRequestBody)
         {
             try
@@ -155,10 +169,11 @@
                             if (response == null)
                             {
                                 configurationInfo = null;
+                                servicePollingIntervalHint = null;
                                 return null;
                             }
 
-                            return this.ProcessResponse(response, configurationETag, out configurationInfo);
+                            return this.ProcessResponse(response, configurationETag, out configurationInfo, out servicePollingIntervalHint);
                         }
                     }
                 }
@@ -169,13 +184,15 @@
             }
 
             configurationInfo = null;
+            servicePollingIntervalHint = null;
             return null;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "Dispose is known to perform safely on Stream and StreamReader types.")]
-        private bool? ProcessResponse(HttpResponseMessage response, string configurationETag, out CollectionConfigurationInfo configurationInfo)
+        private bool? ProcessResponse(HttpResponseMessage response, string configurationETag, out CollectionConfigurationInfo configurationInfo, out TimeSpan? servicePollingIntervalHint)
         {
             configurationInfo = null;
+            servicePollingIntervalHint = null;
 
             if (!bool.TryParse(response.Headers.GetValueSafe(QuickPulseConstants.XMsQpsSubscribedHeaderName), out bool isSubscribed))
             {
@@ -200,6 +217,16 @@
             }
 
             string configurationETagHeaderValue = response.Headers.GetValueSafe(QuickPulseConstants.XMsQpsConfigurationETagHeaderName);
+
+            if (long.TryParse(response.Headers.GetValueSafe(QuickPulseConstants.XMsQpsServicePollingIntervalHintHeaderName), out long servicePollingIntervalHintInMs))
+            {
+                servicePollingIntervalHint = TimeSpan.FromMilliseconds(servicePollingIntervalHintInMs);
+            }
+
+            if (Uri.TryCreate(response.Headers.GetValueSafe(QuickPulseConstants.XMsQpsServiceEndpointRedirectHeaderName), UriKind.Absolute, out Uri serviceEndpointRedirect))
+            {
+                this.CurrentServiceUri = serviceEndpointRedirect;
+            }
 
             try
             {
@@ -234,6 +261,7 @@
                 InvariantVersion = MonitoringDataPoint.CurrentInvariantVersion,
                 // InstrumentationKey = instrumentationKey, // ikey is currently set in query string parameter
                 Instance = this.instanceName,
+                RoleName = this.roleName,
                 StreamId = this.streamId,
                 MachineName = this.machineName,
                 Timestamp = timestamp.UtcDateTime,
@@ -272,6 +300,7 @@
                     InvariantVersion = MonitoringDataPoint.CurrentInvariantVersion,
                     InstrumentationKey = instrumentationKey,
                     Instance = this.instanceName,
+                    RoleName = this.roleName,
                     StreamId = this.streamId,
                     MachineName = this.machineName,
                     Timestamp = sample.EndTimestamp.UtcDateTime,
@@ -377,6 +406,7 @@
                 request.Headers.TryAddWithoutValidation(QuickPulseConstants.XMsQpsInstanceNameHeaderName, this.instanceName);
                 request.Headers.TryAddWithoutValidation(QuickPulseConstants.XMsQpsStreamIdHeaderName, this.streamId);
                 request.Headers.TryAddWithoutValidation(QuickPulseConstants.XMsQpsMachineNameHeaderName, this.machineName);
+                request.Headers.TryAddWithoutValidation(QuickPulseConstants.XMsQpsRoleNameHeaderName, this.roleName);
                 request.Headers.TryAddWithoutValidation(QuickPulseConstants.XMsQpsInvariantVersionHeaderName,
                     MonitoringDataPoint.CurrentInvariantVersion.ToString(CultureInfo.InvariantCulture));
             }

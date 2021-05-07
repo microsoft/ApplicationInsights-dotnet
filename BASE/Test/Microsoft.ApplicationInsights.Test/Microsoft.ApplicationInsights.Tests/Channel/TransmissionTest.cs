@@ -85,6 +85,17 @@
                 var transmission = new Transmission(testUri, new byte[1], "content/type", "content/encoding", expectedValue);
                 Assert.AreEqual(expectedValue, transmission.Timeout);
             }
+
+            [TestMethod]
+            public void FlushAsyncIdGetsIncrementedOnEveryTransmission()
+            {
+                var transmission1 = new Transmission();
+                var transmission2 = new Transmission();
+                var transmission3 = new Transmission(testUri, new byte[1], "content/type", "content/encoding");
+
+                Assert.AreEqual(transmission1.FlushAsyncId + 1, transmission2.FlushAsyncId);
+                Assert.AreEqual(transmission1.FlushAsyncId + 2, transmission3.FlushAsyncId);
+            }
         }
 
         [TestClass]
@@ -528,6 +539,7 @@
                     {
                         Assert.IsTrue(sender is Transmission);
                         Assert.AreEqual((int)HttpStatusCode.OK, args.Response.StatusCode);
+                        Assert.AreNotEqual(0, args.ResponseDurationInMs);
                     };
 
                     // ACT
@@ -559,6 +571,7 @@
                     transmission.TransmissionStatusEvent += delegate (object sender, TransmissionStatusEventArgs args)
                     {
                         Assert.AreEqual((int)HttpStatusCode.RequestTimeout, args.Response.StatusCode);
+                        Assert.AreEqual(0, args.ResponseDurationInMs);
                     };
 
                     // ACT
@@ -589,6 +602,7 @@
                     transmission.TransmissionStatusEvent += delegate (object sender, TransmissionStatusEventArgs args)
                     {
                         Assert.AreEqual(999, args.Response.StatusCode);
+                        Assert.AreEqual(0, args.ResponseDurationInMs);
                     };
 
                     // ACT
