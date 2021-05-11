@@ -27,7 +27,7 @@
 
             var actualBytes = ReadFile(fileName, MessageOnNewFile.Length);
 
-            Assert.AreEqual(MessageOnNewFile, actualBytes);
+            CollectionAssert.AreEqual(MessageOnNewFile, actualBytes);
         }
 
         private static byte[] ReadFile(string fileName, int byteCount)
