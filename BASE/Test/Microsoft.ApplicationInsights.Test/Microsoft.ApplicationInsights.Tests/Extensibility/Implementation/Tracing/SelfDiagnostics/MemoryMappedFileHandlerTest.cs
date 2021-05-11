@@ -1,16 +1,17 @@
-﻿namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementation.Tracing.SelfDiagnosticsInternals
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics
 {
     using System.Diagnostics;
     using System.IO;
     using System.Text;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnosticsInternals;
-    using Xunit;
 
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+    [TestClass]
     public class MemoryMappedFileHandlerTest
     {
         public static readonly byte[] MessageOnNewFile = Encoding.UTF8.GetBytes("Successfully opened file.\n");
 
-        [Fact]
+        [TestMethod]
         public void MemoryMappedFileHandler_Success()
         {
             var fileName = Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName) + "."
@@ -26,7 +27,7 @@
 
             var actualBytes = ReadFile(fileName, MessageOnNewFile.Length);
 
-            Assert.Equal(MessageOnNewFile, actualBytes);
+            Assert.AreEqual(MessageOnNewFile, actualBytes);
         }
 
         private static byte[] ReadFile(string fileName, int byteCount)

@@ -6,18 +6,18 @@
     /// Self diagnostics class captures the EventSource events sent by Application Insights
     /// modules and writes them to local file for internal troubleshooting.
     /// </summary>
-    internal class SelfDiagnostics : IDisposable
+    internal class SelfDiagnosticsInitializer : IDisposable
     {
         /// <summary>
         /// Long-living object that hold relevant resources.
         /// </summary>
-        private static readonly SelfDiagnostics Instance = new SelfDiagnostics();
+        private static readonly SelfDiagnosticsInitializer Instance = new SelfDiagnosticsInitializer();
 
         // Long-living object that holds a refresher which checks whether the configuration file was updated
         // every 10 seconds.
         // private readonly SelfDiagnosticsConfigRefresher configRefresher;
 
-        static SelfDiagnostics()
+        static SelfDiagnosticsInitializer()
         {
             AppDomain.CurrentDomain.ProcessExit += (sender, eventArgs) =>
             {
@@ -25,7 +25,7 @@
             };
         }
 
-        private SelfDiagnostics()
+        private SelfDiagnosticsInitializer()
         {
             // this.configRefresher = new SelfDiagnosticsConfigRefresher();
         }

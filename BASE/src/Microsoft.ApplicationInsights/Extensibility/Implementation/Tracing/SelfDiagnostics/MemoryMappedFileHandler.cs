@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnosticsInternals
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics
 {
     using System;
     using System.IO;
