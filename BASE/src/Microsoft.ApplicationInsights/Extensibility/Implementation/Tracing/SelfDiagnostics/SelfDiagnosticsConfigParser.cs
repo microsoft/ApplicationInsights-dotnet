@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnosticsInternals
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics
 {
     using System;
     using System.Diagnostics.Tracing;
@@ -8,7 +8,7 @@
 
     internal class SelfDiagnosticsConfigParser
     {
-        public const string ConfigFileName = "OTEL_DIAGNOSTICS.json";
+        public const string ConfigFileName = "ApplicationInsightsDiagnostics.json";
         private const int FileSizeLowerLimit = 1024;  // Lower limit for log file size in KB: 1MB
         private const int FileSizeUpperLimit = 128 * 1024;  // Upper limit for log file size in KB: 128MB
 

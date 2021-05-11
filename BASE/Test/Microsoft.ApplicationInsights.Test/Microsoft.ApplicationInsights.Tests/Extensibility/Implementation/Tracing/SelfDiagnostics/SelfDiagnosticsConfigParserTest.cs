@@ -1,8 +1,8 @@
-﻿namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementation.Tracing.SelfDiagnosticsInternals
+﻿namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementation.Tracing.SelfDiagnostics
 {
     using Xunit;
 
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnosticsInternals;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics;
 
     public class SelfDiagnosticsConfigParserTest
     {
