@@ -659,10 +659,7 @@
         [Event(72, Keywords = Keywords.UserActionable, Message = "Failed to create file for self diagnostics at {0}. Error message: {1}.", Level = EventLevel.Error)]
         public void SelfDiagnosticsFileCreateException(string logDirectory, string ex)
         {
-            if (this.IsEnabled(EventLevel.Error, (EventKeywords)(-1)))
-            {
-                this.WriteEvent(72, logDirectory, ex);
-            }
+            this.WriteEvent(72, logDirectory, ex);
         }
 
         [NonEvent]
