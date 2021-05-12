@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnosticsInternals
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics
 {
     using System;
     using System.Collections.Generic;
@@ -18,14 +18,14 @@
         private readonly object lockObj = new object();
         private readonly EventLevel logLevel;
 
-        // private readonly SelfDiagnosticsConfigRefresher configRefresher;
+        private readonly MemoryMappedFileHandler fileHandler;
         private readonly List<EventSource> eventSourcesBeforeConstructor = new List<EventSource>();
 
-        public SelfDiagnosticsEventListener(EventLevel logLevel/*, SelfDiagnosticsConfigRefresher configRefresher*/)
+        public SelfDiagnosticsEventListener(EventLevel logLevel, MemoryMappedFileHandler fileHandler)
         {
             this.logLevel = logLevel;
 
-            // this.configRefresher = configRefresher ?? throw new ArgumentNullException(nameof(configRefresher));
+            this.fileHandler = fileHandler ?? throw new ArgumentNullException(nameof(fileHandler));
 
             List<EventSource> eventSources;
             lock (this.lockObj)
