@@ -32,5 +32,4 @@ $availabilityData = @"
 "@
 
 Invoke-WebRequest -Uri $url -Method POST -Body $availabilityData -Verbose -Debug -UseBasicParsing
-
 # Expected Output: {"itemsReceived":1,"itemsAccepted":1,"errors":[]}
