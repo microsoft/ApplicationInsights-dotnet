@@ -1,20 +1,14 @@
-# Troubleshooting
+# Troubleshooting Ingestion
 
-## For Immediate Support 
+## Fiddler
 
-For immediate support relating to the Application Insights .NET SDK we encourage you to file an [Azure Support Request](https://docs.microsoft.com/azure/azure-portal/supportability/how-to-create-azure-support-request) with Microsoft Azure instead of filing a GitHub Issue in this repository. 
-You can do so by going online to the [Azure portal](https://portal.azure.com/) and submitting a support request. Access to subscription management and billing support is included with your Microsoft Azure subscription, and technical support is provided through one of the [Azure Support Plans](https://azure.microsoft.com/support/plans/). For step-by-step guidance for the Azure portal, see [How to create an Azure support request](https://docs.microsoft.com/azure/azure-portal/supportability/how-to-create-azure-support-request). Alternatively, you can create and manage your support tickets programmatically using the [Azure Support ticket REST API](https://docs.microsoft.com/rest/api/support/).
+A tool such as Fiddler can be used to record the raw traffic between the SDK and Ingestion Service.
+
+## Networking
+
+If the SDK is unable to send telemetry to the Ingestion Service, you may be experiencing a networking issue.
+
+Please review our guides on [IP Addresses used by Azure Monitor](https://docs.microsoft.com/azure/azure-monitor/app/ip-addresses)
 
 
-## SDK Internal Logs
-
-The Application Insights .NET SDK use ETW to expose internal exceptions.
-
-To collect these logs, please review our full guide on [ETW](ETW).
-
-## Networking Issues
-
-The Application Insights .NET SDK has no knowledge of the environment it's deployed in.
-The SDK will send telemetry to the configured endpoint. 
-
-If you suspect networking issues, please review our guide on [Troubleshooting Ingestion](Ingestion).
+You can test your network by manually sending telemetry using the PowerShell script we have provided.
