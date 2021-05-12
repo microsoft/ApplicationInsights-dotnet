@@ -10,5 +10,4 @@ If the SDK is unable to send telemetry to the Ingestion Service, you may be expe
 
 Please review our guides on [IP Addresses used by Azure Monitor](https://docs.microsoft.com/azure/azure-monitor/app/ip-addresses)
 
-
 You can test your network by manually sending telemetry using the PowerShell script [PostTelemetry.ps1](PostTelemetry.ps1).
