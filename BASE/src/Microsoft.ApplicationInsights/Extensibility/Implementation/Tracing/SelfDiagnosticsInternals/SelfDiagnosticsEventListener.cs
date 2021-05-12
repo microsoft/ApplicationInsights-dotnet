@@ -30,7 +30,7 @@
         private readonly MemoryMappedFileHandler fileHandler;
         private readonly List<EventSource> eventSourcesBeforeConstructor = new List<EventSource>();
 
-        private bool _disposed = false;
+        private bool disposedValue = false;
 
         public SelfDiagnosticsEventListener(EventLevel logLevel, MemoryMappedFileHandler fileHandler)
         {
@@ -60,24 +60,6 @@
         {
             this.Dispose(true);
             GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_disposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                this.writeBuffer.Dispose();
-            }
-
-            _disposed = true;
-
-            // Should call base.Dispose(disposing) here, but EventListener doesn't have Dispose(bool).
-            base.Dispose();
         }
 
         /// <summary>
@@ -319,6 +301,24 @@
         protected override void OnEventWritten(EventWrittenEventArgs eventData)
         {
             this.WriteEvent(eventData.Message, eventData.Payload);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (this.disposedValue)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                this.writeBuffer.Dispose();
+            }
+
+            this.disposedValue = true;
+
+            // Should call base.Dispose(disposing) here, but EventListener doesn't have Dispose(bool).
+            base.Dispose();
         }
     }
 }
