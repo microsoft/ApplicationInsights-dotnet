@@ -8,7 +8,7 @@ You can do so by going online to the [Azure portal](https://portal.azure.com/) a
 
 ## SDK Internal Logs
 
-The Application Insights .NET SDK use ETW to expose internal exceptions.
+The Application Insights .NET SDK uses ETW to expose internal exceptions.
 
 To collect these logs, please review our full guide on [ETW](ETW).
 
@@ -18,3 +18,7 @@ The Application Insights .NET SDK has no knowledge of the environment it's deplo
 The SDK will send telemetry to the configured endpoint. 
 
 If you suspect networking issues, please review our guide on [Troubleshooting Ingestion](Ingestion).
+
+## No Data
+
+Please review our full guide on [Troubleshooting no data](https://docs.microsoft.com/azure/azure-monitor/app/asp-net-troubleshoot-no-data)
