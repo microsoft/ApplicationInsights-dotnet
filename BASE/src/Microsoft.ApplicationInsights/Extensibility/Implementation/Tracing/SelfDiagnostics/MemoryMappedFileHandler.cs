@@ -83,7 +83,7 @@
                     // .NET Core simply doesn't support this parameter.
                     null,
 #endif
-                HandleInheritability.None,
+                    HandleInheritability.None,
                     false);
                 this.logDirectory = logDirectory;
                 this.logFileSize = fileSize;
