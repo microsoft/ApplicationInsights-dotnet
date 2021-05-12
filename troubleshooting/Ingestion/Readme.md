@@ -2,7 +2,7 @@
 
 ## Fiddler
 
-A tool such as Fiddler can be used to record the raw traffic between the SDK and Ingestion Service.
+A tool such as Fiddler can be used to inspect raw HTTPS data from an app integrated with SDK to Ingestion Service.
 
 ## Networking
 
