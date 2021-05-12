@@ -657,7 +657,7 @@
         public void TransmissionStatusEventError(string error, string appDomainName = "Incorrect") => this.WriteEvent(71, error, this.nameProvider.Name);
 
         [Event(72, Keywords = Keywords.UserActionable, Message = "Failed to create file for self diagnostics at {0}. Error message: {1}.", Level = EventLevel.Error)]
-        public void SelfDiagnosticsFileCreateException(string logDirectory, string ex) => this.WriteEvent(72, logDirectory ?? string.Empty, ex ?? string.Empty);
+        public void SelfDiagnosticsFileCreateException(string logDirectory, string exception, string appDomainName = "Incorrect") => this.WriteEvent(72, logDirectory, exception, this.nameProvider.Name);
 
         [NonEvent]
         public void TransmissionStatusEventFailed(Exception ex)
