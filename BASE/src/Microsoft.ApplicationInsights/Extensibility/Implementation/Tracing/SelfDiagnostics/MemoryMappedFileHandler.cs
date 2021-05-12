@@ -34,8 +34,9 @@
         private int logFileSize;  // Log file size in bytes
         private long logFilePosition;  // The logger will write into the byte at this position
 
-        public string LogDirectory { get => logDirectory; set => logDirectory = value; }
-        public int LogFileSize { get => logFileSize; private set => logFileSize = value; }
+        public string LogDirectory { get => this.logDirectory; set => this.logDirectory = value; }
+
+        public int LogFileSize { get => this.logFileSize; private set => this.logFileSize = value; }
 
         /// <summary>
         /// Create a log file. If the file already exists, it will be overwritten.
@@ -204,7 +205,6 @@
                 return false;
             }
         }
-
 
         /// <summary>
         /// Get a MemoryMappedViewStream for the MemoryMappedFile object for the current thread.
