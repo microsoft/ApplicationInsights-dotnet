@@ -16,7 +16,7 @@
         private const string EllipsesWithBrackets = "{...}\n";
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [ExpectedException(typeof(ArgumentNullException))]
         public void SelfDiagnosticsEventListener_constructor_Invalid_Input()
         {
             // no configRefresher object
@@ -81,7 +81,7 @@
                 pos += len;
             }
 
-            Assert.AreEqual(expected, results);
+            CollectionAssert.AreEqual(expected, results);
         }
 
         [TestMethod]
