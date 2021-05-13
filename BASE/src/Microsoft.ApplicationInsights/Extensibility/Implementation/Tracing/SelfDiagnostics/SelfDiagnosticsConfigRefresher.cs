@@ -17,7 +17,6 @@
     /// </summary>
     internal class SelfDiagnosticsConfigRefresher : IDisposable
     {
-
         private const int ConfigurationUpdatePeriodMilliSeconds = 10000;
 
         private readonly CancellationTokenSource cancellationTokenSource;
