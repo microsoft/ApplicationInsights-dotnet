@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnosticsInternals
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics
 {
     using System;
     using System.Collections.Generic;
@@ -7,11 +7,6 @@
     using System.IO;
     using System.Text;
     using System.Threading;
-
-    // SelfDiagnosticsEventListener should be moved from SelfDiagnosticsInternals to SelfDiagnostics.
-    // Pending on https://github.com/microsoft/ApplicationInsights-dotnet/pull/2262
-    // Here still using this old namespace to show less changes in git diff view.
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics;
 
     /// <summary>
     /// SelfDiagnosticsEventListener class enables the events from OpenTelemetry event sources
