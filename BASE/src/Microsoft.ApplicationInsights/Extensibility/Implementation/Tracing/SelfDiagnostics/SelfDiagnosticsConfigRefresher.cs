@@ -25,11 +25,9 @@
         private readonly SelfDiagnosticsConfigParser configParser;
         private readonly MemoryMappedFileHandler memoryMappedFileHandler;
 
-
         private bool disposedValue;
 
         // Once the configuration file is valid, an eventListener object will be created.
-        // Commented out for now to avoid the "field was never used" compiler error.
         private SelfDiagnosticsEventListener eventListener;
 
         private EventLevel logEventLevel = (EventLevel)(-1);
