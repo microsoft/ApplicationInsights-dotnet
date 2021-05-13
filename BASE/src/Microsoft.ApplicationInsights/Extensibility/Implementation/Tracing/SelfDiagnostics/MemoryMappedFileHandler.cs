@@ -17,8 +17,8 @@
         public static readonly byte[] MessageOnNewFile = Encoding.UTF8.GetBytes("Successfully opened file.\n");
 
         /// <summary>
-        /// t_memoryMappedFileCache is a handle kept in thread-local storage as a cache to indicate whether the cached
-        /// t_viewStream is created from the current m_memoryMappedFile.
+        /// memoryMappedFileCache is a handle kept in thread-local storage as a cache to indicate whether the cached
+        /// viewStream is created from the current m_memoryMappedFile.
         /// </summary>
         private readonly ThreadLocal<MemoryMappedFile> memoryMappedFileCache = new ThreadLocal<MemoryMappedFile>(true);
         private readonly ThreadLocal<MemoryMappedViewStream> viewStream = new ThreadLocal<MemoryMappedViewStream>(true);
