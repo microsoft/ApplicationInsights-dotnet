@@ -9,11 +9,6 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
 
-    // SelfDiagnosticsEventListener should be moved from SelfDiagnosticsInternals to SelfDiagnostics.
-    // Pending on https://github.com/microsoft/ApplicationInsights-dotnet/pull/2262
-    // Here still using this old namespace to show less changes in git diff view.
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnosticsInternals;
-
     [TestClass]
     class SelfDiagnosticsEventListenerTest
     {
