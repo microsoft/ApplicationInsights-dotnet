@@ -14,8 +14,7 @@
 
         public string ExtractDimension(ITelemetry item)
         {
-            var req = item as RequestTelemetry;
-            if (req != null)
+            if (item is RequestTelemetry req)
             {
                 return req.ResponseCode;
             }
