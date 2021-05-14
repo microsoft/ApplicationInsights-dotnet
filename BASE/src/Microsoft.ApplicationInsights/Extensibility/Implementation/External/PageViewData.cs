@@ -21,8 +21,8 @@
         protected override void ApplyProperties(EventData other)
         {
             base.ApplyProperties(other);
-            PageViewData otherPageView = other as PageViewData;
-            if (otherPageView != null)
+
+            if (other is PageViewData otherPageView)
             {
                 otherPageView.url = this.url;
                 otherPageView.duration = this.duration;
