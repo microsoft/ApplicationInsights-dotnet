@@ -505,9 +505,7 @@
         /// <returns>Whether the specified other object is equal to this object based on the respective namespaces, IDs and dimension names.</returns>
         public override bool Equals(object otherObj)
         {
-            MetricIdentifier otherMetricIdentifier = otherObj as MetricIdentifier;
-
-            if (otherMetricIdentifier != null)
+            if (otherObj is MetricIdentifier otherMetricIdentifier)
             {
                 return this.Equals(otherMetricIdentifier);
             }

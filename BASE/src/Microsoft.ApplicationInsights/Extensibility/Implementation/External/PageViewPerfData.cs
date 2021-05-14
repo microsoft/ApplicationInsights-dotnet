@@ -20,8 +20,8 @@
         protected override void ApplyProperties(EventData other)
         {
             base.ApplyProperties(other);
-            PageViewPerfData otherPageViewPerf = other as PageViewPerfData;
-            if (otherPageViewPerf != null)
+
+            if (other is PageViewPerfData otherPageViewPerf)
             {
                 otherPageViewPerf.domProcessing = this.domProcessing;
                 otherPageViewPerf.perfTotal = this.perfTotal;
