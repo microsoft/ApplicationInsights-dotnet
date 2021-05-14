@@ -1,7 +1,7 @@
 # Changelog
 
 ## VNext
-
+- Reduce technical debt: Use pattern matching
 
 
 ## Version 2.18.0-beta1
