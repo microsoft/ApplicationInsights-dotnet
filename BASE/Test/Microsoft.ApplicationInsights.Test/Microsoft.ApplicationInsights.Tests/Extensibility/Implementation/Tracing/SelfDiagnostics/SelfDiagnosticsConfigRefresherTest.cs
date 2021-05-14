@@ -70,12 +70,6 @@
             }
         }
 
-        private static void AssertStartsWith(string expectedStartString, string actualString)
-        {
-            Assert.IsNotNull(expectedStartString);
-            Assert.IsTrue(expectedStartString.StartsWith(actualString));
-        }
-
         private static string ParseLogMessage(string logLine)
         {
             int timestampPrefixLength = "2020-08-14T20:33:24.4788109Z:".Length;
