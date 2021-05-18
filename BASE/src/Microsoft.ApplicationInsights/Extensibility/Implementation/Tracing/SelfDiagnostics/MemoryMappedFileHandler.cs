@@ -137,7 +137,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Sel
         /// </summary>
         /// <param name="buffer">The buffer which contains the data to be written.</param>
         /// <param name="byteCount">The count of bytes to be written.</param>
-        public void Write(byte[] buffer, int byteCount)
+        public virtual void Write(byte[] buffer, int byteCount)
         {
             try
             {

@@ -2,6 +2,7 @@
 
 ## VNext
 - Reduce technical debt: Use pattern matching
+- [Improve Self Diagnostics and support setting configuration in file](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2238)
 
 
 ## Version 2.18.0-beta1
