@@ -116,7 +116,7 @@ StatusMonitor uses TraceEventSession to record ETW logs.
 - https://github.com/dotnet/roslyn/wiki/Recording-performance-traces-with-PerfView
 - https://github.com/microsoft/perfview/blob/master/src/TraceEvent/TraceEventSession.cs
 
-### Self-Diagnostics (available in version 2.18.0)
+### Self-Diagnostics
 
 As of version 2.18.0, this SDK ships a "self-diagnostics feature" which captures internal events and writes to a log file in a specified directory.
 
