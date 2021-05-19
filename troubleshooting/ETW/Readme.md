@@ -129,7 +129,13 @@ The SDK will create or overwrite a file with new logs according to the configura
 Configuration is controlled by a file named `ApplicationInsightsDiagnostics.json`.
 The configuration file must be no more than 4 KiB, otherwise only the first 4 KiB of content will be read.
 
-**To enable self-diagnostics**, go to the current working directory of your process and create a configuration file.
+**To enable self-diagnostics**, go to the [current working directory](https://en.wikipedia.org/wiki/Working_directory) of your process and create a configuration file.
+In most cases, you could just drop the file along your application.
+On Windows, you can use [Process Explorer](https://docs.microsoft.com/sysinternals/downloads/process-explorer), 
+double click on the process to pop up Properties dialog, and find "Current directory" in "Image" tab.
+Internally, the SDK looks for the configuration file located in [GetCurrentDirectory](https://docs.microsoft.com/dotnet/api/system.io.directory.getcurrentdirectory),
+and then [AppContext.BaseDirectory](https://docs.microsoft.com/dotnet/api/system.appcontext.basedirectory).
+You can also find the exact directory by calling these methods from your code.
 
 **To disable self-diagnostics**, delete the configuration file.
 
@@ -157,9 +163,6 @@ This value must match one of the [fields](https://docs.microsoft.com/dotnet/api/
 Lower severity levels encompass higher severity levels (e.g. `Warning` includes the `Error` and `Critical` levels).
 
 **Warning**: If the SDK fails to parse any of these fields, the configuration file will be treated as invalid and self-diagnostics will be disabled.
-
-
-
 
 ## References
 
