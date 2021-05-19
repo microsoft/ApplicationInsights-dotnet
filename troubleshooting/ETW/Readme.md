@@ -178,15 +178,19 @@ The SDK will attempt to open the configuration file in non-exclusive read-only
 mode, read the file and parse it as the configuration file every 10 seconds. If
 the SDK fails to parse the `LogDirectory`, `FileSize` or `LogLevel` fields as
 the specified format, the configuration file will be treated as invalid and no
-log file would be generated. Otherwise, it will create or overwrite the log file
-as described above.
+log file would be generated. Otherwise, it will update the log file or event
+levels to be captured according to the new configuration, if changed.
+
+If the `LogDirectory` or `FileSize` is found to be changed, the SDK will create
+or overwrite the log file.
+
+If the `LogLevel` is found to be changed, the SDK will update internally to
+capture the right events, but the log file won't change.
 
 Note that the `FileSize` has to be between 1 MiB and 128 MiB (inclusive), or it
-will be rounded to the closest upper or lower limit. When the `LogDirectory` or
-`FileSize` is found to be changed, the SDK will create or overwrite a file with
-new logs according to the new configuration. The configuration file has to be no
-more than 4 KiB. In case the file is larger than 4 KiB, only the first 4 KiB of
-content will be read.
+will be rounded to the closest upper or lower limit. The configuration file has
+to be no more than 4 KiB. In case the file is larger than 4 KiB, only the first
+4 KiB of content will be read.
 
 ## References
 
