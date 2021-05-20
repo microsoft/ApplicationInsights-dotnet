@@ -110,8 +110,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         /// <param name="exception">Exception to log.</param>
         private static void LogException(Exception exception)
         {
-            var aggregateException = exception as AggregateException;
-            if (aggregateException != null)
+            if (exception is AggregateException aggregateException)
             {
                 aggregateException = aggregateException.Flatten();
                 foreach (Exception e in aggregateException.InnerExceptions)

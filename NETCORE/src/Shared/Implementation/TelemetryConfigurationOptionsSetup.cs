@@ -265,8 +265,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 foreach (ITelemetryProcessor processor in configuration.TelemetryProcessors)
                 {
-                    ITelemetryModule module = processor as ITelemetryModule;
-                    if (module != null)
+                    if (processor is ITelemetryModule module)
                     {
                         module.Initialize(configuration);
                     }
@@ -303,8 +302,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             if (this.applicationInsightsServiceOptions.EnableQuickPulseMetricStream)
             {
-                QuickPulseTelemetryModule quickPulseModule = this.modules.FirstOrDefault((module) => module.GetType() == typeof(QuickPulseTelemetryModule)) as QuickPulseTelemetryModule;
-                if (quickPulseModule != null)
+                if (this.modules.FirstOrDefault((module) => module.GetType() == typeof(QuickPulseTelemetryModule)) is QuickPulseTelemetryModule quickPulseModule)
                 {
                     QuickPulseTelemetryProcessor processor = null;
                     configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder.Use((next) =>

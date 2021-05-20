@@ -15,6 +15,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Sampling;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics;
     using Microsoft.ApplicationInsights.Metrics;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
@@ -65,7 +66,7 @@
                     Activity.ForceDefaultIdFormat = true;
                 }                
             });
-            SelfDiagnostics.EnsureInitialized();
+            SelfDiagnosticsInitializer.EnsureInitialized();
         }
 
         /// <summary>
