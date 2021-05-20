@@ -41,13 +41,6 @@ steps:
     projects: "BASE/*.sln"
     arguments: "--configuration Release --no-restore"
 
-#- task: DotNetCoreCLI@2
-#  displayName: DotNetCoreCLI - Test $(framework)
-#  inputs:
-#    command: "test"
-#    projects: "BASE/Test/**/Microsoft.ApplicationInsights.Tests.csproj"
-#    arguments: "--configuration Release --framework $(framework) --no-build -l trx --filter TestCategory!=WindowsOnly"
-   
 - task: DotNetCoreCLI@2
   displayName: DotNetCoreCLI - Test $(framework)
   inputs:
@@ -63,16 +56,3 @@ steps:
     testRunner: "VSTest"
     testResultsFiles: "**/*.trx"
     failTaskOnFailedTests: true
-
-#- task: DotNetCoreCLI@2
-#  inputs:
-#    command: "publish"
-#    publishWebProjects: "True"
-#    arguments: "--configuration Release --output $(build.artifactstagingdirectory)"
-#    zipAfterPublish: "True"
-
-#- task: PublishBuildArtifacts@1
-#  inputs:
-#    PathtoPublish: "$(build.artifactstagingdirectory)"
-#    ArtifactName: "drop"
-#    ArtifactType: "Container"
