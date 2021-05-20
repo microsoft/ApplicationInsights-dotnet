@@ -143,8 +143,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "WEB\Src\Web\Web\Web.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xdt.Tests", "LOGGING\test\Xdt.Tests\Xdt.Tests.csproj", "{8AAC8DC7-A2FC-4767-BDA8-380F86B64772}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights.Authentication.Tests", "BASE\Test\Microsoft.ApplicationInsights.Test\Microsoft.ApplicationInsights.Authentication.Tests\Microsoft.ApplicationInsights.Authentication.Tests.csproj", "{3BD71891-E7AC-4546-AC2F-A12F2649D03F}"
-EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		WEB\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{0196259c-3582-4f4e-a01f-a8f9ae83b0f3}*SharedItemsImports = 13
@@ -367,10 +365,6 @@ Global
 		{8AAC8DC7-A2FC-4767-BDA8-380F86B64772}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AAC8DC7-A2FC-4767-BDA8-380F86B64772}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8AAC8DC7-A2FC-4767-BDA8-380F86B64772}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3BD71891-E7AC-4546-AC2F-A12F2649D03F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3BD71891-E7AC-4546-AC2F-A12F2649D03F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3BD71891-E7AC-4546-AC2F-A12F2649D03F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3BD71891-E7AC-4546-AC2F-A12F2649D03F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -420,7 +414,6 @@ Global
 		{A1891190-0E43-4E2E-BEFE-1AF0068A0D1E} = {DFCBB4ED-976C-4239-BCAF-8AA21E684E8C}
 		{6062A897-6E55-44C9-BA7A-E1C42946EE51} = {07076842-9CAA-4B4A-8AEF-88DE88CD37AC}
 		{8AAC8DC7-A2FC-4767-BDA8-380F86B64772} = {D2A0AA36-57F7-436C-A7AF-7322927F1734}
-		{3BD71891-E7AC-4546-AC2F-A12F2649D03F} = {632FB9CE-540D-4451-9FF2-12E89C1492BD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0E0415AF-37CC-4999-8E5B-DD36F75BFD4D}
