@@ -7,6 +7,8 @@ strategy:
             framework: netcoreapp2.1
         netcoreapp3_1:
             framework: netcoreapp3.1
+        net5_0:
+            framework: net5.0
     maxParallel: 2
 
 steps:
@@ -39,11 +41,18 @@ steps:
     projects: "BASE/*.sln"
     arguments: "--configuration Release --no-restore"
 
+#- task: DotNetCoreCLI@2
+#  displayName: DotNetCoreCLI - Test $(framework)
+#  inputs:
+#    command: "test"
+#    projects: "BASE/Test/**/Microsoft.ApplicationInsights.Tests.csproj"
+#    arguments: "--configuration Release --framework $(framework) --no-build -l trx --filter TestCategory!=WindowsOnly"
+   
 - task: DotNetCoreCLI@2
   displayName: DotNetCoreCLI - Test $(framework)
   inputs:
     command: "test"
-    projects: "BASE/Test/**/Microsoft.ApplicationInsights.Tests.csproj"
+    projects: "BASE/Test/**/*.Tests.csproj"
     arguments: "--configuration Release --framework $(framework) --no-build -l trx --filter TestCategory!=WindowsOnly"
 
 ## Publish Test results
