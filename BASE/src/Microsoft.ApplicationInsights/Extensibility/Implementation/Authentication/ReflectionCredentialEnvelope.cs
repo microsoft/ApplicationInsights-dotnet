@@ -95,7 +95,7 @@
             {
                 return Activator.CreateInstance(
                     type: Type.GetType("Azure.Core.TokenRequestContext, Azure.Core"),
-                    args: new object[] { scopes, null, null });
+                    args: new object[] { scopes, null, });
             }
 
             /// This creates a wrapper for the following method:
