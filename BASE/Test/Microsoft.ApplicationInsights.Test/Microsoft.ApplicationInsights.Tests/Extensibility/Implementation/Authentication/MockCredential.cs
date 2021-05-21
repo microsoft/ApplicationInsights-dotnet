@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.Authentication.Tests
+﻿#if NET461 || NETCOREAPP2_1 || NETCOREAPP3_1 || NET5_0
+namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementation.Authentication
 {
     using System;
     using System.Threading;
@@ -23,3 +24,4 @@
         }
     }
 }
+#endif

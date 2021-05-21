@@ -61,7 +61,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunctionalTests.MVC.Tests",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunctionalTests.WebApi.Tests", "test\FunctionalTests.WebApi.Tests\FunctionalTests.WebApi.Tests.csproj", "{E78404EA-CBAA-4366-B659-C3A46BC9DF15}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests.WebApp", "test\IntegrationTests.WebApp\IntegrationTests.WebApp.csproj", "{AFB5577E-1560-468C-91C7-042080202478}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests.WebApp", "test\IntegrationTests.WebApp\IntegrationTests.WebApp.csproj", "{AFB5577E-1560-468C-91C7-042080202478}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution

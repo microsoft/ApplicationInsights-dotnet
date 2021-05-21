@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.Authentication.Tests
+﻿#if NET461 || NETCOREAPP2_1 || NETCOREAPP3_1 || NET5_0
+namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementation.Authentication
 {
     using System;
     using System.Threading;
@@ -15,6 +16,7 @@
     /// These tests are to confirm that we can correctly identity classes that implement TokenCredential and address it's methods.
     /// </summary>
     [TestClass]
+    [TestCategory("AAD")]
     public class ReflectionCredentialEnvelopeTests
     {
         [TestMethod]
@@ -72,6 +74,18 @@
         //}
 
         [TestMethod]
+        public void VerifyCanMakeTokenRequestContext()
+        {
+            var testScope = new string[] { "test/scope" };
+
+            var requestContext = new TokenRequestContext(testScope);
+
+            var tokenRequestContext = ReflectionCredentialEnvelope.AzureCore.MakeTokenRequestContext(testScope);
+            Assert.IsInstanceOfType(tokenRequestContext, typeof(TokenRequestContext));
+        }
+
+
+        [TestMethod]
         public void VerifyGetToken_AsLambdaExpression_UsingCompileTimeTypes()
         {
             var mockCredential = new MockCredential();
@@ -122,7 +136,7 @@
             Assert.AreEqual("TEST TOKEN test/scope", testResult);
         }
 
-        #region TestClasses
+#region TestClasses
         private class TestClass1 : Azure.Core.TokenCredential
         {
             public override AccessToken GetToken(TokenRequestContext requestContext, CancellationToken cancellationToken)
@@ -159,6 +173,7 @@
         }
 
         private class NotTokenCredential2 : NotTokenCredential1 { }
-        #endregion
+#endregion
     }
 }
+#endif

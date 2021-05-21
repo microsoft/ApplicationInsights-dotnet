@@ -400,8 +400,7 @@
 
             exceptions.Add(exceptionDetails);
 
-            AggregateException aggregate = exception as AggregateException;
-            if (aggregate != null)
+            if (exception is AggregateException aggregate)
             {
                 foreach (Exception inner in aggregate.InnerExceptions)
                 {

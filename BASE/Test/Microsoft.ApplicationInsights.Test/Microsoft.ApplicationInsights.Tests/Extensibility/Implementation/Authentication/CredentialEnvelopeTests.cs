@@ -1,4 +1,4 @@
-namespace Microsoft.ApplicationInsights.Authentication.Tests
+namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementation.Authentication
 {
     using System;
     using System.Threading.Tasks;
@@ -8,32 +8,47 @@ namespace Microsoft.ApplicationInsights.Authentication.Tests
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
+    [TestCategory("AAD")]
     public class CredentialEnvelopeTests
     {
+        /// <summary>
+        /// This tests verifies that each supported language can create and set a Credential.
+        /// </summary>
         [TestMethod]
         public void VerifyCanSetCredential()
         {
+#if NET452 || NET46
+            // *THIS IS COMPLICATED*
+            // In this case, the test runner is NET452 or NET46.
+            // The Azure.Core.TokenCredential is NOT SUPPORTED in these frameworks, so we cannot run this test.
+            // This does not affect the end user because we REQUIRE the end user to create their own instance of TokenCredential.
+            // This ensures that the end user is consuming the AI SDK in one of the newer frameworks.
+#elif NET461
             var mockCredential = new MockCredential();
 
             var telemetryConfiguration = new TelemetryConfiguration();
             telemetryConfiguration.SetCredential(mockCredential);
 
-
-            var credentialEnvelope = telemetryConfiguration.CredentialEnvelope;
-#if NET461
-            Assert.IsInstanceOfType(credentialEnvelope, typeof(ReflectionCredentialEnvelope));
-#elif NET5_0
-            Assert.IsInstanceOfType(credentialEnvelope, typeof(TokenCredentialEnvelope));
-#else
-            throw new System.Exception("this is a testing gap.");
-#endif
-
+            Assert.IsInstanceOfType(telemetryConfiguration.CredentialEnvelope, typeof(ReflectionCredentialEnvelope));
             Assert.AreEqual(mockCredential, telemetryConfiguration.CredentialEnvelope.Credential);
+#elif NETCOREAPP2_1 || NETCOREAPP3_1 || NET5_0
+
+            var mockCredential = new MockCredential();
+
+            var telemetryConfiguration = new TelemetryConfiguration();
+            telemetryConfiguration.SetCredential(mockCredential);
+
+            Assert.IsInstanceOfType(telemetryConfiguration.CredentialEnvelope, typeof(TokenCredentialEnvelope));
+            Assert.AreEqual(mockCredential, telemetryConfiguration.CredentialEnvelope.Credential);
+#else
+            throw new NotImplementedException("this is a testing gap");
+#endif
         }
 
 #if NET461
         /// <summary>
         /// For older frameworks, TelemetryConfiguration accepts an <see cref="Object"/> parameter.
+        /// This method will use reflection to verify the type at runtime.
         /// This test is to verify that we cannot set invalid types.
         /// </summary>
         [TestMethod]
@@ -45,7 +60,11 @@ namespace Microsoft.ApplicationInsights.Authentication.Tests
         }
 #endif
 
-#if NET5_0
+#if NETCOREAPP2_1 || NETCOREAPP3_1 || NET5_0
+        /// <summary>
+        /// This test verifies that both <see cref="TokenCredentialEnvelope"/> and <see cref="ReflectionCredentialEnvelope"/> return identical tokens.
+        /// This test can only run in frameworks that support both types.
+        /// </summary>
         [TestMethod]
         public void VerifyCanGetTokenString()
         {
@@ -62,6 +81,10 @@ namespace Microsoft.ApplicationInsights.Authentication.Tests
             Assert.AreEqual(token, tokenFromReflection);
         }
 
+        /// <summary>
+        /// This test verifies that both <see cref="TokenCredentialEnvelope"/> and <see cref="ReflectionCredentialEnvelope"/> return identical tokens.
+        /// This test can only run in frameworks that support both types.
+        /// </summary>
         [TestMethod]
         public async Task VerifyCanGetTokenStringAsync()
         {
