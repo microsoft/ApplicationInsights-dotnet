@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Authentication.Tests
+﻿namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementation.Authentication
 {
     using System;
     using System.Threading;
