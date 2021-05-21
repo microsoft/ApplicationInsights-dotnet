@@ -37,6 +37,12 @@
         /// <remarks>This returns a string without using the Uri for validation because the consuming method needs to do a string replace.</remarks>
         internal string FormattedApplicationIdEndpoint => this.Ingestion.AbsoluteUri + "api/profiles/{0}/appId";
 
+        /// <summary>
+        /// Get the Ingestion Endpoint, depending on if AAD is in use.
+        /// This can be removed after we fully transition no the newer Ingestion API.
+        /// </summary>
+        /// <param name="enableAAD">Boolean to indicate which ingestion service to use.</param>
+        /// <returns>Fully formatted endpoint for the ingestion service.</returns>
         internal string GetFormattedIngestionEndpoint(bool enableAAD) => enableAAD ? this.FormattedIngestionAADEndpoint : this.FormattedIngestionEndpoint;
     }
 }

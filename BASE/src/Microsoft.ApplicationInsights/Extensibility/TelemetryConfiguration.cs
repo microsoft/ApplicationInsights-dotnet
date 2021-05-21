@@ -94,7 +94,8 @@
         {
             this.instrumentationKey = instrumentationKey ?? throw new ArgumentNullException(nameof(instrumentationKey));
 
-            SetTelemetryChannelEndpoint(channel, this.EndpointContainer.FormattedIngestionEndpoint, force: true);
+            var ingestionEndpoint = this.EndpointContainer.GetFormattedIngestionEndpoint(enableAAD: this.CredentialEnvelope == null);
+            SetTelemetryChannelEndpoint(channel, ingestionEndpoint, force: true);
             var defaultSink = new TelemetrySink(this, channel);
             defaultSink.Name = "default";
             this.telemetrySinks.Add(defaultSink);
@@ -241,7 +242,8 @@
                 if (!this.isDisposed)
                 {
                     this.telemetrySinks.DefaultSink.TelemetryChannel = value;
-                    SetTelemetryChannelEndpoint(this.telemetrySinks.DefaultSink.TelemetryChannel, this.EndpointContainer.FormattedIngestionEndpoint);
+                    var ingestionEndpoint = this.EndpointContainer.GetFormattedIngestionEndpoint(enableAAD: this.CredentialEnvelope == null);
+                    SetTelemetryChannelEndpoint(this.telemetrySinks.DefaultSink.TelemetryChannel, ingestionEndpoint);
                     SetTelemetryChannelCredentialEnvelope(value, this.CredentialEnvelope);
                 }
             }
@@ -298,10 +300,8 @@
                     this.EndpointContainer = new EndpointContainer(endpointProvider);
 
                     // UPDATE TELEMETRY CHANNEL
-                    foreach (var tSink in this.TelemetrySinks)
-                    {
-                        SetTelemetryChannelEndpoint(tSink.TelemetryChannel, this.EndpointContainer.FormattedIngestionEndpoint, force: true);
-                    }
+                    var ingestionEndpoint = this.EndpointContainer.GetFormattedIngestionEndpoint(enableAAD: this.CredentialEnvelope == null);
+                    this.SetTelemetryChannelEndpoint(ingestionEndpoint);
 
                     // UPDATE APPLICATION ID PROVIDER
                     SetApplicationIdEndpoint(this.ApplicationIdProvider, this.EndpointContainer.FormattedApplicationIdEndpoint, force: true);
@@ -415,12 +415,20 @@
         {
             this.CredentialEnvelope = new TokenCredentialEnvelope(tokenCredential);
             this.SetTelemetryChannelCredentialEnvelope();
+
+            // Update Ingestion Endpoint.
+            var ingestionEndpoint = this.EndpointContainer.GetFormattedIngestionEndpoint(enableAAD: true);
+            this.SetTelemetryChannelEndpoint(ingestionEndpoint);
     }
 #else
         public void SetCredential(object tokenCredential)
         {
             this.CredentialEnvelope = new ReflectionCredentialEnvelope(tokenCredential);
             this.SetTelemetryChannelCredentialEnvelope();
+
+            // Update Ingestion Endpoint.
+            var ingestionEndpoint = this.EndpointContainer.GetFormattedIngestionEndpoint(enableAAD: true);
+            this.SetTelemetryChannelEndpoint(ingestionEndpoint);
         }
 #endif
 
@@ -513,6 +521,14 @@
             foreach (var tSink in this.TelemetrySinks)
             {
                 SetTelemetryChannelCredentialEnvelope(tSink.TelemetryChannel, this.CredentialEnvelope);
+            }
+        }
+
+        private void SetTelemetryChannelEndpoint(string ingestionEndpoint)
+        {
+            foreach (var tSink in this.TelemetrySinks)
+            {
+                SetTelemetryChannelEndpoint(tSink.TelemetryChannel, ingestionEndpoint, force: true);
             }
         }
 
