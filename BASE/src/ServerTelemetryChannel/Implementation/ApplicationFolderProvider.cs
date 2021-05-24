@@ -119,7 +119,7 @@
 
         internal static bool IsWindowsOperatingSystem()
         {
-#if NET452
+#if NET452 || NET462
             return true;
 #else
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

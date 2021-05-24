@@ -84,7 +84,7 @@
         /// <returns>a string representing the version of the current .NET framework.</returns>
         private static string GetRuntimeFrameworkVer()
         {
-#if NET452 || NET46
+#if NET452 || NET46 || NET462
             Assembly assembly = typeof(Object).GetTypeInfo().Assembly;
             AssemblyFileVersionAttribute objectAssemblyFileVer =
                         assembly.GetCustomAttributes(typeof(AssemblyFileVersionAttribute))
@@ -109,6 +109,8 @@
             return "net452";
 #elif NET46
             return "net46";
+#elif NET462
+            return "net462";
 #elif NETSTANDARD2_0
             return "netstandard2.0";
 #else
@@ -127,7 +129,7 @@
         private static string GetRuntimeOsType()
         {
             string osValue = "unknown";
-#if NET452 || NET46
+#if NET452 || NET46 || NET462
 
             osValue = Environment.OSVersion.Platform.ToString();
 

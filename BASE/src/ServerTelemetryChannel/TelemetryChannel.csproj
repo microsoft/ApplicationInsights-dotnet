@@ -4,7 +4,7 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel</RootNamespace>
     <AssemblyName>Microsoft.AI.ServerTelemetryChannel</AssemblyName>
-    <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net452;net462;netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
@@ -19,7 +19,7 @@
     <ProjectReference Include="..\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452' Or '$(TargetFramework)' == 'net462'">
     <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
