@@ -100,10 +100,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
                 config = configBuilder.Build();
             }
 
-#if NET46
-            // In NET46, we don't read from default configuration or bind configuration. 
-            services.AddApplicationInsightsTelemetry(config);
-#else
             if (useDefaultConfig)
             {
                 services.AddSingleton<IConfiguration>(config);
@@ -113,7 +109,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
             {
                 services.AddApplicationInsightsTelemetry(config);
             }
-#endif
 
             servicesConfig?.Invoke(services);
 
@@ -135,12 +130,11 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         /// Enabling this will copy the AspNetCore config to the TC.Active static instance.
         /// </summary>
         [Theory]
-#if !NETFRAMEWORK
+
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
         [InlineData("SuppliedConfiguration", false)]
-#endif
         [InlineData("Code", true)]
         [InlineData("Code", false)]
         public static void UserCanEnableAndDisableTelemetryConfigurationActive(string configType, bool isEnable)
@@ -190,12 +184,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         /// User could enable or disable PerformanceCounterCollectionModule by setting EnablePerformanceCounterCollectionModule.
         /// </summary>
         [Theory]
-#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
         [InlineData("SuppliedConfiguration", false)]
-#endif
         [InlineData("Code", true)]
         [InlineData("Code", false)]
         public static void UserCanEnableAndDisablePerfCollectorModule(string configType, bool isEnable)
@@ -234,12 +226,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         /// User could enable or disable DependencyTrackingTelemetryModule by setting EnableDependencyTrackingTelemetryModule.
         /// </summary>
         [Theory]
-#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
         [InlineData("SuppliedConfiguration", false)]
-#endif
         [InlineData("Code", true)]
         [InlineData("Code", false)]
         public static void UserCanEnableAndDisableDependencyCollectorModule(string configType, bool isEnable)
@@ -255,12 +245,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         /// User could enable or disable QuickPulseCollectorModule by setting EnableQuickPulseMetricStream.
         /// </summary>
         [Theory]
-#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
         [InlineData("SuppliedConfiguration", false)]
-#endif
         [InlineData("Code", true)]
         [InlineData("Code", false)]
         public static void UserCanEnableAndDisableQuickPulseCollectorModule(string configType, bool isEnable)
@@ -276,12 +264,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         /// User could enable or disable AzureInstanceMetadataModule by setting EnableAzureInstanceMetadataTelemetryModule.
         /// </summary>
         [Theory]
-#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
         [InlineData("SuppliedConfiguration", false)]
-#endif
         [InlineData("Code", true)]
         [InlineData("Code", false)]
         public static void UserCanEnableAndDisableAzureInstanceMetadataModule(string configType, bool isEnable)
@@ -297,12 +283,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         /// User could enable or disable RequestTrackingTelemetryModule by setting EnableRequestTrackingTelemetryModule.
         /// </summary>
         [Theory]
-#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
         [InlineData("SuppliedConfiguration", false)]
-#endif
         [InlineData("Code", true)]
         [InlineData("Code", false)]
         public static void UserCanEnableAndDisableRequestCounterCollectorModule(string configType, bool isEnable)
@@ -318,12 +302,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         /// User could enable or disable AppServiceHeartbeatModule by setting EnableAppServicesHeartbeatTelemetryModule.
         /// </summary>
         [Theory]
-#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
         [InlineData("SuppliedConfiguration", false)]
-#endif
         [InlineData("Code", true)]
         [InlineData("Code", false)]
         public static void UserCanEnableAndDisableAppServiceHeartbeatModule(string configType, bool isEnable)
@@ -339,12 +321,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         /// User could enable or disable <see cref="DiagnosticsTelemetryModule"/> by setting <see cref="ApplicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule"/>.
         /// </summary>
         [Theory]
-#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
         [InlineData("SuppliedConfiguration", false)]
-#endif
         [InlineData("Code", true)]
         [InlineData("Code", false)]
         public static void UserCanEnableAndDisableDiagnosticsTelemetryModule(string configType, bool isEnable)

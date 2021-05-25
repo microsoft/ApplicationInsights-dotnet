@@ -101,9 +101,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// Else, it invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
         /// </param>
         [Theory]
-#if !NETFRAMEWORK
-        [InlineData(true)]
-#endif
         [InlineData(false)]
         public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromConfiguration(bool useDefaultConfig)
         {
@@ -214,9 +211,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// Else, it invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
         /// </param>
         [Theory]
-#if !NETFRAMEWORK
-        [InlineData(true)]
-#endif
         [InlineData(false)]
         public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromConfiguration(bool useDefaultConfig)
         {
@@ -697,12 +691,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// </param>
         /// <param name="isEnable">Sets the value for property EnableLegacyCorrelationHeadersInjection.</param>
         [Theory]
-#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
         [InlineData("SuppliedConfiguration", false)]
-#endif
         [InlineData("Code", true)]
         [InlineData("Code", false)]
         public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesDependencyCollectorWithCustomValues(string configType, bool isEnable)
@@ -1020,11 +1012,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                                                                                                             == typeof(RequestTrackingTelemetryModule));
 
             Assert.True(requestTrackingModule.CollectionOptions.InjectResponseHeaders);
-//#if NETCOREAPP || NET461 //todo: what was the intent here?
             Assert.False(requestTrackingModule.CollectionOptions.TrackExceptions);
-//#else
-//                Assert.True(requestTrackingModule.CollectionOptions.TrackExceptions);
-//#endif
         }
 
         /// <summary>
@@ -1039,12 +1027,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// </param>
         /// <param name="isEnable">Sets the value for property InjectResponseHeaders, TrackExceptions and EnableW3CDistributedTracing.</param>
         [Theory]
-#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
         [InlineData("SuppliedConfiguration", false)]
-#endif
         [InlineData("Code", true)]
         [InlineData("Code", false)]
         public static void ConfigureRequestTrackingTelemetryCustomOptions(string configType, bool isEnable)
@@ -1141,12 +1127,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// </param>
         /// <param name="isEnable">Sets the value for property EnableAdaptiveSampling.</param>
         [Theory]
-#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
         [InlineData("SuppliedConfiguration", false)]
-#endif
         [InlineData("Code", true)]
         [InlineData("Code", false)]
         public static void DoesNotAddSamplingToConfigurationIfExplicitlyControlledThroughParameter(string configType, bool isEnable)
@@ -1357,12 +1341,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// </param>
         /// <param name="isEnable">Sets the value for property AddAutoCollectedMetricExtractor.</param>
         [Theory]
-#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
         [InlineData("SuppliedConfiguration", false)]
-#endif
         [InlineData("Code", true)]
         [InlineData("Code", false)]
         public static void DoesNotAddAutoCollectedMetricsExtractorToConfigurationIfExplicitlyControlledThroughParameter(string configType, bool isEnable)
@@ -1410,12 +1392,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// </param>
         /// <param name="isEnable">Sets the value for property EnableAuthenticationTrackingJavaScript.</param>
         [Theory]
-#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
         [InlineData("SuppliedConfiguration", false)]
-#endif
         [InlineData("Code", true)]
         [InlineData("Code", false)]
         public static void UserCanEnableAndDisableAuthenticationTrackingJavaScript(string configType, bool isEnable)
@@ -1530,8 +1510,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             loggerProvider.AddApplicationInsights(serviceProvider, (s, level) => true, null);
         }
 
-//#if NETCOREAPP || NET461 //TODO: WHAT WAS THE INTENT HERE?
-
         /// <summary>
         /// Creates two copies of ApplicationInsightsServiceOptions. First object is created by calling services.AddApplicationInsightsTelemetry() or services.AddApplicationInsightsTelemetry(config).
         /// Second object is created directly from configuration file without using any of SDK functionality.
@@ -1557,11 +1535,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             // ACT
             var services = CreateServicesAndAddApplicationinsightsTelemetry(
-                jsonPath: readFromAppSettings ? null : Path.Combine("content", fileName),
-                channelEndPointAddress: null, 
-                serviceOptions: null,
-                addChannel: true, 
-                useDefaultConfig: useDefaultConfig);
+                readFromAppSettings ? null : Path.Combine("content", fileName),
+                null, null, true, useDefaultConfig);
 
             // VALIDATE
 
@@ -1688,16 +1663,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             var filePath = Path.Combine(Directory.GetCurrentDirectory(), "content", "config-instrumentation-key.json");
-            Assert.True(File.Exists(filePath), "Sanity check, confirm that file exists.");
 
             // ACT
             // Calls services.AddApplicationInsightsTelemetry(), which by default reads from appSettings.json
-            var services = CreateServicesAndAddApplicationinsightsTelemetry(
-                jsonPath: filePath,
-                channelEndPointAddress: null,
-                serviceOptions: null,
-                addChannel: true,
-                useDefaultConfig: true);
+            var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, null, true, true);
 
             // VALIDATE
             IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -1732,6 +1701,5 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             Assert.Equal(appSettingsConfig["ApplicationInsights:InstrumentationKey"], telemetryConfiguration.InstrumentationKey);
         }
-//#endif
     }
 }
