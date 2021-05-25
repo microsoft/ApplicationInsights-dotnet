@@ -119,7 +119,7 @@
 
         internal static bool IsWindowsOperatingSystem()
         {
-#if NET452 || NET462
+#if NETFRAMEWORK
             return true;
 #else
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -262,7 +262,7 @@
         {
             string baseDirectory = string.Empty;
 
-#if !NETSTANDARD
+#if NETFRAMEWORK
             baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 #else
             baseDirectory = AppContext.BaseDirectory;
