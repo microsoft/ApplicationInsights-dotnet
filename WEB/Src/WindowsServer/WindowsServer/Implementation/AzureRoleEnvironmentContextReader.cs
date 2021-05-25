@@ -1,4 +1,4 @@
-﻿#if NET452
+﻿#if NET452 || NET462
 namespace Microsoft.ApplicationInsights.WindowsServer.Implementation
 {
     using System;

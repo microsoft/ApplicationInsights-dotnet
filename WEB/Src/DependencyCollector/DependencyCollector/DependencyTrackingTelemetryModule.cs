@@ -24,7 +24,7 @@
     {
         private readonly object lockObject = new object();
 
-#if NET452
+#if NET452 || NET462
         private HttpDesktopDiagnosticSourceListener httpDesktopDiagnosticSourceListener;
         private FrameworkHttpEventListener httpEventListener;
         private FrameworkSqlEventListener sqlEventListener;

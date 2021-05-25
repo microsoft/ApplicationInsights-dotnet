@@ -74,7 +74,7 @@
             return true;
         }
 
-#if NET452
+#if NET452 || NET462
         public static IPerformanceCollector GetPerformanceCollector()
         {
             IPerformanceCollector collector;

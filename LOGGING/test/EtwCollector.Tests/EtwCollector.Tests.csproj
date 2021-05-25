@@ -3,7 +3,7 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.EtwCollector.Tests</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.EtwCollector.Tests</AssemblyName>
-    <TargetFrameworks>net46</TargetFrameworks>
+    <TargetFrameworks>net46;net462</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
