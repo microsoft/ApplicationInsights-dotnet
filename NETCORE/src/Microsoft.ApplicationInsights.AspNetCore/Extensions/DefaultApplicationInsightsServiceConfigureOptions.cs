@@ -37,6 +37,7 @@
             {
                 configBuilder.AddConfiguration(this.userConfiguration);
             }
+
             configBuilder.AddJsonFile("appsettings.json", true)
                          .AddJsonFile(string.Format(CultureInfo.InvariantCulture, "appsettings.{0}.json", this.hostingEnvironment.EnvironmentName), true)
                          .AddEnvironmentVariables();
