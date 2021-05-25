@@ -59,10 +59,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 config = new ConfigurationBuilder().Build();
             }
 
-#if NET46
-            // In NET46, we don't read from default configuration or bind configuration. 
-            services.AddApplicationInsightsTelemetry(config);
-#else
+
             if (useDefaultConfig)
             {
                 services.AddSingleton<IConfiguration>(config);
@@ -72,7 +69,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             {
                 services.AddApplicationInsightsTelemetry(config);
             }
-#endif
+
             if (serviceOptions != null)
             {
                 services.Configure(serviceOptions);
