@@ -150,9 +150,9 @@
 
                     // NetStandard2.0 has a package reference to Microsoft.Extensions.Logging.ApplicationInsights, and
                     // enables ApplicationInsightsLoggerProvider by default.
-#if NETSTANDARD2_0 || NET461
+//#if NETSTANDARD2_0 || NET461
                     AddApplicationInsightsLoggerProvider(services);
-#endif
+//#endif
                 }
 
                 return services;

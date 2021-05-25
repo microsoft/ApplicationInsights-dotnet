@@ -1020,11 +1020,11 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                                                                                                             == typeof(RequestTrackingTelemetryModule));
 
             Assert.True(requestTrackingModule.CollectionOptions.InjectResponseHeaders);
-#if NETCOREAPP || NET461
+//#if NETCOREAPP || NET461 //todo: what was the intent here?
             Assert.False(requestTrackingModule.CollectionOptions.TrackExceptions);
-#else
-                Assert.True(requestTrackingModule.CollectionOptions.TrackExceptions);
-#endif
+//#else
+//                Assert.True(requestTrackingModule.CollectionOptions.TrackExceptions);
+//#endif
         }
 
         /// <summary>
@@ -1530,7 +1530,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             loggerProvider.AddApplicationInsights(serviceProvider, (s, level) => true, null);
         }
 
-#if NETCOREAPP || NET461 //TODO: WHAT WAS THE INTENT HERE?
+//#if NETCOREAPP || NET461 //TODO: WHAT WAS THE INTENT HERE?
 
         /// <summary>
         /// Creates two copies of ApplicationInsightsServiceOptions. First object is created by calling services.AddApplicationInsightsTelemetry() or services.AddApplicationInsightsTelemetry(config).
@@ -1557,8 +1557,11 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             // ACT
             var services = CreateServicesAndAddApplicationinsightsTelemetry(
-                readFromAppSettings ? null : Path.Combine("content", fileName),
-                null, null, true, useDefaultConfig);
+                jsonPath: readFromAppSettings ? null : Path.Combine("content", fileName),
+                channelEndPointAddress: null, 
+                serviceOptions: null,
+                addChannel: true, 
+                useDefaultConfig: useDefaultConfig);
 
             // VALIDATE
 
@@ -1685,10 +1688,16 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         {
             // ARRANGE
             var filePath = Path.Combine(Directory.GetCurrentDirectory(), "content", "config-instrumentation-key.json");
+            Assert.True(File.Exists(filePath), "Sanity check, confirm that file exists.");
 
             // ACT
             // Calls services.AddApplicationInsightsTelemetry(), which by default reads from appSettings.json
-            var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, null, true, true);
+            var services = CreateServicesAndAddApplicationinsightsTelemetry(
+                jsonPath: filePath,
+                channelEndPointAddress: null,
+                serviceOptions: null,
+                addChannel: true,
+                useDefaultConfig: true);
 
             // VALIDATE
             IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -1723,6 +1732,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             Assert.Equal(appSettingsConfig["ApplicationInsights:InstrumentationKey"], telemetryConfiguration.InstrumentationKey);
         }
-#endif
+//#endif
     }
 }
