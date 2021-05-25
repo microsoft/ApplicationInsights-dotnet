@@ -217,7 +217,7 @@
             Assert.AreEqual(expectedEventId.ToString(InvariantCulture), telemetry.Properties["EventId"]);
         }
 
-#if NET452
+#if NETFRAMEWORK
         [TestMethod]
         [TestCategory("TraceListener")]
         public void TraceListenerSendsResumeAsVerbose()
@@ -357,7 +357,7 @@
             source.TraceInformation("TestMessage");
         }
 
-#if NET452
+#if NETFRAMEWORK
         [TestMethod]
         public void TraceEventDoesNotStoreLogicalOperationStackInTelemetryPropertiesBecauseLongValuesAreRejected()
         {
@@ -420,7 +420,7 @@
             {
                 listener.TraceOutputOptions = options;
                 TraceEventCache traceEventCache = new TraceEventCache();
-#if NET452
+#if NETFRAMEWORK
                 PrivateObject privateObject = new PrivateObject(traceEventCache);
                 privateObject.SetField("timeStamp", DateTime.Now.Ticks);
                 privateObject.SetField("stackTrace", "Environment.StackTrace");

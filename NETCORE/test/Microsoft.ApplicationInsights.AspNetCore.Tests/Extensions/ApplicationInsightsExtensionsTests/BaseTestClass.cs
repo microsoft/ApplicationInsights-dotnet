@@ -59,7 +59,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 config = new ConfigurationBuilder().Build();
             }
 
-#if NET46
+#if NETFRAMEWORK
             // In NET46, we don't read from default configuration or bind configuration. 
             services.AddApplicationInsightsTelemetry(config);
 #else
