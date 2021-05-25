@@ -135,7 +135,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         /// Enabling this will copy the AspNetCore config to the TC.Active static instance.
         /// </summary>
         [Theory]
-#if !NET46
+#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
@@ -190,7 +190,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         /// User could enable or disable PerformanceCounterCollectionModule by setting EnablePerformanceCounterCollectionModule.
         /// </summary>
         [Theory]
-#if !NET46
+#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
@@ -234,7 +234,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         /// User could enable or disable DependencyTrackingTelemetryModule by setting EnableDependencyTrackingTelemetryModule.
         /// </summary>
         [Theory]
-#if !NET46
+#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
@@ -255,7 +255,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         /// User could enable or disable QuickPulseCollectorModule by setting EnableQuickPulseMetricStream.
         /// </summary>
         [Theory]
-#if !NET46
+#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
@@ -276,7 +276,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         /// User could enable or disable AzureInstanceMetadataModule by setting EnableAzureInstanceMetadataTelemetryModule.
         /// </summary>
         [Theory]
-#if !NET46
+#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
@@ -297,7 +297,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         /// User could enable or disable RequestTrackingTelemetryModule by setting EnableRequestTrackingTelemetryModule.
         /// </summary>
         [Theory]
-#if !NET46
+#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
@@ -318,7 +318,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         /// User could enable or disable AppServiceHeartbeatModule by setting EnableAppServicesHeartbeatTelemetryModule.
         /// </summary>
         [Theory]
-#if !NET46
+#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
@@ -339,7 +339,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         /// User could enable or disable <see cref="DiagnosticsTelemetryModule"/> by setting <see cref="ApplicationInsightsServiceOptions.EnableDiagnosticsTelemetryModule"/>.
         /// </summary>
         [Theory]
-#if !NET46
+#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]

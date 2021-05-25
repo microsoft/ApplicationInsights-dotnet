@@ -101,7 +101,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// Else, it invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
         /// </param>
         [Theory]
-#if !NET46
+#if !NETFRAMEWORK
         [InlineData(true)]
 #endif
         [InlineData(false)]
@@ -214,7 +214,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// Else, it invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
         /// </param>
         [Theory]
-#if !NET46
+#if !NETFRAMEWORK
         [InlineData(true)]
 #endif
         [InlineData(false)]
@@ -697,7 +697,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// </param>
         /// <param name="isEnable">Sets the value for property EnableLegacyCorrelationHeadersInjection.</param>
         [Theory]
-#if !NET46
+#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
@@ -1039,7 +1039,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// </param>
         /// <param name="isEnable">Sets the value for property InjectResponseHeaders, TrackExceptions and EnableW3CDistributedTracing.</param>
         [Theory]
-#if !NET46
+#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
@@ -1141,7 +1141,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// </param>
         /// <param name="isEnable">Sets the value for property EnableAdaptiveSampling.</param>
         [Theory]
-#if !NET46
+#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
@@ -1357,7 +1357,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// </param>
         /// <param name="isEnable">Sets the value for property AddAutoCollectedMetricExtractor.</param>
         [Theory]
-#if !NET46
+#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
@@ -1410,7 +1410,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// </param>
         /// <param name="isEnable">Sets the value for property EnableAuthenticationTrackingJavaScript.</param>
         [Theory]
-#if !NET46
+#if !NETFRAMEWORK
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
@@ -1530,7 +1530,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             loggerProvider.AddApplicationInsights(serviceProvider, (s, level) => true, null);
         }
 
-#if NETCOREAPP || NET461
+#if NETCOREAPP || NET461 //TODO: WHAT WAS THE INTENT HERE?
 
         /// <summary>
         /// Creates two copies of ApplicationInsightsServiceOptions. First object is created by calling services.AddApplicationInsightsTelemetry() or services.AddApplicationInsightsTelemetry(config).
