@@ -19,10 +19,14 @@
         {
             var initializer = new AspNetCoreEnvironmentTelemetryInitializer(new HostingEnvironment() { EnvironmentName = "Production"});
             var telemetry = new RequestTelemetry();
+#pragma warning disable CS0618 // Type or member is obsolete
             telemetry.Context.Properties.Add("AspNetCoreEnvironment", "Development");
+#pragma warning restore CS0618 // Type or member is obsolete
             initializer.Initialize(telemetry);
 
+#pragma warning disable CS0618 // Type or member is obsolete
             Assert.Equal("Development", telemetry.Context.Properties["AspNetCoreEnvironment"]);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Fact]
@@ -32,7 +36,9 @@
             var telemetry = new RequestTelemetry();
             initializer.Initialize(telemetry);
 
+#pragma warning disable CS0618 // Type or member is obsolete
             Assert.Equal("Production", telemetry.Context.Properties["AspNetCoreEnvironment"]);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
     }
 }

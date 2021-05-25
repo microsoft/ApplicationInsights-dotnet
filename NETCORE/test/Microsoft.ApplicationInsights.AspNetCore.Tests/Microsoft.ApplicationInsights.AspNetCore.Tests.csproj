@@ -3,7 +3,6 @@
 
   <PropertyGroup>
     <VersionPrefix>2.0.0</VersionPrefix>
-    <!--<TargetFrameworks>net461;net462</TargetFrameworks>-->
     <TargetFrameworks>net461;net462;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
     <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
     <DelaySign Condition=" '$(OS)' == 'Windows_NT' ">true</DelaySign>
@@ -24,7 +23,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="xunit" Version="2.4.1" />
-    <!--<DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />-->
+    <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="1.0.3" />
   </ItemGroup>
 

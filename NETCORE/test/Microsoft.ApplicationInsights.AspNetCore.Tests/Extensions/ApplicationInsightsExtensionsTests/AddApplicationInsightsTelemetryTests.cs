@@ -977,8 +977,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             services.AddSingleton<ITelemetryModule, TestTelemetryModule>();
 
             //ACT
+#pragma warning disable CS0618 // Type or member is obsolete
             services.ConfigureTelemetryModule<TestTelemetryModule>
                 (module => module.CustomProperty = "mycustomproperty");
+#pragma warning restore CS0618 // Type or member is obsolete
             services.AddApplicationInsightsTelemetry();
             IServiceProvider serviceProvider = services.BuildServiceProvider();
 
@@ -1045,7 +1047,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 {
                     o.RequestCollectionOptions.InjectResponseHeaders = isEnable;
                     o.RequestCollectionOptions.TrackExceptions = isEnable;
+#pragma warning disable CS0618 // Type or member is obsolete
                     o.RequestCollectionOptions.EnableW3CDistributedTracing = isEnable;
+#pragma warning restore CS0618 // Type or member is obsolete
                 };
                 filePath = null;
             }
@@ -1062,7 +1066,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             Assert.Equal(isEnable, requestTrackingModule.CollectionOptions.InjectResponseHeaders);
             Assert.Equal(isEnable, requestTrackingModule.CollectionOptions.TrackExceptions);
+#pragma warning disable CS0618 // Type or member is obsolete
             Assert.Equal(isEnable, requestTrackingModule.CollectionOptions.EnableW3CDistributedTracing);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Fact]
@@ -1074,7 +1080,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             //ACT and VALIDATE
             Assert.Throws<ArgumentNullException>(() => services.ConfigureTelemetryModule<TestTelemetryModule>((Action<TestTelemetryModule, ApplicationInsightsServiceOptions>)null));
+#pragma warning disable CS0618 // Type or member is obsolete
             Assert.Throws<ArgumentNullException>(() => services.ConfigureTelemetryModule<TestTelemetryModule>((Action<TestTelemetryModule>)null));
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Fact]
@@ -1455,7 +1463,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             IServiceProvider serviceProvider = services.BuildServiceProvider();
             var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
 
+#pragma warning disable CS0618 // Type or member is obsolete
             Assert.DoesNotContain(telemetryConfiguration.TelemetryInitializers, t => t is W3COperationCorrelationTelemetryInitializer);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var modules = serviceProvider.GetServices<ITelemetryModule>().ToList();
 
@@ -1490,8 +1500,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             bool firstLoggerCallback = false;
             bool secondLoggerCallback = false;
 
+#pragma warning disable CS0618 // Type or member is obsolete
             loggerProvider.AddApplicationInsights(serviceProvider, (s, level) => true, () => firstLoggerCallback = true);
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
             loggerProvider.AddApplicationInsights(serviceProvider, (s, level) => true, () => secondLoggerCallback = true);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             Assert.True(firstLoggerCallback);
             Assert.False(secondLoggerCallback);
@@ -1506,8 +1520,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             var loggerProvider = new MockLoggingFactory();
 
+#pragma warning disable CS0618 // Type or member is obsolete
             loggerProvider.AddApplicationInsights(serviceProvider, (s, level) => true, null);
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
             loggerProvider.AddApplicationInsights(serviceProvider, (s, level) => true, null);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         /// <summary>
