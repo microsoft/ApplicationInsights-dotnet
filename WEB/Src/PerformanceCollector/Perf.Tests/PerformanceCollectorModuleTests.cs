@@ -394,7 +394,7 @@
         [TestMethod]
         public void PerformanceCollectorModuleDefaultContainsExpectedCountersNonWindows()
         {
-#if NETCOREAPP2_1 || NETCOREAPP3_1
+#if NETCOREAPP
             PerformanceCounterUtility.isAzureWebApp = null;
             var original = PerformanceCounterUtility.IsWindows;
             PerformanceCounterUtility.IsWindows = false;
@@ -458,7 +458,7 @@
         {
             PerformanceCounterUtility.isAzureWebApp = null;
             var module = new PerformanceCollectorModule();
-#if NETCOREAPP2_1 || NETCOREAPP3_1
+#if NETCOREAPP
             var original = PerformanceCounterUtility.IsWindows;
             PerformanceCounterUtility.IsWindows = true;
 #endif
@@ -490,7 +490,7 @@
             finally
             {
                 module.Dispose();
-#if NETCOREAPP2_1 || NETCOREAPP3_1
+#if NETCOREAPP
             PerformanceCounterUtility.IsWindows = original;
 #endif
             }

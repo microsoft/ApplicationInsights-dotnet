@@ -6,7 +6,7 @@
 #endif
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-#if !NETCOREAPP
+#if NETFRAMEWORK
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 #endif
 

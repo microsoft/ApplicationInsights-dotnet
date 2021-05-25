@@ -2,7 +2,7 @@
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
-#if NET452 || NET462
+#if NETFRAMEWORK
     using System.Diagnostics.Tracing;
 #endif
     using Microsoft.ApplicationInsights.Common;

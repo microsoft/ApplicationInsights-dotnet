@@ -16,7 +16,7 @@
         [TestCleanup]
         public void Cleanup()
         {
-#if NET452 || NET462
+#if NETFRAMEWORK
             while (Activity.Current != null)
             {
                 Activity.Current.Stop();

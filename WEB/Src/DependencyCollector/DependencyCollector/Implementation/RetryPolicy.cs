@@ -1,4 +1,4 @@
-﻿#if NET452 || NET462
+﻿#if NETFRAMEWORK
 namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;

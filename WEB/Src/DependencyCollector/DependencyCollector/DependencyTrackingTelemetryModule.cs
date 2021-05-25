@@ -24,7 +24,7 @@
     {
         private readonly object lockObject = new object();
 
-#if NET452 || NET462
+#if NETFRAMEWORK
         private HttpDesktopDiagnosticSourceListener httpDesktopDiagnosticSourceListener;
         private FrameworkHttpEventListener httpEventListener;
         private FrameworkSqlEventListener sqlEventListener;
@@ -35,7 +35,7 @@
         private SqlClientDiagnosticSourceListener sqlClientDiagnosticSourceListener;
         private AzureSdkDiagnosticListenerSubscriber azureSdkDiagnosticListener;
 
-#if !NETSTANDARD
+#if NETFRAMEWORK
         private ProfilerSqlCommandProcessing sqlCommandProcessing;
         private ProfilerSqlConnectionProcessing sqlConnectionProcessing;
         private ProfilerHttpProcessing httpProcessing;
@@ -132,7 +132,7 @@
                         {
                             this.telemetryConfiguration = configuration;
 
-#if !NETSTANDARD
+#if NETFRAMEWORK
                             // Net40 only supports runtime instrumentation
                             // net452 supports either but not both to avoid duplication
                             this.InitializeForRuntimeInstrumentationOrFramework();
@@ -184,7 +184,7 @@
             }
         }
 
-#if !NETSTANDARD
+#if NETFRAMEWORK
         internal virtual void InitializeForRuntimeProfiler()
         {
             // initialize instrumentation extension
@@ -288,7 +288,7 @@
             }
         }
 
-#if !NETSTANDARD
+#if NETFRAMEWORK
         /// <summary>
         /// Initialize for framework event source (not supported for Net40).
         /// </summary>
