@@ -10,6 +10,8 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using Moq;
+
     /// <summary>
     /// The <see cref="ReflectionCredentialEnvelope"/> cannot take a dependency on <see cref="Azure.Core.TokenCredential"/>.
     /// We must use reflection to interact with this class.
@@ -59,11 +61,61 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
             Assert.AreEqual(requestContext, tokenRequestContextViaReflection);
         }
 
+        [TestMethod]
+        public void VerifyGetToken_UsingCompileTimeTypes()
+        {
+            var mockCredential = new MockCredential();
+            var requestContext = new TokenRequestContext(new string[] { "test/scope" });
+
+            var testResult = ReflectionCredentialEnvelope.AzureCore.InvokeGetToken(mockCredential, requestContext, CancellationToken.None);
+
+            Assert.AreEqual("TEST TOKEN test/scope", testResult);
+        }
+
+        [TestMethod]
+        public async Task VerifyGetTokenAsync_UsingCompileTimeTypes()
+        {
+            var mockCredential = new MockCredential();
+            var requestContext = new TokenRequestContext(new string[] { "test/scope" });
+
+            var testResult = await ReflectionCredentialEnvelope.AzureCore.InvokeGetTokenAsync(mockCredential, requestContext, CancellationToken.None);
+
+            Assert.AreEqual("TEST TOKEN test/scope", testResult);
+        }
+
+        /// <summary>
+        /// This more closely represents how this would be used in a production environment.
+        /// </summary>
+        [TestMethod]
+        public void VerifyGetToken_UsingDynamicTypes()
+        {
+            var mockCredential = (object)new MockCredential();
+            var requestContext = ReflectionCredentialEnvelope.AzureCore.MakeTokenRequestContext(new[] { "test/scope" });
+
+            var testResult = ReflectionCredentialEnvelope.AzureCore.InvokeGetToken(mockCredential, requestContext, CancellationToken.None);
+
+            Assert.AreEqual("TEST TOKEN test/scope", testResult);
+        }
+
+        /// <summary>
+        /// This more closely represents how this would be used in a production environment.
+        /// </summary>
+        [TestMethod]
+        public async Task VerifyGetTokenAsync_UsingDynamicTypes()
+        {
+            var mockCredential = (object)new MockCredential();
+            var requestContext = ReflectionCredentialEnvelope.AzureCore.MakeTokenRequestContext(new[] { "test/scope" });
+
+            var testResult = await ReflectionCredentialEnvelope.AzureCore.InvokeGetTokenAsync(mockCredential, requestContext, CancellationToken.None);
+
+            Assert.AreEqual("TEST TOKEN test/scope", testResult);
+        }
+
         /// <summary>
         /// This test verifies that both <see cref="Azure.Core"/> and <see cref="ReflectionCredentialEnvelope"/> return identical tokens.
         /// </summary>
         [TestMethod]
-        public void VerifyCanGetToken()
+        public void VerifyGetToken_ReturnsValidToken()
         {
             var requestContext = new TokenRequestContext(scopes: CredentialConstants.GetScopes());
             var mockCredential = new MockCredential();
@@ -79,7 +131,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         /// This test verifies that both <see cref="Azure.Core"/> and <see cref="ReflectionCredentialEnvelope"/> return identical tokens.
         /// </summary>
         [TestMethod]
-        public async Task VerifyCanGetTokenAsync()
+        public async Task VerifyGetTokenAsync_ReturnsValidToken()
         {
             var requestContext = new TokenRequestContext(scopes: CredentialConstants.GetScopes());
             var mockCredential = new MockCredential();
@@ -92,57 +144,30 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         }
 
         [TestMethod]
-        public void VerifyGetToken_AsLambdaExpression_UsingCompileTimeTypes()
+        public void VerifyGetToken_IfCredentialThrowsException_EnvelopeReturnsNull()
         {
-            var mockCredential = new MockCredential();
-            var requestContext = new TokenRequestContext(new string[] { "test/scope" });
+            Mock<TokenCredential> mockTokenCredential = new Mock<TokenCredential>();
+            mockTokenCredential.Setup(x => x.GetToken(It.IsAny<TokenRequestContext>(), It.IsAny<CancellationToken>())).Throws(new NotImplementedException());
+            var mockCredential = mockTokenCredential.Object;
 
-            var testResult = ReflectionCredentialEnvelope.AzureCore.InvokeGetToken(mockCredential, requestContext, CancellationToken.None);
-
-            Assert.AreEqual("TEST TOKEN test/scope", testResult);
+            var reflectionCredentialEnvelope = new ReflectionCredentialEnvelope(mockCredential);
+            var token = reflectionCredentialEnvelope.GetToken();
+            Assert.IsNull(token);
         }
-
-        /// <summary>
-        /// This more closely represents how this would be used in a production environment.
-        /// </summary>
+        
         [TestMethod]
-        public void VerifyGetToken_AsLambdaExpression_UsingDynamicTypes()
+        public async Task VerifyGetTokenAsync_IfCredentialThrowsException_EnvelopeReturnsNull()
         {
-            var mockCredential = (object)new MockCredential();
-            var requestContext = ReflectionCredentialEnvelope.AzureCore.MakeTokenRequestContext(new[] { "test/scope" });
+            Mock<TokenCredential> mockTokenCredential = new Mock<TokenCredential>();
+            mockTokenCredential.Setup(x => x.GetTokenAsync(It.IsAny<TokenRequestContext>(), It.IsAny<CancellationToken>())).Throws(new NotImplementedException());
+            var mockCredential = mockTokenCredential.Object;
 
-            var testResult = ReflectionCredentialEnvelope.AzureCore.InvokeGetToken(mockCredential, requestContext, CancellationToken.None);
-
-            Assert.AreEqual("TEST TOKEN test/scope", testResult);
+            var reflectionCredentialEnvelope = new ReflectionCredentialEnvelope(mockCredential);
+            var token = await reflectionCredentialEnvelope.GetTokenAsync();
+            Assert.IsNull(token);
         }
 
-
-        [TestMethod]
-        public async Task VerifyGetTokenAsync_AsLambdaExpression_UsingCompileTimeTypes()
-        {
-            var mockCredential = new MockCredential();
-            var requestContext = new TokenRequestContext(new string[] { "test/scope" });
-
-            var testResult = await ReflectionCredentialEnvelope.AzureCore.InvokeGetTokenAsync(mockCredential, requestContext, CancellationToken.None);
-
-            Assert.AreEqual("TEST TOKEN test/scope", testResult);
-        }
-
-        /// <summary>
-        /// This more closely represents how this would be used in a production environment.
-        /// </summary>
-        [TestMethod]
-        public async Task VerifyGetTokenAsync_AsLambdaExpression_UsingDynamicTypes()
-        {
-            var mockCredential = (object)new MockCredential();
-            var requestContext = ReflectionCredentialEnvelope.AzureCore.MakeTokenRequestContext(new[] { "test/scope" });
-
-            var testResult = await ReflectionCredentialEnvelope.AzureCore.InvokeGetTokenAsync(mockCredential, requestContext, CancellationToken.None);
-
-            Assert.AreEqual("TEST TOKEN test/scope", testResult);
-        }
-
-        #region TestClasses
+#region TestClasses
         private class TestClass1 : Azure.Core.TokenCredential
         {
             public override AccessToken GetToken(TokenRequestContext requestContext, CancellationToken cancellationToken)
@@ -179,7 +204,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         }
 
         private class NotTokenCredential2 : NotTokenCredential1 { }
-        #endregion
+#endregion
     }
 }
 #endif

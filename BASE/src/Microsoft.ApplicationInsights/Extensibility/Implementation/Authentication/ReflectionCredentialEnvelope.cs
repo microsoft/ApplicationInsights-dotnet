@@ -5,6 +5,8 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+
     /// <summary>
     /// This is an envelope for an instance of Azure.Core.TokenCredential.
     /// This class uses reflection to interact with the Azure.Core library.
@@ -13,7 +15,7 @@
     /// Our SDK currently targets net452, net46, and netstandard2.0.
     /// Azure.Core.TokenCredential is only available for netstandard2.0.
     /// </remarks>
-    internal class ReflectionCredentialEnvelope
+    internal class ReflectionCredentialEnvelope : ICredentialEnvelope
     {
         private readonly object tokenCredential;
         private readonly object tokenRequestContext;
@@ -37,7 +39,7 @@
         }
 
         /// <summary>
-        /// Gets the TokenCredential object held by this class.
+        /// Gets the TokenCredential instance held by this class.
         /// </summary>
         public object Credential => this.tokenCredential;
 
@@ -48,7 +50,20 @@
         /// <returns>A valid Azure.Core.AccessToken.</returns>
         public string GetToken(CancellationToken cancellationToken = default)
         {
-            return AzureCore.InvokeGetToken(this.tokenCredential, this.tokenRequestContext, cancellationToken);
+            SdkInternalOperationsMonitor.Enter();
+            try
+            {
+                return AzureCore.InvokeGetToken(this.tokenCredential, this.tokenRequestContext, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                CoreEventSource.Log.FailedToGetToken(ex.ToInvariantString());
+                return null;
+            }
+            finally
+            {
+                SdkInternalOperationsMonitor.Exit();
+            }
         }
 
         /// <summary>
@@ -56,9 +71,22 @@
         /// </summary>
         /// <param name="cancellationToken">The System.Threading.CancellationToken to use.</param>
         /// <returns>A valid Azure.Core.AccessToken.</returns>
-        public Task<string> GetTokenAsync(CancellationToken cancellationToken = default)
+        public async Task<string> GetTokenAsync(CancellationToken cancellationToken = default)
         {
-            return AzureCore.InvokeGetTokenAsync(this.tokenCredential, this.tokenRequestContext, cancellationToken);
+            SdkInternalOperationsMonitor.Enter();
+            try
+            {
+                return await AzureCore.InvokeGetTokenAsync(this.tokenCredential, this.tokenRequestContext, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                CoreEventSource.Log.FailedToGetToken(ex.ToInvariantString());
+                return null;
+            }
+            finally
+            {
+                SdkInternalOperationsMonitor.Exit();
+            }
         }
 
         /// <summary>
