@@ -13,7 +13,7 @@
     /// Our SDK currently targets net452, net46, and netstandard2.0.
     /// Azure.Core.TokenCredential is only available for netstandard2.0.
     /// </remarks>
-    internal class ReflectionCredentialEnvelope
+    internal class ReflectionCredentialEnvelope : ICredentialEnvelope
     {
         private readonly object tokenCredential;
         private readonly object tokenRequestContext;
@@ -37,7 +37,7 @@
         }
 
         /// <summary>
-        /// Gets the TokenCredential object held by this class.
+        /// Gets the TokenCredential instance held by this class.
         /// </summary>
         public object Credential => this.tokenCredential;
 
