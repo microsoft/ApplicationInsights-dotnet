@@ -338,7 +338,7 @@
         /// <summary>
         /// Gets an envelope for Azure.Core.TokenCredential which provides an AAD Authenticated token.
         /// </summary>
-        internal CredentialEnvelope CredentialEnvelope { get; private set; }
+        internal ReflectionCredentialEnvelope CredentialEnvelope { get; private set; }
 
         /// <summary>
         /// Gets or sets the chain of processors.
