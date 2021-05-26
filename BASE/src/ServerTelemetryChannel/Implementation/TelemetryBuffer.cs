@@ -34,7 +34,7 @@
                 throw new ArgumentNullException(nameof(serializer));
             }
 
-#if !NETSTANDARD
+#if NETFRAMEWORK
             // We don't have implementation for IApplicationLifecycle for .NET Core
             if (applicationLifecycle == null)
             {

@@ -386,7 +386,7 @@
 
             }
 
-#if NETCOREAPP2_1 || NETCOREAPP3_1
+#if NETCOREAPP
             [TestMethod]
             public async Task SendAsyncLogsIngestionReponseTimeEventCounter()
             {
@@ -425,9 +425,7 @@
                         // Max should be more than 30 ms, as we introduced a delay of 30ms in SendAsync.
 #if NETCOREAPP2_1
                         Assert.IsTrue((float)payload["Max"] >= 30);
-#endif
-
-#if NETCOREAPP3_1
+#elif NETCOREAPP3_1
                         Assert.IsTrue((double)payload["Max"] >= 30);
 #endif
                     }
@@ -474,9 +472,7 @@
                         // Mean should be more than 30 ms, as we introduced a delay of 30ms in SendAsync.
 #if NETCOREAPP2_1
                         Assert.IsTrue((float)payload["Mean"] >= 30);
-#endif
-
-#if NETCOREAPP3_1
+#elif NETCOREAPP3_1
                         Assert.IsTrue((double)payload["Mean"] >= 30);
 #endif
                     }

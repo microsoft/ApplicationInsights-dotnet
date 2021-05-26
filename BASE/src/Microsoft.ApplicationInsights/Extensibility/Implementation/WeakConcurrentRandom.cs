@@ -72,7 +72,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
         public static WeakConcurrentRandom Instance
         {
-#if NET452 || NET46
+#if NETFRAMEWORK
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
             get
