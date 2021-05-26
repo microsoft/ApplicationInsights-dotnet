@@ -1,11 +1,13 @@
-﻿#if NETSTANDARD2_0
-namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication
+﻿#if !NET452 && !NET46
+namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementation.Authentication
 {
     using System;
     using System.Threading;
     using System.Threading.Tasks;
 
     using Azure.Core;
+
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
 
     internal class TokenCredentialEnvelope : CredentialEnvelope
     {

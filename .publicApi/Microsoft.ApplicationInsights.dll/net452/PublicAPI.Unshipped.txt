@@ -1,11 +1,5 @@
-Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope
-Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope.CredentialEnvelope() -> void
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.CredentialEnvelope.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetCredential(object tokenCredential) -> void
-abstract Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope.Credential.get -> object
-abstract Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope.GetToken(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> string
-abstract Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope.GetTokenAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string>
-static Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope.GetScopes() -> string[]
+
 Microsoft.ApplicationInsights.Channel.IAsyncFlushable
 Microsoft.ApplicationInsights.Channel.IAsyncFlushable.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
 Microsoft.ApplicationInsights.Channel.InMemoryChannel.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>

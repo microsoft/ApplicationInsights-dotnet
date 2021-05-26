@@ -7,7 +7,7 @@
     /// <summary>
     /// An envelope for an instance of Azure.Core.TokenCredential.
     /// </summary>
-    public abstract class CredentialEnvelope
+    internal abstract class CredentialEnvelope
     {
         /// <summary>
         /// Source: 

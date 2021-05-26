@@ -23,7 +23,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
             // The Azure.Core.TokenCredential is NOT SUPPORTED in these frameworks, so we cannot run this test.
             // This does not affect the end user because we REQUIRE the end user to create their own instance of TokenCredential.
             // This ensures that the end user is consuming the AI SDK in one of the newer frameworks.
-#elif NET461
+#elif NET461 || NETCOREAPP2_1 || NETCOREAPP3_1 || NET5_0
             var mockCredential = new MockCredential();
 
             var telemetryConfiguration = new TelemetryConfiguration();
@@ -31,17 +31,8 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
 
             Assert.IsInstanceOfType(telemetryConfiguration.CredentialEnvelope, typeof(ReflectionCredentialEnvelope));
             Assert.AreEqual(mockCredential, telemetryConfiguration.CredentialEnvelope.Credential);
-#elif NETCOREAPP2_1 || NETCOREAPP3_1 || NET5_0
-
-            var mockCredential = new MockCredential();
-
-            var telemetryConfiguration = new TelemetryConfiguration();
-            telemetryConfiguration.SetCredential(mockCredential);
-
-            Assert.IsInstanceOfType(telemetryConfiguration.CredentialEnvelope, typeof(TokenCredentialEnvelope));
-            Assert.AreEqual(mockCredential, telemetryConfiguration.CredentialEnvelope.Credential);
 #else
-            throw new NotImplementedException("this is a testing gap");
+#error This framework is a testing gap.
 #endif
         }
 
