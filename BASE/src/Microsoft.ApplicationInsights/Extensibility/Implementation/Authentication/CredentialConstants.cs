@@ -15,7 +15,6 @@
         /// </summary>
         public const string AzureMonitorScope = "https://monitor.azure.com//.default"; // TODO: THIS SCOPE IS UNVERIFIED. WAITING FOR SERVICES TEAM TO PROVIDE AN INT ENVIRONMENT FOR E2E TESTING.
 
-
         /// <summary>
         /// Get scopes for Azure Monitor as an array.
         /// </summary>
