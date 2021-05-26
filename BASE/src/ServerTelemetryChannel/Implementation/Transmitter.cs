@@ -69,7 +69,7 @@
         /// <see cref="ServerTelemetryChannel.CredentialEnvelope"/> sets <see cref="Transmitter.CredentialEnvelope"/> and then sets <see cref="TransmissionSender.CredentialEnvelope"/> 
         /// which is used to set <see cref="Transmission.CredentialEnvelope"/> just before calling <see cref="Transmission.SendAsync"/>.
         /// </remarks>
-        public CredentialEnvelope CredentialEnvelope
+        internal ReflectionCredentialEnvelope CredentialEnvelope
         {
             get => this.Sender.CredentialEnvelope;
             set => this.Sender.CredentialEnvelope = value;

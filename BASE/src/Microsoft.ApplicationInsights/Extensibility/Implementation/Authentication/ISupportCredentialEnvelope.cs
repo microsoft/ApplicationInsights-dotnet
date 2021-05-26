@@ -9,11 +9,11 @@
     /// <summary>
     /// This interface defines a class that accepts the <see cref="CredentialEnvelope"/> as a property.
     /// </summary>
-    public interface ISupportCredentialEnvelope
+    internal interface ISupportCredentialEnvelope
     {
         /// <summary>
         /// Gets or sets the <see cref="CredentialEnvelope"/>.
         /// </summary>
-        CredentialEnvelope CredentialEnvelope { get; set; }
+        ReflectionCredentialEnvelope CredentialEnvelope { get; set; }
     }
 }

@@ -71,7 +71,7 @@ namespace Microsoft.ApplicationInsights.Channel
         /// <see cref="InMemoryChannel.CredentialEnvelope"/> sets <see cref="InMemoryTransmitter.CredentialEnvelope"/> 
         /// which is used to set <see cref="Transmission.CredentialEnvelope"/> just before calling <see cref="Transmission.SendAsync"/>.
         /// </remarks>
-        internal CredentialEnvelope CredentialEnvelope { get; set; }
+        internal ReflectionCredentialEnvelope CredentialEnvelope { get; set; }
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

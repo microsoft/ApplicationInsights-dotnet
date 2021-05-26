@@ -146,8 +146,7 @@
         /// Gets or sets the <see cref="CredentialEnvelope"/>. 
         /// This is used include an AAD token on HTTP Requests sent to ingestion.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public CredentialEnvelope CredentialEnvelope { get; set; }
+        internal ReflectionCredentialEnvelope CredentialEnvelope { get; set; }
 
         /// <summary>
         /// Gets the flush async id for the transmission.

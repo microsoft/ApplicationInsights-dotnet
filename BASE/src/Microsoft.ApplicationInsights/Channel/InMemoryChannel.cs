@@ -103,8 +103,7 @@
         /// <see cref="InMemoryChannel.CredentialEnvelope"/> sets <see cref="InMemoryTransmitter.CredentialEnvelope"/> 
         /// which is used to set <see cref="Transmission.CredentialEnvelope"/> just before calling <see cref="Transmission.SendAsync"/>.
         /// </remarks>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public CredentialEnvelope CredentialEnvelope 
+        ReflectionCredentialEnvelope ISupportCredentialEnvelope.CredentialEnvelope 
         { 
             get => this.transmitter.CredentialEnvelope;
             set => this.transmitter.CredentialEnvelope = value;

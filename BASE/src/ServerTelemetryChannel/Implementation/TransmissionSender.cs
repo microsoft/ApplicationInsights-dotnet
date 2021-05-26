@@ -115,7 +115,7 @@
         /// <see cref="ServerTelemetryChannel.CredentialEnvelope"/> sets <see cref="Transmitter.CredentialEnvelope"/> and then sets <see cref="TransmissionSender.CredentialEnvelope"/> 
         /// which is used to set <see cref="Transmission.CredentialEnvelope"/> just before calling <see cref="Transmission.SendAsync"/>.
         /// </remarks>
-        public CredentialEnvelope CredentialEnvelope { get; set; }
+        internal ReflectionCredentialEnvelope CredentialEnvelope { get; set; }
 
         public virtual bool Enqueue(Func<Transmission> transmissionGetter)
         {

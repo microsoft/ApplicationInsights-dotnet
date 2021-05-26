@@ -252,8 +252,7 @@
         /// <see cref="ServerTelemetryChannel.CredentialEnvelope"/> sets <see cref="Transmitter.CredentialEnvelope"/> and then sets <see cref="TransmissionSender.CredentialEnvelope"/> 
         /// which is used to set <see cref="Transmission.CredentialEnvelope"/> just before calling <see cref="Transmission.SendAsync"/>.
         /// </remarks>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public CredentialEnvelope CredentialEnvelope
+        ReflectionCredentialEnvelope ISupportCredentialEnvelope.CredentialEnvelope
         {
             get => this.Transmitter.CredentialEnvelope;
             set => this.Transmitter.CredentialEnvelope = value;
@@ -373,7 +372,7 @@
                 throw new ArgumentNullException(nameof(configuration));
             }
 
-            this.CredentialEnvelope = configuration.CredentialEnvelope;
+            ((ISupportCredentialEnvelope)this).CredentialEnvelope = configuration.CredentialEnvelope;
 
             this.Transmitter.Initialize();
 
