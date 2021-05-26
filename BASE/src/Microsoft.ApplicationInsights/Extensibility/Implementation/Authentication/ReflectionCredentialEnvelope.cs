@@ -76,7 +76,7 @@
             SdkInternalOperationsMonitor.Enter();
             try
             {
-                return await AzureCore.InvokeGetTokenAsync(this.tokenCredential, this.tokenRequestContext, cancellationToken).ConfigureAwait(true);
+                return await AzureCore.InvokeGetTokenAsync(this.tokenCredential, this.tokenRequestContext, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
