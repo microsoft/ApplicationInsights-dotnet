@@ -496,7 +496,7 @@
             }
         }
 
-        private static void SetTelemetryChannelCredentialEnvelope(ITelemetryChannel telemetryChannel, ReflectionCredentialEnvelope credentialEnvelope)
+        private static void SetTelemetryChannelCredentialEnvelope(ITelemetryChannel telemetryChannel, ICredentialEnvelope credentialEnvelope)
         {
             if (telemetryChannel is ISupportCredentialEnvelope tc)
             {

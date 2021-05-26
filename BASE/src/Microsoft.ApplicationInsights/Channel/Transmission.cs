@@ -143,10 +143,10 @@
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="CredentialEnvelope"/>. 
+        /// Gets or sets the <see cref="ICredentialEnvelope"/>. 
         /// This is used include an AAD token on HTTP Requests sent to ingestion.
         /// </summary>
-        internal ReflectionCredentialEnvelope CredentialEnvelope { get; set; }
+        internal ICredentialEnvelope CredentialEnvelope { get; set; }
 
         /// <summary>
         /// Gets the flush async id for the transmission.

@@ -109,13 +109,13 @@
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="CredentialEnvelope"/> which is used for AAD.
+        /// Gets or sets the <see cref="ICredentialEnvelope"/> which is used for AAD.
         /// </summary>
         /// <remarks>
-        /// <see cref="ISupportCredentialEnvelope.CredentialEnvelope"/> sets <see cref="Transmitter.CredentialEnvelope"/> and then sets <see cref="TransmissionSender.CredentialEnvelope"/> 
+        /// <see cref="ISupportCredentialEnvelope.CredentialEnvelope"/> on <see cref="ServerTelemetryChannel"/> sets <see cref="Transmitter.CredentialEnvelope"/> and then sets <see cref="TransmissionSender.CredentialEnvelope"/> 
         /// which is used to set <see cref="Transmission.CredentialEnvelope"/> just before calling <see cref="Transmission.SendAsync"/>.
         /// </remarks>
-        internal ReflectionCredentialEnvelope CredentialEnvelope { get; set; }
+        internal ICredentialEnvelope CredentialEnvelope { get; set; }
 
         public virtual bool Enqueue(Func<Transmission> transmissionGetter)
         {
