@@ -245,11 +245,11 @@
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="CredentialEnvelope"/> which is used for AAD.
+        /// Gets or sets the <see cref="ReflectionCredentialEnvelope"/> which is used for AAD.
         /// DO NOT SET DIRECTLY. Use <see cref="TelemetryConfiguration.SetCredential"/> instead.
         /// </summary>
         /// <remarks>
-        /// <see cref="ServerTelemetryChannel.CredentialEnvelope"/> sets <see cref="Transmitter.CredentialEnvelope"/> and then sets <see cref="TransmissionSender.CredentialEnvelope"/> 
+        /// <see cref="ISupportCredentialEnvelope.CredentialEnvelope"/> sets <see cref="Transmitter.CredentialEnvelope"/> and then sets <see cref="TransmissionSender.CredentialEnvelope"/> 
         /// which is used to set <see cref="Transmission.CredentialEnvelope"/> just before calling <see cref="Transmission.SendAsync"/>.
         /// </remarks>
         ReflectionCredentialEnvelope ISupportCredentialEnvelope.CredentialEnvelope
