@@ -6,13 +6,14 @@
     using System.Threading.Tasks;
 
     /// <summary>
-    /// This is an implementation of <see cref="CredentialEnvelope"/> that uses reflection to interact with the Azure.Core library.
+    /// This is an envelope for an instance of Azure.Core.TokenCredential.
+    /// This class uses reflection to interact with the Azure.Core library.
     /// </summary>
     /// <remarks>
     /// Our SDK currently targets net452, net46, and netstandard2.0.
     /// Azure.Core.TokenCredential is only available for netstandard2.0.
     /// </remarks>
-    internal class ReflectionCredentialEnvelope : CredentialEnvelope
+    internal class ReflectionCredentialEnvelope
     {
         private readonly object tokenCredential;
         private readonly object tokenRequestContext;
@@ -27,7 +28,7 @@
 
             if (tokenCredential.GetType().IsSubclassOf(Type.GetType("Azure.Core.TokenCredential, Azure.Core")))
             {
-                this.tokenRequestContext = AzureCore.MakeTokenRequestContext(scopes: GetScopes());
+                this.tokenRequestContext = AzureCore.MakeTokenRequestContext(scopes: CredentialConstants.GetScopes());
             }
             else
             {
@@ -35,17 +36,27 @@
             }
         }
 
-        /// <inheritdoc/>
-        public override object Credential => this.tokenCredential;
+        /// <summary>
+        /// Gets the TokenCredential object held by this class.
+        /// </summary>
+        public object Credential => this.tokenCredential;
 
-        /// <inheritdoc/>
-        public override string GetToken(CancellationToken cancellationToken = default)
+        /// <summary>
+        /// Gets an Azure.Core.AccessToken.
+        /// </summary>
+        /// <param name="cancellationToken">The System.Threading.CancellationToken to use.</param>
+        /// <returns>A valid Azure.Core.AccessToken.</returns>
+        public string GetToken(CancellationToken cancellationToken = default)
         {
             return AzureCore.InvokeGetToken(this.tokenCredential, this.tokenRequestContext, cancellationToken);
         }
 
-        /// <inheritdoc/>
-        public override Task<string> GetTokenAsync(CancellationToken cancellationToken = default)
+        /// <summary>
+        /// Gets an Azure.Core.AccessToken.
+        /// </summary>
+        /// <param name="cancellationToken">The System.Threading.CancellationToken to use.</param>
+        /// <returns>A valid Azure.Core.AccessToken.</returns>
+        public Task<string> GetTokenAsync(CancellationToken cancellationToken = default)
         {
             return AzureCore.InvokeGetTokenAsync(this.tokenCredential, this.tokenRequestContext, cancellationToken);
         }

@@ -1,4 +1,4 @@
-﻿#if NET461 || NETCOREAPP2_1 || NETCOREAPP3_1 || NET5_0
+﻿#if !NET452 && !NET46
 namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementation.Authentication
 {
     using System;
@@ -15,6 +15,12 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
     /// We must use reflection to interact with this class.
     /// These tests are to confirm that we can correctly identity classes that implement TokenCredential and address it's methods.
     /// </summary>
+    /// <remarks>
+    /// These tests do not run in NET452 OR NET46. 
+    /// In these cases, the test runner is NET452 or NET46 and Azure.Core.TokenCredential is NOT SUPPORTED in these frameworks.
+    /// This does not affect the end user because we REQUIRE the end user to create their own instance of TokenCredential.
+    /// This ensures that the end user is consuming the AI SDK in one of the newer frameworks.
+    /// </remarks>
     [TestClass]
     [TestCategory("AAD")]
     public class ReflectionCredentialEnvelopeTests
@@ -41,38 +47,6 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
             _ = new ReflectionCredentialEnvelope(Guid.Empty);
         }
 
-        //[TestMethod]
-        //public void VerifyGetTokenAsExpression_UsingCompileTimeTypes()
-        //{
-        //    var mockCredential = new MockCredential();
-        //    var requestContext = new TokenRequestContext(new string[] { "test/scope" });
-
-        //    var expression = ReflectionCredentialEnvelope.GetTokenAsExpression(mockCredential, requestContext).Compile();
-
-        //    var testResult = expression(mockCredential, requestContext, CancellationToken.None);
-        //    Assert.AreEqual("TEST TOKEN test/scope", testResult);
-        //}
-
-        ///// <summary>
-        ///// This more closely represents how this would be used in a production environment.
-        ///// </summary>
-        //[TestMethod]
-        //public void VerifyGetTokenAsExpression_UsingDynamicTypes()
-        //{
-        //    // This currently throws ArgumentExceptions:
-        //    // ParameterExpression of type 'Microsoft.ApplicationInsights.Authentication.Tests.MockCredential' cannot be used for delegate parameter of type 'System.Object'
-        //    // ParameterExpression of type 'Azure.Core.TokenRequestContext' cannot be used for delegate parameter of type 'System.Object'
-
-
-        //    var mockCredential = (object)new MockCredential();
-        //    var requestContext = ReflectionCredentialEnvelope.MakeTokenRequestContext(new[] { "test/scope" });
-
-        //    var expression = ReflectionCredentialEnvelope.GetTokenAsExpression(mockCredential, requestContext).Compile();
-
-        //    var testResult = expression(mockCredential, requestContext, CancellationToken.None);
-        //    Assert.AreEqual("TEST TOKEN test/scope", testResult);
-        //}
-
         [TestMethod]
         public void VerifyCanMakeTokenRequestContext()
         {
@@ -80,10 +54,42 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
 
             var requestContext = new TokenRequestContext(testScope);
 
-            var tokenRequestContext = ReflectionCredentialEnvelope.AzureCore.MakeTokenRequestContext(testScope);
-            Assert.IsInstanceOfType(tokenRequestContext, typeof(TokenRequestContext));
+            var tokenRequestContextViaReflection = ReflectionCredentialEnvelope.AzureCore.MakeTokenRequestContext(testScope);
+            Assert.IsInstanceOfType(tokenRequestContextViaReflection, typeof(TokenRequestContext));
+            Assert.AreEqual(requestContext, tokenRequestContextViaReflection);
         }
 
+        /// <summary>
+        /// This test verifies that both <see cref="Azure.Core"/> and <see cref="ReflectionCredentialEnvelope"/> return identical tokens.
+        /// </summary>
+        [TestMethod]
+        public void VerifyCanGetToken()
+        {
+            var requestContext = new TokenRequestContext(scopes: CredentialConstants.GetScopes());
+            var mockCredential = new MockCredential();
+            var tokenUsingTypes = mockCredential.GetToken(requestContext, CancellationToken.None);
+
+            var reflectionCredentialEnvelope = new ReflectionCredentialEnvelope(mockCredential);
+            var tokenUsingReflection = reflectionCredentialEnvelope.GetToken();
+
+            Assert.AreEqual(tokenUsingTypes.Token, tokenUsingReflection);
+        }
+
+        /// <summary>
+        /// This test verifies that both <see cref="Azure.Core"/> and <see cref="ReflectionCredentialEnvelope"/> return identical tokens.
+        /// </summary>
+        [TestMethod]
+        public async Task VerifyCanGetTokenAsync()
+        {
+            var requestContext = new TokenRequestContext(scopes: CredentialConstants.GetScopes());
+            var mockCredential = new MockCredential();
+            var tokenUsingTypes = await mockCredential.GetTokenAsync(requestContext, CancellationToken.None);
+
+            var reflectionCredentialEnvelope = new ReflectionCredentialEnvelope(mockCredential);
+            var tokenUsingReflection = await reflectionCredentialEnvelope.GetTokenAsync();
+
+            Assert.AreEqual(tokenUsingTypes.Token, tokenUsingReflection);
+        }
 
         [TestMethod]
         public void VerifyGetToken_AsLambdaExpression_UsingCompileTimeTypes()
@@ -136,7 +142,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
             Assert.AreEqual("TEST TOKEN test/scope", testResult);
         }
 
-#region TestClasses
+        #region TestClasses
         private class TestClass1 : Azure.Core.TokenCredential
         {
             public override AccessToken GetToken(TokenRequestContext requestContext, CancellationToken cancellationToken)
@@ -152,10 +158,10 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
 
         private class TestClass2 : TestClass1 { }
 
-        private abstract class NotTokenCredential 
+        private abstract class NotTokenCredential
         {
             public abstract AccessToken GetToken(TokenRequestContext requestContext, CancellationToken cancellationToken);
-            
+
             public abstract ValueTask<AccessToken> GetTokenAsync(TokenRequestContext requestContext, CancellationToken cancellationToken);
         }
 
@@ -173,7 +179,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         }
 
         private class NotTokenCredential2 : NotTokenCredential1 { }
-#endregion
+        #endregion
     }
 }
 #endif

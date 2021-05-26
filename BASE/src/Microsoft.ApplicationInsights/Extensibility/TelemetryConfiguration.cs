@@ -339,7 +339,7 @@
         /// <summary>
         /// Gets an envelope for Azure.Core.TokenCredential which provides an AAD Authenticated token.
         /// </summary>
-        public CredentialEnvelope CredentialEnvelope { get; private set; }
+        internal ReflectionCredentialEnvelope CredentialEnvelope { get; private set; }
 
         /// <summary>
         /// Gets or sets the chain of processors.
@@ -410,17 +410,6 @@
         /// Set a TokenCredential for this configuration.
         /// </summary>
         /// <param name="tokenCredential">An instance of Azure.Core.TokenCredential.</param>
-#if NETSTANDARD2_0
-        public void SetCredential(Azure.Core.TokenCredential tokenCredential)
-        {
-            this.CredentialEnvelope = new TokenCredentialEnvelope(tokenCredential);
-            this.SetTelemetryChannelCredentialEnvelope();
-
-            // Update Ingestion Endpoint.
-            var ingestionEndpoint = this.EndpointContainer.GetFormattedIngestionEndpoint(enableAAD: true);
-            this.SetTelemetryChannelEndpoint(ingestionEndpoint);
-    }
-#else
         public void SetCredential(object tokenCredential)
         {
             this.CredentialEnvelope = new ReflectionCredentialEnvelope(tokenCredential);
@@ -430,7 +419,6 @@
             var ingestionEndpoint = this.EndpointContainer.GetFormattedIngestionEndpoint(enableAAD: true);
             this.SetTelemetryChannelEndpoint(ingestionEndpoint);
         }
-#endif
 
         internal MetricManager GetMetricManager(bool createIfNotExists)
         {
