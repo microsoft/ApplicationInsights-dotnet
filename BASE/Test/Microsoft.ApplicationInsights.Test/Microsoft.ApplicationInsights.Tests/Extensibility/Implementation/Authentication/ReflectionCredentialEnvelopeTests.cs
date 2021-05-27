@@ -30,8 +30,9 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         [TestMethod]
         public void VerifyCanIdentifyValidClass()
         {
-            var testClass2 = new TestClass2();
+            var testClass2 = new TestClassInheritsTokenCredential();
             _ = new ReflectionCredentialEnvelope(testClass2);
+            // NO ASSERT. This test is valid if no exception is thrown. :)
         }
 
         [TestMethod]
@@ -168,20 +169,12 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         }
 
 #region TestClasses
-        private class TestClass1 : Azure.Core.TokenCredential
-        {
-            public override AccessToken GetToken(TokenRequestContext requestContext, CancellationToken cancellationToken)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override ValueTask<AccessToken> GetTokenAsync(TokenRequestContext requestContext, CancellationToken cancellationToken)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        private class TestClass2 : TestClass1 { }
+        
+        /// <summary>
+        /// This class inherits <see cref="MockCredential"/> which inherits <see cref="Azure.Core.TokenCredential"/>.
+        /// This class is used to verify that the <see cref="ReflectionCredentialEnvelope"/> can correctly identify tests that inherit <see cref="Azure.Core.TokenCredential"/>.
+        /// </summary>
+        private class TestClassInheritsTokenCredential : MockCredential { }
 
         private abstract class NotTokenCredential
         {

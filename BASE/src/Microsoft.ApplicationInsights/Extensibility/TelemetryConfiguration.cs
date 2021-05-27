@@ -408,8 +408,13 @@
         /// <summary>
         /// Set a TokenCredential for this configuration.
         /// </summary>
+        /// <remarks>
+        /// For more information on expected types, review the documentation for the Azure.Identity library.
+        /// (https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/identity/Azure.Identity).
+        /// </remarks>
         /// <param name="tokenCredential">An instance of Azure.Core.TokenCredential.</param>
-        public void SetCredential(object tokenCredential) => this.CredentialEnvelope = new ReflectionCredentialEnvelope(tokenCredential);
+        /// <exception cref="ArgumentException">An ArgumentException is thrown if the provided object does not inherit Azure.Core.TokenCredential.</exception>
+        public void SetAzureTokenCredential(object tokenCredential) => this.CredentialEnvelope = new ReflectionCredentialEnvelope(tokenCredential);
 
         internal MetricManager GetMetricManager(bool createIfNotExists)
         {
