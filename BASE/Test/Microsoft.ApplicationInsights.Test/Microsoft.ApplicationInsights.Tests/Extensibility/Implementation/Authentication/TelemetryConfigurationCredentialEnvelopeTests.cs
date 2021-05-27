@@ -30,7 +30,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
             var mockCredential = new MockCredential();
 
             var telemetryConfiguration = new TelemetryConfiguration();
-            telemetryConfiguration.SetCredential(mockCredential);
+            telemetryConfiguration.SetAzureTokenCredential(mockCredential);
 
             Assert.IsInstanceOfType(telemetryConfiguration.CredentialEnvelope, typeof(ReflectionCredentialEnvelope));
             Assert.AreEqual(mockCredential, telemetryConfiguration.CredentialEnvelope.Credential, "Credential should be the same instance that we pass in.");
@@ -45,7 +45,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         public void VerifyCannotSetInvalidObjectOnTelemetryConfiguration()
         {
             var telemetryConfiguration = new TelemetryConfiguration();
-            telemetryConfiguration.SetCredential(Guid.Empty);
+            telemetryConfiguration.SetAzureTokenCredential(Guid.Empty);
         }
     }
 }

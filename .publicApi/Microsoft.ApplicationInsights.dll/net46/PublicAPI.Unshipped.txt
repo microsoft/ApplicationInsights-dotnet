@@ -1,4 +1,4 @@
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetCredential(object tokenCredential) -> void
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetAzureTokenCredential(object tokenCredential) -> void
 
 Microsoft.ApplicationInsights.Channel.IAsyncFlushable
 Microsoft.ApplicationInsights.Channel.IAsyncFlushable.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
