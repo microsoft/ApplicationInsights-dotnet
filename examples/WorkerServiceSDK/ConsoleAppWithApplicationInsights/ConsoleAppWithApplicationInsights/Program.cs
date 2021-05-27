@@ -48,7 +48,7 @@ namespace ConsoleAppWithApplicationInsights
 
             var res = new HttpClient().GetAsync("https://bing.com").Result.StatusCode; // this dependency will be captured by Application Insights.
             logger.LogWarning("Warning response from bing is:" + res); // this will be captured by Application Insights.
-            logger.LogInformation("Information response from bing is:" + res); // this will be captured by Application Insights.
+            logger.LogInformation("Information response from bing is:" + res); // THIS IS NOT BEING LOGGED in Azure Application Insights.
 
             telemetryClient.TrackEvent("sampleevent");
 
