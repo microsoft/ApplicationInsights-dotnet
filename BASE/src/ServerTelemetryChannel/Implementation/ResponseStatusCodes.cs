@@ -12,5 +12,7 @@
         public const int BadGateway = 502;
         public const int ServiceUnavailable = 503;
         public const int GatewayTimeout = 504;
+        public const int Unauthorized = 401; // AAD
+        public const int Forbidden = 403; // AAD
     }
 }

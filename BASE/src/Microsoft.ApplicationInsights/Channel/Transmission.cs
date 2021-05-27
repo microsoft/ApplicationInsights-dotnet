@@ -414,7 +414,13 @@
             if (this.CredentialEnvelope != null)
             {
                 var aadToken = this.CredentialEnvelope.GetToken();
-                request.Headers.TryAddWithoutValidation(AuthConstants.AuthorizationHeaderName, AuthConstants.AuthorizationTokenPrefix + aadToken);
+
+                if (aadToken == null)
+                {
+                    // TODO: DO NOT SEND. RETURN FAILURE AND LET CHANNEL DECIDE WHEN TO RETRY.
+                }
+
+                request.Headers.TryAddWithoutValidation(AuthConstants.AuthorizationHeaderName, AuthConstants.AuthorizationTokenPrefix + aadToken).
             }
 
             return request;
