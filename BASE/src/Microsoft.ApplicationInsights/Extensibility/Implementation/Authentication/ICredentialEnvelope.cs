@@ -3,7 +3,7 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    internal interface ICredentialEnvelope
+    public interface ICredentialEnvelope
     {
         /// <summary>
         /// Gets the TokenCredential instance held by this class.
