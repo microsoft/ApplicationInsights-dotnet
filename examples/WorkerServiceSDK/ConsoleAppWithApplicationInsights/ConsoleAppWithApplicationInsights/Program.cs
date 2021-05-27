@@ -27,6 +27,7 @@ namespace ConsoleAppWithApplicationInsights
 
             // Being a regular console app, there is no appsettings.json or configuration providers enabled by default.
             // Hence instrumentation key must be specified here.
+            services.AddLogging(loggingBuilder => loggingBuilder.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>("ApplicationInsights", LogLevel.Information));
             services.AddApplicationInsightsTelemetryWorkerService("put_actual_ikey_here");
 
             // Add custom TelemetryProcessor
@@ -34,7 +35,7 @@ namespace ConsoleAppWithApplicationInsights
 
             // Example on Configuring TelemetryModules.
             // [SuppressMessage("Microsoft.Security", "CS002:SecretInNextLine", Justification="Not a real api key, this is example code.")]
-            services.ConfigureTelemetryModule<QuickPulseTelemetryModule>((module, opt) => module.AuthenticationApiKey = "put_actual_authentication_key_here");
+            //services.ConfigureTelemetryModule<QuickPulseTelemetryModule>((module, opt) => module.AuthenticationApiKey = "put_actual_authentication_key_here");
 
             // Build ServiceProvider.
             IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -46,7 +47,8 @@ namespace ConsoleAppWithApplicationInsights
             var telemetryClient = serviceProvider.GetRequiredService<TelemetryClient>();
 
             var res = new HttpClient().GetAsync("https://bing.com").Result.StatusCode; // this dependency will be captured by Application Insights.
-            logger.LogWarning("Response from bing is:" + res); // this will be captured by Application Insights.
+            logger.LogWarning("Warning response from bing is:" + res); // this will be captured by Application Insights.
+            logger.LogInformation("Information response from bing is:" + res); // this will be captured by Application Insights.
 
             telemetryClient.TrackEvent("sampleevent");
 
