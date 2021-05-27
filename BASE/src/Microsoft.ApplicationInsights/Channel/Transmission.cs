@@ -413,6 +413,7 @@
 
             if (this.CredentialEnvelope != null)
             {
+                // TODO: NEED TO USE CACHING
                 var aadToken = this.CredentialEnvelope.GetToken();
 
                 if (aadToken == null)
@@ -420,7 +421,7 @@
                     // TODO: DO NOT SEND. RETURN FAILURE AND LET CHANNEL DECIDE WHEN TO RETRY.
                 }
 
-                request.Headers.TryAddWithoutValidation(AuthConstants.AuthorizationHeaderName, AuthConstants.AuthorizationTokenPrefix + aadToken).
+                request.Headers.TryAddWithoutValidation(AuthConstants.AuthorizationHeaderName, AuthConstants.AuthorizationTokenPrefix + aadToken);
             }
 
             return request;
