@@ -3,6 +3,9 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    /// <summary>
+    /// This interface defines a class that can interact with Azure.Core.TokenCredential.
+    /// </summary>
     public interface ICredentialEnvelope
     {
         /// <summary>
