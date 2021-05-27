@@ -11,6 +11,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Sampling;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -335,6 +336,11 @@
         public TelemetrySink DefaultTelemetrySink => this.telemetrySinks.DefaultSink;
 
         /// <summary>
+        /// Gets an envelope for Azure.Core.TokenCredential which provides an AAD Authenticated token.
+        /// </summary>
+        internal ICredentialEnvelope CredentialEnvelope { get; private set; }
+
+        /// <summary>
         /// Gets or sets the chain of processors.
         /// </summary>
         internal TelemetryProcessorChain TelemetryProcessorChain
@@ -398,6 +404,17 @@
             this.Dispose(true);
             GC.SuppressFinalize(this);
         }
+
+        /// <summary>
+        /// Set a TokenCredential for this configuration.
+        /// </summary>
+        /// <remarks>
+        /// For more information on expected types, review the documentation for the Azure.Identity library.
+        /// (https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/identity/Azure.Identity).
+        /// </remarks>
+        /// <param name="tokenCredential">An instance of Azure.Core.TokenCredential.</param>
+        /// <exception cref="ArgumentException">An ArgumentException is thrown if the provided object does not inherit Azure.Core.TokenCredential.</exception>
+        public void SetAzureTokenCredential(object tokenCredential) => this.CredentialEnvelope = new ReflectionCredentialEnvelope(tokenCredential);
 
         internal MetricManager GetMetricManager(bool createIfNotExists)
         {
