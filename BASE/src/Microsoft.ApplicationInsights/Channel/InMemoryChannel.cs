@@ -97,7 +97,7 @@
 
         /// <summary>
         /// Gets or sets the <see cref="ICredentialEnvelope"/> which is used for AAD.
-        /// FOR INTERNAL USE. Customers should use <see cref="TelemetryConfiguration.SetCredential"/> instead.
+        /// FOR INTERNAL USE. Customers should use <see cref="TelemetryConfiguration.SetAzureTokenCredential"/> instead.
         /// </summary>
         /// <remarks>
         /// <see cref="ISupportCredentialEnvelope.CredentialEnvelope"/> on <see cref="InMemoryChannel"/> sets <see cref="InMemoryTransmitter.CredentialEnvelope"/> 

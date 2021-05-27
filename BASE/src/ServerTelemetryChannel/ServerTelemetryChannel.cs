@@ -246,7 +246,7 @@
 
         /// <summary>
         /// Gets or sets the <see cref="ICredentialEnvelope"/> which is used for AAD.
-        /// DO NOT SET DIRECTLY. Use <see cref="TelemetryConfiguration.SetCredential"/> instead.
+        /// DO NOT SET DIRECTLY. Use <see cref="TelemetryConfiguration.SetAzureTokenCredential"/> instead.
         /// </summary>
         /// <remarks>
         /// <see cref="ISupportCredentialEnvelope.CredentialEnvelope"/> on <see cref="ServerTelemetryChannel"/> sets <see cref="Transmitter.CredentialEnvelope"/> and then sets <see cref="TransmissionSender.CredentialEnvelope"/> 
