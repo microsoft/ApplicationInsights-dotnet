@@ -414,15 +414,18 @@
 
             if (this.CredentialEnvelope != null)
             {
-                // TODO: NEED TO USE CACHING
+                // TODO: NEED TO USE CACHING HERE
                 var authToken = this.CredentialEnvelope.GetToken();
 
                 if (authToken == null)
                 {
                     // TODO: DO NOT SEND. RETURN FAILURE AND LET CHANNEL DECIDE WHEN TO RETRY.
+                    // This could be either a configuration error or the AAD service is unavailable.
                 }
-
-                request.Headers.TryAddWithoutValidation(AuthConstants.AuthorizationHeaderName, AuthConstants.AuthorizationTokenPrefix + authToken);
+                else
+                {
+                    request.Headers.TryAddWithoutValidation(AuthConstants.AuthorizationHeaderName, AuthConstants.AuthorizationTokenPrefix + authToken);
+                }
             }
 
             return request;
