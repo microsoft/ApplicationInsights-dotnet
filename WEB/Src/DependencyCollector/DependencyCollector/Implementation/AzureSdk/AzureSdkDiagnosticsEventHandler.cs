@@ -40,8 +40,7 @@
             {
                 if (SdkInternalOperationsMonitor.IsEntered())
                 {
-                    // Now that Application Insights supports AAD, we need to check if an internal operation is being caught here.
-                    // type = "InProc | Microsoft.AAD"
+                    // Because we support AAD, we must to check if an internal operation is being caught here (type = "InProc | Microsoft.AAD").
                     return;
                 }
 
