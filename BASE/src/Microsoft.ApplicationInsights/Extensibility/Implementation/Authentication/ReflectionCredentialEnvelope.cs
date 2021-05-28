@@ -41,7 +41,7 @@
         /// <summary>
         /// Gets the TokenCredential instance held by this class.
         /// </summary>
-        public override object Credential => this.tokenCredential;
+        internal override object Credential => this.tokenCredential;
 
         /// <summary>
         /// Gets an Azure.Core.AccessToken.

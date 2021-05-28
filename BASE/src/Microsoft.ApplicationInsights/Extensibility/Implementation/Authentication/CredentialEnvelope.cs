@@ -11,7 +11,7 @@
         /// <summary>
         /// Gets the TokenCredential instance held by this class.
         /// </summary>
-        public abstract object Credential { get; }
+        internal abstract object Credential { get; }
 
         /// <summary>
         /// Gets an Azure.Core.AccessToken.
