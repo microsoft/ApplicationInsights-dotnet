@@ -50,7 +50,7 @@
         /// <returns>A valid Azure.Core.AccessToken.</returns>
         public override string GetToken(CancellationToken cancellationToken = default)
         {
-            //SdkInternalOperationsMonitor.Enter();
+            // SdkInternalOperationsMonitor.Enter();
             try
             {
                 return AzureCore.InvokeGetToken(this.tokenCredential, this.tokenRequestContext, cancellationToken);
@@ -62,7 +62,7 @@
             }
             finally
             {
-                //SdkInternalOperationsMonitor.Exit();
+                // SdkInternalOperationsMonitor.Exit();
             }
         }
 
