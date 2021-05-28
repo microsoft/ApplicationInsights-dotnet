@@ -6,25 +6,25 @@
     /// <summary>
     /// This interface defines a class that can interact with Azure.Core.TokenCredential.
     /// </summary>
-    public interface ICredentialEnvelope
+    public abstract class CredentialEnvelope
     {
         /// <summary>
         /// Gets the TokenCredential instance held by this class.
         /// </summary>
-        object Credential { get; }
+        public abstract object Credential { get; }
 
         /// <summary>
         /// Gets an Azure.Core.AccessToken.
         /// </summary>
         /// <param name="cancellationToken">The System.Threading.CancellationToken to use.</param>
         /// <returns>A valid Azure.Core.AccessToken.</returns>
-        string GetToken(CancellationToken cancellationToken = default);
+        public abstract string GetToken(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets an Azure.Core.AccessToken.
         /// </summary>
         /// <param name="cancellationToken">The System.Threading.CancellationToken to use.</param>
         /// <returns>A valid Azure.Core.AccessToken.</returns>
-        Task<string> GetTokenAsync(CancellationToken cancellationToken = default);
+        public abstract Task<string> GetTokenAsync(CancellationToken cancellationToken = default);
     }
 }
