@@ -118,7 +118,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         [TestMethod]
         public void VerifyGetToken_ReturnsValidToken()
         {
-            var requestContext = new TokenRequestContext(scopes: CredentialConstants.GetScopes());
+            var requestContext = new TokenRequestContext(scopes: AuthConstants.GetScopes());
             var mockCredential = new MockCredential();
             var tokenUsingTypes = mockCredential.GetToken(requestContext, CancellationToken.None);
 
@@ -134,7 +134,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         [TestMethod]
         public async Task VerifyGetTokenAsync_ReturnsValidToken()
         {
-            var requestContext = new TokenRequestContext(scopes: CredentialConstants.GetScopes());
+            var requestContext = new TokenRequestContext(scopes: AuthConstants.GetScopes());
             var mockCredential = new MockCredential();
             var tokenUsingTypes = await mockCredential.GetTokenAsync(requestContext, CancellationToken.None);
 
