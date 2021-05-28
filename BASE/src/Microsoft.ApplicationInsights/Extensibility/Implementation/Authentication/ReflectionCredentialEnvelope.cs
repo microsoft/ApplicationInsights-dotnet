@@ -46,11 +46,13 @@
         /// <summary>
         /// Gets an Azure.Core.AccessToken.
         /// </summary>
+        /// <remarks>
+        /// Whomever uses this MUST verify that it's called within <see cref="SdkInternalOperationsMonitor.Enter"/> otherwise dependency calls will be tracked.
+        /// </remarks>
         /// <param name="cancellationToken">The System.Threading.CancellationToken to use.</param>
         /// <returns>A valid Azure.Core.AccessToken.</returns>
         public override string GetToken(CancellationToken cancellationToken = default)
         {
-            // SdkInternalOperationsMonitor.Enter();
             try
             {
                 return AzureCore.InvokeGetToken(this.tokenCredential, this.tokenRequestContext, cancellationToken);
@@ -60,20 +62,18 @@
                 CoreEventSource.Log.FailedToGetToken(ex.ToInvariantString());
                 return null;
             }
-            finally
-            {
-                // SdkInternalOperationsMonitor.Exit();
-            }
         }
 
         /// <summary>
         /// Gets an Azure.Core.AccessToken.
         /// </summary>
+        /// <remarks>
+        /// Whomever uses this MUST verify that it's called within <see cref="SdkInternalOperationsMonitor.Enter"/> otherwise dependency calls will be tracked.
+        /// </remarks>
         /// <param name="cancellationToken">The System.Threading.CancellationToken to use.</param>
         /// <returns>A valid Azure.Core.AccessToken.</returns>
         public override async Task<string> GetTokenAsync(CancellationToken cancellationToken = default)
         {
-            SdkInternalOperationsMonitor.Enter();
             try
             {
                 return await AzureCore.InvokeGetTokenAsync(this.tokenCredential, this.tokenRequestContext, cancellationToken).ConfigureAwait(false);
@@ -82,10 +82,6 @@
             {
                 CoreEventSource.Log.FailedToGetToken(ex.ToInvariantString());
                 return null;
-            }
-            finally
-            {
-                SdkInternalOperationsMonitor.Exit();
             }
         }
 
