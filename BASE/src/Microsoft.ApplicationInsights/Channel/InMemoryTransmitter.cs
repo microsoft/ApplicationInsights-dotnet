@@ -11,6 +11,7 @@ namespace Microsoft.ApplicationInsights.Channel
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
+
     using Microsoft.ApplicationInsights.Common.Extensions;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -33,13 +34,13 @@ namespace Microsoft.ApplicationInsights.Channel
         [SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", Justification = "Object is disposed within the using statement of the " + nameof(Runner) + " method.")]
         private AutoResetEvent startRunnerEvent;
         private bool enabled = true;
-        
+
         /// <summary>
         /// The number of times this object was disposed.
         /// </summary>
         private int disposeCount = 0;
         private TimeSpan sendingInterval = TimeSpan.FromSeconds(30);
-                
+
         internal InMemoryTransmitter(TelemetryBuffer buffer)
         {
             this.buffer = buffer;
@@ -48,11 +49,11 @@ namespace Microsoft.ApplicationInsights.Channel
             // Starting the Runner
             Task.Factory.StartNew(this.Runner, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default)
                 .ContinueWith(
-                    task => 
+                    task =>
                     {
                         string msg = string.Format(CultureInfo.InvariantCulture, "InMemoryTransmitter: Unhandled exception in Runner: {0}", task.Exception);
                         CoreEventSource.Log.LogVerbose(msg);
-                    }, 
+                    },
                     TaskContinuationOptions.OnlyOnFaulted);
         }
 

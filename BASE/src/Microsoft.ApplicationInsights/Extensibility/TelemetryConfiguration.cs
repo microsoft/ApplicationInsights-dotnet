@@ -7,6 +7,7 @@
     using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -31,11 +32,11 @@
         internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
 
         private static object syncRoot = new object();
-        private static TelemetryConfiguration active;        
+        private static TelemetryConfiguration active;
 
         private readonly SnapshottingList<ITelemetryInitializer> telemetryInitializers = new SnapshottingList<ITelemetryInitializer>();
         private readonly TelemetrySinkCollection telemetrySinks = new TelemetrySinkCollection();
-        
+
         private TelemetryProcessorChain telemetryProcessorChain;
         private string instrumentationKey = string.Empty;
         private string connectionString;
@@ -43,7 +44,7 @@
         private TelemetryProcessorChainBuilder builder;
         private MetricManager metricManager = null;
         private IApplicationIdProvider applicationIdProvider;
-    
+
         /// <summary>
         /// Indicates if this instance has been disposed of.
         /// </summary>
@@ -64,7 +65,7 @@
                 {
                     Activity.DefaultIdFormat = ActivityIdFormat.W3C;
                     Activity.ForceDefaultIdFormat = true;
-                }                
+                }
             });
             SelfDiagnosticsInitializer.EnsureInitialized();
         }
@@ -503,9 +504,9 @@
 
         private static void SetTelemetryChannelCredentialEnvelope(ITelemetryChannel telemetryChannel, CredentialEnvelope credentialEnvelope)
         {
-            if (telemetryChannel is ISupportCredentialEnvelope tc)
+            if (telemetryChannel is InMemoryChannel inMemoryChannel)
             {
-                tc.CredentialEnvelope = credentialEnvelope;
+                inMemoryChannel.CredentialEnvelope = credentialEnvelope;
             }
         }
 
