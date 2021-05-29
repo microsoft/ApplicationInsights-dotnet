@@ -2,6 +2,10 @@
 {
     internal static class AuthConstants
     {
+        public const string AuthorizationHeaderName = "Authorization";
+
+        public const string AuthorizationTokenPrefix = "Bearer ";
+
         /// <summary>
         /// Source: 
         /// (https://docs.microsoft.com/azure/active-directory/develop/msal-acquire-cache-tokens#scopes-when-acquiring-tokens).
