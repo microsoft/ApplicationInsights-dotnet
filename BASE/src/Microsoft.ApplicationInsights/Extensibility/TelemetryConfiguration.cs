@@ -339,7 +339,9 @@
 
         /// <summary>
         /// Gets an envelope for Azure.Core.TokenCredential which provides an AAD Authenticated token.
+        /// FOR INTERNAL USE ONLY. To set the Credential use <see cref="SetAzureTokenCredential"/>.
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public CredentialEnvelope CredentialEnvelope { get; private set; }
 
         /// <summary>
