@@ -504,9 +504,9 @@
 
         private static void SetTelemetryChannelCredentialEnvelope(ITelemetryChannel telemetryChannel, CredentialEnvelope credentialEnvelope)
         {
-            if (telemetryChannel is InMemoryChannel inMemoryChannel)
+            if (telemetryChannel is ISupportCredentialEnvelope tc)
             {
-                inMemoryChannel.CredentialEnvelope = credentialEnvelope;
+                tc.CredentialEnvelope = credentialEnvelope;
             }
         }
 
