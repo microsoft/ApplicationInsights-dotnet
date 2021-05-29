@@ -6,16 +6,19 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using System.Threading.Tasks;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
+
     using TelemetryBuffer = Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation.TelemetryBuffer;
 
     /// <summary>
     /// Represents a communication channel for sending telemetry to Application Insights via HTTP/S.
     /// </summary>
-    public sealed class ServerTelemetryChannel : ITelemetryChannel, IAsyncFlushable, ITelemetryModule
+    public sealed class ServerTelemetryChannel : ITelemetryChannel, IAsyncFlushable, ITelemetryModule, ISupportCredentialEnvelope
     {
         internal TelemetrySerializer TelemetrySerializer;
         internal TelemetryBuffer TelemetryBuffer;
@@ -40,18 +43,18 @@
 #endif
         {
         }
-        
+
         internal ServerTelemetryChannel(INetwork network, IApplicationLifecycle applicationLifecycle)
         {
-            var policies = new TransmissionPolicy[] 
+            var policies = new TransmissionPolicy[]
             { 
 #if !NETSTANDARD
                 // We don't have implementation for IApplicationLifecycle for .NET Core
                 new ApplicationLifecycleTransmissionPolicy(applicationLifecycle),
 #endif
-                new ThrottlingTransmissionPolicy(), 
+                new ThrottlingTransmissionPolicy(),
                 new ErrorHandlingTransmissionPolicy(),
-                new PartialSuccessTransmissionPolicy(), 
+                new PartialSuccessTransmissionPolicy(),
                 new NetworkAvailabilityTransmissionPolicy(network),
             };
 
@@ -143,7 +146,7 @@
         /// Gets or sets the maximum telemetry batching interval. Once the interval expires, <see cref="TelemetryChannel"/> 
         /// serializes the accumulated telemetry items for transmission.
         /// </summary>
-        public TimeSpan MaxTelemetryBufferDelay 
+        public TimeSpan MaxTelemetryBufferDelay
         {
             get { return this.TelemetryBuffer.MaxTransmissionDelay; }
             set { this.TelemetryBuffer.MaxTransmissionDelay = value; }
@@ -154,10 +157,10 @@
         /// the <see cref="TelemetryChannel"/> serializing them for transmission to Application Insights.
         /// This is not a hard limit on how many unsent items can be in the buffer.
         /// </summary>
-        public int MaxTelemetryBufferCapacity 
+        public int MaxTelemetryBufferCapacity
         {
             get { return this.TelemetryBuffer.Capacity; }
-            set { this.TelemetryBuffer.Capacity = value; } 
+            set { this.TelemetryBuffer.Capacity = value; }
         }
 
         /// <summary>
@@ -244,6 +247,20 @@
         }
 
         /// <summary>
+        /// Gets or sets the <see cref="CredentialEnvelope"/> which is used for AAD.
+        /// DO NOT SET DIRECTLY. Use <see cref="TelemetryConfiguration.SetAzureTokenCredential"/> instead.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="ISupportCredentialEnvelope.CredentialEnvelope"/> on <see cref="ServerTelemetryChannel"/> sets <see cref="Transmitter.CredentialEnvelope"/> and then sets <see cref="TransmissionSender.CredentialEnvelope"/> 
+        /// which is used to set <see cref="Transmission.CredentialEnvelope"/> just before calling <see cref="Transmission.SendAsync"/>.
+        /// </remarks>
+        CredentialEnvelope ISupportCredentialEnvelope.CredentialEnvelope
+        {
+            get => this.Transmitter.CredentialEnvelope;
+            set => this.Transmitter.CredentialEnvelope = value;
+        }
+
+        /// <summary>
         /// Gets or sets first TelemetryProcessor in processor call chain.
         /// </summary>
         internal ITelemetryProcessor TelemetryProcessor
@@ -268,7 +285,7 @@
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         public void Dispose()
-        {   
+        {
             // Tested by FxCop rule CA2213
             this.TelemetryBuffer.Dispose();
             this.Transmitter.Dispose();
@@ -356,6 +373,8 @@
             {
                 throw new ArgumentNullException(nameof(configuration));
             }
+
+            ((ISupportCredentialEnvelope)this).CredentialEnvelope = configuration.CredentialEnvelope;
 
             this.Transmitter.Initialize();
 
