@@ -53,6 +53,7 @@
         /// <returns>A valid Azure.Core.AccessToken.</returns>
         public override string GetToken(CancellationToken cancellationToken = default)
         {
+            // TODO: NEED TO FULLY TEST IF WE NEED TO CALL SdkInternalOperationsMonitor.Enter
             try
             {
                 return AzureCore.InvokeGetToken(this.tokenCredential, this.tokenRequestContext, cancellationToken);
@@ -74,6 +75,7 @@
         /// <returns>A valid Azure.Core.AccessToken.</returns>
         public override async Task<string> GetTokenAsync(CancellationToken cancellationToken = default)
         {
+            // TODO: NEED TO FULLY TEST IF WE NEED TO CALL SdkInternalOperationsMonitor.Enter
             try
             {
                 return await AzureCore.InvokeGetTokenAsync(this.tokenCredential, this.tokenRequestContext, cancellationToken).ConfigureAwait(false);
