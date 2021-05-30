@@ -416,8 +416,6 @@
                     MonitoringDataPoint.CurrentInvariantVersion.ToString(CultureInfo.InvariantCulture));
             }
 
-            // TODO: THIS NEEDS TO CHANGE. IF THE TOKEN IS NOT AVAILABLE, NO NOT SEND. SHOULD NOT MAKE THIS IN THIS METHOD.
-            // The AAD token is an optional feature. Only include if it is provided.
             if (!string.IsNullOrEmpty(authToken))
             {
                 request.Headers.TryAddWithoutValidation(QuickPulseConstants.AuthorizationHeaderName, QuickPulseConstants.AuthorizationTokenPrefix + authToken);

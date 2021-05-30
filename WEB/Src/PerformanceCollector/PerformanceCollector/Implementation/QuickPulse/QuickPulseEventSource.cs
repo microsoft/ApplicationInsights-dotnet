@@ -161,6 +161,12 @@
             this.WriteEvent(23, oldEtag ?? string.Empty, newEtag ?? string.Empty, configuration ?? string.Empty, e ?? string.Empty, this.applicationNameProvider.Name);
         }
 
+        [Event(24, Message = "QuickPulse failed to get an auth token. Check error log for full exception.", Level = EventLevel.Error)]
+        public void FailedToGetAuthToken(string applicationName = "dummy")
+        {
+            this.WriteEvent(24, this.applicationNameProvider.Name);
+        }
+
         #endregion
 
         public class Keywords
