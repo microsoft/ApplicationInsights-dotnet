@@ -522,8 +522,7 @@
         /// <param name="fromItem">The item from which to extract metrics.</param>
         private void ExtractMetrics(ITelemetry fromItem)
         {
-            ISupportSampling potentiallySampledItem = fromItem as ISupportSampling;
-            if (potentiallySampledItem != null && false == this.EnsureItemNotSampled(potentiallySampledItem))
+            if (fromItem is ISupportSampling potentiallySampledItem && false == this.EnsureItemNotSampled(potentiallySampledItem))
             {
                 return;
             }

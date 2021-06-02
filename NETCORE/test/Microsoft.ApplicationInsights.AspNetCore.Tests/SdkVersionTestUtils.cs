@@ -2,7 +2,7 @@
 {
     public class SdkVersionTestUtils
     {
-#if NET452 || NET46 || NET461
+#if NETFRAMEWORK
         public const string VersionPrefix = "aspnet5f:";
 #else
         public const string VersionPrefix = "aspnet5c:";
