@@ -3,7 +3,9 @@
 ## VNext
 - Reduce technical debt: Use pattern matching
 - [Improve Self Diagnostics and support setting configuration in file](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2238)
+- [Fix AzureSdkDiagnosticListener from crashing user app.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2294)
 - [Add support for NET462 to all NetFramework compatible projects. This will be our minimum supported version in April 2022](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2273)
+
 
 
 ## Version 2.18.0-beta1

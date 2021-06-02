@@ -1,10 +1,14 @@
 ﻿namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
+    using System.ComponentModel;
     using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
+
     using Microsoft.ApplicationInsights.Common;
+    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
@@ -120,6 +124,20 @@
         {
             get { return this.buffer.BacklogSize; }
             set { this.buffer.BacklogSize = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the <see cref="CredentialEnvelope"/> which is used for AAD.
+        /// FOR INTERNAL USE. Customers should use <see cref="TelemetryConfiguration.SetAzureTokenCredential"/> instead.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="InMemoryChannel.CredentialEnvelope"/> sets <see cref="InMemoryTransmitter.CredentialEnvelope"/> 
+        /// which is used to set <see cref="Transmission.CredentialEnvelope"/> just before calling <see cref="Transmission.SendAsync"/>.
+        /// </remarks>
+        internal CredentialEnvelope CredentialEnvelope
+        {
+            get => this.transmitter.CredentialEnvelope;
+            set => this.transmitter.CredentialEnvelope = value;
         }
 
         internal bool IsDisposed => this.isDisposed;
