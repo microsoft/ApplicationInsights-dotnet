@@ -8,6 +8,7 @@
     using System.Net;
     using System.Runtime.Serialization.Json;
     using System.Threading;
+
     using Microsoft.ApplicationInsights.Extensibility.Filtering;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse.Helpers;
@@ -387,7 +388,6 @@
                     MonitoringDataPoint.CurrentInvariantVersion.ToString(CultureInfo.InvariantCulture));
             }
 
-            // The AAD token is an optional feature. Only include if it is provided.
             if (!string.IsNullOrEmpty(authToken))
             {
                 request.Headers.Add(QuickPulseConstants.AuthorizationHeaderName, QuickPulseConstants.AuthorizationTokenPrefix + authToken);

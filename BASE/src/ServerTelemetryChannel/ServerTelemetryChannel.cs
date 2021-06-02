@@ -32,7 +32,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerTelemetryChannel"/> class.
         /// </summary>
-#if !NETSTANDARD
+#if NETFRAMEWORK
         [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "WebApplicationLifecycle is needed for the life of the application.")]
         public ServerTelemetryChannel() : this(new Network(), new WebApplicationLifecycle())
 #else
@@ -46,7 +46,7 @@
         {
             var policies = new TransmissionPolicy[] 
             { 
-#if !NETSTANDARD
+#if NETFRAMEWORK
                 // We don't have implementation for IApplicationLifecycle for .NET Core
                 new ApplicationLifecycleTransmissionPolicy(applicationLifecycle),
 #endif

@@ -37,7 +37,7 @@
         private readonly TelemetryConfiguration telemetryConfiguration;
 
         private DateTimeOffset lastSuccessfulPing;
-        
+
         private DateTimeOffset lastSuccessfulSubmit;
 
         private bool isCollectingData;
@@ -73,7 +73,7 @@
 
             this.coolDownTimeout = TimeSpan.FromMilliseconds(timings.CollectionInterval.TotalMilliseconds / 20);
         }
-        
+
         public bool IsCollectingData
         {
             get
@@ -107,6 +107,18 @@
                 this.firstStateUpdate = false;
             }
 
+            string authToken = null;
+            if (this.telemetryConfiguration.CredentialEnvelope != null)
+            {
+                authToken = this.telemetryConfiguration.CredentialEnvelope.GetToken();
+                if (authToken == null)
+                {
+                    // If a credential has been set on the configuration and we fail to get a token, do net send.
+                    QuickPulseEventSource.Log.FailedToGetAuthToken();
+                    return this.DetermineBackOffs();
+                }
+            }
+
             CollectionConfigurationInfo configurationInfo;
             if (this.IsCollectingData)
             {
@@ -138,7 +150,7 @@
                     instrumentationKey,
                     this.currentConfigurationETag,
                     authApiKey,
-                    this.telemetryConfiguration.CredentialEnvelope?.GetToken(),
+                    authToken,
                     out configurationInfo,
                     this.collectionConfigurationErrors.ToArray());
 
@@ -173,12 +185,12 @@
                     this.timeProvider.UtcNow,
                     this.currentConfigurationETag,
                     authApiKey,
-                    this.telemetryConfiguration.CredentialEnvelope?.GetToken(),
+                    authToken,
                     out configurationInfo,
                     out TimeSpan? servicePollingIntervalHint);
 
                 this.latestServicePollingIntervalHint = servicePollingIntervalHint ?? this.latestServicePollingIntervalHint;
-                
+
                 QuickPulseEventSource.Log.PingSentEvent(this.currentConfigurationETag, configurationInfo?.ETag, startCollection.ToString());
 
                 switch (startCollection)
@@ -241,7 +253,7 @@
                 this.currentConfigurationETag = configurationInfo.ETag;
             }
         }
-        
+
         private TimeSpan DetermineBackOffs()
         {
             if (this.IsCollectingData)

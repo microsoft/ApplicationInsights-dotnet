@@ -101,24 +101,24 @@
             this.emulateTimeout = false;
 
             this.pingResponse = response =>
-                {
-                    response.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, true.ToString());
+            {
+                response.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, true.ToString());
 
-                    foreach (string headerName in QuickPulseConstants.XMsQpsAuthOpaqueHeaderNames)
-                    {
-                        response.Headers.Add(headerName, opaqueAuthHeaderValuesToRespondWith[headerName]);
-                    }
-                };
+                foreach (string headerName in QuickPulseConstants.XMsQpsAuthOpaqueHeaderNames)
+                {
+                    response.Headers.Add(headerName, opaqueAuthHeaderValuesToRespondWith[headerName]);
+                }
+            };
 
             this.submitResponse = response =>
-                {
-                    response.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, true.ToString());
+            {
+                response.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, true.ToString());
 
-                    foreach (string headerName in QuickPulseConstants.XMsQpsAuthOpaqueHeaderNames)
-                    {
-                        response.Headers.Add(headerName, opaqueAuthHeaderValuesToRespondWith[headerName]);
-                    }
-                };
+                foreach (string headerName in QuickPulseConstants.XMsQpsAuthOpaqueHeaderNames)
+                {
+                    response.Headers.Add(headerName, opaqueAuthHeaderValuesToRespondWith[headerName]);
+                }
+            };
 
             // dynamic port range is [49152, 65535]
             int port;
@@ -891,19 +891,19 @@
                 0);
 
             this.pingResponse = r =>
+            {
+                r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, false.ToString());
+                r.Headers.Add(QuickPulseConstants.XMsQpsConfigurationETagHeaderName, "ETag2");
+
+                var collectionConfigurationInfo = new CollectionConfigurationInfo()
                 {
-                    r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, false.ToString());
-                    r.Headers.Add(QuickPulseConstants.XMsQpsConfigurationETagHeaderName, "ETag2");
-
-                    var collectionConfigurationInfo = new CollectionConfigurationInfo()
-                    {
-                        ETag = "ETag2",
-                        Metrics = new[] { new CalculatedMetricInfo() { Id = "Id1" } }
-                    };
-
-                    var serializer = new DataContractJsonSerializer(typeof(CollectionConfigurationInfo));
-                    serializer.WriteObject(r.OutputStream, collectionConfigurationInfo);
+                    ETag = "ETag2",
+                    Metrics = new[] { new CalculatedMetricInfo() { Id = "Id1" } }
                 };
+
+                var serializer = new DataContractJsonSerializer(typeof(CollectionConfigurationInfo));
+                serializer.WriteObject(r.OutputStream, collectionConfigurationInfo);
+            };
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
@@ -940,19 +940,19 @@
                     false);
 
             this.submitResponse = r =>
+            {
+                r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, false.ToString());
+                r.Headers.Add(QuickPulseConstants.XMsQpsConfigurationETagHeaderName, "ETag2");
+
+                var collectionConfigurationInfo = new CollectionConfigurationInfo()
                 {
-                    r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, false.ToString());
-                    r.Headers.Add(QuickPulseConstants.XMsQpsConfigurationETagHeaderName, "ETag2");
-
-                    var collectionConfigurationInfo = new CollectionConfigurationInfo()
-                    {
-                        ETag = "ETag2",
-                        Metrics = new[] { new CalculatedMetricInfo() { Id = "Id1" } }
-                    };
-
-                    var serializer = new DataContractJsonSerializer(typeof(CollectionConfigurationInfo));
-                    serializer.WriteObject(r.OutputStream, collectionConfigurationInfo);
+                    ETag = "ETag2",
+                    Metrics = new[] { new CalculatedMetricInfo() { Id = "Id1" } }
                 };
+
+                var serializer = new DataContractJsonSerializer(typeof(CollectionConfigurationInfo));
+                serializer.WriteObject(r.OutputStream, collectionConfigurationInfo);
+            };
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
@@ -982,19 +982,19 @@
                 0);
 
             this.pingResponse = r =>
+            {
+                r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, true.ToString());
+                r.Headers.Add(QuickPulseConstants.XMsQpsConfigurationETagHeaderName, "ETag2");
+
+                var collectionConfigurationInfo = new CollectionConfigurationInfo()
                 {
-                    r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, true.ToString());
-                    r.Headers.Add(QuickPulseConstants.XMsQpsConfigurationETagHeaderName, "ETag2");
-
-                    var collectionConfigurationInfo = new CollectionConfigurationInfo()
-                    {
-                        ETag = "ETag2",
-                        Metrics = new[] { new CalculatedMetricInfo() { Id = "Id1" } }
-                    };
-
-                    var serializer = new DataContractJsonSerializer(typeof(CollectionConfigurationInfo));
-                    serializer.WriteObject(r.OutputStream, collectionConfigurationInfo);
+                    ETag = "ETag2",
+                    Metrics = new[] { new CalculatedMetricInfo() { Id = "Id1" } }
                 };
+
+                var serializer = new DataContractJsonSerializer(typeof(CollectionConfigurationInfo));
+                serializer.WriteObject(r.OutputStream, collectionConfigurationInfo);
+            };
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
@@ -1033,19 +1033,19 @@
                     false);
 
             this.submitResponse = r =>
+            {
+                r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, true.ToString());
+                r.Headers.Add(QuickPulseConstants.XMsQpsConfigurationETagHeaderName, "ETag2");
+
+                var collectionConfigurationInfo = new CollectionConfigurationInfo()
                 {
-                    r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, true.ToString());
-                    r.Headers.Add(QuickPulseConstants.XMsQpsConfigurationETagHeaderName, "ETag2");
-
-                    var collectionConfigurationInfo = new CollectionConfigurationInfo()
-                    {
-                        ETag = "ETag2",
-                        Metrics = new[] { new CalculatedMetricInfo() { Id = "Id1" } }
-                    };
-
-                    var serializer = new DataContractJsonSerializer(typeof(CollectionConfigurationInfo));
-                    serializer.WriteObject(r.OutputStream, collectionConfigurationInfo);
+                    ETag = "ETag2",
+                    Metrics = new[] { new CalculatedMetricInfo() { Id = "Id1" } }
                 };
+
+                var serializer = new DataContractJsonSerializer(typeof(CollectionConfigurationInfo));
+                serializer.WriteObject(r.OutputStream, collectionConfigurationInfo);
+            };
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
@@ -1077,15 +1077,15 @@
                 0);
 
             this.pingResponse = r =>
-                {
-                    r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, true.ToString());
-                    r.Headers.Add(QuickPulseConstants.XMsQpsConfigurationETagHeaderName, "ETag2");
+            {
+                r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, true.ToString());
+                r.Headers.Add(QuickPulseConstants.XMsQpsConfigurationETagHeaderName, "ETag2");
 
-                    var collectionConfigurationInfo = new CollectionConfigurationInfo() { ETag = "ETag2", Metrics = null };
+                var collectionConfigurationInfo = new CollectionConfigurationInfo() { ETag = "ETag2", Metrics = null };
 
-                    var serializer = new DataContractJsonSerializer(typeof(CollectionConfigurationInfo));
-                    serializer.WriteObject(r.OutputStream, collectionConfigurationInfo);
-                };
+                var serializer = new DataContractJsonSerializer(typeof(CollectionConfigurationInfo));
+                serializer.WriteObject(r.OutputStream, collectionConfigurationInfo);
+            };
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
@@ -1122,15 +1122,15 @@
                     false);
 
             this.submitResponse = r =>
-                {
-                    r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, true.ToString());
-                    r.Headers.Add(QuickPulseConstants.XMsQpsConfigurationETagHeaderName, "ETag2");
+            {
+                r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, true.ToString());
+                r.Headers.Add(QuickPulseConstants.XMsQpsConfigurationETagHeaderName, "ETag2");
 
-                    var collectionConfigurationInfo = new CollectionConfigurationInfo() { ETag = "ETag2", Metrics = null };
+                var collectionConfigurationInfo = new CollectionConfigurationInfo() { ETag = "ETag2", Metrics = null };
 
-                    var serializer = new DataContractJsonSerializer(typeof(CollectionConfigurationInfo));
-                    serializer.WriteObject(r.OutputStream, collectionConfigurationInfo);
-                };
+                var serializer = new DataContractJsonSerializer(typeof(CollectionConfigurationInfo));
+                serializer.WriteObject(r.OutputStream, collectionConfigurationInfo);
+            };
 
             // ACT
             CollectionConfigurationInfo configurationInfo;

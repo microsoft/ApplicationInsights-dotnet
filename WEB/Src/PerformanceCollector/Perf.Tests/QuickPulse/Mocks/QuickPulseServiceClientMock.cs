@@ -108,7 +108,7 @@
             string instrumentationKey,
             string configurationETag,
             string authApiKey,
-            string aadToken,
+            string authToken,
             out CollectionConfigurationInfo configurationInfo,
             CollectionConfigurationError[] collectionConfigurationErrors)
         {

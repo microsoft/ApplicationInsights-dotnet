@@ -259,7 +259,7 @@
         }
 
         private void WritePingData(DateTimeOffset timestamp, Stream stream)
-        {            
+        {
             var dataPoint = new MonitoringDataPoint
             {
                 Version = this.version,
@@ -298,7 +298,7 @@
 
                 ProcessCpuData[] topCpuProcesses =
                     sample.TopCpuData.Select(p => new ProcessCpuData() { ProcessName = p.Item1, CpuPercentage = p.Item2, }).ToArray();
-               
+
                 var dataPoint = new MonitoringDataPoint
                 {
                     Version = this.version,
@@ -416,7 +416,6 @@
                     MonitoringDataPoint.CurrentInvariantVersion.ToString(CultureInfo.InvariantCulture));
             }
 
-            // The AAD token is an optional feature. Only include if it is provided.
             if (!string.IsNullOrEmpty(authToken))
             {
                 request.Headers.TryAddWithoutValidation(QuickPulseConstants.AuthorizationHeaderName, QuickPulseConstants.AuthorizationTokenPrefix + authToken);
