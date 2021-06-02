@@ -262,7 +262,7 @@
         {
             string baseDirectory = string.Empty;
 
-#if !NETSTANDARD
+#if NETFRAMEWORK
             baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 #else
             baseDirectory = AppContext.BaseDirectory;

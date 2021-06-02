@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
-#if !NETCOREAPP
+#if NETFRAMEWORK
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.Tracing;
