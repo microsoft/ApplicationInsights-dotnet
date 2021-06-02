@@ -24,7 +24,7 @@
 
         protected override IDiagnosticEventHandler GetEventHandler(string diagnosticListenerName)
         {
-            return new AzureSdkDiagnosticsEventHandler(this.Configuration);
+            return new AzureSdkDiagnosticsEventHandler(this.Client);
         }
     }
 }

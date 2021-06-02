@@ -50,6 +50,32 @@
         }
 
         [TestMethod]
+        public void AzureSdkListenerDoesNotThrowAfterInitialization()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                // Dispose config after initialize
+                // If AzureSdkListener attempted to create
+                // new TelemetryClient after initialize, it'd throw.
+                this.configuration.Dispose();
+
+                Activity sendActivity = new Activity("Azure.SomeClient.Send");
+                sendActivity.AddTag("kind", "client");
+
+                listener.StartActivity(sendActivity, null);
+                listener.StopActivity(sendActivity, null);
+
+                var listenerAnother = new DiagnosticListener("Azure.AnotherClient");
+                var listenerYetAnother = new DiagnosticListener("Azure.YetAnotherClient");
+
+                Assert.AreEqual(0, this.sentItems.Count);
+            }
+        }
+
+        [TestMethod]
         public void AzureClientSpansNotCollectedWhenDisabled()
         {
             using (var listener = new DiagnosticListener("Azure.SomeClient"))
@@ -93,7 +119,7 @@
                 Assert.AreEqual(sendActivity.SpanId.ToHexString(), telemetry.Id);
 
                 Assert.AreEqual("v1", telemetry.Properties["k1"]);
-                
+
                 Assert.IsTrue(telemetry.Properties.TryGetValue("tracestate", out var tracestate));
                 Assert.AreEqual("state=some", tracestate);
             }
@@ -847,7 +873,7 @@
                     .AddTag("serviceRequestId", "service-request-id");
 
                 listener.StopActivity(httpActivity, payload);
-                
+
                 var telemetry = this.sentItems.Last() as DependencyTelemetry;
 
                 Assert.IsNotNull(telemetry);
