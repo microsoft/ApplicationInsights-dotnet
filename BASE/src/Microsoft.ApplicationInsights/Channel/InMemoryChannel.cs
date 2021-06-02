@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
+    using System.ComponentModel;
     using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
@@ -100,10 +101,11 @@
         /// FOR INTERNAL USE. Customers should use <see cref="TelemetryConfiguration.SetAzureTokenCredential"/> instead.
         /// </summary>
         /// <remarks>
-        /// <see cref="ISupportCredentialEnvelope.CredentialEnvelope"/> on <see cref="InMemoryChannel"/> sets <see cref="InMemoryTransmitter.CredentialEnvelope"/> 
+        /// <see cref="InMemoryChannel.CredentialEnvelope"/> on sets <see cref="InMemoryTransmitter.CredentialEnvelope"/> 
         /// which is used to set <see cref="Transmission.CredentialEnvelope"/> just before calling <see cref="Transmission.SendAsync"/>.
         /// </remarks>
-        CredentialEnvelope ISupportCredentialEnvelope.CredentialEnvelope
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public CredentialEnvelope CredentialEnvelope
         {
             get => this.transmitter.CredentialEnvelope;
             set => this.transmitter.CredentialEnvelope = value;
