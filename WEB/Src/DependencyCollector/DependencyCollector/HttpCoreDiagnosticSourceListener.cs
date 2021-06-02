@@ -82,8 +82,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         private readonly bool injectRequestIdInW3CMode = true;
 
         public HttpCoreDiagnosticSourceListener(
-            TelemetryConfiguration configuration, 
-            bool setComponentCorrelationHttpHeaders, 
+            TelemetryConfiguration configuration,
+            bool setComponentCorrelationHttpHeaders,
             IEnumerable<string> correlationDomainExclusionList,
             bool injectLegacyHeaders,
             bool injectRequestIdInW3CMode,
@@ -97,7 +97,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.setComponentCorrelationHttpHeaders = setComponentCorrelationHttpHeaders;
             this.correlationDomainExclusionList = correlationDomainExclusionList ?? Enumerable.Empty<string>();
             this.injectLegacyHeaders = injectLegacyHeaders;
-            this.httpInstrumentationVersion = instrumentationVersion != HttpInstrumentationVersion.Unknown ? 
+            this.httpInstrumentationVersion = instrumentationVersion != HttpInstrumentationVersion.Unknown ?
                 instrumentationVersion :
                 GetInstrumentationVersion();
             this.injectRequestIdInW3CMode = injectRequestIdInW3CMode;
@@ -318,7 +318,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             }
 
             if (Activity.DefaultIdFormat == ActivityIdFormat.W3C &&
-                request.Headers.TryGetValues(W3C.W3CConstants.TraceParentHeader, out var parents) && 
+                request.Headers.TryGetValues(W3C.W3CConstants.TraceParentHeader, out var parents) &&
                 parents.FirstOrDefault() != currentActivity.Id)
             {
                 DependencyCollectorEventSource.Log.HttpRequestAlreadyInstrumented();
@@ -619,7 +619,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         }
 
                         // Add the parent ID
-                        string parentId = currentActivity.IdFormat == ActivityIdFormat.W3C ? 
+                        string parentId = currentActivity.IdFormat == ActivityIdFormat.W3C ?
                             currentActivity.SpanId.ToHexString() :
                             currentActivity.Id;
 

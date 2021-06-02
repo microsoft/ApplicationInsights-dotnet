@@ -9,7 +9,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
-    /// Base implementation of DiagnosticSource listener. 
+    /// Base implementation of DiagnosticSource listener.
     /// Takes care of managing subscriptions to multiple sources and their events.
     /// </summary>
     /// <typeparamref name="TContext">The type of processing context for given diagnostic source.</typeparamref>
@@ -17,7 +17,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     {
         protected static readonly ConcurrentDictionary<DiagnosticListener, ActiveSubsciptionManager> SubscriptionManagers =
             new ConcurrentDictionary<DiagnosticListener, ActiveSubsciptionManager>();
-    
+
         protected readonly TelemetryClient Client;
         protected readonly TelemetryConfiguration Configuration;
 
@@ -80,9 +80,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             var manager = SubscriptionManagers.GetOrAdd(value, k => new ActiveSubsciptionManager());
 
             var individualListener = new IndividualDiagnosticSourceListener(
-                value, 
-                eventHandler, 
-                this, 
+                value,
+                eventHandler,
+                this,
                 this.GetListenerContext(value),
                 manager);
 
