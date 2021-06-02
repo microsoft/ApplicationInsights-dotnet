@@ -25,7 +25,7 @@
         // fetcher is created per AzureSdkDiagnosticsEventHandler and AzureSdkDiagnosticsEventHandler is created per DiagnosticSource
         private readonly PropertyFetcher linksPropertyFetcher = new PropertyFetcher("Links");
 
-        public AzureSdkDiagnosticsEventHandler(TelemetryConfiguration configuration) : base(configuration)
+        public AzureSdkDiagnosticsEventHandler(TelemetryClient client) : base(client)
         {
         }
 
@@ -159,7 +159,7 @@
                     // instrumentation does not consistently report enqueued time, ignoring whole span
                     return false;
                 }
-                
+
                 long startEpochTime = 0;
 #if NET452
                 startEpochTime = (long)(requestStartTime - EpochStart).TotalMilliseconds;
@@ -332,7 +332,7 @@
                 return;
             }
 
-            // Target uniquely identifies the resource, we use both: queueName and endpoint 
+            // Target uniquely identifies the resource, we use both: queueName and endpoint
             // with schema used for SQL-dependencies
             string separator = "/";
             if (endpoint.EndsWith(separator, StringComparison.Ordinal))
