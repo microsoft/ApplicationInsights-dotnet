@@ -110,7 +110,6 @@
             string authToken = null;
             if (this.telemetryConfiguration.CredentialEnvelope != null)
             {
-                // TODO: NEED TO VERIFY THIS IS NOT TRACKED AS A DEPENDENCY
                 authToken = this.telemetryConfiguration.CredentialEnvelope.GetToken();
                 if (authToken == null)
                 {
