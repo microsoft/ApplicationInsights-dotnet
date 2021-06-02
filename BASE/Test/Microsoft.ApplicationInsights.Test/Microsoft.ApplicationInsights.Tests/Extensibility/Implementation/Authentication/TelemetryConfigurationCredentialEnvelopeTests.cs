@@ -4,6 +4,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
     using System;
     using System.Threading.Tasks;
 
+    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -46,6 +47,50 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         {
             var telemetryConfiguration = new TelemetryConfiguration();
             telemetryConfiguration.SetAzureTokenCredential(Guid.Empty);
+        }
+
+        [TestMethod]
+        public void VerifySetCredential_CorrectlySetsTelemetryChannel_CredentialFirst()
+        {
+            // SETUP
+            var tc = TelemetryConfiguration.CreateDefault();
+            Assert.IsInstanceOfType(tc.TelemetryChannel, typeof(InMemoryChannel));
+            Assert.IsTrue(tc.TelemetryChannel.EndpointAddress.Contains("v2")); // defaults to old api
+
+            // ACT
+            // set credential first
+            tc.SetAzureTokenCredential(new MockCredential());
+            Assert.IsTrue(tc.TelemetryChannel.EndpointAddress.Contains("v2.1")); // api switch
+
+            // test new channel
+            var channel = new InMemoryChannel();
+            Assert.IsNull(channel.EndpointAddress); // new channel defaults null
+
+            // change config channel
+            tc.TelemetryChannel = channel;
+            Assert.IsTrue(channel.EndpointAddress.Contains("v2.1")); // configuration sets new api
+        }
+
+        [TestMethod]
+        public void VerifySetCredential_CorrectlySetsTelemetryChannel_TelemetryChannelFirst()
+        {
+            // SETUP
+            var tc = TelemetryConfiguration.CreateDefault();
+            Assert.IsInstanceOfType(tc.TelemetryChannel, typeof(InMemoryChannel));
+            Assert.IsTrue(tc.TelemetryChannel.EndpointAddress.Contains("v2")); // defaults to old api
+
+            // ACT
+            // set new channel first
+            var channel = new InMemoryChannel();
+            Assert.IsNull(channel.EndpointAddress); // new channel defaults null
+
+            // change config channel
+            tc.TelemetryChannel = channel;
+            Assert.IsTrue(channel.EndpointAddress.Contains("v2")); // configuration sets new api
+
+            // set credential second
+            tc.SetAzureTokenCredential(new MockCredential());
+            Assert.IsTrue(tc.TelemetryChannel.EndpointAddress.Contains("v2.1")); // api switch
         }
     }
 }

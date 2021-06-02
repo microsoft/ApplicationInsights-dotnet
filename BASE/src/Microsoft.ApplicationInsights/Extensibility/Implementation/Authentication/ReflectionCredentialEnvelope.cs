@@ -15,7 +15,7 @@
     /// Our SDK currently targets net452, net46, and netstandard2.0.
     /// Azure.Core.TokenCredential is only available for netstandard2.0.
     /// </remarks>
-    internal class ReflectionCredentialEnvelope : ICredentialEnvelope
+    internal class ReflectionCredentialEnvelope : CredentialEnvelope
     {
         private readonly object tokenCredential;
         private readonly object tokenRequestContext;
@@ -30,7 +30,7 @@
 
             if (tokenCredential.GetType().IsSubclassOf(Type.GetType("Azure.Core.TokenCredential, Azure.Core")))
             {
-                this.tokenRequestContext = AzureCore.MakeTokenRequestContext(scopes: CredentialConstants.GetScopes());
+                this.tokenRequestContext = AzureCore.MakeTokenRequestContext(scopes: AuthConstants.GetScopes());
             }
             else
             {
@@ -41,16 +41,19 @@
         /// <summary>
         /// Gets the TokenCredential instance held by this class.
         /// </summary>
-        public object Credential => this.tokenCredential;
+        internal override object Credential => this.tokenCredential;
 
         /// <summary>
         /// Gets an Azure.Core.AccessToken.
         /// </summary>
+        /// <remarks>
+        /// Whomever uses this MUST verify that it's called within <see cref="SdkInternalOperationsMonitor.Enter"/> otherwise dependency calls will be tracked.
+        /// </remarks>
         /// <param name="cancellationToken">The System.Threading.CancellationToken to use.</param>
         /// <returns>A valid Azure.Core.AccessToken.</returns>
-        public string GetToken(CancellationToken cancellationToken = default)
+        public override string GetToken(CancellationToken cancellationToken = default)
         {
-            SdkInternalOperationsMonitor.Enter();
+            // TODO: NEED TO FULLY TEST IF WE NEED TO CALL SdkInternalOperationsMonitor.Enter
             try
             {
                 return AzureCore.InvokeGetToken(this.tokenCredential, this.tokenRequestContext, cancellationToken);
@@ -60,20 +63,19 @@
                 CoreEventSource.Log.FailedToGetToken(ex.ToInvariantString());
                 return null;
             }
-            finally
-            {
-                SdkInternalOperationsMonitor.Exit();
-            }
         }
 
         /// <summary>
         /// Gets an Azure.Core.AccessToken.
         /// </summary>
+        /// <remarks>
+        /// Whomever uses this MUST verify that it's called within <see cref="SdkInternalOperationsMonitor.Enter"/> otherwise dependency calls will be tracked.
+        /// </remarks>
         /// <param name="cancellationToken">The System.Threading.CancellationToken to use.</param>
         /// <returns>A valid Azure.Core.AccessToken.</returns>
-        public async Task<string> GetTokenAsync(CancellationToken cancellationToken = default)
+        public override async Task<string> GetTokenAsync(CancellationToken cancellationToken = default)
         {
-            SdkInternalOperationsMonitor.Enter();
+            // TODO: NEED TO FULLY TEST IF WE NEED TO CALL SdkInternalOperationsMonitor.Enter
             try
             {
                 return await AzureCore.InvokeGetTokenAsync(this.tokenCredential, this.tokenRequestContext, cancellationToken).ConfigureAwait(false);
@@ -82,10 +84,6 @@
             {
                 CoreEventSource.Log.FailedToGetToken(ex.ToInvariantString());
                 return null;
-            }
-            finally
-            {
-                SdkInternalOperationsMonitor.Exit();
             }
         }
 

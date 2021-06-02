@@ -38,6 +38,12 @@
         {
             try
             {
+                if (SdkInternalOperationsMonitor.IsEntered())
+                {
+                    // Because we support AAD, we must to check if an internal operation is being caught here (type = "InProc | Microsoft.AAD").
+                    return;
+                }
+
                 var currentActivity = Activity.Current;
                 if (evnt.Key.EndsWith(".Start", StringComparison.Ordinal))
                 {
