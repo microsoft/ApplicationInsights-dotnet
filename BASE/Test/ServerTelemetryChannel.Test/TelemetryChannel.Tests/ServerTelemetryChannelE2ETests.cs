@@ -1,27 +1,27 @@
-﻿#if NETCOREAPP2_1
+﻿#if NETCOREAPP3_1_OR_GREATER
 namespace Microsoft.ApplicationInsights.WindowsServer.Channel
-{    
+{
     using System.Collections.Generic;
-    using System.Diagnostics.Tracing;    
+    using System.Diagnostics.Tracing;
     using System.Linq;
     using System.Net;
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;        
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.TestFramework;
-    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;    
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.ApplicationInsights.WindowsServer.Channel.Helpers;
-    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;    
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
     using Microsoft.AspNetCore.Http;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.Threading.Tasks;
     using System.IO;
 
 
-    [TestClass]      
+    [TestClass]
     public class ServerTelemetryChannelE2ETests
     {
         private const string Localurl = "http://localhost:6090";
@@ -38,7 +38,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
             using (var localServer = new LocalInProcHttpServer(Localurl))
             {
                 IList<ITelemetry> telemetryItems = new List<ITelemetry>();
-                var telemetry = new EventTelemetry("test event name");    
+                var telemetry = new EventTelemetry("test event name");
                 telemetry.Context.InstrumentationKey = "dummy";
                 telemetryItems.Add((telemetry));
                 var serializedExpected = JsonSerializer.Serialize(telemetryItems);
@@ -46,7 +46,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                 localServer.ServerLogic = async (ctx) =>
                 {
                     byte[] buffer = new byte[2000];
-                    await ctx.Request.Body.ReadAsync(buffer, 0, 2000);     
+                    await ctx.Request.Body.ReadAsync(buffer, 0, 2000);
                     Assert.AreEqual(serializedExpected, buffer);
                     await ctx.Response.WriteAsync("Ok");
                 };
@@ -63,9 +63,9 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                 };
                 channel.Initialize(config);
 
-                // ACT 
+                // ACT
                 // Data would be sent to the LocalServer which validates it.
-                channel.Send(telemetry);                    
+                channel.Send(telemetry);
             }
         }
 
@@ -74,7 +74,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
         public void ChannelLogsSuccessfulTransmission()
         {
             using (var localServer = new LocalInProcHttpServer(Localurl))
-            {                
+            {
                 localServer.ServerLogic = async (ctx) =>
                 {
                     // Success from AI Backend.
@@ -105,12 +105,12 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
 
                     // VERIFY
                     // We validate by checking SDK traces.
-                    var allTraces = listener.Messages.ToList();    
+                    var allTraces = listener.Messages.ToList();
                     // Event 22 is logged upon successful transmission.
                     var traces = allTraces.Where(item => item.EventId == 22).ToList();
-                    Assert.AreEqual(1, traces.Count);                    
+                    Assert.AreEqual(1, traces.Count);
                 }
-            }            
+            }
         }
 
         [TestMethod]
@@ -118,7 +118,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
         public void ChannelLogsFailedTransmissionDueToServerError()
         {
             using (var localServer = new LocalInProcHttpServer(Localurl))
-            {                
+            {
                 localServer.ServerLogic = async (ctx) =>
                 {
                     // Error from AI Backend.
@@ -151,7 +151,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     // VERIFY
                     // We validate by checking SDK traces
                     var allTraces = listener.Messages.ToList();
-                    
+
                     // Event 54 is logged upon successful transmission.
                     var traces = allTraces.Where(item => item.EventId == 54).ToList();
                     Assert.AreEqual(1, traces.Count);
@@ -169,7 +169,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
             {
                 localServer.ServerLogic = async (ctx) =>
                 {
-                    // This code does not matter as Channel is configured to 
+                    // This code does not matter as Channel is configured to
                    // with an incorrect endpoint.
                     await ctx.Response.WriteAsync("InternalError");
                 };
@@ -214,7 +214,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
             using (var localServer = new LocalInProcHttpServer(Localurl))
             {
                 localServer.ServerLogic = async (ctx) =>
-                {                                        
+                {
                     await ctx.Response.WriteAsync(expectedResponseContents);
                 };
 
@@ -288,7 +288,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                 };
                 channel.Initialize(config);
 
-                // ACT 
+                // ACT
                 // Data would be sent to the LocalServer which validates it.
                 channel.Send(telemetry);
                 var flushResult = await channel.FlushAsync(default);
@@ -328,7 +328,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                 {
                     listener.EnableEvents(TelemetryChannelEventSource.Log, EventLevel.LogAlways,
                         (EventKeywords)AllKeywords);
-                    // ACT 
+                    // ACT
                     // Data would be sent to the LocalServer which validates it.
 
                     for (int i = 0; i < 10; i++)
@@ -338,7 +338,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
 
                     channel.Send(telemetry);
                     var flushTask = channel.FlushAsync(default);
-                    
+
                     try
                     {
                         await flushTask;
@@ -356,7 +356,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     // Event 26 is logged when items are moved to Storage.
                     traces = allTraces.Where(item => item.EventId == 26).ToList();
                     Assert.IsTrue(traces.Count >= 1);
-                    // Returns success, telemetry items are in storage as transmission. Control has transferred out of process. 
+                    // Returns success, telemetry items are in storage as transmission. Control has transferred out of process.
                     Assert.IsTrue(flushTask.Result);
                 }
             }
@@ -452,7 +452,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     // Event 26 is logged when items are moved to Storage.
                     traces = allTraces.Where(item => item.EventId == 26).ToList();
                     Assert.IsTrue(traces.Count >= 1);
-                    // Returns success, telemetry items are in storage as transmission. Control has transferred out of process. 
+                    // Returns success, telemetry items are in storage as transmission. Control has transferred out of process.
                     Assert.IsTrue(flushResult);
                 }
             }
@@ -514,7 +514,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
             {
                 localServer.ServerLogic = (ctx) =>
                 {
-                    // This code does not matter as Channel is configured to 
+                    // This code does not matter as Channel is configured to
                     // with an incorrect endpoint.
                     return null;
                 };
@@ -551,7 +551,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     // Event 26 is logged when items are moved to Storage.
                     traces = allTraces.Where(item => item.EventId == 26).ToList();
                     Assert.IsTrue(traces.Count >= 1);
-                    // Returns success, telemetry items are in storage as transmission. Control has transferred out of process. 
+                    // Returns success, telemetry items are in storage as transmission. Control has transferred out of process.
                     Assert.IsTrue(flushResult);
                 }
             }
@@ -783,7 +783,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     // Event 25 is logged when storage enqueue has no capacity.
                     var traces = allTraces.Where(item => item.EventId == 25).ToList();
                     Assert.IsTrue(traces.Count > 0);
-                    // Returns failure as telemetry items did not store either in webserver or storage, failure is within the process. 
+                    // Returns failure as telemetry items did not store either in webserver or storage, failure is within the process.
                     Assert.IsFalse(flushResult);
                 }
             }
@@ -941,7 +941,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     isAsyncCall = true;
                     var telemetry = new EventTelemetry("test event name");
                     telemetry.Context.InstrumentationKey = "dummy";
-                    channel.Send(telemetry);                    
+                    channel.Send(telemetry);
                     var flushResult = await channel.FlushAsync(default);
                     Assert.IsTrue(flushResult);
                 }
@@ -1001,12 +1001,12 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var allTraces = listener.Messages.ToList();
                     // Event 16 is logged when we exceed max capacity.
                     var traces = allTraces.Where(item => item.EventId == 16).ToList();
-                    Assert.IsTrue(traces.Count > 0);                  
+                    Assert.IsTrue(traces.Count > 0);
 
                     isAsyncCall = true;
                     var telemetry = new EventTelemetry("test event name");
                     telemetry.Context.InstrumentationKey = "dummy";
-                    channel.Send(telemetry);                    
+                    channel.Send(telemetry);
                     var flushResult = await channel.FlushAsync(default);
                     Assert.IsTrue(flushResult);
 
