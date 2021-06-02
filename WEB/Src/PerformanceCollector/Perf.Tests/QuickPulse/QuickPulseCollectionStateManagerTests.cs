@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Filtering;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
@@ -22,10 +23,10 @@
         private const string UpdatedConfigurationMessage = "UpdatedConfiguration";
 
         private static readonly CollectionConfigurationInfo EmptyCollectionConfigurationInfo = new CollectionConfigurationInfo()
-                                                                                                   {
-                                                                                                       ETag = string.Empty,
-                                                                                                       Metrics = new CalculatedMetricInfo[0]
-                                                                                                   };
+        {
+            ETag = string.Empty,
+            Metrics = new CalculatedMetricInfo[0]
+        };
 
         [TestMethod]
         public void QuickPulseCollectionStateManagerDoesNothingWithoutInstrumentationKey()
@@ -54,6 +55,7 @@
             var serviceClient = new QuickPulseServiceClientMock();
 
             var manager = new QuickPulseCollectionStateManager(
+                TelemetryConfiguration.CreateDefault(),
                 serviceClient,
                 new Clock(),
                 QuickPulseTimings.Default,
@@ -334,7 +336,7 @@
             timeProvider.FastForward(TimeSpan.FromSeconds(2));
             Assert.AreEqual(timings.ServicePollingBackedOffInterval, manager.UpdateState("some ikey", string.Empty));
         }
-        
+
         [TestMethod]
         public void QuickPulseCollectionStateManagerPingDoesNotBackOffOnFirstPing()
         {
@@ -378,7 +380,7 @@
             // ASSERT
             Assert.AreEqual(timings.ServicePollingInterval, manager.UpdateState(string.Empty, string.Empty));
         }
-        
+
         [TestMethod]
         public void QuickPulseCollectionStateManagerSubmitBacksOff()
         {
@@ -680,7 +682,7 @@
             Assert.AreEqual(Predicate.Equal.ToString(), errors[3].Data["FilterPredicate"]);
             Assert.AreEqual("Request1", errors[3].Data["FilterComparand"]);
         }
-        
+
         [TestMethod]
         public void QuickPulseCollectionStateManagerRespectsServicePollingIntervalHint()
         {
@@ -693,7 +695,7 @@
             var manager = CreateManager(serviceClient, timeProvider, actions, returnedSamples, timings);
             TimeSpan intervalHint1 = TimeSpan.FromSeconds(65);
             TimeSpan intervalHint2 = TimeSpan.FromSeconds(75);
-            
+
             // ACT
             serviceClient.ReturnValueFromPing = false;
 
@@ -726,20 +728,21 @@
             List<CollectionConfigurationInfo> collectionConfigurationInfos = null)
         {
             var manager = new QuickPulseCollectionStateManager(
+                TelemetryConfiguration.CreateDefault(),
                 serviceClient,
                 timeProvider,
                 timings ?? QuickPulseTimings.Default,
                 () => actions.Add(StartCollectionMessage),
                 () => actions.Add(StopCollectionMessage),
                 () =>
-                    {
-                        actions.Add(CollectMessage);
+                {
+                    actions.Add(CollectMessage);
 
-                        CollectionConfigurationError[] errors;
-                        var now = DateTimeOffset.UtcNow;
-                        return
-                            new[]
-                            {
+                    CollectionConfigurationError[] errors;
+                    var now = DateTimeOffset.UtcNow;
+                    return
+                        new[]
+                        {
                                 new QuickPulseDataSample(
                                     new QuickPulseDataAccumulator(
                                         new CollectionConfiguration(EmptyCollectionConfigurationInfo, out errors, timeProvider))
@@ -751,21 +754,21 @@
                                     new Dictionary<string, Tuple<PerformanceCounterData, double>>(),
                                     Enumerable.Empty<Tuple<string, int>>(),
                                     false)
-                            }.ToList();
-                    },
+                        }.ToList();
+                },
                 samples =>
-                    {
-                        returnedSamples?.AddRange(samples);
-                    },
+                {
+                    returnedSamples?.AddRange(samples);
+                },
                 collectionConfigurationInfo =>
-                    {
-                        actions.Add(UpdatedConfigurationMessage);
-                        collectionConfigurationInfos?.Add(collectionConfigurationInfo);
+                {
+                    actions.Add(UpdatedConfigurationMessage);
+                    collectionConfigurationInfos?.Add(collectionConfigurationInfo);
 
-                        CollectionConfigurationError[] errors;
-                        new CollectionConfiguration(collectionConfigurationInfo, out errors, timeProvider);
-                        return errors;
-                    },
+                    CollectionConfigurationError[] errors;
+                    new CollectionConfiguration(collectionConfigurationInfo, out errors, timeProvider);
+                    return errors;
+                },
                 _ => { });
 
             return manager;
