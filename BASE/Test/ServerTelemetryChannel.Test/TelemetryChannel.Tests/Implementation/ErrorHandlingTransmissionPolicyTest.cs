@@ -23,6 +23,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
     public class ErrorHandlingTransmissionPolicyTest
     {
         [TestClass]
+        [TestCategory("WindowsOnly")] // these tests are flaky on linux builds.
         public class HandleTransmissionSentEvent : ErrorHandlingTransmissionPolicyTest
         {
             [TestMethod]
