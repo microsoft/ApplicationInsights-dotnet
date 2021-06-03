@@ -1,10 +1,13 @@
 # Changelog
 
 ## VNext
+
+
+## Version 2.18.0-beta2
 - Reduce technical debt: Use pattern matching
 - [Improve Self Diagnostics and support setting configuration in file](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2238)
 - [Fix AzureSdkDiagnosticListener from crashing user app.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2294)
-
+- [Add support for Azure Active Directory ](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2190)
 
 ## Version 2.18.0-beta1
 - [Fix PropertyFetcher error when used with multiple types](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2194)
