@@ -35,7 +35,7 @@
             activity.AddTag("OperationName", "test me 1");
             activity.AddTag("OperationName", "test me 2");
 
-            Assert.AreEqual("test me 1", activity.GetOperationName());
+            Assert.AreEqual("test me 2", activity.GetOperationName());
         }
     }
 }
