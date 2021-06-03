@@ -7,13 +7,16 @@
     using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Sampling;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics;
     using Microsoft.ApplicationInsights.Metrics;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
@@ -29,11 +32,11 @@
         internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
 
         private static object syncRoot = new object();
-        private static TelemetryConfiguration active;        
+        private static TelemetryConfiguration active;
 
         private readonly SnapshottingList<ITelemetryInitializer> telemetryInitializers = new SnapshottingList<ITelemetryInitializer>();
         private readonly TelemetrySinkCollection telemetrySinks = new TelemetrySinkCollection();
-        
+
         private TelemetryProcessorChain telemetryProcessorChain;
         private string instrumentationKey = string.Empty;
         private string connectionString;
@@ -41,7 +44,7 @@
         private TelemetryProcessorChainBuilder builder;
         private MetricManager metricManager = null;
         private IApplicationIdProvider applicationIdProvider;
-    
+
         /// <summary>
         /// Indicates if this instance has been disposed of.
         /// </summary>
@@ -62,8 +65,9 @@
                 {
                     Activity.DefaultIdFormat = ActivityIdFormat.W3C;
                     Activity.ForceDefaultIdFormat = true;
-                }                
+                }
             });
+            SelfDiagnosticsInitializer.EnsureInitialized();
         }
 
         /// <summary>
@@ -91,7 +95,8 @@
         {
             this.instrumentationKey = instrumentationKey ?? throw new ArgumentNullException(nameof(instrumentationKey));
 
-            SetTelemetryChannelEndpoint(channel, this.EndpointContainer.FormattedIngestionEndpoint, force: true);
+            var ingestionEndpoint = this.EndpointContainer.GetFormattedIngestionEndpoint(enableAAD: this.CredentialEnvelope != null);
+            SetTelemetryChannelEndpoint(channel, ingestionEndpoint, force: true);
             var defaultSink = new TelemetrySink(this, channel);
             defaultSink.Name = "default";
             this.telemetrySinks.Add(defaultSink);
@@ -238,7 +243,9 @@
                 if (!this.isDisposed)
                 {
                     this.telemetrySinks.DefaultSink.TelemetryChannel = value;
-                    SetTelemetryChannelEndpoint(this.telemetrySinks.DefaultSink.TelemetryChannel, this.EndpointContainer.FormattedIngestionEndpoint);
+                    var ingestionEndpoint = this.EndpointContainer.GetFormattedIngestionEndpoint(enableAAD: this.CredentialEnvelope != null);
+                    SetTelemetryChannelEndpoint(this.telemetrySinks.DefaultSink.TelemetryChannel, ingestionEndpoint);
+                    SetTelemetryChannelCredentialEnvelope(value, this.CredentialEnvelope);
                 }
             }
         }
@@ -294,10 +301,8 @@
                     this.EndpointContainer = new EndpointContainer(endpointProvider);
 
                     // UPDATE TELEMETRY CHANNEL
-                    foreach (var tSink in this.TelemetrySinks)
-                    {
-                        SetTelemetryChannelEndpoint(tSink.TelemetryChannel, this.EndpointContainer.FormattedIngestionEndpoint, force: true);
-                    }
+                    var ingestionEndpoint = this.EndpointContainer.GetFormattedIngestionEndpoint(enableAAD: this.CredentialEnvelope != null);
+                    this.SetTelemetryChannelEndpoint(ingestionEndpoint);
 
                     // UPDATE APPLICATION ID PROVIDER
                     SetApplicationIdEndpoint(this.ApplicationIdProvider, this.EndpointContainer.FormattedApplicationIdEndpoint, force: true);
@@ -331,6 +336,13 @@
         /// Gets the default telemetry sink.
         /// </summary>
         public TelemetrySink DefaultTelemetrySink => this.telemetrySinks.DefaultSink;
+
+        /// <summary>
+        /// Gets an envelope for Azure.Core.TokenCredential which provides an AAD Authenticated token.
+        /// FOR INTERNAL USE ONLY. To set the Credential use <see cref="SetAzureTokenCredential"/>.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public CredentialEnvelope CredentialEnvelope { get; private set; }
 
         /// <summary>
         /// Gets or sets the chain of processors.
@@ -395,6 +407,25 @@
         {
             this.Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Set a TokenCredential for this configuration.
+        /// </summary>
+        /// <remarks>
+        /// For more information on expected types, review the documentation for the Azure.Identity library.
+        /// (https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/identity/Azure.Identity).
+        /// </remarks>
+        /// <param name="tokenCredential">An instance of Azure.Core.TokenCredential.</param>
+        /// <exception cref="ArgumentException">An ArgumentException is thrown if the provided object does not inherit Azure.Core.TokenCredential.</exception>
+        public void SetAzureTokenCredential(object tokenCredential)
+        {
+            this.CredentialEnvelope = new ReflectionCredentialEnvelope(tokenCredential);
+            this.SetTelemetryChannelCredentialEnvelope();
+
+            // Update Ingestion Endpoint.
+            var ingestionEndpoint = this.EndpointContainer.GetFormattedIngestionEndpoint(enableAAD: true);
+            this.SetTelemetryChannelEndpoint(ingestionEndpoint);
         }
 
         internal MetricManager GetMetricManager(bool createIfNotExists)
@@ -470,6 +501,30 @@
                         channel.EndpointAddress = endpoint;
                     }
                 }
+            }
+        }
+
+        private static void SetTelemetryChannelCredentialEnvelope(ITelemetryChannel telemetryChannel, CredentialEnvelope credentialEnvelope)
+        {
+            if (telemetryChannel is ISupportCredentialEnvelope tc)
+            {
+                tc.CredentialEnvelope = credentialEnvelope;
+            }
+        }
+
+        private void SetTelemetryChannelCredentialEnvelope()
+        {
+            foreach (var tSink in this.TelemetrySinks)
+            {
+                SetTelemetryChannelCredentialEnvelope(tSink.TelemetryChannel, this.CredentialEnvelope);
+            }
+        }
+
+        private void SetTelemetryChannelEndpoint(string ingestionEndpoint)
+        {
+            foreach (var tSink in this.TelemetrySinks)
+            {
+                SetTelemetryChannelEndpoint(tSink.TelemetryChannel, ingestionEndpoint, force: true);
             }
         }
 

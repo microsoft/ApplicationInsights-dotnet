@@ -14,8 +14,7 @@
 
         public string ExtractDimension(ITelemetry item)
         {
-            var dep = item as DependencyTelemetry;
-            if (dep != null)
+            if (item is DependencyTelemetry dep)
             {
                 bool dependencyFailed = (dep.Success != null) && (dep.Success == false);
                 string dependencySuccessString = dependencyFailed ? bool.FalseString : bool.TrueString;

@@ -9,13 +9,15 @@
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Common.Extensions;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
 
     internal class TransmissionSender
-    {      
+    {
         private static readonly HttpWebResponseWrapper DefaultHttpWebResponseWrapper = default(HttpWebResponseWrapper);
         // Stores all inflight requests using this dictionary, before SendAsync.
         // Removes entry from dictionary after response.
@@ -107,6 +109,15 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets the <see cref="CredentialEnvelope"/> which is used for AAD.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="ISupportCredentialEnvelope.CredentialEnvelope"/> on <see cref="ServerTelemetryChannel"/> sets <see cref="Transmitter.CredentialEnvelope"/> and then sets <see cref="TransmissionSender.CredentialEnvelope"/> 
+        /// which is used to set <see cref="Transmission.CredentialEnvelope"/> just before calling <see cref="Transmission.SendAsync"/>.
+        /// </remarks>
+        internal CredentialEnvelope CredentialEnvelope { get; set; }
+
         public virtual bool Enqueue(Func<Transmission> transmissionGetter)
         {
             bool enqueueSucceded = false;
@@ -197,9 +208,11 @@
                 try
                 {
                     TelemetryChannelEventSource.Log.TransmissionSendStarted(acceptedTransmission.Id);
+                    acceptedTransmission.CredentialEnvelope = this.CredentialEnvelope;
+
                     transmissionTask = acceptedTransmission.SendAsync();
                     this.inFlightTransmissions.TryAdd(transmission.FlushAsyncId, transmissionTask);
-                    responseContent = await transmissionTask.ConfigureAwait(false); 
+                    responseContent = await transmissionTask.ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
@@ -302,7 +315,7 @@
 
             int attemptedItemsCount = -1;
             int acceptedItemsCount = -1;
-            Tuple<Transmission, Transmission> transmissions = transmission.Split((transmissionLength) => 
+            Tuple<Transmission, Transmission> transmissions = transmission.Split((transmissionLength) =>
             {
                 attemptedItemsCount = transmissionLength;
                 acceptedItemsCount = this.IsTransmissionSendable(transmissionLength);
