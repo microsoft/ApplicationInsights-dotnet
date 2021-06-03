@@ -15,7 +15,7 @@
     /// Represents a communication channel for sending telemetry to Application Insights via HTTPS. There will be a buffer that will not be persisted, to enforce the 
     /// queued telemetry items to be sent, <see cref="ITelemetryChannel.Flush"/> should be called.    
     /// </summary>
-    public class InMemoryChannel : ITelemetryChannel, IAsyncFlushable
+    public class InMemoryChannel : ITelemetryChannel, IAsyncFlushable, ISupportCredentialEnvelope
     {
         private readonly TelemetryBuffer buffer;
         private readonly InMemoryTransmitter transmitter;
@@ -97,6 +97,19 @@
         }
 
         /// <summary>
+        /// Gets or sets the <see cref="CredentialEnvelope"/> which is used for AAD.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="ISupportCredentialEnvelope.CredentialEnvelope"/> on <see cref="InMemoryChannel"/> sets <see cref="InMemoryTransmitter.CredentialEnvelope"/> 
+        /// which is used to set <see cref="Transmission.CredentialEnvelope"/> just before calling <see cref="Transmission.SendAsync"/>.
+        /// </remarks>
+        CredentialEnvelope ISupportCredentialEnvelope.CredentialEnvelope
+        {
+            get => this.transmitter.CredentialEnvelope;
+            set => this.transmitter.CredentialEnvelope = value;
+        }
+
+        /// <summary>
         /// Gets or sets the HTTP address where the telemetry is sent.
         /// </summary>
         public string EndpointAddress
@@ -124,20 +137,6 @@
         {
             get { return this.buffer.BacklogSize; }
             set { this.buffer.BacklogSize = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the <see cref="CredentialEnvelope"/> which is used for AAD.
-        /// FOR INTERNAL USE. Customers should use <see cref="TelemetryConfiguration.SetAzureTokenCredential"/> instead.
-        /// </summary>
-        /// <remarks>
-        /// <see cref="InMemoryChannel.CredentialEnvelope"/> sets <see cref="InMemoryTransmitter.CredentialEnvelope"/> 
-        /// which is used to set <see cref="Transmission.CredentialEnvelope"/> just before calling <see cref="Transmission.SendAsync"/>.
-        /// </remarks>
-        internal CredentialEnvelope CredentialEnvelope
-        {
-            get => this.transmitter.CredentialEnvelope;
-            set => this.transmitter.CredentialEnvelope = value;
         }
 
         internal bool IsDisposed => this.isDisposed;
