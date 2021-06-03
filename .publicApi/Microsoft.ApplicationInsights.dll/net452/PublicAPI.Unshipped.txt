@@ -1,12 +1,7 @@
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope.GetToken(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> string
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope.GetTokenAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string>
-Microsoft.ApplicationInsights.Channel.InMemoryChannel.CredentialEnvelope.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope
-Microsoft.ApplicationInsights.Channel.InMemoryChannel.CredentialEnvelope.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope
 Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope.CredentialEnvelope() -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.ISupportCredentialEnvelope
-Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.ISupportCredentialEnvelope.CredentialEnvelope.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope
-Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.ISupportCredentialEnvelope.CredentialEnvelope.set -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.CredentialEnvelope.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetAzureTokenCredential(object tokenCredential) -> void
 Microsoft.ApplicationInsights.Channel.IAsyncFlushable

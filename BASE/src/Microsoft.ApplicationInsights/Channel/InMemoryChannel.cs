@@ -98,14 +98,12 @@
 
         /// <summary>
         /// Gets or sets the <see cref="CredentialEnvelope"/> which is used for AAD.
-        /// FOR INTERNAL USE. Customers should use <see cref="TelemetryConfiguration.SetAzureTokenCredential"/> instead.
         /// </summary>
         /// <remarks>
-        /// <see cref="InMemoryChannel.CredentialEnvelope"/> sets <see cref="InMemoryTransmitter.CredentialEnvelope"/> 
+        /// <see cref="ISupportCredentialEnvelope.CredentialEnvelope"/> on <see cref="InMemoryChannel"/> sets <see cref="InMemoryTransmitter.CredentialEnvelope"/> 
         /// which is used to set <see cref="Transmission.CredentialEnvelope"/> just before calling <see cref="Transmission.SendAsync"/>.
         /// </remarks>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public CredentialEnvelope CredentialEnvelope
+        CredentialEnvelope ISupportCredentialEnvelope.CredentialEnvelope
         {
             get => this.transmitter.CredentialEnvelope;
             set => this.transmitter.CredentialEnvelope = value;
