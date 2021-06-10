@@ -85,6 +85,15 @@
         }
 
         [TestMethod]
+        public void SelfDiagnosticsEventListener_EncodeInBuffer_Null()
+        {
+            byte[] buffer = new byte[20];
+            int startPos = 0;
+            int endPos = SelfDiagnosticsEventListener.EncodeInBuffer(null, false, buffer, startPos);
+            Assert.AreEqual(startPos, endPos);
+        }
+
+        [TestMethod]
         public void SelfDiagnosticsEventListener_EncodeInBuffer_Empty()
         {
             byte[] buffer = new byte[20];

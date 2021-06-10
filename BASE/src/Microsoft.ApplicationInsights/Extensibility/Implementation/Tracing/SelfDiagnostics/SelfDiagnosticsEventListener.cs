@@ -71,6 +71,11 @@
         /// <returns>The position of the buffer after the last byte of the resulting sequence.</returns>
         internal static int EncodeInBuffer(string str, bool isParameter, byte[] buffer, int position)
         {
+            if (str == null)
+            {
+                return position;
+            }
+
             int charCount = str.Length;
             int ellipses = isParameter ? "{...}\n".Length : "...\n".Length;
 
