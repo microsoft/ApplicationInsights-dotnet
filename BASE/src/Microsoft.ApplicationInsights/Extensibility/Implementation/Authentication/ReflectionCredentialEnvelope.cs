@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication
 {
     using System;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Threading;
     using System.Threading.Tasks;
@@ -28,7 +29,7 @@
         {
             this.tokenCredential = tokenCredential ?? throw new ArgumentNullException(nameof(tokenCredential));
 
-            if (tokenCredential.GetType().IsSubclassOf(Type.GetType("Azure.Core.TokenCredential, Azure.Core")))
+            if (IsValidType(tokenCredential))
             {
                 this.tokenRequestContext = AzureCore.MakeTokenRequestContext(scopes: AuthConstants.GetScopes());
             }
@@ -83,6 +84,50 @@
                 CoreEventSource.Log.FailedToGetToken(ex.ToInvariantString());
                 return null;
             }
+        }
+
+        private static bool IsValidType(object inputTokenCredential) => inputTokenCredential.GetType().IsSubclassOf(GetTokenCredentialType());
+
+        /// <summary>
+        /// Use reflection to get a <see cref="Type"/> of "Azure.Core.TokenCredential".
+        /// This will fail if the Azure.Core library is not loaded into the AppDomain.CurrentDomain.
+        /// </summary>
+        /// <remarks>
+        /// It is unlikely that customers will have a direct dependency on Azure.Core.
+        /// This is expected to be an indirect dependency from Azure.Identity.
+        /// </remarks>
+        /// <returns>
+        /// Returns a <see cref="Type"/> of "Azure.Core.TokenCredential".
+        /// </returns>
+        private static Type GetTokenCredentialType()
+        {
+            var typeName = "Azure.Core.TokenCredential, Azure.Core";
+            var assemblyName = "Azure.Core";
+
+            Type typeTokenCredential = null;
+
+            try
+            {
+                typeTokenCredential = Type.GetType(typeName);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error has occurred while trying to get type Azure.Core.TokenCredential. See inner exception.", ex);
+            }
+
+            if (typeTokenCredential == null)
+            {
+                if (AppDomain.CurrentDomain.GetAssemblies().Any(x => x.FullName.StartsWith(assemblyName)))
+                {
+                    throw new Exception("An unknown error has occurred. Failed to get type Azure.Core.TokenCredential. Detected that Azure.Core is loaded in AppDomain.CurrentDomain.");
+                }
+                else
+                {
+                    throw new Exception("Failed to get type Azure.Core.TokenCredential. Azure.Core is not found in AppDomain.CurrentDomain.");
+                }
+            }
+
+            return typeTokenCredential;
         }
 
         /// <summary>
