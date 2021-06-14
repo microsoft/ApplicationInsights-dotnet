@@ -1,7 +1,7 @@
 # Changelog
 
 ## VNext
-
+- [Enable the self diagnostics and fix a NullReferenceException bug](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2302)
 
 ## Version 2.18.0-beta2
 - Reduce technical debt: Use pattern matching
