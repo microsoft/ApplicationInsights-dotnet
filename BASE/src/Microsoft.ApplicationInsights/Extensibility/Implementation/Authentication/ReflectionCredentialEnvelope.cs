@@ -33,6 +33,9 @@
             if (IsValidType(tokenCredential))
             {
                 this.tokenRequestContext = AzureCore.MakeTokenRequestContext(scopes: AuthConstants.GetScopes());
+
+                // Call GetToken to initialize the internal cache.
+                _ = this.GetToken();
             }
             else
             {
