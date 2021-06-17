@@ -417,7 +417,7 @@
                 // TODO: NEED TO USE CACHING HERE
                 var authToken = this.CredentialEnvelope.GetToken();
 
-                if (authToken == null)
+                if (authToken == default(AuthToken))
                 {
                     // TODO: DO NOT SEND. RETURN FAILURE AND LET CHANNEL DECIDE WHEN TO RETRY.
                     // This could be either a configuration error or the AAD service is unavailable.

@@ -62,7 +62,6 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
             var credendialEnvelope = new ReflectionCredentialEnvelope(new MockCredential());
             var token = credendialEnvelope.GetToken();
 
-
             var handler = new HandlerForFakeHttpClient
             {
                 InnerHandler = new HttpClientHandler(),

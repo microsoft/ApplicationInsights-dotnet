@@ -3,6 +3,7 @@
     using System;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -52,7 +53,7 @@
         /// </remarks>
         /// <param name="cancellationToken">The System.Threading.CancellationToken to use.</param>
         /// <returns>A valid Azure.Core.AccessToken.</returns>
-        public override string GetToken(CancellationToken cancellationToken = default)
+        public override AuthToken GetToken(CancellationToken cancellationToken = default)
         {
             try
             {
@@ -61,7 +62,7 @@
             catch (Exception ex)
             {
                 CoreEventSource.Log.FailedToGetToken(ex.ToInvariantString());
-                return null;
+                return default;
             }
         }
 
@@ -73,16 +74,17 @@
         /// </remarks>
         /// <param name="cancellationToken">The System.Threading.CancellationToken to use.</param>
         /// <returns>A valid Azure.Core.AccessToken.</returns>
-        public override async Task<string> GetTokenAsync(CancellationToken cancellationToken = default)
+        public override async Task<AuthToken> GetTokenAsync(CancellationToken cancellationToken = default)
         {
             try
             {
-                return await AzureCore.InvokeGetTokenAsync(this.tokenCredential, this.tokenRequestContext, cancellationToken).ConfigureAwait(false);
+                throw new NotImplementedException();
+                //return await AzureCore.InvokeGetTokenAsync(this.tokenCredential, this.tokenRequestContext, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 CoreEventSource.Log.FailedToGetToken(ex.ToInvariantString());
-                return null;
+                return default;
             }
         }
 
@@ -143,27 +145,32 @@
             private static readonly Delegate GetTokenValue;
             private static readonly Delegate GetTokenAsyncValue;
             private static readonly Delegate GetTokenProperty;
+            private static readonly Delegate AccessTokenToAuthToken;
 
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1810:Initialize reference type static fields inline", Justification = "For both optimization and readability, I'm building these objects in the same method.")]
             static AzureCore()
             {
                 GetTokenValue = BuildDelegateGetToken();
 
+                AccessTokenToAuthToken = BuildDelegateAccessTokenToAuthToken();
+
                 var asyncDelegates = BuildDelegateGetTokenAsync();
                 GetTokenAsyncValue = asyncDelegates[0];
                 GetTokenProperty = asyncDelegates[1];
             }
 
-            internal static string InvokeGetToken(object tokenCredential, object tokenRequestContext, CancellationToken cancellationToken)
+            internal static AuthToken InvokeGetToken(object tokenCredential, object tokenRequestContext, CancellationToken cancellationToken)
             {
-                return (string)GetTokenValue.DynamicInvoke(tokenCredential, tokenRequestContext, cancellationToken);
+                var objAccessToken = GetTokenValue.DynamicInvoke(tokenCredential, tokenRequestContext, cancellationToken);
+                return (AuthToken)AccessTokenToAuthToken.DynamicInvoke(objAccessToken);
             }
 
-            internal static async Task<string> InvokeGetTokenAsync(object tokenCredential, object tokenRequestContext, CancellationToken cancellationToken)
+            internal static async Task<AuthToken> InvokeGetTokenAsync(object tokenCredential, object tokenRequestContext, CancellationToken cancellationToken)
             {
                 var task = (Task)GetTokenAsyncValue.DynamicInvoke(tokenCredential, tokenRequestContext, cancellationToken);
                 await task.ConfigureAwait(false);
-                return (string)GetTokenProperty.DynamicInvoke(task);
+                //return (string)GetTokenProperty.DynamicInvoke(task);
+                return default;
             }
 
             /// <summary>
@@ -178,9 +185,49 @@
                     args: new object[] { scopes, null, });
             }
 
+            /// <summary>
+            /// This is a wrapper for Azure.Core.AccessToken:
+            /// <code>public struct AccessToken</code>
+            /// (https://docs.microsoft.com/dotnet/api/azure.core.accesstoken).
+            /// </summary>
+            /// <returns>
+            /// Returns a delegate that receives an Azure.Core.AccessToken and emits an <see cref="AuthToken"/>.
+            /// </returns>
+            private static Delegate BuildDelegateAccessTokenToAuthToken()
+            {
+                Type typeAccessToken = Type.GetType("Azure.Core.AccessToken, Azure.Core");
+
+                var parameterExpression_AccessToken = Expression.Parameter(typeAccessToken, "parameterExpression_AccessToken");
+
+                var exprTokenProperty = Expression.Property(
+                    expression: parameterExpression_AccessToken,
+                    propertyName: "Token");
+
+                var exprExpiresOnProperty = Expression.Property(
+                    expression: parameterExpression_AccessToken,
+                    propertyName: "ExpiresOn");
+
+                Type typeAuthToken = typeof(AuthToken);
+                ConstructorInfo authTokenCtor = typeAuthToken.GetConstructor(new Type[] { typeof(string), typeof(DateTimeOffset) });
+
+                var exprAuthTokenCtor = Expression.New(authTokenCtor, exprTokenProperty, exprExpiresOnProperty);
+
+                return Expression.Lambda(
+                    body: exprAuthTokenCtor,
+                    parameters: new ParameterExpression[]
+                    {
+                        parameterExpression_AccessToken,
+                    }).Compile();
+            }
+
+            /// <summary>
             /// This creates a wrapper for the following method:
             /// <code>public abstract Azure.Core.AccessToken GetToken (Azure.Core.TokenRequestContext requestContext, System.Threading.CancellationToken cancellationToken).</code>
             /// (https://docs.microsoft.com/dotnet/api/azure.core.tokencredential.gettoken).
+            /// </summary>
+            /// <returns>
+            /// Returns a delegate that receives an Azure.Core.TokenCredential and emits an Azure.Core.AccessToken.
+            /// </returns>
             private static Delegate BuildDelegateGetToken()
             {
                 Type typeTokenCredential = Type.GetType("Azure.Core.TokenCredential, Azure.Core");
@@ -197,12 +244,8 @@
                     arg0: parameterExpression_requestContext,
                     arg1: parameterExpression_cancellationToken);
 
-                var exprTokenProperty = Expression.Property(
-                    expression: exprGetToken,
-                    propertyName: "Token");
-
                 return Expression.Lambda(
-                    body: exprTokenProperty,
+                    body: exprGetToken,
                     parameters: new ParameterExpression[]
                     {
                         parameterExpression_tokenCredential,
