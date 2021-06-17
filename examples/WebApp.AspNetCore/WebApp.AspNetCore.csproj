@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!--This file enables self-diagnostics-->
+    <!--This file enables self-diagnostics (https://github.com/microsoft/ApplicationInsights-dotnet/tree/develop/troubleshooting/ETW#self-diagnostics)-->
     <Content Update="ApplicationInsightsDiagnostics.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
