@@ -59,8 +59,8 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         [TestMethod]
         public async Task VerifyTransmissionSendAsync_WithCredential_SetsAuthHeader()
         {
-            var credendialEnvelope = new ReflectionCredentialEnvelope(new MockCredential());
-            var authToken = credendialEnvelope.GetToken();
+            var credentialEnvelope = new ReflectionCredentialEnvelope(new MockCredential());
+            var authToken = credentialEnvelope.GetToken();
 
             var handler = new HandlerForFakeHttpClient
             {
@@ -83,7 +83,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
 
                 // Instantiate Transmission with the mock HttpClient
                 var transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, expectedContentType, expectedContentEncoding);
-                transmission.CredentialEnvelope = credendialEnvelope;
+                transmission.CredentialEnvelope = credentialEnvelope;
 
                 var result = await transmission.SendAsync();
             }
