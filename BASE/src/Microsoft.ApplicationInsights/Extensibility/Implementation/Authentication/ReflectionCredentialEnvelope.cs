@@ -251,7 +251,7 @@
             /// Returns a delegate that is a wrapper around GetTokenAsync which returns a System.Threading.Tasks.ValueTask of Azure.Core.AccessToken.
             /// Then converts that System.Threading.Tasks.ValueTask to <see cref="Task"/> which can be awaited.
             /// NOTE: The Expression Tree library cannot handle async methods.
-            /// NOTE: ValueTask is not recognized by older versions of .NET
+            /// NOTE: ValueTask is not recognized by older versions of .NET Framework.
             /// </returns>
             private static Delegate BuildDelegateGetTokenAsync()
             {
