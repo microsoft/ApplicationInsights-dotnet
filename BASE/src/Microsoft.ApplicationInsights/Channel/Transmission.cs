@@ -424,7 +424,7 @@
                 }
                 else
                 {
-                    request.Headers.TryAddWithoutValidation(AuthConstants.AuthorizationHeaderName, AuthConstants.AuthorizationTokenPrefix + authToken);
+                    request.Headers.TryAddWithoutValidation(AuthConstants.AuthorizationHeaderName, AuthConstants.AuthorizationTokenPrefix + authToken.Token);
                 }
             }
 

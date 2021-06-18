@@ -60,7 +60,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         public async Task VerifyTransmissionSendAsync_WithCredential_SetsAuthHeader()
         {
             var credendialEnvelope = new ReflectionCredentialEnvelope(new MockCredential());
-            var token = credendialEnvelope.GetToken();
+            var authToken = credendialEnvelope.GetToken();
 
             var handler = new HandlerForFakeHttpClient
             {
@@ -69,7 +69,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
                 {
                     // VALIDATE
                     Assert.AreEqual(AuthConstants.AuthorizationTokenPrefix.Trim(), req.Headers.Authorization.Scheme);
-                    Assert.AreEqual(token, req.Headers.Authorization.Parameter);
+                    Assert.AreEqual(authToken.Token, req.Headers.Authorization.Parameter);
                     
                     return Task.FromResult<HttpResponseMessage>(new HttpResponseMessage());
                 }

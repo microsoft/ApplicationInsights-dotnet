@@ -40,6 +40,12 @@
         }
 
         /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return (this.Token.GetHashCode() + "," + this.ExpiresOn.GetHashCode()).GetHashCode();
+        }
+
+        /// <inheritdoc />
         public static bool operator == (AuthToken left, AuthToken right) => left.Equals(right);
 
         /// <inheritdoc />
