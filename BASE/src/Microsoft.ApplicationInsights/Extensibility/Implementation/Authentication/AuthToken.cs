@@ -57,9 +57,6 @@
         }
 
         /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return (this.Token.GetHashCode() + "," + this.ExpiresOn.GetHashCode()).GetHashCode();
-        }
+        public override int GetHashCode() => this.Token.GetHashCode() ^ this.ExpiresOn.GetHashCode();
     }
 }
