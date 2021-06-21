@@ -2,6 +2,8 @@
 namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementation.Authentication
 {
     using System;
+    using System.Linq.Expressions;
+    using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -67,10 +69,12 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         {
             var mockCredential = new MockCredential();
             var requestContext = new TokenRequestContext(new string[] { "test/scope" });
+            var tokenFromCredential = mockCredential.GetToken(requestContext, CancellationToken.None);
 
-            var testResult = ReflectionCredentialEnvelope.AzureCore.InvokeGetToken(mockCredential, requestContext, CancellationToken.None);
-
-            Assert.AreEqual("TEST TOKEN test/scope", testResult);
+            var tokenFromReflection = ReflectionCredentialEnvelope.AzureCore.InvokeGetToken(mockCredential, requestContext, CancellationToken.None);
+            
+            Assert.AreEqual(tokenFromCredential.Token, tokenFromReflection.Token);
+            Assert.AreEqual(tokenFromCredential.ExpiresOn, tokenFromReflection.ExpiresOn);
         }
 
         [TestMethod]
@@ -78,10 +82,12 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         {
             var mockCredential = new MockCredential();
             var requestContext = new TokenRequestContext(new string[] { "test/scope" });
+            var tokenFromCredential = mockCredential.GetToken(requestContext, CancellationToken.None);
 
-            var testResult = await ReflectionCredentialEnvelope.AzureCore.InvokeGetTokenAsync(mockCredential, requestContext, CancellationToken.None);
+            var tokenFromReflection = await ReflectionCredentialEnvelope.AzureCore.InvokeGetTokenAsync(mockCredential, requestContext, CancellationToken.None);
 
-            Assert.AreEqual("TEST TOKEN test/scope", testResult);
+            Assert.AreEqual(tokenFromCredential.Token, tokenFromReflection.Token);
+            Assert.AreEqual(tokenFromCredential.ExpiresOn, tokenFromReflection.ExpiresOn);
         }
 
         /// <summary>
@@ -90,12 +96,15 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         [TestMethod]
         public void VerifyGetToken_UsingDynamicTypes()
         {
-            var mockCredential = (object)new MockCredential();
-            var requestContext = ReflectionCredentialEnvelope.AzureCore.MakeTokenRequestContext(new[] { "test/scope" });
+            var mockCredential = new MockCredential();
+            var requestContext = new TokenRequestContext(new string[] { "test/scope" });
+            var tokenFromCredential = mockCredential.GetToken(requestContext, CancellationToken.None);
 
-            var testResult = ReflectionCredentialEnvelope.AzureCore.InvokeGetToken(mockCredential, requestContext, CancellationToken.None);
-
-            Assert.AreEqual("TEST TOKEN test/scope", testResult);
+            var requestContextFromReflection = ReflectionCredentialEnvelope.AzureCore.MakeTokenRequestContext(new[] { "test/scope" });
+            var tokenFromReflection = ReflectionCredentialEnvelope.AzureCore.InvokeGetToken((object)mockCredential, requestContextFromReflection, CancellationToken.None);
+            
+            Assert.AreEqual(tokenFromCredential.Token, tokenFromReflection.Token);
+            Assert.AreEqual(tokenFromCredential.ExpiresOn, tokenFromReflection.ExpiresOn);
         }
 
         /// <summary>
@@ -104,12 +113,15 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         [TestMethod]
         public async Task VerifyGetTokenAsync_UsingDynamicTypes()
         {
-            var mockCredential = (object)new MockCredential();
-            var requestContext = ReflectionCredentialEnvelope.AzureCore.MakeTokenRequestContext(new[] { "test/scope" });
+            var mockCredential = new MockCredential();
+            var requestContext = new TokenRequestContext(new string[] { "test/scope" });
+            var tokenFromCredential = mockCredential.GetToken(requestContext, CancellationToken.None);
 
-            var testResult = await ReflectionCredentialEnvelope.AzureCore.InvokeGetTokenAsync(mockCredential, requestContext, CancellationToken.None);
+            var requestContextFromReflection = ReflectionCredentialEnvelope.AzureCore.MakeTokenRequestContext(new[] { "test/scope" });
+            var tokenFromReflection = await ReflectionCredentialEnvelope.AzureCore.InvokeGetTokenAsync((object)mockCredential, requestContextFromReflection, CancellationToken.None);
 
-            Assert.AreEqual("TEST TOKEN test/scope", testResult);
+            Assert.AreEqual(tokenFromCredential.Token, tokenFromReflection.Token);
+            Assert.AreEqual(tokenFromCredential.ExpiresOn, tokenFromReflection.ExpiresOn);
         }
 
         /// <summary>
@@ -120,12 +132,13 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         {
             var requestContext = new TokenRequestContext(scopes: AuthConstants.GetScopes());
             var mockCredential = new MockCredential();
-            var tokenUsingTypes = mockCredential.GetToken(requestContext, CancellationToken.None);
+            var tokenFromCredential = mockCredential.GetToken(requestContext, CancellationToken.None);
 
             var reflectionCredentialEnvelope = new ReflectionCredentialEnvelope(mockCredential);
-            var tokenUsingReflection = reflectionCredentialEnvelope.GetToken();
+            var tokenFromReflection = reflectionCredentialEnvelope.GetToken();
 
-            Assert.AreEqual(tokenUsingTypes.Token, tokenUsingReflection);
+            Assert.AreEqual(tokenFromCredential.Token, tokenFromReflection.Token);
+            Assert.AreEqual(tokenFromCredential.ExpiresOn, tokenFromReflection.ExpiresOn);
         }
 
         /// <summary>
@@ -136,12 +149,13 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         {
             var requestContext = new TokenRequestContext(scopes: AuthConstants.GetScopes());
             var mockCredential = new MockCredential();
-            var tokenUsingTypes = await mockCredential.GetTokenAsync(requestContext, CancellationToken.None);
+            var tokenFromCredential = await mockCredential.GetTokenAsync(requestContext, CancellationToken.None);
 
             var reflectionCredentialEnvelope = new ReflectionCredentialEnvelope(mockCredential);
-            var tokenUsingReflection = await reflectionCredentialEnvelope.GetTokenAsync();
+            var tokenFromReflection = await reflectionCredentialEnvelope.GetTokenAsync();
 
-            Assert.AreEqual(tokenUsingTypes.Token, tokenUsingReflection);
+            Assert.AreEqual(tokenFromCredential.Token, tokenFromReflection.Token);
+            Assert.AreEqual(tokenFromCredential.ExpiresOn, tokenFromReflection.ExpiresOn);
         }
 
         [TestMethod]
@@ -153,7 +167,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
 
             var reflectionCredentialEnvelope = new ReflectionCredentialEnvelope(mockCredential);
             var token = reflectionCredentialEnvelope.GetToken();
-            Assert.IsNull(token);
+            Assert.AreEqual(default(AuthToken), token);
         }
         
         [TestMethod]
@@ -165,11 +179,131 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
 
             var reflectionCredentialEnvelope = new ReflectionCredentialEnvelope(mockCredential);
             var token = await reflectionCredentialEnvelope.GetTokenAsync();
-            Assert.IsNull(token);
+            Assert.AreEqual(default(AuthToken), token);
         }
 
-#region TestClasses
-        
+        [TestMethod]
+        public void TestReflection()
+        {
+            Type typeTokenCredential = Type.GetType("Azure.Core.TokenCredential, Azure.Core");
+            Type typeTokenRequestContext = Type.GetType("Azure.Core.TokenRequestContext, Azure.Core");
+            Type typeCancellationToken = typeof(CancellationToken);
+
+            var parameterExpression_tokenCredential = Expression.Parameter(type: typeTokenCredential, name: "parameterExpression_TokenCredential");
+            var parameterExpression_requestContext = Expression.Parameter(type: typeTokenRequestContext, name: "parameterExpression_RequestContext");
+            var parameterExpression_cancellationToken = Expression.Parameter(type: typeCancellationToken, name: "parameterExpression_CancellationToken");
+
+            var exprGetToken = Expression.Call(
+                instance: parameterExpression_tokenCredential,
+                method: typeTokenCredential.GetMethod(name: "GetToken", types: new Type[] { typeTokenRequestContext, typeCancellationToken }),
+                arg0: parameterExpression_requestContext,
+                arg1: parameterExpression_cancellationToken);
+
+            var exprTokenProperty = Expression.Property(
+                expression: exprGetToken,
+                propertyName: "Token");
+
+            var exprExpiresOnProperty = Expression.Property(
+                expression: exprGetToken,
+                propertyName: "ExpiresOn");
+
+            Type typeAuthToken = typeof(AuthToken);
+            ConstructorInfo authTokenCtor = typeAuthToken.GetConstructor(new Type[] { typeof(string), typeof(DateTimeOffset) });
+
+            var exprAuthTokenCtor = Expression.New(authTokenCtor, exprTokenProperty, exprExpiresOnProperty);
+                //Expression.init
+
+
+            var compiledExpression = Expression.Lambda(
+                    //body: exprTokenProperty,
+                    body: exprAuthTokenCtor,
+                    parameters: new ParameterExpression[]
+                    {
+                        parameterExpression_tokenCredential,
+                        parameterExpression_requestContext,
+                        parameterExpression_cancellationToken,
+                    }).Compile();
+
+            //----------------------------------
+
+            var mockCredential = new MockCredential();
+            var requestContext = new TokenRequestContext(new string[] { "test/scope" });
+            CancellationToken ct = default;
+
+            var test = (AuthToken)compiledExpression.DynamicInvoke(mockCredential, requestContext, ct);
+
+        }
+
+
+        [TestMethod]
+        public void TestReflection2()
+        {
+            Type typeTokenCredential = Type.GetType("Azure.Core.TokenCredential, Azure.Core");
+            Type typeTokenRequestContext = Type.GetType("Azure.Core.TokenRequestContext, Azure.Core");
+            Type typeCancellationToken = typeof(CancellationToken);
+
+            var parameterExpression_tokenCredential = Expression.Parameter(type: typeTokenCredential, name: "parameterExpression_TokenCredential");
+            var parameterExpression_requestContext = Expression.Parameter(type: typeTokenRequestContext, name: "parameterExpression_RequestContext");
+            var parameterExpression_cancellationToken = Expression.Parameter(type: typeCancellationToken, name: "parameterExpression_CancellationToken");
+
+            var exprGetToken = Expression.Call(
+                instance: parameterExpression_tokenCredential,
+                method: typeTokenCredential.GetMethod(name: "GetToken", types: new Type[] { typeTokenRequestContext, typeCancellationToken }),
+                arg0: parameterExpression_requestContext,
+                arg1: parameterExpression_cancellationToken);
+
+            var compiledExpression1 = Expression.Lambda(
+                    body: exprGetToken,
+                    parameters: new ParameterExpression[]
+                    {
+                        parameterExpression_tokenCredential,
+                        parameterExpression_requestContext,
+                        parameterExpression_cancellationToken,
+                    }).Compile();
+
+            // ------------------------------
+
+            var mockCredential = new MockCredential();
+            var requestContext = new TokenRequestContext(new string[] { "test/scope" });
+            CancellationToken ct = default;
+
+            var objAccessToken = compiledExpression1.DynamicInvoke(mockCredential, requestContext, ct);
+
+
+            // ----------------------------
+
+            Type typeAccessToken = Type.GetType("Azure.Core.AccessToken, Azure.Core");
+
+            var parameterExpression_AccessToken = Expression.Parameter(typeAccessToken, "parameterExpression_AccessToken");
+
+            var exprTokenProperty = Expression.Property(
+                expression: parameterExpression_AccessToken,
+                propertyName: "Token");
+
+            var exprExpiresOnProperty = Expression.Property(
+                expression: parameterExpression_AccessToken,
+                propertyName: "ExpiresOn");
+
+            Type typeAuthToken = typeof(AuthToken);
+            ConstructorInfo authTokenCtor = typeAuthToken.GetConstructor(new Type[] { typeof(string), typeof(DateTimeOffset) });
+
+            var exprAuthTokenCtor = Expression.New(authTokenCtor, exprTokenProperty, exprExpiresOnProperty);
+            
+            var compiledExpression2 = Expression.Lambda(
+                    //body: exprTokenProperty,
+                    body: exprAuthTokenCtor,
+                    parameters: new ParameterExpression[]
+                    {
+                        parameterExpression_AccessToken,
+                    }).Compile();
+
+            //----------------------------------
+
+            var test = compiledExpression2.DynamicInvoke(objAccessToken);
+
+        }
+        #region TestClasses
+
         /// <summary>
         /// This class inherits <see cref="MockCredential"/> which inherits <see cref="Azure.Core.TokenCredential"/>.
         /// This class is used to verify that the <see cref="ReflectionCredentialEnvelope"/> can correctly identify tests that inherit <see cref="Azure.Core.TokenCredential"/>.
