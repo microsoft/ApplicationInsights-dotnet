@@ -36,7 +36,7 @@
             TransmissionSender sender = null, 
             TransmissionBuffer buffer = null, 
             TransmissionStorage storage = null, 
-            IEnumerable<StubTransmissionPolicy> policies = null)
+            IEnumerable<TransmissionPolicy.TransmissionPolicy> policies = null)
         {
             return new Transmitter(
                 sender ?? new StubTransmissionSender(),

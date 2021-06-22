@@ -38,7 +38,7 @@
             TransmissionSender sender = null,
             TransmissionBuffer transmissionBuffer = null,
             TransmissionStorage storage = null,
-            TransmissionPolicyCollection policies = null,
+            TransmissionPolicyCollection policies,
             BackoffLogicManager backoffLogicManager = null)
         {
             this.backoffLogicManager = backoffLogicManager ?? new BackoffLogicManager();
@@ -53,8 +53,8 @@
             this.Storage = storage ?? new TransmissionStorage();
             this.maxStorageCapacity = this.Storage.Capacity;
 
-            this.policies = policies;
-            this.policies?.Initialize(this);
+            this.policies = policies ?? TransmissionPolicyCollection.Default;
+            this.policies.Initialize(this);
         }
 
         public event EventHandler<TransmissionProcessedEventArgs> TransmissionSent;
@@ -416,9 +416,9 @@
 
         private void UpdateComponentCapacitiesFromPolicies()
         {
-            this.Sender.Capacity = this.policies?.CalculateMinimumMaxSenderCapacity() ?? this.maxSenderCapacity;
-            this.Buffer.Capacity = this.policies?.CalculateMinimumMaxBufferCapacity() ?? this.maxBufferCapacity;
-            this.Storage.Capacity = this.policies?.CalculateMinimumMaxStorageCapacity() ?? this.maxStorageCapacity;
+            this.Sender.Capacity = this.policies.CalculateMinimumMaxSenderCapacity() ?? this.maxSenderCapacity;
+            this.Buffer.Capacity = this.policies.CalculateMinimumMaxBufferCapacity() ?? this.maxBufferCapacity;
+            this.Storage.Capacity = this.policies.CalculateMinimumMaxStorageCapacity() ?? this.maxStorageCapacity;
         }
 
         private void Dispose(bool disposing)
