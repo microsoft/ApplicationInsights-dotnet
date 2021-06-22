@@ -38,7 +38,7 @@
             TransmissionSender sender = null,
             TransmissionBuffer transmissionBuffer = null,
             TransmissionStorage storage = null,
-            TransmissionPolicyCollection policies,
+            TransmissionPolicyCollection policies = null,
             BackoffLogicManager backoffLogicManager = null)
         {
             this.backoffLogicManager = backoffLogicManager ?? new BackoffLogicManager();
