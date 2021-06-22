@@ -24,6 +24,8 @@
             };
         }
 
+        public static TransmissionPolicyCollection Default => new TransmissionPolicyCollection(Enumerable.Empty<TransmissionPolicy>());
+
         /// <summary>
         /// Constructor for unit tests only.
         /// </summary>
