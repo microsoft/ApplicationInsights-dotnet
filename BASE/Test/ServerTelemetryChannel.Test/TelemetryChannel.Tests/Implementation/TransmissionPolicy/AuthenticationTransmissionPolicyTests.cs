@@ -37,11 +37,8 @@
             var waitForTheFirstApplyAsync = TimeSpan.FromMilliseconds(100);
             var waitForTheSecondApplyAsync = TimeSpan.FromMilliseconds(retryAfterSeconds * 1000 + 500);
 
-            var policyApplied = new AutoResetEvent(false);
-            var transmitter = new StubTransmitter
-            {
-                OnApplyPolicies = () => policyApplied.Set(),
-            };
+            // SETUP
+            var transmitter = new StubTransmitterEvalOnApply();
 
             var policy = new AuthenticationTransmissionPolicy()
             {
@@ -49,25 +46,18 @@
             };
             policy.Initialize(transmitter);
 
-            transmitter.OnTransmissionSent(
-                new TransmissionProcessedEventArgs(
-                    transmission: new StubTransmission(),
-                    exception: null,
-                    response: new HttpWebResponseWrapper()
-                    {
-                        StatusCode = statusCode,
-                        StatusDescription = null,
-                    }));
+            // ACT
+            transmitter.InvokeTransmissionSentEvent(statusCode);
 
-            // Assert: First Handle will trigger Throttle and delay.
-            Assert.IsTrue(policyApplied.WaitOne(waitForTheFirstApplyAsync));
+            // ASSERT: First Handle will trigger Throttle and delay.
+            Assert.IsTrue(transmitter.IsApplyInvoked(waitForTheFirstApplyAsync));
 
             Assert.AreEqual(0, policy.MaxSenderCapacity);
             Assert.IsNull(policy.MaxBufferCapacity);
             Assert.IsNull(policy.MaxStorageCapacity);
 
-            // Assert: Throttle expires and policy will be reset.
-            Assert.IsTrue(policyApplied.WaitOne(waitForTheSecondApplyAsync));
+            // ASSERT: Throttle expires and policy will be reset.
+            Assert.IsTrue(transmitter.IsApplyInvoked(waitForTheSecondApplyAsync));
 
             Assert.IsNull(policy.MaxSenderCapacity);
             Assert.IsNull(policy.MaxBufferCapacity);
@@ -78,11 +68,8 @@
         {
             var waitForTheFirstApplyAsync = TimeSpan.FromMilliseconds(100);
 
-            var policyApplied = new AutoResetEvent(false);
-            var transmitter = new StubTransmitter
-            {
-                OnApplyPolicies = () => policyApplied.Set(),
-            };
+            // SETUP
+            var transmitter = new StubTransmitterEvalOnApply();
 
             var policy = new AuthenticationTransmissionPolicy()
             {
@@ -90,23 +77,42 @@
             };
             policy.Initialize(transmitter);
 
-            transmitter.OnTransmissionSent(
-                new TransmissionProcessedEventArgs(
+            // ACT
+            transmitter.InvokeTransmissionSentEvent(statusCode);
+
+            // ASSERT: The Apply event handler should not be called.
+            Assert.IsFalse(transmitter.IsApplyInvoked(waitForTheFirstApplyAsync));
+
+            // ASSERT: Capacities should have default values.
+            Assert.IsNull(policy.MaxSenderCapacity);
+            Assert.IsNull(policy.MaxBufferCapacity);
+            Assert.IsNull(policy.MaxStorageCapacity);
+        }
+
+        private class StubTransmitterEvalOnApply : StubTransmitter
+        {
+            private AutoResetEvent autoResetEvent;
+
+            public StubTransmitterEvalOnApply()
+            {
+                this.autoResetEvent = new AutoResetEvent(false);
+                this.OnApplyPolicies = () => this.autoResetEvent.Set();
+            }
+
+            public void InvokeTransmissionSentEvent(int responseStatusCode)
+            {
+                this.OnTransmissionSent(new TransmissionProcessedEventArgs(
                     transmission: new StubTransmission(),
                     exception: null,
                     response: new HttpWebResponseWrapper()
                     {
-                        StatusCode = statusCode,
+                        StatusCode = responseStatusCode,
                         StatusDescription = null,
-                    }));
+                    }
+                ));
+            }
 
-            // Assert: The Apply event handler should not be called.
-            Assert.IsFalse(policyApplied.WaitOne(waitForTheFirstApplyAsync));
-
-            // Assert: Capacities should have default values.
-            Assert.IsNull(policy.MaxSenderCapacity);
-            Assert.IsNull(policy.MaxBufferCapacity);
-            Assert.IsNull(policy.MaxStorageCapacity);
+            public bool IsApplyInvoked(TimeSpan timeout) => this.autoResetEvent.WaitOne(timeout);
         }
     }
 }
