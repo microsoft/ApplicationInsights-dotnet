@@ -24,8 +24,6 @@
             };
         }
 
-        public static TransmissionPolicyCollection Default => new TransmissionPolicyCollection(Enumerable.Empty<TransmissionPolicy>());
-
         /// <summary>
         /// Constructor for unit tests only.
         /// </summary>
@@ -34,6 +32,8 @@
         {
             this.policies = policies ?? Enumerable.Empty<TransmissionPolicy>();
         }
+
+        public static TransmissionPolicyCollection Default => new TransmissionPolicyCollection(Enumerable.Empty<TransmissionPolicy>());
 
         public void Initialize(Transmitter transmitter)
         {
