@@ -5,6 +5,10 @@
     /// </summary>
     internal static class QuickPulseConstants
     {
+        internal const string AuthorizationHeaderName = "Authorization";
+
+        internal const string AuthorizationTokenPrefix = "Bearer ";
+
         /// <summary>
         /// Subscribed header.
         /// </summary>

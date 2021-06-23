@@ -89,6 +89,19 @@
             return newTransmissions;
         }
 
+        private static Transmission SerializeNewTransmission(TransmissionProcessedEventArgs args, string newTransmissions)
+        {
+            byte[] data = JsonSerializer.ConvertToByteArray(newTransmissions);
+            Transmission transmission = new Transmission(
+                args.Transmission.EndpointAddress,
+                data,
+                args.Transmission.ContentType,
+                args.Transmission.ContentEncoding,
+                args.Transmission.Timeout);
+
+            return transmission;
+        }
+
         private void HandleTransmissionSentEvent(object sender, TransmissionProcessedEventArgs args)
         {
             if (args.Exception == null && (args.Response == null || args.Response.StatusCode == ResponseStatusCodes.Success))
@@ -101,21 +114,24 @@
             if (args.Response != null && args.Response.StatusCode == ResponseStatusCodes.PartialSuccess)
             {
                 int statusCode;
+                Transmission transmission;
                 string newTransmissions = ParsePartialSuccessResponse(args.Transmission, args, out statusCode);
 
                 if (!string.IsNullOrEmpty(newTransmissions))
                 {
-                    this.DelayFutureProcessing(args.Response, statusCode);
-                    
-                    byte[] data = JsonSerializer.ConvertToByteArray(newTransmissions);
-                    Transmission newTransmission = new Transmission(
-                        args.Transmission.EndpointAddress,
-                        data,
-                        args.Transmission.ContentType,
-                        args.Transmission.ContentEncoding,
-                        args.Transmission.Timeout);
+                    if (args.Transmission.IsFlushAsyncInProgress)
+                    {
+                        // Move newTransmission to storage on IAsyncFlushable.FlushAsync
+                        transmission = SerializeNewTransmission(args, newTransmissions);
+                        this.DelayFutureProcessing(args.Response, statusCode);
+                    }
+                    else
+                    {
+                        this.DelayFutureProcessing(args.Response, statusCode);
+                        transmission = SerializeNewTransmission(args, newTransmissions);
+                    }
 
-                    this.Transmitter.Enqueue(newTransmission);
+                    this.Transmitter.Enqueue(transmission);
                 }
                 else
                 {

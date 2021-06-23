@@ -195,6 +195,7 @@
                         this.InitializeServiceClient(configuration);
                         
                         this.stateManager = new QuickPulseCollectionStateManager(
+                            configuration,
                             this.ServiceClient,
                             this.timeProvider,
                             this.timings,

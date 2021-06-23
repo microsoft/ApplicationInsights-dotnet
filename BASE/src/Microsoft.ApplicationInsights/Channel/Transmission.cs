@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Diagnostics;
     using System.IO;
     using System.Net;
@@ -9,7 +10,9 @@
     using System.Net.Http.Headers;
     using System.Threading;
     using System.Threading.Tasks;
+
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
@@ -21,7 +24,8 @@
 
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
         private static HttpClient client = new HttpClient() { Timeout = System.Threading.Timeout.InfiniteTimeSpan };
-                
+        private static long flushAsyncCounter = 0;
+
         private int isSending;
 
         /// <summary>
@@ -75,7 +79,7 @@
         /// Gets or Sets an event notification to track ingestion endpoint response.
         /// </summary>
         public EventHandler<TransmissionStatusEventArgs> TransmissionStatusEvent { get; set; }
-        
+
         /// <summary>
         /// Gets the Address of the endpoint to which transmission will be sent.
         /// </summary>
@@ -138,6 +142,22 @@
         {
             get; private set;
         }
+
+        /// <summary>
+        /// Gets or sets the <see cref="CredentialEnvelope"/> which is used for AAD. 
+        /// This is used include an AAD token on HTTP Requests sent to ingestion.
+        /// </summary>
+        internal CredentialEnvelope CredentialEnvelope { get; set; }
+
+        /// <summary>
+        /// Gets the flush async id for the transmission.
+        /// </summary>
+        internal long FlushAsyncId { get; } = Interlocked.Increment(ref flushAsyncCounter);
+
+        /// <summary>
+        /// Gets or sets a value indicating whether FlushAsync is in progress.
+        /// </summary>
+        internal bool IsFlushAsyncInProgress { get; set; } = false;
 
         /// <summary>
         /// Executes the request that the current transmission represents.
@@ -359,6 +379,20 @@
         }
 
         /// <summary>
+        /// Serializes telemetry items.
+        /// </summary>
+        /// TODO: Refactor this method, it does more than serialization activity.
+        internal void Serialize(Uri address, IEnumerable<ITelemetry> telemetryItems, TimeSpan timeout = default(TimeSpan))
+        {
+            this.EndpointAddress = address;
+            this.Content = JsonSerializer.Serialize(telemetryItems);
+            this.ContentType = JsonSerializer.ContentType;
+            this.ContentEncoding = JsonSerializer.CompressionType;
+            this.Timeout = timeout == default(TimeSpan) ? DefaultTimeout : timeout;
+            this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
+        }
+
+        /// <summary>
         /// Creates an http request for sending a transmission.
         /// </summary>
         /// <param name="address">The address of the web request.</param>
@@ -376,6 +410,22 @@
             if (!string.IsNullOrEmpty(this.ContentEncoding))
             {
                 request.Content.Headers.Add(ContentEncodingHeader, this.ContentEncoding);
+            }
+
+            if (this.CredentialEnvelope != null)
+            {
+                // TODO: NEED TO USE CACHING HERE
+                var authToken = this.CredentialEnvelope.GetToken();
+
+                if (authToken == default(AuthToken))
+                {
+                    // TODO: DO NOT SEND. RETURN FAILURE AND LET CHANNEL DECIDE WHEN TO RETRY.
+                    // This could be either a configuration error or the AAD service is unavailable.
+                }
+                else
+                {
+                    request.Headers.TryAddWithoutValidation(AuthConstants.AuthorizationHeaderName, AuthConstants.AuthorizationTokenPrefix + authToken.Token);
+                }
             }
 
             return request;

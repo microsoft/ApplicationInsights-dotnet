@@ -30,7 +30,7 @@
                 AssertEx.Throws<ArgumentNullException>(() => new TelemetryBuffer(null, new StubApplicationLifecycle()));
             }
 
-#if !NETCOREAPP
+#if NETFRAMEWORK
             [TestMethod]
             public void ConstructorThrowsArgumentNullExceptionWhenApplicationLifecycleIsNull()
             {
@@ -118,6 +118,7 @@
 
         // TODO: Test that TelemetryBuffer.Send synchronously clears the buffer to prevent item # 501 from flushing again
         [TestClass]
+        [TestCategory("WindowsOnly")] // these tests are flaky on linux builds.
         public class Send : TelemetryBufferTest
         {
             [TestMethod]
@@ -161,6 +162,7 @@
             }
 
             [TestMethod]
+            
             public void FlushesBufferWhenNumberOfTelemetryItemsReachesMax()
             {
                 var bufferFlushed = new ManualResetEventSlim();
@@ -416,6 +418,150 @@
                 applicationLifecycle.OnStopping(new ApplicationStoppingEventArgs(asyncTaskRunner));
 
                 Assert.IsTrue(deferralAcquired);
+            }
+        }
+
+        [TestClass]
+        public class FlushAsyncTask : TelemetryBufferTest
+        {
+            [TestMethod]
+            [Timeout(10000)]
+            public async Task CallsSerializeTelemetryIfBufferIsEmpty()
+            {
+                bool telemetrySerialized = false;
+                var serializer = new StubTelemetrySerializer
+                {
+                    OnSerializeAsync = (telemetry, cancellationToken) =>
+                    {
+                        telemetrySerialized = true;
+                        return Task.FromResult(true);
+                    }
+                };
+
+                var telemetryBuffer = new TelemetryBuffer(serializer, new StubApplicationLifecycle());
+                var taskResult = await telemetryBuffer.FlushAsync(default);
+
+                Assert.IsTrue(telemetrySerialized);
+                Assert.IsTrue(taskResult);
+            }
+
+            [TestMethod]
+            [Timeout(10000)]
+            public async Task SerializesTelemetryIfBufferIsNotEmpty()
+            {
+                List<ITelemetry> serializedTelemetry = null;
+
+                var serializer = new StubTelemetrySerializer
+                {
+                    OnSerializeAsync = (telemetry, cancellationToken) =>
+                    {
+                        serializedTelemetry = new List<ITelemetry>(telemetry);
+                        return Task.FromResult(true);
+                    }
+                };
+
+                var telemetryBuffer = new TelemetryBuffer(serializer, new StubApplicationLifecycle());
+
+                var expectedTelemetry = new StubTelemetry();
+                telemetryBuffer.Process(expectedTelemetry);
+
+                var taskResult = await telemetryBuffer.FlushAsync(default);
+
+                Assert.AreSame(expectedTelemetry, serializedTelemetry.Single());
+                Assert.IsTrue(taskResult);
+            }
+
+            [TestMethod]
+            [Timeout(10000)]
+            public async Task EmptiesBufferAfterSerialization()
+            {
+                var serializer = new StubTelemetrySerializer
+                {
+                    OnSerializeAsync = (telemetry, cancellationToken) =>
+                    {
+                        return Task.FromResult(true);
+                    }
+                };
+
+                var buffer = new TelemetryBuffer(serializer, new StubApplicationLifecycle());
+                buffer.Capacity = 10;
+                buffer.Process(new StubTelemetry());
+
+                var taskResult = await buffer.FlushAsync(default);
+
+                Assert.AreEqual(0, buffer.Count());
+                Assert.IsTrue(taskResult);
+            }
+
+            [TestMethod]
+            [Timeout(10000)]
+            public async Task DoesNotContinueOnCapturedSynchronizationContextToImprovePerformance()
+            {
+                var serializer = new StubTelemetrySerializer
+                {
+                    OnSerializeAsync = (telemetry, cancellationToken) =>
+                    {
+                        return Task.FromResult(true);
+                    }
+                };
+
+                var buffer = new TelemetryBuffer(serializer, new StubApplicationLifecycle());
+                buffer.Process(new StubTelemetry());
+
+                bool postedBack = false;
+                using (var context = new StubSynchronizationContext())
+                {
+                    context.OnPost = (callback, state) =>
+                    {
+                        postedBack = true;
+                        callback(state);
+                    };
+
+                    var taskResult = await buffer.FlushAsync(default);
+
+                    Assert.IsFalse(postedBack);
+                    Assert.IsTrue(taskResult);
+                }
+            }
+
+            [TestMethod]
+            public async Task BufferFlushAsyncTaskRespectCancellationToken()
+            {
+                var telemetryBuffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
+                await Assert.ThrowsExceptionAsync<TaskCanceledException>(() => telemetryBuffer.FlushAsync(new CancellationToken(true)));
+            }
+
+            [TestMethod]
+            public void WaitsUntilTelemetryBufferIsSafeToModify()
+            {
+                var serializer = new StubTelemetrySerializer
+                {
+                    OnSerializeAsync = (telemetry, cancellationToken) =>
+                    {
+                        return Task.FromResult(true);
+                    }
+                };
+
+                var telemetryBuffer = new TelemetryBuffer(serializer, new StubApplicationLifecycle());
+                telemetryBuffer.Process(new StubTelemetry());
+
+                Task anotherThread;
+                lock (telemetryBuffer)
+                {
+                    anotherThread = Task.Run(() => telemetryBuffer.FlushAsync(default));
+                    Assert.IsFalse(anotherThread.Wait(10));
+                }
+
+                Assert.IsTrue(anotherThread.Wait(50));
+            }
+
+            [TestMethod]
+            public void SerializerThrowsExceptionWhenEndPointIsNull()
+            {
+                var serializer = new TelemetrySerializer(new Transmitter());
+
+                var telemetryBuffer = new TelemetryBuffer(serializer, new StubApplicationLifecycle());
+                AssertEx.Throws<Exception>(() => telemetryBuffer.FlushAsync(default));
             }
         }
     }

@@ -94,7 +94,7 @@
             [TestMethod]
             public void UpperBoundOfDelayIsMaxDelay()
             {
-#if !NETCOREAPP
+#if NETFRAMEWORK
                 var manager = new BackoffLogicManager(TimeSpan.Zero, TimeSpan.Zero);
 
                 PrivateObject wrapper = new PrivateObject(manager);

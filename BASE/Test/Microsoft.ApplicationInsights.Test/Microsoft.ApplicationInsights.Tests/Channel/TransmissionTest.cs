@@ -85,6 +85,17 @@
                 var transmission = new Transmission(testUri, new byte[1], "content/type", "content/encoding", expectedValue);
                 Assert.AreEqual(expectedValue, transmission.Timeout);
             }
+
+            [TestMethod]
+            public void FlushAsyncIdGetsIncrementedOnEveryTransmission()
+            {
+                var transmission1 = new Transmission();
+                var transmission2 = new Transmission();
+                var transmission3 = new Transmission(testUri, new byte[1], "content/type", "content/encoding");
+
+                Assert.AreEqual(transmission1.FlushAsyncId + 1, transmission2.FlushAsyncId);
+                Assert.AreEqual(transmission1.FlushAsyncId + 2, transmission3.FlushAsyncId);
+            }
         }
 
         [TestClass]
@@ -209,7 +220,12 @@
                     // VALIDATE
                     Assert.AreEqual(206, result.StatusCode);
                     Assert.AreEqual("5", result.RetryAfterHeader);
+
+#if NET5_0
+                    Assert.IsTrue(result.Content == string.Empty);
+#else
                     Assert.IsNull(result.Content);
+#endif
                 }
             }
 
@@ -370,7 +386,7 @@
 
             }
 
-#if NETCOREAPP2_1 || NETCOREAPP3_1
+#if NETCOREAPP
             [TestMethod]
             public async Task SendAsyncLogsIngestionReponseTimeEventCounter()
             {
@@ -409,9 +425,7 @@
                         // Max should be more than 30 ms, as we introduced a delay of 30ms in SendAsync.
 #if NETCOREAPP2_1
                         Assert.IsTrue((float)payload["Max"] >= 30);
-#endif
-
-#if NETCOREAPP3_1
+#elif NETCOREAPP3_1
                         Assert.IsTrue((double)payload["Max"] >= 30);
 #endif
                     }
@@ -458,9 +472,7 @@
                         // Mean should be more than 30 ms, as we introduced a delay of 30ms in SendAsync.
 #if NETCOREAPP2_1
                         Assert.IsTrue((float)payload["Mean"] >= 30);
-#endif
-
-#if NETCOREAPP3_1
+#elif NETCOREAPP3_1
                         Assert.IsTrue((double)payload["Mean"] >= 30);
 #endif
                     }

@@ -26,7 +26,7 @@
         // fetcher is created per AzureSdkDiagnosticsEventHandler and AzureSdkDiagnosticsEventHandler is created per DiagnosticSource
         private readonly PropertyFetcher linksPropertyFetcher = new PropertyFetcher("Links");
 
-        public AzureSdkDiagnosticsEventHandler(TelemetryConfiguration configuration) : base(configuration)
+        public AzureSdkDiagnosticsEventHandler(TelemetryClient client) : base(client)
         {
         }
 
@@ -39,6 +39,12 @@
         {
             try
             {
+                if (SdkInternalOperationsMonitor.IsEntered())
+                {
+                    // Because we support AAD, we must to check if an internal operation is being caught here (type = "InProc | Microsoft.AAD").
+                    return;
+                }
+
                 var currentActivity = Activity.Current;
                 if (evnt.Key.EndsWith(".Start", StringComparison.Ordinal))
                 {
@@ -280,6 +286,8 @@
             string method = null;
             string url = null;
             string status = null;
+            bool failed = false;
+            bool hasExplicitStatus = false;
 
             foreach (var tag in activity.Tags)
             {
@@ -303,6 +311,11 @@
                 {
                     status = tag.Value;
                 }
+                else if (tag.Key == "otel.status_code")
+                {
+                    hasExplicitStatus = true;
+                    failed = string.Equals(tag.Value, "ERROR", StringComparison.OrdinalIgnoreCase);
+                }
             }
 
             // TODO: could be optimized to avoid full URI parsing and allocation
@@ -317,9 +330,16 @@
             dependency.Target = DependencyTargetNameHelper.GetDependencyTargetName(parsedUrl);
             dependency.ResultCode = status;
 
-            if (int.TryParse(status, out var statusCode))
+            if (!hasExplicitStatus)
             {
-                dependency.Success = (statusCode > 0) && (statusCode < 400);
+                if (int.TryParse(status, out var statusCode))
+                {
+                    dependency.Success = (statusCode > 0) && (statusCode < 400);
+                }
+            }
+            else if (failed)
+            {
+                dependency.Success = false;
             }
         }
 

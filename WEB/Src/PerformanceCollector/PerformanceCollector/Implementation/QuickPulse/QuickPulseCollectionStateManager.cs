@@ -7,6 +7,7 @@
     using System.Threading.Tasks;
 
     using Microsoft.ApplicationInsights.Extensibility.Filtering;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse.Helpers;
 
@@ -34,8 +35,10 @@
 
         private readonly List<CollectionConfigurationError> collectionConfigurationErrors = new List<CollectionConfigurationError>();
 
+        private readonly TelemetryConfiguration telemetryConfiguration;
+
         private DateTimeOffset lastSuccessfulPing;
-        
+
         private DateTimeOffset lastSuccessfulSubmit;
 
         private bool isCollectingData;
@@ -47,74 +50,31 @@
         private TimeSpan? latestServicePollingIntervalHint = null;
 
         public QuickPulseCollectionStateManager(
-            IQuickPulseServiceClient serviceClient, 
-            Clock timeProvider, 
-            QuickPulseTimings timings, 
-            Action onStartCollection, 
-            Action onStopCollection, 
-            Func<IList<QuickPulseDataSample>> onSubmitSamples, 
+            TelemetryConfiguration telemetryConfiguration,
+            IQuickPulseServiceClient serviceClient,
+            Clock timeProvider,
+            QuickPulseTimings timings,
+            Action onStartCollection,
+            Action onStopCollection,
+            Func<IList<QuickPulseDataSample>> onSubmitSamples,
             Action<IList<QuickPulseDataSample>> onReturnFailedSamples,
             Func<CollectionConfigurationInfo, CollectionConfigurationError[]> onUpdatedConfiguration,
             Action<Uri> onUpdatedServiceEndpoint)
         {
-            if (serviceClient == null)
-            {
-                throw new ArgumentNullException(nameof(serviceClient));
-            }
-
-            if (timeProvider == null)
-            {
-                throw new ArgumentNullException(nameof(timeProvider));
-            }
-
-            if (timings == null)
-            {
-                throw new ArgumentNullException(nameof(timings));
-            }
-            
-            if (onStartCollection == null)
-            {
-                throw new ArgumentNullException(nameof(onStartCollection));
-            }
-
-            if (onStopCollection == null)
-            {
-                throw new ArgumentNullException(nameof(onStopCollection));
-            }
-
-            if (onSubmitSamples == null)
-            {
-                throw new ArgumentNullException(nameof(onSubmitSamples));
-            }
-
-            if (onReturnFailedSamples == null)
-            {
-                throw new ArgumentNullException(nameof(onReturnFailedSamples));
-            }
-
-            if (onUpdatedConfiguration == null)
-            {
-                throw new ArgumentNullException(nameof(onUpdatedConfiguration));
-            }
-
-            if (onUpdatedServiceEndpoint == null)
-            {
-                throw new ArgumentNullException(nameof(onUpdatedServiceEndpoint));
-            }
-
-            this.serviceClient = serviceClient;
-            this.timeProvider = timeProvider;
-            this.timings = timings;
-            this.onStartCollection = onStartCollection;
-            this.onStopCollection = onStopCollection;
-            this.onSubmitSamples = onSubmitSamples;
-            this.onReturnFailedSamples = onReturnFailedSamples;
-            this.onUpdatedConfiguration = onUpdatedConfiguration;
-            this.onUpdatedServiceEndpoint = onUpdatedServiceEndpoint;
+            this.telemetryConfiguration = telemetryConfiguration ?? throw new ArgumentNullException(nameof(telemetryConfiguration));
+            this.serviceClient = serviceClient ?? throw new ArgumentNullException(nameof(serviceClient));
+            this.timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+            this.timings = timings ?? throw new ArgumentNullException(nameof(timings));
+            this.onStartCollection = onStartCollection ?? throw new ArgumentNullException(nameof(onStartCollection));
+            this.onStopCollection = onStopCollection ?? throw new ArgumentNullException(nameof(onStopCollection));
+            this.onSubmitSamples = onSubmitSamples ?? throw new ArgumentNullException(nameof(onSubmitSamples));
+            this.onReturnFailedSamples = onReturnFailedSamples ?? throw new ArgumentNullException(nameof(onReturnFailedSamples));
+            this.onUpdatedConfiguration = onUpdatedConfiguration ?? throw new ArgumentNullException(nameof(onUpdatedConfiguration));
+            this.onUpdatedServiceEndpoint = onUpdatedServiceEndpoint ?? throw new ArgumentNullException(nameof(onUpdatedServiceEndpoint));
 
             this.coolDownTimeout = TimeSpan.FromMilliseconds(timings.CollectionInterval.TotalMilliseconds / 20);
         }
-        
+
         public bool IsCollectingData
         {
             get
@@ -148,6 +108,18 @@
                 this.firstStateUpdate = false;
             }
 
+            AuthToken authToken = default;
+            if (this.telemetryConfiguration.CredentialEnvelope != null)
+            {
+                authToken = this.telemetryConfiguration.CredentialEnvelope.GetToken();
+                if (authToken == default)
+                {
+                    // If a credential has been set on the configuration and we fail to get a token, do net send.
+                    QuickPulseEventSource.Log.FailedToGetAuthToken();
+                    return this.DetermineBackOffs();
+                }
+            }
+
             CollectionConfigurationInfo configurationInfo;
             if (this.IsCollectingData)
             {
@@ -179,6 +151,7 @@
                     instrumentationKey,
                     this.currentConfigurationETag,
                     authApiKey,
+                    authToken.Token,
                     out configurationInfo,
                     this.collectionConfigurationErrors.ToArray());
 
@@ -213,11 +186,12 @@
                     this.timeProvider.UtcNow,
                     this.currentConfigurationETag,
                     authApiKey,
+                    authToken.Token,
                     out configurationInfo,
                     out TimeSpan? servicePollingIntervalHint);
 
                 this.latestServicePollingIntervalHint = servicePollingIntervalHint ?? this.latestServicePollingIntervalHint;
-                
+
                 QuickPulseEventSource.Log.PingSentEvent(this.currentConfigurationETag, configurationInfo?.ETag, startCollection.ToString());
 
                 switch (startCollection)
@@ -280,7 +254,7 @@
                 this.currentConfigurationETag = configurationInfo.ETag;
             }
         }
-        
+
         private TimeSpan DetermineBackOffs()
         {
             if (this.IsCollectingData)

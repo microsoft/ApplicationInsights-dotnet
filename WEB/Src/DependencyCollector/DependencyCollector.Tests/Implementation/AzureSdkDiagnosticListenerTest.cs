@@ -50,6 +50,32 @@
         }
 
         [TestMethod]
+        public void AzureSdkListenerDoesNotThrowAfterInitialization()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                // Dispose config after initialize
+                // If AzureSdkListener attempted to create
+                // new TelemetryClient after initialize, it'd throw.
+                this.configuration.Dispose();
+
+                Activity sendActivity = new Activity("Azure.SomeClient.Send");
+                sendActivity.AddTag("kind", "client");
+
+                listener.StartActivity(sendActivity, null);
+                listener.StopActivity(sendActivity, null);
+
+                var listenerAnother = new DiagnosticListener("Azure.AnotherClient");
+                var listenerYetAnother = new DiagnosticListener("Azure.YetAnotherClient");
+
+                Assert.AreEqual(0, this.sentItems.Count);
+            }
+        }
+
+        [TestMethod]
         public void AzureClientSpansNotCollectedWhenDisabled()
         {
             using (var listener = new DiagnosticListener("Azure.SomeClient"))
@@ -935,6 +961,41 @@
 
                 Activity httpActivity = new Activity("Azure.SomeClient.Http.Request")
                     .AddTag("http.method", "PATCH")
+                    .AddTag("http.url", "http://host/path?query#fragment")
+                    .AddTag("otel.status_code", "ERROR");
+
+                var payload = new HttpRequestMessage();
+                listener.StartActivity(httpActivity, payload);
+                httpActivity.AddTag("http.status_code", "503");
+
+                listener.StopActivity(httpActivity, payload);
+
+                var telemetry = this.sentItems.Last() as DependencyTelemetry;
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("PATCH /path", telemetry.Name);
+                Assert.AreEqual("host", telemetry.Target);
+                Assert.AreEqual("http://host/path?query#fragment", telemetry.Data);
+                Assert.AreEqual("503", telemetry.ResultCode);
+                Assert.AreEqual("Http", telemetry.Type);
+                Assert.IsFalse(telemetry.Success.Value);
+
+                Assert.IsNull(telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(httpActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
+                Assert.AreEqual(httpActivity.SpanId.ToHexString(), telemetry.Id);
+            }
+        }
+
+        [TestMethod]
+        public void AzureClientSpansAreCollectedForHttpNotSuccessResponseAndNoStatusCode()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                Activity httpActivity = new Activity("Azure.SomeClient.Http.Request")
+                    .AddTag("http.method", "PATCH")
                     .AddTag("http.url", "http://host/path?query#fragment");
 
                 var payload = new HttpRequestMessage();
@@ -956,6 +1017,30 @@
                 Assert.IsNull(telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(httpActivity.TraceId.ToHexString(), telemetry.Context.Operation.Id);
                 Assert.AreEqual(httpActivity.SpanId.ToHexString(), telemetry.Id);
+            }
+        }
+
+        [TestMethod]
+        public void AzureClientSpansAreCollectedAndHttpStatusCodeIsIgnoredWithExplicitStatusCode()
+        {
+            using (var listener = new DiagnosticListener("Azure.SomeClient"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                Activity httpActivity = new Activity("Azure.SomeClient.Http.Request")
+                    .AddTag("http.method", "PATCH")
+                    .AddTag("http.url", "http://host/path?query#fragment")
+                    .AddTag("otel.status_code", "UNSET");
+
+                var payload = new HttpRequestMessage();
+                listener.StartActivity(httpActivity, payload);
+                httpActivity.AddTag("http.status_code", "503");
+
+                listener.StopActivity(httpActivity, payload);
+
+                var telemetry = this.sentItems.Last() as DependencyTelemetry;
+                Assert.IsTrue(telemetry.Success.Value);
             }
         }
 
