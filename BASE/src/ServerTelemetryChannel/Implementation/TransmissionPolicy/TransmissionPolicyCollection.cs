@@ -25,7 +25,8 @@
         }
 
         /// <summary>
-        /// Constructor for unit tests only.
+        /// Constructor intended for unit tests only. 
+        /// This is also used by the <see cref="TransmissionPolicyCollection.Default"/> to create an empty collection.
         /// </summary>
         /// <param name="policies">A collection of <see cref="TransmissionPolicy"/> specific to a test scenario.</param>
         internal TransmissionPolicyCollection(IEnumerable<TransmissionPolicy> policies)

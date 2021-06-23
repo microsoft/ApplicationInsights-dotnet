@@ -17,13 +17,13 @@
 
 
         public StubTransmitter()
-            : base(new StubTransmissionSender(), new StubTransmissionBuffer(), new StubTransmissionStorage(), new TransmissionPolicyCollection(Enumerable.Empty<TransmissionPolicy>()), new BackoffLogicManager(TimeSpan.FromMinutes(30)))
+            : base(new StubTransmissionSender(), new StubTransmissionBuffer(), new StubTransmissionStorage(), TransmissionPolicyCollection.Default, new BackoffLogicManager(TimeSpan.FromMinutes(30)))
         {
             
         }
 
         public StubTransmitter(BackoffLogicManager backoffLogicManager)
-            : base(new StubTransmissionSender(), new StubTransmissionBuffer(), new StubTransmissionStorage(), new TransmissionPolicyCollection(Enumerable.Empty<TransmissionPolicy>()), backoffLogicManager)
+            : base(new StubTransmissionSender(), new StubTransmissionBuffer(), new StubTransmissionStorage(), TransmissionPolicyCollection.Default, backoffLogicManager)
         {
 
         }
