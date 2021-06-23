@@ -36,47 +36,32 @@
 
         private void HandleTransmissionSentEvent(object sender, TransmissionProcessedEventArgs e)
         {
-            if (this.Enabled)
+            if (this.Enabled && e.Response != null)
             {
-                HttpWebResponseWrapper httpWebResponseWrapper = e.Response;
-                if (httpWebResponseWrapper != null)
+                switch (e.Response.StatusCode) // HttpWebResponseWrapper
                 {
-                    if (httpWebResponseWrapper.StatusCode == ResponseStatusCodes.BadRequest)
-                    {
-                        // HTTP/1.1 400 Incorrect API was used - v2 API does not support authentication.
+                    case ResponseStatusCodes.BadRequest:
+                        // "HTTP/1.1 400 Incorrect API was used - v2 API does not support authentication".
                         // This indicates that the AI resource was configured for AAD, but SDK was not.
-                        // This is a configuration issue and is not recoverable. 
-                        this.ApplyHaltPolicy(e);
-                    }
-                    else if (httpWebResponseWrapper.StatusCode == ResponseStatusCodes.Unauthorized)
-                    {
-                        // HTTP/1.1 401 Unauthorized - please provide the valid authorization token
+                        // This is a configuration issue and is not recoverable from the client side. 
+                        // If the customer chooses to disable AAD in the AI Resource, the SDK could resume sending.
+                        this.ApplyThrottlePolicy(e);
+                        break;
+                    case ResponseStatusCodes.Unauthorized:
+                        // "HTTP/1.1 401 Unauthorized - please provide the valid authorization token".
                         // This indicates that the authorization token was either absent, invalid, or expired.
                         // The root cause is not known and we should throttle retries.
                         this.ApplyThrottlePolicy(e);
-                    }
-                    else if (httpWebResponseWrapper.StatusCode == ResponseStatusCodes.Forbidden)
-                    {
-                        // HTTP/1.1 403 Forbidden - provided credentials do not grant the access to ingest the telemetry into the component
+                        break;
+                    case ResponseStatusCodes.Forbidden:
+                        // "HTTP/1.1 403 Forbidden - provided credentials do not grant the access to ingest the telemetry into the component".
                         // This indicates the configured identity does not have permissions to publish to this resource.
-                        // This can be recovered if the user changes the AI Resource configuration.
+                        // This is a configuration issue and is not recoverable from the client side. 
+                        // This can be recovered if the user changes the AI Resource's configured Access Control.
                         this.ApplyThrottlePolicy(e);
-                    }
+                        break;
                 }
             }
-        }
-
-        private void ApplyHaltPolicy(TransmissionProcessedEventArgs e)
-        {
-            this.MaxSenderCapacity = 0;
-            this.MaxBufferCapacity = 0;
-            this.MaxStorageCapacity = null;
-
-            this.LogCapacityChanged();
-            this.Apply();
-
-            this.backoffLogicManager.ReportBackoffEnabled(e.Response.StatusCode);
-            this.Transmitter.Enqueue(e.Transmission);
         }
 
         private void ApplyThrottlePolicy(TransmissionProcessedEventArgs e)
