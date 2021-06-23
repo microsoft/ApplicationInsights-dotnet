@@ -8,6 +8,13 @@
     using Microsoft.ApplicationInsights.Channel.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
+    /// <summary>
+    /// This class defines how the SDK will behave when it receives Response Codes 
+    /// from the Ingestion Service related to Authentication (AAD) scenarios.
+    /// </summary>
+    /// <remarks>
+    /// This class is disabled by default and expected to be enabled only when AAD has been configured in the AI SDK.
+    /// </remarks>
     internal class AuthenticationTransmissionPolicy : TransmissionPolicy, IDisposable
     {
         private BackoffLogicManager backoffLogicManager;
@@ -34,30 +41,36 @@
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// This method subscribes to the <see cref="Transmitter.TransmissionSent"/> event.
+        /// This encapsulates all <see cref="HttpWebResponseWrapper.StatusCode"/> related to Authentication (AAD) scenarios.
+        /// </summary>
+        /// <remarks>
+        /// AN EXPLANATION OF THE STATUS CODES:
+        /// - <see cref="ResponseStatusCodes.BadRequest"/>
+        /// "HTTP/1.1 400 Incorrect API was used - v2 API does not support authentication".
+        /// This indicates that the AI resource was configured for AAD, but SDK was not.
+        /// This is a configuration issue and is not recoverable from the client side. 
+        /// If the customer chooses to disable AAD in the AI Resource, the SDK could resume sending.
+        /// - <see cref="ResponseStatusCodes.Unauthorized"/>
+        /// "HTTP/1.1 401 Unauthorized - please provide the valid authorization token".
+        /// This indicates that the authorization token was either absent, invalid, or expired.
+        /// The root cause is not known and we should throttle retries.
+        /// - <see cref="ResponseStatusCodes.Forbidden"/>
+        /// "HTTP/1.1 403 Forbidden - provided credentials do not grant the access to ingest the telemetry into the component".
+        /// This indicates the configured identity does not have permissions to publish to this resource.
+        /// This is a configuration issue and is not recoverable from the client side. 
+        /// This can be recovered if the user changes the AI Resource's configured Access Control.
+        /// </remarks>
         private void HandleTransmissionSentEvent(object sender, TransmissionProcessedEventArgs e)
         {
             if (this.Enabled && e.Response != null)
             {
-                switch (e.Response.StatusCode) // HttpWebResponseWrapper
+                switch (e.Response.StatusCode)
                 {
                     case ResponseStatusCodes.BadRequest:
-                        // "HTTP/1.1 400 Incorrect API was used - v2 API does not support authentication".
-                        // This indicates that the AI resource was configured for AAD, but SDK was not.
-                        // This is a configuration issue and is not recoverable from the client side. 
-                        // If the customer chooses to disable AAD in the AI Resource, the SDK could resume sending.
-                        this.ApplyThrottlePolicy(e);
-                        break;
                     case ResponseStatusCodes.Unauthorized:
-                        // "HTTP/1.1 401 Unauthorized - please provide the valid authorization token".
-                        // This indicates that the authorization token was either absent, invalid, or expired.
-                        // The root cause is not known and we should throttle retries.
-                        this.ApplyThrottlePolicy(e);
-                        break;
                     case ResponseStatusCodes.Forbidden:
-                        // "HTTP/1.1 403 Forbidden - provided credentials do not grant the access to ingest the telemetry into the component".
-                        // This indicates the configured identity does not have permissions to publish to this resource.
-                        // This is a configuration issue and is not recoverable from the client side. 
-                        // This can be recovered if the user changes the AI Resource's configured Access Control.
                         this.ApplyThrottlePolicy(e);
                         break;
                 }
