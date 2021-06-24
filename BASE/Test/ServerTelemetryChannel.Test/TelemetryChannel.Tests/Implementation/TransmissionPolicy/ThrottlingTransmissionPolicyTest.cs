@@ -88,9 +88,8 @@
                 var policy = new ThrottlingTransmissionPolicy();
                 policy.Initialize(transmitter);
 
-                // ACT
                 transmitter.InvokeTransmissionSentEvent(responseCode, TimeSpan.FromSeconds(RetryAfterSeconds), hasFlushTask);
-
+                
                 // ASSERT: First Handle will trigger Throttle and delay.
                 Assert.IsTrue(transmitter.IsApplyInvoked(waitForTheFirstApplyAsync));
                 
@@ -105,7 +104,6 @@
                 Assert.IsNull(policy.MaxBufferCapacity);
                 Assert.IsNull(policy.MaxStorageCapacity);
             }
-
 
             private void EvaluateIfStatusCodeIgnored(int statusCode)
             {
