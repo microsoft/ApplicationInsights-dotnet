@@ -15,7 +15,7 @@
 
         // Long-living object that holds a refresher which checks whether the configuration file was updated
         // every 10 seconds.
-        // private readonly SelfDiagnosticsConfigRefresher configRefresher;
+        private readonly SelfDiagnosticsConfigRefresher configRefresher;
 
         static SelfDiagnosticsInitializer()
         {
@@ -27,7 +27,7 @@
 
         private SelfDiagnosticsInitializer()
         {
-            // this.configRefresher = new SelfDiagnosticsConfigRefresher();
+            this.configRefresher = new SelfDiagnosticsConfigRefresher();
         }
 
         /// <summary>
@@ -54,7 +54,7 @@
         {
             if (disposing)
             {
-                // this.configRefresher.Dispose();
+                this.configRefresher.Dispose();
             }
         }
     }

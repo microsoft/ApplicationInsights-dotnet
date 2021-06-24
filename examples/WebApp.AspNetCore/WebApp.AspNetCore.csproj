@@ -8,4 +8,11 @@
     <ProjectReference Include="..\..\NETCORE\src\Microsoft.ApplicationInsights.AspNetCore\Microsoft.ApplicationInsights.AspNetCore.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!--This file enables self-diagnostics (https://github.com/microsoft/ApplicationInsights-dotnet/tree/develop/troubleshooting/ETW#self-diagnostics)-->
+    <Content Update="ApplicationInsightsDiagnostics.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

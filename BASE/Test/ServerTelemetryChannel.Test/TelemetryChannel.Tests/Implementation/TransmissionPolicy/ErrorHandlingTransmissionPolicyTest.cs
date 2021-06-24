@@ -1,6 +1,6 @@
 ﻿using System.Net.Http;
 
-namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
+namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation.TransmissionPolicy
 {
     using System;
     using System.Diagnostics.Tracing;
@@ -23,6 +23,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
     public class ErrorHandlingTransmissionPolicyTest
     {
         [TestClass]
+        [TestCategory("TransmissionPolicy")]
         [TestCategory("WindowsOnly")] // these tests are flaky on linux builds.
         public class HandleTransmissionSentEvent : ErrorHandlingTransmissionPolicyTest
         {
