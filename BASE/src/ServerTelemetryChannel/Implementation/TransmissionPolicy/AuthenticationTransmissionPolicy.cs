@@ -88,7 +88,7 @@
             this.Transmitter.Enqueue(e.Transmission);
 
             // Ingestion service does not provide a retry value. We use our own here.
-            //this.pauseTimer.Delay = TimeSpan.FromSeconds(30);
+            // this.pauseTimer.Delay = TimeSpan.FromSeconds(30);
             this.pauseTimer.Start(() =>
                 {
                     this.ResetPolicy();
