@@ -10,6 +10,7 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Channel.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation.TransmissionPolicy;
 
     /// <summary>
     /// Implements throttled and persisted transmission of telemetry to Application Insights. 
@@ -19,7 +20,7 @@
         internal readonly TransmissionSender Sender;
         internal readonly TransmissionBuffer Buffer;
         internal readonly TransmissionStorage Storage;
-        private readonly IEnumerable<TransmissionPolicy> policies;
+        private readonly TransmissionPolicyCollection policies;
         private readonly BackoffLogicManager backoffLogicManager;
         private readonly Task<bool> successTask = Task.FromResult(true);
         private readonly Task<bool> failedTask = Task.FromResult(false);
@@ -37,7 +38,7 @@
             TransmissionSender sender = null,
             TransmissionBuffer transmissionBuffer = null,
             TransmissionStorage storage = null,
-            IEnumerable<TransmissionPolicy> policies = null,
+            TransmissionPolicyCollection policies = null,
             BackoffLogicManager backoffLogicManager = null)
         {
             this.backoffLogicManager = backoffLogicManager ?? new BackoffLogicManager();
@@ -52,11 +53,8 @@
             this.Storage = storage ?? new TransmissionStorage();
             this.maxStorageCapacity = this.Storage.Capacity;
 
-            this.policies = policies ?? Enumerable.Empty<TransmissionPolicy>();
-            foreach (TransmissionPolicy policy in this.policies)
-            {
-                policy.Initialize(this);
-            }
+            this.policies = policies ?? TransmissionPolicyCollection.Default;
+            this.policies.Initialize(this);
         }
 
         public event EventHandler<TransmissionProcessedEventArgs> TransmissionSent;
@@ -390,21 +388,6 @@
             }
         }
 
-        private int? CalculateCapacity(Func<TransmissionPolicy, int?> getMaxPolicyCapacity)
-        {
-            int? maxComponentCapacity = null;
-            foreach (TransmissionPolicy policy in this.policies)
-            {
-                int? maxPolicyCapacity = getMaxPolicyCapacity(policy);
-                if (maxPolicyCapacity != null)
-                {
-                    maxComponentCapacity = maxComponentCapacity == null ? maxPolicyCapacity : Math.Min(maxComponentCapacity.Value, maxPolicyCapacity.Value);
-                }
-            }
-
-            return maxComponentCapacity;
-        }
-
         private void HandleSenderTransmissionSentEvent(object sender, TransmissionProcessedEventArgs e)
         {
             this.OnTransmissionSent(e);
@@ -433,19 +416,16 @@
 
         private void UpdateComponentCapacitiesFromPolicies()
         {
-            this.Sender.Capacity = this.CalculateCapacity(policy => policy.MaxSenderCapacity) ?? this.maxSenderCapacity;
-            this.Buffer.Capacity = this.CalculateCapacity(policy => policy.MaxBufferCapacity) ?? this.maxBufferCapacity;
-            this.Storage.Capacity = this.CalculateCapacity(policy => policy.MaxStorageCapacity) ?? this.maxStorageCapacity;
+            this.Sender.Capacity = this.policies.CalculateMinimumMaxSenderCapacity() ?? this.maxSenderCapacity;
+            this.Buffer.Capacity = this.policies.CalculateMinimumMaxBufferCapacity() ?? this.maxBufferCapacity;
+            this.Storage.Capacity = this.policies.CalculateMinimumMaxStorageCapacity() ?? this.maxStorageCapacity;
         }
 
         private void Dispose(bool disposing)
         {
             if (disposing && this.policies != null)
             {
-                foreach (var policy in this.policies.OfType<IDisposable>())
-                {
-                    policy.Dispose();
-                }
+                this.policies.Dispose();
 
                 if (this.Storage != null)
                 {

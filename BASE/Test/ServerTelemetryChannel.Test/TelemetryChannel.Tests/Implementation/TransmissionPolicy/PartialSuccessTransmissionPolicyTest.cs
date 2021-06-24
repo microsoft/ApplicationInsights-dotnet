@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation
+﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation.TransmissionPolicy
 {
     using System;
     using System.Collections.Generic;
@@ -15,6 +15,7 @@
     using TaskEx = System.Threading.Tasks.Task;
 
     [TestClass]
+    [TestCategory("TransmissionPolicy")]
     public class PartialSuccessTransmissionPolicyTest
     {
         [TestMethod]
