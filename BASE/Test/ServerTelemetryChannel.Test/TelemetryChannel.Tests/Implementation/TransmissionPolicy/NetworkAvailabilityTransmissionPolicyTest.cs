@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
+﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation.TransmissionPolicy
 {
     using System;
     using System.Diagnostics.Tracing;
@@ -13,9 +13,11 @@
     using TaskEx = System.Threading.Tasks.Task;
 
     [TestClass]
+    [TestCategory("TransmissionPolicy")]
     public class NetworkAvailabilityTransmissionPolicyTest
     {
         [TestClass]
+        [TestCategory("TransmissionPolicy")]
         public class Class : NetworkAvailabilityTransmissionPolicyTest
         {
             [TestMethod]
@@ -44,6 +46,7 @@
         }
 
         [TestClass]
+        [TestCategory("TransmissionPolicy")]
         public class Initialize : NetworkAvailabilityTransmissionPolicyTest
         {
             [TestMethod]
@@ -122,6 +125,7 @@
         }
 
         [TestClass]
+        [TestCategory("TransmissionPolicy")]
         public class HandleNetworkStatusChangedEvent : NetworkAvailabilityTransmissionPolicyTest
         {
             [TestMethod]

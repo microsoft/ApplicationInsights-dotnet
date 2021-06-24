@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
+﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation.TransmissionPolicy
 {
     using System;
     using System.Diagnostics.Tracing;
@@ -13,29 +13,28 @@
     public class ThrottlingTransmissionPolicyTest
     {
         [TestClass]
+        [TestCategory("TransmissionPolicy")]
         public class HandleTransmissionSentEvent : ErrorHandlingTransmissionPolicyTest
         {
-            private const int ResponseCodeTooManyRequests = 429;
-            private const int ResponseCodeTooManyRequestsOverExtendedTime = 439;
             private const int ResponseCodePaymentRequired = 402;
             private const int ResponseCodeUnsupported = 0;
 
             [TestMethod]
             public void AssertTooManyRequestsStopsSending()
             {
-                this.PositiveTest(ResponseCodeTooManyRequests, 0, null, null, false);
+                this.PositiveTest(ResponseStatusCodes.ResponseCodeTooManyRequests, 0, null, null, false);
             }
 
             [TestMethod]
             public void AssertTooManyRequestsStopsSendingWithFlushAsyncTask()
             {
-                this.PositiveTest(ResponseCodeTooManyRequests, 0, 0, null, true);
+                this.PositiveTest(ResponseStatusCodes.ResponseCodeTooManyRequests, 0, 0, null, true);
             }
 
             [TestMethod]
             public void AssertTooManyRequestsOverExtendedTimeStopsSendingAndCleansCache()
             {
-                this.PositiveTest(ResponseCodeTooManyRequestsOverExtendedTime, 0, 0, 0, false);
+                this.PositiveTest(ResponseStatusCodes.ResponseCodeTooManyRequestsOverExtendedTime, 0, 0, 0, false);
             }
 
             [TestMethod]
@@ -124,23 +123,22 @@
                          **/;
 
                 var policyApplied = new AutoResetEvent(false);
-                var transmitter = new StubTransmitter();
-                transmitter.OnApplyPolicies = () =>
+                var transmitter = new StubTransmitter
                 {
-                    policyApplied.Set();
+                    OnApplyPolicies = () => policyApplied.Set(),
                 };
 
                 var policy = new ThrottlingTransmissionPolicy();
                 policy.Initialize(transmitter);
 
-                string statusDescription = null;
-
                 transmitter.OnTransmissionSent(
                     new TransmissionProcessedEventArgs(
-                        new StubTransmission() { IsFlushAsyncInProgress = hasFlushTask }, null, new HttpWebResponseWrapper()
+                        transmission: new StubTransmission() { IsFlushAsyncInProgress = hasFlushTask }, 
+                        exception: null, 
+                        response: new HttpWebResponseWrapper()
                         {
                             StatusCode = responseCode,
-                            StatusDescription = statusDescription,
+                            StatusDescription = null,
                             RetryAfterHeader = retryAfter
                         }));
 

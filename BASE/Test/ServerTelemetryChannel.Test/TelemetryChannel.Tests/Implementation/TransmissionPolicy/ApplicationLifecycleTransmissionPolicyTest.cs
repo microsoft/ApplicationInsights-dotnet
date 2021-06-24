@@ -1,18 +1,16 @@
-﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
+﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation.TransmissionPolicy
 {
     using System;
     using System.Threading.Tasks;
-    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
     using Channel.Helpers;
 
-    using TaskEx = System.Threading.Tasks.Task;
-
     public class ApplicationLifecycleTransmissionPolicyTest
     {
         [TestClass]
+        [TestCategory("TransmissionPolicy")]
         public class HandleApplicationStoppingEvent : ApplicationLifecycleTransmissionPolicyTest
         {
             [TestMethod]

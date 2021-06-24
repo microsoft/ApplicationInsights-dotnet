@@ -7,6 +7,7 @@
     using System.Threading.Tasks;
 
     using Microsoft.ApplicationInsights.Extensibility.Filtering;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse.Helpers;
 
@@ -107,11 +108,11 @@
                 this.firstStateUpdate = false;
             }
 
-            string authToken = null;
+            AuthToken authToken = default;
             if (this.telemetryConfiguration.CredentialEnvelope != null)
             {
                 authToken = this.telemetryConfiguration.CredentialEnvelope.GetToken();
-                if (authToken == null)
+                if (authToken == default)
                 {
                     // If a credential has been set on the configuration and we fail to get a token, do net send.
                     QuickPulseEventSource.Log.FailedToGetAuthToken();
@@ -150,7 +151,7 @@
                     instrumentationKey,
                     this.currentConfigurationETag,
                     authApiKey,
-                    authToken,
+                    authToken.Token,
                     out configurationInfo,
                     this.collectionConfigurationErrors.ToArray());
 
@@ -185,7 +186,7 @@
                     this.timeProvider.UtcNow,
                     this.currentConfigurationETag,
                     authApiKey,
-                    authToken,
+                    authToken.Token,
                     out configurationInfo,
                     out TimeSpan? servicePollingIntervalHint);
 
