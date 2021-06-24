@@ -87,8 +87,8 @@
             this.backoffLogicManager.ReportBackoffEnabled(e.Response.StatusCode);
             this.Transmitter.Enqueue(e.Transmission);
 
-            // Ingestion service does not provide a retry value. We use our own here.
-            // this.pauseTimer.Delay = TimeSpan.FromSeconds(30);
+            // Ingestion service does not provide a retry value for these scenarios.
+            // this.pauseTimer is initialized using the value from BackoffLogicManager.SlotDelayInSeconds
             this.pauseTimer.Start(() =>
                 {
                     this.ResetPolicy();
