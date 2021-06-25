@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
 
     using Microsoft.ApplicationInsights.Channel.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     /// <summary>
@@ -11,7 +12,7 @@
     /// from the Ingestion Service related to Authentication (AAD) scenarios.
     /// </summary>
     /// <remarks>
-    /// This class is disabled by default and expected to be enabled only when AAD has been configured in the AI SDK.
+    /// This class is disabled by default and expected to be enabled only when AAD has been configured in <see cref="TelemetryConfiguration.CredentialEnvelope"/>.
     /// </remarks>
     internal class AuthenticationTransmissionPolicy : TransmissionPolicy, IDisposable
     {
