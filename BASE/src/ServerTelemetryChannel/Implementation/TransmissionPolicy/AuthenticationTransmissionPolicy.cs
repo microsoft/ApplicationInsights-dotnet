@@ -7,7 +7,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     /// <summary>
-    /// This class defines how the SDK will behave when it receives Response Codes 
+    /// This class defines how the ServerTelemetryChannel will behave when it receives Response Codes 
     /// from the Ingestion Service related to Authentication (AAD) scenarios.
     /// </summary>
     /// <remarks>
