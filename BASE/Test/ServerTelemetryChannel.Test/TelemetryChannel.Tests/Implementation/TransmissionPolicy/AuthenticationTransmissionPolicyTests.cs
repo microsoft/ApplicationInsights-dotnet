@@ -33,9 +33,9 @@
 
         private void EvaluateIfStatusCodeTriggersThrottling(int statusCode)
         {
-            var retryAfterSeconds = BackoffLogicManager.SlotDelayInSeconds;
+            var retryDelay = TimeSpan.FromSeconds(5);
             var waitForTheFirstApplyAsync = TimeSpan.FromMilliseconds(100);
-            var waitForTheSecondApplyAsync = TimeSpan.FromMilliseconds(retryAfterSeconds * 1000 + 500);
+            var waitForTheSecondApplyAsync = retryDelay.Add(TimeSpan.FromMilliseconds(500)); // adding a few ms to give the unit test a buffer.
 
             // SETUP
             var transmitter = new StubTransmitterEvalOnApply();
@@ -44,6 +44,9 @@
             {
                 Enabled = true,
             };
+
+            // we override the default timer here to speed up unit tests.
+            policy.PauseTimer = new TaskTimerInternal { Delay = retryDelay };
             policy.Initialize(transmitter);
 
             // ACT

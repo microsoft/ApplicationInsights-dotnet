@@ -16,8 +16,9 @@
     /// </remarks>
     internal class AuthenticationTransmissionPolicy : TransmissionPolicy, IDisposable
     {
+        internal TaskTimerInternal PauseTimer = new TaskTimerInternal { Delay = TimeSpan.FromMinutes(1) };
+
         private BackoffLogicManager backoffLogicManager;
-        private TaskTimerInternal pauseTimer = new TaskTimerInternal { Delay = TimeSpan.FromMinutes(1) };
 
         public bool Enabled { get; set; } = false;
 
@@ -90,7 +91,7 @@
 
             // Ingestion service does not provide a retry value for these scenarios.
             // Check this.pauseTimer above for the configured wait time.
-            this.pauseTimer.Start(() =>
+            this.PauseTimer.Start(() =>
                 {
                     this.ResetPolicy();
                     return Task.FromResult<object>(null);
@@ -110,10 +111,10 @@
         {
             if (disposing)
             {
-                if (this.pauseTimer != null)
+                if (this.PauseTimer != null)
                 {
-                    this.pauseTimer.Dispose();
-                    this.pauseTimer = null;
+                    this.PauseTimer.Dispose();
+                    this.PauseTimer = null;
                 }
             }
         }
