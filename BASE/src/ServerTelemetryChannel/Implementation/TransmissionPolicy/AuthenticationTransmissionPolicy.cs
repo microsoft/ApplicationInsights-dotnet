@@ -16,7 +16,7 @@
     internal class AuthenticationTransmissionPolicy : TransmissionPolicy, IDisposable
     {
         private BackoffLogicManager backoffLogicManager;
-        private TaskTimerInternal pauseTimer = new TaskTimerInternal { Delay = TimeSpan.FromSeconds(BackoffLogicManager.SlotDelayInSeconds) };
+        private TaskTimerInternal pauseTimer = new TaskTimerInternal { Delay = TimeSpan.FromMinutes(1) };
 
         public bool Enabled { get; set; } = false;
 
@@ -88,7 +88,7 @@
             this.Transmitter.Enqueue(e.Transmission);
 
             // Ingestion service does not provide a retry value for these scenarios.
-            // this.pauseTimer is initialized using the value from BackoffLogicManager.SlotDelayInSeconds
+            // Check this.pauseTimer above for the configured wait time.
             this.pauseTimer.Start(() =>
                 {
                     this.ResetPolicy();
