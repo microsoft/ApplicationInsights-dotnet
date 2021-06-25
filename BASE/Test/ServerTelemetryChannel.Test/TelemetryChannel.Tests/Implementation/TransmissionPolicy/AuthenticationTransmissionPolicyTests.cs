@@ -56,7 +56,7 @@
             Assert.IsTrue(transmitter.IsApplyInvoked(waitForTheFirstApplyAsync));
 
             Assert.AreEqual(0, policy.MaxSenderCapacity);
-            Assert.IsNull(policy.MaxBufferCapacity);
+            Assert.AreEqual(0, policy.MaxBufferCapacity);
             Assert.IsNull(policy.MaxStorageCapacity);
 
             // ASSERT: Throttle expires and policy will be reset.

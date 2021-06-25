@@ -80,7 +80,7 @@
         private void ApplyThrottlePolicy(TransmissionProcessedEventArgs e)
         {
             this.MaxSenderCapacity = 0;
-            this.MaxBufferCapacity = null;
+            this.MaxBufferCapacity = 0;
             this.MaxStorageCapacity = null;
 
             this.LogCapacityChanged();
