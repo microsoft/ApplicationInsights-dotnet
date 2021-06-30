@@ -17,13 +17,13 @@
     public class AuthenticationTransmissionPolicyTests
     {
         [TestMethod]
-        public void Verify400TriggersThrottling() => this.EvaluateIfStatusCodeTriggersThrottling(ResponseStatusCodes.BadRequest);
-
-        [TestMethod]
         public void Verify401TriggersThrottling() => this.EvaluateIfStatusCodeTriggersThrottling(ResponseStatusCodes.Unauthorized);
 
         [TestMethod]
         public void Verify403TriggersThrottling() => this.EvaluateIfStatusCodeTriggersThrottling(ResponseStatusCodes.Forbidden);
+
+        [TestMethod]
+        public void Verify400DoesNotTriggerThrottling() => this.EvaluateIfStatusCodeIgnored(ResponseStatusCodes.BadRequest);
 
         [TestMethod]
         public void Verify200DoesNotTriggerThrottling() => this.EvaluateIfStatusCodeIgnored(ResponseStatusCodes.Success);
