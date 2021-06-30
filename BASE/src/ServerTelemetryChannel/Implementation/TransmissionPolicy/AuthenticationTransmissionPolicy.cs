@@ -51,7 +51,8 @@
         /// "HTTP/1.1 400 Incorrect API was used - v2 API does not support authentication".
         /// This indicates that the AI resource was configured for AAD, but SDK was not.
         /// This is a configuration issue and is not recoverable from the client side. 
-        /// If the customer chooses to disable AAD in the AI Resource, the SDK could resume sending.
+        /// IMPORTANT: We ignore this error and allow telemetry to be dropped.
+        /// Ingestion also uses HTTP 400 for invalid JSON and is indistinguishable from AAD errors.
         /// - <see cref="ResponseStatusCodes.Unauthorized"/>
         /// "HTTP/1.1 401 Unauthorized - please provide the valid authorization token".
         /// This indicates that the authorization token was either absent, invalid, or expired.
@@ -68,7 +69,6 @@
             {
                 switch (e.Response.StatusCode)
                 {
-                    case ResponseStatusCodes.BadRequest:
                     case ResponseStatusCodes.Unauthorized:
                     case ResponseStatusCodes.Forbidden:
                         this.ApplyThrottlePolicy(e);
@@ -89,7 +89,6 @@
             this.backoffLogicManager.ReportBackoffEnabled(e.Response.StatusCode);
             this.Transmitter.Enqueue(e.Transmission);
 
-            // Ingestion service does not provide a retry value for these scenarios.
             // Check this.pauseTimer above for the configured wait time.
             this.PauseTimer.Start(() =>
                 {
