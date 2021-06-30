@@ -8,6 +8,7 @@
     {
         private readonly IEnumerable<TransmissionPolicy> policies;
         private bool isDisposed;
+        private AuthenticationTransmissionPolicy authenticationTransmissionPolicy;
 
         public TransmissionPolicyCollection(INetwork network, IApplicationLifecycle applicationLifecycle)
         {
@@ -21,6 +22,7 @@
                 new ErrorHandlingTransmissionPolicy(),
                 new PartialSuccessTransmissionPolicy(),
                 new NetworkAvailabilityTransmissionPolicy(network),
+                this.authenticationTransmissionPolicy = new AuthenticationTransmissionPolicy(),
             };
         }
 
@@ -43,6 +45,8 @@
                 policy.Initialize(transmitter);
             }
         }
+
+        public void EnableAuthenticationPolicy() => this.authenticationTransmissionPolicy.Enabled = true;
 
         public int? CalculateMinimumMaxSenderCapacity() => this.CalculateMinimumCapacity(p => p.MaxSenderCapacity);
 
