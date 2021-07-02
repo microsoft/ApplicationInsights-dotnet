@@ -12,6 +12,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation.TransmissionPolicy;
 
     using TelemetryBuffer = Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation.TelemetryBuffer;
 
@@ -25,6 +26,7 @@
         internal Transmitter Transmitter;
 
         private readonly InterlockedThrottle throttleEmptyIkeyLog = new InterlockedThrottle(interval: TimeSpan.FromSeconds(30));
+        private readonly TransmissionPolicyCollection policies;
 
         private bool? developerMode;
         private int telemetryBufferCapacity;
@@ -46,19 +48,8 @@
 
         internal ServerTelemetryChannel(INetwork network, IApplicationLifecycle applicationLifecycle)
         {
-            var policies = new TransmissionPolicy[]
-            { 
-#if NETFRAMEWORK
-                // We don't have implementation for IApplicationLifecycle for .NET Core
-                new ApplicationLifecycleTransmissionPolicy(applicationLifecycle),
-#endif
-                new ThrottlingTransmissionPolicy(),
-                new ErrorHandlingTransmissionPolicy(),
-                new PartialSuccessTransmissionPolicy(),
-                new NetworkAvailabilityTransmissionPolicy(network),
-            };
-
-            this.Transmitter = new Transmitter(policies: policies);
+            this.policies = new TransmissionPolicyCollection(network, applicationLifecycle);
+            this.Transmitter = new Transmitter(policies: this.policies);
 
             this.TelemetrySerializer = new TelemetrySerializer(this.Transmitter);
             this.TelemetryBuffer = new TelemetryBuffer(this.TelemetrySerializer, applicationLifecycle);
@@ -256,7 +247,11 @@
         CredentialEnvelope ISupportCredentialEnvelope.CredentialEnvelope
         {
             get => this.Transmitter.CredentialEnvelope;
-            set => this.Transmitter.CredentialEnvelope = value;
+            set 
+            {
+                this.Transmitter.CredentialEnvelope = value;
+                this.policies.EnableAuthenticationPolicy();
+            }
         }
 
         /// <summary>
