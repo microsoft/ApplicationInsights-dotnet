@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation.TransmissionPolicy
 {
     using System;
+    using System.Globalization;
     using System.Threading.Tasks;
 
     using Microsoft.ApplicationInsights.Channel.Implementation;
@@ -65,6 +66,10 @@
                 {
                     case ResponseStatusCodes.Unauthorized:
                     case ResponseStatusCodes.Forbidden:
+                        TelemetryChannelEventSource.Log.AuthenticationPolicyCaughtFailedIngestion(
+                            transmissionId: e.Transmission.Id, 
+                            statusCode: e.Response.StatusCode.ToString(CultureInfo.InvariantCulture),
+                            statusDescription: e.Response.StatusDescription);
                         this.ApplyThrottlePolicy(e);
                         break;
                 }
