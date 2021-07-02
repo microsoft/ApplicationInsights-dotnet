@@ -414,7 +414,6 @@
 
             if (this.CredentialEnvelope != null)
             {
-                // TODO: NEED TO USE CACHING HERE
                 var authToken = this.CredentialEnvelope.GetToken();
 
                 if (authToken == default(AuthToken))

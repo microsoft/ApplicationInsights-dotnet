@@ -47,12 +47,6 @@
         /// </summary>
         /// <remarks>
         /// AN EXPLANATION OF THE STATUS CODES:
-        /// - <see cref="ResponseStatusCodes.BadRequest"/>
-        /// "HTTP/1.1 400 Incorrect API was used - v2 API does not support authentication".
-        /// This indicates that the AI resource was configured for AAD, but SDK was not.
-        /// This is a configuration issue and is not recoverable from the client side. 
-        /// IMPORTANT: We ignore this error and allow telemetry to be dropped.
-        /// Ingestion also uses HTTP 400 for invalid JSON and is indistinguishable from AAD errors.
         /// - <see cref="ResponseStatusCodes.Unauthorized"/>
         /// "HTTP/1.1 401 Unauthorized - please provide the valid authorization token".
         /// This indicates that the authorization token was either absent, invalid, or expired.
