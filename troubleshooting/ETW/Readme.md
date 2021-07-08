@@ -100,6 +100,11 @@ tracerpt ai-channel.etl -o ai-channel.etl.xml -of XML
 - `-rf <[[hh:]mm:]ss>` Run the data collector for the specified period of time.
 - `-ets` Send commands to Event Trace Sessions directly without saving or scheduling.
 
+### Linux & PerfCollect
+The .NET team recommends using PerfCollect to gather EvntSource events in a Linux environment.
+
+- https://docs.microsoft.com/dotnet/core/diagnostics/trace-perfcollect-lttng
+
 ### FileDiagnosticsTelemetryModule
 
 For more information, see: https://docs.microsoft.com/azure/azure-monitor/app/asp-net-troubleshoot-no-data#net-framework
