@@ -151,14 +151,14 @@ Example:
 #### Configuration Parameters
 
 A `FileSize`-KiB log file named as `YearMonthDay-HourMinuteSecond.ExecutableName.ProcessId.log` (e.g. `20010101-120000.foobar.exe.12345.log`) will be generated at the specified directory `LogDirectory`.
-The file starts with the `DateTime.UtcNow` timestamp of when the file was created.
+The file name starts with the `DateTime.UtcNow` timestamp of when the file was created.
 
 1. `LogDirectory` is the directory where the output log file will be stored. 
 It can be an absolute path or a relative path to the current directory.
 
 2. `FileSize` is a positive integer, which specifies the log file size in [KiB](https://en.wikipedia.org/wiki/Kibibyte).
 This value must be between 1 MiB and 128 MiB (inclusive), or it will be rounded to the closest upper or lower limit.
-The log file will never exceed this configured size, and will be curcularly rewriten.
+The log file will never exceed this configured size, and will be circularly rewriten.
 
 3. `LogLevel` is the lowest level of the events to be captured. 
 This value must match one of the [fields](https://docs.microsoft.com/dotnet/api/system.diagnostics.tracing.eventlevel#fields) of the `EventLevel` enum.
