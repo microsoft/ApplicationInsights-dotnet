@@ -15,15 +15,16 @@
         [TestMethod]
         public void MemoryMappedFileHandler_Success()
         {
-            var fileName = Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName) + "."
-                    + Process.GetCurrentProcess().Id + ".log";
+            string filePath;
             var fileSize = 1024;
             using (var handler = new MemoryMappedFileHandler())
             {
                 handler.CreateLogFile(".", fileSize);
+
+                filePath = handler.CurrentFilePath;
             }
 
-            var actualBytes = ReadFile(fileName, MessageOnNewFile.Length);
+            var actualBytes = ReadFile(filePath, MessageOnNewFile.Length);
 
             CollectionAssert.AreEqual(MessageOnNewFile, actualBytes);
         }
@@ -36,6 +37,8 @@
             var messageToOverflow = Encoding.UTF8.GetBytes("1234567");
             var expectedBytesAtEnd = Encoding.UTF8.GetBytes("1234");
             var expectedBytesAtStart = Encoding.UTF8.GetBytes("567cessfully opened file.\n");
+            string filePath;
+
             using (var handler = new MemoryMappedFileHandler())
             {
                 handler.CreateLogFile(".", fileSize);
@@ -43,20 +46,20 @@
                 handler.Write(buffer, fileSize - MessageOnNewFile.Length - expectedBytesAtEnd.Length);
 
                 handler.Write(messageToOverflow, messageToOverflow.Length);
+
+                filePath = handler.CurrentFilePath;
             }
 
-            var fileName = Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName) + "."
-                    + Process.GetCurrentProcess().Id + ".log";
-            var actualBytes = ReadFile(fileName, buffer.Length);
+            var actualBytes = ReadFile(filePath, buffer.Length);
 
             CollectionAssert.AreEqual(expectedBytesAtStart, SubArray(actualBytes, 0, expectedBytesAtStart.Length));
             CollectionAssert.AreEqual(expectedBytesAtEnd, SubArray(actualBytes, actualBytes.Length - expectedBytesAtEnd.Length, expectedBytesAtEnd.Length));
         }
 
-        private static byte[] ReadFile(string fileName, int byteCount)
+        private static byte[] ReadFile(string filePath, int byteCount)
         {
             byte[] actualBytes = new byte[byteCount];
-            using (var file = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var file = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 file.Read(actualBytes, 0, byteCount);
             }

@@ -37,6 +37,8 @@
             this.worker = Task.Run(() => this.Worker(this.cancellationTokenSource.Token), this.cancellationTokenSource.Token);
         }
 
+        public string CurrentFilePath => this.memoryMappedFileHandler.CurrentFilePath;
+
         /// <inheritdoc/>
         public void Dispose()
         {
