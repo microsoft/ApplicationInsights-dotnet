@@ -83,8 +83,6 @@
 
         private static byte[] ReadFile(string filePath, int byteCount)
         {
-            //var outputFileName = Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName) + "." + Process.GetCurrentProcess().Id + ".log";
-            //var outputFilePath = Path.Combine(".", outputFileName);
             using (var file = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 byte[] actualBytes = new byte[byteCount];
