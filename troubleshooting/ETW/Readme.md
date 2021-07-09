@@ -122,7 +122,8 @@ As of version 2.18.0, this SDK ships a "self-diagnostics feature" which captures
 
 The self-diagnostics feature can be enabled/changed/disabled while the process is running.
 The SDK will attempt to read the configuration file every 10 seconds, using a non-exclusive read-only mode.
-The SDK will create or overwrite a file with new logs according to the configuration. 
+Each time this configuration file changes, a new log file will be created according to the configuration. 
+This file will not exceed the configured max size and will be circularly overwritten.
 
 #### Configuration
 
