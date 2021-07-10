@@ -37,8 +37,7 @@ steps:
 - task: UseDotNet@2
   displayName: install dotnet 5
   inputs:
-    version: 5.0.100-rc.2.20479.15
-    includePreviewVersions: true
+    version: 5.0.x
     
 - task: DotNetCoreCLI@2
   displayName:  DotNetCoreCLI - Restore Solution
