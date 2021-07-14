@@ -1,7 +1,11 @@
 # Changelog
 
 ## VNext
+
+
+## Version 2.18.0-beta3
 - [Enable the self diagnostics and fix a NullReferenceException bug](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2302)
+- AAD Breaking change: [CredentialEnvelope.GetToken() now returns type AuthToken instead of string. This is to expose the Expiration value with the token.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2306)
 
 ## Version 2.18.0-beta2
 - Reduce technical debt: Use pattern matching

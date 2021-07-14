@@ -247,7 +247,11 @@
         CredentialEnvelope ISupportCredentialEnvelope.CredentialEnvelope
         {
             get => this.Transmitter.CredentialEnvelope;
-            set => this.Transmitter.CredentialEnvelope = value;
+            set 
+            {
+                this.Transmitter.CredentialEnvelope = value;
+                this.policies.EnableAuthenticationPolicy();
+            }
         }
 
         /// <summary>

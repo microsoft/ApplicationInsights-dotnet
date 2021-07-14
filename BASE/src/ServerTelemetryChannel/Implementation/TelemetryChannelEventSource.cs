@@ -565,6 +565,12 @@
             this.WriteEvent(77, exception ?? string.Empty, this.ApplicationName);
         }
 
+        [Event(78, Message = "AuthenticatedTransmissionError. Received a failed ingestion response. TransmissionId: {0}. Status Code: {1}. Status Description: {2}", Level = EventLevel.Warning)]
+        public void AuthenticationPolicyCaughtFailedIngestion(string transmissionId, string statusCode, string statusDescription, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(78, transmissionId ?? string.Empty, statusCode ?? string.Empty, statusDescription ?? string.Empty, this.ApplicationName);
+        }
+
         private static string GetApplicationName()
         {
             //// We want to add application name to all events BUT
