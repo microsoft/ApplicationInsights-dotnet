@@ -1,7 +1,8 @@
 # Changelog
 
 ## VNext
-
+- [Change Self-Diagnostics to include datetimestamp in filename](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2325)
+- [AAD: Add logging to AuthenticationTransmissionPolicy](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2319)
 
 ## Version 2.18.0-beta3
 - [Enable the self diagnostics and fix a NullReferenceException bug](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2302)
