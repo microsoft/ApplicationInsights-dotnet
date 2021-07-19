@@ -7,7 +7,7 @@
     /// This interface defines a class that can interact with Azure.Core.TokenCredential.
     /// See also: (https://github.com/Azure/azure-sdk-for-net/blob/master/sdk/core/Azure.Core/src/TokenCredential.cs).
     /// </summary>
-    public abstract class CredentialEnvelope
+    internal abstract class CredentialEnvelope
     {
         /// <summary>
         /// Gets the TokenCredential instance held by this class.

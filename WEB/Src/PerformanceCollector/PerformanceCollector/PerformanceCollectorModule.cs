@@ -189,7 +189,7 @@
 
                         this.telemetryConfiguration = configuration;
                         this.client = new TelemetryClient(configuration);
-                        this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion(PerformanceCounterUtility.SDKVersionPrefix());
+                        this.client.Context.GetInternalContext().SdkVersion = Common.SdkVersionUtils.GetSdkVersion(PerformanceCounterUtility.SDKVersionPrefix());
 
                         this.lastRefreshTimestamp = DateTime.MinValue;
 
