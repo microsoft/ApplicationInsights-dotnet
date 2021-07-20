@@ -22,7 +22,6 @@
             Assert.Equal(expectedResponseCode, requestTelemetry.ResponseCode);
             Assert.Equal(expectedName, requestTelemetry.Name);
             Assert.Equal(expectedSuccess, requestTelemetry.Success);
-            //Assert.Equal(expectedUri, requestTelemetry.Url.ToString());
             Assert.Equal(expectedUri, requestTelemetry.Url);
             Assert.True(requestTelemetry.Duration.TotalMilliseconds > 0);
             // requestTelemetry.Timestamp

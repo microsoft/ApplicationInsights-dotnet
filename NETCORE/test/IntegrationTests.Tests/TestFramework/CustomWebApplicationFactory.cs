@@ -47,7 +47,7 @@ namespace IntegrationTests.Tests.TestFramework
         {
             var client = this.CreateClient();
 
-            var httpRequestMessage = CreateRequestMessage(requestUri);
+            var httpRequestMessage = CreateRequestMessage(requestUri, requestHeaders);
             var response = await client.SendAsync(httpRequestMessage);
 
 

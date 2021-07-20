@@ -7,6 +7,7 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Net.Http;
     using System.Threading.Tasks;
 
     using Xunit.Abstractions;
@@ -58,6 +59,11 @@
             {
                 testOutputHelper.WriteLine(prop.Key + ":" + prop.Value);
             }
+        }
+
+        public static async Task PrintResponseContentAsync(this ITestOutputHelper testOutputHelper, HttpResponseMessage httpResponseMessage)
+        {
+            testOutputHelper.WriteLine(await httpResponseMessage.Content.ReadAsStringAsync());
         }
     }
 }
