@@ -1,4 +1,4 @@
-﻿using IntegrationTests.WebApp;
+﻿using IntegrationTests.Tests.TestFramework;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using System;
@@ -12,34 +12,13 @@ using Xunit.Abstractions;
 
 namespace IntegrationTests.Tests
 {
-    public partial class RequestCollectionTest :
-#if NET5_0
-        IClassFixture<CustomWebApplicationFactory<Startup_net_5_0>>
-#elif NETCOREAPP3_1
-        IClassFixture<CustomWebApplicationFactory<Startup_netcoreapp_3_1>>
-#else
-        IClassFixture<CustomWebApplicationFactory<Startup_netcoreapp_2_1>>
-#endif
+    public partial class RequestCollectionTest : IClassFixture<CustomWebApplicationFactory<WebApp.Startup>>
     {
-#if NET5_0
-        private readonly CustomWebApplicationFactory<Startup_net_5_0> _factory;
-#elif NETCOREAPP3_1
-        private readonly CustomWebApplicationFactory<Startup_netcoreapp_3_1> _factory;
-#else
-        private readonly CustomWebApplicationFactory<Startup_netcoreapp_2_1> _factory;
-#endif
+        private readonly CustomWebApplicationFactory<WebApp.Startup> _factory;
 
         protected readonly ITestOutputHelper output;
 
-        public RequestCollectionTest(CustomWebApplicationFactory<
- #if NET5_0
-        Startup_net_5_0
-#elif NETCOREAPP3_1
-        Startup_netcoreapp_3_1
-#else
-        Startup_netcoreapp_2_1 
-#endif            
-            > factory, ITestOutputHelper output)
+        public RequestCollectionTest(CustomWebApplicationFactory<WebApp.Startup> factory, ITestOutputHelper output)
         {
             this.output = output;
             _factory = factory;

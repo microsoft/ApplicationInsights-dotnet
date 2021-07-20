@@ -12,9 +12,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace IntegrationTests.WebApp
 {
-    public class Startup_netcoreapp_2_1
+    public partial class Startup
     {
-        public Startup_netcoreapp_2_1(IConfiguration configuration)
+        public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }

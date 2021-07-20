@@ -13,18 +13,11 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.ApplicationInsights;
-using IntegrationTests.WebApp;
+using IntegrationTests.Tests.TestFramework;
 
 namespace IntegrationTests.Tests
 {
-    public partial class RequestCollectionTest : 
-#if NET5_0
-        IClassFixture<CustomWebApplicationFactory<Startup_net_5_0>>
-#elif NETCOREAPP3_1
-        IClassFixture<CustomWebApplicationFactory<Startup_netcoreapp_3_1>>
-#else
-        IClassFixture<CustomWebApplicationFactory<Startup_netcoreapp_2_1>>
-#endif
+    public partial class RequestCollectionTest : IClassFixture<CustomWebApplicationFactory<WebApp.Startup>>
     {
         [Fact]
         public async Task RequestILoggerUserConfigOverRidesDefaultLevel()
