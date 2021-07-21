@@ -1,16 +1,14 @@
-﻿using Microsoft.ApplicationInsights.Channel;
+﻿using IntegrationTests.Tests.TestFramework;
+using IntegrationTests.WebApp;
+
 using Microsoft.ApplicationInsights.DataContracts;
-using System;
-using System.Collections.Concurrent;
+
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
+
 using Xunit;
 using Xunit.Abstractions;
-using IntegrationTests.WebApp;
-using IntegrationTests.Tests.TestFramework;
 
 namespace IntegrationTests.Tests
 {

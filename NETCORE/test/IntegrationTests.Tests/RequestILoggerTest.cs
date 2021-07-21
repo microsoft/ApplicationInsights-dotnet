@@ -105,4 +105,3 @@ namespace IntegrationTests.Tests
                  expectedSuccess: true);
         }
     }
-}
