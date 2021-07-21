@@ -1,12 +1,7 @@
 ﻿namespace IntegrationTests.Tests.TestFramework
 {
-    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
 
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Net.Http;
     using System.Threading.Tasks;
 
