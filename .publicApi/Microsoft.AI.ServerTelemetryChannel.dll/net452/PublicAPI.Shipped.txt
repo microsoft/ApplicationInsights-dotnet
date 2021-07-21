@@ -88,6 +88,7 @@ Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChan
 Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel.EndpointAddress.get -> string
 Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel.EndpointAddress.set -> void
 Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel.Flush() -> void
+Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
 Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel.Initialize(Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration configuration) -> void
 Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel.LocalThrottleLimit.get -> int
 Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel.LocalThrottleLimit.set -> void
