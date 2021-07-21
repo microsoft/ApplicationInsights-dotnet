@@ -53,6 +53,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SDKs", "SDKs", "{C5024E50-3
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApp.AspNetCore", "WebApp.AspNetCore\WebApp.AspNetCore.csproj", "{5DB76934-58D9-45BD-91A9-E1D78F4AE17D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackgroundTasksWithHostedService", "BackgroundTasksWithHostedService\BackgroundTasksWithHostedService.csproj", "{9E35EFBE-F478-4DEB-9327-C712272B77CA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleAppWithApplicationInsights", "ConsoleAppWithApplicationInsights\ConsoleAppWithApplicationInsights.csproj", "{DD21C077-1345-459C-8704-9BCD6F312029}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkerServiceSampleWithApplicationInsights", "WorkerServiceSampleWithApplicationInsights\WorkerServiceSampleWithApplicationInsights.csproj", "{3DA486F4-10E3-432D-9916-2C1EE15029C7}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		..\WEB\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{0196259c-3582-4f4e-a01f-a8f9ae83b0f3}*SharedItemsImports = 13
@@ -157,6 +163,18 @@ Global
 		{5DB76934-58D9-45BD-91A9-E1D78F4AE17D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5DB76934-58D9-45BD-91A9-E1D78F4AE17D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5DB76934-58D9-45BD-91A9-E1D78F4AE17D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E35EFBE-F478-4DEB-9327-C712272B77CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E35EFBE-F478-4DEB-9327-C712272B77CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E35EFBE-F478-4DEB-9327-C712272B77CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E35EFBE-F478-4DEB-9327-C712272B77CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD21C077-1345-459C-8704-9BCD6F312029}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD21C077-1345-459C-8704-9BCD6F312029}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD21C077-1345-459C-8704-9BCD6F312029}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD21C077-1345-459C-8704-9BCD6F312029}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DA486F4-10E3-432D-9916-2C1EE15029C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DA486F4-10E3-432D-9916-2C1EE15029C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DA486F4-10E3-432D-9916-2C1EE15029C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DA486F4-10E3-432D-9916-2C1EE15029C7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
