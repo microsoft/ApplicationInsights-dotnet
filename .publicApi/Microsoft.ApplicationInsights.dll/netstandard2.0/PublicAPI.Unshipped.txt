@@ -1,21 +1,7 @@
-abstract Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope.GetToken(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.AuthToken
-abstract Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope.GetTokenAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.AuthToken>
-Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.AuthToken
-Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.AuthToken.AuthToken() -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.AuthToken.AuthToken(string token, System.DateTimeOffset expiresOn) -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.AuthToken.ExpiresOn.get -> System.DateTimeOffset
-Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.AuthToken.ExpiresOn.set -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.AuthToken.Token.get -> string
-Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.AuthToken.Token.set -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope
-Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope.CredentialEnvelope() -> void
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.CredentialEnvelope.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.CredentialEnvelope
+
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetAzureTokenCredential(object tokenCredential) -> void
+
 Microsoft.ApplicationInsights.Channel.IAsyncFlushable
 Microsoft.ApplicationInsights.Channel.IAsyncFlushable.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
 Microsoft.ApplicationInsights.Channel.InMemoryChannel.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
 Microsoft.ApplicationInsights.TelemetryClient.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
-override Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.AuthToken.Equals(object obj) -> bool
-override Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.AuthToken.GetHashCode() -> int
-static Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.AuthToken.operator !=(Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.AuthToken left, Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.AuthToken right) -> bool
-static Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.AuthToken.operator ==(Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.AuthToken left, Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication.AuthToken right) -> bool
