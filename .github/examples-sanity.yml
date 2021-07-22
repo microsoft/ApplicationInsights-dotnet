@@ -1,0 +1,25 @@
+name: Examples Sanity Compile
+
+on:
+  push:
+    branches: [ main, metrics ]
+    paths-ignore:
+    - '**.md'
+  pull_request:
+    branches: [ main, metrics ]
+    paths-ignore:
+    - '**.md'
+
+jobs:
+  build-test:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        version: [net5.0]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
