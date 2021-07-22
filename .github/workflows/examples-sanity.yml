@@ -1,0 +1,30 @@
+# Syntax: https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions
+# .NET CLI: https://docs.microsoft.com/dotnet/core/tools/
+# Description: The purpose of this build is to verify that our example projects compile.
+
+name: Examples Sanity Build
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-test:
+
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+
+    - name: Install dependencies
+      run: dotnet restore ./examples/Examples.sln
+
+    - name: Build
+      run: dotnet build ./examples/Examples.sln

@@ -1,4 +1,4 @@
-namespace WebApp.AspNetCore
+namespace AspNetCoreWebApp
 {
     using System;
     using System.Collections.Generic;
