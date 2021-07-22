@@ -21,4 +21,4 @@ jobs:
         dotnet-version: 5.0.x
 
     - name: Build
-      run: dotnet build .\examples\Examples.sln
+      run: dotnet build ./examples/Examples.sln
