@@ -122,7 +122,8 @@ As of version 2.18.0, this SDK ships a "self-diagnostics feature" which captures
 
 The self-diagnostics feature can be enabled/changed/disabled while the process is running.
 The SDK will attempt to read the configuration file every 10 seconds, using a non-exclusive read-only mode.
-The SDK will create or overwrite a file with new logs according to the configuration. 
+The SDK will create or overwrite a file with new logs according to the configuration.
+This file will not exceed the configured max size and will be circularly overwritten.
 
 #### Configuration
 
@@ -150,13 +151,15 @@ Example:
 
 #### Configuration Parameters
 
-A `FileSize`-KiB log file named as `ExecutableName.ProcessId.log` (e.g. `foobar.exe.12345.log`) will be generated at the specified directory `LogDirectory`.
+A `FileSize`-KiB log file named as `YearMonthDay-HourMinuteSecond.ExecutableName.ProcessId.log` (e.g. `20010101-120000.foobar.exe.12345.log`) will be generated at the specified directory `LogDirectory`.
+The file name starts with the `DateTime.UtcNow` timestamp of when the file was created.
 
 1. `LogDirectory` is the directory where the output log file will be stored. 
 It can be an absolute path or a relative path to the current directory.
 
 2. `FileSize` is a positive integer, which specifies the log file size in [KiB](https://en.wikipedia.org/wiki/Kibibyte).
 This value must be between 1 MiB and 128 MiB (inclusive), or it will be rounded to the closest upper or lower limit.
+The log file will never exceed this configured size, and will be circularly rewriten.
 
 3. `LogLevel` is the lowest level of the events to be captured. 
 This value must match one of the [fields](https://docs.microsoft.com/dotnet/api/system.diagnostics.tracing.eventlevel#fields) of the `EventLevel` enum.
