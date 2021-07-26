@@ -1,9 +1,12 @@
 # Changelog
 
 ## VNext
+
+
+## Version 2.18.0
 - [Change Self-Diagnostics to include datetimestamp in filename](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2325)
 - [AAD: Add logging to AuthenticationTransmissionPolicy](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2319)
-- [QuickPulse: Bump the number of custom dimensions included into full documents for QuickPulse from 3 to 10, make the selection consistent]
+- [QuickPulse: Bump the number of custom dimensions included into full documents for QuickPulse from 3 to 10, make the selection consistent](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2341)
 
 ## Version 2.18.0-beta3
 - [Enable the self diagnostics and fix a NullReferenceException bug](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2302)
