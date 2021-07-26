@@ -1,17 +1,11 @@
 strategy:
   matrix:
-    linux_netcore2_1:
-      imageName: 'ubuntu-latest'
-      framework: netcoreapp2.1
     linux_netcore3_1:
       imageName: 'ubuntu-latest'
       framework: netcoreapp3.1
     linux_net5:
       imageName: 'ubuntu-latest'
       framework: net5.0
-    windows_netcore2_1:
-      imageName: 'windows-latest'
-      framework: netcoreapp2.1
     windows_netcore3_1:
       imageName: 'windows-latest'
       framework: netcoreapp3.1
@@ -23,11 +17,6 @@ pool:
   vmImage: $(imageName)
 
 steps:
-
-- task: UseDotNet@2
-  displayName: install dotnet core 2.1
-  inputs:
-    version: 2.1.x
     
 - task: UseDotNet@2
   displayName: install dotnet core 3.1
