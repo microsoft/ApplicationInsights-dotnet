@@ -31,7 +31,7 @@ jobs:
       run: dotnet restore ./BASE/Microsoft.ApplicationInsights.sln
 
     - name: Build
-      run: dotnet build ./BASE/Microsoft.ApplicationInsights.sln --framework ${{ matrix.framework }} --configuration Release --no-restore
+      run: dotnet build ./BASE/Microsoft.ApplicationInsights.sln --configuration Release --no-restore
 
     - name: Test ${{ matrix.os }} ${{ matrix.version }}
       run: dotnet test ./BASE/Test/**/*.Tests.csproj --framework ${{ matrix.framework }} --configuration Release --no-build --logger:"console;verbosity=detailed" ${{ matrix.args }}
