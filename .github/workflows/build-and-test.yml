@@ -27,7 +27,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: restore (Base sln)
-      run: dotnet restore ./BASE/*.sln
+      run: dotnet restore "./BASE/*.sln"
 
     - name: Build
       run: dotnet build ./BASE/*.sln --configuration Release --no-restore
