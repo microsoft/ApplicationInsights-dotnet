@@ -22,67 +22,31 @@
             [TestMethod]
             public void AssertTooManyRequestsStopsSending()
             {
-                this.PositiveTest(ResponseStatusCodes.ResponseCodeTooManyRequests, 0, null, null, false);
+                this.EvaluateIfStatusCodeTriggersThrottling(ResponseStatusCodes.ResponseCodeTooManyRequests, 0, null, null, false);
             }
 
             [TestMethod]
             public void AssertTooManyRequestsStopsSendingWithFlushAsyncTask()
             {
-                this.PositiveTest(ResponseStatusCodes.ResponseCodeTooManyRequests, 0, 0, null, true);
+                this.EvaluateIfStatusCodeTriggersThrottling(ResponseStatusCodes.ResponseCodeTooManyRequests, 0, 0, null, true);
             }
 
             [TestMethod]
             public void AssertTooManyRequestsOverExtendedTimeStopsSendingAndCleansCache()
             {
-                this.PositiveTest(ResponseStatusCodes.ResponseCodeTooManyRequestsOverExtendedTime, 0, 0, 0, false);
+                this.EvaluateIfStatusCodeTriggersThrottling(ResponseStatusCodes.ResponseCodeTooManyRequestsOverExtendedTime, 0, 0, 0, false);
             }
 
             [TestMethod]
             public void AssertPaymentRequiredDoesntChangeCapacity()
             {
-                var transmitter = new StubTransmitter();
-                transmitter.OnApplyPolicies = () =>
-                {
-                    throw new Exception("Apply shouldn't be called because unsupported response code was passed");
-                };
-
-                var policy = new ThrottlingTransmissionPolicy();
-                policy.Initialize(transmitter);
-
-                transmitter.OnTransmissionSent(
-                    new TransmissionProcessedEventArgs(
-                        new StubTransmission(), null, new HttpWebResponseWrapper()
-                        {
-                            StatusCode = ResponseCodePaymentRequired
-                        }));
-
-                Assert.IsNull(policy.MaxSenderCapacity);
-                Assert.IsNull(policy.MaxBufferCapacity);
-                Assert.IsNull(policy.MaxStorageCapacity);
+                this.EvaluateIfStatusCodeIgnored(ResponseCodePaymentRequired);
             }
 
             [TestMethod]
             public void AssertUnsupportedResponseCodeDoesnotChangeCapacity()
             {
-                var transmitter = new StubTransmitter();
-                transmitter.OnApplyPolicies = () =>
-                {
-                    throw new Exception("Apply shouldn't be called because unsupported response code was passed");
-                };
-
-                var policy = new ThrottlingTransmissionPolicy();
-                policy.Initialize(transmitter);
-
-                transmitter.OnTransmissionSent(
-                    new TransmissionProcessedEventArgs(
-                        new StubTransmission(), null, new HttpWebResponseWrapper()
-                        {
-                            StatusCode = ResponseCodeUnsupported
-                        }));
-
-                Assert.IsNull(policy.MaxSenderCapacity);
-                Assert.IsNull(policy.MaxBufferCapacity);
-                Assert.IsNull(policy.MaxStorageCapacity);
+                this.EvaluateIfStatusCodeIgnored(ResponseCodeUnsupported);
             }
 
             [TestMethod]
@@ -112,48 +76,85 @@
                 }
             }
 
-            private void PositiveTest(int responseCode, int? expectedSenderCapacity, int? expectedBufferCapacity, int? expectedStorageCapacity, bool hasFlushTask)
+            private void EvaluateIfStatusCodeTriggersThrottling(int responseCode, int? expectedSenderCapacity, int? expectedBufferCapacity, int? expectedStorageCapacity, bool hasFlushTask)
             {
                 const int RetryAfterSeconds = 2;
-                string retryAfter = DateTime.Now.ToUniversalTime().AddSeconds(RetryAfterSeconds).ToString("R", CultureInfo.InvariantCulture);
-                const int WaitForTheFirstApplyAsync = 100;
-                int waitForTheSecondApplyAsync = (RetryAfterSeconds * 1000) /*to milliseconds*/ +
-                    500 /**magic number to wait for other code before/after 
-                         * timer which calls 2nd ApplyAsync
-                         **/;
+                var waitForTheFirstApplyAsync = TimeSpan.FromMilliseconds(100);
+                var waitForTheSecondApplyAsync = TimeSpan.FromMilliseconds(RetryAfterSeconds * 1000 + 500);
 
-                var policyApplied = new AutoResetEvent(false);
-                var transmitter = new StubTransmitter
-                {
-                    OnApplyPolicies = () => policyApplied.Set(),
-                };
+                // SETUP
+                var transmitter = new StubTransmitterEvalOnApply();
 
                 var policy = new ThrottlingTransmissionPolicy();
                 policy.Initialize(transmitter);
 
-                transmitter.OnTransmissionSent(
-                    new TransmissionProcessedEventArgs(
-                        transmission: new StubTransmission() { IsFlushAsyncInProgress = hasFlushTask }, 
-                        exception: null, 
-                        response: new HttpWebResponseWrapper()
-                        {
-                            StatusCode = responseCode,
-                            StatusDescription = null,
-                            RetryAfterHeader = retryAfter
-                        }));
-
-                Assert.IsTrue(policyApplied.WaitOne(WaitForTheFirstApplyAsync));
+                transmitter.InvokeTransmissionSentEvent(responseCode, TimeSpan.FromSeconds(RetryAfterSeconds), hasFlushTask);
+                
+                // ASSERT: First Handle will trigger Throttle and delay.
+                Assert.IsTrue(transmitter.IsApplyInvoked(waitForTheFirstApplyAsync));
                 
                 Assert.AreEqual(expectedSenderCapacity, policy.MaxSenderCapacity);
                 Assert.AreEqual(expectedBufferCapacity, policy.MaxBufferCapacity);
                 Assert.AreEqual(expectedStorageCapacity, policy.MaxStorageCapacity);
 
-                Assert.IsTrue(policyApplied.WaitOne(waitForTheSecondApplyAsync));
+                // ASSERT: Throttle expires and policy will be reset.
+                Assert.IsTrue(transmitter.IsApplyInvoked(waitForTheSecondApplyAsync));
 
-                // Check that it resets after retry-after interval
                 Assert.IsNull(policy.MaxSenderCapacity);
                 Assert.IsNull(policy.MaxBufferCapacity);
                 Assert.IsNull(policy.MaxStorageCapacity);
+            }
+
+            private void EvaluateIfStatusCodeIgnored(int statusCode)
+            {
+                var waitForTheFirstApplyAsync = TimeSpan.FromMilliseconds(100);
+
+                // SETUP
+                var transmitter = new StubTransmitterEvalOnApply();
+
+                var policy = new AuthenticationTransmissionPolicy()
+                {
+                    Enabled = true,
+                };
+                policy.Initialize(transmitter);
+
+                // ACT
+                transmitter.InvokeTransmissionSentEvent(statusCode, default, false);
+
+                // ASSERT: The Apply event handler should not be called.
+                Assert.IsFalse(transmitter.IsApplyInvoked(waitForTheFirstApplyAsync));
+
+                // ASSERT: Capacities should have default values.
+                Assert.IsNull(policy.MaxSenderCapacity);
+                Assert.IsNull(policy.MaxBufferCapacity);
+                Assert.IsNull(policy.MaxStorageCapacity);
+            }
+
+            private class StubTransmitterEvalOnApply : StubTransmitter
+            {
+                private AutoResetEvent autoResetEvent;
+
+                public StubTransmitterEvalOnApply()
+                {
+                    this.autoResetEvent = new AutoResetEvent(false);
+                    this.OnApplyPolicies = () => this.autoResetEvent.Set();
+                }
+
+                public void InvokeTransmissionSentEvent(int responseStatusCode, TimeSpan retryAfter, bool isFlushAsyncInProgress)
+                {
+                    this.OnTransmissionSent(new TransmissionProcessedEventArgs(
+                        transmission: new StubTransmission() { IsFlushAsyncInProgress = isFlushAsyncInProgress },
+                        exception: null,
+                        response: new HttpWebResponseWrapper()
+                        {
+                            StatusCode = responseStatusCode,
+                            StatusDescription = null,
+                            RetryAfterHeader = DateTime.Now.ToUniversalTime().Add(retryAfter).ToString("R", CultureInfo.InvariantCulture),
+                        }
+                    ));
+                }
+
+                public bool IsApplyInvoked(TimeSpan timeout) => this.autoResetEvent.WaitOne(timeout);
             }
         }
     }

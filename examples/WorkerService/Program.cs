@@ -1,13 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
+using Microsoft.ApplicationInsights.Channel;
+using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace WorkerServiceSampleWithApplicationInsights
+namespace WorkerService
 {
     public class Program
     {
@@ -37,5 +36,31 @@ namespace WorkerServiceSampleWithApplicationInsights
                     // instrumentation key is read automatically from appsettings.json
                     services.AddApplicationInsightsTelemetryWorkerService();
                 });
+
+        internal class MyCustomTelemetryInitializer : ITelemetryInitializer
+        {
+            public void Initialize(ITelemetry telemetry)
+            {
+                // Replace with actual properties.
+                (telemetry as ISupportProperties).Properties["MyCustomKey"] = "MyCustomValue";
+            }
+        }
+
+        internal class MyCustomTelemetryProcessor : ITelemetryProcessor
+        {
+            ITelemetryProcessor next;
+
+            public MyCustomTelemetryProcessor(ITelemetryProcessor next)
+            {
+                this.next = next;
+            }
+
+            public void Process(ITelemetry item)
+            {
+                // Example processor - not filtering out anything.
+                // This should be replaced with actual logic.
+                this.next.Process(item);
+            }
+        }
     }
 }
