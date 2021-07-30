@@ -21,6 +21,10 @@
     <Message Text="Directory.Build.props: Redfield build detected." Importance="high"/>
   </Target>
 
+  <Target Name="Info_InternalSettings"  BeforeTargets="Build">
+    <Message Text="Directory.Build.props: Internal_Logging is set to $(Internal_Logging)." Importance="high"/>
+  </Target>
+
   <Target Name="Info_DirectoryBuildProps"  BeforeTargets="Build" Condition=" $(Internal_Logging) == 'true' ">
     <Message Text="Info: SolutionName: $(SolutionName)." Importance="high"/>
     <Message Text="Info: ProjectName: $(MSBuildProjectName)." Importance="high"/>
