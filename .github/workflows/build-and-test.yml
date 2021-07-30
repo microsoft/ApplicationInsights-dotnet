@@ -44,11 +44,16 @@ jobs:
       if: steps.test1.outcome=='failure'
       run: dotnet test ./BASE/Microsoft.ApplicationInsights.sln --framework ${{ matrix.framework }} --configuration Release --no-build --logger:"console;verbosity=detailed" ${{ matrix.args }}
 
+    #- name: Inspect Test Results
+    #  if: always()
+    #  run: |
+    #    if (${{ steps.test1.outcome=='success' || steps.test2.outcome=='success' }}); then
+    #        echo tests pass
+    #    else
+    #        exit 1
+    #    fi
+    #  shell: pwsh
+    
     - name: Inspect Test Results
-      if: always()
-      run: |
-        if (${{ steps.test1.outcome=='success' || steps.test2.outcome=='success' }}); then
-            echo tests pass
-        else
-            exit 1
-        fi
+      if: steps.test1.outcome=='failure' && steps.test2.outcome=='failure'
+      run: exit 1
