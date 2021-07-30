@@ -612,7 +612,7 @@
         [Event(60, Message = "MetricManager created {0} Tasks.", Level = EventLevel.Verbose)]
         public void MetricManagerCreatedTasks(int taskCount, string appDomainName = "Incorrect") => this.WriteEvent(60, taskCount, this.nameProvider.Name);
 
-#region FileDiagnosticsTelemetryModule
+        #region FileDiagnosticsTelemetryModule
 
         [Event(61, Message = "Logs file name: {0}.", Level = EventLevel.Verbose)]
         public void LogsFileName(string fileName, string appDomainName = "Incorrect") => this.WriteEvent(61, fileName ?? string.Empty, this.nameProvider.Name);
@@ -634,7 +634,7 @@
         [Event(66, Message = "Call to WindowsIdentity.Current failed with the exception: {0}.", Level = EventLevel.Warning)]
         public void LogWindowsIdentityAccessSecurityException(string error, string appDomainName = "Incorrect") => this.WriteEvent(66, error ?? string.Empty, this.nameProvider.Name);
 
-#endregion
+        #endregion
 
         [Event(67, Message = "Backend has responded with {0} status code in {1}ms.", Level = EventLevel.Informational)]
         public void IngestionResponseTime(int responseCode, float responseDurationInMs, string appDomainName = "Incorrect") => this.WriteEvent(67, responseCode, responseDurationInMs, this.nameProvider.Name);
