@@ -37,6 +37,8 @@
             this.worker = Task.Run(() => this.Worker(this.cancellationTokenSource.Token), this.cancellationTokenSource.Token);
         }
 
+        public string CurrentFilePath => this.memoryMappedFileHandler.CurrentFilePath;
+
         /// <inheritdoc/>
         public void Dispose()
         {
@@ -105,6 +107,10 @@
                     // Or it might have created another MemoryMappedFile in that thread
                     // after the Dispose() below is called.
                     this.memoryMappedFileHandler.Dispose();
+                    if (this.eventListener != null)
+                    {
+                        this.eventListener.Dispose();
+                    }
                 }
 
                 this.disposedValue = true;

@@ -118,6 +118,7 @@
 
         // TODO: Test that TelemetryBuffer.Send synchronously clears the buffer to prevent item # 501 from flushing again
         [TestClass]
+        [TestCategory("WindowsOnly")] // these tests are flaky on linux builds.
         public class Send : TelemetryBufferTest
         {
             [TestMethod]
@@ -161,6 +162,7 @@
             }
 
             [TestMethod]
+            
             public void FlushesBufferWhenNumberOfTelemetryItemsReachesMax()
             {
                 var bufferFlushed = new ManualResetEventSlim();

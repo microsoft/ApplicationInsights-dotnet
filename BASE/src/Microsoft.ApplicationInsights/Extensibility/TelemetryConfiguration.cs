@@ -339,8 +339,9 @@
 
         /// <summary>
         /// Gets an envelope for Azure.Core.TokenCredential which provides an AAD Authenticated token.
+        /// To set the Credential use <see cref="SetAzureTokenCredential"/>.
         /// </summary>
-        public CredentialEnvelope CredentialEnvelope { get; private set; }
+        internal CredentialEnvelope CredentialEnvelope { get; private set; }
 
         /// <summary>
         /// Gets or sets the chain of processors.
@@ -504,9 +505,9 @@
 
         private static void SetTelemetryChannelCredentialEnvelope(ITelemetryChannel telemetryChannel, CredentialEnvelope credentialEnvelope)
         {
-            if (telemetryChannel is InMemoryChannel inMemoryChannel)
+            if (telemetryChannel is ISupportCredentialEnvelope tc)
             {
-                inMemoryChannel.CredentialEnvelope = credentialEnvelope;
+                tc.CredentialEnvelope = credentialEnvelope;
             }
         }
 

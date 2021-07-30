@@ -3,8 +3,6 @@ pool:
 
 strategy:
     matrix:
-        #netcoreapp2_1:
-        #    framework: netcoreapp2.1
         netcoreapp3_1:
             framework: netcoreapp3.1
         net5_0:
@@ -12,11 +10,6 @@ strategy:
     maxParallel: 2
 
 steps:
-
-- task: UseDotNet@2
-  displayName: install dotnet core 2.1
-  inputs:
-    version: 2.1.x
     
 - task: UseDotNet@2
   displayName: install dotnet core 3.1

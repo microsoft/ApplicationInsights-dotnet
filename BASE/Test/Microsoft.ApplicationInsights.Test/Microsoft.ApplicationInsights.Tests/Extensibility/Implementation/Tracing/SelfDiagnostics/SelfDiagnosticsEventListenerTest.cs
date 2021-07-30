@@ -1,11 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics.Tracing;
-    using System.Linq;
+    using System.Globalization;
     using System.Text;
-    using System.Threading.Tasks;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
 
@@ -55,9 +53,9 @@
             // Check DateTimeKind of Utc, Local, and Unspecified
             DateTime[] datetimes = new DateTime[]
             {
-                DateTime.SpecifyKind(DateTime.Parse("1996-12-01T14:02:31.1234567-08:00"), DateTimeKind.Utc),
-                DateTime.SpecifyKind(DateTime.Parse("1996-12-01T14:02:31.1234567-08:00"), DateTimeKind.Local),
-                DateTime.SpecifyKind(DateTime.Parse("1996-12-01T14:02:31.1234567-08:00"), DateTimeKind.Unspecified),
+                DateTime.SpecifyKind(DateTime.Parse("1996-12-01T14:02:31.1234567-08:00", CultureInfo.InvariantCulture), DateTimeKind.Utc),
+                DateTime.SpecifyKind(DateTime.Parse("1996-12-01T14:02:31.1234567-08:00", CultureInfo.InvariantCulture), DateTimeKind.Local),
+                DateTime.SpecifyKind(DateTime.Parse("1996-12-01T14:02:31.1234567-08:00", CultureInfo.InvariantCulture), DateTimeKind.Unspecified),
                 DateTime.UtcNow,
                 DateTime.Now,
             };
@@ -76,12 +74,21 @@
             string[] results = new string[datetimes.Length];
             for (int i = 0; i < datetimes.Length; i++)
             {
-                int len = listener.DateTimeGetBytes(datetimes[i], buffer, pos);
+                int len = SelfDiagnosticsEventListener.DateTimeGetBytes(datetimes[i], buffer, pos);
                 results[i] = Encoding.Default.GetString(buffer, pos, len);
                 pos += len;
             }
 
             CollectionAssert.AreEqual(expected, results);
+        }
+
+        [TestMethod]
+        public void SelfDiagnosticsEventListener_EncodeInBuffer_Null()
+        {
+            byte[] buffer = new byte[20];
+            int startPos = 0;
+            int endPos = SelfDiagnosticsEventListener.EncodeInBuffer(null, false, buffer, startPos);
+            Assert.AreEqual(startPos, endPos);
         }
 
         [TestMethod]

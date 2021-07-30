@@ -1,12 +1,22 @@
 # Changelog
 
 ## VNext
+
+
+## Version 2.18.0
+- [Change Self-Diagnostics to include datetimestamp in filename](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2325)
+- [AAD: Add logging to AuthenticationTransmissionPolicy](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2319)
+- [QuickPulse: Bump the number of custom dimensions included into full documents for QuickPulse from 3 to 10, make the selection consistent](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2341)
+
+## Version 2.18.0-beta3
+- [Enable the self diagnostics and fix a NullReferenceException bug](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2302)
+- AAD Breaking change: [CredentialEnvelope.GetToken() now returns type AuthToken instead of string. This is to expose the Expiration value with the token.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2306)
+
+## Version 2.18.0-beta2
 - Reduce technical debt: Use pattern matching
 - [Improve Self Diagnostics and support setting configuration in file](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2238)
 - [Fix AzureSdkDiagnosticListener from crashing user app.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2294)
-- [Add support for NET462 to all NetFramework compatible projects. This will be our minimum supported version in April 2022](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2273)
-
-
+- [Add support for Azure Active Directory ](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2190)
 
 ## Version 2.18.0-beta1
 - [Fix PropertyFetcher error when used with multiple types](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2194)
