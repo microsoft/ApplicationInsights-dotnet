@@ -3,11 +3,12 @@
 
   <PropertyGroup>
     <!-- USE THESE VARIABLES TO CONTROL THE BUILD TASKS.-->
-    <Internal_Logging>true</Internal_Logging>
+    <Internal_Logging>false</Internal_Logging>
 
     <!-- This is used to disable some build properties. -->
     <IsExamplesSolution Condition="'$(SolutionName)' == 'Examples' ">true</IsExamplesSolution>
 
+    <!-- This is used to change EventSource names. -->
     <DefineConstants Condition="'$(Redfield)' == 'True'">$(DefineConstants);REDFIELD</DefineConstants>
   </PropertyGroup>
 
