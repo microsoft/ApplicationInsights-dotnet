@@ -37,19 +37,18 @@ jobs:
       id: test1
       continue-on-error: true
       run: dotnet test ./BASE/Microsoft.ApplicationInsights.sln --framework ${{ matrix.framework }} --configuration Release --no-build --logger:"console;verbosity=detailed" ${{ matrix.args }}
-
-
+      
     - name: Test (retry)
       id: test2
       continue-on-error: true
       if: steps.test1.outcome=='failure'
       run: dotnet test ./BASE/Microsoft.ApplicationInsights.sln --framework ${{ matrix.framework }} --configuration Release --no-build --logger:"console;verbosity=detailed" ${{ matrix.args }}
 
-    - name: Test Status
+    - name: Inspect Test Results
       if: always()
       run: |
-        if ${{ steps.test1.outcome=='success' || steps.test2.outcome=='success' }}; then
-            echo fine
+        if (${{ steps.test1.outcome=='success' || steps.test2.outcome=='success' }}); then
+            echo tests pass
         else
             exit 1
         fi
