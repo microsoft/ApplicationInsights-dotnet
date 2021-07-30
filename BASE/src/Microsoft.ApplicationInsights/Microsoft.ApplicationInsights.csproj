@@ -28,7 +28,7 @@
   <Choose>
     <When Condition="'$(Redfield)' == 'True'">
       <ItemGroup>
-        <PackageReference Include="System.Diagnostics.DiagnosticSource"  Version="4.7.0" />
+        <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.7.0" />
       </ItemGroup>
     </When>
     <Otherwise>
