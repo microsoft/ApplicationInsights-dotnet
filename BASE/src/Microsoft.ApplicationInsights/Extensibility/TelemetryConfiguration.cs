@@ -154,6 +154,21 @@
             set { this.instrumentationKey = value ?? throw new ArgumentNullException(nameof(this.InstrumentationKey)); }
         }
 
+
+
+        /// <summary>
+        /// Gets a boolean indicating if this is a Redfield build.
+        /// </summary>
+        public bool Redfield
+        {
+#if REDFIELD
+            get => true;
+#else
+            get => false;
+#endif
+        }
+
+
         /// <summary>
         /// Gets or sets a value indicating whether sending of telemetry to Application Insights is disabled.
         /// </summary>

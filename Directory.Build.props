@@ -3,14 +3,28 @@
 
   <PropertyGroup>
     <!-- USE THESE VARIABLES TO CONTROL THE BUILD TASKS.-->
-    <Internal_Logging>false</Internal_Logging>
+    <Internal_Logging>true</Internal_Logging>
 
     <!-- This is used to disable some build properties. -->
     <IsExamplesSolution Condition="'$(SolutionName)' == 'Examples' ">true</IsExamplesSolution>
+
+    <DefineConstants Condition="'$(Redfield)' == 'True'">$(DefineConstants);REDFIELD</DefineConstants>
   </PropertyGroup>
 
-  <Target Name="Info_InternalSettings"  BeforeTargets="Build">
-    <Message Text="Directory.Build.props: Internal_Logging is set to $(Internal_Logging)." Importance="high"/>
+  <Target Name="Info_Redfield"  BeforeTargets="Build" Condition="'$(Redfield)' == 'True'">
+    <!-- 
+    This flag is reserved for Codeless Attach products.
+    Redfield has some unique code changes to avoid conflicting with the real AI SDK.
+    To use: dotnet build /p:Redfield=True
+    -->
+    <Message Text="Directory.Build.props: Redfield build detected." Importance="high"/>
+  </Target>
+
+  <Target Name="Info_DirectoryBuildProps"  BeforeTargets="Build" Condition=" $(Internal_Logging) == 'true' ">
+    <Message Text="Info: SolutionName: $(SolutionName)." Importance="high"/>
+    <Message Text="Info: ProjectName: $(MSBuildProjectName)." Importance="high"/>
+    <Message Text="Info: TargetFramework: $(TargetFramework)." Importance="high"/>
+    <Message Text="Info: Directory.Build.props imported by $(MSBuildProjectName)." Importance="high"/>
   </Target>
 
   <Target Name="Info_DirectoryBuildProps"  BeforeTargets="Build" Condition=" $(Internal_Logging) == 'true' ">
