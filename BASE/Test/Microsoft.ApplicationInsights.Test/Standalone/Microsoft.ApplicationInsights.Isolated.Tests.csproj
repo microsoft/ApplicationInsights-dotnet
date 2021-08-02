@@ -3,12 +3,12 @@
 
   <PropertyGroup>
     <ProjectGuid>{2759BC71-7F47-44DA-8579-AE2D8C8C684D}</ProjectGuid>
-    <TargetFrameworks>net46;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net46;netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(OS) != 'Windows_NT'">
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup Condition="$(OS) == 'Windows_NT'">

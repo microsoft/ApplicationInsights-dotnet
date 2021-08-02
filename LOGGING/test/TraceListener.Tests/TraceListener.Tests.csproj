@@ -4,7 +4,7 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.TraceListener.Tests</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.TraceListener.Tests</AssemblyName>
-    <TargetFrameworks>net452;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net452;netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
