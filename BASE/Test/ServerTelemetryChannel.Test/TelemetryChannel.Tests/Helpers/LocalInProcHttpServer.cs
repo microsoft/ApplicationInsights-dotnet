@@ -1,4 +1,4 @@
-﻿#if NETCOREAPP2_1
+﻿#if NETCOREAPP
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -47,6 +47,5 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel.Helpers
             }
         }
     }
-
 }
 #endif

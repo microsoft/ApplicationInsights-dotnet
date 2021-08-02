@@ -423,9 +423,7 @@
                         Assert.AreEqual("IngestionEndpoint-ResponseTimeMsec", payload["Name"].ToString());
                         Assert.IsTrue((int)payload["Count"] >= 5);
                         // Max should be more than 30 ms, as we introduced a delay of 30ms in SendAsync.
-#if NETCOREAPP2_1
-                        Assert.IsTrue((float)payload["Max"] >= 30);
-#elif NETCOREAPP3_1
+#if NETCOREAPP3_1
                         Assert.IsTrue((double)payload["Max"] >= 30);
 #endif
                     }
@@ -470,9 +468,7 @@
                         Assert.AreEqual("IngestionEndpoint-ResponseTimeMsec", payload["Name"].ToString());
                         Assert.IsTrue((int)payload["Count"] >= 5);
                         // Mean should be more than 30 ms, as we introduced a delay of 30ms in SendAsync.
-#if NETCOREAPP2_1
-                        Assert.IsTrue((float)payload["Mean"] >= 30);
-#elif NETCOREAPP3_1
+#if NETCOREAPP3_1
                         Assert.IsTrue((double)payload["Mean"] >= 30);
 #endif
                     }
