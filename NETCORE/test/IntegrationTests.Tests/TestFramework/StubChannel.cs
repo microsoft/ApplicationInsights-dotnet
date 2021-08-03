@@ -1,7 +1,8 @@
-﻿using Microsoft.ApplicationInsights.Channel;
-using System;
+﻿using System;
 
-namespace IntegrationTests.Tests
+using Microsoft.ApplicationInsights.Channel;
+
+namespace IntegrationTests.Tests.TestFramework
 {
     internal class StubChannel : ITelemetryChannel
     {

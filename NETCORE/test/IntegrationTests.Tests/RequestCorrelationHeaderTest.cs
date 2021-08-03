@@ -1,60 +1,56 @@
-﻿using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.DataContracts;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
+
+using IntegrationTests.Tests.TestFramework;
+using IntegrationTests.WebApp;
+
+using Microsoft.ApplicationInsights.DataContracts;
+
 using Xunit;
 using Xunit.Abstractions;
-using IntegrationTests.WebApp;
 
 namespace IntegrationTests.Tests
 {
-    public partial class RequestCollectionTest :
-#if NET5_0
-        IClassFixture<CustomWebApplicationFactory<Startup_net_5_0>>
-#elif NETCOREAPP3_1
-        IClassFixture<CustomWebApplicationFactory<Startup_netcoreapp_3_1>>
-#else
-        IClassFixture<CustomWebApplicationFactory<Startup_netcoreapp_2_1>>
-#endif
+    public class RequestCorrelationHeaderTest : IClassFixture<CustomWebApplicationFactory<Startup>>
     {
+        private readonly CustomWebApplicationFactory<Startup> _factory;
+        private readonly ITestOutputHelper _output;
+
+        public RequestCorrelationHeaderTest(CustomWebApplicationFactory<Startup> factory, ITestOutputHelper output)
+        {
+            this._output = output;
+            _factory = factory;
+            _factory.sentItems.Clear();
+        }
+
         [Fact]
         public async Task RequestSuccessWithTraceParent()
         {
             // Arrange
-            var client = _factory.CreateClient();
             var path = "Home";
-            var url = client.BaseAddress + path;
+            var expectedName = "GET Home/Get";
+            var requestUri = _factory.MakeUri(path);
+            var requestHeaders = new Dictionary<string, string>()
+            {
+                { "traceparent", "00-4e3083444c10254ba40513c7316332eb-e2a5f830c0ee2c46-00"}
+            };
 
             // Act
-            Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
-                {
-                    { "traceparent", "00-4e3083444c10254ba40513c7316332eb-e2a5f830c0ee2c46-00"}
-                };
-            var request = CreateRequestMessage(requestHeaders);
-            request.RequestUri = new Uri(url);
-            var response = await client.SendAsync(request);
+            var response = await _factory.SendRequestAsync(requestUri, requestHeaders);
 
             // Assert
             response.EnsureSuccessStatusCode();
-
-            this.output.WriteLine(await response.Content.ReadAsStringAsync());
-
-            await WaitForTelemetryToArrive();
+            await this._output.PrintResponseContentAsync(response);
 
             var items = _factory.sentItems;
-            PrintItems(items);
-            // 1 Trace from Ilogger, 1 Request
-            Assert.Equal(2, items.Count);
+            _output.PrintTelemetryItems(items);
+            Assert.Equal(2, items.Count); // 1 Trace from Ilogger, 1 Request
 
-            var reqs = GetTelemetryOfType<RequestTelemetry>(items);
+            var reqs = items.GetTelemetryOfType<RequestTelemetry>();
             Assert.Single(reqs);
             var req = reqs[0];
-            var traces = GetTelemetryOfType<TraceTelemetry>(items);
+            var traces = items.GetTelemetryOfType<TraceTelemetry>();
             Assert.Single(traces);
             var trace = traces[0];
             Assert.NotNull(req);
@@ -65,11 +61,11 @@ namespace IntegrationTests.Tests
             Assert.Equal("4e3083444c10254ba40513c7316332eb", trace.Context.Operation.Id);
             Assert.Equal(req.Id, trace.Context.Operation.ParentId);
 
-            ValidateRequest(
+            TelemetryValidation.ValidateRequest(
                  requestTelemetry: req,
                  expectedResponseCode: "200",
-                 expectedName: "GET " + path + "/Get",
-                 expectedUrl: url,
+                 expectedName: expectedName,
+                 expectedUri: requestUri,
                  expectedSuccess: true);
         }
 
@@ -77,32 +73,29 @@ namespace IntegrationTests.Tests
         public async Task RequestFailedWithTraceParent()
         {
             // Arrange
-            var client = _factory.CreateClient();
             var path = "Home/Error";
-            var url = client.BaseAddress + path;
+            var expectedName = "GET Home/Error";
+            var requestUri = _factory.MakeUri(path);
+            var requestHeaders = new Dictionary<string, string>()
+            {
+                { "traceparent", "00-4e3083444c10254ba40513c7316332eb-e2a5f830c0ee2c46-00"}
+            };
 
             // Act
-            Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
-                {
-                    { "traceparent", "00-4e3083444c10254ba40513c7316332eb-e2a5f830c0ee2c46-00"}
-                };
-            var request = CreateRequestMessage(requestHeaders);
-            request.RequestUri = new Uri(url);
-
-            var response = await client.SendAsync(request);
+            var response = await _factory.SendRequestAsync(requestUri, requestHeaders);
 
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+            await this._output.PrintResponseContentAsync(response);
 
-            await WaitForTelemetryToArrive();
             var items = _factory.sentItems;
-            PrintItems(items);
-            Assert.Equal(2, items.Count);
+            _output.PrintTelemetryItems(items);
+            Assert.Equal(2, items.Count); // 1 Trace from Ilogger, 1 Request
 
-            var reqs = GetTelemetryOfType<RequestTelemetry>(items);
+            var reqs = items.GetTelemetryOfType<RequestTelemetry>();
             Assert.Single(reqs);
             var req = reqs[0];
-            var exceptions = GetTelemetryOfType<ExceptionTelemetry>(items);
+            var exceptions = items.GetTelemetryOfType<ExceptionTelemetry>();
             Assert.Single(exceptions);
             var exception = exceptions[0];
             Assert.NotNull(req);
@@ -113,11 +106,11 @@ namespace IntegrationTests.Tests
             Assert.Equal("e2a5f830c0ee2c46", req.Context.Operation.ParentId);
             Assert.Equal(req.Id, exception.Context.Operation.ParentId);
 
-            ValidateRequest(
+            TelemetryValidation.ValidateRequest(
                  requestTelemetry: req,
                  expectedResponseCode: "500",
-                 expectedName: "GET " + path,
-                 expectedUrl: url,
+                 expectedName: expectedName,
+                 expectedUri: requestUri,
                  expectedSuccess: false);
         }
 
@@ -125,33 +118,29 @@ namespace IntegrationTests.Tests
         public async Task RequestSuccessWithW3CCompatibleRequestId()
         {
             // Arrange
-            var client = _factory.CreateClient();
             var path = "Home";
-            var url = client.BaseAddress + path;
+            var expectedName = "GET Home/Get";
+            var requestUri = _factory.MakeUri(path);
+            var requestHeaders = new Dictionary<string, string>()
+            {
+                { "Request-Id", "|40d1a5a08a68c0998e4a3b7c91915ca6.b9e41c35_1."}
+            };
 
             // Act
-            Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
-                {
-                    { "Request-Id", "|40d1a5a08a68c0998e4a3b7c91915ca6.b9e41c35_1."}
-                };
-            var request = CreateRequestMessage(requestHeaders);
-            request.RequestUri = new Uri(url);
-
-            var response = await client.SendAsync(request);
+            var response = await _factory.SendRequestAsync(requestUri, requestHeaders);
 
             // Assert
             response.EnsureSuccessStatusCode();
+            await this._output.PrintResponseContentAsync(response);
 
-            await WaitForTelemetryToArrive();
             var items = _factory.sentItems;
-            PrintItems(items);
-            // 1 Trace from Ilogger, 1 Request
-            Assert.Equal(2, items.Count);
+            _output.PrintTelemetryItems(items);
+            Assert.Equal(2, items.Count); // 1 Trace from Ilogger, 1 Request
 
-            var reqs = GetTelemetryOfType<RequestTelemetry>(items);
+            var reqs = items.GetTelemetryOfType<RequestTelemetry>();
             Assert.Single(reqs);
             var req = reqs[0];
-            var traces = GetTelemetryOfType<TraceTelemetry>(items);
+            var traces = items.GetTelemetryOfType<TraceTelemetry>();
             Assert.Single(traces);
             var trace = traces[0];
             Assert.NotNull(req);
@@ -163,11 +152,11 @@ namespace IntegrationTests.Tests
             Assert.Equal("|40d1a5a08a68c0998e4a3b7c91915ca6.b9e41c35_1.", req.Context.Operation.ParentId);
             Assert.Equal(req.Id, trace.Context.Operation.ParentId);
 
-            ValidateRequest(
+            TelemetryValidation.ValidateRequest(
                  requestTelemetry: req,
                  expectedResponseCode: "200",
-                 expectedName: "GET " + path + "/Get",
-                 expectedUrl: url,
+                 expectedName: expectedName,
+                 expectedUri: requestUri,
                  expectedSuccess: true);
         }
 
@@ -175,32 +164,29 @@ namespace IntegrationTests.Tests
         public async Task RequestFailedWithW3CCompatibleRequestId()
         {
             // Arrange
-            var client = _factory.CreateClient();
             var path = "Home/Error";
-            var url = client.BaseAddress + path;
+            var expectedName = "GET Home/Error";
+            var requestUri = _factory.MakeUri(path);
+            var requestHeaders = new Dictionary<string, string>()
+            {
+                { "Request-Id", "|40d1a5a08a68c0998e4a3b7c91915ca6.b9e41c35_1."}
+            };
 
             // Act
-            Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
-                {
-                    { "Request-Id", "|40d1a5a08a68c0998e4a3b7c91915ca6.b9e41c35_1."}
-                };
-            var request = CreateRequestMessage(requestHeaders);
-            request.RequestUri = new Uri(url);
-
-            var response = await client.SendAsync(request);
+            var response = await _factory.SendRequestAsync(requestUri, requestHeaders);
 
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+            await this._output.PrintResponseContentAsync(response);
 
-            await WaitForTelemetryToArrive();
             var items = _factory.sentItems;
-            PrintItems(items);
-            Assert.Equal(2, items.Count);
+            _output.PrintTelemetryItems(items);
+            Assert.Equal(2, items.Count); // 1 Trace from Ilogger, 1 Request
 
-            var reqs = GetTelemetryOfType<RequestTelemetry>(items);
+            var reqs = items.GetTelemetryOfType<RequestTelemetry>();
             Assert.Single(reqs);
             var req = reqs[0];
-            var exceptions = GetTelemetryOfType<ExceptionTelemetry>(items);
+            var exceptions = items.GetTelemetryOfType<ExceptionTelemetry>();
             Assert.Single(exceptions);
             var exception = exceptions[0];
             Assert.NotNull(req);
@@ -211,11 +197,11 @@ namespace IntegrationTests.Tests
 
             Assert.Equal(req.Id, exception.Context.Operation.ParentId);
             Assert.Equal("|40d1a5a08a68c0998e4a3b7c91915ca6.b9e41c35_1.", req.Context.Operation.ParentId);
-            ValidateRequest(
+            TelemetryValidation.ValidateRequest(
                  requestTelemetry: req,
                  expectedResponseCode: "500",
-                 expectedName: "GET " + path,
-                 expectedUrl: url,
+                 expectedName: expectedName,
+                 expectedUri: requestUri,
                  expectedSuccess: false);
         }
 
@@ -223,33 +209,29 @@ namespace IntegrationTests.Tests
         public async Task RequestSuccessWithNonW3CCompatibleRequestId()
         {
             // Arrange
-            var client = _factory.CreateClient();
             var path = "Home";
-            var url = client.BaseAddress + path;
+            var expectedName = "GET Home/Get";
+            var requestUri = _factory.MakeUri(path);
+            var requestHeaders = new Dictionary<string, string>()
+            {
+                { "Request-Id", "|noncompatible.b9e41c35_1."}
+            };
 
             // Act
-            Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
-                {
-                    { "Request-Id", "|noncompatible.b9e41c35_1."}
-                };
-            var request = CreateRequestMessage(requestHeaders);
-            request.RequestUri = new Uri(url);
-
-            var response = await client.SendAsync(request);
+            var response = await _factory.SendRequestAsync(requestUri, requestHeaders);
 
             // Assert
             response.EnsureSuccessStatusCode();
+            await this._output.PrintResponseContentAsync(response);
 
-            await WaitForTelemetryToArrive();
             var items = _factory.sentItems;
-            PrintItems(items);
-            // 1 Trace from Ilogger, 1 Request
-            Assert.Equal(2, items.Count);
+            _output.PrintTelemetryItems(items);
+            Assert.Equal(2, items.Count); // 1 Trace from Ilogger, 1 Request
 
-            var reqs = GetTelemetryOfType<RequestTelemetry>(items);
+            var reqs = items.GetTelemetryOfType<RequestTelemetry>();
             Assert.Single(reqs);
             var req = reqs[0];
-            var traces = GetTelemetryOfType<TraceTelemetry>(items);
+            var traces = items.GetTelemetryOfType<TraceTelemetry>();
             Assert.Single(traces);
             var trace = traces[0];
             Assert.NotNull(req);
@@ -262,11 +244,11 @@ namespace IntegrationTests.Tests
             Assert.Equal(req.Id, trace.Context.Operation.ParentId);
             Assert.Equal("noncompatible", req.Properties["ai_legacyRootId"]);
 
-            ValidateRequest(
+            TelemetryValidation.ValidateRequest(
                  requestTelemetry: req,
                  expectedResponseCode: "200",
-                 expectedName: "GET " + path + "/Get",
-                 expectedUrl: url,
+                 expectedName: expectedName,
+                 expectedUri: requestUri,
                  expectedSuccess: true);
         }
     }

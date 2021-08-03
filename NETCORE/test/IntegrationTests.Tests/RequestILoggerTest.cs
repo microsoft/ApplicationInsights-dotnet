@@ -1,120 +1,108 @@
-﻿using Microsoft.ApplicationInsights.Channel;
+﻿using System.Threading.Tasks;
+
+using IntegrationTests.Tests.TestFramework;
+using IntegrationTests.WebApp;
+
 using Microsoft.ApplicationInsights.DataContracts;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Xunit;
-using Xunit.Abstractions;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.ApplicationInsights;
-using IntegrationTests.WebApp;
+
+using Xunit;
+using Xunit.Abstractions;
 
 namespace IntegrationTests.Tests
 {
-    public partial class RequestCollectionTest : 
-#if NET5_0
-        IClassFixture<CustomWebApplicationFactory<Startup_net_5_0>>
-#elif NETCOREAPP3_1
-        IClassFixture<CustomWebApplicationFactory<Startup_netcoreapp_3_1>>
-#else
-        IClassFixture<CustomWebApplicationFactory<Startup_netcoreapp_2_1>>
-#endif
+    public class RequestILoggerTest : IClassFixture<CustomWebApplicationFactory<Startup>>
     {
+        private readonly CustomWebApplicationFactory<Startup> _factory;
+        private readonly ITestOutputHelper _output;
+
+        public RequestILoggerTest(CustomWebApplicationFactory<Startup> factory, ITestOutputHelper output)
+        {
+            this._output = output;
+            _factory = factory;
+            _factory.sentItems.Clear();
+        }
+
         [Fact]
         public async Task RequestILoggerUserConfigOverRidesDefaultLevel()
         {
             // Arrange
             var loggerCategory = "IntegrationTests.WebApp.Controllers.HomeController";
-
-            var client = _factory.WithWebHostBuilder(builder =>
-            builder.ConfigureTestServices((services) =>
-            services.AddLogging(logBuilder => logBuilder.AddFilter<ApplicationInsightsLoggerProvider>(loggerCategory, LogLevel.Information))
-            )).CreateClient();
-
             var path = "Home";
-            var url = client.BaseAddress + path;
+            var expectedName = "GET Home/Get";
+            var requestUri = _factory.MakeUri(path);
 
             // Act
-            var request = CreateRequestMessage();
-            request.RequestUri = new Uri(url);
-            var response = await client.SendAsync(request);
+            var response = await _factory
+                .WithWebHostBuilder(builder =>
+                    builder.ConfigureTestServices(services =>
+                        services.AddLogging(logBuilder =>
+                            logBuilder.AddFilter<ApplicationInsightsLoggerProvider>(loggerCategory, LogLevel.Information))))
+                .SendRequestAsync(requestUri);
 
             // Assert
             response.EnsureSuccessStatusCode();
 
-            await WaitForTelemetryToArrive();
-
             var items = _factory.sentItems;
-            PrintItems(items);
+            this._output.PrintTelemetryItems(items);
             Assert.Equal(3, items.Count);
 
-            var reqs = GetTelemetryOfType<RequestTelemetry>(items);
+            var reqs = items.GetTelemetryOfType<RequestTelemetry>();
             Assert.Single(reqs);
             var req = reqs[0];
             Assert.NotNull(req);
 
-            var traces = GetTelemetryOfType<TraceTelemetry>(items);
+            var traces = items.GetTelemetryOfType<TraceTelemetry>();
             Assert.Equal(2, traces.Count);
             var trace1 = traces[0];
             var trace2 = traces[1];
             Assert.Equal(trace1.Context.Operation.ParentId, req.Id);
 
-            ValidateRequest(
+            TelemetryValidation.ValidateRequest(
                  requestTelemetry: req,
                  expectedResponseCode: "200",
-                 expectedName: "GET " + path + "/Get",
-                 expectedUrl: url,
+                 expectedName: expectedName,
+                 expectedUri: requestUri,
                  expectedSuccess: true);
-
-            client.Dispose();
         }
 
         [Fact]
         public async Task IloggerWarningOrAboveCapturedByDefault()
         {
             // Arrange
-            var client = _factory.CreateClient();
-
             var path = "Home";
-            var url = client.BaseAddress + path;
+            var expectedName = "GET Home/Get";
+            var requestUri = _factory.MakeUri(path);
 
             // Act
-            var request = CreateRequestMessage();
-            request.RequestUri = new Uri(url);
-            var response = await client.SendAsync(request);
+            var response = await _factory.SendRequestAsync(requestUri);
 
             // Assert
             response.EnsureSuccessStatusCode();
 
-            await WaitForTelemetryToArrive();
-
             var items = _factory.sentItems;
-            PrintItems(items);
+            _output.PrintTelemetryItems(items);
             Assert.Equal(2, items.Count);
 
-            var reqs = GetTelemetryOfType<RequestTelemetry>(items);
+            var reqs = items.GetTelemetryOfType<RequestTelemetry>();
             Assert.Single(reqs);
             var req = reqs[0];
             Assert.NotNull(req);
 
-            var traces = GetTelemetryOfType<TraceTelemetry>(items);
+            var traces = items.GetTelemetryOfType<TraceTelemetry>();
             Assert.Single(traces);
             var trace = traces[0];
             Assert.Equal(trace.Context.Operation.ParentId, req.Id);
 
-            ValidateRequest(
+            TelemetryValidation.ValidateRequest(
                  requestTelemetry: req,
                  expectedResponseCode: "200",
-                 expectedName: "GET " + path + "/Get",
-                 expectedUrl: url,
+                 expectedName: expectedName,
+                 expectedUri: requestUri,
                  expectedSuccess: true);
-
         }
     }
 }
