@@ -2,15 +2,12 @@
   <Import Project="$(PropsRoot)\Test.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net452;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net452;netcoreapp3.1</TargetFrameworks>
     <AssemblyName>Microsoft.ApplicationInsights.DependencyCollector.Tests</AssemblyName>
     <PackageId>Microsoft.AI.DependencyCollector.Tests</PackageId>
 
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <NoWarn>1701;1702;1705;1591</NoWarn>
-
-    <!-- This is the wrong constant. Need to use NETCOREAPP which is auto defined.-->
-    <DefineConstants Condition="'$(TargetFramework)' == 'netcoreapp2.1'">$(DefineConstants);NETCORE;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,7 +26,7 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1' OR '$(TargetFramework)' == 'netcoreapp3.1'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />

@@ -13,16 +13,7 @@ namespace IntegrationTests.WebApp
 {
     public class Program
     {
-#if NETCOREAPP2_1
-        public static void Main(string[] args)
-        {
-            CreateWebHostBuilder(args).Build().Run();
-        }
-
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup_netcoreapp_2_1>();
-#elif NET5_0
+#if NET5_0
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
