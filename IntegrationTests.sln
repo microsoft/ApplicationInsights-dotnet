@@ -33,10 +33,8 @@ EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		NETCORE\src\Shared\Shared.projitems*{079e8118-28b3-4567-a384-ea337a0ed9fb}*SharedItemsImports = 5
-		BASE\src\Common\Common\Common.projitems*{07f570e4-3a43-44d4-99a0-1d961b8e2a70}*SharedItemsImports = 5
 		WEB\Src\Common\Common.projitems*{33478fb4-05fc-4cbd-a04d-17d0d6ba5b13}*SharedItemsImports = 5
 		WEB\Src\Common\Common.projitems*{56c361c2-724c-4688-b4e1-f94c0681ec33}*SharedItemsImports = 5
-		BASE\src\Common\Common\Common.projitems*{893dfa71-0f4f-4bbf-ae8f-72208be237ba}*SharedItemsImports = 5
 		WEB\Src\Common\Common.projitems*{a8d39e66-af60-4f51-aedc-2464a2d86dea}*SharedItemsImports = 5
 		WEB\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{a8d39e66-af60-4f51-aedc-2464a2d86dea}*SharedItemsImports = 5
 		LOGGING\src\CommonShared\CommonShared.projitems*{dd8682e9-bdcf-459b-b1a6-97966c3e9b6a}*SharedItemsImports = 5

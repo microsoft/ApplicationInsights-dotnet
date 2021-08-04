@@ -1,4 +1,4 @@
-﻿#if NETCOREAPP2_1
+﻿#if NETCOREAPP
 namespace Microsoft.ApplicationInsights.WindowsServer.Channel
 {    
     using System.Collections.Generic;
