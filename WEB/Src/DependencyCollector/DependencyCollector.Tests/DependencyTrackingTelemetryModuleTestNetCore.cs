@@ -488,6 +488,7 @@
                     }
                     else
                     {
+                        // TODO: THIS IS A TESTING GAP
 #if NETCOREAPP2_1
                         // even though we don't inject back-compatible request-id, .NET Core 2.0 will inject one that will look like traceparent
                         Assert.AreEqual(expectedTraceParentHeader, request.Headers.GetValues(RequestResponseHeaders.RequestIdHeader).Single());

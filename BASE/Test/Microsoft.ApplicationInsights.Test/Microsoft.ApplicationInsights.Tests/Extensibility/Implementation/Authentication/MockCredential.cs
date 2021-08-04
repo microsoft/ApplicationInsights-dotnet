@@ -1,4 +1,4 @@
-﻿#if NET461 || NETCOREAPP2_1 || NETCOREAPP3_1 || NET5_0
+﻿#if NET461 || NETCOREAPP
 namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementation.Authentication
 {
     using System;

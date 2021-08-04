@@ -42,7 +42,7 @@
             await ExecuteReaderAsyncInternal(connectionString, commandText, commandType);
         }
 
-#if !NETCOREAPP3_0 && !NETCOREAPP2_0
+#if !NETCOREAPP
         public static void BeginExecuteReader(string connectionString, string commandText, int numberOfAsyncArgs)
         {
             ManualResetEvent mre = new ManualResetEvent(false);
