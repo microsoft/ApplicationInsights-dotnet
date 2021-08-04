@@ -21,7 +21,8 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
     using System.IO;
 
 
-    [TestClass]      
+    [TestClass]
+    [TestCategory("WindowsOnly")] // these tests are flaky on linux builds.
     public class ServerTelemetryChannelE2ETests
     {
         private const string Localurl = "http://localhost:6090";
