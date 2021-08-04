@@ -35,7 +35,7 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <PackageReference Include="Azure.Core" Version="1.14.0" />
     
-    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
   </ItemGroup>
 
