@@ -28,12 +28,13 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="1.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="1.1.8" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
+    <!--TODO: I think something is wrong with this project. need more time to investigate -->
     <!--<FrameworkReference Include="Microsoft.AspNetCore.App" />-->
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="1.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="1.1.8" />
   </ItemGroup>
 
   <ItemGroup>
