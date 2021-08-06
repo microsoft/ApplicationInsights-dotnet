@@ -28,9 +28,13 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="1.0.4" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
+
+  </ItemGroup>
+
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
+
   </ItemGroup>
 
   <ItemGroup>
