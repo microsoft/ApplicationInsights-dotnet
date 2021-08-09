@@ -32,9 +32,12 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
-    <!--TODO: I think something is wrong with this project. need more time to investigate -->
+    <!-- TODO: Can't switch to FrameworkReference yet; 
+         'IHostingEnvironment' is obsolete: 'This type is obsolete and will be removed in a future version. 
+         The recommended alternative is Microsoft.AspNetCore.Hosting.IWebHostEnvironment.' -->
     <!--<FrameworkReference Include="Microsoft.AspNetCore.App" />-->
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="1.1.8" />
+
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
   </ItemGroup>
 
   <ItemGroup>
