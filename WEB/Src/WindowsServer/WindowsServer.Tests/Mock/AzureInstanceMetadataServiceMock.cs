@@ -33,7 +33,7 @@
                 .UseUrls(baseUrl + "?testName=" + testName)
                 .Build();
 
-            Task.Run(() => this.host.Run(this.cts.Token));
+            Task.Run(() => this.host.RunAsync(this.cts.Token));
         }
 
 #else
