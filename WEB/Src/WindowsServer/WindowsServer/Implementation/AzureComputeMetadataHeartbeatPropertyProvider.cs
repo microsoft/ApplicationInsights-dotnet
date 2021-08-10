@@ -117,7 +117,10 @@
             {
                 if (disposing)
                 {
-                    this.azureInstanceMetadataRequestor.Dispose();
+                    if (this.azureInstanceMetadataRequestor is IDisposable disposableRequestor)
+                    {
+                        disposableRequestor.Dispose();
+                    }
                 }
 
                 this.isDisposed = true;

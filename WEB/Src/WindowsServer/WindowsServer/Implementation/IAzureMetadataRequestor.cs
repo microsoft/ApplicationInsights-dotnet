@@ -5,7 +5,7 @@
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.WindowsServer.Implementation.DataContracts;
 
-    internal interface IAzureMetadataRequestor : IDisposable
+    internal interface IAzureMetadataRequestor
     {
         Task<AzureInstanceComputeMetadata> GetAzureComputeMetadataAsync();
     }

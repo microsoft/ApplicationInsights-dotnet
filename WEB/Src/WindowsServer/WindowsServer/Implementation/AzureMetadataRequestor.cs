@@ -9,7 +9,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.WindowsServer.Implementation.DataContracts;
 
-    internal class AzureMetadataRequestor : IAzureMetadataRequestor
+    internal class AzureMetadataRequestor : IAzureMetadataRequestor, IDisposable
     {
         /// <summary>
         /// Azure Instance Metadata Service exists on a single non-routable IP on machines configured
