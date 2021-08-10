@@ -20,15 +20,24 @@
         internal const int AzureImsMaxResponseBufferSize = 512;
 
         /// <summary>
-        /// Default timeout for the web requests made to obtain Azure IMS data. Internal to expose to tests.
+        /// Default timeout for the web requests made to obtain Azure IMS data.
         /// </summary>
-        internal TimeSpan AzureImsRequestTimeout = TimeSpan.FromSeconds(10);
+        private TimeSpan AzureImsRequestTimeout = TimeSpan.FromSeconds(10);
 
         private readonly HttpClient httpClient;
 
-        public AzureMetadataRequestor() => this.httpClient = new HttpClient();
+        public AzureMetadataRequestor() : this(new HttpClient())
+        {
+        }
 
-        internal AzureMetadataRequestor(HttpClient httpClient) => this.httpClient = httpClient;
+        internal AzureMetadataRequestor(HttpClient httpClient)
+        {
+            this.httpClient = httpClient;
+
+            this.httpClient.MaxResponseContentBufferSize = AzureMetadataRequestor.AzureImsMaxResponseBufferSize;
+            this.httpClient.DefaultRequestHeaders.Add("Metadata", "True");
+            this.httpClient.Timeout = this.AzureImsRequestTimeout;
+        }
 
         /// <summary>
         /// Gets or sets the base URI for the Azure Instance Metadata service. Internal to allow overriding in test.
@@ -74,10 +83,6 @@
         {
             AzureInstanceComputeMetadata azureIms = null;
             DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(AzureInstanceComputeMetadata));
-
-            this.httpClient.MaxResponseContentBufferSize = AzureMetadataRequestor.AzureImsMaxResponseBufferSize;
-            this.httpClient.DefaultRequestHeaders.Add("Metadata", "True");
-            this.httpClient.Timeout = this.AzureImsRequestTimeout;
 
             Stream content = await this.httpClient.GetStreamAsync(new Uri(requestUrl)).ConfigureAwait(false);
             azureIms = (AzureInstanceComputeMetadata)deserializer.ReadObject(content);
