@@ -19,12 +19,12 @@
         internal const string AzureImsJsonFormat = "format=json";
         internal const int AzureImsMaxResponseBufferSize = 512;
 
+        private readonly HttpClient httpClient;
+
         /// <summary>
         /// Default timeout for the web requests made to obtain Azure IMS data.
         /// </summary>
-        private TimeSpan AzureImsRequestTimeout = TimeSpan.FromSeconds(10);
-
-        private readonly HttpClient httpClient;
+        private TimeSpan azureImsRequestTimeout = TimeSpan.FromSeconds(10);
 
         public AzureMetadataRequestor() : this(new HttpClient())
         {
@@ -36,7 +36,7 @@
 
             this.httpClient.MaxResponseContentBufferSize = AzureMetadataRequestor.AzureImsMaxResponseBufferSize;
             this.httpClient.DefaultRequestHeaders.Add("Metadata", "True");
-            this.httpClient.Timeout = this.AzureImsRequestTimeout;
+            this.httpClient.Timeout = this.azureImsRequestTimeout;
         }
 
         /// <summary>
