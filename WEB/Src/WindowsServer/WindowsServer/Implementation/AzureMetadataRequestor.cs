@@ -25,14 +25,11 @@
         /// Default timeout for the web requests made to obtain Azure IMS data.
         /// </summary>
         private TimeSpan azureImsRequestTimeout = TimeSpan.FromSeconds(10);
+        private bool isDisposed;
 
-        public AzureMetadataRequestor() : this(new HttpClient())
+        public AzureMetadataRequestor(HttpClient httpClient = null)
         {
-        }
-
-        internal AzureMetadataRequestor(HttpClient httpClient)
-        {
-            this.httpClient = httpClient;
+            this.httpClient = httpClient ?? new HttpClient();
 
             this.httpClient.MaxResponseContentBufferSize = AzureMetadataRequestor.AzureImsMaxResponseBufferSize;
             this.httpClient.DefaultRequestHeaders.Add("Metadata", "True");
@@ -57,6 +54,26 @@
                 AzureMetadataRequestor.AzureImsApiVersion);
 
             return this.MakeAzureMetadataRequestAsync(metadataRequestUrl);
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            this.Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.isDisposed)
+            {
+                if (disposing)
+                {
+                    this.httpClient.Dispose();
+                }
+
+                this.isDisposed = true;
+            }
         }
 
         private async Task<AzureInstanceComputeMetadata> MakeAzureMetadataRequestAsync(string metadataRequestUrl)

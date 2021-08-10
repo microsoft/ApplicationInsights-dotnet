@@ -10,6 +10,7 @@
         public AzureInstanceComputeMetadata ComputeMetadata;
 
         private Func<AzureInstanceComputeMetadata> getComputeMetadata = null;
+        private bool disposedValue;
 
         public AzureInstanceMetadataRequestMock(Func<AzureInstanceComputeMetadata> getComputeMetadata = null)
         {
@@ -43,6 +44,26 @@
         public Task<AzureInstanceComputeMetadata> GetAzureComputeMetadataAsync()
         {
             return Task.FromResult(this.getComputeMetadata());
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }
