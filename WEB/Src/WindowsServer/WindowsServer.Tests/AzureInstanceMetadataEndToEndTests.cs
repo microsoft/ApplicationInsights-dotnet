@@ -20,6 +20,9 @@ namespace Microsoft.ApplicationInsights.WindowsServer
     /// end to end functionality as closely as possible.
     /// </summary>
     [TestClass]
+#if NETCOREAPP
+    [Ignore("Problems with in-proc test server. These tests are temporarially disabled while working on a fix. See #2357 and #2355.")]
+#endif
     public class AzureInstanceMetadataEndToEndTests
     {
         internal const string MockTestUri = "http://localhost:9922/";
