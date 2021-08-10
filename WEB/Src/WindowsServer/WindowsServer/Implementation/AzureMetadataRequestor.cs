@@ -24,17 +24,11 @@
         /// </summary>
         internal TimeSpan AzureImsRequestTimeout = TimeSpan.FromSeconds(10);
 
-        /// <summary>
-        /// Private function for mocking out the actual call to IMS in unit tests. Available to internal only.
-        /// </summary>
-        /// parameter sent to the func is a string representing the Uri to request Azure IMS data from.
-        /// <returns>An instance of AzureInstanceComputeMetadata or null.</returns>
-        private Func<string, Task<AzureInstanceComputeMetadata>> azureIMSRequestor = null;
+        private readonly HttpClient httpClient;
 
-        internal AzureMetadataRequestor(Func<string, Task<AzureInstanceComputeMetadata>> makeAzureIMSRequestor = null)
-        {
-            this.azureIMSRequestor = makeAzureIMSRequestor;
-        }
+        public AzureMetadataRequestor() => this.httpClient = new HttpClient();
+
+        internal AzureMetadataRequestor(HttpClient httpClient) => this.httpClient = httpClient;
 
         /// <summary>
         /// Gets or sets the base URI for the Azure Instance Metadata service. Internal to allow overriding in test.
@@ -58,31 +52,22 @@
 
         private async Task<AzureInstanceComputeMetadata> MakeAzureMetadataRequestAsync(string metadataRequestUrl)
         {
-            AzureInstanceComputeMetadata requestResult = null;
-
             SdkInternalOperationsMonitor.Enter();
             try
             {
-                if (this.azureIMSRequestor != null)
-                {
-                    requestResult = await this.azureIMSRequestor(metadataRequestUrl).ConfigureAwait(false);
-                }
-                else
-                {
-                    requestResult = await this.MakeWebRequestAsync(metadataRequestUrl).ConfigureAwait(false);
-                }
+                return await this.MakeWebRequestAsync(metadataRequestUrl).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 WindowsServerEventSource.Log.AzureInstanceMetadataRequestFailure(
                     metadataRequestUrl, ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty);
+
+                return null;
             }
             finally
             {
                 SdkInternalOperationsMonitor.Exit();
             }
-
-            return requestResult;
         }
         
         private async Task<AzureInstanceComputeMetadata> MakeWebRequestAsync(string requestUrl)
@@ -90,20 +75,17 @@
             AzureInstanceComputeMetadata azureIms = null;
             DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(AzureInstanceComputeMetadata));
 
-            using (var azureImsClient = new HttpClient())
+            this.httpClient.MaxResponseContentBufferSize = AzureMetadataRequestor.AzureImsMaxResponseBufferSize;
+            this.httpClient.DefaultRequestHeaders.Add("Metadata", "True");
+            this.httpClient.Timeout = this.AzureImsRequestTimeout;
+
+            Stream content = await this.httpClient.GetStreamAsync(new Uri(requestUrl)).ConfigureAwait(false);
+            azureIms = (AzureInstanceComputeMetadata)deserializer.ReadObject(content);
+            content.Dispose();
+
+            if (azureIms == null)
             {
-                azureImsClient.MaxResponseContentBufferSize = AzureMetadataRequestor.AzureImsMaxResponseBufferSize;
-                azureImsClient.DefaultRequestHeaders.Add("Metadata", "True");
-                azureImsClient.Timeout = this.AzureImsRequestTimeout;
-
-                Stream content = await azureImsClient.GetStreamAsync(new Uri(requestUrl)).ConfigureAwait(false);
-                azureIms = (AzureInstanceComputeMetadata)deserializer.ReadObject(content);
-                content.Dispose();
-
-                if (azureIms == null)
-                {
-                    WindowsServerEventSource.Log.CannotObtainAzureInstanceMetadata();
-                }
+                WindowsServerEventSource.Log.CannotObtainAzureInstanceMetadata();
             }
 
             return azureIms;
