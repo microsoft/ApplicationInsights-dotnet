@@ -24,10 +24,6 @@
         /// </summary>
         internal TimeSpan AzureImsRequestTimeout = TimeSpan.FromSeconds(10);
 
-        public AzureMetadataRequestor()
-        {
-        }
-
         /// <summary>
         /// Gets or sets the base URI for the Azure Instance Metadata service. Internal to allow overriding in test.
         /// </summary>
