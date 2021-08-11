@@ -1,4 +1,4 @@
-﻿#if NET461 || NETCOREAPP
+﻿#if !NET452 && !NET46
 namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementation.Authentication
 {
     using System;

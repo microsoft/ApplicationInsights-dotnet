@@ -4,7 +4,8 @@
 
   <PropertyGroup>
     <VersionPrefix>2.0.0</VersionPrefix>
-    <TargetFrameworks>net461;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net461;net462;net472;net480;netcoreapp3.1;net5.0</TargetFrameworks>
+    
     <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp3.1</TargetFrameworks>
     <DelaySign Condition=" '$(OS)' == 'Windows_NT' ">true</DelaySign>
     <PreserveCompilationContext>true</PreserveCompilationContext>
@@ -27,11 +28,11 @@
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="1.1.8" />
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461'  Or  '$(TargetFramework)' == 'net462'  Or   '$(TargetFramework)' == 'net472'   Or  '$(TargetFramework)' == 'net480' ">
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="1.1.8" /> <!--2.2.5-->
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1'   Or  '$(TargetFramework)' == 'net5.0' ">
     <!-- TODO: Can't switch to FrameworkReference yet; 
          'IHostingEnvironment' is obsolete: 'This type is obsolete and will be removed in a future version. 
          The recommended alternative is Microsoft.AspNetCore.Hosting.IWebHostEnvironment.' -->
