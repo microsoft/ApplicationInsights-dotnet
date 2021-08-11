@@ -33,7 +33,9 @@
                 .UseUrls(baseUrl + "?testName=" + testName)
                 .Build();
 
-            Task.Run(() => this.host.Run(this.cts.Token));
+            // Breaking change. This method is not available in NetCoreApp3 and greater
+            // Other methods do not have the same behavior and break existing tests.
+            // Task.Run(() => this.host.Run(this.cts.Token));
         }
 
 #else
