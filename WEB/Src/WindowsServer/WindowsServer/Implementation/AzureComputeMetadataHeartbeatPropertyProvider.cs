@@ -42,8 +42,6 @@
 
         private IAzureMetadataRequestor azureInstanceMetadataRequestor = null;
 
-        private bool isDisposed;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="AzureComputeMetadataHeartbeatPropertyProvider"/> class.
         /// </summary>
