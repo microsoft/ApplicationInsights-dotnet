@@ -25,12 +25,19 @@
     </PackageReference>
     <PackageReference Include="xunit" Version="2.4.1" />
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="1.0.4" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="1.1.8" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
+    <!-- TODO: Can't switch to FrameworkReference yet; 
+         'IHostingEnvironment' is obsolete: 'This type is obsolete and will be removed in a future version. 
+         The recommended alternative is Microsoft.AspNetCore.Hosting.IWebHostEnvironment.' -->
+    <!--<FrameworkReference Include="Microsoft.AspNetCore.App" />-->
+
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
   </ItemGroup>
 
   <ItemGroup>
