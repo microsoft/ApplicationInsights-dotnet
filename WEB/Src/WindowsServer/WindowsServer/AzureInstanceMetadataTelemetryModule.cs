@@ -74,7 +74,10 @@
                             // to the core event log.
                             try
                             {
-                                Task.Factory.StartNew(async () => await SetDefaultPayloadAsync(hbeatManager).ConfigureAwait(false));
+                                var heartbeatProperties = new AzureComputeMetadataHeartbeatPropertyProvider();
+                                Task.Factory.StartNew(
+                                    async () => await heartbeatProperties.SetDefaultPayloadAsync(hbeatManager)
+                                    .ConfigureAwait(false));
                             }
                             catch (Exception heartbeatAquisitionException)
                             {
@@ -85,14 +88,6 @@
                         this.IsInitialized = true;
                     }
                 }
-            }
-        }
-
-        private static async Task SetDefaultPayloadAsync(IHeartbeatPropertyManager heartbeatPropertyManager)
-        {
-            using (var heartbeatPropertyProvider = new AzureComputeMetadataHeartbeatPropertyProvider())
-            {
-                await heartbeatPropertyProvider.SetDefaultPayloadAsync(heartbeatPropertyManager).ConfigureAwait(false);
             }
         }
     }

@@ -6,10 +6,11 @@
     using System.Net.Http;
     using System.Runtime.Serialization.Json;
     using System.Threading.Tasks;
+
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.WindowsServer.Implementation.DataContracts;
 
-    internal class AzureMetadataRequestor : IAzureMetadataRequestor, IDisposable
+    internal class AzureMetadataRequestor : IAzureMetadataRequestor
     {
         /// <summary>
         /// Azure Instance Metadata Service exists on a single non-routable IP on machines configured
@@ -19,22 +20,27 @@
         internal const string AzureImsJsonFormat = "format=json";
         internal const int AzureImsMaxResponseBufferSize = 512;
 
-        private readonly HttpClient httpClient;
+        /// <summary>
+        /// Default timeout for the web requests made to obtain Azure IMS data. Internal to expose to tests.
+        /// </summary>
+        internal TimeSpan AzureImsRequestTimeout = TimeSpan.FromSeconds(10);
 
         /// <summary>
-        /// Default timeout for the web requests made to obtain Azure IMS data.
+        /// Private function for mocking out the actual call to IMS in unit tests. Available to internal only.
         /// </summary>
-        private TimeSpan azureImsRequestTimeout = TimeSpan.FromSeconds(10);
-        private bool isDisposed;
+        /// parameter sent to the func is a string representing the Uri to request Azure IMS data from.
+        /// <returns>An instance of AzureInstanceComputeMetadata or null.</returns>
+        private Func<string, Task<AzureInstanceComputeMetadata>> azureIMSRequestor = null;
 
-        public AzureMetadataRequestor(HttpClient httpClient = null)
+        public AzureMetadataRequestor()
         {
-            this.httpClient = httpClient ?? new HttpClient();
 
-            this.httpClient.MaxResponseContentBufferSize = AzureMetadataRequestor.AzureImsMaxResponseBufferSize;
-            this.httpClient.DefaultRequestHeaders.Add("Metadata", "True");
-            this.httpClient.Timeout = this.azureImsRequestTimeout;
         }
+
+        //internal AzureMetadataRequestor(Func<string, Task<AzureInstanceComputeMetadata>> makeAzureIMSRequestor = null)
+        //{
+        //    this.azureIMSRequestor = makeAzureIMSRequestor;
+        //}
 
         /// <summary>
         /// Gets or sets the base URI for the Azure Instance Metadata service. Internal to allow overriding in test.
@@ -56,61 +62,59 @@
             return this.MakeAzureMetadataRequestAsync(metadataRequestUrl);
         }
 
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            this.Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.isDisposed)
-            {
-                if (disposing)
-                {
-                    this.httpClient.Dispose();
-                }
-
-                this.isDisposed = true;
-            }
-        }
-
         private async Task<AzureInstanceComputeMetadata> MakeAzureMetadataRequestAsync(string metadataRequestUrl)
         {
+            AzureInstanceComputeMetadata requestResult = null;
+
             SdkInternalOperationsMonitor.Enter();
             try
             {
-                return await this.MakeWebRequestAsync(metadataRequestUrl).ConfigureAwait(false);
+                if (this.azureIMSRequestor != null)
+                {
+                    requestResult = await this.azureIMSRequestor(metadataRequestUrl).ConfigureAwait(false);
+                }
+                else
+                {
+                    requestResult = await this.MakeWebRequestAsync(metadataRequestUrl).ConfigureAwait(false);
+                }
             }
             catch (Exception ex)
             {
                 WindowsServerEventSource.Log.AzureInstanceMetadataRequestFailure(
                     metadataRequestUrl, ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty);
-
-                return null;
             }
             finally
             {
                 SdkInternalOperationsMonitor.Exit();
             }
+
+            return requestResult;
         }
-        
+
         private async Task<AzureInstanceComputeMetadata> MakeWebRequestAsync(string requestUrl)
         {
             AzureInstanceComputeMetadata azureIms = null;
             DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(AzureInstanceComputeMetadata));
 
-            Stream content = await this.httpClient.GetStreamAsync(new Uri(requestUrl)).ConfigureAwait(false);
-            azureIms = (AzureInstanceComputeMetadata)deserializer.ReadObject(content);
-            content.Dispose();
-
-            if (azureIms == null)
+            using (var azureImsClient = this.GetHttpClient())
             {
-                WindowsServerEventSource.Log.CannotObtainAzureInstanceMetadata();
+                azureImsClient.MaxResponseContentBufferSize = AzureMetadataRequestor.AzureImsMaxResponseBufferSize;
+                azureImsClient.DefaultRequestHeaders.Add("Metadata", "True");
+                azureImsClient.Timeout = this.AzureImsRequestTimeout;
+
+                Stream content = await azureImsClient.GetStreamAsync(new Uri(requestUrl)).ConfigureAwait(false);
+                azureIms = (AzureInstanceComputeMetadata)deserializer.ReadObject(content);
+                content.Dispose();
+
+                if (azureIms == null)
+                {
+                    WindowsServerEventSource.Log.CannotObtainAzureInstanceMetadata();
+                }
             }
 
             return azureIms;
         }
+
+        internal virtual HttpClient GetHttpClient() => new HttpClient();
     }
 }

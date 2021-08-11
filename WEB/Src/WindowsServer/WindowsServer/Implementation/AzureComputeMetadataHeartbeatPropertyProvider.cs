@@ -6,7 +6,7 @@
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
-    internal class AzureComputeMetadataHeartbeatPropertyProvider : IDisposable
+    internal class AzureComputeMetadataHeartbeatPropertyProvider
     {
         internal const string HeartbeatPropertyPrefix = "azInst_"; // to ensure no collisions with base heartbeat properties
 
@@ -34,13 +34,13 @@
             "vmScaleSetName",
         };
 
-        private readonly IAzureMetadataRequestor azureInstanceMetadataRequestor;
-
         /// <summary>
         /// Flags that will tell us whether or not Azure VM metadata has been attempted to be gathered or not, and
         /// if we should even attempt to look for it in the first place. 
         /// </summary>
         private bool isAzureMetadataCheckCompleted = false;
+
+        private IAzureMetadataRequestor azureInstanceMetadataRequestor = null;
 
         private bool isDisposed;
 
@@ -102,29 +102,6 @@
             }
 
             return hasSetFields;
-        }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            this.Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.isDisposed)
-            {
-                if (disposing)
-                {
-                    if (this.azureInstanceMetadataRequestor is IDisposable disposableRequestor)
-                    {
-                        disposableRequestor.Dispose();
-                    }
-                }
-
-                this.isDisposed = true;
-            }
         }
     }
 }

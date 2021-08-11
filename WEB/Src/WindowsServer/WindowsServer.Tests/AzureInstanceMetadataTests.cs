@@ -303,8 +303,16 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                 .Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
                 .Callback(() => throw new HttpRequestException("unit test forced exception"));
-            
-            var requestor = new AzureMetadataRequestor(new HttpClient(mockHttpMessageHandler.Object));
+
+            //var requestor = new AzureMetadataRequestor(new HttpClient(mockHttpMessageHandler.Object));
+
+            var mockAzureMetadataRequestor = new Mock<AzureMetadataRequestor>();
+
+            mockAzureMetadataRequestor
+                .Setup(x => x.GetHttpClient())
+                .Returns(new HttpClient(mockHttpMessageHandler.Object));
+
+            var requestor = mockAzureMetadataRequestor.Object;
 
             try
             {

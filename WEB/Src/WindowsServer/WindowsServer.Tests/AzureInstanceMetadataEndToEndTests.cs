@@ -32,7 +32,8 @@ namespace Microsoft.ApplicationInsights.WindowsServer
             // SETUP
             var testMetadata = GetTestMetadata();
             Mock<HttpMessageHandler> mockHttpMessageHandler = GetMockHttpMessageHandler(testMetadata);
-            var azureIms = new AzureMetadataRequestor(new HttpClient(mockHttpMessageHandler.Object));
+            //var azureIms = new AzureMetadataRequestor(new HttpClient(mockHttpMessageHandler.Object));
+            var azureIms = GetTestableAzureMetadataRequestor(mockHttpMessageHandler.Object);
 
             // ACT
             var azureImsProps = new AzureComputeMetadataHeartbeatPropertyProvider();
@@ -58,7 +59,8 @@ namespace Microsoft.ApplicationInsights.WindowsServer
             testMetadata.SubscriptionId = "Definitely-not-a GUID up here";
 
             Mock<HttpMessageHandler> mockHttpMessageHandler = GetMockHttpMessageHandler(testMetadata);
-            var azureIms = new AzureMetadataRequestor(new HttpClient(mockHttpMessageHandler.Object));
+            //var azureIms = new AzureMetadataRequestor(new HttpClient(mockHttpMessageHandler.Object));
+            var azureIms = GetTestableAzureMetadataRequestor(mockHttpMessageHandler.Object);
 
             // ACT
             var azureImsProps = new AzureComputeMetadataHeartbeatPropertyProvider(azureIms);
@@ -78,7 +80,8 @@ namespace Microsoft.ApplicationInsights.WindowsServer
             // SETUP
             var testMetadata = GetTestMetadata();
             var mockHttpMessageHandler = GetMockHttpMessageHandler(testMetadata, throwException: true);
-            var azureIms = new AzureMetadataRequestor(new HttpClient(mockHttpMessageHandler.Object));
+            //var azureIms = new AzureMetadataRequestor(new HttpClient(mockHttpMessageHandler.Object));
+            var azureIms = GetTestableAzureMetadataRequestor(mockHttpMessageHandler.Object);
 
             // ACT
             var result = await azureIms.GetAzureComputeMetadataAsync();
@@ -93,7 +96,8 @@ namespace Microsoft.ApplicationInsights.WindowsServer
             // SETUP
             var testMetadata = GetTestMetadata();
             var mockHttpMessageHandler = GetMockHttpMessageHandler(testMetadata, HttpStatusCode.Forbidden);
-            var azureIms = new AzureMetadataRequestor(new HttpClient(mockHttpMessageHandler.Object));
+            //var azureIms = new AzureMetadataRequestor(new HttpClient(mockHttpMessageHandler.Object));
+            var azureIms = GetTestableAzureMetadataRequestor(mockHttpMessageHandler.Object);
 
             // ACT
             var azureIMSData = await azureIms.GetAzureComputeMetadataAsync();
@@ -174,6 +178,17 @@ namespace Microsoft.ApplicationInsights.WindowsServer
             }
 
             return mockHttpMessageHandler;
+        }
+
+        private static AzureMetadataRequestor GetTestableAzureMetadataRequestor(HttpMessageHandler httpMessageHandler)
+        {
+            var mockAzureMetadataRequestor = new Mock<AzureMetadataRequestor>();
+
+            mockAzureMetadataRequestor
+                .Setup(x => x.GetHttpClient())
+                .Returns(new HttpClient(httpMessageHandler));
+
+            return mockAzureMetadataRequestor.Object;
         }
     }
 }
