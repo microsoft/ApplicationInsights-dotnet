@@ -2,8 +2,7 @@
   <Import Project="$(PropsRoot)\Test.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net461;net462;net472;net480;netcoreapp3.1;net5.0</TargetFrameworks>
-    <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp3.1;net5.0</TargetFrameworks>
+    <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
   </PropertyGroup>
 
   <ItemGroup>
