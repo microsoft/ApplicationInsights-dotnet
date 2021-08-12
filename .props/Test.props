@@ -24,7 +24,6 @@
     <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netcoreapp3.1;net5.0</TargetFrameworks>
   </PropertyGroup>
 
-
   <PropertyGroup>
     <IsPackable>false</IsPackable>
   </PropertyGroup>

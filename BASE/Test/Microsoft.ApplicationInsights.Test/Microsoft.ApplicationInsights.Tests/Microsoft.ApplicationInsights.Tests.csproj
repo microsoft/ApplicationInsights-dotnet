@@ -47,9 +47,5 @@
     <PackageReference Include="Azure.Core" Version="1.14.0" /> <!-- Supports: net461, netstandard2.0, and net5.0 -->
   </ItemGroup>
 
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
-  </ItemGroup>
-  
   <Import Project="..\..\TestFramework\Shared\TestFramework.Shared.projitems" Label="TestFramework.Shared" />
 </Project>

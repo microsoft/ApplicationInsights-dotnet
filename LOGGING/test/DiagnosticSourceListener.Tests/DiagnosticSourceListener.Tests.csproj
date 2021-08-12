@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="$(PropsRoot)\Test.props" />
-  
+
   <PropertyGroup>
+    <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
     <RootNamespace>Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests</AssemblyName>
     <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
@@ -16,12 +17,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\DiagnosticSourceListener\DiagnosticSourceListener.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <!-- Identifies the project as test project -->
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
-  </ItemGroup>
-
 
   <Import Project="..\Shared\Adapters.Shared.Tests.projitems" Label="Shared" Condition="Exists('..\Shared\Adapters.Shared.Tests.projitems')" />
   <Import Project="..\CommonTestShared\CommonTestShared.projitems" Label="Shared" Condition="Exists('..\CommonTestShared\CommonTestShared.projitems')" />

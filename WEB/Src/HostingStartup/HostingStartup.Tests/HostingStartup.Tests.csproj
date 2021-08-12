@@ -2,6 +2,7 @@
   <Import Project="$(PropsRoot)\Test.props" />
   
   <PropertyGroup>
+    <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
     <RootNamespace>Microsoft.ApplicationInsights.HostingStartup.Tests</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.HostingStartup.Tests</AssemblyName>
     <TargetFrameworks>net452</TargetFrameworks>
@@ -19,11 +20,6 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <Reference Include="System" />
     <Reference Include="System.Net.Http" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- Identifies the project as test project -->
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
 
 </Project>
