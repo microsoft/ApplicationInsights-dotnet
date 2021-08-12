@@ -1,16 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <Import Project="$(PropsRoot)\_Signing.props" />
+  <Import Project="$(PropsRoot)\Test.props" />
 
   <PropertyGroup>
-    <VersionPrefix>2.0.0</VersionPrefix>
+    <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
     <TargetFrameworks>net461;netcoreapp3.1</TargetFrameworks>
     <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp3.1</TargetFrameworks>
-    <DelaySign Condition=" '$(OS)' == 'Windows_NT' ">true</DelaySign>
-    <PreserveCompilationContext>true</PreserveCompilationContext>
-    <AssemblyName>Microsoft.ApplicationInsights.AspNetCore.Tests</AssemblyName>
-    <PackageId>Microsoft.ApplicationInsights.AspNetCore.Tests</PackageId>
-    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+
+    <!-- Side effect of adding the Test.props, some analyzers are now running in this project. I'll fix these in a follow up PR. -->
+    <NoWarn>CS0618</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,7 +21,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="xunit" Version="2.4.1" />
-    <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
@@ -51,10 +47,6 @@
     <None Update="content\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
 
 </Project>
