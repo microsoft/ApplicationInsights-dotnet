@@ -5,8 +5,6 @@
     <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
     <TargetFrameworks>net452;netcoreapp3.1</TargetFrameworks>
     <AssemblyName>Microsoft.AI.PerformanceCollector.Tests</AssemblyName>
-    <!--<PackageId>Microsoft.AI.DependencyCollector.Tests</PackageId>-->
-    <!--<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>-->
     <RootNamespace>Microsoft.ApplicationInsights.Tests</RootNamespace>
   </PropertyGroup>
 
