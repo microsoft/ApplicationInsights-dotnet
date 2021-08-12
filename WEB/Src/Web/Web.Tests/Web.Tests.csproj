@@ -2,6 +2,7 @@
   <Import Project="$(PropsRoot)\Test.props" />
   
   <PropertyGroup>
+    <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
     <AssemblyName>Microsoft.ApplicationInsights.Web.Tests</AssemblyName>
     <TargetFrameworks>net452</TargetFrameworks>
   </PropertyGroup>
@@ -42,5 +43,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
+  
   <Import Project="..\..\TestFramework\Shared\TestFramework.Shared.projitems" Label="Shared" />
+  
 </Project>

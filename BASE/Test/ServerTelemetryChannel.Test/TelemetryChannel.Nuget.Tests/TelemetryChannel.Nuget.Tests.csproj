@@ -2,6 +2,7 @@
   <Import Project="$(PropsRoot)\Test.props" />
 
   <PropertyGroup>
+    <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
     <ProjectGuid>{21CB9A8A-F25B-4DEB-92CB-ACB6920EB8BC}</ProjectGuid>
     <TargetFrameworks>net452</TargetFrameworks>
     <AssemblyName>TelemetryChannel.Nuget.Tests</AssemblyName>
@@ -32,9 +33,5 @@
     <EmbeddedResource Include="..\..\..\src\ServerTelemetryChannel\ApplicationInsights.config.uninstall.xdt">
       <Link>Resources\ApplicationInsights.config.uninstall.xdt</Link>
     </EmbeddedResource>
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
 </Project>

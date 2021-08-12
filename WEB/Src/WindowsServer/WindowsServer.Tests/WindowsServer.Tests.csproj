@@ -2,11 +2,12 @@
   <Import Project="$(PropsRoot)\Test.props" />
 
   <PropertyGroup>
+    <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
     <AssemblyName>Microsoft.AI.WindowsServer.Tests</AssemblyName>
-    <PackageId>Microsoft.AI.WindowsServer.Tests</PackageId>
-    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <!--<PackageId>Microsoft.AI.WindowsServer.Tests</PackageId>-->
+    <!--<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>-->
+    <!--<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>-->
+    <!--<GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>-->
     <RootNamespace>Microsoft.ApplicationInsights.Tests</RootNamespace>
     <TargetFrameworks>net452;netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
