@@ -5,6 +5,9 @@
     <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
     <TargetFrameworks>net461;netcoreapp3.1</TargetFrameworks>
     <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp3.1</TargetFrameworks>
+
+    <!-- Side effect of adding the Test.props, some analyzers are now running in this project. I'll fix these in a follow up PR. -->
+    <NoWarn>CS0618</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
