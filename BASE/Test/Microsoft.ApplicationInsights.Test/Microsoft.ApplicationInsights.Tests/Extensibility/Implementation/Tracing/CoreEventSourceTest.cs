@@ -27,12 +27,16 @@
             return method.GetCustomAttribute<EventAttribute>();
         }
 
-#if Redfield
+#if REDFIELD
         /// <summary>
         /// This is a sanitiy check.
         /// The 'Redfield' compilation flag should switch the name of EventSource class.
         /// Devs can review the test log and confirm that this test runs and passes.
         /// This will serve as a verification that the Redfield compilation flag worked as expected.
+        /// 
+        /// To run this test:
+        /// dotnet build /p:Redfield=True ".\dotnet\BASE\Microsoft.ApplicationInsights.sln"
+        /// dotnet test ".\bin\Debug\test\Microsoft.ApplicationInsights.Tests\net5.0\Microsoft.ApplicationInsights.Tests.dll" --filter Name~VerifyRedfieldEventSourceName
         /// </summary>
         [TestMethod]
         public void VerifyRedfieldEventSourceName()
