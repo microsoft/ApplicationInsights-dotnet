@@ -7,8 +7,22 @@
 
     <!-- This is used to disable some build properties. -->
     <IsExamplesSolution Condition="'$(SolutionName)' == 'Examples' ">true</IsExamplesSolution>
+
+    <!-- Remove below entry before merge, using it to build and test Redfield -->
+	<Redfield>true</Redfield>
+    <!-- This is used to change EventSource names. -->
+    <DefineConstants Condition="'$(Redfield)' == 'True'">$(DefineConstants);REDFIELD</DefineConstants>
   </PropertyGroup>
 
+  <Target Name="Info_Redfield"  BeforeTargets="Build" Condition="'$(Redfield)' == 'True'">
+    <!-- 
+    This flag is reserved for Codeless Attach products.
+    Redfield has some unique code changes to avoid conflicting with the real AI SDK.
+    To use: dotnet build /p:Redfield=True
+    -->
+    <Message Text="Directory.Build.props: Redfield build detected." Importance="high"/>
+  </Target>
+  
   <Target Name="Info_InternalSettings"  BeforeTargets="Build">
     <Message Text="Directory.Build.props: Internal_Logging is set to $(Internal_Logging)." Importance="high"/>
   </Target>

@@ -34,8 +34,11 @@
             var activity = new Activity("test");
             activity.AddTag("OperationName", "test me 1");
             activity.AddTag("OperationName", "test me 2");
-
+#if REDFIELD
+            Assert.AreEqual("test me 2", activity.GetOperationName());
+#else
             Assert.AreEqual("test me 1", activity.GetOperationName());
+#endif
         }
     }
 }

@@ -26,8 +26,20 @@
   <ItemGroup>
     <!--Common Dependencies-->
     <ProjectReference Include="..\..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="5.0.0" />
   </ItemGroup>
+
+  <Choose>
+    <When Condition="'$(Redfield)' == 'True'">
+      <ItemGroup>
+        <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.7.0" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="5.0.0" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>  
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <PackageReference Include="Microsoft.ApplicationInsights.Agent.Intercept" Version="2.4.0" />

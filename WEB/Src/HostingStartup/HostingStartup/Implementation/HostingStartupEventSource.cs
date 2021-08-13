@@ -8,7 +8,11 @@
     /// <summary>
     /// ETW EventSource tracing class.
     /// </summary>
+#if REDFIELD
+    [EventSource(Name = "Redfield-Microsoft-ApplicationInsights-Extensibility-HostingStartup")]
+#else
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-HostingStartup")]
+#endif
     [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed class HostingStartupEventSource : EventSource
     {

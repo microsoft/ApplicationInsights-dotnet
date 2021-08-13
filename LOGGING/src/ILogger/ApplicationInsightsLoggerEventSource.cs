@@ -13,7 +13,11 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
     /// <summary>
     /// EventSource for reporting errors and warnings from Logging module.
     /// </summary>
+#if REDFIELD
+    [EventSource(Name = "Redfield-Microsoft-ApplicationInsights-LoggerProvider")]
+#else
     [EventSource(Name = "Microsoft-ApplicationInsights-LoggerProvider")]
+#endif
     internal sealed class ApplicationInsightsLoggerEventSource : EventSource
     {
         public static readonly ApplicationInsightsLoggerEventSource Log = new ApplicationInsightsLoggerEventSource();
