@@ -69,6 +69,8 @@ namespace Microsoft.ApplicationInsights
             var customProperties = (itemsReceived[0] as TraceTelemetry).Properties;
             Assert.IsTrue(customProperties["CustomerName"].Equals("TestCustomerName"));
             Assert.IsTrue(customProperties["Age"].Equals("20"));
+            Assert.IsTrue(customProperties.ContainsKey("OriginalFormat"));
+            Assert.IsFalse(customProperties.ContainsKey("{OriginalFormat}"));
         }
 
         /// <summary>
@@ -227,16 +229,27 @@ namespace Microsoft.ApplicationInsights
             {
                 using (testLogger.BeginScope<IReadOnlyCollection<KeyValuePair<string, object>>>(new Dictionary<string, object> { { "Key", "Value" } }))
                 {
-                    testLogger.LogInformation("Testing");
-                    testLogger.LogError(new Exception("ExceptionMessage"), "LoggerMessage");
+                    using (testLogger.BeginScope("TestScope {Key1} and {Key2}", "Value1", "Value2"))
+                    {
+                        testLogger.LogInformation("Testing");
+                        testLogger.LogError(new Exception("ExceptionMessage"), "LoggerMessage");
+                    }
                 }
             }
 
             Assert.AreEqual(" => TestScope", (itemsReceived[0] as ISupportProperties).Properties["Scope"]);
             Assert.AreEqual("Value", (itemsReceived[0] as ISupportProperties).Properties["Key"]);
+            Assert.AreEqual("Value1", (itemsReceived[0] as ISupportProperties).Properties["Key1"]);
+            Assert.AreEqual("Value2", (itemsReceived[0] as ISupportProperties).Properties["Key2"]);
+            Assert.IsTrue((itemsReceived[0] as ISupportProperties).Properties.ContainsKey("OriginalFormat"));
+            Assert.IsFalse((itemsReceived[0] as ISupportProperties).Properties.ContainsKey("{OriginalFormat}"));
 
             Assert.AreEqual(" => TestScope", (itemsReceived[1] as ISupportProperties).Properties["Scope"]);
             Assert.AreEqual("Value", (itemsReceived[1] as ISupportProperties).Properties["Key"]);
+            Assert.AreEqual("Value1", (itemsReceived[1] as ISupportProperties).Properties["Key1"]);
+            Assert.AreEqual("Value2", (itemsReceived[1] as ISupportProperties).Properties["Key2"]);
+            Assert.IsTrue((itemsReceived[1] as ISupportProperties).Properties.ContainsKey("OriginalFormat"));
+            Assert.IsFalse((itemsReceived[1] as ISupportProperties).Properties.ContainsKey("{OriginalFormat}"));
 
             Assert.AreEqual("Testing", (itemsReceived[0] as TraceTelemetry).Message);
             Assert.AreEqual("ExceptionMessage", (itemsReceived[1] as ExceptionTelemetry).Message);
