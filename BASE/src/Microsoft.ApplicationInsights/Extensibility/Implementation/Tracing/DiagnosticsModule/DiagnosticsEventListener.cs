@@ -107,11 +107,15 @@
                     case "Redfield-Microsoft-ApplicationInsights-Extensibility-EventSourceListener":
                     case "Redfield-Microsoft-ApplicationInsights-AspNetCore":
                     case "Redfield-Microsoft-ApplicationInsights-LoggerProvider":
-                    case "Microsoft-AspNet-Telemetry-Correlation":
                         return true;
                     default:
                         return false;
                 }
+            }
+
+            if (eventSource.Name == "Microsoft-AspNet-Telemetry-Correlation")
+            {
+                return true;
             }
 #else
             if (eventSource.Name.StartsWith("Microsoft-A", StringComparison.Ordinal))

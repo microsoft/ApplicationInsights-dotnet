@@ -22,20 +22,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="$(SystemDiagnosticsDiagnosticSourcePkgVer)" />
   </ItemGroup>
-
-  <Choose>
-    <When Condition="'$(Redfield)' == 'True'">
-      <ItemGroup>
-        <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.7.0" />
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="5.0.0" />
-      </ItemGroup>
-    </Otherwise>
-  </Choose>
 
   <ItemGroup>
     <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\$(TargetFramework)\PublicAPI.Shipped.txt" />
