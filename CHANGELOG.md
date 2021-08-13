@@ -1,7 +1,7 @@
 # Changelog
 
 ## VNext
-
+- [The `{OriginalFormat}` field in ILogger Scope will be emitted as `OriginalFormat` with the braces removed](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2362)
 
 ## Version 2.18.0
 - [Change Self-Diagnostics to include datetimestamp in filename](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2325)
