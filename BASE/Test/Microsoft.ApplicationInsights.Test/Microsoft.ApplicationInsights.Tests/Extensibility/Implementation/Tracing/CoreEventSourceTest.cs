@@ -4,6 +4,7 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using System.Diagnostics.Tracing;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System.Linq;
 
     [TestClass]
     public class CoreEventSourceTest
@@ -25,5 +26,26 @@
             MethodInfo method = typeof(CoreEventSource).GetMethod(methodName);
             return method.GetCustomAttribute<EventAttribute>();
         }
+
+#if Redfield
+        /// <summary>
+        /// This is a sanitiy check.
+        /// The 'Redfield' compilation flag should switch the name of EventSource class.
+        /// Devs can review the test log and confirm that this test runs and passes.
+        /// This will serve as a verification that the Redfield compilation flag worked as expected.
+        /// </summary>
+        [TestMethod]
+        public void VerifyRedfieldEventSourceName()
+        {
+            var expectedName = "Redfield-Microsoft-ApplicationInsights-Core";
+
+            var eventSourceAttribute = typeof(CoreEventSource)
+                .GetCustomAttributes(typeof(EventSourceAttribute))
+                .Single() as EventSourceAttribute;
+
+            Assert.IsNotNull(eventSourceAttribute);
+            Assert.AreEqual(expectedName, eventSourceAttribute.Name);
+        }
+#endif
     }
 }
