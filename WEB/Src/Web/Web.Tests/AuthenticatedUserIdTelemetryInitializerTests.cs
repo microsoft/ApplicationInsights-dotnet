@@ -11,20 +11,24 @@
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+#if NETCOREAPP
+    using Microsoft.AspNetCore.Http;
+#endif
+
     [TestClass]
     public class AuthenticatedUserIdTelemetryInitializerTests
     {
         [TestCleanup]
         public void Cleanup()
         {
-#if NET452
+//#if NET452
             while (Activity.Current != null)
             {
                 Activity.Current.Stop();
             }
-#else
-            ActivityHelpers.CleanOperationContext();
-#endif
+//#else
+//            ActivityHelpers.CleanOperationContext();
+//#endif
         }
 
         [TestMethod]

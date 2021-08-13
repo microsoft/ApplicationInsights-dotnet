@@ -204,5 +204,25 @@ namespace EventCounterCollector.Tests
             configuration.TelemetryChannel = new TestChannel(itemsReceived);
             return configuration;
         }
+
     }
+
+#if NETFRAMEWORK
+    internal static class ConcurrentQueueExtensions
+    {
+        /// <summary>
+        /// (https://social.msdn.microsoft.com/Forums/en-US/accf4254-ee81-4059-9251-619bc6bbeadf/clear-a-concurrentqueue).
+        /// </summary>
+        public static void Clear<T>(this ConcurrentQueue<T> queue)
+        {
+            //T item;
+            //while (queue.TryDequeue(out _))
+            //{
+            //    // do nothing
+            //}
+
+            queue = new ConcurrentQueue<T>();
+        }
+    }
+#endif
 }
