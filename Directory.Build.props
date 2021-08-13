@@ -8,8 +8,6 @@
     <!-- This is used to disable some build properties. -->
     <IsExamplesSolution Condition="'$(SolutionName)' == 'Examples' ">true</IsExamplesSolution>
 
-    <!-- Remove below entry before merge, using it to build and test Redfield -->
-	<Redfield>true</Redfield>
     <!-- This is used to change EventSource names. -->
     <DefineConstants Condition="'$(Redfield)' == 'True'">$(DefineConstants);REDFIELD</DefineConstants>
   </PropertyGroup>
