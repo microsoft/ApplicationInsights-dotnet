@@ -2,7 +2,7 @@
 # .NET CLI: https://docs.microsoft.com/dotnet/core/tools/
 # Description: The purpose of this build is to build and test with redfield flag.
 
-name: Build And Test
+name: Redfield Sanity Check
 
 on:
   push:
