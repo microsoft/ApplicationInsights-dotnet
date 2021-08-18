@@ -13,7 +13,12 @@
     internal class TraceSourceForEventSource : TraceSource, IEventListener, IDisposable
     {
         private const long AllKeyword = -1;
+
+#if REDFIELD
+        private const string TraceSourceName = "Redfield.Microsoft.ApplicationInsights.Extensibility.TraceSource";
+#else
         private const string TraceSourceName = "Microsoft.ApplicationInsights.Extensibility.TraceSource";
+#endif
 
         private DiagnosticsEventListener listener;
 
