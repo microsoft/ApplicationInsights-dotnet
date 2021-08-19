@@ -1,13 +1,29 @@
-$url="https://{IngestionEndpoint-from-Component-ConnectionString}/v2/track"
-$iKey="{test-iKey}"
-Write-Host $url, $iKey
+param (
+    [Parameter(Mandatory=$true)][string]$ConnectionString
+)
 
-$time = Get-Date
-$time = $time.ToUniversalTime().ToString('o')
+function ParseConnectionString {
+	param (
+		[string]$ConnectionString
+	)
 
-$availabilityData = @"
+	$Map = @{}
+
+	foreach ($Part in $ConnectionString.Split(";")) {
+		$KeyValue = $Part.Split("=")
+		$Map.Add($KeyValue[0], $KeyValue[1])
+	}
+
+	return $Map
+}
+
+$Map = ParseConnectionString($ConnectionString)
+$Url = $Map["IngestionEndpoint"] + "v2/track"
+$IKey = $Map["InstrumentationKey"]
+$Time = (Get-Date).ToUniversalTime().ToString("o")
+$AvailabilityData = @"
 {
-    "data": {
+	"data": {
 		"baseData": {
 			"ver": 2,
 			"id": "TestId",
@@ -22,14 +38,15 @@ $availabilityData = @"
 		},
 		"baseType": "AvailabilityData"
 	},
-    "ver": 1,
+	"ver": 1,
 	"name": "Microsoft.ApplicationInsights.Metric",
-	"time": "$time",
+	"time": "$Time",
 	"sampleRate": 100,
-	"iKey": "$iKey",
+	"iKey": "$IKey",
 	"flags": 0
 }
 "@
 
-Invoke-WebRequest -Uri $url -Method POST -Body $availabilityData -Verbose -Debug -UseBasicParsing
+Write-Host "URL: $Url, IKey: $IKey"
 # Expected Output: {"itemsReceived":1,"itemsAccepted":1,"errors":[]}
+Invoke-WebRequest -Uri $Url -Method POST -Body $AvailabilityData -Verbose -Debug -UseBasicParsing
