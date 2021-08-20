@@ -1139,7 +1139,52 @@
             }
         }
 
-        private void HandleRequestBegin(
+        [Theory]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        [InlineData(AspNetCoreMajorVersion.Three)]
+        public void VerifyLongRunningRequestDoesNotGenerateTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion)
+        {
+            HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
+            TelemetryConfiguration config = TelemetryConfiguration.CreateDefault();
+
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion, config))
+            {
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
+
+                var activity = Activity.Current;
+                activity.AddTag("http.long_running", "true");
+                Assert.NotNull(activity);
+
+                Assert.NotNull(context.Features.Get<RequestTelemetry>());
+
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
+
+                Assert.Empty(sentTelemetry);
+            }
+        }
+
+        [Theory]
+        [InlineData(AspNetCoreMajorVersion.Two)]
+        [InlineData(AspNetCoreMajorVersion.Three)]
+        public void NullActivityDoesGenerateTelemetry(AspNetCoreMajorVersion aspNetCoreMajorVersion)
+        {
+            HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
+            TelemetryConfiguration config = TelemetryConfiguration.CreateDefault();
+
+            using (var hostingListener = CreateHostingListener(aspNetCoreMajorVersion, config))
+            {
+                HandleRequestBegin(hostingListener, context, 0, aspNetCoreMajorVersion);
+
+                Activity.Current = null;
+                Assert.NotNull(context.Features.Get<RequestTelemetry>());
+
+                HandleRequestEnd(hostingListener, context, 0, aspNetCoreMajorVersion);
+
+                Assert.Single(sentTelemetry);
+            }
+        }
+
+            private void HandleRequestBegin(
             HostingDiagnosticListener hostingListener,
             HttpContext context,
             long timestamp,
