@@ -1,5 +1,6 @@
 param (
-    [Parameter(Mandatory=$true)][string]$ConnectionString
+    [string]$ConnectionString,
+    [string]$InstrumentationKey
 )
 
 function ParseConnectionString {
@@ -15,6 +16,16 @@ function ParseConnectionString {
 	}
 
 	return $Map
+}
+
+# Exit with error if either both or neither of these parameters are provided
+if (("" -eq $ConnectionString) -eq ("" -eq $InstrumentationKey)) {
+	Write-Error "Please provide one of the parameters: 'ConnectionString' or 'InstrumentationKey'" -ErrorAction Stop
+}
+
+# Build the connection string using the instrumentation key
+If ($InstrumentationKey) {
+	$ConnectionString = "InstrumentationKey=$InstrumentationKey;IngestionEndpoint=https://dc.services.visualstudio.com/"
 }
 
 $Map = ParseConnectionString($ConnectionString)
