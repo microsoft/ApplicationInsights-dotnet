@@ -29,10 +29,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solutio
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common.Web", "Common\Common.Web.shproj", "{CCAB7A34-8DC5-4A6F-B637-46CEBA93C687}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HostingStartup", "HostingStartup", "{701D2D4F-B581-45A2-AF29-4F34EC5F047B}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HostingStartup", "HostingStartup\HostingStartup\HostingStartup.csproj", "{80F0481A-66C7-4442-96D3-5FD841132C4B}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsServer", "WindowsServer\WindowsServer\WindowsServer.csproj", "{94127FD9-E516-4891-98D4-EF7523117F32}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "Web\Web\Web.csproj", "{E166D200-0687-4E6D-B836-029AE690AEAB}"
@@ -55,8 +51,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyCollector.Tests",
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared.NetFull", "PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.shproj", "{0196259C-3582-4F4E-A01F-A8F9AE83B0F3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HostingStartup.Tests", "HostingStartup\HostingStartup.Tests\HostingStartup.Tests.csproj", "{7592A20A-1775-4479-B624-7275173E9821}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web.Tests", "Web\Web.Tests\Web.Tests.csproj", "{1231D63B-E7FA-4BA7-9916-FA7325DB936D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsServer.Tests", "WindowsServer\WindowsServer.Tests\WindowsServer.Tests.csproj", "{CAF98D8B-9202-4CC3-83EC-C384D8EEA792}"
@@ -74,7 +68,6 @@ Global
 		PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{0196259c-3582-4f4e-a01f-a8f9ae83b0f3}*SharedItemsImports = 13
 		TestFramework\Shared\TestFramework.Shared.projitems*{1231d63b-e7fa-4ba7-9916-fa7325db936d}*SharedItemsImports = 5
 		Common\Common.projitems*{30ae1a5d-775a-4dec-9f87-849d8ae93e3a}*SharedItemsImports = 5
-		Common\Common.projitems*{80f0481a-66c7-4442-96d3-5fd841132c4b}*SharedItemsImports = 5
 		Common\Common.projitems*{94127fd9-e516-4891-98d4-ef7523117f32}*SharedItemsImports = 5
 		Common\Common.projitems*{95d90911-2909-4914-920e-7710f7bb6c32}*SharedItemsImports = 5
 		TestFramework\Shared\TestFramework.Shared.projitems*{9718f051-147f-4f5f-9ff3-c926430efcf7}*SharedItemsImports = 13
@@ -100,14 +93,6 @@ Global
 		{C6B569BC-6F19-42C9-A951-DA611BB0F4BE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C6B569BC-6F19-42C9-A951-DA611BB0F4BE}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{C6B569BC-6F19-42C9-A951-DA611BB0F4BE}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{80F0481A-66C7-4442-96D3-5FD841132C4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{80F0481A-66C7-4442-96D3-5FD841132C4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{80F0481A-66C7-4442-96D3-5FD841132C4B}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{80F0481A-66C7-4442-96D3-5FD841132C4B}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{80F0481A-66C7-4442-96D3-5FD841132C4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{80F0481A-66C7-4442-96D3-5FD841132C4B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{80F0481A-66C7-4442-96D3-5FD841132C4B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{80F0481A-66C7-4442-96D3-5FD841132C4B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{94127FD9-E516-4891-98D4-EF7523117F32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{94127FD9-E516-4891-98D4-EF7523117F32}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{94127FD9-E516-4891-98D4-EF7523117F32}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -172,14 +157,6 @@ Global
 		{9853A2A5-FD6C-4743-927E-0BFE807AD21C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9853A2A5-FD6C-4743-927E-0BFE807AD21C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{9853A2A5-FD6C-4743-927E-0BFE807AD21C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{7592A20A-1775-4479-B624-7275173E9821}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7592A20A-1775-4479-B624-7275173E9821}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7592A20A-1775-4479-B624-7275173E9821}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{7592A20A-1775-4479-B624-7275173E9821}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{7592A20A-1775-4479-B624-7275173E9821}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7592A20A-1775-4479-B624-7275173E9821}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7592A20A-1775-4479-B624-7275173E9821}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{7592A20A-1775-4479-B624-7275173E9821}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{1231D63B-E7FA-4BA7-9916-FA7325DB936D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1231D63B-E7FA-4BA7-9916-FA7325DB936D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1231D63B-E7FA-4BA7-9916-FA7325DB936D}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -219,7 +196,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{9718F051-147F-4F5F-9FF3-C926430EFCF7} = {8CA9F9C9-DA39-4159-86F3-C52F1636715E}
 		{C6B569BC-6F19-42C9-A951-DA611BB0F4BE} = {A318CC6C-51C8-4BD6-BC85-2B4F35123BE7}
-		{80F0481A-66C7-4442-96D3-5FD841132C4B} = {701D2D4F-B581-45A2-AF29-4F34EC5F047B}
 		{94127FD9-E516-4891-98D4-EF7523117F32} = {D87119AF-CD35-46F2-84A6-ED54CC42027E}
 		{E166D200-0687-4E6D-B836-029AE690AEAB} = {1A75535C-B8E5-4C31-BC6E-50456C8C4052}
 		{95D90911-2909-4914-920E-7710F7BB6C32} = {DF56FBAD-8745-404B-94A1-E83BFC4AD7CB}
@@ -230,7 +206,6 @@ Global
 		{41301181-F4BE-4C36-B78D-A29C55CB0469} = {85C7566E-98C3-479D-AC4F-0D4B161B7D42}
 		{9853A2A5-FD6C-4743-927E-0BFE807AD21C} = {DF56FBAD-8745-404B-94A1-E83BFC4AD7CB}
 		{0196259C-3582-4F4E-A01F-A8F9AE83B0F3} = {A318CC6C-51C8-4BD6-BC85-2B4F35123BE7}
-		{7592A20A-1775-4479-B624-7275173E9821} = {701D2D4F-B581-45A2-AF29-4F34EC5F047B}
 		{1231D63B-E7FA-4BA7-9916-FA7325DB936D} = {1A75535C-B8E5-4C31-BC6E-50456C8C4052}
 		{CAF98D8B-9202-4CC3-83EC-C384D8EEA792} = {D87119AF-CD35-46F2-84A6-ED54CC42027E}
 		{E31B7A59-5E13-48BB-8127-D11D41EF16C5} = {A318CC6C-51C8-4BD6-BC85-2B4F35123BE7}

@@ -11,7 +11,11 @@
     /// <summary>
     /// Event source for Application Insights ASP.NET Core SDK.
     /// </summary>
+#if REDFIELD
+    [EventSource(Name = "Redfield-Microsoft-ApplicationInsights-AspNetCore")]
+#else
     [EventSource(Name = "Microsoft-ApplicationInsights-AspNetCore")]
+#endif
     [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     [SuppressMessage("", "SA1611:ElementParametersMustBeDocumented", Justification = "Internal only class.")]
     internal sealed class AspNetCoreEventSource : EventSource

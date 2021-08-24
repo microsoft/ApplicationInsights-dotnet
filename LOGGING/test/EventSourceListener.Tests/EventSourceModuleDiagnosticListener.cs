@@ -26,7 +26,11 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
 
         protected override void OnEventSourceCreated(EventSource eventSource)
         {
+#if REDFIELD
+            if (string.Equals(eventSource.Name, "Redfield-Microsoft-ApplicationInsights-Extensibility-EventSourceListener", StringComparison.Ordinal))
+#else
             if (string.Equals(eventSource.Name, "Microsoft-ApplicationInsights-Extensibility-EventSourceListener", StringComparison.Ordinal))
+#endif  
             {
                 EnableEvents(eventSource, EventLevel.LogAlways);
             }
