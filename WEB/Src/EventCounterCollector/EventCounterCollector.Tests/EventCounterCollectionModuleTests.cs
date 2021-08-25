@@ -94,13 +94,6 @@ namespace EventCounterCollector.Tests
                 // VALIDATE
                 ValidateTelemetry(itemsReceived, expectedName, expectedMetricNamespace, expectedMetricValue, expectedMetricCount);
 
-                // Clear the items.
-                Trace.WriteLine("Clearing items received.");
-
-#if NETCOREAPP3_1_OR_GREATER
-                itemsReceived.Clear();
-#endif
-
                 // Wait another refresh interval to receive more events, but with zero as counter values.
                 // as nobody is publishing events.
                 Task.Delay(((int)refreshTimeInSecs * 1000)).Wait();                
