@@ -3,7 +3,8 @@
 
   <PropertyGroup>
     <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
-    <TargetFrameworks>net452;netcoreapp3.1</TargetFrameworks>
+    <!--<TargetFrameworks>net452;netcoreapp3.1</TargetFrameworks>-->
+    <TargetFrameworks>net452;$(TargetFrameworks)</TargetFrameworks>
     <AssemblyName>Microsoft.AI.PerformanceCollector.Tests</AssemblyName>
     <RootNamespace>Microsoft.ApplicationInsights.Tests</RootNamespace>
   </PropertyGroup>
@@ -22,7 +23,7 @@
     <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' Or '$(TargetFramework)' == 'net462' Or '$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net480' ">
     <Reference Include="System" />
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http" />
