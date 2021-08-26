@@ -15,14 +15,10 @@
         [TestCleanup]
         public void Cleanup()
         {
-#if NET452
             while (Activity.Current != null)
             {
                 Activity.Current.Stop();
             }
-#else
-            ActivityHelpers.CleanOperationContext();
-#endif
         }
 
         [TestMethod]
