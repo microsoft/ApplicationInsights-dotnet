@@ -3,8 +3,9 @@
   
   <PropertyGroup>
     <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
-    <AssemblyName>Microsoft.ApplicationInsights.Web.Tests</AssemblyName>
+    <!-- Important: This project is exclusively NetFramework. This will not be upgraded to NetStandard nor NetCore. -->
     <TargetFrameworks>net452;net462;net472;net480</TargetFrameworks>
+    <AssemblyName>Microsoft.ApplicationInsights.Web.Tests</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -45,15 +46,6 @@
     <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.4" />
     <PackageReference Include="Microsoft.AspNet.TelemetryCorrelation" Version="1.0.8" />
     <PackageReference Include="Microsoft.AspNet.WebApi" Version="5.2.4" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' Or '$(TargetFramework)' == 'net5.0' ">
-    <!--<FrameworkReference Include="Microsoft.AspNetCore.App" />-->
-    <!--<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />-->
-    
-    
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-    
   </ItemGroup>
   
   <Import Project="..\..\TestFramework\Shared\TestFramework.Shared.projitems" Label="Shared" />
