@@ -1,4 +1,4 @@
-﻿#if NET452
+﻿#if NETFRAMEWORK
 namespace Microsoft.ApplicationInsights.WindowsServer.Implementation
 {
     using Microsoft.ApplicationInsights.Web.TestFramework;
