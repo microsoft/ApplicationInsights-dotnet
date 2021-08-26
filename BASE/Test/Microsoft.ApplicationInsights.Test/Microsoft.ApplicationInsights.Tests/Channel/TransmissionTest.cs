@@ -99,6 +99,7 @@
         }
 
         [TestClass]
+        [TestCategory("WindowsOnly")] // these tests are not reliable and block PRs
         public class SendAsync
         {
             private readonly Uri testUri = new Uri("https://127.0.0.1/");

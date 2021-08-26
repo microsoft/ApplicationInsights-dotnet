@@ -21,7 +21,11 @@ namespace EventCounterCollector.Tests
 
         protected override void OnEventSourceCreated(EventSource eventSource)
         {
+#if REDFIELD
+            if (string.Equals(eventSource.Name, "Redfield-Microsoft-ApplicationInsights-Extensibility-EventCounterCollector", StringComparison.Ordinal))
+#else
             if (string.Equals(eventSource.Name, "Microsoft-ApplicationInsights-Extensibility-EventCounterCollector", StringComparison.Ordinal))
+#endif
             {
                 EnableEvents(eventSource, EventLevel.LogAlways);
             }

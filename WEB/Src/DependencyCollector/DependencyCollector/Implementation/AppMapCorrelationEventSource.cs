@@ -7,7 +7,11 @@
     /// <summary>
     /// ETW EventSource tracing class.
     /// </summary>
+#if REDFIELD
+    [EventSource(Name = "Redfield-Microsoft-ApplicationInsights-Extensibility-AppMapCorrelation-Dependency")]
+#else
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-AppMapCorrelation-Dependency")]
+#endif
     internal sealed partial class AppMapCorrelationEventSource : EventSource
     {
     }

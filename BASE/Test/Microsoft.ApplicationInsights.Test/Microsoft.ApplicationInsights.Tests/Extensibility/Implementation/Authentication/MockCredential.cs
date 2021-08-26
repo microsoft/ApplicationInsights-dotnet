@@ -7,7 +7,6 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
 
     using Azure.Core;
 
-
     /// <remarks>
     /// Copied from (https://github.com/Azure/azure-sdk-for-net/blob/master/sdk/core/Azure.Core.TestFramework/src/MockCredential.cs).
     /// </remarks>

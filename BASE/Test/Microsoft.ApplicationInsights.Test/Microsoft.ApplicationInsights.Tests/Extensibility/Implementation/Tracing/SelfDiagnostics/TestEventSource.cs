@@ -2,7 +2,11 @@
 {
     using System.Diagnostics.Tracing;
 
+#if REDFIELD
+    [EventSource(Name = "Redfield-Microsoft-ApplicationInsights-Extensibility-Test")]
+#else
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-Test")]
+#endif
     internal class TestEventSource : EventSource
     {
         [Event(1, Message = "Error: {0}", Level = EventLevel.Error)]

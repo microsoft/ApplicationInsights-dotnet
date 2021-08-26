@@ -1,10 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="$(PropsRoot)\Test.props" />
-  
+
   <PropertyGroup>
     <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
     <TargetFrameworks Condition="$(OS) == 'Windows_NT'">net452;net46;net461;$(TargetFrameworks)</TargetFrameworks>
-    
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
@@ -28,10 +27,10 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'  Or '$(TargetFramework)' == 'net46' ">
     <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
   </ItemGroup>
-  
+
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'  Or '$(TargetFramework)' == 'net46' Or '$(TargetFramework)' == 'net461'  Or '$(TargetFramework)' == 'net462'  Or '$(TargetFramework)' == 'net472'   Or '$(TargetFramework)' == 'net480' ">
     <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="2.0.71" />
-    
+
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Management" />
