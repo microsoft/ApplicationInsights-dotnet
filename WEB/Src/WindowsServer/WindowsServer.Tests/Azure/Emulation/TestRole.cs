@@ -1,4 +1,4 @@
-﻿#if NET452
+﻿#if NETFRAMEWORK
 namespace Microsoft.ApplicationInsights.WindowsServer.Azure.Emulation
 {
     using System;
@@ -6,8 +6,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Azure.Emulation
     using Azure = Microsoft.WindowsAzure.ServiceRuntime;
 
     [Serializable]
-    internal class TestRole :
-        Azure.Role
+    internal class TestRole : Azure.Role
     {
         /// <summary>
         /// The role name.
