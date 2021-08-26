@@ -9,12 +9,7 @@
     using Microsoft.ApplicationInsights.Web.Helpers;
     using Microsoft.ApplicationInsights.Web.Implementation;
     using Microsoft.ApplicationInsights.Web.TestFramework;
-    
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-#if NETCOREAPP
-    using Microsoft.AspNetCore.Http;
-#endif
 
     [TestClass]
     public class AccountIdTelemetryInitializerTests
@@ -22,14 +17,10 @@
         [TestCleanup]
         public void Cleanup()
         {
-//#if NET452
             while (Activity.Current != null)
             {
                 Activity.Current.Stop();
             }
-//#else
-//            ActivityHelpers.CleanOperationContext();
-//#endif
         }
 
         [TestMethod]

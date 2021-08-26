@@ -11,10 +11,6 @@
     using Microsoft.ApplicationInsights.Web.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-#if NETCOREAPP
-    using Microsoft.AspNetCore.Http;
-#endif
-
     [TestClass]
     public class AzureAppServiceRoleNameFromHostNameHeaderInitializerTest
     {
