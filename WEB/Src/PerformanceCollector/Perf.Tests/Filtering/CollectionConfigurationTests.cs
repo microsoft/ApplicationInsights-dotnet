@@ -654,6 +654,213 @@ namespace Microsoft.ApplicationInsights.Tests
         }
 
         [TestMethod]
+        public void CollectionConfigurationWithMaxAndInitialQuotas()
+        {
+            // ARRANGE
+            var timeProvider = new ClockMock();
+
+            CollectionConfigurationError[] errors;
+            var oldDocumentStreamInfos = new[]
+            {
+                new DocumentStreamInfo()
+                {
+                    Id = "Stream1",
+                    DocumentFilterGroups =
+                        new[]
+                        {
+                            new DocumentFilterConjunctionGroupInfo()
+                            {
+                                TelemetryType = TelemetryType.Request,
+                                Filters = new FilterConjunctionGroupInfo() { Filters = new FilterInfo[0] }
+                            }
+                        }
+                },
+                new DocumentStreamInfo()
+                {
+                    Id = "Stream2",
+                    DocumentFilterGroups =
+                        new[]
+                        {
+                            new DocumentFilterConjunctionGroupInfo()
+                            {
+                                TelemetryType = TelemetryType.Dependency,
+                                Filters = new FilterConjunctionGroupInfo() { Filters = new FilterInfo[0] }
+                            }
+                        }
+                },
+                new DocumentStreamInfo()
+                {
+                    Id = "Stream3",
+                    DocumentFilterGroups =
+                        new[]
+                        {
+                            new DocumentFilterConjunctionGroupInfo()
+                            {
+                                TelemetryType = TelemetryType.Exception,
+                                Filters = new FilterConjunctionGroupInfo() { Filters = new FilterInfo[0] }
+                            }
+                        }
+                }
+            };
+
+            var newDocumentStreamInfos = new[]
+            {
+                new DocumentStreamInfo()
+                {
+                    Id = "Stream1",
+                    DocumentFilterGroups =
+                        new[]
+                        {
+                            new DocumentFilterConjunctionGroupInfo()
+                            {
+                                TelemetryType = TelemetryType.Request,
+                                Filters = new FilterConjunctionGroupInfo() { Filters = new FilterInfo[0] }
+                            }
+                        }
+                },
+                new DocumentStreamInfo()
+                {
+                    Id = "Stream2",
+                    DocumentFilterGroups =
+                        new[]
+                        {
+                            new DocumentFilterConjunctionGroupInfo()
+                            {
+                                TelemetryType = TelemetryType.Dependency,
+                                Filters = new FilterConjunctionGroupInfo() { Filters = new FilterInfo[0] }
+                            }
+                        }
+                },
+                new DocumentStreamInfo()
+                {
+                    Id = "Stream3",
+                    DocumentFilterGroups =
+                        new[]
+                        {
+                            new DocumentFilterConjunctionGroupInfo()
+                            {
+                                TelemetryType = TelemetryType.Exception,
+                                Filters = new FilterConjunctionGroupInfo() { Filters = new FilterInfo[0] }
+                            }
+                        }
+                },
+                new DocumentStreamInfo()
+                {
+                    Id = "Stream4",
+                    DocumentFilterGroups =
+                        new[]
+                        {
+                            new DocumentFilterConjunctionGroupInfo()
+                            {
+                                TelemetryType = TelemetryType.Event,
+                                Filters = new FilterConjunctionGroupInfo() { Filters = new FilterInfo[0] }
+                            }
+                        }
+                },
+                new DocumentStreamInfo()
+                {
+                    Id = "Stream5",
+                    DocumentFilterGroups =
+                        new[]
+                        {
+                            new DocumentFilterConjunctionGroupInfo()
+                            {
+                                TelemetryType = TelemetryType.Trace,
+                                Filters = new FilterConjunctionGroupInfo() { Filters = new FilterInfo[0] }
+                            }
+                        }
+                }
+            };
+
+            var oldCollectionConfigurationInfo = new CollectionConfigurationInfo() { DocumentStreams = oldDocumentStreamInfos, ETag = "ETag1", InitialQuota = 10 };
+            var oldCollectionConfiguration = new CollectionConfiguration(oldCollectionConfigurationInfo, out errors, timeProvider);
+
+            // spend some quota on the old configuration
+            var accumulatorManager = new QuickPulseDataAccumulatorManager(oldCollectionConfiguration);
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
+
+            // ACT
+            // the initial quota is 3
+            telemetryProcessor.Process(new RequestTelemetry() { Context = { InstrumentationKey = "some ikey" } });
+
+            telemetryProcessor.Process(new DependencyTelemetry() { Context = { InstrumentationKey = "some ikey" } });
+            telemetryProcessor.Process(new DependencyTelemetry() { Context = { InstrumentationKey = "some ikey" } });
+
+            telemetryProcessor.Process(new ExceptionTelemetry() { Context = { InstrumentationKey = "some ikey" } });
+            telemetryProcessor.Process(new ExceptionTelemetry() { Context = { InstrumentationKey = "some ikey" } });
+            telemetryProcessor.Process(new ExceptionTelemetry() { Context = { InstrumentationKey = "some ikey" } });
+
+            // ACT
+            // the new configuration must carry the quotas over from the old one (only for those document streams that already existed)
+            var newCollectionConfigurationInfo = new CollectionConfigurationInfo() { DocumentStreams = newDocumentStreamInfos, ETag = "ETag1" };
+            var newCollectionConfiguration = new CollectionConfiguration(
+                newCollectionConfigurationInfo,
+                out errors,
+                timeProvider,
+                oldCollectionConfiguration.DocumentStreams);
+
+            // ASSERT
+            DocumentStream[] oldDocumentStreams = oldCollectionConfiguration.DocumentStreams.ToArray();
+            Assert.AreEqual(3, oldDocumentStreams.Length);
+
+            Assert.AreEqual("Stream1", oldDocumentStreams[0].Id);
+            Assert.AreEqual(9, oldDocumentStreams[0].RequestQuotaTracker.CurrentQuota);
+            Assert.AreEqual(10, oldDocumentStreams[0].DependencyQuotaTracker.CurrentQuota);
+            Assert.AreEqual(10, oldDocumentStreams[0].ExceptionQuotaTracker.CurrentQuota);
+            Assert.AreEqual(10, oldDocumentStreams[0].EventQuotaTracker.CurrentQuota);
+            Assert.AreEqual(10, oldDocumentStreams[0].EventQuotaTracker.CurrentQuota);
+
+            Assert.AreEqual("Stream2", oldDocumentStreams[1].Id);
+            Assert.AreEqual(10, oldDocumentStreams[1].RequestQuotaTracker.CurrentQuota);
+            Assert.AreEqual(8, oldDocumentStreams[1].DependencyQuotaTracker.CurrentQuota);
+            Assert.AreEqual(10, oldDocumentStreams[1].ExceptionQuotaTracker.CurrentQuota);
+            Assert.AreEqual(10, oldDocumentStreams[1].EventQuotaTracker.CurrentQuota);
+            Assert.AreEqual(10, oldDocumentStreams[1].EventQuotaTracker.CurrentQuota);
+
+            Assert.AreEqual("Stream3", oldDocumentStreams[2].Id);
+            Assert.AreEqual(10, oldDocumentStreams[2].RequestQuotaTracker.CurrentQuota);
+            Assert.AreEqual(10, oldDocumentStreams[2].DependencyQuotaTracker.CurrentQuota);
+            Assert.AreEqual(7, oldDocumentStreams[2].ExceptionQuotaTracker.CurrentQuota);
+            Assert.AreEqual(10, oldDocumentStreams[2].EventQuotaTracker.CurrentQuota);
+            Assert.AreEqual(10, oldDocumentStreams[2].EventQuotaTracker.CurrentQuota);
+
+            DocumentStream[] newDocumentStreams = newCollectionConfiguration.DocumentStreams.ToArray();
+            Assert.AreEqual(5, newDocumentStreams.Length);
+
+            Assert.AreEqual("Stream1", newDocumentStreams[0].Id);
+            Assert.AreEqual(9, newDocumentStreams[0].RequestQuotaTracker.CurrentQuota);
+            Assert.AreEqual(10, newDocumentStreams[0].DependencyQuotaTracker.CurrentQuota);
+            Assert.AreEqual(10, newDocumentStreams[0].ExceptionQuotaTracker.CurrentQuota);
+            Assert.AreEqual(10, newDocumentStreams[0].EventQuotaTracker.CurrentQuota);
+            Assert.AreEqual(10, newDocumentStreams[0].EventQuotaTracker.CurrentQuota);
+
+            Assert.AreEqual("Stream2", newDocumentStreams[1].Id);
+            Assert.AreEqual(10, newDocumentStreams[1].RequestQuotaTracker.CurrentQuota);
+            Assert.AreEqual(8, newDocumentStreams[1].DependencyQuotaTracker.CurrentQuota);
+            Assert.AreEqual(10, newDocumentStreams[1].ExceptionQuotaTracker.CurrentQuota);
+            Assert.AreEqual(10, newDocumentStreams[1].EventQuotaTracker.CurrentQuota);
+            Assert.AreEqual(10, newDocumentStreams[1].EventQuotaTracker.CurrentQuota);
+
+            Assert.AreEqual("Stream3", newDocumentStreams[2].Id);
+            Assert.AreEqual(10, newDocumentStreams[2].RequestQuotaTracker.CurrentQuota);
+            Assert.AreEqual(10, newDocumentStreams[2].DependencyQuotaTracker.CurrentQuota);
+            Assert.AreEqual(7, newDocumentStreams[2].ExceptionQuotaTracker.CurrentQuota);
+            Assert.AreEqual(10, newDocumentStreams[2].EventQuotaTracker.CurrentQuota);
+            Assert.AreEqual(10, newDocumentStreams[2].EventQuotaTracker.CurrentQuota);
+
+            Assert.AreEqual("Stream4", newDocumentStreams[3].Id);
+            Assert.AreEqual(3, newDocumentStreams[3].RequestQuotaTracker.CurrentQuota);
+            Assert.AreEqual(3, newDocumentStreams[3].DependencyQuotaTracker.CurrentQuota);
+            Assert.AreEqual(3, newDocumentStreams[3].ExceptionQuotaTracker.CurrentQuota);
+            Assert.AreEqual(3, newDocumentStreams[3].EventQuotaTracker.CurrentQuota);
+            Assert.AreEqual(3, newDocumentStreams[3].EventQuotaTracker.CurrentQuota);
+        }
+
+        [TestMethod]
         public void CollectionConfigurationReportsDocumentStreamsWithDuplicateIds()
         {
             // ARRANGE
