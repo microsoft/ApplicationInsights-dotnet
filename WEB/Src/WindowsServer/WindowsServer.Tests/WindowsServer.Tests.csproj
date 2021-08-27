@@ -20,7 +20,7 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' Or '$(TargetFramework)' == 'net462' Or '$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net480' ">
+  <ItemGroup Condition="'$(TargetFrameworks_NetFramework)' == 'True'">
     <Reference Include="System" />
     <Reference Include="System.EnterpriseServices">
       <Private>True</Private>
@@ -37,7 +37,7 @@
     <PackageReference Include="System.Buffers" Version="4.5.1" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' Or '$(TargetFramework)' == 'net5.0'  ">
+  <ItemGroup Condition="'$(TargetFrameworks_NetCore)' == 'True'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     
     <PackageReference Include="NETStandard.HttpListener" Version="1.0.3.5" />
