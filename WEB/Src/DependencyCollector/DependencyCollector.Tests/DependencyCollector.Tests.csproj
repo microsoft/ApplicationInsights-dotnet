@@ -24,14 +24,14 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFrameworks_NetCore)' == 'True'">
+  <ItemGroup Condition="'$(IsNetCore)' == 'True'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     
     <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFrameworks_NetFramework)' == 'True'">
+  <ItemGroup Condition="'$(IsNetFramework)' == 'True'">
     <PackageReference Include="System.Buffers" Version="4.5.1" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />

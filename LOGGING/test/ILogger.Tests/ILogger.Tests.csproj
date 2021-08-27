@@ -16,7 +16,7 @@
     <ProjectReference Include="..\..\src\ILogger\ILogger.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFrameworks_NetFramework)' == 'True'">
+  <ItemGroup Condition="'$(IsNetFramework)' == 'True'">
     <Reference Include="System.Net.Http" />
   </ItemGroup>
 

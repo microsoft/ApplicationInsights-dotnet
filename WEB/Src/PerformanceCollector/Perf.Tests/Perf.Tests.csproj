@@ -23,7 +23,7 @@
     <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFrameworks_NetFramework)' == 'True'">
+  <ItemGroup Condition="'$(IsNetFramework)' == 'True'">
     <Reference Include="System" />
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http" />

@@ -24,7 +24,7 @@
     <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFrameworks_NetFramework)' == 'True'">
+  <ItemGroup Condition="'$(IsNetFramework)' == 'True'">
     <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="2.0.71" />
 
     <Reference Include="System.Web" />
@@ -32,11 +32,11 @@
     <Reference Include="System.Web.Extensions" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFrameworks_NetStandard20)' == 'True'">
+  <ItemGroup Condition="'$(IsNetStandard20)' == 'True'">
     <PackageReference Include="Azure.Core" Version="1.14.0" />
   </ItemGroup>
   
-  <ItemGroup Condition="'$(TargetFrameworks_NetCore)' == 'True'">
+  <ItemGroup Condition="'$(IsNetCore)' == 'True'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 

@@ -18,11 +18,11 @@
     <PackageReference Include="xunit" Version="2.4.1" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFrameworks_NetFramework)' == 'True'">
+  <ItemGroup Condition="'$(IsNetFramework)' == 'True'">
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="1.1.8" /><!--TODO: CAN THIS BE UPGRADED TO 2.2.5 ?-->
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFrameworks_NetCore)' == 'True'">
+  <ItemGroup Condition="'$(IsNetCore)' == 'True'">
     <!-- TODO: Can't switch to FrameworkReference yet; 
          'IHostingEnvironment' is obsolete: 'This type is obsolete and will be removed in a future version. 
          The recommended alternative is Microsoft.AspNetCore.Hosting.IWebHostEnvironment.' -->

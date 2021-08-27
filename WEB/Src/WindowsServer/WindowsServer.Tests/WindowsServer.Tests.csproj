@@ -20,7 +20,7 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFrameworks_NetFramework)' == 'True'">
+  <ItemGroup Condition="'$(IsNetFramework)' == 'True'">
     <Reference Include="System" />
     <Reference Include="System.EnterpriseServices">
       <Private>True</Private>
@@ -37,7 +37,7 @@
     <PackageReference Include="System.Buffers" Version="4.5.1" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFrameworks_NetCore)' == 'True'">
+  <ItemGroup Condition="'$(IsNetCore)' == 'True'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     
     <PackageReference Include="NETStandard.HttpListener" Version="1.0.3.5" />
