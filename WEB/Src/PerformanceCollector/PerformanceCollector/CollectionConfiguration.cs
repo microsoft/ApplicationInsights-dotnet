@@ -67,7 +67,7 @@
             this.CreateMetadata();
 
             // create document streams based on description in info
-            this.CreateDocumentStreams(out CollectionConfigurationError[] documentStreamErrors, timeProvider, previousDocumentStreams ?? ArrayExtensions.Empty<DocumentStream>());
+            this.CreateDocumentStreams(out CollectionConfigurationError[] documentStreamErrors, timeProvider, info, previousDocumentStreams ?? ArrayExtensions.Empty<DocumentStream>());
 
             // create performance counters
             this.CreatePerformanceCounters(out CollectionConfigurationError[] performanceCounterErrors);
@@ -169,6 +169,7 @@
         private void CreateDocumentStreams(
             out CollectionConfigurationError[] errors,
             Clock timeProvider,
+            CollectionConfigurationInfo info,
             IEnumerable<DocumentStream> previousDocumentStreams)
         {
             var errorList = new List<CollectionConfigurationError>();
@@ -186,6 +187,17 @@
                         documentStream.ExceptionQuotaTracker.CurrentQuota,
                         documentStream.EventQuotaTracker.CurrentQuota,
                         documentStream.TraceQuotaTracker.CurrentQuota));
+
+            Dictionary<string, Tuple<float, float, float, float, float>> previousMaxQuotasByStreamId =
+                previousDocumentStreams.ToDictionary(
+                    documentStream => documentStream.Id,
+                    documentStream =>
+                    Tuple.Create(
+                        documentStream.RequestQuotaTracker.MaxQuota,
+                        documentStream.DependencyQuotaTracker.MaxQuota,
+                        documentStream.ExceptionQuotaTracker.MaxQuota,
+                        documentStream.EventQuotaTracker.MaxQuota,
+                        documentStream.TraceQuotaTracker.MaxQuota));
 
             if (this.info.DocumentStreams != null)
             {
@@ -207,18 +219,29 @@
                     CollectionConfigurationError[] localErrors = null;
                     try
                     {
-                        Tuple<float, float, float, float, float> initialQuotas;
-                        previousQuotasByStreamId.TryGetValue(documentStreamInfo.Id, out initialQuotas);
+                        previousQuotasByStreamId.TryGetValue(documentStreamInfo.Id, out Tuple<float, float, float, float, float> initialQuotas);
+                        previousMaxQuotasByStreamId.TryGetValue(documentStreamInfo.Id, out Tuple<float, float, float, float, float> maxQuotas);
+
+                        float? maxQuota = null;
+                        if (info.MaxQuota != null)
+                        {
+                            maxQuota = Math.Min(info.MaxQuota.Value, 200);
+                        }
 
                         var documentStream = new DocumentStream(
                             documentStreamInfo,
                             out localErrors,
                             timeProvider,
-                            initialRequestQuota: initialQuotas?.Item1,
-                            initialDependencyQuota: initialQuotas?.Item2,
-                            initialExceptionQuota: initialQuotas?.Item3,
-                            initialEventQuota: initialQuotas?.Item4,
-                            initialTraceQuota: initialQuotas?.Item5);
+                            initialRequestQuota: initialQuotas?.Item1 ?? info.InitialQuota,
+                            initialDependencyQuota: initialQuotas?.Item2 ?? info.InitialQuota,
+                            initialExceptionQuota: initialQuotas?.Item3 ?? info.InitialQuota,
+                            initialEventQuota: initialQuotas?.Item4 ?? info.InitialQuota,
+                            initialTraceQuota: initialQuotas?.Item5 ?? info.InitialQuota,
+                            maxRequestQuota: maxQuotas?.Item1 ?? maxQuota,
+                            maxDependencyQuota: maxQuotas?.Item2 ?? maxQuota,
+                            maxExceptionQuota: maxQuotas?.Item3 ?? maxQuota,
+                            maxEventQuota: maxQuotas?.Item4 ?? maxQuota,
+                            maxTraceQuota: maxQuotas?.Item5 ?? maxQuota);
 
                         documentStreamIds.Add(documentStreamInfo.Id);
                         this.documentStreams.Add(documentStream);

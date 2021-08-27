@@ -12,6 +12,12 @@
         [DataMember]
         public string ETag { get; set; }
 
+        [DataMember(IsRequired = false)]
+        public float? MaxQuota { get; set; }
+
+        [DataMember(IsRequired = false)]
+        public float? InitialQuota { get; set; }
+
         [DataMember]
         public CalculatedMetricInfo[] Metrics { get; set; }
 

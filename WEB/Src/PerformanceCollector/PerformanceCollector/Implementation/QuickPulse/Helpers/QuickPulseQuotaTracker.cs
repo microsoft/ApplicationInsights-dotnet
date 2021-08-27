@@ -10,13 +10,13 @@
     {
         private readonly float inputStreamRatePerSec;
 
-        private readonly float maxQuota;
-
         private readonly DateTimeOffset startedTrackingTime;
 
         private readonly Clock timeProvider;
 
         private float currentQuota;
+
+        private float maxQuota;
 
         private long lastQuotaAccrualFullSeconds;
         
@@ -32,6 +32,7 @@
         }
 
         public float CurrentQuota => Interlocked.CompareExchange(ref this.currentQuota, 0, 0);
+        public float MaxQuota => Interlocked.CompareExchange(ref this.maxQuota, 0, 0);
 
         public bool QuotaExhausted => Interlocked.CompareExchange(ref this.currentQuota, 0, 0) < 1f;
 
