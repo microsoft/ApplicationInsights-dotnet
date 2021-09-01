@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
     internal class TransmissionPolicyCollection : IDisposable
@@ -10,6 +11,7 @@
         private bool isDisposed;
         private AuthenticationTransmissionPolicy authenticationTransmissionPolicy;
 
+        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "applicationLifecycle is required only for NetFramework.")]
         public TransmissionPolicyCollection(INetwork network, IApplicationLifecycle applicationLifecycle)
         {
             this.policies = new TransmissionPolicy[]
