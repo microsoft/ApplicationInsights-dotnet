@@ -14,14 +14,13 @@
     {
         private Tuple<DependencyTelemetry, bool> telemetryTuple;
         private ObjectInstanceBasedOperationHolder<DependencyTelemetry> objectInstanceBasedOperationHolder;
-        private WebRequest webRequest;
+        private Object obj = new object();
 
         [TestInitialize]
         public void TestInitialize()
         {
             this.telemetryTuple = new Tuple<DependencyTelemetry, bool>(new DependencyTelemetry(), true);
             this.objectInstanceBasedOperationHolder = new ObjectInstanceBasedOperationHolder<DependencyTelemetry>();
-            this.webRequest = WebRequest.Create(new Uri("http://bing.com"));
         }
 
         /// <summary>
@@ -40,9 +39,9 @@
         [TestMethod]
         public void StoreAddsTelemetryTupleToTheObjectInstance()
         {
-            Assert.IsNull(this.objectInstanceBasedOperationHolder.Get(this.webRequest));
-            this.objectInstanceBasedOperationHolder.Store(this.webRequest, this.telemetryTuple);
-            Assert.AreEqual(this.telemetryTuple, this.objectInstanceBasedOperationHolder.Get(this.webRequest));
+            Assert.IsNull(this.objectInstanceBasedOperationHolder.Get(this.obj));
+            this.objectInstanceBasedOperationHolder.Store(this.obj, this.telemetryTuple);
+            Assert.AreEqual(this.telemetryTuple, this.objectInstanceBasedOperationHolder.Get(this.obj));
         }
 
         /// <summary>
@@ -52,10 +51,10 @@
         [ExpectedException(typeof(ArgumentException))]
         public void StoreThrowsExceptionWhenAddingAlreadyExistingKey()
         {
-            Assert.IsNull(this.objectInstanceBasedOperationHolder.Get(this.webRequest));
+            Assert.IsNull(this.objectInstanceBasedOperationHolder.Get(this.obj));
             var tuple = new Tuple<DependencyTelemetry, bool>(new DependencyTelemetry(), true);
-            this.objectInstanceBasedOperationHolder.Store(this.webRequest, tuple);
-            this.objectInstanceBasedOperationHolder.Store(this.webRequest, this.telemetryTuple);
+            this.objectInstanceBasedOperationHolder.Store(this.obj, tuple);
+            this.objectInstanceBasedOperationHolder.Store(this.obj, this.telemetryTuple);
         }
 
         /// <summary>
@@ -65,7 +64,7 @@
         [ExpectedException(typeof(ArgumentNullException))]
         public void StoreThrowsExceptionForNullTelemetryTupleInObjectInstance()
         {
-            this.objectInstanceBasedOperationHolder.Store(this.webRequest, null);
+            this.objectInstanceBasedOperationHolder.Store(this.obj, null);
         }
 
         /// <summary>
@@ -84,10 +83,10 @@
         [TestMethod]
         public void RemoveDeletesTelemetryTupleFromTheObjectInstance()
         {
-            this.objectInstanceBasedOperationHolder.Store(this.webRequest, this.telemetryTuple);
-            Assert.AreEqual(this.telemetryTuple, this.objectInstanceBasedOperationHolder.Get(this.webRequest));
-            this.objectInstanceBasedOperationHolder.Remove(this.webRequest);
-            Assert.IsNull(this.objectInstanceBasedOperationHolder.Get(this.webRequest));
+            this.objectInstanceBasedOperationHolder.Store(this.obj, this.telemetryTuple);
+            Assert.AreEqual(this.telemetryTuple, this.objectInstanceBasedOperationHolder.Get(this.obj));
+            this.objectInstanceBasedOperationHolder.Remove(this.obj);
+            Assert.IsNull(this.objectInstanceBasedOperationHolder.Get(this.obj));
         }
 
         /// <summary>
@@ -96,10 +95,10 @@
         [TestMethod]
         public void RemoveDoesNotThrowExceptionForNonExistingItemFromTheObjectInstance()
         {
-            this.objectInstanceBasedOperationHolder.Store(this.webRequest, this.telemetryTuple);
-            Assert.IsTrue(this.objectInstanceBasedOperationHolder.Remove(this.webRequest));
-            Assert.IsFalse(this.objectInstanceBasedOperationHolder.Remove(this.webRequest));
-            Assert.IsFalse(this.objectInstanceBasedOperationHolder.Remove(this.webRequest));
+            this.objectInstanceBasedOperationHolder.Store(this.obj, this.telemetryTuple);
+            Assert.IsTrue(this.objectInstanceBasedOperationHolder.Remove(this.obj));
+            Assert.IsFalse(this.objectInstanceBasedOperationHolder.Remove(this.obj));
+            Assert.IsFalse(this.objectInstanceBasedOperationHolder.Remove(this.obj));
         }
 
         /// <summary>
@@ -108,8 +107,8 @@
         [TestMethod]
         public void GetReturnsItemIfItExistsInTheObjectInstanceTable()
         {
-            this.objectInstanceBasedOperationHolder.Store(this.webRequest, this.telemetryTuple);
-            Assert.AreEqual(this.telemetryTuple, this.objectInstanceBasedOperationHolder.Get(this.webRequest));
+            this.objectInstanceBasedOperationHolder.Store(this.obj, this.telemetryTuple);
+            Assert.AreEqual(this.telemetryTuple, this.objectInstanceBasedOperationHolder.Get(this.obj));
         }
 
         /// <summary>
@@ -118,7 +117,7 @@
         [TestMethod]
         public void GetReturnsNullIfIdDoesNotExistInObjectInstance()
         {
-            Assert.IsNull(this.objectInstanceBasedOperationHolder.Get(this.webRequest));
+            Assert.IsNull(this.objectInstanceBasedOperationHolder.Get(this.obj));
         }
 
         /// <summary>
