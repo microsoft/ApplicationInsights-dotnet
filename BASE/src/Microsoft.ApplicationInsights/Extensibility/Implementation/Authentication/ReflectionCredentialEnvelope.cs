@@ -20,9 +20,9 @@
     internal class ReflectionCredentialEnvelope : CredentialEnvelope
     {
 #if REDFIELD
-        private static volatile string AzureCoreAssemblyName = "Azure.Identity.ILRepack";
+        private static volatile string azureCoreAssemblyName = "Azure.Identity.ILRepack";
 #else
-        private static volatile string AzureCoreAssemblyName = "Azure.Core";
+        private static volatile string azureCoreAssemblyName = "Azure.Core";
 #endif
 
         private readonly object tokenCredential;
@@ -108,7 +108,7 @@
         /// </returns>
         private static Type GetTokenCredentialType()
         {
-            var typeName = $"Azure.Core.TokenCredential, {AzureCoreAssemblyName}";
+            var typeName = $"Azure.Core.TokenCredential, {azureCoreAssemblyName}";
 
             Type typeTokenCredential = null;
 
@@ -123,7 +123,7 @@
 
             if (typeTokenCredential == null)
             {
-                if (AppDomain.CurrentDomain.GetAssemblies().Any(x => x.FullName.StartsWith(AzureCoreAssemblyName)))
+                if (AppDomain.CurrentDomain.GetAssemblies().Any(x => x.FullName.StartsWith(azureCoreAssemblyName)))
                 {
                     throw new Exception("An unknown error has occurred. Failed to get type Azure.Core.TokenCredential. Detected that Azure.Core is loaded in AppDomain.CurrentDomain.");
                 }
@@ -174,7 +174,7 @@
             internal static object MakeTokenRequestContext(string[] scopes)
             {
                 return Activator.CreateInstance(
-                    type: Type.GetType($"Azure.Core.TokenRequestContext, {AzureCoreAssemblyName}"),
+                    type: Type.GetType($"Azure.Core.TokenRequestContext, {azureCoreAssemblyName}"),
                     args: new object[] { scopes, null, });
             }
 
@@ -188,7 +188,7 @@
             /// </returns>
             private static Delegate BuildDelegateAccessTokenToAuthToken()
             {
-                Type typeAccessToken = Type.GetType($"Azure.Core.AccessToken, {AzureCoreAssemblyName}");
+                Type typeAccessToken = Type.GetType($"Azure.Core.AccessToken, {azureCoreAssemblyName}");
 
                 var parameterExpression_AccessToken = Expression.Parameter(typeAccessToken, "parameterExpression_AccessToken");
 
@@ -223,8 +223,8 @@
             /// </returns>
             private static Delegate BuildDelegateGetToken()
             {
-                Type typeTokenCredential = Type.GetType($"Azure.Core.TokenCredential, {AzureCoreAssemblyName}");
-                Type typeTokenRequestContext = Type.GetType($"Azure.Core.TokenRequestContext, {AzureCoreAssemblyName}");
+                Type typeTokenCredential = Type.GetType($"Azure.Core.TokenCredential, {azureCoreAssemblyName}");
+                Type typeTokenRequestContext = Type.GetType($"Azure.Core.TokenRequestContext, {azureCoreAssemblyName}");
                 Type typeCancellationToken = typeof(CancellationToken);
 
                 var parameterExpression_tokenCredential = Expression.Parameter(type: typeTokenCredential, name: "parameterExpression_TokenCredential");
@@ -260,8 +260,8 @@
             /// </returns>
             private static Delegate BuildDelegateGetTokenAsync()
             {
-                Type typeTokenCredential = Type.GetType($"Azure.Core.TokenCredential, {AzureCoreAssemblyName}");
-                Type typeTokenRequestContext = Type.GetType($"Azure.Core.TokenRequestContext, {AzureCoreAssemblyName}");
+                Type typeTokenCredential = Type.GetType($"Azure.Core.TokenCredential, {azureCoreAssemblyName}");
+                Type typeTokenRequestContext = Type.GetType($"Azure.Core.TokenRequestContext, {azureCoreAssemblyName}");
                 Type typeCancellationToken = typeof(CancellationToken);
 
                 var parameterExpression_TokenCredential = Expression.Parameter(type: typeTokenCredential, name: "parameterExpression_TokenCredential");
@@ -302,8 +302,8 @@
             /// </returns>
             private static Delegate BuildGetTaskResult()
             {
-                Type typeTokenCredential = Type.GetType($"Azure.Core.TokenCredential, {AzureCoreAssemblyName}");
-                Type typeTokenRequestContext = Type.GetType($"Azure.Core.TokenRequestContext, {AzureCoreAssemblyName}");
+                Type typeTokenCredential = Type.GetType($"Azure.Core.TokenCredential, {azureCoreAssemblyName}");
+                Type typeTokenRequestContext = Type.GetType($"Azure.Core.TokenRequestContext, {azureCoreAssemblyName}");
                 Type typeCancellationToken = typeof(CancellationToken);
                 var methodInfo_GetTokenAsync = typeTokenCredential.GetMethod(name: "GetTokenAsync", types: new Type[] { typeTokenRequestContext, typeCancellationToken });
                 var methodInfo_AsTask = methodInfo_GetTokenAsync.ReturnType.GetMethod("AsTask");
