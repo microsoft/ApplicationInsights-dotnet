@@ -20,7 +20,7 @@
     internal class ReflectionCredentialEnvelope : CredentialEnvelope
     {
 #if REDFIELD
-        private static readonly string AzureCoreAssemblyName = "Azure.Core.ILRepack";
+        private static readonly string AzureCoreAssemblyName = "Azure.Identity.ILRepack";
 #else
         private static readonly string AzureCoreAssemblyName = "Azure.Core";
 #endif
