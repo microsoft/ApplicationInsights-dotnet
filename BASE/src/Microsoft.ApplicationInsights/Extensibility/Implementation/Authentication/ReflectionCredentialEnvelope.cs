@@ -20,9 +20,9 @@
     internal class ReflectionCredentialEnvelope : CredentialEnvelope
     {
 #if REDFIELD
-        private static readonly string AzureCoreAssemblyName = "Azure.Identity.ILRepack";
+        private static volatile string AzureCoreAssemblyName = "Azure.Identity.ILRepack";
 #else
-        private static readonly string AzureCoreAssemblyName = "Azure.Core";
+        private static volatile string AzureCoreAssemblyName = "Azure.Core";
 #endif
 
         private readonly object tokenCredential;
@@ -109,7 +109,6 @@
         private static Type GetTokenCredentialType()
         {
             var typeName = $"Azure.Core.TokenCredential, {AzureCoreAssemblyName}";
-            var assemblyName = AzureCoreAssemblyName;
 
             Type typeTokenCredential = null;
 
@@ -124,7 +123,7 @@
 
             if (typeTokenCredential == null)
             {
-                if (AppDomain.CurrentDomain.GetAssemblies().Any(x => x.FullName.StartsWith(assemblyName)))
+                if (AppDomain.CurrentDomain.GetAssemblies().Any(x => x.FullName.StartsWith(AzureCoreAssemblyName)))
                 {
                     throw new Exception("An unknown error has occurred. Failed to get type Azure.Core.TokenCredential. Detected that Azure.Core is loaded in AppDomain.CurrentDomain.");
                 }
