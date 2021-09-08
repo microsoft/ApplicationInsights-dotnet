@@ -19,6 +19,12 @@
     /// </remarks>
     internal class ReflectionCredentialEnvelope : CredentialEnvelope
     {
+#if REDFIELD
+        private static readonly string AzureCoreAssemblyName = "Azure.Core.ILRepack";
+#else
+        private static readonly string AzureCoreAssemblyName = "Azure.Core";
+#endif
+
         private readonly object tokenCredential;
         private readonly object tokenRequestContext;
 
@@ -102,8 +108,8 @@
         /// </returns>
         private static Type GetTokenCredentialType()
         {
-            var typeName = "Azure.Core.TokenCredential, Azure.Core";
-            var assemblyName = "Azure.Core";
+            var typeName = $"Azure.Core.TokenCredential, {AzureCoreAssemblyName}";
+            var assemblyName = AzureCoreAssemblyName;
 
             Type typeTokenCredential = null;
 
@@ -169,7 +175,7 @@
             internal static object MakeTokenRequestContext(string[] scopes)
             {
                 return Activator.CreateInstance(
-                    type: Type.GetType("Azure.Core.TokenRequestContext, Azure.Core"),
+                    type: Type.GetType($"Azure.Core.TokenRequestContext, {AzureCoreAssemblyName}"),
                     args: new object[] { scopes, null, });
             }
 
@@ -183,7 +189,7 @@
             /// </returns>
             private static Delegate BuildDelegateAccessTokenToAuthToken()
             {
-                Type typeAccessToken = Type.GetType("Azure.Core.AccessToken, Azure.Core");
+                Type typeAccessToken = Type.GetType($"Azure.Core.AccessToken, {AzureCoreAssemblyName}");
 
                 var parameterExpression_AccessToken = Expression.Parameter(typeAccessToken, "parameterExpression_AccessToken");
 
@@ -218,8 +224,8 @@
             /// </returns>
             private static Delegate BuildDelegateGetToken()
             {
-                Type typeTokenCredential = Type.GetType("Azure.Core.TokenCredential, Azure.Core");
-                Type typeTokenRequestContext = Type.GetType("Azure.Core.TokenRequestContext, Azure.Core");
+                Type typeTokenCredential = Type.GetType($"Azure.Core.TokenCredential, {AzureCoreAssemblyName}");
+                Type typeTokenRequestContext = Type.GetType($"Azure.Core.TokenRequestContext, {AzureCoreAssemblyName}");
                 Type typeCancellationToken = typeof(CancellationToken);
 
                 var parameterExpression_tokenCredential = Expression.Parameter(type: typeTokenCredential, name: "parameterExpression_TokenCredential");
@@ -255,8 +261,8 @@
             /// </returns>
             private static Delegate BuildDelegateGetTokenAsync()
             {
-                Type typeTokenCredential = Type.GetType("Azure.Core.TokenCredential, Azure.Core");
-                Type typeTokenRequestContext = Type.GetType("Azure.Core.TokenRequestContext, Azure.Core");
+                Type typeTokenCredential = Type.GetType($"Azure.Core.TokenCredential, {AzureCoreAssemblyName}");
+                Type typeTokenRequestContext = Type.GetType($"Azure.Core.TokenRequestContext, {AzureCoreAssemblyName}");
                 Type typeCancellationToken = typeof(CancellationToken);
 
                 var parameterExpression_TokenCredential = Expression.Parameter(type: typeTokenCredential, name: "parameterExpression_TokenCredential");
@@ -297,8 +303,8 @@
             /// </returns>
             private static Delegate BuildGetTaskResult()
             {
-                Type typeTokenCredential = Type.GetType("Azure.Core.TokenCredential, Azure.Core");
-                Type typeTokenRequestContext = Type.GetType("Azure.Core.TokenRequestContext, Azure.Core");
+                Type typeTokenCredential = Type.GetType($"Azure.Core.TokenCredential, {AzureCoreAssemblyName}");
+                Type typeTokenRequestContext = Type.GetType($"Azure.Core.TokenRequestContext, {AzureCoreAssemblyName}");
                 Type typeCancellationToken = typeof(CancellationToken);
                 var methodInfo_GetTokenAsync = typeTokenCredential.GetMethod(name: "GetTokenAsync", types: new Type[] { typeTokenRequestContext, typeCancellationToken });
                 var methodInfo_AsTask = methodInfo_GetTokenAsync.ReturnType.GetMethod("AsTask");
