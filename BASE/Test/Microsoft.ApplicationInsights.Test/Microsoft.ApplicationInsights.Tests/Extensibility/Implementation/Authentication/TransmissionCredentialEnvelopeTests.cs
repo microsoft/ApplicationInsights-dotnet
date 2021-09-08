@@ -1,4 +1,4 @@
-﻿#if !NET452 && !NET46
+﻿#if !NET452 && !NET46 && !REDFIELD
 namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementation.Authentication
 {
     using System;
