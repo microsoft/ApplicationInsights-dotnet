@@ -1,6 +1,6 @@
 # Syntax: https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions
 # Github Actions Stale: https://github.com/actions/stale
-# Description: The purpose of this build is to compile and test with redfield flag.
+# Description: The purpose of this action is to close stale issues and PRs.
 
 name: Stale Issues and PRs
 on:
