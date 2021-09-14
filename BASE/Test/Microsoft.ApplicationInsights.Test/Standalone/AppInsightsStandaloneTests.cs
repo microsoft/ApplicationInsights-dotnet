@@ -30,7 +30,7 @@
             Directory.Delete(this.tempPath, true);
         }
 
-#if NETCOREAPP
+#if NETCOREAPP_1
         [Ignore("Missing netstandard dependencies.")]
 #endif
         [TestMethod]
