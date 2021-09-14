@@ -2,9 +2,9 @@
   <Import Project="$(PropsRoot)\Test.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net452;netcoreapp3.1</TargetFrameworks>
-    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netcoreapp3.1</TargetFrameworks>
-
+    <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
+    <TargetFrameworks Condition="$(OS) == 'Windows_NT'">net452;net46;net461;$(TargetFrameworks)</TargetFrameworks>
+    
     <AssemblyName>Microsoft.ApplicationInsights.TelemetryChannel.Tests</AssemblyName>
   </PropertyGroup>
 
@@ -17,26 +17,27 @@
     <PackageReference Include="Moq" Version="4.10.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.3" />
     <PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
-
     <PackageReference Include="CompareNETObjects" Version="4.59.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452'  Or '$(TargetFramework)' == 'net46' ">
     <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(IsNetFramework)' == 'True'">
+    <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="2.0.71" />
+
     <Reference Include="System.Web" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Web.Extensions" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+  <ItemGroup Condition="'$(IsNetStandard20)' == 'True'">
     <PackageReference Include="Azure.Core" Version="1.14.0" />
-    
-    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(IsNetCore)' == 'True'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <Import Project="..\..\..\Test\TestFramework\Shared\TestFramework.Shared.projitems" Label="TestFramework.Shared" />

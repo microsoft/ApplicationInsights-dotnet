@@ -465,10 +465,6 @@
 
             if (request != null)
             {
-#if DEBUG
-                var requestIdHeader = request.Headers.GetValues(RequestResponseHeaders.RequestIdHeader).Single();
-#endif
-
                 if (expectW3CHeaders)
                 {
                     var traceId = item.Context.Operation.Id;
@@ -482,22 +478,21 @@
                         Assert.AreEqual(parentActivity.TraceStateString, request.Headers.GetValues(W3C.W3CConstants.TraceStateHeader).Single());
                     }
 
+
+#if !NETCOREAPP3_1_OR_GREATER
+                    // TODO: THIS IS A TESTING GAP
+                    // It appears that .NET CORE 3 does not inject a Request-Id header.
+                    var actualRequestIdHeader = request.Headers.GetValues(RequestResponseHeaders.RequestIdHeader).Single();
+
                     if (expectRequestId)
                     {
-                        Assert.AreEqual(expectedRequestId, request.Headers.GetValues(RequestResponseHeaders.RequestIdHeader).Single());
+                        Assert.AreEqual(expectedRequestId, actualRequestIdHeader);
                     }
                     else
                     {
-                        // TODO: THIS IS A TESTING GAP
-#if NETCOREAPP2_1
-                        // even though we don't inject back-compatible request-id, .NET Core 2.0 will inject one that will look like traceparent
-                        Assert.AreEqual(expectedTraceParentHeader, request.Headers.GetValues(RequestResponseHeaders.RequestIdHeader).Single());
-#elif NETCOREAPP3_1
-                        // It appears that .NET CORE 3 does not inject a Request-Id header. Need to verify with Liudmila.
-#else
-#error This condition is unexpected
-#endif
+                        Assert.AreEqual(expectedTraceParentHeader, actualRequestIdHeader);
                     }
+#endif
                 }
                 else
                 {
@@ -585,4 +580,4 @@
         }
     }
 #endif
-                    }
+                }

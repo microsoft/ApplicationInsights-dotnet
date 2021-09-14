@@ -3,16 +3,20 @@ namespace Microsoft.ApplicationInsights.WindowsServer
     using System;
     using System.IO;
     using System.Net;
+    using System.Net.Http;
     using System.Runtime.Serialization.Json;
     using System.Text;
     using System.Threading;
+    using System.Threading.Tasks;
+
     using Microsoft.ApplicationInsights.WindowsServer.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.Implementation.DataContracts;
     using Microsoft.ApplicationInsights.WindowsServer.Mock;
-#if NETCOREAPP
-    using Microsoft.AspNetCore.Http;
-#endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+    using Moq;
+    using Moq.Protected;
+
     using Assert = Xunit.Assert;
 
     /// <summary>
@@ -22,232 +26,169 @@ namespace Microsoft.ApplicationInsights.WindowsServer
     [TestClass]
     public class AzureInstanceMetadataEndToEndTests
     {
-        internal const string MockTestUri = "http://localhost:9922/";
-
         [TestMethod]
-        public void SpoofedResponseFromAzureIMSDoesntCrash()
+        public async Task SpoofedResponseFromAzureIMSDoesntCrash()
         {
-            var testMetadata = this.GetTestMetadata();
-            string testPath = "spoofedResponse";
+            // SETUP
+            var testMetadata = GetTestMetadata();
+            Mock<HttpMessageHandler> mockHttpMessageHandler = GetMockHttpMessageHandler(testMetadata);
+            //var azureIms = new AzureMetadataRequestor(new HttpClient(mockHttpMessageHandler.Object));
+            var azureIms = GetTestableAzureMetadataRequestor(mockHttpMessageHandler.Object);
 
-            using (new AzureInstanceMetadataServiceMock(
-                AzureInstanceMetadataEndToEndTests.MockTestUri,
-                testPath,
-                (response) =>
-                {
-                    response.StatusCode = (int)HttpStatusCode.OK;
+            // ACT
+            var azureImsProps = new AzureComputeMetadataHeartbeatPropertyProvider();
+            var azureIMSData = await azureIms.GetAzureComputeMetadataAsync();
 
-                    var jsonStream = this.GetTestMetadataStream(testMetadata);
-                    response.SetContentLength(jsonStream.Length);
-                    response.ContentType = "application/json";
-                    response.SetContentEncoding(Encoding.UTF8);
-                    response.WriteStreamToBody(jsonStream);
-                }))
+            // VERIFY
+            foreach (string fieldName in azureImsProps.ExpectedAzureImsFields)
             {
-                var azureIms = new AzureMetadataRequestor
-                {
-                    BaseAimsUri = string.Concat(AzureInstanceMetadataEndToEndTests.MockTestUri, testPath, "/")
-                };
-
-                var azureImsProps = new AzureComputeMetadataHeartbeatPropertyProvider();
-                var azureIMSData = azureIms.GetAzureComputeMetadataAsync();
-                azureIMSData.Wait();
-
-                foreach (string fieldName in azureImsProps.ExpectedAzureImsFields)
-                {
-                    string fieldValue = azureIMSData.Result.GetValueForField(fieldName);
-                    Assert.NotNull(fieldValue);
-                    Assert.Equal(fieldValue, testMetadata.GetValueForField(fieldName));
-                }
+                string fieldValue = azureIMSData.GetValueForField(fieldName);
+                Assert.NotNull(fieldValue);
+                Assert.Equal(fieldValue, testMetadata.GetValueForField(fieldName));
             }
         }
 
         [TestMethod]
-        public void AzureImsResponseTooLargeStopsCollection()
+        public async Task AzureImsResponseExcludesMalformedValues()
         {
-            string testPath = "tooLarge";
+            // SETUP
+            var testMetadata = GetTestMetadata();
+            // make it a malicious-ish response...
+            testMetadata.Name = "Not allowed for VM names";
+            testMetadata.ResourceGroupName = "Not allowed for resource group name";
+            testMetadata.SubscriptionId = "Definitely-not-a GUID up here";
 
-            using (new AzureInstanceMetadataServiceMock(
-                AzureInstanceMetadataEndToEndTests.MockTestUri,
-                testPath,
-                (response) =>
-                {
-                    response.StatusCode = (int)HttpStatusCode.OK;
+            Mock<HttpMessageHandler> mockHttpMessageHandler = GetMockHttpMessageHandler(testMetadata);
+            //var azureIms = new AzureMetadataRequestor(new HttpClient(mockHttpMessageHandler.Object));
+            var azureIms = GetTestableAzureMetadataRequestor(mockHttpMessageHandler.Object);
 
-                    var tester = this.GetTestMetadata();
-                    
-                    // ensure we will be outside the max allowed content size by setting a single text field to max length + 1
-                    var testStuff = new char[AzureMetadataRequestor.AzureImsMaxResponseBufferSize + 1];
-                    for (int i = 0; i < (AzureMetadataRequestor.AzureImsMaxResponseBufferSize + 1); ++i)
-                    {
-                        testStuff[i] = (char)((int)'a' + (i % 26));
-                    }
+            // ACT
+            var azureImsProps = new AzureComputeMetadataHeartbeatPropertyProvider(azureIms);
+            var hbeatProvider = new HeartbeatProviderMock();
+            var result = await azureImsProps.SetDefaultPayloadAsync(hbeatProvider);
 
-                    tester.Publisher = new string(testStuff);
-                    var jsonStream = this.GetTestMetadataStream(tester);
-                    response.SetContentLength(3 * jsonStream.Length);
-                    response.ContentType = "application/json";
-                    response.SetContentEncoding(Encoding.UTF8);
-                    response.WriteStreamToBody(jsonStream);
-                }))
-            {
-                var azureIms = new AzureMetadataRequestor
-                {
-                    BaseAimsUri = string.Concat(AzureInstanceMetadataEndToEndTests.MockTestUri, testPath, "/")
-                };
-
-                var azureIMSData = azureIms.GetAzureComputeMetadataAsync();
-                azureIMSData.Wait();
-
-                Assert.Null(azureIMSData.Result);
-            }
+            // VERIFY
+            Assert.True(result);
+            Assert.Empty(hbeatProvider.HbeatProps["azInst_name"]);
+            Assert.Empty(hbeatProvider.HbeatProps["azInst_resourceGroupName"]);
+            Assert.Empty(hbeatProvider.HbeatProps["azInst_subscriptionId"]);
         }
 
         [TestMethod]
-        public void AzureImsResponseExcludesMalformedValues()
+        public async Task AzureImsResponseHandlesException()
         {
-            string testPath = "malformedValues";
-            using (new AzureInstanceMetadataServiceMock(
-                AzureInstanceMetadataEndToEndTests.MockTestUri,
-                testPath,
-                (response) =>
-                {
-                    response.StatusCode = (int)HttpStatusCode.OK;
+            // SETUP
+            var testMetadata = GetTestMetadata();
+            var mockHttpMessageHandler = GetMockHttpMessageHandler(testMetadata, throwException: true);
+            //var azureIms = new AzureMetadataRequestor(new HttpClient(mockHttpMessageHandler.Object));
+            var azureIms = GetTestableAzureMetadataRequestor(mockHttpMessageHandler.Object);
 
-                    // make it a malicious-ish response...
-                    var malformedData = this.GetTestMetadata();
-                    malformedData.Name = "Not allowed for VM names";
-                    malformedData.ResourceGroupName = "Not allowed for resource group name";
-                    malformedData.SubscriptionId = "Definitely-not-a GUID up here";
-                    var malformedJsonStream = this.GetTestMetadataStream(malformedData);
+            // ACT
+            var result = await azureIms.GetAzureComputeMetadataAsync();
 
-                    response.SetContentLength(malformedJsonStream.Length);
-                    response.ContentType = "application/json";
-                    response.SetContentEncoding(Encoding.UTF8);
-                    response.WriteStreamToBody(malformedJsonStream);
-                }))
-            {
-                var azureIms = new AzureMetadataRequestor
-                {
-                    BaseAimsUri = string.Concat(AzureInstanceMetadataEndToEndTests.MockTestUri, testPath, "/")
-                };
-
-                var azureImsProps = new AzureComputeMetadataHeartbeatPropertyProvider(azureIms);
-                var hbeatProvider = new HeartbeatProviderMock();
-                var azureIMSData = azureImsProps.SetDefaultPayloadAsync(hbeatProvider);
-                azureIMSData.Wait();
-
-                Assert.Empty(hbeatProvider.HbeatProps["azInst_name"]);
-                Assert.Empty(hbeatProvider.HbeatProps["azInst_resourceGroupName"]);
-                Assert.Empty(hbeatProvider.HbeatProps["azInst_subscriptionId"]);
-            }
+            // VERIFY
+            Assert.Null(result);
         }
 
         [TestMethod]
-        public void AzureImsResponseTimesOut()
+        public async Task AzureImsResponseUnsuccessful()
         {
-            string testPath = "timeOut";
-            using (new AzureInstanceMetadataServiceMock(
-                AzureInstanceMetadataEndToEndTests.MockTestUri,
-                testPath,
-                (response) =>
-                {
-                    // wait for longer than the request timeout
-                    Thread.Sleep(TimeSpan.FromSeconds(5));
+            // SETUP
+            var testMetadata = GetTestMetadata();
+            var mockHttpMessageHandler = GetMockHttpMessageHandler(testMetadata, HttpStatusCode.Forbidden);
+            //var azureIms = new AzureMetadataRequestor(new HttpClient(mockHttpMessageHandler.Object));
+            var azureIms = GetTestableAzureMetadataRequestor(mockHttpMessageHandler.Object);
 
-                    response.StatusCode = (int)HttpStatusCode.OK;
+            // ACT
+            var azureIMSData = await azureIms.GetAzureComputeMetadataAsync();
 
-                    var jsonStream = this.GetTestMetadataStream();
-                    response.SetContentLength(jsonStream.Length);
-                    response.ContentType = "application/json";
-                    response.SetContentEncoding(Encoding.UTF8);
-                    response.WriteStreamToBody(jsonStream);
-                }))
-            {
-                var azureIms = new AzureMetadataRequestor
-                {
-                    BaseAimsUri = string.Concat(AzureInstanceMetadataEndToEndTests.MockTestUri, testPath, "/"),
-                    AzureImsRequestTimeout = TimeSpan.FromSeconds(1)
-                };
-
-                var azureIMSData = azureIms.GetAzureComputeMetadataAsync();
-                azureIMSData.Wait();
-
-                Assert.Null(azureIMSData.Result);
-            }
-        }
-
-        [TestMethod]
-        public void AzureImsResponseUnsuccessful()
-        {
-            string testPath = "errorForbidden";
-
-            using (new AzureInstanceMetadataServiceMock(
-                AzureInstanceMetadataEndToEndTests.MockTestUri,
-                testPath,
-                (response) =>
-                {
-                    // don't send anything in content at all, or the context defaults to 200 OK
-                    response.StatusCode = (int)HttpStatusCode.Forbidden;
-                }))
-            {
-                var azureIms = new AzureMetadataRequestor
-                {
-                    BaseAimsUri = string.Concat(AzureInstanceMetadataEndToEndTests.MockTestUri, testPath, "/")
-                };
-
-                var azureIMSData = azureIms.GetAzureComputeMetadataAsync();
-                azureIMSData.Wait();
-
-                Assert.Null(azureIMSData.Result);
-            }
-        }
-
-        /// <summary>
-        /// Return a memory stream adequate for testing.
-        /// </summary>
-        /// <param name="inst">An Azure instance metadata compute object.</param>
-        /// <returns>Azure Instance Compute Metadata as a JSON-encoded MemoryStream.</returns>
-        private MemoryStream GetTestMetadataStream(AzureInstanceComputeMetadata inst = null)
-        {
-            if (inst == null)
-            {
-                inst = this.GetTestMetadata();
-            }
-
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(AzureInstanceComputeMetadata));
-
-            MemoryStream jsonStream = new MemoryStream();
-            serializer.WriteObject(jsonStream, inst);
-
-            return jsonStream;
+            // VERIFY
+            Assert.Null(azureIMSData);
         }
 
         /// <summary>
         /// Creates test data for heartbeat e2e.
         /// </summary>
         /// <returns>An Azure Instance Metadata Compute object suitable for use in testing.</returns>
-        private AzureInstanceComputeMetadata GetTestMetadata()
+        private static AzureInstanceComputeMetadata GetTestMetadata() => new AzureInstanceComputeMetadata()
         {
-            return new AzureInstanceComputeMetadata()
+            Location = "US-West",
+            Name = "test-vm01",
+            Offer = "D9_USWest",
+            OsType = "Linux",
+            PlacementGroupId = "placement-grp",
+            PlatformFaultDomain = "0",
+            PlatformUpdateDomain = "0",
+            Publisher = "Microsoft",
+            ResourceGroupName = "test.resource-group_01",
+            Sku = "Windows_10",
+            SubscriptionId = Guid.NewGuid().ToString(),
+            Tags = "thisTag;thatTag",
+            Version = "10.8a",
+            VmId = Guid.NewGuid().ToString(),
+            VmSize = "A8",
+            VmScaleSetName = "ScaleName"
+        };
+
+        private static string SerializeAsJsonString(AzureInstanceComputeMetadata azureInstanceComputeMetadata)
+        {
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(AzureInstanceComputeMetadata));
+
+            string returnData;
+
+            using (MemoryStream memoryStream = new MemoryStream())
             {
-                Location = "US-West",
-                Name = "test-vm01",
-                Offer = "D9_USWest",
-                OsType = "Linux",
-                PlacementGroupId = "placement-grp",
-                PlatformFaultDomain = "0",
-                PlatformUpdateDomain = "0",
-                Publisher = "Microsoft",
-                ResourceGroupName = "test.resource-group_01",
-                Sku = "Windows_10",
-                SubscriptionId = Guid.NewGuid().ToString(),
-                Tags = "thisTag;thatTag",
-                Version = "10.8a",
-                VmId = Guid.NewGuid().ToString(),
-                VmSize = "A8",
-                VmScaleSetName = "ScaleName"
+                serializer.WriteObject(memoryStream, azureInstanceComputeMetadata);
+                memoryStream.Position = 0;
+                StreamReader sr = new StreamReader(memoryStream);
+
+                returnData = sr.ReadToEnd();
+
+                sr.Close();
+                memoryStream.Close();
+            }
+
+            return returnData;
+        }
+
+        private static Mock<HttpMessageHandler> GetMockHttpMessageHandler(AzureInstanceComputeMetadata metadata, HttpStatusCode httpStatusCode = HttpStatusCode.OK, bool throwException = false)
+        {
+            var json = SerializeAsJsonString(metadata);
+
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            var response = new HttpResponseMessage
+            {
+                StatusCode = httpStatusCode,
+                Content = new StringContent(json, Encoding.UTF8, "application/json"),
             };
+
+            if (throwException)
+            {
+                mockHttpMessageHandler
+                   .Protected()
+                   .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                   .Callback(() => throw new Exception("unit test forced exception"));
+            }
+            else
+            {
+                mockHttpMessageHandler
+                   .Protected()
+                   .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                   .ReturnsAsync(value: response);
+            }
+
+            return mockHttpMessageHandler;
+        }
+
+        private static AzureMetadataRequestor GetTestableAzureMetadataRequestor(HttpMessageHandler httpMessageHandler)
+        {
+            var mockAzureMetadataRequestor = new Mock<AzureMetadataRequestor>();
+
+            mockAzureMetadataRequestor
+                .Setup(x => x.GetHttpClient())
+                .Returns(new HttpClient(httpMessageHandler));
+
+            return mockAzureMetadataRequestor.Object;
         }
     }
 }

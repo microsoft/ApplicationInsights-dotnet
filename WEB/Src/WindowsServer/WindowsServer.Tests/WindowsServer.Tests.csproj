@@ -2,17 +2,15 @@
   <Import Project="$(PropsRoot)\Test.props" />
 
   <PropertyGroup>
+    <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
     <AssemblyName>Microsoft.AI.WindowsServer.Tests</AssemblyName>
-    <PackageId>Microsoft.AI.WindowsServer.Tests</PackageId>
-    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     <RootNamespace>Microsoft.ApplicationInsights.Tests</RootNamespace>
-    <TargetFrameworks>net452;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net452;$(TargetFrameworks)</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
+    <PackageReference Include="Moq" Version="4.8.2" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.3" />
     <PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
     <PackageReference Include="xunit" Version="2.4.1" />
@@ -22,7 +20,7 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+  <ItemGroup Condition="'$(IsNetFramework)' == 'True'">
     <Reference Include="System" />
     <Reference Include="System.EnterpriseServices">
       <Private>True</Private>
@@ -39,9 +37,9 @@
     <PackageReference Include="System.Buffers" Version="4.5.1" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="1.1.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.1.2" />
+  <ItemGroup Condition="'$(IsNetCore)' == 'True'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    
     <PackageReference Include="NETStandard.HttpListener" Version="1.0.3.5" />
     <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
   </ItemGroup>

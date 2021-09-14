@@ -2,12 +2,10 @@
   <Import Project="$(PropsRoot)\Test.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net452;netcoreapp3.1</TargetFrameworks>
+    <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
+    <TargetFrameworks>net452;$(TargetFrameworks)</TargetFrameworks>
     <AssemblyName>Microsoft.ApplicationInsights.DependencyCollector.Tests</AssemblyName>
     <PackageId>Microsoft.AI.DependencyCollector.Tests</PackageId>
-
-    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <NoWarn>1701;1702;1705;1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,15 +24,14 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
-    <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
+  <ItemGroup Condition="'$(IsNetCore)' == 'True'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    
     <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+  <ItemGroup Condition="'$(IsNetFramework)' == 'True'">
     <PackageReference Include="System.Buffers" Version="4.5.1" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
@@ -49,9 +46,6 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
-  </ItemGroup>
   <Import Project="..\..\TestFramework\Shared\TestFramework.Shared.projitems" Label="Shared" />
 
 </Project>

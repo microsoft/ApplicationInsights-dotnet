@@ -25,18 +25,6 @@
         internal TimeSpan AzureImsRequestTimeout = TimeSpan.FromSeconds(10);
 
         /// <summary>
-        /// Private function for mocking out the actual call to IMS in unit tests. Available to internal only.
-        /// </summary>
-        /// parameter sent to the func is a string representing the Uri to request Azure IMS data from.
-        /// <returns>An instance of AzureInstanceComputeMetadata or null.</returns>
-        private Func<string, Task<AzureInstanceComputeMetadata>> azureIMSRequestor = null;
-
-        internal AzureMetadataRequestor(Func<string, Task<AzureInstanceComputeMetadata>> makeAzureIMSRequestor = null)
-        {
-            this.azureIMSRequestor = makeAzureIMSRequestor;
-        }
-
-        /// <summary>
         /// Gets or sets the base URI for the Azure Instance Metadata service. Internal to allow overriding in test.
         /// </summary>
         /// <remarks>
@@ -56,6 +44,11 @@
             return this.MakeAzureMetadataRequestAsync(metadataRequestUrl);
         }
 
+        /// <summary>
+        /// Provides a new HttpClient. This method can be mocked in unit tests.
+        /// </summary>
+        internal virtual HttpClient GetHttpClient() => new HttpClient();
+
         private async Task<AzureInstanceComputeMetadata> MakeAzureMetadataRequestAsync(string metadataRequestUrl)
         {
             AzureInstanceComputeMetadata requestResult = null;
@@ -63,14 +56,7 @@
             SdkInternalOperationsMonitor.Enter();
             try
             {
-                if (this.azureIMSRequestor != null)
-                {
-                    requestResult = await this.azureIMSRequestor(metadataRequestUrl).ConfigureAwait(false);
-                }
-                else
-                {
-                    requestResult = await this.MakeWebRequestAsync(metadataRequestUrl).ConfigureAwait(false);
-                }
+                requestResult = await this.MakeWebRequestAsync(metadataRequestUrl).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -84,13 +70,13 @@
 
             return requestResult;
         }
-        
+
         private async Task<AzureInstanceComputeMetadata> MakeWebRequestAsync(string requestUrl)
         {
             AzureInstanceComputeMetadata azureIms = null;
             DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(AzureInstanceComputeMetadata));
 
-            using (var azureImsClient = new HttpClient())
+            using (var azureImsClient = this.GetHttpClient())
             {
                 azureImsClient.MaxResponseContentBufferSize = AzureMetadataRequestor.AzureImsMaxResponseBufferSize;
                 azureImsClient.DefaultRequestHeaders.Add("Metadata", "True");

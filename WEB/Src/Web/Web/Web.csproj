@@ -5,6 +5,7 @@
     <RootNamespace>Microsoft.ApplicationInsights.Web</RootNamespace>
     <AssemblyName>Microsoft.AI.Web</AssemblyName>
     <TargetFrameworks>net452</TargetFrameworks>
+    <!-- Important: This project is exclusively NetFramework. This will not be upgraded to NetStandard nor NetCore. -->
     <Prefer32Bit>false</Prefer32Bit>
     <DefineConstants>$(DefineConstants);ALLOW_AGGRESSIVE_INLIGNING_ATTRIBUTE</DefineConstants>
   </PropertyGroup>
@@ -21,7 +22,7 @@
     <!--Common Dependencies-->
     <ProjectReference Include="..\..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
     <PackageReference Include="Microsoft.AspNet.TelemetryCorrelation" Version="1.0.8" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="5.0.0" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="$(SystemDiagnosticsDiagnosticSourcePkgVer)" />
   </ItemGroup>
 
   <ItemGroup>

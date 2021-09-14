@@ -13,8 +13,11 @@
     /// </summary>
     internal class SelfDiagnosticsEventListener : EventListener
     {
+#if REDFIELD
+        private const string EventSourceNamePrefix = "Redfield-Microsoft-ApplicationInsights-";
+#else
         private const string EventSourceNamePrefix = "Microsoft-ApplicationInsights-";
-
+#endif
         // Buffer size of the log line. A UTF-16 encoded character in C# can take up to 4 bytes if encoded in UTF-8.
         private const int BUFFERSIZE = 4 * 5120;
         private readonly ThreadLocal<byte[]> writeBuffer = new ThreadLocal<byte[]>(() => null);

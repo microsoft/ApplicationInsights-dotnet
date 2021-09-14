@@ -1,7 +1,9 @@
 # Changelog
 
 ## VNext
-
+- [The `{OriginalFormat}` field in ILogger Scope will be emitted as `OriginalFormat` with the braces removed](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2362)
+- [Enable SDK to create package for auto-instrumentation](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2365)
+- [Suppress long running SignalR connections](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2372)
 
 ## Version 2.18.0
 - [Change Self-Diagnostics to include datetimestamp in filename](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2325)
