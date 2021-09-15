@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
@@ -70,15 +71,44 @@
                         SetEventHubsProperties(currentActivity, telemetry);
                     }
 
-                    if (this.linksPropertyFetcher.Fetch(evnt.Value) is IEnumerable<Activity> activityLinks)
-                    {
-                        PopulateLinks(activityLinks, telemetry);
+                    IEnumerable<ActivityLink> activityLinks;
 
-                        if (telemetry is RequestTelemetry request &&
-                            TryGetAverageTimeInQueueForBatch(activityLinks, currentActivity.StartTimeUtc, out long enqueuedTime))
+                    // Pre ActivitySource Azure SDKs are using custom activity subtype with
+                    // public IEnumerable<Activity> Links { get; }
+                    // property to represent links
+                    if (evnt.Value.GetType() != typeof(Activity) &&
+                        this.linksPropertyFetcher.Fetch(evnt.Value) is IEnumerable<Activity> links &&
+                        links.Any())
+                    {
+                        List<ActivityLink> convertedLinks = new List<ActivityLink>();
+                        foreach (var linksAsActivity in links)
                         {
-                            request.Metrics["timeSinceEnqueued"] = enqueuedTime;
+                            if (linksAsActivity.ParentId != null &&
+                                ActivityContext.TryParse(linksAsActivity.ParentId, null, out var context))
+                            {
+                                ActivityTagsCollection tags = null;
+                                if (linksAsActivity.TagObjects.Any())
+                                {
+                                    tags = new ActivityTagsCollection(linksAsActivity.TagObjects);
+                                }
+
+                                convertedLinks.Add(new ActivityLink(context, tags));
+                            }
                         }
+
+                        activityLinks = convertedLinks;
+                    }
+                    else
+                    {
+                        activityLinks = currentActivity.Links;
+                    }
+
+                    PopulateLinks(activityLinks, telemetry);
+
+                    if (telemetry is RequestTelemetry request &&
+                        TryGetAverageTimeInQueueForBatch(activityLinks, currentActivity.StartTimeUtc, out long enqueuedTime))
+                    {
+                        request.Metrics["timeSinceEnqueued"] = enqueuedTime;
                     }
 
                     this.operationHolder.Store(currentActivity, Tuple.Create(telemetry, /* isCustomCreated: */ false));
@@ -148,7 +178,7 @@
             return true;
         }
 
-        private static bool TryGetAverageTimeInQueueForBatch(IEnumerable<Activity> links, DateTimeOffset requestStartTime, out long avgTimeInQueue)
+        private static bool TryGetAverageTimeInQueueForBatch(IEnumerable<ActivityLink> links, DateTimeOffset requestStartTime, out long avgTimeInQueue)
         {
             avgTimeInQueue = 0;
             int linksCount = 0;
@@ -179,16 +209,19 @@
             return true;
         }
 
-        private static bool TryGetEnqueuedTime(Activity link, out long enqueuedTime)
+        private static bool TryGetEnqueuedTime(ActivityLink link, out long enqueuedTime)
         {
             enqueuedTime = 0;
-            foreach (var attribute in link.Tags)
+            if (link.Tags != null)
             {
-                if (attribute.Key == "enqueuedTime")
+                foreach (var attribute in link.Tags)
                 {
-                    if (attribute.Value is string strValue)
+                    if (attribute.Key == "enqueuedTime")
                     {
-                        return long.TryParse(strValue, out enqueuedTime);
+                        if (attribute.Value is string strValue)
+                        {
+                            return long.TryParse(strValue, out enqueuedTime);
+                        }
                     }
                 }
             }
@@ -352,15 +385,15 @@
             }
         }
 
-        private static void PopulateLinks(IEnumerable<Activity> links, OperationTelemetry telemetry)
+        private static void PopulateLinks(IEnumerable<ActivityLink> links, OperationTelemetry telemetry)
         {
-            if (links.Any())
+            if (links != null && links.Any())
             {
                 var linksJson = new StringBuilder();
                 linksJson.Append('[');
                 foreach (var link in links)
                 {
-                    var linkTraceId = link.TraceId.ToHexString();
+                    var linkTraceId = link.Context.TraceId.ToHexString();
 
                     // avoiding json serializers for now because of extra dependency.
                     // serialization is trivial and looks like `links` property with json blob
@@ -376,7 +409,7 @@
                     linksJson
                         .Append("\"id\":")
                         .Append('\"')
-                        .Append(link.ParentSpanId.ToHexString())
+                        .Append(link.Context.SpanId.ToHexString())
                         .Append('\"');
 
                     // we explicitly ignore sampling flag, tracestate and attributes at this point.
