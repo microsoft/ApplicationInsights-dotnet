@@ -2,16 +2,21 @@
 {
     using System;
     using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Http.Internal;
+    //using Microsoft.AspNetCore.Http.Internal;
 
-    public class HttpRequestStub : DefaultHttpRequest
+    public class HttpRequestStub// : DefaultHttpRequest
     {
-        public Func<IHeaderDictionary> OnGetHeaders = () => null;
-
-        public HttpRequestStub(HttpContext context) : base(context)
+        public HttpRequestStub()
         {
+            throw new NotImplementedException();
         }
 
-        public override IHeaderDictionary Headers => this.OnGetHeaders();
+        //public Func<IHeaderDictionary> OnGetHeaders = () => null;
+
+        //public HttpRequestStub(HttpContext context) : base(context)
+        //{
+        //}
+
+        //public override IHeaderDictionary Headers => this.OnGetHeaders();
     }
 }

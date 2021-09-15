@@ -3,6 +3,7 @@
 
   <PropertyGroup>
     <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
+    <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,9 +27,11 @@
     <!-- TODO: Can't switch to FrameworkReference yet; 
          'IHostingEnvironment' is obsolete: 'This type is obsolete and will be removed in a future version. 
          The recommended alternative is Microsoft.AspNetCore.Hosting.IWebHostEnvironment.' -->
-    <!--<FrameworkReference Include="Microsoft.AspNetCore.App" />-->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
 
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="Moq" Version="4.16.1" />
+
+    <!--<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />-->
   </ItemGroup>
 
   <ItemGroup>

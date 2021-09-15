@@ -11,8 +11,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.AspNetCore.Hosting;
-    using Microsoft.AspNetCore.Hosting.Internal;
+    //using Microsoft.AspNetCore.Hosting.Internal;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.Hosting.Internal;
+
+    using Xunit.Abstractions;
 
     public abstract class BaseTestClass
     {
@@ -79,8 +83,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
         public static ServiceCollection GetServiceCollectionWithContextAccessor()
         {
+            var mockHostEnvironment = new Moq.Mock<IHostEnvironment>();
+            mockHostEnvironment.Setup(x => x.ContentRootPath).Returns(Directory.GetCurrentDirectory());
+
             var services = new ServiceCollection();
-            services.AddSingleton<IHostingEnvironment>(new HostingEnvironment() { ContentRootPath = Directory.GetCurrentDirectory() });
+            //services.AddSingleton<IWebHostEnvironment>(new WebHostEnvironment() { ContentRootPath = Directory.GetCurrentDirectory() });
+            services.AddSingleton<IHostEnvironment>(mockHostEnvironment.Object);
             services.AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
             return services;
         }

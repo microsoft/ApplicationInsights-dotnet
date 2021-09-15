@@ -33,6 +33,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection.Extensions;
+    using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Options;
 
     public class AddApplicationInsightsTelemetryTests : BaseTestClass
@@ -594,7 +595,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
 
         [Fact]
-        public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithModulesFromContainer()
+        public void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithModulesFromContainer()
         {
             var services = CreateServicesAndAddApplicationinsightsTelemetry(null, null, null, false);
             IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -772,7 +773,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             // TP added via AddApplicationInsightsTelemetryProcessor is added to the default sink.
             FakeTelemetryProcessorWithImportingConstructor telemetryProcessor = telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessors.OfType<FakeTelemetryProcessorWithImportingConstructor>().FirstOrDefault();
             Assert.NotNull(telemetryProcessor);
-            Assert.Same(serviceProvider.GetService<IHostingEnvironment>(), telemetryProcessor.HostingEnvironment);
+            Assert.Same(serviceProvider.GetService<IHostEnvironment>(), telemetryProcessor.HostingEnvironment);
         }
 
         [Fact]

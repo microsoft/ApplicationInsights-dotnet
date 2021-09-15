@@ -7,9 +7,9 @@
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.Extensibility;
-#if NETSTANDARD2_0
+//#if NETSTANDARD2_0
     using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
-#endif
+//#endif
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;

@@ -17,9 +17,9 @@ namespace Microsoft.Extensions.DependencyInjection
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
-#if NETSTANDARD2_0
+//#if NETSTANDARD2_0
     using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
-#endif
+//#endif
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
@@ -187,7 +187,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
 #endif
 
-#if NETSTANDARD2_0
+//#if NETSTANDARD2_0
                     // EventCounterCollectionModule
                     if (module is EventCounterCollectionModule)
                     {
@@ -197,7 +197,7 @@ namespace Microsoft.Extensions.DependencyInjection
                             continue;
                         }
                     }
-#endif
+//#endif
 
                     // PerformanceCollectorModule
                     if (module is PerformanceCollectorModule)

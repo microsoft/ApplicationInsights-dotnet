@@ -7,7 +7,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNetCore.Hosting;
     using Xunit;
-    using Microsoft.AspNetCore.Http.Internal;
+    //using Microsoft.AspNetCore.Http.Internal;
     using Microsoft.AspNetCore.Http;
     public class WebSessionTelemetryInitializerTests
     {

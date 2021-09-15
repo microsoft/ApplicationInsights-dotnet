@@ -6,6 +6,7 @@
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Options;
 
     /// <summary>
@@ -14,15 +15,15 @@
     /// </summary>
     internal class DefaultApplicationInsightsServiceConfigureOptions : IConfigureOptions<ApplicationInsightsServiceOptions>
     {
-        private readonly IHostingEnvironment hostingEnvironment;
+        private readonly IHostEnvironment hostingEnvironment;
         private readonly IConfiguration userConfiguration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultApplicationInsightsServiceConfigureOptions"/> class.
         /// </summary>
-        /// <param name="hostingEnvironment"><see cref="IHostingEnvironment"/> to use for retreiving ContentRootPath.</param>
+        /// <param name="hostingEnvironment"><see cref="IHostEnvironment"/> to use for retreiving ContentRootPath.</param>
         /// <param name="configuration"><see cref="IConfiguration"/>  from an application.</param>
-        public DefaultApplicationInsightsServiceConfigureOptions(IHostingEnvironment hostingEnvironment, IConfiguration configuration = null)
+        public DefaultApplicationInsightsServiceConfigureOptions(IHostEnvironment hostingEnvironment, IConfiguration configuration = null)
         {
             this.hostingEnvironment = hostingEnvironment;
             this.userConfiguration = configuration;
