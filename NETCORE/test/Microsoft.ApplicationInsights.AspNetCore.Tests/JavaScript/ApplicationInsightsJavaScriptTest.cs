@@ -110,7 +110,7 @@
         {
             return new HttpContextAccessor
             {
-                HttpContext = new HttpContextStub
+                HttpContext = new DefaultHttpContext
                 {
                     User = new GenericPrincipal(new IdentityStub() { Name = name, IsAuthenticated = isAuthenticated }, new string[0])
                 }
