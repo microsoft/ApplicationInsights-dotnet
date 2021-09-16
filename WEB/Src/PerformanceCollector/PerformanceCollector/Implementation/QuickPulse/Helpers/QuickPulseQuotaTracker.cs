@@ -25,7 +25,6 @@
             this.timeProvider = timeProvider;
             this.maxQuota = maxQuota;
             this.inputStreamRatePerSec = this.maxQuota / 60;
-
             this.startedTrackingTime = timeProvider.UtcNow;
             this.lastQuotaAccrualFullSeconds = 0;
             this.currentQuota = startQuota;
