@@ -3,7 +3,6 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Hosting;
 
     /// <summary>
