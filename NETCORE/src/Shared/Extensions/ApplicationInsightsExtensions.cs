@@ -18,9 +18,7 @@
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
 
-//#if NETSTANDARD2_0
     using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
-//#endif
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -343,9 +341,7 @@
             services.AddSingleton<ITelemetryModule, QuickPulseTelemetryModule>();
 
             AddAndConfigureDependencyTracking(services);
-//#if NETSTANDARD2_0
             services.AddSingleton<ITelemetryModule, EventCounterCollectionModule>();
-//#endif
         }
 
         private static void AddTelemetryChannel(IServiceCollection services)
