@@ -595,7 +595,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
 
         [Fact]
-        public void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithModulesFromContainer()
+        public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithModulesFromContainer()
         {
             var services = CreateServicesAndAddApplicationinsightsTelemetry(null, null, null, false);
             IServiceProvider serviceProvider = services.BuildServiceProvider();
