@@ -5,7 +5,6 @@
     using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
-    //using Microsoft.AspNetCore.Http.Internal;
     using Microsoft.AspNetCore.Http;
     public class WebUserTelemetryInitializerTests
     {

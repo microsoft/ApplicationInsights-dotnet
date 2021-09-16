@@ -4,7 +4,6 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Hosting;
-    //using Microsoft.AspNetCore.Hosting.Internal;
     using Xunit;
 
     public class AspNetCoreEnvironmentTelemetryInitializerTests
@@ -34,10 +33,10 @@
         [Fact]
         public void InitializeSetsCurrentEnvironmentNameToProperty()
         {
-            var environment = new Moq.Mock<IHostEnvironment>();
-            environment.Setup(x => x.EnvironmentName).Returns("Production");
+            var environmentMock = new Moq.Mock<IHostEnvironment>();
+            environmentMock.Setup(x => x.EnvironmentName).Returns("Production");
 
-            var initializer = new AspNetCoreEnvironmentTelemetryInitializer(environment.Object);
+            var initializer = new AspNetCoreEnvironmentTelemetryInitializer(environmentMock.Object);
             var telemetry = new RequestTelemetry();
             initializer.Initialize(telemetry);
 
