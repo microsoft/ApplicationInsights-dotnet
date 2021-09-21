@@ -32,6 +32,7 @@ steps:
   displayName: install dotnet 6
   inputs:
     version: 6.0.x
+    includePreviewVersions: true
 
 - task: DotNetCoreCLI@2
   displayName:  DotNetCoreCLI - Restore Solution
