@@ -222,7 +222,7 @@
                     Assert.AreEqual(206, result.StatusCode);
                     Assert.AreEqual("5", result.RetryAfterHeader);
 
-#if NET5_0
+#if NET5_0_OR_GREATER
                     Assert.IsTrue(result.Content == string.Empty);
 #else
                     Assert.IsNull(result.Content);
