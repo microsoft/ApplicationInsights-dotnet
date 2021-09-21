@@ -8,28 +8,25 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 
-namespace Microsoft.ApplicationInsights.WindowsServer.Channel.Helpers
+namespace Microsoft.ApplicationInsights.TestFramework
 {
-    public sealed class LocalInProcHttpServer : IDisposable
+    public class LocalInProcHttpServer : IDisposable
     {
         private readonly IWebHost host;
         private readonly CancellationTokenSource cts;
 
-        public RequestDelegate ServerLogic;
+        public RequestDelegate ServerLogic = async (httpContext) => await httpContext.Response.WriteAsync("Hello World!");
 
-        public LocalInProcHttpServer(string url, RequestDelegate serverLogic = null)
+        public LocalInProcHttpServer(string url)
         {
             this.cts = new CancellationTokenSource();
-            this.ServerLogic = serverLogic;
             this.host = new WebHostBuilder()
                 .UseKestrel()
                 .UseUrls(url)
-                .Configure(
-                (app) =>
+                .Configure((app) =>
                 {
                     app.Run(ServerLogic);
-                }
-                )
+                })
                 .Build();
 
             Task.Run(() => this.host.RunAsync(this.cts.Token));

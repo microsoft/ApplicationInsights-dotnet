@@ -41,7 +41,7 @@
         [Fact]
         public void InitializeDoesNotThrowIfRequestIsUnavailable()
         {
-            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessorWithoutRequest(new HttpContextStub(), new RequestTelemetry());
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessorWithoutRequest(new DefaultHttpContext(), new RequestTelemetry());
             
             var initializer = new ClientIpHeaderTelemetryInitializer(contextAccessor);
 
@@ -51,10 +51,7 @@
         [Fact]
         public void InitializeDoesNotThrowIfHeaderCollectionIsUnavailable()
         {
-            var httpContext = new HttpContextStub();
-            httpContext.OnRequestGetter = () => new HttpRequestStub(httpContext);
-
-            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessorWithoutRequest(httpContext, new RequestTelemetry());
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessorWithoutRequest(new DefaultHttpContext(), new RequestTelemetry());
 
             var initializer = new ClientIpHeaderTelemetryInitializer(contextAccessor);
 

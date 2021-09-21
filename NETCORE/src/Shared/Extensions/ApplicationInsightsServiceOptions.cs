@@ -44,13 +44,11 @@
         /// </summary>
         public bool EnableDependencyTrackingTelemetryModule { get; set; } = true;
 
-#if NETSTANDARD2_0
         /// <summary>
         /// Gets or sets a value indicating whether EventCounterCollectionModule should be enabled.
         /// Defaults to <value>true</value>.
         /// </summary>
         public bool EnableEventCounterCollectionModule { get; set; } = true;
-#endif
 
         /// <summary>
         /// Gets or sets a value indicating whether telemetry processor that controls sampling is added to the service.
@@ -184,10 +182,8 @@
             target.EnableAppServicesHeartbeatTelemetryModule = this.EnableAppServicesHeartbeatTelemetryModule;
             target.EnableAzureInstanceMetadataTelemetryModule = this.EnableAzureInstanceMetadataTelemetryModule;
             target.EnableDiagnosticsTelemetryModule = this.EnableDiagnosticsTelemetryModule;
-            
-#if NETSTANDARD2_0
             target.EnableEventCounterCollectionModule = this.EnableEventCounterCollectionModule;
-#endif
+
 #if AI_ASPNETCORE_WEB
             target.EnableAuthenticationTrackingJavaScript = this.EnableAuthenticationTrackingJavaScript;
             target.EnableRequestTrackingTelemetryModule = this.EnableRequestTrackingTelemetryModule;

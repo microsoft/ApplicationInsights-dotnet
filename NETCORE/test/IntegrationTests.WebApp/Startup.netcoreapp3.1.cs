@@ -11,9 +11,9 @@ using Microsoft.Extensions.Hosting;
 
 namespace IntegrationTests.WebApp
 {
-    public class Startup_netcoreapp_3_1
+    public partial class Startup
     {
-        public Startup_netcoreapp_3_1(IConfiguration configuration)
+        public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
