@@ -16,6 +16,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
+    [TestCategory("WindowsOnly")] // The LocalInProcHttpServer does not perform well on Linux.
     public class RedirectHttpHandlerTests
     {
         private const string helloString = "Hello World!";
