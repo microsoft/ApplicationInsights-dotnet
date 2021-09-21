@@ -10,13 +10,14 @@
     {
         private const int MaxRedirect = 10;
 
-        public Uri RedirectLocation { get; private set; } = default;
-        public DateTimeOffset RedirectExpiration { get; private set; } = DateTimeOffset.MinValue;
-
         public RedirectHttpHandler()
         {
-            AllowAutoRedirect = false;
+            this.AllowAutoRedirect = false;
         }
+
+        public Uri RedirectLocation { get; private set; } = default;
+
+        public DateTimeOffset RedirectExpiration { get; private set; } = DateTimeOffset.MinValue;
 
         /// <summary>
         /// This method will handle all requests from HttpClient.SendAsync().
@@ -40,7 +41,7 @@
                         throw new Exception("too many redirects");
                     }
 
-                    if (TryGetRedirectVars(response, out Uri redirectUri))
+                    if (this.TryGetRedirectVars(response, out Uri redirectUri))
                     {
                         request.RequestUri = this.RedirectLocation = redirectUri;
                     }
@@ -54,6 +55,18 @@
                 {
                     return response;
                 }
+            }
+        }
+
+        private static bool IsRedirection(HttpStatusCode statusCode)
+        {
+            switch ((int)statusCode)
+            {
+                case 307: // StatusCodes.Status307TemporaryRedirect
+                case 308: // StatusCodes.Status308PermanentRedirect
+                    return true;
+                default:
+                    return false;
             }
         }
 
@@ -72,18 +85,6 @@
             }
 
             return false;
-        }
-
-        private static bool IsRedirection(HttpStatusCode statusCode)
-        {
-            switch ((int)statusCode)
-            {
-                case 307: // StatusCodes.Status307TemporaryRedirect
-                case 308: // StatusCodes.Status308PermanentRedirect
-                    return true;
-                default:
-                    return false;
-            }
         }
     }
 }

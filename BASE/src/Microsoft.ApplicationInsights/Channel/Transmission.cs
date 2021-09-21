@@ -32,7 +32,7 @@
         {
             client = new HttpClient(new RedirectHttpHandler())
             { 
-                Timeout = System.Threading.Timeout.InfiniteTimeSpan 
+                Timeout = System.Threading.Timeout.InfiniteTimeSpan,
             };
         }
 
