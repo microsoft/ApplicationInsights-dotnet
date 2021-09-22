@@ -74,6 +74,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
 
         private static ServiceCollection CreateServicesAndAddApplicationinsightsWorker(string jsonPath, Action<ApplicationInsightsServiceOptions> serviceOptions = null, Action<IServiceCollection> servicesConfig = null, bool useDefaultConfig = true)
         {
+#if NETCOREAPP
             var environmentMock = new Moq.Mock<IHostEnvironment>();
             environmentMock.Setup(x => x.ContentRootPath).Returns(Directory.GetCurrentDirectory());
 
@@ -81,6 +82,16 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
             var services = new ServiceCollection()
                 .AddSingleton<IHostEnvironment>(environmentMock.Object)
                 .AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
+#else
+            var environmentMock = new Moq.Mock<Microsoft.AspNetCore.Hosting.IHostingEnvironment>();
+            environmentMock.Setup(x => x.ContentRootPath).Returns(Directory.GetCurrentDirectory());
+
+            IConfigurationRoot config;
+            var services = new ServiceCollection()
+                .AddSingleton<Microsoft.AspNetCore.Hosting.IHostingEnvironment>(environmentMock.Object)
+                .AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
+
+#endif
 
             if (jsonPath != null)
             {

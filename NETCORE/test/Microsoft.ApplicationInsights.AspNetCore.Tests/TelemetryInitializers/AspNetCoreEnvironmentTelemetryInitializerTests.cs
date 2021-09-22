@@ -17,12 +17,14 @@
 #pragma warning restore CS0618 // Type or member is obsolete
             initializer1.Initialize(new RequestTelemetry());
 
+#if NETCOREAPP
             var initializer2 = new AspNetCoreEnvironmentTelemetryInitializer(hostEnvironment: null);
             initializer2.Initialize(new RequestTelemetry());
+#endif
         }
 
         [Fact]
-        public void InitializeDoesNotOverrideExistingProperty_IHostingEnrvironment()
+        public void InitializeDoesNotOverrideExistingProperty_IHostingEnvironment()
         {
 #pragma warning disable CS0618 // Type or member is obsolete
             var environment = new Mock<Microsoft.AspNetCore.Hosting.IHostingEnvironment>();
@@ -39,7 +41,7 @@
         }
 
         [Fact]
-        public void InitializeSetsCurrentEnvironmentNameToProperty_IHostingEnrvironment()
+        public void InitializeSetsCurrentEnvironmentNameToProperty_IHostingEnvironment()
         {
 #pragma warning disable CS0618 // Type or member is obsolete
             var environmentMock = new Mock<Microsoft.AspNetCore.Hosting.IHostingEnvironment>();
@@ -53,8 +55,9 @@
 #pragma warning restore CS0618 // Type or member is obsolete
         }
 
+#if NETCOREAPP
         [Fact]
-        public void InitializeDoesNotOverrideExistingProperty()
+        public void InitializeDoesNotOverrideExistingProperty_IHostEnvironment()
         {
             var environment = new Mock<IHostEnvironment>();
             environment.Setup(x => x.EnvironmentName).Returns("Production");
@@ -69,7 +72,7 @@
         }
 
         [Fact]
-        public void InitializeSetsCurrentEnvironmentNameToProperty()
+        public void InitializeSetsCurrentEnvironmentNameToProperty_IHostEnvironment()
         {
             var environmentMock = new Mock<IHostEnvironment>();
             environmentMock.Setup(x => x.EnvironmentName).Returns("Production");
@@ -80,5 +83,6 @@
 
             Assert.Equal("Production", telemetry.Properties["AspNetCoreEnvironment"]);
         }
+#endif
     }
 }

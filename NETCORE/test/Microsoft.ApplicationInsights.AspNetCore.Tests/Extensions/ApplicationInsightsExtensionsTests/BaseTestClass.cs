@@ -13,7 +13,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Hosting;
-    using Microsoft.Extensions.Hosting.Internal;
 
     using Xunit.Abstractions;
 
@@ -82,12 +81,19 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
         public static ServiceCollection GetServiceCollectionWithContextAccessor()
         {
+            var services = new ServiceCollection();
+            services.AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
+
+#if NETCOREAPP
             var environmentMock = new Moq.Mock<IHostEnvironment>();
             environmentMock.Setup(x => x.ContentRootPath).Returns(Directory.GetCurrentDirectory());
-
-            var services = new ServiceCollection();
             services.AddSingleton<IHostEnvironment>(environmentMock.Object);
-            services.AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
+#else
+            var environmentMock = new Moq.Mock<Microsoft.AspNetCore.Hosting.IHostingEnvironment>();
+            environmentMock.Setup(x => x.ContentRootPath).Returns(Directory.GetCurrentDirectory());
+            services.AddSingleton<Microsoft.AspNetCore.Hosting.IHostingEnvironment>(environmentMock.Object);
+#endif
+
             return services;
         }
     }

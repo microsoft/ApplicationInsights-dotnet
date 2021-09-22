@@ -773,7 +773,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             // TP added via AddApplicationInsightsTelemetryProcessor is added to the default sink.
             FakeTelemetryProcessorWithImportingConstructor telemetryProcessor = telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessors.OfType<FakeTelemetryProcessorWithImportingConstructor>().FirstOrDefault();
             Assert.NotNull(telemetryProcessor);
+
+#if NETCOREAPP
             Assert.Same(serviceProvider.GetService<IHostEnvironment>(), telemetryProcessor.HostingEnvironment);
+#else
+            Assert.Same(serviceProvider.GetService<Microsoft.AspNetCore.Hosting.IHostingEnvironment>(), telemetryProcessor.HostingEnvironment);
+#endif
         }
 
         [Fact]
