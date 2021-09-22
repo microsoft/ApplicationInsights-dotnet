@@ -13,7 +13,7 @@
         public void InitializeDoesNotThrowIfHostingEnvironmentIsNull()
         {
 #pragma warning disable CS0618 // Type or member is obsolete
-            var initializer1 = new AspNetCoreEnvironmentTelemetryInitializer(hostingEnvironment: null);
+            var initializer1 = new AspNetCoreEnvironmentTelemetryInitializer(environment: null);
 #pragma warning restore CS0618 // Type or member is obsolete
             initializer1.Initialize(new RequestTelemetry());
 
@@ -22,10 +22,10 @@
         }
 
         [Fact]
-        public void InitializeDoesNotOverrideExistingProperty_NetStandard()
+        public void InitializeDoesNotOverrideExistingProperty_IHostingEnrvironment()
         {
 #pragma warning disable CS0618 // Type or member is obsolete
-            var environment = new Mock<Microsoft.Extensions.Hosting.IHostingEnvironment>();
+            var environment = new Mock<Microsoft.AspNetCore.Hosting.IHostingEnvironment>();
             environment.Setup(x => x.EnvironmentName).Returns("Production");
 
             var initializer = new AspNetCoreEnvironmentTelemetryInitializer(environment.Object);
@@ -39,10 +39,10 @@
         }
 
         [Fact]
-        public void InitializeSetsCurrentEnvironmentNameToProperty_NetStandard()
+        public void InitializeSetsCurrentEnvironmentNameToProperty_IHostingEnrvironment()
         {
 #pragma warning disable CS0618 // Type or member is obsolete
-            var environmentMock = new Mock<Microsoft.Extensions.Hosting.IHostingEnvironment>();
+            var environmentMock = new Mock<Microsoft.AspNetCore.Hosting.IHostingEnvironment>();
             environmentMock.Setup(x => x.EnvironmentName).Returns("Production");
 
             var initializer = new AspNetCoreEnvironmentTelemetryInitializer(environmentMock.Object);
@@ -53,7 +53,6 @@
 #pragma warning restore CS0618 // Type or member is obsolete
         }
 
-#if NETCOREAPP3_0_OR_GREATER
         [Fact]
         public void InitializeDoesNotOverrideExistingProperty()
         {
@@ -81,6 +80,5 @@
 
             Assert.Equal("Production", telemetry.Properties["AspNetCoreEnvironment"]);
         }
-#endif
     }
 }
