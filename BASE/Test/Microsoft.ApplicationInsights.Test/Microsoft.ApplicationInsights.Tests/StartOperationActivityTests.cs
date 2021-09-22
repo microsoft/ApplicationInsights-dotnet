@@ -198,7 +198,12 @@
             this.ValidateTelemetry(telemetry, activity);
 
             Assert.AreEqual(telemetry, this.sendItems.Single());
+
+#if NET6_0_OR_GREATER
+            Assert.IsNotNull(Activity.Current);
+#else
             Assert.IsNull(Activity.Current);
+#endif
 
             var request = this.sendItems.Single() as RequestTelemetry;
             Assert.IsNotNull(request);
