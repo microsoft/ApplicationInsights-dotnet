@@ -36,6 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Will change to conditionally use FrameworkReference in follow up PR. -->
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.0" />
     
