@@ -29,6 +29,7 @@
             this.getEnvironmentName = () => environment?.EnvironmentName;
         }
 
+#if NETCOREAPP
         /// <summary>
         /// Initializes a new instance of the <see cref="AspNetCoreEnvironmentTelemetryInitializer"/> class.
         /// </summary>
@@ -40,6 +41,7 @@
         {
             this.getEnvironmentName = () => hostEnvironment?.EnvironmentName;
         }
+#endif
 
         /// <inheritdoc />
         public void Initialize(ITelemetry telemetry)

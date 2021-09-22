@@ -32,9 +32,10 @@
     <ProjectReference Include="..\..\..\WEB\Src\WindowsServer\WindowsServer\WindowsServer.csproj" />
     <ProjectReference Include="..\..\..\WEB\Src\EventCounterCollector\EventCounterCollector\EventCounterCollector.csproj" />
     <ProjectReference Include="..\..\..\LOGGING\src\ILogger\ILogger.csproj" />
+  </ItemGroup>
 
+  <ItemGroup Condition="'$(IsNetCore)' == 'True'">
     <FrameworkReference Include="Microsoft.AspNetCore.App"/>
-    
   </ItemGroup>
 
   <ItemGroup>
