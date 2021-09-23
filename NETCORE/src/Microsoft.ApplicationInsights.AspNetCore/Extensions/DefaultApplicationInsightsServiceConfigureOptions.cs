@@ -52,7 +52,7 @@
         /// <inheritdoc />
         public void Configure(ApplicationInsightsServiceOptions options)
         {
-            var configBuilder = new ConfigurationBuilder().SetBasePath(this.environmentName);
+            var configBuilder = new ConfigurationBuilder().SetBasePath(this.contentRootPath);
 
             if (this.userConfiguration != null)
             {
