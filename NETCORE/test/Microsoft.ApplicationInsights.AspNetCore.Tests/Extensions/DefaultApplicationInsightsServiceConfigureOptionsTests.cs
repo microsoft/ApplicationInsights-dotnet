@@ -25,7 +25,9 @@
         [Fact]
         public void Verify_IHostingEnvironment()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var mockHostingEnvironment = new Moq.Mock<Microsoft.AspNetCore.Hosting.IHostingEnvironment>();
+
             mockHostingEnvironment.Setup(x => x.ContentRootPath).Returns(Directory.GetCurrentDirectory());
 
             var services = new ServiceCollection()
@@ -37,6 +39,7 @@
             var test = serviceProvider.GetService<IConfigureOptions<ApplicationInsightsServiceOptions>>();
 
             Assert.NotNull(test);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
 #if NETCOREAPP
@@ -60,6 +63,7 @@
         [Fact]
         public void Verify_Both()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var mockHostingEnvironment = new Moq.Mock<Microsoft.AspNetCore.Hosting.IHostingEnvironment>();
             mockHostingEnvironment.Setup(x => x.ContentRootPath).Returns(Directory.GetCurrentDirectory());
 
@@ -76,6 +80,7 @@
             var test = serviceProvider.GetService<IConfigureOptions<ApplicationInsightsServiceOptions>>();
 
             Assert.NotNull(test);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 #endif
     }
