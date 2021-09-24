@@ -30,7 +30,7 @@
             var environment = new Mock<Microsoft.AspNetCore.Hosting.IHostingEnvironment>();
             environment.Setup(x => x.EnvironmentName).Returns("Production");
 
-            var initializer = new AspNetCoreEnvironmentTelemetryInitializer(environment.Object);
+            var initializer = new AspNetCoreEnvironmentTelemetryInitializer(environment: environment.Object);
             var telemetry = new RequestTelemetry();
             telemetry.Context.GlobalProperties.Add("AspNetCoreEnvironment", "Development");
             initializer.Initialize(telemetry);
@@ -47,7 +47,7 @@
             var environmentMock = new Mock<Microsoft.AspNetCore.Hosting.IHostingEnvironment>();
             environmentMock.Setup(x => x.EnvironmentName).Returns("Production");
 
-            var initializer = new AspNetCoreEnvironmentTelemetryInitializer(environmentMock.Object);
+            var initializer = new AspNetCoreEnvironmentTelemetryInitializer(environment: environmentMock.Object);
             var telemetry = new RequestTelemetry();
             initializer.Initialize(telemetry);
 
@@ -62,7 +62,7 @@
             var environment = new Mock<IHostEnvironment>();
             environment.Setup(x => x.EnvironmentName).Returns("Production");
 
-            var initializer = new AspNetCoreEnvironmentTelemetryInitializer(environment.Object);
+            var initializer = new AspNetCoreEnvironmentTelemetryInitializer(hostEnvironment: environment.Object);
             var telemetry = new RequestTelemetry();
             telemetry.Context.GlobalProperties.Add("AspNetCoreEnvironment", "Development");
             initializer.Initialize(telemetry);
@@ -77,7 +77,7 @@
             var environmentMock = new Mock<IHostEnvironment>();
             environmentMock.Setup(x => x.EnvironmentName).Returns("Production");
 
-            var initializer = new AspNetCoreEnvironmentTelemetryInitializer(environmentMock.Object);
+            var initializer = new AspNetCoreEnvironmentTelemetryInitializer(hostEnvironment: environmentMock.Object);
             var telemetry = new RequestTelemetry();
             initializer.Initialize(telemetry);
 
