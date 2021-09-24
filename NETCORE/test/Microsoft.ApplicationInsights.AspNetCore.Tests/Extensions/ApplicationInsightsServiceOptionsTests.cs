@@ -15,10 +15,10 @@ using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
 using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
 using Microsoft.ApplicationInsights.WindowsServer;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Test;
+using Microsoft.Extensions.Hosting;
 
 using Xunit;
 
@@ -74,10 +74,24 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
 
         private static ServiceCollection CreateServicesAndAddApplicationinsightsWorker(string jsonPath, Action<ApplicationInsightsServiceOptions> serviceOptions = null, Action<IServiceCollection> servicesConfig = null, bool useDefaultConfig = true)
         {
+#if NETCOREAPP
+            var environmentMock = new Moq.Mock<IHostEnvironment>();
+            environmentMock.Setup(x => x.ContentRootPath).Returns(Directory.GetCurrentDirectory());
+
             IConfigurationRoot config;
             var services = new ServiceCollection()
-                .AddSingleton<IHostingEnvironment>(new HostingEnvironment() { ContentRootPath = Directory.GetCurrentDirectory() })
+                .AddSingleton<IHostEnvironment>(environmentMock.Object)
                 .AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
+#else
+            var environmentMock = new Moq.Mock<Microsoft.AspNetCore.Hosting.IHostingEnvironment>();
+            environmentMock.Setup(x => x.ContentRootPath).Returns(Directory.GetCurrentDirectory());
+
+            IConfigurationRoot config;
+            var services = new ServiceCollection()
+                .AddSingleton<Microsoft.AspNetCore.Hosting.IHostingEnvironment>(environmentMock.Object)
+                .AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
+
+#endif
 
             if (jsonPath != null)
             {
