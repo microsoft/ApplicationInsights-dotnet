@@ -42,6 +42,15 @@
             this.getEnvironmentName = () => hostEnvironment?.EnvironmentName;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AspNetCoreEnvironmentTelemetryInitializer"/> class.
+        /// This constructor is provided for backwards compatibility where both <see cref="IHostEnvironment"/> and <see cref="IHostingEnvironment"/> have been added to Dependency Injection.
+        /// </summary>
+        /// <remarks>
+        /// We don't cache the result of EnvironmentName because the environment can be changed while the app is running.
+        /// </remarks>
+        /// <param name="hostEnvironment">IHostEnvironment to provide EnvironmentName to be added to telemetry properties.</param>
+        /// <param name="hostingEnvironment">IHostingEnvironment to provide EnvironmentName to be added to telemetry properties.</param>
         [Obsolete("IHostingEnvironment is obsolete. The recommended alternative is Microsoft.Extensions.Hosting.IHostEnvironment.", false)]
         public AspNetCoreEnvironmentTelemetryInitializer(IHostEnvironment hostEnvironment, Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnvironment)
         {
