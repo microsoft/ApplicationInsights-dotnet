@@ -201,6 +201,18 @@
 
             if (this.info.DocumentStreams != null)
             {
+                float? maxQuota = null;
+                if (info.MaxQuota != null)
+                {
+                    maxQuota = Math.Min(info.MaxQuota.Value, 200);
+                }
+
+                float? quotaAccrualRatePerSec = null;
+                if (info.QuotaAccrualRatePerSec != null)
+                {
+                    quotaAccrualRatePerSec = Math.Min(info.QuotaAccrualRatePerSec.Value, 200);
+                }
+
                 foreach (DocumentStreamInfo documentStreamInfo in this.info.DocumentStreams)
                 {
                     if (documentStreamIds.Contains(documentStreamInfo.Id))
@@ -222,26 +234,23 @@
                         previousQuotasByStreamId.TryGetValue(documentStreamInfo.Id, out Tuple<float, float, float, float, float> initialQuotas);
                         previousMaxQuotasByStreamId.TryGetValue(documentStreamInfo.Id, out Tuple<float, float, float, float, float> maxQuotas);
 
-                        float? maxQuota = null;
-                        if (info.MaxQuota != null)
-                        {
-                            maxQuota = Math.Min(info.MaxQuota.Value, 200);
-                        }
-
                         var documentStream = new DocumentStream(
                             documentStreamInfo,
                             out localErrors,
                             timeProvider,
-                            initialRequestQuota: initialQuotas?.Item1 ?? info.InitialQuota,
-                            initialDependencyQuota: initialQuotas?.Item2 ?? info.InitialQuota,
-                            initialExceptionQuota: initialQuotas?.Item3 ?? info.InitialQuota,
-                            initialEventQuota: initialQuotas?.Item4 ?? info.InitialQuota,
-                            initialTraceQuota: initialQuotas?.Item5 ?? info.InitialQuota,
-                            maxRequestQuota: maxQuotas?.Item1 ?? maxQuota,
-                            maxDependencyQuota: maxQuotas?.Item2 ?? maxQuota,
-                            maxExceptionQuota: maxQuotas?.Item3 ?? maxQuota,
-                            maxEventQuota: maxQuotas?.Item4 ?? maxQuota,
-                            maxTraceQuota: maxQuotas?.Item5 ?? maxQuota);
+                            initialRequestQuota: info.InitialQuota ?? initialQuotas?.Item1,
+                            initialDependencyQuota: info.InitialQuota ?? initialQuotas?.Item2,
+                            initialExceptionQuota: info.InitialQuota ?? initialQuotas?.Item3,
+                            initialEventQuota: info.InitialQuota ?? initialQuotas?.Item4,
+                            initialTraceQuota: info.InitialQuota ?? initialQuotas?.Item5,
+                            maxRequestQuota: maxQuota ?? maxQuotas?.Item1,
+                            maxDependencyQuota: maxQuota ?? maxQuotas?.Item2,
+                            maxExceptionQuota: maxQuota ?? maxQuotas?.Item3,
+                            maxEventQuota: maxQuota ?? maxQuotas?.Item4,
+                            maxTraceQuota: maxQuota ?? maxQuotas?.Item5,
+                            quotaAccrualRatePerSec: quotaAccrualRatePerSec);
+
+                        Console.WriteLine($"Hello World {maxQuota} and {quotaAccrualRatePerSec}");
 
                         documentStreamIds.Add(documentStreamInfo.Id);
                         this.documentStreams.Add(documentStream);
@@ -269,6 +278,38 @@
             }
 
             errors = errorList.ToArray();
+        }
+
+        public void updateDocumentStreamQuotas(CollectionConfigurationInfo info, Clock timeProvider)
+        {
+            if (!(info.InitialQuota != null && info.MaxQuota != null && info.QuotaAccrualRatePerSec != null))
+            {
+                return;
+            }
+
+            float? maxQuota = Math.Min(info.MaxQuota.Value, 200);
+            float? quotaAccrualRatePerSec = Math.Min(info.QuotaAccrualRatePerSec.Value, 200);
+            DocumentStreamInfo[] documentStreams = info.DocumentStreams;
+            CollectionConfigurationError[] localErrors = null;
+
+            for (int i = 0; i < documentStreams.Length; i++)
+            {
+                this.documentStreams[i] = new DocumentStream(
+                    documentStreams[i],
+                    out localErrors,
+                    timeProvider,
+                    initialRequestQuota: info.InitialQuota,
+                    initialDependencyQuota: info.InitialQuota,
+                    initialExceptionQuota:  info.InitialQuota,
+                    initialEventQuota: info.InitialQuota,
+                    initialTraceQuota: info.InitialQuota,
+                    maxRequestQuota: maxQuota,
+                    maxDependencyQuota: maxQuota,
+                    maxExceptionQuota: maxQuota,
+                    maxEventQuota: maxQuota,
+                    maxTraceQuota: maxQuota,
+                    quotaAccrualRatePerSec: quotaAccrualRatePerSec);
+            }
         }
 
         private void CreateTelemetryMetrics(CollectionConfigurationInfo info, out CollectionConfigurationError[] errors)

@@ -702,6 +702,21 @@
         {
             // we need to preserve the current quota for each document stream that still exists in the new configuration
             CollectionConfigurationError[] errorsConfig;
+
+            Console.WriteLine($"updated: {configurationInfo.MaxQuota}");
+
+            lock (this.telemetryProcessorsLock)
+            {
+                foreach (var telemetryProcessor in this.TelemetryProcessors)
+                {
+                    if (telemetryProcessor is IQuickPulseTelemetryProcessor)
+                    {
+                        (telemetryProcessor as IQuickPulseTelemetryProcessor).UpdateGlobalQuotas(this.timeProvider, configurationInfo.MaxQuota, configurationInfo.InitialQuota, configurationInfo.QuotaAccrualRatePerSec);
+                    }
+
+                }
+            }
+
             var newCollectionConfiguration = new CollectionConfiguration(configurationInfo, out errorsConfig, this.timeProvider, this.collectionConfiguration?.DocumentStreams);
 
             // the next accumulator that gets swapped in on the collection thread will be initialized with the new collection configuration
@@ -709,6 +724,8 @@
 
             CollectionConfigurationError[] errorsPerformanceCounters;
             this.UpdatePerformanceCollector(newCollectionConfiguration.PerformanceCounters, out errorsPerformanceCounters);
+
+            
 
             return errorsConfig.Concat(errorsPerformanceCounters).ToArray();
         }

@@ -43,7 +43,7 @@
         /// <summary>
         /// An overall, cross-stream quota tracker.
         /// </summary>
-        private readonly QuickPulseQuotaTracker globalQuotaTracker;
+        private QuickPulseQuotaTracker globalQuotaTracker;
 
         private IQuickPulseDataAccumulatorManager dataAccumulatorManager = null;
 
@@ -72,12 +72,14 @@
         /// <param name="timeProvider">Time provider.</param>
         /// <param name="maxGlobalTelemetryQuota">Max overall telemetry quota.</param>
         /// <param name="initialGlobalTelemetryQuota">Initial overall telemetry quota.</param>
+        /// <param name="quotaAccrualRatePerSec">Quota Accrual rate per second.</param>
         /// <exception cref="ArgumentNullException">Thrown if next is null.</exception>
         internal QuickPulseTelemetryProcessor(
             ITelemetryProcessor next,
             Clock timeProvider,
             float? maxGlobalTelemetryQuota = null,
-            float? initialGlobalTelemetryQuota = null)
+            float? initialGlobalTelemetryQuota = null,
+            float? quotaAccrualRatePerSec = null)
         {
             this.Next = next ?? throw new ArgumentNullException(nameof(next));
 
@@ -86,7 +88,8 @@
             this.globalQuotaTracker = new QuickPulseQuotaTracker(
                 timeProvider,
                 maxGlobalTelemetryQuota ?? MaxGlobalTelemetryQuota,
-                initialGlobalTelemetryQuota ?? InitialGlobalTelemetryQuota);
+                initialGlobalTelemetryQuota ?? InitialGlobalTelemetryQuota,
+                quotaAccrualRatePerSec);
         }
 
         /// <summary>
@@ -124,6 +127,18 @@
             this.EvaluateDisabledTrackingProperties = configuration.EvaluateExperimentalFeature(ExperimentalConstants.DeferRequestTrackingProperties);
 
             this.RegisterSelfWithQuickPulseTelemetryModule();
+        }
+
+        void IQuickPulseTelemetryProcessor.UpdateGlobalQuotas(Clock timeProvider, float? maxGlobalTelemetryQuota, float? initialGlobalTelemetryQuota, float? quotaAccrualRatePerSec)
+        {
+            if (maxGlobalTelemetryQuota != null || initialGlobalTelemetryQuota != null || quotaAccrualRatePerSec != null)
+            {
+                this.globalQuotaTracker = new QuickPulseQuotaTracker(
+                timeProvider,
+                maxGlobalTelemetryQuota ?? MaxGlobalTelemetryQuota,
+                initialGlobalTelemetryQuota ?? InitialGlobalTelemetryQuota,
+                quotaAccrualRatePerSec);
+            }
         }
 
         void IQuickPulseTelemetryProcessor.StartCollection(
@@ -218,6 +233,8 @@
 
             return telemetryDocument;
         }
+
+
 
         private static ITelemetryDocument ConvertExceptionToTelemetryDocument(ExceptionTelemetry exceptionTelemetry)
         {

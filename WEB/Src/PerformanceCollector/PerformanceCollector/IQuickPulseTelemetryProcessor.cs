@@ -3,6 +3,7 @@
     using System;
 
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse.Helpers;
 
     internal interface IQuickPulseTelemetryProcessor
     {
@@ -11,5 +12,10 @@
         void StartCollection(IQuickPulseDataAccumulatorManager accumulatorManager, Uri serviceEndpoint, TelemetryConfiguration configuration, bool disableFullTelemetryItems = false);
 
         void StopCollection();
+
+        void UpdateGlobalQuotas(Clock timeProvider,
+            float? maxGlobalTelemetryQuota = null,
+            float? initialGlobalTelemetryQuota = null,
+            float? quotaAccrualRatePerSec = null);
     }
 }

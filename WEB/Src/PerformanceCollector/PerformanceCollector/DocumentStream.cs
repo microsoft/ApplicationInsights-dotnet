@@ -43,17 +43,18 @@
             float? maxDependencyQuota = null,
             float? maxExceptionQuota = null,
             float? maxEventQuota = null,
-            float? maxTraceQuota = null)
+            float? maxTraceQuota = null,
+            float? quotaAccrualRatePerSec = null)
         {
             this.info = info ?? throw new ArgumentNullException(nameof(info));
 
             this.CreateFilters(out errors);
 
-            this.RequestQuotaTracker = new QuickPulseQuotaTracker(timeProvider, maxRequestQuota ?? DefaultMaxTelemetryQuota, initialRequestQuota ?? InitialTelemetryQuota);
-            this.DependencyQuotaTracker = new QuickPulseQuotaTracker(timeProvider, maxDependencyQuota ?? DefaultMaxTelemetryQuota, initialDependencyQuota ?? InitialTelemetryQuota);
-            this.ExceptionQuotaTracker = new QuickPulseQuotaTracker(timeProvider, maxExceptionQuota ?? DefaultMaxTelemetryQuota, initialExceptionQuota ?? InitialTelemetryQuota);
-            this.EventQuotaTracker = new QuickPulseQuotaTracker(timeProvider, maxEventQuota ?? DefaultMaxTelemetryQuota, initialEventQuota ?? InitialTelemetryQuota);
-            this.TraceQuotaTracker = new QuickPulseQuotaTracker(timeProvider, maxTraceQuota ?? DefaultMaxTelemetryQuota, initialTraceQuota ?? InitialTelemetryQuota);
+            this.RequestQuotaTracker = new QuickPulseQuotaTracker(timeProvider, maxRequestQuota ?? DefaultMaxTelemetryQuota, initialRequestQuota ?? InitialTelemetryQuota, quotaAccrualRatePerSec);
+            this.DependencyQuotaTracker = new QuickPulseQuotaTracker(timeProvider, maxDependencyQuota ?? DefaultMaxTelemetryQuota, initialDependencyQuota ?? InitialTelemetryQuota, quotaAccrualRatePerSec);
+            this.ExceptionQuotaTracker = new QuickPulseQuotaTracker(timeProvider, maxExceptionQuota ?? DefaultMaxTelemetryQuota, initialExceptionQuota ?? InitialTelemetryQuota, quotaAccrualRatePerSec);
+            this.EventQuotaTracker = new QuickPulseQuotaTracker(timeProvider, maxEventQuota ?? DefaultMaxTelemetryQuota, initialEventQuota ?? InitialTelemetryQuota, quotaAccrualRatePerSec);
+            this.TraceQuotaTracker = new QuickPulseQuotaTracker(timeProvider, maxTraceQuota ?? DefaultMaxTelemetryQuota, initialTraceQuota ?? InitialTelemetryQuota, quotaAccrualRatePerSec);
         }
 
         public QuickPulseQuotaTracker RequestQuotaTracker { get; }
