@@ -33,6 +33,15 @@
 
             this.userConfiguration = configuration;
         }
+
+        [Obsolete("IHostingEnvironment is obsolete and will be removed in a future version. The recommended alternative is Microsoft.Extensions.Hosting.IHostEnvironment.", false)]
+        public DefaultApplicationInsightsServiceConfigureOptions(IHostEnvironment hostEnvironment, IHostingEnvironment hostingEnvironment, IConfiguration configuration = null)
+        {
+            this.environmentName = hostEnvironment?.EnvironmentName ?? hostingEnvironment?.EnvironmentName;
+            this.contentRootPath = hostEnvironment?.ContentRootPath ?? hostEnvironment?.ContentRootPath ?? Directory.GetCurrentDirectory();
+
+            this.userConfiguration = configuration;
+        }
 #endif
 
         /// <summary>

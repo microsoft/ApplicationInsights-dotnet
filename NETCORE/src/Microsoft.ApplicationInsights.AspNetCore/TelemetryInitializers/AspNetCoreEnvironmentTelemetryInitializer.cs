@@ -41,6 +41,23 @@
         {
             this.getEnvironmentName = () => hostEnvironment?.EnvironmentName;
         }
+
+        [Obsolete("IHostingEnvironment is obsolete. The recommended alternative is Microsoft.Extensions.Hosting.IHostEnvironment.", false)]
+        public AspNetCoreEnvironmentTelemetryInitializer(IHostEnvironment hostEnvironment, Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnvironment)
+        {
+            if (hostEnvironment != null)
+            {
+                this.getEnvironmentName = () => hostEnvironment.EnvironmentName;
+            }
+            else if (hostingEnvironment != null)
+            {
+                this.getEnvironmentName = () => hostingEnvironment.EnvironmentName;
+            }
+            else
+            {
+                this.getEnvironmentName = null;
+            }
+        }
 #endif
 
         /// <inheritdoc />
