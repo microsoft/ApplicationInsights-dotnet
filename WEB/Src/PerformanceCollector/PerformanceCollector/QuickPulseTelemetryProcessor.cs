@@ -234,8 +234,6 @@
             return telemetryDocument;
         }
 
-
-
         private static ITelemetryDocument ConvertExceptionToTelemetryDocument(ExceptionTelemetry exceptionTelemetry)
         {
             ITelemetryDocument telemetryDocument = new ExceptionTelemetryDocument()

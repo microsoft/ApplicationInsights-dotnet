@@ -725,8 +725,6 @@
             CollectionConfigurationError[] errorsPerformanceCounters;
             this.UpdatePerformanceCollector(newCollectionConfiguration.PerformanceCounters, out errorsPerformanceCounters);
 
-            
-
             return errorsConfig.Concat(errorsPerformanceCounters).ToArray();
         }
 

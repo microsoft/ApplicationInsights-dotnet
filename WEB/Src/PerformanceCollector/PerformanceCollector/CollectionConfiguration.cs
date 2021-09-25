@@ -280,38 +280,6 @@
             errors = errorList.ToArray();
         }
 
-        public void updateDocumentStreamQuotas(CollectionConfigurationInfo info, Clock timeProvider)
-        {
-            if (!(info.InitialQuota != null && info.MaxQuota != null && info.QuotaAccrualRatePerSec != null))
-            {
-                return;
-            }
-
-            float? maxQuota = Math.Min(info.MaxQuota.Value, 200);
-            float? quotaAccrualRatePerSec = Math.Min(info.QuotaAccrualRatePerSec.Value, 200);
-            DocumentStreamInfo[] documentStreams = info.DocumentStreams;
-            CollectionConfigurationError[] localErrors = null;
-
-            for (int i = 0; i < documentStreams.Length; i++)
-            {
-                this.documentStreams[i] = new DocumentStream(
-                    documentStreams[i],
-                    out localErrors,
-                    timeProvider,
-                    initialRequestQuota: info.InitialQuota,
-                    initialDependencyQuota: info.InitialQuota,
-                    initialExceptionQuota:  info.InitialQuota,
-                    initialEventQuota: info.InitialQuota,
-                    initialTraceQuota: info.InitialQuota,
-                    maxRequestQuota: maxQuota,
-                    maxDependencyQuota: maxQuota,
-                    maxExceptionQuota: maxQuota,
-                    maxEventQuota: maxQuota,
-                    maxTraceQuota: maxQuota,
-                    quotaAccrualRatePerSec: quotaAccrualRatePerSec);
-            }
-        }
-
         private void CreateTelemetryMetrics(CollectionConfigurationInfo info, out CollectionConfigurationError[] errors)
         {
             var errorList = new List<CollectionConfigurationError>();
