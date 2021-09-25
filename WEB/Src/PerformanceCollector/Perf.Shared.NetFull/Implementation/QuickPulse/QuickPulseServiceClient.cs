@@ -238,10 +238,6 @@
                         && !string.Equals(configurationETagHeaderValue, configurationETag, StringComparison.Ordinal) &&*/ responseStream != null)
                     {
                         configurationInfo = this.deserializerServerResponse.ReadObject(responseStream) as CollectionConfigurationInfo;
-                        configurationInfo.InitialQuota = 10000;
-                        configurationInfo.QuotaAccrualRatePerSec = 10000;
-                        configurationInfo.MaxQuota = 10000;
-                        Console.WriteLine($"hax: {configurationInfo.MaxQuota}");
                     }
                 }
             }

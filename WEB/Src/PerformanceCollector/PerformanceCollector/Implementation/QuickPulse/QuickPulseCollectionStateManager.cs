@@ -166,13 +166,8 @@
 
                     case true:
                         // the service wants us to keep collecting
-                        if (configurationInfo != null)
-                        {
-                            configurationInfo.QuotaAccrualRatePerSec = 100;
-                            configurationInfo.MaxQuota = 1000;
-                        }
                         this.UpdateConfiguration(configurationInfo);
-                        break;
+                        break;     
 
                     case false:
                         // the service wants us to stop collection
