@@ -1,8 +1,8 @@
 # Syntax: https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions
 # .NET CLI: https://docs.microsoft.com/dotnet/core/tools/
-# Description: The purpose of this build is to build and test with redfield flag.
+# Description: The purpose of this build is to compile and test with redfield flag.
 
-name: Redfield Sanity Check
+name: Redfield Validation
 
 on:
   push:
@@ -34,6 +34,4 @@ jobs:
       run: dotnet build -p:Redfield=True ./BASE/Microsoft.ApplicationInsights.sln --configuration Release --no-restore
 
     - name: Test
-      id: test1
-      continue-on-error: true
       run: dotnet test ./BASE/Microsoft.ApplicationInsights.sln --framework ${{ matrix.framework }} --configuration Release --no-build --logger:"console;verbosity=detailed" ${{ matrix.args }}

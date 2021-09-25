@@ -1,4 +1,4 @@
-﻿#if NET452
+﻿#if NETFRAMEWORK
 namespace Microsoft.ApplicationInsights.WindowsServer.Azure.Emulation
 {
     using System;

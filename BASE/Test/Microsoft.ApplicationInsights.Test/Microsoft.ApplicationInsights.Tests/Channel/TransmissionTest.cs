@@ -99,6 +99,7 @@
         }
 
         [TestClass]
+        [TestCategory("WindowsOnly")] // these tests are not reliable and block PRs
         public class SendAsync
         {
             private readonly Uri testUri = new Uri("https://127.0.0.1/");
@@ -221,7 +222,7 @@
                     Assert.AreEqual(206, result.StatusCode);
                     Assert.AreEqual("5", result.RetryAfterHeader);
 
-#if NET5_0
+#if NET5_0_OR_GREATER
                     Assert.IsTrue(result.Content == string.Empty);
 #else
                     Assert.IsNull(result.Content);

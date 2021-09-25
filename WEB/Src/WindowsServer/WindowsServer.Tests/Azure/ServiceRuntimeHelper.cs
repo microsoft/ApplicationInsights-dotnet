@@ -1,4 +1,4 @@
-﻿#if NET452
+﻿#if NETFRAMEWORK
 namespace Microsoft.ApplicationInsights.WindowsServer.Azure
 {
     using System;
@@ -27,16 +27,16 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Azure
             // register interceptors for all implemented properties on RoleEnvironment. Child objects are returned as serialized rather than MarshalByRef 
             // and as such don't need to be intercepted.
             WindowsAzure.ServiceRuntime.Mirror.LookingGlass.Register<bool, bool>(
-                                    typeof(WindowsAzure.ServiceRuntime.RoleEnvironment).GetProperty("IsAvailable"),
-                                    b => IsAvailable);
+                                    source: typeof(WindowsAzure.ServiceRuntime.RoleEnvironment).GetProperty("IsAvailable"),
+                                    handler: b => IsAvailable);
 
             WindowsAzure.ServiceRuntime.Mirror.LookingGlass.Register<string, string>(
-                                    typeof(WindowsAzure.ServiceRuntime.RoleEnvironment).GetProperty("DeploymentId"),
-                                    s => DeploymentId);
+                                    source: typeof(WindowsAzure.ServiceRuntime.RoleEnvironment).GetProperty("DeploymentId"),
+                                    handler: s => DeploymentId);
 
             WindowsAzure.ServiceRuntime.Mirror.LookingGlass.Register<WindowsAzure.ServiceRuntime.RoleInstance, WindowsAzure.ServiceRuntime.RoleInstance>(
-                                    typeof(WindowsAzure.ServiceRuntime.RoleEnvironment).GetProperty("CurrentRoleInstance"),
-                                    r =>
+                                    source: typeof(WindowsAzure.ServiceRuntime.RoleEnvironment).GetProperty("CurrentRoleInstance"),
+                                    handler: r =>
                                     {
                                         TestRole testRole = new TestRole(RoleName);
                                         TestRoleInstance testRoleInstance = new TestRoleInstance(testRole, RoleInstanceOrdinal);

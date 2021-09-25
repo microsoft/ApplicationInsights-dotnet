@@ -3,7 +3,6 @@
   
   <PropertyGroup>
     <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
-    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <AssemblyName>Microsoft.AI.EventCounterCollector.Tests</AssemblyName>
   </PropertyGroup>
 
@@ -11,6 +10,8 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.3" />
     <PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
+  
+    <PackageReference Include="System.Diagnostics.Tracing" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
