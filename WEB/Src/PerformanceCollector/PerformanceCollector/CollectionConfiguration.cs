@@ -250,8 +250,6 @@
                             maxTraceQuota: maxQuota ?? maxQuotas?.Item5,
                             quotaAccrualRatePerSec: quotaAccrualRatePerSec);
 
-                        Console.WriteLine($"Hello World {maxQuota} and {quotaAccrualRatePerSec}");
-
                         documentStreamIds.Add(documentStreamInfo.Id);
                         this.documentStreams.Add(documentStream);
                     }

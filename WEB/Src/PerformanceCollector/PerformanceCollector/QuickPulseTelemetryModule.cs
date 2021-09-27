@@ -703,8 +703,6 @@
             // we need to preserve the current quota for each document stream that still exists in the new configuration
             CollectionConfigurationError[] errorsConfig;
 
-            Console.WriteLine($"updated: {configurationInfo.MaxQuota}");
-
             lock (this.telemetryProcessorsLock)
             {
                 foreach (var telemetryProcessor in this.TelemetryProcessors)

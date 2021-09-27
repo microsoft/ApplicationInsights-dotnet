@@ -28,7 +28,6 @@
             this.startedTrackingTime = timeProvider.UtcNow;
             this.lastQuotaAccrualFullSeconds = 0;
             this.currentQuota = startQuota;
-            Console.WriteLine($"Hello Stream {maxQuota} and {quotaAccrualRatePerSec}");
         }
 
         public float CurrentQuota => Interlocked.CompareExchange(ref this.currentQuota, 0, 0);
