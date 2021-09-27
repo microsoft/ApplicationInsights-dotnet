@@ -32,6 +32,7 @@
         }
 
         public float CurrentQuota => Interlocked.CompareExchange(ref this.currentQuota, 0, 0);
+
         public float MaxQuota => Interlocked.CompareExchange(ref this.maxQuota, 0, 0);
 
         public bool QuotaExhausted => Interlocked.CompareExchange(ref this.currentQuota, 0, 0) < 1f;
