@@ -14,8 +14,12 @@ namespace Microsoft.ApplicationInsights.TestFramework
     {
         private readonly IWebHost host;
         private readonly CancellationTokenSource cts;
+        
+        public int RequestCounter = 0;
 
-        public RequestDelegate ServerLogic = async (httpContext) => await httpContext.Response.WriteAsync("Hello World!");
+        //public RequestDelegate ServerLogic = async (httpContext) => await httpContext.Response.WriteAsync("Hello World!");
+
+        public Func<HttpContext, Task> ServerLogic;
 
         public LocalInProcHttpServer(string url)
         {
@@ -25,11 +29,17 @@ namespace Microsoft.ApplicationInsights.TestFramework
                 .UseUrls(url)
                 .Configure((app) =>
                 {
-                    app.Run(ServerLogic);
+                    app.Run(Server);
                 })
                 .Build();
 
             Task.Run(() => this.host.RunAsync(this.cts.Token));
+        }
+
+        private Task Server(HttpContext context)
+        {
+            this.RequestCounter++;
+            return this.ServerLogic(context);
         }
 
         public void Dispose()

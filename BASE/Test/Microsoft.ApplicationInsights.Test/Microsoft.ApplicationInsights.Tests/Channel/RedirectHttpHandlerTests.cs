@@ -36,14 +36,10 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
         [TestMethod]
         public async Task DefaultUseCase()
         {
-            int counter1 = 0;
-            int counter2 = 0;
-
             using var localServer1 = new LocalInProcHttpServer(LocalUrl1)
             {
                 ServerLogic = async (httpContext) =>
                 {
-                    counter1++;
                     httpContext.Response.StatusCode = StatusCodes.Status308PermanentRedirect;//.Status307TemporaryRedirect;
                     httpContext.Response.Headers.Add("Location", LocalUrl2);
                     await httpContext.Response.WriteAsync("redirect");
@@ -54,7 +50,6 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
             {
                 ServerLogic = async (httpContext) =>
                 {
-                    counter2++;
                     await httpContext.Response.WriteAsync(helloString);
                 },
             };
@@ -64,14 +59,14 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
             // Default behavior. 1st server will redirect to 2nd.
             var testStr1 = await client.GetAsync();
             Assert.AreEqual(helloString, testStr1);
-            Assert.AreEqual(1, counter1);
-            Assert.AreEqual(1, counter2);
+            Assert.AreEqual(1, localServer1.RequestCounter);
+            Assert.AreEqual(1, localServer2.RequestCounter);
 
             // Default behavior. Nothing is cached, repeat previous workflow.
             var testStr2 = await client.GetAsync();
             Assert.AreEqual(helloString, testStr2);
-            Assert.AreEqual(2, counter1);
-            Assert.AreEqual(2, counter2);
+            Assert.AreEqual(2, localServer1.RequestCounter);
+            Assert.AreEqual(2, localServer2.RequestCounter);
         }
 
         /// <summary>
@@ -81,16 +76,12 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
         /// Additional requests should skip server #1 and go to server #2.
         /// </summary>
         [TestMethod]
-        public async Task VerifyRedirectHandler()
+        public async Task VerifyRedirect()
         {
-            int counter1 = 0;
-            int counter2 = 0;
-
             using var localServer1 = new LocalInProcHttpServer(LocalUrl1)
             {
                 ServerLogic = async (httpContext) =>
                 {
-                    counter1++;
                     httpContext.Response.StatusCode = StatusCodes.Status308PermanentRedirect;//.Status307TemporaryRedirect;
                     httpContext.Response.Headers.Add("Location", LocalUrl2);
 
@@ -110,7 +101,6 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
             {
                 ServerLogic = async (httpContext) =>
                 {
-                    counter2++;
                     await httpContext.Response.WriteAsync(helloString);
                 },
             };
@@ -120,14 +110,77 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
             // Default behavior. 1st server will redirect to 2nd.
             var testStr1 = await client.GetAsync();
             Assert.AreEqual(helloString, testStr1);
-            Assert.AreEqual(1, counter1);
-            Assert.AreEqual(1, counter2);
+            Assert.AreEqual(1, localServer1.RequestCounter);
+            Assert.AreEqual(1, localServer2.RequestCounter);
 
             // Redirect is cached. Request will go to 2nd server.
             var testStr2 = await client.GetAsync();
             Assert.AreEqual(helloString, testStr2);
-            Assert.AreEqual(1, counter1, "redirect should be cached");
-            Assert.AreEqual(2, counter2);
+            Assert.AreEqual(1, localServer1.RequestCounter, "redirect should be cached");
+            Assert.AreEqual(2, localServer2.RequestCounter);
+        }
+
+        /// <summary>
+        /// Verify behavior of HttpClient and <see cref="RedirectHttpHandler"/>.
+        /// Setup two local servers, where server #1 will redirect requests to #2.
+        /// After the first request, it is expected that the client will cache the redirect.
+        /// Additional requests should skip server #1 and go to server #2.
+        /// </summary>
+        [TestMethod]
+        public async Task StressTest()
+        {
+            using var localServer1 = new LocalInProcHttpServer(LocalUrl1)
+            {
+                ServerLogic = async (httpContext) =>
+                {
+                    httpContext.Response.StatusCode = StatusCodes.Status308PermanentRedirect;//.Status307TemporaryRedirect;
+                    httpContext.Response.Headers.Add("Location", LocalUrl2);
+
+                    // https://docs.microsoft.com/en-us/aspnet/core/performance/caching/middleware?view=aspnetcore-5.0
+                    // https://docs.microsoft.com/en-us/dotnet/api/system.net.http.headers.cachecontrolheadervalue?view=net-5.0
+                    httpContext.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue()
+                    {
+                        Public = true,
+                        MaxAge = TimeSpan.FromDays(1),
+                    };
+
+                    await httpContext.Response.WriteAsync("redirect1");
+                },
+            };
+
+            using var localServer2 = new LocalInProcHttpServer(LocalUrl2)
+            {
+                ServerLogic = async (httpContext) =>
+                {
+                    httpContext.Response.StatusCode = StatusCodes.Status308PermanentRedirect;//.Status307TemporaryRedirect;
+                    httpContext.Response.Headers.Add("Location", LocalUrl1);
+
+                    // https://docs.microsoft.com/en-us/aspnet/core/performance/caching/middleware?view=aspnetcore-5.0
+                    // https://docs.microsoft.com/en-us/dotnet/api/system.net.http.headers.cachecontrolheadervalue?view=net-5.0
+                    httpContext.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue()
+                    {
+                        Public = true,
+                        MaxAge = TimeSpan.FromDays(1),
+                    };
+
+                    await httpContext.Response.WriteAsync("redirect2");
+                },
+            };
+
+            var client = new MyCustomClient(url: LocalUrl1, new RedirectHttpHandler());
+
+            // TODO: TRYING TO CAUSE DEADLOCKS
+            var tasks = new List<Task>();
+
+            for (int i = 0; i < 20; i++)
+            {
+                tasks.Add(client.GetAsync());
+            }
+
+            Task.WaitAll(tasks.ToArray());
+
+            Assert.IsTrue(localServer1.RequestCounter > 1);
+            Assert.IsTrue(localServer2.RequestCounter > 1);
         }
 
         /// <summary>
@@ -139,14 +192,10 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
         [TestMethod]
         public async Task VerifyRedirectCache()
         {
-            int counter1 = 0;
-            int counter2 = 0;
-
             using var localServer1 = new LocalInProcHttpServer(LocalUrl1)
             {
                 ServerLogic = async (httpContext) =>
                 {
-                    counter1++;
                     httpContext.Response.StatusCode = StatusCodes.Status308PermanentRedirect;//.Status307TemporaryRedirect;
                     httpContext.Response.Headers.Add("Location", LocalUrl2);
 
@@ -166,7 +215,6 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
             {
                 ServerLogic = async (httpContext) =>
                 {
-                    counter2++;
                     await httpContext.Response.WriteAsync(helloString);
                 },
             };
@@ -176,14 +224,14 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
             // Default behavior. 1st server will redirect to 2nd.
             var testStr1 = await client.GetAsync();
             Assert.AreEqual(helloString, testStr1);
-            Assert.AreEqual(1, counter1);
-            Assert.AreEqual(1, counter2);
+            Assert.AreEqual(1, localServer1.RequestCounter);
+            Assert.AreEqual(1, localServer2.RequestCounter);
 
             // Redirect is cached. Request will go to 2nd server.
             var testStr2 = await client.GetAsync();
             Assert.AreEqual(helloString, testStr2);
-            Assert.AreEqual(1, counter1, "redirect should be cached");
-            Assert.AreEqual(2, counter2);
+            Assert.AreEqual(1, localServer1.RequestCounter, "redirect should be cached");
+            Assert.AreEqual(2, localServer2.RequestCounter);
 
             // wait for cache to expire
             await Task.Delay(testCache * 2);
@@ -191,8 +239,8 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
             // Default behavior. 1st server will redirect to 2nd.
             var testStr3 = await client.GetAsync();
             Assert.AreEqual(helloString, testStr3);
-            Assert.AreEqual(2, counter1);
-            Assert.AreEqual(3, counter2);
+            Assert.AreEqual(2, localServer1.RequestCounter);
+            Assert.AreEqual(3, localServer2.RequestCounter);
         }
 
         /// <summary>
@@ -203,13 +251,10 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
         [TestMethod]
         public async Task VerifyMaxRedirects()
         {
-            int serverCounter1 = 0;
-
             using var localServer1 = new LocalInProcHttpServer(LocalUrl1)
             {
                 ServerLogic = async (httpContext) =>
                 {
-                    serverCounter1++;
                     httpContext.Response.StatusCode = StatusCodes.Status308PermanentRedirect;//.Status307TemporaryRedirect;
                     httpContext.Response.Headers.Add("Location", LocalUrl1);
 
@@ -230,11 +275,12 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
             var testStr1 = await client.GetAsync();
             Assert.AreEqual("redirect", testStr1);
 
-            Assert.AreEqual(RedirectHttpHandler.MaxRedirect + 1, serverCounter1, $"expecting 1 original request + {RedirectHttpHandler.MaxRedirect} additional requests");
+            Assert.AreEqual(RedirectHttpHandler.MaxRedirect + 1, localServer1.RequestCounter, $"expecting 1 original request + {RedirectHttpHandler.MaxRedirect} additional requests");
         }
 
         /// <summary>
         /// This class is a wrapper around <see cref="HttpClient"/>.
+        /// I'm using this to simplify the tests above.
         /// </summary>
         private class MyCustomClient
         {
