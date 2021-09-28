@@ -2,6 +2,7 @@
 {
     using System;
 
+    using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -26,6 +27,8 @@
         [Obsolete("IHostingEnvironment is obsolete. The recommended alternative is Microsoft.Extensions.Hosting.IHostEnvironment.", false)]
         public AspNetCoreEnvironmentTelemetryInitializer(Microsoft.AspNetCore.Hosting.IHostingEnvironment environment)
         {
+            AspNetCoreEventSource.Instance.LogInformational($"{nameof(AspNetCoreEnvironmentTelemetryInitializer)} initialized via {nameof(Microsoft.AspNetCore.Hosting.IHostingEnvironment)}");
+
             this.getEnvironmentName = () => environment?.EnvironmentName;
         }
 
@@ -39,6 +42,8 @@
         /// <param name="hostEnvironment">HostingEnvironment to provide EnvironmentName to be added to telemetry properties.</param>
         public AspNetCoreEnvironmentTelemetryInitializer(IHostEnvironment hostEnvironment)
         {
+            AspNetCoreEventSource.Instance.LogInformational($"{nameof(AspNetCoreEnvironmentTelemetryInitializer)} initialized via {nameof(IHostEnvironment)}");
+
             this.getEnvironmentName = () => hostEnvironment?.EnvironmentName;
         }
 
@@ -54,6 +59,8 @@
         [Obsolete("IHostingEnvironment is obsolete. The recommended alternative is Microsoft.Extensions.Hosting.IHostEnvironment.", false)]
         public AspNetCoreEnvironmentTelemetryInitializer(IHostEnvironment hostEnvironment, Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnvironment)
         {
+            AspNetCoreEventSource.Instance.LogInformational($"{nameof(AspNetCoreEnvironmentTelemetryInitializer)} initialized via both {nameof(Microsoft.AspNetCore.Hosting.IHostingEnvironment)} and {nameof(IHostEnvironment)}");
+
             if (hostEnvironment != null)
             {
                 this.getEnvironmentName = () => hostEnvironment.EnvironmentName;
