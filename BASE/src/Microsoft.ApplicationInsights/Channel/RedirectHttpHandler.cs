@@ -8,7 +8,7 @@
 
     internal class RedirectHttpHandler : HttpClientHandler
     {
-        private const int MaxRedirect = 10;
+        internal const int MaxRedirect = 10;
 
         public RedirectHttpHandler()
         {
@@ -31,31 +31,23 @@
                 request.RequestUri = this.RedirectLocation;
             }
 
-            for (int redirects = 0; ;)
-            {
-                HttpResponseMessage response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-                if (IsRedirection(response.StatusCode))
-                {
-                    if (++redirects > MaxRedirect)
-                    {
-                        throw new Exception("too many redirects");
-                    }
+            HttpResponseMessage response = null;
 
-                    if (this.TryGetRedirectVars(response, out Uri redirectUri))
-                    {
-                        request.RequestUri = this.RedirectLocation = redirectUri;
-                    }
-                    else
-                    {
-                        // cannot parse redirect headers. no action.
-                        return response;
-                    }
+            for (int redirects = 0; redirects <= MaxRedirect; redirects++)
+            {
+                response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+                
+                if (IsRedirection(response.StatusCode) && this.TryGetRedirectVars(response, out Uri redirectUri))
+                {
+                    request.RequestUri = this.RedirectLocation = redirectUri;
                 }
                 else
                 {
-                    return response;
+                    break;
                 }
             }
+
+            return response;
         }
 
         private static bool IsRedirection(HttpStatusCode statusCode)
