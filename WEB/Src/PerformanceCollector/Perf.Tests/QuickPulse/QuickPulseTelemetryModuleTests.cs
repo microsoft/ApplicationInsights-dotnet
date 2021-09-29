@@ -804,7 +804,7 @@
         }
 
         [TestMethod]
-        public void QuickPulseTelemetryModuleUpdatesCollectionConfiguration2()
+        public void QuickPulseTelemetryModuleUpdatesCollectionConfigurationWithCutomQuotas()
         {
             if (QuickPulseTelemetryModuleTests.Ignored)
             {
@@ -849,14 +849,18 @@
                 telemetryProcessor.Process(new RequestTelemetry() { Id = "1", Name = "Request1", Context = { InstrumentationKey = "some ikey" } });
             }
 
+
             Thread.Sleep(pollingInterval);
+            Assert.AreEqual(accumulatorManager.CurrentDataAccumulator.AIRequestCount, 50);
             for (int i = 0; i < 100; i++)
             {
                 telemetryProcessor.Process(new RequestTelemetry() { Id = "1", Name = "Request1", Context = { InstrumentationKey = "some ikey" } });
             }
+
             Thread.Sleep((int)(10 * collectionInterval.TotalMilliseconds));
             Assert.AreEqual("ETag1", serviceClient.SnappedSamples.Last().CollectionConfigurationAccumulator.CollectionConfiguration.ETag);
 
+            Assert.AreEqual(accumulatorManager.CurrentDataAccumulator.AIRequestCount, 60);
             serviceClient.CollectionConfigurationInfo = new CollectionConfigurationInfo() { ETag = "ETag2" };
             Thread.Sleep((int)(10 * collectionInterval.TotalMilliseconds));
             Assert.AreEqual("ETag2", serviceClient.SnappedSamples.Last().CollectionConfigurationAccumulator.CollectionConfiguration.ETag);
