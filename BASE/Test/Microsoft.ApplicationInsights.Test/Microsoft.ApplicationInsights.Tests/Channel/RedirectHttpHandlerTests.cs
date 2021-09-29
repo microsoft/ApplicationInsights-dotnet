@@ -16,15 +16,11 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
     using Microsoft.AspNetCore.Http;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Microsoft.Net.Http.Headers;
-
     [TestClass]
     [TestCategory("WindowsOnly")] // The LocalInProcHttpServer does not perform well on Linux.
     public class RedirectHttpHandlerTests
     {
         private const string helloString = "Hello World!";
-
-        private TimeSpan testCache = TimeSpan.FromSeconds(2);
 
         private const string LocalUrl1 = "http://localhost:1111";
         private const string LocalUrl2 = "http://localhost:2222";
@@ -36,23 +32,8 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
         [TestMethod]
         public async Task DefaultUseCase()
         {
-            using var localServer1 = new LocalInProcHttpServer(LocalUrl1)
-            {
-                ServerLogic = async (httpContext) =>
-                {
-                    httpContext.Response.StatusCode = StatusCodes.Status308PermanentRedirect;//.Status307TemporaryRedirect;
-                    httpContext.Response.Headers.Add("Location", LocalUrl2);
-                    await httpContext.Response.WriteAsync("redirect");
-                },
-            };
-
-            using var localServer2 = new LocalInProcHttpServer(LocalUrl2)
-            {
-                ServerLogic = async (httpContext) =>
-                {
-                    await httpContext.Response.WriteAsync(helloString);
-                },
-            };
+            using var localServer1 = LocalInProcHttpServer.MakeRedirectServer(url: LocalUrl1, redirectUrl: LocalUrl2, cache: TimeSpan.FromDays(1));
+            using var localServer2 = LocalInProcHttpServer.MakeTargetServer(url: LocalUrl2, response: helloString);
 
             var client = new MyCustomClient(url: LocalUrl1);
 
@@ -78,32 +59,8 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
         [TestMethod]
         public async Task VerifyRedirect()
         {
-            using var localServer1 = new LocalInProcHttpServer(LocalUrl1)
-            {
-                ServerLogic = async (httpContext) =>
-                {
-                    httpContext.Response.StatusCode = StatusCodes.Status308PermanentRedirect;//.Status307TemporaryRedirect;
-                    httpContext.Response.Headers.Add("Location", LocalUrl2);
-
-                    // https://docs.microsoft.com/en-us/aspnet/core/performance/caching/middleware?view=aspnetcore-5.0
-                    // https://docs.microsoft.com/en-us/dotnet/api/system.net.http.headers.cachecontrolheadervalue?view=net-5.0
-                    httpContext.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue()
-                    {
-                        Public = true,
-                        MaxAge = TimeSpan.FromDays(1),
-                    };
-
-                    await httpContext.Response.WriteAsync("redirect");
-                },
-            };
-
-            using var localServer2 = new LocalInProcHttpServer(LocalUrl2)
-            {
-                ServerLogic = async (httpContext) =>
-                {
-                    await httpContext.Response.WriteAsync(helloString);
-                },
-            };
+            using var localServer1 = LocalInProcHttpServer.MakeRedirectServer(url: LocalUrl1, redirectUrl: LocalUrl2, cache: TimeSpan.FromDays(1));
+            using var localServer2 = LocalInProcHttpServer.MakeTargetServer(url: LocalUrl2, response: helloString);
 
             var client = new MyCustomClient(url: LocalUrl1, new RedirectHttpHandler());
 
@@ -127,45 +84,10 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
         /// Additional requests should skip server #1 and go to server #2.
         /// </summary>
         [TestMethod]
-        public async Task StressTest()
+        public void StressTest()
         {
-            using var localServer1 = new LocalInProcHttpServer(LocalUrl1)
-            {
-                ServerLogic = async (httpContext) =>
-                {
-                    httpContext.Response.StatusCode = StatusCodes.Status308PermanentRedirect;//.Status307TemporaryRedirect;
-                    httpContext.Response.Headers.Add("Location", LocalUrl2);
-
-                    // https://docs.microsoft.com/en-us/aspnet/core/performance/caching/middleware?view=aspnetcore-5.0
-                    // https://docs.microsoft.com/en-us/dotnet/api/system.net.http.headers.cachecontrolheadervalue?view=net-5.0
-                    httpContext.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue()
-                    {
-                        Public = true,
-                        MaxAge = TimeSpan.FromDays(1),
-                    };
-
-                    await httpContext.Response.WriteAsync("redirect1");
-                },
-            };
-
-            using var localServer2 = new LocalInProcHttpServer(LocalUrl2)
-            {
-                ServerLogic = async (httpContext) =>
-                {
-                    httpContext.Response.StatusCode = StatusCodes.Status308PermanentRedirect;//.Status307TemporaryRedirect;
-                    httpContext.Response.Headers.Add("Location", LocalUrl1);
-
-                    // https://docs.microsoft.com/en-us/aspnet/core/performance/caching/middleware?view=aspnetcore-5.0
-                    // https://docs.microsoft.com/en-us/dotnet/api/system.net.http.headers.cachecontrolheadervalue?view=net-5.0
-                    httpContext.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue()
-                    {
-                        Public = true,
-                        MaxAge = TimeSpan.FromDays(1),
-                    };
-
-                    await httpContext.Response.WriteAsync("redirect2");
-                },
-            };
+            using var localServer1 = LocalInProcHttpServer.MakeRedirectServer(url: LocalUrl1, redirectUrl: LocalUrl2, cache: TimeSpan.FromDays(1));
+            using var localServer2 = LocalInProcHttpServer.MakeRedirectServer(url: LocalUrl2, redirectUrl: LocalUrl1, cache: TimeSpan.FromDays(1));
 
             var client = new MyCustomClient(url: LocalUrl1, new RedirectHttpHandler());
 
@@ -192,32 +114,10 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
         [TestMethod]
         public async Task VerifyRedirectCache()
         {
-            using var localServer1 = new LocalInProcHttpServer(LocalUrl1)
-            {
-                ServerLogic = async (httpContext) =>
-                {
-                    httpContext.Response.StatusCode = StatusCodes.Status308PermanentRedirect;//.Status307TemporaryRedirect;
-                    httpContext.Response.Headers.Add("Location", LocalUrl2);
+            var shortCache = TimeSpan.FromSeconds(1);
 
-                    // https://docs.microsoft.com/en-us/aspnet/core/performance/caching/middleware?view=aspnetcore-5.0
-                    // https://docs.microsoft.com/en-us/dotnet/api/system.net.http.headers.cachecontrolheadervalue?view=net-5.0
-                    httpContext.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue()
-                    {
-                        Public = true,
-                        MaxAge = testCache,
-                    };
-
-                    await httpContext.Response.WriteAsync("redirect");
-                },
-            };
-
-            using var localServer2 = new LocalInProcHttpServer(LocalUrl2)
-            {
-                ServerLogic = async (httpContext) =>
-                {
-                    await httpContext.Response.WriteAsync(helloString);
-                },
-            };
+            using var localServer1 = LocalInProcHttpServer.MakeRedirectServer(url: LocalUrl1, redirectUrl: LocalUrl2, cache: shortCache);
+            using var localServer2 = LocalInProcHttpServer.MakeTargetServer(url: LocalUrl2, response: helloString);
 
             var client = new MyCustomClient(url: LocalUrl1, new RedirectHttpHandler());
 
@@ -234,7 +134,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
             Assert.AreEqual(2, localServer2.RequestCounter);
 
             // wait for cache to expire
-            await Task.Delay(testCache * 2);
+            await Task.Delay(shortCache * 2);
 
             // Default behavior. 1st server will redirect to 2nd.
             var testStr3 = await client.GetAsync();
@@ -251,24 +151,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
         [TestMethod]
         public async Task VerifyMaxRedirects()
         {
-            using var localServer1 = new LocalInProcHttpServer(LocalUrl1)
-            {
-                ServerLogic = async (httpContext) =>
-                {
-                    httpContext.Response.StatusCode = StatusCodes.Status308PermanentRedirect;//.Status307TemporaryRedirect;
-                    httpContext.Response.Headers.Add("Location", LocalUrl1);
-
-                    // https://docs.microsoft.com/en-us/aspnet/core/performance/caching/middleware?view=aspnetcore-5.0
-                    // https://docs.microsoft.com/en-us/dotnet/api/system.net.http.headers.cachecontrolheadervalue?view=net-5.0
-                    httpContext.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue()
-                    {
-                        Public = true,
-                        MaxAge = TimeSpan.FromDays(1),
-                    };
-
-                    await httpContext.Response.WriteAsync("redirect");
-                },
-            };
+            using var localServer1 = LocalInProcHttpServer.MakeRedirectServer(url: LocalUrl1, redirectUrl: LocalUrl1, cache: TimeSpan.FromDays(1));
 
             var client = new MyCustomClient(url: LocalUrl1, new RedirectHttpHandler());
 

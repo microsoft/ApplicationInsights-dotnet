@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Net.Http.Headers;
 
 namespace Microsoft.ApplicationInsights.TestFramework
 {
@@ -53,6 +54,38 @@ namespace Microsoft.ApplicationInsights.TestFramework
             {
             }
         }
+
+        
+        public static LocalInProcHttpServer MakeRedirectServer(string url, string redirectUrl, TimeSpan cache)
+        {
+            return new LocalInProcHttpServer(url)
+            {
+                ServerLogic = async (httpContext) =>
+                {
+                    httpContext.Response.StatusCode = StatusCodes.Status308PermanentRedirect;
+                    httpContext.Response.Headers.Add("Location", redirectUrl);
+
+                    // https://docs.microsoft.com/en-us/aspnet/core/performance/caching/middleware?view=aspnetcore-5.0
+                    // https://docs.microsoft.com/en-us/dotnet/api/system.net.http.headers.cachecontrolheadervalue?view=net-5.0
+                    httpContext.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue()
+                    {
+                        Public = true,
+                        MaxAge = cache,
+                    };
+
+                    await httpContext.Response.WriteAsync("redirect");
+                },
+            };
+        }
+
+        public static LocalInProcHttpServer MakeTargetServer(string url, string response)
+        {
+            return new LocalInProcHttpServer(url)
+            {
+                ServerLogic = async (httpContext) => await httpContext.Response.WriteAsync(response)
+            };
+        }
+
     }
 }
 #endif
