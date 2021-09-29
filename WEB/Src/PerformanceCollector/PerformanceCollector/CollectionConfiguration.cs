@@ -188,17 +188,8 @@
 
             if (this.info.DocumentStreams != null)
             {
-                float? maxQuota = null;
-                if (this.info.QuotaInfo?.MaxQuota != null)
-                {
-                    maxQuota = Math.Min(this.info.QuotaInfo.MaxQuota.Value, MaxQuotaAccruable);
-                }
-
-                float? quotaAccrualRatePerSec = null;
-                if (this.info.QuotaInfo?.QuotaAccrualRatePerSec != null)
-                {
-                    quotaAccrualRatePerSec = Math.Min(this.info.QuotaInfo.QuotaAccrualRatePerSec.Value, MaxQuotaAccrualRate);
-                }
+                float? maxQuota = this.info.QuotaInfo?.MaxQuota;
+                float? quotaAccrualRatePerSec = this.info.QuotaInfo?.QuotaAccrualRatePerSec;
 
                 foreach (DocumentStreamInfo documentStreamInfo in this.info.DocumentStreams)
                 {
