@@ -13,8 +13,10 @@
         [DataMember(IsRequired = false)]
         public float? InitialQuota { get; set; }
 
+        [DataMember]
         public float? MaxQuota { get; set; }
 
+        [DataMember]
         public float? QuotaAccrualRatePerSec { get; set; }
     }
 }

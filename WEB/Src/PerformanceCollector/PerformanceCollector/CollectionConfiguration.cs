@@ -22,10 +22,6 @@
     /// </remarks>
     internal class CollectionConfiguration
     {
-        private const float MaxQuotaAccruable = 200f;
-
-        private const float MaxQuotaAccrualRate = 200f;
-
         private readonly CollectionConfigurationInfo info;
 
         #region Collection-time instances used to filter and calculate data on telemetry passing through the pipeline
