@@ -192,17 +192,6 @@
                         documentStream.EventQuotaTracker.CurrentQuota,
                         documentStream.TraceQuotaTracker.CurrentQuota));
 
-            Dictionary<string, Tuple<float, float, float, float, float>> previousMaxQuotasByStreamId =
-                previousDocumentStreams.ToDictionary(
-                    documentStream => documentStream.Id,
-                    documentStream =>
-                    Tuple.Create(
-                        documentStream.RequestQuotaTracker.MaxQuota,
-                        documentStream.DependencyQuotaTracker.MaxQuota,
-                        documentStream.ExceptionQuotaTracker.MaxQuota,
-                        documentStream.EventQuotaTracker.MaxQuota,
-                        documentStream.TraceQuotaTracker.MaxQuota));
-
             if (this.info.DocumentStreams != null)
             {
                 float? maxQuota = null;
@@ -236,8 +225,6 @@
                     try
                     {
                         previousQuotasByStreamId.TryGetValue(documentStreamInfo.Id, out Tuple<float, float, float, float, float> initialQuotas);
-                        previousMaxQuotasByStreamId.TryGetValue(documentStreamInfo.Id, out Tuple<float, float, float, float, float> maxQuotas);
-
                         float? initialQuota = info.QuotaInfo?.InitialQuota;
 
                         var documentStream = new DocumentStream(
