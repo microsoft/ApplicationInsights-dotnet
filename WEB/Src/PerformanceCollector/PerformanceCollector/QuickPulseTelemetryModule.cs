@@ -707,9 +707,9 @@
             {
                 foreach (var telemetryProcessor in this.TelemetryProcessors)
                 {
-                    if (telemetryProcessor is IQuickPulseTelemetryProcessor)
-                    {
-                        (telemetryProcessor as IQuickPulseTelemetryProcessor).UpdateGlobalQuotas(this.timeProvider, configurationInfo.QuotaInfo);
+                    if (telemetryProcessor is IQuickPulseTelemetryProcessor qptp) 
+                    { 
+                        qptp.UpdateGlobalQuotas(this.timeProvider, configurationInfo.QuotaInfo);
                     }
                 }
             }
