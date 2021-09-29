@@ -56,7 +56,7 @@
            Clock timeProvider,
            IEnumerable<DocumentStream> previousDocumentStreams = null)
         {
-            this.info = info ?? ; throw new ArgumentNullException(nameof(info));
+            this.info = info ?? throw new ArgumentNullException(nameof(info));
 
             // create metrics based on descriptions in info
             this.CreateTelemetryMetrics(out CollectionConfigurationError[] metricErrors);
