@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Filtering
 {
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.Service_contract;
     using System.Runtime.Serialization;
 
     /// <summary>
@@ -13,13 +14,7 @@
         public string ETag { get; set; }
 
         [DataMember(IsRequired = false)]
-        public float? InitialQuota { get; set; }
-
-        [DataMember(IsRequired = false)]
-        public float? MaxQuota { get; set; }
-
-        [DataMember(IsRequired = false)]
-        public float? QuotaAccrualRatePerSec { get; set; }
+        public QuotaConfigurationInfo QuotaInfo { get; set; }
 
         [DataMember]
         public CalculatedMetricInfo[] Metrics { get; set; }

@@ -4,6 +4,7 @@
 
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse.Helpers;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.Service_contract;
 
     internal interface IQuickPulseTelemetryProcessor
     {
@@ -13,9 +14,6 @@
 
         void StopCollection();
 
-        void UpdateGlobalQuotas(Clock timeProvider,
-            float? maxGlobalTelemetryQuota = null,
-            float? initialGlobalTelemetryQuota = null,
-            float? quotaAccrualRatePerSec = null);
+        void UpdateGlobalQuotas(Clock timeProvider, QuotaConfigurationInfo quotaInfo);
     }
 }

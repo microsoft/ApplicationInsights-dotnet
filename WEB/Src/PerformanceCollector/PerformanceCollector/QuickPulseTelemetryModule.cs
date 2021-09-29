@@ -709,7 +709,7 @@
                 {
                     if (telemetryProcessor is IQuickPulseTelemetryProcessor)
                     {
-                        (telemetryProcessor as IQuickPulseTelemetryProcessor).UpdateGlobalQuotas(this.timeProvider, configurationInfo.MaxQuota, configurationInfo.InitialQuota, configurationInfo.QuotaAccrualRatePerSec);
+                        (telemetryProcessor as IQuickPulseTelemetryProcessor).UpdateGlobalQuotas(this.timeProvider, configurationInfo.QuotaInfo);
                     }
                 }
             }

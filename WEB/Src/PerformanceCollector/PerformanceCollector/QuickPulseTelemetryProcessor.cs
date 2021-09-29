@@ -15,6 +15,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse.Helpers;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.Service_contract;
     using Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService;
 
     /// <summary>
@@ -129,15 +130,15 @@
             this.RegisterSelfWithQuickPulseTelemetryModule();
         }
 
-        void IQuickPulseTelemetryProcessor.UpdateGlobalQuotas(Clock timeProvider, float? maxGlobalTelemetryQuota, float? initialGlobalTelemetryQuota, float? quotaAccrualRatePerSec)
+        void IQuickPulseTelemetryProcessor.UpdateGlobalQuotas(Clock timeProvider, QuotaConfigurationInfo quotaInfo)
         {
-            if (maxGlobalTelemetryQuota != null || initialGlobalTelemetryQuota != null || quotaAccrualRatePerSec != null)
+            if (quotaInfo != null)
             {
                 this.globalQuotaTracker = new QuickPulseQuotaTracker(
-                timeProvider,
-                maxGlobalTelemetryQuota ?? MaxGlobalTelemetryQuota,
-                initialGlobalTelemetryQuota ?? InitialGlobalTelemetryQuota,
-                quotaAccrualRatePerSec);
+                    timeProvider,
+                    quotaInfo.MaxQuota.Value,
+                    quotaInfo.InitialQuota ?? InitialGlobalTelemetryQuota,
+                    quotaInfo.QuotaAccrualRatePerSec);
             }
         }
 

@@ -22,6 +22,10 @@
     /// </remarks>
     internal class CollectionConfiguration
     {
+        private const float MaxQuotaAccruable = 200f;
+
+        private const float MaxQuotaAccrualRate = 200f;
+
         private readonly CollectionConfigurationInfo info;
 
         #region Collection-time instances used to filter and calculate data on telemetry passing through the pipeline
@@ -202,15 +206,15 @@
             if (this.info.DocumentStreams != null)
             {
                 float? maxQuota = null;
-                if (info.MaxQuota != null)
+                if (info.QuotaInfo?.MaxQuota != null)
                 {
-                    maxQuota = Math.Min(info.MaxQuota.Value, 200);
+                    maxQuota = Math.Min(info.QuotaInfo.MaxQuota.Value, MaxQuotaAccruable);
                 }
 
                 float? quotaAccrualRatePerSec = null;
-                if (info.QuotaAccrualRatePerSec != null)
+                if (info.QuotaInfo?.QuotaAccrualRatePerSec != null)
                 {
-                    quotaAccrualRatePerSec = Math.Min(info.QuotaAccrualRatePerSec.Value, 200);
+                    quotaAccrualRatePerSec = Math.Min(info.QuotaInfo.QuotaAccrualRatePerSec.Value, MaxQuotaAccrualRate);
                 }
 
                 foreach (DocumentStreamInfo documentStreamInfo in this.info.DocumentStreams)
@@ -234,20 +238,22 @@
                         previousQuotasByStreamId.TryGetValue(documentStreamInfo.Id, out Tuple<float, float, float, float, float> initialQuotas);
                         previousMaxQuotasByStreamId.TryGetValue(documentStreamInfo.Id, out Tuple<float, float, float, float, float> maxQuotas);
 
+                        float? initialQuota = info.QuotaInfo?.InitialQuota;
+
                         var documentStream = new DocumentStream(
                             documentStreamInfo,
                             out localErrors,
                             timeProvider,
-                            initialRequestQuota: info.InitialQuota ?? initialQuotas?.Item1,
-                            initialDependencyQuota: info.InitialQuota ?? initialQuotas?.Item2,
-                            initialExceptionQuota: info.InitialQuota ?? initialQuotas?.Item3,
-                            initialEventQuota: info.InitialQuota ?? initialQuotas?.Item4,
-                            initialTraceQuota: info.InitialQuota ?? initialQuotas?.Item5,
-                            maxRequestQuota: maxQuota ?? maxQuotas?.Item1,
-                            maxDependencyQuota: maxQuota ?? maxQuotas?.Item2,
-                            maxExceptionQuota: maxQuota ?? maxQuotas?.Item3,
-                            maxEventQuota: maxQuota ?? maxQuotas?.Item4,
-                            maxTraceQuota: maxQuota ?? maxQuotas?.Item5,
+                            initialRequestQuota: initialQuota ?? initialQuotas?.Item1,
+                            initialDependencyQuota: initialQuota ?? initialQuotas?.Item2,
+                            initialExceptionQuota: initialQuota ?? initialQuotas?.Item3,
+                            initialEventQuota: initialQuota ?? initialQuotas?.Item4,
+                            initialTraceQuota: initialQuota ?? initialQuotas?.Item5,
+                            maxRequestQuota: maxQuota,
+                            maxDependencyQuota: maxQuota,
+                            maxExceptionQuota: maxQuota,
+                            maxEventQuota: maxQuota,
+                            maxTraceQuota: maxQuota,
                             quotaAccrualRatePerSec: quotaAccrualRatePerSec);
 
                         documentStreamIds.Add(documentStreamInfo.Id);

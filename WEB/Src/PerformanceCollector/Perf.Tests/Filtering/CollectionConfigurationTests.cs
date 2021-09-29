@@ -8,6 +8,7 @@ namespace Microsoft.ApplicationInsights.Tests
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Filtering;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.Service_contract;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
     using Microsoft.ApplicationInsights.Web.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -772,7 +773,17 @@ namespace Microsoft.ApplicationInsights.Tests
                 }
             };
 
-            var oldCollectionConfigurationInfo = new CollectionConfigurationInfo() { DocumentStreams = oldDocumentStreamInfos, ETag = "ETag1", InitialQuota = 10 };
+            var oldCollectionConfigurationInfo = new CollectionConfigurationInfo()
+            {
+                DocumentStreams = oldDocumentStreamInfos,
+                ETag = "ETag1",
+                QuotaInfo = new QuotaConfigurationInfo()
+                {
+                    InitialQuota = 10,
+                    MaxQuota = 30,
+                    QuotaAccrualRatePerSec = null
+                }
+            };
             var oldCollectionConfiguration = new CollectionConfiguration(oldCollectionConfigurationInfo, out errors, timeProvider);
 
             // spend some quota on the old configuration
