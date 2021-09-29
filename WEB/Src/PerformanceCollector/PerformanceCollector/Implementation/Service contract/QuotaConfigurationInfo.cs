@@ -14,9 +14,9 @@
         public float? InitialQuota { get; set; }
 
         [DataMember(IsRequired = true)]
-        public float? MaxQuota { get; set; }
+        public float MaxQuota { get; set; }
 
         [DataMember(IsRequired = true)]
-        public float? QuotaAccrualRatePerSec { get; set; }
+        public float QuotaAccrualRatePerSec { get; set; }
     }
 }

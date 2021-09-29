@@ -136,9 +136,16 @@
             {
                 this.globalQuotaTracker = new QuickPulseQuotaTracker(
                     timeProvider,
-                    quotaInfo.MaxQuota.Value,
+                    quotaInfo.MaxQuota,
                     quotaInfo.InitialQuota ?? InitialGlobalTelemetryQuota,
                     quotaInfo.QuotaAccrualRatePerSec);
+            } 
+            else
+            {
+                this.globalQuotaTracker = new QuickPulseQuotaTracker(
+                    timeProvider,
+                    MaxGlobalTelemetryQuota,
+                    InitialGlobalTelemetryQuota);
             }
         }
 
