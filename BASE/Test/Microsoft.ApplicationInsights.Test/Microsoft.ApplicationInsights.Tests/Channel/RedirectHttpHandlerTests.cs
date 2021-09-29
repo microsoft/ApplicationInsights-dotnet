@@ -4,16 +4,10 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
     using System.Net.Http;
-    using System.Text;
-    using System.Threading;
     using System.Threading.Tasks;
 
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.AspNetCore.Builder;
-    using Microsoft.AspNetCore.Hosting;
-    using Microsoft.AspNetCore.Http;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
@@ -79,9 +73,8 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
 
         /// <summary>
         /// Verify behavior of HttpClient and <see cref="RedirectHttpHandler"/>.
-        /// Setup two local servers, where server #1 will redirect requests to #2.
-        /// After the first request, it is expected that the client will cache the redirect.
-        /// Additional requests should skip server #1 and go to server #2.
+        /// Create two local servers that redirect to each other.
+        /// Attempting to create deadlocks around cache handler.
         /// </summary>
         [TestMethod]
         public void StressTest()
@@ -94,15 +87,23 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
             // TODO: TRYING TO CAUSE DEADLOCKS
             var tasks = new List<Task>();
 
-            for (int i = 0; i < 20; i++)
+            int numOfRequests = 20;
+            for (int i = 0; i < numOfRequests; i++)
             {
                 tasks.Add(client.GetAsync());
             }
 
             Task.WaitAll(tasks.ToArray());
 
-            Assert.IsTrue(localServer1.RequestCounter > 1);
-            Assert.IsTrue(localServer2.RequestCounter > 1);
+            Assert.IsTrue(localServer1.RequestCounter > 0, $"{nameof(localServer1)} did not receive any requests");
+            Assert.IsTrue(localServer2.RequestCounter > 0, $"{nameof(localServer2)} did not receive any requests");
+
+            var serverHandledRequestSum = localServer1.RequestCounter + localServer2.RequestCounter;
+            Debug.WriteLine($"ServerHandledRequestSum {serverHandledRequestSum}");
+            var expectedNumberOfRequests = numOfRequests * RedirectHttpHandler.MaxRedirect;
+            Debug.WriteLine($"ExpectedNumberOfRequests {expectedNumberOfRequests}");
+
+            Assert.IsTrue(serverHandledRequestSum >= expectedNumberOfRequests);
         }
 
         /// <summary>

@@ -55,7 +55,6 @@ namespace Microsoft.ApplicationInsights.TestFramework
             }
         }
 
-        
         public static LocalInProcHttpServer MakeRedirectServer(string url, string redirectUrl, TimeSpan cache)
         {
             return new LocalInProcHttpServer(url)
@@ -85,7 +84,6 @@ namespace Microsoft.ApplicationInsights.TestFramework
                 ServerLogic = async (httpContext) => await httpContext.Response.WriteAsync(response)
             };
         }
-
     }
 }
 #endif
