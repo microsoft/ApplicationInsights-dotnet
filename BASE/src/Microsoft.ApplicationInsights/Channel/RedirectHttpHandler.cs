@@ -6,6 +6,8 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+
     internal class RedirectHttpHandler : HttpClientHandler
     {
         internal const int MaxRedirect = 10;
@@ -27,7 +29,7 @@
         {
             if (DateTimeOffset.Now < this.RedirectExpiration)
             {
-                // TODO: MUST BE THREAD SAFE
+                // TODO: MUST BE THREAD SAFE. Consider MemoryCache
                 request.RequestUri = this.RedirectLocation;
             }
 
@@ -37,9 +39,14 @@
             {
                 response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
                 
-                if (IsRedirection(response.StatusCode) && this.TryGetRedirectVars(response, out Uri redirectUri))
+                if (IsRedirection(response.StatusCode) && TryGetRedirectVars(response, out Uri redirectUri, out TimeSpan cache))
                 {
-                    request.RequestUri = this.RedirectLocation = redirectUri;
+                    // TODO: MUST BE THREAD SAFE. Consider MemoryCache
+                    this.RedirectLocation = redirectUri;
+                    this.RedirectExpiration = DateTimeOffset.Now.Add(cache);
+
+                    CoreEventSource.Log.IngestionRedirectInformation(redirectUri.AbsoluteUri);
+                    request.RequestUri = redirectUri;
                 }
                 else
                 {
@@ -62,21 +69,12 @@
             }
         }
 
-        private bool TryGetRedirectVars(HttpResponseMessage httpResponseMessage, out Uri redirectUri)
+        private static bool TryGetRedirectVars(HttpResponseMessage httpResponseMessage, out Uri redirectUri, out TimeSpan cache)
         {
-            var cacheMaxAge = httpResponseMessage?.Headers?.CacheControl?.MaxAge;
+            cache = httpResponseMessage?.Headers?.CacheControl?.MaxAge ?? default;
             redirectUri = httpResponseMessage?.Headers?.Location;
 
-            if (cacheMaxAge.HasValue && redirectUri != null && redirectUri.IsAbsoluteUri)
-            {
-                // TODO: MUST BE THREADSAFE
-                this.RedirectLocation = redirectUri;
-                this.RedirectExpiration = DateTimeOffset.Now.Add(cacheMaxAge.Value);
-
-                return true;
-            }
-
-            return false;
+            return (cache != default && redirectUri != null && redirectUri.IsAbsoluteUri);
         }
     }
 }

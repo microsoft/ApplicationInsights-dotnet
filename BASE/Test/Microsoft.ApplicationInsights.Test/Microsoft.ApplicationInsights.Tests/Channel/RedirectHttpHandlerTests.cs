@@ -69,12 +69,15 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
             Assert.AreEqual(helloString, testStr2);
             Assert.AreEqual(1, localServer1.RequestCounter, "redirect should be cached");
             Assert.AreEqual(2, localServer2.RequestCounter);
+
+            // TODO: VERIFY EVENT SOURCE.
         }
 
         /// <summary>
         /// Verify behavior of HttpClient and <see cref="RedirectHttpHandler"/>.
         /// Create two local servers that redirect to each other.
-        /// Attempting to create deadlocks around cache handler.
+        /// It is expected that every request will cause the cache to be updated.
+        /// This test is attempting to cause deadlocks around that cache.
         /// </summary>
         [TestMethod]
         public void StressTest()
@@ -84,10 +87,10 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
 
             var client = new MyCustomClient(url: LocalUrl1, new RedirectHttpHandler());
 
-            // TODO: TRYING TO CAUSE DEADLOCKS
+            // TODO: TESTING FOR POTENTIAL DEADLOCKS
             var tasks = new List<Task>();
 
-            int numOfRequests = 20;
+            int numOfRequests = 100;
             for (int i = 0; i < numOfRequests; i++)
             {
                 tasks.Add(client.GetAsync());
