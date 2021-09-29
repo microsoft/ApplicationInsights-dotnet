@@ -56,22 +56,17 @@
            Clock timeProvider,
            IEnumerable<DocumentStream> previousDocumentStreams = null)
         {
-            if (info == null)
-            {
-                throw new ArgumentNullException(nameof(info));
-            }
-
-            this.info = info;
+            this.info = info ?? ; throw new ArgumentNullException(nameof(info));
 
             // create metrics based on descriptions in info
-            this.CreateTelemetryMetrics(info, out CollectionConfigurationError[] metricErrors);
+            this.CreateTelemetryMetrics(out CollectionConfigurationError[] metricErrors);
 
             // maintain a separate collection of all (Id, AggregationType) pairs with some additional data - to allow for uniform access to all types of metrics
             // this includes both telemetry metrics and Metric metrics
             this.CreateMetadata();
 
             // create document streams based on description in info
-            this.CreateDocumentStreams(out CollectionConfigurationError[] documentStreamErrors, timeProvider, info, previousDocumentStreams ?? ArrayExtensions.Empty<DocumentStream>());
+            this.CreateDocumentStreams(out CollectionConfigurationError[] documentStreamErrors, timeProvider, previousDocumentStreams ?? ArrayExtensions.Empty<DocumentStream>());
 
             // create performance counters
             this.CreatePerformanceCounters(out CollectionConfigurationError[] performanceCounterErrors);
@@ -173,7 +168,6 @@
         private void CreateDocumentStreams(
             out CollectionConfigurationError[] errors,
             Clock timeProvider,
-            CollectionConfigurationInfo info,
             IEnumerable<DocumentStream> previousDocumentStreams)
         {
             var errorList = new List<CollectionConfigurationError>();
@@ -195,15 +189,15 @@
             if (this.info.DocumentStreams != null)
             {
                 float? maxQuota = null;
-                if (info.QuotaInfo?.MaxQuota != null)
+                if (this.info.QuotaInfo?.MaxQuota != null)
                 {
-                    maxQuota = Math.Min(info.QuotaInfo.MaxQuota.Value, MaxQuotaAccruable);
+                    maxQuota = Math.Min(this.info.QuotaInfo.MaxQuota.Value, MaxQuotaAccruable);
                 }
 
                 float? quotaAccrualRatePerSec = null;
-                if (info.QuotaInfo?.QuotaAccrualRatePerSec != null)
+                if (this.info.QuotaInfo?.QuotaAccrualRatePerSec != null)
                 {
-                    quotaAccrualRatePerSec = Math.Min(info.QuotaInfo.QuotaAccrualRatePerSec.Value, MaxQuotaAccrualRate);
+                    quotaAccrualRatePerSec = Math.Min(this.info.QuotaInfo.QuotaAccrualRatePerSec.Value, MaxQuotaAccrualRate);
                 }
 
                 foreach (DocumentStreamInfo documentStreamInfo in this.info.DocumentStreams)
@@ -225,7 +219,7 @@
                     try
                     {
                         previousQuotasByStreamId.TryGetValue(documentStreamInfo.Id, out Tuple<float, float, float, float, float> initialQuotas);
-                        float? initialQuota = info.QuotaInfo?.InitialQuota;
+                        float? initialQuota = this.info.QuotaInfo?.InitialQuota;
 
                         var documentStream = new DocumentStream(
                             documentStreamInfo,
@@ -271,12 +265,12 @@
             errors = errorList.ToArray();
         }
 
-        private void CreateTelemetryMetrics(CollectionConfigurationInfo info, out CollectionConfigurationError[] errors)
+        private void CreateTelemetryMetrics(out CollectionConfigurationError[] errors)
         {
             var errorList = new List<CollectionConfigurationError>();
             var metricIds = new HashSet<string>();
 
-            foreach (CalculatedMetricInfo metricInfo in info.Metrics ?? ArrayExtensions.Empty<CalculatedMetricInfo>())
+            foreach (CalculatedMetricInfo metricInfo in this.info.Metrics ?? ArrayExtensions.Empty<CalculatedMetricInfo>())
             {
                 if (metricIds.Contains(metricInfo.Id))
                 {
