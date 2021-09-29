@@ -167,7 +167,7 @@
                     case true:
                         // the service wants us to keep collecting
                         this.UpdateConfiguration(configurationInfo);
-                        break;     
+                        break;
 
                     case false:
                         // the service wants us to stop collection
