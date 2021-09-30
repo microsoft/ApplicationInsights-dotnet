@@ -93,7 +93,6 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
 
             var client = new MyCustomClient(url: LocalUrl1, new RedirectHttpHandler());
 
-            // TODO: TESTING FOR POTENTIAL DEADLOCKS
             var tasks = new List<Task>();
 
             int numOfRequests = 100;
