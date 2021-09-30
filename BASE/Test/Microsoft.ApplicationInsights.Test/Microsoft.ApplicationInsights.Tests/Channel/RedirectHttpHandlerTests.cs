@@ -171,7 +171,6 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
             Assert.AreEqual(RedirectHttpHandler.MaxRedirect + 1, localServer1.RequestCounter, $"expecting 1 original request + {RedirectHttpHandler.MaxRedirect} additional requests");
         }
 
-
         /// <summary>
         /// Verify behavior of HttpClient with <see cref="RedirectHttpHandler"/>.
         /// In this test, server1 will redirect to itself.
