@@ -12,14 +12,12 @@
     {
         internal const int MaxRedirect = 10;
 
+        private readonly Cache<Uri> cache = new Cache<Uri>();
+
         public RedirectHttpHandler()
         {
             this.AllowAutoRedirect = false;
         }
-
-        public Uri RedirectLocation { get; private set; } = default;
-
-        public DateTimeOffset RedirectExpiration { get; private set; } = DateTimeOffset.MinValue;
 
         /// <summary>
         /// This method will handle all requests from HttpClient.SendAsync().
@@ -27,34 +25,21 @@
         /// </summary>
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            if (DateTimeOffset.Now < this.RedirectExpiration)
-            {
-                // TODO: MUST BE THREAD SAFE. Consider MemoryCache
-                request.RequestUri = this.RedirectLocation;
+            if (this.cache.TryRead(out Uri redirectUri))
+            { 
+                request.RequestUri = redirectUri;
             }
 
-            HttpResponseMessage response = null;
+            HttpResponseMessage response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
-            for (int redirects = 0; redirects <= MaxRedirect; redirects++)
+            if (IsRedirection(response.StatusCode))
             {
-                response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-                
-                if (IsRedirection(response.StatusCode) && TryGetRedirectVars(response, out Uri redirectUri, out TimeSpan cache))
-                {
-                    // TODO: MUST BE THREAD SAFE. Consider MemoryCache
-                    this.RedirectLocation = redirectUri;
-                    this.RedirectExpiration = DateTimeOffset.Now.Add(cache);
-
-                    CoreEventSource.Log.IngestionRedirectInformation($"New Ingestion Endpoint: {redirectUri.AbsoluteUri} Expires: {cache}");
-                    request.RequestUri = redirectUri;
-                }
-                else
-                {
-                    break;
-                }
+                return await this.HandleRedirectAsync(request, response, cancellationToken).ConfigureAwait(false);
             }
-
-            return response;
+            else
+            {
+                return response;
+            }
         }
 
         private static bool IsRedirection(HttpStatusCode statusCode)
@@ -69,12 +54,77 @@
             }
         }
 
-        private static bool TryGetRedirectVars(HttpResponseMessage httpResponseMessage, out Uri redirectUri, out TimeSpan cache)
+        private static bool TryGetRedirectVars(HttpResponseMessage httpResponseMessage, out Uri redirectUri, out TimeSpan expire)
         {
-            cache = httpResponseMessage?.Headers?.CacheControl?.MaxAge ?? default;
+            expire = httpResponseMessage?.Headers?.CacheControl?.MaxAge ?? default;
             redirectUri = httpResponseMessage?.Headers?.Location;
 
-            return cache != default && redirectUri != null && redirectUri.IsAbsoluteUri;
+            return expire != default && redirectUri != null && redirectUri.IsAbsoluteUri;
+        }
+
+        /// <summary>
+        /// This method handles redirection.
+        /// This keeps extra var allocation out of the hot path.
+        /// </summary>
+        private async Task<HttpResponseMessage> HandleRedirectAsync(HttpRequestMessage request, HttpResponseMessage response, CancellationToken cancellationToken)
+        {
+            int redirectCount = 0;
+
+            do
+            {
+                if (TryGetRedirectVars(response, out Uri newRedirectUri, out TimeSpan expire))
+                {
+                    this.cache.Set(newRedirectUri, expire);
+
+                    CoreEventSource.Log.IngestionRedirectInformation($"New Ingestion Endpoint: {newRedirectUri.AbsoluteUri} Expires: {expire}");
+                    request.RequestUri = newRedirectUri;
+                }
+                else
+                {
+                    break;
+                }
+
+                redirectCount++;
+                response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            }
+            while (redirectCount < MaxRedirect && IsRedirection(response.StatusCode));
+
+            return response;
+        }
+
+        /// <summary>
+        /// Simple class to encapsulate redirect cache.
+        /// </summary>
+        private class Cache<T>
+        {
+            private readonly object lockObj = new object();
+
+            private T cachedValue = default;
+
+            private DateTimeOffset expiration = DateTimeOffset.MinValue;
+
+            public bool TryRead(out T cachedValue)
+            {
+                if (DateTimeOffset.Now < this.expiration)
+                {
+                    cachedValue = this.cachedValue;
+                    return true;
+                }
+                else
+                {
+                    cachedValue = default;
+                    return false;
+                }
+            }
+        
+            public void Set(T cachingValue, TimeSpan expire)
+            {
+                lock (this.lockObj)
+                {
+                    this.cachedValue = cachingValue;
+                    this.expiration = DateTimeOffset.Now.Add(expire);
+                }
+            }
         }
     }
 }
