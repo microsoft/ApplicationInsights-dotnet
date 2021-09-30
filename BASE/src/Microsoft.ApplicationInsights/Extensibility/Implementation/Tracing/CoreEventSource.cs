@@ -669,7 +669,6 @@
         [Event(74, Message = "Ingestion Service responded with redirect. {0}", Level = EventLevel.Informational)]
         public void IngestionRedirectInformation(string message, string appDomainName = "Incorrect") => this.WriteEvent(74, message, this.nameProvider.Name);
 
-
         [NonEvent]
         public void TransmissionStatusEventFailed(Exception ex)
         {
