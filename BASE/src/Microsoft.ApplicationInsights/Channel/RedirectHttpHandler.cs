@@ -45,7 +45,7 @@
                     this.RedirectLocation = redirectUri;
                     this.RedirectExpiration = DateTimeOffset.Now.Add(cache);
 
-                    CoreEventSource.Log.IngestionRedirectInformation(redirectUri.AbsoluteUri);
+                    CoreEventSource.Log.IngestionRedirectInformation($"New Ingestion Endpoint: {redirectUri.AbsoluteUri} Expires: {cache}");
                     request.RequestUri = redirectUri;
                 }
                 else
