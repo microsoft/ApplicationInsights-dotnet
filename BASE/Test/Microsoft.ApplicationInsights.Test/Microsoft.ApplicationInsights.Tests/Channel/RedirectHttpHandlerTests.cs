@@ -116,7 +116,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
         }
 
         /// <summary>
-        /// Verify behavior of HttpClient with <see cref="RedirectHttpHandler"/>.
+        /// Verify behavior of HttpClient and <see cref="RedirectHttpHandler"/>.
         /// Setup two local servers, where server #1 will redirect requests to #2.
         /// After the first request, it is expected that the client will cache the redirect.
         /// After this cache expries, requests will go to server #1.
@@ -154,7 +154,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
         }
 
         /// <summary>
-        /// Verify behavior of HttpClient with <see cref="RedirectHttpHandler"/>.
+        /// Verify behavior of HttpClient and <see cref="RedirectHttpHandler"/>.
         /// In this test, server1 will redirect to itself.
         /// Verify that <see cref="RedirectHttpHandler.MaxRedirect"/> is enforced.
         /// </summary>
@@ -172,7 +172,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
         }
 
         /// <summary>
-        /// Verify behavior of HttpClient with <see cref="RedirectHttpHandler"/>.
+        /// Verify behavior of HttpClient and <see cref="RedirectHttpHandler"/>.
         /// In this test, server1 will redirect to itself.
         /// Here, i'm testing that if an auth header is present, it MUST be preserved for every request.
         /// </summary>
