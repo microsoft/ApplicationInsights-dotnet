@@ -139,7 +139,7 @@
                     quotaInfo.MaxQuota,
                     quotaInfo.InitialQuota ?? InitialGlobalTelemetryQuota,
                     quotaInfo.QuotaAccrualRatePerSec);
-            } 
+            }
             else
             {
                 this.globalQuotaTracker = new QuickPulseQuotaTracker(

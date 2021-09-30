@@ -780,8 +780,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 QuotaInfo = new QuotaConfigurationInfo()
                 {
                     InitialQuota = 10,
-                    MaxQuota = 30,
-                    QuotaAccrualRatePerSec = null
+                    MaxQuota = 30
                 }
             };
             var oldCollectionConfiguration = new CollectionConfiguration(oldCollectionConfigurationInfo, out errors, timeProvider);
