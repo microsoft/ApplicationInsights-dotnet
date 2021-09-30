@@ -122,7 +122,7 @@
                 lock (this.lockObj)
                 {
                     this.cachedValue = cachingValue;
-                    this.expiration = DateTimeOffset.Now.Add(expire);
+                    this.expiration = DateTimeOffset.UtcNow.Add(expire);
                 }
             }
         }
