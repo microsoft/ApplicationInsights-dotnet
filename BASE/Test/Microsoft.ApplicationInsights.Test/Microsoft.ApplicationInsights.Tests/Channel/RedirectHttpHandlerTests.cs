@@ -184,7 +184,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
 
             public async Task<string> GetAsync()
             {
-                var result = await this.httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, this.uri));
+                var result = await this.httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Post, this.uri));
                 return await result.Content.ReadAsStringAsync();
             }
         }
