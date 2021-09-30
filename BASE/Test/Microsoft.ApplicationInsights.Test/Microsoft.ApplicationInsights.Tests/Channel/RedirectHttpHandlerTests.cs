@@ -5,9 +5,15 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Net.Http;
+    using System.Net.Http.Headers;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
@@ -165,6 +171,38 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
             Assert.AreEqual(RedirectHttpHandler.MaxRedirect + 1, localServer1.RequestCounter, $"expecting 1 original request + {RedirectHttpHandler.MaxRedirect} additional requests");
         }
 
+
+        /// <summary>
+        /// Verify behavior of HttpClient with <see cref="RedirectHttpHandler"/>.
+        /// In this test, server1 will redirect to itself.
+        /// Here, i'm testing that if an auth header is present, it MUST be preserved for every request.
+        /// </summary>
+        [TestMethod]
+        public async Task VerifyAuthHeaderPreserved()
+        {
+            var testAuthToken = "ABCD1234";
+
+            using var localServer1 = LocalInProcHttpServer.MakeRedirectServer(url: LocalUrl1, redirectUrl: LocalUrl1, cache: TimeSpan.FromDays(1));
+            localServer1.ServerSideAsserts = (httpContext) =>
+            {
+                if (httpContext.Request.Headers.TryGetValue(AuthConstants.AuthorizationHeaderName, out var authValue))
+                {
+                    Assert.AreEqual(testAuthToken, authValue[0]);
+                }
+                else
+                {
+                    Assert.Fail("request missing auth token");
+                }
+            };
+
+            var client = new MyCustomClient(url: LocalUrl1, new RedirectHttpHandler());
+
+            var testStr1 = await client.GetAsync(testAuthToken);
+            Assert.AreEqual("redirect", testStr1);
+
+            Assert.AreEqual(RedirectHttpHandler.MaxRedirect + 1, localServer1.RequestCounter, $"expecting 1 original request + {RedirectHttpHandler.MaxRedirect} additional requests");
+        }
+
         /// <summary>
         /// This class is a wrapper around <see cref="HttpClient"/>.
         /// I'm using this to simplify the tests above.
@@ -185,6 +223,15 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
             public async Task<string> GetAsync()
             {
                 var result = await this.httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Post, this.uri));
+                return await result.Content.ReadAsStringAsync();
+            }
+
+            public async Task<string> GetAsync(string authToken)
+            {
+                var request = new HttpRequestMessage(HttpMethod.Post, this.uri);
+                request.Headers.TryAddWithoutValidation(AuthConstants.AuthorizationHeaderName, authToken);
+
+                var result = await this.httpClient.SendAsync(request);
                 return await result.Content.ReadAsStringAsync();
             }
         }

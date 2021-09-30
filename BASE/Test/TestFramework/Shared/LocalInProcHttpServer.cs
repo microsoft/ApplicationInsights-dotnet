@@ -22,6 +22,8 @@ namespace Microsoft.ApplicationInsights.TestFramework
 
         public Func<HttpContext, Task> ServerLogic;
 
+        public Action<HttpContext> ServerSideAsserts;
+
         public LocalInProcHttpServer(string url)
         {
             this.cts = new CancellationTokenSource();
@@ -40,6 +42,12 @@ namespace Microsoft.ApplicationInsights.TestFramework
         private Task Server(HttpContext context)
         {
             this.RequestCounter++;
+            
+            if (this.ServerSideAsserts != null)
+            {
+                this.ServerSideAsserts(context);
+            }
+
             return this.ServerLogic(context);
         }
 
