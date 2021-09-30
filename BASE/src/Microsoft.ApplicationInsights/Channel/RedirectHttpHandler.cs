@@ -105,7 +105,7 @@
 
             public bool TryRead(out T cachedValue)
             {
-                if (DateTimeOffset.Now < this.expiration)
+                if (DateTimeOffset.UtcNow < this.expiration)
                 {
                     cachedValue = this.cachedValue;
                     return true;
@@ -122,7 +122,7 @@
                 lock (this.lockObj)
                 {
                     this.cachedValue = cachingValue;
-                    this.expiration = DateTimeOffset.Now.Add(expire);
+                    this.expiration = DateTimeOffset.UtcNow.Add(expire);
                 }
             }
         }

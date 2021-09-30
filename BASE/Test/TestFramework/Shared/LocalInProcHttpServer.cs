@@ -43,10 +43,7 @@ namespace Microsoft.ApplicationInsights.TestFramework
         {
             this.RequestCounter++;
             
-            if (this.ServerSideAsserts != null)
-            {
-                this.ServerSideAsserts(context);
-            }
+            this.ServerSideAsserts?.Invoke(context);
 
             return this.ServerLogic(context);
         }
