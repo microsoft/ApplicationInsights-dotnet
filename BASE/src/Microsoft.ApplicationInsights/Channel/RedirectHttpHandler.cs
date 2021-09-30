@@ -74,7 +74,7 @@
             cache = httpResponseMessage?.Headers?.CacheControl?.MaxAge ?? default;
             redirectUri = httpResponseMessage?.Headers?.Location;
 
-            return (cache != default && redirectUri != null && redirectUri.IsAbsoluteUri);
+            return cache != default && redirectUri != null && redirectUri.IsAbsoluteUri;
         }
     }
 }
