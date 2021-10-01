@@ -95,7 +95,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
 
             var tasks = new List<Task>();
 
-            int numOfRequests = 100;
+            int numOfRequests = 200;
             for (int i = 0; i < numOfRequests; i++)
             {
                 tasks.Add(client.GetAsync());
@@ -108,10 +108,10 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
 
             var serverHandledRequestSum = localServer1.RequestCounter + localServer2.RequestCounter;
             Debug.WriteLine($"ServerHandledRequestSum {serverHandledRequestSum}");
-            var expectedNumberOfRequests = numOfRequests * RedirectHttpHandler.MaxRedirect;
+            var expectedNumberOfRequests = numOfRequests * RedirectHttpHandler.MaxRedirect + numOfRequests;
             Debug.WriteLine($"ExpectedNumberOfRequests {expectedNumberOfRequests}");
 
-            Assert.IsTrue(serverHandledRequestSum >= expectedNumberOfRequests);
+            Assert.IsTrue(serverHandledRequestSum == expectedNumberOfRequests);
         }
 
         /// <summary>

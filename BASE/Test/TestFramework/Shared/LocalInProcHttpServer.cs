@@ -41,7 +41,7 @@ namespace Microsoft.ApplicationInsights.TestFramework
 
         private Task Server(HttpContext context)
         {
-            this.RequestCounter++;
+            Interlocked.Increment(ref this.RequestCounter);
             
             this.ServerSideAsserts?.Invoke(context);
 
