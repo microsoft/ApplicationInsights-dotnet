@@ -9,10 +9,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using System.IO;
 
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.ApplicationInsights.AspNetCore.Tests;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Hosting;
 
     using Xunit.Abstractions;
 
@@ -82,18 +81,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         public static ServiceCollection GetServiceCollectionWithContextAccessor()
         {
             var services = new ServiceCollection();
-            services.AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
-
 #if NETCOREAPP
-            var environmentMock = new Moq.Mock<IHostEnvironment>();
-            environmentMock.Setup(x => x.ContentRootPath).Returns(Directory.GetCurrentDirectory());
-            services.AddSingleton<IHostEnvironment>(environmentMock.Object);
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostEnvironment>(EnvironmentHelper.GetIHostEnvironment());
 #else
-            var environmentMock = new Moq.Mock<Microsoft.AspNetCore.Hosting.IHostingEnvironment>();
-            environmentMock.Setup(x => x.ContentRootPath).Returns(Directory.GetCurrentDirectory());
-            services.AddSingleton<Microsoft.AspNetCore.Hosting.IHostingEnvironment>(environmentMock.Object);
+            services.AddSingleton<AspNetCore.Hosting.IHostingEnvironment>(EnvironmentHelper.GetIHostingEnvironment());
 #endif
-
+            services.AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
             return services;
         }
     }
