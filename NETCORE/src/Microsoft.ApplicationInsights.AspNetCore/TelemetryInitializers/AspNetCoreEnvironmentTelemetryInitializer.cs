@@ -12,13 +12,17 @@
     public class AspNetCoreEnvironmentTelemetryInitializer : ITelemetryInitializer
     {
         private const string AspNetCoreEnvironmentPropertyName = "AspNetCoreEnvironment";
+#pragma warning disable CS0618 // Type or member is obsolete
         private readonly IHostingEnvironment environment;
+#pragma warning restore CS0618 // Type or member is obsolete
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AspNetCoreEnvironmentTelemetryInitializer"/> class.
         /// </summary>
         /// <param name="environment">HostingEnvironment to provide EnvironmentName to be added to telemetry properties.</param>
+#pragma warning disable CS0618 // Type or member is obsolete
         public AspNetCoreEnvironmentTelemetryInitializer(IHostingEnvironment environment)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             this.environment = environment;
         }

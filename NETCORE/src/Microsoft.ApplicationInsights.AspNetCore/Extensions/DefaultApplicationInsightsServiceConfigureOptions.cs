@@ -14,7 +14,9 @@
     /// </summary>
     internal class DefaultApplicationInsightsServiceConfigureOptions : IConfigureOptions<ApplicationInsightsServiceOptions>
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         private readonly IHostingEnvironment hostingEnvironment;
+#pragma warning restore CS0618 // Type or member is obsolete
         private readonly IConfiguration userConfiguration;
 
         /// <summary>
@@ -22,7 +24,9 @@
         /// </summary>
         /// <param name="hostingEnvironment"><see cref="IHostingEnvironment"/> to use for retreiving ContentRootPath.</param>
         /// <param name="configuration"><see cref="IConfiguration"/>  from an application.</param>
+#pragma warning disable CS0618 // Type or member is obsolete
         public DefaultApplicationInsightsServiceConfigureOptions(IHostingEnvironment hostingEnvironment, IConfiguration configuration = null)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             this.hostingEnvironment = hostingEnvironment;
             this.userConfiguration = configuration;

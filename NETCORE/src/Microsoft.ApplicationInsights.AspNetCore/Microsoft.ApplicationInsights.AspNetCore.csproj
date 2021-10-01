@@ -32,11 +32,13 @@
     <ProjectReference Include="..\..\..\WEB\Src\WindowsServer\WindowsServer\WindowsServer.csproj" />
     <ProjectReference Include="..\..\..\WEB\Src\EventCounterCollector\EventCounterCollector\EventCounterCollector.csproj" />
     <ProjectReference Include="..\..\..\LOGGING\src\ILogger\ILogger.csproj" />
-    
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(IsNetCore)' == 'True'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App"/>
   </ItemGroup>
 
-  <ItemGroup>
-    <!-- Will change to conditionally use FrameworkReference in follow up PR. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.0" />
     
