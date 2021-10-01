@@ -19,8 +19,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Test;
 
-using Moq;
-
 using Xunit;
 
 namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
@@ -75,17 +73,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
 
         private static ServiceCollection CreateServicesAndAddApplicationinsightsWorker(string jsonPath, Action<ApplicationInsightsServiceOptions> serviceOptions = null, Action<IServiceCollection> servicesConfig = null, bool useDefaultConfig = true)
         {
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            var mockEnvironment = new Mock<IHostingEnvironment>();
-#pragma warning restore CS0618 // Type or member is obsolete
-            mockEnvironment.Setup(x => x.ContentRootPath).Returns(Directory.GetCurrentDirectory());
-
-
             IConfigurationRoot config;
             var services = new ServiceCollection()
 #pragma warning disable CS0618 // Type or member is obsolete
-                .AddSingleton<IHostingEnvironment>(mockEnvironment.Object)
+                .AddSingleton<IHostingEnvironment>(EnvironmentHelper.GetIHostingEnvironment())
 #pragma warning restore CS0618 // Type or member is obsolete
                 .AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
 

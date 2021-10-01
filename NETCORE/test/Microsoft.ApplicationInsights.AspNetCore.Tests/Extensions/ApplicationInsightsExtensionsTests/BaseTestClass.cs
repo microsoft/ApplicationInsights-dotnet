@@ -9,11 +9,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using System.IO;
 
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.ApplicationInsights.AspNetCore.Tests;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
-
-    using Moq;
 
     public abstract class BaseTestClass
     {
@@ -80,15 +79,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
         public static ServiceCollection GetServiceCollectionWithContextAccessor()
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            var mockEnvironment = new Mock<IHostingEnvironment>();
-#pragma warning restore CS0618 // Type or member is obsolete
-            mockEnvironment.Setup(x => x.ContentRootPath).Returns(Directory.GetCurrentDirectory());
-
-
             var services = new ServiceCollection();
 #pragma warning disable CS0618 // Type or member is obsolete
-            services.AddSingleton<IHostingEnvironment>(mockEnvironment.Object);
+            services.AddSingleton<IHostingEnvironment>(EnvironmentHelper.GetIHostingEnvironment());
 #pragma warning restore CS0618 // Type or member is obsolete
             services.AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
             return services;

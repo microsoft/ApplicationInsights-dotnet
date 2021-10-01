@@ -4,13 +4,6 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
 
-    using Moq;
-
-
-    using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
-
-
-
     public class AspNetCoreEnvironmentTelemetryInitializerTests
     {
         [Fact]
@@ -21,36 +14,25 @@
         }
 
         [Fact]
-        public void InitializeDoesNotOverrideExistingProperty_IHostingEnvironment()
+        public void InitializeDoesNotOverrideExistingProperty()
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            var mockEnvironment = new Mock<IHostingEnvironment>();
-#pragma warning restore CS0618 // Type or member is obsolete
-            mockEnvironment.Setup(x => x.EnvironmentName).Returns("Production");
-
-            var initializer = new AspNetCoreEnvironmentTelemetryInitializer(environment: mockEnvironment.Object);
-
+            var initializer = new AspNetCoreEnvironmentTelemetryInitializer(environment: EnvironmentHelper.GetIHostingEnvironment());
             var telemetry = new RequestTelemetry();
             telemetry.Context.GlobalProperties.Add("AspNetCoreEnvironment", "Development");
             initializer.Initialize(telemetry);
 
             Assert.Equal("Development", telemetry.Context.GlobalProperties["AspNetCoreEnvironment"]);
-            Assert.Equal("Production", telemetry.Properties["AspNetCoreEnvironment"]);
+            Assert.Equal("UnitTest", telemetry.Properties["AspNetCoreEnvironment"]);
         }
 
         [Fact]
         public void InitializeSetsCurrentEnvironmentNameToProperty()
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            var mockEnvironment = new Mock<IHostingEnvironment>();
-#pragma warning restore CS0618 // Type or member is obsolete
-            mockEnvironment.Setup(x => x.EnvironmentName).Returns("Production");
-
-            var initializer = new AspNetCoreEnvironmentTelemetryInitializer(environment: mockEnvironment.Object);
+            var initializer = new AspNetCoreEnvironmentTelemetryInitializer(environment: EnvironmentHelper.GetIHostingEnvironment());
             var telemetry = new RequestTelemetry();
             initializer.Initialize(telemetry);
 
-            Assert.Equal("Production", telemetry.Properties["AspNetCoreEnvironment"]);
+            Assert.Equal("UnitTest", telemetry.Properties["AspNetCoreEnvironment"]);
         }
     }
 }
