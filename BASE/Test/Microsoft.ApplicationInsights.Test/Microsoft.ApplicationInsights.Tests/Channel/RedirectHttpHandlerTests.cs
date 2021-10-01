@@ -75,8 +75,6 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
             Assert.AreEqual(helloString, testStr2);
             Assert.AreEqual(1, localServer1.RequestCounter, "redirect should be cached");
             Assert.AreEqual(2, localServer2.RequestCounter);
-
-            // TODO: VERIFY EVENT SOURCE.
         }
 
         /// <summary>

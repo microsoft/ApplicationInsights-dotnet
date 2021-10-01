@@ -18,8 +18,6 @@ namespace Microsoft.ApplicationInsights.TestFramework
         
         public int RequestCounter = 0;
 
-        //public RequestDelegate ServerLogic = async (httpContext) => await httpContext.Response.WriteAsync("Hello World!");
-
         public Func<HttpContext, Task> ServerLogic;
 
         public Action<HttpContext> ServerSideAsserts;
