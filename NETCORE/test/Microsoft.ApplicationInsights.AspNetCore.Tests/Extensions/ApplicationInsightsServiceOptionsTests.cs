@@ -15,10 +15,11 @@ using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
 using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
 using Microsoft.ApplicationInsights.WindowsServer;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Test;
+
+using Moq;
 
 using Xunit;
 
@@ -74,9 +75,18 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
 
         private static ServiceCollection CreateServicesAndAddApplicationinsightsWorker(string jsonPath, Action<ApplicationInsightsServiceOptions> serviceOptions = null, Action<IServiceCollection> servicesConfig = null, bool useDefaultConfig = true)
         {
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            var mockEnvironment = new Mock<IHostingEnvironment>();
+#pragma warning restore CS0618 // Type or member is obsolete
+            mockEnvironment.Setup(x => x.ContentRootPath).Returns(Directory.GetCurrentDirectory());
+
+
             IConfigurationRoot config;
             var services = new ServiceCollection()
-                .AddSingleton<IHostingEnvironment>(new HostingEnvironment() { ContentRootPath = Directory.GetCurrentDirectory() })
+#pragma warning disable CS0618 // Type or member is obsolete
+                .AddSingleton<IHostingEnvironment>(mockEnvironment.Object)
+#pragma warning restore CS0618 // Type or member is obsolete
                 .AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
 
             if (jsonPath != null)

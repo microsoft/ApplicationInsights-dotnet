@@ -8,7 +8,9 @@
     {
         private readonly ITelemetryProcessor nextProcessor;
 
+#pragma warning disable CS0618 // Type or member is obsolete
         public IHostingEnvironment HostingEnvironment { get; }
+#pragma warning restore CS0618 // Type or member is obsolete
 
         /// <summary>
         /// Constructs an instance of the telemetry processor.
@@ -16,7 +18,9 @@
         /// </summary>
         /// <param name="next">The next procesor in the chain.</param>
         /// <param name="hostingEnvironment">The hosting environment. This parameter will be injected by the DI framework.</param>
+#pragma warning disable CS0618 // Type or member is obsolete
         public FakeTelemetryProcessorWithImportingConstructor(ITelemetryProcessor next, IHostingEnvironment hostingEnvironment)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             this.nextProcessor = next;
             this.HostingEnvironment = hostingEnvironment;

@@ -772,7 +772,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             // TP added via AddApplicationInsightsTelemetryProcessor is added to the default sink.
             FakeTelemetryProcessorWithImportingConstructor telemetryProcessor = telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessors.OfType<FakeTelemetryProcessorWithImportingConstructor>().FirstOrDefault();
             Assert.NotNull(telemetryProcessor);
+#pragma warning disable CS0618 // Type or member is obsolete
             Assert.Same(serviceProvider.GetService<IHostingEnvironment>(), telemetryProcessor.HostingEnvironment);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Fact]
