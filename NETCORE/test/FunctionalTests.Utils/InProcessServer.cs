@@ -149,6 +149,8 @@ namespace FunctionalTests.Utils
 
             builder.ConfigureServices(services =>
             {
+                services.AddMvc(options => options.EnableEndpointRouting = false); // TODO: THIS FIXES MOST FUNCTIONAL TESTS, BUT BREAKS A FEW OTHERS.
+
                 services.AddSingleton<IApplicationIdProvider>(provider =>
                     new DictionaryApplicationIdProvider()
                     {

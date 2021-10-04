@@ -154,55 +154,38 @@
             StringBuilder builder = new StringBuilder();
             foreach (Envelope telemetry in telemetries)
             {
-                TelemetryItem<RemoteDependencyData> dependency = telemetry as TelemetryItem<RemoteDependencyData>;
-                if (dependency != null)
+                if (telemetry is TelemetryItem<RemoteDependencyData> dependency)
                 {                    
-                    var data = ((TelemetryItem<RemoteDependencyData>)dependency).data.baseData;
-                    builder.AppendLine($"{dependency} - {data.data} - {((TelemetryItem<RemoteDependencyData>)dependency).time} - {data.duration} - {data.id} - {data.name} - {data.resultCode} - {data.success} - {data.target} - {data.type}");
+                    var data = dependency.data.baseData;
+                    builder.AppendLine($"{dependency} - {data.data} - {dependency.time} - {data.duration} - {data.id} - {data.name} - {data.resultCode} - {data.success} - {data.target} - {data.type}");
                 }
+                else if (telemetry is TelemetryItem<RequestData> request)
+                {
+                    var data = request.data.baseData;
+                    builder.AppendLine($"{request} - {data.url} - {request.time} - {data.duration} - {data.id} - {data.name} - {data.success} - {data.responseCode}");
+                }
+                else if (telemetry is TelemetryItem<ExceptionData> exception)
+                {
+                    var data = exception.data.baseData;
+                    builder.AppendLine($"{exception} - {data.exceptions[0].message} - {data.exceptions[0].stack} - {data.exceptions[0].typeName} - {data.severityLevel}");
+                }
+                else if (telemetry is TelemetryItem<MessageData> message)
+                {
+                    var data = message.data.baseData;
+                    builder.AppendLine($"{message} - {data.message} - {data.severityLevel}");
+                }
+                else if (telemetry is TelemetryItem<MetricData> metric)
+                {
+                    var data = metric.data.baseData;
+                    builder.AppendLine($"{metric} - {metric.data}- {metric.name} - {data.metrics.Count}");
+                    foreach (var metricVal in data.metrics)
+                    {
+                        builder.AppendLine($"{metricVal.name} {metricVal.value}");
+                    }
+                }     
                 else
                 {
-                    TelemetryItem<RequestData> request = telemetry as TelemetryItem<RequestData>;
-                    if (request != null)
-                    {
-                        var data = ((TelemetryItem<RequestData>)request).data.baseData;
-                        builder.AppendLine($"{request} - {data.url} - {((TelemetryItem<RequestData>)request).time} - {data.duration} - {data.id} - {data.name} - {data.success} - {data.responseCode}");
-                    }
-                    else
-                    {
-                        TelemetryItem<ExceptionData> exception = telemetry as TelemetryItem<ExceptionData>;
-                        if (exception != null)
-                        {
-                            var data = ((TelemetryItem<ExceptionData>)exception).data.baseData;
-                            builder.AppendLine($"{exception} - {data.exceptions[0].message} - {data.exceptions[0].stack} - {data.exceptions[0].typeName} - {data.severityLevel}");
-                        }
-                        else
-                        {
-                            TelemetryItem<MessageData> message = telemetry as TelemetryItem<MessageData>;
-                            if (message != null)
-                            {
-                                var data = ((TelemetryItem<MessageData>)message).data.baseData;
-                                builder.AppendLine($"{message} - {data.message} - {data.severityLevel}");
-                            }
-                            else
-                            {
-                                TelemetryItem<MetricData> metric = telemetry as TelemetryItem<MetricData>;
-                                if (metric != null)
-                                {
-                                    var data = ((TelemetryItem<MetricData>)metric).data.baseData;
-                                    builder.AppendLine($"{metric.ToString()} - {metric.data}- {metric.name} - {data.metrics.Count}");
-                                    foreach (var metricVal in data.metrics)
-                                    {
-                                        builder.AppendLine($"{metricVal.name} {metricVal.value}");
-                                    }
-                                }     
-                                else
-                                {
-                                    builder.AppendLine($"{telemetry.ToString()} - {telemetry.time}");
-                                }
-                            }
-                        }
-                    }
+                    builder.AppendLine($"{telemetry.ToString()} - {telemetry.time}");
                 }
             }
 
