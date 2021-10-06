@@ -7,6 +7,8 @@ strategy:
             framework: netcoreapp3.1
         net5_0:
             framework: net5.0
+        net6_0:
+            framework: net6.0
     maxParallel: 2
 
 steps:
