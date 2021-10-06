@@ -71,15 +71,17 @@
                         SetEventHubsProperties(currentActivity, telemetry);
                     }
 
-                    IEnumerable<ActivityLink> activityLinks;
+                    IEnumerable<ActivityLink> activityLinks = ArrayExtensions.Empty<ActivityLink>();
 
-                    // Pre ActivitySource Azure SDKs are using custom activity subtype with
-                    // public IEnumerable<Activity> Links { get; }
-                    // property to represent links
-                    if (evnt.Value.GetType() != typeof(Activity) &&
-                        this.linksPropertyFetcher.Fetch(evnt.Value) is IEnumerable<Activity> links &&
-                        links.Any())
+                    if (currentActivity.Links.Any())
                     {
+                        activityLinks = currentActivity.Links;
+                    }
+                    else if (this.linksPropertyFetcher.Fetch(evnt.Value) is IEnumerable<Activity> links && links.Any())
+                    {
+                        // Pre ActivitySource Azure SDKs are using custom activity subtype with
+                        // public IEnumerable<Activity> Links { get; }
+                        // property to represent links
                         List<ActivityLink> convertedLinks = new List<ActivityLink>();
                         foreach (var linksAsActivity in links)
                         {
@@ -97,10 +99,6 @@
                         }
 
                         activityLinks = convertedLinks;
-                    }
-                    else
-                    {
-                        activityLinks = currentActivity.Links;
                     }
 
                     PopulateLinks(activityLinks, telemetry);
