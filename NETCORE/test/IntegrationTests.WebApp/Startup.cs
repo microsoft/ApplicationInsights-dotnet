@@ -1,4 +1,3 @@
-#if NETCOREAPP3_1
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,4 +50,3 @@ namespace IntegrationTests.WebApp
         }
     }
 }
-#endif
