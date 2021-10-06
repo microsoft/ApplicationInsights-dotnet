@@ -1,4 +1,4 @@
-﻿#if !NET452 && !NET46
+﻿#if !NET452 && !NET46 && !REDFIELD
 namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementation.Authentication
 {
     using System;
@@ -302,7 +302,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
             var test = compiledExpression2.DynamicInvoke(objAccessToken);
 
         }
-        #region TestClasses
+#region TestClasses
 
         /// <summary>
         /// This class inherits <see cref="MockCredential"/> which inherits <see cref="Azure.Core.TokenCredential"/>.

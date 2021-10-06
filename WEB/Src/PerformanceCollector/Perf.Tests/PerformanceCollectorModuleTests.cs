@@ -20,7 +20,7 @@
     [TestClass]
     public class PerformanceCollectorModulesTests
     {
-#if NET452
+#if NETFRAMEWORK
         [TestMethod]
         [SuppressMessage(category: "Microsoft.Globalization", checkId: "CA1305:SpecifyIFormatProvider", Justification = "Don't care about invariant in unit tests.")]
         public void TimerTest()
@@ -394,7 +394,7 @@
         [TestMethod]
         public void PerformanceCollectorModuleDefaultContainsExpectedCountersNonWindows()
         {
-#if NETCOREAPP2_1 || NETCOREAPP3_1
+#if NETCOREAPP
             PerformanceCounterUtility.isAzureWebApp = null;
             var original = PerformanceCounterUtility.IsWindows;
             PerformanceCounterUtility.IsWindows = false;
@@ -434,7 +434,7 @@
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\Memory\Available Bytes"));
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\Process(??APP_WIN32_PROC??)\IO Data Bytes/sec"));
 
-#if NET452
+#if NETFRAMEWORK
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests/Sec"));
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\.NET CLR Exceptions(??APP_CLR_PROC??)\# of Exceps Thrown / sec"));
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Execution Time"));
@@ -458,7 +458,7 @@
         {
             PerformanceCounterUtility.isAzureWebApp = null;
             var module = new PerformanceCollectorModule();
-#if NETCOREAPP2_1 || NETCOREAPP3_1
+#if NETCOREAPP
             var original = PerformanceCounterUtility.IsWindows;
             PerformanceCounterUtility.IsWindows = true;
 #endif
@@ -473,7 +473,7 @@
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\Memory\Available Bytes"));
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\Process(??APP_WIN32_PROC??)\IO Data Bytes/sec"));
 
-#if NET452
+#if NETFRAMEWORK
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests/Sec"));
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\.NET CLR Exceptions(??APP_CLR_PROC??)\# of Exceps Thrown / sec"));
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Execution Time"));
@@ -481,7 +481,7 @@
 #endif
 
                 Assert.IsTrue(ContainsPerfCounter(module.DefaultCounters, @"\Processor(_Total)\% Processor Time"));
-#if NET452
+#if NETFRAMEWORK
                 Assert.AreEqual(10, module.DefaultCounters.Count);
 #else
                 Assert.AreEqual(6, module.DefaultCounters.Count);
@@ -490,7 +490,7 @@
             finally
             {
                 module.Dispose();
-#if NETCOREAPP2_1 || NETCOREAPP3_1
+#if NETCOREAPP
             PerformanceCounterUtility.IsWindows = original;
 #endif
             }

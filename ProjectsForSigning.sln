@@ -7,13 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsigh
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel", "BASE\src\ServerTelemetryChannel\TelemetryChannel.csproj", "{C30A7EB8-A86C-49EE-927E-7D9E03572E82}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common.Base", "BASE\src\Common\Common\Common.Base.shproj", "{936AF739-4297-4016-9D70-4280042709BE}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyCollector", "WEB\Src\DependencyCollector\DependencyCollector\DependencyCollector.csproj", "{96A6E04E-CEDA-4C30-8ECA-48113382AFBA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventCounterCollector", "WEB\Src\EventCounterCollector\EventCounterCollector\EventCounterCollector.csproj", "{13335EB8-3936-407A-9363-1C428318BEA8}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HostingStartup", "WEB\Src\HostingStartup\HostingStartup\HostingStartup.csproj", "{DEEAF599-83F9-4A05-ADD6-F612CDABE570}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Perf", "WEB\Src\PerformanceCollector\PerformanceCollector\Perf.csproj", "{9DC5C5E5-FC37-4E54-81FD-AA42BB934E9B}"
 EndProject
@@ -38,8 +34,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "L) DiagnosticSourceListener", "L) DiagnosticSourceListener", "{60CDB555-C5FE-4010-A37B-014B04C5EAC3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "W) PerfCounterCollector", "W) PerfCounterCollector", "{3EDBC945-E531-4CEE-A038-A6AE1EF9AA96}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "W) HostingStartup", "W) HostingStartup", "{7EC1F6B8-9F94-4947-B596-EB3726C53AE0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "W) Web", "W) Web", "{07076842-9CAA-4B4A-8AEF-88DE88CD37AC}"
 EndProject
@@ -102,18 +96,14 @@ Global
 		LOGGING\src\CommonShared\CommonShared.projitems*{67291093-4b5f-4ca5-a811-b8a1dcbe3f1f}*SharedItemsImports = 5
 		WEB\Src\Common\Common.projitems*{7b5d95ee-50ee-4222-a03c-fae5905b3dfd}*SharedItemsImports = 5
 		WEB\Src\Common\Common.projitems*{8293bc71-7ddc-4dd1-8807-280eef7e752d}*SharedItemsImports = 5
-		BASE\src\Common\Common\Common.projitems*{936af739-4297-4016-9d70-4280042709be}*SharedItemsImports = 13
 		WEB\Src\Common\Common.projitems*{96a6e04e-ceda-4c30-8eca-48113382afba}*SharedItemsImports = 5
 		WEB\Src\Common\Common.projitems*{9dc5c5e5-fc37-4e54-81fd-aa42bb934e9b}*SharedItemsImports = 5
 		WEB\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{9dc5c5e5-fc37-4e54-81fd-aa42bb934e9b}*SharedItemsImports = 5
 		LOGGING\src\EventSource.Shared\EventSource.Shared\EventSource.Shared.projitems*{a964de6d-9750-4013-8be2-79c2afc056e5}*SharedItemsImports = 13
 		NETCORE\src\Shared\Shared.projitems*{ac399f09-b465-4cfd-8d82-f1d1c5c9347e}*SharedItemsImports = 5
-		BASE\src\Common\Common\Common.projitems*{c30a7eb8-a86c-49ee-927e-7d9e03572e82}*SharedItemsImports = 5
 		WEB\Src\Common\Common.projitems*{ccab7a34-8dc5-4a6f-b637-46ceba93c687}*SharedItemsImports = 13
 		WEB\Src\PerformanceCollector\Perf.Shared.NetStandard\Perf.Shared.NetStandard.projitems*{d13c3ec7-b300-4158-9054-216156b203be}*SharedItemsImports = 13
 		NETCORE\src\Shared\Shared.projitems*{d56f2979-d6bc-4ef2-bb9b-4077b3290599}*SharedItemsImports = 13
-		WEB\Src\Common\Common.projitems*{deeaf599-83f9-4a05-add6-f612cdabe570}*SharedItemsImports = 5
-		BASE\src\Common\Common\Common.projitems*{e3d160e8-7f8c-416f-946f-6fdfc6787461}*SharedItemsImports = 5
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -136,10 +126,6 @@ Global
 		{13335EB8-3936-407A-9363-1C428318BEA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13335EB8-3936-407A-9363-1C428318BEA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13335EB8-3936-407A-9363-1C428318BEA8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DEEAF599-83F9-4A05-ADD6-F612CDABE570}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DEEAF599-83F9-4A05-ADD6-F612CDABE570}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DEEAF599-83F9-4A05-ADD6-F612CDABE570}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DEEAF599-83F9-4A05-ADD6-F612CDABE570}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9DC5C5E5-FC37-4E54-81FD-AA42BB934E9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9DC5C5E5-FC37-4E54-81FD-AA42BB934E9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DC5C5E5-FC37-4E54-81FD-AA42BB934E9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -197,7 +183,6 @@ Global
 		{C30A7EB8-A86C-49EE-927E-7D9E03572E82} = {FBAFD313-0139-4DA3-BCB3-EE54DC3B6CCD}
 		{96A6E04E-CEDA-4C30-8ECA-48113382AFBA} = {005BD823-60AF-406E-AC20-842D7653FE60}
 		{13335EB8-3936-407A-9363-1C428318BEA8} = {DFCBB4ED-976C-4239-BCAF-8AA21E684E8C}
-		{DEEAF599-83F9-4A05-ADD6-F612CDABE570} = {7EC1F6B8-9F94-4947-B596-EB3726C53AE0}
 		{9DC5C5E5-FC37-4E54-81FD-AA42BB934E9B} = {3EDBC945-E531-4CEE-A038-A6AE1EF9AA96}
 		{8293BC71-7DDC-4DD1-8807-280EEF7E752D} = {07076842-9CAA-4B4A-8AEF-88DE88CD37AC}
 		{7B5D95EE-50EE-4222-A03C-FAE5905B3DFD} = {11AC7235-167E-40B5-B2E3-9CBF08700064}

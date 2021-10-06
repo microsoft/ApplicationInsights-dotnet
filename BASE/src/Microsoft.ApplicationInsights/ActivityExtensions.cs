@@ -52,7 +52,11 @@
         {
             try
             {
+#if REDFIELD
+                Assembly.Load(new AssemblyName("System.Diagnostics.DiagnosticSource, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51"));
+#else
                 Assembly.Load(new AssemblyName("System.Diagnostics.DiagnosticSource, Version=5.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51"));
+#endif
                 return true;
             }
             catch (System.IO.FileNotFoundException)

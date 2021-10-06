@@ -21,7 +21,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         internal readonly EventSource EventSourceInternal;
 
         /// <summary>Event provider name.</summary>
+#if REDFIELD
+        private const string EventProviderName = "Redfield-Microsoft-ApplicationInsights-Data";
+#else
         private const string EventProviderName = "Microsoft-ApplicationInsights-Data";
+#endif        
 
         /// <summary>
         /// Initializes a new instance of the RichPayloadEventSource class.

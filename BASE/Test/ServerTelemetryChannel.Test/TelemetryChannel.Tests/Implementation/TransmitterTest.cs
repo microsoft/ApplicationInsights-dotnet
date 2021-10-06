@@ -16,6 +16,7 @@
     using TaskEx = System.Threading.Tasks.Task;
     using System.Threading.Tasks;
     using System.Threading;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation.TransmissionPolicy;
 
     public class TransmitterTest
     {
@@ -35,13 +36,13 @@
             TransmissionSender sender = null, 
             TransmissionBuffer buffer = null, 
             TransmissionStorage storage = null, 
-            IEnumerable<TransmissionPolicy> policies = null)
+            IEnumerable<TransmissionPolicy.TransmissionPolicy> policies = null)
         {
             return new Transmitter(
                 sender ?? new StubTransmissionSender(),
                 buffer ?? new StubTransmissionBuffer(),
                 storage ?? new StubTransmissionStorage(),
-                policies);
+                new TransmissionPolicyCollection(policies));
         }
 
         [TestClass]

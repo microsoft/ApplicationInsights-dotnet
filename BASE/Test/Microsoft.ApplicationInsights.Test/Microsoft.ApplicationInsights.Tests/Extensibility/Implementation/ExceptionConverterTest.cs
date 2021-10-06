@@ -84,8 +84,6 @@
             Assert.AreEqual(0, stackFrame.line);
         }
 
-#if !NETCOREAPP2_0
-
         [TestMethod]
         public void CheckThatFileNameAndLineAreCorrectIfAvailable()
         {
@@ -110,25 +108,6 @@
                 Assert.IsNull(stack[0].fileName);
             }
         }
-#endif
-
-#if NETCOREAPP2_0
-
-        [TestMethod]
-        public void CheckThatAssemblyNameHasCorrectValue()
-        {
-            var exp = this.CreateException(2);
-
-            ExceptionDetails expDetails = ExceptionConverter.ConvertToExceptionDetails(exp, null);
-
-            string assemblyFullName = Assembly.GetExecutingAssembly().FullName;
-
-            foreach (var stackFrame in expDetails.parsedStack)
-            {
-                Assert.AreEqual(assemblyFullName.ToLowerInvariant(), stackFrame.assembly.ToLowerInvariant());
-            }
-        }
-#endif
 
         [TestMethod]
         public void CheckLevelCorrespondsToFrameForLongStack()

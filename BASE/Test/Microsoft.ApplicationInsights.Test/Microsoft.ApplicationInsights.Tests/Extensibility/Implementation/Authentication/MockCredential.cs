@@ -1,4 +1,4 @@
-﻿#if NET461 || NETCOREAPP2_1 || NETCOREAPP3_1 || NET5_0
+﻿#if !NET452 && !NET46
 namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementation.Authentication
 {
     using System;
@@ -6,7 +6,6 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
     using System.Threading.Tasks;
 
     using Azure.Core;
-
 
     /// <remarks>
     /// Copied from (https://github.com/Azure/azure-sdk-for-net/blob/master/sdk/core/Azure.Core.TestFramework/src/MockCredential.cs).

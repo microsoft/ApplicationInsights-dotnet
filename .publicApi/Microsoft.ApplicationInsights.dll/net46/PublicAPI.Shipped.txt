@@ -43,6 +43,8 @@ const Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext.User.A
 const Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext.User.Id = "TelemetryContext.User.Id" -> string
 const Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext.User.UserAgent = "TelemetryContext.User.UserAgent" -> string
 const Microsoft.ApplicationInsights.Metrics.MetricIdentifier.MaxDimensionsCount = 10 -> int
+Microsoft.ApplicationInsights.Channel.IAsyncFlushable
+Microsoft.ApplicationInsights.Channel.IAsyncFlushable.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
 Microsoft.ApplicationInsights.Channel.InMemoryChannel
 Microsoft.ApplicationInsights.Channel.InMemoryChannel.BacklogSize.get -> int
 Microsoft.ApplicationInsights.Channel.InMemoryChannel.BacklogSize.set -> void
@@ -53,6 +55,7 @@ Microsoft.ApplicationInsights.Channel.InMemoryChannel.EndpointAddress.get -> str
 Microsoft.ApplicationInsights.Channel.InMemoryChannel.EndpointAddress.set -> void
 Microsoft.ApplicationInsights.Channel.InMemoryChannel.Flush() -> void
 Microsoft.ApplicationInsights.Channel.InMemoryChannel.Flush(System.TimeSpan timeout) -> void
+Microsoft.ApplicationInsights.Channel.InMemoryChannel.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
 Microsoft.ApplicationInsights.Channel.InMemoryChannel.InMemoryChannel() -> void
 Microsoft.ApplicationInsights.Channel.InMemoryChannel.MaxTelemetryBufferCapacity.get -> int
 Microsoft.ApplicationInsights.Channel.InMemoryChannel.MaxTelemetryBufferCapacity.set -> void
@@ -672,6 +675,7 @@ Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.EndpointConta
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ExperimentalFeatures.get -> System.Collections.Generic.IList<string>
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.InstrumentationKey.get -> string
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.InstrumentationKey.set -> void
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetAzureTokenCredential(object tokenCredential) -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.TelemetryChannel.get -> Microsoft.ApplicationInsights.Channel.ITelemetryChannel
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.TelemetryChannel.set -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.TelemetryConfiguration() -> void
@@ -865,6 +869,7 @@ Microsoft.ApplicationInsights.OperationTelemetryExtensions
 Microsoft.ApplicationInsights.TelemetryClient
 Microsoft.ApplicationInsights.TelemetryClient.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
 Microsoft.ApplicationInsights.TelemetryClient.Flush() -> void
+Microsoft.ApplicationInsights.TelemetryClient.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
 Microsoft.ApplicationInsights.TelemetryClient.GetMetric(Microsoft.ApplicationInsights.Metrics.MetricIdentifier metricIdentifier, Microsoft.ApplicationInsights.Metrics.MetricConfiguration metricConfiguration, Microsoft.ApplicationInsights.MetricAggregationScope aggregationScope) -> Microsoft.ApplicationInsights.Metric
 Microsoft.ApplicationInsights.TelemetryClient.GetMetric(Microsoft.ApplicationInsights.Metrics.MetricIdentifier metricIdentifier, Microsoft.ApplicationInsights.Metrics.MetricConfiguration metricConfiguration) -> Microsoft.ApplicationInsights.Metric
 Microsoft.ApplicationInsights.TelemetryClient.GetMetric(Microsoft.ApplicationInsights.Metrics.MetricIdentifier metricIdentifier) -> Microsoft.ApplicationInsights.Metric

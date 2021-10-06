@@ -1,4 +1,4 @@
-﻿#if NETCOREAPP2_1 || NETCOREAPP3_1
+﻿#if NETCOREAPP
 namespace Microsoft.ApplicationInsights.Tests
 {
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;

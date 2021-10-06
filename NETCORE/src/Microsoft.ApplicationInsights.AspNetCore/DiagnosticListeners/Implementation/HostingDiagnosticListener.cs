@@ -754,6 +754,17 @@
                     return;
                 }
 
+                var activity = Activity.Current;
+                
+                // Suppress long running SignalR requests
+                // Ref: https://github.com/dotnet/aspnetcore/pull/32084
+                var httpLongRunningRequest = activity?.Tags.FirstOrDefault(tag => tag.Key == "http.long_running").Value;
+
+                if (httpLongRunningRequest == "true")
+                {
+                    return;
+                }
+
                 telemetry.Stop(timestamp);
                 telemetry.ResponseCode = httpContext.Response.StatusCode.ToString(CultureInfo.InvariantCulture);
 
@@ -781,7 +792,6 @@
                 this.client.TrackRequest(telemetry);
 
                 // Stop what we started.
-                var activity = Activity.Current;
                 if (activity != null && activity.OperationName == ActivityCreatedByHostingDiagnosticListener)
                 {
                     activity.Stop();

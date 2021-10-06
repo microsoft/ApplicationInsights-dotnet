@@ -14,7 +14,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solution Items", "{117E14CF-5656-42BD-B64E-93142160B6FA}"
 	ProjectSection(SolutionItems) = preProject
 		..\CHANGELOG.md = ..\CHANGELOG.md
-		CodeCov.ps1 = CodeCov.ps1
 		Directory.Build.props = Directory.Build.props
 		README.md = README.md
 	EndProjectSection

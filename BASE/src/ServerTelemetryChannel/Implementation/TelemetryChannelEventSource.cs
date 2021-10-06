@@ -4,7 +4,11 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
 
+#if REDFIELD
+    [EventSource(Name = "Redfield-Microsoft-ApplicationInsights-WindowsServer-TelemetryChannel")]
+#else
     [EventSource(Name = "Microsoft-ApplicationInsights-WindowsServer-TelemetryChannel")]
+#endif
     [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed class TelemetryChannelEventSource : EventSource
     {
@@ -563,6 +567,12 @@
         public void TransmissionFlushAsyncWarning(string exception, string appDomainName = "Incorrect")
         {
             this.WriteEvent(77, exception ?? string.Empty, this.ApplicationName);
+        }
+
+        [Event(78, Message = "AuthenticatedTransmissionError. Received a failed ingestion response. TransmissionId: {0}. Status Code: {1}. Status Description: {2}", Level = EventLevel.Warning)]
+        public void AuthenticationPolicyCaughtFailedIngestion(string transmissionId, string statusCode, string statusDescription, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(78, transmissionId ?? string.Empty, statusCode ?? string.Empty, statusDescription ?? string.Empty, this.ApplicationName);
         }
 
         private static string GetApplicationName()

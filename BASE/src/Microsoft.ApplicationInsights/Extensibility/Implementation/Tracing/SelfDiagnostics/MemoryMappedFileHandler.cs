@@ -2,6 +2,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Sel
 {
     using System;
     using System.Diagnostics;
+    using System.Globalization;
     using System.IO;
     using System.IO.MemoryMappedFiles;
     using System.Text;
@@ -38,6 +39,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Sel
 
         public int LogFileSize { get => this.logFileSize; private set => this.logFileSize = value; }
 
+        public string CurrentFilePath => this.underlyingFileStreamForMemoryMappedFile?.Name;
+
         /// <summary>
         /// Create a log file. If the file already exists, it will be overwritten.
         /// </summary>
@@ -48,8 +51,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Sel
             try
             {
                 Directory.CreateDirectory(logDirectory);
-                var fileName = Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName) + "."
-                    + Process.GetCurrentProcess().Id + ".log";
+                var fileName = GenerateFileName();
                 var filePath = Path.Combine(logDirectory, fileName);
 
                 // Because the API [MemoryMappedFile.CreateFromFile][1](the string version) behaves differently on
@@ -160,6 +162,17 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Sel
                 // A concurrent race condition: memory mapped file is disposed in another thread after TryGetLogStream() finishes.
                 // In this case, silently fail.
             }
+        }
+
+        private static string GenerateFileName()
+        {
+            var dateTimeStamp = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture);
+
+            var currentProcess = Process.GetCurrentProcess();
+            var processFileName = Path.GetFileName(currentProcess.MainModule.FileName);
+            var processId = currentProcess.Id;
+
+            return $"{dateTimeStamp}.{processFileName}.{processId}.log";
         }
 
         /// <summary>

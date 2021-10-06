@@ -27,8 +27,10 @@
                     // Emitting event of EventLevel.Warning
                     CoreEventSource.Log.OperationIsNullWarning();
 
+                    var filePath = configRefresher.CurrentFilePath;
+
                     int bufferSize = 512;
-                    byte[] actualBytes = ReadFile(bufferSize);
+                    byte[] actualBytes = ReadFile(filePath, bufferSize);
                     string logText = Encoding.UTF8.GetString(actualBytes);
                     Assert.IsTrue(logText.StartsWith(MessageOnNewFileString));
 
@@ -52,8 +54,10 @@
                     // Emitting event of EventLevel.Error
                     CoreEventSource.Log.InvalidOperationToStopError();
 
+                    var filePath = configRefresher.CurrentFilePath;
+
                     int bufferSize = 512;
-                    byte[] actualBytes = ReadFile(bufferSize);
+                    byte[] actualBytes = ReadFile(filePath, bufferSize);
                     string logText = Encoding.UTF8.GetString(actualBytes);
                     Assert.IsTrue(logText.StartsWith(MessageOnNewFileString));
 
@@ -77,12 +81,9 @@
             return logLine.Substring(timestampPrefixLength);
         }
 
-        private static byte[] ReadFile(int byteCount)
+        private static byte[] ReadFile(string filePath, int byteCount)
         {
-            var outputFileName = Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName) + "."
-                    + Process.GetCurrentProcess().Id + ".log";
-            var outputFilePath = Path.Combine(".", outputFileName);
-            using (var file = File.Open(outputFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var file = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 byte[] actualBytes = new byte[byteCount];
                 file.Read(actualBytes, 0, byteCount);

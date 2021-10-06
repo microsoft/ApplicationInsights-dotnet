@@ -34,7 +34,7 @@
 
         private const int MaxFieldLength = 32768;
 
-        private const int MaxPropertyCount = 3;
+        private const int MaxPropertyCount = 10;
 
         private const string SpecialDependencyPropertyName = "ErrorMessage";
 
@@ -376,7 +376,7 @@
                 properties = new Dictionary<string, string>(MaxPropertyCount + 1);
 
                 foreach (var prop in
-                    telemetry.Properties.Where(p => !string.Equals(p.Key, specialPropertyName, StringComparison.Ordinal)).Take(MaxPropertyCount))
+                    telemetry.Properties.Where(p => !string.Equals(p.Key, specialPropertyName, StringComparison.Ordinal)).OrderBy(p => p.Key, StringComparer.Ordinal).Take(MaxPropertyCount))
                 {
                     string truncatedKey = TruncateValue(prop.Key);
 

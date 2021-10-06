@@ -410,7 +410,7 @@
             string instanceName = string.IsNullOrWhiteSpace(cloudContext?.RoleInstance) ? Environment.MachineName : cloudContext.RoleInstance;
             string roleName = cloudContext?.RoleName ?? string.Empty;
             string streamId = GetStreamId();
-            var assemblyVersion = SdkVersionUtils.GetSdkVersion(null);
+            var assemblyVersion = Common.SdkVersionUtils.GetSdkVersion(null);
             bool isWebApp = PerformanceCounterUtility.IsWebAppRunningInAzure();
             int? processorCount = PerformanceCounterUtility.GetProcessorCount();
             this.ServiceClient = new QuickPulseServiceClient(

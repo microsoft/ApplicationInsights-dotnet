@@ -1,6 +1,5 @@
 [![Build Status](https://mseng.visualstudio.com/AppInsights/_apis/build/status/ChuckNorris/AI-BaseSDK-develop-linux?branchName=develop)](https://mseng.visualstudio.com/AppInsights/_build/latest?definitionId=6237?branchName=develop)
 [![Build Status](https://mseng.visualstudio.com/AppInsights/_apis/build/status/ChuckNorris/AI-BaseSDK-GitHub-Master?branchName=develop)](https://mseng.visualstudio.com/AppInsights/_build/latest?definitionId=1822?branchName=develop)
-[![codecov.io](https://codecov.io/github/Microsoft/ApplicationInsights-dotnet/coverage.svg?branch=develop)](https://codecov.io/github/Microsoft/ApplicationInsights-dotnet?branch=develop)
 
 ## NuGet packages
 
