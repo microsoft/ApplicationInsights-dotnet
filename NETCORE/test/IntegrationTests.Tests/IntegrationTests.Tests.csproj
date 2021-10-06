@@ -22,7 +22,7 @@
 
     <ProjectReference Include="..\IntegrationTests.WebApp\IntegrationTests.WebApp.csproj" />
 
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="5.0.0" />
+    <!--<PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="5.0.0" />-->
     <PackageReference Include="System.Security.Permissions" Version="4.7.0" />
   </ItemGroup>
 
@@ -32,8 +32,12 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.0-rc.1.21452.15" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="5.0.0-preview.8.20414.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="5.0.10" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
