@@ -80,8 +80,8 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
         /// <summary>
         /// Verify behavior of HttpClient and <see cref="RedirectHttpHandler"/>.
         /// Setup two local servers, where server #1 will redirect requests to #2.
-        /// After the first request, it is expected that the client will cache the redirect.
-        /// Additional requests should skip server #1 and go to server #2.
+        /// Server #1 is intentionally missing the cache header.
+        /// This is an error condition in the Handler and the redirect will be ignored.
         /// </summary>
         [TestMethod]
         public async Task VerifyBehaviorMissingHeaders()
