@@ -79,6 +79,37 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
 
         /// <summary>
         /// Verify behavior of HttpClient and <see cref="RedirectHttpHandler"/>.
+        /// Setup two local servers, where server #1 will redirect requests to #2.
+        /// After the first request, it is expected that the client will cache the redirect.
+        /// Additional requests should skip server #1 and go to server #2.
+        /// </summary>
+        [TestMethod]
+        public async Task VerifyBehaviorMissingHeaders()
+        {
+            using var localServer1 = new LocalInProcHttpServer(url: LocalUrl1)
+            {
+                ServerLogic = async (httpContext) =>
+                {
+                    // Returns status code and location, without cache header.
+                    httpContext.Response.StatusCode = StatusCodes.Status308PermanentRedirect;
+                    httpContext.Response.Headers.Add("Location", LocalUrl2);
+                    await httpContext.Response.WriteAsync("redirect");
+                },
+            };
+
+            using var localServer2 = LocalInProcHttpServer.MakeTargetServer(url: LocalUrl2, response: helloString);
+
+            var client = new MyCustomClient(url: LocalUrl1, new RedirectHttpHandler());
+
+            // 1st server should redirect to 2nd, but is missing headers.
+            var testStr1 = await client.GetAsync();
+            Assert.AreEqual("redirect", testStr1);
+            Assert.AreEqual(1, localServer1.RequestCounter);
+            Assert.AreEqual(0, localServer2.RequestCounter);
+        }
+
+        /// <summary>
+        /// Verify behavior of HttpClient and <see cref="RedirectHttpHandler"/>.
         /// Create two local servers that redirect to each other.
         /// It is expected that every request will cause the cache to be updated.
         /// This test is attempting to cause deadlocks around that cache.
@@ -109,7 +140,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
             var expectedNumberOfRequests = numOfRequests * RedirectHttpHandler.MaxRedirect + numOfRequests;
             Debug.WriteLine($"ExpectedNumberOfRequests {expectedNumberOfRequests}");
 
-            Assert.IsTrue(serverHandledRequestSum == expectedNumberOfRequests);
+            Assert.AreEqual(expectedNumberOfRequests, serverHandledRequestSum, "Unexpected number of requests");
         }
 
         /// <summary>

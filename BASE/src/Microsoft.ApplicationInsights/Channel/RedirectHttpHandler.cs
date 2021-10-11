@@ -81,6 +81,7 @@
                 }
                 else
                 {
+                    CoreEventSource.Log.IngestionRedirectError($"Failed to parse redirect headers.");
                     break;
                 }
 
