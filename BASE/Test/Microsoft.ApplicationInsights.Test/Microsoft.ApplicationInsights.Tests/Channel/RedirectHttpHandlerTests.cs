@@ -32,7 +32,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
         [TestMethod]
         public async Task DefaultUseCase()
         {
-            using var localServer1 = LocalInProcHttpServer.MakeRedirectServer(url: LocalUrl1, redirectUrl: LocalUrl2, cache: TimeSpan.FromDays(1));
+            using var localServer1 = LocalInProcHttpServer.MakeRedirectServer(url: LocalUrl1, redirectUrl: LocalUrl2, cacheExpirationDuration: TimeSpan.FromDays(1));
             using var localServer2 = LocalInProcHttpServer.MakeTargetServer(url: LocalUrl2, response: helloString);
 
             var client = new MyCustomClient(url: LocalUrl1);
@@ -59,7 +59,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
         [TestMethod]
         public async Task VerifyRedirect()
         {
-            using var localServer1 = LocalInProcHttpServer.MakeRedirectServer(url: LocalUrl1, redirectUrl: LocalUrl2, cache: TimeSpan.FromDays(1));
+            using var localServer1 = LocalInProcHttpServer.MakeRedirectServer(url: LocalUrl1, redirectUrl: LocalUrl2, cacheExpirationDuration: TimeSpan.FromDays(1));
             using var localServer2 = LocalInProcHttpServer.MakeTargetServer(url: LocalUrl2, response: helloString);
 
             var client = new MyCustomClient(url: LocalUrl1, new RedirectHttpHandler());
@@ -117,8 +117,8 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
         [TestMethod]
         public void StressTest()
         {
-            using var localServer1 = LocalInProcHttpServer.MakeRedirectServer(url: LocalUrl1, redirectUrl: LocalUrl2, cache: TimeSpan.FromDays(1));
-            using var localServer2 = LocalInProcHttpServer.MakeRedirectServer(url: LocalUrl2, redirectUrl: LocalUrl1, cache: TimeSpan.FromDays(1));
+            using var localServer1 = LocalInProcHttpServer.MakeRedirectServer(url: LocalUrl1, redirectUrl: LocalUrl2, cacheExpirationDuration: TimeSpan.FromDays(1));
+            using var localServer2 = LocalInProcHttpServer.MakeRedirectServer(url: LocalUrl2, redirectUrl: LocalUrl1, cacheExpirationDuration: TimeSpan.FromDays(1));
 
             var client = new MyCustomClient(url: LocalUrl1, new RedirectHttpHandler());
 
@@ -154,7 +154,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
         {
             var shortCache = TimeSpan.FromSeconds(1);
 
-            using var localServer1 = LocalInProcHttpServer.MakeRedirectServer(url: LocalUrl1, redirectUrl: LocalUrl2, cache: shortCache);
+            using var localServer1 = LocalInProcHttpServer.MakeRedirectServer(url: LocalUrl1, redirectUrl: LocalUrl2, cacheExpirationDuration: shortCache);
             using var localServer2 = LocalInProcHttpServer.MakeTargetServer(url: LocalUrl2, response: helloString);
 
             var client = new MyCustomClient(url: LocalUrl1, new RedirectHttpHandler());
@@ -189,7 +189,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
         [TestMethod]
         public async Task VerifyMaxRedirects()
         {
-            using var localServer1 = LocalInProcHttpServer.MakeRedirectServer(url: LocalUrl1, redirectUrl: LocalUrl1, cache: TimeSpan.FromDays(1));
+            using var localServer1 = LocalInProcHttpServer.MakeRedirectServer(url: LocalUrl1, redirectUrl: LocalUrl1, cacheExpirationDuration: TimeSpan.FromDays(1));
 
             var client = new MyCustomClient(url: LocalUrl1, new RedirectHttpHandler());
 
@@ -209,7 +209,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
         {
             var testAuthToken = "ABCD1234";
 
-            using var localServer1 = LocalInProcHttpServer.MakeRedirectServer(url: LocalUrl1, redirectUrl: LocalUrl1, cache: TimeSpan.FromDays(1));
+            using var localServer1 = LocalInProcHttpServer.MakeRedirectServer(url: LocalUrl1, redirectUrl: LocalUrl1, cacheExpirationDuration: TimeSpan.FromDays(1));
             localServer1.ServerSideAsserts = (httpContext) =>
             {
                 if (httpContext.Request.Headers.TryGetValue(AuthConstants.AuthorizationHeaderName, out var authValue))

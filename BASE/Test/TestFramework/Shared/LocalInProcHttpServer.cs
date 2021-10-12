@@ -58,7 +58,7 @@ namespace Microsoft.ApplicationInsights.TestFramework
             }
         }
 
-        public static LocalInProcHttpServer MakeRedirectServer(string url, string redirectUrl, TimeSpan cache)
+        public static LocalInProcHttpServer MakeRedirectServer(string url, string redirectUrl, TimeSpan cacheExpirationDuration)
         {
             return new LocalInProcHttpServer(url)
             {
@@ -72,7 +72,7 @@ namespace Microsoft.ApplicationInsights.TestFramework
                     httpContext.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue()
                     {
                         Public = true,
-                        MaxAge = cache,
+                        MaxAge = cacheExpirationDuration,
                     };
 
                     await httpContext.Response.WriteAsync("redirect");
