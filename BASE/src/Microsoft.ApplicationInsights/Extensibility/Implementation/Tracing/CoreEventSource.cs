@@ -666,6 +666,12 @@
         [Event(73, Message = "Failed to get AAD Token. Error message: {0}.", Level = EventLevel.Error)]
         public void FailedToGetToken(string exception, string appDomainName = "Incorrect") => this.WriteEvent(73, exception, this.nameProvider.Name);
 
+        [Event(74, Message = "Ingestion Service responded with redirect. {0}", Level = EventLevel.Informational)]
+        public void IngestionRedirectInformation(string message, string appDomainName = "Incorrect") => this.WriteEvent(74, message, this.nameProvider.Name);
+
+        [Event(75, Message = "Ingestion Service responded with redirect. {0}", Level = EventLevel.Error)]
+        public void IngestionRedirectError(string message, string appDomainName = "Incorrect") => this.WriteEvent(75, message, this.nameProvider.Name);
+
         [NonEvent]
         public void TransmissionStatusEventFailed(Exception ex)
         {
