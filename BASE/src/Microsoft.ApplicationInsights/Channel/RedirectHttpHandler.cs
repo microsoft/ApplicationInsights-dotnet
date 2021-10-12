@@ -11,6 +11,7 @@
     internal class RedirectHttpHandler : HttpClientHandler
     {
         internal const int MaxRedirect = 10;
+        internal readonly TimeSpan DefaultCacheExpirationDuration = TimeSpan.FromHours(12);
 
         private readonly Cache<Uri> cache = new Cache<Uri>();
 
@@ -54,12 +55,16 @@
             }
         }
 
-        private static bool TryGetRedirectVars(HttpResponseMessage httpResponseMessage, out Uri redirectUri, out TimeSpan expire)
+        private static bool TryGetRedirectUri(HttpResponseMessage httpResponseMessage, out Uri redirectUri)
         {
-            expire = httpResponseMessage?.Headers?.CacheControl?.MaxAge ?? default;
             redirectUri = httpResponseMessage?.Headers?.Location;
+            return redirectUri != null && redirectUri.IsAbsoluteUri;
+        }
 
-            return expire != default && redirectUri != null && redirectUri.IsAbsoluteUri;
+        private static bool TryGetRedirectCacheTimeSpan(HttpResponseMessage httpResponseMessage, out TimeSpan cacheExpirationDuration)
+        {
+            cacheExpirationDuration = httpResponseMessage?.Headers?.CacheControl?.MaxAge ?? default;
+            return cacheExpirationDuration != default;
         }
 
         /// <summary>
@@ -72,11 +77,18 @@
 
             do
             {
-                if (TryGetRedirectVars(response, out Uri newRedirectUri, out TimeSpan expire))
+                if (TryGetRedirectUri(response, out Uri newRedirectUri))
                 {
-                    this.cache.Set(newRedirectUri, expire);
+                    if (!TryGetRedirectCacheTimeSpan(response, out TimeSpan cacheExpirationDuration))
+                    {
+                        // if failed to read cache, use default
+                        CoreEventSource.Log.IngestionRedirectInformation($"Failed to parse redirect cache, using default.");
+                        cacheExpirationDuration = this.DefaultCacheExpirationDuration;
+                    }
 
-                    CoreEventSource.Log.IngestionRedirectInformation($"New Ingestion Endpoint: {newRedirectUri.AbsoluteUri} Expires: {expire}");
+                    this.cache.Set(newRedirectUri, cacheExpirationDuration);
+
+                    CoreEventSource.Log.IngestionRedirectInformation($"New Ingestion Endpoint: {newRedirectUri.AbsoluteUri} Expires: {cacheExpirationDuration}");
                     request.RequestUri = newRedirectUri;
                 }
                 else

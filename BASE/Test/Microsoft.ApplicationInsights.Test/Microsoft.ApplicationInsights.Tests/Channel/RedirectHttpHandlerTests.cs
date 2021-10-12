@@ -80,11 +80,11 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
         /// <summary>
         /// Verify behavior of HttpClient and <see cref="RedirectHttpHandler"/>.
         /// Setup two local servers, where server #1 will redirect requests to #2.
-        /// Server #1 is intentionally missing the cache header.
-        /// This is an error condition in the Handler and the redirect will be ignored.
+        /// Server #1 is missing the cache header.
+        /// In this case, we will use a default cache and redirect will continue.
         /// </summary>
         [TestMethod]
-        public async Task VerifyBehaviorMissingHeaders()
+        public async Task VerifyBehavior_MissingCacheHeader()
         {
             using var localServer1 = new LocalInProcHttpServer(url: LocalUrl1)
             {
@@ -93,6 +93,41 @@ namespace Microsoft.ApplicationInsights.TestFramework.Channel
                     // Returns status code and location, without cache header.
                     httpContext.Response.StatusCode = StatusCodes.Status308PermanentRedirect;
                     httpContext.Response.Headers.Add("Location", LocalUrl2);
+                    await httpContext.Response.WriteAsync("redirect");
+                },
+            };
+
+            using var localServer2 = LocalInProcHttpServer.MakeTargetServer(url: LocalUrl2, response: helloString);
+
+            var client = new MyCustomClient(url: LocalUrl1, new RedirectHttpHandler());
+
+            // 1st server should redirect to 2nd, but is missing headers.
+            var testStr1 = await client.GetAsync();
+            Assert.AreEqual(helloString, testStr1);
+            Assert.AreEqual(1, localServer1.RequestCounter);
+            Assert.AreEqual(1, localServer2.RequestCounter);
+        }
+
+        /// <summary>
+        /// Verify behavior of HttpClient and <see cref="RedirectHttpHandler"/>.
+        /// Setup two local servers, where server #1 will redirect requests to #2.
+        /// Server #1 is missing the redirect uri header.
+        /// In this case, redirect will fail.
+        /// </summary>
+        [TestMethod]
+        public async Task VerifyBehavior_MissingUriHeader()
+        {
+            using var localServer1 = new LocalInProcHttpServer(url: LocalUrl1)
+            {
+                ServerLogic = async (httpContext) =>
+                {
+                    // Returns status code and location, without cache header.
+                    httpContext.Response.StatusCode = StatusCodes.Status308PermanentRedirect;
+                    httpContext.Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+                    {
+                        Public = true,
+                        MaxAge = TimeSpan.MinValue,
+                    };
                     await httpContext.Response.WriteAsync("redirect");
                 },
             };
