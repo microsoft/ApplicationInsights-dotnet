@@ -47,7 +47,7 @@ steps:
   inputs:
     command: "test"
     projects: "BASE/Test/**/*.Tests.csproj"
-    arguments: "--configuration Release --framework $(framework) -l trx --filter TestCategory!=WindowsOnly" -l "console;verbosity=detailed" ## --no-build
+    arguments: "--configuration Release --framework $(framework) -l trx -l console;verbosity=detailed --filter TestCategory!=WindowsOnly" ## -no-build
 
 ## Publish Test results
 
