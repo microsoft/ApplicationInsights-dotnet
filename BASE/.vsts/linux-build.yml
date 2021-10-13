@@ -9,7 +9,7 @@ strategy:
             framework: net5.0
         net6_0:
             framework: net6.0
-    maxParallel: 2
+    #maxParallel: 2
 
 steps:
     
@@ -29,11 +29,11 @@ steps:
     version: 6.0.x
     includePreviewVersions: true
 
-- task: DotNetCoreCLI@2
-  displayName: DotNetCoreCLI - Info
-  inputs:
-    command: "custom"
-    arguments: "--info"
+#- task: DotNetCoreCLI@2
+#  displayName: DotNetCoreCLI - Info
+#  inputs:
+#    command: "custom"
+#    arguments: "--info"
 
 
 - task: DotNetCoreCLI@2
