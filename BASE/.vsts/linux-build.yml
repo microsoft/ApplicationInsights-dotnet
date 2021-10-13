@@ -30,6 +30,13 @@ steps:
     includePreviewVersions: true
 
 - task: DotNetCoreCLI@2
+  displayName: DotNetCoreCLI - Info
+  inputs:
+    command: "custom"
+    arguments: "--info"
+
+
+- task: DotNetCoreCLI@2
   displayName: DotNetCoreCLI - Restore Solution
   inputs:
     command: "restore"
@@ -47,7 +54,8 @@ steps:
   inputs:
     command: "test"
     projects: "BASE/Test/**/*.Tests.csproj"
-    arguments: "--configuration Release --framework $(framework) -l trx -l console;verbosity=detailed --filter TestCategory!=WindowsOnly" ## -no-build
+    #arguments: "--configuration Release --framework $(framework) -l trx -l console;verbosity=detailed --filter TestCategory!=WindowsOnly" ## -no-build
+    arguments: "--configuration Release --framework $(framework) --no-build -l trx --filter TestCategory!=WindowsOnly"
 
 ## Publish Test results
 
