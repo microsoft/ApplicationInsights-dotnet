@@ -16,7 +16,7 @@ namespace FunctionalTests.WebApi.Tests.Controllers
         {
             using (var hc = new HttpClient())
             {
-                await hc.GetAsync("https://www.microsoft.com").ContinueWith(t => { }); // ignore all errors
+                await hc.GetAsync("https://www.microsoft.com/en-us/").ContinueWith(t => { }); // ignore all errors
             }
         }
     }
