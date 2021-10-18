@@ -2,7 +2,7 @@
 # .NET CLI: https://docs.microsoft.com/dotnet/core/tools/
 # Description: The purpose of this build is to build and test on both Windows and Linux.
 
-name: Build And Test
+name: Build And Test, Base.sln
 
 on:
   push:
@@ -37,23 +37,7 @@ jobs:
       id: test1
       continue-on-error: true
       run: dotnet test ./BASE/Microsoft.ApplicationInsights.sln --framework ${{ matrix.framework }} --configuration Release --no-build --logger:"console;verbosity=detailed" ${{ matrix.args }}
-      
-    - name: Test (retry)
-      id: test2
-      continue-on-error: true
-      if: steps.test1.outcome=='failure'
-      run: dotnet test ./BASE/Microsoft.ApplicationInsights.sln --framework ${{ matrix.framework }} --configuration Release --no-build --logger:"console;verbosity=detailed" ${{ matrix.args }}
 
-    #- name: Inspect Test Results
-    #  if: always()
-    #  run: |
-    #    if (${{ steps.test1.outcome=='success' || steps.test2.outcome=='success' }}); then
-    #        echo tests pass
-    #    else
-    #        exit 1
-    #    fi
-    #  shell: pwsh
-    
-    - name: Inspect Test Results
-      if: steps.test1.outcome=='failure' && steps.test2.outcome=='failure'
-      run: exit 1
+    - name: Retry tests
+      if: steps.test1.outcome=='failure'
+      run: pwsh -f ./.scripts/build_RetryTests.ps1 -TestResultFile $GITHUB_WORKSPACE/testResults.trx -WorkingDirectory $GITHUB_WORKSPACE
