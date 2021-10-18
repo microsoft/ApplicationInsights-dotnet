@@ -41,7 +41,7 @@ jobs:
     - name: Test
       id: test1
       continue-on-error: true
-      run: dotnet test ./BASE/Microsoft.ApplicationInsights.sln --framework ${{ matrix.framework }} --configuration Release --no-build --logger:"console;verbosity=detailed" ${{ matrix.args }}
+      run: dotnet test ./BASE/Microsoft.ApplicationInsights.sln --framework ${{ matrix.framework }} --configuration Release --no-build --logger:"console;verbosity=detailed" --logger:"trx;logfilename=$GITHUB_WORKSPACE/testResults.trx" ${{ matrix.args }}
 
     - name: Retry tests
       if: steps.test1.outcome=='failure'
