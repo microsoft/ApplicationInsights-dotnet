@@ -1,8 +1,8 @@
 # Syntax: https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions
 # .NET CLI: https://docs.microsoft.com/dotnet/core/tools/
-# Description: The purpose of this build is to compile and test with redfield flag.
+# Description: The purpose of this build is to build and test on both Windows and Linux.
 
-name: Redfield Validation
+name: Build And Test, BASE
 
 on:
   workflow_dispatch:
@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, windows-latest]
         framework: [netcoreapp3.1,net5.0,net6.0]
         include: 
             - os: ubuntu-latest
@@ -45,7 +45,7 @@ jobs:
       run: dotnet restore ./BASE/Microsoft.ApplicationInsights.sln
 
     - name: Build
-      run: dotnet build -p:Redfield=True ./BASE/Microsoft.ApplicationInsights.sln --configuration Release --no-restore
+      run: dotnet build ./BASE/Microsoft.ApplicationInsights.sln --configuration Release --no-restore
 
     - name: Test
       id: test1
