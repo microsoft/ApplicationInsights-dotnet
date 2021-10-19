@@ -1,13 +1,27 @@
-pool:
-  vmImage: 'ubuntu-latest'
-
 strategy:
-    matrix:
-        netcoreapp3_1:
-            framework: netcoreapp3.1
-        net5_0:
-            framework: net5.0
-    maxParallel: 2
+  matrix:
+    linux_netcore3_1:
+      imageName: 'ubuntu-latest'
+      framework: netcoreapp3.1
+    linux_net5:
+      imageName: 'ubuntu-latest'
+      framework: net5.0
+    linux_net6:
+      imageName: 'ubuntu-latest'
+      framework: net6.0
+    windows_netcore3_1:
+      imageName: 'windows-latest'
+      framework: netcoreapp3.1
+    windows_net5:
+      imageName: 'windows-latest'
+      framework: net5.0
+    windows_net6:
+      imageName: 'windows-latest'
+      framework: net6.0
+
+pool:
+  vmImage: $(imageName)
+
 
 steps:
     
@@ -45,7 +59,7 @@ steps:
   inputs:
     command: "test"
     projects: "BASE/Test/**/*.Tests.csproj"
-    arguments: "--configuration Release --framework $(framework) --no-build -l trx --filter TestCategory!=WindowsOnly"
+    arguments: "--configuration Release --framework $(framework) --no-build -l trx -l console;verbosity=detailed --filter TestCategory!=WindowsOnly"
 
 ## Publish Test results
 
