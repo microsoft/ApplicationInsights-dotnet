@@ -41,13 +41,6 @@ steps:
     version: 6.0.x
     includePreviewVersions: true
 
-#- task: DotNetCoreCLI@2
-#  displayName: DotNetCoreCLI - Info
-#  inputs:
-#    command: "custom"
-#    arguments: "--info"
-
-
 - task: DotNetCoreCLI@2
   displayName: DotNetCoreCLI - Restore Solution
   inputs:
@@ -66,19 +59,8 @@ steps:
   inputs:
     command: "test"
     projects: "BASE/Test/**/*.Tests.csproj"
-    arguments: "--configuration Release --framework $(framework) -l trx -l console;verbosity=detailed --filter TestCategory!=WindowsOnly" ## -no-build
-    #arguments: "--configuration Release --framework $(framework) --no-build -l trx --filter TestCategory!=WindowsOnly"
-
+    arguments: "--configuration Release --framework $(framework) -l trx -l console;verbosity=detailed --filter TestCategory!=WindowsOnly" -no-build
     
-- task: DotNetCoreCLI@1
-  displayName: "Test: Microsoft.ApplicationInsights.Tests"
-  continueOnError: true
-  inputs:
-    command: "test"
-    projects: "BASE/Test/**/*Microsoft.ApplicationInsights.Tests.csproj"
-    arguments: "--configuration Release --framework $(framework) --no-build -l console;verbosity=verbose"
-    
-
 ## Publish Test results
 
 - task: PublishTestResults@2
