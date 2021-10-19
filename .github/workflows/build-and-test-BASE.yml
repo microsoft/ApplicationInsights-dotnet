@@ -12,7 +12,7 @@ on:
     branches: [ master, develop ]
 
 jobs:
-  build-test:
+  build-test-BASE:
 
     runs-on: ${{ matrix.os }}
 
