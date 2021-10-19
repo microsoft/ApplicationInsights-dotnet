@@ -40,7 +40,7 @@ jobs:
         dotnet-version: '6.0.x'
         include-prerelease: true
 
-    - name: restore (Base sln)
+    - name: Restore
       run: dotnet restore ./BASE/Microsoft.ApplicationInsights.sln
 
     - name: Build

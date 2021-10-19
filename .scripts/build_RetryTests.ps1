@@ -10,7 +10,7 @@ Write-Host "-TestResultFile: $TestResultFile"
 Write-Host "-WorkingDirectory: $WorkingDirectory"
 Write-Host ""
 
-[int]$maxRetries = 3;
+[int]$maxRetries = 5;
 
 # INSPECT TEST RUN RESULTS
 [xml]$testRunXml = Get-Content -Path $TestResultFile -ErrorAction Stop
