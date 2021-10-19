@@ -66,9 +66,9 @@ namespace FunctionalTests.WebApi.Tests.FunctionalTest
                 var telemetry1 = server1.Listener.ReceiveItems(TestListenerTimeoutInMs);
                 var telemetry2 = server2.Listener.ReceiveItems(TestListenerTimeoutInMs);
 
-                this.output.WriteLine($"~~telemetry1~~");
+                this.output.WriteLine("~~telemetry1~~");
                 this.DebugTelemetryItems(telemetry1);
-                this.output.WriteLine($"~~telemetry2~~");
+                this.output.WriteLine("~~telemetry2~~");
                 this.DebugTelemetryItems(telemetry2);
 
                 // we don't know which host reported requests
