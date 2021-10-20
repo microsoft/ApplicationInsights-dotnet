@@ -12,7 +12,7 @@ on:
     branches: [ master, develop ]
 
 jobs:
-  build-test:
+  build-test-BASE:
 
     runs-on: ${{ matrix.os }}
 
@@ -55,3 +55,4 @@ jobs:
     - name: Retry tests
       if: steps.test1.outcome=='failure'
       run: pwsh -f ./.scripts/build_RetryTests.ps1 -TestResultFile ${{ github.workspace }}/testResults.trx -WorkingDirectory ${{ github.workspace }}
+      
