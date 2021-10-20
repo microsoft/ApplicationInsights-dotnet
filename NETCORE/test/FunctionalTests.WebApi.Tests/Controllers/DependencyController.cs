@@ -16,7 +16,9 @@ namespace FunctionalTests.WebApi.Tests.Controllers
         {
             using (var hc = new HttpClient())
             {
-                await hc.GetAsync("https://www.microsoft.com").ContinueWith(t => { }); // ignore all errors
+                // Microsoft.com will return a redirect to a specific lang version.
+                // This redirect is not detected in versions older that Net6.0.
+                await hc.GetAsync("https://www.microsoft.com/en-us/").ContinueWith(t => { }); // ignore all errors
             }
         }
     }
