@@ -48,17 +48,13 @@
             string newTransmissions = null;
             if (backendResponse.ItemsAccepted != backendResponse.ItemsReceived)
             {
-                string[] items = JsonSerializer
-                    .Deserialize(initialTransmission.Content)
-                    .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-
                 foreach (var error in backendResponse.Errors)
                 {
                     if (error != null)
                     {
-                        if (error.Index >= items.Length || error.Index < 0)
+                        if (error.Index < 0)
                         {
-                            TelemetryChannelEventSource.Log.UnexpectedBreezeResponseWarning(items.Length, error.Index);
+                            TelemetryChannelEventSource.Log.UnexpectedBreezeResponseErrorIndexWarning(error.Index);
                             continue;
                         }
 
@@ -70,6 +66,16 @@
                             error.StatusCode == ResponseStatusCodes.ResponseCodeTooManyRequests ||
                             error.StatusCode == ResponseStatusCodes.ResponseCodeTooManyRequestsOverExtendedTime)
                         {
+                            string[] items = JsonSerializer
+                                .Deserialize(initialTransmission.Content)
+                                .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+                            if (error.Index >= items.Length)
+                            {
+                                TelemetryChannelEventSource.Log.UnexpectedBreezeResponseWarning(items.Length, error.Index);
+                                continue;
+                            }
+
                             if (string.IsNullOrEmpty(newTransmissions))
                             {
                                 newTransmissions = items[error.Index];
