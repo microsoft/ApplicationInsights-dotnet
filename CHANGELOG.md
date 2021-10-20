@@ -6,6 +6,7 @@
 - [Suppress long running SignalR connections](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2372)
 - [Support for redirect response from Ingestion service](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2327)
 - [NetCore2.1 has reached end of life and all references have been removed](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2251)
+- [Removed redundant memory allocations and processing in PartialSuccessTransmissionPolicy for ingestion sampling cases](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2445)
 
 ## Version 2.18.0
 - [Change Self-Diagnostics to include datetimestamp in filename](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2325)
