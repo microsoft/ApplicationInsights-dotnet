@@ -28,6 +28,10 @@
     <Reference Include="System.Net.Http" />
   </ItemGroup>
   
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="4.7.0" />
+  </ItemGroup>
+  
   <ItemGroup>
     <Content Include="ApplicationInsights.config.install.xdt" />
     <Content Include="ApplicationInsights.config.transform" />
@@ -38,10 +42,6 @@
   <ItemGroup>
     <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\$(TargetFramework)\PublicAPI.Shipped.txt" />
     <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\$(TargetFramework)\PublicAPI.Unshipped.txt" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="4.7.0" />
   </ItemGroup>
 
 </Project>

@@ -44,11 +44,11 @@
             return contextAccessor;
         }
 
-        public static HttpContextAccessor CreateHttpContextAccessorWithoutRequest(HttpContextStub httpContextStub, RequestTelemetry requestTelemetry = null)
+        public static HttpContextAccessor CreateHttpContextAccessorWithoutRequest(HttpContext httpContext, RequestTelemetry requestTelemetry = null)
         {
             var services = new ServiceCollection();
 
-            var contextAccessor = new HttpContextAccessor { HttpContext = httpContextStub };
+            var contextAccessor = new HttpContextAccessor { HttpContext = httpContext };
 
             services.AddSingleton<IHttpContextAccessor>(contextAccessor);
 

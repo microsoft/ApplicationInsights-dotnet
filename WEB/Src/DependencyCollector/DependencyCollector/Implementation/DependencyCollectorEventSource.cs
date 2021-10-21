@@ -10,7 +10,11 @@
     /// <summary>
     /// ETW EventSource tracing class.
     /// </summary>
+#if REDFIELD
+    [EventSource(Name = "Redfield-Microsoft-ApplicationInsights-Extensibility-DependencyCollector")]
+#else
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-DependencyCollector")]
+#endif
     [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed class DependencyCollectorEventSource : EventSource
     {

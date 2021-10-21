@@ -8,7 +8,11 @@
     /// <summary>
     /// ETW EventSource tracing class.
     /// </summary>
+#if REDFIELD
+    [EventSource(Name = "Redfield-Microsoft-ApplicationInsights-Extensibility-WindowsServer")]
+#else
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-WindowsServer")]
+#endif
     [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed class WindowsServerEventSource : EventSource
     {

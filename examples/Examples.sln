@@ -11,8 +11,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyCollector", "..\W
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventCounterCollector", "..\WEB\Src\EventCounterCollector\EventCounterCollector\EventCounterCollector.csproj", "{13335EB8-3936-407A-9363-1C428318BEA8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HostingStartup", "..\WEB\Src\HostingStartup\HostingStartup\HostingStartup.csproj", "{DEEAF599-83F9-4A05-ADD6-F612CDABE570}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Perf", "..\WEB\Src\PerformanceCollector\PerformanceCollector\Perf.csproj", "{9DC5C5E5-FC37-4E54-81FD-AA42BB934E9B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsServer", "..\WEB\Src\WindowsServer\WindowsServer\WindowsServer.csproj", "{7B5D95EE-50EE-4222-A03C-FAE5905B3DFD}"
@@ -84,7 +82,6 @@ Global
 		..\WEB\Src\Common\Common.projitems*{ccab7a34-8dc5-4a6f-b637-46ceba93c687}*SharedItemsImports = 13
 		..\WEB\Src\PerformanceCollector\Perf.Shared.NetStandard\Perf.Shared.NetStandard.projitems*{d13c3ec7-b300-4158-9054-216156b203be}*SharedItemsImports = 13
 		..\NETCORE\src\Shared\Shared.projitems*{d56f2979-d6bc-4ef2-bb9b-4077b3290599}*SharedItemsImports = 13
-		..\WEB\Src\Common\Common.projitems*{deeaf599-83f9-4a05-add6-f612cdabe570}*SharedItemsImports = 5
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -98,8 +95,6 @@ Global
 		{96A6E04E-CEDA-4C30-8ECA-48113382AFBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13335EB8-3936-407A-9363-1C428318BEA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{13335EB8-3936-407A-9363-1C428318BEA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DEEAF599-83F9-4A05-ADD6-F612CDABE570}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DEEAF599-83F9-4A05-ADD6-F612CDABE570}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DC5C5E5-FC37-4E54-81FD-AA42BB934E9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9DC5C5E5-FC37-4E54-81FD-AA42BB934E9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B5D95EE-50EE-4222-A03C-FAE5905B3DFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -141,7 +136,6 @@ Global
 		{C30A7EB8-A86C-49EE-927E-7D9E03572E82} = {C5024E50-3350-479B-8628-620B299B9061}
 		{96A6E04E-CEDA-4C30-8ECA-48113382AFBA} = {C5024E50-3350-479B-8628-620B299B9061}
 		{13335EB8-3936-407A-9363-1C428318BEA8} = {C5024E50-3350-479B-8628-620B299B9061}
-		{DEEAF599-83F9-4A05-ADD6-F612CDABE570} = {C5024E50-3350-479B-8628-620B299B9061}
 		{9DC5C5E5-FC37-4E54-81FD-AA42BB934E9B} = {C5024E50-3350-479B-8628-620B299B9061}
 		{7B5D95EE-50EE-4222-A03C-FAE5905B3DFD} = {C5024E50-3350-479B-8628-620B299B9061}
 		{CCAB7A34-8DC5-4A6F-B637-46CEBA93C687} = {C5024E50-3350-479B-8628-620B299B9061}

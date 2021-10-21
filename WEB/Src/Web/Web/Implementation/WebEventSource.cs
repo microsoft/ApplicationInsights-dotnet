@@ -6,11 +6,15 @@
     using System.Diagnostics.Tracing;
 #endif
     using Microsoft.ApplicationInsights.Common;
-    
+
     /// <summary>
     /// ETW EventSource tracing class.
     /// </summary>
+#if REDFIELD
+    [EventSource(Name = "Redfield-Microsoft-ApplicationInsights-Extensibility-Web")]
+#else
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-Web")]
+#endif
     [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed class WebEventSource : EventSource
     {

@@ -4,7 +4,11 @@
     using System.Diagnostics.Tracing;
     using Microsoft.ApplicationInsights.Common;
 
+#if REDFIELD
+    [EventSource(Name = "Redfield-Microsoft-ApplicationInsights-Extensibility-PerformanceCollector")]
+#else
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-PerformanceCollector")]
+#endif
     [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed class PerformanceCollectorEventSource : EventSource
     {

@@ -6,11 +6,16 @@ namespace Microsoft.ApplicationInsights.WindowsServer
     using System.Net.Http;
     using System.Runtime.Serialization.Json;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.WindowsServer.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.Implementation.DataContracts;
     using Microsoft.ApplicationInsights.WindowsServer.Mock;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+    using Moq;
+    using Moq.Protected;
+
     using Assert = Xunit.Assert;
 
     [TestClass]
@@ -291,17 +296,28 @@ namespace Microsoft.ApplicationInsights.WindowsServer
         }
 
         [TestMethod]
-        public void AzureIMSGetFailsWithException()
+        public async Task AzureIMSGetFailsWithException()
         {
-            var requestor = new AzureMetadataRequestor(makeAzureIMSRequestor: (string uri) =>
-            {
-                throw new HttpRequestException("MaxResponseContentLength exceeded");
-            });
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Callback(() => throw new HttpRequestException("unit test forced exception"));
+
+            //var requestor = new AzureMetadataRequestor(new HttpClient(mockHttpMessageHandler.Object));
+
+            var mockAzureMetadataRequestor = new Mock<AzureMetadataRequestor>();
+
+            mockAzureMetadataRequestor
+                .Setup(x => x.GetHttpClient())
+                .Returns(new HttpClient(mockHttpMessageHandler.Object));
+
+            var requestor = mockAzureMetadataRequestor.Object;
 
             try
             {
-                var result = requestor.GetAzureComputeMetadataAsync();
-                Assert.Null(result.GetAwaiter().GetResult());                
+                var result = await requestor.GetAzureComputeMetadataAsync();
+                Assert.Null(result);
             }
             catch
             {

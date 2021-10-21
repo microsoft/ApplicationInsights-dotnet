@@ -4,7 +4,11 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
 
+#if REDFIELD
+    [EventSource(Name = "Redfield-Microsoft-ApplicationInsights-WindowsServer-TelemetryChannel")]
+#else
     [EventSource(Name = "Microsoft-ApplicationInsights-WindowsServer-TelemetryChannel")]
+#endif
     [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed class TelemetryChannelEventSource : EventSource
     {

@@ -10,29 +10,30 @@
         [Fact]
         public void InitializeDoesNotThrowIfHostingEnvironmentIsNull()
         {
-            var initializer = new AspNetCoreEnvironmentTelemetryInitializer(null);
+            var initializer = new AspNetCoreEnvironmentTelemetryInitializer(environment: null);
             initializer.Initialize(new RequestTelemetry());
         }
 
         [Fact]
         public void InitializeDoesNotOverrideExistingProperty()
         {
-            var initializer = new AspNetCoreEnvironmentTelemetryInitializer(new HostingEnvironment() { EnvironmentName = "Production"});
+            var initializer = new AspNetCoreEnvironmentTelemetryInitializer(environment: EnvironmentHelper.GetIHostingEnvironment());
             var telemetry = new RequestTelemetry();
-            telemetry.Context.Properties.Add("AspNetCoreEnvironment", "Development");
+            telemetry.Context.GlobalProperties.Add("AspNetCoreEnvironment", "Development");
             initializer.Initialize(telemetry);
 
-            Assert.Equal("Development", telemetry.Context.Properties["AspNetCoreEnvironment"]);
+            Assert.Equal("Development", telemetry.Context.GlobalProperties["AspNetCoreEnvironment"]);
+            Assert.Equal("UnitTest", telemetry.Properties["AspNetCoreEnvironment"]);
         }
 
         [Fact]
         public void InitializeSetsCurrentEnvironmentNameToProperty()
         {
-            var initializer = new AspNetCoreEnvironmentTelemetryInitializer(new HostingEnvironment() { EnvironmentName = "Production"});
+            var initializer = new AspNetCoreEnvironmentTelemetryInitializer(environment: EnvironmentHelper.GetIHostingEnvironment());
             var telemetry = new RequestTelemetry();
             initializer.Initialize(telemetry);
 
-            Assert.Equal("Production", telemetry.Context.Properties["AspNetCoreEnvironment"]);
+            Assert.Equal("UnitTest", telemetry.Properties["AspNetCoreEnvironment"]);
         }
     }
 }

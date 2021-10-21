@@ -86,6 +86,38 @@
         /// </summary>
         private static bool ShouldSubscribe(EventSource eventSource)
         {
+#if REDFIELD
+            if (eventSource.Name.StartsWith("Redfield-Microsoft-A", StringComparison.Ordinal))
+            {
+                switch (eventSource.Name)
+                {
+                    case "Redfield-Microsoft-ApplicationInsights-Core":
+                    case "Redfield-Microsoft-ApplicationInsights-WindowsServer-TelemetryChannel":
+
+                    case "Redfield-Microsoft-ApplicationInsights-Extensibility-AppMapCorrelation-Dependency":
+                    case "Redfield-Microsoft-ApplicationInsights-Extensibility-AppMapCorrelation-Web":
+
+                    case "Redfield-Microsoft-ApplicationInsights-Extensibility-DependencyCollector":
+                    case "Redfield-Microsoft-ApplicationInsights-Extensibility-EventCounterCollector":
+                    case "Redfield-Microsoft-ApplicationInsights-Extensibility-PerformanceCollector":
+                    case "Redfield-Microsoft-ApplicationInsights-Extensibility-PerformanceCollector-QuickPulse":
+                    case "Redfield-Microsoft-ApplicationInsights-Extensibility-Web":
+                    case "Redfield-Microsoft-ApplicationInsights-Extensibility-WindowsServer":
+                    case "Redfield-Microsoft-ApplicationInsights-WindowsServer-Core":
+                    case "Redfield-Microsoft-ApplicationInsights-Extensibility-EventSourceListener":
+                    case "Redfield-Microsoft-ApplicationInsights-AspNetCore":
+                    case "Redfield-Microsoft-ApplicationInsights-LoggerProvider":
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            if (eventSource.Name == "Microsoft-AspNet-Telemetry-Correlation")
+            {
+                return true;
+            }
+#else
             if (eventSource.Name.StartsWith("Microsoft-A", StringComparison.Ordinal))
             {
                 switch (eventSource.Name)
@@ -96,7 +128,7 @@
                     // AppMapCorrelation has a shared partial class: https://github.com/microsoft/ApplicationInsights-dotnet/blob/master/WEB/Src/Common/AppMapCorrelationEventSource.cs
                     case "Microsoft-ApplicationInsights-Extensibility-AppMapCorrelation-Dependency": // https://github.com/microsoft/ApplicationInsights-dotnet/blob/master/WEB/Src/DependencyCollector/DependencyCollector/Implementation/AppMapCorrelationEventSource.cs
                     case "Microsoft-ApplicationInsights-Extensibility-AppMapCorrelation-Web": // https://github.com/microsoft/ApplicationInsights-dotnet/blob/master/WEB/Src/Web/Web/Implementation/AppMapCorrelationEventSource.cs
-                    
+
                     case "Microsoft-ApplicationInsights-Extensibility-DependencyCollector": // https://github.com/microsoft/ApplicationInsights-dotnet/blob/master/WEB/Src/DependencyCollector/DependencyCollector/Implementation/DependencyCollectorEventSource.cs
                     case "Microsoft-ApplicationInsights-Extensibility-EventCounterCollector": // https://github.com/microsoft/ApplicationInsights-dotnet/blob/master/WEB/Src/EventCounterCollector/EventCounterCollector/EventCounterCollectorEventSource.cs
                     case "Microsoft-ApplicationInsights-Extensibility-PerformanceCollector": // https://github.com/microsoft/ApplicationInsights-dotnet/blob/master/WEB/Src/PerformanceCollector/PerformanceCollector/Implementation/PerformanceCollectorEventSource.cs
@@ -113,6 +145,7 @@
                         return false;
                 }
             }
+#endif
 
             return false;
         }

@@ -25,7 +25,11 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
 
         protected override void OnEventSourceCreated(EventSource eventSource)
         {
+#if REDFIELD
+            if (string.Equals(eventSource.Name, "Redfield-Microsoft-ApplicationInsights-Extensibility-EventSourceListener", System.StringComparison.Ordinal))
+#else
             if (string.Equals(eventSource.Name, "Microsoft-ApplicationInsights-Extensibility-EventSourceListener", System.StringComparison.Ordinal))
+#endif   
             {
                 EnableEvents(eventSource, EventLevel.LogAlways);
             }

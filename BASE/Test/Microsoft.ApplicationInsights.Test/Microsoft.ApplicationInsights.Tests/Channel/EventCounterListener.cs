@@ -22,7 +22,11 @@
 
         protected override void OnEventSourceCreated(EventSource eventSource)
         {
+#if REDFIELD
+            if (string.Equals(eventSource.Name, "Redfield-Microsoft-ApplicationInsights-Core", StringComparison.Ordinal))
+#else
             if (string.Equals(eventSource.Name, "Microsoft-ApplicationInsights-Core", StringComparison.Ordinal))
+#endif
             {
                 var eventCounterArguments = new Dictionary<string, string>
                 {
