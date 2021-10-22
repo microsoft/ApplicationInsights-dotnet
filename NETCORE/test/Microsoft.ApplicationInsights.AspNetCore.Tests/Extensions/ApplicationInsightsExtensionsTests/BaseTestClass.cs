@@ -9,6 +9,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using System.IO;
 
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.ApplicationInsights.AspNetCore.Tests;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Hosting.Internal;
@@ -80,7 +81,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         public static ServiceCollection GetServiceCollectionWithContextAccessor()
         {
             var services = new ServiceCollection();
-            services.AddSingleton<IHostingEnvironment>(new HostingEnvironment() { ContentRootPath = Directory.GetCurrentDirectory() });
+            services.AddSingleton<IHostingEnvironment>(EnvironmentHelper.GetIHostingEnvironment());
             services.AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
             return services;
         }
