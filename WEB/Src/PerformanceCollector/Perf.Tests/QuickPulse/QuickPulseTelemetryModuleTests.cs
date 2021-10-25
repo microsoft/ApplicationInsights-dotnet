@@ -912,7 +912,7 @@
         }
 
         [TestMethod]
-        public void QuickPulseTelemetryModuleUpdatesCollectionConfigurationWithQuotaInfo()
+        public void QuickPulseTelemetryModuleUpdatesGlobalCollectionConfigurationWithQuotaInfo()
         {
             if (QuickPulseTelemetryModuleTests.Ignored)
             {
@@ -961,25 +961,31 @@
 
             Assert.AreEqual(60, accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Count);
 
-            //CollectionConfigurationInfo collectionConfigurationInfo2 = new CollectionConfigurationInfo()
-            //{
-            //    ETag = "ETag2",
-            //    DocumentStreams = new[] { new DocumentStreamInfo() { Id = "wx3", DocumentFilterGroups = new[] { new DocumentFilterConjunctionGroupInfo() { TelemetryType = TelemetryType.Request, Filters = new FilterConjunctionGroupInfo() { Filters = new FilterInfo[0] } } } } },
-            //};
+            CollectionConfigurationInfo collectionConfigurationInfo2 = new CollectionConfigurationInfo()
+            {
+                ETag = "ETag2",
+                DocumentStreams = new[] { new DocumentStreamInfo() { Id = "wx3", DocumentFilterGroups = new[] { new DocumentFilterConjunctionGroupInfo() { TelemetryType = TelemetryType.Request, Filters = new FilterConjunctionGroupInfo() { Filters = new FilterInfo[0] } } } } },
+                QuotaInfo = new QuotaConfigurationInfo()
+                {
+                    InitialQuota = 0,
+                    QuotaAccrualRatePerSec = 1,
+                    MaxQuota = 5
+                }
+            };
 
-            //PrivateObject quickPulseTelemetryModuleTester = new PrivateObject(module);
-            //quickPulseTelemetryModuleTester.Invoke("OnUpdatedConfiguration", collectionConfigurationInfo2);
+            PrivateObject quickPulseTelemetryModuleTester = new PrivateObject(module);
+            quickPulseTelemetryModuleTester.Invoke("OnUpdatedConfiguration", collectionConfigurationInfo2);
             //serviceClient.CollectionConfigurationInfo = collectionConfigurationInfo2;
 
-            //Thread.Sleep((int)(10 * collectionInterval.TotalMilliseconds));
-            //Thread.Sleep(pollingInterval);
+            Thread.Sleep(pollingInterval);
 
-            //for (int i = 0; i < 100; i++)
-            //{
-            //    telemetryProcessor.Process(new RequestTelemetry() { Id = "1", Name = "Request1", Context = { InstrumentationKey = "some ikey" } });
-            //}
+            for (int i = 0; i < 100; i++)
+            {
+                telemetryProcessor.Process(new RequestTelemetry() { Id = "1", Name = "Request1", Context = { InstrumentationKey = "some ikey" } });
+            }
 
-            //Assert.AreEqual(60, accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Count);
+            Assert.IsTrue(accumulatorManager.CurrentDataAccumulator.GlobalDocumentQuotaReached);
+            Assert.AreEqual(61, accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Count);
         }
 
         [TestMethod]
