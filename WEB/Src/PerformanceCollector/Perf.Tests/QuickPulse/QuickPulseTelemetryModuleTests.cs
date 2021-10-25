@@ -914,6 +914,7 @@
         [TestMethod]
         public void QuickPulseTelemetryModuleUpdatesGlobalCollectionConfigurationWithQuotaInfo()
         {
+#if !NETCOREAPP
             if (QuickPulseTelemetryModuleTests.Ignored)
             {
                 return;
@@ -985,6 +986,7 @@
 
             Assert.IsTrue(accumulatorManager.CurrentDataAccumulator.GlobalDocumentQuotaReached);
             Assert.AreEqual(61, accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Count);
+#endif
         }
 
         [TestMethod]
