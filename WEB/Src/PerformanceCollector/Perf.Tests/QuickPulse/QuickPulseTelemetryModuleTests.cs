@@ -975,7 +975,6 @@
 
             PrivateObject quickPulseTelemetryModuleTester = new PrivateObject(module);
             quickPulseTelemetryModuleTester.Invoke("OnUpdatedConfiguration", collectionConfigurationInfo2);
-            //serviceClient.CollectionConfigurationInfo = collectionConfigurationInfo2;
 
             Thread.Sleep(pollingInterval);
 
