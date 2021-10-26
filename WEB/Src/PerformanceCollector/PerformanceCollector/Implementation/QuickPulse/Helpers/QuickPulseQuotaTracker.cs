@@ -24,7 +24,7 @@
         {
             this.timeProvider = timeProvider;
             this.maxQuota = maxQuota;
-            this.quotaAccrualRatePerSec = quotaAccrualRatePerSec ?? this.maxQuota / 60; // should not be calculated from maxQuota - Should be passed from the service
+            this.quotaAccrualRatePerSec = quotaAccrualRatePerSec ?? (this.maxQuota / 60); // should not be calculated from maxQuota - Should be passed from the service
             this.startedTrackingTime = timeProvider.UtcNow;
             this.lastQuotaAccrualFullSeconds = 0;
             this.currentQuota = startQuota;
