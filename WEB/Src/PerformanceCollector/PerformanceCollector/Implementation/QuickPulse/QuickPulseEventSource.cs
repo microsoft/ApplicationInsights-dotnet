@@ -6,7 +6,11 @@
     using System.Reflection;
     using Microsoft.ApplicationInsights.Common;
 
+#if REDFIELD
+    [EventSource(Name = "Redfield-Microsoft-ApplicationInsights-Extensibility-PerformanceCollector-QuickPulse")]
+#else
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-PerformanceCollector-QuickPulse")]
+#endif
     [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed class QuickPulseEventSource : EventSource
     {
@@ -159,6 +163,16 @@
         public void CollectionConfigurationUpdateFailed(string oldEtag, string newEtag, string configuration, string e, string applicationName = "dummy")
         {
             this.WriteEvent(23, oldEtag ?? string.Empty, newEtag ?? string.Empty, configuration ?? string.Empty, e ?? string.Empty, this.applicationNameProvider.Name);
+        }
+
+        /// <summary>
+        /// Logs an error indicating that the QuickPulseServiceClient could not acquire an auth token.
+        /// Full exception is logged in the Base SDK at <see cref="Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.CoreEventSource.FailedToGetToken"/>.
+        /// </summary>
+        [Event(24, Message = "QuickPulse failed to get an auth token. Check 'CoreEventSource.FailedToGetToken' for full exception.", Level = EventLevel.Error)]
+        public void FailedToGetAuthToken(string applicationName = "dummy")
+        {
+            this.WriteEvent(24, this.applicationNameProvider.Name);
         }
 
         #endregion

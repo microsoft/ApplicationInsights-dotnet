@@ -34,7 +34,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             Assert.IsFalse(request.Source == null);
             Assert.IsFalse(request.Name == null);            
             Assert.IsFalse(request.ResponseCode == null);                                   
-            Assert.IsFalse(request.Duration == null);
+            Assert.IsTrue(request.Duration == default);
             Assert.IsTrue(request.Success == null);
             Assert.IsTrue(request.Data.success);
             Assert.AreEqual(SamplingDecision.None, request.ProactiveSamplingDecision);

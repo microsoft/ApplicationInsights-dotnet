@@ -157,8 +157,7 @@
         {
             if (obj != null)
             {
-                var otherConfig = obj as MetricConfiguration;
-                if (otherConfig != null)
+                if (obj is MetricConfiguration otherConfig)
                 {
                     return this.Equals(otherConfig);
                 }

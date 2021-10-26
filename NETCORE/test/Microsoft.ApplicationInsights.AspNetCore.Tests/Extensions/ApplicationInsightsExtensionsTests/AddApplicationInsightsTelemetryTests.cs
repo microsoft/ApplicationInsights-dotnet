@@ -101,9 +101,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// Else, it invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
         /// </param>
         [Theory]
-#if !NET46
-        [InlineData(true)]
-#endif
         [InlineData(false)]
         public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromConfiguration(bool useDefaultConfig)
         {
@@ -214,9 +211,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// Else, it invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
         /// </param>
         [Theory]
-#if !NET46
-        [InlineData(true)]
-#endif
         [InlineData(false)]
         public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromConfiguration(bool useDefaultConfig)
         {
@@ -697,12 +691,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// </param>
         /// <param name="isEnable">Sets the value for property EnableLegacyCorrelationHeadersInjection.</param>
         [Theory]
-#if !NET46
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
         [InlineData("SuppliedConfiguration", false)]
-#endif
         [InlineData("Code", true)]
         [InlineData("Code", false)]
         public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesDependencyCollectorWithCustomValues(string configType, bool isEnable)
@@ -986,7 +978,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             //ACT
             services.ConfigureTelemetryModule<TestTelemetryModule>
-                (module => module.CustomProperty = "mycustomproperty");
+                ((module, o) => module.CustomProperty = "mycustomproperty");
+
             services.AddApplicationInsightsTelemetry();
             IServiceProvider serviceProvider = services.BuildServiceProvider();
 
@@ -1020,11 +1013,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                                                                                                             == typeof(RequestTrackingTelemetryModule));
 
             Assert.True(requestTrackingModule.CollectionOptions.InjectResponseHeaders);
-#if NETCOREAPP || NET461
             Assert.False(requestTrackingModule.CollectionOptions.TrackExceptions);
-#else
-                Assert.True(requestTrackingModule.CollectionOptions.TrackExceptions);
-#endif
         }
 
         /// <summary>
@@ -1039,12 +1028,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// </param>
         /// <param name="isEnable">Sets the value for property InjectResponseHeaders, TrackExceptions and EnableW3CDistributedTracing.</param>
         [Theory]
-#if !NET46
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
         [InlineData("SuppliedConfiguration", false)]
-#endif
         [InlineData("Code", true)]
         [InlineData("Code", false)]
         public static void ConfigureRequestTrackingTelemetryCustomOptions(string configType, bool isEnable)
@@ -1059,7 +1046,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 {
                     o.RequestCollectionOptions.InjectResponseHeaders = isEnable;
                     o.RequestCollectionOptions.TrackExceptions = isEnable;
-                    o.RequestCollectionOptions.EnableW3CDistributedTracing = isEnable;
+                    // o.RequestCollectionOptions.EnableW3CDistributedTracing = isEnable; // Obsolete
                 };
                 filePath = null;
             }
@@ -1076,7 +1063,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             Assert.Equal(isEnable, requestTrackingModule.CollectionOptions.InjectResponseHeaders);
             Assert.Equal(isEnable, requestTrackingModule.CollectionOptions.TrackExceptions);
-            Assert.Equal(isEnable, requestTrackingModule.CollectionOptions.EnableW3CDistributedTracing);
+            // Assert.Equal(isEnable, requestTrackingModule.CollectionOptions.EnableW3CDistributedTracing); // Obsolete
         }
 
         [Fact]
@@ -1088,7 +1075,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             //ACT and VALIDATE
             Assert.Throws<ArgumentNullException>(() => services.ConfigureTelemetryModule<TestTelemetryModule>((Action<TestTelemetryModule, ApplicationInsightsServiceOptions>)null));
+
+#pragma warning disable CS0618 // Type or member is obsolete
             Assert.Throws<ArgumentNullException>(() => services.ConfigureTelemetryModule<TestTelemetryModule>((Action<TestTelemetryModule>)null));
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Fact]
@@ -1141,12 +1131,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// </param>
         /// <param name="isEnable">Sets the value for property EnableAdaptiveSampling.</param>
         [Theory]
-#if !NET46
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
         [InlineData("SuppliedConfiguration", false)]
-#endif
         [InlineData("Code", true)]
         [InlineData("Code", false)]
         public static void DoesNotAddSamplingToConfigurationIfExplicitlyControlledThroughParameter(string configType, bool isEnable)
@@ -1357,12 +1345,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// </param>
         /// <param name="isEnable">Sets the value for property AddAutoCollectedMetricExtractor.</param>
         [Theory]
-#if !NET46
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
         [InlineData("SuppliedConfiguration", false)]
-#endif
         [InlineData("Code", true)]
         [InlineData("Code", false)]
         public static void DoesNotAddAutoCollectedMetricsExtractorToConfigurationIfExplicitlyControlledThroughParameter(string configType, bool isEnable)
@@ -1410,12 +1396,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         /// </param>
         /// <param name="isEnable">Sets the value for property EnableAuthenticationTrackingJavaScript.</param>
         [Theory]
-#if !NET46
         [InlineData("DefaultConfiguration", true)]
         [InlineData("DefaultConfiguration", false)]
         [InlineData("SuppliedConfiguration", true)]
         [InlineData("SuppliedConfiguration", false)]
-#endif
         [InlineData("Code", true)]
         [InlineData("Code", false)]
         public static void UserCanEnableAndDisableAuthenticationTrackingJavaScript(string configType, bool isEnable)
@@ -1475,7 +1459,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             IServiceProvider serviceProvider = services.BuildServiceProvider();
             var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
 
+#pragma warning disable CS0618 // Type or member is obsolete
             Assert.DoesNotContain(telemetryConfiguration.TelemetryInitializers, t => t is W3COperationCorrelationTelemetryInitializer);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var modules = serviceProvider.GetServices<ITelemetryModule>().ToList();
 
@@ -1510,8 +1496,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             bool firstLoggerCallback = false;
             bool secondLoggerCallback = false;
 
+#pragma warning disable CS0618 // Type or member is obsolete
             loggerProvider.AddApplicationInsights(serviceProvider, (s, level) => true, () => firstLoggerCallback = true);
             loggerProvider.AddApplicationInsights(serviceProvider, (s, level) => true, () => secondLoggerCallback = true);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             Assert.True(firstLoggerCallback);
             Assert.False(secondLoggerCallback);
@@ -1526,11 +1514,11 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             var loggerProvider = new MockLoggingFactory();
 
+#pragma warning disable CS0618 // Type or member is obsolete
             loggerProvider.AddApplicationInsights(serviceProvider, (s, level) => true, null);
             loggerProvider.AddApplicationInsights(serviceProvider, (s, level) => true, null);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
-
-#if NETCOREAPP || NET461
 
         /// <summary>
         /// Creates two copies of ApplicationInsightsServiceOptions. First object is created by calling services.AddApplicationInsightsTelemetry() or services.AddApplicationInsightsTelemetry(config).
@@ -1723,6 +1711,5 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             Assert.Equal(appSettingsConfig["ApplicationInsights:InstrumentationKey"], telemetryConfiguration.InstrumentationKey);
         }
-#endif
     }
 }

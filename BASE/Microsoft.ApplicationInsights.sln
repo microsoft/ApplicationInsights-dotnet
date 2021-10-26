@@ -13,7 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solutio
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		..\CHANGELOG.md = ..\CHANGELOG.md
-		CodeCov.ps1 = CodeCov.ps1
 		Directory.Build.props = Directory.Build.props
 		NuGet.config = NuGet.config
 		Package.targets = Package.targets
@@ -36,17 +35,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsigh
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel", "src\ServerTelemetryChannel\TelemetryChannel.csproj", "{3273D899-D9B3-44FE-B3AB-578E18B2EF90}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common.Base", "src\Common\Common\Common.Base.shproj", "{936AF739-4297-4016-9D70-4280042709BE}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights.Tests", "Test\Microsoft.ApplicationInsights.Test\Microsoft.ApplicationInsights.Tests\Microsoft.ApplicationInsights.Tests.csproj", "{EF007559-EA01-4D4A-9BEB-8CC661797BE5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel.Tests", "Test\ServerTelemetryChannel.Test\TelemetryChannel.Tests\TelemetryChannel.Tests.csproj", "{7AB3D817-9CAC-45A7-BA4D-25FA4D690DA4}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		src\Common\Common\Common.projitems*{3273d899-d9b3-44fe-b3ab-578e18b2ef90}*SharedItemsImports = 5
-		src\Common\Common\Common.projitems*{936af739-4297-4016-9d70-4280042709be}*SharedItemsImports = 13
-		src\Common\Common\Common.projitems*{e9ecee96-dd50-42f6-9f33-0978cdfa15ed}*SharedItemsImports = 5
 		Test\TestFramework\Shared\TestFramework.Shared.projitems*{f76c6cbd-29b0-4564-bdcb-c969f8fec136}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -208,7 +202,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{4B0BC3B7-C7FC-4333-9E28-5790D9153F07} = {BED5EB47-4AB1-4387-98B6-83CC327D6D16}
-		{F76C6CBD-29B0-4564-BDCB-C969F8FEC136} = {C2FEEDE5-8CAE-41A4-8932-42D284A86EA7}
+		{F76C6CBD-29B0-4564-BDCB-C969F8FEC136} = {BED5EB47-4AB1-4387-98B6-83CC327D6D16}
 		{21CB9A8A-F25B-4DEB-92CB-ACB6920EB8BC} = {A61B048F-ECEA-4BED-A2ED-22834E7D4DFB}
 		{E9ECEE96-DD50-42F6-9F33-0978CDFA15ED} = {68CC2924-E162-44BE-8D7A-DBA385365585}
 		{2759BC71-7F47-44DA-8579-AE2D8C8C684D} = {C2FEEDE5-8CAE-41A4-8932-42D284A86EA7}

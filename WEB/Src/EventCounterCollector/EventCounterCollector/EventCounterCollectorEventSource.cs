@@ -4,7 +4,11 @@
     using System.Diagnostics.Tracing;
     using Microsoft.ApplicationInsights.Common;
 
+#if REDFIELD
+    [EventSource(Name = "Redfield-Microsoft-ApplicationInsights-Extensibility-EventCounterCollector")]
+#else
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-EventCounterCollector")]
+#endif
     [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed class EventCounterCollectorEventSource : EventSource
     {

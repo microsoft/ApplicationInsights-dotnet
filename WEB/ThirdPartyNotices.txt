@@ -21,17 +21,16 @@ The Visual Studio Application Insights SDK for .NET Web Applications source code
 15	knockoutjs (http://knockoutjs.com/)
 16	Modernizr (https://modernizr.com/)
 17	Newtonsoft.Json (http://www.newtonsoft.com/json)
-18	OpenCover (https://github.com/opencover/opencover)
-19	Owin (https://github.com/owin-contrib/owin-hosting/)
-20	Respond (https://github.com/scottjehl/Respond/)
-21	Rx-Core (https://github.com/Reactive-Extensions/Rx.NET)
-22	Rx-Interfaces (https://github.com/Reactive-Extensions/Rx.NET)
-23	Rx-Linq (https://github.com/Reactive-Extensions/Rx.NET)
-24	StyleCop.MSBuild (https://github.com/adamralph/stylecop-msbuild)
-25	System.Spatial (http://odata.github.io/)
-26	WebGrease (http://webgrease.codeplex.com/)
-27	WiX (http://wixtoolset.org/)
-28	xunit (https://github.com/xunit/xunit)
+18	Owin (https://github.com/owin-contrib/owin-hosting/)
+19	Respond (https://github.com/scottjehl/Respond/)
+20	Rx-Core (https://github.com/Reactive-Extensions/Rx.NET)
+21	Rx-Interfaces (https://github.com/Reactive-Extensions/Rx.NET)
+22	Rx-Linq (https://github.com/Reactive-Extensions/Rx.NET)
+23	StyleCop.MSBuild (https://github.com/adamralph/stylecop-msbuild)
+24	System.Spatial (http://odata.github.io/)
+25	WebGrease (http://webgrease.codeplex.com/)
+26	WiX (http://wixtoolset.org/)
+27	xunit (https://github.com/xunit/xunit)
 
 
 %% Antlr NOTICES, INFORMATION, AND LICENSE BEGIN HERE
@@ -212,19 +211,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 =========================================
 END OF Newtonsoft.Json NOTICES, INFORMATION, AND LICENSE
-
-%% OpenCover NOTICES, INFORMATION, AND LICENSE BEGIN HERE
-=========================================
-Copyright (c) 2011-2012 Shaun Wilde
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-=========================================
-END OF OpenCover NOTICES, INFORMATION, AND LICENSE
-
 
 %% Owin NOTICES, INFORMATION, AND LICENSE BEGIN HERE
 =========================================

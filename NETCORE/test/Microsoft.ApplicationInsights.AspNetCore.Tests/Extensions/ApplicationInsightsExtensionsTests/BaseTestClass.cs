@@ -9,6 +9,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using System.IO;
 
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.ApplicationInsights.AspNetCore.Tests;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Hosting.Internal;
@@ -59,10 +60,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 config = new ConfigurationBuilder().Build();
             }
 
-#if NET46
-            // In NET46, we don't read from default configuration or bind configuration. 
-            services.AddApplicationInsightsTelemetry(config);
-#else
+
             if (useDefaultConfig)
             {
                 services.AddSingleton<IConfiguration>(config);
@@ -72,7 +70,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             {
                 services.AddApplicationInsightsTelemetry(config);
             }
-#endif
+
             if (serviceOptions != null)
             {
                 services.Configure(serviceOptions);
@@ -83,7 +81,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         public static ServiceCollection GetServiceCollectionWithContextAccessor()
         {
             var services = new ServiceCollection();
-            services.AddSingleton<IHostingEnvironment>(new HostingEnvironment() { ContentRootPath = Directory.GetCurrentDirectory() });
+            services.AddSingleton<IHostingEnvironment>(EnvironmentHelper.GetIHostingEnvironment());
             services.AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
             return services;
         }

@@ -24,7 +24,7 @@
 
             string hostName = Dns.GetHostName();
 
-#if NET46 || NET461
+#if NETFRAMEWORK
             string domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
             if (hostName.EndsWith(domainName, StringComparison.OrdinalIgnoreCase) == false)
             {

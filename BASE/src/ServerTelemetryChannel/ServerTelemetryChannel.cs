@@ -4,22 +4,29 @@
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
+    using System.Threading;
     using System.Threading.Tasks;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation.TransmissionPolicy;
+
+    using TelemetryBuffer = Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation.TelemetryBuffer;
 
     /// <summary>
     /// Represents a communication channel for sending telemetry to Application Insights via HTTP/S.
     /// </summary>
-    public sealed class ServerTelemetryChannel : ITelemetryChannel, ITelemetryModule
+    public sealed class ServerTelemetryChannel : ITelemetryChannel, IAsyncFlushable, ITelemetryModule, ISupportCredentialEnvelope
     {
         internal TelemetrySerializer TelemetrySerializer;
         internal TelemetryBuffer TelemetryBuffer;
         internal Transmitter Transmitter;
 
         private readonly InterlockedThrottle throttleEmptyIkeyLog = new InterlockedThrottle(interval: TimeSpan.FromSeconds(30));
+        private readonly TransmissionPolicyCollection policies;
 
         private bool? developerMode;
         private int telemetryBufferCapacity;
@@ -29,7 +36,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerTelemetryChannel"/> class.
         /// </summary>
-#if !NETSTANDARD
+#if NETFRAMEWORK
         [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "WebApplicationLifecycle is needed for the life of the application.")]
         public ServerTelemetryChannel() : this(new Network(), new WebApplicationLifecycle())
 #else
@@ -38,22 +45,11 @@
 #endif
         {
         }
-        
+
         internal ServerTelemetryChannel(INetwork network, IApplicationLifecycle applicationLifecycle)
         {
-            var policies = new TransmissionPolicy[] 
-            { 
-#if !NETSTANDARD
-                // We don't have implementation for IApplicationLifecycle for .NET Core
-                new ApplicationLifecycleTransmissionPolicy(applicationLifecycle),
-#endif
-                new ThrottlingTransmissionPolicy(), 
-                new ErrorHandlingTransmissionPolicy(),
-                new PartialSuccessTransmissionPolicy(), 
-                new NetworkAvailabilityTransmissionPolicy(network),
-            };
-
-            this.Transmitter = new Transmitter(policies: policies);
+            this.policies = new TransmissionPolicyCollection(network, applicationLifecycle);
+            this.Transmitter = new Transmitter(policies: this.policies);
 
             this.TelemetrySerializer = new TelemetrySerializer(this.Transmitter);
             this.TelemetryBuffer = new TelemetryBuffer(this.TelemetrySerializer, applicationLifecycle);
@@ -141,7 +137,7 @@
         /// Gets or sets the maximum telemetry batching interval. Once the interval expires, <see cref="TelemetryChannel"/> 
         /// serializes the accumulated telemetry items for transmission.
         /// </summary>
-        public TimeSpan MaxTelemetryBufferDelay 
+        public TimeSpan MaxTelemetryBufferDelay
         {
             get { return this.TelemetryBuffer.MaxTransmissionDelay; }
             set { this.TelemetryBuffer.MaxTransmissionDelay = value; }
@@ -152,10 +148,10 @@
         /// the <see cref="TelemetryChannel"/> serializing them for transmission to Application Insights.
         /// This is not a hard limit on how many unsent items can be in the buffer.
         /// </summary>
-        public int MaxTelemetryBufferCapacity 
+        public int MaxTelemetryBufferCapacity
         {
             get { return this.TelemetryBuffer.Capacity; }
-            set { this.TelemetryBuffer.Capacity = value; } 
+            set { this.TelemetryBuffer.Capacity = value; }
         }
 
         /// <summary>
@@ -242,6 +238,23 @@
         }
 
         /// <summary>
+        /// Gets or sets the <see cref="CredentialEnvelope"/> which is used for AAD.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="ISupportCredentialEnvelope.CredentialEnvelope"/> on <see cref="ServerTelemetryChannel"/> sets <see cref="Transmitter.CredentialEnvelope"/> and then sets <see cref="TransmissionSender.CredentialEnvelope"/> 
+        /// which is used to set <see cref="Transmission.CredentialEnvelope"/> just before calling <see cref="Transmission.SendAsync"/>.
+        /// </remarks>
+        CredentialEnvelope ISupportCredentialEnvelope.CredentialEnvelope
+        {
+            get => this.Transmitter.CredentialEnvelope;
+            set 
+            {
+                this.Transmitter.CredentialEnvelope = value;
+                this.policies.EnableAuthenticationPolicy();
+            }
+        }
+
+        /// <summary>
         /// Gets or sets first TelemetryProcessor in processor call chain.
         /// </summary>
         internal ITelemetryProcessor TelemetryProcessor
@@ -266,7 +279,7 @@
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         public void Dispose()
-        {   
+        {
             // Tested by FxCop rule CA2213
             this.TelemetryBuffer.Dispose();
             this.Transmitter.Dispose();
@@ -327,6 +340,24 @@
         }
 
         /// <summary>
+        /// Asynchronously flushes the telemetry buffer. 
+        /// </summary>
+        /// <returns>
+        /// Returns true when telemetry data is transferred out of process (application insights server or local storage) and are emitted before the flush invocation.
+        /// Returns false when transfer of telemetry data to server has failed with non-retriable http status code.
+        /// </returns>
+        public Task<bool> FlushAsync(CancellationToken cancellationToken)
+        {
+            if (!this.isInitialized)
+            {
+                TelemetryChannelEventSource.Log.StorageNotInitializedError();
+            }
+
+            TelemetryChannelEventSource.Log.TelemetryChannelFlushAsync();
+            return cancellationToken.IsCancellationRequested ? TaskEx.FromCanceled<bool>(cancellationToken) : this.TelemetryBuffer.FlushAsync(cancellationToken);
+        }
+
+        /// <summary>
         /// Initialize method is called after all configuration properties have been loaded from the configuration.
         /// </summary>
         [SuppressMessage("Microsoft.Usage", "CA2234:PassSystemUriObjectsInsteadOfStrings", Justification = "Private variable, low risk.")]
@@ -336,6 +367,8 @@
             {
                 throw new ArgumentNullException(nameof(configuration));
             }
+
+            ((ISupportCredentialEnvelope)this).CredentialEnvelope = configuration.CredentialEnvelope;
 
             this.Transmitter.Initialize();
 

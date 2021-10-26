@@ -1,12 +1,14 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
 {
     using System;
+
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Xunit;
-    using Microsoft.AspNetCore.Http.Internal;
     using Microsoft.AspNetCore.Http;
+
+    using Xunit;
+
     public class WebUserTelemetryInitializerTests
     {
         [Fact]

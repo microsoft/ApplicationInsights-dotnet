@@ -395,6 +395,80 @@
         }
 
         [TestMethod]
+        public void QuickPulseTelemetryProcessorFiltersOutDependencyCallsToQuickPulseServiceDuringCollectionOnceRedirected()
+        {
+            // ARRANGE
+            var accumulatorManager = new QuickPulseDataAccumulatorManager(EmptyCollectionConfiguration);
+            var simpleTelemetryProcessorSpy = new SimpleTelemetryProcessorSpy();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(simpleTelemetryProcessorSpy);
+            var config = new TelemetryConfiguration() { InstrumentationKey = "some ikey" };
+
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("https://qps.cloudapp.net/endpoint.svc"),
+                config);
+
+            // ACT
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).ServiceEndpoint = new Uri("https://bing.com");
+            telemetryProcessor.Process(
+                new DependencyTelemetry() { Target = "microsoft.ru", Context = { InstrumentationKey = config.InstrumentationKey } });
+            telemetryProcessor.Process(
+                new DependencyTelemetry() { Target = "qps.cloudapp.net", Context = { InstrumentationKey = config.InstrumentationKey } });
+            telemetryProcessor.Process(
+                new DependencyTelemetry() { Target = "bing.com", Context = { InstrumentationKey = config.InstrumentationKey } });
+            
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).ServiceEndpoint = new Uri("https://microsoft.ru");
+            telemetryProcessor.Process(
+                new DependencyTelemetry() { Target = "microsoft.ru", Context = { InstrumentationKey = config.InstrumentationKey } });
+            telemetryProcessor.Process(
+                new DependencyTelemetry() { Target = "qps.cloudapp.net", Context = { InstrumentationKey = config.InstrumentationKey } });
+            telemetryProcessor.Process(
+                new DependencyTelemetry() { Target = "bing.com", Context = { InstrumentationKey = config.InstrumentationKey } });
+            
+            // ASSERT
+            Assert.AreEqual(4, simpleTelemetryProcessorSpy.ReceivedCalls);
+            Assert.AreEqual("microsoft.ru", (simpleTelemetryProcessorSpy.ReceivedItems[0] as DependencyTelemetry).Target);
+            Assert.AreEqual("qps.cloudapp.net", (simpleTelemetryProcessorSpy.ReceivedItems[1] as DependencyTelemetry).Target);
+            Assert.AreEqual("qps.cloudapp.net", (simpleTelemetryProcessorSpy.ReceivedItems[2] as DependencyTelemetry).Target);
+            Assert.AreEqual("bing.com", (simpleTelemetryProcessorSpy.ReceivedItems[3] as DependencyTelemetry).Target);
+
+            Assert.AreEqual(4, accumulatorManager.CurrentDataAccumulator.AIDependencyCallCount);
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryProcessorFiltersOutDependencyCallsToQuickPulseServiceEndpointInIdleModeOnceRedirected()
+        {
+            // ARRANGE
+            var simpleTelemetryProcessorSpy = new SimpleTelemetryProcessorSpy();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(simpleTelemetryProcessorSpy);
+            var config = new TelemetryConfiguration() {InstrumentationKey = "some ikey"};
+
+            // ACT
+            ((IQuickPulseTelemetryProcessor) telemetryProcessor).ServiceEndpoint = new Uri("https://bing.com");
+            telemetryProcessor.Process(
+                new DependencyTelemetry() {Target = "microsoft.ru", Context = {InstrumentationKey = config.InstrumentationKey}});
+            telemetryProcessor.Process(
+                new DependencyTelemetry() {Target = "qps.cloudapp.net", Context = {InstrumentationKey = config.InstrumentationKey}});
+            telemetryProcessor.Process(
+                new DependencyTelemetry() {Target = "bing.com", Context = {InstrumentationKey = config.InstrumentationKey}});
+
+            ((IQuickPulseTelemetryProcessor) telemetryProcessor).ServiceEndpoint = new Uri("https://microsoft.ru");
+            telemetryProcessor.Process(
+                new DependencyTelemetry() {Target = "microsoft.ru", Context = {InstrumentationKey = config.InstrumentationKey}});
+            telemetryProcessor.Process(
+                new DependencyTelemetry() {Target = "qps.cloudapp.net", Context = {InstrumentationKey = config.InstrumentationKey}});
+            telemetryProcessor.Process(
+                new DependencyTelemetry() {Target = "bing.com", Context = {InstrumentationKey = config.InstrumentationKey}});
+
+            // ASSERT
+            Assert.AreEqual(4, simpleTelemetryProcessorSpy.ReceivedCalls);
+            Assert.AreEqual("microsoft.ru", (simpleTelemetryProcessorSpy.ReceivedItems[0] as DependencyTelemetry).Target);
+            Assert.AreEqual("qps.cloudapp.net", (simpleTelemetryProcessorSpy.ReceivedItems[1] as DependencyTelemetry).Target);
+            Assert.AreEqual("qps.cloudapp.net", (simpleTelemetryProcessorSpy.ReceivedItems[2] as DependencyTelemetry).Target);
+            Assert.AreEqual("bing.com", (simpleTelemetryProcessorSpy.ReceivedItems[3] as DependencyTelemetry).Target);
+        }
+
+        [TestMethod]
         public void QuickPulseTelemetryProcessorCollectsFullTelemetryItemsAndDistributesThemAmongDocumentStreamsCorrectly()
         {
             // ARRANGE
@@ -508,7 +582,11 @@
                 Success = false,
                 ResponseCode = "500",
                 Duration = TimeSpan.FromSeconds(1),
-                Properties = { { "Prop1", "Val1" }, { "Prop2", "Val2" }, { "Prop3", "Val3" }, { "Prop4", "Val4" } },
+                Properties =
+                {
+                    {"Prop1", "Val1"}, {"Prop5", "Val5"}, {"Prop10", "Val10"}, {"Prop8", "Val8"}, {"Prop3", "Val3"}, {"Prop7", "Val7"}, {"Prop6", "Val6"}, {"Prop9", "Val9"},
+                    {"Prop4", "Val4"}, {"Prop11", "Val11"}, {"Prop2", "Val2"}
+                },
                 Context = { InstrumentationKey = instrumentationKey }
             };
 
@@ -517,27 +595,44 @@
                 Name = Guid.NewGuid().ToString(),
                 Success = false,
                 Duration = TimeSpan.FromSeconds(1),
-                Properties = { { "Prop1", "Val1" }, { "Prop2", "Val2" }, { "Prop3", "Val3" }, { "Prop4", "Val4" }, { "ErrorMessage", "EMValue" } },
+                Properties =
+                {
+                    {"Prop1", "Val1"}, {"Prop5", "Val5"}, {"Prop10", "Val10"}, {"Prop8", "Val8"}, {"ErrorMessage", "EMValue"}, {"Prop3", "Val3"}, {"Prop7", "Val7"},
+                    {"Prop6", "Val6"}, {"Prop9", "Val9"},
+                    {"Prop4", "Val4"}, {"Prop11", "Val11"}, {"Prop2", "Val2"}
+                },
                 Context = { InstrumentationKey = instrumentationKey }
             };
 
             var exception = new ExceptionTelemetry(new ArgumentNullException())
             {
-                Properties = { { "Prop1", "Val1" }, { "Prop2", "Val2" }, { "Prop3", "Val3" }, { "Prop4", "Val4" } },
+                Properties =
+                {
+                    {"Prop1", "Val1"}, {"Prop5", "Val5"}, {"Prop10", "Val10"}, {"Prop8", "Val8"}, {"Prop3", "Val3"}, {"Prop7", "Val7"}, {"Prop6", "Val6"}, {"Prop9", "Val9"},
+                    {"Prop4", "Val4"}, {"Prop11", "Val11"}, {"Prop2", "Val2"}
+                },
                 Context = { InstrumentationKey = instrumentationKey }
             };
 
             var @event = new EventTelemetry()
             {
                 Name = "Event1",
-                Properties = { { "Prop1", "Val1" }, { "Prop2", "Val2" }, { "Prop3", "Val3" }, { "Prop4", "Val4" } },
+                Properties =
+                {
+                    {"Prop1", "Val1"}, {"Prop5", "Val5"}, {"Prop10", "Val10"}, {"Prop8", "Val8"}, {"Prop3", "Val3"}, {"Prop7", "Val7"}, {"Prop6", "Val6"}, {"Prop9", "Val9"},
+                    {"Prop4", "Val4"}, {"Prop11", "Val11"}, {"Prop2", "Val2"}
+                },
                 Context = { InstrumentationKey = instrumentationKey }
             };
 
             var trace = new TraceTelemetry()
             {
                 Message = "Trace1",
-                Properties = { { "Prop1", "Val1" }, { "Prop2", "Val2" }, { "Prop3", "Val3" }, { "Prop4", "Val4" } },
+                Properties =
+                {
+                    {"Prop1", "Val1"}, {"Prop5", "Val5"}, {"Prop10", "Val10"}, {"Prop8", "Val8"}, {"Prop3", "Val3"}, {"Prop7", "Val7"}, {"Prop6", "Val6"}, {"Prop9", "Val9"},
+                    {"Prop4", "Val4"}, {"Prop11", "Val11"}, {"Prop2", "Val2"}
+                },
                 Context = { InstrumentationKey = instrumentationKey }
             };
 
@@ -550,19 +645,28 @@
             // ASSERT
             var collectedTelemetry = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToArray().Reverse().ToArray();
 
+            var expectedProperties =
+                new Dictionary<string, string>()
+                {
+                    {"Prop1", "Val1"}, {"Prop10", "Val10"}, {"Prop11", "Val11"}, {"Prop2", "Val2"}, {"Prop3", "Val3"}, {"Prop4", "Val4"}, {"Prop5", "Val5"}, {"Prop6", "Val6"},
+                    {"Prop7", "Val7"}, {"Prop8", "Val8"}
+                }.ToArray();
+
             Assert.IsFalse(accumulatorManager.CurrentDataAccumulator.GlobalDocumentQuotaReached);
 
             Assert.AreEqual(5, accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Count);
 
             Assert.AreEqual(TelemetryDocumentType.Request, Enum.Parse(typeof(TelemetryDocumentType), collectedTelemetry[0].DocumentType));
             Assert.AreEqual(request.Name, ((RequestTelemetryDocument)collectedTelemetry[0]).Name);
-            Assert.AreEqual(3, collectedTelemetry[0].Properties.Length);
+            Assert.AreEqual(10, collectedTelemetry[0].Properties.Length);
+            CollectionAssert.AreEqual(expectedProperties, collectedTelemetry[0].Properties);
             Assert.AreEqual("StreamRequestsAndDependenciesAndExceptions", collectedTelemetry[0].DocumentStreamIds.Single());
             Assert.IsTrue(collectedTelemetry[0].Properties.ToList().TrueForAll(pair => pair.Key.Contains("Prop") && pair.Value.Contains("Val")));
 
             Assert.AreEqual(TelemetryDocumentType.RemoteDependency, Enum.Parse(typeof(TelemetryDocumentType), collectedTelemetry[1].DocumentType));
             Assert.AreEqual(dependency.Name, ((DependencyTelemetryDocument)collectedTelemetry[1]).Name);
-            Assert.AreEqual(3 + 1, collectedTelemetry[1].Properties.Length);
+            Assert.AreEqual(10 + 1, collectedTelemetry[1].Properties.Length);
+            CollectionAssert.AreEqual(expectedProperties.Concat(new[] {new KeyValuePair<string, string>("ErrorMessage", "EMValue")}).ToArray(), collectedTelemetry[1].Properties);
             Assert.AreEqual("StreamRequestsAndDependenciesAndExceptions", collectedTelemetry[1].DocumentStreamIds.Single());
             Assert.IsTrue(
                 collectedTelemetry[1].Properties.ToList()
@@ -571,7 +675,8 @@
 
             Assert.AreEqual(TelemetryDocumentType.Exception, Enum.Parse(typeof(TelemetryDocumentType), collectedTelemetry[2].DocumentType));
             Assert.AreEqual(exception.Exception.ToString(), ((ExceptionTelemetryDocument)collectedTelemetry[2]).Exception);
-            Assert.AreEqual(3, collectedTelemetry[2].Properties.Length);
+            Assert.AreEqual(10, collectedTelemetry[2].Properties.Length);
+            CollectionAssert.AreEqual(expectedProperties, collectedTelemetry[2].Properties);
             Assert.AreEqual(2, collectedTelemetry[2].DocumentStreamIds.Length);
             Assert.AreEqual("StreamRequestsAndDependenciesAndExceptions", collectedTelemetry[2].DocumentStreamIds.First());
             Assert.AreEqual("StreamExceptionsEventsTraces", collectedTelemetry[2].DocumentStreamIds.Last());
@@ -579,13 +684,15 @@
 
             Assert.AreEqual(TelemetryDocumentType.Event, Enum.Parse(typeof(TelemetryDocumentType), collectedTelemetry[3].DocumentType));
             Assert.AreEqual(@event.Name, ((EventTelemetryDocument)collectedTelemetry[3]).Name);
-            Assert.AreEqual(3, collectedTelemetry[3].Properties.Length);
+            Assert.AreEqual(10, collectedTelemetry[3].Properties.Length);
+            CollectionAssert.AreEqual(expectedProperties, collectedTelemetry[3].Properties);
             Assert.AreEqual("StreamExceptionsEventsTraces", collectedTelemetry[3].DocumentStreamIds.Single());
             Assert.IsTrue(collectedTelemetry[3].Properties.ToList().TrueForAll(pair => (pair.Key.Contains("Prop") && pair.Value.Contains("Val"))));
 
             Assert.AreEqual(TelemetryDocumentType.Trace, Enum.Parse(typeof(TelemetryDocumentType), collectedTelemetry[4].DocumentType));
             Assert.AreEqual(trace.Message, ((TraceTelemetryDocument)collectedTelemetry[4]).Message);
-            Assert.AreEqual(3, collectedTelemetry[4].Properties.Length);
+            Assert.AreEqual(10, collectedTelemetry[4].Properties.Length);
+            CollectionAssert.AreEqual(expectedProperties, collectedTelemetry[4].Properties);
             Assert.AreEqual("StreamExceptionsEventsTraces", collectedTelemetry[4].DocumentStreamIds.Single());
             Assert.IsTrue(collectedTelemetry[4].Properties.ToList().TrueForAll(pair => (pair.Key.Contains("Prop") && pair.Value.Contains("Val"))));
         }

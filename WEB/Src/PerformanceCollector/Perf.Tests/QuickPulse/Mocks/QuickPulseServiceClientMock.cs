@@ -27,6 +27,10 @@
 
         public CollectionConfigurationError[] CollectionConfigurationErrors { get; private set; }
 
+        public TimeSpan? ServicePollingIntervalHint { private get; set; }
+
+        public Uri CurrentServiceUriMockValue { private get; set; }
+
         public bool? ReturnValueFromSubmitSample { private get; set; }
 
         public int? LastSampleBatchSize { get; private set; }
@@ -50,7 +54,7 @@
             }
         }
 
-        public Uri ServiceUri { get; }
+        public Uri CurrentServiceUri { get; private set; }
 
         public void Reset()
         {
@@ -70,7 +74,9 @@
             DateTimeOffset timestamp,
             string configurationETag,
             string authApiKey,
-            out CollectionConfigurationInfo configurationInfo)
+            string authToken,
+            out CollectionConfigurationInfo configurationInfo,
+            out TimeSpan? servicePollingIntervalHint)
         {
             lock (this.ResponseLock)
             {
@@ -90,6 +96,8 @@
                 }
 
                 configurationInfo = this.CollectionConfigurationInfo?.ETag == configurationETag ? null : this.CollectionConfigurationInfo;
+                servicePollingIntervalHint = this.ServicePollingIntervalHint;
+                this.CurrentServiceUri = this.CurrentServiceUriMockValue;
 
                 return this.ReturnValueFromPing;
             }
@@ -100,6 +108,7 @@
             string instrumentationKey,
             string configurationETag,
             string authApiKey,
+            string authToken,
             out CollectionConfigurationInfo configurationInfo,
             CollectionConfigurationError[] collectionConfigurationErrors)
         {

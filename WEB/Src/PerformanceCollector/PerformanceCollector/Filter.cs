@@ -243,9 +243,7 @@
 
         private static MethodInfo GetMethodInfo<T, TResult>(Expression<Func<T, TResult>> expression)
         {
-            var member = expression.Body as MethodCallExpression;
-
-            if (member != null)
+            if (expression.Body is MethodCallExpression member)
             {
                 return member.Method;
             }
@@ -255,9 +253,7 @@
 
         private static MethodInfo GetMethodInfo<T1, T2, TResult>(Expression<Func<T1, T2, TResult>> expression)
         {
-            var member = expression.Body as MethodCallExpression;
-
-            if (member != null)
+            if (expression.Body is MethodCallExpression member)
             {
                 return member.Method;
             }

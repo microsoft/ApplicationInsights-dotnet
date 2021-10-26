@@ -105,6 +105,8 @@
     <Rule Id="CA2241" Action="Warning" />
     <Rule Id="CA2242" Action="Warning" />
     <Rule Id="CA5122" Action="Warning" />
+    <!-- Suppressing Message "FxCopAnalyzers package has been deprecated in favor of 'Microsoft.CodeAnalysis.NetAnalyzers" because NetAnalyzers does not yet cover as many cases as FxCop -->
+    <Rule Id="CA9998" Action="None" />
   </Rules>
   <Rules AnalyzerId="Microsoft.Analyzers.NativeCodeAnalysis" RuleNamespace="Microsoft.Rules.Native">
     <Rule Id="C26100" Action="Warning" />

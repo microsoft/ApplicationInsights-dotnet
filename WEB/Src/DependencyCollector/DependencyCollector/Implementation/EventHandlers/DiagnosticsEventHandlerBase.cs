@@ -31,6 +31,11 @@
             this.TelemetryClient = new TelemetryClient(configuration);
         }
 
+        protected DiagnosticsEventHandlerBase(TelemetryClient client)
+        {
+            this.TelemetryClient = client;
+        }
+
         public virtual bool IsEventEnabled(string evnt, object arg1, object arg2)
         {
             return !evnt.EndsWith(TelemetryDiagnosticSourceListener.ActivityStartNameSuffix, StringComparison.Ordinal);

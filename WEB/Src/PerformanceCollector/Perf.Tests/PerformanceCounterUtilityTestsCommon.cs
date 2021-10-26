@@ -18,11 +18,7 @@
             try
             {
                 var actual = PerformanceCounterUtility.GetPerformanceCollector();
-#if NETCOREAPP2_0
-            Assert.AreEqual("StandardPerformanceCollector", actual.GetType().Name);
-#else // NET452
-            Assert.AreEqual("StandardPerformanceCollector", actual.GetType().Name);
-#endif
+                Assert.AreEqual("StandardPerformanceCollector", actual.GetType().Name);
             }
             finally
             {
@@ -51,7 +47,7 @@
         [TestMethod]
         public void GetCollectorReturnsXPlatformCollectorForWebAppForLinux()
         {
-#if NETCOREAPP2_1 || NETCOREAPP3_1
+#if NETCOREAPP
             var original = PerformanceCounterUtility.IsWindows;
             try
             {
@@ -73,7 +69,7 @@
         [TestMethod]
         public void GetCollectorReturnsXPlatformCollectorForNonWindows()
         {
-#if NETCOREAPP2_1 || NETCOREAPP3_1
+#if NETCOREAPP
             var original = PerformanceCounterUtility.IsWindows;
             try
             {                

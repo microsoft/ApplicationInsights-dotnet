@@ -1,7 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers
 {
     using System;
+
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation.TransmissionPolicy;
 
     internal class StubTransmissionPolicy : TransmissionPolicy
     {

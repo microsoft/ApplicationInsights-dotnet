@@ -32,6 +32,12 @@
             this.configuration.InstrumentationKey = Guid.NewGuid().ToString();
         }
 
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            Activity.Current = null;
+        }
+
         #endregion TestInitiliaze
 
         #region Subscribtion tests
@@ -248,6 +254,51 @@
             }
         }
 
+        [TestMethod]
+        public void TelemetryDiagnosticSourceListenerCollectsTelemetryFromRawActivityWithoutParent()
+        {
+            var inclusionList = new List<string> { "Test.A" };
+            using (var listener = new DiagnosticListener("Test.A"))
+            using (var dl = new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
+            {
+                dl.Subscribe();
+
+                var activity = new Activity("Test.A.Activity1");
+
+                listener.StartActivity(activity, null);
+                listener.StopActivity(activity, null);
+
+                var telemetryItem = this.sentItems.Last() as DependencyTelemetry;
+
+                Assert.AreEqual(activity.SpanId.ToHexString(), telemetryItem.Id);
+                Assert.AreEqual(activity.TraceId.ToHexString(), telemetryItem.Context.Operation.Id);
+                Assert.AreEqual(null, telemetryItem.Context.Operation.ParentId);
+            }
+        }
+
+        [TestMethod]
+        public void TelemetryDiagnosticSourceListenerCollectsTelemetryFromRawActivityWithParent()
+        {
+            var inclusionList = new List<string> { "Test.A" };
+            using (var listener = new DiagnosticListener("Test.A"))
+            using (var dl = new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
+            {
+                dl.Subscribe();
+
+                var parentActivity = new Activity("Parent").Start();
+                var activity = new Activity("Test.A.Activity1");
+
+                listener.StartActivity(activity, null);
+                listener.StopActivity(activity, null);
+
+                var telemetryItem = this.sentItems.Last() as DependencyTelemetry;
+
+                Assert.AreEqual(activity.SpanId.ToHexString(), telemetryItem.Id);
+                Assert.AreEqual(activity.TraceId.ToHexString(), telemetryItem.Context.Operation.Id);
+                Assert.AreEqual(activity.ParentSpanId.ToHexString(), telemetryItem.Context.Operation.ParentId);
+            }
+        }
+
         #endregion Collection tests
 
         #region Custom handlers
@@ -373,7 +424,7 @@
 
         #endregion
 
-            private void DoOperation(DiagnosticListener listener, string activityName)
+        private void DoOperation(DiagnosticListener listener, string activityName)
         {
             Activity activity = null;
 

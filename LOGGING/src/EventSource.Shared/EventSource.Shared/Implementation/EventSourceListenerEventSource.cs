@@ -16,7 +16,11 @@ namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Implementation
     [EventSource(Name = ProviderName)]
     internal sealed class EventSourceListenerEventSource : EventSource
     {
+#if REDFIELD
+        public const string ProviderName = "Redfield-Microsoft-ApplicationInsights-Extensibility-EventSourceListener";
+#else
         public const string ProviderName = "Microsoft-ApplicationInsights-Extensibility-EventSourceListener";
+#endif
         public static readonly EventSourceListenerEventSource Log = new EventSourceListenerEventSource();
 
         public readonly string ApplicationName;

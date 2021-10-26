@@ -8,7 +8,7 @@
     /// </summary>
     internal class SdkVersionUtils
     {
-#if NET452 || NET46 || NET461
+#if NETFRAMEWORK
         /// <summary>
         /// SDK Version Prefix.
         /// </summary>

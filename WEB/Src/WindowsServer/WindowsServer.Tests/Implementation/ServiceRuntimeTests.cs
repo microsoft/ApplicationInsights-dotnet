@@ -1,4 +1,4 @@
-﻿#if NET452
+﻿#if NETFRAMEWORK
 namespace Microsoft.ApplicationInsights.WindowsServer.Implementation
 {
     using System;
@@ -13,7 +13,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Implementation
     /// if it invokes the right methods and reads values as expected.
     /// The supplied Microsoft.WindowsAzure.ServiceRuntime is a proxy to the real one, and this simulates
     /// as if the tests are running inside a cloud service environment.
-    /// Read ServiceRuntimeHelper.cs to see how the actual calls are intercepted.
+    /// Read <see cref="ServiceRuntimeHelper" /> to see how the actual calls are intercepted.
     /// </summary>
     [TestClass]
     public class ServiceRuntimeTests

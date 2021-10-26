@@ -9,11 +9,12 @@
     /// <summary>
     /// <see cref="ILoggerProvider"/> implementation that creates returns instances of <see cref="ApplicationInsightsLogger"/>.
     /// </summary>
-#if !NETSTANDARD2_0 && !NET461
-    // For NETSTANDARD2.0 and NET461 We take dependency on Microsoft.Extensions.Logging.ApplicationInsights which has ApplicationInsightsProvider having the same ProviderAlias and don't want to clash with this ProviderAlias.
-    [ProviderAlias("ApplicationInsights")]
-#endif
+    /// <remarks>
+    /// THIS CLASS IS OBSOLETE.
+    /// For NETSTANDARD2.0 and NET461 We take dependency on Microsoft.Extensions.Logging.ApplicationInsights which has ApplicationInsightsProvider having the same ProviderAlias and don't want to clash with this ProviderAlias.
+    /// </remarks>
     [SuppressMessage("Documentation Rules", "SA1614:ElementParameterDocumentationMustHaveText", Justification = "This class is obsolete and will not be completely documented.")]
+    [Obsolete] 
     internal class ApplicationInsightsLoggerProvider : ILoggerProvider
     {
         private readonly TelemetryClient telemetryClient;

@@ -84,14 +84,14 @@
         /// <returns>a string representing the version of the current .NET framework.</returns>
         private static string GetRuntimeFrameworkVer()
         {
-#if NET452 || NET46
+#if NETFRAMEWORK
             Assembly assembly = typeof(Object).GetTypeInfo().Assembly;
             AssemblyFileVersionAttribute objectAssemblyFileVer =
                         assembly.GetCustomAttributes(typeof(AssemblyFileVersionAttribute))
                                 .Cast<AssemblyFileVersionAttribute>()
                                 .FirstOrDefault();
             return objectAssemblyFileVer != null ? objectAssemblyFileVer.Version : "undefined";
-#elif NETSTANDARD2_0
+#elif NETSTANDARD
             return System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
 #else
 #error Unrecognized framework
@@ -127,11 +127,11 @@
         private static string GetRuntimeOsType()
         {
             string osValue = "unknown";
-#if NET452 || NET46
+#if NETFRAMEWORK
 
             osValue = Environment.OSVersion.Platform.ToString();
 
-#elif NETSTANDARD2_0
+#elif NETSTANDARD
             
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {

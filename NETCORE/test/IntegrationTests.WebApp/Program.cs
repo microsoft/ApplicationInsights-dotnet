@@ -13,16 +13,6 @@ namespace IntegrationTests.WebApp
 {
     public class Program
     {
-#if NETCOREAPP2_1
-        public static void Main(string[] args)
-        {
-            CreateWebHostBuilder(args).Build().Run();
-        }
-
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup_netcoreapp_2_1>();
-#elif NET5_0
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
@@ -32,20 +22,7 @@ namespace IntegrationTests.WebApp
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup_net_5_0>();
+                    webBuilder.UseStartup<Startup>();
                 });
-#else
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
-
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup_netcoreapp_3_1>();
-                });
-#endif
-                }
+    }
 }

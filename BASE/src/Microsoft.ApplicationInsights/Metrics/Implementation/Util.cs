@@ -173,8 +173,7 @@
             }
             else
             {
-                string stringValue = metricValue as string;
-                if (stringValue != null)
+                if (metricValue is string stringValue)
                 {
                     double doubleValue;
                     if (Double.TryParse(stringValue, NumberStyles.Any, CultureInfo.InvariantCulture, out doubleValue))

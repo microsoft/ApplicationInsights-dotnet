@@ -33,12 +33,11 @@
         {
             var configBuilder = new ConfigurationBuilder()
                 .SetBasePath(this.hostingEnvironment.ContentRootPath ?? Directory.GetCurrentDirectory());
-#if NETSTANDARD2_0 || NET461
             if (this.userConfiguration != null)
             {
                 configBuilder.AddConfiguration(this.userConfiguration);
             }
-#endif
+
             configBuilder.AddJsonFile("appsettings.json", true)
                          .AddJsonFile(string.Format(CultureInfo.InvariantCulture, "appsettings.{0}.json", this.hostingEnvironment.EnvironmentName), true)
                          .AddEnvironmentVariables();

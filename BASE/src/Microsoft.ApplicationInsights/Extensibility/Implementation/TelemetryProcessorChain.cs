@@ -76,9 +76,7 @@
                 {
                     foreach (ITelemetryProcessor processor in processors)
                     {
-                        IDisposable disposableProcessor = processor as IDisposable;
-
-                        if (disposableProcessor != null)
+                        if (processor is IDisposable disposableProcessor)
                         {
                             disposableProcessor.Dispose();
                         }

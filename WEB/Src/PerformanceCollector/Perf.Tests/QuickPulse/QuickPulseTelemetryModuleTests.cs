@@ -135,7 +135,7 @@
 
             // ASSERT
             Assert.IsInstanceOfType(module.ServiceClient, typeof(QuickPulseServiceClient));
-            Assert.AreEqual(expectedEndpoint, module.ServiceClient.ServiceUri, "module is invalid");
+            Assert.AreEqual(expectedEndpoint, module.ServiceClient.CurrentServiceUri, "module is invalid");
             Assert.AreEqual(expectedEndpoint, processor.ServiceEndpoint, "processor is invalid");
         }
 
@@ -161,7 +161,7 @@
             Assert.IsNotNull(processor, "processor was not initialized");
 
             Assert.IsInstanceOfType(module.ServiceClient, typeof(QuickPulseServiceClient));
-            Assert.AreEqual(expectedEndpoint, module.ServiceClient.ServiceUri, "module is invalid");
+            Assert.AreEqual(expectedEndpoint, module.ServiceClient.CurrentServiceUri, "module is invalid");
             Assert.AreEqual(expectedEndpoint, processor.ServiceEndpoint, "processor is invalid");
         }
 
@@ -194,7 +194,7 @@
             module.RegisterTelemetryProcessor(processor); // module did not exist when Processor was created. Need to manually register.
 
             // ASSERT
-            Assert.AreEqual(expectedEndpoint, module.ServiceClient.ServiceUri.AbsoluteUri, "module endpoint is invalid");
+            Assert.AreEqual(expectedEndpoint, module.ServiceClient.CurrentServiceUri.AbsoluteUri, "module endpoint is invalid");
             Assert.AreEqual(expectedEndpoint, ((IQuickPulseTelemetryProcessor)processor).ServiceEndpoint.AbsoluteUri, "processor endpoint is invalid");
         }
 
@@ -215,7 +215,7 @@
 
             // ASSERT
             Assert.IsInstanceOfType(module.ServiceClient, typeof(QuickPulseServiceClient));
-            Assert.AreEqual(expectedEndpoint, module.ServiceClient.ServiceUri.AbsoluteUri, "module is invalid");
+            Assert.AreEqual(expectedEndpoint, module.ServiceClient.CurrentServiceUri.AbsoluteUri, "module is invalid");
             Assert.AreEqual(expectedEndpoint, processor.ServiceEndpoint.AbsoluteUri, "processor is invalid");
         }
 
@@ -235,7 +235,7 @@
 
             // ASSERT
             Assert.IsInstanceOfType(module.ServiceClient, typeof(QuickPulseServiceClient));
-            Assert.AreEqual(expectedEndpoint, module.ServiceClient.ServiceUri.AbsoluteUri, "module is invalid");
+            Assert.AreEqual(expectedEndpoint, module.ServiceClient.CurrentServiceUri.AbsoluteUri, "module is invalid");
             Assert.AreEqual(expectedEndpoint, processor.ServiceEndpoint.AbsoluteUri, "processor is invalid");
         }
 
@@ -261,7 +261,7 @@
             Assert.IsNotNull(processor, "processor was not initialized");
 
             Assert.IsInstanceOfType(module.ServiceClient, typeof(QuickPulseServiceClient));
-            Assert.AreEqual(expectedEndpoint, module.ServiceClient.ServiceUri.AbsoluteUri, "module is invalid");
+            Assert.AreEqual(expectedEndpoint, module.ServiceClient.CurrentServiceUri.AbsoluteUri, "module is invalid");
             Assert.AreEqual(expectedEndpoint, processor.ServiceEndpoint.AbsoluteUri, "processor is invalid");
         }
 
@@ -287,7 +287,7 @@
 
             // ASSERT
             Assert.IsInstanceOfType(module.ServiceClient, typeof(QuickPulseServiceClient));
-            Assert.AreEqual(expectedEndpoint, module.ServiceClient.ServiceUri.AbsoluteUri, "module is invalid");
+            Assert.AreEqual(expectedEndpoint, module.ServiceClient.CurrentServiceUri.AbsoluteUri, "module is invalid");
             Assert.AreEqual(expectedEndpoint, processor.ServiceEndpoint.AbsoluteUri, "processor is invalid");
         }
 
@@ -319,7 +319,7 @@
             Assert.IsNotNull(processor, "processor was not initialized");
 
             Assert.IsInstanceOfType(module.ServiceClient, typeof(QuickPulseServiceClient));
-            Assert.AreEqual(expectedEndpoint, module.ServiceClient.ServiceUri.AbsoluteUri, "module is invalid");
+            Assert.AreEqual(expectedEndpoint, module.ServiceClient.CurrentServiceUri.AbsoluteUri, "module is invalid");
             Assert.AreEqual(expectedEndpoint, processor.ServiceEndpoint.AbsoluteUri, "processor is invalid");
         }
 
@@ -1121,6 +1121,34 @@
             // we don't expect to find many more threads, even though other components might be spinning new ones up and down
             var threadDelta = Process.GetCurrentProcess().Threads.Count - initialThreadCount;
             Assert.IsTrue(Math.Abs(threadDelta) < 5, threadDelta.ToString(CultureInfo.InvariantCulture));
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryModuleUpdatesTelemetryProcessorWithEndpointRedirectReceivedFromServiceClient()
+        {
+            if (QuickPulseTelemetryModuleTests.Ignored)
+            {
+                return;
+            }
+
+            // ARRANGE
+            var interval = TimeSpan.FromMilliseconds(1);
+            var timings = new QuickPulseTimings(interval, interval);
+            Uri redirectedEndpoint = new Uri("https://redirected-qps.com");
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = false, CurrentServiceUriMockValue = redirectedEndpoint};
+            var performanceCollector = new PerformanceCollectorMock();
+            var topCpuCollector = new QuickPulseTopCpuCollectorMock();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+            var module = new QuickPulseTelemetryModule(null, null, serviceClient, performanceCollector, topCpuCollector, timings);
+
+            // ACT
+            module.Initialize(new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
+            module.RegisterTelemetryProcessor(telemetryProcessor);
+
+            // ASSERT
+            Thread.Sleep((int)(interval.TotalMilliseconds * 100));
+
+            Assert.AreEqual(redirectedEndpoint, (telemetryProcessor as IQuickPulseTelemetryProcessor).ServiceEndpoint);
         }
 #pragma warning restore 0162
     }

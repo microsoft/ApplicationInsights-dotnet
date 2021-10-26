@@ -4,7 +4,11 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
 
+#if REDFIELD
+    [EventSource(Name = "Redfield-Microsoft-ApplicationInsights-WindowsServer-TelemetryChannel")]
+#else
     [EventSource(Name = "Microsoft-ApplicationInsights-WindowsServer-TelemetryChannel")]
+#endif
     [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed class TelemetryChannelEventSource : EventSource
     {
@@ -551,6 +555,24 @@
                 user ?? string.Empty,
                 customFolder ?? string.Empty,
                 this.ApplicationName);
+        }
+
+        [Event(76, Message = "Flush telemetry events using IAsyncFlushable.FlushAsync.", Level = EventLevel.Verbose)]
+        public void TelemetryChannelFlushAsync(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(76, this.ApplicationName);
+        }
+
+        [Event(77, Message = "TransmissionFlushAsyncFailed. Exception:{0}", Level = EventLevel.Warning)]
+        public void TransmissionFlushAsyncWarning(string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(77, exception ?? string.Empty, this.ApplicationName);
+        }
+
+        [Event(78, Message = "AuthenticatedTransmissionError. Received a failed ingestion response. TransmissionId: {0}. Status Code: {1}. Status Description: {2}", Level = EventLevel.Warning)]
+        public void AuthenticationPolicyCaughtFailedIngestion(string transmissionId, string statusCode, string statusDescription, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(78, transmissionId ?? string.Empty, statusCode ?? string.Empty, statusDescription ?? string.Empty, this.ApplicationName);
         }
 
         private static string GetApplicationName()

@@ -22,7 +22,7 @@
 ## Build
 
 To successfully build the sources on your machine, make sure you've installed the following prerequisites:
-- Visual Studio 2019 Community or Enterprise
+- Visual Studio 2019 Community, Professional or Enterprise
 - .NET SDKs (https://dotnet.microsoft.com/download)
     - .NET 4.8
 	- .NET Core 3.1 SDK 

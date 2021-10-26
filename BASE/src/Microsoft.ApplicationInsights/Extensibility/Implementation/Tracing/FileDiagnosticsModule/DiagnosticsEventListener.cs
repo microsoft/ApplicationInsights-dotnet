@@ -8,8 +8,11 @@
     /// </summary>
     internal class DiagnosticsEventListener : EventListener
     {
+#if REDFIELD
+        private const string EventSourceNamePrefix = "Redfield-Microsoft-ApplicationInsights-";
+#else
         private const string EventSourceNamePrefix = "Microsoft-ApplicationInsights-";
-
+#endif
         private readonly EventKeywords keywords;
 
         private readonly EventLevel logLevel;

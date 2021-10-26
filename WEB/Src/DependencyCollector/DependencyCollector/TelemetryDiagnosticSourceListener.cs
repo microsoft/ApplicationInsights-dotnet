@@ -50,8 +50,23 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             }
 
             // properly fill dependency telemetry operation context
-            telemetry.Context.Operation.Id = currentActivity.RootId;
-            telemetry.Context.Operation.ParentId = currentActivity.ParentId;
+            if (currentActivity.IdFormat == ActivityIdFormat.W3C)
+            {
+                telemetry.Context.Operation.Id = currentActivity.TraceId.ToHexString();
+                if (currentActivity.ParentSpanId != default)
+                {
+                    telemetry.Context.Operation.ParentId = currentActivity.ParentSpanId.ToHexString();
+                }
+
+                telemetry.Id = currentActivity.SpanId.ToHexString();
+            }
+            else
+            {
+                telemetry.Id = currentActivity.Id;
+                telemetry.Context.Operation.Id = currentActivity.RootId;
+                telemetry.Context.Operation.ParentId = currentActivity.ParentId;
+            }
+
             telemetry.Timestamp = currentActivity.StartTimeUtc;
 
             telemetry.Properties["DiagnosticSource"] = diagnosticListener.Name;

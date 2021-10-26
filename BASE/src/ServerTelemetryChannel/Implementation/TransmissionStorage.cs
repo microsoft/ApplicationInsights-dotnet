@@ -27,6 +27,9 @@
         private bool sizeCalculated;
         private Random random = new Random();
         private Timer clearBadFiles;
+        // Storage dequeue is not permitted with FlushAsync
+        // When this counter is set, it blocks storage dequeue
+        private long flushAsyncInProcessCounter = 0;
 
         public TransmissionStorage()
         {
@@ -122,7 +125,7 @@
 
         public virtual Transmission Dequeue()
         {
-            if (this.folder == null)
+            if (this.folder == null || this.flushAsyncInProcessCounter > 0)
             {
                 return null;
             }
@@ -134,18 +137,21 @@
                 IPlatformFile file = null;
                 try
                 {
-                    file = this.GetOldestTransmissionFileOrNull();
-                    if (file == null)
+                    if (this.flushAsyncInProcessCounter == 0)
                     {
-                        return null; // Because there are no more transmission files.
-                    }
+                        file = this.GetOldestTransmissionFileOrNull();
+                        if (file == null)
+                        {
+                            return null; // Because there are no more transmission files.
+                        }
 
-                    long fileSize;
-                    Transmission transmission = LoadFromTransmissionFile(file, out fileSize);
-                    if (transmission != null)
-                    {
-                        Interlocked.Add(ref this.size, -fileSize);
-                        return transmission;
+                        long fileSize;
+                        Transmission transmission = LoadFromTransmissionFile(file, out fileSize);
+                        if (transmission != null)
+                        {
+                            Interlocked.Add(ref this.size, -fileSize);
+                            return transmission;
+                        }
                     }
                 }
                 catch (UnauthorizedAccessException uae)
@@ -178,6 +184,16 @@
                     continue; // It may be because another thread already loaded this file, we don't know yet.
                 }
             }
+        }
+
+        internal void IncrementFlushAsyncCounter()
+        {
+            Interlocked.Increment(ref this.flushAsyncInProcessCounter);
+        }
+
+        internal void DecrementFlushAsyncCounter()
+        {
+            Interlocked.Decrement(ref this.flushAsyncInProcessCounter);
         }
 
         private static string GetUniqueFileName(string extension)

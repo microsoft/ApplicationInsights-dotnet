@@ -11,9 +11,11 @@ namespace Microsoft.ApplicationInsights.Channel
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
+
     using Microsoft.ApplicationInsights.Common.Extensions;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
@@ -32,13 +34,13 @@ namespace Microsoft.ApplicationInsights.Channel
         [SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", Justification = "Object is disposed within the using statement of the " + nameof(Runner) + " method.")]
         private AutoResetEvent startRunnerEvent;
         private bool enabled = true;
-        
+
         /// <summary>
         /// The number of times this object was disposed.
         /// </summary>
         private int disposeCount = 0;
         private TimeSpan sendingInterval = TimeSpan.FromSeconds(30);
-                
+
         internal InMemoryTransmitter(TelemetryBuffer buffer)
         {
             this.buffer = buffer;
@@ -47,11 +49,11 @@ namespace Microsoft.ApplicationInsights.Channel
             // Starting the Runner
             Task.Factory.StartNew(this.Runner, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default)
                 .ContinueWith(
-                    task => 
+                    task =>
                     {
                         string msg = string.Format(CultureInfo.InvariantCulture, "InMemoryTransmitter: Unhandled exception in Runner: {0}", task.Exception);
                         CoreEventSource.Log.LogVerbose(msg);
-                    }, 
+                    },
                     TaskContinuationOptions.OnlyOnFaulted);
         }
 
@@ -62,6 +64,15 @@ namespace Microsoft.ApplicationInsights.Channel
             get { return this.sendingInterval; }
             set { this.sendingInterval = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the <see cref="CredentialEnvelope"/> which is used for AAD.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="ISupportCredentialEnvelope.CredentialEnvelope"/> on <see cref="InMemoryChannel"/> sets <see cref="InMemoryTransmitter.CredentialEnvelope"/> 
+        /// which is used to set <see cref="Transmission.CredentialEnvelope"/> just before calling <see cref="Transmission.SendAsync"/>.
+        /// </remarks>
+        internal CredentialEnvelope CredentialEnvelope { get; set; }
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -163,7 +174,7 @@ namespace Microsoft.ApplicationInsights.Channel
             }
 
             var transmission = new Transmission(this.EndpointAddress, data, JsonSerializer.ContentType, JsonSerializer.CompressionType, timeout);
-
+            transmission.CredentialEnvelope = this.CredentialEnvelope;
             return transmission.SendAsync();
         }
 

@@ -2,7 +2,7 @@
 {
     using System;
     using System.Diagnostics;
-#if NET452 || NET46
+#if NETFRAMEWORK
     using System.Diagnostics.CodeAnalysis;
     using System.Threading;
 #endif
@@ -14,7 +14,7 @@
         /// </summary>
         internal static readonly double StopwatchTicksToTimeSpanTicks = (double)TimeSpan.TicksPerSecond / Stopwatch.Frequency;
 
-#if NET452 || NET46
+#if NETFRAMEWORK
         private static readonly Timer SyncTimeUpdater;
         private static TimeSync timeSync = new TimeSync();
 
@@ -30,7 +30,7 @@
         /// </summary>
         public static DateTimeOffset GetUtcNow()
         {
-#if NET452 || NET46
+#if NETFRAMEWORK
             // DateTime.UtcNow accuracy on .NET Framework is ~16ms, this method 
             // uses combination of Stopwatch and DateTime to calculate accurate UtcNow.
 
@@ -46,7 +46,7 @@
 #endif
         }
 
-#if NET452 || NET46
+#if NETFRAMEWORK
         private static void Sync()
         {
             // wait for DateTime.UtcNow update to the next granular value

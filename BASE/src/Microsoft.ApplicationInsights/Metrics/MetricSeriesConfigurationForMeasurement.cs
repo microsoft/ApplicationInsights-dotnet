@@ -67,8 +67,7 @@
         {
             if (obj != null)
             {
-                var otherConfig = obj as MetricSeriesConfigurationForMeasurement;
-                if (otherConfig != null)
+                if (obj is MetricSeriesConfigurationForMeasurement otherConfig)
                 {
                     return this.Equals(otherConfig);
                 }

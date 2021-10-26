@@ -247,10 +247,9 @@
                         }
                     }
                 }
-                
+
                 // Either name was not specified, or we have encountered it first time--need to create new sink instance.
-                var sink = LoadInstance(addElement, typeof(TelemetrySink), null, new object[] { telemetryConfiguration, null }, null) as TelemetrySink;
-                if (sink != null)
+                if (LoadInstance(addElement, typeof(TelemetrySink), null, new object[] { telemetryConfiguration, null }, null) is TelemetrySink sink)
                 {
                     telemetryConfiguration.TelemetrySinks.Add(sink);
                 }
@@ -364,8 +363,7 @@
 
         private static void InitializeComponent(object component, TelemetryConfiguration configuration)
         {
-            var configurable = component as ITelemetryModule;
-            if (configurable != null)
+            if (component is ITelemetryModule configurable)
             {
                 try
                 {
@@ -399,7 +397,7 @@
                 {
                     instance = TimeSpan.Parse(valueString, CultureInfo.InvariantCulture);
                 }
-#if NET452 || NET46
+#if NETFRAMEWORK
                 else if (expectedType.IsEnum)
 #else
                 else if (expectedType.GetTypeInfo().IsEnum)

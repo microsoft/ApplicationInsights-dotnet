@@ -14,8 +14,7 @@
 
         public string ExtractDimension(ITelemetry item)
         {
-            var dep = item as DependencyTelemetry;
-            if (dep != null)
+            if (item is DependencyTelemetry dep)
             {
                 return dep.Type;
             }

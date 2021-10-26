@@ -4,7 +4,11 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
 
+#if REDFIELD
+    [EventSource(Name = "Redfield-Microsoft-ApplicationInsights-Core")]
+#else
     [EventSource(Name = "Microsoft-ApplicationInsights-Core")]
+#endif
     [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed class CoreEventSource : EventSource
     {
@@ -655,6 +659,18 @@
 
         [Event(71, Keywords = Keywords.UserActionable, Message = "TransmissionStatusEvent has failed. Error: {0}. Monitoring will continue.", Level = EventLevel.Error)]
         public void TransmissionStatusEventError(string error, string appDomainName = "Incorrect") => this.WriteEvent(71, error, this.nameProvider.Name);
+
+        [Event(72, Keywords = Keywords.UserActionable, Message = "Failed to create file for self diagnostics at {0}. Error message: {1}.", Level = EventLevel.Error)]
+        public void SelfDiagnosticsFileCreateException(string logDirectory, string exception, string appDomainName = "Incorrect") => this.WriteEvent(72, logDirectory, exception, this.nameProvider.Name);
+
+        [Event(73, Message = "Failed to get AAD Token. Error message: {0}.", Level = EventLevel.Error)]
+        public void FailedToGetToken(string exception, string appDomainName = "Incorrect") => this.WriteEvent(73, exception, this.nameProvider.Name);
+
+        [Event(74, Message = "Ingestion Service responded with redirect. {0}", Level = EventLevel.Informational)]
+        public void IngestionRedirectInformation(string message, string appDomainName = "Incorrect") => this.WriteEvent(74, message, this.nameProvider.Name);
+
+        [Event(75, Message = "Ingestion Service responded with redirect. {0}", Level = EventLevel.Error)]
+        public void IngestionRedirectError(string message, string appDomainName = "Incorrect") => this.WriteEvent(75, message, this.nameProvider.Name);
 
         [NonEvent]
         public void TransmissionStatusEventFailed(Exception ex)

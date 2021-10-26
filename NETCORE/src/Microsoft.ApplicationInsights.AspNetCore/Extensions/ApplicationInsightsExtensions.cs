@@ -7,9 +7,7 @@
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.Extensibility;
-#if NETSTANDARD2_0
     using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
-#endif
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -150,9 +148,7 @@
 
                     // NetStandard2.0 has a package reference to Microsoft.Extensions.Logging.ApplicationInsights, and
                     // enables ApplicationInsightsLoggerProvider by default.
-#if NETSTANDARD2_0 || NET461
                     AddApplicationInsightsLoggerProvider(services);
-#endif
                 }
 
                 return services;

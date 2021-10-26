@@ -17,9 +17,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
-#if NETSTANDARD2_0
     using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
-#endif
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
@@ -187,7 +185,6 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
 #endif
 
-#if NETSTANDARD2_0
                     // EventCounterCollectionModule
                     if (module is EventCounterCollectionModule)
                     {
@@ -197,7 +194,6 @@ namespace Microsoft.Extensions.DependencyInjection
                             continue;
                         }
                     }
-#endif
 
                     // PerformanceCollectorModule
                     if (module is PerformanceCollectorModule)
@@ -265,8 +261,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 foreach (ITelemetryProcessor processor in configuration.TelemetryProcessors)
                 {
-                    ITelemetryModule module = processor as ITelemetryModule;
-                    if (module != null)
+                    if (processor is ITelemetryModule module)
                     {
                         module.Initialize(configuration);
                     }
@@ -303,8 +298,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             if (this.applicationInsightsServiceOptions.EnableQuickPulseMetricStream)
             {
-                QuickPulseTelemetryModule quickPulseModule = this.modules.FirstOrDefault((module) => module.GetType() == typeof(QuickPulseTelemetryModule)) as QuickPulseTelemetryModule;
-                if (quickPulseModule != null)
+                if (this.modules.FirstOrDefault((module) => module.GetType() == typeof(QuickPulseTelemetryModule)) is QuickPulseTelemetryModule quickPulseModule)
                 {
                     QuickPulseTelemetryProcessor processor = null;
                     configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder.Use((next) =>

@@ -18,9 +18,7 @@
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
 
-#if NETSTANDARD2_0
     using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
-#endif
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -59,10 +57,8 @@
         private const string DeveloperModeForWebSites = "APPINSIGHTS_DEVELOPER_MODE";
         private const string EndpointAddressForWebSites = "APPINSIGHTS_ENDPOINTADDRESS";
 
-#if NETSTANDARD2_0 || NET461
         private const string ApplicationInsightsSectionFromConfig = "ApplicationInsights";
         private const string TelemetryChannelSectionFromConfig = "ApplicationInsights:TelemetryChannel";
-#endif
 
         [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "Used in NetStandard2.0 build.")]
         private const string EventSourceNameForSystemRuntime = "System.Runtime";
@@ -242,10 +238,8 @@
         {
             try
             {
-#if NETSTANDARD2_0 || NET461
                 config.GetSection(ApplicationInsightsSectionFromConfig).Bind(serviceOptions);
                 config.GetSection(TelemetryChannelSectionFromConfig).Bind(serviceOptions);
-#endif
 
                 if (config.TryGetValue(primaryKey: ConnectionStringEnvironmentVariable, backupKey: ConnectionStringFromConfig, value: out string connectionStringValue))
                 {
@@ -347,9 +341,7 @@
             services.AddSingleton<ITelemetryModule, QuickPulseTelemetryModule>();
 
             AddAndConfigureDependencyTracking(services);
-#if NETSTANDARD2_0
             services.AddSingleton<ITelemetryModule, EventCounterCollectionModule>();
-#endif
         }
 
         private static void AddTelemetryChannel(IServiceCollection services)
@@ -405,7 +397,6 @@
         [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "services parameter is used in only NetStandard 2.0 build.")]
         private static void AddApplicationInsightsLoggerProvider(IServiceCollection services)
         {
-#if NETSTANDARD2_0 || NET461
             services.AddLogging(loggingBuilder =>
             {
                 loggingBuilder.AddApplicationInsights();
@@ -435,7 +426,6 @@
                             LogLevel.Warning,
                             null)));
             });
-#endif
         }
     }
 }

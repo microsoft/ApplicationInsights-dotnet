@@ -1,4 +1,4 @@
-﻿#if !NETSTANDARD
+﻿#if NETFRAMEWORK
 namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;

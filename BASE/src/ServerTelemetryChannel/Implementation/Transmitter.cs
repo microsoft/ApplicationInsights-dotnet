@@ -4,8 +4,13 @@
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Channel.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation.TransmissionPolicy;
 
     /// <summary>
     /// Implements throttled and persisted transmission of telemetry to Application Insights. 
@@ -13,10 +18,12 @@
     internal class Transmitter : IDisposable
     {
         internal readonly TransmissionSender Sender;
-        internal readonly TransmissionBuffer Buffer;        
-        internal readonly TransmissionStorage Storage;        
-        private readonly IEnumerable<TransmissionPolicy> policies;
+        internal readonly TransmissionBuffer Buffer;
+        internal readonly TransmissionStorage Storage;
+        private readonly TransmissionPolicyCollection policies;
         private readonly BackoffLogicManager backoffLogicManager;
+        private readonly Task<bool> successTask = Task.FromResult(true);
+        private readonly Task<bool> failedTask = Task.FromResult(false);
 
         private bool arePoliciesApplied;
         private int maxSenderCapacity;
@@ -28,12 +35,12 @@
         /// </summary>
         [SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors", Justification = "TODO: change this in future submits.")]
         internal Transmitter(
-            TransmissionSender sender = null, 
-            TransmissionBuffer transmissionBuffer = null, 
-            TransmissionStorage storage = null, 
-            IEnumerable<TransmissionPolicy> policies = null,
+            TransmissionSender sender = null,
+            TransmissionBuffer transmissionBuffer = null,
+            TransmissionStorage storage = null,
+            TransmissionPolicyCollection policies = null,
             BackoffLogicManager backoffLogicManager = null)
-        { 
+        {
             this.backoffLogicManager = backoffLogicManager ?? new BackoffLogicManager();
             this.Sender = sender ?? new TransmissionSender();
             this.Sender.TransmissionSent += this.HandleSenderTransmissionSentEvent;
@@ -46,16 +53,13 @@
             this.Storage = storage ?? new TransmissionStorage();
             this.maxStorageCapacity = this.Storage.Capacity;
 
-            this.policies = policies ?? Enumerable.Empty<TransmissionPolicy>();
-            foreach (TransmissionPolicy policy in this.policies)
-            {
-                policy.Initialize(this);
-            }
+            this.policies = policies ?? TransmissionPolicyCollection.Default;
+            this.policies.Initialize(this);
         }
 
         public event EventHandler<TransmissionProcessedEventArgs> TransmissionSent;
 
-        public string StorageFolder { get; set; }        
+        public string StorageFolder { get; set; }
 
         public int MaxBufferCapacity
         {
@@ -71,8 +75,8 @@
             }
         }
 
-        public int MaxSenderCapacity 
-        { 
+        public int MaxSenderCapacity
+        {
             get
             {
                 return this.maxSenderCapacity;
@@ -123,6 +127,19 @@
         }
 
         /// <summary>
+        /// Gets or sets the <see cref="CredentialEnvelope"/> which is used for AAD.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="ISupportCredentialEnvelope.CredentialEnvelope"/> on <see cref="ServerTelemetryChannel"/> sets <see cref="Transmitter.CredentialEnvelope"/> and then sets <see cref="TransmissionSender.CredentialEnvelope"/> 
+        /// which is used to set <see cref="Transmission.CredentialEnvelope"/> just before calling <see cref="Transmission.SendAsync"/>.
+        /// </remarks>
+        internal CredentialEnvelope CredentialEnvelope
+        {
+            get => this.Sender.CredentialEnvelope;
+            set => this.Sender.CredentialEnvelope = value;
+        }
+
+        /// <summary>
         /// Releases resources used by this <see cref="Transmitter"/> instance.
         /// </summary>
         public void Dispose()
@@ -169,8 +186,99 @@
 
             if (!this.Storage.Enqueue(transmissionGetter))
             {
+                transmission.IsFlushAsyncInProgress = false;
                 TelemetryChannelEventSource.Log.TransmitterStorageSkipped(transmission.Id);
             }
+        }
+
+        internal Task<bool> FlushAsync(Transmission transmission, CancellationToken cancellationToken)
+        {
+            TaskStatus taskStatus = TaskStatus.Canceled;
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                transmission.IsFlushAsyncInProgress = true;
+                this.Enqueue(transmission);
+
+                try
+                {
+                    this.Storage.IncrementFlushAsyncCounter();
+                    taskStatus = this.MoveTransmissionsAndWaitForSender(transmission.FlushAsyncId, cancellationToken);
+                }
+                catch (Exception exp)
+                {
+                    taskStatus = TaskStatus.Faulted;
+                    TelemetryChannelEventSource.Log.TransmissionFlushAsyncWarning(exp.ToString());
+                }
+                finally
+                {
+                    this.Storage.DecrementFlushAsyncCounter();
+                }
+            }
+
+            Task<bool> flushTaskStatus = null;
+            if (taskStatus == TaskStatus.Canceled)
+            {
+                flushTaskStatus = TaskEx.FromCanceled<bool>(cancellationToken);
+            }
+            else if (taskStatus == TaskStatus.RanToCompletion && transmission.IsFlushAsyncInProgress)
+            {
+                flushTaskStatus = this.successTask;
+            }
+            else
+            {
+                flushTaskStatus = this.failedTask;
+            }
+
+            return flushTaskStatus;
+        }
+
+        internal Task<bool> MoveTransmissionsAndWaitForSender(CancellationToken cancellationToken)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return TaskEx.FromCanceled<bool>(cancellationToken);
+            }
+
+            TaskStatus senderStatus = TaskStatus.Canceled;
+            bool isStorageEnqueueSuccess = false;
+
+            try
+            {
+                this.Storage.IncrementFlushAsyncCounter();
+                isStorageEnqueueSuccess = MoveTransmissions(this.Buffer.Dequeue, this.Storage.Enqueue, this.Buffer.Size, cancellationToken);
+                TelemetryChannelEventSource.Log.MovedFromBufferToStorage();
+                senderStatus = this.Sender.WaitForPreviousTransmissionsToComplete(cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
+            }
+            catch (Exception exp)
+            {
+                senderStatus = TaskStatus.Faulted;
+                TelemetryChannelEventSource.Log.TransmissionFlushAsyncWarning(exp.ToString());
+            }
+            finally
+            {
+                this.Storage.DecrementFlushAsyncCounter();
+            }
+
+            if (senderStatus == TaskStatus.Canceled)
+            {
+                return TaskEx.FromCanceled<bool>(cancellationToken);
+            }
+
+            return senderStatus == TaskStatus.RanToCompletion && isStorageEnqueueSuccess ? this.successTask : this.failedTask;
+        }
+
+        internal TaskStatus MoveTransmissionsAndWaitForSender(long transmissionFlushAsyncId, CancellationToken cancellationToken)
+        {
+            var isStorageEnqueueSuccess = MoveTransmissions(this.Buffer.Dequeue, this.Storage.Enqueue, this.Buffer.Size, cancellationToken);
+            TelemetryChannelEventSource.Log.MovedFromBufferToStorage();
+            var senderStatus = this.Sender.WaitForPreviousTransmissionsToComplete(transmissionFlushAsyncId, cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            if (!isStorageEnqueueSuccess && senderStatus != TaskStatus.Canceled)
+            {
+                return TaskStatus.Faulted;
+            }
+
+            return senderStatus;
         }
 
         internal virtual void ApplyPolicies()
@@ -240,6 +348,31 @@
             while (transmissionMoved);
         }
 
+        private static bool MoveTransmissions(Func<Transmission> dequeue, Func<Func<Transmission>, bool> enqueue, long size, CancellationToken cancellationToken)
+        {
+            bool transmissionMoved = false;
+            do
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                var transmission = dequeue();
+                if (transmission == null)
+                {
+                    transmissionMoved = true;
+                    break;
+                }
+
+                transmissionMoved = enqueue(() => transmission);
+                size -= transmission.Content.Length;
+            }
+            while (transmissionMoved && size > 0);
+
+            return transmissionMoved;
+        }
+
         private void ApplyPoliciesIfAlreadyApplied()
         {
             if (this.arePoliciesApplied)
@@ -255,25 +388,10 @@
             }
         }
 
-        private int? CalculateCapacity(Func<TransmissionPolicy, int?> getMaxPolicyCapacity)
-        {
-            int? maxComponentCapacity = null;
-            foreach (TransmissionPolicy policy in this.policies)
-            {
-                int? maxPolicyCapacity = getMaxPolicyCapacity(policy);
-                if (maxPolicyCapacity != null)
-                {
-                    maxComponentCapacity = maxComponentCapacity == null ? maxPolicyCapacity : Math.Min(maxComponentCapacity.Value, maxPolicyCapacity.Value);
-                }
-            }
-
-            return maxComponentCapacity;
-        }
-
         private void HandleSenderTransmissionSentEvent(object sender, TransmissionProcessedEventArgs e)
         {
             this.OnTransmissionSent(e);
-            
+
             try
             {
                 MoveTransmissions(this.Buffer.Dequeue, this.Sender.Enqueue);
@@ -298,25 +416,22 @@
 
         private void UpdateComponentCapacitiesFromPolicies()
         {
-            this.Sender.Capacity = this.CalculateCapacity(policy => policy.MaxSenderCapacity) ?? this.maxSenderCapacity;
-            this.Buffer.Capacity = this.CalculateCapacity(policy => policy.MaxBufferCapacity) ?? this.maxBufferCapacity;
-            this.Storage.Capacity = this.CalculateCapacity(policy => policy.MaxStorageCapacity) ?? this.maxStorageCapacity;
+            this.Sender.Capacity = this.policies.CalculateMinimumMaxSenderCapacity() ?? this.maxSenderCapacity;
+            this.Buffer.Capacity = this.policies.CalculateMinimumMaxBufferCapacity() ?? this.maxBufferCapacity;
+            this.Storage.Capacity = this.policies.CalculateMinimumMaxStorageCapacity() ?? this.maxStorageCapacity;
         }
 
         private void Dispose(bool disposing)
         {
             if (disposing && this.policies != null)
             {
-                foreach (var policy in this.policies.OfType<IDisposable>())
-                {
-                    policy.Dispose();
-                }
+                this.policies.Dispose();
 
                 if (this.Storage != null)
                 {
                     this.Storage.Dispose();
                 }
-            }            
+            }
         }
     }
 }
