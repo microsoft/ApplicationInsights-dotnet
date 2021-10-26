@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.Service_contract
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.ServiceContract
 {
     using System;
     using System.Collections.Generic;

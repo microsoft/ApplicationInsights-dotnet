@@ -205,18 +205,18 @@
                     CollectionConfigurationError[] localErrors = null;
                     try
                     {
-                        previousQuotasByStreamId.TryGetValue(documentStreamInfo.Id, out Tuple<float, float, float, float, float> initialQuotas);
+                        previousQuotasByStreamId.TryGetValue(documentStreamInfo.Id, out Tuple<float, float, float, float, float> previousQuotas);
                         float? initialQuota = this.info.QuotaInfo?.InitialQuota;
 
                         var documentStream = new DocumentStream(
                             documentStreamInfo,
                             out localErrors,
                             timeProvider,
-                            initialRequestQuota: initialQuota ?? initialQuotas?.Item1,
-                            initialDependencyQuota: initialQuota ?? initialQuotas?.Item2,
-                            initialExceptionQuota: initialQuota ?? initialQuotas?.Item3,
-                            initialEventQuota: initialQuota ?? initialQuotas?.Item4,
-                            initialTraceQuota: initialQuota ?? initialQuotas?.Item5,
+                            initialRequestQuota: initialQuota ?? previousQuotas?.Item1,
+                            initialDependencyQuota: initialQuota ?? previousQuotas?.Item2,
+                            initialExceptionQuota: initialQuota ?? previousQuotas?.Item3,
+                            initialEventQuota: initialQuota ?? previousQuotas?.Item4,
+                            initialTraceQuota: initialQuota ?? previousQuotas?.Item5,
                             maxRequestQuota: maxQuota,
                             maxDependencyQuota: maxQuota,
                             maxExceptionQuota: maxQuota,

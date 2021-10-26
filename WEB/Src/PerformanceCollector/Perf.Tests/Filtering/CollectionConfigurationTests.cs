@@ -8,7 +8,7 @@ namespace Microsoft.ApplicationInsights.Tests
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Filtering;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.Service_contract;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.ServiceContract;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
     using Microsoft.ApplicationInsights.Web.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;

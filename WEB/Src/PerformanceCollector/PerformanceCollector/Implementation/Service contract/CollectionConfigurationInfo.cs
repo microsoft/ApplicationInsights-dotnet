@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Filtering
 {
     using System.Runtime.Serialization;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.Service_contract;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.ServiceContract;
 
     /// <summary>
     /// DTO that represents the collection configuration - a customizable description of performance counters, metrics, and full telemetry documents
