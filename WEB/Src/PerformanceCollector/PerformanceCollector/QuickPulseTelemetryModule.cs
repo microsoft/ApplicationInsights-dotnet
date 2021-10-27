@@ -705,12 +705,9 @@
 
             lock (this.telemetryProcessorsLock)
             {
-                foreach (var telemetryProcessor in this.TelemetryProcessors)
+                foreach (IQuickPulseTelemetryProcessor telemetryProcessor in this.TelemetryProcessors)
                 {
-                    if (telemetryProcessor is IQuickPulseTelemetryProcessor qptp) 
-                    { 
-                        qptp.UpdateGlobalQuotas(this.timeProvider, configurationInfo.QuotaInfo);
-                    }
+                    telemetryProcessor.UpdateGlobalQuotas(this.timeProvider, configurationInfo.QuotaInfo);
                 }
             }
 
