@@ -55,8 +55,12 @@ The following packages are published from this repository:
 | - [Microsoft.ApplicationInsights.EtwCollector](http://www.nuget.org/packages/Microsoft.ApplicationInsights.EtwCollector/)                                      | [![Nightly](https://img.shields.io/myget/applicationinsights-dotnet-nightly/v/Microsoft.ApplicationInsights.EtwCollector?label=)](https://www.myget.org/feed/applicationinsights-dotnet-nightly/package/nuget/Microsoft.ApplicationInsights.EtwCollector)                                             | [![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.EtwCollector.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.EtwCollector/)                                      |
 | - [Microsoft.ApplicationInsights.EventSourceListener](http://www.nuget.org/packages/Microsoft.ApplicationInsights.EventSourceListener/)                        | [![Nightly](https://img.shields.io/myget/applicationinsights-dotnet-nightly/v/Microsoft.ApplicationInsights.EventSourceListener?label=)](https://www.myget.org/feed/applicationinsights-dotnet-nightly/package/nuget/Microsoft.ApplicationInsights.EventSourceListener)                               | [![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.EventSourceListener.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.EventSourceListener/)                        |
 
+### Nightly
+[![Nightly](https://github.com/microsoft/ApplicationInsights-dotnet/actions/workflows/nightly.yml/badge.svg)](https://github.com/microsoft/ApplicationInsights-dotnet/actions/workflows/nightly.yml)
+
 Nightly Builds are available on our MyGet feed:
 `https://www.myget.org/F/applicationinsights-dotnet-nightly/api/v3/index.json`
+
 These builds come from the develop branch. These are not signed and are not intended for production workloads.
 
 ## Releases 
