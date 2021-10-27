@@ -702,6 +702,15 @@
         {
             // we need to preserve the current quota for each document stream that still exists in the new configuration
             CollectionConfigurationError[] errorsConfig;
+
+            lock (this.telemetryProcessorsLock)
+            {
+                foreach (IQuickPulseTelemetryProcessor telemetryProcessor in this.TelemetryProcessors)
+                {
+                    telemetryProcessor.UpdateGlobalQuotas(this.timeProvider, configurationInfo.QuotaInfo);
+                }
+            }
+
             var newCollectionConfiguration = new CollectionConfiguration(configurationInfo, out errorsConfig, this.timeProvider, this.collectionConfiguration?.DocumentStreams);
 
             // the next accumulator that gets swapped in on the collection thread will be initialized with the new collection configuration

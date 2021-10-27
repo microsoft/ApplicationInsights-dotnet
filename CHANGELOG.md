@@ -1,6 +1,7 @@
 # Changelog
 
 ## VNext
+- [Allow Control of Documents sampling for QuickPulse telemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2425)
 
 
 ## Version 2.20.0
