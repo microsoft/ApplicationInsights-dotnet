@@ -2,6 +2,13 @@
 
 ## VNext
 
+
+## Version 2.20.0
+
+
+## Version 2.19.0
+- Support for .Net6
+
 ## Version 2.19.0-beta1
 - [The `{OriginalFormat}` field in ILogger Scope will be emitted as `OriginalFormat` with the braces removed](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2362)
 - [Enable SDK to create package for auto-instrumentation](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2365)
