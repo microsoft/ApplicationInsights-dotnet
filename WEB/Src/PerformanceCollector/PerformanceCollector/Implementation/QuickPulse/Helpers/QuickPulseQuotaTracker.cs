@@ -8,9 +8,7 @@
     /// </summary>
     internal class QuickPulseQuotaTracker
     {
-        private readonly float inputStreamRatePerSec;
-
-        private readonly float maxQuota;
+        private readonly float quotaAccrualRatePerSec;
 
         private readonly DateTimeOffset startedTrackingTime;
 
@@ -18,20 +16,23 @@
 
         private float currentQuota;
 
+        private float maxQuota;
+
         private long lastQuotaAccrualFullSeconds;
         
-        public QuickPulseQuotaTracker(Clock timeProvider, float maxQuota, float startQuota)
+        public QuickPulseQuotaTracker(Clock timeProvider, float maxQuota, float startQuota, float? quotaAccrualRatePerSec = null)
         {
             this.timeProvider = timeProvider;
             this.maxQuota = maxQuota;
-            this.inputStreamRatePerSec = this.maxQuota / 60;
-
+            this.quotaAccrualRatePerSec = quotaAccrualRatePerSec ?? (this.maxQuota / 60); // should not be calculated from maxQuota - Should be passed from the service
             this.startedTrackingTime = timeProvider.UtcNow;
             this.lastQuotaAccrualFullSeconds = 0;
             this.currentQuota = startQuota;
         }
 
         public float CurrentQuota => Interlocked.CompareExchange(ref this.currentQuota, 0, 0);
+
+        public float MaxQuota => Interlocked.CompareExchange(ref this.maxQuota, 0, 0);
 
         public bool QuotaExhausted => Interlocked.CompareExchange(ref this.currentQuota, 0, 0) < 1f;
 
@@ -132,7 +133,7 @@
             {
                 float originalValue = Interlocked.CompareExchange(ref this.currentQuota, 0, 0);
                 
-                float delta = Math.Min(this.inputStreamRatePerSec * seconds, this.maxQuota - originalValue);
+                float delta = Math.Min(this.quotaAccrualRatePerSec * seconds, this.maxQuota - originalValue);
 
                 if (Interlocked.CompareExchange(ref this.currentQuota, originalValue + delta, originalValue) == originalValue)
                 {
