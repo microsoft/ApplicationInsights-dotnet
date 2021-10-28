@@ -123,7 +123,7 @@
 
             if (typeTokenCredential == null)
             {
-                if (AppDomain.CurrentDomain.GetAssemblies().Any(x => x.FullName.StartsWith(azureCoreAssemblyName)))
+                if (AppDomain.CurrentDomain.GetAssemblies().Any(x => x.FullName.StartsWith(azureCoreAssemblyName, StringComparison.Ordinal)))
                 {
                     throw new Exception("An unknown error has occurred. Failed to get type Azure.Core.TokenCredential. Detected that Azure.Core is loaded in AppDomain.CurrentDomain.");
                 }
