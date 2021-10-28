@@ -13,6 +13,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse.Helpers;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.ServiceContract;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.Web.Helpers;
@@ -789,7 +790,7 @@
             var module = new QuickPulseTelemetryModule(collectionTimeSlotManager, null, serviceClient, performanceCollector, topCpuCollector, timings);
 
             // ACT & ASSERT
-            serviceClient.CollectionConfigurationInfo = new CollectionConfigurationInfo() { ETag = "ETag1" };
+            serviceClient.CollectionConfigurationInfo = new CollectionConfigurationInfo() { ETag = "ETag1", QuotaInfo = new QuotaConfigurationInfo() { InitialQuota = 50, MaxQuota=60, QuotaAccrualRatePerSec=10 } };
 
             module.Initialize(new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
 
@@ -800,6 +801,192 @@
             serviceClient.CollectionConfigurationInfo = new CollectionConfigurationInfo() { ETag = "ETag2" };
             Thread.Sleep((int)(10 * collectionInterval.TotalMilliseconds));
             Assert.AreEqual("ETag2", serviceClient.SnappedSamples.Last().CollectionConfigurationAccumulator.CollectionConfiguration.ETag);
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryModuleUpdatesCollectionConfigurationWithQuotaAccrualRate()
+        {
+            if (QuickPulseTelemetryModuleTests.Ignored)
+            {
+                return;
+            }
+
+            // ARRANGE
+            var pollingInterval = TimeSpan.FromSeconds(1);
+            var collectionInterval = TimeSpan.FromMilliseconds(400);
+            var timings = new QuickPulseTimings(pollingInterval, collectionInterval);
+            var collectionTimeSlotManager = new QuickPulseCollectionTimeSlotManagerMock(timings);
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
+            var performanceCollector = new PerformanceCollectorMock();
+            var topCpuCollector = new QuickPulseTopCpuCollectorMock();
+            var module = new QuickPulseTelemetryModule(collectionTimeSlotManager, null, serviceClient, performanceCollector, topCpuCollector, timings);
+
+            // ACT & ASSERT
+            CollectionConfigurationInfo collectionConfigurationInfo = new CollectionConfigurationInfo()
+            {
+                ETag = "ETag1",
+                DocumentStreams = new[] { new DocumentStreamInfo() { Id = "wx3", DocumentFilterGroups = new[] { new DocumentFilterConjunctionGroupInfo() { TelemetryType = TelemetryType.Request, Filters = new FilterConjunctionGroupInfo() { Filters = new FilterInfo[0] } } } } },
+                QuotaInfo = new QuotaConfigurationInfo()
+                {
+                    InitialQuota = 50,
+                    QuotaAccrualRatePerSec = 10,
+                    MaxQuota = 60
+                }
+            };
+            serviceClient.CollectionConfigurationInfo = collectionConfigurationInfo;
+            QuickPulseTelemetryProcessor telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+            module.RegisterTelemetryProcessor(telemetryProcessor);
+            module.Initialize(new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
+            var collectionConfiguration = new CollectionConfiguration(collectionConfigurationInfo, out _, new Clock());
+            var accumulatorManager = new QuickPulseDataAccumulatorManager(collectionConfiguration);
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
+
+            for (int i=0;i<100;i++)
+            {
+                telemetryProcessor.Process(new RequestTelemetry() { Id = "1", Name = "Request1", Context = { InstrumentationKey = "some ikey" } });
+            }
+
+            Assert.AreEqual(50, accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Count);
+            Thread.Sleep(pollingInterval);
+
+            for (int i = 0; i < 100; i++)
+            {
+                telemetryProcessor.Process(new RequestTelemetry() { Id = "1", Name = "Request1", Context = { InstrumentationKey = "some ikey" } });
+            }
+
+            Assert.AreEqual(60, accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Count);
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryModuleUpdatesCollectionConfigurationWithMaxQuota()
+        {
+            if (QuickPulseTelemetryModuleTests.Ignored)
+            {
+                return;
+            }
+
+            // ARRANGE
+            var pollingInterval = TimeSpan.FromSeconds(1);
+            var collectionInterval = TimeSpan.FromMilliseconds(400);
+            var timings = new QuickPulseTimings(pollingInterval, collectionInterval);
+            var collectionTimeSlotManager = new QuickPulseCollectionTimeSlotManagerMock(timings);
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
+            var performanceCollector = new PerformanceCollectorMock();
+            var topCpuCollector = new QuickPulseTopCpuCollectorMock();
+            var module = new QuickPulseTelemetryModule(collectionTimeSlotManager, null, serviceClient, performanceCollector, topCpuCollector, timings);
+
+            // ACT & ASSERT
+            CollectionConfigurationInfo collectionConfigurationInfo = new CollectionConfigurationInfo()
+            {
+                ETag = "ETag1",
+                DocumentStreams = new[] { new DocumentStreamInfo() { Id = "wx3", DocumentFilterGroups = new[] { new DocumentFilterConjunctionGroupInfo() { TelemetryType = TelemetryType.Request, Filters = new FilterConjunctionGroupInfo() { Filters = new FilterInfo[0] } } } } },
+                QuotaInfo = new QuotaConfigurationInfo()
+                {
+                    InitialQuota = 50,
+                    QuotaAccrualRatePerSec = 40,
+                    MaxQuota = 60
+                }
+            };
+            serviceClient.CollectionConfigurationInfo = collectionConfigurationInfo;
+            QuickPulseTelemetryProcessor telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+            module.RegisterTelemetryProcessor(telemetryProcessor);
+            module.Initialize(new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
+            var collectionConfiguration = new CollectionConfiguration(collectionConfigurationInfo, out _, new Clock());
+            var accumulatorManager = new QuickPulseDataAccumulatorManager(collectionConfiguration);
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
+
+            Thread.Sleep(pollingInterval);
+
+            for (int i = 0; i < 100; i++)
+            {
+                telemetryProcessor.Process(new RequestTelemetry() { Id = "1", Name = "Request1", Context = { InstrumentationKey = "some ikey" } });
+            }
+
+            Assert.AreEqual(60, accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Count);
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryModuleUpdatesGlobalCollectionConfigurationWithQuotaInfo()
+        {
+#if !NETCOREAPP
+            if (QuickPulseTelemetryModuleTests.Ignored)
+            {
+                return;
+            }
+
+            // ARRANGE
+            var pollingInterval = TimeSpan.FromSeconds(1);
+            var collectionInterval = TimeSpan.FromMilliseconds(400);
+            var timings = new QuickPulseTimings(pollingInterval, collectionInterval);
+            var collectionTimeSlotManager = new QuickPulseCollectionTimeSlotManagerMock(timings);
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
+            var performanceCollector = new PerformanceCollectorMock();
+            var topCpuCollector = new QuickPulseTopCpuCollectorMock();
+            var module = new QuickPulseTelemetryModule(collectionTimeSlotManager, null, serviceClient, performanceCollector, topCpuCollector, timings);
+
+            // ACT & ASSERT
+            CollectionConfigurationInfo collectionConfigurationInfo = new CollectionConfigurationInfo()
+            {
+                ETag = "ETag1",
+                DocumentStreams = new[] { new DocumentStreamInfo() { Id = "wx3", DocumentFilterGroups = new[] { new DocumentFilterConjunctionGroupInfo() { TelemetryType = TelemetryType.Request, Filters = new FilterConjunctionGroupInfo() { Filters = new FilterInfo[0] } } } } },
+                QuotaInfo = new QuotaConfigurationInfo()
+                {
+                    InitialQuota = 50,
+                    QuotaAccrualRatePerSec = 10,
+                    MaxQuota = 60
+                }
+            };
+            serviceClient.CollectionConfigurationInfo = collectionConfigurationInfo;
+            QuickPulseTelemetryProcessor telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+            module.RegisterTelemetryProcessor(telemetryProcessor);
+            module.Initialize(new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
+            var collectionConfiguration = new CollectionConfiguration(collectionConfigurationInfo, out _, new Clock());
+            var accumulatorManager = new QuickPulseDataAccumulatorManager(collectionConfiguration);
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
+
+            Thread.Sleep(pollingInterval);
+
+            for (int i = 0; i < 100; i++)
+            {
+                telemetryProcessor.Process(new RequestTelemetry() { Id = "1", Name = "Request1", Context = { InstrumentationKey = "some ikey" } });
+            }
+
+            Assert.AreEqual(60, accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Count);
+
+            CollectionConfigurationInfo collectionConfigurationInfo2 = new CollectionConfigurationInfo()
+            {
+                ETag = "ETag2",
+                DocumentStreams = new[] { new DocumentStreamInfo() { Id = "wx3", DocumentFilterGroups = new[] { new DocumentFilterConjunctionGroupInfo() { TelemetryType = TelemetryType.Request, Filters = new FilterConjunctionGroupInfo() { Filters = new FilterInfo[0] } } } } },
+                QuotaInfo = new QuotaConfigurationInfo()
+                {
+                    InitialQuota = 0,
+                    QuotaAccrualRatePerSec = 1,
+                    MaxQuota = 5
+                }
+            };
+
+            PrivateObject quickPulseTelemetryModuleTester = new PrivateObject(module);
+            quickPulseTelemetryModuleTester.Invoke("OnUpdatedConfiguration", collectionConfigurationInfo2);
+
+            Thread.Sleep(pollingInterval);
+
+            for (int i = 0; i < 100; i++)
+            {
+                telemetryProcessor.Process(new RequestTelemetry() { Id = "1", Name = "Request1", Context = { InstrumentationKey = "some ikey" } });
+            }
+
+            Assert.IsTrue(accumulatorManager.CurrentDataAccumulator.GlobalDocumentQuotaReached);
+            Assert.AreEqual(61, accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Count);
+#endif
         }
 
         [TestMethod]
