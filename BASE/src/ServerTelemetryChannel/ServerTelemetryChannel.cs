@@ -283,6 +283,7 @@
             // Tested by FxCop rule CA2213
             this.TelemetryBuffer.Dispose();
             this.Transmitter.Dispose();
+            this.policies.Dispose();
         }
 
         /// <summary>
