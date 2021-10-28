@@ -1,0 +1,50 @@
+environment:
+  host:
+    os: 'windows'
+    flavor: 'server'
+    version: '2019'
+  runtime:
+    provider: 'appcontainer'
+    image: 'cdpxwin1809.azurecr.io/global/vse2019:latest'
+    source_mode: 'link'
+
+version:
+  major: 0
+  minor: 0
+  name: 'OpenTelemetry-Geneva'
+  system: 'custom'
+
+# excluding our source code from being scanned for code sign validation
+signing_options:
+  profile: 'internal_azure_service'
+
+restore:
+  commands:
+    - !!defaultcommand
+      name: 'Show .NET versions'
+      command: '.pipelines\list-versions.cmd'
+      fail_on_stderr: false
+    - !!defaultcommand
+      name: 'Install dependencies'
+      command: '.pipelines\restore.cmd'
+      fail_on_stderr: false
+
+build:
+  commands:
+    - !!buildcommand
+      name: 'Build'
+      command: '.pipelines\build.cmd'
+      fail_on_stderr: false
+
+
+static_analysis_options:
+  credscan_options:
+    fail_on_error: true
+  binskim_options:
+    fail_on_error: true
+    files_to_scan:
+      - from: 'src'
+  policheck_options:
+    scan_comments: true
+    fail_on_error: true
+        
