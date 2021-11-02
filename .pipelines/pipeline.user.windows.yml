@@ -35,6 +35,10 @@ build:
       name: 'Build'
       command: '.pipelines\build.cmd'
       fail_on_stderr: false
+      artifacts:
+        - from: '..\bin\Release\NuGet'
+          include:
+            - '*.*'
 
 
 static_analysis_options:
