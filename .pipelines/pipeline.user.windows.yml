@@ -38,7 +38,7 @@ build:
       artifacts:
         - from: '..\bin\Release\NuGet'
           include:
-            - '*.*'
+            - '*.nupkg'
 
 
 static_analysis_options:
