@@ -36,8 +36,7 @@ build:
       command: '.pipelines\build.cmd'
       fail_on_stderr: false
       artifacts:
-        - from: 'C:\bin\Release\NuGet\'
-        #- from: '..\bin\Release\NuGet'
+        - from: '.\bin\Release\NuGet'
           include:
             - '*.nupkg'
 
