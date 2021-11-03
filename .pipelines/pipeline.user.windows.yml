@@ -35,10 +35,16 @@ build:
       name: 'Build'
       command: '.pipelines\build.cmd'
       fail_on_stderr: false
+      logs:
+        - to: 'Build Logs' 
+          include:
+            - '**/build.log'
       artifacts:
         - from: '.\bin\Release\NuGet'
           include:
             - '*.*'
+          signing_options: 
+            sign_inline: true # testing signing dll inside nupkg
 
 
 static_analysis_options:
