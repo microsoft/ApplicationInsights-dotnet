@@ -8,7 +8,8 @@
 
   <PropertyGroup Condition="$(OS) == 'Windows_NT'">
     <!-- Automatically generate package on build https://docs.microsoft.com/en-us/nuget/quickstart/create-and-publish-a-package-using-the-dotnet-cli#automatically-generate-package-on-build -->
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <!-- Testing with false. This setting might conflict with 'dotnet pack' cmd. -->
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
 
     <!-- Documenting your code with XML comments https://docs.microsoft.com/en-us/dotnet/csharp/codedoc -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
