@@ -32,19 +32,25 @@ restore:
 build:
   commands:
     - !!buildcommand
-      name: 'Build'
+      name: 'Dotnet Build'
       command: '.pipelines\build.cmd'
       fail_on_stderr: false
-      logs:
-        - to: 'Build Logs' 
+      artifacts:
+        - from: '.\bin\Release\src'
           include:
-            - '**/build.log'
+            - '**/*.dll'
+          signing_options: 
+            sign_inline: true
+    - !!buildcommand
+      name: 'Dotnet Pack'
+      command: '.pipelines\pack.cmd'
+      fail_on_stderr: false
       artifacts:
         - from: '.\bin\Release\NuGet'
           include:
             - '*.*'
           signing_options: 
-            sign_inline: true # testing signing dll inside nupkg
+            sign_inline: true
 
 
 static_analysis_options:
