@@ -64,4 +64,3 @@ static_analysis_options:
   policheck_options:
     scan_comments: true
     fail_on_error: true
-        
