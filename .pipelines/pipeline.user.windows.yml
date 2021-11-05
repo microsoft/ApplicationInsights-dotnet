@@ -15,7 +15,7 @@ version:
   system: 'custom'
 
 signing_options:
-  profile: 'azure'
+  profile: 'internal_azure_service'
 
 restore:
   commands:
