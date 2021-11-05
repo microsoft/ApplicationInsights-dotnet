@@ -54,6 +54,13 @@ package:
           signing_options: 
             sign_inline: true
 
+test:
+  commands:
+    - !!defaultcommand
+      name: 'Custom tests'
+      command: '.pipelines\test.cmd'
+      fail_on_stderr: false
+
 static_analysis_options:
   credscan_options:
     fail_on_error: true
