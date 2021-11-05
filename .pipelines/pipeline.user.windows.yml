@@ -9,14 +9,13 @@ environment:
     source_mode: 'link'
 
 version:
+  name: 'ApplicationInsights-dotnet'
   major: 0
   minor: 0
-  name: 'OpenTelemetry-Geneva'
   system: 'custom'
 
-# excluding our source code from being scanned for code sign validation
 signing_options:
-  profile: 'internal_azure_service'
+  profile: 'azure'
 
 restore:
   commands:
@@ -41,6 +40,9 @@ build:
             - '**/*.dll'
           signing_options: 
             sign_inline: true
+
+package:
+  commands:
     - !!buildcommand
       name: 'Dotnet Pack'
       command: '.pipelines\pack.cmd'
@@ -51,7 +53,6 @@ build:
             - '*.*'
           signing_options: 
             sign_inline: true
-
 
 static_analysis_options:
   credscan_options:
