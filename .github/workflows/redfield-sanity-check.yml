@@ -7,9 +7,9 @@ name: Redfield Validation
 on:
   workflow_dispatch:
   push:
-    branches: [ master, develop ]
+    branches: [ main ]
   pull_request:
-    branches: [ master, develop ]
+    branches: [ main ]
 
 jobs:
   build-test-REDFIELD:

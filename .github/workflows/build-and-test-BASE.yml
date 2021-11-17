@@ -7,9 +7,9 @@ name: Build And Test, BASE
 on:
   workflow_dispatch:
   push:
-    branches: [ master, develop ]
+    branches: [ main ]
   pull_request:
-    branches: [ master, develop ]
+    branches: [ main ]
 
 jobs:
   build-test-BASE:
