@@ -6,9 +6,9 @@ name: Build And Test, NETCORE
 
 on:
   push:
-    branches: [ master, develop ]
+    branches: [ main ]
   pull_request:
-    branches: [ master, develop ]
+    branches: [ main ]
 
 jobs:
   build-test-NETCORE:

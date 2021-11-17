@@ -18,7 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest]
-        branch: [develop]
+        branch: [main]
         solution: [./ProjectsForSigning.sln]
 
     steps:
