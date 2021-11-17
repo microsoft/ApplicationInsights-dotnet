@@ -37,7 +37,7 @@ build:
   commands:
     - !!buildcommand
       name: 'Dotnet Build'
-      command: '.pipelines\02_build_redfield.cmd'
+      command: '.pipelines\02_build_official_redfield.cmd'
       fail_on_stderr: false
       artifacts:
         - from: '.\bin\Release\src'
@@ -50,7 +50,7 @@ package:
   commands:
     - !!buildcommand
       name: 'Dotnet Pack'
-      command: '.pipelines\03_pack.cmd'
+      command: '.pipelines\03_pack_official_redfield.cmd'
       fail_on_stderr: false
       artifacts:
         - from: '.\bin\Release\NuGet'

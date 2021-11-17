@@ -37,7 +37,7 @@ build:
   commands:
     - !!buildcommand
       name: 'Dotnet Build'
-      command: '.pipelines\02_build.cmd'
+      command: '.pipelines\02_build_buddy.cmd'
       fail_on_stderr: false
       artifacts:
         - from: '.\bin\Release\src'
