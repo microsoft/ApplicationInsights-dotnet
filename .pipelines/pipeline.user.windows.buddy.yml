@@ -20,6 +20,11 @@ signing_options:
 restore:
   commands:
     - !!defaultcommand
+      name: 'Hello World'
+      command: '.pipelines\00_helloworld.cmd'
+      arguments: 'buddy'
+      fail_on_stderr: false
+    - !!defaultcommand
       name: 'Show .NET versions'
       command: '.pipelines\00_list-versions.cmd'
       fail_on_stderr: false
