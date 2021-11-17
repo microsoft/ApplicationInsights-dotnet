@@ -1,0 +1,77 @@
+environment:
+  host:
+    os: 'windows'
+    flavor: 'server'
+    version: '2019'
+  runtime:
+    provider: 'appcontainer'
+    image: 'cdpxwin1809.azurecr.io/global/vse2019:latest'
+    source_mode: 'link'
+
+version:
+  name: 'ApplicationInsights-dotnet'
+  major: 0
+  minor: 0
+  system: 'custom'
+
+signing_options:
+  profile: 'external_distribution'
+
+restore:
+  commands:
+    - !!defaultcommand
+      name: 'Hello World'
+      command: '.pipelines\helloworld.cmd'
+      fail_on_stderr: false
+    - !!defaultcommand
+      name: 'Show .NET versions'
+      command: '.pipelines\list-versions.cmd'
+      fail_on_stderr: false
+    - !!defaultcommand
+      name: 'Install dependencies'
+      command: '.pipelines\restore.cmd'
+      fail_on_stderr: false
+
+build:
+  commands:
+    - !!buildcommand
+      name: 'Dotnet Build'
+      command: '.pipelines\build_redfield.cmd'
+      fail_on_stderr: false
+      artifacts:
+        - from: '.\bin\Release\src'
+          include:
+            - '**/*.dll'
+          signing_options: 
+            sign_inline: true
+
+package:
+  commands:
+    - !!buildcommand
+      name: 'Dotnet Pack'
+      command: '.pipelines\pack.cmd'
+      fail_on_stderr: false
+      artifacts:
+        - from: '.\bin\Release\NuGet'
+          include:
+            - '*.*'
+          signing_options: 
+            sign_inline: true
+
+test:
+  commands:
+    - !!defaultcommand
+      name: 'Custom tests'
+      command: '.pipelines\test.cmd'
+      fail_on_stderr: false
+
+static_analysis_options:
+  credscan_options:
+    fail_on_error: true
+  binskim_options:
+    fail_on_error: true
+    files_to_scan:
+      - from: 'src'
+  policheck_options:
+    scan_comments: true
+    fail_on_error: true
