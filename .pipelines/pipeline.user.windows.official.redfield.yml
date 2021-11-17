@@ -20,23 +20,19 @@ signing_options:
 restore:
   commands:
     - !!defaultcommand
-      name: 'Hello World'
-      command: '.pipelines\helloworld.cmd'
-      fail_on_stderr: false
-    - !!defaultcommand
       name: 'Show .NET versions'
-      command: '.pipelines\list-versions.cmd'
+      command: '.pipelines\00_list-versions.cmd'
       fail_on_stderr: false
     - !!defaultcommand
       name: 'Install dependencies'
-      command: '.pipelines\restore.cmd'
+      command: '.pipelines\01_restore.cmd'
       fail_on_stderr: false
 
 build:
   commands:
     - !!buildcommand
       name: 'Dotnet Build'
-      command: '.pipelines\build_redfield.cmd'
+      command: '.pipelines\02_build_redfield.cmd'
       fail_on_stderr: false
       artifacts:
         - from: '.\bin\Release\src'
@@ -49,7 +45,7 @@ package:
   commands:
     - !!buildcommand
       name: 'Dotnet Pack'
-      command: '.pipelines\pack.cmd'
+      command: '.pipelines\03_pack.cmd'
       fail_on_stderr: false
       artifacts:
         - from: '.\bin\Release\NuGet'
@@ -62,7 +58,7 @@ test:
   commands:
     - !!defaultcommand
       name: 'Custom tests'
-      command: '.pipelines\test.cmd'
+      command: '.pipelines\04_test.cmd'
       fail_on_stderr: false
 
 static_analysis_options:
