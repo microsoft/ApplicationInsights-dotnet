@@ -26,7 +26,7 @@ restore:
       fail_on_stderr: false
     - !!defaultcommand
       name: 'Show .NET versions'
-      command: '.pipelines\00_list-versions.cmd'
+      command: '.pipelines\00_list_versions.cmd'
       fail_on_stderr: false
     - !!defaultcommand
       name: 'Install dependencies'
