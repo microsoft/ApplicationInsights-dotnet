@@ -37,7 +37,8 @@ build:
   commands:
     - !!buildcommand
       name: 'Dotnet Build'
-      command: '.pipelines\02_build_official.cmd'
+      command: '.pipelines\02_build.cmd'
+      arguments: '-p:PublicRelease=True -p:StableRelease=True -p:OfficialRelease=True'
       fail_on_stderr: false
       artifacts:
         - from: '.\bin\Release\src'
@@ -50,7 +51,8 @@ package:
   commands:
     - !!buildcommand
       name: 'Dotnet Pack'
-      command: '.pipelines\03_pack_official.cmd'
+      command: '.pipelines\03_pack.cmd'
+      arguments: '-p:PublicRelease=True -p:StableRelease=True -p:OfficialRelease=True'
       fail_on_stderr: false
       artifacts:
         - from: '.\bin\Release\NuGet'
