@@ -67,14 +67,3 @@ test:
       name: 'Custom tests'
       command: '.pipelines/04_test.cmd'
       fail_on_stderr: false
-
-static_analysis_options:
-  credscan_options:
-    fail_on_error: true
-  binskim_options:
-    fail_on_error: true
-    files_to_scan:
-      - from: 'src'
-  policheck_options:
-    scan_comments: true
-    fail_on_error: true
