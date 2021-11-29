@@ -16,4 +16,3 @@ static_analysis_options:
     disable_tool_scan: false
     fail_on_error: true
     scan_comments: true
-    file_types: .pipelines/PolicheckConfig.xml
