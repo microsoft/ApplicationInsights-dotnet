@@ -2,7 +2,7 @@
 # .NET CLI: https://docs.microsoft.com/dotnet/core/tools/
 # Description: The purpose of this build is to build and test on both Windows and Linux.
 
-name: Build And Test, WEB
+name: Build And Test, LOGGING
 
 on:
   workflow_dispatch:
