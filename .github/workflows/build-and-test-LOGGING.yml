@@ -2,7 +2,7 @@
 # .NET CLI: https://docs.microsoft.com/dotnet/core/tools/
 # Description: The purpose of this build is to build and test on both Windows and Linux.
 
-name: Build And Test, BASE
+name: Build And Test, WEB
 
 on:
   workflow_dispatch:
@@ -17,12 +17,12 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     env:
-      SOLUTION: ./BASE/Microsoft.ApplicationInsights.sln
+      SOLUTION: ./LOGGING/Logging.sln"
 
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [windows-latest]
         framework: [netcoreapp3.1,net5.0,net6.0]
         include: 
             - os: ubuntu-latest
@@ -44,7 +44,7 @@ jobs:
         dotnet-version: '6.0.x'
 
     - name: Restore
-      run: dotnet restore ${{ env.SOLUTION }}
+      run: dotnet restore ${{ env.SOLUTION }} 
 
     - name: Build
       run: dotnet build ${{ env.SOLUTION }} --configuration Release --no-restore

@@ -15,6 +15,9 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
+    env:
+      SOLUTION: ./NETCORE/ApplicationInsights.AspNetCore.sln
+
     strategy:
       fail-fast: false
       matrix:
@@ -40,15 +43,15 @@ jobs:
         dotnet-version: '6.0.x'
 
     - name: Restore
-      run: dotnet restore ./NETCORE/ApplicationInsights.AspNetCore.sln
+      run: dotnet restore ${{ env.SOLUTION }}
 
     - name: Build
-      run: dotnet build ./NETCORE/ApplicationInsights.AspNetCore.sln --configuration Release --no-restore
+      run: dotnet build ${{ env.SOLUTION }} --configuration Release --no-restore
 
     - name: Test
       id: test1
       continue-on-error: true
-      run: dotnet test ./NETCORE/ApplicationInsights.AspNetCore.sln --framework ${{ matrix.framework }} --configuration Release --no-build --logger:"console;verbosity=detailed" --logger:"trx;logfilename=${{ github.workspace }}/testResults.trx" ${{ matrix.args }}
+      run: dotnet test ${{ env.SOLUTION }} --framework ${{ matrix.framework }} --configuration Release --no-build --logger:"console;verbosity=detailed" --logger:"trx;logfilename=${{ github.workspace }}/testResults.trx" ${{ matrix.args }}
 
     - name: Retry tests
       if: steps.test1.outcome=='failure'
