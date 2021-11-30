@@ -24,9 +24,6 @@ jobs:
       matrix:
         os: [windows-latest]
         framework: [netcoreapp3.1,net5.0,net6.0]
-        include: 
-            - os: ubuntu-latest
-              args: "--filter TestCategory!=WindowsOnly"
 
     steps:
     - uses: actions/checkout@v2
