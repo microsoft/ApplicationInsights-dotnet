@@ -2,7 +2,7 @@
 # .NET CLI: https://docs.microsoft.com/dotnet/core/tools/
 # Description: The purpose of this workflow is to compile and run unit tests.
 
-name: Build And Test, NETCORE
+name: Build And Test, WEB
 
 on:
   workflow_dispatch:
@@ -12,21 +12,18 @@ on:
     branches: [ main ]
 
 jobs:
-  build-test-NETCORE:
+  build-test-WEB:
 
     runs-on: ${{ matrix.os }}
 
     env:
-      SOLUTION: ./NETCORE/ApplicationInsights.AspNetCore.sln
+      SOLUTION: ./WEB/Src/Microsoft.ApplicationInsights.Web.sln
 
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [windows-latest]
         framework: [net452, net462, net472, net480, netcoreapp3.1, net5.0, net6.0]
-        include: 
-          - os: ubuntu-latest
-            args: "--filter TestCategory!=WindowsOnly"
 
     steps:
     - uses: actions/checkout@v2
@@ -44,7 +41,7 @@ jobs:
         dotnet-version: '6.0.x'
 
     - name: Restore
-      run: dotnet restore ${{ env.SOLUTION }}
+      run: dotnet restore ${{ env.SOLUTION }} 
 
     - name: Build
       run: dotnet build ${{ env.SOLUTION }} --configuration Release --no-restore
@@ -57,3 +54,4 @@ jobs:
     - name: Retry tests
       if: steps.test1.outcome=='failure'
       run: pwsh -f ./.scripts/build_RetryTests.ps1 -TestResultFile ${{ github.workspace }}/testResults.trx -WorkingDirectory ${{ github.workspace }}
+      
