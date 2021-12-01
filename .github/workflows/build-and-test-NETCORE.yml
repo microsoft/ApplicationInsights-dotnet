@@ -1,6 +1,6 @@
 # Syntax: https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions
 # .NET CLI: https://docs.microsoft.com/dotnet/core/tools/
-# Description: The purpose of this build is to build and test on both Windows and Linux.
+# Description: The purpose of this workflow is to compile and run unit tests.
 
 name: Build And Test, NETCORE
 
