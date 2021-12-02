@@ -1,6 +1,6 @@
 # Syntax: https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions
 # .NET CLI: https://docs.microsoft.com/dotnet/core/tools/
-# Description: The purpose of this workflow is to build the DEVELOP branch and push to MyGet.
+# Description: The purpose of this workflow is to build the MAIN branch and push to MyGet.
 
 name: Nightly
 
