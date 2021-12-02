@@ -1,4 +1,12 @@
 # Application Insights for .NET Apps
+[![Build And Test, BASE](https://github.com/microsoft/ApplicationInsights-dotnet/actions/workflows/build-and-test-BASE.yml/badge.svg)](https://github.com/microsoft/ApplicationInsights-dotnet/actions/workflows/build-and-test-BASE.yml)
+[![Build And Test, WEB](https://github.com/microsoft/ApplicationInsights-dotnet/actions/workflows/build-and-test-WEB.yml/badge.svg)](https://github.com/microsoft/ApplicationInsights-dotnet/actions/workflows/build-and-test-WEB.yml)
+[![Build And Test, NETCORE](https://github.com/microsoft/ApplicationInsights-dotnet/actions/workflows/build-and-test-NETCORE.yml/badge.svg)](https://github.com/microsoft/ApplicationInsights-dotnet/actions/workflows/build-and-test-NETCORE.yml)
+[![Build And Test, LOGGING](https://github.com/microsoft/ApplicationInsights-dotnet/actions/workflows/build-and-test-LOGGING.yml/badge.svg)](https://github.com/microsoft/ApplicationInsights-dotnet/actions/workflows/build-and-test-LOGGING.yml)
+[![Redfield Validation](https://github.com/microsoft/ApplicationInsights-dotnet/actions/workflows/redfield-sanity-check.yml/badge.svg)](https://github.com/microsoft/ApplicationInsights-dotnet/actions/workflows/redfield-sanity-check.yml)
+[![Sanity Build](https://github.com/microsoft/ApplicationInsights-dotnet/actions/workflows/sanity.yml/badge.svg)](https://github.com/microsoft/ApplicationInsights-dotnet/actions/workflows/sanity.yml)
+[![Nightly](https://github.com/microsoft/ApplicationInsights-dotnet/actions/workflows/nightly.yml/badge.svg)](https://github.com/microsoft/ApplicationInsights-dotnet/actions/workflows/nightly.yml)
+
 
 This is the .NET SDK for sending data to [Azure Monitor](https://docs.microsoft.com/azure/azure-monitor/overview) & [Application Insights](https://docs.microsoft.com/azure/azure-monitor/app/app-insights-overview).
 
@@ -61,7 +69,6 @@ The following packages are published from this repository:
 
 
 ### Nightly
-[![Nightly](https://github.com/microsoft/ApplicationInsights-dotnet/actions/workflows/nightly.yml/badge.svg)](https://github.com/microsoft/ApplicationInsights-dotnet/actions/workflows/nightly.yml)
 
 Nightly Builds are available on our MyGet feed:
 `https://www.myget.org/F/applicationinsights-dotnet-nightly/api/v3/index.json`
