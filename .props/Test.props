@@ -6,7 +6,6 @@
   </Target>
 
   <Import Project=".\_Common.props" />
-  <Import Project=".\_AnalyzerSettings.props" />
 
   <PropertyGroup>
     <!-- Our test matrix includes every currently supported version of .NET
@@ -26,6 +25,14 @@
 
   <PropertyGroup>
     <IsPackable>false</IsPackable>
+
+    <!-- 
+      We have a significant backlog of analyzer issues in the Test projects. Turning these off for now. 
+      https://docs.microsoft.com/en-us/visualstudio/code-quality/disable-code-analysis?view=vs-2022#net-framework-projects
+      https://docs.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#analysismode
+    -->
+    <AnalysisMode>None</AnalysisMode>
+    <RunAnalyzers>false</RunAnalyzers>
   </PropertyGroup>
 
 </Project>
