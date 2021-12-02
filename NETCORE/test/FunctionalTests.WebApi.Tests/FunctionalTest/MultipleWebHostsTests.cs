@@ -136,12 +136,16 @@ namespace FunctionalTests.WebApi.Tests.FunctionalTest
             // Active config could be used multiple times in the same process before this test
             // let's reassign it
 
+#pragma warning disable CS0618 // Type or member is obsolete
             TelemetryConfiguration.Active.Dispose();
+#pragma warning restore CS0618 // Type or member is obsolete
             MethodInfo setActive =
                 typeof(TelemetryConfiguration).GetMethod("set_Active", BindingFlags.Static | BindingFlags.NonPublic);
             setActive.Invoke(null, new object[] { TelemetryConfiguration.CreateDefault() });
 
+#pragma warning disable CS0618 // Type or member is obsolete
             var activeConfig = TelemetryConfiguration.Active;
+#pragma warning restore CS0618 // Type or member is obsolete
             using (var server = new InProcessServer(assemblyName, this.output, (aiOptions) => aiOptions.EnableActiveTelemetryConfigurationSetup = true))
             {
                 this.ExecuteRequest(server.BaseHost + requestPath);
