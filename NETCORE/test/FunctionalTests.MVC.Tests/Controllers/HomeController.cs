@@ -45,7 +45,13 @@ namespace FunctionalTests.MVC.Tests.Controllers
 
         public IActionResult Dependency()
         {
-            this.telemetryClient.TrackDependency("MyDependency", "MyCommand", DateTimeOffset.Now, TimeSpan.FromMilliseconds(1), success: true);
+            this.telemetryClient.TrackDependency(
+                dependencyTypeName: "test",
+                dependencyName: "MyDependency", 
+                data: "MyCommand", 
+                startTime: DateTimeOffset.Now, 
+                duration: TimeSpan.FromMilliseconds(1), 
+                success: true);
             return View();
         }
 
