@@ -8,8 +8,12 @@ Param(
 # This script will lookup the version of the latest stable release of a specified package.
 # This script will then attempt to unlist (nuget cli delete) any prerelease versions older than the latest stable.
 
-# https://docs.microsoft.com/en-us/powershell/module/packagemanagement/find-package?view=powershell-7.2
-# https://docs.microsoft.com/en-us/nuget/reference/cli-reference/cli-ref-delete
+# https://docs.microsoft.com/powershell/module/packagemanagement/find-package?view=powershell-7.2
+# https://docs.microsoft.com/nuget/reference/cli-reference/cli-ref-delete
+
+# WARNING
+# The Delete/Unlist api has a quota of 250/hour
+# https://docs.microsoft.com/en-us/nuget/api/rate-limits
 
 $nugetSourceUrl = 'https://api.nuget.org/v3/index.json'
 
@@ -50,39 +54,39 @@ else {
     }
 }
 
+$counter = 0;
 
 foreach ($name in $packageNames)
 {
     # Find the latest release
     Write-Host
-    Write-Host "Querying for latest version..."
+    Write-Host "Querying for latest version of $($name)..."
     $latest = Find-Package -Name $name -Source $nugetSourceUrl
     Write-Host $latest.Name $latest.Version
 
     # Find all versions older than latest. This filters out any newer prerelease versions.
     Write-Host
     Write-Host "Querying for all versions..."
-    $list = Find-Package -Name $name -Source $nugetSourceUrl -AllVersions -MaximumVersion $latest.Version -AllowPrereleaseVersions
+    $packagesList = Find-Package -Name $name -Source $nugetSourceUrl -AllVersions -MaximumVersion $latest.Version -AllowPrereleaseVersions
 
-    $testCounter = 0; # For testing, i'm going to delete only one package at a time so i can monitor the logs. 
-
-    $list | ForEach-Object {
+    foreach ($package in $packagesList)
+    {
         # Prerelease versions will contain a hyphen ('-').
-        if ($_.Version.IndexOf('-') -gt -1)
+        if ($package.Version.IndexOf('-') -gt -1)
         {
-            Write-Host $_.Version " PreRelease"
+            Write-Host $package.Version " PreRelease"
 
-            Write-Host "Unlist: $($_.Name) $($_.Version)"
+            Write-Host "Unlist: $($package.Name) $($package.Version)"
             
-            if ($testCounter -eq 0){
-                $testCounter++;
-                & $nugetPath delete $_.Name $_.Version -ApiKey $nugetApiKey -Source $nugetSourceUrl -NonInteractive
-            }
+            & $nugetPath delete $package.Name $package.Version -ApiKey $nugetApiKey -Source $nugetSourceUrl -NonInteractive
+
+            $counter++
         }
         else {
-            Write-Host $_.Version;
+            Write-Host $package.Version;
         }
     }
 }
 
+Write-Host "Unlisted $($counter) packages."
 Write-Host "Done."
