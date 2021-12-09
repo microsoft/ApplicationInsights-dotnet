@@ -64,10 +64,15 @@ foreach ($name in $packageNames)
     $latest = Find-Package -Name $name -Source $nugetSourceUrl
     Write-Host $latest.Name $latest.Version
 
+    if ($null -eq $latest)
+    {
+        continue;
+    }
+
     # Find all versions older than latest. This filters out any newer prerelease versions.
     Write-Host
     Write-Host "Querying for all versions..."
-    $packagesList = Find-Package -Name $name -Source $nugetSourceUrl -AllVersions -MaximumVersion $latest.Version -AllowPrereleaseVersions
+    $packagesList = Find-Package -Name $latest.Name -Source $nugetSourceUrl -AllVersions -MaximumVersion $latest.Version -AllowPrereleaseVersions
 
     foreach ($package in $packagesList)
     {
