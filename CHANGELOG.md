@@ -2,9 +2,11 @@
 
 ## VNext
 
-## Version 2.20.0-beta1
+## Version 2.20
 - [Allow Control of Documents sampling for QuickPulse telemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2425)
 
+## Version 2.20.0-beta1
+- [Allow Control of Documents sampling for QuickPulse telemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2425)
 
 ## Version 2.19.0
 - Support for .Net6
