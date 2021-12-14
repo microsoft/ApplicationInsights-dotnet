@@ -1,3 +1,5 @@
 cd /D "%~dp0..\"
 
-dotnet pack .\ProjectsForSigning.sln %* --configuration Release --no-restore --no-build || exit /b 1
+dotnet pack .\ProjectsForSigning.sln %* --configuration Release --no-restore --no-build
+
+.\.scripts\release_GenerateReleaseMetadata.ps1 -artifactsPath .\bin\Release\NuGet -sourcePath .\ -outPath .\bin\Release\NuGet
