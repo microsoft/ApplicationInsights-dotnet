@@ -4,6 +4,6 @@ dotnet pack .\ProjectsForSigning.sln %* --configuration Release --no-restore --n
 
 
 setlocal enabledelayedexpansion
-powershell.exe -ExecutionPolicy Unrestricted -NoProfile -WindowStyle Hidden -File ".\.scripts\release_GenerateReleaseMetadata.ps1" ".\bin\Release\NuGet" ".\" ".\bin\Release\NuGet"
+powershell.exe -ExecutionPolicy Unrestricted -NoProfile -WindowStyle Hidden -File "./.scripts/release_GenerateReleaseMetadata.ps1" "./bin/Release/NuGet" "./" "./bin/Release/NuGet"
 endlocal
 exit /B %ERRORLEVEL%
