@@ -1,6 +1,7 @@
 # Changelog
 
 ## VNext
+- [Validate exception stack trace line numbers to comply with endpoint restrictions.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2482)
 
 ## Version 2.20.0-beta1
 - [Allow Control of Documents sampling for QuickPulse telemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2425)
