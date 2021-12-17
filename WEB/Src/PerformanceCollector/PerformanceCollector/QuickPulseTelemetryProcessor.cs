@@ -15,6 +15,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse.Helpers;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.ServiceContract;
     using Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService;
 
     /// <summary>
@@ -43,7 +44,7 @@
         /// <summary>
         /// An overall, cross-stream quota tracker.
         /// </summary>
-        private readonly QuickPulseQuotaTracker globalQuotaTracker;
+        private QuickPulseQuotaTracker globalQuotaTracker;
 
         private IQuickPulseDataAccumulatorManager dataAccumulatorManager = null;
 
@@ -72,12 +73,14 @@
         /// <param name="timeProvider">Time provider.</param>
         /// <param name="maxGlobalTelemetryQuota">Max overall telemetry quota.</param>
         /// <param name="initialGlobalTelemetryQuota">Initial overall telemetry quota.</param>
+        /// <param name="quotaAccrualRatePerSec">Quota Accrual rate per second.</param>
         /// <exception cref="ArgumentNullException">Thrown if next is null.</exception>
         internal QuickPulseTelemetryProcessor(
             ITelemetryProcessor next,
             Clock timeProvider,
             float? maxGlobalTelemetryQuota = null,
-            float? initialGlobalTelemetryQuota = null)
+            float? initialGlobalTelemetryQuota = null,
+            float? quotaAccrualRatePerSec = null)
         {
             this.Next = next ?? throw new ArgumentNullException(nameof(next));
 
@@ -86,7 +89,8 @@
             this.globalQuotaTracker = new QuickPulseQuotaTracker(
                 timeProvider,
                 maxGlobalTelemetryQuota ?? MaxGlobalTelemetryQuota,
-                initialGlobalTelemetryQuota ?? InitialGlobalTelemetryQuota);
+                initialGlobalTelemetryQuota ?? InitialGlobalTelemetryQuota,
+                quotaAccrualRatePerSec);
         }
 
         /// <summary>
@@ -124,6 +128,25 @@
             this.EvaluateDisabledTrackingProperties = configuration.EvaluateExperimentalFeature(ExperimentalConstants.DeferRequestTrackingProperties);
 
             this.RegisterSelfWithQuickPulseTelemetryModule();
+        }
+
+        void IQuickPulseTelemetryProcessor.UpdateGlobalQuotas(Clock timeProvider, QuotaConfigurationInfo quotaInfo)
+        {
+            if (quotaInfo != null)
+            {
+                this.globalQuotaTracker = new QuickPulseQuotaTracker(
+                    timeProvider,
+                    quotaInfo.MaxQuota,
+                    quotaInfo.InitialQuota ?? InitialGlobalTelemetryQuota,
+                    quotaInfo.QuotaAccrualRatePerSec);
+            }
+            else
+            {
+                this.globalQuotaTracker = new QuickPulseQuotaTracker(
+                    timeProvider,
+                    MaxGlobalTelemetryQuota,
+                    InitialGlobalTelemetryQuota);
+            }
         }
 
         void IQuickPulseTelemetryProcessor.StartCollection(

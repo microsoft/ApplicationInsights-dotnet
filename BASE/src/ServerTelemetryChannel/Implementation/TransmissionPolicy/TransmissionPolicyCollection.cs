@@ -9,6 +9,8 @@
     {
         private readonly IEnumerable<TransmissionPolicy> policies;
         private bool isDisposed;
+
+        [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "All policies are stored in the IEnumerable and are properly disposed.")]
         private AuthenticationTransmissionPolicy authenticationTransmissionPolicy;
 
         [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "applicationLifecycle is required only for NetFramework.")]

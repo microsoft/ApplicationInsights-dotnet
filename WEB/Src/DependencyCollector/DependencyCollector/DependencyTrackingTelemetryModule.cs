@@ -282,7 +282,7 @@
         [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
         private static void PrepareFirstActivity()
         {
-            var activity = new Activity("Microsoft.ApplicationInsights.Init");
+            using var activity = new Activity("Microsoft.ApplicationInsights.Init");
             activity.Start();
             activity.Stop();
         }

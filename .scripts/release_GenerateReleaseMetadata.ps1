@@ -5,7 +5,7 @@ Param(
     [Parameter(Mandatory=$true,HelpMessage="Path to Source files (changelog):")]
     [string]
     $sourcePath,
-    [Parameter(Mandatory=$false,HelpMessage="Path to save metadata:")]
+    [Parameter(Mandatory=$true,HelpMessage="Path to save metadata:")]
     [string]
     $outPath
 ) 
@@ -160,6 +160,12 @@ Function Get-ChangelogText ([string]$sourcePath, [string]$versionName) {
 }
 
 Function Save-ToXml([string]$outPath, [ReleaseInfo]$object) {
+    
+    if ( -not (Test-Path -Path $outPath -PathType Container) )
+    {
+        throw "Output directory does not exist: '$($outPath)'."
+    }
+    
     $outFilePath = Join-Path $outPath "releaseMetaData.xml"
     $xmlWriter = [System.XMl.XmlTextWriter]::new($outFilePath, $Null)
     $xmlWriter.Formatting = "Indented"

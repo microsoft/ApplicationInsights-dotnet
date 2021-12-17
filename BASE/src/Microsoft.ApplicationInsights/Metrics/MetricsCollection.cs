@@ -37,7 +37,7 @@
         /// <summary>Gets the specified metric, or creates one if no such metric exists.</summary>
         /// <param name="metricIdentifier">The identity of the metric.</param>
         /// <param name="metricConfiguration">@The configutration of the metric.</param>
-        /// <returns>A metric witht he specified identify and configuration.</returns>
+        /// <returns>A metric with the specified identify and configuration.</returns>
         /// <exception cref="ArgumentException">If a metric with the specified identify exists,
         /// but its configuration does not match the specified configuration.
         /// You may not change a metric configurations once a metric was created for the first time.
