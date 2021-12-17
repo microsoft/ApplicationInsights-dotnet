@@ -149,6 +149,22 @@
             Assert.IsTrue(parsedStackLength <= ExceptionConverter.MaxParsedStackLength);
         }
 
+        [TestMethod]
+        public void SanitizesLineNumberOnParsedStackFrame()
+        {
+            var stackFrame = ExceptionConverter.GetStackFrame(new System.Diagnostics.StackFrame("test", 1000001), 0);
+            
+            Assert.AreEqual(0, stackFrame.line);
+
+            stackFrame = ExceptionConverter.GetStackFrame(new System.Diagnostics.StackFrame("test", -1000001), 0);
+
+            Assert.AreEqual(0, stackFrame.line);
+
+            stackFrame = ExceptionConverter.GetStackFrame(new System.Diagnostics.StackFrame("test", 10), 0);
+
+            Assert.AreEqual(10, stackFrame.line);
+        }
+
         [MethodImplAttribute(MethodImplOptions.NoInlining)]
         private Exception CreateException(int numberOfStackpoints)
         {
