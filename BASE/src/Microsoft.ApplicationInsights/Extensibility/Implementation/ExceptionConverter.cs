@@ -68,7 +68,8 @@
 
             // 0 means it is unavailable
             int line = stackFrame.GetFileLineNumber();
-            if (line != 0)
+            // The endpoint cannot ingest line number below -1000000 or above 1000000
+            if (line != 0 && line > -1000000 && line < 1000000)
             {
                 convertedStackFrame.line = line;
             }
