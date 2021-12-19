@@ -48,6 +48,8 @@
             string newTransmissions = null;
             if (backendResponse.ItemsAccepted != backendResponse.ItemsReceived)
             {
+                string[] initialTransmissionItems = null;
+
                 foreach (var error in backendResponse.Errors)
                 {
                     if (error != null)
@@ -66,23 +68,27 @@
                             error.StatusCode == ResponseStatusCodes.ResponseCodeTooManyRequests ||
                             error.StatusCode == ResponseStatusCodes.ResponseCodeTooManyRequestsOverExtendedTime)
                         {
-                            string[] items = JsonSerializer
+                            // Deserialize the initial transmission content if it has not been deserialized yet
+                            if (initialTransmissionItems == null)
+                            {
+                                initialTransmissionItems = JsonSerializer
                                 .Deserialize(initialTransmission.Content)
                                 .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                            }
 
-                            if (error.Index >= items.Length)
+                            if (error.Index >= initialTransmissionItems.Length)
                             {
-                                TelemetryChannelEventSource.Log.UnexpectedBreezeResponseWarning(items.Length, error.Index);
+                                TelemetryChannelEventSource.Log.UnexpectedBreezeResponseWarning(initialTransmissionItems.Length, error.Index);
                                 continue;
                             }
 
                             if (string.IsNullOrEmpty(newTransmissions))
                             {
-                                newTransmissions = items[error.Index];
+                                newTransmissions = initialTransmissionItems[error.Index];
                             }
                             else
                             {
-                                newTransmissions += Environment.NewLine + items[error.Index];
+                                newTransmissions += Environment.NewLine + initialTransmissionItems[error.Index];
                             }
 
                             // Last status code is used for tracing purposes. We will get only one out of many. Most likely they all will be the same.
