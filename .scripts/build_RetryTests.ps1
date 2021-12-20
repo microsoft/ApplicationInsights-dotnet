@@ -33,6 +33,8 @@ if ($testRunXml.TestRun.ResultSummary.outcome -eq "Failed")
     [bool]$scriptResult = $true;
     $ScriptSummary = @();
 
+    [int]$secondsBetweenRetries = 5;
+
     # FOREACH TEST RUN RESULTS
     foreach ($result in $results)
     {
@@ -51,6 +53,9 @@ if ($testRunXml.TestRun.ResultSummary.outcome -eq "Failed")
             [bool]$retryResult = $false;
             for($i=0; $i -lt $maxRetries -and $retryResult -eq $false ; $i++)
             {
+                # This will breifly wait before consecutive retries.
+                Start-Sleep -Seconds ([int]$secondsBetweenRetries * $i)
+
                 $logPath = "$logDirectoryRetries/$($definition.TestMethod.className).$($definition.TestMethod.name)_$i.trx";
                 dotnet test $($definition.TestMethod.codeBase) --logger "trx;LogFileName=$logPath" --filter "ClassName=$($definition.TestMethod.className)&Name=$($definition.TestMethod.name)" | Out-Null
 
