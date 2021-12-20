@@ -11,6 +11,7 @@ Write-Host "-WorkingDirectory: $WorkingDirectory"
 Write-Host ""
 
 [int]$maxRetries = 5;
+[int]$secondsBetweenRetries = 5;
 
 # INSPECT TEST RUN RESULTS
 [xml]$testRunXml = Get-Content -Path $TestResultFile -ErrorAction Stop
@@ -32,8 +33,6 @@ if ($testRunXml.TestRun.ResultSummary.outcome -eq "Failed")
 
     [bool]$scriptResult = $true;
     $ScriptSummary = @();
-
-    [int]$secondsBetweenRetries = 5;
 
     # FOREACH TEST RUN RESULTS
     foreach ($result in $results)
