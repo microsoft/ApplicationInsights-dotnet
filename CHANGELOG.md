@@ -2,6 +2,7 @@
 
 ## VNext
 - [Validate exception stack trace line numbers to comply with endpoint restrictions.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2482)
+- [Removed redundant memory allocations and processing in PartialSuccessTransmissionPolicy for ingestion sampling cases](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2445)
 
 ## Version 2.20
 - [Allow Control of Documents sampling for QuickPulse telemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2425)
