@@ -42,7 +42,7 @@ jobs:
         dotnet-version: '6.0.x'
 
     - name: Restore
-      run: dotnet restore ${{ env.SOLUTION }} 
+      run: dotnet restore ${{ env.SOLUTION }}
 
     - name: Build
       run: dotnet build ${{ env.SOLUTION }} --configuration Release --no-restore
@@ -50,7 +50,7 @@ jobs:
     - name: Test
       id: test1
       continue-on-error: true
-      run: dotnet test ${{ env.SOLUTION }} --framework ${{ matrix.framework }} --configuration Release --no-build --results-directory ${{ env.TEST_RESULTS_DIRECTORY }} --logger:"console;verbosity=detailed" --logger:"trx;logfileprefix=testResults_"
+      run: dotnet test ${{ env.SOLUTION }} --framework ${{ matrix.framework }} --configuration Release --no-build --results-directory ${{ env.TEST_RESULTS_DIRECTORY }} --logger:"console;verbosity=detailed" --logger:"trx;logfileprefix=testResults_" ${{ matrix.args }}
 
     - name: Retry tests
       if: steps.test1.outcome=='failure'
