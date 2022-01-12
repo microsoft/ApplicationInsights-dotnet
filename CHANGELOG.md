@@ -10,6 +10,7 @@
 - [Validate exception message length to comply with endpoint restrictions.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2284)
 - Update JavaScript snippet to sv5 which includes the cdn endpoint.
 - [Make operation detail name constants public.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1326)
+- [Upgrade Microsoft.AspNetCore.Hosting for netcoreapp3.1 and higher](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2514)
 
 ## Version 2.20
 - [Allow Control of Documents sampling for QuickPulse telemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2425)
