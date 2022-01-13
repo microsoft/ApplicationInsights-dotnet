@@ -165,6 +165,26 @@
             Assert.AreEqual(10, stackFrame.line);
         }
 
+        [TestMethod]
+        public void TrimsExceptionMessagesGreaterThanMaxLength()
+        {
+            var exp = new Exception(new string('x', ExceptionConverter.MaxExceptionMessageLength + 5));
+
+            ExceptionDetails expDetails = ExceptionConverter.ConvertToExceptionDetails(exp, null);
+
+            Assert.AreEqual(ExceptionConverter.MaxExceptionMessageLength, expDetails.message.Length);
+        }
+
+        [TestMethod]
+        public void DoesNotTrimShortExceptionMessages()
+        {
+            var exp = new Exception(new string('x', 5));
+
+            ExceptionDetails expDetails = ExceptionConverter.ConvertToExceptionDetails(exp, null);
+
+            Assert.AreEqual(5, expDetails.message.Length);
+        }
+
         [MethodImplAttribute(MethodImplOptions.NoInlining)]
         private Exception CreateException(int numberOfStackpoints)
         {
