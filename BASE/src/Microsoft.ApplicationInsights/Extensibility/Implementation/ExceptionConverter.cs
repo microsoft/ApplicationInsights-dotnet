@@ -21,7 +21,9 @@
                                                                                                                 parentExceptionDetails);
             // The endpoint cannot ingest message lengths longer than a certain length
             if (exceptionDetails.message != null && exceptionDetails.message.Length > MaxExceptionMessageLength)
+            {
                 exceptionDetails.message = exceptionDetails.message.Substring(0, MaxExceptionMessageLength);
+            }
 
             var stack = new StackTrace(exception, true);
 
