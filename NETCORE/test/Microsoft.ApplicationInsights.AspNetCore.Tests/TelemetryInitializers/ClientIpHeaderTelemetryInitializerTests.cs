@@ -15,14 +15,14 @@
         [Fact]
         public void InitializeThrowIfHttpContextAccessorIsNull()
         {
-            Assert.ThrowsAny<ArgumentNullException>(() => { var initializer = new ClientIpHeaderTelemetryInitializer(null);  });
+            Assert.ThrowsAny<ArgumentNullException>(() => { var initializer = new ClientIpHeaderTelemetryInitializer(null); });
         }
 
         [Fact]
         public void InitializeDoesNotThrowIfHttpContextIsUnavailable()
         {
             var ac = new HttpContextAccessor { HttpContext = null };
-            
+
             var initializer = new ClientIpHeaderTelemetryInitializer(ac);
 
             initializer.Initialize(new RequestTelemetry());
@@ -32,7 +32,7 @@
         public void InitializeDoesNotThrowIfRequestServicesAreUnavailable()
         {
             var ac = new HttpContextAccessor { HttpContext = new DefaultHttpContext() };
-            
+
             var initializer = new ClientIpHeaderTelemetryInitializer(ac);
 
             initializer.Initialize(new RequestTelemetry());
@@ -42,7 +42,7 @@
         public void InitializeDoesNotThrowIfRequestIsUnavailable()
         {
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessorWithoutRequest(new DefaultHttpContext(), new RequestTelemetry());
-            
+
             var initializer = new ClientIpHeaderTelemetryInitializer(contextAccessor);
 
             initializer.Initialize(new EventTelemetry());
@@ -65,7 +65,7 @@
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
 
             contextAccessor.HttpContext.Features.Set<IHttpConnectionFeature>(new HttpConnectionFeature());
-           
+
             var initializer = new ClientIpHeaderTelemetryInitializer(contextAccessor);
 
             initializer.Initialize(requestTelemetry);
@@ -79,7 +79,7 @@
 
             var httpConnectionFeature = new HttpConnectionFeature
             {
-                RemoteIpAddress = new IPAddress(new byte[] {1, 2, 3, 4})
+                RemoteIpAddress = new IPAddress(new byte[] { 1, 2, 3, 4 })
             };
             contextAccessor.HttpContext.Features.Set<IHttpConnectionFeature>(httpConnectionFeature);
 
@@ -126,7 +126,7 @@
         {
             var requestTelemetry = new RequestTelemetry();
             requestTelemetry.Context.Location.Ip = "127.0.0.4";
-            
+
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
             contextAccessor.HttpContext.Request.Headers.Add("X-Forwarded-For", new string[] { "127.0.0.3" });
 
