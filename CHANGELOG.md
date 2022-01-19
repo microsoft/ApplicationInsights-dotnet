@@ -1,6 +1,7 @@
 # Changelog
 
 ## VNext
+- [Support IPv6 in request headers](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2521)
 - [Validate exception stack trace line numbers to comply with endpoint restrictions.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2482)
 - [Removed redundant memory allocations and processing in PartialSuccessTransmissionPolicy for ingestion sampling cases](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2445)
 - [Validate exception message length to comply with endpoint restrictions.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2284)
