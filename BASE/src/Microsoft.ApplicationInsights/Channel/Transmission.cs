@@ -23,18 +23,10 @@
         internal const string ContentEncodingHeader = "Content-Encoding";
 
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
-        private static HttpClient client;
+        private static HttpClient client = new HttpClient(new RedirectHttpHandler()) { Timeout = System.Threading.Timeout.InfiniteTimeSpan };
         private static long flushAsyncCounter = 0;
 
         private int isSending;
-
-        static Transmission()
-        {
-            client = new HttpClient(new RedirectHttpHandler())
-            { 
-                Timeout = System.Threading.Timeout.InfiniteTimeSpan,
-            };
-        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Transmission"/> class.

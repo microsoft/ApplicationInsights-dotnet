@@ -163,5 +163,28 @@
             Assert.AreEqual(correctResult, passedQuotaCount);
             Assert.IsFalse(quotaTracker.ApplyQuota());
         }
+
+        [TestMethod]
+        public void QuickPulseQuotaTrackerParameters()
+        {
+            // ARRANGE
+            int maxQuota = 500;
+            int experimentLengthInSeconds = 499;
+            var mockTimeProvider = new ClockMock();
+            var quotaTracker = new QuickPulseQuotaTracker(mockTimeProvider, maxQuota, 900, 1);
+
+            // ACT
+            for (int i = 0; i < experimentLengthInSeconds; i++)
+            {
+                mockTimeProvider.FastForward(TimeSpan.FromSeconds(1));
+
+                quotaTracker.ApplyQuota();
+            }
+
+            // ASSERT
+            Assert.AreEqual(499, quotaTracker.CurrentQuota);
+            Assert.AreEqual(500, quotaTracker.MaxQuota);
+            Assert.AreEqual(false, quotaTracker.QuotaExhausted);
+        }
     }
 }

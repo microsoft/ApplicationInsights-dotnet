@@ -52,15 +52,10 @@
            Clock timeProvider,
            IEnumerable<DocumentStream> previousDocumentStreams = null)
         {
-            if (info == null)
-            {
-                throw new ArgumentNullException(nameof(info));
-            }
-
-            this.info = info;
+            this.info = info ?? throw new ArgumentNullException(nameof(info));
 
             // create metrics based on descriptions in info
-            this.CreateTelemetryMetrics(info, out CollectionConfigurationError[] metricErrors);
+            this.CreateTelemetryMetrics(out CollectionConfigurationError[] metricErrors);
 
             // maintain a separate collection of all (Id, AggregationType) pairs with some additional data - to allow for uniform access to all types of metrics
             // this includes both telemetry metrics and Metric metrics
@@ -189,6 +184,9 @@
 
             if (this.info.DocumentStreams != null)
             {
+                float? maxQuota = this.info.QuotaInfo?.MaxQuota;
+                float? quotaAccrualRatePerSec = this.info.QuotaInfo?.QuotaAccrualRatePerSec;
+
                 foreach (DocumentStreamInfo documentStreamInfo in this.info.DocumentStreams)
                 {
                     if (documentStreamIds.Contains(documentStreamInfo.Id))
@@ -207,18 +205,24 @@
                     CollectionConfigurationError[] localErrors = null;
                     try
                     {
-                        Tuple<float, float, float, float, float> initialQuotas;
-                        previousQuotasByStreamId.TryGetValue(documentStreamInfo.Id, out initialQuotas);
+                        previousQuotasByStreamId.TryGetValue(documentStreamInfo.Id, out Tuple<float, float, float, float, float> previousQuotas);
+                        float? initialQuota = this.info.QuotaInfo?.InitialQuota;
 
                         var documentStream = new DocumentStream(
                             documentStreamInfo,
                             out localErrors,
                             timeProvider,
-                            initialRequestQuota: initialQuotas?.Item1,
-                            initialDependencyQuota: initialQuotas?.Item2,
-                            initialExceptionQuota: initialQuotas?.Item3,
-                            initialEventQuota: initialQuotas?.Item4,
-                            initialTraceQuota: initialQuotas?.Item5);
+                            initialRequestQuota: initialQuota ?? previousQuotas?.Item1,
+                            initialDependencyQuota: initialQuota ?? previousQuotas?.Item2,
+                            initialExceptionQuota: initialQuota ?? previousQuotas?.Item3,
+                            initialEventQuota: initialQuota ?? previousQuotas?.Item4,
+                            initialTraceQuota: initialQuota ?? previousQuotas?.Item5,
+                            maxRequestQuota: maxQuota,
+                            maxDependencyQuota: maxQuota,
+                            maxExceptionQuota: maxQuota,
+                            maxEventQuota: maxQuota,
+                            maxTraceQuota: maxQuota,
+                            quotaAccrualRatePerSec: quotaAccrualRatePerSec);
 
                         documentStreamIds.Add(documentStreamInfo.Id);
                         this.documentStreams.Add(documentStream);
@@ -248,12 +252,12 @@
             errors = errorList.ToArray();
         }
 
-        private void CreateTelemetryMetrics(CollectionConfigurationInfo info, out CollectionConfigurationError[] errors)
+        private void CreateTelemetryMetrics(out CollectionConfigurationError[] errors)
         {
             var errorList = new List<CollectionConfigurationError>();
             var metricIds = new HashSet<string>();
 
-            foreach (CalculatedMetricInfo metricInfo in info.Metrics ?? ArrayExtensions.Empty<CalculatedMetricInfo>())
+            foreach (CalculatedMetricInfo metricInfo in this.info.Metrics ?? ArrayExtensions.Empty<CalculatedMetricInfo>())
             {
                 if (metricIds.Contains(metricInfo.Id))
                 {

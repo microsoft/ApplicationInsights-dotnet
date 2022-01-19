@@ -27,12 +27,6 @@
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="$(SystemDiagnosticsDiagnosticSourcePkgVer)" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <!-- NetCore Dependencies -->
-    <PackageReference Include="System.Runtime.Serialization.Json" Version="4.3.0" />
-    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
-  </ItemGroup>
-
   <ItemGroup>
     <!--Nuget Transforms (install.xdt, uninstall.xdt, config.transform): "nupkg\content\<framework>\*.*-->
     <Content Include="ApplicationInsights.config.transform" />

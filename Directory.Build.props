@@ -47,13 +47,13 @@
     <TargetsRoot>$(EnlistmentRoot)\.targets</TargetsRoot>
     <PublicApiRoot>$(EnlistmentRoot)\.publicApi</PublicApiRoot>
 
-    <BinRoot>$(EnlistmentRoot)\..\bin</BinRoot>
+    <BinRoot>$(EnlistmentRoot)\bin</BinRoot>
     <BinRoot>$([System.IO.Path]::GetFullPath( $(BinRoot) ))</BinRoot>
 
-    <ObjRoot>$(EnlistmentRoot)\..\obj</ObjRoot>
+    <ObjRoot>$(EnlistmentRoot)\obj</ObjRoot>
     <ObjRoot>$([System.IO.Path]::GetFullPath( $(ObjRoot) ))</ObjRoot>
 
-    <PackagesDir>$(EnlistmentRoot)\..\packages</PackagesDir>
+    <PackagesDir>$(EnlistmentRoot)\packages</PackagesDir>
     <PackagesDir>$([System.IO.Path]::GetFullPath( $(PackagesDir) ))</PackagesDir>
 
     <RelativeOutputPathBase>$(MSBuildProjectDirectory.Substring($(EnlistmentRoot.Length)))</RelativeOutputPathBase>
