@@ -99,10 +99,9 @@
                         if (!string.IsNullOrEmpty(headerValue))
                         {
                             var ip = this.GetIpFromHeader(headerValue);
-                            ip = CutPort(ip);
-                            if (IsCorrectIpAddress(ip))
+                            if (ParseIPEndPoint(ip, out var ipEndPoint))
                             {
-                                resultIp = ip;
+                                resultIp = ipEndPoint.Address.ToString();
                                 break;
                             }
                         }
@@ -125,32 +124,16 @@
             telemetry.Context.Location.Ip = requestTelemetry.Context.Location.Ip;
         }
 
-        private static string CutPort(string address)
+        private static bool ParseIPEndPoint(string text, out IPEndPoint ipEndPoint)
         {
-            // For Web sites in Azure header contains ip address with port e.g. 50.47.87.223:54464
-            int portSeparatorIndex = address.IndexOf(":", StringComparison.OrdinalIgnoreCase);
+            Uri uri;
+            ipEndPoint = null;
 
-            if (portSeparatorIndex > 0)
+            if (Uri.TryCreate($"tcp://{text}", UriKind.Absolute, out uri) ||
+                Uri.TryCreate($"tcp://[{text}]", UriKind.Absolute, out uri))
             {
-                return address.Substring(0, portSeparatorIndex);
-            }
-
-            return address;
-        }
-
-        private static bool IsCorrectIpAddress(string address)
-        {
-            IPAddress outParameter;
-            address = address.Trim();
-
-            // Core SDK does not support setting Location.Ip to malformed ip address
-            if (IPAddress.TryParse(address, out outParameter))
-            {
-                // Also SDK supports only ipv4!
-                if (outParameter.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    return true;
-                }
+                ipEndPoint = new IPEndPoint(IPAddress.Parse(uri.Host), uri.Port < 0 ? 0 : uri.Port);
+                return true;
             }
 
             return false;
