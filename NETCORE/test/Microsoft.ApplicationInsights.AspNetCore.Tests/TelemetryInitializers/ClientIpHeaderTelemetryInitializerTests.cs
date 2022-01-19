@@ -106,6 +106,21 @@
         }
 
         [Fact]
+        public void InitializeSetsIPFromStandardHeaderIPV6()
+        {
+            var requestTelemetry = new RequestTelemetry();
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
+
+            contextAccessor.HttpContext.Request.Headers.Add("X-Forwarded-For", new string[] { "2400:4000:f82:3000:8d8:f068:5c34:824" });
+
+            var initializer = new ClientIpHeaderTelemetryInitializer(contextAccessor);
+
+            initializer.Initialize(requestTelemetry);
+
+            Assert.Equal("2400:4151:f82:3000:8d8:f068:5c34:824", requestTelemetry.Context.Location.Ip);
+        }
+
+        [Fact]
         public void InitializeSetsIPFromCustomHeader()
         {
             var requestTelemetry = new RequestTelemetry();
