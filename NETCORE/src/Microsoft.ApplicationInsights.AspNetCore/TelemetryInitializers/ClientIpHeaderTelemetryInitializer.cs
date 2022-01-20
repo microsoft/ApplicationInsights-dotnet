@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Net;
-    using System.Net.Sockets;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -99,9 +98,9 @@
                         if (!string.IsNullOrEmpty(headerValue))
                         {
                             var ip = this.GetIpFromHeader(headerValue);
-                            if (ParseIPEndPoint(ip, out var ipEndPoint))
+                            if (ParseIPWithPort(ip, out var ipAddressString))
                             {
-                                resultIp = ipEndPoint.Address.ToString();
+                                resultIp = ipAddressString;
                                 break;
                             }
                         }
@@ -124,16 +123,20 @@
             telemetry.Context.Location.Ip = requestTelemetry.Context.Location.Ip;
         }
 
-        private static bool ParseIPEndPoint(string text, out IPEndPoint ipEndPoint)
+        private static bool ParseIPWithPort(string input, out string ipAddressString)
         {
             Uri uri;
-            ipEndPoint = null;
+            ipAddressString = null;
 
-            if (Uri.TryCreate($"tcp://{text}", UriKind.Absolute, out uri) ||
-                Uri.TryCreate($"tcp://[{text}]", UriKind.Absolute, out uri))
+            if (Uri.TryCreate($"tcp://{input}", UriKind.Absolute, out uri) ||
+                Uri.TryCreate($"tcp://[{input}]", UriKind.Absolute, out uri))
             {
-                ipEndPoint = new IPEndPoint(IPAddress.Parse(uri.Host), uri.Port < 0 ? 0 : uri.Port);
-                return true;
+                if (IPAddress.TryParse(uri.Host, out var ip))
+                {
+                    Console.WriteLine(uri.Port);
+                    ipAddressString = new IPEndPoint(ip, uri.Port < 0 ? 0 : uri.Port).Address.ToString();
+                    return true;
+                }
             }
 
             return false;
