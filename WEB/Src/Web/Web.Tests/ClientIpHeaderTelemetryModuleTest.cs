@@ -80,7 +80,7 @@
         {
             var module = new TestableClientIpHeaderTelemetryInitializer();
             var requestTelemetry = module.PlatformContext.CreateRequestTelemetryPrivate();
-            
+
             module.Initialize(new EventTelemetry());
 
             Assert.AreEqual("127.0.0.1", requestTelemetry.Context.Location.Ip);
@@ -99,12 +99,24 @@
         }
 
         [TestMethod]
+        public void InitializeSetsLocationIpToUserHostAddressFromXForwarderHeaderIPv6()
+        {
+            var dictionary = new Dictionary<string, string> { { "X-Forwarded-For", "fec0::1" } };
+            var module = new TestableClientIpHeaderTelemetryInitializer(dictionary);
+            var telemetry = new TraceTelemetry();
+
+            module.Initialize(telemetry);
+
+            Assert.AreEqual("fec0::1", telemetry.Context.Location.Ip);
+        }
+
+        [TestMethod]
         public void InitializeSetsLocationIpOfRequestToUserHostAddressFromXForwarderHeader()
         {
             var dictionary = new Dictionary<string, string> { { "X-Forwarded-For", "1.2.3.4" } };
             var module = new TestableClientIpHeaderTelemetryInitializer(dictionary);
             var requestTelemetry = module.PlatformContext.CreateRequestTelemetryPrivate();
-            
+
             module.Initialize(new TraceTelemetry("trace"));
 
             Assert.AreEqual("1.2.3.4", requestTelemetry.Context.Location.Ip);
