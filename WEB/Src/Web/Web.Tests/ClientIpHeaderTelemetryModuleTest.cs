@@ -87,27 +87,18 @@
         }
 
         [TestMethod]
-        public void InitializeSetsLocationIpToUserHostAddressFromXForwarderHeader()
+        [DataRow("1.2.3.4", "1.2.3.4")]
+        [DataRow("[::1]:80", "::1")]
+        [DataRow("0:0:0:0:0:0:0:1", "::1")]
+        public void InitializeSetsLocationIpToUserHostAddressFromXForwarderHeader(string value, string expected)
         {
-            var dictionary = new Dictionary<string, string> { { "X-Forwarded-For", "1.2.3.4" } };
+            var dictionary = new Dictionary<string, string> { { "X-Forwarded-For", value } };
             var module = new TestableClientIpHeaderTelemetryInitializer(dictionary);
             var telemetry = new TraceTelemetry();
 
             module.Initialize(telemetry);
 
-            Assert.AreEqual("1.2.3.4", telemetry.Context.Location.Ip);
-        }
-
-        [TestMethod]
-        public void InitializeSetsLocationIpToUserHostAddressFromXForwarderHeaderIPv6()
-        {
-            var dictionary = new Dictionary<string, string> { { "X-Forwarded-For", "fec0::1" } };
-            var module = new TestableClientIpHeaderTelemetryInitializer(dictionary);
-            var telemetry = new TraceTelemetry();
-
-            module.Initialize(telemetry);
-
-            Assert.AreEqual("fec0::1", telemetry.Context.Location.Ip);
+            Assert.AreEqual(expected, telemetry.Context.Location.Ip);
         }
 
         [TestMethod]
