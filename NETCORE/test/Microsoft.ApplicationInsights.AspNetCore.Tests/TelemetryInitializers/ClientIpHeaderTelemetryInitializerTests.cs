@@ -91,6 +91,7 @@
 
         [Theory]
         [InlineData("X-Forwarded-For", "127.0.0.3", null, "127.0.0.3")]
+        [InlineData("X-Forwarded-For", "127.0.0.3:80", null, "127.0.0.3")]
         [InlineData("X-Forwarded-For", "[::1]:80", null, "::1")]
         [InlineData("HEADER", "127.0.0.3;127.0.0.4", ",;", "127.0.0.3")]
         [InlineData("X-Forwarded-For", "bad", null, null)]

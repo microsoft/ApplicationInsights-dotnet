@@ -112,7 +112,6 @@
             {
                 if (IPAddress.TryParse(uri.Host, out var ip))
                 {
-                    Console.WriteLine(uri.Port);
                     ipAddressString = new IPEndPoint(ip, uri.Port < 0 ? 0 : uri.Port).Address.ToString();
                     return true;
                 }
