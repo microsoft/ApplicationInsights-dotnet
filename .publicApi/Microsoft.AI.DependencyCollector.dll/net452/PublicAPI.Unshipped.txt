@@ -2,3 +2,4 @@ const Microsoft.ApplicationInsights.DependencyCollector.OperationDetailConstants
 const Microsoft.ApplicationInsights.DependencyCollector.OperationDetailConstants.HttpResponseOperationDetailName = "HttpResponse" -> string
 const Microsoft.ApplicationInsights.DependencyCollector.OperationDetailConstants.HttpResponseHeadersOperationDetailName = "HttpResponseHeaders" -> string
 const Microsoft.ApplicationInsights.DependencyCollector.OperationDetailConstants.SqlCommandOperationDetailName = "SqlCommand" -> string
+Microsoft.ApplicationInsights.DependencyCollector.OperationDetailConstants
