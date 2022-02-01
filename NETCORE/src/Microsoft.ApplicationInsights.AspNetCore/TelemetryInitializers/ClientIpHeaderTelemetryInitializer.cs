@@ -98,7 +98,7 @@
                         if (!string.IsNullOrEmpty(headerValue))
                         {
                             var ip = this.GetIpFromHeader(headerValue);
-                            if (ParseIPWithPort(ip, out var ipAddressString))
+                            if (TryParseIpWithPort(ip, out var ipAddressString))
                             {
                                 resultIp = ipAddressString;
                                 break;
@@ -123,7 +123,7 @@
             telemetry.Context.Location.Ip = requestTelemetry.Context.Location.Ip;
         }
 
-        private static bool ParseIPWithPort(string input, out string ipAddressString)
+        private static bool TryParseIpWithPort(string input, out string ipAddressString)
         {
             Uri uri;
             ipAddressString = null;

@@ -102,7 +102,7 @@
             }
         }
 
-        private static bool ParseIPWithPort(string input, out string ipAddressString)
+        private static bool TryParseIpWithPort(string input, out string ipAddressString)
         {
             Uri uri;
             ipAddressString = null;
@@ -138,7 +138,7 @@
                     WebEventSource.Log.WebLocationIdHeaderFound(clientIpHeaderName);
 
                     string ip = this.GetIpFromHeader(clientIpsFromHeader);
-                    if (ParseIPWithPort(ip, out var ipAddressString))
+                    if (TryParseIpWithPort(ip, out var ipAddressString))
                     {
                         resultIp = ipAddressString;
                         break;
