@@ -219,6 +219,7 @@
         /// <summary>
         /// Gets or sets request url (optional).
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.MaybeNull]
         public Uri Url { get; set; }
 
         /// <summary>
