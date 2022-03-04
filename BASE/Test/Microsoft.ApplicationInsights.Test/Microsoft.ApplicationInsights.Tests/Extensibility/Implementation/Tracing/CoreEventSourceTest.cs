@@ -50,6 +50,18 @@
             Assert.IsNotNull(eventSourceAttribute);
             Assert.AreEqual(expectedName, eventSourceAttribute.Name);
         }
+
+        /// <summary>
+        /// Redfield takes a dependency on DiagnosticSource version 4.7.0.0.
+        /// This dependency is defined in "Directory.Build.props".
+        /// </summary>
+        [TestMethod]
+        public void VerifyRedfieldDiagnosticSourceVersion()
+        {
+            var referencedAssemblies = typeof(CoreEventSource).Assembly.GetReferencedAssemblies();
+            var diagnosticSource = referencedAssemblies.Single(x => x.Name == "System.Diagnostics.DiagnosticSource");
+            Assert.AreEqual("4.7.0.0", diagnosticSource.Version.ToString());
+        }
 #endif
     }
 }

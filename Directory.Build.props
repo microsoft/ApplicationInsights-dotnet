@@ -24,6 +24,7 @@
     To use: dotnet build /p:Redfield=True
     -->
     <Message Text="Directory.Build.props: Redfield build detected." Importance="high"/>
+    <Message Text="Directory.Build.props: SystemDiagnosticsDiagnosticSourcePkgVer: $(SystemDiagnosticsDiagnosticSourcePkgVer)" Importance="high"/>
   </Target>
   
   <Target Name="Info_InternalSettings"  BeforeTargets="Build">
