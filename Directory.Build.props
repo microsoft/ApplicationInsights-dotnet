@@ -7,7 +7,7 @@
 
     <!-- This is used to disable some build properties. -->
     <IsExamplesSolution Condition="'$(SolutionName)' == 'Examples' ">true</IsExamplesSolution>
-
+	<Redfield>true</Redfield>
     <!-- This is used to change EventSource names. -->
     <DefineConstants Condition="'$(Redfield)' == 'True'">$(DefineConstants);REDFIELD</DefineConstants>
   </PropertyGroup>
