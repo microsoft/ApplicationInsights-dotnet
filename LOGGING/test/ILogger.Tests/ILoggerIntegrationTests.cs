@@ -327,7 +327,7 @@ namespace Microsoft.ApplicationInsights
             services.AddLogging(loggingBuilder =>
             {
                 loggingBuilder.AddApplicationInsights(
-                    telemetryConfiguration => { telemetryConfiguration.InstrumentationKey = "TestAIKey"; },
+                    telemetryConfiguration => { telemetryConfiguration.ConnectionString = "InstrumentationKey=TestAIKey"; },
                     applicationInsightsLoggerOptions => { });
             });
 
