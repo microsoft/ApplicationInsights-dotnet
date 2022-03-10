@@ -26,8 +26,8 @@ class Program
         // Add the logging pipelines to use. We are using Application Insights only here.
         services.AddLogging(loggingBuilder =>
         {
-	        // Optional: Apply filters to configure LogLevel Trace or above is sent to ApplicationInsights for all categories.
-	        loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Trace);
+            // Optional: Apply filters to configure LogLevel Trace or above is sent to ApplicationInsights for all categories.
+            loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Trace);
             
             loggingBuilder.AddApplicationInsights(
                 telemetryConfiguration => { telemetryConfiguration.ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000"; },
@@ -70,15 +70,15 @@ public class Program
         .UseStartup<Startup>()                
         .ConfigureLogging(logging =>
         {                
-	        loggingBuilder.AddApplicationInsights(
+            loggingBuilder.AddApplicationInsights(
                 telemetryConfiguration => { telemetryConfiguration.ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000"; },
                 applicationInsightsLoggerOptions => { });
 				
-	        // Optional: Apply filters to configure LogLevel Trace or above is sent to ApplicationInsights for all categories.
-                logging.AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Trace);
+            // Optional: Apply filters to configure LogLevel Trace or above is sent to ApplicationInsights for all categories.
+            logging.AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Trace);
 				
             // Additional filtering For category starting in "Microsoft", only Warning or above will be sent to Application Insights.
-	        logging.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Warning);
+            logging.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Warning);
         })
         .Build();
 }
