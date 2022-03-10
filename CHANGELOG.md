@@ -1,7 +1,7 @@
 # Changelog
 
 ## VNext
-
+- [LOGGING: Make TelemetryConfiguration configurable in ApplicationInsightsLoggingBuilderExtensions](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1944)
 
 ## Version 2.21.0-beta1
 - [Support IPv6 in request headers](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2521)
