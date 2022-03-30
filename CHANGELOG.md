@@ -2,6 +2,7 @@
 
 ## VNext
 - [LOGGING: Make TelemetryConfiguration configurable in ApplicationInsightsLoggingBuilderExtensions](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1944)
+- [Extension methods to retrive specific operation details.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1350)
 
 ## Version 2.21.0-beta1
 - [Support IPv6 in request headers](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2521)
