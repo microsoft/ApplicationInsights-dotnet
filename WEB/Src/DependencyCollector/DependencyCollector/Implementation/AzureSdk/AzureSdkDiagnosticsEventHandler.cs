@@ -12,6 +12,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
     internal class AzureSdkDiagnosticsEventHandler : DiagnosticsEventHandlerBase
     {
@@ -89,12 +90,19 @@
 
                     this.SetCommonProperties(evnt.Key, evnt.Value, currentActivity, telemetry);
 
-                    if (telemetry is DependencyTelemetry dependency && dependency.Type == RemoteDependencyConstants.HTTP)
+                    if (telemetry is DependencyTelemetry dependency)
                     {
-                        SetHttpProperties(currentActivity, dependency);
-                        if (evnt.Value != null)
+                        if (dependency.Type == RemoteDependencyConstants.HTTP)
                         {
-                            dependency.SetOperationDetail(evnt.Value.GetType().FullName, evnt.Value);
+                            SetHttpProperties(currentActivity, dependency);
+                            if (evnt.Value != null)
+                            {
+                                dependency.SetOperationDetail(evnt.Value.GetType().FullName, evnt.Value);
+                            }
+                        }
+                        else if (dependency.Type.EndsWith(RemoteDependencyConstants.AzureDocumentDb, StringComparison.Ordinal))
+                        {
+                            SetCosmosDbProperties(currentActivity, dependency);
                         }
                     }
 
@@ -245,6 +253,10 @@
             else if (component == "Microsoft.ServiceBus")
             {
                 component = RemoteDependencyConstants.AzureServiceBus;
+            } 
+            else if (component == "Microsoft.DocumentDB") 
+            {
+                component = RemoteDependencyConstants.AzureDocumentDb;
             }
 
             if (component != null)
@@ -323,6 +335,48 @@
         {
             return dependencyType != null && (dependencyType.EndsWith(RemoteDependencyConstants.AzureEventHubs, StringComparison.Ordinal) ||
                          dependencyType.EndsWith(RemoteDependencyConstants.AzureServiceBus, StringComparison.Ordinal));
+        }
+
+        private static void SetCosmosDbProperties(Activity activity, DependencyTelemetry telemetry)
+        {
+            string dbAccount = null;
+            string dbName = null;
+            string dbOperation = null;
+            string dbContainer = null;
+
+            foreach (var tag in activity.Tags)
+            {
+                if (tag.Key == "db.name")
+                {
+                    dbName = tag.Value;
+                }
+                else if (tag.Key == "db.operation")
+                {
+                    dbOperation = tag.Value;
+                }
+                else if (tag.Key == "net.peer.name")
+                {
+                    dbAccount = tag.Value;
+                }
+                else if (tag.Key == "db.cosmosdb.container")
+                {
+                    dbContainer = tag.Value;
+                    telemetry.Properties[tag.Key] = dbContainer;
+                }
+                else if (tag.Key == "db.cosmosdb.status_code")
+                {
+                    telemetry.ResultCode = tag.Value;
+                }
+                else if (tag.Key.StartsWith("db.cosmosdb.", StringComparison.Ordinal))
+                {
+                    telemetry.Properties[tag.Key] = tag.Value;
+                }
+            }
+
+            // similar to SqlClientDiagnosticSourceListener
+            telemetry.Target = string.Join(" | ", dbAccount, dbName);
+            telemetry.Name = string.Join(" | ", dbContainer, dbOperation);
+            telemetry.Data = dbOperation;
         }
 
         private static void SetMessagingProperties(Activity activity, OperationTelemetry telemetry)
