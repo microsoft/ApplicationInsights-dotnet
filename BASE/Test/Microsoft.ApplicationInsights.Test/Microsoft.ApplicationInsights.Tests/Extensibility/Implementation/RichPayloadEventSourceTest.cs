@@ -622,7 +622,9 @@
         {
             if (IsRunningOnEnvironmentSupportingRichPayloadEventSource())
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 var client = new TelemetryClient();
+#pragma warning restore CS0618 // Type or member is obsolete
 
 #pragma warning disable CS0618 // Type or member is obsolete
                 item.Context.Properties.Add("property1", "value1");

@@ -415,7 +415,8 @@
 #if NETCOREAPP
                 channel.TelemetryBuffer = new TelemetryChannel.Implementation.TelemetryBuffer(channel.TelemetrySerializer, null);
 #else
-                channel.TelemetryBuffer = new TelemetryChannel.Implementation.TelemetryBuffer(channel.TelemetrySerializer, new WebApplicationLifecycle());
+                //channel.TelemetryBuffer = new TelemetryChannel.Implementation.TelemetryBuffer(channel.TelemetrySerializer, new WebApplicationLifecycle());
+                channel.TelemetryBuffer = new TelemetryChannel.Implementation.TelemetryBuffer(channel.TelemetrySerializer, null);
 #endif
                 channel.TelemetryProcessor = channel.TelemetryBuffer;
                 channel.MaxTelemetryBufferCapacity = 1;
