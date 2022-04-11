@@ -5,7 +5,7 @@
     <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
     <RootNamespace>Microsoft.ApplicationInsights.NLogTarget.Tests</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.NLogTarget.Tests</AssemblyName>
-    <TargetFrameworks>net452;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

@@ -4,7 +4,7 @@
   <PropertyGroup>
     <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
     <ProjectGuid>{2759BC71-7F47-44DA-8579-AE2D8C8C684D}</ProjectGuid>
-    <TargetFrameworks>net46;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(OS) != 'Windows_NT'">

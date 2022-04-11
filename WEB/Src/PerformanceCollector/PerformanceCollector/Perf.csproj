@@ -4,8 +4,7 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector</RootNamespace>
     <AssemblyName>Microsoft.AI.PerfCounterCollector</AssemblyName>
-    <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
-    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -17,17 +16,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!--Common Dependencies-->
     <ProjectReference Include="..\..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
-    <!--Framework References-->
-    <Reference Include="System.Runtime.Caching" />
-    <Reference Include="System.Web" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="1.0.0" />
     <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="4.7.0" />
   </ItemGroup>

@@ -4,8 +4,6 @@
   <PropertyGroup>
     <AssemblyName>Microsoft.ApplicationInsights.AspNetCore</AssemblyName>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
-
-    <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.0</TargetFrameworks>
     <DefineConstants>$(DefineConstants);AI_ASPNETCORE_WEB;</DefineConstants>
   </PropertyGroup>
 
