@@ -79,8 +79,6 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TestFramework.Shared.Base",
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TestFramework.Shared.Web", "WEB\Src\TestFramework\Shared\TestFramework.Shared.Web.shproj", "{9718F051-147F-4F5F-9FF3-C926430EFCF7}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared.NetFull", "WEB\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.shproj", "{0196259C-3582-4F4E-A01F-A8F9AE83B0F3}"
-EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared.NetStandard", "WEB\Src\PerformanceCollector\Perf.Shared.NetStandard\Perf.Shared.NetStandard.shproj", "{D13C3EC7-B300-4158-9054-216156B203BE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "L) GenericTests", "L) GenericTests", "{D2A0AA36-57F7-436C-A7AF-7322927F1734}"
@@ -133,7 +131,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xdt.Tests", "LOGGING\test\X
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		WEB\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{0196259c-3582-4f4e-a01f-a8f9ae83b0f3}*SharedItemsImports = 13
 		WEB\Src\Common\Common.projitems*{13335eb8-3936-407a-9363-1c428318bea8}*SharedItemsImports = 5
 		LOGGING\src\CommonShared\CommonShared.projitems*{2612ac44-5ff3-4533-b5a5-e5dbf96f5c83}*SharedItemsImports = 5
 		WEB\Src\TestFramework\Shared\TestFramework.Shared.projitems*{27b8d7be-8cb7-48bf-97da-0f031103c03d}*SharedItemsImports = 5
@@ -354,7 +351,6 @@ Global
 		{4B0BC3B7-C7FC-4333-9E28-5790D9153F07} = {632FB9CE-540D-4451-9FF2-12E89C1492BD}
 		{2759BC71-7F47-44DA-8579-AE2D8C8C684D} = {632FB9CE-540D-4451-9FF2-12E89C1492BD}
 		{21CB9A8A-F25B-4DEB-92CB-ACB6920EB8BC} = {FBAFD313-0139-4DA3-BCB3-EE54DC3B6CCD}
-		{0196259C-3582-4F4E-A01F-A8F9AE83B0F3} = {3EDBC945-E531-4CEE-A038-A6AE1EF9AA96}
 		{D13C3EC7-B300-4158-9054-216156B203BE} = {3EDBC945-E531-4CEE-A038-A6AE1EF9AA96}
 		{058A0843-A95F-4B0D-91DB-33B9D3FD7324} = {E9AEB857-E8AA-4ED6-A020-DF4D8486CEB0}
 		{B90EDEA5-3CC8-4282-80A0-7116905E2427} = {D8483C3E-C386-48AD-B935-700A54FDCF31}

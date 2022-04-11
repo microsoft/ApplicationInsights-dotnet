@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29102.190
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{1A75535C-B8E5-4C31-BC6E-50456C8C4052}"
 EndProject
@@ -49,8 +49,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel", "..\..\B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyCollector.Tests", "DependencyCollector\DependencyCollector.Tests\DependencyCollector.Tests.csproj", "{9853A2A5-FD6C-4743-927E-0BFE807AD21C}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared.NetFull", "PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.shproj", "{0196259C-3582-4F4E-A01F-A8F9AE83B0F3}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web.Tests", "Web\Web.Tests\Web.Tests.csproj", "{1231D63B-E7FA-4BA7-9916-FA7325DB936D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsServer.Tests", "WindowsServer\WindowsServer.Tests\WindowsServer.Tests.csproj", "{CAF98D8B-9202-4CC3-83EC-C384D8EEA792}"
@@ -64,8 +62,7 @@ EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Common\Common.projitems*{00bf736c-b562-4251-9836-ef80282956af}*SharedItemsImports = 5
-		PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{00bf736c-b562-4251-9836-ef80282956af}*SharedItemsImports = 5
-		PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{0196259c-3582-4f4e-a01f-a8f9ae83b0f3}*SharedItemsImports = 13
+		PerformanceCollector\Perf.Shared.NetStandard\Perf.Shared.NetStandard.projitems*{00bf736c-b562-4251-9836-ef80282956af}*SharedItemsImports = 5
 		TestFramework\Shared\TestFramework.Shared.projitems*{1231d63b-e7fa-4ba7-9916-fa7325db936d}*SharedItemsImports = 5
 		Common\Common.projitems*{30ae1a5d-775a-4dec-9f87-849d8ae93e3a}*SharedItemsImports = 5
 		Common\Common.projitems*{94127fd9-e516-4891-98d4-ef7523117f32}*SharedItemsImports = 5
@@ -205,7 +202,6 @@ Global
 		{2BB7F06B-F094-417F-8C1B-7FCCA1192E17} = {85C7566E-98C3-479D-AC4F-0D4B161B7D42}
 		{41301181-F4BE-4C36-B78D-A29C55CB0469} = {85C7566E-98C3-479D-AC4F-0D4B161B7D42}
 		{9853A2A5-FD6C-4743-927E-0BFE807AD21C} = {DF56FBAD-8745-404B-94A1-E83BFC4AD7CB}
-		{0196259C-3582-4F4E-A01F-A8F9AE83B0F3} = {A318CC6C-51C8-4BD6-BC85-2B4F35123BE7}
 		{1231D63B-E7FA-4BA7-9916-FA7325DB936D} = {1A75535C-B8E5-4C31-BC6E-50456C8C4052}
 		{CAF98D8B-9202-4CC3-83EC-C384D8EEA792} = {D87119AF-CD35-46F2-84A6-ED54CC42027E}
 		{E31B7A59-5E13-48BB-8127-D11D41EF16C5} = {A318CC6C-51C8-4BD6-BC85-2B4F35123BE7}

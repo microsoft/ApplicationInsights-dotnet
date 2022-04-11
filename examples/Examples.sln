@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29424.173
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights", "..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj", "{E3D160E8-7F8C-416F-946F-6FDFC6787461}"
 EndProject
@@ -21,8 +21,6 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common.Logging", "..\LOGGIN
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiagnosticSourceListener", "..\LOGGING\src\DiagnosticSourceListener\DiagnosticSourceListener.csproj", "{2E283031-425B-421F-9E81-34ABFEFAB618}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtwCollector", "..\LOGGING\src\EtwCollector\EtwCollector.csproj", "{1B0F54BF-078A-421C-9708-2D817D4BCE30}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventSourceListener", "..\LOGGING\src\EventSourceListener\EventSourceListener.csproj", "{52B3C054-C686-4BB8-A4B7-9E8D6C49491F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ILogger", "..\LOGGING\src\ILogger\ILogger.csproj", "{67291093-4B5F-4CA5-A811-B8A1DCBE3F1F}"
@@ -41,8 +39,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsigh
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common.NetCore", "..\NETCORE\src\Shared\Common.NetCore.shproj", "{D56F2979-D6BC-4EF2-BB9B-4077B3290599}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared.NetFull", "..\WEB\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.shproj", "{0196259C-3582-4F4E-A01F-A8F9AE83B0F3}"
-EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared.NetStandard", "..\WEB\Src\PerformanceCollector\Perf.Shared.NetStandard\Perf.Shared.NetStandard.shproj", "{D13C3EC7-B300-4158-9054-216156B203BE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "..\WEB\Src\Web\Web\Web.csproj", "{6062A897-6E55-44C9-BA7A-E1C42946EE51}"
@@ -59,10 +55,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkerService", "WorkerServ
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		..\WEB\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{0196259c-3582-4f4e-a01f-a8f9ae83b0f3}*SharedItemsImports = 13
 		..\WEB\Src\Common\Common.projitems*{13335eb8-3936-407a-9363-1c428318bea8}*SharedItemsImports = 5
-		..\LOGGING\src\CommonShared\CommonShared.projitems*{1b0f54bf-078a-421c-9708-2d817d4bce30}*SharedItemsImports = 5
-		..\LOGGING\src\EventSource.Shared\EventSource.Shared\EventSource.Shared.projitems*{1b0f54bf-078a-421c-9708-2d817d4bce30}*SharedItemsImports = 5
 		..\LOGGING\src\CommonShared\CommonShared.projitems*{2612ac44-5ff3-4533-b5a5-e5dbf96f5c83}*SharedItemsImports = 5
 		..\LOGGING\src\CommonShared\CommonShared.projitems*{2e283031-425b-421f-9e81-34abfefab618}*SharedItemsImports = 5
 		..\LOGGING\src\CommonShared\CommonShared.projitems*{3774003c-91fd-4d79-99c7-9beac5b9a48e}*SharedItemsImports = 5
@@ -76,7 +69,7 @@ Global
 		..\WEB\Src\Common\Common.projitems*{7b5d95ee-50ee-4222-a03c-fae5905b3dfd}*SharedItemsImports = 5
 		..\WEB\Src\Common\Common.projitems*{96a6e04e-ceda-4c30-8eca-48113382afba}*SharedItemsImports = 5
 		..\WEB\Src\Common\Common.projitems*{9dc5c5e5-fc37-4e54-81fd-aa42bb934e9b}*SharedItemsImports = 5
-		..\WEB\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{9dc5c5e5-fc37-4e54-81fd-aa42bb934e9b}*SharedItemsImports = 5
+		..\WEB\Src\PerformanceCollector\Perf.Shared.NetStandard\Perf.Shared.NetStandard.projitems*{9dc5c5e5-fc37-4e54-81fd-aa42bb934e9b}*SharedItemsImports = 5
 		..\LOGGING\src\EventSource.Shared\EventSource.Shared\EventSource.Shared.projitems*{a964de6d-9750-4013-8be2-79c2afc056e5}*SharedItemsImports = 13
 		..\NETCORE\src\Shared\Shared.projitems*{ac399f09-b465-4cfd-8d82-f1d1c5c9347e}*SharedItemsImports = 5
 		..\WEB\Src\Common\Common.projitems*{ccab7a34-8dc5-4a6f-b637-46ceba93c687}*SharedItemsImports = 13
@@ -101,8 +94,6 @@ Global
 		{7B5D95EE-50EE-4222-A03C-FAE5905B3DFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E283031-425B-421F-9E81-34ABFEFAB618}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2E283031-425B-421F-9E81-34ABFEFAB618}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1B0F54BF-078A-421C-9708-2D817D4BCE30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1B0F54BF-078A-421C-9708-2D817D4BCE30}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{52B3C054-C686-4BB8-A4B7-9E8D6C49491F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{52B3C054-C686-4BB8-A4B7-9E8D6C49491F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{67291093-4B5F-4CA5-A811-B8A1DCBE3F1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -141,7 +132,6 @@ Global
 		{CCAB7A34-8DC5-4A6F-B637-46CEBA93C687} = {C5024E50-3350-479B-8628-620B299B9061}
 		{587B624B-8C64-498E-93D7-A2D2ABC17EAB} = {C5024E50-3350-479B-8628-620B299B9061}
 		{2E283031-425B-421F-9E81-34ABFEFAB618} = {C5024E50-3350-479B-8628-620B299B9061}
-		{1B0F54BF-078A-421C-9708-2D817D4BCE30} = {C5024E50-3350-479B-8628-620B299B9061}
 		{52B3C054-C686-4BB8-A4B7-9E8D6C49491F} = {C5024E50-3350-479B-8628-620B299B9061}
 		{67291093-4B5F-4CA5-A811-B8A1DCBE3F1F} = {C5024E50-3350-479B-8628-620B299B9061}
 		{3774003C-91FD-4D79-99C7-9BEAC5B9A48E} = {C5024E50-3350-479B-8628-620B299B9061}
@@ -151,7 +141,6 @@ Global
 		{AC399F09-B465-4CFD-8D82-F1D1C5C9347E} = {C5024E50-3350-479B-8628-620B299B9061}
 		{3CAB7F66-3CC4-4B46-9B0D-765C460FE2BF} = {C5024E50-3350-479B-8628-620B299B9061}
 		{D56F2979-D6BC-4EF2-BB9B-4077B3290599} = {C5024E50-3350-479B-8628-620B299B9061}
-		{0196259C-3582-4F4E-A01F-A8F9AE83B0F3} = {C5024E50-3350-479B-8628-620B299B9061}
 		{D13C3EC7-B300-4158-9054-216156B203BE} = {C5024E50-3350-479B-8628-620B299B9061}
 		{6062A897-6E55-44C9-BA7A-E1C42946EE51} = {C5024E50-3350-479B-8628-620B299B9061}
 	EndGlobalSection

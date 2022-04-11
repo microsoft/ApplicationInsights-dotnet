@@ -71,13 +71,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "C) WorkerService", "C) Work
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common.NetCore", "NETCORE\src\Shared\Common.NetCore.shproj", "{D56F2979-D6BC-4EF2-BB9B-4077B3290599}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared.NetFull", "WEB\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.shproj", "{0196259C-3582-4F4E-A01F-A8F9AE83B0F3}"
-EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared.NetStandard", "WEB\Src\PerformanceCollector\Perf.Shared.NetStandard\Perf.Shared.NetStandard.shproj", "{D13C3EC7-B300-4158-9054-216156B203BE}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		WEB\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{0196259c-3582-4f4e-a01f-a8f9ae83b0f3}*SharedItemsImports = 13
 		WEB\Src\Common\Common.projitems*{13335eb8-3936-407a-9363-1c428318bea8}*SharedItemsImports = 5
 		LOGGING\src\CommonShared\CommonShared.projitems*{2612ac44-5ff3-4533-b5a5-e5dbf96f5c83}*SharedItemsImports = 5
 		LOGGING\src\CommonShared\CommonShared.projitems*{2e283031-425b-421f-9e81-34abfefab618}*SharedItemsImports = 5
@@ -184,7 +181,6 @@ Global
 		{2612AC44-5FF3-4533-B5A5-E5DBF96F5C83} = {AFEB7CAA-A8BF-4D03-A5CB-BFC5AE378201}
 		{AC399F09-B465-4CFD-8D82-F1D1C5C9347E} = {E9AEB857-E8AA-4ED6-A020-DF4D8486CEB0}
 		{3CAB7F66-3CC4-4B46-9B0D-765C460FE2BF} = {D8483C3E-C386-48AD-B935-700A54FDCF31}
-		{0196259C-3582-4F4E-A01F-A8F9AE83B0F3} = {3EDBC945-E531-4CEE-A038-A6AE1EF9AA96}
 		{D13C3EC7-B300-4158-9054-216156B203BE} = {3EDBC945-E531-4CEE-A038-A6AE1EF9AA96}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
