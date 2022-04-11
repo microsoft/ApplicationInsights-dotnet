@@ -18,10 +18,6 @@
     <PackageReference Include="CompareNETObjects" Version="4.59.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452'  Or '$(TargetFramework)' == 'net46' ">
-    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
-  </ItemGroup>
-
   <ItemGroup Condition="'$(IsNetFramework)' == 'True'">
     <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="2.0.71" />
 

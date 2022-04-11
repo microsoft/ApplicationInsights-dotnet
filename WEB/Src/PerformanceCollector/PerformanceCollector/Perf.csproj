@@ -37,7 +37,6 @@
     <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\$(TargetFramework)\PublicAPI.Unshipped.txt" />
   </ItemGroup>
   <Import Project="..\..\Common\Common.projitems" Label="Shared" />
-  <Import Project="..\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems" Label="Shared" Condition="'$(TargetFramework)' == 'net452'" />
   <Import Project="..\Perf.Shared.NetStandard\Perf.Shared.NetStandard.projitems" Label="Shared" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
 
 </Project>
