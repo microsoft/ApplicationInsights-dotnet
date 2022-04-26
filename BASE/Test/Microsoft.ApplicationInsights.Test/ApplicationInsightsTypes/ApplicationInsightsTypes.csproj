@@ -12,45 +12,6 @@
     <ProjectGuid>{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}</ProjectGuid>
     <RootNamespace>ApplicationInsightsTypes</RootNamespace>
     <AssemblyName>ApplicationInsightsTypes</AssemblyName>
-    <EnableDefaultItems Condition="$(OS) == 'Windows_NT'">false</EnableDefaultItems>
-
-    <!--Required for linux builds-->
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
-  
-  <!--<ItemGroup Condition="$(OS) == 'Windows_NT'">-->
-    
-  <!--</ItemGroup>-->
-  
-  <ItemGroup>
-    <Compile Include="ItemType.cs" />
-    <Compile Include="TelemetryItem.cs" />
-    <Compile Include="TelemetryItemType.cs" />
-    
-    <Compile Include="Generated\AvailabilityData_types.cs" />
-    <Compile Include="Generated\Base_types.cs" />
-    <Compile Include="Generated\ContextTagKeys_types.cs" />
-    <Compile Include="Generated\DataPointType_types.cs" />
-    <Compile Include="Generated\DataPoint_types.cs" />
-    <Compile Include="Generated\Data_types.cs" />
-    <Compile Include="Generated\Domain_types.cs" />
-    <Compile Include="Generated\Envelope_types.cs" />
-    <Compile Include="Generated\EventData_types.cs" />
-    <Compile Include="Generated\ExceptionData_types.cs" />
-    <Compile Include="Generated\ExceptionDetails_types.cs" />
-    <Compile Include="Generated\MessageData_types.cs" />
-    <Compile Include="Generated\MetricData_types.cs" />
-    <Compile Include="Generated\PageViewData_types.cs" />
-    <Compile Include="Generated\PageViewPerfData_types.cs" />
-    <Compile Include="Generated\RemoteDependencyData_types.cs" />
-    <Compile Include="Generated\RequestData_types.cs" />
-    <Compile Include="Generated\SeverityLevel_types.cs" />
-    <Compile Include="Generated\StackFrame_types.cs" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <None Include="Generated\bondcodegen.done" />
-    <None Include="Generated\bonddefaultcodegen.in" />
-  </ItemGroup>
   
 </Project>
