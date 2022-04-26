@@ -13,6 +13,9 @@
     <RootNamespace>ApplicationInsightsTypes</RootNamespace>
     <AssemblyName>ApplicationInsightsTypes</AssemblyName>
     <EnableDefaultItems Condition="$(OS) == 'Windows_NT'">false</EnableDefaultItems>
+
+    <!--Required for linux builds-->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   
   <ItemGroup Condition="$(OS) == 'Windows_NT'">
