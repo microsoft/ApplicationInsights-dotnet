@@ -19,12 +19,14 @@
   </PropertyGroup>
   
   <!--<ItemGroup Condition="$(OS) == 'Windows_NT'">-->
-    <Compile Include="ItemType.cs" />
-    <Compile Include="TelemetryItem.cs" />
-    <Compile Include="TelemetryItemType.cs" />
+    
   <!--</ItemGroup>-->
   
   <ItemGroup>
+    <Compile Include="ItemType.cs" />
+    <Compile Include="TelemetryItem.cs" />
+    <Compile Include="TelemetryItemType.cs" />
+    
     <Compile Include="Generated\AvailabilityData_types.cs" />
     <Compile Include="Generated\Base_types.cs" />
     <Compile Include="Generated\ContextTagKeys_types.cs" />
