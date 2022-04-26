@@ -18,11 +18,11 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   
-  <ItemGroup Condition="$(OS) == 'Windows_NT'">
+  <!--<ItemGroup Condition="$(OS) == 'Windows_NT'">-->
     <Compile Include="ItemType.cs" />
     <Compile Include="TelemetryItem.cs" />
     <Compile Include="TelemetryItemType.cs" />
-  </ItemGroup>
+  <!--</ItemGroup>-->
   
   <ItemGroup>
     <Compile Include="Generated\AvailabilityData_types.cs" />
