@@ -1,31 +1,28 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
-  <!--temp while we dont merge application insights types -->
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
   <Import Project="$(PropsRoot)\Test.props" />
   <PropertyGroup>
-    <Company>Microsoft</Company>
-    <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>
-
     <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
 
-    <ProjectGuid>{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}</ProjectGuid>
-    <RootNamespace>ApplicationInsightsTypes</RootNamespace>
-    <AssemblyName>ApplicationInsightsTypes</AssemblyName>
+  <PropertyGroup>
     <BondOptions>--collection-interfaces --using="DateTimeOffset=System.DateTimeOffset" --using="TimeSpan=System.TimeSpan" --using="Guid=System.Guid"</BondOptions>
     <BondOutputDirectory>$(MSBuildThisFileDirectory)\Generated</BondOutputDirectory>
     <EnableDefaultItems Condition="$(OS) == 'Windows_NT'">false</EnableDefaultItems>
   </PropertyGroup>
+  
   <ItemGroup Condition="$(OS) == 'Windows_NT'">
     <Compile Include="ItemType.cs" />
     <Compile Include="TelemetryItem.cs" />
     <Compile Include="TelemetryItemType.cs" />
   </ItemGroup>
+  
   <ItemGroup>
     <PackageReference Include="Bond.CSharp" Version="7.0.1">
       <PrivateAssets>build</PrivateAssets>
     </PackageReference>
   </ItemGroup>
+  
   <ItemGroup Condition="$(OS) == 'Windows_NT'">
     <BondCodegen Include="..\..\..\Schema\PublicSchema\AvailabilityData.bond">
       <Link>StackFrame.bond</Link>
@@ -85,4 +82,5 @@
       <Link>StackFrame.bond</Link>
     </BondCodegen>
   </ItemGroup>
+  
 </Project>
