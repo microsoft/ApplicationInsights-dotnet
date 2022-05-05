@@ -79,7 +79,9 @@
         /// </summary>
         public string InstrumentationKey
         {
-            get { return this.Context.InstrumentationKey; }
+            get => this.Context.InstrumentationKey;
+
+            [Obsolete("InstrumentationKey based global ingestion is being deprecated. Transition to using connection strings for data ingestion. https://aka.ms/MigrateToConnectionString")]
             set { this.Context.InstrumentationKey = value; }
         }
 

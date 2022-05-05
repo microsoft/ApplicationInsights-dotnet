@@ -73,8 +73,7 @@
         /// <summary>
         /// Initializes a new instance of the TelemetryConfiguration class.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public TelemetryConfiguration() : this(string.Empty, null)
+        public TelemetryConfiguration() // : this(string.Empty, null) TODO: VERIFY THAT NO SCENARIOS ARE BROKEN BY REMOVING THIS
         {
         }
 
@@ -82,6 +81,7 @@
         /// Initializes a new instance of the TelemetryConfiguration class.
         /// </summary>
         /// <param name="instrumentationKey">The instrumentation key this configuration instance will provide.</param>
+        [Obsolete("InstrumentationKey based global ingestion is being deprecated. Transition to using connection strings for data ingestion. https://aka.ms/MigrateToConnectionString")]
         public TelemetryConfiguration(string instrumentationKey) : this(instrumentationKey, null)
         {
         }
@@ -91,6 +91,7 @@
         /// </summary>
         /// <param name="instrumentationKey">The instrumentation key this configuration instance will provide.</param>
         /// <param name="channel">The telemetry channel to provide with this configuration instance.</param>
+        [Obsolete("InstrumentationKey based global ingestion is being deprecated. Transition to using connection strings for data ingestion. https://aka.ms/MigrateToConnectionString")]
         public TelemetryConfiguration(string instrumentationKey, ITelemetryChannel channel)
         {
             this.instrumentationKey = instrumentationKey ?? throw new ArgumentNullException(nameof(instrumentationKey));
@@ -149,8 +150,9 @@
         /// </remarks>
         public string InstrumentationKey
         {
-            get { return this.instrumentationKey; }
+            get => this.instrumentationKey;
 
+            [Obsolete("Setting the Instrumentation Key is no longer supported. Please use ConnectionString to configure this SDK.")]
             set { this.instrumentationKey = value ?? throw new ArgumentNullException(nameof(this.InstrumentationKey)); }
         }
 
@@ -296,7 +298,9 @@
                         ConnectionString = value,
                     };
 
+#pragma warning disable CS0618 // Type or member is obsolete
                     this.InstrumentationKey = endpointProvider.GetInstrumentationKey();
+#pragma warning restore CS0618 // Type or member is obsolete
 
                     this.EndpointContainer = new EndpointContainer(endpointProvider);
 

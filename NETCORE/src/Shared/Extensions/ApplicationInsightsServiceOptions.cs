@@ -4,6 +4,7 @@
     namespace Microsoft.ApplicationInsights.WorkerService
 #endif
 {
+    using System;
     using System.Reflection;
     using Microsoft.ApplicationInsights.DependencyCollector;
 
@@ -59,6 +60,7 @@
         /// <summary>
         /// Gets or sets the default instrumentation key for the application.
         /// </summary>
+        [Obsolete("InstrumentationKey based global ingestion is being deprecated. Transition to using connection strings for data ingestion. https://aka.ms/MigrateToConnectionString")]
         public string InstrumentationKey { get; set; }
 
         /// <summary>
@@ -161,10 +163,12 @@
                 target.EndpointAddress = this.EndpointAddress;
             }
 
+#pragma warning disable CS0618 // Type or member is obsolete
             if (!string.IsNullOrEmpty(this.InstrumentationKey))
             {
                 target.InstrumentationKey = this.InstrumentationKey;
             }
+#pragma warning restore CS0618 // Type or member is obsolete
 
             if (!string.IsNullOrEmpty(this.ConnectionString))
             {
