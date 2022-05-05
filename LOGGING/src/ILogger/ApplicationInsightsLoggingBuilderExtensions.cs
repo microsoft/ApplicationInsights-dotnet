@@ -34,7 +34,7 @@ namespace Microsoft.Extensions.Logging
         /// <param name="builder">The <see cref="ILoggingBuilder"/> to use.</param>
         /// <param name="instrumentationKey">Application insights instrumentation key.</param>
         /// <returns>Logging builder with Application Insights added to it.</returns>
-        [Obsolete]
+        [Obsolete("InstrumentationKey based global ingestion is being deprecated. Transition to using connection strings for data ingestion. https://aka.ms/MigrateToConnectionString")]
         public static ILoggingBuilder AddApplicationInsights(this ILoggingBuilder builder, string instrumentationKey)
         {
             if (builder == null)
@@ -54,7 +54,7 @@ namespace Microsoft.Extensions.Logging
         /// <param name="instrumentationKey">Application insights instrumentation key.</param>
         /// <param name="configureApplicationInsightsLoggerOptions">Action to configure ApplicationInsights logger.</param>
         /// <returns>Logging builder with Application Insights added to it.</returns>
-        [Obsolete]
+        [Obsolete("InstrumentationKey based global ingestion is being deprecated. Transition to using connection strings for data ingestion. https://aka.ms/MigrateToConnectionString")]
         public static ILoggingBuilder AddApplicationInsights(
             this ILoggingBuilder builder,
             string instrumentationKey,

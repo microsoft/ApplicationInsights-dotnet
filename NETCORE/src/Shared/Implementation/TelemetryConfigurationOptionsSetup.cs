@@ -72,14 +72,12 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             try
             {
-#pragma warning disable CS0612 // Type or member is obsolete
 #pragma warning disable CS0618 // Type or member is obsolete
                 if (this.applicationInsightsServiceOptions.InstrumentationKey != null)
                 {
                     configuration.InstrumentationKey = this.applicationInsightsServiceOptions.InstrumentationKey;
                 }
 #pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0612 // Type or member is obsolete
 
                 if (this.telemetryModuleConfigurators.Any())
                 {

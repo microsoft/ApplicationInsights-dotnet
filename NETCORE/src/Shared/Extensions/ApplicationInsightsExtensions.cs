@@ -160,7 +160,7 @@
         /// <param name="endpointAddress">Sets telemetry endpoint address.</param>
         /// <param name="instrumentationKey">Sets instrumentation key.</param>
         /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
-        [Obsolete]
+        [Obsolete("InstrumentationKey based global ingestion is being deprecated. Transition to using connection strings for data ingestion. https://aka.ms/MigrateToConnectionString")]
         [SuppressMessage("ApiDesign", "RS0026:Do not add multiple public overloads with optional parameters", Justification = "We made a mistake here, but we can't remove it from the public API now.")]
         public static IConfigurationBuilder AddApplicationInsightsSettings(this IConfigurationBuilder configurationSourceRoot,  bool? developerMode = null, string endpointAddress = null, string instrumentationKey = null)
             => configurationSourceRoot.AddApplicationInsightsSettings(connectionString: null, developerMode: developerMode, endpointAddress: endpointAddress, instrumentationKey: instrumentationKey);
@@ -174,7 +174,7 @@
         /// <param name="endpointAddress">Sets telemetry endpoint address.</param>
         /// <param name="instrumentationKey">Sets instrumentation key.</param>
         /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
-        [Obsolete]
+        [Obsolete("InstrumentationKey based global ingestion is being deprecated. Transition to using connection strings for data ingestion. https://aka.ms/MigrateToConnectionString")]
         [SuppressMessage("ApiDesign", "RS0026:Do not add multiple public overloads with optional parameters", Justification = "We made a mistake here, but we can't remove it from the public API now.")]
         public static IConfigurationBuilder AddApplicationInsightsSettings(
             this IConfigurationBuilder configurationSourceRoot,

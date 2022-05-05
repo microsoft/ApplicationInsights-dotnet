@@ -73,7 +73,10 @@
         /// <summary>
         /// Initializes a new instance of the TelemetryConfiguration class.
         /// </summary>
-        public TelemetryConfiguration() // : this(string.Empty, null) TODO: VERIFY THAT NO SCENARIOS ARE BROKEN BY REMOVING THIS
+        [EditorBrowsable(EditorBrowsableState.Never)]
+#pragma warning disable CS0618 // Type or member is obsolete
+        public TelemetryConfiguration() : this(string.Empty, null)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
         }
 
@@ -152,7 +155,7 @@
         {
             get => this.instrumentationKey;
 
-            [Obsolete("Setting the Instrumentation Key is no longer supported. Please use ConnectionString to configure this SDK.")]
+            [Obsolete("InstrumentationKey based global ingestion is being deprecated. Transition to using connection strings for data ingestion. https://aka.ms/MigrateToConnectionString")]
             set { this.instrumentationKey = value ?? throw new ArgumentNullException(nameof(this.InstrumentationKey)); }
         }
 
