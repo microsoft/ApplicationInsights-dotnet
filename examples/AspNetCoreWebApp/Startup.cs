@@ -43,10 +43,10 @@ namespace AspNetCoreWebApp
             });
 
             // Add and initialize the Application Insights SDK.
-            //services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
-            //{
-            //    ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000"
-            //});
+            services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
+            {
+                ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000"
+            });
 
             services.AddApplicationInsightsTelemetry();
         }
