@@ -47,8 +47,6 @@ namespace AspNetCoreWebApp
             {
                 ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000"
             });
-
-            services.AddApplicationInsightsTelemetry();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
