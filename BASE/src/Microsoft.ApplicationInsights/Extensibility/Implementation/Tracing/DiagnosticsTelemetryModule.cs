@@ -104,7 +104,6 @@
                 return this.instrumentationKey;
             }
 
-            [Obsolete("InstrumentationKey based global ingestion is being deprecated. Transition to using connection strings for data ingestion. https://aka.ms/MigrateToConnectionString")]
             set
             {
                 if (!string.IsNullOrEmpty(value))
