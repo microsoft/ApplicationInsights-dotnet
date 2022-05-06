@@ -65,9 +65,7 @@
                         telemetry = new DependencyTelemetry { Type = type };
                     }
 
-                    if (type != null && 
-                        (type.EndsWith(RemoteDependencyConstants.AzureEventHubs, StringComparison.Ordinal)) || 
-                         type.EndsWith(RemoteDependencyConstants.AzureServiceBus, StringComparison.Ordinal))
+                    if (IsMessagingDependency(type))
                     {
                         SetMessagingProperties(currentActivity, telemetry);
                     }
@@ -232,6 +230,7 @@
                         {
                             component = tag.Value;
                         }
+
                         break;
                     case "az.namespace":
                         component = tag.Value;
@@ -318,6 +317,12 @@
             {
                 dependency.Success = false;
             }
+        }
+
+        private static bool IsMessagingDependency(string dependencyType)
+        {
+            return dependencyType != null && (dependencyType.EndsWith(RemoteDependencyConstants.AzureEventHubs, StringComparison.Ordinal) ||
+                         dependencyType.EndsWith(RemoteDependencyConstants.AzureServiceBus, StringComparison.Ordinal));
         }
 
         private static void SetMessagingProperties(Activity activity, OperationTelemetry telemetry)
