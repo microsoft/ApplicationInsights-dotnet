@@ -392,25 +392,38 @@
 #endif
 
             object stage1Result;
+            bool lockTaken = false;
 
-            // This lock is only contended if a user called CreateAggregateUnsafe or CompleteAggregation.
-            // This is very unlikely to be the case in a tight loop.
-            lock (buffer)
+            try
             {
-                int maxFlushIndex = Math.Min(buffer.PeekLastWriteIndex(), buffer.Capacity - 1);
-                int minFlushIndex = buffer.NextFlushIndex;
-
-                if (minFlushIndex > maxFlushIndex)
-                {
-                    return;
-                }
-
-                stage1Result = this.UpdateAggregate_Stage1(buffer, minFlushIndex, maxFlushIndex);
+                // This lock is only contended if a user called CreateAggregateUnsafe or CompleteAggregation.
+                // This is very unlikely to be the case in a tight loop.
                 
-                buffer.NextFlushIndex = maxFlushIndex + 1;
-            }
+                Monitor.TryEnter(obj: buffer, timeout: TimeSpan.FromSeconds(10), lockTaken: ref lockTaken);
+                if (lockTaken)
+                {
+                    int maxFlushIndex = Math.Min(buffer.PeekLastWriteIndex(), buffer.Capacity - 1);
+                    int minFlushIndex = buffer.NextFlushIndex;
 
-            this.UpdateAggregate_Stage2(stage1Result);
+                    if (minFlushIndex > maxFlushIndex)
+                    {
+                        return;
+                    }
+
+                    stage1Result = this.UpdateAggregate_Stage1(buffer, minFlushIndex, maxFlushIndex);
+
+                    buffer.NextFlushIndex = maxFlushIndex + 1;
+
+                    this.UpdateAggregate_Stage2(stage1Result);
+                }
+            }
+            finally
+            {
+                if (lockTaken)
+                {
+                    Monitor.Exit(buffer);
+                }
+            }
         }
 
         private MetricValuesBufferBase<TBufferedValue> InvokeMetricValuesBufferFactory()
