@@ -106,6 +106,42 @@
             return value;
         }
 
+        /// <summary>
+        /// This method attempts to get the min and max index of the buffer that are safe to flush.
+        /// If this is successful, the NetFlushIndex will be updated.
+        /// </summary>
+        /// <param name="minFlushIndex"></param>
+        /// <param name="maxFlushIndex"></param>
+        /// <returns></returns>
+        public bool TryGetFlushIndexes(out int minFlushIndex, out int maxFlushIndex)
+        {
+            var spinCountdown = 1000;
+            while (true)
+            {
+                maxFlushIndex = Math.Min(this.PeekLastWriteIndex(), this.Capacity - 1);
+                minFlushIndex = this.NextFlushIndex;
+
+                if (minFlushIndex > maxFlushIndex)
+                {
+                    return false;
+                }
+
+                if (minFlushIndex == Interlocked.CompareExchange(ref this.nextFlushIndex, maxFlushIndex + 1, minFlushIndex))
+                {
+                    return true;
+                }
+                else 
+                {
+                    if (spinCountdown-- <= 0)
+                    {
+                        return false; // exceeded maximum spin count
+                    }
+
+                    continue;
+                }
+            }
+        }
+
         protected abstract void ResetValues(TValue[] values);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

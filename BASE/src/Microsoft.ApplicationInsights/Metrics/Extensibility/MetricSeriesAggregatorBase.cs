@@ -391,26 +391,11 @@
             }
 #endif
 
-            object stage1Result;
-
-            // This lock is only contended if a user called CreateAggregateUnsafe or CompleteAggregation.
-            // This is very unlikely to be the case in a tight loop.
-            lock (buffer)
+            if (buffer.TryGetFlushIndexes(out int minFlushIndex, out int maxFlushIndex))
             {
-                int maxFlushIndex = Math.Min(buffer.PeekLastWriteIndex(), buffer.Capacity - 1);
-                int minFlushIndex = buffer.NextFlushIndex;
-
-                if (minFlushIndex > maxFlushIndex)
-                {
-                    return;
-                }
-
-                stage1Result = this.UpdateAggregate_Stage1(buffer, minFlushIndex, maxFlushIndex);
-                
-                buffer.NextFlushIndex = maxFlushIndex + 1;
+                object stage1Result = this.UpdateAggregate_Stage1(buffer, minFlushIndex, maxFlushIndex);
+                this.UpdateAggregate_Stage2(stage1Result);
             }
-
-            this.UpdateAggregate_Stage2(stage1Result);
         }
 
         private MetricValuesBufferBase<TBufferedValue> InvokeMetricValuesBufferFactory()
