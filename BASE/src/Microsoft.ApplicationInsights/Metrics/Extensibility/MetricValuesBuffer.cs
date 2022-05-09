@@ -108,11 +108,11 @@
 
         /// <summary>
         /// This method attempts to get the min and max index of the buffer that are safe to flush.
-        /// If this is successful, the NetFlushIndex will be updated.
+        /// If this is successful, the NextFlushIndex will be updated.
         /// </summary>
-        /// <param name="minFlushIndex"></param>
-        /// <param name="maxFlushIndex"></param>
-        /// <returns>Returns true if was able to increment the buffer.</returns>
+        /// <param name="minFlushIndex">The min index that can be flushed.</param>
+        /// <param name="maxFlushIndex">The max index that can be flushed.</param>
+        /// <returns>Returns true if was able to increment the next buffer index.</returns>
         public bool TryGetFlushIndexes(out int minFlushIndex, out int maxFlushIndex)
         {
             var spinCountdown = 1000;
