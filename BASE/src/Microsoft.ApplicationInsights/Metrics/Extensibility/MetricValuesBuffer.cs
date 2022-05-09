@@ -112,7 +112,7 @@
         /// </summary>
         /// <param name="minFlushIndex"></param>
         /// <param name="maxFlushIndex"></param>
-        /// <returns></returns>
+        /// <returns>Returns true if was able to increment the buffer.</returns>
         public bool TryGetFlushIndexes(out int minFlushIndex, out int maxFlushIndex)
         {
             var spinCountdown = 1000;
