@@ -12,7 +12,7 @@
 
         private readonly bool restrictToUInt32Values;
 
-        private readonly Data data = new Data();
+        private readonly Data data;
 
         public MeasurementAggregator(MetricSeriesConfigurationForMeasurement configuration, MetricSeries dataSeries, MetricAggregationCycleKind aggregationCycleKind)
             : base(MetricValuesBufferFactory, configuration, dataSeries, aggregationCycleKind)
@@ -20,6 +20,7 @@
             Util.ValidateNotNull(configuration, nameof(configuration));
 
             this.restrictToUInt32Values = configuration.RestrictToUInt32Values;
+            this.data = new Data(this.restrictToUInt32Values);
             this.ResetAggregate();
         }
 
@@ -108,84 +109,52 @@
         {
             lock (this.updateLock)
             {
-                this.data.Count = 0;
-                this.data.Min = Double.MaxValue;
-                this.data.Max = Double.MinValue;
-                this.data.Sum = 0.0;
-                this.data.SumOfSquares = 0.0;
+                this.data?.ResetAggregate();
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062", Justification = "buffer is validated by base")]
-        protected override object UpdateAggregate_Stage1(MetricValuesBufferBase<double> buffer, int minFlushIndex, int maxFlushIndex)
+        protected override void UpdateAggregate(MetricValuesBufferBase<double> buffer, int minFlushIndex, int maxFlushIndex)
         {
-            Data bufferData = new Data();
-            bufferData.Count = 0;
-            bufferData.Min = Double.MaxValue;
-            bufferData.Max = Double.MinValue;
-            bufferData.Sum = 0.0;
-            bufferData.SumOfSquares = 0.0;
+            Data bufferData = new Data(this.restrictToUInt32Values);
 
             for (int index = minFlushIndex; index <= maxFlushIndex; index++)
             {
                 double metricValue = buffer.GetAndResetValue(index);
 
-                if (Double.IsNaN(metricValue))
-                {
-                    continue;
-                }
-
-                bufferData.Count++;
-                bufferData.Max = (metricValue > bufferData.Max) ? metricValue : bufferData.Max;
-                bufferData.Min = (metricValue < bufferData.Min) ? metricValue : bufferData.Min;
-                bufferData.Sum += metricValue;
-                bufferData.SumOfSquares += metricValue * metricValue;
-            }
-
-            if (this.restrictToUInt32Values)
-            {
-                bufferData.Max = Math.Round(bufferData.Max);
-                bufferData.Min = Math.Round(bufferData.Min);
-            }
-
-            return bufferData;
-        }
-
-        protected override void UpdateAggregate_Stage2(object stage1Result)
-        {
-            Data bufferData = (Data)stage1Result;
-
-            if (bufferData.Count == 0)
-            {
-                return;
+                bufferData.UpdateAggregate(metricValue);
             }
 
             // Take a lock and update the aggregate:
             lock (this.updateLock)
             {
-                this.data.Count += bufferData.Count;
-                this.data.Max = (bufferData.Max > this.data.Max) ? bufferData.Max : this.data.Max;
-                this.data.Min = (bufferData.Min < this.data.Min) ? bufferData.Min : this.data.Min;
-                this.data.Sum += bufferData.Sum;
-                this.data.SumOfSquares += bufferData.SumOfSquares;
-
-                if (this.restrictToUInt32Values)
-                {
-                    this.data.Sum = Math.Round(this.data.Sum);
-                    this.data.SumOfSquares = Math.Round(this.data.SumOfSquares);
-                }
+                this.data.UpdateAggregate(bufferData);
             }
         }
 
-#pragma warning disable SA1401 // Field must be private
-        private class Data
-        {
-            public int Count;
-            public double Min;
-            public double Max;
-            public double Sum;
-            public double SumOfSquares;
-        }
-#pragma warning restore SA1401 // Field must be private
+        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062", Justification = "buffer is validated by base")]
+        //protected override object UpdateAggregate_Stage1(MetricValuesBufferBase<double> buffer, int minFlushIndex, int maxFlushIndex)
+        //{
+        //    Data bufferData = new Data(this.restrictToUInt32Values);
+
+        //    for (int index = minFlushIndex; index <= maxFlushIndex; index++)
+        //    {
+        //        double metricValue = buffer.GetAndResetValue(index);
+
+        //        bufferData.UpdateAggregate(metricValue);
+        //    }
+
+        //    return bufferData;
+        //}
+
+        //protected override void UpdateAggregate_Stage2(object stage1Result)
+        //{
+        //    Data bufferData = (Data)stage1Result;
+
+        //    // Take a lock and update the aggregate:
+        //    lock (this.updateLock)
+        //    {
+        //        this.data.UpdateAggregate(bufferData);
+        //    }
+        //}
     }
 }

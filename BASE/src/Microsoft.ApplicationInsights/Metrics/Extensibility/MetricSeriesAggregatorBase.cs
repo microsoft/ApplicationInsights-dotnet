@@ -176,6 +176,8 @@
         /// <returns>Converted value.</returns>
         protected abstract TBufferedValue ConvertMetricValue(object metricValue);
 
+        protected abstract void UpdateAggregate(MetricValuesBufferBase<TBufferedValue> buffer, int minFlushIndex, int maxFlushIndex);
+
         /// <summary>
         /// Aggregators implement updating aggregate state from buffer by implemenmting this method (<c>UpdateAggregate_Stage1</c>)
         /// and its sibling method <c>UpdateAggregate_Stage2</c>. Stage 1 is the part of the update that needs to happen while holding
@@ -186,7 +188,7 @@
         /// <param name="minFlushIndex">Buffer index start to process. {764}.</param>
         /// <param name="maxFlushIndex">Buffer index end to process.</param>
         /// <returns>State for passing data from stage 1 to stage 2.</returns>
-        protected abstract object UpdateAggregate_Stage1(MetricValuesBufferBase<TBufferedValue> buffer, int minFlushIndex, int maxFlushIndex);
+        //protected abstract object UpdateAggregate_Stage1(MetricValuesBufferBase<TBufferedValue> buffer, int minFlushIndex, int maxFlushIndex);
 
         /// <summary>
         /// Aggregators implement updating aggregate state from buffer by implemenmting this method (<c>UpdateAggregate_Stage2</c>)
@@ -195,7 +197,7 @@
         /// that does not need such a lock.
         /// </summary>
         /// <param name="stage1Result">State for passing data from stage 1 to stage 2.</param>
-        protected abstract void UpdateAggregate_Stage2(object stage1Result);
+        //protected abstract void UpdateAggregate_Stage2(object stage1Result);
 
         #endregion Abstract Methods
 
@@ -391,8 +393,6 @@
             }
 #endif
 
-            object stage1Result;
-
             // This lock is only contended if a user called CreateAggregateUnsafe or CompleteAggregation.
             // This is very unlikely to be the case in a tight loop.
             lock (buffer)
@@ -405,12 +405,10 @@
                     return;
                 }
 
-                stage1Result = this.UpdateAggregate_Stage1(buffer, minFlushIndex, maxFlushIndex);
+                this.UpdateAggregate(buffer, minFlushIndex, maxFlushIndex);
                 
                 buffer.NextFlushIndex = maxFlushIndex + 1;
             }
-
-            this.UpdateAggregate_Stage2(stage1Result);
         }
 
         private MetricValuesBufferBase<TBufferedValue> InvokeMetricValuesBufferFactory()

@@ -199,7 +199,7 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtility
                 }
             }
 
-            protected override object UpdateAggregate_Stage1(MetricValuesBufferBase<double> buffer, int minFlushIndex, int maxFlushIndex)
+            protected override void UpdateAggregate(MetricValuesBufferBase<double> buffer, int minFlushIndex, int maxFlushIndex)
             {
                 lock (_updateLock)
                 {
@@ -217,12 +217,6 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtility
                         _min = (_sum < _min) ? _sum : _min;
                     }
                 }
-
-                return null;
-            }
-
-            protected override void UpdateAggregate_Stage2(object stage1Result)
-            {
             }
         }
     }
