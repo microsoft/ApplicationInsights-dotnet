@@ -1,10 +1,22 @@
 # Changelog
 
 ## VNext
+- [LOGGING: Make TelemetryConfiguration configurable in ApplicationInsightsLoggingBuilderExtensions](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1944)
+- [Added support for distributed tracing with Azure.Messaging.ServiceBus](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2593)
+
+## Version 2.21.0-beta1
+- [Support IPv6 in request headers](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2521)
+- [Validate exception stack trace line numbers to comply with endpoint restrictions.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2482)
+- [Removed redundant memory allocations and processing in PartialSuccessTransmissionPolicy for ingestion sampling cases](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2445)
+- [Validate exception message length to comply with endpoint restrictions.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2284)
+- Update JavaScript snippet to sv5 which includes the cdn endpoint.
+- [Make operation detail name constants public.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1326)
+
+## Version 2.20
+- [Allow Control of Documents sampling for QuickPulse telemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2425)
 
 ## Version 2.20.0-beta1
 - [Allow Control of Documents sampling for QuickPulse telemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2425)
-
 
 ## Version 2.19.0
 - Support for .Net6
