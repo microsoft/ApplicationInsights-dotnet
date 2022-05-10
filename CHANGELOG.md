@@ -3,6 +3,8 @@
 ## VNext
 - [LOGGING: Make TelemetryConfiguration configurable in ApplicationInsightsLoggingBuilderExtensions](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1944)
 - [Added support for distributed tracing with Azure.Messaging.ServiceBus](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2593)
+- [Mark Instrumentation Key based APIs as Obsolete](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2560).
+  - See also: https://docs.microsoft.com/azure/azure-monitor/app/migrate-from-instrumentation-keys-to-connection-strings
 
 ## Version 2.21.0-beta1
 - [Support IPv6 in request headers](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2521)
