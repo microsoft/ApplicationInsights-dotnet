@@ -15,7 +15,6 @@
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection.Extensions;
     using Microsoft.Extensions.Options;
-    using Shared.Implementation;
 
     /// <summary>
     /// Extension methods for <see cref="IServiceCollection"/> that allow adding Application Insights services to application.
