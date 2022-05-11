@@ -3,6 +3,7 @@
 ## VNext
 - [LOGGING: Make TelemetryConfiguration configurable in ApplicationInsightsLoggingBuilderExtensions](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1944)
 - [Added support for distributed tracing with Azure.Messaging.ServiceBus](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2593)
+- [Move internal type from `Shared` to `Microsoft` namespace](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2442)
 
 ## Version 2.21.0-beta1
 - [Support IPv6 in request headers](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2521)
