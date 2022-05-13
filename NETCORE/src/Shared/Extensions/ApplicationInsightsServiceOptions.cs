@@ -60,7 +60,7 @@
         /// <summary>
         /// Gets or sets the default instrumentation key for the application.
         /// </summary>
-        [Obsolete("InstrumentationKey based global ingestion is being deprecated. Transition to using connection strings for data ingestion. https://aka.ms/MigrateToConnectionString")]
+        [Obsolete("InstrumentationKey based global ingestion is being deprecated. Use ApplicationInsightsServiceOptions.ConnectionString. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/2560 for more details.")]
         public string InstrumentationKey { get; set; }
 
         /// <summary>

@@ -84,7 +84,7 @@
         /// Initializes a new instance of the TelemetryConfiguration class.
         /// </summary>
         /// <param name="instrumentationKey">The instrumentation key this configuration instance will provide.</param>
-        [Obsolete("InstrumentationKey based global ingestion is being deprecated. Transition to using connection strings for data ingestion. https://aka.ms/MigrateToConnectionString")]
+        [Obsolete("InstrumentationKey based global ingestion is being deprecated. Use the default constructor and manually set TelemetryConfiguration.ConnectionString. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/2560 for more details.")]
         public TelemetryConfiguration(string instrumentationKey) : this(instrumentationKey, null)
         {
         }
@@ -94,7 +94,7 @@
         /// </summary>
         /// <param name="instrumentationKey">The instrumentation key this configuration instance will provide.</param>
         /// <param name="channel">The telemetry channel to provide with this configuration instance.</param>
-        [Obsolete("InstrumentationKey based global ingestion is being deprecated. Transition to using connection strings for data ingestion. https://aka.ms/MigrateToConnectionString")]
+        [Obsolete("InstrumentationKey based global ingestion is being deprecated. Use the default constructor and manually set TelemetryConfiguration.ConnectionString. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/2560 for more details.")]
         public TelemetryConfiguration(string instrumentationKey, ITelemetryChannel channel)
         {
             this.instrumentationKey = instrumentationKey ?? throw new ArgumentNullException(nameof(instrumentationKey));
@@ -155,7 +155,7 @@
         {
             get => this.instrumentationKey;
 
-            [Obsolete("InstrumentationKey based global ingestion is being deprecated. Transition to using connection strings for data ingestion. https://aka.ms/MigrateToConnectionString")]
+            [Obsolete("InstrumentationKey based global ingestion is being deprecated. Use TelemetryConfiguration.ConnectionString. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/2560 for more details.")]
             set { this.instrumentationKey = value ?? throw new ArgumentNullException(nameof(this.InstrumentationKey)); }
         }
 

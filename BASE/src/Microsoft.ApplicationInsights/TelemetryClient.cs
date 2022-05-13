@@ -81,7 +81,7 @@
         {
             get => this.Context.InstrumentationKey;
 
-            [Obsolete("InstrumentationKey based global ingestion is being deprecated. Transition to using connection strings for data ingestion. https://aka.ms/MigrateToConnectionString")]
+            [Obsolete("InstrumentationKey based global ingestion is being deprecated. Recommended to set TelemetryConfiguration.ConnectionString. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/2560 for more details.")]
             set { this.Context.InstrumentationKey = value; }
         }
 
