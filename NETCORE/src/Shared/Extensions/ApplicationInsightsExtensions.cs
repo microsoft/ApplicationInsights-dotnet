@@ -247,7 +247,6 @@
 
                 if (config.TryGetValue(primaryKey: InstrumentationKeyForWebSites, backupKey: InstrumentationKeyFromConfig, value: out string instrumentationKey))
                 {
-                    // TODO: CONSIDER WARNING ABOUT USING IKEY IN CONFIGURATION
 #pragma warning disable CS0618 // Type or member is obsolete
                     serviceOptions.InstrumentationKey = instrumentationKey;
 #pragma warning restore CS0618 // Type or member is obsolete
