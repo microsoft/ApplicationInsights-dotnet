@@ -115,8 +115,7 @@
         /// <returns>Returns true if was able to increment the next buffer index.</returns>
         public bool TryGetFlushIndexes(out int minFlushIndex, out int maxFlushIndex)
         {
-            var spinCountdown = 1000;
-            while (true)
+            for (int spinCountdown = 1000; spinCountdown > 0; spinCountdown--)
             {
                 maxFlushIndex = Math.Min(this.PeekLastWriteIndex(), this.Capacity - 1);
                 minFlushIndex = this.NextFlushIndex;
@@ -130,16 +129,11 @@
                 {
                     return true;
                 }
-                else 
-                {
-                    if (spinCountdown-- <= 0)
-                    {
-                        return false; // exceeded maximum spin count
-                    }
-
-                    continue;
-                }
             }
+
+            // exceeded maximum spin count
+            minFlushIndex = maxFlushIndex = -1;
+            return false; 
         }
 
         protected abstract void ResetValues(TValue[] values);
