@@ -1,29 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29209.152
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32526.322
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2E6DDE9E-8C75-4F9C-8906-08EBDD6E73EF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solution Items", "{62AD20FD-640F-4F99-94EF-96A7581F1CF9}"
 	ProjectSection(SolutionItems) = preProject
-		build.cmd = build.cmd
-		build.ps1 = build.ps1
 		..\CHANGELOG.md = ..\CHANGELOG.md
 		Common.targets = Common.targets
 		Directory.Build.props = Directory.Build.props
 		dirs.proj = dirs.proj
 		NuGet.config = NuGet.config
 		Readme.md = Readme.md
-		RunTestsCore.ps1 = RunTestsCore.ps1
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{8B5230E5-8138-44D6-839F-DF9248F195EE}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "StartupPerf", "StartupPerf", "{16B44D67-6214-4DDE-B419-93EF073E2E69}"
-	ProjectSection(SolutionItems) = preProject
-		test\StartupPerf\startupPerf.ps1 = test\StartupPerf\startupPerf.ps1
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights.AspNetCore", "src\Microsoft.ApplicationInsights.AspNetCore\Microsoft.ApplicationInsights.AspNetCore.csproj", "{95EC3635-22E4-4C3A-A066-F5823A0648DA}"
 EndProject
@@ -64,17 +56,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationInsightsTypes", "..\BASE\Test\Microsoft.ApplicationInsights.Test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj", "{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		..\WEB\Src\Common\Common.projitems*{1056392c-387c-4530-ba3f-aa687ea453ae}*SharedItemsImports = 5
-		..\WEB\Src\Common\Common.projitems*{3c157fc2-2e52-45fc-87e8-76e4fced4260}*SharedItemsImports = 5
-		..\WEB\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{3c157fc2-2e52-45fc-87e8-76e4fced4260}*SharedItemsImports = 5
-		..\LOGGING\src\CommonShared\CommonShared.projitems*{4a9ec531-f8b2-4cd1-bd6b-745f33e52e7b}*SharedItemsImports = 5
-		..\WEB\Src\Common\Common.projitems*{8d13f3c8-d938-44fd-a0d8-b5d1712c95db}*SharedItemsImports = 5
-		src\Shared\Shared.projitems*{95ec3635-22e4-4c3a-a066-f5823a0648da}*SharedItemsImports = 5
-		src\Shared\Shared.projitems*{aecee8dd-09ae-4dea-8690-f76a37c0534b}*SharedItemsImports = 5
-		..\WEB\Src\Common\Common.projitems*{af9287b2-0d23-4d85-9a3e-200a2a603278}*SharedItemsImports = 5
-		src\Shared\Shared.projitems*{d56f2979-d6bc-4ef2-bb9b-4077b3290599}*SharedItemsImports = 13
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -153,7 +134,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{16B44D67-6214-4DDE-B419-93EF073E2E69} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
 		{95EC3635-22E4-4C3A-A066-F5823A0648DA} = {2E6DDE9E-8C75-4F9C-8906-08EBDD6E73EF}
 		{2766D8AF-C20B-4F3A-8260-6C2D39B7A8A0} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
 		{FE9DB9A7-D9AE-4188-945C-393D70022D9A} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
@@ -175,5 +155,16 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {047855A4-470F-43B1-8B74-69651DD6B8A6}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\WEB\Src\Common\Common.projitems*{1056392c-387c-4530-ba3f-aa687ea453ae}*SharedItemsImports = 5
+		..\WEB\Src\Common\Common.projitems*{3c157fc2-2e52-45fc-87e8-76e4fced4260}*SharedItemsImports = 5
+		..\WEB\Src\PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{3c157fc2-2e52-45fc-87e8-76e4fced4260}*SharedItemsImports = 5
+		..\LOGGING\src\CommonShared\CommonShared.projitems*{4a9ec531-f8b2-4cd1-bd6b-745f33e52e7b}*SharedItemsImports = 5
+		..\WEB\Src\Common\Common.projitems*{8d13f3c8-d938-44fd-a0d8-b5d1712c95db}*SharedItemsImports = 5
+		src\Shared\Shared.projitems*{95ec3635-22e4-4c3a-a066-f5823a0648da}*SharedItemsImports = 5
+		src\Shared\Shared.projitems*{aecee8dd-09ae-4dea-8690-f76a37c0534b}*SharedItemsImports = 5
+		..\WEB\Src\Common\Common.projitems*{af9287b2-0d23-4d85-9a3e-200a2a603278}*SharedItemsImports = 5
+		src\Shared\Shared.projitems*{d56f2979-d6bc-4ef2-bb9b-4077b3290599}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal
