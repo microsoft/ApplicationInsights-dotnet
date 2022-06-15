@@ -46,6 +46,8 @@
             set { this.nextFlushIndex = value; }
         }
 
+        protected abstract TValue DefaultValue { get; }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int IncWriteIndex()
         {
@@ -79,31 +81,29 @@
 
         public TValue GetAndResetValue(int index)
         {
-            TValue value = this.GetAndResetValueOnce(this.values, index);
-
-            if (this.IsInvalidValue(value))
+            for (int spinCountdown = 10000; spinCountdown > 0; spinCountdown--)
             {
-#pragma warning disable SA1129 // Do not use default value type constructor
-                var spinWait = new SpinWait();
-#pragma warning restore SA1129 // Do not use default value type constructor
+                TValue value = this.GetAndResetValueOnce(this.values, index);
 
-                value = this.GetAndResetValueOnce(this.values, index);
-                while (this.IsInvalidValue(value))
+                if (this.IsInvalidValue(value))
                 {
-                    spinWait.SpinOnce();
-                    
-                    if (spinWait.Count % 100 == 0)
+                    if (spinCountdown % 100 == 0)
                     {
-                        // In tests (including stress tests) we always finished wating before 100 cycles.
+                        // In tests (including stress tests) we always finished waiting before 100 cycles.
                         // However, this is a protection against en extreme case on a slow machine. 
                         Task.Delay(10).ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
                     }
 
-                    value = this.GetAndResetValueOnce(this.values, index);
+                    continue;
+                }
+                else
+                {
+                    return value;
                 }
             }
 
-            return value;
+            // exceeded maximum spin count
+            return this.DefaultValue;
         }
 
         protected abstract void ResetValues(TValue[] values);
@@ -126,6 +126,8 @@
             : base(capacity)
         {
         }
+
+        protected override double DefaultValue => double.NaN;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override bool IsInvalidValue(double value)
@@ -161,6 +163,8 @@
             : base(capacity)
         {
         }
+
+        protected override object DefaultValue => null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override bool IsInvalidValue(object value)
