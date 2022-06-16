@@ -81,29 +81,36 @@
 
         public TValue GetAndResetValue(int index)
         {
-            for (int spinCountdown = 10000; spinCountdown > 0; spinCountdown--)
-            {
-                TValue value = this.GetAndResetValueOnce(this.values, index);
+            TValue value = this.GetAndResetValueOnce(this.values, index);
 
-                if (this.IsInvalidValue(value))
+            if (this.IsInvalidValue(value))
+            {
+#pragma warning disable SA1129 // Do not use default value type constructor
+                var spinWait = new SpinWait();
+#pragma warning restore SA1129 // Do not use default value type constructor
+
+                value = this.GetAndResetValueOnce(this.values, index);
+                while (this.IsInvalidValue(value))
                 {
-                    if (spinCountdown % 100 == 0)
+                    spinWait.SpinOnce();
+
+                    if (spinWait.Count % 100 == 0)
                     {
-                        // In tests (including stress tests) we always finished waiting before 100 cycles.
+                        // In tests (including stress tests) we always finished wating before 100 cycles.
                         // However, this is a protection against en extreme case on a slow machine. 
                         Task.Delay(10).ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
                     }
+                    else if (spinWait.Count > 10000)
+                    {
+                        // exceeded maximum spin count. Break out to avoid infinite loop.
+                        return this.DefaultValue;
+                    }
 
-                    continue;
-                }
-                else
-                {
-                    return value;
+                    value = this.GetAndResetValueOnce(this.values, index);
                 }
             }
 
-            // exceeded maximum spin count
-            return this.DefaultValue;
+            return value;
         }
 
         protected abstract void ResetValues(TValue[] values);
