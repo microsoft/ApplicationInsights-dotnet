@@ -9,6 +9,7 @@
 - [Extension methods to retrive specific operation details.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1350)
 - [Mark Instrumentation Key based APIs as Obsolete](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2560).
   - See also: https://docs.microsoft.com/azure/azure-monitor/app/migrate-from-instrumentation-keys-to-connection-strings
+- [Fix: Deadlock when Flushing Metrics.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2612)
 
 ## Version 2.21.0-beta1
 - [Support IPv6 in request headers](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2521)
