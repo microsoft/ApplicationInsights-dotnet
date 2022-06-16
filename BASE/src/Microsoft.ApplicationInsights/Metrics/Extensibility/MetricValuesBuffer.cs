@@ -46,7 +46,7 @@
             set { this.nextFlushIndex = value; }
         }
 
-        protected abstract TValue DefaultValue { get; }
+        protected abstract TValue InvalidValue { get; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int IncWriteIndex()
@@ -103,7 +103,7 @@
                     else if (spinWait.Count > 10000)
                     {
                         // exceeded maximum spin count. Break out to avoid infinite loop.
-                        return this.DefaultValue;
+                        return this.InvalidValue;
                     }
 
                     value = this.GetAndResetValueOnce(this.values, index);
@@ -134,7 +134,7 @@
         {
         }
 
-        protected override double DefaultValue => double.NaN;
+        protected override double InvalidValue => double.NaN;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override bool IsInvalidValue(double value)
@@ -171,7 +171,7 @@
         {
         }
 
-        protected override object DefaultValue => null;
+        protected override object InvalidValue => null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override bool IsInvalidValue(object value)
