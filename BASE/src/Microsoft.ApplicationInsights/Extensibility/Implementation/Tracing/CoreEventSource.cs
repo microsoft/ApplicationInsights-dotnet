@@ -675,7 +675,6 @@
         [Event(76, Message = "MetricValueBuffer exceeded spin count.", Level = EventLevel.Warning)]
         public void MetricValueBufferExceededSpinCount(string appDomainName = "Incorrect") => this.WriteEvent(76, this.nameProvider.Name);
 
-
         [NonEvent]
         public void TransmissionStatusEventFailed(Exception ex)
         {
