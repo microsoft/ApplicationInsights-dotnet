@@ -1,5 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+
     using System;
     using System.Runtime.CompilerServices;
     using System.Threading;
@@ -94,13 +96,14 @@
 
                     if (spinWait.Count % 100 == 0)
                     {
-                        // In tests (including stress tests) we always finished wating before 100 cycles.
+                        // In tests (including stress tests) we always finished waiting before 100 cycles.
                         // However, this is a protection against en extreme case on a slow machine. 
                         Task.Delay(10).ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
                     }
                     else if (spinWait.Count > 10000)
                     {
-                        // exceeded maximum spin count. Break out to avoid infinite loop.
+                        // Exceeded maximum spin count. Break out to avoid infinite loop.
+                        CoreEventSource.Log.MetricValueBufferExceededSpinCount();
                         break;
                     }
 
