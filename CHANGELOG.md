@@ -1,6 +1,7 @@
 # Changelog
 
 ## VNext
+- [Remove two unnecessary .NET Standard 1.x dependencies.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2613)
 
 ## Version 2.21.0-beta2
 - [LOGGING: Make TelemetryConfiguration configurable in ApplicationInsightsLoggingBuilderExtensions](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1944)
