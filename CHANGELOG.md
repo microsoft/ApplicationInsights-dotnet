@@ -1,7 +1,16 @@
 # Changelog
 
 ## VNext
+
+## Version 2.21.0-beta2
 - [LOGGING: Make TelemetryConfiguration configurable in ApplicationInsightsLoggingBuilderExtensions](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1944)
+- [Added support for distributed tracing with Azure.Messaging.ServiceBus](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2593)
+- [Move internal type from `Shared` to `Microsoft` namespace](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2442)
+- [Extension methods to retrive specific operation details.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1350)
+- [Mark Instrumentation Key based APIs as Obsolete](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2560).
+  - See also: https://docs.microsoft.com/azure/azure-monitor/app/migrate-from-instrumentation-keys-to-connection-strings
+- [Fix: Livelock in MetricValuesBuffer.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2612)
+  Mitigation for TelemetryClient.Flush deadlocks ([#1186](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1186))
 
 ## Version 2.21.0-beta1
 - [Support IPv6 in request headers](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2521)
