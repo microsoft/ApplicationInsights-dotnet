@@ -1,7 +1,8 @@
 # Changelog
 
 ## VNext
-- Address vulnerability in `Newtonsoft.Json` ([GHSA-5crp-9r3c-p9vr](https://github.com/advisories/GHSA-5crp-9r3c-p9vr)). ([#2615](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2615))
+- Address vulnerability in `Newtonsoft.Json` ([GHSA-5crp-9r3c-p9vr](https://github.com/advisories/GHSA-5crp-9r3c-p9vr)). 
+  Mitigation is to upgrade dependencies in `Microsoft.ApplicationInsights.AspNetCore` ([#2615](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2615))
   - Upgrade `Microsoft.Extensions.Configuration.Json` from v2.1.0 to v3.1.0. 
   - Upgrade `System.Text.Encodings.Web` from 4.5.1 to 4.7.2.
   
