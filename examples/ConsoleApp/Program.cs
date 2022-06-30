@@ -1,4 +1,6 @@
-﻿using Microsoft.ApplicationInsights;
+﻿using Azure.Identity;
+
+using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
@@ -25,6 +27,14 @@ namespace ConsoleAppWithApplicationInsights
 
             // Add custom TelemetryInitializer
             services.AddSingleton<ITelemetryInitializer, MyCustomTelemetryInitializer>();
+
+            // Configure TelemetryConfiguration
+            services.Configure<TelemetryConfiguration>(config =>
+            {
+                // Optionally configure AAD
+                //var credential = new DefaultAzureCredential();
+                //config.SetAzureTokenCredential(credential);
+            });
 
             // Being a regular console app, there is no appsettings.json or configuration providers enabled by default.
             // Hence connection string must be specified here.
