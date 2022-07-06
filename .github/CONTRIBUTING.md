@@ -6,12 +6,12 @@
 
 ## Solutions
 
-- Everything.sln - this will build all projects and unit tests.
-- ProjectsForSigning.sln - this builds all shipping projects.
-- BASE\Microsoft.ApplicationInsights.sln - this builds the Base SDK and ServerTelemetryChannel.
-- WEB\Microsoft.ApplicationInsights.Web.sln - this builds the ASP.Net projects.
-- NETCORE\ApplicationInsights.AspNetCore.sln - this builds the .Net Core projects.
-- LOGGING\Logging.sln - this builds the logging adapters.
+- **Everything.sln** - this will build all projects and unit tests.
+- **ProjectsForSigning.sln** - this builds all shipping projects.
+- **BASE\Microsoft.ApplicationInsights.sln** - this builds the Base SDK and ServerTelemetryChannel.
+- **WEB\Microsoft.ApplicationInsights.Web.sln** - this builds the ASP.Net projects.
+- **NETCORE\ApplicationInsights.AspNetCore.sln** - this builds the .Net Core projects.
+- **LOGGING\Logging.sln** - this builds the logging adapters.
 
 ## Pre-requisites:
 
@@ -35,8 +35,6 @@ See also our [GitHub Workflows](/.github/workflows) for examples of building the
 
 ## Testing
 
-### Unit Tests
-
 Unit tests can be run in either the Visual Studio Test Exploror or via .NET CLI `dotnet test` ([link](https://docs.microsoft.com/dotnet/core/tools/dotnet-test)).
 
 This repo also has some Integration Tests which cannot be run as a standalone DLL and must be run in the context of their project (*.csproj).
@@ -44,9 +42,6 @@ For more information please visit [Integration tests in ASP.NET Core](https://do
 
 See also our [GitHub Workflows](/.github/workflows) for examples of running these tests.
 
-## Debugging the SDK in general (How to test Application Insights from local build in any Test App)
+## Debugging the SDK in general
 
-- Build any solution using `dotnet build`. All required depenencies will also be built.
-  - If the build was successful, you'll find that it generated NuGet packages in "repository root\bin\Debug\NuGet". 
-    You can set this directory as a NuGet Repository to consume within your applications.
-- The "Examples.sln" has some preconfigured applications. These projects can be customized and used to debug the SDK.
+The "Examples.sln" has some preconfigured applications. These projects can be customized and used to debug the SDK.
