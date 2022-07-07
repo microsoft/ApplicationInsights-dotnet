@@ -20,12 +20,12 @@ To successfully build the sources on your machine, make sure you've installed th
 - Visual Studio 2022 Community, Professional or Enterprise
 - .NET SDKs (https://dotnet.microsoft.com/download)
     - .NET Framework 4.5.2
-	- .NET Framework 4.6.2
-	- .NET Framework 4.7.2
-	- .NET Framework 4.8
-	- .NET Core 3.1
-	- .NET 5
-	- .NET 6
+    - .NET Framework 4.6.2
+    - .NET Framework 4.7.2
+    - .NET Framework 4.8
+    - .NET Core 3.1
+    - .NET 5
+    - .NET 6
 
 ## Build
 
