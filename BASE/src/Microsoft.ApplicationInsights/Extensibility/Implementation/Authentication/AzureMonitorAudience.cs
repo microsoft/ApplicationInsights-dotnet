@@ -13,6 +13,14 @@ namespace Microsoft.ApplicationInsights.Extensibility
     public static class AzureMonitorAudience
     {
         /// <summary>
+        /// Maximum allowed length for audience string.
+        /// </summary>
+        /// <remarks>
+        /// Setting an over-exaggerated max length to protect against malicious injections (2^9 = 512).
+        /// </remarks>
+        internal const int AudienceStringMaxLength = 512;
+
+        /// <summary>
         /// The host of Azure Active Directory audience for Azure Public Cloud.
         /// </summary>
         public const string AzurePublicCloud = "https://monitor.azure.com/";
@@ -27,6 +35,14 @@ namespace Microsoft.ApplicationInsights.Extensibility
         /// </summary>
         public const string AzureChinaCloud = "https://monitor.azure.cn/";
 
+        /// <summary>
+        /// Combine a specified audience with the '.default' permission to create the array of scopes.
+        /// </summary>
+        /// <param name="audience">User provided input.</param>
+        /// <returns>Array of scopes to be used to acquire an Azure Identity token.</returns>
+        /// <remarks>
+        /// We shouldn't punish a user for omitting the trailing slash character.
+        /// </remarks>
         internal static string[] GetScopes(string audience)
         {
             string scope = audience + (audience.EndsWith("/", StringComparison.Ordinal) ? "/.default" : "//.default");

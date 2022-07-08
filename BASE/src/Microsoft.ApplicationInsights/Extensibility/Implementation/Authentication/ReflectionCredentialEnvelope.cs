@@ -45,6 +45,11 @@
                 }
                 else
                 {
+                    if (audience.Length > AzureMonitorAudience.AudienceStringMaxLength)
+                    {
+                        throw new ArgumentOutOfRangeException(nameof(audience), FormattableString.Invariant($"Values greater than {AzureMonitorAudience.AudienceStringMaxLength} characters are not allowed."));
+                    }
+
                     this.tokenRequestContext = AzureCore.MakeTokenRequestContext(scopes: AzureMonitorAudience.GetScopes(audience));
                 }
             }
