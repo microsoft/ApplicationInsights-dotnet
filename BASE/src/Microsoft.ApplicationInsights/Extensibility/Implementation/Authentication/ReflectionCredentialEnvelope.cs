@@ -45,7 +45,7 @@
                 }
                 else
                 {
-                    string scope = audience + (audience.EndsWith("/") ? "/.default" : "//.default");
+                    string scope = audience + (audience.EndsWith("/", StringComparison.Ordinal) ? "/.default" : "//.default");
                     this.tokenRequestContext = AzureCore.MakeTokenRequestContext(scopes: new string[] { scope });
                 }
             }
