@@ -19,12 +19,6 @@
         /// Get scopes for Azure Monitor as an array.
         /// </summary>
         /// <returns>An array of scopes.</returns>
-        public static string[] GetScopes() => new string[] { AzureMonitorScope };
-
-        public static string[] GetScopes(string audience)
-        {
-            string scope = audience + (audience.EndsWith("/", StringComparison.Ordinal) ? "/.default" : "//.default");
-            return new string[] { scope };
-        }
+        public static string[] GetDefaultScopes() => new string[] { AzureMonitorScope };
     }
 }

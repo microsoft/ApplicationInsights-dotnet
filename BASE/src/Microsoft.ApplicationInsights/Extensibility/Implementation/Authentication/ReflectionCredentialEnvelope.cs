@@ -41,11 +41,11 @@
             {
                 if (audience == null)
                 {
-                    this.tokenRequestContext = AzureCore.MakeTokenRequestContext(scopes: AuthConstants.GetScopes());
+                    this.tokenRequestContext = AzureCore.MakeTokenRequestContext(scopes: AuthConstants.GetDefaultScopes());
                 }
                 else
                 {
-                    this.tokenRequestContext = AzureCore.MakeTokenRequestContext(scopes: AuthConstants.GetScopes(audience));
+                    this.tokenRequestContext = AzureCore.MakeTokenRequestContext(scopes: AzureMonitorAudience.GetScopes(audience));
                 }
             }
             else

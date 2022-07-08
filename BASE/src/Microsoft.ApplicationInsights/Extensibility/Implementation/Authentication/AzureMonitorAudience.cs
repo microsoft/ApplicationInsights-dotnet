@@ -1,6 +1,8 @@
 ﻿// This intentionally uses the same namespace as TelemetryConfiguration.
 namespace Microsoft.ApplicationInsights.Extensibility
 {
+    using System;
+
     /// <summary>
     /// Defines audience for Azure Monitor for the Azure Public Cloud and sovereign clouds.
     /// </summary>
@@ -24,5 +26,11 @@ namespace Microsoft.ApplicationInsights.Extensibility
         /// The host of Azure Active Directory audience for Azure China Cloud.
         /// </summary>
         public const string AzureChinaCloud = "https://monitor.azure.cn/";
+
+        internal static string[] GetScopes(string audience)
+        {
+            string scope = audience + (audience.EndsWith("/", StringComparison.Ordinal) ? "/.default" : "//.default");
+            return new string[] { scope };
+        }
     }
 }
