@@ -25,7 +25,7 @@
 
         private void RunTest(string input, string expected)
         {
-            Assert.AreEqual(expected, AuthConstants.GetScopes(input).First());
+            Assert.AreEqual(expected, AuthConstants.GetScopes(input).Single());
         }
     }
 }
