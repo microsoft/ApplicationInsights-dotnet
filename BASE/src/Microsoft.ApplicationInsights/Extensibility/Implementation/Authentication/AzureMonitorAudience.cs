@@ -13,14 +13,6 @@ namespace Microsoft.ApplicationInsights.Extensibility
     public static class AzureMonitorAudience
     {
         /// <summary>
-        /// Maximum allowed length for audience string.
-        /// </summary>
-        /// <remarks>
-        /// Setting an over-exaggerated max length to protect against malicious injections (2^9 = 512).
-        /// </remarks>
-        internal const int AudienceStringMaxLength = 512;
-
-        /// <summary>
         /// The host of Azure Active Directory audience for Azure Public Cloud.
         /// </summary>
         public const string AzurePublicCloud = "https://monitor.azure.com/";
@@ -34,6 +26,14 @@ namespace Microsoft.ApplicationInsights.Extensibility
         /// The host of Azure Active Directory audience for Azure China Cloud.
         /// </summary>
         public const string AzureChinaCloud = "https://monitor.azure.cn/";
+
+        /// <summary>
+        /// Maximum allowed length for audience string.
+        /// </summary>
+        /// <remarks>
+        /// Setting an over-exaggerated max length to protect against malicious injections (2^9 = 512).
+        /// </remarks>
+        internal const int AudienceStringMaxLength = 512;
 
         /// <summary>
         /// Combine a specified audience with the '.default' permission to create the array of scopes.
