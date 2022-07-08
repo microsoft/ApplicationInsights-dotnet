@@ -1,6 +1,7 @@
 # Changelog
 
 ## VNext
+- Added support to configure AAD audience, required for additional Azure clouds. ([#2623](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2623))
 
 ## Version 2.21.0-beta3
 - [Remove two unnecessary .NET Standard 1.x dependencies.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2613)
