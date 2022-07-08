@@ -442,7 +442,7 @@
         /// (https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/identity/Azure.Identity).
         /// </remarks>
         /// <param name="tokenCredential">An instance of Azure.Core.TokenCredential.</param>
-        /// <param name="audience">Url for Azure Monitor in non Azure Public clouds. (Example: https://monitor.azure.us/ or https://monitor.azure.cn/).</param>
+        /// <param name="audience">Url for Azure Monitor in non Azure Public clouds. <see cref="AzureMonitorAudience"/>.</param>
         /// <exception cref="ArgumentException">An ArgumentException is thrown if the provided object does not inherit Azure.Core.TokenCredential.</exception>
         public void SetAzureTokenCredential(object tokenCredential, string audience)
         {
