@@ -32,7 +32,7 @@
         /// Create an instance of <see cref="ReflectionCredentialEnvelope"/>.
         /// </summary>
         /// <param name="tokenCredential">An instance of Azure.Core.TokenCredential.</param>
-        /// <param name="audience">Url for Azure Monitor in non Azure Public clouds. (Example: https://monitor.azure.us/ or https://monitor.azure.cn/)</param>
+        /// <param name="audience">Url for Azure Monitor in non Azure Public clouds. (Example: https://monitor.azure.us/ or https://monitor.azure.cn/).</param>
         public ReflectionCredentialEnvelope(object tokenCredential, string audience = null)
         {
             this.tokenCredential = tokenCredential ?? throw new ArgumentNullException(nameof(tokenCredential));
