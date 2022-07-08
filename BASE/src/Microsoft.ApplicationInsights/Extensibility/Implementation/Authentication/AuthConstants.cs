@@ -1,7 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication
 {
-    using System;
-
     internal static class AuthConstants
     {
         public const string AuthorizationHeaderName = "Authorization";
