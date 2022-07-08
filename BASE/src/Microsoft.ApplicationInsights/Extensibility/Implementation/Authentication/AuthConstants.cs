@@ -17,6 +17,6 @@
         /// Get scopes for Azure Monitor as an array.
         /// </summary>
         /// <returns>An array of scopes.</returns>
-        public static string[] GetDefaultScopes() => new string[] { AzureMonitorScope };
+        public static string[] GetScopes() => new string[] { AzureMonitorScope };
     }
 }

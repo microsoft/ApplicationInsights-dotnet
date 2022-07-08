@@ -41,7 +41,7 @@
             {
                 if (audience == null)
                 {
-                    this.tokenRequestContext = AzureCore.MakeTokenRequestContext(scopes: AuthConstants.GetDefaultScopes());
+                    this.tokenRequestContext = AzureCore.MakeTokenRequestContext(scopes: AuthConstants.GetScopes());
                 }
                 else
                 {
