@@ -2,6 +2,10 @@
 
 ## VNext
 
+
+## Version 2.21.0
+- no changes since beta.
+
 ## Version 2.21.0-beta3
 - [Remove two unnecessary .NET Standard 1.x dependencies.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2613)
 - Address vulnerability in `Newtonsoft.Json` ([GHSA-5crp-9r3c-p9vr](https://github.com/advisories/GHSA-5crp-9r3c-p9vr)). 
