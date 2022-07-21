@@ -256,7 +256,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
             [TestMethod]
             public void LogsWarningWhenDataLossIntentional()
             {
-                // ErrorHandlingTransmissionPolicy does retry only for a subset of status codes. For 
+                // ErrorHandlingTransmissionPolicy does retry only for a selected subset of status codes. For 
                 // others telemetry is dropped. This test is to validate that those are logged.
                 using (var listener = new TestEventListener())
                 {
