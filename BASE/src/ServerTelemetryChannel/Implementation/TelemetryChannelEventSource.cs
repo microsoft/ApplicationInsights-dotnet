@@ -575,7 +575,7 @@
         public void TransmissionDataNotRetriedForIgnoredStatusCode(string transmissionId, string status, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
-                71,
+                80,
                 transmissionId ?? string.Empty,
                 status ?? string.Empty,
                 this.ApplicationName);
