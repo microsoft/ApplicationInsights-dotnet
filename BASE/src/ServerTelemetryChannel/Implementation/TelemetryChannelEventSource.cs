@@ -513,6 +513,17 @@
                 this.ApplicationName);
         }
 
+        [Event(71, Message = "TransmissionDataLossError. Telemetry items are being lost here as the response code is not in the subset of retriable codes." +
+                             "TransmissionId: {0}. Status Code: {1}.", Level = EventLevel.Warning)]
+        public void TransmissionDataNotRetriedForIgnoredStatusCode(string transmissionId, string status, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                71,
+                transmissionId ?? string.Empty,
+                status ?? string.Empty,
+                this.ApplicationName);
+        }
+
         [Event(72, Message = "Sampled out at head, sampled in at tail, gain up calculated: {0}.", Level = EventLevel.Verbose)]
         public void ItemProactivelySampledOut(string telemetryType, string appDomainName = "Incorrect")
         {
@@ -568,17 +579,6 @@
         public void UnexpectedBreezeResponseErrorIndexWarning(int index, string appDomainName = "Incorrect")
         {
             this.WriteEvent(79, index, this.ApplicationName);
-        }
-
-        [Event(80, Message = "TransmissionDataLossError. Telemetry items are being lost here as the response code is not in the subset of retriable codes." +
-                             "TransmissionId: {0}. Status Code: {1}.", Level = EventLevel.Warning)]
-        public void TransmissionDataNotRetriedForIgnoredStatusCode(string transmissionId, string status, string appDomainName = "Incorrect")
-        {
-            this.WriteEvent(
-                80,
-                transmissionId ?? string.Empty,
-                status ?? string.Empty,
-                this.ApplicationName);
         }
 
         private static string GetApplicationName()
