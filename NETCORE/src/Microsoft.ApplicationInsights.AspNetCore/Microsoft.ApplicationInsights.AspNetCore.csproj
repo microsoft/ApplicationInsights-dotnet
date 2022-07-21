@@ -53,11 +53,6 @@
     We can remove this when NetCore v2.1 reaches EOL on August 21, 2021.
     -->
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.22" />
-
-    <!-- 
-    We must take a temporary dependency on this newer version until Microsoft.AspNetCore.Hosting updates their dependencies.
-    -->
-    <PackageReference Include="System.Text.Encodings.Web" Version="4.7.2" />
   </ItemGroup>
 
   <ItemGroup>
