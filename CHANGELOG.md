@@ -1,7 +1,7 @@
 # Changelog
 
 ## VNext
-
+- Remove unused `System.Text.Encodings.Web` package reference from `Microsoft.ApplicationInsights.AspNetCore` ([#2633](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2633))
 
 ## Version 2.21.0
 - no changes since beta.
