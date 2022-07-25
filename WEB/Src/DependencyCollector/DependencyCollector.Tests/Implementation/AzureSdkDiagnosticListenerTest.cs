@@ -1521,7 +1521,7 @@
         class CosmosDbEventSource : EventSource
         {
             private CosmosDbEventSource()
-                : base("Azure.Cosmos", EventSourceSettings.Default, "Azure.Cosmos", "true")
+                : base("Azure.Cosmos_foo")
             {
             }
 

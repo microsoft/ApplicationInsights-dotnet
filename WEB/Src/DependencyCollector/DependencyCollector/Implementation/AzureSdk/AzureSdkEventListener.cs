@@ -10,8 +10,7 @@
 
     internal class AzureSdkEventListener : EventListener
     {
-        private const string TraitValue = "true";
-        private readonly object[] EmptyArray = new object[0];
+        private static readonly object[] EmptyArray = new object[0];
 
         private readonly List<EventSource> eventSources = new List<EventSource>();
         private readonly TelemetryClient telemetryClient;
@@ -20,9 +19,9 @@
 
         public AzureSdkEventListener(TelemetryClient telemetryClient, EventLevel level, string traitName)
         {
-            this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
+            this.traitName = traitName ?? throw new ArgumentNullException(nameof(traitName));
             this.level = level;
-            this.traitName = traitName;
+            this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
 
             foreach (EventSource eventSource in this.eventSources)
             {
@@ -39,13 +38,13 @@
             if (this.telemetryClient == null)
             {
                 this.eventSources.Add(eventSource);
+                return;
             }
 
-#if NET452
-            if (eventSource.Name == this.traitName)
-#else
-            if (eventSource.GetTrait(this.traitName) == TraitValue)
-#endif
+            // EventSource names are deduplicated for environments like
+            // Functions where the same library can be loaded twice.
+            // Two EventSources with the same name are not allowed.
+            if (eventSource.Name != null && eventSource.Name.StartsWith(this.traitName, StringComparison.Ordinal))
             {
                 this.EnableEvents(eventSource, this.level);
             }
