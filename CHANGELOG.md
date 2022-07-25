@@ -1053,7 +1053,7 @@ No release notes for older versions available.
 ### Version 2.5.0
 - LOGGING: Update Application Insights API reference to 2.5.0
 - LOGGING: Removed framework 4.0 support
-- LOGGING: For EventSourceTelemetryModule, allows black list the event sources. Drops the events to those in the list.
+- LOGGING: For EventSourceTelemetryModule, allows configuring disabled event sources. Drops the events to those in the list.
 - LOGGING: [Fix Deadlock over EventSourceTelemetryModule](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/issues/109)
 - LOGGING: [Extensibel payload handler](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/111)
 - LOGGING: [Add ProviderName and ProviderGuid properties to TraceTelemetry](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/120)
