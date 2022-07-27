@@ -12,11 +12,6 @@
     <DefineConstants Condition="'$(Redfield)' == 'True'">$(DefineConstants);REDFIELD</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Label="Package versions for System.Diagnostics.DiagnosticSource">
-    <SystemDiagnosticsDiagnosticSourcePkgVer>5.0.0</SystemDiagnosticsDiagnosticSourcePkgVer>
-    <SystemDiagnosticsDiagnosticSourcePkgVer Condition="'$(Redfield)' == 'True'">4.7.0</SystemDiagnosticsDiagnosticSourcePkgVer>
-  </PropertyGroup>
-
   <Target Name="Info_Redfield"  BeforeTargets="Build" Condition="'$(Redfield)' == 'True'">
     <!-- 
     This flag is reserved for Codeless Attach products.
@@ -24,7 +19,6 @@
     To use: dotnet build /p:Redfield=True
     -->
     <Message Text="Directory.Build.props: Redfield build detected." Importance="high"/>
-    <Message Text="Directory.Build.props: SystemDiagnosticsDiagnosticSourcePkgVer: $(SystemDiagnosticsDiagnosticSourcePkgVer)" Importance="high"/>
   </Target>
   
   <Target Name="Info_InternalSettings"  BeforeTargets="Build">
