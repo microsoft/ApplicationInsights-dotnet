@@ -27,41 +27,5 @@
             return method.GetCustomAttribute<EventAttribute>();
         }
 
-#if REDFIELD
-        /// <summary>
-        /// This is a sanitiy check.
-        /// The 'Redfield' compilation flag should switch the name of EventSource class.
-        /// Devs can review the test log and confirm that this test runs and passes.
-        /// This will serve as a verification that the Redfield compilation flag worked as expected.
-        /// 
-        /// To run this test:
-        /// dotnet build /p:Redfield=True ".\dotnet\BASE\Microsoft.ApplicationInsights.sln"
-        /// dotnet test ".\bin\Debug\test\Microsoft.ApplicationInsights.Tests\net6.0\Microsoft.ApplicationInsights.Tests.dll" --filter Name~VerifyRedfieldEventSourceName
-        /// </summary>
-        [TestMethod]
-        public void VerifyRedfieldEventSourceName()
-        {
-            var expectedName = "Redfield-Microsoft-ApplicationInsights-Core";
-
-            var eventSourceAttribute = typeof(CoreEventSource)
-                .GetCustomAttributes(typeof(EventSourceAttribute))
-                .Single() as EventSourceAttribute;
-
-            Assert.IsNotNull(eventSourceAttribute);
-            Assert.AreEqual(expectedName, eventSourceAttribute.Name);
-        }
-
-        /// <summary>
-        /// Redfield takes a dependency on DiagnosticSource version 4.7.0.0.
-        /// This dependency is defined in "Directory.Build.props".
-        /// </summary>
-        [TestMethod]
-        public void VerifyRedfieldDiagnosticSourceVersion()
-        {
-            var referencedAssemblies = typeof(CoreEventSource).Assembly.GetReferencedAssemblies();
-            var diagnosticSource = referencedAssemblies.Single(x => x.Name == "System.Diagnostics.DiagnosticSource");
-            Assert.AreEqual("4.7.0.0", diagnosticSource.Version.ToString());
-        }
-#endif
     }
 }
