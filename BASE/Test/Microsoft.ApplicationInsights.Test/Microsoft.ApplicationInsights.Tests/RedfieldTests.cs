@@ -44,7 +44,7 @@ namespace Microsoft.ApplicationInsights
         }
 
         /// <summary>
-        /// Redfield takes a dependency on DiagnosticSource version 4.7.0.0.
+        /// Redfield takes a dependency on DiagnosticSource Package version: 4.7.0.0, Assembly version: 4.0.5.0
         /// This dependency is defined in "Directory.Build.props".
         /// </summary>
         [TestMethod]
@@ -52,7 +52,7 @@ namespace Microsoft.ApplicationInsights
         {
             var referencedAssemblies = typeof(TelemetryClient).Assembly.GetReferencedAssemblies();
             var diagnosticSource = referencedAssemblies.Single(x => x.Name == "System.Diagnostics.DiagnosticSource");
-            Assert.AreEqual("4.7.0.0", diagnosticSource.Version.ToString());
+            Assert.AreEqual("4.0.5.0", diagnosticSource.Version.ToString());
         }
     }
 }
