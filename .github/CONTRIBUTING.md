@@ -6,12 +6,13 @@
 
 ## Solutions
 
-- **Everything.sln** - this will build all projects and all tests.
-- **ProjectsForSigning.sln** - this builds all shipping projects.
-- **BASE\Microsoft.ApplicationInsights.sln** - this builds the Base SDK and ServerTelemetryChannel.
-- **WEB\Microsoft.ApplicationInsights.Web.sln** - this builds the ASP.NET projects.
-- **NETCORE\ApplicationInsights.AspNetCore.sln** - this builds the .NET Core projects.
-- **LOGGING\Logging.sln** - this builds the logging adapters.
+- **Everything.sln** - this contains all projects and all tests.
+- **ProjectsForSigning.sln** - this contains all shipping projects without tests.
+- **BASE\Microsoft.ApplicationInsights.sln** - this contains the Base SDK and ServerTelemetryChannel.
+- **WEB\src\Microsoft.ApplicationInsights.Web.sln** - this contains the ASP.NET projects.
+- **NETCORE\ApplicationInsights.AspNetCore.sln** - this contains the .NET Core projects.
+- **LOGGING\Logging.sln** - this contains the logging adapters.
+- **examples\Examples.sln** - this contains example apps which demonstrate configuration concepts.
 
 ## Pre-requisites:
 

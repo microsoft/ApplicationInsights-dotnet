@@ -22,6 +22,7 @@ jobs:
         solution: [
           ./NETCORE/ApplicationInsights.AspNetCore.sln,
           ./Everything.sln,
+          ./ProjectsForSigning.sln,
           ./examples/Examples.sln,
           ./LOGGING/Logging.sln,
           ./BASE/Microsoft.ApplicationInsights.sln,
