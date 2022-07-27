@@ -1299,9 +1299,18 @@
                 Assert.AreEqual(sendActivity.SpanId.ToHexString(), dependency.Id);
                 Assert.AreEqual("container | ReadItems", dependency.Name);
                 Assert.AreEqual("my.documents.azure.com | database", dependency.Target);
-                Assert.AreEqual("ReadItems", dependency.Data);
                 Assert.AreEqual("503", dependency.ResultCode);
                 Assert.AreEqual("Azure DocumentDB", dependency.Type);
+                Assert.IsTrue(String.IsNullOrEmpty(dependency.Data));
+
+                Assert.IsTrue(dependency.Properties.ContainsKey("db.name"));
+                Assert.IsTrue(dependency.Properties.ContainsKey("db.operation"));
+                Assert.IsTrue(dependency.Properties.ContainsKey("net.peer.name"));
+                Assert.IsTrue(dependency.Properties.ContainsKey("db.cosmosdb.container"));
+                Assert.AreEqual("container", dependency.Properties["db.cosmosdb.container"]);
+                Assert.AreEqual("database", dependency.Properties["db.name"]);
+                Assert.AreEqual("ReadItems", dependency.Properties["db.operation"]);
+                Assert.AreEqual("my.documents.azure.com", dependency.Properties["net.peer.name"]);
             }
         }
 
@@ -1338,11 +1347,8 @@
                 Assert.AreEqual(sendActivity.SpanId.ToHexString(), dependency.Id);
                 Assert.AreEqual("container | ReadItems", dependency.Name);
                 Assert.AreEqual("my.documents.azure.com | database", dependency.Target);
-                Assert.AreEqual("ReadItems", dependency.Data);
                 Assert.AreEqual("200", dependency.ResultCode);
                 Assert.AreEqual("Azure DocumentDB", dependency.Type);
-                Assert.IsTrue(dependency.Properties.ContainsKey("db.cosmosdb.container"));
-                Assert.AreEqual("container", dependency.Properties["db.cosmosdb.container"]);
             }
         }
 
@@ -1365,6 +1371,7 @@
                     .AddTag("db.cosmosdb.connection_mode", "Direct")
                     .AddTag("db.cosmosdb.item_count", "42")
                     .AddTag("db.cosmosdb.request_charge", "0.123")
+                    .AddTag("foo", "bar")
                     .AddTag("az.namespace", "Microsoft.DocumentDB");
 
                 listener.StartActivity(sendActivity, null);
@@ -1375,13 +1382,18 @@
                 DependencyTelemetry dependency = telemetry as DependencyTelemetry;
                 Assert.AreEqual("container | ReadItems", dependency.Name);
                 Assert.AreEqual("my.documents.azure.com | database", dependency.Target);
-                Assert.AreEqual("ReadItems", dependency.Data);
                 Assert.AreEqual("503", dependency.ResultCode);
                 Assert.AreEqual("Azure DocumentDB", dependency.Type);
                 Assert.AreEqual("2", dependency.Properties["db.cosmosdb.retry_count"]);
                 Assert.AreEqual("0.123", dependency.Properties["db.cosmosdb.request_charge"]);
                 Assert.AreEqual("Direct", dependency.Properties["db.cosmosdb.connection_mode"]);
                 Assert.AreEqual("42", dependency.Properties["db.cosmosdb.item_count"]);
+
+                Assert.AreEqual("container", dependency.Properties["db.cosmosdb.container"]);
+                Assert.AreEqual("database", dependency.Properties["db.name"]);
+                Assert.AreEqual("ReadItems", dependency.Properties["db.operation"]);
+                Assert.AreEqual("my.documents.azure.com", dependency.Properties["net.peer.name"]);
+                Assert.IsFalse(dependency.Properties.ContainsKey("foo"));
             }
         }
 

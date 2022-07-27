@@ -361,22 +361,22 @@
                 else if (tag.Key == "db.cosmosdb.container")
                 {
                     dbContainer = tag.Value;
-                    telemetry.Properties[tag.Key] = dbContainer;
                 }
                 else if (tag.Key == "db.cosmosdb.status_code")
                 {
                     telemetry.ResultCode = tag.Value;
                 }
-                else if (tag.Key.StartsWith("db.cosmosdb.", StringComparison.Ordinal))
+                else if (!tag.Key.StartsWith("db.cosmosdb.", StringComparison.Ordinal))
                 {
-                    telemetry.Properties[tag.Key] = tag.Value;
+                    continue;
                 }
+                
+                telemetry.Properties[tag.Key] = tag.Value;
             }
 
             // similar to SqlClientDiagnosticSourceListener
             telemetry.Target = string.Join(" | ", dbAccount, dbName);
             telemetry.Name = string.Join(" | ", dbContainer, dbOperation);
-            telemetry.Data = dbOperation;
         }
 
         private static void SetMessagingProperties(Activity activity, OperationTelemetry telemetry)
