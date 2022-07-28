@@ -1,4 +1,4 @@
-﻿//#define REDFIELD // can use this to enable IntelliSense
+﻿#define REDFIELD // can use this to enable IntelliSense
 #if REDFIELD
 
 namespace Microsoft.ApplicationInsights
@@ -21,7 +21,6 @@ namespace Microsoft.ApplicationInsights
     /// To run these tests locally:
     /// dotnet build /p:Redfield=True ".\dotnet\BASE\Microsoft.ApplicationInsights.sln"
     /// dotnet test ".\bin\Debug\test\Microsoft.ApplicationInsights.Tests\net6.0\Microsoft.ApplicationInsights.Tests.dll" --filter ClassName~"Microsoft.ApplicationInsights.RedfieldTests"
-    /// or
     /// dotnet test ".\bin\Debug\test\Microsoft.ApplicationInsights.Tests\net6.0\Microsoft.ApplicationInsights.Tests.dll" --filter Name~VerifyRedfieldEventSourceName
     /// </summary>
     [TestClass]
@@ -29,6 +28,9 @@ namespace Microsoft.ApplicationInsights
     {
         /// <summary>
         /// The 'Redfield' compilation flag should switch the name of EventSource class.
+        /// 
+        /// To run this tests locally:
+        /// dotnet test ".\bin\Debug\test\Microsoft.ApplicationInsights.Tests\net6.0\Microsoft.ApplicationInsights.Tests.dll" --filter Name~VerifyRedfieldEventSourceName
         /// </summary>
         [TestMethod]
         public void VerifyRedfieldEventSourceName()
@@ -44,8 +46,10 @@ namespace Microsoft.ApplicationInsights
         }
 
         /// <summary>
-        /// Redfield takes a dependency on DiagnosticSource Package version: 4.7.0.0, Assembly version: 4.0.5.0
-        /// This dependency is defined in "Directory.Build.props".
+        /// Redfield takes a dependency on a different version of System.Diagnostics.DiagnosticSource. Package version: "4.7.0.0". Assembly version: "4.0.5.0".
+        /// 
+        /// To run this tests locally:
+        /// dotnet test ".\bin\Debug\test\Microsoft.ApplicationInsights.Tests\net6.0\Microsoft.ApplicationInsights.Tests.dll" --filter Name~VerifyRedfieldDiagnosticSourceVersion
         /// </summary>
         [TestMethod]
         public void VerifyRedfieldDiagnosticSourceVersion()
