@@ -1,4 +1,4 @@
-﻿#define REDFIELD // can use this to enable IntelliSense
+﻿// #define REDFIELD // can use this to enable IntelliSense
 #if REDFIELD
 
 namespace Microsoft.ApplicationInsights
