@@ -48,7 +48,7 @@ jobs:
     - name: Test
       id: test1
       continue-on-error: true
-      run: dotnet test ${{ env.SOLUTION }} --framework ${{ matrix.framework }} --configuration Release --no-build --results-directory ${{ env.TEST_RESULTS_DIRECTORY }} --logger:"console;verbosity=detailed" --logger:"trx;logfileprefix=testResults_" ${{ matrix.args }}
+      run: dotnet test ${{ env.SOLUTION }} --framework ${{ matrix.framework }} --configuration Release --no-build --results-directory ${{ env.TEST_RESULTS_DIRECTORY }} --logger:"console;verbosity=detailed" --logger:"trx;logfileprefix=testResults_" ${{ matrix.args }} -p:Redfield=True
 
     - name: Retry tests
       if: steps.test1.outcome=='failure'
