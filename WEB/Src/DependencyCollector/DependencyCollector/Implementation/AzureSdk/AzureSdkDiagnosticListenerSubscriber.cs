@@ -2,7 +2,9 @@
 {
     using System;
     using System.Diagnostics;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     internal sealed class AzureSdkDiagnosticListenerSubscriber : DiagnosticSourceListenerBase<object>
     {
@@ -10,6 +12,7 @@
 
         public AzureSdkDiagnosticListenerSubscriber(TelemetryConfiguration configuration) : base(configuration)
         {
+            this.Client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("rdd" + RddSource.DiagnosticSourceListenerAzure + ":");
         }
 
         internal override bool IsSourceEnabled(DiagnosticListener diagnosticListener)
