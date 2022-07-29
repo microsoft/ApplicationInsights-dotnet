@@ -95,6 +95,7 @@ Define your own SDK name and send PR to update the list below. Please do not re-
 | rddp | Remote dependency telemetry collected via Profiler instrumentation | [github](https://github.com/Microsoft/ApplicationInsights-dotnet-server/releases)
 | rddsr | Azure Service Fabric service remoting call - Client side | [github](https://github.com/Microsoft/ApplicationInsights-ServiceFabric/blob/275166d8034f1b94881982073e304166fbaef6bd/src/ApplicationInsights.ServiceFabric.Native.Shared/DependencyTrackingModule/ServiceRemotingClientEventListener.cs#L41)
 | rdddsc | Remote dependency telemetry collected via Diagnostic Source for .NET Core | [github](https://github.com/Microsoft/ApplicationInsights-dotnet-server/releases)
+| rdddsaz | Remote dependency telemetry collected via Diagnostic Source callbacks from Azure SDKs | [github](https://github.com/Microsoft/ApplicationInsights-dotnet/releases)
 | rdddsd | Remote dependency telemetry collected via Diagnostic Source for Desktop framework | [github](https://github.com/Microsoft/ApplicationInsights-dotnet-server/releases)
 | rb | Ruby SDK | [github](https://github.com/Microsoft/ApplicationInsights-Ruby/blob/c78bb54c8b5c0f70218482219fb8447416cfe550/lib/application_insights/channel/telemetry_channel.rb#L89)
 | sc | Snapshot Debugger (Microsoft.ApplicationInsights.SnapshotCollector) | [nuget](https://www.nuget.org/packages/Microsoft.ApplicationInsights.SnapshotCollector)
