@@ -1394,6 +1394,7 @@
                 Assert.AreEqual("ReadItems", dependency.Properties["db.operation"]);
                 Assert.AreEqual("my.documents.azure.com", dependency.Properties["net.peer.name"]);
                 Assert.IsFalse(dependency.Properties.ContainsKey("foo"));
+                Assert.IsFalse(dependency.Properties.ContainsKey("db.system"));
             }
         }
 

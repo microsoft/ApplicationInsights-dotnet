@@ -365,6 +365,7 @@
                 else if (tag.Key == "db.cosmosdb.status_code")
                 {
                     telemetry.ResultCode = tag.Value;
+                    continue;
                 }
                 else if (!tag.Key.StartsWith("db.cosmosdb.", StringComparison.Ordinal))
                 {
