@@ -2,8 +2,8 @@
 {
     using System;
     using System.Diagnostics;
-    using Microsoft.ApplicationInsights.Common;
     using System.Diagnostics.Tracing;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
