@@ -100,7 +100,7 @@
                                 dependency.SetOperationDetail(evnt.Value.GetType().FullName, evnt.Value);
                             }
                         }
-                        else if (dependency.Type.EndsWith(RemoteDependencyConstants.AzureDocumentDb, StringComparison.Ordinal))
+                        else if (dependency.Type.EndsWith(RemoteDependencyConstants.AzureCosmosDb, StringComparison.Ordinal))
                         {
                             SetCosmosDbProperties(currentActivity, dependency);
                         }
@@ -256,7 +256,7 @@
             } 
             else if (component == "Microsoft.DocumentDB") 
             {
-                component = RemoteDependencyConstants.AzureDocumentDb;
+                component = RemoteDependencyConstants.AzureCosmosDb;
             }
 
             if (component != null)

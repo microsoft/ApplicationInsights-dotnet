@@ -1300,7 +1300,7 @@
                 Assert.AreEqual("container | ReadItems", dependency.Name);
                 Assert.AreEqual("my.documents.azure.com | database", dependency.Target);
                 Assert.AreEqual("503", dependency.ResultCode);
-                Assert.AreEqual("Azure DocumentDB", dependency.Type);
+                Assert.AreEqual("Azure CosmosDB", dependency.Type);
                 Assert.IsTrue(String.IsNullOrEmpty(dependency.Data));
 
                 Assert.IsTrue(dependency.Properties.ContainsKey("db.name"));
@@ -1348,7 +1348,7 @@
                 Assert.AreEqual("container | ReadItems", dependency.Name);
                 Assert.AreEqual("my.documents.azure.com | database", dependency.Target);
                 Assert.AreEqual("200", dependency.ResultCode);
-                Assert.AreEqual("Azure DocumentDB", dependency.Type);
+                Assert.AreEqual("Azure CosmosDB", dependency.Type);
             }
         }
 
@@ -1383,7 +1383,7 @@
                 Assert.AreEqual("container | ReadItems", dependency.Name);
                 Assert.AreEqual("my.documents.azure.com | database", dependency.Target);
                 Assert.AreEqual("503", dependency.ResultCode);
-                Assert.AreEqual("Azure DocumentDB", dependency.Type);
+                Assert.AreEqual("Azure CosmosDB", dependency.Type);
                 Assert.AreEqual("2", dependency.Properties["db.cosmosdb.retry_count"]);
                 Assert.AreEqual("0.123", dependency.Properties["db.cosmosdb.request_charge"]);
                 Assert.AreEqual("Direct", dependency.Properties["db.cosmosdb.connection_mode"]);
