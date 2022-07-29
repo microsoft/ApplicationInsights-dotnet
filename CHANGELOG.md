@@ -2,7 +2,7 @@
 
 ## VNext
 
-- AzureSdkDiagnosticListener modified to use sdkverion prefix "rdddsaz" instead of "dotnet".
+- AzureSdkDiagnosticListener modified to use sdkversion prefix "rdddsaz" instead of "dotnet".
 
 ## Version 2.21.0
 - no changes since beta.
