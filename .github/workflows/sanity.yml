@@ -38,6 +38,11 @@ jobs:
             3.1.x
             6.0.x
 
+    - uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '7.0.x'
+        include-prerelease: true
+
     - name: Restore
       run: dotnet restore ${{ matrix.solution }}
 
