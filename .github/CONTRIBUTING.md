@@ -28,6 +28,10 @@ To successfully build the sources on your machine, make sure you've installed th
     - .NET 6
     - .NET 7
 
+Note: .NET has an annual release cycle and we include the preview version in our test matrix.
+Visual Studio requires a setting to compile using these preview versions:
+  - Tools > Options > Environment > Preview Features > "Use previews of the .NET SDK".
+
 ## Build
 
 Solutions can be built in either Visual Studio or via .NET CLI `dotnet build` ([link](https://docs.microsoft.com/dotnet/core/tools/dotnet-build)).
