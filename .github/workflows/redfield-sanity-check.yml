@@ -24,7 +24,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        framework: [netcoreapp3.1,net6.0]
+        framework: [netcoreapp3.1,net6.0,net7.0]
         include: 
             - os: ubuntu-latest
               args: "--filter TestCategory!=WindowsOnly"
@@ -38,6 +38,11 @@ jobs:
         dotnet-version: |
             3.1.x
             6.0.x
+
+    - uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '7.0.x'
+        include-prerelease: true
 
     - name: Restore
       run: dotnet restore ${{ env.SOLUTION }}
