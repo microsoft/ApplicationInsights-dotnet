@@ -456,9 +456,9 @@
         {
             this.WriteEvent(
                 64,
-                limit.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty,
-                attempted.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty,
-                accepted.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty,
+                limit,
+                attempted,
+                accepted,
                 this.ApplicationName);
         }
 
