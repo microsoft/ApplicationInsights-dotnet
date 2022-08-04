@@ -1,7 +1,7 @@
 # Changelog
 
 ## VNext
-
+- Update endpoint redirect header name for QuickPulse module to v2
 - AzureSdkDiagnosticListener modified to use sdkversion prefix "rdddsaz" instead of "dotnet".
 
 ## Version 2.21.0
