@@ -8,7 +8,6 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
     using System.Threading.Tasks;
 
     using Azure.Core;
-    using KellermanSoftware.CompareNetObjects;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
