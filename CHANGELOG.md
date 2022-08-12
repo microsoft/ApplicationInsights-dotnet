@@ -2,6 +2,11 @@
 
 ## VNext
 - Added support to configure AAD audience, required for additional Azure clouds. ([#2623](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2623))
+- Update endpoint redirect header name for QuickPulse module to v2
+- AzureSdkDiagnosticListener modified to use sdkversion prefix "rdddsaz" instead of "dotnet".
+
+## Version 2.21.0
+- no changes since beta.
 
 ## Version 2.21.0-beta3
 - [Remove two unnecessary .NET Standard 1.x dependencies.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2613)
@@ -1050,7 +1055,7 @@ No release notes for older versions available.
 ### Version 2.5.0
 - LOGGING: Update Application Insights API reference to 2.5.0
 - LOGGING: Removed framework 4.0 support
-- LOGGING: For EventSourceTelemetryModule, allows black list the event sources. Drops the events to those in the list.
+- LOGGING: For EventSourceTelemetryModule, allows configuring disabled event sources. Drops the events to those in the list.
 - LOGGING: [Fix Deadlock over EventSourceTelemetryModule](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/issues/109)
 - LOGGING: [Extensibel payload handler](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/111)
 - LOGGING: [Add ProviderName and ProviderGuid properties to TraceTelemetry](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/120)
