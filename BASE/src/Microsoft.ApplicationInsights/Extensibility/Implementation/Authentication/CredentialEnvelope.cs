@@ -33,5 +33,11 @@
         /// <param name="cancellationToken">The System.Threading.CancellationToken to use.</param>
         /// <returns>A valid Azure.Core.AccessToken.</returns>
         public abstract Task<AuthToken> GetTokenAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="audience"></param>
+        public abstract void SetAudience(string audience);
     }
 }

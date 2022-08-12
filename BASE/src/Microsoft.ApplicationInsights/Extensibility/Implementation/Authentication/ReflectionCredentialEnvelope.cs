@@ -26,7 +26,7 @@
 #endif
 
         private readonly object tokenCredential;
-        private readonly object tokenRequestContext;
+        private object tokenRequestContext;
 
         /// <summary>
         /// Create an instance of <see cref="ReflectionCredentialEnvelope"/>.
@@ -39,19 +39,7 @@
 
             if (IsValidType(tokenCredential))
             {
-                if (audience == null)
-                {
-                    this.tokenRequestContext = AzureCore.MakeTokenRequestContext(scopes: AuthConstants.GetScopes());
-                }
-                else
-                {
-                    if (audience.Length > AzureMonitorAudience.AudienceStringMaxLength)
-                    {
-                        throw new ArgumentOutOfRangeException(nameof(audience), FormattableString.Invariant($"Values greater than {AzureMonitorAudience.AudienceStringMaxLength} characters are not allowed."));
-                    }
-
-                    this.tokenRequestContext = AzureCore.MakeTokenRequestContext(scopes: AzureMonitorAudience.GetScopes(audience));
-                }
+                SetAudience(audience);
             }
             else
             {
@@ -63,6 +51,18 @@
         /// Gets the TokenCredential instance held by this class.
         /// </summary>
         internal override object Credential => this.tokenCredential;
+
+        public override void SetAudience(string audience)
+        {
+            if (audience == null)
+            {
+                this.tokenRequestContext = AzureCore.MakeTokenRequestContext(azureMonitorScope: AuthConstants.DefaultAzureMonitorScope);
+            }
+            else
+            {
+                this.tokenRequestContext = AzureCore.MakeTokenRequestContext(azureMonitorScope: AuthHelper.GetScope(audience));
+            }
+        }
 
         /// <summary>
         /// Gets an Azure.Core.AccessToken.
@@ -184,11 +184,13 @@
             /// <code>public TokenRequestContext (string[] scopes, string? parentRequestId = default, string? claims = default);</code>
             /// (https://docs.microsoft.com/dotnet/api/azure.core.tokenrequestcontext.-ctor).
             /// </summary>
-            internal static object MakeTokenRequestContext(string[] scopes)
+            internal static object MakeTokenRequestContext(string azureMonitorScope)
             {
+                var scopesArray = new string[] { azureMonitorScope };
+
                 return Activator.CreateInstance(
                     type: Type.GetType($"Azure.Core.TokenRequestContext, {azureCoreAssemblyName}"),
-                    args: new object[] { scopes, null, });
+                    args: new object[] { scopesArray, null, });
             }
 
             /// <summary>

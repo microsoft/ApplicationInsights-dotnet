@@ -1,7 +1,6 @@
 # Changelog
 
 ## VNext
-- Added support to configure AAD audience, required for additional Azure clouds. ([#2623](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2623))
 - Update endpoint redirect header name for QuickPulse module to v2
 - AzureSdkDiagnosticListener modified to use sdkversion prefix "rdddsaz" instead of "dotnet".
 

@@ -2,8 +2,10 @@
 namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementation.Authentication
 {
     using System;
+    using System.Linq;
+    using System.Reflection;
     using System.Threading.Tasks;
-
+    using Azure.Core;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
@@ -91,6 +93,53 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
             // set credential second
             tc.SetAzureTokenCredential(new MockCredential());
             Assert.IsTrue(tc.TelemetryChannel.EndpointAddress.Contains("v2.1")); // api switch
+        }
+
+        [TestMethod]
+        public void VerifySetCredential_CorrectlySetsAudience_ConnectionStringFirst()
+        {
+            // SETUP
+            var tc = TelemetryConfiguration.CreateDefault();
+
+            // ACT
+            // set connection string first
+            tc.ConnectionString = "InstrumentationKey=000;AADAudience=https://hello.world/";
+
+            // set credential
+            tc.SetAzureTokenCredential(new MockCredential());
+
+            // ASSERT
+            var scopes = GetScopes(tc.CredentialEnvelope);
+            Assert.AreEqual("https://hello.world//.default", scopes.First());
+        }
+
+        [TestMethod]
+        public void VerifySetCredential_CorrectlySetsAudience_CredentialFirst()
+        {
+            // SETUP
+            var tc = TelemetryConfiguration.CreateDefault();
+
+            // ACT
+            // set credential first, this should use default scope
+            tc.SetAzureTokenCredential(new MockCredential());
+            var scopes = GetScopes(tc.CredentialEnvelope);
+            Assert.AreEqual(AuthConstants.DefaultAzureMonitorScope, scopes.First());
+
+            // set connection string
+            tc.ConnectionString = "InstrumentationKey=000;AADAudience=https://hello.world/";
+
+            // ASSERT
+            scopes = GetScopes(tc.CredentialEnvelope);
+            Assert.AreEqual("https://hello.world//.default", scopes.First());
+        }
+
+        private string[] GetScopes(CredentialEnvelope credentialEnvelope)
+        {
+            var obj = typeof(ReflectionCredentialEnvelope)
+                .GetField("tokenRequestContext", BindingFlags.Instance | BindingFlags.NonPublic)
+                .GetValue(credentialEnvelope);
+
+            return ((TokenRequestContext)obj).Scopes;
         }
     }
 }

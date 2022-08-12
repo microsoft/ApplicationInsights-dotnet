@@ -123,6 +123,18 @@
             }
         }
 
+        public string GetAADAudience()
+        {
+            if (this.connectionStringParsed.TryGetValue("AADAudience", out string value))
+            {
+                return value;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         /// <summary>
         /// Parse a connection string and return a Dictionary.
         /// </summary>

@@ -11,12 +11,16 @@
         /// (https://docs.microsoft.com/azure/active-directory/develop/msal-acquire-cache-tokens#scopes-when-acquiring-tokens).
         /// (https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#the-default-scope).
         /// </summary>
-        private const string AzureMonitorScope = "https://monitor.azure.com//.default";
+        internal const string DefaultAzureMonitorScope = "https://monitor.azure.com//.default";
+
+        internal const string DefaultAzureMonitorPermission = "/.default";
 
         /// <summary>
-        /// Get scopes for Azure Monitor as an array.
+        /// Maximum allowed length for audience string.
         /// </summary>
-        /// <returns>An array of scopes.</returns>
-        public static string[] GetScopes() => new string[] { AzureMonitorScope };
+        /// <remarks>
+        /// Setting an over-exaggerated max length to protect against malicious injections (2^9 = 512).
+        /// </remarks>
+        internal const int AudienceStringMaxLength = 512;
     }
 }

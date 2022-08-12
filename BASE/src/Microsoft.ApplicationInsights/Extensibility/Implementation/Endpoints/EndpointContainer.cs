@@ -13,6 +13,7 @@
             this.Live = endpointProvider.GetEndpoint(EndpointName.Live);
             this.Profiler = endpointProvider.GetEndpoint(EndpointName.Profiler);
             this.Snapshot = endpointProvider.GetEndpoint(EndpointName.Snapshot);
+            this.AADAudience = endpointProvider.GetAADAudience();
         }
 
         /// <summary>Gets the endpoint for the Ingestion (aka Breeze) service.</summary>
@@ -26,6 +27,9 @@
 
         /// <summary>Gets the endpoint for the Snapshot service.</summary>
         public Uri Snapshot { get; private set; }
+
+
+        public string AADAudience { get; private set; }
 
         /// <summary>Gets the fully formatted endpoint for the ingestion service.</summary>
         internal string FormattedIngestionEndpoint => new Uri(this.Ingestion, "v2/track").AbsoluteUri;

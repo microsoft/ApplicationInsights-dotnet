@@ -6,6 +6,8 @@
     {
         string ConnectionString { get; set; }
 
+        string GetAADAudience();
+
         Uri GetEndpoint(EndpointName endpointName);
 
         string GetInstrumentationKey();
