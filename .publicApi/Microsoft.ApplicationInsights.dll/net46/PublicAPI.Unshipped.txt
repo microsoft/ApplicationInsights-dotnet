@@ -1,5 +1,0 @@
-const Microsoft.ApplicationInsights.Extensibility.AzureMonitorAudience.AzureChinaCloud = "https://monitor.azure.cn/" -> string
-const Microsoft.ApplicationInsights.Extensibility.AzureMonitorAudience.AzurePublicCloud = "https://monitor.azure.com/" -> string
-const Microsoft.ApplicationInsights.Extensibility.AzureMonitorAudience.AzureUSGovernment = "https://monitor.azure.us/" -> string
-Microsoft.ApplicationInsights.Extensibility.AzureMonitorAudience
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetAzureTokenCredential(object tokenCredential, string audience) -> void
