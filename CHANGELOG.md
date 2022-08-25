@@ -3,6 +3,7 @@
 ## VNext
 - Update endpoint redirect header name for QuickPulse module to v2
 - AzureSdkDiagnosticListener modified to use sdkversion prefix "rdddsaz" instead of "dotnet".
+- [Fix ExceptionTelemetry clears all Context when updating Exception property](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2086)
 
 ## Version 2.21.0
 - no changes since beta.
