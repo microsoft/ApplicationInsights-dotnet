@@ -19,7 +19,7 @@
           - net6.0 (EoL Nov 2024)
           - net7.0 (GA Nov 2022)
     -->
-    <TargetFrameworks>net462;net472;net480;netcoreapp3.1;net6.0;net7.0</TargetFrameworks>
+    <TargetFrameworks>net462;net472;net480;net481;netcoreapp3.1;net6.0;net7.0</TargetFrameworks>
     <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netcoreapp3.1;net6.0;net7.0</TargetFrameworks>
   </PropertyGroup>
 
