@@ -24,7 +24,7 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="5.0.0">
-      <Version Condition="'$(Redfield)' == 'True'">4.7.0</Version>
+      <Version Condition="'$(Redfield)' == 'True'">[4.7.0]</Version>
     </PackageReference>
   </ItemGroup>
 
