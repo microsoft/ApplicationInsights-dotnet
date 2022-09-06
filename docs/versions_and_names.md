@@ -117,6 +117,7 @@ Define the prefixes for the SDK.
 |-----------|:------:|-------------------------------------|
 | Redfield<sup>1</sup> |   ad_  | Telemetry from Redfield AppServices attach, using the **default** configuration |
 | Redfield<sup>1</sup> |   ar_  | Telemetry from Redfield AppServices attach, using the **recommended** configuration |
+| Redfield<sup>1</sup> |   al_  | Telemetry from Redfield Linux AppServices attach, using the **recommended** configuration |
 | Redfield<sup>1</sup> |  csd_  | Telemetry from Redfield CloudServices attach, using the **default** configuration |
 | Redfield<sup>1</sup> |  csr_  | Telemetry from Redfield CloudServices attach, using the **recommended** configuration |
 | Redfield<sup>1</sup> |   ud_  | Telemetry from Redfield unknown environment attach, using the **default** configuration |
