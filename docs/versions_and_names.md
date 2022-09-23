@@ -87,9 +87,6 @@ Define your own SDK name and send PR to update the list below. Please do not re-
 | owin | May point to unofficial OWIN telemetry module | [github](https://github.com/MatthewRudolph/Airy-ApplicationInsights-Owin/blob/a555ddc810edb5b9e8d4866c41ba18ddf793bc1d/src/Dematt.Airy.ApplicationInsights.Owin/ExceptionTracking/MvcExceptionHandler.cs#L38)
 | pc | performance counters | [github](https://github.com/Microsoft/ApplicationInsights-dotnet-server/releases)
 | pccore | performance counters from .Net Core | [github](https://github.com/Microsoft/ApplicationInsights-dotnet-server/releases)
-| py2 | python SDK for py2 application | [github](https://github.com/Microsoft/ApplicationInsights-Python/blob/7ac535f451383d78d63bfc2b8aad518cdde598c7/applicationinsights/channel/TelemetryChannel.py#L9-L15)
-| py3 | python SDK for py3 application | [github](https://github.com/Microsoft/ApplicationInsights-Python/blob/7ac535f451383d78d63bfc2b8aad518cdde598c7/applicationinsights/channel/TelemetryChannel.py#L9-L15)
-| python-oc | Opencensus for Python | [github](https://github.com/census-instrumentation/opencensus-python)
 | rddf | Remote dependency telemetry collected via Framework instrumentation (Event Source) | [github](https://github.com/Microsoft/ApplicationInsights-dotnet-server/releases)
 | rddfd | Telemetry was processed via framework and diagnosticsource paths. Deprecated in latest versions of SDK |
 | rddp | Remote dependency telemetry collected via Profiler instrumentation | [github](https://github.com/Microsoft/ApplicationInsights-dotnet-server/releases)
@@ -124,7 +121,6 @@ Define the prefixes for the SDK.
 | Redfield<sup>1</sup> |   ur_  | Telemetry from Redfield unknown environment attach, using the **recommended** configuration |
 | ap        |   w_   | Telemetry from **Windows** Platform |
 | ap        |   l_   | Telemetry from **Linux** Platform   |
-| python-oc |   lf_  | Telemetry captured by LocalForwarder |
 | go-oc     |   lf_  | Telemetry captured by LocalForwarder |
 | java      |   lf_  | Telemetry captured by LocalForwarder |
 
