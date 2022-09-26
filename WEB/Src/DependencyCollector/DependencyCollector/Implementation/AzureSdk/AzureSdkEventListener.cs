@@ -10,7 +10,11 @@
 
     internal class AzureSdkEventListener : EventListener
     {
+#if NET452
         private static readonly object[] EmptyArray = new object[0];
+#else
+        private static readonly object[] EmptyArray = Array.Empty<object>();
+#endif
 
         private readonly List<EventSource> eventSources = new List<EventSource>();
         private readonly TelemetryClient telemetryClient;
@@ -69,6 +73,10 @@
                 catch (FormatException)
                 {
                 }
+            }
+            else
+            {
+                message = String.Join(", ", payloadArray); 
             }
 
             var trace = new TraceTelemetry(message, FromEventLevel(eventData.Level));
