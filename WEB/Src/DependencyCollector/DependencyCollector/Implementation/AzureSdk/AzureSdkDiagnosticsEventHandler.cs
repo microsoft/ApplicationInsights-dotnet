@@ -12,7 +12,6 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
     internal class AzureSdkDiagnosticsEventHandler : DiagnosticsEventHandlerBase
     {
@@ -254,7 +253,7 @@
             else if (component == "Microsoft.ServiceBus")
             {
                 component = RemoteDependencyConstants.AzureServiceBus;
-            } 
+            }
 
             if (component != null)
             {
