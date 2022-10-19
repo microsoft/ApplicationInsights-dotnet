@@ -1425,6 +1425,9 @@
                 CosmosDbEventSource.Singleton.RecordInfo("info message - ignored");
                 CosmosDbEventSource.Singleton.RecordWarn("warn message");
                 CosmosDbEventSource.Singleton.RecordError("error message");
+                CosmosDbEventSource.Singleton.RecordWarnNoMessage("payload only");
+                CosmosDbEventSource.Singleton.RecordWarnNoMessageTwoArguments("payload1", "payload2");
+                CosmosDbEventSource.Singleton.RecordWarnNoMessageTwoArguments("payload1", null);
                 listener.StopActivity(sendActivity, null);
 
                 var dependency = this.sentItems.Single(t => t is DependencyTelemetry) as DependencyTelemetry;
@@ -1435,11 +1438,14 @@
 
                 Assert.IsTrue(dependency.Success.Value);
                 Assert.IsTrue(String.IsNullOrEmpty(dependency.ResultCode));
-                Assert.AreEqual(2, logs.Count);
+                Assert.AreEqual(5, logs.Count);
                 
                 Assert.AreEqual("warn message", logs[0].Message);
                 Assert.AreEqual("error message", logs[1].Message);
-                
+                Assert.AreEqual("payload only", logs[2].Message);
+                Assert.AreEqual("payload1, payload2", logs[3].Message);
+                Assert.AreEqual("payload1, ", logs[4].Message);
+
                 Assert.AreEqual(SeverityLevel.Warning, logs[0].SeverityLevel);
                 Assert.AreEqual(SeverityLevel.Error, logs[1].SeverityLevel);
                 
@@ -1556,6 +1562,18 @@
             public void RecordInfo(string diagnostics)
             {
                 this.WriteEvent(3, diagnostics);
+            }
+
+            [Event(4, Level = EventLevel.Warning)]
+            public void RecordWarnNoMessage(string diagnostics)
+            {
+                this.WriteEvent(4, diagnostics);
+            }
+
+            [Event(5, Level = EventLevel.Warning)]
+            public void RecordWarnNoMessageTwoArguments(string diagnostics1, string diagnostics2)
+            {
+                this.WriteEvent(5, diagnostics1, diagnostics2);
             }
         }
 #endif
