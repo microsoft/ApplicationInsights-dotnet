@@ -10,7 +10,6 @@
         public const string AzureTable = "Azure table";
         public const string AzureQueue = "Azure queue";
         public const string AzureDocumentDb = "Azure DocumentDB";
-        public const string AzureCosmosDb = "Azure CosmosDB";
         public const string AzureEventHubs = "Azure Event Hubs";
         public const string AzureServiceBus = "Azure Service Bus";
         public const string AzureIotHub = "Azure IoT Hub";

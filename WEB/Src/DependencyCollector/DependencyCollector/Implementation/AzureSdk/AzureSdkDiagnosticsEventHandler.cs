@@ -16,6 +16,7 @@
 
     internal class AzureSdkDiagnosticsEventHandler : DiagnosticsEventHandlerBase
     {
+        private const string CosmosDBResourceProviderNs = "Microsoft.DocumentDB";
 #if NET452
         private static readonly DateTimeOffset EpochStart = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
 #endif
@@ -100,7 +101,7 @@
                                 dependency.SetOperationDetail(evnt.Value.GetType().FullName, evnt.Value);
                             }
                         }
-                        else if (dependency.Type.EndsWith(RemoteDependencyConstants.AzureCosmosDb, StringComparison.Ordinal))
+                        else if (dependency.Type == CosmosDBResourceProviderNs)
                         {
                             SetCosmosDbProperties(currentActivity, dependency);
                         }
@@ -254,10 +255,6 @@
             {
                 component = RemoteDependencyConstants.AzureServiceBus;
             } 
-            else if (component == "Microsoft.DocumentDB") 
-            {
-                component = RemoteDependencyConstants.AzureCosmosDb;
-            }
 
             if (component != null)
             {
