@@ -1421,7 +1421,8 @@
 
                 listener.StartActivity(sendActivity, null);
 
-                CosmosDbEventSource.Singleton.RecordInfo("info message - ignored");
+                CosmosDbEventSource.Singleton.RecordVerbose("verbose message - ignored");
+                CosmosDbEventSource.Singleton.RecordInfo("info message");
                 CosmosDbEventSource.Singleton.RecordWarn("warn message");
                 CosmosDbEventSource.Singleton.RecordError("error message");
                 CosmosDbEventSource.Singleton.RecordWarnNoMessage("payload only");
@@ -1437,32 +1438,38 @@
 
                 Assert.IsTrue(dependency.Success.Value);
                 Assert.IsTrue(String.IsNullOrEmpty(dependency.ResultCode));
-                Assert.AreEqual(5, logs.Count);
-                
-                Assert.AreEqual("warn message", logs[0].Message);
-                Assert.AreEqual("error message", logs[1].Message);
-                Assert.AreEqual("payload only", logs[2].Message);
-                Assert.AreEqual("payload1, payload2", logs[3].Message);
-                Assert.AreEqual("payload1, ", logs[4].Message);
+                Assert.AreEqual(6, logs.Count);
 
-                Assert.AreEqual(SeverityLevel.Warning, logs[0].SeverityLevel);
-                Assert.AreEqual(SeverityLevel.Error, logs[1].SeverityLevel);
+                Assert.AreEqual("info message", logs[0].Message);
+                Assert.AreEqual("warn message", logs[1].Message);
+                Assert.AreEqual("error message", logs[2].Message);
+                Assert.AreEqual("payload only", logs[3].Message);
+                Assert.AreEqual("payload1, payload2", logs[4].Message);
+                Assert.AreEqual("payload1, ", logs[5].Message);
+
+                Assert.AreEqual(SeverityLevel.Information, logs[0].SeverityLevel);
+                Assert.AreEqual(SeverityLevel.Warning, logs[1].SeverityLevel);
+                Assert.AreEqual(SeverityLevel.Error, logs[2].SeverityLevel);
                 
                 Assert.AreEqual(dependency.Id, logs[0].Context.Operation.ParentId);
                 Assert.AreEqual(dependency.Id, logs[1].Context.Operation.ParentId);
-                
+                Assert.AreEqual(dependency.Id, logs[2].Context.Operation.ParentId);
+
                 Assert.AreEqual(dependency.Context.Operation.Id, logs[0].Context.Operation.Id);
                 Assert.AreEqual(dependency.Context.Operation.Id, logs[1].Context.Operation.Id);
+                Assert.AreEqual(dependency.Context.Operation.Id, logs[2].Context.Operation.Id);
 
-                Assert.AreEqual("2", logs[0].Properties["EventId"]);
-                Assert.AreEqual("1", logs[1].Properties["EventId"]);
+                Assert.AreEqual("3", logs[0].Properties["EventId"]);
+                Assert.AreEqual("2", logs[1].Properties["EventId"]);
+                Assert.AreEqual("1", logs[2].Properties["EventId"]);
 
 #if NET5_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
                 // DependencyCollector has net452 and netstandard20 targets
                 // test targets that falls back to net452 dependency would not have EventName available
                 // because EventSource on .NET 4.5.2 does not support it
-                Assert.AreEqual("RecordWarn", logs[0].Properties["EventName"]);
-                Assert.AreEqual("RecordError", logs[1].Properties["EventName"]);
+                Assert.AreEqual("RecordInfo", logs[0].Properties["EventName"]);
+                Assert.AreEqual("RecordWarn", logs[1].Properties["EventName"]);
+                Assert.AreEqual("RecordError", logs[2].Properties["EventName"]);
 #endif
             }
         }
@@ -1573,6 +1580,13 @@
             public void RecordWarnNoMessageTwoArguments(string diagnostics1, string diagnostics2)
             {
                 this.WriteEvent(5, diagnostics1, diagnostics2);
+            }
+
+
+            [Event(6, Level = EventLevel.Verbose, Message = "{0}")]
+            public void RecordVerbose(string diagnostics)
+            {
+                this.WriteEvent(6, diagnostics);
             }
         }
 #endif

@@ -15,7 +15,7 @@
         public AzureSdkDiagnosticListenerSubscriber(TelemetryConfiguration configuration) : base(configuration)
         {
             // listen to Cosmos EventSource only - other logs can be sent using ILogger
-            this.logsListener = new AzureSdkEventListener(this.Client, EventLevel.Warning, "Azure.Cosmos");
+            this.logsListener = new AzureSdkEventListener(this.Client, EventLevel.Informational, "Azure.Cosmos");
             this.Client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("rdd" + RddSource.DiagnosticSourceListenerAzure + ":");
         }
 
