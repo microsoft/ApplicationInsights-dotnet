@@ -5,6 +5,7 @@
 - AzureSdkDiagnosticListener modified to use sdkversion prefix "rdddsaz" instead of "dotnet".
 - [ILogger logs with LogLevel.None severity are now ignored by ApplicationInsightsLogger](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2667). Fixes ([#2666](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2666))
 - [Fix ExceptionTelemetry clears all Context when updating Exception property](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2086)
+- [Populate required string value for property Message](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1066)
 
 ## Version 2.21.0
 - no changes since beta.
