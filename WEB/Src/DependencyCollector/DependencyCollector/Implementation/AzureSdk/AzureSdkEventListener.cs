@@ -19,11 +19,11 @@
         private readonly List<EventSource> eventSources = new List<EventSource>();
         private readonly TelemetryClient telemetryClient;
         private readonly EventLevel level;
-        private readonly string traitName;
+        private readonly string prefix;
 
-        public AzureSdkEventListener(TelemetryClient telemetryClient, EventLevel level, string traitName)
+        public AzureSdkEventListener(TelemetryClient telemetryClient, EventLevel level, string prefix)
         {
-            this.traitName = traitName ?? throw new ArgumentNullException(nameof(traitName));
+            this.prefix = prefix ?? throw new ArgumentNullException(nameof(prefix));
             this.level = level;
             this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
 
@@ -48,7 +48,7 @@
             // EventSource names are deduplicated for environments like
             // Functions where the same library can be loaded twice.
             // Two EventSources with the same name are not allowed.
-            if (eventSource.Name != null && eventSource.Name.StartsWith(this.traitName, StringComparison.Ordinal))
+            if (eventSource.Name != null && eventSource.Name.StartsWith(this.prefix, StringComparison.Ordinal))
             {
                 this.EnableEvents(eventSource, this.level);
             }
