@@ -15,6 +15,8 @@
 
     internal class AzureSdkDiagnosticsEventHandler : DiagnosticsEventHandlerBase
     {
+        // Microsoft.DocumentDB is an Azure Resource Provider namespace. We use it as a dependency span as-is
+        // and portal will take care about visualizing it properly.
         private const string CosmosDBResourceProviderNs = "Microsoft.DocumentDB";
 #if NET452
         private static readonly DateTimeOffset EpochStart = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
@@ -372,8 +374,23 @@
             }
 
             // similar to SqlClientDiagnosticSourceListener
-            telemetry.Target = string.Join(" | ", dbAccount, dbName);
-            telemetry.Name = string.Join(" | ", dbContainer, dbOperation);
+            telemetry.Target = JoinNullable(dbAccount, dbName);
+            telemetry.Name = JoinNullable(dbContainer, dbOperation);
+        }
+
+        private static string JoinNullable(string first, string second)
+        {
+            if (first == null)
+            {
+                return second ?? String.Empty;
+            }
+
+            if (second == null)
+            {
+                return first;
+            }
+
+            return String.Concat(first, " | ", second);
         }
 
         private static void SetMessagingProperties(Activity activity, OperationTelemetry telemetry)
