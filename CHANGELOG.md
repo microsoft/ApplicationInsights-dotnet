@@ -1,6 +1,8 @@
 # Changelog
 
 ## VNext
+
+## Version 2.22.0-beta1
 - Update endpoint redirect header name for QuickPulse module to v2
 - AzureSdkDiagnosticListener modified to use sdkversion prefix "rdddsaz" instead of "dotnet".
 - [ILogger logs with LogLevel.None severity are now ignored by ApplicationInsightsLogger](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2667). Fixes ([#2666](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2666))
