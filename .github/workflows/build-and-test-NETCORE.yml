@@ -28,9 +28,6 @@ jobs:
         include: 
           - os: ubuntu-latest
             args: "--filter TestCategory!=WindowsOnly"
-        exclude:
-          - os: ubuntu-latest
-            framework: [net452, net462, net472, net480, net481]
 
     steps:
     - uses: actions/checkout@v3
