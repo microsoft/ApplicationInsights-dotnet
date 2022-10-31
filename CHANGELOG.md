@@ -8,7 +8,7 @@
 - [Support dependency tracking and diagnostics events for Microsoft.Azure.Cosmos v3](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2635)
 
 # Version 2.21.1
-  - System.Diagnostics.PerformanceCounter v4.7.0 -> v4.7.2 to address CVE-2021-24112
+  - Include System.Drawing.Common 4.7.2 since System.Diagnostics.PerformanceCounter can't be updated to address CVE-2021-26701
 
 ## Version 2.21.0
 - no changes since beta.
