@@ -30,6 +30,17 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="1.0.0" />
     <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="4.7.0" />
+    
+    <!--
+    System.Drawing.Common 4.7.0 has a vulnerability https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2021-24112
+    
+    This is an implicit dependency from System.Diagnostics.PerformanceCounter.
+    (System.Diagnostics.PerformanceCounter 4.7.0 > System.Configuration.ConfigurationManager 4.7.0 > System.Security.Permissions 4.7.0 > System.Windows.Extensions 4.7.0 > System.Drawing.Common 4.7.0)
+    
+    The recommended mitigation is to take an explicit dependency on System.Drawing.Common 4.7.2.
+    -->
+    <PackageReference Include="System.Drawing.Common" Version="4.7.2" />
+    
   </ItemGroup>
 
   <ItemGroup>
