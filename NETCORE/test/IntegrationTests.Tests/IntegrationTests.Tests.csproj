@@ -23,8 +23,6 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
 
     <ProjectReference Include="..\IntegrationTests.WebApp\IntegrationTests.WebApp.csproj" />
-
-    <PackageReference Include="System.Security.Permissions" Version="4.7.0" />
   </ItemGroup>
 
   <ItemGroup>
