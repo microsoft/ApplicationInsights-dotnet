@@ -1,6 +1,7 @@
 # Changelog
 
 ## VNext
+- [Upgrade System.Diagnostics.PerformanceCounter to version 6.0.0 to address CVE-2021-24112](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2707)
 
 ## Version 2.22.0-beta1
 - Update endpoint redirect header name for QuickPulse module to v2
