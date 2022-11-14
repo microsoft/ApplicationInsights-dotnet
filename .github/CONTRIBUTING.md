@@ -25,7 +25,8 @@ To successfully build the sources on your machine, make sure you've installed th
     - .NET Framework 4.6.1
     - .NET Framework 4.6.2
     - .NET Framework 4.7.2
-    - .NET Framework 4.8
+    - .NET Framework 4.8.0
+    - .NET Framework 4.8.1
     - .NET Core 3.1
     - .NET 6
     - .NET 7

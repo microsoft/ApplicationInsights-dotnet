@@ -2,8 +2,14 @@
 
 ## VNext
 - Added support to configure AAD audience, required for additional Azure clouds. ([#2623](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2623))
+- [Upgrade System.Diagnostics.PerformanceCounter to version 6.0.0 to address CVE-2021-24112](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2707)
+
+## Version 2.22.0-beta1
 - Update endpoint redirect header name for QuickPulse module to v2
 - AzureSdkDiagnosticListener modified to use sdkversion prefix "rdddsaz" instead of "dotnet".
+- [ILogger logs with LogLevel.None severity are now ignored by ApplicationInsightsLogger](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2667). Fixes ([#2666](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2666))
+- [Fix ExceptionTelemetry clears all Context when updating Exception property](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2086)
+- [Support dependency tracking and diagnostics events for Microsoft.Azure.Cosmos v3](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2635)
 
 ## Version 2.21.0
 - no changes since beta.

@@ -10,7 +10,8 @@
   -->
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net6.0</TargetFrameworks>
+    <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
+    <TargetFrameworks>$(TargetFrameworks_NetCoreOnly)</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,14 +23,16 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
 
     <ProjectReference Include="..\IntegrationTests.WebApp\IntegrationTests.WebApp.csproj" />
-
-    <PackageReference Include="System.Security.Permissions" Version="4.7.0" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="xunit.runner.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="[7.*-*,8.0)" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">

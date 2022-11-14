@@ -3,7 +3,8 @@
 
   <PropertyGroup>
     <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
-    <TargetFrameworks>net452;$(TargetFrameworks)</TargetFrameworks>
+    <TargetFrameworks>$(TargetFrameworks_WithLegacy)</TargetFrameworks>
+    
     <AssemblyName>Microsoft.ApplicationInsights.DependencyCollector.Tests</AssemblyName>
     <PackageId>Microsoft.AI.DependencyCollector.Tests</PackageId>
   </PropertyGroup>
