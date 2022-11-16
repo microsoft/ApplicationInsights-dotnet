@@ -43,15 +43,15 @@
         {
             try
             {
+                if (SdkInternalOperationsMonitor.IsEntered())
+                {
+                    // Because we support AAD, we must to check if an internal operation is being caught here (type = "InProc | Microsoft.AAD").
+                    return;
+                }
+
                 var currentActivity = Activity.Current;
                 if (evnt.Key.EndsWith(".Start", StringComparison.Ordinal))
                 {
-                    if (SdkInternalOperationsMonitor.IsEntered())
-                    {
-                        // Because we support AAD, we must to check if an internal operation is being caught here (type = "InProc | Microsoft.AAD").
-                        return;
-                    }
-
                     OperationTelemetry telemetry = null;
 
                     foreach (var tag in currentActivity.Tags)
@@ -73,12 +73,6 @@
                     if (IsMessagingDependency(type))
                     {
                         SetMessagingProperties(currentActivity, telemetry);
-                    } 
-                    else if (type == ClientCosmosDbDependencyType)
-                    {
-                        // client Cosmos spans come from new Cosmos SDK in Direct (TCP) mode. SDK might occasionally do
-                        // nested HTTP calls, but we'll suppress them because they are rare and break app-map
-                        SdkInternalOperationsMonitor.Enter();
                     }
 
                     if (this.linksPropertyFetcher.Fetch(evnt.Value) is IEnumerable<Activity> activityLinks)
@@ -96,11 +90,7 @@
                 }
                 else if (evnt.Key.EndsWith(".Stop", StringComparison.Ordinal))
                 {
-                    var telemetry = this.operationHolder.Get(currentActivity)?.Item1;
-                    if (telemetry == null)
-                    {
-                        return;
-                    }
+                    var telemetry = this.operationHolder.Get(currentActivity).Item1;
 
                     this.SetCommonProperties(evnt.Key, evnt.Value, currentActivity, telemetry);
 
@@ -114,16 +104,11 @@
                                 dependency.SetOperationDetail(evnt.Value.GetType().FullName, evnt.Value);
                             }
                         }
-                        else if (dependency.Type == ClientCosmosDbDependencyType)
-                        {
-                            SdkInternalOperationsMonitor.Exit();
-                            SetCosmosDbProperties(currentActivity, dependency);
-                        }
-                        else if (dependency.Type == InternalCosmosDbDependencyType)
+                        else if (dependency.Type == ClientCosmosDbDependencyType || dependency.Type == InternalCosmosDbDependencyType)
                         {
                             // Internal cosmos spans come from SDK in Gateway mode - they are
                             // logical operations. AppMap then uses HTTP spans to build cosmos node and 
-                            // metrics on it
+                            // metrics on the edge
                             SetCosmosDbProperties(currentActivity, dependency);
                         }
                     }

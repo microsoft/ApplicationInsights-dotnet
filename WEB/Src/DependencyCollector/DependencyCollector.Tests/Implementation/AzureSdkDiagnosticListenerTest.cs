@@ -1398,42 +1398,7 @@
         }
 
         [TestMethod]
-        public void AzureCosmosDbClientSpansSuppressNestedOperations()
-        {
-            using (var listener = new DiagnosticListener("Azure.Cosmos"))
-            using (var module = new DependencyTrackingTelemetryModule())
-            {
-                module.Initialize(this.configuration);
-
-                Activity sendActivity = new Activity("Azure.Cosmos.ReadItems")
-                    .AddTag("kind", "client")
-                    .AddTag("net.peer.name", "my.documents.azure.com")
-                    .AddTag("db.name", "database")
-                    .AddTag("db.operation", "ReadItems")
-                    .AddTag("db.cosmosdb.container", "container")
-                    .AddTag("az.namespace", "Microsoft.DocumentDB");
-
-                listener.StartActivity(sendActivity, null);
-                sendActivity.AddTag("db.cosmosdb.status_code", "200");
-                
-                Assert.IsTrue(SdkInternalOperationsMonitor.IsEntered());
-                listener.StopActivity(sendActivity, null);
-                Assert.IsFalse(SdkInternalOperationsMonitor.IsEntered());
-
-                var telemetry = this.sentItems.Last();
-                DependencyTelemetry dependency = telemetry as DependencyTelemetry;
-                Assert.AreEqual("container | ReadItems", dependency.Name);
-                Assert.AreEqual("my.documents.azure.com | database", dependency.Target);
-                Assert.AreEqual("200", dependency.ResultCode);
-                Assert.AreEqual("Microsoft.DocumentDB", dependency.Type);
-                Assert.AreEqual("database", dependency.Properties["db.name"]);
-                Assert.AreEqual("ReadItems", dependency.Properties["db.operation"]);
-                Assert.AreEqual("my.documents.azure.com", dependency.Properties["net.peer.name"]);
-            }
-        }
-
-        [TestMethod]
-        public void AzureCosmosDbInternalSpansDontSuppressNestedOperations()
+        public void AzureCosmosDbInternalSpansHaveInProcType()
         {
             using (var listener = new DiagnosticListener("Azure.Cosmos"))
             using (var module = new DependencyTrackingTelemetryModule())
@@ -1450,8 +1415,6 @@
 
                 listener.StartActivity(sendActivity, null);
                 sendActivity.AddTag("db.cosmosdb.status_code", "200");
-
-                Assert.IsFalse(SdkInternalOperationsMonitor.IsEntered());
                 listener.StopActivity(sendActivity, null);
 
                 var telemetry = this.sentItems.Last();
