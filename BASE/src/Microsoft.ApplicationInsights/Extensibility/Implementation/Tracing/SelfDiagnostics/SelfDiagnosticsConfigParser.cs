@@ -48,7 +48,6 @@
                 }
                 else
                 {
-
                     // First check using current working directory
                     if (!File.Exists(configFilePath))
                     {
