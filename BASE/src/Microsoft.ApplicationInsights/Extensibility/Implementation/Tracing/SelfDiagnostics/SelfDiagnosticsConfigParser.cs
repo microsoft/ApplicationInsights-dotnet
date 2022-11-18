@@ -11,7 +11,7 @@
         public const string ConfigFileName = "ApplicationInsightsDiagnostics.json";
         private const int FileSizeLowerLimit = 1024;  // Lower limit for log file size in KB: 1MB
         private const int FileSizeUpperLimit = 128 * 1024;  // Upper limit for log file size in KB: 128MB
-        private const string customConfigFilePath = "C:\\home\\LogFiles";
+        private const string CustomConfigFilePath = "C:\\home\\LogFiles";
 
         /// <summary>
         /// ConfigBufferSize is the maximum bytes of config file that will be read.
@@ -41,8 +41,8 @@
             {
                 var configFilePath = ConfigFileName;
 
-                var customConfigFilePathVal = Environment.GetEnvironmentVariable(customConfigFilePath);
-                if (!customConfigFilePathVal)
+                var customConfigFilePathVal = Environment.GetEnvironmentVariable(CustomConfigFilePath);
+                if (String.IsNullOrEmpty(customConfigFilePathVal))
                 {
                     configFilePath = Path.Combine(customConfigFilePathVal, ConfigFileName);
                 }
