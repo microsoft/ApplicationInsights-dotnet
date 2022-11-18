@@ -42,7 +42,7 @@
                 var configFilePath = ConfigFileName;
 
                 var customConfigFilePathVal = Environment.GetEnvironmentVariable(CustomConfigFilePath);
-                if (String.IsNullOrEmpty(customConfigFilePathVal))
+                if (!String.IsNullOrEmpty(customConfigFilePathVal))
                 {
                     configFilePath = Path.Combine(customConfigFilePathVal, ConfigFileName);
                 }
