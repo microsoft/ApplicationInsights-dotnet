@@ -426,7 +426,7 @@
         /// <exception cref="ArgumentException">An ArgumentException is thrown if the provided object does not inherit Azure.Core.TokenCredential.</exception>
         public void SetAzureTokenCredential(object tokenCredential)
         {
-            this.CredentialEnvelope = new ReflectionCredentialEnvelope(tokenCredential);
+            this.CredentialEnvelope = new CachedReflectionCredentialEnvelope(tokenCredential);
             this.SetTelemetryChannelCredentialEnvelope();
 
             // Update Ingestion Endpoint.
