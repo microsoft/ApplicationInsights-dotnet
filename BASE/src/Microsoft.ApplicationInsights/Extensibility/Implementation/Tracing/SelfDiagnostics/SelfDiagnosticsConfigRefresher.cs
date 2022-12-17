@@ -60,7 +60,11 @@
         {
             if (this.configParser.TryGetConfiguration(out string newLogDirectory, out int fileSizeInKB, out EventLevel newEventLevel))
             {
+                // out string newLogDirectory is the value of "Directory" of the selfDiagnostics file
+                // meaning the config file already exists
                 int newFileSize = fileSizeInKB * 1024;
+
+                // If the file location doesn't match the already existing file location or the file needs update
                 if (!newLogDirectory.Equals(this.memoryMappedFileHandler.LogDirectory, StringComparison.Ordinal) || this.memoryMappedFileHandler.LogFileSize != newFileSize)
                 {
                     this.memoryMappedFileHandler.CloseLogFile();
@@ -78,6 +82,7 @@
                     this.logEventLevel = newEventLevel;
                 }
             }
+            // the self diagnostics file does not exist
             else
             {
                 this.memoryMappedFileHandler.CloseLogFile();
