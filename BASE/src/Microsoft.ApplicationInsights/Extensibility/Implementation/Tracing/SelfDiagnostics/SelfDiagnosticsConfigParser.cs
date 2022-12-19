@@ -11,6 +11,10 @@
         public const string ConfigFileName = "ApplicationInsightsDiagnostics.json";
         private const int FileSizeLowerLimit = 1024;  // Lower limit for log file size in KB: 1MB
         private const int FileSizeUpperLimit = 128 * 1024;  // Upper limit for log file size in KB: 128MB
+        
+        private const string LogDirectory = "LogDirectory";
+        private const string FileSize = "FileSize";
+        private const string LogLevel = "LogLevel";
 
         /// <summary>
         /// ConfigBufferSize is the maximum bytes of config file that will be read.
@@ -42,26 +46,24 @@
                 return true;
             }
 
-            TryGetConfigFromJsonFile(ref logDirectory, ref fileSizeInKB, ref logLevel);
-
-            return true;
+            return TryGetConfigFromJsonFile(ref logDirectory, ref fileSizeInKB, ref logLevel);
         }
 
         internal static bool TryGetConfigFromEnvrionmentVariable(ref string logDirectory, ref int fileSizeInKB, ref EventLevel logLevel)
         {
-            if (!TryParseLogDirectory(ParseLocation.EnviornmentVariable, Environment.GetEnvironmentVariable("LogDirectory"), out logDirectory))
+            if (!TryParseLogDirectory(ParseLocation.EnviornmentVariable, Environment.GetEnvironmentVariable(LogDirectory), out logDirectory))
             {
                 return false;
             }
 
-            if (!TryParseFileSize(ParseLocation.EnviornmentVariable, Environment.GetEnvironmentVariable("fileSize"), out fileSizeInKB))
+            if (!TryParseFileSize(ParseLocation.EnviornmentVariable, Environment.GetEnvironmentVariable(FileSize), out fileSizeInKB))
             {
                 return false;
             }
 
             UpdateFileSizeToBeWithinLimit(ref fileSizeInKB);
 
-            if (!TryParseLogLevel(ParseLocation.EnviornmentVariable, Environment.GetEnvironmentVariable("logLevel"), out var logLevelString))
+            if (!TryParseLogLevel(ParseLocation.EnviornmentVariable, Environment.GetEnvironmentVariable(LogLevel), out var logLevelString))
             {
                 return false;
             }
@@ -142,7 +144,7 @@
             else 
             {
                 var logDirectoryResult = LogDirectoryRegex.Match(val);
-                logDirectory = logDirectoryResult.Groups["LogDirectory"].Value;
+                logDirectory = logDirectoryResult.Groups[LogDirectory].Value;
                 return logDirectoryResult.Success && !string.IsNullOrWhiteSpace(logDirectory);
             }
         }
@@ -157,7 +159,7 @@
             else
             {
                 var fileSizeResult = FileSizeRegex.Match(val);
-                return fileSizeResult.Success && int.TryParse(fileSizeResult.Groups["FileSize"].Value, out fileSizeInKB);
+                return fileSizeResult.Success && int.TryParse(fileSizeResult.Groups[FileSize].Value, out fileSizeInKB);
             }
         }
 
@@ -186,7 +188,7 @@
             else
             {
                 var logLevelResult = LogLevelRegex.Match(config);
-                logLevel = logLevelResult.Groups["LogLevel"].Value;
+                logLevel = logLevelResult.Groups[LogLevel].Value;
                 return logLevelResult.Success && !string.IsNullOrWhiteSpace(logLevel);
             }
         }
