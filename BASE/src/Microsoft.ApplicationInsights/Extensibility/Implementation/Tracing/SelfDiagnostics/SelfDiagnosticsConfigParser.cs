@@ -37,7 +37,18 @@
             fileSizeInKB = 0;
             logLevel = EventLevel.LogAlways;
 
-            // for debugging function Apps enviornment
+            if (TryGetConfigFromEnvrionmentVariable(ref logDirectory, ref fileSizeInKB, ref logLevel))
+            {
+                return true;
+            }
+
+            TryGetConfigFromJsonFile(ref logDirectory, ref fileSizeInKB, ref logLevel);
+
+            return true;
+        }
+
+        internal static bool TryGetConfigFromEnvrionmentVariable(ref string logDirectory, ref int fileSizeInKB, ref EventLevel logLevel)
+        {
             if (!TryParseLogDirectory(ParseLocation.EnviornmentVariable, Environment.GetEnvironmentVariable("LogDirectory"), out logDirectory))
             {
                 return false;
@@ -47,6 +58,7 @@
             {
                 return false;
             }
+
             UpdateFileSizeToBeWithinLimit(ref fileSizeInKB);
 
             if (!TryParseLogLevel(ParseLocation.EnviornmentVariable, Environment.GetEnvironmentVariable("logLevel"), out var logLevelString))
@@ -55,12 +67,11 @@
             }
 
             logLevel = (EventLevel)Enum.Parse(typeof(EventLevel), logLevelString);
+            return true;
+        }
 
-            if (logDirectory != null)
-            {
-                return true;
-            }
-
+        internal bool TryGetConfigFromJsonFile(ref string logDirectory, ref int fileSizeInKB, ref EventLevel logLevel)
+        {
             try
             {
                 var configFilePath = ConfigFileName;
@@ -104,7 +115,7 @@
                     }
                     UpdateFileSizeToBeWithinLimit(ref fileSizeInKB);
 
-                    if (!TryParseLogLevel(ParseLocation.ConfigJson, configJson, out logLevelString))
+                    if (!TryParseLogLevel(ParseLocation.ConfigJson, configJson, out var logLevelString))
                     {
                         return false;
                     }
