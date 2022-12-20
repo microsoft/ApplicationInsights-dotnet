@@ -51,78 +51,6 @@
             ConfigJson,
         }
 
-        public bool TryGetConfiguration(out string logDirectory, out int fileSizeInKB, out EventLevel logLevel)
-        {
-            if (TryGetConfigFromEnvrionmentVariable(out logDirectory, out fileSizeInKB, out logLevel))
-            {
-                return true;
-            }
-
-            return this.TryGetConfigFromJsonFile(ref logDirectory, ref fileSizeInKB, ref logLevel);
-        }
-
-        internal bool TryGetConfigFromJsonFile(ref string logDirectory, ref int fileSizeInKB, ref EventLevel logLevel)
-        {
-            try
-            {
-                var configFilePath = ConfigFileName;
-
-                // First check using current working directory
-                if (!File.Exists(configFilePath))
-                {
-#if NET452
-                    configFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ConfigFileName);
-#else
-                    configFilePath = Path.Combine(AppContext.BaseDirectory, ConfigFileName);
-#endif
-
-                    // Second check using application base directory
-                    if (!File.Exists(configFilePath))
-                    {
-                        return false;
-                    }
-                }
-
-                // user provided configuration json file exists
-                using (FileStream file = File.Open(configFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
-                {
-                    var buffer = this.configBuffer;
-                    if (buffer == null)
-                    {
-                        buffer = new byte[ConfigBufferSize]; // Fail silently if OOM
-                        this.configBuffer = buffer;
-                    }
-
-                    file.Read(buffer, 0, buffer.Length);
-                    string configJson = Encoding.UTF8.GetString(buffer);
-                    if (!TryParseLogDirectory(ParseLocation.ConfigJson, configJson, out logDirectory))
-                    {
-                        return false;
-                    }
-
-                    if (!TryParseFileSize(ParseLocation.ConfigJson, configJson, out fileSizeInKB))
-                    {
-                        return false;
-                    }
-
-                    UpdateFileSizeToBeWithinLimit(ref fileSizeInKB);
-
-                    if (!TryParseLogLevel(ParseLocation.ConfigJson, configJson, out logLevel))
-                    {
-                        return false;
-                    }
-
-                    return true;
-                }
-            }
-            catch (Exception)
-            {
-                // do nothing on failure to open/read/parse config file
-            }
-
-            return false;
-        }
-
         internal static bool TryGetConfigFromEnvrionmentVariable(out string logDirectory, out int fileSizeInKB, out EventLevel logLevel)
         {
             logDirectory = null;
@@ -234,6 +162,78 @@
 
                 return false;
             }
+        }
+
+        public bool TryGetConfiguration(out string logDirectory, out int fileSizeInKB, out EventLevel logLevel)
+        {
+            if (TryGetConfigFromEnvrionmentVariable(out logDirectory, out fileSizeInKB, out logLevel))
+            {
+                return true;
+            }
+
+            return this.TryGetConfigFromJsonFile(ref logDirectory, ref fileSizeInKB, ref logLevel);
+        }
+
+        internal bool TryGetConfigFromJsonFile(ref string logDirectory, ref int fileSizeInKB, ref EventLevel logLevel)
+        {
+            try
+            {
+                var configFilePath = ConfigFileName;
+
+                // First check using current working directory
+                if (!File.Exists(configFilePath))
+                {
+#if NET452
+                    configFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ConfigFileName);
+#else
+                    configFilePath = Path.Combine(AppContext.BaseDirectory, ConfigFileName);
+#endif
+
+                    // Second check using application base directory
+                    if (!File.Exists(configFilePath))
+                    {
+                        return false;
+                    }
+                }
+
+                // user provided configuration json file exists
+                using (FileStream file = File.Open(configFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+                {
+                    var buffer = this.configBuffer;
+                    if (buffer == null)
+                    {
+                        buffer = new byte[ConfigBufferSize]; // Fail silently if OOM
+                        this.configBuffer = buffer;
+                    }
+
+                    file.Read(buffer, 0, buffer.Length);
+                    string configJson = Encoding.UTF8.GetString(buffer);
+                    if (!TryParseLogDirectory(ParseLocation.ConfigJson, configJson, out logDirectory))
+                    {
+                        return false;
+                    }
+
+                    if (!TryParseFileSize(ParseLocation.ConfigJson, configJson, out fileSizeInKB))
+                    {
+                        return false;
+                    }
+
+                    UpdateFileSizeToBeWithinLimit(ref fileSizeInKB);
+
+                    if (!TryParseLogLevel(ParseLocation.ConfigJson, configJson, out logLevel))
+                    {
+                        return false;
+                    }
+
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                // do nothing on failure to open/read/parse config file
+            }
+
+            return false;
         }
     }
 }
