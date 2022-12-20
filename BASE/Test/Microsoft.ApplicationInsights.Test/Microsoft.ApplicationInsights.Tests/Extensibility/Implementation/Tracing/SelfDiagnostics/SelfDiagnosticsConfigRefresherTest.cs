@@ -18,7 +18,7 @@
             @"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{7}Z:", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         [TestMethod]
-        public void SelfDiagnosticsConfigRefresher_OmitAsConfigured()
+        public void SelfDiagnosticsConfigRefresher_ReadFromJson_OmitAsConfigured()
         {
             try
             {
@@ -45,7 +45,7 @@
         }
 
         [TestMethod]
-        public void SelfDiagnosticsConfigRefresher_CaptureAsConfigured()
+        public void SelfDiagnosticsConfigRefresher_ReadFromJson_CaptureAsConfigured()
         {
             try
             {
@@ -76,7 +76,25 @@
         }
 
         [TestMethod]
-        public void SelfDiagnosticsConfigRefresh_ReadFromEnviornmentVariables()
+        public void SelfDiagnosticsConfigRefresher_ReadFromEnviornmentVars_OnlyLogDirectoryWasSet()
+        {
+            Environment.SetEnvironmentVariable("LogDirectory", ".");
+
+            using (var configRefresher = new SelfDiagnosticsConfigRefresher())
+            {
+                // Emitting event of EventLevel.Error
+                CoreEventSource.Log.InvalidOperationToStopError();
+                var filePath = configRefresher.CurrentFilePath;
+
+                int bufferSize = 512;
+                byte[] actualBytes = ReadFile(filePath, bufferSize);
+                string logText = Encoding.UTF8.GetString(actualBytes);
+                Assert.IsTrue(logText.StartsWith(MessageOnNewFileString));
+            }
+        }
+
+        [TestMethod]
+        public void SelfDiagnosticsConfigRefresher_ReadFromEnviornmentVars()
         {
             Environment.SetEnvironmentVariable("LogDirectory", ".");
             Environment.SetEnvironmentVariable("LogLevel", "Error");

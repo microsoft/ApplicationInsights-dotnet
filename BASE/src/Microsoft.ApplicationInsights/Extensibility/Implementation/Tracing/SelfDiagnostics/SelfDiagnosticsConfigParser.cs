@@ -56,6 +56,8 @@
         {
             if (TryGetConfigFromEnvrionmentVariable(out logDirectory, out fileSizeInKB, out logLevel))
             {
+                // self-diagnostics settings passed in via enviornment variables has higher precedence than
+                // self-diagnostcis settings passed in via JSON file.
                 return true;
             }
 
