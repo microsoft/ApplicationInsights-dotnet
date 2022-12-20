@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics
 {
+    using System;
     using System.Diagnostics;
     using System.IO;
     using System.Text;
@@ -71,6 +72,32 @@
             finally
             {
                 CleanupConfigFile();
+            }
+        }
+
+        [TestMethod]
+        public void SelfDiagnosticsConfigRefresh_ReadFromEnviornmentVariables()
+        {
+            Environment.SetEnvironmentVariable("LogDirectory", ".");
+            Environment.SetEnvironmentVariable("LogLevel", "Error");
+
+            using (var configRefresher = new SelfDiagnosticsConfigRefresher())
+            {
+                // Emitting event of EventLevel.Error
+                CoreEventSource.Log.InvalidOperationToStopError();
+
+                var filePath = configRefresher.CurrentFilePath;
+
+                int bufferSize = 512;
+                byte[] actualBytes = ReadFile(filePath, bufferSize);
+                string logText = Encoding.UTF8.GetString(actualBytes);
+                Assert.IsTrue(logText.StartsWith(MessageOnNewFileString));
+
+                // The event was captured
+                string logLine = logText.Substring(MessageOnNewFileString.Length);
+                string logMessage = ParseLogMessage(logLine);
+                string expectedMessage = "Operation to stop does not match the current operation. Telemetry is not tracked.";
+                Assert.IsTrue(logMessage.StartsWith(expectedMessage));
             }
         }
 

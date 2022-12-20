@@ -37,11 +37,7 @@
 
         public bool TryGetConfiguration(out string logDirectory, out int fileSizeInKB, out EventLevel logLevel)
         {
-            logDirectory = null;
-            fileSizeInKB = 0;
-            logLevel = EventLevel.LogAlways;
-
-            if (TryGetConfigFromEnvrionmentVariable(ref logDirectory, ref fileSizeInKB, ref logLevel))
+            if (TryGetConfigFromEnvrionmentVariable(out logDirectory, out fileSizeInKB, out logLevel))
             {
                 return true;
             }
@@ -49,8 +45,12 @@
             return TryGetConfigFromJsonFile(ref logDirectory, ref fileSizeInKB, ref logLevel);
         }
 
-        internal static bool TryGetConfigFromEnvrionmentVariable(ref string logDirectory, ref int fileSizeInKB, ref EventLevel logLevel)
+        internal static bool TryGetConfigFromEnvrionmentVariable(out string logDirectory, out int fileSizeInKB, out EventLevel logLevel)
         {
+            logDirectory = null;
+            fileSizeInKB = 0;
+            logLevel = EventLevel.LogAlways;
+
             if (!TryParseLogDirectory(ParseLocation.EnviornmentVariable, Environment.GetEnvironmentVariable(LogDirectory), out logDirectory))
             {
                 return false;
@@ -63,12 +63,11 @@
 
             UpdateFileSizeToBeWithinLimit(ref fileSizeInKB);
 
-            if (!TryParseLogLevel(ParseLocation.EnviornmentVariable, Environment.GetEnvironmentVariable(LogLevel), out var logLevelString))
+            if (!TryParseLogLevel(ParseLocation.EnviornmentVariable, Environment.GetEnvironmentVariable(LogLevel), out logLevel))
             {
                 return false;
             }
 
-            logLevel = (EventLevel)Enum.Parse(typeof(EventLevel), logLevelString);
             return true;
         }
 
@@ -117,12 +116,11 @@
                     }
                     UpdateFileSizeToBeWithinLimit(ref fileSizeInKB);
 
-                    if (!TryParseLogLevel(ParseLocation.ConfigJson, configJson, out var logLevelString))
+                    if (!TryParseLogLevel(ParseLocation.ConfigJson, configJson, out logLevel))
                     {
                         return false;
                     }
 
-                    logLevel = (EventLevel)Enum.Parse(typeof(EventLevel), logLevelString);
                     return true;
                 }
             }
@@ -136,10 +134,18 @@
 
         internal static bool TryParseLogDirectory(ParseLocation location, string val, out string logDirectory)
         {
+            logDirectory = null;
             if (location == ParseLocation.EnviornmentVariable)
             {
-                logDirectory = val;
-                return !string.IsNullOrWhiteSpace(logDirectory);
+                if (!String.IsNullOrWhiteSpace(val))
+                {
+                    logDirectory = val;
+                    return true;
+                }
+
+                // Short circuit for this parse from enviornment variables path
+                // to check whether self diagnostics feature was enabled by the json config file.
+                return false;
             }
             else 
             {
@@ -151,10 +157,17 @@
 
         internal static bool TryParseFileSize(ParseLocation location, string val, out int fileSizeInKB)
         {
-            fileSizeInKB = 0;
+            fileSizeInKB = FileSizeLowerLimit;
             if (location == ParseLocation.EnviornmentVariable)
             {
-                return int.TryParse(val, out fileSizeInKB);
+                if (!String.IsNullOrEmpty(val))
+                {
+                    return int.TryParse(val, out fileSizeInKB);
+                }
+
+                // If the LogDirectory was set by the environment variable,
+                // but FileSize was not set, use the default fileSize.
+                return true;
             }
             else
             {
@@ -178,18 +191,31 @@
             }
         }
 
-        internal static bool TryParseLogLevel(ParseLocation location, string config, out string logLevel)
+        internal static bool TryParseLogLevel(ParseLocation location, string val, out EventLevel logLevel)
         {
+            logLevel = EventLevel.LogAlways;
             if (location == ParseLocation.EnviornmentVariable)
             {
-                logLevel = config;
-                return !string.IsNullOrEmpty(logLevel);
+                if (!String.IsNullOrEmpty(val))
+                {
+                    logLevel = (EventLevel)Enum.Parse(typeof(EventLevel), val);
+                }
+
+                // If the LogDirectory was set by the environment variable,
+                // but logLevel was not set, use the default logLevel.
+                return true;
             }
             else
             {
-                var logLevelResult = LogLevelRegex.Match(config);
-                logLevel = logLevelResult.Groups[LogLevel].Value;
-                return logLevelResult.Success && !string.IsNullOrWhiteSpace(logLevel);
+                var logLevelResult = LogLevelRegex.Match(val);
+                var logLevelString = logLevelResult.Groups[LogLevel].Value;
+                if (!String.IsNullOrEmpty(logLevelString))
+                {
+                    logLevel = (EventLevel)Enum.Parse(typeof(EventLevel), logLevelString);
+                    return logLevelResult.Success;
+                }
+
+                return false;
             }
         }
 

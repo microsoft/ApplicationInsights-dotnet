@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System.Diagnostics.Tracing;
     using static SelfDiagnosticsConfigParser;
 
     [TestClass]
@@ -68,8 +69,8 @@
                     ""FileSize"": 1024,
                     ""LogLevel"": ""Error""
                     }";
-            Assert.IsTrue(SelfDiagnosticsConfigParser.TryParseLogLevel(ParseLocation.ConfigJson, configJson, out string logLevelString));
-            Assert.AreEqual("Error", logLevelString);
+            Assert.IsTrue(SelfDiagnosticsConfigParser.TryParseLogLevel(ParseLocation.ConfigJson, configJson, out EventLevel logLevel));
+            Assert.AreEqual("Error", logLevel.ToString());
         }
     }
 }
