@@ -10,22 +10,6 @@
     {
         public const string ConfigFileName = "ApplicationInsightsDiagnostics.json";
 
-        /// <summary>
-        /// Represents the location for App Insights to parse user-defined self-diagnostics settings.
-        /// </summary>
-        internal enum ParseLocation
-        {
-            /// <summary>
-            /// Parse self-diagnostics settings from enviornment variable(s).
-            /// </summary>
-            EnviornmentVariable,
-
-            /// <summary>
-            /// Parse self-diagnostics settings from tje JSON file.
-            /// </summary>
-            ConfigJson,
-        }
-
         private const int FileSizeLowerLimit = 1024;  // Lower limit for log file size in KB: 1MB
         private const int FileSizeUpperLimit = 128 * 1024;  // Upper limit for log file size in KB: 128MB
         
@@ -51,6 +35,22 @@
         // in both main thread and the worker thread.
         // In theory the variable won't be access at the same time because worker thread first Task.Delay for a few seconds.
         private byte[] configBuffer;
+
+        /// <summary>
+        /// Represents the location for App Insights to parse user-defined self-diagnostics settings.
+        /// </summary>
+        internal enum ParseLocation
+        {
+            /// <summary>
+            /// Parse self-diagnostics settings from enviornment variable(s).
+            /// </summary>
+            EnviornmentVariable,
+
+            /// <summary>
+            /// Parse self-diagnostics settings from tje JSON file.
+            /// </summary>
+            ConfigJson,
+        }
 
         public bool TryGetConfiguration(out string logDirectory, out int fileSizeInKB, out EventLevel logLevel)
         {
@@ -197,7 +197,6 @@
                     }
                 }
 
-                // user provided configuration json file exists
                 using (FileStream file = File.Open(configFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
                 {
                     var buffer = this.configBuffer;
