@@ -163,8 +163,8 @@ at the above mentioning locations due to hosting enviornment limiations, configu
         // "FileSize" is an optional parameter, i.e. if "LogDirectory" was set, the default value for FileSize is 1 MiB.
         Environment.SetEnvironmentVariable("FileSize", "1024");
 
-        // "LogLevel" is an optional parameter, i.e. if "LogDirectory" was set, the default value for LogLevel is Error.
-        Environment.SetEnvironmentVariable("LogLevel", "Error");
+        // "LogLevel" is an optional parameter, i.e. if "LogDirectory" was set, the default value for LogLevel is LogAlways.
+        Environment.SetEnvironmentVariable("LogLevel", "LogAlways");
     }
     ```
 
@@ -189,7 +189,7 @@ was passed in via enviornment variables, the default value is `1 MiB` if this pa
 3. `LogLevel` is the lowest level of the events to be captured.
 This value must match one of the [fields](https://docs.microsoft.com/dotnet/api/system.diagnostics.tracing.eventlevel#fields) of the `EventLevel` enum.
 Lower severity levels encompass higher severity levels (e.g. `Warning` includes the `Error` and `Critical` levels).
-For the case that configuration was passed in via enviornment variables, the default value is `Error` if this parameter was not set.
+For the case that configuration was passed in via enviornment variables, the default value is `LogAlways` if this parameter was not set.
 
 **Warning**: If the SDK fails to parse any of these fields, the configuration file will be treated as invalid and self-diagnostics will be disabled.
 
