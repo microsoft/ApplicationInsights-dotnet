@@ -35,6 +35,22 @@
         // In theory the variable won't be access at the same time because worker thread first Task.Delay for a few seconds.
         private byte[] configBuffer;
 
+        /// <summary>
+        /// Represents the location for App Insights to parse user-defined self-diagnostics settings.
+        /// </summary>
+        internal enum ParseLocation
+        {
+            /// <summary>
+            /// Parse self-diagnostics settings from enviornment variable(s).
+            /// </summary>
+            EnviornmentVariable,
+
+            /// <summary>
+            /// Parse self-diagnostics settings from tje JSON file.
+            /// </summary>
+            ConfigJson,
+        }
+
         public bool TryGetConfiguration(out string logDirectory, out int fileSizeInKB, out EventLevel logLevel)
         {
             if (TryGetConfigFromEnvrionmentVariable(out logDirectory, out fileSizeInKB, out logLevel))
@@ -42,33 +58,7 @@
                 return true;
             }
 
-            return TryGetConfigFromJsonFile(ref logDirectory, ref fileSizeInKB, ref logLevel);
-        }
-
-        internal static bool TryGetConfigFromEnvrionmentVariable(out string logDirectory, out int fileSizeInKB, out EventLevel logLevel)
-        {
-            logDirectory = null;
-            fileSizeInKB = 0;
-            logLevel = EventLevel.LogAlways;
-
-            if (!TryParseLogDirectory(ParseLocation.EnviornmentVariable, Environment.GetEnvironmentVariable(LogDirectory), out logDirectory))
-            {
-                return false;
-            }
-
-            if (!TryParseFileSize(ParseLocation.EnviornmentVariable, Environment.GetEnvironmentVariable(FileSize), out fileSizeInKB))
-            {
-                return false;
-            }
-
-            UpdateFileSizeToBeWithinLimit(ref fileSizeInKB);
-
-            if (!TryParseLogLevel(ParseLocation.EnviornmentVariable, Environment.GetEnvironmentVariable(LogLevel), out logLevel))
-            {
-                return false;
-            }
-
-            return true;
+            return this.TryGetConfigFromJsonFile(ref logDirectory, ref fileSizeInKB, ref logLevel);
         }
 
         internal bool TryGetConfigFromJsonFile(ref string logDirectory, ref int fileSizeInKB, ref EventLevel logLevel)
@@ -114,6 +104,7 @@
                     {
                         return false;
                     }
+
                     UpdateFileSizeToBeWithinLimit(ref fileSizeInKB);
 
                     if (!TryParseLogLevel(ParseLocation.ConfigJson, configJson, out logLevel))
@@ -130,6 +121,32 @@
             }
 
             return false;
+        }
+
+        internal static bool TryGetConfigFromEnvrionmentVariable(out string logDirectory, out int fileSizeInKB, out EventLevel logLevel)
+        {
+            logDirectory = null;
+            fileSizeInKB = 0;
+            logLevel = EventLevel.LogAlways;
+
+            if (!TryParseLogDirectory(ParseLocation.EnviornmentVariable, Environment.GetEnvironmentVariable(LogDirectory), out logDirectory))
+            {
+                return false;
+            }
+
+            if (!TryParseFileSize(ParseLocation.EnviornmentVariable, Environment.GetEnvironmentVariable(FileSize), out fileSizeInKB))
+            {
+                return false;
+            }
+
+            UpdateFileSizeToBeWithinLimit(ref fileSizeInKB);
+
+            if (!TryParseLogLevel(ParseLocation.EnviornmentVariable, Environment.GetEnvironmentVariable(LogLevel), out logLevel))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         internal static bool TryParseLogDirectory(ParseLocation location, string val, out string logDirectory)
@@ -217,12 +234,6 @@
 
                 return false;
             }
-        }
-
-        internal enum ParseLocation 
-        { 
-            EnviornmentVariable,
-            ConfigJson,
         }
     }
 }
