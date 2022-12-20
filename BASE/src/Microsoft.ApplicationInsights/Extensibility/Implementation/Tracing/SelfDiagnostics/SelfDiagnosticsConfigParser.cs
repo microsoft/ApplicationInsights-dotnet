@@ -9,6 +9,23 @@
     internal class SelfDiagnosticsConfigParser
     {
         public const string ConfigFileName = "ApplicationInsightsDiagnostics.json";
+
+        /// <summary>
+        /// Represents the location for App Insights to parse user-defined self-diagnostics settings.
+        /// </summary>
+        internal enum ParseLocation
+        {
+            /// <summary>
+            /// Parse self-diagnostics settings from enviornment variable(s).
+            /// </summary>
+            EnviornmentVariable,
+
+            /// <summary>
+            /// Parse self-diagnostics settings from tje JSON file.
+            /// </summary>
+            ConfigJson,
+        }
+
         private const int FileSizeLowerLimit = 1024;  // Lower limit for log file size in KB: 1MB
         private const int FileSizeUpperLimit = 128 * 1024;  // Upper limit for log file size in KB: 128MB
         
@@ -35,20 +52,14 @@
         // In theory the variable won't be access at the same time because worker thread first Task.Delay for a few seconds.
         private byte[] configBuffer;
 
-        /// <summary>
-        /// Represents the location for App Insights to parse user-defined self-diagnostics settings.
-        /// </summary>
-        internal enum ParseLocation
+        public bool TryGetConfiguration(out string logDirectory, out int fileSizeInKB, out EventLevel logLevel)
         {
-            /// <summary>
-            /// Parse self-diagnostics settings from enviornment variable(s).
-            /// </summary>
-            EnviornmentVariable,
+            if (TryGetConfigFromEnvrionmentVariable(out logDirectory, out fileSizeInKB, out logLevel))
+            {
+                return true;
+            }
 
-            /// <summary>
-            /// Parse self-diagnostics settings from tje JSON file.
-            /// </summary>
-            ConfigJson,
+            return this.TryGetConfigFromJsonFile(ref logDirectory, ref fileSizeInKB, ref logLevel);
         }
 
         internal static bool TryGetConfigFromEnvrionmentVariable(out string logDirectory, out int fileSizeInKB, out EventLevel logLevel)
@@ -162,16 +173,6 @@
 
                 return false;
             }
-        }
-
-        public bool TryGetConfiguration(out string logDirectory, out int fileSizeInKB, out EventLevel logLevel)
-        {
-            if (TryGetConfigFromEnvrionmentVariable(out logDirectory, out fileSizeInKB, out logLevel))
-            {
-                return true;
-            }
-
-            return this.TryGetConfigFromJsonFile(ref logDirectory, ref fileSizeInKB, ref logLevel);
         }
 
         internal bool TryGetConfigFromJsonFile(ref string logDirectory, ref int fileSizeInKB, ref EventLevel logLevel)
