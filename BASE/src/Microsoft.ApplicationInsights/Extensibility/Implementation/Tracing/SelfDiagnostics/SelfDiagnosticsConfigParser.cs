@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics
 {
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using System;
     using System.Collections;
     using System.Collections.Concurrent;
@@ -10,6 +9,7 @@
     using System.Linq;
     using System.Text;
     using System.Text.RegularExpressions;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
 
     internal class SelfDiagnosticsConfigParser
     {
@@ -18,10 +18,10 @@
         private const int FileSizeLowerLimit = 1024;  // Lower limit for log file size in KB: 1MB
         private const int FileSizeUpperLimit = 128 * 1024;  // Upper limit for log file size in KB: 128MB
 
-        private const string APPLICATIONINSIGHTS_LOG_DIAGNOSTICS = "APPLICATIONINSIGHTS_LOG_DIAGNOSTICS";
-        private const string APPLICATIONINSIGHTS_LOG_LOGDIRECTORY = "LogDirectory";
-        private const string APPLICATIONINSIGHTS_LOG_FILESIZE = "FileSize";
-        private const string APPLICATIONINSIGHTS_LOG_LOGLEVEL = "LogLevel";
+        private const string LogDiagnosticsEnviornmentVariable = "APPLICATIONINSIGHTS_LOG_DIAGNOSTICS";
+        private const string DiagnosticsFilelogDirectory = "LogDirectory";
+        private const string DiagnosticsFileFileSize = "FileSize";
+        private const string DiagnosticsFileLogLevel = "LogLevel";
 
         /// <summary>
         /// ConfigBufferSize is the maximum bytes of config file that will be read.
@@ -62,7 +62,7 @@
 
             try
             {
-                if (!PlatformSingleton.Current.TryGetEnvironmentVariable(APPLICATIONINSIGHTS_LOG_DIAGNOSTICS, out string ApplicationInsightsDiagnosticsVal))
+                if (!PlatformSingleton.Current.TryGetEnvironmentVariable(LogDiagnosticsEnviornmentVariable, out string ApplicationInsightsDiagnosticsVal))
                 {
                     return false;
                 }
@@ -76,14 +76,14 @@
                 var concurrentDictionary = new ConcurrentDictionary<string, string>(keyValuePairs);
 
                 // logDirectory is a required parameter to enable SDK to read config from the enviornment variable
-                if (!concurrentDictionary.TryGetValue(APPLICATIONINSIGHTS_LOG_LOGDIRECTORY, out logDirectory) || string.IsNullOrWhiteSpace(logDirectory))
+                if (!concurrentDictionary.TryGetValue(DiagnosticsFilelogDirectory, out logDirectory) || string.IsNullOrWhiteSpace(logDirectory))
                 {
                     return false;
                 }
 
                 // fileSize is an optional parameter
                 // function returns early if the optional parameter is set but it is invalid
-                if (concurrentDictionary.TryGetValue(APPLICATIONINSIGHTS_LOG_FILESIZE, out var fileSizeString) && !int.TryParse(fileSizeString, out fileSizeInKB))
+                if (concurrentDictionary.TryGetValue(DiagnosticsFileFileSize, out var fileSizeString) && !int.TryParse(fileSizeString, out fileSizeInKB))
                 {
                     return false;
                 }
@@ -92,7 +92,7 @@
 
                 // logLevel is an optional parameter
                 // function returns early if the optional parameter is set but it is invalid
-                if (concurrentDictionary.TryGetValue(APPLICATIONINSIGHTS_LOG_LOGLEVEL, out var logLevelString) && !Enum.TryParse(logLevelString, /*case-insensitive*/ false, out logLevel))
+                if (concurrentDictionary.TryGetValue(DiagnosticsFileLogLevel, out var logLevelString) && !Enum.TryParse(logLevelString, /*case-insensitive*/ false, out logLevel))
                 {
                     return false;
                 }
@@ -143,7 +143,7 @@
                 return false;
             }
 
-            var logLevelString = logLevelResult.Groups[APPLICATIONINSIGHTS_LOG_LOGLEVEL].Value;
+            var logLevelString = logLevelResult.Groups[DiagnosticsFileLogLevel].Value;
             if (string.IsNullOrWhiteSpace(logLevelString))
             {
                 return false;
