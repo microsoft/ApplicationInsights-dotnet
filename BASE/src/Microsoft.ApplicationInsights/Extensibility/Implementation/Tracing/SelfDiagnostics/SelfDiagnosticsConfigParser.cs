@@ -68,7 +68,7 @@
                 }
 
                 // remove all whitespaces
-                applicationInsightsDiagnosticsVal = Regex.Replace(applicationInsightsDiagnosticsVal, @"\s+", "");
+                applicationInsightsDiagnosticsVal = Regex.Replace(applicationInsightsDiagnosticsVal, @"\s+", string.Empty);
 
                 var keyValuePairs = applicationInsightsDiagnosticsVal.Split(',')
                     .Select(value => value.Split('='))
