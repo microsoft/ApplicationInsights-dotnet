@@ -1,8 +1,13 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics
 {
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using System;
+    using System.Collections;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Diagnostics.Tracing;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using System.Text.RegularExpressions;
 
@@ -12,7 +17,8 @@
 
         private const int FileSizeLowerLimit = 1024;  // Lower limit for log file size in KB: 1MB
         private const int FileSizeUpperLimit = 128 * 1024;  // Upper limit for log file size in KB: 128MB
-        
+
+        private const string APPLICATIONINSIGHTS_LOG_DIAGNOSTICS = "APPLICATIONINSIGHTS_LOG_DIAGNOSTICS";
         private const string APPLICATIONINSIGHTS_LOG_LOGDIRECTORY = "LogDirectory";
         private const string APPLICATIONINSIGHTS_LOG_FILESIZE = "FileSize";
         private const string APPLICATIONINSIGHTS_LOG_LOGLEVEL = "LogLevel";
@@ -36,28 +42,12 @@
         // In theory the variable won't be access at the same time because worker thread first Task.Delay for a few seconds.
         private byte[] configBuffer;
 
-        /// <summary>
-        /// Represents the location for App Insights to parse user-defined self-diagnostics settings.
-        /// </summary>
-        internal enum ParseLocation
-        {
-            /// <summary>
-            /// Parse self-diagnostics settings from enviornment variable(s).
-            /// </summary>
-            EnviornmentVariable,
-
-            /// <summary>
-            /// Parse self-diagnostics settings from tje JSON file.
-            /// </summary>
-            ConfigJson,
-        }
-
         public bool TryGetConfiguration(out string logDirectory, out int fileSizeInKB, out EventLevel logLevel)
         {
             if (TryGetConfigFromEnvrionmentVariable(out logDirectory, out fileSizeInKB, out logLevel))
             {
-                // self-diagnostics settings passed in via enviornment variables has higher precedence than
-                // self-diagnostcis settings passed in via JSON file.
+                // Self-diagnostics config passed in via enviornment variables has higher precedence than
+                // self-diagnostcis config passed in via JSON file.
                 return true;
             }
 
@@ -67,71 +57,57 @@
         internal static bool TryGetConfigFromEnvrionmentVariable(out string logDirectory, out int fileSizeInKB, out EventLevel logLevel)
         {
             logDirectory = null;
-            fileSizeInKB = 0;
-            logLevel = EventLevel.LogAlways;
+            fileSizeInKB = FileSizeLowerLimit;
+            logLevel = EventLevel.Error;
 
-            if (!TryParseLogDirectory(ParseLocation.EnviornmentVariable, Environment.GetEnvironmentVariable(APPLICATIONINSIGHTS_LOG_LOGDIRECTORY), out logDirectory))
+            if (!PlatformSingleton.Current.TryGetEnvironmentVariable(APPLICATIONINSIGHTS_LOG_DIAGNOSTICS, out string ApplicationInsightsDiagnosticsVal))
+            {
+                // enviornment varaiable was not set successfully
+                return false;
+            }
+
+            // remove all whitespaces
+            ApplicationInsightsDiagnosticsVal = Regex.Replace(ApplicationInsightsDiagnosticsVal, @"\s+", "");
+
+            var keyValuePairs = ApplicationInsightsDiagnosticsVal.Split(',')
+                .Select(value => value.Split('='))
+                .ToDictionary(pair => pair[0], pair => pair[1]);
+            var concurrentDictionary = new ConcurrentDictionary<string, string>(keyValuePairs);
+
+            if (!concurrentDictionary.TryGetValue(APPLICATIONINSIGHTS_LOG_LOGDIRECTORY, out logDirectory) || string.IsNullOrWhiteSpace(logDirectory))
             {
                 return false;
             }
 
-            if (!TryParseFileSize(ParseLocation.EnviornmentVariable, Environment.GetEnvironmentVariable(APPLICATIONINSIGHTS_LOG_FILESIZE), out fileSizeInKB))
+            // if user passed in optional parameter but it is invalid, return early
+            if (concurrentDictionary.TryGetValue(APPLICATIONINSIGHTS_LOG_FILESIZE, out var fileSizeString) && !int.TryParse(fileSizeString, out fileSizeInKB)) 
             {
                 return false;
             }
 
             UpdateFileSizeToBeWithinLimit(ref fileSizeInKB);
 
-            if (!TryParseLogLevel(ParseLocation.EnviornmentVariable, Environment.GetEnvironmentVariable(APPLICATIONINSIGHTS_LOG_LOGLEVEL), out logLevel))
+            // if user passed in optional parameter but it is invalid, return early
+            if (concurrentDictionary.TryGetValue(APPLICATIONINSIGHTS_LOG_LOGLEVEL, out var logLevelString) && !Enum.TryParse(logLevelString, false /*case-insensitive*/, out logLevel))
             {
                 return false;
             }
 
             return true;
+        } 
+
+        internal static bool TryParseLogDirectory(string configJson, out string logDirectory)
+        {
+            var logDirectoryResult = LogDirectoryRegex.Match(configJson);
+            logDirectory = logDirectoryResult.Groups["LogDirectory"].Value;
+            return logDirectoryResult.Success && !string.IsNullOrWhiteSpace(logDirectory);
         }
 
-        internal static bool TryParseLogDirectory(ParseLocation location, string val, out string logDirectory)
+        internal static bool TryParseFileSize(string configJson, out int fileSizeInKB)
         {
-            logDirectory = null;
-            if (location == ParseLocation.EnviornmentVariable)
-            {
-                if (!String.IsNullOrWhiteSpace(val))
-                {
-                    logDirectory = val;
-                    return true;
-                }
-
-                // Short circuit for this parse from enviornment variables path
-                // to check whether self diagnostics feature was enabled by the json config file.
-                return false;
-            }
-            else 
-            {
-                var logDirectoryResult = LogDirectoryRegex.Match(val);
-                logDirectory = logDirectoryResult.Groups[APPLICATIONINSIGHTS_LOG_LOGDIRECTORY].Value;
-                return logDirectoryResult.Success && !string.IsNullOrWhiteSpace(logDirectory);
-            }
-        }
-
-        internal static bool TryParseFileSize(ParseLocation location, string val, out int fileSizeInKB)
-        {
-            fileSizeInKB = FileSizeLowerLimit;
-            if (location == ParseLocation.EnviornmentVariable)
-            {
-                if (!String.IsNullOrEmpty(val))
-                {
-                    return int.TryParse(val, out fileSizeInKB);
-                }
-
-                // If the LogDirectory was set by the environment variable,
-                // but FileSize was not set, use the default fileSize.
-                return true;
-            }
-            else
-            {
-                var fileSizeResult = FileSizeRegex.Match(val);
-                return fileSizeResult.Success && int.TryParse(fileSizeResult.Groups[APPLICATIONINSIGHTS_LOG_FILESIZE].Value, out fileSizeInKB);
-            }
+            fileSizeInKB = 0;
+            var fileSizeResult = FileSizeRegex.Match(configJson);
+            return fileSizeResult.Success && int.TryParse(fileSizeResult.Groups["FileSize"].Value, out fileSizeInKB);
         }
 
         // no-op if the fileSize is within range
@@ -149,32 +125,27 @@
             }
         }
 
-        internal static bool TryParseLogLevel(ParseLocation location, string val, out EventLevel logLevel)
+        internal static bool TryParseLogLevel(string configJson, out EventLevel logLevel)
         {
-            logLevel = EventLevel.LogAlways;
-            if (location == ParseLocation.EnviornmentVariable)
+            logLevel = EventLevel.Error;
+            var logLevelResult = LogLevelRegex.Match(configJson);
+            if (!logLevelResult.Success) 
             {
-                if (!String.IsNullOrEmpty(val))
-                {
-                    logLevel = (EventLevel)Enum.Parse(typeof(EventLevel), val);
-                }
-
-                // If the LogDirectory was set by the environment variable,
-                // but logLevel was not set, use the default logLevel.
-                return true;
-            }
-            else
-            {
-                var logLevelResult = LogLevelRegex.Match(val);
-                var logLevelString = logLevelResult.Groups[APPLICATIONINSIGHTS_LOG_LOGLEVEL].Value;
-                if (!String.IsNullOrEmpty(logLevelString))
-                {
-                    logLevel = (EventLevel)Enum.Parse(typeof(EventLevel), logLevelString);
-                    return logLevelResult.Success;
-                }
-
                 return false;
             }
+
+            var logLevelString = logLevelResult.Groups[APPLICATIONINSIGHTS_LOG_LOGLEVEL].Value;
+            if (string.IsNullOrWhiteSpace(logLevelString))
+            {
+                return false;
+            }
+            
+            if (!Enum.TryParse(logLevelString, false, out logLevel))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         internal bool TryGetConfigFromJsonFile(ref string logDirectory, ref int fileSizeInKB, ref EventLevel logLevel)
@@ -210,19 +181,19 @@
 
                     file.Read(buffer, 0, buffer.Length);
                     string configJson = Encoding.UTF8.GetString(buffer);
-                    if (!TryParseLogDirectory(ParseLocation.ConfigJson, configJson, out logDirectory))
+                    if (!TryParseLogDirectory(configJson, out logDirectory))
                     {
                         return false;
                     }
 
-                    if (!TryParseFileSize(ParseLocation.ConfigJson, configJson, out fileSizeInKB))
+                    if (!TryParseFileSize(configJson, out fileSizeInKB))
                     {
                         return false;
                     }
 
                     UpdateFileSizeToBeWithinLimit(ref fileSizeInKB);
 
-                    if (!TryParseLogLevel(ParseLocation.ConfigJson, configJson, out logLevel))
+                    if (!TryParseLogLevel(configJson, out logLevel))
                     {
                         return false;
                     }
