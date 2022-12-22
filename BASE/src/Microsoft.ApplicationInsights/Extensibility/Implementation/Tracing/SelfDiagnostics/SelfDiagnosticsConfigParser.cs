@@ -60,37 +60,46 @@
             fileSizeInKB = FileSizeLowerLimit;
             logLevel = EventLevel.Error;
 
-            if (!PlatformSingleton.Current.TryGetEnvironmentVariable(APPLICATIONINSIGHTS_LOG_DIAGNOSTICS, out string ApplicationInsightsDiagnosticsVal))
+            try
             {
-                // enviornment varaiable was not set successfully
-                return false;
+                if (!PlatformSingleton.Current.TryGetEnvironmentVariable(APPLICATIONINSIGHTS_LOG_DIAGNOSTICS, out string ApplicationInsightsDiagnosticsVal))
+                {
+                    return false;
+                }
+
+                // remove all whitespaces
+                ApplicationInsightsDiagnosticsVal = Regex.Replace(ApplicationInsightsDiagnosticsVal, @"\s+", "");
+
+                var keyValuePairs = ApplicationInsightsDiagnosticsVal.Split(',')
+                    .Select(value => value.Split('='))
+                    .ToDictionary(pair => pair[0], pair => pair[1]);
+                var concurrentDictionary = new ConcurrentDictionary<string, string>(keyValuePairs);
+
+                // logDirectory is a required parameter to enable SDK to read config from the enviornment variable
+                if (!concurrentDictionary.TryGetValue(APPLICATIONINSIGHTS_LOG_LOGDIRECTORY, out logDirectory) || string.IsNullOrWhiteSpace(logDirectory))
+                {
+                    return false;
+                }
+
+                // fileSize is an optional parameter
+                // function returns early if the optional parameter is set but it is invalid
+                if (concurrentDictionary.TryGetValue(APPLICATIONINSIGHTS_LOG_FILESIZE, out var fileSizeString) && !int.TryParse(fileSizeString, out fileSizeInKB))
+                {
+                    return false;
+                }
+
+                UpdateFileSizeToBeWithinLimit(ref fileSizeInKB);
+
+                // logLevel is an optional parameter
+                // function returns early if the optional parameter is set but it is invalid
+                if (concurrentDictionary.TryGetValue(APPLICATIONINSIGHTS_LOG_LOGLEVEL, out var logLevelString) && !Enum.TryParse(logLevelString, /*case-insensitive*/ false, out logLevel))
+                {
+                    return false;
+                }
             }
-
-            // remove all whitespaces
-            ApplicationInsightsDiagnosticsVal = Regex.Replace(ApplicationInsightsDiagnosticsVal, @"\s+", "");
-
-            var keyValuePairs = ApplicationInsightsDiagnosticsVal.Split(',')
-                .Select(value => value.Split('='))
-                .ToDictionary(pair => pair[0], pair => pair[1]);
-            var concurrentDictionary = new ConcurrentDictionary<string, string>(keyValuePairs);
-
-            if (!concurrentDictionary.TryGetValue(APPLICATIONINSIGHTS_LOG_LOGDIRECTORY, out logDirectory) || string.IsNullOrWhiteSpace(logDirectory))
+            catch (Exception)
             {
-                return false;
-            }
-
-            // if user passed in optional parameter but it is invalid, return early
-            if (concurrentDictionary.TryGetValue(APPLICATIONINSIGHTS_LOG_FILESIZE, out var fileSizeString) && !int.TryParse(fileSizeString, out fileSizeInKB)) 
-            {
-                return false;
-            }
-
-            UpdateFileSizeToBeWithinLimit(ref fileSizeInKB);
-
-            // if user passed in optional parameter but it is invalid, return early
-            if (concurrentDictionary.TryGetValue(APPLICATIONINSIGHTS_LOG_LOGLEVEL, out var logLevelString) && !Enum.TryParse(logLevelString, false /*case-insensitive*/, out logLevel))
-            {
-                return false;
+                throw;
             }
 
             return true;

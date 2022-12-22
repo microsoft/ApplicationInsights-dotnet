@@ -5,6 +5,7 @@
     using System.IO;
     using System.Text;
     using System.Text.RegularExpressions;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
@@ -76,30 +77,69 @@
         }
 
         [TestMethod]
-        public void SelfDiagnosticsConfigRefresher_ReadFromEnviornmentVars()
+        public void SelfDiagnosticsConfigRefresher_ReadFromEnviornmentVar()
         {
+
             var key = "APPLICATIONINSIGHTS_LOG_DIAGNOSTICS";
-            //var value = "LogDirectory=C:\\home\\LogFiles\\SelfDiagnostics, FileSize=2048, LogLevel=Error";
-            var value = "LogDirectory=C:\\home\\LogFiles\\SelfDiagnostics";
+            var value = "LogDirectory=C:\\home\\LogFiles\\SelfDiagnostics, FileSize=2048, LogLevel=Error";
             Environment.SetEnvironmentVariable(key, value);
 
-            using (var configRefresher = new SelfDiagnosticsConfigRefresher())
+            try
             {
-                // Emitting event of EventLevel.Error
-                CoreEventSource.Log.InvalidOperationToStopError();
+                using (var configRefresher = new SelfDiagnosticsConfigRefresher())
+                {
+                    // Emitting event of EventLevel.Error
+                    CoreEventSource.Log.InvalidOperationToStopError();
+                    var filePath = configRefresher.CurrentFilePath;
 
-                var filePath = configRefresher.CurrentFilePath;
+                    int bufferSize = 512;
+                    byte[] actualBytes = ReadFile(filePath, bufferSize);
+                    string logText = Encoding.UTF8.GetString(actualBytes);
+                    Assert.IsTrue(logText.StartsWith(MessageOnNewFileString));
 
-                int bufferSize = 512;
-                byte[] actualBytes = ReadFile(filePath, bufferSize);
-                string logText = Encoding.UTF8.GetString(actualBytes);
-                Assert.IsTrue(logText.StartsWith(MessageOnNewFileString));
+                    // The event was captured
+                    string logLine = logText.Substring(MessageOnNewFileString.Length);
+                    string logMessage = ParseLogMessage(logLine);
+                    string expectedMessage = "Operation to stop does not match the current operation. Telemetry is not tracked.";
+                    Assert.IsTrue(logMessage.StartsWith(expectedMessage));
+                }
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable(key, null);
+                PlatformSingleton.Current = null; // Force reinitialization in future tests so that new environment variables will be loaded.
+            }
+        }
 
-                // The event was captured
-                //string logLine = logText.Substring(MessageOnNewFileString.Length);
-                //string logMessage = ParseLogMessage(logLine);
-                //string expectedMessage = "Operation to stop does not match the current operation. Telemetry is not tracked.";
-                //Assert.IsTrue(logMessage.StartsWith(expectedMessage));
+        [TestMethod]
+        public void SelfDiagnosticsConfigRefresher_ConfigSetByEnviornmentVar_Wins_Over_ConfigSetByJson()
+        {
+            var key = "APPLICATIONINSIGHTS_LOG_DIAGNOSTICS";
+            var value = "LogDirectory=C:\\home\\LogFiles\\SelfDiagnostics";
+            Environment.SetEnvironmentVariable(key, value);
+            
+            CreateConfigFile();
+
+            try
+            {
+                using (var configRefresher = new SelfDiagnosticsConfigRefresher())
+                {
+                    // Emitting event of EventLevel.Error
+                    CoreEventSource.Log.InvalidOperationToStopError();
+                    var filePath = configRefresher.CurrentFilePath;
+                    StringAssert.Equals(Directory.GetParent(filePath), value);
+
+                    int bufferSize = 512;
+                    byte[] actualBytes = ReadFile(filePath, bufferSize);
+                    string logText = Encoding.UTF8.GetString(actualBytes);
+                    Assert.IsTrue(logText.StartsWith(MessageOnNewFileString));
+                }
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable(key, null);
+                PlatformSingleton.Current = null; // Force reinitialization in future tests so that new environment variables will be loaded.
+                CleanupConfigFile();
             }
         }
 
