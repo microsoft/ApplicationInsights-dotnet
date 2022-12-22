@@ -62,15 +62,15 @@
 
             try
             {
-                if (!PlatformSingleton.Current.TryGetEnvironmentVariable(LogDiagnosticsEnviornmentVariable, out string ApplicationInsightsDiagnosticsVal))
+                if (!PlatformSingleton.Current.TryGetEnvironmentVariable(LogDiagnosticsEnviornmentVariable, out string applicationInsightsDiagnosticsVal))
                 {
                     return false;
                 }
 
                 // remove all whitespaces
-                ApplicationInsightsDiagnosticsVal = Regex.Replace(ApplicationInsightsDiagnosticsVal, @"\s+", "");
+                applicationInsightsDiagnosticsVal = Regex.Replace(applicationInsightsDiagnosticsVal, @"\s+", "");
 
-                var keyValuePairs = ApplicationInsightsDiagnosticsVal.Split(',')
+                var keyValuePairs = applicationInsightsDiagnosticsVal.Split(',')
                     .Select(value => value.Split('='))
                     .ToDictionary(pair => pair[0], pair => pair[1]);
                 var concurrentDictionary = new ConcurrentDictionary<string, string>(keyValuePairs);

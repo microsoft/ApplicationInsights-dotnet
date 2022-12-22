@@ -1,8 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.Diagnostics.Tracing;
-    using static SelfDiagnosticsConfigParser;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class SelfDiagnosticsConfigParserTest
