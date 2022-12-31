@@ -58,8 +58,8 @@
         {
             try
             {
-            this.telemetryProcessors.First().Process(item);
-        }
+                this.telemetryProcessors.First().Process(item);
+            }
             catch (Exception ex)
             {
                 CoreEventSource.Log.TelemetryProcessorFailed(item, ex);
