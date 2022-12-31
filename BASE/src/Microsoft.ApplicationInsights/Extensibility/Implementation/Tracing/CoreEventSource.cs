@@ -3,6 +3,8 @@
     using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
+    using System.Globalization;
+    using Microsoft.ApplicationInsights.Channel;
 
 #if REDFIELD
     [EventSource(Name = "Redfield-Microsoft-ApplicationInsights-Core")]
@@ -681,6 +683,15 @@
             if (this.IsEnabled(EventLevel.Error, (EventKeywords)(-1)))
             {
                 this.TransmissionStatusEventError(ex.ToInvariantString());
+            }
+        }
+
+        [NonEvent]
+        public void TelemetryProcessorFailed(ITelemetry telemetryItem, Exception ex)
+        {
+            if (this.IsEnabled(EventLevel.Error, (EventKeywords)(-1)))
+            {
+                this.LogError(string.Format(CultureInfo.InvariantCulture, "Exception while processing {0}: {1}", telemetryItem.GetType().Name, ex));
             }
         }
 
