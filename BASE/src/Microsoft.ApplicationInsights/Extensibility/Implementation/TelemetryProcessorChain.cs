@@ -2,9 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using System.Text;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// Represents the TelemetryProcessor chain. Clients should use TelemetryProcessorChainBuilder to construct this object.
@@ -54,7 +56,14 @@
         /// </summary>        
         public void Process(ITelemetry item)
         {
+            try
+            {
             this.telemetryProcessors.First().Process(item);
+        }
+            catch (Exception ex)
+            {
+                CoreEventSource.Log.TelemetryProcessorFailed(item, ex);
+            }
         }
 
         /// <summary>
