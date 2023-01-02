@@ -127,12 +127,12 @@ This file will not exceed the configured max size and will be circularly overwri
 
 #### Configuration
 
-Configuration is controlled by a file named `ApplicationInsightsDiagnostics.json` or environment variables.
+Configuration is controlled by a file named `ApplicationInsightsDiagnostics.json` or the environment variable `"APPLICATIONINSIGHTS_LOG_DIAGNOSTICS"`.
 The configuration file must be no more than 4 KiB, otherwise only the first 4 KiB of content will be read.
 
-#### Two ways to enable self-diagnostics
+##### Two ways to enable self-diagnostics
 
-1. go to the [current working directory](https://en.wikipedia.org/wiki/Working_directory) of your process and create a configuration file.
+1. Go to the [current working directory](https://en.wikipedia.org/wiki/Working_directory) of your process and create a configuration file.
 In most cases, you could just drop the file along your application.
 On Windows, you can use [Process Explorer](https://docs.microsoft.com/sysinternals/downloads/process-explorer),
 double click on the process to pop up Properties dialog, and find "Current directory" in "Image" tab.
@@ -150,30 +150,20 @@ You can also find the exact directory by calling these methods from your code.
     }
     ```
 
-2. For the case that users are not allowed to create the `ApplicationInsightsDiagnostics.json` config file
-at the above mentioning locations due to hosting enviornment limiations, configuration can be set in via enviornment variables.
+2. Enable self-diagnostics log via setting the enviornment variable. The key of the enviornment variable for enabling
+self-diagnostics is `"APPLICATIONINSIGHTS_LOG_DIAGNOSTICS"`.
+The value of the enviornment variable is the key/value pairs of the self-diagnostics configuration setting using comma as delimiter between pairs.
+For example: `"LogDirectory=C:\\home\\LogFiles\\SelfDiagnostics, FileSize=2048, LogLevel=Error"`.
 
-    Example:
+*Note:*
+The self-diagnostics settings passed via the environment variable, APPLICATIONINSIGHTS_LOG_DIAGNOSTICS, wins over settings passed in via the JSON file.
 
-    ```csharp
-    {
-        // "LogDirectory" must be set if users want application insights to read configuration from envrionment variables. 
-        Environment.SetEnvironmentVariable("LogDirectory", ".");
-
-        // "FileSize" is an optional parameter, i.e. if "LogDirectory" was set, the default value for FileSize is 1 MiB.
-        Environment.SetEnvironmentVariable("FileSize", "1024");
-
-        // "LogLevel" is an optional parameter, i.e. if "LogDirectory" was set, the default value for LogLevel is LogAlways.
-        Environment.SetEnvironmentVariable("LogLevel", "LogAlways");
-    }
-    ```
-
-#### To disable self-diagnostics
+##### To disable self-diagnostics
 
 Depending on how self-diagnostcis was enabled, delete the configuration file
-or delete the enviornment variable(s).
+or delete the enviornment variable.
 
-#### Configuration Parameters
+##### Parameters
 
 A `FileSize`-KiB log file named as `YearMonthDay-HourMinuteSecond.ExecutableName.ProcessId.log` (e.g. `20010101-120000.foobar.exe.12345.log`) will be generated at the specified directory `LogDirectory`.
 The file name starts with the `DateTime.UtcNow` timestamp of when the file was created.
@@ -183,13 +173,13 @@ It can be an absolute path or a relative path to the current directory.
 
 2. `FileSize` is a positive integer, which specifies the log file size in [KiB](https://en.wikipedia.org/wiki/Kibibyte).
 This value must be between 1 MiB and 128 MiB (inclusive), or it will be rounded to the closest upper or lower limit.
-The log file will never exceed this configured size, and will be circularly rewriten. For the case that configuration
-was passed in via enviornment variables, the default value is `1 MiB` if this parameter was not set.
+The log file will never exceed this configured size, and will be circularly rewritten.
+If configuration was passed in via the enviornment variable, the default value is `1 MiB` if this parameter was not set.
 
 3. `LogLevel` is the lowest level of the events to be captured.
 This value must match one of the [fields](https://docs.microsoft.com/dotnet/api/system.diagnostics.tracing.eventlevel#fields) of the `EventLevel` enum.
 Lower severity levels encompass higher severity levels (e.g. `Warning` includes the `Error` and `Critical` levels).
-For the case that configuration was passed in via enviornment variables, the default value is `LogAlways` if this parameter was not set.
+If configuration was passed in via the enviornment variable, the default value is `Error` if this parameter was not set.
 
 **Warning**: If the SDK fails to parse any of these fields, the configuration file will be treated as invalid and self-diagnostics will be disabled.
 
