@@ -1578,7 +1578,7 @@
         class CosmosDbEventSource : EventSource
         {
             private CosmosDbEventSource()
-                : base("Azure.Cosmos_foo")
+                : base("Azure-Cosmos-Operation-Request-Diagnostics")
             {
             }
 
