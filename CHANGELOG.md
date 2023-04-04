@@ -1,6 +1,7 @@
 # Changelog
 
 ## VNext
+- Add ITelemetryClient interface to TelemetryClient. Fixes ([#342](https://github.com/microsoft/ApplicationInsights-dotnet/issues/342))
 
 ## Version 2.22.0-beta2
 - [Upgrade System.Diagnostics.PerformanceCounter to version 6.0.0 to address CVE-2021-24112](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2707)
