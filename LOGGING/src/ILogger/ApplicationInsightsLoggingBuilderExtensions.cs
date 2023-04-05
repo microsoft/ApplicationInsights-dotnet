@@ -34,6 +34,7 @@ namespace Microsoft.Extensions.Logging
         /// <param name="builder">The <see cref="ILoggingBuilder"/> to use.</param>
         /// <param name="instrumentationKey">Application insights instrumentation key.</param>
         /// <returns>Logging builder with Application Insights added to it.</returns>
+        [Obsolete("InstrumentationKey based global ingestion is being deprecated. Use the AddApplicationInsights() overload which accepts Action<TelemetryConfiguration> and set TelemetryConfiguration.ConnectionString. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/2560 for more details.")]
         public static ILoggingBuilder AddApplicationInsights(this ILoggingBuilder builder, string instrumentationKey)
         {
             if (builder == null)
@@ -53,6 +54,7 @@ namespace Microsoft.Extensions.Logging
         /// <param name="instrumentationKey">Application insights instrumentation key.</param>
         /// <param name="configureApplicationInsightsLoggerOptions">Action to configure ApplicationInsights logger.</param>
         /// <returns>Logging builder with Application Insights added to it.</returns>
+        [Obsolete("InstrumentationKey based global ingestion is being deprecated. Use the AddApplicationInsights() overload which accepts Action<TelemetryConfiguration> and set TelemetryConfiguration.ConnectionString. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/2560 for more details.")]
         public static ILoggingBuilder AddApplicationInsights(
             this ILoggingBuilder builder,
             string instrumentationKey,

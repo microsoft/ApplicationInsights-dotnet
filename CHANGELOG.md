@@ -1,8 +1,38 @@
 # Changelog
 
 ## VNext
+- [Fix nullable typing for RequestTelemetry.Url](https://github.com/microsoft/ApplicationInsights-dotnet/pull/25
+
+## Version 2.22.0-beta2
+- [Upgrade System.Diagnostics.PerformanceCounter to version 6.0.0 to address CVE-2021-24112](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2707)
+- [Report internal dependencies from Cosmos SDK as InProc and align with Cosmos SDK EventSource changes](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2712)
+
+## Version 2.22.0-beta1
+- Update endpoint redirect header name for QuickPulse module to v2
+- AzureSdkDiagnosticListener modified to use sdkversion prefix "rdddsaz" instead of "dotnet".
+- [ILogger logs with LogLevel.None severity are now ignored by ApplicationInsightsLogger](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2667). Fixes ([#2666](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2666))
+- [Fix ExceptionTelemetry clears all Context when updating Exception property](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2086)
+- [Support dependency tracking and diagnostics events for Microsoft.Azure.Cosmos v3](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2635)
+
+## Version 2.21.0
+- no changes since beta.
+
+## Version 2.21.0-beta3
+- [Remove two unnecessary .NET Standard 1.x dependencies.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2613)
+- Address vulnerability in `Newtonsoft.Json` ([GHSA-5crp-9r3c-p9vr](https://github.com/advisories/GHSA-5crp-9r3c-p9vr)). 
+  Mitigation is to upgrade dependencies in `Microsoft.ApplicationInsights.AspNetCore` ([#2615](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2615))
+  - Upgrade `Microsoft.Extensions.Configuration.Json` from v2.1.0 to v3.1.0. 
+  - Upgrade `System.Text.Encodings.Web` from 4.5.1 to 4.7.2.
+
+## Version 2.21.0-beta2
 - [LOGGING: Make TelemetryConfiguration configurable in ApplicationInsightsLoggingBuilderExtensions](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1944)
-- [Fix nullable typing for RequestTelemetry.Url](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2544)
+- [Added support for distributed tracing with Azure.Messaging.ServiceBus](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2593)
+- [Move internal type from `Shared` to `Microsoft` namespace](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2442)
+- [Extension methods to retrive specific operation details.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1350)
+- [Mark Instrumentation Key based APIs as Obsolete](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2560).
+  - See also: https://docs.microsoft.com/azure/azure-monitor/app/migrate-from-instrumentation-keys-to-connection-strings
+- [Fix: Livelock in MetricValuesBuffer.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2612)
+  Mitigation for TelemetryClient.Flush deadlocks ([#1186](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1186))
 
 ## Version 2.21.0-beta1
 - [Support IPv6 in request headers](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2521)
@@ -1034,7 +1064,7 @@ No release notes for older versions available.
 ### Version 2.5.0
 - LOGGING: Update Application Insights API reference to 2.5.0
 - LOGGING: Removed framework 4.0 support
-- LOGGING: For EventSourceTelemetryModule, allows black list the event sources. Drops the events to those in the list.
+- LOGGING: For EventSourceTelemetryModule, allows configuring disabled event sources. Drops the events to those in the list.
 - LOGGING: [Fix Deadlock over EventSourceTelemetryModule](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/issues/109)
 - LOGGING: [Extensibel payload handler](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/111)
 - LOGGING: [Add ProviderName and ProviderGuid properties to TraceTelemetry](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/120)

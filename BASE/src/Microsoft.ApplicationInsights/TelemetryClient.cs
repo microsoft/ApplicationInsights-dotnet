@@ -79,7 +79,9 @@
         /// </summary>
         public string InstrumentationKey
         {
-            get { return this.Context.InstrumentationKey; }
+            get => this.Context.InstrumentationKey;
+
+            [Obsolete("InstrumentationKey based global ingestion is being deprecated. Recommended to set TelemetryConfiguration.ConnectionString. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/2560 for more details.")]
             set { this.Context.InstrumentationKey = value; }
         }
 
@@ -681,6 +683,9 @@
         /// <summary>
         /// Asynchronously Flushes the in-memory buffer and any metrics being pre-aggregated.
         /// </summary>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#flushing-data">Learn more</a>
+        /// </remarks>
         /// <returns>
         /// Returns true when telemetry data is transferred out of process (application insights server or local storage) and are emitted before the flush invocation.
         /// Returns false when transfer of telemetry data to server has failed with non-retriable http status.

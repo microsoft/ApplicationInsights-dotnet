@@ -15,6 +15,11 @@
 
     internal class AzureSdkDiagnosticsEventHandler : DiagnosticsEventHandlerBase
     {
+        // Microsoft.DocumentDB is an Azure Resource Provider namespace. We use it as a dependency span as-is
+        // and portal will take care about visualizing it properly.
+        private const string CosmosDBResourceProviderNs = "Microsoft.DocumentDB";
+        private const string ClientCosmosDbDependencyType = CosmosDBResourceProviderNs;
+        private const string InternalCosmosDbDependencyType = "InProc | " + CosmosDBResourceProviderNs;
 #if NET452
         private static readonly DateTimeOffset EpochStart = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
 #endif
@@ -65,9 +70,9 @@
                         telemetry = new DependencyTelemetry { Type = type };
                     }
 
-                    if (type != null && type.EndsWith(RemoteDependencyConstants.AzureEventHubs, StringComparison.Ordinal))
+                    if (IsMessagingDependency(type))
                     {
-                        SetEventHubsProperties(currentActivity, telemetry);
+                        SetMessagingProperties(currentActivity, telemetry);
                     }
 
                     if (this.linksPropertyFetcher.Fetch(evnt.Value) is IEnumerable<Activity> activityLinks)
@@ -89,12 +94,22 @@
 
                     this.SetCommonProperties(evnt.Key, evnt.Value, currentActivity, telemetry);
 
-                    if (telemetry is DependencyTelemetry dependency && dependency.Type == RemoteDependencyConstants.HTTP)
+                    if (telemetry is DependencyTelemetry dependency)
                     {
-                        SetHttpProperties(currentActivity, dependency);
-                        if (evnt.Value != null)
+                        if (dependency.Type == RemoteDependencyConstants.HTTP)
                         {
-                            dependency.SetOperationDetail(evnt.Value.GetType().FullName, evnt.Value);
+                            SetHttpProperties(currentActivity, dependency);
+                            if (evnt.Value != null)
+                            {
+                                dependency.SetOperationDetail(evnt.Value.GetType().FullName, evnt.Value);
+                            }
+                        }
+                        else if (dependency.Type == ClientCosmosDbDependencyType || dependency.Type == InternalCosmosDbDependencyType)
+                        {
+                            // Internal cosmos spans come from SDK in Gateway mode - they are
+                            // logical operations. AppMap then uses HTTP spans to build cosmos node and 
+                            // metrics on the edge
+                            SetCosmosDbProperties(currentActivity, dependency);
                         }
                     }
 
@@ -225,6 +240,13 @@
                         break;
 
                     case "component":
+                        // old tag populated for back-compat, if az.namespace is set - ignore it.
+                        if (component == null)
+                        {
+                            component = tag.Value;
+                        }
+
+                        break;
                     case "az.namespace":
                         component = tag.Value;
                         break;
@@ -233,9 +255,11 @@
 
             if (component == "eventhubs" || component == "Microsoft.EventHub")
             {
-                return kind == null
-                    ? RemoteDependencyConstants.AzureEventHubs
-                    : string.Concat(kind, " | ", RemoteDependencyConstants.AzureEventHubs);
+                component = RemoteDependencyConstants.AzureEventHubs;
+            } 
+            else if (component == "Microsoft.ServiceBus")
+            {
+                component = RemoteDependencyConstants.AzureServiceBus;
             }
 
             if (component != null)
@@ -310,10 +334,74 @@
             }
         }
 
-        private static void SetEventHubsProperties(Activity activity, OperationTelemetry telemetry)
+        private static bool IsMessagingDependency(string dependencyType)
+        {
+            return dependencyType != null && (dependencyType.EndsWith(RemoteDependencyConstants.AzureEventHubs, StringComparison.Ordinal) ||
+                         dependencyType.EndsWith(RemoteDependencyConstants.AzureServiceBus, StringComparison.Ordinal));
+        }
+
+        private static void SetCosmosDbProperties(Activity activity, DependencyTelemetry telemetry)
+        {
+            string dbAccount = null;
+            string dbName = null;
+            string dbOperation = null;
+            string dbContainer = null;
+
+            foreach (var tag in activity.Tags)
+            {
+                if (tag.Key == "db.name")
+                {
+                    dbName = tag.Value;
+                }
+                else if (tag.Key == "db.operation")
+                {
+                    dbOperation = tag.Value;
+                }
+                else if (tag.Key == "net.peer.name")
+                {
+                    dbAccount = tag.Value;
+                }
+                else if (tag.Key == "db.cosmosdb.container")
+                {
+                    dbContainer = tag.Value;
+                }
+                else if (tag.Key == "db.cosmosdb.status_code")
+                {
+                    telemetry.ResultCode = tag.Value;
+                    continue;
+                }
+                else if (!tag.Key.StartsWith("db.cosmosdb.", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+                
+                telemetry.Properties[tag.Key] = tag.Value;
+            }
+
+            // similar to SqlClientDiagnosticSourceListener
+            telemetry.Target = JoinNullable(dbAccount, dbName);
+            telemetry.Name = JoinNullable(dbContainer, dbOperation);
+        }
+
+        private static string JoinNullable(string first, string second)
+        {
+            if (first == null)
+            {
+                return second ?? String.Empty;
+            }
+
+            if (second == null)
+            {
+                return first;
+            }
+
+            return String.Concat(first, " | ", second);
+        }
+
+        private static void SetMessagingProperties(Activity activity, OperationTelemetry telemetry)
         {
             string endpoint = null;
-            string queueName = null;
+            string entityName = null;
 
             foreach (var tag in activity.Tags)
             {
@@ -323,16 +411,16 @@
                 }
                 else if (tag.Key == "message_bus.destination")
                 {
-                    queueName = tag.Value;
+                    entityName = tag.Value;
                 }
             }
 
-            if (endpoint == null || queueName == null)
+            if (endpoint == null || entityName == null)
             {
                 return;
             }
 
-            // Target uniquely identifies the resource, we use both: queueName and endpoint
+            // Target uniquely identifies the resource, we use both: entityName and endpoint
             // with schema used for SQL-dependencies
             string separator = "/";
             if (endpoint.EndsWith(separator, StringComparison.Ordinal))
@@ -340,15 +428,15 @@
                 separator = string.Empty;
             }
 
-            string eventHubInfo = string.Concat(endpoint, separator, queueName);
+            string brokerInfo = string.Concat(endpoint, separator, entityName);
 
             if (telemetry is DependencyTelemetry dependency)
             {
-                dependency.Target = eventHubInfo;
+                dependency.Target = brokerInfo;
             }
             else if (telemetry is RequestTelemetry request)
             {
-                request.Source = eventHubInfo;
+                request.Source = brokerInfo;
             }
         }
 
