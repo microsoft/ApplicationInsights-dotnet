@@ -2,7 +2,7 @@
 
 ## VNext
 
-- [Removed proactive sampling decision to address high ingestion of telemetry records and item count with adaptive sampling.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2742)
+- [Fixed an adaptive sampling issue that caused incorrect item count when an `Activity` Recorded flags were modified externally, when enabled side-by-side with OpenTelemetry or other solutions.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2742)
 
 ## Version 2.22.0-beta2
 - [Upgrade System.Diagnostics.PerformanceCounter to version 6.0.0 to address CVE-2021-24112](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2707)
