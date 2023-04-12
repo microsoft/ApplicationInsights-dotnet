@@ -2,6 +2,7 @@
 
 ## VNext
 
+## Version 2.22.0-beta3
 - [Fixed an adaptive sampling issue that caused incorrect item count when an `Activity` Recorded flags were modified externally, when enabled side-by-side with OpenTelemetry or other solutions.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2742)
 
 ## Version 2.22.0-beta2
