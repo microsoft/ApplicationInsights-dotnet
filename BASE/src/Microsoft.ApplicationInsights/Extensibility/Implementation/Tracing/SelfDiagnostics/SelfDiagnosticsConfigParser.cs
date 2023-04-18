@@ -1,11 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics
 {
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using System;
     using System.Diagnostics.Tracing;
     using System.IO;
     using System.Text;
     using System.Text.RegularExpressions;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
 
     internal class SelfDiagnosticsConfigParser
     {
