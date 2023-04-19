@@ -96,17 +96,7 @@
 
             try
             {
-                string configJson = @"{
-                    ""FileSize"": 1024,
-                    ""LogLevel"": ""Error""
-                    }";
-                
-                using (FileStream file = File.Open(Path.Combine(val, ConfigFilePath), FileMode.Create, FileAccess.Write))
-                {
-                    byte[] configBytes = Encoding.UTF8.GetBytes(configJson);
-                    file.Write(configBytes, 0, configBytes.Length);
-                }
-
+                CreateConfigFile();
                 using (var configRefresher = new SelfDiagnosticsConfigRefresher())
                 {
                     // Emitting event of EventLevel.Error
@@ -129,6 +119,7 @@
             {
                 Environment.SetEnvironmentVariable(key, null);
                 Platform.PlatformSingleton.Current = null; // Force reinitialization in future tests so that new environment variables will be loaded.
+                CleanupConfigFile();
             }
         }
 
@@ -149,13 +140,25 @@
             }
         }
 
-        private static void CreateConfigFile()
+        private static void CreateConfigFile(bool userDefinedLogDirectory = true)
         {
-            string configJson = @"{
+            string configJson = string.Empty;
+            if (!userDefinedLogDirectory)
+            {
+                configJson = @"{
+                    ""FileSize"": 1024,
+                    ""LogLevel"": ""Error""
+                    }";
+            }
+            else
+            {
+                configJson = @"{
                     ""LogDirectory"": ""."",
                     ""FileSize"": 1024,
                     ""LogLevel"": ""Error""
                     }";
+            }
+
             using (FileStream file = File.Open(ConfigFilePath, FileMode.Create, FileAccess.Write))
             {
                 byte[] configBytes = Encoding.UTF8.GetBytes(configJson);
