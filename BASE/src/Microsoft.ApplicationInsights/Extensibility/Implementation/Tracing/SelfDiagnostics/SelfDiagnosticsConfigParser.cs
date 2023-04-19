@@ -46,6 +46,7 @@
                 if (PlatformSingleton.Current.TryGetEnvironmentVariable(LogDiagnosticsEnviornmentVariable, out string logDiagnosticsPath))
                 {
                     configFilePath = Path.Combine(logDiagnosticsPath, ConfigFileName);
+                    logDirectory = logDiagnosticsPath;
                 }
 
                 // First check using current working directory
@@ -75,7 +76,8 @@
 
                     file.Read(buffer, 0, buffer.Length);
                     string configJson = Encoding.UTF8.GetString(buffer);
-                    if (!TryParseLogDirectory(configJson, out logDirectory))
+                    
+                    if (logDirectory == null && !TryParseLogDirectory(configJson, out logDirectory))
                     {
                         return false;
                     }

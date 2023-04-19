@@ -85,13 +85,11 @@
             var val = string.Empty;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                string[] paths = { @"C:\home\", @"LogFiles\", "SelfDiagnostics"};
-                val = Path.Combine(paths);
+                val = "C:\\home\\LogFiles\\SelfDiagnostics";
             }
             else
             {
-                string[] paths = { @"usr/", "LogFiles/", "SelfDiagnostics" };
-                val = Path.Combine(paths);
+                val = "/home/user/LogFiles/SelfDiagnostics";
             }
 
             Environment.SetEnvironmentVariable(key, val);
@@ -99,7 +97,6 @@
             try
             {
                 string configJson = @"{
-                    ""LogDirectory"": ""."",
                     ""FileSize"": 1024,
                     ""LogLevel"": ""Error""
                     }";
