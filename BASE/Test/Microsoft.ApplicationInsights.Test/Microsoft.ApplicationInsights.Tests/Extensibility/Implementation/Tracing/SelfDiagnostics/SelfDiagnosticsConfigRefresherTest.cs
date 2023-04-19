@@ -85,18 +85,18 @@
             var val = string.Empty;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                val = "C:\\home\\LogFiles\\SelfDiagnostics";
+                val = @"C:\home\LogFiles\SelfDiagnostics";
             }
             else
             {
-                val = "/home/user/LogFiles/SelfDiagnostics";
+                val = "/home/user/LogFiles/";
             }
 
             Environment.SetEnvironmentVariable(key, val);
 
             try
             {
-                CreateConfigFile();
+                CreateConfigFile(false);
                 using (var configRefresher = new SelfDiagnosticsConfigRefresher())
                 {
                     // Emitting event of EventLevel.Error
