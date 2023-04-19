@@ -3,9 +3,11 @@
     using System;
     using System.Diagnostics;
     using System.IO;
+    using System.Runtime.InteropServices;
     using System.Text;
     using System.Text.RegularExpressions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Newtonsoft.Json.Linq;
 
     [TestClass]
     public class SelfDiagnosticsConfigRefresherTest
@@ -80,8 +82,19 @@
         {
 
             var key = "APPLICATIONINSIGHTS_LOG_DIAGNOSTICS";
-            var value = "C:\\home\\LogFiles\\SelfDiagnostics";
-            Environment.SetEnvironmentVariable(key, value);
+            var val = string.Empty;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                string[] paths = { @"C:\home\", @"LogFiles\", "SelfDiagnostics"};
+                val = Path.Combine(paths);
+            }
+            else
+            {
+                string[] paths = { @"usr/", "LogFiles/", "SelfDiagnostics" };
+                val = Path.Combine(paths);
+            }
+
+            Environment.SetEnvironmentVariable(key, val);
 
             try
             {
@@ -91,7 +104,7 @@
                     ""LogLevel"": ""Error""
                     }";
                 
-                using (FileStream file = File.Open(Path.Combine(value, ConfigFilePath), FileMode.Create, FileAccess.Write))
+                using (FileStream file = File.Open(Path.Combine(val, ConfigFilePath), FileMode.Create, FileAccess.Write))
                 {
                     byte[] configBytes = Encoding.UTF8.GetBytes(configJson);
                     file.Write(configBytes, 0, configBytes.Length);
