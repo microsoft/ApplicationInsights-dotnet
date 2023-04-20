@@ -13,7 +13,7 @@
         private const int FileSizeLowerLimit = 1024;  // Lower limit for log file size in KB: 1MB
         private const int FileSizeUpperLimit = 128 * 1024;  // Upper limit for log file size in KB: 128MB
 
-        private const string LogDiagnosticsEnviornmentVariable = "APPLICATIONINSIGHTS_LOG_DIAGNOSTICS";
+        private const string LogDiagnosticsEnvironmentVariable = "APPLICATIONINSIGHTS_LOG_DIAGNOSTICS";
 
         /// <summary>
         /// ConfigBufferSize is the maximum bytes of config file that will be read.
@@ -43,13 +43,14 @@
             {
                 var configFilePath = ConfigFileName;
 
-                if (PlatformSingleton.Current.TryGetEnvironmentVariable(LogDiagnosticsEnviornmentVariable, out string logDiagnosticsPath))
+                // First, check whether the enviornment variable was set.
+                if (PlatformSingleton.Current.TryGetEnvironmentVariable(LogDiagnosticsEnvironmentVariable, out string logDiagnosticsPath))
                 {
                     configFilePath = Path.Combine(logDiagnosticsPath, ConfigFileName);
                     logDirectory = logDiagnosticsPath;
                 }
 
-                // First check using current working directory
+                // Second, check using current working directory.
                 else if (!File.Exists(configFilePath))
                 {
 #if NET452
@@ -58,7 +59,7 @@
                     configFilePath = Path.Combine(AppContext.BaseDirectory, ConfigFileName);
 #endif
 
-                    // Second check using application base directory
+                    // Third, check using application base directory.
                     if (!File.Exists(configFilePath))
                     {
                         return false;

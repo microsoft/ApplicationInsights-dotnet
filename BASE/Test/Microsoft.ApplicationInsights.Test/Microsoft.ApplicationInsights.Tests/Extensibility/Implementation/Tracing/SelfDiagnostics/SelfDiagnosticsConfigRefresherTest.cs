@@ -89,7 +89,7 @@
             }
             else
             {
-                val = "/home/user/LogFiles/";
+                val = "/home/user/LogFiles/SelfDiagnostics";
             }
 
             Environment.SetEnvironmentVariable(key, val);
