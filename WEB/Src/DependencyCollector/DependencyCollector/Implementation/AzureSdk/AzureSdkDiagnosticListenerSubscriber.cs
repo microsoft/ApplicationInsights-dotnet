@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Diagnostics.Tracing;
     using Microsoft.ApplicationInsights.Common;
@@ -9,7 +10,9 @@
 
     internal sealed class AzureSdkDiagnosticListenerSubscriber : DiagnosticSourceListenerBase<object>, IDisposable
     {
-        public const string DiagnosticListenerName = "Azure.";
+        private const string DiagnosticListenerName = "Azure.";
+        private static readonly HashSet<string> ExcludedSources = new HashSet<string> { "Azure.Cosmos.Request" };
+
         private readonly IDisposable logsListener;
 
         public AzureSdkDiagnosticListenerSubscriber(TelemetryConfiguration configuration) : base(configuration)
@@ -27,7 +30,7 @@
 
         internal override bool IsSourceEnabled(DiagnosticListener diagnosticListener)
         {
-            return diagnosticListener.Name.StartsWith(DiagnosticListenerName, StringComparison.Ordinal);
+            return diagnosticListener.Name.StartsWith(DiagnosticListenerName, StringComparison.Ordinal) && !ExcludedSources.Contains(diagnosticListener.Name);
         }
 
         internal override bool IsActivityEnabled(string evnt, object context)
