@@ -52,7 +52,7 @@
 
         /// <summary>
         /// Static Constructor which sets ActivityID Format to W3C if Format not enforced.
-        /// This ensures SDK operates in W3C mode, unless turned off explicitily with the following 2 lines
+        /// This ensures SDK operates in W3C mode, unless turned off explicitly with the following 2 lines
         /// in user code in application startup.
         /// Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical
         /// Activity.ForceDefaultIdFormat = true.
