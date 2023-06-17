@@ -18,6 +18,8 @@
         // Microsoft.DocumentDB is an Azure Resource Provider namespace. We use it as a dependency span as-is
         // and portal will take care about visualizing it properly.
         private const string CosmosDBResourceProviderNs = "Microsoft.DocumentDB";
+        private const string ClientCosmosDbDependencyType = CosmosDBResourceProviderNs;
+        private const string InternalCosmosDbDependencyType = "InProc | " + CosmosDBResourceProviderNs;
 #if NET452
         private static readonly DateTimeOffset EpochStart = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
 #endif
@@ -102,8 +104,11 @@
                                 dependency.SetOperationDetail(evnt.Value.GetType().FullName, evnt.Value);
                             }
                         }
-                        else if (dependency.Type == CosmosDBResourceProviderNs)
+                        else if (dependency.Type == ClientCosmosDbDependencyType || dependency.Type == InternalCosmosDbDependencyType)
                         {
+                            // Internal cosmos spans come from SDK in Gateway mode - they are
+                            // logical operations. AppMap then uses HTTP spans to build cosmos node and 
+                            // metrics on the edge
                             SetCosmosDbProperties(currentActivity, dependency);
                         }
                     }

@@ -1397,6 +1397,38 @@
             }
         }
 
+        [TestMethod]
+        public void AzureCosmosDbInternalSpansHaveInProcType()
+        {
+            using (var listener = new DiagnosticListener("Azure.Cosmos"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                Activity sendActivity = new Activity("Azure.Cosmos.ReadItems")
+                    .AddTag("kind", "internal")
+                    .AddTag("net.peer.name", "my.documents.azure.com")
+                    .AddTag("db.name", "database")
+                    .AddTag("db.operation", "ReadItems")
+                    .AddTag("db.cosmosdb.container", "container")
+                    .AddTag("az.namespace", "Microsoft.DocumentDB");
+
+                listener.StartActivity(sendActivity, null);
+                sendActivity.AddTag("db.cosmosdb.status_code", "200");
+                listener.StopActivity(sendActivity, null);
+
+                var telemetry = this.sentItems.Last();
+                DependencyTelemetry dependency = telemetry as DependencyTelemetry;
+                Assert.AreEqual("container | ReadItems", dependency.Name);
+                Assert.AreEqual("my.documents.azure.com | database", dependency.Target);
+                Assert.AreEqual("200", dependency.ResultCode);
+                Assert.AreEqual("InProc | Microsoft.DocumentDB", dependency.Type);
+                Assert.AreEqual("database", dependency.Properties["db.name"]);
+                Assert.AreEqual("ReadItems", dependency.Properties["db.operation"]);
+                Assert.AreEqual("my.documents.azure.com", dependency.Properties["net.peer.name"]);
+            }
+        }
+
 #if !NET452
         [TestMethod]
         public void AzureCosmosDbSpansAreCollectedWithLogs()
@@ -1546,7 +1578,7 @@
         class CosmosDbEventSource : EventSource
         {
             private CosmosDbEventSource()
-                : base("Azure.Cosmos_foo")
+                : base("Azure-Cosmos-Operation-Request-Diagnostics")
             {
             }
 
