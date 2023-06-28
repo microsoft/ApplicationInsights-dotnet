@@ -1,6 +1,7 @@
 # Changelog
 
 ## VNext
+- Fixed documentation of DependencyTrackingTelemetryModule.IncludeDiagnosticSourceActivities to say 'include' instead of 'exclude'
 
 ## Version 2.22.0-beta3
 - [Fixed an adaptive sampling issue that caused incorrect item count when an `Activity` Recorded flags were modified externally, when enabled side-by-side with OpenTelemetry or other solutions.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2742)
