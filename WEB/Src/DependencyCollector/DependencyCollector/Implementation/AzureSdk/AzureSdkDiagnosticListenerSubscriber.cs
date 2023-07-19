@@ -11,7 +11,7 @@
     internal sealed class AzureSdkDiagnosticListenerSubscriber : DiagnosticSourceListenerBase<object>, IDisposable
     {
         private const string DiagnosticListenerName = "Azure.";
-        private static readonly HashSet<string> ExcludedSources = new HashSet<string> { "Azure.Cosmos.Request" };
+        private const string CosmosRequestSourceName = "Azure.Cosmos.Request";
 
         private readonly IDisposable logsListener;
 
@@ -30,7 +30,7 @@
 
         internal override bool IsSourceEnabled(DiagnosticListener diagnosticListener)
         {
-            return diagnosticListener.Name.StartsWith(DiagnosticListenerName, StringComparison.Ordinal) && !ExcludedSources.Contains(diagnosticListener.Name);
+            return diagnosticListener.Name.StartsWith(DiagnosticListenerName, StringComparison.Ordinal) && !diagnosticListener.Name.Equals(CosmosRequestSourceName);
         }
 
         internal override bool IsActivityEnabled(string evnt, object context)
