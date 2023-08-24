@@ -1,6 +1,7 @@
 # Changelog
 
 ## VNext
+- [Fix heartbeat for short-running WorkerServices](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2762)
 
 ## Version 2.22.0-beta3
 - [Do not report CosmosDB transport-level calls](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2789)
