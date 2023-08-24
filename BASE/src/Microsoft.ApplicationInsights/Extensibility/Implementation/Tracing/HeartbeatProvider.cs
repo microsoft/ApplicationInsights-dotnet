@@ -287,11 +287,11 @@
         {
             if (this.IsHeartbeatEnabled && this.HeartbeatTimer == null)
             {
-                this.HeartbeatTimer = new Timer(callback: this.HeartbeatPulse, state: this, dueTime: this.firstInterval, period: this.HeartbeatInterval);
+                this.HeartbeatTimer = new Timer(callback: this.HeartbeatPulse, state: this, dueTime: this.HeartbeatFirstInterval, period: this.HeartbeatInterval);
             }
             else if (this.IsHeartbeatEnabled)
             {
-                this.HeartbeatTimer.Change(dueTime: this.firstInterval, period: this.HeartbeatInterval);
+                this.HeartbeatTimer.Change(dueTime: this.HeartbeatFirstInterval, period: this.HeartbeatInterval);
             }
             else if (this.HeartbeatTimer != null)
             {
