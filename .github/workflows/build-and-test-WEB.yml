@@ -27,7 +27,7 @@ jobs:
         framework: [net452, net462, net472, net480, net481, netcoreapp3.1, net6.0, net7.0]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Setup dotnet
       uses: actions/setup-dotnet@v3.1.0
