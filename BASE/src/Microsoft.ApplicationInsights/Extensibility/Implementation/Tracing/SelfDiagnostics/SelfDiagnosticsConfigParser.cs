@@ -46,7 +46,7 @@
                 // First, check whether the enviornment variable was set.
                 if (PlatformSingleton.Current.TryGetEnvironmentVariable(LogDiagnosticsEnvironmentVariable, out string logDiagnosticsPath))
                 {
-                    //configFilePath = Path.Combine(logDiagnosticsPath, ConfigFileName);
+                    // configFilePath = Path.Combine(logDiagnosticsPath, ConfigFileName);
                     configFilePath = "C:\\home\\LogFiles\\Application\\Functions";
                     logDirectory = logDiagnosticsPath;
                 }

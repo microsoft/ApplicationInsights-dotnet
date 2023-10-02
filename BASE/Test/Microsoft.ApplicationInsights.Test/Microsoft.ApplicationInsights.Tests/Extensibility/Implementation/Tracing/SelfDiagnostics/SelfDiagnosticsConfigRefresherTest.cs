@@ -80,16 +80,11 @@
         [TestMethod]
         public void SelfDiagnosticsConfigRefresher_ReadFromEnviornmentVar()
         {
-
             var key = "APPLICATIONINSIGHTS_LOG_DIAGNOSTICS";
-            var val = string.Empty;
+            var val = "/home/user/LogFiles/SelfDiagnostics";
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 val = @"C:\home\LogFiles\SelfDiagnostics";
-            }
-            else
-            {
-                val = "/home/user/LogFiles/SelfDiagnostics";
             }
 
             Environment.SetEnvironmentVariable(key, val);
