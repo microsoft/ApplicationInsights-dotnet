@@ -1429,6 +1429,48 @@
             }
         }
 
+        [TestMethod]
+        public void AzureCosmosDbRequestsAreNotCollected()
+        {
+            using (var operations = new DiagnosticListener("Azure.Cosmos.Operation"))
+            using (var requests = new DiagnosticListener("Azure.Cosmos.Request"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                Activity sendActivity = new Activity("Azure.Cosmos.Operation.ReadItems")
+                    .AddTag("kind", "client")
+                    .AddTag("net.peer.name", "my.documents.azure.com")
+                    .AddTag("db.name", "database")
+                    .AddTag("db.operation", "ReadItems")
+                    .AddTag("db.cosmosdb.container", "container")
+                    .AddTag("az.namespace", "Microsoft.DocumentDB");
+
+                operations.StartActivity(sendActivity, null);
+
+                Activity rntbdCall = new Activity("Azure.Cosmos.Request.Read")
+                                    .AddTag("kind", "client")
+                                    .AddTag("net.peer.name", "my.documents.azure.com")
+                                    .AddTag("db.name", "database")
+                                    .AddTag("db.operation", "ReadItems")
+                                    .AddTag("db.cosmosdb.container", "container")
+                                    .AddTag("az.namespace", "Microsoft.DocumentDB");
+                requests.StartActivity(rntbdCall, null);
+
+                rntbdCall.AddTag("db.cosmosdb.status_code", "200");
+                sendActivity.AddTag("db.cosmosdb.status_code", "200");
+                
+                requests.StopActivity(rntbdCall, null);
+                operations.StopActivity(sendActivity, null);
+
+                Assert.AreEqual(1, this.sentItems.Count);
+                var operation = this.sentItems.Last();
+                DependencyTelemetry dependency = operation as DependencyTelemetry;
+                Assert.AreEqual("container | ReadItems", dependency.Name);
+                Assert.AreEqual("ReadItems", dependency.Properties["db.operation"]);
+            }
+        }
+
 #if !NET452
         [TestMethod]
         public void AzureCosmosDbSpansAreCollectedWithLogs()
