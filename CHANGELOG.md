@@ -1,4 +1,5 @@
 # Changelog
+- [Added support to read diagnostics config from the path defined in environment variable.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2769)
 
 ## VNext
 

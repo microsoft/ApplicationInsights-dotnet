@@ -92,7 +92,7 @@
 
             try
             {
-                CreateConfigFile(false);
+                CreateConfigFile();
                 using (var configRefresher = new SelfDiagnosticsConfigRefresher())
                 {
                     // Emitting event of EventLevel.Error
