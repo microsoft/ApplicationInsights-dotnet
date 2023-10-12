@@ -48,6 +48,7 @@
         }
 
         [TestMethod]
+        [TestCategory("WindowsOnly")]
         public void SelfDiagnosticsConfigRefresher_CaptureAsConfigured()
         {
             try
@@ -82,12 +83,7 @@
         public void SelfDiagnosticsConfigRefresher_ReadFromEnviornmentVar()
         {
             var key = "APPLICATIONINSIGHTS_LOG_DIAGNOSTICS";
-            var val = "/home/user/LogFiles/SelfDiagnostics";
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                val = @"C:\home\LogFiles\SelfDiagnostics";
-            }
-
+            var val = @"C:\home\LogFiles\SelfDiagnostics";
             Environment.SetEnvironmentVariable(key, val);
 
             try
