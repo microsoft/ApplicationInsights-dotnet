@@ -7,6 +7,7 @@
     using System.Text;
     using System.Text.RegularExpressions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
     [TestClass]
@@ -80,7 +81,6 @@
         [TestMethod]
         public void SelfDiagnosticsConfigRefresher_ReadFromEnviornmentVar()
         {
-
             var key = "APPLICATIONINSIGHTS_LOG_DIAGNOSTICS";
             var val = "/home/user/LogFiles/SelfDiagnostics";
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -92,7 +92,7 @@
 
             try
             {
-                CreateConfigFile();
+                CreateConfigFile(false, val);
                 using (var configRefresher = new SelfDiagnosticsConfigRefresher())
                 {
                     // Emitting event of EventLevel.Error
@@ -136,31 +136,37 @@
             }
         }
 
-        private static void CreateConfigFile(bool userDefinedLogDirectory = true)
+        private void CreateConfigFile(bool userDefinedLogDirectory = true, string envVarVal = "")
         {
-            string configJson = string.Empty;
-            if (!userDefinedLogDirectory)
+            ConfigFileObj configFileObj = new()
             {
-                configJson = @"{
-                    ""FileSize"": 1024,
-                    ""LogLevel"": ""Error""
-                    }";
-            }
-            else
+                FileSize = 1024,
+                LogLevel = "Error"
+            };
+
+            if (userDefinedLogDirectory)
             {
-                configJson = @"{
-                    ""LogDirectory"": ""."",
-                    ""FileSize"": 1024,
-                    ""LogLevel"": ""Error""
-                    }";
+                configFileObj.LogDirectory = ".";
+            } 
+            else 
+            {
+                configFileObj.LogDirectory = envVarVal;
             }
 
+            string configJson = JsonConvert.SerializeObject(configFileObj);
             using (FileStream file = File.Open(ConfigFilePath, FileMode.Create, FileAccess.Write))
             {
                 byte[] configBytes = Encoding.UTF8.GetBytes(configJson);
                 file.Write(configBytes, 0, configBytes.Length);
             }
         }
+
+        struct ConfigFileObj
+        {
+            public int FileSize { get; set; }
+            public string LogLevel { get; set; }
+            public string LogDirectory { get; set; }
+        };
 
         private static void CleanupConfigFile()
         {
