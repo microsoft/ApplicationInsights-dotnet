@@ -48,7 +48,6 @@
         }
 
         [TestMethod]
-        [TestCategory("WindowsOnly")]
         public void SelfDiagnosticsConfigRefresher_CaptureAsConfigured()
         {
             try
