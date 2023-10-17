@@ -53,7 +53,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         }
 
         /// <summary>
-        /// Gets or sets the Application Insights connectionstring for your application
+        /// Gets or sets the Application Insights connectionstring for your application.
         /// </summary>
         public string ConnectionString
         {
