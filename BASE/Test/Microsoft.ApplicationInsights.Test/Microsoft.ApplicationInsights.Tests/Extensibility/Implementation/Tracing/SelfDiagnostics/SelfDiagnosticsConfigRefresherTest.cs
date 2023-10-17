@@ -7,6 +7,7 @@
     using System.Text;
     using System.Text.RegularExpressions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
     [TestClass]
@@ -39,7 +40,8 @@
 
                     // The event was omitted
                     Assert.AreEqual('\0', (char)actualBytes[MessageOnNewFile.Length]);
-                }}
+                }
+            }
             finally
             {
                 CleanupConfigFile();
@@ -80,19 +82,13 @@
         [TestMethod]
         public void SelfDiagnosticsConfigRefresher_ReadFromEnviornmentVar()
         {
-
             var key = "APPLICATIONINSIGHTS_LOG_DIAGNOSTICS";
-            var val = "/home/user/LogFiles/SelfDiagnostics";
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                val = @"C:\home\LogFiles\SelfDiagnostics";
-            }
-
+            var val = @"C:\home\LogFiles\SelfDiagnostics";
             Environment.SetEnvironmentVariable(key, val);
 
             try
             {
-                CreateConfigFile(false);
+                CreateConfigFile(false, val);
                 using (var configRefresher = new SelfDiagnosticsConfigRefresher())
                 {
                     // Emitting event of EventLevel.Error
@@ -136,31 +132,37 @@
             }
         }
 
-        private static void CreateConfigFile(bool userDefinedLogDirectory = true)
+        private void CreateConfigFile(bool userDefinedLogDirectory = true, string envVarVal = "")
         {
-            string configJson = string.Empty;
-            if (!userDefinedLogDirectory)
+            ConfigFileObj configFileObj = new()
             {
-                configJson = @"{
-                    ""FileSize"": 1024,
-                    ""LogLevel"": ""Error""
-                    }";
+                FileSize = 1024,
+                LogLevel = "Error"
+            };
+
+            if (userDefinedLogDirectory)
+            {
+                configFileObj.LogDirectory = ".";
             }
             else
             {
-                configJson = @"{
-                    ""LogDirectory"": ""."",
-                    ""FileSize"": 1024,
-                    ""LogLevel"": ""Error""
-                    }";
+                configFileObj.LogDirectory = envVarVal;
             }
 
+            string configJson = JsonConvert.SerializeObject(configFileObj);
             using (FileStream file = File.Open(ConfigFilePath, FileMode.Create, FileAccess.Write))
             {
                 byte[] configBytes = Encoding.UTF8.GetBytes(configJson);
                 file.Write(configBytes, 0, configBytes.Length);
             }
         }
+
+        private class ConfigFileObj
+        {
+            public int FileSize { get; set; }
+            public string LogLevel { get; set; }
+            public string LogDirectory { get; set; }
+        };
 
         private static void CleanupConfigFile()
         {
