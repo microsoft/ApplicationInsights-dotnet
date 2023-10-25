@@ -38,7 +38,7 @@ Application Insights NLog Target nuget package adds ApplicationInsights target i
 If your application does not have web.config then it can also be configured manually.
 
  * **Configure ApplicationInsightsTarget with ConnectionString using NLog.config** :
-ConnectionString is the preferred approach to write logs into application insights. If nlog application insights target has connectionString in the config file then telemetryclient will configure with it otherwise it will configure with instrumentationkey.
+ConnectionString is the preferred approach to write logs into Application Insights. If the NLog Application Insights target has connectionString in the config file then TelemetryClient will use it, otherwise it will use the instrumentationKey.
 
 ```xml
 <nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -110,7 +110,7 @@ If you configure NLog programmatically with the [NLog Config API](https://github
 var config = new LoggingConfiguration();
 
 ApplicationInsightsTarget target = new ApplicationInsightsTarget();
-// You need this only if you did not define AI ConnectionString in ApplicationInsights.config or want to use different connectionstring
+// You need this only if you did not define Application Insights ConnectionString in ApplicationInsights.config or want to use different connectionstring
 target.ConnectionString = "Your_ApplicationInsights_ConnectionString";
 or
 // You need this only if you did not define InstrumentationKey in ApplicationInsights.config or want to use different instrumentation key
