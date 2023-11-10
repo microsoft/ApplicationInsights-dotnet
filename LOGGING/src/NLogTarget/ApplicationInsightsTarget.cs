@@ -135,9 +135,6 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             // configure telemetryclient with the connectionstring otherwise using instrumentationkey.
             if (!string.IsNullOrWhiteSpace(connectionString))
             {
-                var configuration = TelemetryConfiguration.CreateDefault();
-                configuration.ConnectionString = connectionString;
-
                 this.telemetryClient.TelemetryConfiguration.ConnectionString = connectionString;
             }
             else
