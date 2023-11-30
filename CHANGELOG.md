@@ -2,6 +2,8 @@
 
 ## VNext
 
+## Version 2.22.0
+- no changes since beta.
 
 ## Version 2.22.0-beta4
 - [Added support to read diagnostics config from the path defined in environment variable.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2769)
