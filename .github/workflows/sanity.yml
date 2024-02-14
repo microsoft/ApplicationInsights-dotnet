@@ -38,6 +38,7 @@ jobs:
             3.1.x
             6.0.x
             7.0.x
+            8.0.x
 
     - name: Restore
       run: dotnet restore ${{ matrix.solution }}
