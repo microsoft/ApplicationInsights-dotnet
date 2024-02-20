@@ -463,7 +463,7 @@
         [TestCategory("NLogTarget")]
         public void NLogInfoIsSentAsInformationTraceItemWithAIConnectionString()
         {
-            var aiLogger = this.CreateTargetWithGivenConnectionString("Your_ApplicationInsights_ConnectionString");
+            var aiLogger = this.CreateTargetWithGivenConnectionString("InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://westeurope.in.applicationinsights.azure.example.com/;LiveEndpoint=https://westeurope.livediagnostics.monitor.azure.example.com/");
             aiLogger.Info("Info message");
 
             var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
@@ -474,7 +474,7 @@
         [TestCategory("NLogTarget")]
         public void NLogTraceIsSentAsVerboseTraceItemWithAIConnectionString()
         {
-            var aiLogger = this.CreateTargetWithGivenConnectionString("Your_ApplicationInsights_ConnectionString");
+            var aiLogger = this.CreateTargetWithGivenConnectionString("InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://westeurope.in.applicationinsights.azure.example.com/;LiveEndpoint=https://westeurope.livediagnostics.monitor.azure.example.com/");
             aiLogger.Trace("Trace message");
             
             var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
@@ -485,7 +485,7 @@
         [TestCategory("NLogTarget")]
         public void NLogDebugIsSentAsVerboseTraceItemWithAIConnectionString()
         {
-            var aiLogger = this.CreateTargetWithGivenConnectionString("Your_ApplicationInsights_ConnectionString");
+            var aiLogger = this.CreateTargetWithGivenConnectionString("InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://westeurope.in.applicationinsights.azure.example.com/;LiveEndpoint=https://westeurope.livediagnostics.monitor.azure.example.com/");
             aiLogger.Debug("Debug Message");
 
             var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
@@ -496,7 +496,7 @@
         [TestCategory("NLogTarget")]
         public void NLogWarnIsSentAsWarningTraceItemWithAIConnectionString()
         {
-            var aiLogger = this.CreateTargetWithGivenConnectionString("Your_ApplicationInsights_ConnectionString");
+            var aiLogger = this.CreateTargetWithGivenConnectionString("InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://westeurope.in.applicationinsights.azure.example.com/;LiveEndpoint=https://westeurope.livediagnostics.monitor.azure.example.com/");
 
             aiLogger.Warn("Warn message");
 
@@ -508,7 +508,7 @@
         [TestCategory("NLogTarget")]
         public void NLogErrorIsSentAsVerboseTraceItemWithAIConnectionString()
         {
-            var aiLogger = this.CreateTargetWithGivenConnectionString("Your_ApplicationInsights_ConnectionString");
+            var aiLogger = this.CreateTargetWithGivenConnectionString("InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://westeurope.in.applicationinsights.azure.example.com/;LiveEndpoint=https://westeurope.livediagnostics.monitor.azure.example.com/");
             aiLogger.Error("Error Message");
 
             var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
@@ -562,7 +562,7 @@
         }
 
         private Logger CreateTargetWithGivenConnectionString(
-            string connectionString = "Your_ApplicationInsights_ConnectionString",
+            string connectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://westeurope.in.applicationinsights.azure.example.com/;LiveEndpoint=https://westeurope.livediagnostics.monitor.azure.example.com/",
             Action<Logger> loggerAction = null)
         {
             // Mock channel to validate that our appender is trying to send logs
