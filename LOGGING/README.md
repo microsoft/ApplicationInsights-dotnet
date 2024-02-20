@@ -37,7 +37,27 @@ Application Insights NLog Target nuget package adds ApplicationInsights target i
 
 If your application does not have web.config then it can also be configured manually.
 
- * **Configure ApplicationInsightsTarget using NLog.config** :
+ * **Configure ApplicationInsightsTarget with ConnectionString using NLog.config** :
+ConnectionString is the preferred approach to write logs into Application Insights. If the NLog Application Insights target has connectionString in the config file then TelemetryClient will use it, otherwise it will use the instrumentationKey.
+
+```xml
+<nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <extensions>
+		<add assembly="Microsoft.ApplicationInsights.NLogTarget" />
+    </extensions>
+	<targets>
+		<target xsi:type="ApplicationInsightsTarget" name="aiTarget">
+			<connectionString>Your_ApplicationInsights_ConnectionString</connectionString>	<!-- Only required if not using ApplicationInsights.config -->
+			<contextproperty name="threadid" layout="${threadid}" />	<!-- Can be repeated with more context -->
+		</target>
+	</targets>
+	<rules>
+		<logger name="*" minlevel="Trace" writeTo="aiTarget" />
+	</rules>
+</nlog>
+```
+
+ * **Configure ApplicationInsightsTarget with InstrumentationKey using NLog.config** :
 
 ```xml
 <nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -70,6 +90,11 @@ For more information see:
 
 
 ```csharp
+// You need this only if you did not define ConnectionString or InstrumentationKey in ApplicationInsights.config (Or in the NLog.config)
+TelemetryConfiguration.Active.ConnectionString = "Your_ApplicationInsights_ConnectionString";
+
+or 
+
 // You need this only if you did not define InstrumentationKey in ApplicationInsights.config (Or in the NLog.config)
 TelemetryConfiguration.Active.InstrumentationKey = "Your_Resource_Key";
 
@@ -85,6 +110,9 @@ If you configure NLog programmatically with the [NLog Config API](https://github
 var config = new LoggingConfiguration();
 
 ApplicationInsightsTarget target = new ApplicationInsightsTarget();
+// You need this only if you did not define Application Insights ConnectionString in ApplicationInsights.config or want to use different connectionstring
+target.ConnectionString = "Your_ApplicationInsights_ConnectionString";
+or
 // You need this only if you did not define InstrumentationKey in ApplicationInsights.config or want to use different instrumentation key
 target.InstrumentationKey = "Your_Resource_Key";
 

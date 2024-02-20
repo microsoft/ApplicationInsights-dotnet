@@ -13,6 +13,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Implementation;
 
@@ -31,6 +32,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         private TelemetryClient telemetryClient;
         private DateTime lastLogEventTime;
         private NLog.Layouts.Layout instrumentationKeyLayout = string.Empty;
+        private NLog.Layouts.Layout connectionStringLayout = string.Empty;
 
         /// <summary>
         /// Initializers a new instance of ApplicationInsightsTarget type.
@@ -48,6 +50,15 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         {
             get => (this.instrumentationKeyLayout as NLog.Layouts.SimpleLayout)?.Text ?? null;
             set => this.instrumentationKeyLayout = value ?? string.Empty;
+        }
+
+        /// <summary>
+        /// Gets or sets the Application Insights connectionstring for your application.
+        /// </summary>
+        public string ConnectionString
+        {
+            get => (this.connectionStringLayout as NLog.Layouts.SimpleLayout)?.Text ?? null;
+            set => this.connectionStringLayout = value ?? string.Empty;
         }
 
         /// <summary>
@@ -118,10 +129,21 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             this.telemetryClient = new TelemetryClient();
 #pragma warning restore CS0618 // Type or member is obsolete
 
-            string instrumentationKey = this.instrumentationKeyLayout.Render(LogEventInfo.CreateNullEvent());
-            if (!string.IsNullOrWhiteSpace(instrumentationKey))
+            string connectionString = this.connectionStringLayout.Render(LogEventInfo.CreateNullEvent());
+           
+            // Check if nlog application insights target has connectionstring in config file then
+            // configure telemetryclient with the connectionstring otherwise using instrumentationkey.
+            if (!string.IsNullOrWhiteSpace(connectionString))
             {
-                this.telemetryClient.Context.InstrumentationKey = instrumentationKey;
+                this.telemetryClient.TelemetryConfiguration.ConnectionString = connectionString;
+            }
+            else
+            {
+                string instrumentationKey = this.instrumentationKeyLayout.Render(LogEventInfo.CreateNullEvent());
+                if (!string.IsNullOrWhiteSpace(instrumentationKey))
+                {
+                    this.telemetryClient.Context.InstrumentationKey = instrumentationKey;
+                }
             }
 
             this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("nlog:");
