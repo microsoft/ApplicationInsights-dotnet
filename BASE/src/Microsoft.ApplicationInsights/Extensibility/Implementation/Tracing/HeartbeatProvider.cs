@@ -58,6 +58,7 @@
 
         private bool disposedValue = false; // To detect redundant calls to dispose
         private TimeSpan interval; // time between heartbeats emitted
+        private TimeSpan firstInterval; // time for the first interval
         private TelemetryClient telemetryClient; // client to use in sending our heartbeat
         private volatile bool isEnabled; // no need for locks or volatile here, we can skip/add a beat if the module is disabled between heartbeats
 
@@ -67,6 +68,7 @@
             this.heartbeatProperties = new ConcurrentDictionary<string, HeartbeatPropertyPayload>(StringComparer.OrdinalIgnoreCase);
             this.heartbeatsSent = 0; // count up from construction time
             this.isEnabled = true;
+            this.firstInterval = TimeSpan.FromSeconds(1);
         }
 
         /// <summary>
@@ -86,6 +88,19 @@
                     this.interval = value;
                 }
 
+                this.InitTimer();
+            }
+        }
+        
+        /// <summary>
+        /// Gets or sets the currently defined interval of the first heartbeat. Defaults to 1 second.
+        /// </summary>
+        public TimeSpan HeartbeatFirstInterval
+        {
+            get => this.firstInterval;
+            set
+            {
+                this.firstInterval = value;
                 this.InitTimer();
             }
         }
@@ -272,11 +287,11 @@
         {
             if (this.IsHeartbeatEnabled && this.HeartbeatTimer == null)
             {
-                this.HeartbeatTimer = new Timer(callback: this.HeartbeatPulse, state: this, dueTime: this.HeartbeatInterval, period: this.HeartbeatInterval);
+                this.HeartbeatTimer = new Timer(callback: this.HeartbeatPulse, state: this, dueTime: this.HeartbeatFirstInterval, period: this.HeartbeatInterval);
             }
             else if (this.IsHeartbeatEnabled)
             {
-                this.HeartbeatTimer.Change(dueTime: this.HeartbeatInterval, period: this.HeartbeatInterval);
+                this.HeartbeatTimer.Change(dueTime: this.HeartbeatFirstInterval, period: this.HeartbeatInterval);
             }
             else if (this.HeartbeatTimer != null)
             {
