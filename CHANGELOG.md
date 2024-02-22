@@ -2,6 +2,12 @@
 
 ## VNext
 
+## Version 2.22.0
+- no changes since beta.
+
+## Version 2.22.0-beta4
+- [Added support to read diagnostics config from the path defined in environment variable.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2769)
+
 ## Version 2.22.0-beta3
 - [Do not report CosmosDB transport-level calls](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2789)
 - [Fixed an adaptive sampling issue that caused incorrect item count when an `Activity` Recorded flags were modified externally, when enabled side-by-side with OpenTelemetry or other solutions.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2742)

@@ -27,14 +27,14 @@ jobs:
         ref: ${{ matrix.branch }}
     
     - name: Setup dotnet
-      uses: actions/setup-dotnet@v3.1.0
+      uses: actions/setup-dotnet@v4.0.0
       with:
         dotnet-version: |
             3.1.x
             6.0.x
             7.0.x
 
-    - uses: nuget/setup-nuget@v1
+    - uses: nuget/setup-nuget@v2
       with:
         nuget-version: 'latest'
 
