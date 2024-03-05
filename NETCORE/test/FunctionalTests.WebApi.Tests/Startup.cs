@@ -23,7 +23,7 @@ namespace FunctionalTests.WebApi.Tests
             services.AddSingleton<EndpointAddress>(endpointAddress);
             services.AddSingleton(typeof(ITelemetryChannel), new InMemoryChannel() { EndpointAddress = endpointAddress.ConnectionString, DeveloperMode = true });
             services.AddApplicationInsightsTelemetry(InProcessServer.IKey);
-            services.AddMvc();
+            services.AddControllers();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -34,10 +34,11 @@ namespace FunctionalTests.WebApi.Tests
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseMvc(routes =>
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
             {
-                // Add the following route for porting Web API 2 controllers.
-                routes.MapWebApiRoute("DefaultApi", "api/{controller}/{id?}");
+                endpoints.MapControllers();
             });
         }
     }
