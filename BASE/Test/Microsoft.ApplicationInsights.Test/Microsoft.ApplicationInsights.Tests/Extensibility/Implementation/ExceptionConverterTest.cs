@@ -185,6 +185,19 @@
             Assert.AreEqual(5, expDetails.message.Length);
         }
 
+        [TestMethod]
+        [DataRow(null)]
+        [DataRow("")]
+        [DataRow(" ")]
+        public void ProvidesDefaultMessage(string message)
+        {
+            var exp = new Exception(string.Empty);
+
+            ExceptionDetails expDetails = ExceptionConverter.ConvertToExceptionDetails(exp, null);
+
+            Assert.AreEqual("n/a", expDetails.message);
+        }
+
         [MethodImplAttribute(MethodImplOptions.NoInlining)]
         private Exception CreateException(int numberOfStackpoints)
         {

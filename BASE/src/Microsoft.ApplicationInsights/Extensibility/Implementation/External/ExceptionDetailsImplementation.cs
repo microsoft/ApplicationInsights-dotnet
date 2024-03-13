@@ -1,4 +1,6 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
+﻿using Microsoft.ApplicationInsights.DataContracts;
+
+namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 {
     using System;
 
@@ -21,7 +23,7 @@
             {
                 id = exception.GetHashCode(),
                 typeName = exception.GetType().FullName,
-                message = exception.Message,
+                message = Utils.PopulateRequiredStringValue(exception.Message, "message", typeof(ExceptionTelemetry).FullName),
             };
 
             if (parentExceptionDetails != null)
