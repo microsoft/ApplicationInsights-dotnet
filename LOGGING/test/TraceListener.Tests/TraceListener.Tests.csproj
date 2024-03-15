@@ -5,7 +5,7 @@
     <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
     <RootNamespace>Microsoft.ApplicationInsights.TraceListener.Tests</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.TraceListener.Tests</AssemblyName>
-    <TargetFrameworks>net452;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net462;net6.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,7 +17,7 @@
     <ProjectReference Include="..\..\src\TraceListener\TraceListener.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
     <Reference Include="System.Net.Http" />
   </ItemGroup>
   

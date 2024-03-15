@@ -119,9 +119,6 @@
 
         internal static bool IsWindowsOperatingSystem()
         {
-#if NET452
-            return true;
-#else
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return true;
@@ -130,7 +127,6 @@
             {
                 return false;
             }
-#endif
         }
 
         /// <summary>

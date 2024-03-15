@@ -5,7 +5,7 @@
     <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
     <RootNamespace>Microsoft.ApplicationInsights.EtwCollector.Tests</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.EtwCollector.Tests</AssemblyName>
-    <TargetFrameworks>net46</TargetFrameworks>
+    <TargetFrameworks>net462</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

@@ -87,7 +87,7 @@
                 trace.Properties["EventId"] = eventData.EventId.ToString(CultureInfo.InvariantCulture);
             }
 
-#if !NET452
+#if !NETFRAMEWORK
             if (!string.IsNullOrEmpty(eventData.EventName))
             {
                 trace.Properties["EventName"] = eventData.EventName;
