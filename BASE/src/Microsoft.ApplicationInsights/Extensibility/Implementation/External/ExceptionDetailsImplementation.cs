@@ -1,8 +1,7 @@
-﻿using Microsoft.ApplicationInsights.DataContracts;
-
-namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 {
     using System;
+    using Microsoft.ApplicationInsights.DataContracts;
 
     /// <summary>
     /// Additional implementation for ExceptionDetails.
