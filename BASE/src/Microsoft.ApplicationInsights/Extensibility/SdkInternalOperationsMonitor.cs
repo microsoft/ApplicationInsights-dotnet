@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
-#if NET452
+#if NETFRAMEWORK
     using System;
     using System.Runtime.Remoting.Messaging;
 

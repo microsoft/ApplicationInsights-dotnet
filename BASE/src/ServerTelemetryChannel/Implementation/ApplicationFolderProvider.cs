@@ -119,6 +119,9 @@
 
         internal static bool IsWindowsOperatingSystem()
         {
+#if NETFRAMEWORK
+            return true;
+#else
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return true;
@@ -127,6 +130,7 @@
             {
                 return false;
             }
+#endif
         }
 
         /// <summary>
