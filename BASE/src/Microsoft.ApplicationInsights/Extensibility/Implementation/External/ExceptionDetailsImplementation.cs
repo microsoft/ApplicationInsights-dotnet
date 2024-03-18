@@ -22,7 +22,7 @@
             {
                 id = exception.GetHashCode(),
                 typeName = exception.GetType().FullName,
-                message = Utils.PopulateRequiredStringValue(exception.Message, "message", typeof(ExceptionTelemetry).FullName),
+                message = Utils.PopulateRequiredNonWhitespaceStringValue(exception.Message, "message", typeof(ExceptionTelemetry).FullName),
             };
 
             if (parentExceptionDetails != null)
