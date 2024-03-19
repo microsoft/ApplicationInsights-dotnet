@@ -19,6 +19,8 @@ namespace Microsoft.ApplicationInsights.Tracing.Tests
     {
         public string InstrumentationKey { get; }
 
+        public string ConnectionString { get; }
+
 #if NET452 || NET46
         private static readonly string ApplicationInsightsConfigFilePath =
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ApplicationInsights.config");
@@ -27,16 +29,19 @@ namespace Microsoft.ApplicationInsights.Tracing.Tests
             Path.Combine(Path.GetDirectoryName(typeof(AdapterHelper).GetTypeInfo().Assembly.Location), "ApplicationInsights.config");
 #endif
 
-        public AdapterHelper(string instrumentationKey = "F8474271-D231-45B6-8DD4-D344C309AE69")
+        public AdapterHelper(string instrumentationKey = "F8474271-D231-45B6-8DD4-D344C309AE69"
+            , string connectionString = "Your_ApplicationInsights_ConnectionString")
         {
             this.InstrumentationKey = instrumentationKey;
+            this.ConnectionString = connectionString;
 
             string configuration = string.Format(InvariantCulture,
                                     @"<?xml version=""1.0"" encoding=""utf-8"" ?>
                                      <ApplicationInsights xmlns=""http://schemas.microsoft.com/ApplicationInsights/2013/Settings"">
                                         <InstrumentationKey>{0}</InstrumentationKey>
                                      </ApplicationInsights>",
-                                     instrumentationKey);
+                                     instrumentationKey,
+                                     connectionString);
 
             File.WriteAllText(ApplicationInsightsConfigFilePath, configuration);
             this.Channel = new CustomTelemetryChannel();
