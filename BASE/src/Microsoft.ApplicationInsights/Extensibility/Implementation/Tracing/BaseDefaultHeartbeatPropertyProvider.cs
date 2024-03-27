@@ -109,6 +109,8 @@
             return "net452";
 #elif NET46
             return "net46";
+#elif NET462
+            return "net462";
 #elif NETSTANDARD2_0
             return "netstandard2.0";
 #else

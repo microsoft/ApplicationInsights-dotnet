@@ -24,7 +24,7 @@
     {
         private readonly object lockObject = new object();
 
-#if NET452
+#if NETFRAMEWORK
         private HttpDesktopDiagnosticSourceListener httpDesktopDiagnosticSourceListener;
         private FrameworkHttpEventListener httpEventListener;
         private FrameworkSqlEventListener sqlEventListener;
@@ -231,7 +231,7 @@
             {
                 if (disposing)
                 {
-#if NET452
+#if NETFRAMEWORK
                     // Net40 does not support framework event source and diagnostic source
                     if (this.httpDesktopDiagnosticSourceListener != null)
                     {

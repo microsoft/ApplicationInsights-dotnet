@@ -217,7 +217,7 @@
         }
 
         [Fact]
-        public void TestRequestWithRequestIdAndTraceParentHeaderWithW3CDisabled()
+        public void TestRequestWithRequestIdHeaderWithW3CDisabled()
         {
             try
             {
@@ -239,8 +239,10 @@
                     {
                         // Both request id and traceparent
                         ["Request-Id"] = "|8ee8641cbdd8dd280d239fa2121c7e4e.df07da90a5b27d93.",
-                        ["traceparent"] = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
-                        ["tracestate"] = "some=state",
+                        // If traceparent is sent in the request, it seems that is has more priority then Request-Id
+                        // so, do not send traceparent and tracestate if you want to use Request-Id and test Hierchical Tracing
+                        //["traceparent"] = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
+                        //["tracestate"] = "some=state",
                         ["Correlation-Context"] = "k1=v1,k2=v2"
                     };
 

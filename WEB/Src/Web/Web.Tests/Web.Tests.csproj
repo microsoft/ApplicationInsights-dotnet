@@ -4,7 +4,7 @@
   <PropertyGroup>
     <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
     <!-- Important: This project is exclusively NetFramework. This will not be upgraded to NetStandard nor NetCore. -->
-    <TargetFrameworks>$(TargetFrameworks_NetFrameworkOnly)</TargetFrameworks>
+    <TargetFrameworks>$(SupportedFrameworks_NetFx)</TargetFrameworks>
     
     <AssemblyName>Microsoft.ApplicationInsights.Web.Tests</AssemblyName>
   </PropertyGroup>

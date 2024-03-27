@@ -35,7 +35,10 @@ namespace FunctionalTests.MVC.Tests
 
             services.AddSingleton(typeof(ITelemetryChannel), new InMemoryChannel());
             services.AddApplicationInsightsTelemetry(applicationInsightsOptions);
-            services.AddMvc();
+
+            services.AddMvcCore();
+            services.AddControllersWithViews()
+                .AddRazorRuntimeCompilation();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,11 +56,13 @@ namespace FunctionalTests.MVC.Tests
 
             app.UseStaticFiles();
 
-            app.UseMvc(routes =>
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }

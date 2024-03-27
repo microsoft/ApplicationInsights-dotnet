@@ -3,6 +3,11 @@
 ## VNext
 - [Populate required field Message with "n/a" if it is empty](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1066)
 
+## Version 2.23.0
+- [remove target frameworks net452;net46; because they are no longer supported.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2850)
+affected projects: DependencyCollector, TelemetryChannel, Perf, WindowsServer, Microsoft.ApplicationInsights.
+- Microsoft.ApplicationInsights.AspNetCore targets net6 to enable framework reference to Microsoft.AspNetCore.App.
+
 ## Version 2.22.0
 - no changes since beta.
 
