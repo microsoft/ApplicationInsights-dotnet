@@ -2,7 +2,6 @@
 {
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.AspNetCore.Hosting.Internal;
     using Xunit;
 
     public class AspNetCoreEnvironmentTelemetryInitializerTests

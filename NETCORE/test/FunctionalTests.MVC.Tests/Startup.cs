@@ -35,7 +35,10 @@ namespace FunctionalTests.MVC.Tests
 
             services.AddSingleton(typeof(ITelemetryChannel), new InMemoryChannel());
             services.AddApplicationInsightsTelemetry(applicationInsightsOptions);
-            services.AddMvc();
+            services.AddMvcCore(options => options.EnableEndpointRouting = false);
+
+            services.AddControllersWithViews()
+                .AddRazorRuntimeCompilation();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
