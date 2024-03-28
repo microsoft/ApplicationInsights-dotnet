@@ -3,6 +3,12 @@
 ## VNext
 - [Populate required field Message with "n/a" if it is empty](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1066)
 
+## Version 2.23.0
+- [Microsoft.ApplicationInsights.AspNetCore used deprecated NuGet packages](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2811)
+- Target Microsoft.ApplicationInsights.AspNetCore to netcoreapp3.1
+- Remove package references to nugets Microsoft.AspNetCore.*
+- For AspNetCore use framework reference to Microsoft.AspNetCore.App
+
 ## Version 2.22.0
 - no changes since beta.
 

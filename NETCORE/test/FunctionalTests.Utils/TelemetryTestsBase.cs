@@ -131,6 +131,8 @@
 
             using (HttpClient httpClient = new HttpClient(httpClientHandler, true))
             {
+                httpClient.Timeout = TimeSpan.FromMilliseconds(TestListenerTimeoutInMs);
+
                 this.output.WriteLine($"{DateTime.Now:MM/dd/yyyy hh:mm:ss.fff tt}: Executing request: {requestPath}");
                 HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestPath);
                 if (headers != null)
