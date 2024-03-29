@@ -75,7 +75,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         {
             IConfigurationRoot config;
             var services = new ServiceCollection()
-                .AddSingleton<IHostingEnvironment>(EnvironmentHelper.GetIHostingEnvironment())
+                .AddSingleton<IWebHostEnvironment>(EnvironmentHelper.GetIHostingEnvironment())
                 .AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
 
             if (jsonPath != null)

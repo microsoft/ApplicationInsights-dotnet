@@ -80,7 +80,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         public static ServiceCollection GetServiceCollectionWithContextAccessor()
         {
             var services = new ServiceCollection();
-            services.AddSingleton<IHostingEnvironment>(EnvironmentHelper.GetIHostingEnvironment());
+            services.AddSingleton<IWebHostEnvironment>(EnvironmentHelper.GetIHostingEnvironment());
             services.AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
             return services;
         }

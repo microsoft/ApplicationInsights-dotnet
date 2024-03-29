@@ -8,7 +8,7 @@
     {
         private readonly ITelemetryProcessor nextProcessor;
 
-        public IHostingEnvironment HostingEnvironment { get; }
+        public IWebHostEnvironment HostingEnvironment { get; }
 
         /// <summary>
         /// Constructs an instance of the telemetry processor.
@@ -16,7 +16,7 @@
         /// </summary>
         /// <param name="next">The next procesor in the chain.</param>
         /// <param name="hostingEnvironment">The hosting environment. This parameter will be injected by the DI framework.</param>
-        public FakeTelemetryProcessorWithImportingConstructor(ITelemetryProcessor next, IHostingEnvironment hostingEnvironment)
+        public FakeTelemetryProcessorWithImportingConstructor(ITelemetryProcessor next, IWebHostEnvironment hostingEnvironment)
         {
             this.nextProcessor = next;
             this.HostingEnvironment = hostingEnvironment;

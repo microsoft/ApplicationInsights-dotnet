@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ApplicationInsights.Channel;
 using FunctionalTests.Utils;
+using Microsoft.Extensions.Hosting;
 
 namespace FunctionalTests.WebApi.Tests
 {
@@ -27,7 +28,7 @@ namespace FunctionalTests.WebApi.Tests
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
