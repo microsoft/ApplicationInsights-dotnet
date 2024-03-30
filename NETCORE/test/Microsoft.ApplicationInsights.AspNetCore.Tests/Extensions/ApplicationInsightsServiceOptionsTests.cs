@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Test;
-
+using Microsoft.Extensions.Hosting;
 using Xunit;
 
 namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
@@ -75,7 +75,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         {
             IConfigurationRoot config;
             var services = new ServiceCollection()
-                .AddSingleton<IWebHostEnvironment>(EnvironmentHelper.GetIHostingEnvironment())
+                .AddSingleton<IHostEnvironment>(EnvironmentHelper.GetIHostingEnvironment())
                 .AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
 
             if (jsonPath != null)

@@ -13,6 +13,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Hosting;
 
     public abstract class BaseTestClass
     {
@@ -80,7 +81,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         public static ServiceCollection GetServiceCollectionWithContextAccessor()
         {
             var services = new ServiceCollection();
-            services.AddSingleton<IWebHostEnvironment>(EnvironmentHelper.GetIHostingEnvironment());
+            services.AddSingleton<IHostEnvironment>(EnvironmentHelper.GetIHostingEnvironment());
             services.AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
             return services;
         }
