@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <AssemblyName>Microsoft.ApplicationInsights.AspNetCore</AssemblyName>
-    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net462;netcoreapp3.1</TargetFrameworks>
 
     <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp3.1</TargetFrameworks>
     <DefineConstants>$(DefineConstants);AI_ASPNETCORE_WEB;</DefineConstants>
@@ -33,8 +33,35 @@
     <ProjectReference Include="..\..\..\WEB\Src\EventCounterCollector\EventCounterCollector\EventCounterCollector.csproj" />
     <ProjectReference Include="..\..\..\LOGGING\src\ILogger\ILogger.csproj" />
   </ItemGroup>
+  
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
 
-  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.0" />
+
+    <!--
+    Microsoft.AspNetCore.Http has a vulnerability https://msrc.microsoft.com/update-guide/vulnerability/CVE-2020-1045
+    System.Text.Encodings.Web has a vulnerability https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-26701 
+    
+    These are both implicit dependencies from Microsoft.AspNetCore.Hosting.
+    (Microsoft.AspNetCore.Hosting > Microsoft.AspNetCore.Http)
+    (Microsoft.AspNetCore.Hosting > Microsoft.AspNetCore.Hosting.Abstractions > Microsoft.AspNetCore.Http.Abstractions > System.Text.Encodings.Web)
+    -->
+    
+    <!--
+    Taking a dependency on Microsoft.AspNetCore.Hosting v2.2.0 would resolve this issue, but would also break support for NetCore v2.1.
+    Instead I'm taking a direct dependency on the fixed version Microsoft.AspNetCore.Http.
+    We can remove this when NetCore v2.1 reaches EOL on August 21, 2021.
+    -->
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.22" />
+
+    <!-- 
+    We must take a temporary dependency on this newer version until Microsoft.AspNetCore.Hosting updates their dependencies.
+    -->
+    <PackageReference Include="System.Text.Encodings.Web" Version="4.7.2" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 

@@ -6,6 +6,11 @@
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Hosting;
 
+#if NETFRAMEWORK
+    // Add alias for IHostEnvironment for .NET Framework mapped to Microsoft.AspNetCore.Hosting.IHostingEnvironment
+    using IHostEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
+#endif
+
     /// <summary>
     /// <see cref="ITelemetryInitializer"/> implementation that stamps ASP.NET Core environment name
     /// on telemetries.

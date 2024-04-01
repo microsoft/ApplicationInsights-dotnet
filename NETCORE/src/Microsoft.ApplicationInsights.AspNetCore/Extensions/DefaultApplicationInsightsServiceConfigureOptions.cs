@@ -9,6 +9,11 @@
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Options;
 
+#if NETFRAMEWORK
+    // Add alias for IHostEnvironment for .NET Framework mapped to Microsoft.AspNetCore.Hosting.IHostingEnvironment
+    using IHostEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
+#endif
+
     /// <summary>
     /// <see cref="IConfigureOptions&lt;ApplicationInsightsServiceOptions&gt;"/> implementation that reads options from 'appsettings.json',
     /// environment variables and sets developer mode based on debugger state.
