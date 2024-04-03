@@ -4,6 +4,7 @@ TODO: TABLE OF CONTENTS. saving this for last because this guide is still changi
 
 - Introduction (link)
 - Scenarios
+  - Onboarding (link)
   - Manually Sending Telemetry (link)
   - TODO
   - TODO
