@@ -39,8 +39,6 @@ We've written a detailed onboarding guide for this scenario here: [Enable Azure 
 
 ### Manual configuration
 
-
-
 Using Application Insights:
 ```csharp
 var telemetryConfig = new TelemetryConfiguration();
