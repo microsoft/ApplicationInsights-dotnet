@@ -6,28 +6,16 @@ The Application Insights .NET SDK allowed users to manually create telemetry usi
 
 It's important to recognize that some of the datatypes shown in the Application Insights UX will have new types in the OpenTelemetry SDKs.
 
-| Application Insights DataType | OpenTelemetry DataType             | .NET Implementation                  |
-|-------------------------------|------------------------------------|--------------------------------------|
-| `Requests`                    | Spans (Server, Producer)           | System.Diagnostics.Activity          |
-| `Dependency`                  | Spans (Client, Internal, Consumer) | System.Diagnostics.Activity          |
-| `CustomMetrics`               | Metrics                            | System.Diagnostics.Metrics.Meter     |
-| `Traces`                      | Logs                               | Microsoft.Extensions.Logging.ILogger |
+| Application Insights DataType | OpenTelemetry DataType               | .NET Implementation                  |
+|-------------------------------|--------------------------------------|--------------------------------------|
+| `Requests`                    | `Spans` (Server, Producer)           | System.Diagnostics.Activity          |
+| `Dependency`                  | `Spans` (Client, Internal, Consumer) | System.Diagnostics.Activity          |
+| `CustomMetrics`               | `Metrics`                            | System.Diagnostics.Metrics.Meter     |
+| `Traces`                      | `Logs`                               | Microsoft.Extensions.Logging.ILogger |
 
 Review these documents to learn more:
  - [Data Collection Basics of Azure Monitor Application Insights](https://learn.microsoft.com/azure/azure-monitor/app/opentelemetry-overview).
  - [Application Insights telemetry data model](https://learn.microsoft.com/azure/azure-monitor/app/data-model-complete)
-
-### Next Steps
-- View our getting started document: https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-enable?tabs=net
-- Configuration guide: https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-configuration?tabs=aspnetcore
-- We've documented some basic Application Insights scenarios here: https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-add-modify
-- We've documented some .NET specific scenarios here: **TODO LINK TO SCENARIOS DOC**
-- The [OpenTelemetry .NET repo](https://github.com/open-telemetry/opentelemetry-dotnet) provides documentation and code samples for getting started and using their SDK.
-- The [Azure Monitor Exporter repo](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/monitor/Azure.Monitor.OpenTelemetry.Exporter) provides code samples. 
-- FAQ: https://learn.microsoft.com/azure/azure-monitor/app/opentelemetry-enable?tabs=aspnetcore#frequently-asked-questions
-- For support, please view our [Troubleshooting doc](https://learn.microsoft.com/azure/azure-monitor/app/opentelemetry-enable?tabs=net#troubleshooting).
-
-
 
 ## DependencyTelemetry
 
@@ -86,7 +74,7 @@ Using Application Insights:
 
 Using OpenTelemetry:
 
-TODO: OTEL EXAMPLE
+TODO: OTEL EXAMPLE. THIS COULD BE A SEPARATE DOC BY ITSELF!
 
 ## AvailabilityTelemetry
 
