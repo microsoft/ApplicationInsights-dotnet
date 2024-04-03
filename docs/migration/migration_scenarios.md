@@ -16,6 +16,8 @@ For OpenTelemetry, each of the 3 telemetry signals (Traces, Metrics, and Logs) h
 
 ### AspNetCore Configuration
 
+Prerequisite: using ASP.NET Core, follow these steps.
+
 Using Application Insights:
 ```csharp
 var builder = WebApplication.CreateBuilder(args);
@@ -36,6 +38,8 @@ We've written a detailed onboarding guide for this scenario here: [Enable Azure 
 
 
 ### Manual configuration
+
+
 
 Using Application Insights:
 ```csharp

@@ -22,6 +22,8 @@ https://opentelemetry.io/docs/what-is-opentelemetry/
 - `Application Insights`, a feature of Azure Monitor, excels in Application Performance Management (APM) for live web applications. https://learn.microsoft.com/azure/azure-monitor/app/app-insights-overview
 - `Azure Monitor` is a comprehensive monitoring solution for collecting, analyzing, and responding to monitoring data from your cloud and on-premises environments. You can use Azure Monitor to maximize the availability and performance of your applications and services. It helps you understand how your applications are performing and allows you to manually and programmatically respond to system events. https://learn.microsoft.com/azure/azure-monitor/overview
 
+TODO: explain what is AzureMonitorExporter?
+
 ### DataTypes
 
 It's important to recognize that some of the datatypes shown in the Application Insights UX will have new types in the OpenTelemetry SDKs.
