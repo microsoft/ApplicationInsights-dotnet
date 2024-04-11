@@ -14,9 +14,10 @@ The following guide details how to remove Application Insights from an ASP.NET w
 ### Step 1: Remove Application Insights SDK
 
 When you first added ApplicationInsights to your project, the SDK would have added a config file and made some edits to the web.config.
-If using Nuget tools to remove the Application Insights, some of this will be cleaned up. If you're manually removing the package reference from your csproj, 
+If using Nuget tools to remove the Application Insights, some of this will be cleaned up. 
+If you're manually removing the package reference from your csproj, you'll need to manually cleanup these artifacts.
 
-- Remove any Microsoft.ApplicationInsights.* packages.
+- Remove any Microsoft.ApplicationInsights.* packages from you csproj and packages.config.
 - Delete the ApplicationInsights.config file.
 - Clean up your application's Web.Config file.
 
