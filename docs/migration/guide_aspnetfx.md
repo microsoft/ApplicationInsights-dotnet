@@ -48,21 +48,50 @@ The OpenTelemery SDK must be configured at application startup. This is typicall
 OpenTelemetry has a concept of three signals; Traces (Requests and Dependencies), Metrics, and Logs.
 Each of these signals will need to be configured as part of your application startup.
 
-There is a full getting started for the OpenTelemetry SDK guide here: https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/src/OpenTelemetry
-
-See also this ASP.NET example project here: https://github.com/open-telemetry/opentelemetry-dotnet-contrib/blob/main/examples/AspNet/Global.asax.cs
+#### Global.asax.cs
 
 TODO: NEED A SAMPLE THAT INCLUDES LOGGING.
+
+```csharp
+using OpenTelemetry;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
+
+public class MvcApplication : System.Web.HttpApplication
+{
+    private TracerProvider? tracerProvider;
+    private MeterProvider? meterProvider;
+
+    protected void Application_Start()
+    {
+        this.tracerProvider = Sdk.CreateTracerProviderBuilder()
+            .Build();
+
+        this.meterProvider = Sdk.CreateMeterProviderBuilder()
+            .Build();
+    }
+
+    protected void Application_End()
+    {
+        this.tracerProvider?.Dispose();
+        this.meterProvider?.Dispose();
+    }
+}
+```
+
+For more examples, see the following guides:
+- OpenTelemetry SDK's getting started guide: https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/src/OpenTelemetry
+- ASP.NET example project: https://github.com/open-telemetry/opentelemetry-dotnet-contrib/blob/main/examples/AspNet/Global.asax.cs
 
 ### Step 1: Configure Instrumentation Libraries.
 
 Instrumentation libraries can be added to your project to auto collect telemetry about specific components or dependencies.
 
-- To collect telemetry for incoming requests, you should add the OpenTelemetry.Instrumentation.AspNet library to your application.
+- To collect telemetry for incoming requests, you should add the [OpenTelemetry.Instrumentation.AspNet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.AspNet) library to your application.
 This includes adding a new reference to your Web.config and adding the Instrumentation to your OpenTelemetry SDK configuration.
 A getting started guide is available here: https://github.com/open-telemetry/opentelemetry-dotnet-contrib/tree/main/src/OpenTelemetry.Instrumentation.AspNet
 
-- To collect telemetry for outbound http dependencies, you should add the OpenTelemetry.Instrumentation.Http library to your application.
+- To collect telemetry for outbound http dependencies, you should add the [OpenTelemetry.Instrumentation.Http](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Http) library to your application.
 A getting started guide is available here: https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/src/OpenTelemetry.Instrumentation.Http
 
 ### Step 1: Configure the Azure Monitor Exporter 
