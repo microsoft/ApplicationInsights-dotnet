@@ -3,11 +3,6 @@
 
 TODO: REMOVE THIS DOC. MOVE SUBJECTS TO INDIVIDUAL DOCS, SMALLER TO DIGEST
 
-This doc captures specific scenarios that Application Insights .NET SDK users may have and provides instructions to migrate their applications to OpenTelemetry and the Azure Monitor Exporter.
-
-> NOTE:
-> The Azure Monitor .NET Exporter does not yet have full feature parity with the classic Application Insights SDK.
-
 ## Automatically Collecting Telemetry
 
 TODO: INSTRUMENTATION LIBRARIES

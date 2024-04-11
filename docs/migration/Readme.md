@@ -17,6 +17,10 @@ OpenTelemetry .NET, along with the Azure Monitor Exporter is the current recomme
 
 Microsoft is excited to embrace OpenTelemetry as the future of telemetry instrumentation. You, our customers, asked for vendor-neutral instrumentation, and we're pleased to partner with the OpenTelemetry community to create consistent APIs and SDKs across languages.
 
+> NOTE:
+> The Azure Monitor .NET Exporter does not yet have full feature parity with the classic Application Insights SDK.
+> See our feature matrix here: https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-enable?tabs=aspnetcore#whats-the-current-release-state-of-features-within-the-azure-monitor-opentelemetry-distro
+
 ### Who is this document for 
 
 This document is for you if you are
