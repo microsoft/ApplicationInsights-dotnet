@@ -6,10 +6,10 @@ The following guide details how to remove Application Insights from an ASP.NET w
 
 ## Prerequisites
 
-- An ASP.NET web application
+- An ASP.NET web application already instrumented with Application Insights
 - A actively supported version of .NET (link)
 
-## Steps to ...
+## Steps to Migrate
 
 ### Step 1: Remove Application Insights SDK
 
@@ -41,7 +41,7 @@ If using Nuget tools to remove the Application Insights, some of this will be cl
     </configuration>
     ```
 
-### Step 1: Install the OpenTelemetry SDK and Enable at application startup
+### Step 1: Install the OpenTelemetry SDK and Enable at Application Startup
 
 The OpenTelemery SDK must be configured at application startup. This is typically done in the Global.asax.cs.
 OpenTelemetry has a concept of three signals; Traces (Requests and Dependencies), Metrics, and Logs.
@@ -53,21 +53,20 @@ See also this ASP.NET example project here: https://github.com/open-telemetry/op
 
 TODO: NEED A SAMPLE THAT INCLUDES LOGGING.
 
-### Step 1: Configure instrumentation libraries.
+### Step 1: Configure Instrumentation Libraries.
 
 Instrumentation libraries can be added to your project to auto collect telemetry about specific components or dependencies.
 
-To collect telemetry for incoming requests, you should add the OpenTelemetry.Instrumentation.AspNet library to your application.
-A full guide for adding AspNet instrumentation is available here: https://github.com/open-telemetry/opentelemetry-dotnet-contrib/tree/main/src/OpenTelemetry.Instrumentation.AspNet
+- To collect telemetry for incoming requests, you should add the OpenTelemetry.Instrumentation.AspNet library to your application.
 This includes adding a new reference to your Web.config and adding the Instrumentation to your OpenTelemetry SDK configuration.
+A getting started guide is available here: https://github.com/open-telemetry/opentelemetry-dotnet-contrib/tree/main/src/OpenTelemetry.Instrumentation.AspNet
 
-```
-dotnet add package OpenTelemetry.Instrumentation.AspNet
-```
+- To collect telemetry for outbound http dependencies, you should add the OpenTelemetry.Instrumentation.Http library to your application.
+A getting started guide is available here: https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/src/OpenTelemetry.Instrumentation.Http
 
-### Step 1: Configure the AzureMonitor exporter 
+### Step 1: Configure the Azure Monitor Exporter 
 
-To send your telemetry to AzureMonitor, the AzureMonitor exporter must be added to the configuration of all three signals.
+To send your telemetry to Application Insights, the Azure Monitor Exporter must be added to the configuration of all three signals.
 
 See this doc for our getting started guide:
 https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-enable?tabs=net
