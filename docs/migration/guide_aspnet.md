@@ -2,7 +2,7 @@
 
 ## Intro
 
-The following guide details how to remove Application Insights from an ASP.NET web app and how to set up the OpenTelemetry SDK.
+The following guide details how to migrate from Application Insights SDK to OpenTelemetry based solution for an ASP.NET web application.
 
 ## Prerequisites
 
