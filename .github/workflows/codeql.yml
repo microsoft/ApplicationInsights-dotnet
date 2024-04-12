@@ -12,7 +12,6 @@
 name: "CodeQL"
 
 on:
-  workflow_dispatch:
   push:
     branches: [ "main", "develop", "master" ]
   pull_request:
@@ -28,9 +27,8 @@ jobs:
     #   - https://gh.io/supported-runners-and-hardware-resources
     #   - https://gh.io/using-larger-runners (GitHub.com only)
     # Consider using larger runners or machines with greater resources for possible analysis time improvements.
-    #runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
     runs-on: windows-latest
-    timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}
+    timeout-minutes: 360
     permissions:
       # required for all workflows
       security-events: write
@@ -104,13 +102,6 @@ jobs:
       
     - if: matrix.build-mode == 'manual'
       run: dotnet build ${{ matrix.solution }}
-      #run: |
-      #  echo 'If you are using a "manual" build mode for one or more of the' \
-      #    'languages you are analyzing, replace this with the commands to build' \
-      #    'your code, for example:'
-      #  echo '  make bootstrap'
-      #  echo '  make release'
-      #  exit 1
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
