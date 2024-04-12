@@ -44,7 +44,7 @@ If you're manually removing the package reference from your csproj, you'll need 
 
 ### Step 1: Install the OpenTelemetry SDK and Enable at Application Startup
 
-The OpenTelemery SDK must be configured at application startup. This is typically done in the Global.asax.cs.
+The OpenTelemery SDK must be configured at application startup. This is typically done in the `Global.asax.cs`.
 OpenTelemetry has a concept of three signals; Traces (Requests and Dependencies), Metrics, and Logs.
 Each of these signals will need to be configured as part of your application startup.
 
