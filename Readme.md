@@ -10,6 +10,10 @@
 
 This is the .NET SDK for sending data to [Azure Monitor](https://docs.microsoft.com/azure/azure-monitor/overview) & [Application Insights](https://docs.microsoft.com/azure/azure-monitor/app/app-insights-overview).
 
+> We recommend using the [Azure Monitor OpenTelemetry Distro](https://learn.microsoft.com/azure/azure-monitor/app/opentelemetry-enable)
+> if it has the [features you require](https://learn.microsoft.com/azure/azure-monitor/app/opentelemetry-enable?tabs=aspnetcore#whats-the-current-release-state-of-features-within-the-azure-monitor-opentelemetry-distro).
+> It eliminates any dependency on the Application Insights Legacy API. You will get you familiar with OpenTelemetry APIs and Terms, and you be well-positioned to take advantage of everything OpenTelemetry offers now and in the future.
+
 ## Getting Started
 
 Please review our How-to guides to review which packages are appropriate for your project:
