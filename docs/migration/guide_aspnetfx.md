@@ -2,7 +2,7 @@
 
 ## Intro
 
-The following guide details how to remove Application Insights from an ASP.NET web app and how to set up the OpenTelemetry SDK.
+The following guide details how to migrate from Application Insights SDK to OpenTelemetry based solution for an ASP.NET web application.
 
 ## Prerequisites
 
@@ -44,7 +44,7 @@ If you're manually removing the package reference from your csproj, you'll need 
 
 ### Step 1: Install the OpenTelemetry SDK and Enable at Application Startup
 
-The OpenTelemery SDK must be configured at application startup. This is typically done in the Global.asax.cs.
+The OpenTelemery SDK must be configured at application startup. This is typically done in the `Global.asax.cs`.
 OpenTelemetry has a concept of three signals; Traces (Requests and Dependencies), Metrics, and Logs.
 Each of these signals will need to be configured as part of your application startup.
 
