@@ -1,4 +1,4 @@
-# Guide for Asp.Net applications
+# Guide for ASP.NET applications
 
 ## Intro
 
