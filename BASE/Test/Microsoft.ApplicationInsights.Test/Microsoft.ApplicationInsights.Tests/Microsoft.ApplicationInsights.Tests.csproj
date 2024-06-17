@@ -44,7 +44,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(IsNetStandard20)' == 'True'">
-    <PackageReference Include="Azure.Identity" Version="1.11.0" />
+    <PackageReference Include="Azure.Identity" Version="1.11.4" />
     <PackageReference Include="Azure.Core" Version="1.38.0" />
   </ItemGroup>
 
