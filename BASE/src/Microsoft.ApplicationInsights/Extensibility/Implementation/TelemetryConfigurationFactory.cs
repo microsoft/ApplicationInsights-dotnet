@@ -174,7 +174,7 @@
                 }
                 else if (instance == null)
                 {
-                    CoreEventSource.Log.IncorrectInstanceAtributesConfigurationError(definition.Name.LocalName);
+                    CoreEventSource.Log.IncorrectInstanceAttributesConfigurationError(definition.Name.LocalName);
                 }
 
                 if (instance != null)

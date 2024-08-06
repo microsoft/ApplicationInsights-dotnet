@@ -662,7 +662,7 @@
         /// </remarks>
         public void Flush()
         {
-            CoreEventSource.Log.TelemetlyClientFlush();
+            CoreEventSource.Log.TelemetryClientFlush();
 
             if (this.TryGetMetricManager(out MetricManager privateMetricManager))
             {

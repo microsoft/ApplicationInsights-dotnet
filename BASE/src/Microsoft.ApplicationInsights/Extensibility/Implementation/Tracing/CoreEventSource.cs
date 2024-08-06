@@ -97,7 +97,7 @@
             Keywords = Keywords.Diagnostics,
             Message = "Scheduler timer dispose failure: {0}",
             Level = EventLevel.Warning)]
-        public void DiagnoisticsEventThrottlingSchedulerDisposeTimerFailure(
+        public void DiagnosticsEventThrottlingSchedulerDisposeTimerFailure(
             string exception,
             string appDomainName = "Incorrect")
         {
@@ -112,7 +112,7 @@
             Keywords = Keywords.Diagnostics,
             Message = "A scheduler timer was created for the interval: {0}",
             Level = EventLevel.Verbose)]
-        public void DiagnoisticsEventThrottlingSchedulerTimerWasCreated(
+        public void DiagnosticsEventThrottlingSchedulerTimerWasCreated(
             string intervalInMilliseconds,
             string appDomainName = "Incorrect")
         {
@@ -124,7 +124,7 @@
             Keywords = Keywords.Diagnostics,
             Message = "A scheduler timer was removed",
             Level = EventLevel.Verbose)]
-        public void DiagnoisticsEventThrottlingSchedulerTimerWasRemoved(string appDomainName = "Incorrect")
+        public void DiagnosticsEventThrottlingSchedulerTimerWasRemoved(string appDomainName = "Incorrect")
         {
             this.WriteEvent(8, this.nameProvider.Name);
         }
@@ -237,7 +237,7 @@
             Keywords = Keywords.UserActionable,
             Message = "ApplicationInsights configuration file loading failed. Element '{0}' element does not have a Type attribute, does not specify a value and is not a valid collection type. Type initialization was skipped. Monitoring will continue.",
             Level = EventLevel.Error)]
-        public void IncorrectInstanceAtributesConfigurationError(string definition, string appDomainName = "Incorrect")
+        public void IncorrectInstanceAttributesConfigurationError(string definition, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
                 18,
@@ -604,7 +604,7 @@
         public void TelemetryChannelNoInstrumentationKey(string appDomainName = "Incorrect") => this.WriteEvent(57, this.nameProvider.Name);
 
         [Event(58, Message = "TelemetryClient.Flush was invoked.", Level = EventLevel.Verbose)]
-        public void TelemetlyClientFlush(string appDomainName = "Incorrect") => this.WriteEvent(58, this.nameProvider.Name);
+        public void TelemetryClientFlush(string appDomainName = "Incorrect") => this.WriteEvent(58, this.nameProvider.Name);
 
         [Event(59, Message = "MetricManager.Flush was invoked.", Level = EventLevel.Verbose)]
         public void MetricManagerFlush(string appDomainName = "Incorrect") => this.WriteEvent(59, this.nameProvider.Name);
