@@ -15,4 +15,4 @@ For significant contributions please make sure you have completed the following 
 The PR will trigger build, unit tests, and functional tests automatically. Please follow [these](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/develop/.github/CONTRIBUTING.md) instructions to build and test locally.
 
 ### Notes for authors:
-- FxCop and other analyzers will fail the build. To see these errors yourself, compile localy using the Release configuration.
+- FxCop and other analyzers will fail the build. To see these errors yourself, compile locally using the Release configuration.
