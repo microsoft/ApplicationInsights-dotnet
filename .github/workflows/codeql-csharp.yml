@@ -12,6 +12,7 @@
 name: "CodeQL-csharp"
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "main", "develop", "master" ]
   pull_request:
