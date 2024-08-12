@@ -9,9 +9,10 @@
 # the `language` matrix defined below to confirm you have the correct set of
 # supported CodeQL languages.
 #
-name: "CodeQL"
+name: "CodeQL-javascript"
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "main", "develop", "master" ]
   pull_request:
@@ -43,17 +44,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        solution:
-          - ./NETCORE/ApplicationInsights.AspNetCore.sln
-          - ./Everything.sln
-          - ./ProjectsForSigning.sln
-          - ./examples/Examples.sln
-          - ./LOGGING/Logging.sln
-          - ./BASE/Microsoft.ApplicationInsights.sln
-          - ./WEB/Src/Microsoft.ApplicationInsights.Web.sln
         include:
-        - language: csharp
-          build-mode: manual
         - language: javascript-typescript
           build-mode: none
         
@@ -68,15 +59,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-
-    - name: Setup dotnet
-      uses: actions/setup-dotnet@v4.0.0
-      with:
-        dotnet-version: |
-            3.1.x
-            6.0.x
-            7.0.x
-            8.0.x
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
@@ -97,11 +79,6 @@ jobs:
     # to build your code.
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
-    - if: matrix.build-mode == 'manual'
-      run: dotnet restore ${{ matrix.solution }}
-      
-    - if: matrix.build-mode == 'manual'
-      run: dotnet build ${{ matrix.solution }}
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
