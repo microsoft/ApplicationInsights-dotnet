@@ -9,7 +9,7 @@
 # the `language` matrix defined below to confirm you have the correct set of
 # supported CodeQL languages.
 #
-name: "CodeQL"
+name: "CodeQL-csharp"
 
 on:
   push:
@@ -54,8 +54,6 @@ jobs:
         include:
         - language: csharp
           build-mode: manual
-        - language: javascript-typescript
-          build-mode: none
         
         # CodeQL supports the following values keywords for 'language': 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
         # Use `c-cpp` to analyze code written in C, C++ or both
@@ -97,10 +95,12 @@ jobs:
     # to build your code.
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
-    - if: matrix.build-mode == 'manual'
+    - name: Dotnet Restore
+      if: matrix.build-mode == 'manual'
       run: dotnet restore ${{ matrix.solution }}
       
-    - if: matrix.build-mode == 'manual'
+    - name: Dotnet Build
+      if: matrix.build-mode == 'manual'
       run: dotnet build ${{ matrix.solution }}
 
     - name: Perform CodeQL Analysis
