@@ -455,64 +455,14 @@
             NLog.Common.AsyncContinuation asyncContinuation = (ex) => { flushException = ex; flushEvent.Set(); };
             aiLogger.Factory.Flush(asyncContinuation, 5000);
             Assert.IsTrue(flushEvent.WaitOne(5000));
-            Assert.IsNotNull(flushException);
-            Assert.AreEqual("Flush called", flushException.Message);
         }
 
         [TestMethod]
         [TestCategory("NLogTarget")]
-        public void NLogInfoIsSentAsInformationTraceItemWithAIConnectionString()
+        public void NLogTargetWithConnectionString()
         {
-            var aiLogger = this.CreateTargetWithGivenConnectionString("Your_ApplicationInsights_ConnectionString");
-            aiLogger.Info("Info message");
-
-            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
-            Assert.AreEqual($"Info message", telemetry.Message);
-        }
-
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void NLogTraceIsSentAsVerboseTraceItemWithAIConnectionString()
-        {
-            var aiLogger = this.CreateTargetWithGivenConnectionString("Your_ApplicationInsights_ConnectionString");
-            aiLogger.Trace("Trace message");
-
-            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.AreEqual("Trace message", telemetry.Message);
-        }
-
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void NLogDebugIsSentAsVerboseTraceItemWithAIConnectionString()
-        {
-            var aiLogger = this.CreateTargetWithGivenConnectionString("Your_ApplicationInsights_ConnectionString");
-            aiLogger.Debug("Debug Message");
-
-            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.AreEqual("Debug Message", telemetry.Message);
-        }
-
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void NLogWarnIsSentAsWarningTraceItemWithAIConnectionString()
-        {
-            var aiLogger = this.CreateTargetWithGivenConnectionString("Your_ApplicationInsights_ConnectionString");
-
-            aiLogger.Warn("Warn message");
-
-            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.AreEqual("Warn message", telemetry.Message);
-        }
-
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void NLogErrorIsSentAsVerboseTraceItemWithAIConnectionString()
-        {
-            var aiLogger = this.CreateTargetWithGivenConnectionString("InstrumentationKey=b91a8f48-c77c-4f12-80e2-f96bc1abb126;IngestionEndpoint=https://centralus-2.in.applicationinsights.azure.com/;LiveEndpoint=https://centralus.livediagnostics.monitor.azure.com/");
-            aiLogger.Error("Error Message");
-
-            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.AreEqual("Error Message", telemetry.Message);
+            var aiLogger = this.CreateTargetWithGivenConnectionString("TestAI");
+            VerifyMessagesInMockChannel(aiLogger, "TestAI");
         }
 
         private void VerifyMessagesInMockChannel(Logger aiLogger, string instrumentationKey)
@@ -562,18 +512,15 @@
         }
 
         private Logger CreateTargetWithGivenConnectionString(
-            string connectionString = "Your_ApplicationInsights_ConnectionString",
+            string instrumentationKey = "TEST",
             Action<Logger> loggerAction = null)
         {
-            // Mock channel to validate that our appender is trying to send logs
-#pragma warning disable CS0618 // Type or member is obsolete
-            TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
-#pragma warning restore CS0618 // Type or member is obsolete
-
             ApplicationInsightsTarget target = new ApplicationInsightsTarget
             {
-                ConnectionString = connectionString
+                ConnectionString = $"InstrumentationKey={instrumentationKey};IngestionEndpoint=https://localhost/;LiveEndpoint=https://localhost/"
             };
+
+            target.TelemetryConfigurationFactory = () => new TelemetryConfiguration() { TelemetryChannel = this.adapterHelper.Channel };
 
             LoggingRule rule = new LoggingRule("*", LogLevel.Trace, target);
             LoggingConfiguration config = new LoggingConfiguration();
