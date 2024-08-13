@@ -30,7 +30,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
     public sealed class ApplicationInsightsTarget : TargetWithLayout
     {
         private TelemetryClient telemetryClient;
-        private DateTime lastLogEventTime;
+        private TelemetryConfiguration telemetryConfiguration;
         private NLog.Layouts.Layout instrumentationKeyLayout = string.Empty;
         private NLog.Layouts.Layout connectionStringLayout = string.Empty;
 
@@ -68,12 +68,9 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         public IList<TargetPropertyWithContext> ContextProperties { get; } = new List<TargetPropertyWithContext>();
 
         /// <summary>
-        /// Gets the logging controller we will be using.
+        /// Gets or sets the factory for creating TelemetryConfiguration, so unit-tests can override in-memory-channel.
         /// </summary>
-        internal TelemetryClient TelemetryClient
-        {
-            get { return this.telemetryClient; }
-        }
+        internal Func<TelemetryConfiguration> TelemetryConfigurationFactory { get; set; }
 
         internal void BuildPropertyBag(LogEventInfo logEvent, ITelemetry trace)
         {
@@ -119,9 +116,9 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         }
 
         /// <summary>
-        /// Initializes the Target and perform instrumentationKey validation.
+        /// Initializes the Target and configures TelemetryClient.
         /// </summary>
-        /// <exception cref="NLogConfigurationException">Will throw when <see cref="InstrumentationKey"/> is not set.</exception>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "ApplicationInsightsTarget class handles ownership of TelemetryConfiguration with Dispose.")]
         protected override void InitializeTarget()
         {
             base.InitializeTarget();
@@ -132,9 +129,9 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             // configure new telemetryclient with the connectionstring otherwise using legacy instrumentationkey.
             if (!string.IsNullOrWhiteSpace(connectionString))
             {
-                var telemetryConfiguration = TelemetryConfiguration.CreateDefault();
-                telemetryConfiguration.ConnectionString = connectionString;
-                this.telemetryClient = new TelemetryClient(telemetryConfiguration);
+                this.telemetryConfiguration = this.TelemetryConfigurationFactory?.Invoke() ?? TelemetryConfiguration.CreateDefault();
+                this.telemetryConfiguration.ConnectionString = connectionString;
+                this.telemetryClient = new TelemetryClient(this.telemetryConfiguration);
             }
             else
             {
@@ -152,6 +149,17 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         }
 
         /// <summary>
+        /// Closes the target and releases resources used by the current instance of the <see cref="ApplicationInsightsTarget"/> class.
+        /// </summary>
+        protected override void CloseTarget()
+        {
+            this.telemetryConfiguration?.Dispose();
+            this.telemetryConfiguration = null;
+
+            base.CloseTarget();
+        }
+
+        /// <summary>
         /// Send the log message to Application Insights.
         /// </summary>
         /// <exception cref="ArgumentNullException">If <paramref name="logEvent"/> is null.</exception>
@@ -161,8 +169,6 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             {
                 throw new ArgumentNullException(nameof(logEvent));
             }
-
-            this.lastLogEventTime = DateTime.UtcNow;
 
             if (logEvent.Exception != null)
             {
@@ -187,11 +193,26 @@ namespace Microsoft.ApplicationInsights.NLogTarget
 
             try
             {
-                this.TelemetryClient.FlushAsync(System.Threading.CancellationToken.None).ContinueWith(t => asyncContinuation(t.Exception));
+                this.telemetryClient.FlushAsync(System.Threading.CancellationToken.None).ContinueWith(t => asyncContinuation(t.Exception));
             }
             catch (Exception ex)
             {
                 asyncContinuation(ex);
+            }
+        }
+
+        /// <summary>
+        /// Releases resources used by the current instance of the <see cref="ApplicationInsightsTarget"/> class.
+        /// </summary>
+        /// <param name="disposing">Dispose managed state (managed objects).</param>
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+
+            if (disposing)
+            {
+                this.telemetryConfiguration?.Dispose();
+                this.telemetryConfiguration = null;
             }
         }
 
