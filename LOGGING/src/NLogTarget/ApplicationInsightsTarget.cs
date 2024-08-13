@@ -125,20 +125,22 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         protected override void InitializeTarget()
         {
             base.InitializeTarget();
-#pragma warning disable CS0618 // Type or member is obsolete: TelemtryConfiguration.Active is used in TelemetryClient constructor.
-            this.telemetryClient = new TelemetryClient();
-#pragma warning restore CS0618 // Type or member is obsolete
 
             string connectionString = this.connectionStringLayout.Render(LogEventInfo.CreateNullEvent());
 
             // Check if nlog application insights target has connectionstring in config file then
-            // configure telemetryclient with the connectionstring otherwise using instrumentationkey.
+            // configure new telemetryclient with the connectionstring otherwise using legacy instrumentationkey.
             if (!string.IsNullOrWhiteSpace(connectionString))
             {
-                this.telemetryClient.TelemetryConfiguration.ConnectionString = connectionString;
+                var telemetryConfiguration = TelemetryConfiguration.CreateDefault();
+                telemetryConfiguration.ConnectionString = connectionString;
+                this.telemetryClient = new TelemetryClient(telemetryConfiguration);
             }
             else
             {
+#pragma warning disable CS0618 // Type or member is obsolete: TelemtryConfiguration.Active is used in TelemetryClient constructor.
+                this.telemetryClient = new TelemetryClient();
+#pragma warning restore CS0618 // Type or member is obsolete
                 string instrumentationKey = this.instrumentationKeyLayout.Render(LogEventInfo.CreateNullEvent());
                 if (!string.IsNullOrWhiteSpace(instrumentationKey))
                 {
