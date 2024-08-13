@@ -3,6 +3,8 @@ Microsoft.ApplicationInsights.NLogTarget.ApplicationInsightsTarget.ApplicationIn
 Microsoft.ApplicationInsights.NLogTarget.ApplicationInsightsTarget.ContextProperties.get -> System.Collections.Generic.IList<Microsoft.ApplicationInsights.NLogTarget.TargetPropertyWithContext>
 Microsoft.ApplicationInsights.NLogTarget.ApplicationInsightsTarget.InstrumentationKey.get -> string
 Microsoft.ApplicationInsights.NLogTarget.ApplicationInsightsTarget.InstrumentationKey.set -> void
+Microsoft.ApplicationInsights.NLogTarget.ApplicationInsightsTarget.ConnectionString.get -> string
+Microsoft.ApplicationInsights.NLogTarget.ApplicationInsightsTarget.ConnectionString.set -> void
 Microsoft.ApplicationInsights.NLogTarget.TargetPropertyWithContext
 Microsoft.ApplicationInsights.NLogTarget.TargetPropertyWithContext.Layout.get -> NLog.Layouts.Layout
 Microsoft.ApplicationInsights.NLogTarget.TargetPropertyWithContext.Layout.set -> void
