@@ -2,6 +2,7 @@
 
 ## VNext
 - [Populate required field Message with "n/a" if it is empty](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1066)
+- [NLog Target with support for specifying ConnectionString](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2897)
 
 ## Version 2.22.0
 - no changes since beta.
