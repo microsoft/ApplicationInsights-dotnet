@@ -45,7 +45,7 @@ class ReleaseInfo {
 }
 
 Function Get-GitChangeset() {
-    # if running localy, use git command. for VSTS, probably better to use Build.SourceVersion
+    # if running locally, use git command. for VSTS, probably better to use Build.SourceVersion
     # Git command only works if this script executes in the repo's directory
     [string]$commit = ""
     try {
