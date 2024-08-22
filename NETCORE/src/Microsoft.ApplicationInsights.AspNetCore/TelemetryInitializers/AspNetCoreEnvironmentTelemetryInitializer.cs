@@ -4,6 +4,12 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Extensions.Hosting;
+
+#if NETFRAMEWORK
+    // Add alias for IHostEnvironment for .NET Framework mapped to Microsoft.AspNetCore.Hosting.IHostingEnvironment
+    using IHostEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
+#endif
 
     /// <summary>
     /// <see cref="ITelemetryInitializer"/> implementation that stamps ASP.NET Core environment name
@@ -12,13 +18,13 @@
     public class AspNetCoreEnvironmentTelemetryInitializer : ITelemetryInitializer
     {
         private const string AspNetCoreEnvironmentPropertyName = "AspNetCoreEnvironment";
-        private readonly IHostingEnvironment environment;
+        private readonly IHostEnvironment environment;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AspNetCoreEnvironmentTelemetryInitializer"/> class.
         /// </summary>
         /// <param name="environment">HostingEnvironment to provide EnvironmentName to be added to telemetry properties.</param>
-        public AspNetCoreEnvironmentTelemetryInitializer(IHostingEnvironment environment)
+        public AspNetCoreEnvironmentTelemetryInitializer(IHostEnvironment environment)
         {
             this.environment = environment;
         }

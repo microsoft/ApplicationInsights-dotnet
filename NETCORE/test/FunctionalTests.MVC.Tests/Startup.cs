@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ApplicationInsights.Channel;
 using FunctionalTests.Utils;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace FunctionalTests.MVC.Tests
 {
@@ -35,11 +36,14 @@ namespace FunctionalTests.MVC.Tests
 
             services.AddSingleton(typeof(ITelemetryChannel), new InMemoryChannel());
             services.AddApplicationInsightsTelemetry(applicationInsightsOptions);
-            services.AddMvc();
+            services.AddMvcCore(options => options.EnableEndpointRouting = false);
+
+            services.AddControllersWithViews()
+                .AddRazorRuntimeCompilation();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {

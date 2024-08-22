@@ -6,7 +6,13 @@
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Options;
+
+#if NETFRAMEWORK
+    // Add alias for IHostEnvironment for .NET Framework mapped to Microsoft.AspNetCore.Hosting.IHostingEnvironment
+    using IHostEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
+#endif
 
     /// <summary>
     /// <see cref="IConfigureOptions&lt;ApplicationInsightsServiceOptions&gt;"/> implementation that reads options from 'appsettings.json',
@@ -14,15 +20,15 @@
     /// </summary>
     internal class DefaultApplicationInsightsServiceConfigureOptions : IConfigureOptions<ApplicationInsightsServiceOptions>
     {
-        private readonly IHostingEnvironment hostingEnvironment;
+        private readonly IHostEnvironment hostingEnvironment;
         private readonly IConfiguration userConfiguration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultApplicationInsightsServiceConfigureOptions"/> class.
         /// </summary>
-        /// <param name="hostingEnvironment"><see cref="IHostingEnvironment"/> to use for retreiving ContentRootPath.</param>
+        /// <param name="hostingEnvironment"><see cref="IHostEnvironment"/> to use for retreiving ContentRootPath.</param>
         /// <param name="configuration"><see cref="IConfiguration"/>  from an application.</param>
-        public DefaultApplicationInsightsServiceConfigureOptions(IHostingEnvironment hostingEnvironment, IConfiguration configuration = null)
+        public DefaultApplicationInsightsServiceConfigureOptions(IHostEnvironment hostingEnvironment, IConfiguration configuration = null)
         {
             this.hostingEnvironment = hostingEnvironment;
             this.userConfiguration = configuration;
