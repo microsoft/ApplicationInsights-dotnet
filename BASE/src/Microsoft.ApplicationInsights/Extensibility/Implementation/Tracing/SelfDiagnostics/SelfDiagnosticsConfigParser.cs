@@ -53,7 +53,7 @@
                 // Second, check using current working directory.
                 else if (!File.Exists(configFilePath))
                 {
-#if NET452
+#if NETFRAMEWORK
                     configFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ConfigFileName);
 #else
                     configFilePath = Path.Combine(AppContext.BaseDirectory, ConfigFileName);

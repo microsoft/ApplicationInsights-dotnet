@@ -5,7 +5,7 @@
     <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
     <RootNamespace>Microsoft.ApplicationInsights.EventSourceListener.Tests</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.EventSourceListener.Tests</AssemblyName>
-    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net6.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>    
