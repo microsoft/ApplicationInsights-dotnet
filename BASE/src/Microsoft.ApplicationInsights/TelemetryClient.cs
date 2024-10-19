@@ -1339,15 +1339,15 @@
         /// See <see cref="MetricAggregationScope" /> for more info.</param>
         /// <param name="dimensions">Up to 10 custom dimensions for this metric.</param>
         public Metric GetMetric(
-            string metricId,
-            MetricConfiguration metricConfiguration,
-            MetricAggregationScope aggregationScope,
-            params string[] dimensions)
+                            string metricId,
+                            MetricConfiguration metricConfiguration,
+                            MetricAggregationScope aggregationScope,
+                            params string[] dimensions)
         {
             return this.GetOrCreateMetric(
-                aggregationScope,
-                new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimensions),
-                metricConfiguration);
+                        aggregationScope,
+                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimensions),
+                        metricConfiguration);
         }
 
         private Metric GetOrCreateMetric(
