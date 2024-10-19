@@ -1505,6 +1505,106 @@
 
                 sentTelemetry.Clear();
             }
+            
+                        {
+                Metric metric = client.GetMetric(
+                            new MetricIdentifier(
+                                        "Test MetricNamespace", 
+                                        "Test MetricId", 
+                                        ["Dim 1", 
+                                        "Dim 2", 
+                                        "Dim 3", 
+                                        "Dim 4", 
+                                        "Dim 5", 
+                                        "Dim 6", 
+                                        "Dim 7", 
+                                        "Dim 8", 
+                                        "Dim 9", 
+                                        "Dim 10"]),
+                            MetricConfigurations.Common.Measurement());
+                Assert.IsNotNull(metric);
+                Assert.AreEqual(10, metric.Identifier.DimensionsCount);
+                Assert.AreEqual("Test MetricNamespace", metric.Identifier.MetricNamespace);
+                Assert.AreEqual("Test MetricId", metric.Identifier.MetricId);
+                Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
+                Assert.AreEqual("Dim 1", metric.Identifier.GetDimensionName(1));
+                Assert.AreEqual("Dim 2", metric.Identifier.GetDimensionName(2));
+                Assert.AreEqual("Dim 3", metric.Identifier.GetDimensionName(3));
+                Assert.AreEqual("Dim 4", metric.Identifier.GetDimensionName(4));
+                Assert.AreEqual("Dim 5", metric.Identifier.GetDimensionName(5));
+                Assert.AreEqual("Dim 6", metric.Identifier.GetDimensionName(6));
+                Assert.AreEqual("Dim 7", metric.Identifier.GetDimensionName(7));
+                Assert.AreEqual("Dim 8", metric.Identifier.GetDimensionName(8));
+                Assert.AreEqual("Dim 9", metric.Identifier.GetDimensionName(9));
+                Assert.AreEqual("Dim 10", metric.Identifier.GetDimensionName(10));
+
+                metric.TrackValue(0.5, true, ["DV1", "DV2", "DV3", "DV4", "DV5", "DV6", "DV7", "DV8", "DV9", "DV10"]);
+                metric.TrackValue(0.6, true, ["DV1", "DV2", "DV3", "DV4", "DV5", "DV6", "DV7", "DV8", "DV9", "DV10"]);
+
+                telemetryPipeline.GetMetricManager().Flush();
+                Assert.AreEqual(1, sentTelemetry.Count);
+
+                MetricTelemetry[] orderedTelemetry = sentTelemetry
+                                        .OrderByDescending( (t) => ((MetricTelemetry) t).Count * 10000 + ((MetricTelemetry) t).Sum )
+                                        .Select( (t) => (MetricTelemetry) t )
+                                        .ToArray();
+
+                TestUtil.ValidateNumericAggregateValues(orderedTelemetry[0], "Test MetricNamespace", "Test MetricId", 2, 1.1, 0.6, 0.5, 0.05);
+                Assert.AreEqual(11, ((MetricTelemetry)orderedTelemetry[0]).Properties.Count);
+                Assert.IsTrue(((MetricTelemetry)orderedTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+                Assert.AreEqual("DV1", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 1"]);
+                Assert.AreEqual("DV2", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 2"]);
+                Assert.AreEqual("DV3", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 3"]);
+                Assert.AreEqual("DV4", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 4"]);
+                Assert.AreEqual("DV5", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 5"]);
+                Assert.AreEqual("DV6", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 6"]);
+                Assert.AreEqual("DV7", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 7"]);
+                Assert.AreEqual("DV8", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 8"]);
+                Assert.AreEqual("DV9", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 9"]);
+                Assert.AreEqual("DV10", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 10"]);
+                sentTelemetry.Clear();
+
+                metric.TrackValue(0.7, true, ["DV1", "DV2", "DV3", "DV4", "DV5", "DV6", "DV7", "DV8", "DV9", "DV10"]);
+                metric.TrackValue(0.8, true, ["DV1", "DV2", "DV3", "DV4", "DV5", "DV6a", "DV7", "DV8", "DV9", "DV10"]);
+
+                telemetryPipeline.GetMetricManager().Flush();
+                Assert.AreEqual(2, sentTelemetry.Count);
+
+                orderedTelemetry = sentTelemetry
+                                        .OrderByDescending( (t) => ((MetricTelemetry) t).Count * 10000 + ((MetricTelemetry) t).Sum )
+                                        .Select( (t) => (MetricTelemetry) t )
+                                        .ToArray();
+
+                TestUtil.ValidateNumericAggregateValues(orderedTelemetry[0], "Test MetricNamespace", "Test MetricId", 1, 0.8, 0.8, 0.8, 0);
+                Assert.AreEqual(11, ((MetricTelemetry)orderedTelemetry[0]).Properties.Count);
+                Assert.IsTrue(((MetricTelemetry)orderedTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+                Assert.AreEqual("DV1", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 1"]);
+                Assert.AreEqual("DV2", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 2"]);
+                Assert.AreEqual("DV3", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 3"]);
+                Assert.AreEqual("DV4", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 4"]);
+                Assert.AreEqual("DV5", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 5"]);
+                Assert.AreEqual("DV6a", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 6"]);
+                Assert.AreEqual("DV7", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 7"]);
+                Assert.AreEqual("DV8", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 8"]);
+                Assert.AreEqual("DV9", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 9"]);
+                Assert.AreEqual("DV10", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 10"]);
+
+                TestUtil.ValidateNumericAggregateValues(orderedTelemetry[1], "Test MetricNamespace", "Test MetricId", 1, 0.7, 0.7, 0.7, 0);
+                Assert.AreEqual(11, ((MetricTelemetry)orderedTelemetry[1]).Properties.Count);
+                Assert.IsTrue(((MetricTelemetry)orderedTelemetry[1]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+                Assert.AreEqual("DV1", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 1"]);
+                Assert.AreEqual("DV2", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 2"]);
+                Assert.AreEqual("DV3", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 3"]);
+                Assert.AreEqual("DV4", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 4"]);
+                Assert.AreEqual("DV5", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 5"]);
+                Assert.AreEqual("DV6", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 6"]);
+                Assert.AreEqual("DV7", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 7"]);
+                Assert.AreEqual("DV8", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 8"]);
+                Assert.AreEqual("DV9", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 9"]);
+                Assert.AreEqual("DV10", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 10"]);
+
+                sentTelemetry.Clear();
+            }
 
             TestUtil.CompleteDefaultAggregationCycle(telemetryPipeline.GetMetricManager());
             telemetryPipeline.Dispose();

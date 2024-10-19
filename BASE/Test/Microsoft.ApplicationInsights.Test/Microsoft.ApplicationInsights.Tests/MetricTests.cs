@@ -1587,6 +1587,158 @@ namespace Microsoft.ApplicationInsights
                     }
                 }
             }
+            telemetryCollector.Clear();
+            {
+                MetricConfiguration config = new MetricConfiguration(
+                    seriesCountLimit: 10,
+                    valuesPerDimensionLimits: new[] { 3, 1, 2 },
+                    seriesConfig: new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
+                Metric metric = InvokeMetricCtor(
+                    metricManager,
+                    metricNamespace: "nsx",
+                    metricId: "Foo20",
+                    configuration: config,
+                    "D1",
+                    "D2",
+                    "D3",
+                    "D4");
+
+                Assert.AreEqual(1, metric.SeriesCount);
+
+                metric.TrackValue(42);
+                Assert.AreEqual(1, metric.SeriesCount);
+
+                Assert.ThrowsException<ArgumentException>(() => metric.TrackValue(42, "D1.A", "D2.A", "D3.A", "D4.A", "D5.A"));
+                Assert.ThrowsException<ArgumentException>(() => metric.TrackValue(42, "D1.A", "D2.A", "D3.A"));
+
+                Assert.IsTrue(metric.TrackValue(1111, "D1.A", "D2.A", "D3.A", "D4.A"));
+                Assert.AreEqual(2, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TrackValue(1111, "D1.A", "D2.A", "D3.A", "D4.A"));
+                Assert.AreEqual(2, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TrackValue(1112, "D1.A", "D2.A", "D3.A", "D4.B"));
+                Assert.AreEqual(3, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TrackValue(1112, "D1.A", "D2.A", "D3.A", "D4.B"));
+                Assert.AreEqual(3, metric.SeriesCount);
+
+                Assert.IsFalse(metric.TrackValue(1113, "D1.A", "D2.A", "D3.A", "D4.C"));
+                Assert.AreEqual(3, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TrackValue(1121, "D1.A", "D2.A", "D3.B", "D4.A"));
+                Assert.AreEqual(4, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TrackValue(1121, "D1.A", "D2.A", "D3.B", "D4.A"));
+                Assert.AreEqual(4, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TrackValue(1122, "D1.A", "D2.A", "D3.B", "D4.B"));
+                Assert.AreEqual(5, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TrackValue(1122, "D1.A", "D2.A", "D3.B", "D4.B"));
+                Assert.AreEqual(5, metric.SeriesCount);
+
+                Assert.IsFalse(metric.TrackValue(1123, "D1.A", "D2.A", "D3.B", "D4.C"));
+                Assert.AreEqual(5, metric.SeriesCount);
+
+                Assert.IsFalse(metric.TrackValue(1132, "D1.A", "D2.A", "D3.C", "D4.B"));
+                Assert.AreEqual(5, metric.SeriesCount);
+
+                Assert.IsFalse(metric.TrackValue(1133, "D1.A", "D2.A", "D3.C", "D4.C"));
+                Assert.AreEqual(5, metric.SeriesCount);
+
+                Assert.IsFalse(metric.TrackValue(1211, "D1.A", "D2.B", "D3.A", "D4.A"));
+                Assert.AreEqual(5, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TrackValue(2111, "D1.B", "D2.A", "D3.A", "D4.A"));
+                Assert.AreEqual(6, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TrackValue(2111, "D1.B", "D2.A", "D3.A", "D4.A"));
+                Assert.AreEqual(6, metric.SeriesCount);
+
+                Assert.IsFalse(metric.TrackValue(2111, "D1.B", "D2.B", "D3.A", "D4.A"));
+                Assert.AreEqual(6, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TrackValue(2112, "D1.B", "D2.A", "D3.A", "D4.B"));
+                Assert.AreEqual(7, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TrackValue(2112, "D1.B", "D2.A", "D3.A", "D4.B"));
+                Assert.AreEqual(7, metric.SeriesCount);
+
+                Assert.IsFalse(metric.TrackValue(2113, "D1.B", "D2.A", "D3.A", "D4.C"));
+                Assert.AreEqual(7, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TrackValue(2121, "D1.B", "D2.A", "D3.B", "D4.A"));
+                Assert.AreEqual(8, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TrackValue(2121, "D1.B", "D2.A", "D3.B", "D4.A"));
+                Assert.AreEqual(8, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TrackValue(2122, "D1.B", "D2.A", "D3.B", "D4.B"));
+                Assert.AreEqual(9, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TrackValue(2122, "D1.B", "D2.A", "D3.B", "D4.B"));
+                Assert.AreEqual(9, metric.SeriesCount);
+
+                Assert.IsFalse(metric.TrackValue(2123, "D1.B", "D2.A", "D3.B", "D4.C"));
+                Assert.AreEqual(9, metric.SeriesCount);
+
+                Assert.IsFalse(metric.TrackValue(2132, "D1.B", "D2.A", "D3.C", "D4.B"));
+                Assert.AreEqual(9, metric.SeriesCount);
+
+                Assert.IsFalse(metric.TrackValue(2133, "D1.B", "D2.A", "D3.C", "D4.C"));
+                Assert.AreEqual(9, metric.SeriesCount);
+
+                Assert.IsFalse(metric.TrackValue(2222, "D1.B", "D2.B", "D3.B", "D4.B"));
+                Assert.AreEqual(9, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TrackValue(3111, "D1.C", "D2.A", "D3.A", "D4.A"));
+                Assert.AreEqual(10, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TrackValue(3111, "D1.C", "D2.A", "D3.A", "D4.A"));
+                Assert.AreEqual(10, metric.SeriesCount);
+
+                Assert.IsFalse(metric.TrackValue(4111, "D1.D", "D2.A", "D3.A", "D4.A"));
+                Assert.AreEqual(10, metric.SeriesCount);
+
+                metricManager.Flush();
+
+                Assert.AreEqual(10, telemetryCollector.Count);
+                Assert.AreEqual(1, telemetryCollector.Where((a) => a.Dimensions.Count == 0).Count());
+                Assert.AreEqual(9, telemetryCollector.Where((a) => a.Dimensions.Count == 4).Count());
+
+                for (int i = 0; i < telemetryCollector.Count; i++)
+                {
+                    Assert.IsNotNull(telemetryCollector[i]);
+                    MetricAggregate aggregate = telemetryCollector[i];
+
+                    Assert.AreEqual("Foo20", aggregate.MetricId);
+                    Assert.AreEqual("nsx", aggregate.MetricNamespace);
+
+                    if (aggregate.Dimensions.Count == 0)
+                    {
+                        Assert.AreEqual(1, aggregate.Data["Count"]);
+                        Assert.AreEqual(42.0, aggregate.Data["Sum"]);
+                    }
+                    else if (aggregate.Dimensions.Count == 4)
+                    {
+                        Assert.AreEqual(2, aggregate.Data["Count"]);
+                        Assert.AreEqual(4, aggregate.Dimensions.Count);
+
+                        int expVal = 1000 * (1 + (int)(aggregate.Dimensions["D1"][3] - 'A'));
+                        expVal += 100 * (1 + (int)(aggregate.Dimensions["D2"][3] - 'A'));
+                        expVal += 10 * (1 + (int)(aggregate.Dimensions["D3"][3] - 'A'));
+                        expVal += 1 * (1 + (int)(aggregate.Dimensions["D4"][3] - 'A'));
+                        expVal *= 2;
+
+                        Assert.AreEqual((double)expVal, aggregate.Data["Sum"]);
+                    }
+                    else
+                    {
+                        Assert.Fail($"Unexpected number of dimensions: {aggregate.Dimensions.Count}.");
+                    }
+                }
+            }
 
             TestUtil.CompleteDefaultAggregationCycle(metricManager);
         }
@@ -1860,6 +2012,22 @@ namespace Microsoft.ApplicationInsights
                                     metricManager,
                                     new MetricIdentifier(metricNamespace, metricId, dimension1Name, dimension2Name, dimension3Name, dimension4Name),
                                     configuration);
+            return metric;
+        }
+        
+        private static Metric InvokeMetricCtor(
+            MetricManager metricManager,
+            string metricNamespace,
+            string metricId,
+            MetricConfiguration configuration,
+            params string[] dimensions)
+        {
+            // Metric ctor is private..
+
+            Metric metric = new Metric(
+                metricManager,
+                new MetricIdentifier(metricNamespace, metricId, dimensions),
+                configuration);
             return metric;
         }
     }

@@ -1229,7 +1229,7 @@ namespace Microsoft.ApplicationInsights
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TrackValue(double metricValue, bool createIfNotExists, params string[] dimensionValues)
+        public bool TrackValue(double metricValue, bool createIfNotExists, string[] dimensionValues)
         {
             MetricSeries series;
             bool canTrack = this.TryGetDataSeries(out series, createIfNotExists, dimensionValues);
@@ -1252,7 +1252,7 @@ namespace Microsoft.ApplicationInsights
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TrackValue(object metricValue, bool createIfNotExists, params string[] dimensionValues)
+        public bool TrackValue(object metricValue, bool createIfNotExists, string[] dimensionValues)
         {
             MetricSeries series;
             if (this.TryGetDataSeries(out series, createIfNotExists, dimensionValues))
