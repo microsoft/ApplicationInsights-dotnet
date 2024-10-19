@@ -1,4 +1,6 @@
-﻿namespace Microsoft.ApplicationInsights
+﻿using System.Linq;
+
+namespace Microsoft.ApplicationInsights
 {
     using System;
     using System.Collections.Generic;
@@ -1208,6 +1210,50 @@
                             dimension8Value,
                             dimension9Value,
                             dimension10Value))
+            {
+                series.TrackValue(metricValue);
+                return true;
+            }
+
+            return false;
+        }
+        
+        /// <summary>
+        /// Tracks the specified value using the <c>MetricSeries</c> associated with the specified dimension value.<br />
+        /// An aggregate representing tracked values will be automatically sent to the cloud ingestion endpoint at the end of each aggregation period.
+        /// This overload accepts n dimension values, up to 10. The amount of dimension values needs to match the dimensionality of this Metric.
+        /// </summary>
+        /// <param name="metricValue">The value to be aggregated.</param>
+        /// <param name="dimensionValues">The dimension values for this metric.</param>
+        /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
+        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        public bool TrackValue(double metricValue, params string[] dimensionValues)
+        {
+            MetricSeries series;
+            bool canTrack = this.TryGetDataSeries(out series, true, dimensionValues);
+            if (canTrack)
+            {
+                series.TrackValue(metricValue);
+            }
+
+            return canTrack;
+        }
+
+        /// <summary>
+        /// Tracks the specified value using the <c>MetricSeries</c> associated with the specified dimension value.<br />
+        /// An aggregate representing tracked values will be automatically sent to the cloud ingestion endpoint at the end of each aggregation period.
+        /// This overload accepts n dimension values, up to 10. The amount of dimension values needs to match the dimensionality of this Metric.
+        /// </summary>
+        /// <param name="metricValue">The value to be aggregated.</param>
+        /// <param name="dimensionValues">The dimension values for this metric.</param>
+        /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
+        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        public bool TrackValue(object metricValue, params string[] dimensionValues)
+        {
+            MetricSeries series;
+            if (this.TryGetDataSeries(out series, true, dimensionValues))
             {
                 series.TrackValue(metricValue);
                 return true;
