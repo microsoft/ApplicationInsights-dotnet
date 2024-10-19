@@ -2,6 +2,7 @@
 
 ## VNext
 - [Populate required field Message with "n/a" if it is empty](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1066)
+- [Improve API for handling custom metric dimensions](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2906)
 
 ## Version 2.22.0
 - no changes since beta.
