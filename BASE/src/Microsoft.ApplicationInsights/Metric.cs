@@ -1225,13 +1225,14 @@ namespace Microsoft.ApplicationInsights
         /// </summary>
         /// <param name="metricValue">The value to be aggregated.</param>
         /// <param name="dimensionValues">The dimension values for this metric.</param>
+        /// <param name="createIfNotExists">Whether to attempt creating a metric series for the specified dimension values if it does not exist.</param>
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TrackValue(double metricValue, params string[] dimensionValues)
+        public bool TrackValue(double metricValue, bool createIfNotExists, params string[] dimensionValues)
         {
             MetricSeries series;
-            bool canTrack = this.TryGetDataSeries(out series, true, dimensionValues);
+            bool canTrack = this.TryGetDataSeries(out series, createIfNotExists, dimensionValues);
             if (canTrack)
             {
                 series.TrackValue(metricValue);
@@ -1247,13 +1248,14 @@ namespace Microsoft.ApplicationInsights
         /// </summary>
         /// <param name="metricValue">The value to be aggregated.</param>
         /// <param name="dimensionValues">The dimension values for this metric.</param>
+        /// <param name="createIfNotExists">Whether to attempt creating a metric series for the specified dimension values if it does not exist.</param>
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TrackValue(object metricValue, params string[] dimensionValues)
+        public bool TrackValue(object metricValue, bool createIfNotExists, params string[] dimensionValues)
         {
             MetricSeries series;
-            if (this.TryGetDataSeries(out series, true, dimensionValues))
+            if (this.TryGetDataSeries(out series, createIfNotExists, dimensionValues))
             {
                 series.TrackValue(metricValue);
                 return true;
