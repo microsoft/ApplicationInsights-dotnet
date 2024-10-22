@@ -38,7 +38,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     public class AddApplicationInsightsTelemetryTests : BaseTestClass
     {
         [Fact]
-        public static void TelemetryModuleResolvableWhenKeyedServiceRegistered()
+        public static void TelemetryModulesResolvableWhenKeyedServiceRegistered()
         {
             // Note: This test verifies a regression doesn't get introduced for:
             // https://github.com/dotnet/extensions/issues/5222
@@ -53,7 +53,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             using var sp = services.BuildServiceProvider();
 
-            var telmetryModule = sp.GetRequiredService<ITelemetryModule>();
+            var telemetryModules = sp.GetServices<ITelemetryModule>();
+
+            Assert.Equal(7, telemetryModules.Count());
         }
 
         [Theory]
