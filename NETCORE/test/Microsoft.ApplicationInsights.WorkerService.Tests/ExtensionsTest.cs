@@ -123,13 +123,21 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
             return services;
         }
 
-        [Fact]
-        public static void TelemetryModulesResolvableWhenKeyedServiceRegistered()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public static void TelemetryModulesResolvableWhenKeyedServiceRegistered(bool manuallyRegisterDiagnosticsTelemetryModule)
         {
             // Note: This test verifies a regression doesn't get introduced for:
-            // https://github.com/dotnet/extensions/issues/5222
+            // https://github.com/microsoft/ApplicationInsights-dotnet/issues/2879
 
             var services = new ServiceCollection();
+
+            services.AddSingleton<ITelemetryModule, TestTelemetryModule>();
+            if (manuallyRegisterDiagnosticsTelemetryModule)
+            {
+                services.AddSingleton<ITelemetryModule, DiagnosticsTelemetryModule>();
+            }
 
             services.AddKeyedSingleton(typeof(ITestService), serviceKey: new(), implementationType: typeof(TestService));
             services.AddKeyedSingleton(typeof(ITestService), serviceKey: new(), implementationInstance: new TestService());
@@ -141,7 +149,9 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
 
             var telemetryModules = sp.GetServices<ITelemetryModule>();
 
-            Assert.Equal(7, telemetryModules.Count());
+            Assert.Equal(8, telemetryModules.Count());
+
+            Assert.Single(telemetryModules.Where(m => m.GetType() == typeof(DiagnosticsTelemetryModule)));
         }
 
         [Theory]
@@ -919,6 +929,13 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
 
         private sealed class TestService : ITestService
         {
+        }
+
+        private sealed class TestTelemetryModule : ITelemetryModule
+        {
+            public void Initialize(TelemetryConfiguration configuration)
+            {
+            }
         }
 
         private interface ITestService

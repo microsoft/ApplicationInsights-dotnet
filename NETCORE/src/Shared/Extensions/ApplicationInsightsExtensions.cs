@@ -312,7 +312,7 @@
         private static void AddCommonTelemetryModules(IServiceCollection services)
         {
             // Previously users were encouraged to manually add the DiagnosticsTelemetryModule.
-            services.TryAddSingleton<ITelemetryModule, DiagnosticsTelemetryModule>();
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<ITelemetryModule, DiagnosticsTelemetryModule>());
 
             // These modules add properties to Heartbeat and expect the DiagnosticsTelemetryModule to be configured in DI.
             services.AddSingleton<ITelemetryModule, AppServicesHeartbeatTelemetryModule>();
