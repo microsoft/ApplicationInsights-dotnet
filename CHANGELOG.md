@@ -2,6 +2,13 @@
 
 ## VNext
 - [Fix heartbeat for short-running WorkerServices](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2762)
+- [Populate required field Message with "n/a" if it is empty](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1066)
+
+## Version 2.22.0
+- no changes since beta.
+
+## Version 2.22.0-beta4
+- [Added support to read diagnostics config from the path defined in environment variable.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2769)
 
 ## Version 2.22.0-beta3
 - [Do not report CosmosDB transport-level calls](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2789)
