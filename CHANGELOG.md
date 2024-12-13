@@ -1,8 +1,8 @@
 # Changelog
 
 ## VNext
-- [Fix heartbeat for short-running WorkerServices](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2762)
 - [Populate required field Message with "n/a" if it is empty](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1066)
+- [Fix heartbeat for short-running WorkerServices](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2759)
 
 ## Version 2.22.0
 - no changes since beta.
