@@ -15,11 +15,10 @@ using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
 using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
 using Microsoft.ApplicationInsights.WindowsServer;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Test;
-
+using Microsoft.Extensions.Hosting;
 using Xunit;
 
 namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
@@ -76,7 +75,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
         {
             IConfigurationRoot config;
             var services = new ServiceCollection()
-                .AddSingleton<IHostingEnvironment>(EnvironmentHelper.GetIHostingEnvironment())
+                .AddSingleton<IHostEnvironment>(EnvironmentHelper.GetIHostingEnvironment())
                 .AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
 
             if (jsonPath != null)

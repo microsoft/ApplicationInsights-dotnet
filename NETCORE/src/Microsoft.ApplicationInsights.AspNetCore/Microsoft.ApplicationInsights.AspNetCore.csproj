@@ -3,9 +3,9 @@
 
   <PropertyGroup>
     <AssemblyName>Microsoft.ApplicationInsights.AspNetCore</AssemblyName>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net462;netcoreapp3.1</TargetFrameworks>
 
-    <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.0</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp3.1</TargetFrameworks>
     <DefineConstants>$(DefineConstants);AI_ASPNETCORE_WEB;</DefineConstants>
   </PropertyGroup>
 
@@ -32,12 +32,13 @@
     <ProjectReference Include="..\..\..\WEB\Src\WindowsServer\WindowsServer\WindowsServer.csproj" />
     <ProjectReference Include="..\..\..\WEB\Src\EventCounterCollector\EventCounterCollector\EventCounterCollector.csproj" />
     <ProjectReference Include="..\..\..\LOGGING\src\ILogger\ILogger.csproj" />
-    
+  </ItemGroup>
+  
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
+
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.0" />
-  </ItemGroup>
 
-  <ItemGroup>
     <!--
     Microsoft.AspNetCore.Http has a vulnerability https://msrc.microsoft.com/update-guide/vulnerability/CVE-2020-1045
     System.Text.Encodings.Web has a vulnerability https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-26701 
@@ -58,6 +59,10 @@
     We must take a temporary dependency on this newer version until Microsoft.AspNetCore.Hosting updates their dependencies.
     -->
     <PackageReference Include="System.Text.Encodings.Web" Version="4.7.2" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>
