@@ -96,7 +96,7 @@
 
                 telemetryProcessorsList.Add(linkedTelemetryProcessor);
 
-                // If a Processor also implements ITelemtryModule, We should Initialize that Module
+                // If a Processor also implements ITelemetryModule, We should Initialize that Module
                 if (linkedTelemetryProcessor is ITelemetryModule telemetryModule)
                 {
                     try
