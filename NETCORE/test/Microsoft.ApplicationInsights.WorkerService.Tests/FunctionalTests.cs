@@ -32,7 +32,7 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
                     services.AddSingleton<ITelemetryChannel>(new StubChannel()
                     {
                         OnSend = (item) => sentItems.Add(item)
-                    }); ;
+                    });
                     services.AddApplicationInsightsTelemetryWorkerService("ikey");
                     services.AddHostedService<Worker>();
                 }).Build();

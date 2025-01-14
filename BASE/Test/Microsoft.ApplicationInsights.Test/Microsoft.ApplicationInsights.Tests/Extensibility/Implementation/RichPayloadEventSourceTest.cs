@@ -414,7 +414,7 @@
                     var gblProp = ((object[])richPayload["properties"])[1];
                     ValidatePropertyDictionary((IDictionary<string, object>)prop, propKeyNameAfterTrimmed.Length, propValueAfterTrimmed.Length);
                     ValidatePropertyDictionary((IDictionary<string, object>)gblProp, propKeyNameAfterTrimmed.Length, propValueAfterTrimmed.Length);
-                };
+                }
             }
         }
 

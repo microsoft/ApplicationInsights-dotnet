@@ -85,10 +85,8 @@
                         return extractor;
                     };
 
-            TelemetryConfiguration telemetryConfig = CreateTelemetryConfigWithExtractor(telemetrySentToChannel, extractorFactory);
-            using (telemetryConfig)
+            using (CreateTelemetryConfigWithExtractor(telemetrySentToChannel, extractorFactory))
             {
-                ;
             }
 
             extractor.Dispose();
