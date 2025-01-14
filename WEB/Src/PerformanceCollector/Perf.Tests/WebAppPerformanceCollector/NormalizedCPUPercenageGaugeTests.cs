@@ -16,11 +16,11 @@
             int initialProcessorsCount = int.Parse(Environment.GetEnvironmentVariable("NUMBER_OF_PROCESSORS"), CultureInfo.InvariantCulture);
             NormalizedCPUPercentageGauge normalizedGauge = new NormalizedCPUPercentageGauge(
                 "CPU",
-                new RawCounterGauge(@"\Process(??APP_WIN32_PROC??)\Normalized Private Bytes", "userTime", AzureWebApEnvironmentVariables.App, new CacheHelperTests()));
+                new RawCounterGauge("userTime", AzureWebApEnvironmentVariables.App, new CacheHelperTests()));
 
             CPUPercenageGauge gauge = new CPUPercenageGauge(
                 "CPU",
-                new RawCounterGauge(@"\Process(??APP_WIN32_PROC??)\Private Bytes", "userTime", AzureWebApEnvironmentVariables.App, new CacheHelperTests()));
+                new RawCounterGauge("userTime", AzureWebApEnvironmentVariables.App, new CacheHelperTests()));
 
             double value1 = gauge.Collect();
             double normalizedValue1 = normalizedGauge.Collect();

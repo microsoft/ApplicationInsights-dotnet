@@ -16,18 +16,11 @@
         private readonly List<ICounterValue> gaugesToSum;
 
         /// <summary>
-        /// Name of the counter.
-        /// </summary>
-        private string name;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="SumUpCountersGauge"/> class.
         /// </summary>
-        /// <param name="name"> Name of the SumUpCountersGauge.</param>
         /// <param name="gauges"> Gauges to sum.</param>
-        public SumUpCountersGauge(string name, params ICounterValue[] gauges)
+        public SumUpCountersGauge(params ICounterValue[] gauges)
         {
-            this.name = name;
             this.gaugesToSum = new List<ICounterValue>(gauges);
         }
 

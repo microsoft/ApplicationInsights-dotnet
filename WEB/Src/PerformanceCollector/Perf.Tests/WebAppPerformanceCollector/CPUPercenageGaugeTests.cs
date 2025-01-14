@@ -15,7 +15,7 @@
         {
             CPUPercenageGauge gauge = new CPUPercenageGauge(
                 "CPU",
-                new RawCounterGauge(@"\Process(??APP_WIN32_PROC??)\Private Bytes * 2", "userTime", AzureWebApEnvironmentVariables.App, new CacheHelperTests()));
+                new RawCounterGauge("userTime", AzureWebApEnvironmentVariables.App, new CacheHelperTests()));
             
             double value1 = gauge.Collect();
             Assert.IsTrue(Math.Abs(value1) < 0.000001);

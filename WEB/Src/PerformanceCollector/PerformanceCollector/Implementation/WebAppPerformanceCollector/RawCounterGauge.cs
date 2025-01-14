@@ -8,11 +8,6 @@
     internal class RawCounterGauge : ICounterValue
     {
         /// <summary>
-        /// Name of the counter.
-        /// </summary>
-        private string name;
-
-        /// <summary>
         /// JSON identifier of the counter variable.
         /// </summary>
         private string jsonId;
@@ -27,17 +22,15 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="RawCounterGauge"/> class.
         /// </summary>
-        /// <param name="name">Name of counter variable.</param>
         /// <param name="jsonId">JSON identifier of the counter variable.</param>
         /// <param name="environmentVariable">Identifier of the environment variable.</param>
-        public RawCounterGauge(string name, string jsonId, AzureWebApEnvironmentVariables environmentVariable)
-            : this(name, jsonId, environmentVariable, CacheHelper.Instance)
+        public RawCounterGauge(string jsonId, AzureWebApEnvironmentVariables environmentVariable)
+            : this(jsonId, environmentVariable, CacheHelper.Instance)
         {
         }
 
-        internal RawCounterGauge(string name, string jsonId, AzureWebApEnvironmentVariables environmentVariable, ICachedEnvironmentVariableAccess cache)
+        internal RawCounterGauge(string jsonId, AzureWebApEnvironmentVariables environmentVariable, ICachedEnvironmentVariableAccess cache)
         {
-            this.name = name;
             this.jsonId = jsonId;
             this.environmentVariable = environmentVariable;
             this.cacheHelper = cache;
