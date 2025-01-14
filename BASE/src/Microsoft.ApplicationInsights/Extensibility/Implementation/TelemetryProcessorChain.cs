@@ -70,16 +70,11 @@
         {
             if (disposing)
             {
-                SnapshottingList<ITelemetryProcessor> processors = this.telemetryProcessors;
-
-                if (processors != null)
+                foreach (ITelemetryProcessor processor in this.telemetryProcessors)
                 {
-                    foreach (ITelemetryProcessor processor in processors)
+                    if (processor is IDisposable disposableProcessor)
                     {
-                        if (processor is IDisposable disposableProcessor)
-                        {
-                            disposableProcessor.Dispose();
-                        }
+                        disposableProcessor.Dispose();
                     }
                 }
             }
