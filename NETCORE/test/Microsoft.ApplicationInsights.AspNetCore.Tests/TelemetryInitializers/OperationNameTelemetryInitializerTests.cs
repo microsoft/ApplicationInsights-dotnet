@@ -97,7 +97,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
 
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
 
-            var telemetryListener = new DiagnosticListener(TestListenerName);
+            using var telemetryListener = new DiagnosticListener(TestListenerName);
             using (var listener = CreateHostingListener(AspNetCoreMajorVersion.One))
             {
                 telemetryListener.Subscribe(listener);
@@ -119,7 +119,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
 
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
 
-            var telemetryListener = new DiagnosticListener(TestListenerName);
+            using var telemetryListener = new DiagnosticListener(TestListenerName);
             using (var listener = CreateHostingListener(AspNetCoreMajorVersion.One))
             {
                 telemetryListener.Subscribe(listener);
@@ -140,7 +140,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
 
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
 
-            var telemetryListener = new DiagnosticListener(TestListenerName);
+            using var telemetryListener = new DiagnosticListener(TestListenerName);
             using (var listener = CreateHostingListener(AspNetCoreMajorVersion.One))
             {
                 telemetryListener.Subscribe(listener);
@@ -163,7 +163,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
 
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
 
-            var telemetryListener = new DiagnosticListener(TestListenerName);
+            using var telemetryListener = new DiagnosticListener(TestListenerName);
             using (var listener = CreateHostingListener(AspNetCoreMajorVersion.One))
             {
                 telemetryListener.Subscribe(listener);
@@ -189,7 +189,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
 
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
 
-            var telemetryListener = new DiagnosticListener(TestListenerName);
+            using var telemetryListener = new DiagnosticListener(TestListenerName);
             using (var listener = CreateHostingListener(AspNetCoreMajorVersion.One))
             {
                 telemetryListener.Subscribe(listener);
@@ -211,7 +211,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
             actionContext.RouteData.Values.Add(TreeRouter.RouteGroupKey, "RouteGroupKey");
 
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
-            var telemetryListener = new DiagnosticListener(TestListenerName);
+            using var telemetryListener = new DiagnosticListener(TestListenerName);
             using (var listener = CreateHostingListener(AspNetCoreMajorVersion.One))
             {
                 telemetryListener.Subscribe(listener);

@@ -69,8 +69,8 @@
                 listener.StartActivity(sendActivity, null);
                 listener.StopActivity(sendActivity, null);
 
-                var listenerAnother = new DiagnosticListener("Azure.AnotherClient");
-                var listenerYetAnother = new DiagnosticListener("Azure.YetAnotherClient");
+                using var listenerAnother = new DiagnosticListener("Azure.AnotherClient");
+                using var listenerYetAnother = new DiagnosticListener("Azure.YetAnotherClient");
 
                 Assert.AreEqual(0, this.sentItems.Count);
             }
