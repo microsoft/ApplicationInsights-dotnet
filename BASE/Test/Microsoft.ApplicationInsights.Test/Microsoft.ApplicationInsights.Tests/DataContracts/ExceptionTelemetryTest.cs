@@ -485,15 +485,12 @@
         [TestMethod]
         public void SerializeWritesHasFullStackPropertyAsItIsExpectedByEndpoint()
         {
-            using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
-            {
-                var exception = CreateExceptionWithStackTrace();
-                ExceptionTelemetry expected = CreateExceptionTelemetry(exception);
+            var exception = CreateExceptionWithStackTrace();
+            ExceptionTelemetry expected = CreateExceptionTelemetry(exception);
 
-                var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
 
-                Assert.IsTrue(item.data.baseData.exceptions[0].hasFullStack);
-            }
+            Assert.IsTrue(item.data.baseData.exceptions[0].hasFullStack);
         }
 
         [TestMethod]
