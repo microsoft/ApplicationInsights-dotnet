@@ -28,9 +28,7 @@
             Assert.IsTrue(Math.Abs(value1) < 0.000001);
             Assert.IsTrue(Math.Abs(normalizedValue1) < 0.000001);
 
-            Stopwatch sw = Stopwatch.StartNew();
             Thread.Sleep(TimeSpan.FromSeconds(10));
-            long actualSleepTimeTicks = sw.Elapsed.Ticks;
 
             double value2 = gauge.Collect();
             double normalizedValue2 = normalizedGauge.Collect();
