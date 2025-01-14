@@ -424,15 +424,13 @@
         [TestMethod]
         public void SerializeWritesRootExceptionWithoutOuterId()
         {
-            using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
-            {
-                var exception = new Exception();
-                ExceptionTelemetry original = CreateExceptionTelemetry(exception);
-                byte[] serializedTelemetryAsBytes = JsonSerializer.Serialize(original, compress: false);
-                string serializedTelemetry = Encoding.UTF8.GetString(serializedTelemetryAsBytes, 0, serializedTelemetryAsBytes.Length);
+            var exception = new Exception();
+            ExceptionTelemetry original = CreateExceptionTelemetry(exception);
+            byte[] serializedTelemetryAsBytes = JsonSerializer.Serialize(original, compress: false);
+            string serializedTelemetry =
+                Encoding.UTF8.GetString(serializedTelemetryAsBytes, 0, serializedTelemetryAsBytes.Length);
 
-                AssertEx.DoesNotContain("\"outerId\":", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
-            }
+            AssertEx.DoesNotContain("\"outerId\":", serializedTelemetry, StringComparison.OrdinalIgnoreCase);
         }
 
         [TestMethod]
