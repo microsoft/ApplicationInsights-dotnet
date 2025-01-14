@@ -43,7 +43,7 @@
                     { "Request-Context", "appId=value"},
                 };
 
-                var item = this.ValidateBasicRequest(server, RequestPath, expectedRequestTelemetry);
+                var item = this.ValidateRequestWithHeaders(server, RequestPath, requestHeaders, expectedRequestTelemetry);
 
                 Assert.Equal(32, item.tags["ai.operation.id"].Length);
                 Assert.True(Regex.Match(item.tags["ai.operation.id"], @"[a-z][0-9]").Success);
