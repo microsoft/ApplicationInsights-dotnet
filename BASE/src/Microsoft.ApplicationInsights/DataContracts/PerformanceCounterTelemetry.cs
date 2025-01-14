@@ -177,9 +177,9 @@
         {
             get
             {
-                if (this.Properties.ContainsKey("CounterInstanceName"))
+                if (this.Properties.TryGetValue("CounterInstanceName", out var property))
                 {
-                    return this.Properties["CounterInstanceName"];
+                    return property;
                 }
 
                 return string.Empty;

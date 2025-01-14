@@ -65,9 +65,8 @@
 
         public bool SetHeartbeatProperty(string propertyName, bool overrideDefaultField, string propertyValue = null, bool? isHealthy = null)
         {
-            if (this.HeartbeatProperties.ContainsKey(propertyName))
+            if (this.HeartbeatProperties.TryGetValue(propertyName, out var pl))
             {
-                HeartbeatPropertyPayload pl = this.HeartbeatProperties[propertyName];
                 pl.IsHealthy = isHealthy.GetValueOrDefault(pl.IsHealthy);
                 pl.PayloadValue = propertyValue ?? pl.PayloadValue;
                 pl.IsUpdated = true;
