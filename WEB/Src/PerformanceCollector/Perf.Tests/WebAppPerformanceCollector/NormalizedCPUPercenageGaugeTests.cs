@@ -8,17 +8,17 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;    
 
     [TestClass]
-    public class NormalizedCPUPercenageGaugeTests
+    public class NormalizedCpuPercentageGaugeTests
     {
         [TestMethod]
-        public void NormalizedCPUPercenageGaugeBasicValidation()
+        public void NormalizedCPUPercentageGaugeBasicValidation()
         {
             int initialProcessorsCount = int.Parse(Environment.GetEnvironmentVariable("NUMBER_OF_PROCESSORS"), CultureInfo.InvariantCulture);
             NormalizedCPUPercentageGauge normalizedGauge = new NormalizedCPUPercentageGauge(
                 "CPU",
                 new RawCounterGauge(@"\Process(??APP_WIN32_PROC??)\Normalized Private Bytes", "userTime", AzureWebApEnvironmentVariables.App, new CacheHelperTests()));
 
-            CPUPercenageGauge gauge = new CPUPercenageGauge(
+            CPUPercentageGauge gauge = new CPUPercentageGauge(
                 "CPU",
                 new RawCounterGauge(@"\Process(??APP_WIN32_PROC??)\Private Bytes", "userTime", AzureWebApEnvironmentVariables.App, new CacheHelperTests()));
 

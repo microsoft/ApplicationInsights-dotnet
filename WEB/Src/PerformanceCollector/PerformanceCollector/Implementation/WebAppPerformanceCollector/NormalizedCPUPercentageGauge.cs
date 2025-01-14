@@ -6,7 +6,7 @@
     /// <summary>
     /// Gauge that computes normalized CPU percentage utilized by a process by utilizing the last computed time (divided by the processors count).
     /// </summary>
-    internal class NormalizedCPUPercentageGauge : CPUPercenageGauge
+    internal class NormalizedCPUPercentageGauge : CPUPercentageGauge
     {
         private readonly bool isInitialized = false;
         private readonly int processorsCount = -1;

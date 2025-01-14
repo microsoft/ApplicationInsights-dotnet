@@ -459,7 +459,7 @@
                 //// $set = Get-Counter -ListSet Process
                 //// $set.Paths
                 case @"\Process(??APP_WIN32_PROC??)\% Processor Time":
-                    return new CPUPercenageGauge(
+                    return new CPUPercentageGauge(
                         reportAs, 
                         new SumUpCountersGauge(
                             reportAs,

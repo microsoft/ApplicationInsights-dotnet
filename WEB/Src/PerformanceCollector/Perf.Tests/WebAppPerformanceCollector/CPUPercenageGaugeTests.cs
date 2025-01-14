@@ -8,12 +8,12 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;    
 
     [TestClass]    
-    public class CPUPercenageGaugeTests
+    public class CpuPercentageGaugeTests
     {
         [TestMethod]
         public void BasicValidation()
         {
-            CPUPercenageGauge gauge = new CPUPercenageGauge(
+            CPUPercentageGauge gauge = new CPUPercentageGauge(
                 "CPU",
                 new RawCounterGauge(@"\Process(??APP_WIN32_PROC??)\Private Bytes * 2", "userTime", AzureWebApEnvironmentVariables.App, new CacheHelperTests()));
             

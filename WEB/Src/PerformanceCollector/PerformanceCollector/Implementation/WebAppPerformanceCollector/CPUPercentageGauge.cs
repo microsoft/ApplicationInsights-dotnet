@@ -5,7 +5,7 @@
     /// <summary>
     /// Gauge that computes the CPU percentage utilized by a process by utilizing the last computed time.
     /// </summary>
-    internal class CPUPercenageGauge : ICounterValue
+    internal class CPUPercentageGauge : ICounterValue
     {
         /// <summary>
         /// Name of the counter.
@@ -19,11 +19,11 @@
         private ICounterValue valueProvider;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CPUPercenageGauge"/> class.
+        /// Initializes a new instance of the <see cref="CPUPercentageGauge"/> class.
         /// </summary>
         /// <param name="name"> Name of the SumUpCountersGauge.</param>
         /// <param name="value"> Gauges to sum.</param>
-        public CPUPercenageGauge(string name, ICounterValue value)
+        public CPUPercentageGauge(string name, ICounterValue value)
         {
             this.name = name;
             this.valueProvider = value;
