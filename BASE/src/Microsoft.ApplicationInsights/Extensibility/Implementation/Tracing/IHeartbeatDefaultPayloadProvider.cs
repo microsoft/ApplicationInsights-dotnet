@@ -17,7 +17,7 @@
 
         /// <summary>
         /// Assess if a given string contains a keyword that this default payload provider supplies to the
-        /// heartbeat payload. This is primarly used to dissallow users from adding or setting a conflicting
+        /// heartbeat payload. This is primarily used to dissallow users from adding or setting a conflicting
         /// property into the heartbeat.
         /// </summary>
         /// <param name="keyword">string to test against supplied property names.</param>
