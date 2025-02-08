@@ -1,6 +1,7 @@
 # Changelog
 
 ## VNext
+- [Cache authentication token to improve performance when using AAD authentication](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2539)
 
 ## Version 2.23.0-beta1
 - [Populate required field Message with "n/a" if it is empty](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1066)
