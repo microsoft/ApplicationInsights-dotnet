@@ -1,6 +1,7 @@
 # Changelog
 
 ## VNext
+- Add ITelemetryClient interface to TelemetryClient. Fixes ([#342](https://github.com/microsoft/ApplicationInsights-dotnet/issues/342))
 
 ## Version 2.23.0-beta1
 - [Populate required field Message with "n/a" if it is empty](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1066)
