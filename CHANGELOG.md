@@ -1,7 +1,10 @@
 # Changelog
 
 ## VNext
+
+## Version 2.23.0-beta1
 - [Populate required field Message with "n/a" if it is empty](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1066)
+- [Fix ITelemetryModule singleton registration to support presence of keyed services](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2908)
 - [NLog Target with support for specifying ConnectionString](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2897)
 
 ## Version 2.22.0
