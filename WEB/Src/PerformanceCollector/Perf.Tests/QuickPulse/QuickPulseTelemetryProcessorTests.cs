@@ -766,7 +766,7 @@
 
             // ASSERT
             // even though Success is set to false, since ResponseCode is empty the special case logic must have turned it into true
-            var collectedTelemetry = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Reverse().ToArray().Single();
+            var collectedTelemetry = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Single();
             double metricValue = accumulatorManager.CurrentDataAccumulator.CollectionConfigurationAccumulator.MetricAccumulators["Metric1"].CalculateAggregation(out long count);
 
             Assert.AreEqual(1, count);
@@ -822,7 +822,7 @@
             telemetryProcessor.Process(dependency);
             
             // ASSERT
-            Assert.AreEqual(TelemetryDocumentType.RemoteDependency.ToString(), accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Reverse().ToArray().Single().DocumentType);
+            Assert.AreEqual(TelemetryDocumentType.RemoteDependency.ToString(), accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Single().DocumentType);
         }
 
         [TestMethod]
@@ -3154,7 +3154,7 @@
             // ASSERT
             Assert.IsFalse(accumulatorManager.CurrentDataAccumulator.GlobalDocumentQuotaReached);
             Assert.AreEqual(1, accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Count);
-            var collectedTelemetry = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToArray().ToArray();
+            var collectedTelemetry = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToArray();
 
             Assert.AreEqual(TelemetryDocumentType.Request, Enum.Parse(typeof(TelemetryDocumentType), collectedTelemetry[0].DocumentType));
             var requestTelemetryDocument = (RequestTelemetryDocument)collectedTelemetry[0];
@@ -3198,7 +3198,7 @@
             // ASSERT
             Assert.IsFalse(accumulatorManager.CurrentDataAccumulator.GlobalDocumentQuotaReached);
             Assert.AreEqual(1, accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Count);
-            var collectedTelemetry = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToArray().ToArray();
+            var collectedTelemetry = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToArray();
 
             Assert.AreEqual(TelemetryDocumentType.Request, Enum.Parse(typeof(TelemetryDocumentType), collectedTelemetry[0].DocumentType));
             var requestTelemetryDocument = (RequestTelemetryDocument)collectedTelemetry[0];
