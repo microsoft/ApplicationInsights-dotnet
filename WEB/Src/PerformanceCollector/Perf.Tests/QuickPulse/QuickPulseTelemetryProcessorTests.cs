@@ -643,7 +643,7 @@
             telemetryProcessor.Process(trace);
 
             // ASSERT
-            var collectedTelemetry = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToArray().Reverse().ToArray();
+            var collectedTelemetry = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToArray().ToArray();
 
             var expectedProperties =
                 new Dictionary<string, string>()
@@ -766,7 +766,7 @@
 
             // ASSERT
             // even though Success is set to false, since ResponseCode is empty the special case logic must have turned it into true
-            var collectedTelemetry = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToArray().Reverse().ToArray().Single();
+            var collectedTelemetry = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToArray().ToArray().Single();
             double metricValue = accumulatorManager.CurrentDataAccumulator.CollectionConfigurationAccumulator.MetricAccumulators["Metric1"].CalculateAggregation(out long count);
 
             Assert.AreEqual(1, count);
@@ -822,7 +822,7 @@
             telemetryProcessor.Process(dependency);
             
             // ASSERT
-            Assert.AreEqual(TelemetryDocumentType.RemoteDependency.ToString(), accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToArray().Reverse().ToArray().Single().DocumentType);
+            Assert.AreEqual(TelemetryDocumentType.RemoteDependency.ToString(), accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToArray().ToArray().Single().DocumentType);
         }
 
         [TestMethod]
@@ -911,7 +911,7 @@
             var collectedTelemetryStreamAll =
                 accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Where(document => document.DocumentStreamIds.Contains("StreamAll"))
                     .ToArray()
-                    .Reverse()
+                    //.Reverse()
                     .Cast<RequestTelemetryDocument>()
                     .ToArray();
 
@@ -919,7 +919,7 @@
                 accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Where(
                     document => document.DocumentStreamIds.Contains("StreamSuccessOnly"))
                     .ToArray()
-                    .Reverse()
+                    //.Reverse()
                     .Cast<RequestTelemetryDocument>()
                     .ToArray();
 
@@ -1038,7 +1038,7 @@
             var collectedTelemetryStreamAll =
                 accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Where(document => document.DocumentStreamIds.Contains("StreamAll"))
                     .ToArray()
-                    .Reverse()
+                    //.Reverse()
                     .Cast<DependencyTelemetryDocument>()
                     .ToArray();
 
@@ -1046,7 +1046,7 @@
                 accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Where(
                     document => document.DocumentStreamIds.Contains("StreamSuccessOnly"))
                     .ToArray()
-                    .Reverse()
+                    //.Reverse()
                     .Cast<DependencyTelemetryDocument>()
                     .ToArray();
 
@@ -1166,7 +1166,7 @@
             var collectedTelemetryStreamAll =
                 accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Where(document => document.DocumentStreamIds.Contains("StreamAll"))
                     .ToArray()
-                    .Reverse()
+                    //.Reverse()
                     .Cast<ExceptionTelemetryDocument>()
                     .ToArray();
 
@@ -1174,7 +1174,7 @@
                 accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Where(
                     document => document.DocumentStreamIds.Contains("StreamSuccessOnly"))
                     .ToArray()
-                    .Reverse()
+                    //.Reverse()
                     .Cast<ExceptionTelemetryDocument>()
                     .ToArray();
 
@@ -1292,13 +1292,13 @@
             var collectedTelemetryStreamAll =
                 accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Where(document => document.DocumentStreamIds.Contains("StreamAll"))
                     .ToArray()
-                    .Reverse()
+                    //.Reverse()
                     .Cast<EventTelemetryDocument>()
                     .ToArray();
 
             var collectedTelemetryStreamSuccessOnly =
                 accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Where(
-                    document => document.DocumentStreamIds.Contains("StreamSuccessOnly")).ToArray().Reverse().Cast<EventTelemetryDocument>().ToArray();
+                    document => document.DocumentStreamIds.Contains("StreamSuccessOnly")).ToArray().Cast<EventTelemetryDocument>().ToArray();
 
             // the quota is 3 initially, then 0.5 every second (but not more than 30)
 
@@ -1413,7 +1413,7 @@
             var collectedTelemetryStreamAll =
                 accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Where(document => document.DocumentStreamIds.Contains("StreamAll"))
                     .ToArray()
-                    .Reverse()
+                    //.Reverse()
                     .Cast<TraceTelemetryDocument>()
                     .ToArray();
 
@@ -1421,7 +1421,7 @@
                 accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Where(
                     document => document.DocumentStreamIds.Contains("StreamSuccessOnly"))
                     .ToArray()
-                    .Reverse()
+                    //.Reverse()
                     .Cast<TraceTelemetryDocument>()
                     .ToArray();
 
@@ -1520,7 +1520,7 @@
                 var collectedTelemetryForStream =
                     accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Where(document => document.DocumentStreamIds.Contains(streamId))
                         .ToArray()
-                        .Reverse()
+                        //.Reverse()
                         .Cast<RequestTelemetryDocument>()
                         .ToArray();
 
@@ -3154,7 +3154,7 @@
             // ASSERT
             Assert.IsFalse(accumulatorManager.CurrentDataAccumulator.GlobalDocumentQuotaReached);
             Assert.AreEqual(1, accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Count);
-            var collectedTelemetry = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToArray().Reverse().ToArray();
+            var collectedTelemetry = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToArray().ToArray();
 
             Assert.AreEqual(TelemetryDocumentType.Request, Enum.Parse(typeof(TelemetryDocumentType), collectedTelemetry[0].DocumentType));
             var requestTelemetryDocument = (RequestTelemetryDocument)collectedTelemetry[0];
@@ -3198,7 +3198,7 @@
             // ASSERT
             Assert.IsFalse(accumulatorManager.CurrentDataAccumulator.GlobalDocumentQuotaReached);
             Assert.AreEqual(1, accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Count);
-            var collectedTelemetry = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToArray().Reverse().ToArray();
+            var collectedTelemetry = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToArray().ToArray();
 
             Assert.AreEqual(TelemetryDocumentType.Request, Enum.Parse(typeof(TelemetryDocumentType), collectedTelemetry[0].DocumentType));
             var requestTelemetryDocument = (RequestTelemetryDocument)collectedTelemetry[0];
