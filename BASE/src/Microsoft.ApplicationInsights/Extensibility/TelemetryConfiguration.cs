@@ -52,7 +52,7 @@
 
         /// <summary>
         /// Static Constructor which sets ActivityID Format to W3C if Format not enforced.
-        /// This ensures SDK operates in W3C mode, unless turned off explicitily with the following 2 lines
+        /// This ensures SDK operates in W3C mode, unless turned off explicitly with the following 2 lines
         /// in user code in application startup.
         /// Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical
         /// Activity.ForceDefaultIdFormat = true.
@@ -426,7 +426,7 @@
         /// <exception cref="ArgumentException">An ArgumentException is thrown if the provided object does not inherit Azure.Core.TokenCredential.</exception>
         public void SetAzureTokenCredential(object tokenCredential)
         {
-            this.CredentialEnvelope = new ReflectionCredentialEnvelope(tokenCredential);
+            this.CredentialEnvelope = new CachedReflectionCredentialEnvelope(tokenCredential);
             this.SetTelemetryChannelCredentialEnvelope();
 
             // Update Ingestion Endpoint.

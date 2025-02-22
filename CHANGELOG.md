@@ -1,6 +1,7 @@
 # Changelog
 
 ## VNext
+- [Cache authentication token to improve performance when using AAD authentication](https://github.com/microsoft/ApplicationInsights-dotnet/issues/2539)
 
 ## Version 2.23.0
 - no changes since beta.
