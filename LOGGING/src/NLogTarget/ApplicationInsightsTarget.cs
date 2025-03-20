@@ -13,6 +13,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Implementation;
 
@@ -29,8 +30,9 @@ namespace Microsoft.ApplicationInsights.NLogTarget
     public sealed class ApplicationInsightsTarget : TargetWithLayout
     {
         private TelemetryClient telemetryClient;
-        private DateTime lastLogEventTime;
+        private TelemetryConfiguration telemetryConfiguration;
         private NLog.Layouts.Layout instrumentationKeyLayout = string.Empty;
+        private NLog.Layouts.Layout connectionStringLayout = string.Empty;
 
         /// <summary>
         /// Initializers a new instance of ApplicationInsightsTarget type.
@@ -51,18 +53,24 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         }
 
         /// <summary>
+        /// Gets or sets the Application Insights connectionstring for your application.
+        /// </summary>
+        public string ConnectionString
+        {
+            get => (this.connectionStringLayout as NLog.Layouts.SimpleLayout)?.Text ?? null;
+            set => this.connectionStringLayout = value ?? string.Empty;
+        }
+
+        /// <summary>
         /// Gets the array of custom attributes to be passed into the logevent context.
         /// </summary>
         [ArrayParameter(typeof(TargetPropertyWithContext), "contextproperty")]
         public IList<TargetPropertyWithContext> ContextProperties { get; } = new List<TargetPropertyWithContext>();
 
         /// <summary>
-        /// Gets the logging controller we will be using.
+        /// Gets or sets the factory for creating TelemetryConfiguration, so unit-tests can override in-memory-channel.
         /// </summary>
-        internal TelemetryClient TelemetryClient
-        {
-            get { return this.telemetryClient; }
-        }
+        internal Func<TelemetryConfiguration> TelemetryConfigurationFactory { get; set; }
 
         internal void BuildPropertyBag(LogEventInfo logEvent, ITelemetry trace)
         {
@@ -108,23 +116,47 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         }
 
         /// <summary>
-        /// Initializes the Target and perform instrumentationKey validation.
+        /// Initializes the Target and configures TelemetryClient.
         /// </summary>
-        /// <exception cref="NLogConfigurationException">Will throw when <see cref="InstrumentationKey"/> is not set.</exception>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "ApplicationInsightsTarget class handles ownership of TelemetryConfiguration with Dispose.")]
         protected override void InitializeTarget()
         {
             base.InitializeTarget();
-#pragma warning disable CS0618 // Type or member is obsolete: TelemtryConfiguration.Active is used in TelemetryClient constructor.
-            this.telemetryClient = new TelemetryClient();
-#pragma warning restore CS0618 // Type or member is obsolete
 
-            string instrumentationKey = this.instrumentationKeyLayout.Render(LogEventInfo.CreateNullEvent());
-            if (!string.IsNullOrWhiteSpace(instrumentationKey))
+            string connectionString = this.connectionStringLayout.Render(LogEventInfo.CreateNullEvent());
+
+            // Check if nlog application insights target has connectionstring in config file then
+            // configure new telemetryclient with the connectionstring otherwise using legacy instrumentationkey.
+            if (!string.IsNullOrWhiteSpace(connectionString))
             {
-                this.telemetryClient.Context.InstrumentationKey = instrumentationKey;
+                this.telemetryConfiguration = this.TelemetryConfigurationFactory?.Invoke() ?? TelemetryConfiguration.CreateDefault();
+                this.telemetryConfiguration.ConnectionString = connectionString;
+                this.telemetryClient = new TelemetryClient(this.telemetryConfiguration);
+            }
+            else
+            {
+#pragma warning disable CS0618 // Type or member is obsolete: TelemtryConfiguration.Active is used in TelemetryClient constructor.
+                this.telemetryClient = new TelemetryClient();
+#pragma warning restore CS0618 // Type or member is obsolete
+                string instrumentationKey = this.instrumentationKeyLayout.Render(LogEventInfo.CreateNullEvent());
+                if (!string.IsNullOrWhiteSpace(instrumentationKey))
+                {
+                    this.telemetryClient.Context.InstrumentationKey = instrumentationKey;
+                }
             }
 
             this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("nlog:");
+        }
+
+        /// <summary>
+        /// Closes the target and releases resources used by the current instance of the <see cref="ApplicationInsightsTarget"/> class.
+        /// </summary>
+        protected override void CloseTarget()
+        {
+            this.telemetryConfiguration?.Dispose();
+            this.telemetryConfiguration = null;
+
+            base.CloseTarget();
         }
 
         /// <summary>
@@ -137,8 +169,6 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             {
                 throw new ArgumentNullException(nameof(logEvent));
             }
-
-            this.lastLogEventTime = DateTime.UtcNow;
 
             if (logEvent.Exception != null)
             {
@@ -163,22 +193,26 @@ namespace Microsoft.ApplicationInsights.NLogTarget
 
             try
             {
-                this.TelemetryClient.Flush();
-                if (DateTime.UtcNow.AddSeconds(-30) > this.lastLogEventTime)
-                {
-                    // Nothing has been written, so nothing to wait for
-                    asyncContinuation(null);
-                }
-                else
-                {
-                    // Documentation says it is important to wait after flush, else nothing will happen
-                    // https://docs.microsoft.com/azure/application-insights/app-insights-api-custom-events-metrics#flushing-data
-                    System.Threading.Tasks.Task.Delay(TimeSpan.FromMilliseconds(500)).ContinueWith((task) => asyncContinuation(null));
-                }
+                this.telemetryClient.FlushAsync(System.Threading.CancellationToken.None).ContinueWith(t => asyncContinuation(t.Exception));
             }
             catch (Exception ex)
             {
                 asyncContinuation(ex);
+            }
+        }
+
+        /// <summary>
+        /// Releases resources used by the current instance of the <see cref="ApplicationInsightsTarget"/> class.
+        /// </summary>
+        /// <param name="disposing">Dispose managed state (managed objects).</param>
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+
+            if (disposing)
+            {
+                this.telemetryConfiguration?.Dispose();
+                this.telemetryConfiguration = null;
             }
         }
 
