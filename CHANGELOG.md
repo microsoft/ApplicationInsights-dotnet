@@ -1,6 +1,7 @@
 # Changelog
 
 ## VNext
+- Parse AADAudience from ConnectionString to build scope for token requests
 
 ## Version 2.23.0
 - no changes since beta.

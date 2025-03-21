@@ -29,6 +29,8 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
     [TestCategory("AAD")]
     public class ReflectionCredentialEnvelopeTests
     {
+        private readonly string[] defaultScope = new string[] { "https://monitor.azure.com/.default" };
+
         [TestMethod]
         public void VerifyCanIdentifyValidClass()
         {
@@ -130,7 +132,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         [TestMethod]
         public void VerifyGetToken_ReturnsValidToken()
         {
-            var requestContext = new TokenRequestContext(scopes: AuthConstants.GetScopes());
+            var requestContext = new TokenRequestContext(scopes: defaultScope);
             var mockCredential = new MockCredential();
             var tokenFromCredential = mockCredential.GetToken(requestContext, CancellationToken.None);
 
@@ -147,7 +149,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         [TestMethod]
         public async Task VerifyGetTokenAsync_ReturnsValidToken()
         {
-            var requestContext = new TokenRequestContext(scopes: AuthConstants.GetScopes());
+            var requestContext = new TokenRequestContext(scopes: defaultScope);
             var mockCredential = new MockCredential();
             var tokenFromCredential = await mockCredential.GetTokenAsync(requestContext, CancellationToken.None);
 

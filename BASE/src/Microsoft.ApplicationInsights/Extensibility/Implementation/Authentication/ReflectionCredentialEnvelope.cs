@@ -82,20 +82,13 @@
         {
             get
             {
-                if (string.IsNullOrEmpty(this.Audience))
+                var normalizedScope = this.Audience;
+                if (!normalizedScope.EndsWith(".default"))
                 {
-                    return new string[] { "https://monitor.azure.com/.default" };
+                    normalizedScope += ".default";
                 }
-                else
-                {
-                    var normalizedScope = this.Audience;
-                    if (!normalizedScope.EndsWith("/.default"))
-                    {
-                        normalizedScope += ".default";
-                    }
 
-                    return new string[] { normalizedScope };
-                }
+                return new string[] { normalizedScope };
             }
         }
 
