@@ -159,6 +159,54 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         }
 
         [TestMethod]
+        public void VerifyAudience_AddsTrailingSlash()
+        {
+            var expectedAudience = "https://monitor.azure.com/";
+            var mockCredential = new MockCredential();
+
+            var reflectionCredentialEnvelope = new ReflectionCredentialEnvelope(mockCredential);
+            reflectionCredentialEnvelope.Audience = "https://monitor.azure.com";
+
+            Assert.AreEqual(expectedAudience, reflectionCredentialEnvelope.Audience);
+        }
+
+        [TestMethod]
+        public void VerifyAudience_DefaultsToProduction()
+        {
+            var expectedAudience = "https://monitor.azure.com/";
+            var mockCredential = new MockCredential();
+
+            var reflectionCredentialEnvelope = new ReflectionCredentialEnvelope(mockCredential);
+
+            Assert.AreEqual(expectedAudience, reflectionCredentialEnvelope.Audience);
+        }
+
+        [TestMethod]
+        public void VerifyScopes_AddsDotDefault()
+        {
+            var expectedScope = "https://monitor.azure.us/.default";
+            var mockCredential = new MockCredential();
+
+            var reflectionCredentialEnvelope = new ReflectionCredentialEnvelope(mockCredential);
+            reflectionCredentialEnvelope.Audience = "https://monitor.azure.us";
+
+            Assert.AreEqual(1, reflectionCredentialEnvelope.Scopes.Length);
+            Assert.AreEqual(expectedScope, reflectionCredentialEnvelope.Scopes[0]);
+        }
+
+        [TestMethod]
+        public void VerifyScopes_DefaultsToProduction()
+        {
+            var expectedScope = "https://monitor.azure.com/.default";
+            var mockCredential = new MockCredential();
+
+            var reflectionCredentialEnvelope = new ReflectionCredentialEnvelope(mockCredential);
+
+            Assert.AreEqual(1, reflectionCredentialEnvelope.Scopes.Length);
+            Assert.AreEqual(expectedScope, reflectionCredentialEnvelope.Scopes[0]);
+        }
+
+        [TestMethod]
         public void VerifyGetToken_IfCredentialThrowsException_EnvelopeReturnsNull()
         {
             Mock<TokenCredential> mockTokenCredential = new Mock<TokenCredential>();

@@ -13,6 +13,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.ConfigString;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Sampling;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -313,6 +314,14 @@
 
                     // UPDATE APPLICATION ID PROVIDER
                     SetApplicationIdEndpoint(this.ApplicationIdProvider, this.EndpointContainer.FormattedApplicationIdEndpoint, force: true);
+
+                    // UPDATE AAD AUDIENCE
+                    if (this.CredentialEnvelope != null)
+                    {
+                        var parsed = ConfigStringParser.Parse(this.ConnectionString);
+                        parsed.TryGetValue("AADAudience", out var audience);
+                        this.CredentialEnvelope.Audience = audience;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -432,6 +441,14 @@
             // Update Ingestion Endpoint.
             var ingestionEndpoint = this.EndpointContainer.GetFormattedIngestionEndpoint(enableAAD: true);
             this.SetTelemetryChannelEndpoint(ingestionEndpoint);
+
+            // Update AAD audience if we can
+            if (!string.IsNullOrEmpty(this.ConnectionString))
+            {
+                var parsed = ConfigStringParser.Parse(this.ConnectionString);
+                parsed.TryGetValue("AADAudience", out var audience);
+                this.CredentialEnvelope.Audience = audience;
+            }
         }
 
         internal MetricManager GetMetricManager(bool createIfNotExists)

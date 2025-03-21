@@ -15,6 +15,11 @@
         internal abstract object Credential { get; }
 
         /// <summary>
+        /// Gets or sets the audience to retrieve a token for.
+        /// </summary>
+        internal abstract string Audience { get; set; }
+
+        /// <summary>
         /// Gets an Azure.Core.AccessToken.
         /// </summary>
         /// <remarks>
