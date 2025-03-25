@@ -92,6 +92,60 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
             tc.SetAzureTokenCredential(new MockCredential());
             Assert.IsTrue(tc.TelemetryChannel.EndpointAddress.Contains("v2.1")); // api switch
         }
+
+        [TestMethod]
+        public void VerifySetCredential_CorrectlyUsesDefaultAudience()
+        {
+            // SETUP
+            var tc = TelemetryConfiguration.CreateDefault();
+
+            // ACT
+            // set credential second
+            tc.SetAzureTokenCredential(new MockCredential());
+            Assert.AreEqual("https://monitor.azure.com/", tc.CredentialEnvelope.Audience); // default audience
+        }
+
+        [TestMethod]
+        public void VerifySetCredential_CorrectlyUsesConnectionStringAudience_ConnectionStringSetFirst()
+        {
+            // SETUP
+            var tc = TelemetryConfiguration.CreateDefault();
+            tc.ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000;EndpointSuffix=applicationinsights.us;IngestionEndpoint=https://usgovvirginia-1.in.applicationinsights.azure.us/;LiveEndpoint=https://usgovvirginia.livediagnostics.monitor.azure.us/;AADAudience=https://monitor.azure.us/;ApplicationId=00000000-0000-0000-0000-000000000000";
+
+            // ACT
+            // set credential second
+            tc.SetAzureTokenCredential(new MockCredential());
+            Assert.AreEqual("https://monitor.azure.us/", tc.CredentialEnvelope.Audience); // Connection String audience
+        }
+
+        [TestMethod]
+        public void VerifySetCredential_CorrectlyUsesConnectionStringAudience_TokenSetFirst()
+        {
+            // SETUP
+            var tc = TelemetryConfiguration.CreateDefault();
+
+            // ACT
+            // set credential second
+            tc.SetAzureTokenCredential(new MockCredential());
+            Assert.AreEqual("https://monitor.azure.com/", tc.CredentialEnvelope.Audience); // default audience
+
+            tc.ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000;EndpointSuffix=applicationinsights.us;IngestionEndpoint=https://usgovvirginia-1.in.applicationinsights.azure.us/;LiveEndpoint=https://usgovvirginia.livediagnostics.monitor.azure.us/;AADAudience=https://monitor.azure.us/;ApplicationId=00000000-0000-0000-0000-000000000000";
+            tc.SetAzureTokenCredential(new MockCredential());
+            Assert.AreEqual("https://monitor.azure.us/", tc.CredentialEnvelope.Audience); // Connection String audience
+        }
+
+        [TestMethod]
+        public void VerifySetCredential_CorrectlyDefaultsAudience_ConnectionStringNoAudience()
+        {
+            // SETUP
+            var tc = TelemetryConfiguration.CreateDefault();
+            tc.ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000;EndpointSuffix=applicationinsights.us;IngestionEndpoint=https://usgovvirginia-1.in.applicationinsights.azure.us/;LiveEndpoint=https://usgovvirginia.livediagnostics.monitor.azure.us/;ApplicationId=00000000-0000-0000-0000-000000000000";
+
+            // ACT
+            // set credential second
+            tc.SetAzureTokenCredential(new MockCredential());
+            Assert.AreEqual("https://monitor.azure.com/", tc.CredentialEnvelope.Audience); // default audience
+        }
     }
 }
 #endif
