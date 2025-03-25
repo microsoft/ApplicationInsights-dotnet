@@ -29,7 +29,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
     [TestCategory("AAD")]
     public class ReflectionCredentialEnvelopeTests
     {
-        private readonly string[] defaultScope = new string[] { "https://monitor.azure.com/.default" };
+        private readonly string[] defaultScope = new string[] { "https://monitor.azure.com//.default" };
 
         [TestMethod]
         public void VerifyCanIdentifyValidClass()
@@ -186,7 +186,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         [TestMethod]
         public void VerifyScopes_AddsDotDefault()
         {
-            var expectedScope = "https://monitor.azure.us/.default";
+            var expectedScope = "https://monitor.azure.us//.default";
             var mockCredential = new MockCredential();
 
             var reflectionCredentialEnvelope = new ReflectionCredentialEnvelope(mockCredential);
@@ -199,7 +199,7 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
         [TestMethod]
         public void VerifyScopes_DefaultsToProduction()
         {
-            var expectedScope = "https://monitor.azure.com/.default";
+            var expectedScope = "https://monitor.azure.com//.default";
             var mockCredential = new MockCredential();
 
             var reflectionCredentialEnvelope = new ReflectionCredentialEnvelope(mockCredential);

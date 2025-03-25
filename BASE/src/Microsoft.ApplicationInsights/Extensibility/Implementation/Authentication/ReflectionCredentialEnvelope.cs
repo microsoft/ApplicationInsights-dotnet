@@ -83,9 +83,9 @@
             get
             {
                 var normalizedScope = this.Audience;
-                if (!normalizedScope.EndsWith(".default"))
+                if (!normalizedScope.EndsWith("//.default"))
                 {
-                    normalizedScope += ".default";
+                    normalizedScope += "/.default";
                 }
 
                 return new string[] { normalizedScope };
