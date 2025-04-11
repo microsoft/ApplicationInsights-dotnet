@@ -45,7 +45,7 @@
             var token = InternalCreateAndStartTimer(interval, actionToExecute);
             this.timers.Add(token);
 
-            CoreEventSource.Log.DiagnoisticsEventThrottlingSchedulerTimerWasCreated(interval.ToString(CultureInfo.InvariantCulture));
+            CoreEventSource.Log.DiagnosticsEventThrottlingSchedulerTimerWasCreated(interval.ToString(CultureInfo.InvariantCulture));
 
             return token;
         }
@@ -67,7 +67,7 @@
             {
                 DisposeTimer(timer);
 
-                CoreEventSource.Log.DiagnoisticsEventThrottlingSchedulerTimerWasRemoved();
+                CoreEventSource.Log.DiagnosticsEventThrottlingSchedulerTimerWasRemoved();
             }
         }
 
@@ -85,7 +85,7 @@
             }
             catch (Exception exc)
             {
-                CoreEventSource.Log.DiagnoisticsEventThrottlingSchedulerDisposeTimerFailure(exc.ToInvariantString());
+                CoreEventSource.Log.DiagnosticsEventThrottlingSchedulerDisposeTimerFailure(exc.ToInvariantString());
             }
         }
 
