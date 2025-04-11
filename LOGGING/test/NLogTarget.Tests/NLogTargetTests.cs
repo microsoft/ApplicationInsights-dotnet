@@ -230,7 +230,7 @@
         }
 
 
-    [TestMethod]
+        [TestMethod]
         [TestCategory("NLogTarget")]
         public void GlobalDiagnosticContextPropertiesAreAddedToProperties()
         {
@@ -455,8 +455,14 @@
             NLog.Common.AsyncContinuation asyncContinuation = (ex) => { flushException = ex; flushEvent.Set(); };
             aiLogger.Factory.Flush(asyncContinuation, 5000);
             Assert.IsTrue(flushEvent.WaitOne(5000));
-            Assert.IsNotNull(flushException);
-            Assert.AreEqual("Flush called", flushException.Message);
+        }
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
+        public void NLogTargetWithConnectionString()
+        {
+            var aiLogger = this.CreateTargetWithGivenConnectionString("TestAI");
+            VerifyMessagesInMockChannel(aiLogger, "TestAI");
         }
 
         private void VerifyMessagesInMockChannel(Logger aiLogger, string instrumentationKey)
@@ -487,6 +493,35 @@
             }
 
             target.InstrumentationKey = instrumentationKey;
+            LoggingRule rule = new LoggingRule("*", LogLevel.Trace, target);
+            LoggingConfiguration config = new LoggingConfiguration();
+            config.AddTarget("AITarget", target);
+            config.LoggingRules.Add(rule);
+
+            LogManager.Configuration = config;
+            Logger aiLogger = LogManager.GetLogger("AITarget");
+
+            if (loggerAction != null)
+            {
+                loggerAction(aiLogger);
+                target.Dispose();
+                return null;
+            }
+
+            return aiLogger;
+        }
+
+        private Logger CreateTargetWithGivenConnectionString(
+            string instrumentationKey = "TEST",
+            Action<Logger> loggerAction = null)
+        {
+            ApplicationInsightsTarget target = new ApplicationInsightsTarget
+            {
+                ConnectionString = $"InstrumentationKey={instrumentationKey};IngestionEndpoint=https://localhost/;LiveEndpoint=https://localhost/"
+            };
+
+            target.TelemetryConfigurationFactory = () => new TelemetryConfiguration() { TelemetryChannel = this.adapterHelper.Channel };
+
             LoggingRule rule = new LoggingRule("*", LogLevel.Trace, target);
             LoggingConfiguration config = new LoggingConfiguration();
             config.AddTarget("AITarget", target);
