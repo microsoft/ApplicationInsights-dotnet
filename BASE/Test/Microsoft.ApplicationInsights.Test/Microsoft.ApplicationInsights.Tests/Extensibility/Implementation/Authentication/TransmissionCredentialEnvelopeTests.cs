@@ -88,6 +88,43 @@ namespace Microsoft.ApplicationInsights.TestFramework.Extensibility.Implementati
                 var result = await transmission.SendAsync();
             }
         }
+
+        [TestMethod]
+        public async Task VerifyTransmissionSendAsync_WithCachedCredential_ReusesCachedToken()
+        {
+            var mockCredential = new CountingMockCredential();
+            var credentialEnvelope = new CachedReflectionCredentialEnvelope(mockCredential);
+            var authToken = credentialEnvelope.GetToken();
+
+            Assert.AreEqual(1, mockCredential.GetTokenCallCount);
+
+            var handler = new HandlerForFakeHttpClient
+            {
+                InnerHandler = new HttpClientHandler(),
+                OnSendAsync = (req, cancellationToken) =>
+                {
+                    // VALIDATE
+                    Assert.AreEqual(AuthConstants.AuthorizationTokenPrefix.Trim(), req.Headers.Authorization.Scheme);
+                    Assert.AreEqual(authToken.Token, req.Headers.Authorization.Parameter);
+                    Assert.AreEqual(1, mockCredential.GetTokenCallCount, "Expected the token to be cached, thereby avoiding a second call into the token credential.");
+                    
+                    return Task.FromResult<HttpResponseMessage>(new HttpResponseMessage());
+                }
+            };
+
+            using (var fakeHttpClient = new HttpClient(handler))
+            {
+                var expectedContentType = "content/type";
+                var expectedContentEncoding = "contentEncoding";
+                var items = new List<ITelemetry> { new EventTelemetry() };
+
+                // Instantiate Transmission with the mock HttpClient
+                var transmission = new Transmission(testUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, expectedContentType, expectedContentEncoding);
+                transmission.CredentialEnvelope = credentialEnvelope;
+
+                var result = await transmission.SendAsync();
+            }
+        }
     }
 }
 #endif
