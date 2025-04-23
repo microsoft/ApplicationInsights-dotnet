@@ -27,6 +27,7 @@
 
         private readonly object tokenCredential;
         private readonly object tokenRequestContext;
+        private string audience = "https://monitor.azure.com/";
 
         /// <summary>
         /// Create an instance of <see cref="ReflectionCredentialEnvelope"/>.
@@ -38,7 +39,7 @@
 
             if (IsValidType(tokenCredential))
             {
-                this.tokenRequestContext = AzureCore.MakeTokenRequestContext(scopes: AuthConstants.GetScopes());
+                this.tokenRequestContext = AzureCore.MakeTokenRequestContext(scopes: this.Scopes);
             }
             else
             {
@@ -50,6 +51,46 @@
         /// Gets the TokenCredential instance held by this class.
         /// </summary>
         internal override object Credential => this.tokenCredential;
+
+        internal override string Audience
+        {
+            get
+            {
+                return this.audience;
+            }
+
+            set
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    this.audience = "https://monitor.azure.com/";
+                }
+                else
+                {
+                    var normalizedAudience = value;
+                    if (!normalizedAudience.EndsWith("/"))
+                    {
+                        normalizedAudience += "/";
+                    }
+
+                    this.audience = normalizedAudience;
+                }
+            }
+        }
+
+        internal string[] Scopes
+        {
+            get
+            {
+                var normalizedScope = this.Audience;
+                if (!normalizedScope.EndsWith("//.default"))
+                {
+                    normalizedScope += "/.default";
+                }
+
+                return new string[] { normalizedScope };
+            }
+        }
 
         /// <summary>
         /// Gets an Azure.Core.AccessToken.
