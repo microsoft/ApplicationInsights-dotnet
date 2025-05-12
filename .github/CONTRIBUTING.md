@@ -35,6 +35,8 @@ Note: .NET has an annual release cycle and we include the preview version in our
 Visual Studio requires a setting to compile using these preview versions:
   - Tools > Options > Environment > Preview Features > "Use previews of the .NET SDK".
 
+Note: If your OS language is not english and would like to display the .NET CLI messages in English, set the `DOTNET_CLI_UI_LANGUAGE` environment variable to `en`.
+
 ## Build
 
 Solutions can be built in either Visual Studio or via .NET CLI `dotnet build` ([link](https://docs.microsoft.com/dotnet/core/tools/dotnet-build)).
