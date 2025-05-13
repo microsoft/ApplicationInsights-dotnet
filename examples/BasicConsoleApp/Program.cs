@@ -61,7 +61,7 @@
         public void Initialize(ITelemetry telemetry)
         {
             // Replace with actual properties.
-            (telemetry as ISupportProperties)?.Properties["MyCustomKey"] = "MyCustomValue";
+            (telemetry as ISupportProperties).Properties["MyCustomKey"] = "MyCustomValue";
         }
     }
 
