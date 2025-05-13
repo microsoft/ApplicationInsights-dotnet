@@ -230,7 +230,7 @@
         }
 
 
-    [TestMethod]
+        [TestMethod]
         [TestCategory("NLogTarget")]
         public void GlobalDiagnosticContextPropertiesAreAddedToProperties()
         {
@@ -459,6 +459,62 @@
             Assert.AreEqual("Flush called", flushException.Message);
         }
 
+        [TestMethod]
+        [TestCategory("NLogTarget")]
+        public void NLogInfoIsSentAsInformationTraceItemWithAIConnectionString()
+        {
+            var aiLogger = this.CreateTargetWithGivenConnectionString("Your_ApplicationInsights_ConnectionString");
+            aiLogger.Info("Info message");
+
+            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
+            Assert.AreEqual($"Info message", telemetry.Message);
+        }
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
+        public void NLogTraceIsSentAsVerboseTraceItemWithAIConnectionString()
+        {
+            var aiLogger = this.CreateTargetWithGivenConnectionString("Your_ApplicationInsights_ConnectionString");
+            aiLogger.Trace("Trace message");
+
+            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
+            Assert.AreEqual("Trace message", telemetry.Message);
+        }
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
+        public void NLogDebugIsSentAsVerboseTraceItemWithAIConnectionString()
+        {
+            var aiLogger = this.CreateTargetWithGivenConnectionString("Your_ApplicationInsights_ConnectionString");
+            aiLogger.Debug("Debug Message");
+
+            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
+            Assert.AreEqual("Debug Message", telemetry.Message);
+        }
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
+        public void NLogWarnIsSentAsWarningTraceItemWithAIConnectionString()
+        {
+            var aiLogger = this.CreateTargetWithGivenConnectionString("Your_ApplicationInsights_ConnectionString");
+
+            aiLogger.Warn("Warn message");
+
+            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
+            Assert.AreEqual("Warn message", telemetry.Message);
+        }
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
+        public void NLogErrorIsSentAsVerboseTraceItemWithAIConnectionString()
+        {
+            var aiLogger = this.CreateTargetWithGivenConnectionString("InstrumentationKey=b91a8f48-c77c-4f12-80e2-f96bc1abb126;IngestionEndpoint=https://centralus-2.in.applicationinsights.azure.com/;LiveEndpoint=https://centralus.livediagnostics.monitor.azure.com/");
+            aiLogger.Error("Error Message");
+
+            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
+            Assert.AreEqual("Error Message", telemetry.Message);
+        }
+
         private void VerifyMessagesInMockChannel(Logger aiLogger, string instrumentationKey)
         {
             aiLogger.Trace("Sample trace message");
@@ -487,6 +543,38 @@
             }
 
             target.InstrumentationKey = instrumentationKey;
+            LoggingRule rule = new LoggingRule("*", LogLevel.Trace, target);
+            LoggingConfiguration config = new LoggingConfiguration();
+            config.AddTarget("AITarget", target);
+            config.LoggingRules.Add(rule);
+
+            LogManager.Configuration = config;
+            Logger aiLogger = LogManager.GetLogger("AITarget");
+
+            if (loggerAction != null)
+            {
+                loggerAction(aiLogger);
+                target.Dispose();
+                return null;
+            }
+
+            return aiLogger;
+        }
+
+        private Logger CreateTargetWithGivenConnectionString(
+            string connectionString = "Your_ApplicationInsights_ConnectionString",
+            Action<Logger> loggerAction = null)
+        {
+            // Mock channel to validate that our appender is trying to send logs
+#pragma warning disable CS0618 // Type or member is obsolete
+            TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
+#pragma warning restore CS0618 // Type or member is obsolete
+
+            ApplicationInsightsTarget target = new ApplicationInsightsTarget
+            {
+                ConnectionString = connectionString
+            };
+
             LoggingRule rule = new LoggingRule("*", LogLevel.Trace, target);
             LoggingConfiguration config = new LoggingConfiguration();
             config.AddTarget("AITarget", target);
