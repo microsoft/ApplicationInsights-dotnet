@@ -343,6 +343,7 @@
             services.AddSingleton<TelemetryConfiguration>(provider =>
                 provider.GetService<IOptions<TelemetryConfiguration>>().Value);
             services.AddSingleton<TelemetryClient>();
+            services.AddSingleton<ITelemetryClient>(provider => provider.GetRequiredService<TelemetryClient>());
         }
 
         private static void AddAndConfigureDependencyTracking(IServiceCollection services)
