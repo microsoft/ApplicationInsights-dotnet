@@ -1,0 +1,48 @@
+{
+  "name": "AppDependencies",
+  "time": "2025-06-25T12:16:55.465183Z",
+  "iKey": "00000000-0000-0000-0000-000000000000",
+  "tags": {
+    "ai.application.ver": "2.1.0",
+    "ai.device.type": "PC",
+    "ai.device.id": "device-555",
+    "ai.device.osVersion": "Windows 10",
+    "ai.device.oemName": "Microsoft",
+    "ai.device.model": "Surface Pro",
+    "ai.cloud.role": "api",
+    "ai.cloud.roleInstance": "instance-01",
+    "ai.session.id": "session-xyz",
+    "ai.user.id": "user-001",
+    "ai.user.accountId": "account-abc",
+    "ai.operation.id": "op-req-01",
+    "ai.operation.parentId": "op-root-01",
+    "ai.operation.correlationVector": "cvector-001",
+    "ai.operation.name": "SampleOperation",
+    "ai.location.ip": "192.0.2.1",
+    "ai.internal.sdkVersion": "dotnet:2.18.0",
+    "ai.internal.nodeName": "node-01"
+  },
+  "data": {
+    "baseType": "RemoteDependencyData",
+    "baseData": {
+      "ver": 2,
+      "name": "SQL GetOrders",
+      "id": "dep-12345",
+      "data": "ExecuteReader",
+      "duration": "00:00:00.1500000",
+      "resultCode": "0",
+      "success": true,
+      "type": "SQL",
+      "target": "sqlserver01.database.windows.net",
+      "properties": {
+        "Key1": "Value1",
+        "Key2": "Value2",
+        "ai.device.language": "fr-FR"
+      },
+      "measurements": {
+        "Metric2": 3.14,
+        "Metric1": 42
+      }
+    }
+  }
+}

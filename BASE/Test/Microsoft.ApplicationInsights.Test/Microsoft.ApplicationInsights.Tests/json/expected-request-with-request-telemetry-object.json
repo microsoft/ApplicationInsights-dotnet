@@ -1,0 +1,49 @@
+{
+  "name": "AppRequests",
+  "time": "2025-06-25T11:52:22.0209733Z",
+  "seq": "seq-001",
+  "iKey": "00000000-0000-0000-0000-000000000000",
+  "tags": {
+    "ai.application.ver": "2.1.0",
+    "ai.device.type": "PC",
+    "ai.device.id": "device-555",
+    "ai.device.osVersion": "Windows 11",
+    "ai.device.oemName": "Microsoft",
+    "ai.device.model": "Surface Pro",
+    "ai.cloud.role": "api",
+    "ai.cloud.roleInstance": "instance-01",
+    "ai.session.id": "session-xyz",
+    "ai.user.id": "user-001",
+    "ai.user.accountId": "account-abc",
+    "ai.operation.id": "op-req-01",
+    "ai.operation.parentId": "op-root-01",
+    "ai.operation.correlationVector": "cvector-001",
+    "ai.operation.name": "SampleOperation",
+    "ai.location.ip": "192.0.2.1",
+    "ai.internal.sdkVersion": "dotnet:2.18.0",
+    "ai.internal.nodeName": "CPC-jeanb-YJGO8"
+  },
+  "data": {
+    "baseType": "RequestData",
+    "baseData": {
+      "ver": 2,
+      "id": "req-12345",
+      "source": "frontend-service",
+      "name": "GET /api/orders",
+      "duration": "00:00:00.2500000",
+      "success": true,
+      "responseCode": "200",
+      "url": "https://api.example.com/api/orders",
+      "properties": {
+        "Key1": "Value1",
+        "Key2": "Value2",
+        "ai.device.language": "fr-FR",
+        "httpMethod": "GET"
+      },
+      "measurements": {
+        "Metric2": 3.14,
+        "Metric1": 42
+      }
+    }
+  }
+}

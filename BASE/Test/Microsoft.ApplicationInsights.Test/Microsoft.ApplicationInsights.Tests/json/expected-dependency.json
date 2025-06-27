@@ -1,0 +1,21 @@
+{
+  "name": "AppDependencies",
+  "time": "2025-06-24T08:50:10.6294897Z",
+  "iKey": "12345678-1234-1234-1234-123456789012",
+  "tags": {
+    "ai.cloud.roleInstance": "host-not-compared",
+    "ai.internal.sdkVersion": "version-not-compared"
+  },
+  "data": {
+    "baseType": "RemoteDependencyData",
+    "baseData": {
+      "ver": 2,
+      "name": "GetOrders",
+      "id": "c7ebdab54736f1f0",
+      "data": "SELECT * FROM Orders",
+      "duration": "00:00:00.1230000",
+      "success": true,
+      "type": "SQL"
+    }
+  }
+}

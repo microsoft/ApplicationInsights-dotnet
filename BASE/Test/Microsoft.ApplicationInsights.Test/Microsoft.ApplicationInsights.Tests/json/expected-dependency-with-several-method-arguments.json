@@ -1,0 +1,23 @@
+{
+  "name": "AppDependencies",
+  "time": "2025-06-25T12:51:22.0672819Z",
+  "iKey": "12345678-1234-1234-1234-123456789012",
+  "tags": {
+    "ai.cloud.roleInstance": "host-not-compared",
+    "ai.internal.sdkVersion": "version-not-compared"
+  },
+  "data": {
+    "baseType": "RemoteDependencyData",
+    "baseData": {
+      "ver": 2,
+      "name": "SELECT",
+      "id": "77e4fc50c3219631",
+      "data": "SELECT * FROM Table",
+      "duration": "00:00:05",
+      "resultCode": "2",
+      "success": true,
+      "type": "SQL",
+      "target": "my-database"
+    }
+  }
+}

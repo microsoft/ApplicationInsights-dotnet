@@ -1,0 +1,23 @@
+{
+  "name": "AppMetrics",
+  "time": "2025-06-25T13:29:08.7989411Z",
+  "iKey": "12345678-1234-1234-1234-123456789012",
+  "tags": {
+    "ai.cloud.roleInstance": "host-not-compared",
+    "ai.internal.sdkVersion": "version-not-compared"
+  },
+  "data": {
+    "baseType": "MetricData",
+    "baseData": {
+      "ver": 2,
+      "metrics": [
+        {
+          "name": "n/a",
+          "kind": "Aggregation",
+          "value": 0,
+          "count": 1
+        }
+      ]
+    }
+  }
+}

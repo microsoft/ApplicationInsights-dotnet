@@ -1,0 +1,24 @@
+{
+  "name": "AppEvents",
+  "time": "2025-06-25T14:09:38.1363931Z",
+  "iKey": "12345678-1234-1234-1234-123456789012",
+  "tags": {
+    "ai.cloud.roleInstance": "host-not-compared",
+    "ai.internal.sdkVersion": "version-not-compared"
+  },
+  "data": {
+    "baseType": "EventData",
+    "baseData": {
+      "ver": 2,
+      "name": "EventWithPropertiesAndMetrics",
+      "properties": {
+        "Category": "UserActions",
+        "Source": "MobileApp"
+      },
+      "measurements": {
+        "LoadTime": 1.42,
+        "ClickCount": 17
+      }
+    }
+  }
+}
