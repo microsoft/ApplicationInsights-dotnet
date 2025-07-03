@@ -15,6 +15,16 @@
     using Microsoft.ApplicationInsights.Metrics;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
+#if NETSTANDARD
+    using System.Runtime.InteropServices;
+    using Azure.Monitor.OpenTelemetry.Exporter;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.Logging;
+    using OpenTelemetry.Logs;
+    using OpenTelemetry.Trace;
+#endif
+
     /// <summary>
     /// Send events, metrics and other telemetry to the Application Insights service.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722">Learn more</a>
@@ -27,6 +37,11 @@
         private const string VersionPrefix = "dotnet:";
 #endif  
         private readonly TelemetryConfiguration configuration;
+        
+#if NETSTANDARD
+        private readonly LoggerProvider loggerProvider;
+        private readonly ILogger logger;
+#endif
 
         private string sdkVersion;
 
@@ -53,6 +68,28 @@
                 CoreEventSource.Log.TelemetryClientConstructorWithNoTelemetryConfiguration();
                 configuration = TelemetryConfiguration.Active;
             }
+            
+#if NETSTANDARD
+            if (this.IsNetCore8OrHigher() && !configuration.DisableTelemetry) 
+            {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddOpenTelemetry()
+            .WithLogging(
+                configureBuilder: builder => { },
+                configureOptions: options =>
+                {
+                    options.IncludeScopes = true;
+                })
+                .UseAzureMonitorExporter(options => options.ConnectionString = configuration.ConnectionString);
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            this.StartHostedServicesAsync(serviceProvider).GetAwaiter().GetResult();
+
+            this.loggerProvider = serviceProvider.GetRequiredService<LoggerProvider>();
+            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+            this.logger = loggerFactory.CreateLogger("ApplicationInsightsLogger");
+            }
+#endif
 
             this.configuration = configuration;
 
@@ -156,7 +193,22 @@
         /// <param name="message">Message to display.</param>
         public void TrackTrace(string message)
         {
+#if NETSTANDARD
+            if (this.IsNetCore8OrHigher() && !this.configuration.DisableTelemetry) 
+            {
+                var scopeState = this.CreateScopeState();             
+                using (this.logger.BeginScope(scopeState))
+                {
+                    this.logger.LogInformation(message);
+                }
+            }
+           else
+            {
+                this.TrackTrace(new TraceTelemetry(message));
+            }         
+#else
             this.TrackTrace(new TraceTelemetry(message));
+#endif
         }
 
         /// <summary>
@@ -505,7 +557,7 @@
             bool sampledOut = false;
             if (telemetryWithSampling != null)
             {
-                sampledOut = telemetryWithSampling.ProactiveSamplingDecision == SamplingDecision.SampledOut;
+                sampledOut = telemetryWithSampling.ProactiveSamplingDecision == Microsoft.ApplicationInsights.DataContracts.SamplingDecision.SampledOut;
             }
 
             if (!sampledOut)
@@ -662,6 +714,12 @@
         /// </remarks>
         public void Flush()
         {
+            #if NETSTANDARD
+            if (this.IsNetCore8OrHigher() && !this.configuration.DisableTelemetry) 
+             {
+                this.loggerProvider.ForceFlush();
+            }
+            #endif
             CoreEventSource.Log.TelemetlyClientFlush();
 
             if (this.TryGetMetricManager(out MetricManager privateMetricManager))
@@ -1298,5 +1356,44 @@
             Metric metric = metricManager.Metrics.GetOrCreate(metricIdentifier, metricConfiguration);
             return metric;
         }
+        
+#if NETSTANDARD
+        private async Task StartHostedServicesAsync(ServiceProvider serviceProvider)
+        {
+            var hostedServices = serviceProvider.GetServices<IHostedService>();
+            foreach (var hostedService in hostedServices)
+            {
+                await hostedService.StartAsync(CancellationToken.None);
+            }
+        }
+        
+        private bool IsNetCore8OrHigher()
+        {
+            var version = Environment.Version;
+            return version.Major >= 8;
+        }
+
+        private List<KeyValuePair<string, object>> CreateScopeState()
+        {
+            var scopeState = new List<KeyValuePair<string, object>>();
+
+            var contextGlobalProperties = this.Context.GlobalProperties;
+            foreach (var kvp in contextGlobalProperties)
+            {
+                scopeState.Add(new KeyValuePair<string, object>(kvp.Key, kvp.Value));
+            }
+
+            var propertiesValue = this.Context.PropertiesValue;
+            if (propertiesValue != null)
+            {
+                foreach (var kvp in propertiesValue)
+                {
+                    scopeState.Add(new KeyValuePair<string, object>(kvp.Key, kvp.Value));
+                }
+            }
+
+            return scopeState;
+        }
+#endif
     }
 }

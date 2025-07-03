@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
@@ -23,7 +24,7 @@ public class TelemetryClientHttpMockTest : IDisposable
     private readonly WireMockServer _mockServer;
     private readonly string _testConnectionString;
 
-    private readonly bool _testDebug = false;
+    private const bool _testDebug = false;
 
     [TestMethod]
     public async Task TrackEvent()
@@ -105,9 +106,42 @@ public class TelemetryClientHttpMockTest : IDisposable
         void ClientConsumer(TelemetryClient telemetryClient) =>
             telemetryClient.TrackTrace("Application Insights trace");
 
-        await VerifyTrackMethod(ClientConsumer, "expected-trace.json");
+        var expectedJson = SelectExpectedJson("expected-trace.json", "expected-trace-otel.json");
+        await VerifyTrackMethod(ClientConsumer, expectedJson);
     }
 
+    private string SelectExpectedJson(string historicalJson, string otelJson)
+    {
+        if (IsNetCore8OrHigher())
+        {
+            if (_testDebug)
+            {
+                Console.WriteLine(otelJson + " used for " + FindDotNetEnv());
+            }
+            
+            return otelJson;
+        }
+        
+        if (_testDebug)
+        {
+            Console.WriteLine(historicalJson + " used for " + FindDotNetEnv());
+        }
+        
+        return historicalJson;
+    }
+    private bool IsNetCore8OrHigher()
+    {
+        var framework = RuntimeInformation.FrameworkDescription;
+        
+        if (framework.StartsWith(".NET Framework"))
+        {
+            return false;
+        }
+        
+        var version = Environment.Version;
+        return version.Major >= 8;
+    } 
+    
     [TestMethod]
     public async Task TrackTraceWithSeverityLevel()
     {
@@ -403,7 +437,8 @@ public class TelemetryClientHttpMockTest : IDisposable
             telemetryClient.TrackTrace("Application Insights trace");
         }
 
-        await VerifyTrackMethod(ClientConsumer, "expected-properties.json");
+        var expectedJson = SelectExpectedJson("expected-properties.json", "expected-properties-otel.json");
+        await VerifyTrackMethod(ClientConsumer, expectedJson);
     }
 
     [TestMethod]
@@ -416,13 +451,15 @@ public class TelemetryClientHttpMockTest : IDisposable
             telemetryClient.TrackTrace("Application Insights trace");
         }
 
-        await VerifyTrackMethod(ClientConsumer, "expected-global-properties.json");
+        var expectedJson =
+            SelectExpectedJson("expected-global-properties.json", "expected-global-properties-otel.json");
+        await VerifyTrackMethod(ClientConsumer, expectedJson);
     }
 
     [TestMethod] // Longer to execute than other tests
     public async Task ShouldDisableTelemetry()
     {
-        if (TestToSkip())
+        if (IsV452OrV6())
         {
             return;
         }
@@ -444,10 +481,17 @@ public class TelemetryClientHttpMockTest : IDisposable
         Assert.AreEqual(0, telemetryRequests.Count());
     }
 
+
     [TestMethod]
     public void ShouldNotFailIfNoConfiguration()
     {
-        if (TestToSkip())
+        if (IsV452OrV6())
+        {
+            return;
+        }
+
+        // See also following method
+        if (IsNetCore8OrHigher())
         {
             return;
         }
@@ -460,6 +504,32 @@ public class TelemetryClientHttpMockTest : IDisposable
         // Act
         telemetryClient.TrackTrace("Application Insights trace");
         telemetryClient.Flush();
+    }
+
+    [TestMethod]
+    public void FailIfNoConfiguration()
+    {
+        if (IsV452OrV6())
+        {
+            return;
+        }
+
+        // See also previous method
+        if (!IsNetCore8OrHigher())
+        {
+            return;
+        }
+
+        // Arrange
+        TelemetryConfiguration noConfiguration = null;
+
+        // Act & Assert
+        var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+        {
+            new TelemetryClient(noConfiguration); }, "" + FindDotNetEnv());
+        
+        Assert.IsTrue(exception.Message.Contains("A connection string was not found"));
+        Assert.IsTrue(exception.Message.Contains("Please set your connection string"));
     }
 
     private static DependencyTelemetry ADependencyTelemetry()
@@ -508,10 +578,10 @@ public class TelemetryClientHttpMockTest : IDisposable
 
     public TelemetryClientHttpMockTest()
     {
-        if (TestToSkip())
+        if (IsV452OrV6())
         {
             var frameworkName = AppDomain.CurrentDomain.SetupInformation.TargetFrameworkName;
-            Console.WriteLine("Test skipped: " + frameworkName + ".");
+            Console.WriteLine("Test skipped for " + FindDotNetEnv());
             return;
         }
 
@@ -526,10 +596,11 @@ public class TelemetryClientHttpMockTest : IDisposable
                 .UsingPost());
     }
 
-    private static bool TestToSkip()
+    //  Azure.Monitor.OpenTelemetry.Exporter 1.4.0 and recent WireMock.Net are not compatible with .net framework 4.5.2 and 4.6.
+    private static bool IsV452OrV6()
     {
         var frameworkName = AppDomain.CurrentDomain.SetupInformation.TargetFrameworkName;
-        return frameworkName != null && (frameworkName.Contains("v4.5.2") || frameworkName.Contains("v4.6"));
+        return frameworkName.Contains("v4.5.2") || frameworkName.Contains("v4.6");
     }
 
     private static EventTelemetry AnEventTelemetry()
@@ -736,7 +807,7 @@ public class TelemetryClientHttpMockTest : IDisposable
         params Action<JObject>[] assertions
     )
     {
-        if (TestToSkip())
+        if (IsV452OrV6())
         {
             return;
         }
@@ -760,7 +831,8 @@ public class TelemetryClientHttpMockTest : IDisposable
         }
 
         // Assert
-        Assert.AreEqual(1, telemetryRequests.Count());
+        Assert.AreEqual(1, telemetryRequests.Count(),
+            "Should have found one HTTP telemetry request for " + FindDotNetEnv());
 
         var telemetryRequest = telemetryRequests.First();
 
@@ -824,9 +896,17 @@ public class TelemetryClientHttpMockTest : IDisposable
 
         RemoveNonComparableProperties(currentJson, expectedJSon);
 
+        var frameworkName = FindDotNetEnv();
         var message =
-            $"Expected: {expectedJSon.ToString(Formatting.Indented)}\nActual: {currentJson.ToString(Formatting.Indented)}";
+            $"Expected ({expectedFileName}, {frameworkName}) {expectedJSon.ToString(Formatting.Indented)}\nActual: {currentJson.ToString(Formatting.Indented)}";
         Assert.IsTrue(JToken.DeepEquals(expectedJSon, currentJson), message);
+    }
+
+    private static string FindDotNetEnv()
+    {
+        var frameworkName = AppDomain.CurrentDomain.SetupInformation.TargetFrameworkName;
+        var version = Environment.Version;
+        return ".Net env: " + Environment.NewLine + "* " + frameworkName + Environment.NewLine + "* " + version;
     }
 
     private static void IdShouldBeProvidedInBaseData(JObject currentJson)
@@ -889,6 +969,7 @@ public class TelemetryClientHttpMockTest : IDisposable
     private static void RemoveSomeTagsProperties(JObject json)
     {
         if (json["tags"] is not JObject tags) return;
+        tags.Remove("ai.cloud.role");
         tags.Remove("ai.cloud.roleInstance");
         tags.Remove("ai.internal.sdkVersion");
         tags.Remove("ai.internal.nodeName");
