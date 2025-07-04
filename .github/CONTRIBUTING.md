@@ -35,6 +35,8 @@ Note: .NET has an annual release cycle and we include the preview version in our
 Visual Studio requires a setting to compile using these preview versions:
   - Tools > Options > Environment > Preview Features > "Use previews of the .NET SDK".
 
+Note: If your OS language is not english and would like to display the .NET CLI messages in English, set the `DOTNET_CLI_UI_LANGUAGE` environment variable to `en`.
+
 ## Build
 
 Solutions can be built in either Visual Studio or via .NET CLI `dotnet build` ([link](https://docs.microsoft.com/dotnet/core/tools/dotnet-build)).
@@ -43,7 +45,7 @@ See also our [GitHub Workflows](/.github/workflows) for examples of building the
 
 ## Testing
 
-Unit tests can be run in either the Visual Studio Test Exploror or via .NET CLI `dotnet test` ([link](https://docs.microsoft.com/dotnet/core/tools/dotnet-test)).
+Unit tests can be run in either the Visual Studio Test Explorer or via .NET CLI `dotnet test` ([link](https://docs.microsoft.com/dotnet/core/tools/dotnet-test)).
 
 This repo also has some Integration Tests which cannot be run as a standalone DLL and must be run in the context of their project (*.csproj).
 For more information please visit [Integration tests in ASP.NET Core](https://docs.microsoft.com/aspnet/core/test/integration-tests).

@@ -3,6 +3,13 @@
 ## VNext
 - [Fix heartbeat for short-running WorkerServices](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2762)
 
+## Version 2.23.0
+- no changes since beta.
+
+## Version 2.23.0-beta1
+- [Populate required field Message with "n/a" if it is empty](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1066)
+- [Fix ITelemetryModule singleton registration to support presence of keyed services](https://github.com/microsoft/ApplicationInsights-dotnet/pull/2908)
+
 ## Version 2.22.0
 - no changes since beta.
 
