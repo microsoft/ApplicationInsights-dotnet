@@ -32,7 +32,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(IsNetStandard20)' == 'True'">
-    <PackageReference Include="Azure.Core" Version="1.14.0" />
+    <PackageReference Include="Azure.Core" Version="1.46.0" />
   </ItemGroup>
   
   <ItemGroup Condition="'$(IsNetCore)' == 'True'">
