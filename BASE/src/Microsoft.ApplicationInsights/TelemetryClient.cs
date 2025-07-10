@@ -41,6 +41,7 @@
 #if NETSTANDARD
         private readonly LoggerProvider loggerProvider;
         private readonly ILogger logger;
+        private readonly bool otelEnable;
 #endif
 
         private string sdkVersion;
@@ -69,30 +70,32 @@
                 configuration = TelemetryConfiguration.Active;
             }
             
+            this.configuration = configuration;
+            
 #if NETSTANDARD
-            if (this.IsNetCore8OrHigher() && !configuration.DisableTelemetry) 
+            this.otelEnable = this.IsNetCore8OrHigher() && !configuration.DisableTelemetry && this.HasConnectionString();            
+            
+            if (this.otelEnable)
             {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddOpenTelemetry()
-            .WithLogging(
-                configureBuilder: builder => { },
-                configureOptions: options =>
-                {
-                    options.IncludeScopes = true;
-                })
-                .UseAzureMonitorExporter(options => options.ConnectionString = configuration.ConnectionString);
+                var serviceCollection = new ServiceCollection();
+                serviceCollection.AddOpenTelemetry()
+                    .WithLogging(
+                        configureBuilder: builder => { },
+                        configureOptions: options =>
+                        {
+                            options.IncludeScopes = true;
+                        })
+                        .UseAzureMonitorExporter(options => options.ConnectionString = configuration.ConnectionString);
 
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-            this.StartHostedServicesAsync(serviceProvider).GetAwaiter().GetResult();
+                var serviceProvider = serviceCollection.BuildServiceProvider();
+                this.StartHostedServicesAsync(serviceProvider).GetAwaiter().GetResult();
 
-            this.loggerProvider = serviceProvider.GetRequiredService<LoggerProvider>();
-            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
-            this.logger = loggerFactory.CreateLogger("ApplicationInsightsLogger");
+                this.loggerProvider = serviceProvider.GetRequiredService<LoggerProvider>();
+                var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+                this.logger = loggerFactory.CreateLogger("ApplicationInsightsLogger");
             }
 #endif
-
-            this.configuration = configuration;
-
+            
             if (this.configuration.TelemetryChannel == null)
             {
                 throw new ArgumentException("The specified configuration does not have a telemetry channel.", nameof(configuration));
@@ -194,7 +197,7 @@
         public void TrackTrace(string message)
         {
 #if NETSTANDARD
-            if (this.IsNetCore8OrHigher() && !this.configuration.DisableTelemetry) 
+            if (this.otelEnable)
             {
                 var scopeState = this.CreateScopeState();             
                 using (this.logger.BeginScope(scopeState))
@@ -715,7 +718,7 @@
         public void Flush()
         {
             #if NETSTANDARD
-            if (this.IsNetCore8OrHigher() && !this.configuration.DisableTelemetry) 
+            if (this.otelEnable) 
              {
                 this.loggerProvider.ForceFlush();
             }
@@ -1356,7 +1359,7 @@
             Metric metric = metricManager.Metrics.GetOrCreate(metricIdentifier, metricConfiguration);
             return metric;
         }
-        
+
 #if NETSTANDARD
         private async Task StartHostedServicesAsync(ServiceProvider serviceProvider)
         {
@@ -1393,6 +1396,22 @@
             }
 
             return scopeState;
+        }
+
+        private bool HasConnectionString()
+        {
+            return this.HasConfigurationConnectionString() || this.HasEnvironmentConnectionString();
+        }
+
+        private bool HasConfigurationConnectionString()
+        {
+            return this.configuration != null && !string.IsNullOrWhiteSpace(this.configuration.ConnectionString);
+        }
+
+        private bool HasEnvironmentConnectionString()
+        {
+            var envConnStr = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
+            return !string.IsNullOrWhiteSpace(envConnStr);
         }
 #endif
     }

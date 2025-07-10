@@ -490,12 +490,6 @@ public class TelemetryClientHttpMockTest : IDisposable
             return;
         }
 
-        // See also following method
-        if (IsNetCore8OrHigher())
-        {
-            return;
-        }
-
         // Arrange
         TelemetryConfiguration noConfiguration = null;
 
@@ -505,33 +499,7 @@ public class TelemetryClientHttpMockTest : IDisposable
         telemetryClient.TrackTrace("Application Insights trace");
         telemetryClient.Flush();
     }
-
-    [TestMethod]
-    public void FailIfNoConfiguration()
-    {
-        if (IsV452OrV6())
-        {
-            return;
-        }
-
-        // See also previous method
-        if (!IsNetCore8OrHigher())
-        {
-            return;
-        }
-
-        // Arrange
-        TelemetryConfiguration noConfiguration = null;
-
-        // Act & Assert
-        var exception = Assert.ThrowsException<InvalidOperationException>(() =>
-        {
-            new TelemetryClient(noConfiguration); }, "" + FindDotNetEnv());
-        
-        Assert.IsTrue(exception.Message.Contains("A connection string was not found"));
-        Assert.IsTrue(exception.Message.Contains("Please set your connection string"));
-    }
-
+    
     private static DependencyTelemetry ADependencyTelemetry()
     {
         var dependencyTelemetry = new DependencyTelemetry
