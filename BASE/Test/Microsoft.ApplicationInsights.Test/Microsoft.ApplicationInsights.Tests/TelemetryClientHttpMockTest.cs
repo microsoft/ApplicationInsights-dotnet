@@ -141,16 +141,63 @@ public class TelemetryClientHttpMockTest : IDisposable
         var version = Environment.Version;
         return version.Major >= 8;
     } 
-    
+
     [TestMethod]
-    public async Task TrackTraceWithSeverityLevel()
+    public async Task TrackTraceWithWarningSeverityLevel()
     {
         void ClientConsumer(TelemetryClient telemetryClient) =>
-            telemetryClient.TrackTrace("Application Insights trace", SeverityLevel.Warning);
+            telemetryClient.TrackTrace("Warning message", SeverityLevel.Warning);
 
-        await VerifyTrackMethod(ClientConsumer, "expected-trace-with-severity-level.json");
+        var expectedJson = SelectExpectedJson("expected-trace-with-warning-severity-level.json",
+            "expected-trace-with-warning-severity-level-otel.json");
+        await VerifyTrackMethod(ClientConsumer, expectedJson);
     }
 
+    
+    [TestMethod]
+    public async Task TrackTraceWithInformationSeverityLevel()
+    {
+        void ClientConsumer(TelemetryClient telemetryClient) =>
+            telemetryClient.TrackTrace("Information message", SeverityLevel.Information);
+
+        var expectedJson = SelectExpectedJson("expected-trace-with-information-severity-level.json",
+            "expected-trace-with-information-severity-level-otel.json");
+        await VerifyTrackMethod(ClientConsumer, expectedJson);
+    }
+    
+    [TestMethod]
+    public async Task TrackTraceWithVerboseSeverityLevel()
+    {
+        void ClientConsumer(TelemetryClient telemetryClient) =>
+            telemetryClient.TrackTrace("Verbose message", SeverityLevel.Verbose);
+
+        var expectedJson = SelectExpectedJson("expected-trace-with-verbose-severity-level.json",
+            "expected-trace-with-verbose-severity-level-otel.json");
+        await VerifyTrackMethod(ClientConsumer, expectedJson);
+    }
+    
+    [TestMethod]
+    public async Task TrackTraceWithErrorSeverityLevel()
+    {
+        void ClientConsumer(TelemetryClient telemetryClient) =>
+            telemetryClient.TrackTrace("Error message", SeverityLevel.Error);
+
+        var expectedJson = SelectExpectedJson("expected-trace-with-error-severity-level.json",
+            "expected-trace-with-error-severity-level-otel.json");
+        await VerifyTrackMethod(ClientConsumer, expectedJson);
+    }
+
+    [TestMethod]
+    public async Task TrackTraceWithCriticalSeverityLevel()
+    {
+        void ClientConsumer(TelemetryClient telemetryClient) =>
+            telemetryClient.TrackTrace("Critical message", SeverityLevel.Critical);
+
+        var expectedJson = SelectExpectedJson("expected-trace-with-critical-severity-level.json",
+            "expected-trace-with-critical-severity-level-otel.json");
+        await VerifyTrackMethod(ClientConsumer, expectedJson);
+    }
+    
     [TestMethod]
     public async Task TrackTraceWithProperties()
     {

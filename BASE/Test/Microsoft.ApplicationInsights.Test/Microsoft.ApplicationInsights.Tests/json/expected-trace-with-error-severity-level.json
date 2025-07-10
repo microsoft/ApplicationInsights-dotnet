@@ -10,8 +10,8 @@
     "baseType": "MessageData",
     "baseData": {
       "ver": 2,
-      "message": "Application Insights trace",
-      "severityLevel": "Warning"
+      "message": "Error message",
+      "severityLevel": "Error"
     }
   }
 }

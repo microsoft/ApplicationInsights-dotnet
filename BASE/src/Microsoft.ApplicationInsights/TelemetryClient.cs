@@ -78,7 +78,12 @@
             if (this.otelEnable)
             {
                 var serviceCollection = new ServiceCollection();
-                serviceCollection.AddOpenTelemetry()
+                serviceCollection
+                    .AddLogging(builder =>
+                    {
+                        builder.SetMinimumLevel(LogLevel.Trace);
+                     })
+                    .AddOpenTelemetry()
                     .WithLogging(
                         configureBuilder: builder => { },
                         configureOptions: options =>
@@ -224,7 +229,19 @@
         /// <param name="severityLevel">Trace severity level.</param>
         public void TrackTrace(string message, SeverityLevel severityLevel)
         {
+#if NETSTANDARD
+            if (this.otelEnable)
+            {
+                var logLevel = this.ConvertSeverityLevelToLogLevel(severityLevel);
+                this.logger.Log(logLevel, message);
+            } 
+            else 
+            {
+                this.TrackTrace(new TraceTelemetry(message, severityLevel));
+            }
+#else
             this.TrackTrace(new TraceTelemetry(message, severityLevel));
+#endif           
         }
 
         /// <summary>
@@ -1411,6 +1428,19 @@
         {
             var envConnStr = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
             return !string.IsNullOrWhiteSpace(envConnStr);
+        }
+        
+        private Microsoft.Extensions.Logging.LogLevel ConvertSeverityLevelToLogLevel(SeverityLevel severityLevel)
+        {
+            return severityLevel switch
+            {
+                SeverityLevel.Verbose => Microsoft.Extensions.Logging.LogLevel.Trace,
+                SeverityLevel.Information => Microsoft.Extensions.Logging.LogLevel.Information,
+                SeverityLevel.Warning => Microsoft.Extensions.Logging.LogLevel.Warning,
+                SeverityLevel.Error => Microsoft.Extensions.Logging.LogLevel.Error,
+                SeverityLevel.Critical => Microsoft.Extensions.Logging.LogLevel.Critical,
+                _ => Microsoft.Extensions.Logging.LogLevel.Information
+            };
         }
 #endif
     }
