@@ -1379,23 +1379,22 @@
         private List<KeyValuePair<string, object>> CreateScopeState()
         {
             var scopeState = new List<KeyValuePair<string, object>>();
+    
+            this.AddPropertiesToScopeState(scopeState, this.Context.GlobalProperties);
+            this.AddPropertiesToScopeState(scopeState, this.Context.PropertiesValue);
+    
+            return scopeState;
+        }
 
-            var contextGlobalProperties = this.Context.GlobalProperties;
-            foreach (var kvp in contextGlobalProperties)
+        private void AddPropertiesToScopeState(List<KeyValuePair<string, object>> scopeState, IDictionary<string, string> properties)
+        {
+            if (properties != null)
             {
-                scopeState.Add(new KeyValuePair<string, object>(kvp.Key, kvp.Value));
-            }
-
-            var propertiesValue = this.Context.PropertiesValue;
-            if (propertiesValue != null)
-            {
-                foreach (var kvp in propertiesValue)
+                foreach (var kvp in properties)
                 {
                     scopeState.Add(new KeyValuePair<string, object>(kvp.Key, kvp.Value));
                 }
             }
-
-            return scopeState;
         }
 
         private bool HasConnectionString()
