@@ -23,8 +23,6 @@ public abstract class AbstractTelemetryClientHttpMockTest : IDisposable
     private readonly WireMockServer _mockServer;
     protected readonly string _testConnectionString;
 
-    private const bool _testDebug = true;
-    
     public AbstractTelemetryClientHttpMockTest()
     {
         if (IsV452OrV6())
@@ -69,11 +67,9 @@ public abstract class AbstractTelemetryClientHttpMockTest : IDisposable
         var telemetryRequests = await FindRequestsOfTrackEndpoint();
 
         var httpRequestsSent = FindHttpRequestsSent(telemetryRequests);
-        if (_testDebug)
-        {
-            Console.WriteLine("HTTP track requests sent: " + Environment.NewLine + httpRequestsSent);
-        }
-
+        
+        Console.WriteLine("HTTP track requests sent: " + Environment.NewLine + httpRequestsSent);
+        
         // Assert
         Assert.AreEqual(1, telemetryRequests.Count(),
             "Should have found one HTTP telemetry request for " + FindDotNetEnv());
@@ -169,19 +165,11 @@ public abstract class AbstractTelemetryClientHttpMockTest : IDisposable
     {
         if (IsNetCore8OrHigher())
         {
-            if (_testDebug)
-            {
-                Console.WriteLine(otelJson + " used for " + FindDotNetEnv());
-            }
-            
+            Console.WriteLine(otelJson + " used for " + FindDotNetEnv());
             return otelJson;
         }
         
-        if (_testDebug)
-        {
-            Console.WriteLine(historicalJson + " used for " + FindDotNetEnv());
-        }
-        
+        Console.WriteLine(historicalJson + " used for " + FindDotNetEnv());
         return historicalJson;
     }
     private bool IsNetCore8OrHigher()
