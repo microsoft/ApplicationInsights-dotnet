@@ -249,6 +249,23 @@
         /// <param name="properties">Named string values you can use to search and classify events.</param>
         public void TrackTrace(string message, IDictionary<string, string> properties)
         {
+#if NETSTANDARD
+            if (this.otelEnable)
+            {
+                this.TrackTrace(message, SeverityLevel.Information, properties);
+            } 
+            else 
+            {
+                TraceTelemetry telemetry = new TraceTelemetry(message);
+
+                if (properties != null && properties.Count > 0)
+                {
+                    Utils.CopyDictionary(properties, telemetry.Properties);
+                }
+
+                this.TrackTrace(telemetry);
+            }
+#else
             TraceTelemetry telemetry = new TraceTelemetry(message);
 
             if (properties != null && properties.Count > 0)
@@ -257,6 +274,7 @@
             }
 
             this.TrackTrace(telemetry);
+#endif          
         }
 
         /// <summary>

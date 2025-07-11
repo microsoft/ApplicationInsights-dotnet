@@ -75,7 +75,7 @@ public class TraceTelemetryClientHttpMockTest : AbstractTelemetryClientHttpMockT
             "trace/expected-trace-with-critical-severity-level-otel.json");
         await VerifyTrackMethod(ClientConsumer, expectedJson);
     }
-    
+
     [TestMethod]
     public async Task TrackTraceWithProperties()
     {
@@ -86,7 +86,10 @@ public class TraceTelemetryClientHttpMockTest : AbstractTelemetryClientHttpMockT
                 properties);
         }
 
-        await VerifyTrackMethod(ClientConsumer, "trace/expected-trace-with-properties.json");
+        var expectedJson = SelectExpectedJson("trace/expected-trace-with-properties.json",
+            "trace/expected-trace-with-properties-otel.json");
+
+        await VerifyTrackMethod(ClientConsumer, expectedJson);
     }
 
     [TestMethod]
