@@ -289,7 +289,7 @@
             } 
             else 
             {
-                TraceTelemetry telemetry = new TraceTelemetry(message);
+                TraceTelemetry telemetry = new TraceTelemetry(message, severityLevel);
 
                 if (properties != null && properties.Count > 0)
                 {
