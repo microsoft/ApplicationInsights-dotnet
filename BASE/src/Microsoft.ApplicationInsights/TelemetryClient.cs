@@ -228,8 +228,7 @@
 #if NETSTANDARD
             if (this.otelEnable)
             {
-                var logLevel = this.ConvertSeverityLevelToLogLevel(severityLevel);
-                this.logger.Log(logLevel, message);
+                this.TrackTrace(message, severityLevel, null);
             } 
             else 
             {
