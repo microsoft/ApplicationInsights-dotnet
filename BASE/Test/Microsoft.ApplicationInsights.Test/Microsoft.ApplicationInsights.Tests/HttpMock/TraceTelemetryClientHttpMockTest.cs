@@ -97,7 +97,9 @@ public class TraceTelemetryClientHttpMockTest : AbstractTelemetryClientHttpMockT
         void ClientConsumer(TelemetryClient telemetryClient) =>
             telemetryClient.TrackTrace("Application Insights trace", SeverityLevel.Error, properties);
 
-        await VerifyTrackMethod(ClientConsumer, "trace/expected-trace-with-severity-level-and-properties.json");
+        var expectedJson = SelectExpectedJson("trace/expected-trace-with-severity-level-and-properties.json",
+            "trace/expected-trace-with-severity-level-and-properties-otel.json");
+        await VerifyTrackMethod(ClientConsumer, expectedJson);
     }
     
     [TestMethod]

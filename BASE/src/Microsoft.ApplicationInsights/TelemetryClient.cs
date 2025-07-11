@@ -204,7 +204,7 @@
 #if NETSTANDARD
             if (this.otelEnable)
             {
-                var scopeState = this.CreateScopeState();             
+                var scopeState = this.CreateScopeStateFromContext();             
                 using (this.logger.BeginScope(scopeState))
                 {
                     this.logger.LogInformation(message);
@@ -275,6 +275,30 @@
         /// <param name="properties">Named string values you can use to search and classify events.</param>
         public void TrackTrace(string message, SeverityLevel severityLevel, IDictionary<string, string> properties)
         {
+#if NETSTANDARD
+            if (this.otelEnable)
+            {
+                var logLevel = this.ConvertSeverityLevelToLogLevel(severityLevel);
+                
+                var scopeState = this.CreateScopeStateFromContext();
+                this.AddPropertiesToScopeState(scopeState, properties);
+                using (this.logger.BeginScope(scopeState))
+                {
+                    this.logger.Log(logLevel, message);
+                }
+            } 
+            else 
+            {
+                TraceTelemetry telemetry = new TraceTelemetry(message);
+
+                if (properties != null && properties.Count > 0)
+                {
+                    Utils.CopyDictionary(properties, telemetry.Properties);
+                }
+
+                this.TrackTrace(telemetry);
+            }
+#else
             TraceTelemetry telemetry = new TraceTelemetry(message, severityLevel);
 
             if (properties != null && properties.Count > 0)
@@ -283,6 +307,7 @@
             }
 
             this.TrackTrace(telemetry);
+#endif
         }
 
         /// <summary>
@@ -1393,7 +1418,7 @@
             return version.Major >= 8;
         }
 
-        private List<KeyValuePair<string, object>> CreateScopeState()
+        private List<KeyValuePair<string, object>> CreateScopeStateFromContext()
         {
             var scopeState = new List<KeyValuePair<string, object>>();
     
