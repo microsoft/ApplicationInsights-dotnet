@@ -204,11 +204,7 @@
 #if NETSTANDARD
             if (this.otelEnable)
             {
-                var scopeState = this.CreateScopeStateFromContext();             
-                using (this.logger.BeginScope(scopeState))
-                {
-                    this.logger.LogInformation(message);
-                }
+                this.TrackTrace(message, SeverityLevel.Information);
             }
            else
             {
