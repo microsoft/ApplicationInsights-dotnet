@@ -24,7 +24,6 @@ public abstract class AbstractTelemetryClientHttpMockTest : IDisposable
     protected readonly string _testConnectionString;
 
     private const bool _testDebug = true;
-
     
     public AbstractTelemetryClientHttpMockTest()
     {
@@ -69,9 +68,10 @@ public abstract class AbstractTelemetryClientHttpMockTest : IDisposable
 
         var telemetryRequests = await FindRequestsOfTrackEndpoint();
 
+        var httpRequestsSent = FindHttpRequestsSent(telemetryRequests);
         if (_testDebug)
         {
-            PrintTrackHttpRequests(telemetryRequests);
+            Console.WriteLine("HTTP track requests sent: " + Environment.NewLine + httpRequestsSent);
         }
 
         // Assert
@@ -80,7 +80,7 @@ public abstract class AbstractTelemetryClientHttpMockTest : IDisposable
 
         var telemetryRequest = telemetryRequests.First();
 
-        VerifyTrackHttpRequests(telemetryRequest.RequestMessage.Body, Path.Combine("json",
+        VerifyTrackHttpRequests(httpRequestsSent, telemetryRequest.RequestMessage.Body, Path.Combine("json",
             expectedFileName), assertions);
     }
 
@@ -109,17 +109,22 @@ public abstract class AbstractTelemetryClientHttpMockTest : IDisposable
         return _mockServer.LogEntries;
     }
 
-    private static void PrintTrackHttpRequests(IEnumerable<ILogEntry> telemetryRequests)
+    private static string FindHttpRequestsSent(IEnumerable<ILogEntry> telemetryRequests)
     {
+        string httpRequestsSent = "";
+
         foreach (var request in telemetryRequests)
         {
             if (request.RequestMessage.Body != null)
-                Console.WriteLine("HTTP track requests sent: " + Environment.NewLine +
-                                  JToken.Parse(request.RequestMessage.Body).ToString(Formatting.Indented));
+            {
+                httpRequestsSent += JToken.Parse(request.RequestMessage.Body).ToString(Formatting.Indented);
+            }
         }
+
+        return httpRequestsSent;
     }
 
-    private static void VerifyTrackHttpRequests(string current, string expectedFileName,
+    private static void VerifyTrackHttpRequests(string httpRequestsSent, string current, string expectedFileName,
         IEnumerable<Action<JObject>> assertions)
     {
         var expectedAsString = ReadFileAsString(expectedFileName);
@@ -142,7 +147,7 @@ public abstract class AbstractTelemetryClientHttpMockTest : IDisposable
 
         var frameworkName = FindDotNetEnv();
         var message =
-            $"Expected ({expectedFileName}, {frameworkName}) {expectedJSon.ToString(Formatting.Indented)}\nActual: {currentJson.ToString(Formatting.Indented)}";
+            $"Expected ({expectedFileName}, {frameworkName}) {expectedJSon.ToString(Formatting.Indented)}\nActual: {currentJson.ToString(Formatting.Indented)}\nHTTP requests sent: {httpRequestsSent}";
         Assert.IsTrue(JToken.DeepEquals(expectedJSon, currentJson), message);
     }
 
