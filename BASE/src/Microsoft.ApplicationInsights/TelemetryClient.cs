@@ -159,6 +159,28 @@
         /// <param name="metrics">Measurements associated with this event.</param>
         public void TrackEvent(string eventName, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
         {
+#if NETSTANDARD
+            if (this.otelEnable && properties == null && metrics == null)
+            {
+                this.logger.LogInformation("{microsoft.custom_event.name}", eventName);
+            }
+           else
+            {
+                var telemetry = new EventTelemetry(eventName);
+
+                if (properties != null && properties.Count > 0)
+                {
+                    Utils.CopyDictionary(properties, telemetry.Properties);
+                }
+
+                if (metrics != null && metrics.Count > 0)
+                {
+                    Utils.CopyDictionary(metrics, telemetry.Metrics);
+                }
+
+                this.TrackEvent(telemetry);
+            }         
+#else
             var telemetry = new EventTelemetry(eventName);
 
             if (properties != null && properties.Count > 0)
@@ -172,6 +194,7 @@
             }
 
             this.TrackEvent(telemetry);
+#endif
         }
 
         /// <summary>
