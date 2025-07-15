@@ -27,7 +27,8 @@ public class EventTelemetryClientHttpMockTest : AbstractTelemetryClientHttpMockT
         void ClientConsumer(TelemetryClient telemetryClient) =>
             telemetryClient.TrackEvent("TestEventWithProperties", properties);
 
-        await VerifyTrackMethod(ClientConsumer, "event/expected-event-with-properties.json");
+        var expectedJson = SelectExpectedJson("event/expected-event-with-properties.json", "event/expected-event-with-properties-otel.json");
+        await VerifyTrackMethod(ClientConsumer, expectedJson);
     }
     
     [TestMethod]

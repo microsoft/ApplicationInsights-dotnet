@@ -160,9 +160,14 @@
         public void TrackEvent(string eventName, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
         {
 #if NETSTANDARD
-            if (this.otelEnable && properties == null && metrics == null)
+            if (this.otelEnable && metrics == null)
             {
-                this.logger.LogInformation("{microsoft.custom_event.name}", eventName);
+                var scopeState = this.CreateScopeState(properties);
+                
+                using (this.logger.BeginScope(scopeState))
+                {
+                    this.logger.LogInformation("{microsoft.custom_event.name}", eventName);
+                }
             }
            else
             {
