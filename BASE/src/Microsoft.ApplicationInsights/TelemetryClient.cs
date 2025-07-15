@@ -291,12 +291,11 @@
 #if NETSTANDARD
             if (this.otelEnable)
             {
-                var logLevel = this.ConvertSeverityLevelToLogLevel(severityLevel);
+                var scopeState = this.CreateScopeState(properties);
                 
-                var scopeState = this.CreateScopeStateFromContext();
-                this.AddPropertiesToScopeState(scopeState, properties);
                 using (this.logger.BeginScope(scopeState))
                 {
+                    var logLevel = this.ConvertSeverityLevelToLogLevel(severityLevel);
                     this.logger.Log(logLevel, message);
                 }
             } 
@@ -1431,10 +1430,11 @@
             return version.Major >= 8;
         }
 
-        private List<KeyValuePair<string, object>> CreateScopeStateFromContext()
+        private List<KeyValuePair<string, object>> CreateScopeState(IDictionary<string, string> properties)
         {
             var scopeState = new List<KeyValuePair<string, object>>();
     
+            this.AddPropertiesToScopeState(scopeState, properties);
             this.AddPropertiesToScopeState(scopeState, this.Context.GlobalProperties);
             this.AddPropertiesToScopeState(scopeState, this.Context.PropertiesValue);
     
