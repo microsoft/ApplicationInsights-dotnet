@@ -1,6 +1,7 @@
 # Changelog
 
 ## VNext
+- UnitTest updates to fix codeQL issues, no product code changes.
 
 ## Version 2.23.0
 - no changes since beta.
