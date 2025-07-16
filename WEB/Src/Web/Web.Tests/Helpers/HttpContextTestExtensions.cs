@@ -12,7 +12,7 @@
             context.AddRequestCookie(
                 new HttpCookie(
                     RequestTrackingConstants.WebAuthenticatedUserCookieName,
-                                                    HttpUtility.UrlEncode(cookieString)))
+                                                    HttpUtility.UrlEncode(cookieString)) { HttpOnly = true })
                    .AddRequestTelemetry(requestTelemetry);
             return requestTelemetry;
         }
