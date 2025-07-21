@@ -16,7 +16,9 @@ public class ExceptionTelemetryClientHttpMockTest : AbstractTelemetryClientHttpM
         void ExceptionConsumer(TelemetryClient telemetryClient) =>
             telemetryClient.TrackException(new InvalidOperationException("Something went wrong"));
 
-        await VerifyTrackMethod(ExceptionConsumer, "exception/expected-exception.json", IdShouldBeProvidedInExceptions);
+        var expectedJson = SelectExpectedJson("exception/expected-exception.json",
+            "exception/expected-exception-otel.json");
+        await VerifyTrackMethod(ExceptionConsumer, expectedJson, IdShouldBeProvidedInExceptions);
     }
 
     [TestMethod]
@@ -27,7 +29,9 @@ public class ExceptionTelemetryClientHttpMockTest : AbstractTelemetryClientHttpM
         void ExceptionConsumer(TelemetryClient telemetryClient) =>
             telemetryClient.TrackException(noException);
 
-        await VerifyTrackMethod(ExceptionConsumer, "exception/expected-exception-with-null-exception.json",
+        var expectedJson = SelectExpectedJson("exception/expected-exception-with-null-exception.json",
+            "exception/expected-exception-with-null-exception-otel.json");
+        await VerifyTrackMethod(ExceptionConsumer, expectedJson,
             IdShouldBeProvidedInExceptions);
     }
 
@@ -39,7 +43,9 @@ public class ExceptionTelemetryClientHttpMockTest : AbstractTelemetryClientHttpM
         void ExceptionConsumer(TelemetryClient telemetryClient) =>
             telemetryClient.TrackException(new InvalidOperationException("Something went wrong"), properties);
 
-        await VerifyTrackMethod(ExceptionConsumer, "exception/expected-exception-with-properties.json");
+        var expectedJson = SelectExpectedJson("exception/expected-exception-with-properties.json",
+            "exception/expected-exception-with-properties-otel.json");
+        await VerifyTrackMethod(ExceptionConsumer, expectedJson);
     }
 
     [TestMethod]

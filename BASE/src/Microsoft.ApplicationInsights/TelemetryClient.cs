@@ -416,6 +416,43 @@
         /// </remarks>
         public void TrackException(Exception exception, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
         {
+#if NETSTANDARD
+            if (this.otelEnable && metrics == null)
+            {
+                if (exception == null)
+                {
+                    exception = new Exception(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
+                }
+
+                var scopeState = this.CreateScopeState(properties);
+                using (this.logger.BeginScope(scopeState))
+                {
+                    this.logger.LogError(exception, exception.Message);
+                }
+            } 
+            else 
+            {
+                if (exception == null)
+                {
+                    exception = new Exception(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
+                }
+
+                var telemetry = new ExceptionTelemetry(exception);
+
+                if (properties != null && properties.Count > 0)
+                {
+                    Utils.CopyDictionary(properties, telemetry.Properties);
+                }
+
+                if (metrics != null && metrics.Count > 0)
+                {
+                    Utils.CopyDictionary(metrics, telemetry.Metrics);
+                }
+
+                this.TrackException(telemetry);
+            }
+#else
+            
             if (exception == null)
             {
                 exception = new Exception(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
@@ -434,6 +471,7 @@
             }
 
             this.TrackException(telemetry);
+#endif
         }
 
         /// <summary>
