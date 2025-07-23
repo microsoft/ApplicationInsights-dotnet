@@ -10,6 +10,16 @@ public class DependencyTelemetryClientHttpMockTest  : AbstractTelemetryClientHtt
 {
     
     [TestMethod]
+    public async Task TrackDependencyObsolete()
+    {
+        void ClientConsumer(TelemetryClient telemetryClient) =>
+            telemetryClient.TrackDependency("GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now,
+                TimeSpan.FromMilliseconds(123), true);
+
+        await VerifyTrackMethod(ClientConsumer, "dependency/expected-dependency-obsolete.json", IdShouldBeProvidedInBaseData);
+    }
+    
+    [TestMethod]
     public async Task TrackDependency()
     {
         void ClientConsumer(TelemetryClient telemetryClient) =>
