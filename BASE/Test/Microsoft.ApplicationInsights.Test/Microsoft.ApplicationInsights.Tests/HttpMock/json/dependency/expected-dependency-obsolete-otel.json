@@ -1,0 +1,28 @@
+{
+  "name": "RemoteDependency",
+  "time": "2025-07-23T15:12:43.9611197Z",
+  "iKey": "12345678-1234-1234-1234-123456789012",
+  "tags": {
+    "ai.operation.id": "9f4ba05ba12781a3369e67fd4d3fc431",
+    "ai.cloud.role": "unknown_service:dotnet",
+    "ai.cloud.roleInstance": "host-not-compared",
+    "ai.application.ver": null,
+    "ai.internal.sdkVersion": "dotnet9.0.2:otel1.12.0:ext1.4.0"
+  },
+  "data": {
+    "baseType": "RemoteDependencyData",
+    "baseData": {
+      "id": "bd51181ea5fed277",
+      "name": "GetOrders",
+      "data": "SELECT * FROM Orders",
+      "type": "unknown",
+      "target": "unknown",
+      "duration": "00:00:00.1230000",
+      "success": true,
+      "properties": {
+        "_MS.ProcessedByMetricExtractors": "(Name: X,Ver:'1.1')"
+      },
+      "ver": 2
+    }
+  }
+}

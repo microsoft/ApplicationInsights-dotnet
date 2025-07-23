@@ -514,9 +514,34 @@
         [Obsolete("Please use a different overload of TrackDependency")]
         public void TrackDependency(string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, bool success)
         {
+#if NETSTANDARD
+            if (this.otelEnable)
+            {
+                using (var activity = this.tracer.StartActiveSpan(dependencyName, SpanKind.Client))
+                {
+                    Activity.Current.SetStartTime(startTime.UtcDateTime);
+                    DateTime endTimeUtc = startTime.UtcDateTime.Add(duration);
+                    Activity.Current.SetEndTime(endTimeUtc);
+
+                    Activity.Current.SetTag("db.statement", data);
+                    // Required to be able to display "data" in "BaseData" through "db.statement".
+                    // It will add "type" and "target" with "unknown" values. It may not be an issue. This method is obsolete.
+                    Activity.Current.SetTag("db.system", "unknown");
+
+                    activity.SetStatus(success ? Status.Ok : Status.Error);
+                }
+            }
+           else
+            {
+#pragma warning disable 618
+                this.TrackDependency(new DependencyTelemetry(dependencyName, data, startTime, duration, success));
+#pragma warning restore 618
+            }         
+#else
 #pragma warning disable 618
             this.TrackDependency(new DependencyTelemetry(dependencyName, data, startTime, duration, success));
 #pragma warning restore 618
+#endif
         }
 
         /// <summary>

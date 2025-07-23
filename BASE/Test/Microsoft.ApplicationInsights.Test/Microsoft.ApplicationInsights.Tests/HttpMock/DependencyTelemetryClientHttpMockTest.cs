@@ -15,8 +15,9 @@ public class DependencyTelemetryClientHttpMockTest  : AbstractTelemetryClientHtt
         void ClientConsumer(TelemetryClient telemetryClient) =>
             telemetryClient.TrackDependency("GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now,
                 TimeSpan.FromMilliseconds(123), true);
-
-        await VerifyTrackMethod(ClientConsumer, "dependency/expected-dependency-obsolete.json", IdShouldBeProvidedInBaseData);
+        
+        var expectedJson = SelectExpectedJson("dependency/expected-dependency-obsolete.json", "dependency/expected-dependency-obsolete-otel.json");
+        await VerifyTrackMethod(ClientConsumer, expectedJson, IdShouldBeProvidedInBaseData);
     }
     
     [TestMethod]
