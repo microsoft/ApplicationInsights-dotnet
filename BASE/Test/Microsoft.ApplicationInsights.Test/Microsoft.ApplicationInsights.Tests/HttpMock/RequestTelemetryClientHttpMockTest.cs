@@ -15,7 +15,8 @@ public class RequestTelemetryClientHttpMockTest : AbstractTelemetryClientHttpMoc
             telemetryClient.TrackRequest("GET /api/orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), "200",
                 true);
 
-        await VerifyTrackMethod(ClientConsumer, "request/expected-request.json", IdShouldBeProvidedInBaseData);
+        var expectedJson = SelectExpectedJson("request/expected-request.json", "request/expected-request-otel.json");
+        await VerifyTrackMethod(ClientConsumer, expectedJson, IdShouldBeProvidedInBaseData);
     }
 
     [TestMethod]

@@ -189,21 +189,22 @@ public abstract class AbstractTelemetryClientHttpMockTest : IDisposable
     {
         currentJson.Remove("time");
         expectedJSon.Remove("time");
-        RemoveSomeTagsProperties(currentJson);
-        RemoveSomeTagsProperties(expectedJSon);
+        RemoveSomeTags(currentJson);
+        RemoveSomeTags(expectedJSon);
         RemoveIdFromBaseData(currentJson);
         RemoveIdFromBaseData(expectedJSon);
         RemoveExceptionId(currentJson);
         RemoveExceptionId(expectedJSon);
     }
 
-    private static void RemoveSomeTagsProperties(JObject json)
+    private static void RemoveSomeTags(JObject json)
     {
         if (json["tags"] is not JObject tags) return;
         tags.Remove("ai.cloud.role");
         tags.Remove("ai.cloud.roleInstance");
         tags.Remove("ai.internal.sdkVersion");
         tags.Remove("ai.internal.nodeName");
+        tags.Remove("ai.operation.id");
     }
 
     private static void RemoveIdFromBaseData(JObject json)

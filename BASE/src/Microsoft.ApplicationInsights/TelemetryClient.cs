@@ -16,6 +16,7 @@
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 #if NETSTANDARD
+    using System.Diagnostics;
     using System.Runtime.InteropServices;
     using Azure.Monitor.OpenTelemetry.Exporter;
     using Microsoft.Extensions.DependencyInjection;
@@ -41,6 +42,8 @@
 #if NETSTANDARD
         private readonly LoggerProvider loggerProvider;
         private readonly ILogger logger;
+        private readonly TracerProvider tracerProvider;
+        private readonly Tracer tracer;
         private readonly bool otelEnable;
 #endif
 
@@ -78,12 +81,14 @@
             if (this.otelEnable)
             {
                 var serviceCollection = new ServiceCollection();
+                var appInsightsTracerName = "ApplicationInsightsTracer";                
                 serviceCollection
                     .AddLogging(builder =>
                     {
                         builder.SetMinimumLevel(LogLevel.Trace);
                      })
                     .AddOpenTelemetry()
+                    .WithTracing(tracingBuilder => tracingBuilder.AddSource(appInsightsTracerName))
                     .WithLogging(
                         configureBuilder: builder => { },
                         configureOptions: options =>
@@ -98,6 +103,9 @@
                 this.loggerProvider = serviceProvider.GetRequiredService<LoggerProvider>();
                 var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
                 this.logger = loggerFactory.CreateLogger("ApplicationInsightsLogger");
+            
+                this.tracerProvider = serviceProvider.GetRequiredService<TracerProvider>();
+                this.tracer = this.tracerProvider.GetTracer(appInsightsTracerName);
             }
 #endif
             
@@ -809,7 +817,30 @@
         /// </remarks>
         public void TrackRequest(string name, DateTimeOffset startTime, TimeSpan duration, string responseCode, bool success)
         {
+#if NETSTANDARD
+            if (this.otelEnable)
+            {
+                using (var activity = this.tracer.StartActiveSpan(name, SpanKind.Server))
+                {
+                    Activity.Current.SetStartTime(startTime.UtcDateTime);
+                    DateTime endTimeUtc = startTime.UtcDateTime.Add(duration);
+                    Activity.Current.SetEndTime(endTimeUtc);
+                   
+                    activity.SetStatus(success ? Status.Ok : Status.Error);
+                    
+                    // The OpenTelemetry .net exporter requires an HTTP method to set the response code.
+                    // This fake HTTP method won't be exported to Breeze.
+                    Activity.Current.SetTag(OpenTelemetrySemanticConventions.AttributeHttpMethod, "FAKE");
+                    Activity.Current.SetTag(OpenTelemetrySemanticConventions.AttributeHttpStatusCode, responseCode);
+                }
+            } 
+            else 
+            {
+                this.Track(new RequestTelemetry(name, startTime, duration, responseCode, success));
+            }
+#else
             this.Track(new RequestTelemetry(name, startTime, duration, responseCode, success));
+#endif
         }
 
         /// <summary>
@@ -841,6 +872,7 @@
             if (this.otelEnable) 
              {
                 this.loggerProvider.ForceFlush();
+                this.tracerProvider.ForceFlush();
             }
             #endif
             CoreEventSource.Log.TelemetlyClientFlush();
