@@ -34,6 +34,7 @@
     {
 #if NETSTANDARD // This constant is defined for all versions of NetStandard https://docs.microsoft.com/en-us/dotnet/core/tutorials/libraries#how-to-multitarget
         private const string VersionPrefix = "dotnetc:";
+        private static readonly string[] HttpMethods = { "GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH", "TRACE", "CONNECT" };
 #else
         private const string VersionPrefix = "dotnet:";
 #endif  
@@ -517,19 +518,7 @@
 #if NETSTANDARD
             if (this.otelEnable)
             {
-                using (var activity = this.tracer.StartActiveSpan(dependencyName, SpanKind.Client))
-                {
-                    Activity.Current.SetStartTime(startTime.UtcDateTime);
-                    DateTime endTimeUtc = startTime.UtcDateTime.Add(duration);
-                    Activity.Current.SetEndTime(endTimeUtc);
-
-                    Activity.Current.SetTag("db.statement", data);
-                    // Required to be able to display "data" in "BaseData" through "db.statement".
-                    // It will add "type" and "target" with "unknown" values. It may not be an issue. This method is obsolete.
-                    Activity.Current.SetTag("db.system", "unknown");
-
-                    activity.SetStatus(success ? Status.Ok : Status.Error);
-                }
+               this.TrackDependency(null, null, dependencyName, data, startTime, duration, null, success);
             }
            else
             {
@@ -558,7 +547,18 @@
         /// </remarks>
         public void TrackDependency(string dependencyTypeName, string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, bool success)
         {
+#if NETSTANDARD
+            if (this.otelEnable)
+            {
+                this.TrackDependency(dependencyTypeName, null, dependencyName, data, startTime, duration, null, success);
+            }
+            else 
+            {
+                this.TrackDependency(new DependencyTelemetry(dependencyTypeName, null, dependencyName, data, startTime, duration, null, success));
+            }
+#else
             this.TrackDependency(new DependencyTelemetry(dependencyTypeName, null, dependencyName, data, startTime, duration, null, success));
+#endif
         }
 
         /// <summary>
@@ -577,7 +577,48 @@
         /// </remarks>
         public void TrackDependency(string dependencyTypeName, string target, string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, string resultCode, bool success)
         {
+#if NETSTANDARD
+            if (this.otelEnable)
+            {
+                using (var activity = this.tracer.StartActiveSpan(dependencyName, SpanKind.Client))
+                {
+                    this.SetActivityStartAndEndTimes(startTime, duration);
+                    activity.SetStatus(success ? Status.Ok : Status.Error);
+                    
+                    if (this.IsSqlDependency(dependencyTypeName))
+                    {
+                        this.SetActivityForSqlDependency(data, target);
+                    }
+                    else if (this.IsHttpDependency(dependencyTypeName)) 
+                    {
+                        Activity.Current.SetTag(OpenTelemetrySemanticConventions.AttributeUrlFull, data);
+                        
+                        Activity.Current.SetTag(OpenTelemetrySemanticConventions.AttributeHttpResponseStatusCode, resultCode);
+                        
+                        // The HTTP method is required to have the HTTP type exported to Breeze
+                        string httpMethod = this.FindHttpMethod(dependencyName);
+                        Activity.Current.SetTag(OpenTelemetrySemanticConventions.AttributeHttpRequestMethod, httpMethod);
+
+                        // The dependency name exported to Breeze is deduced by the .net exporter
+                        // from the data and dependencyName (http method) method argument.
+
+                        Activity.Current.SetTag(OpenTelemetrySemanticConventions.AttributeServerAddress, target); 
+                    }
+                    else
+                    {
+                        // We process the dependency as a SQL one to be able to export the data method parameter to Breeze.
+                        // The type exported to Breeze won't be SQL. No type willl be exported.  
+                        this.SetActivityForSqlDependency(data, null);
+                    }
+                }
+            } 
+            else 
+            {
+                this.TrackDependency(new DependencyTelemetry(dependencyTypeName, target, dependencyName, data, startTime, duration, resultCode, success));
+            }
+#else
             this.TrackDependency(new DependencyTelemetry(dependencyTypeName, target, dependencyName, data, startTime, duration, resultCode, success));
+#endif            
         }
 
         /// <summary>
@@ -847,10 +888,8 @@
             {
                 using (var activity = this.tracer.StartActiveSpan(name, SpanKind.Server))
                 {
-                    Activity.Current.SetStartTime(startTime.UtcDateTime);
-                    DateTime endTimeUtc = startTime.UtcDateTime.Add(duration);
-                    Activity.Current.SetEndTime(endTimeUtc);
-                   
+                    this.SetActivityStartAndEndTimes(startTime, duration);
+                    
                     activity.SetStatus(success ? Status.Ok : Status.Error);
                     
                     // The OpenTelemetry .net exporter requires an HTTP method to set the response code.
@@ -1602,6 +1641,52 @@
                 SeverityLevel.Critical => Microsoft.Extensions.Logging.LogLevel.Critical,
                 _ => Microsoft.Extensions.Logging.LogLevel.Information
             };
+        }
+
+        private string FindHttpMethod(string dependencyName)
+        {
+            if (string.IsNullOrEmpty(dependencyName)) 
+            {
+                return null;
+            }
+
+            foreach (var method in HttpMethods)
+            {
+                bool containsHttpMethod = dependencyName.Contains(method, StringComparison.OrdinalIgnoreCase);
+                if (containsHttpMethod)
+                {
+                    return method;
+                }
+            }
+
+            return null;
+        }
+        
+        private void SetActivityStartAndEndTimes(DateTimeOffset startTime, TimeSpan duration) 
+        {
+            Activity.Current.SetStartTime(startTime.UtcDateTime);
+            DateTime endTimeUtc = startTime.UtcDateTime.Add(duration);
+            Activity.Current.SetEndTime(endTimeUtc);
+        }
+        
+        private bool IsSqlDependency(string dependencyTypeName) 
+        {
+            return dependencyTypeName != null && dependencyTypeName.Equals("SQL", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool IsHttpDependency(string dependencyTypeName) 
+        {
+            return dependencyTypeName != null && dependencyTypeName.Equals("HTTP", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private void SetActivityForSqlDependency(string data, string target) 
+        {
+            Activity.Current.SetTag(OpenTelemetrySemanticConventions.AttributeDbStatement, data);
+
+            // Only "mssql" is mapped to the SQL type by the .net exporter today: https://github.com/Azure/azure-sdk-for-net/blob/7bcb4cd862cc692320c8692eba16321df21ea196/sdk/monitor/Azure.Monitor.OpenTelemetry.Exporter/src/Internals/AzMonListExtensions.cs#L18
+            // If the target is "oracle" for example, then the dependency type will be "oracle" (instead of "SQL") in Application Insights.
+            target ??= "unknown"; // Without this, if target is null then then .net exporter would not export the data method argumen
+            Activity.Current.SetTag(OpenTelemetrySemanticConventions.AttributeDbSystem, target);
         }
 #endif
     }

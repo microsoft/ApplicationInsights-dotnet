@@ -21,35 +21,96 @@ public class DependencyTelemetryClientHttpMockTest  : AbstractTelemetryClientHtt
     }
     
     [TestMethod]
-    public async Task TrackDependency()
-    {
-        void ClientConsumer(TelemetryClient telemetryClient) =>
-            telemetryClient.TrackDependency("SQL", "GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now,
-                TimeSpan.FromMilliseconds(123), true);
-
-        await VerifyTrackMethod(ClientConsumer, "dependency/expected-dependency.json", IdShouldBeProvidedInBaseData);
-    }
-
-    [TestMethod]
-    public async Task TrackDependencyWithSeveralMethodArguments
-        ()
+    public async Task TrackSqlDependencyWithSimpleMethod()
     {
         var dependencyTypeName = "SQL";
-        var target = "my-database";
         var dependencyName = "SELECT";
         var data = "SELECT * FROM Table";
         var startTime = DateTimeOffset.UtcNow.AddSeconds(-5);
         var duration = TimeSpan.FromSeconds(5);
-        var resultCode = "2";
         var success = true;
 
+        var expectedJson = SelectExpectedJson("dependency/expected-dependency-simple-method-sql.json", "dependency/expected-dependency-simple-method-sql-otel.json");
         await VerifyTrackMethod(
-            c => c.TrackDependency(dependencyTypeName, target, dependencyName, data, startTime, duration, resultCode,
-                success),
-            "dependency/expected-dependency-with-several-method-arguments.json"
+            c => c.TrackDependency(dependencyTypeName, dependencyName, data, startTime, duration, success), expectedJson
         );
     }
+    
+    [TestMethod]
+    public async Task TrackHTTPDependencyWithSimpleMethod()
+    {
+        var dependencyTypeName = "HTTP";
+        var dependencyName = "GET /api/orders";
+        var data = "https://api.example.com/api/orders";
+        var startTime = DateTimeOffset.UtcNow.AddSeconds(-5);
+        var duration = TimeSpan.FromSeconds(2);
+        var success = true;
 
+        var expectedJson = SelectExpectedJson("dependency/expected-dependency-simple-method-http.json", "dependency/expected-dependency-simple-method-http-otel.json");
+        await VerifyTrackMethod(
+            c => c.TrackDependency(dependencyTypeName, dependencyName, data, startTime, duration, success), expectedJson
+        );
+    }
+    
+    [TestMethod]
+    public async Task TrackSqlMsSqlDependencyWithSeveralMethodArguments
+        ()
+    {
+        var dependencyTypeName = "SQL";
+        // Only "mssql" is mapped to the SQL type by the .net exporter today: https://github.com/Azure/azure-sdk-for-net/blob/7bcb4cd862cc692320c8692eba16321df21ea196/sdk/monitor/Azure.Monitor.OpenTelemetry.Exporter/src/Internals/AzMonListExtensions.cs#L18
+        var target = "mssql";
+        var dependencyName = "SELECT";
+        var data = "SELECT * FROM Table";
+        var startTime = DateTimeOffset.UtcNow.AddSeconds(-5);
+        var duration= TimeSpan.FromSeconds(5);
+        var resultCode = "0";
+        var success = true;
+
+        var expectedJson = SelectExpectedJson("dependency/expected-dependency-with-several-method-arguments-sql.json", "dependency/expected-dependency-with-several-method-arguments-sql-otel.json");
+        await VerifyTrackMethod(
+            c => c.TrackDependency(dependencyTypeName, target, dependencyName, data, startTime, duration, resultCode,
+                success), expectedJson
+        );
+    }
+    
+    [TestMethod]
+    public async Task TrackSqlOracleDependencyWithSeveralMethodArguments()
+    {
+        var dependencyTypeName = "SQL";
+        var target = "oracle";
+        var dependencyName = "SELECT";
+        var data = "SELECT * FROM ORDERS";
+        var startTime = DateTimeOffset.UtcNow.AddSeconds(-5);
+        var duration = TimeSpan.FromSeconds(5);
+        var resultCode = "0";
+        var success = true;
+
+        var expectedJson = SelectExpectedJson("dependency/expected-dependency-with-several-method-arguments-sql-oracle.json", "dependency/expected-dependency-with-several-method-arguments-sql-oracle-otel.json");
+        await VerifyTrackMethod(
+            c => c.TrackDependency(dependencyTypeName, target, dependencyName, data, startTime, duration, resultCode,
+                success), expectedJson
+        );
+    }
+    
+    [TestMethod]
+    public async Task TrackHTTPDependencyWithSeveralMethodArguments()
+    {
+        var dependencyTypeName = "HTTP";
+        var target = "api.example.com.target";
+        var dependencyName = "GET /api/orders";
+        var data = "https://api.example.com/api/orders";
+        var startTime = DateTimeOffset.UtcNow.AddSeconds(-5);
+        var duration = TimeSpan.FromSeconds(2);
+        var resultCode = "200";
+        var success = false;
+
+        var expectedJson = SelectExpectedJson("dependency/expected-dependency-with-several-method-arguments-http.json", "dependency/expected-dependency-with-several-method-arguments-http-otel.json");
+        await VerifyTrackMethod(
+            c => c.TrackDependency(dependencyTypeName, target, dependencyName, data, startTime, duration, resultCode,
+                success), expectedJson
+        );
+    }
+    
     [TestMethod]
     public async Task TrackDependencyWithNullTelemetryObject()
     {

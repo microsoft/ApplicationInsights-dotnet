@@ -1,0 +1,21 @@
+{
+  "name": "AppDependencies",
+  "time": "2025-07-24T16:55:06.5168648Z",
+  "iKey": "12345678-1234-1234-1234-123456789012",
+  "tags": {
+    "ai.cloud.roleInstance": "host-not-compared",
+    "ai.internal.sdkVersion": "dotnetc:2.23.0-341"
+  },
+  "data": {
+    "baseType": "RemoteDependencyData",
+    "baseData": {
+      "ver": 2,
+      "name": "GET /api/orders",
+      "id": "59a0164506cf67c5",
+      "data": "https://api.example.com/api/orders",
+      "duration": "00:00:02",
+      "success": true,
+      "type": "HTTP"
+    }
+  }
+}
