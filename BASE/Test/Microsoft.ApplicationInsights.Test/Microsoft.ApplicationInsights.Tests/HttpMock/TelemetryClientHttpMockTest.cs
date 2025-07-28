@@ -9,35 +9,6 @@ namespace Microsoft.ApplicationInsights;
 public class TelemetryClientHttpMockTest : AbstractTelemetryClientHttpMockTest
 {
     
-    [TestMethod]
-    public async Task ContextProperties()
-    {
-        void ClientConsumer(TelemetryClient telemetryClient)
-        {
-            telemetryClient.Context.Properties["Key1"] = "Value1";
-            telemetryClient.Context.Properties["Key2"] = "Value2";
-            telemetryClient.TrackTrace("Application Insights trace");
-        }
-
-        var expectedJson = SelectExpectedJson("expected-properties.json", "expected-properties-otel.json");
-        await VerifyTrackMethod(ClientConsumer, expectedJson);
-    }
-
-    [TestMethod]
-    public async Task ContextGlobalProperties()
-    {
-        void ClientConsumer(TelemetryClient telemetryClient)
-        {
-            telemetryClient.Context.GlobalProperties["global-Key1"] = "global-Value1";
-            telemetryClient.Context.GlobalProperties["global-Key2"] = "global-Value2";
-            telemetryClient.TrackTrace("Application Insights trace");
-        }
-
-        var expectedJson =
-            SelectExpectedJson("expected-global-properties.json", "expected-global-properties-otel.json");
-        await VerifyTrackMethod(ClientConsumer, expectedJson);
-    }
-
     [TestMethod] // Longer to execute than other tests
     public async Task ShouldDisableTelemetry()
     {

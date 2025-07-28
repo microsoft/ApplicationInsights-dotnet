@@ -19,7 +19,11 @@
       "success": true,
       "responseCode": "200",
       "properties": {
-        "_MS.ProcessedByMetricExtractors": "(Name: X,Ver:'1.1')"
+         "Key1": "Value1",
+         "Key2": "Value2",
+         "global-Key2": "global-Value2",
+         "global-Key1": "global-Value1",
+         "_MS.ProcessedByMetricExtractors": "(Name: X,Ver:'1.1')"
       },
       "ver": 2
     }

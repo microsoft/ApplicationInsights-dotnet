@@ -17,7 +17,13 @@
       "resultCode": "200",
       "success": false,
       "type": "HTTP",
-      "target": "api.example.com.target"
+      "target": "api.example.com.target",
+      "properties": {
+        "global-Key1": "global-Value1",
+        "global-Key2": "global-Value2",
+        "Key2": "Value2",
+        "Key1": "Value1"
+      }
     }
   }
 }

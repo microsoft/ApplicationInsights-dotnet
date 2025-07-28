@@ -582,6 +582,7 @@
             {
                 using (var activity = this.tracer.StartActiveSpan(dependencyName, SpanKind.Client))
                 {
+                    this.SetActivityWithContextProperties();
                     this.SetActivityStartAndEndTimes(startTime, duration);
                     activity.SetStatus(success ? Status.Ok : Status.Error);
                     
@@ -890,6 +891,8 @@
                 {
                     this.SetActivityStartAndEndTimes(startTime, duration);
                     
+                    this.SetActivityWithContextProperties();
+
                     activity.SetStatus(success ? Status.Ok : Status.Error);
                     
                     // The OpenTelemetry .net exporter requires an HTTP method to set the response code.
@@ -1605,12 +1608,14 @@
 
         private void AddPropertiesToScopeState(List<KeyValuePair<string, object>> scopeState, IDictionary<string, string> properties)
         {
-            if (properties != null)
+            if (properties == null) 
             {
-                foreach (var kvp in properties)
-                {
-                    scopeState.Add(new KeyValuePair<string, object>(kvp.Key, kvp.Value));
-                }
+                return;
+            }
+
+            foreach (var kvp in properties)
+            {
+                scopeState.Add(new KeyValuePair<string, object>(kvp.Key, kvp.Value));
             }
         }
 
@@ -1687,6 +1692,25 @@
             // If the target is "oracle" for example, then the dependency type will be "oracle" (instead of "SQL") in Application Insights.
             target ??= "unknown"; // Without this, if target is null then then .net exporter would not export the data method argumen
             Activity.Current.SetTag(OpenTelemetrySemanticConventions.AttributeDbSystem, target);
+        }
+        
+        private void SetActivityWithContextProperties() 
+        {
+            this.SetActivityTags(this.Context.PropertiesValue);
+            this.SetActivityTags(this.Context.GlobalProperties);
+        }
+        
+        private void SetActivityTags(IDictionary<string, string> properties)
+        {
+            if (properties == null) 
+            {
+                return;
+            }
+          
+            foreach (var kvp in properties)
+            {
+                Activity.Current.SetTag(kvp.Key, kvp.Value);
+            }
         }
 #endif
     }

@@ -11,9 +11,15 @@ public class RequestTelemetryClientHttpMockTest : AbstractTelemetryClientHttpMoc
     [TestMethod]
     public async Task TrackRequest()
     {
-        void ClientConsumer(TelemetryClient telemetryClient) =>
+        void ClientConsumer(TelemetryClient telemetryClient)
+        {
+            telemetryClient.Context.Properties["Key1"] = "Value1";
+            telemetryClient.Context.Properties["Key2"] = "Value2";
+            telemetryClient.Context.GlobalProperties["global-Key1"] = "global-Value1";
+            telemetryClient.Context.GlobalProperties["global-Key2"] = "global-Value2";
             telemetryClient.TrackRequest("GET /api/orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), "200",
                 true);
+        }
 
         var expectedJson = SelectExpectedJson("request/expected-request.json", "request/expected-request-otel.json");
         await VerifyTrackMethod(ClientConsumer, expectedJson, IdShouldBeProvidedInBaseData);

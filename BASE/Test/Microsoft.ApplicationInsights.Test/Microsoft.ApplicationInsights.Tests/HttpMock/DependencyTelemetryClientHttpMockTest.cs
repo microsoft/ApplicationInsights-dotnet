@@ -95,20 +95,29 @@ public class DependencyTelemetryClientHttpMockTest  : AbstractTelemetryClientHtt
     [TestMethod]
     public async Task TrackHTTPDependencyWithSeveralMethodArguments()
     {
-        var dependencyTypeName = "HTTP";
-        var target = "api.example.com.target";
-        var dependencyName = "GET /api/orders";
-        var data = "https://api.example.com/api/orders";
-        var startTime = DateTimeOffset.UtcNow.AddSeconds(-5);
-        var duration = TimeSpan.FromSeconds(2);
-        var resultCode = "200";
-        var success = false;
+        void ClientConsumer(TelemetryClient telemetryClient)
+        {
+            telemetryClient.Context.Properties["Key1"] = "Value1";
+            telemetryClient.Context.Properties["Key2"] = "Value2";
+            telemetryClient.Context.GlobalProperties["global-Key1"] = "global-Value1";
+            telemetryClient.Context.GlobalProperties["global-Key2"] = "global-Value2";
+            
+            var dependencyTypeName = "HTTP";
+            var target = "api.example.com.target";
+            var dependencyName = "GET /api/orders";
+            var data = "https://api.example.com/api/orders";
+            var startTime = DateTimeOffset.UtcNow.AddSeconds(-5);
+            var duration = TimeSpan.FromSeconds(2);
+            var resultCode = "200";
+            var success = false;
 
+            telemetryClient.TrackDependency(dependencyTypeName, target, dependencyName, data, startTime, duration,
+                resultCode,
+                success);
+        }
+        
         var expectedJson = SelectExpectedJson("dependency/expected-dependency-with-several-method-arguments-http.json", "dependency/expected-dependency-with-several-method-arguments-http-otel.json");
-        await VerifyTrackMethod(
-            c => c.TrackDependency(dependencyTypeName, target, dependencyName, data, startTime, duration, resultCode,
-                success), expectedJson
-        );
+        await VerifyTrackMethod(ClientConsumer, expectedJson);
     }
     
     [TestMethod]

@@ -14,7 +14,13 @@
       "name": "GET /api/orders",
       "duration": "00:00:00.1230000",
       "success": true,
-      "responseCode": "200"
+      "responseCode": "200",
+      "properties": {
+        "Key1": "Value1",
+        "Key2": "Value2",
+        "global-Key2": "global-Value2",
+        "global-Key1": "global-Value1"
+      }
     }
   }
 }
