@@ -1,0 +1,53 @@
+{
+  "name": "AppExceptions",
+  "time": "2025-06-25T09:53:47.3422664Z",
+  "seq": "seq-001",
+  "iKey": "00000000-0000-0000-0000-000000000000",
+  "tags": {
+    "ai.application.ver": "2.1.0",
+    "ai.device.type": "PC",
+    "ai.device.id": "device-555",
+    "ai.device.osVersion": "Windows 11",
+    "ai.device.oemName": "Microsoft",
+    "ai.device.model": "Surface Pro",
+    "ai.cloud.role": "api",
+    "ai.cloud.roleInstance": "instance-01",
+    "ai.session.id": "session-xyz",
+    "ai.user.id": "user-001",
+    "ai.user.accountId": "account-abc",
+    "ai.operation.id": "op-req-01",
+    "ai.operation.parentId": "op-root-01",
+    "ai.operation.correlationVector": "cvector-001",
+    "ai.operation.name": "SampleOperation",
+    "ai.location.ip": "192.0.2.1",
+    "ai.internal.sdkVersion": "dotnet:2.18.0",
+    "ai.internal.nodeName": "node-01"
+  },
+  "data": {
+    "baseType": "ExceptionData",
+    "baseData": {
+      "ver": 2,
+      "problemId": "Problem-123",
+      "exceptions": [
+        {
+          "id": 22862390,
+          "outerId": 0,
+          "typeName": "System.InvalidOperationException",
+          "message": "Excetion message",
+          "hasFullStack": true
+        }
+      ],
+      "severityLevel": "Critical",
+      "properties": {
+        "Key1": "Value1",
+        "Key2": "Value2",
+        "handledAt": "UserCode",
+        "ai.device.language": "fr-FR"
+      },
+      "measurements": {
+        "Metric2": 3.14,
+        "Metric1": 42
+      }
+    }
+  }
+}

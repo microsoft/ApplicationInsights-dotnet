@@ -1,0 +1,39 @@
+{
+  "name": "AppEvents",
+  "seq": "sequence123",
+  "iKey": "00000000-0000-0000-0000-000000000000",
+  "tags": {
+    "ai.application.ver": "2.1.0",
+    "ai.device.type": "Phone",
+    "ai.device.id": "device-555",
+    "ai.device.osVersion": "Android 14",
+    "ai.device.oemName": "Google",
+    "ai.device.model": "Pixel 8",
+    "ai.cloud.role": "api",
+    "ai.session.id": "session-xyz",
+    "ai.user.id": "user-001",
+    "ai.user.accountId": "account-abc",
+    "ai.operation.id": "op-req-01",
+    "ai.operation.parentId": "op-root-01",
+    "ai.operation.correlationVector": "cvector-001",
+    "ai.operation.name": "SampleOperation",
+    "ai.location.ip": "192.0.2.1",
+    "ai.internal.nodeName": "node-01"
+  },
+  "data": {
+    "baseType": "EventData",
+    "baseData": {
+      "ver": 2,
+      "name": "SampleEvent",
+      "properties": {
+        "ai.device.language": "en-US",
+        "Category": "UserActions",
+        "Source": "MobileApp"
+      },
+      "measurements": {
+        "LoadTime": 1.42,
+        "ClickCount": 17
+      }
+    }
+  }
+}

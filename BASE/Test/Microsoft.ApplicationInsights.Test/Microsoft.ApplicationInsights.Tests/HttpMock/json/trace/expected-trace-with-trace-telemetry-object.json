@@ -1,0 +1,40 @@
+{
+  "name": "AppTraces",
+  "time": "2025-06-24T13:24:13.3823457Z",
+  "seq": "seq-001",
+  "iKey": "12345678-1234-1234-1234-123456789012",
+  "tags": {
+    "ai.application.ver": "1.2.3",
+    "ai.device.type": "PC",
+    "ai.device.id": "device-42",
+    "ai.device.osVersion": "Windows 11",
+    "ai.device.oemName": "Microsoft",
+    "ai.device.model": "Surface Pro",
+    "ai.cloud.role": "webapi",
+    "ai.cloud.roleInstance": "web01",
+    "ai.session.id": "session-9876",
+    "ai.user.id": "user-xyz",
+    "ai.user.accountId": "acc-abc",
+    "ai.operation.id": "operation-001",
+    "ai.operation.parentId": "root-operation-id",
+    "ai.operation.correlationVector": "cv-0:b",
+    "ai.operation.name": "SampleOperation",
+    "ai.location.ip": "203.0.113.42",
+    "ai.internal.sdkVersion": "customSdk-1.0.0",
+    "ai.internal.nodeName": "host-not-compared"
+  },
+  "data": {
+    "baseType": "MessageData",
+    "baseData": {
+      "ver": 2,
+      "message": "Application Insights trace",
+      "severityLevel": "Error",
+      "properties": {
+        "Key1": "Value1",
+        "Key2": "Value2",
+        "environment": "test",
+        "ai.device.language": "en-US"
+      }
+    }
+  }
+}

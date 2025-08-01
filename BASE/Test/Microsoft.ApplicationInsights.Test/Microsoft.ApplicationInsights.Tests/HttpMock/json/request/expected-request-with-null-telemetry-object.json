@@ -1,0 +1,19 @@
+{
+  "name": "AppRequests",
+  "time": "2025-06-25T13:40:01.0731525Z",
+  "iKey": "12345678-1234-1234-1234-123456789012",
+  "tags": {
+    "ai.cloud.roleInstance": "host-not-compared",
+    "ai.internal.sdkVersion": "version-not-compared"
+  },
+  "data": {
+    "baseType": "RequestData",
+    "baseData": {
+      "ver": 2,
+      "id": "569c58a5c4a181dd",
+      "duration": "00:00:00",
+      "success": true,
+      "responseCode": "200"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "AppDependencies",
+  "time": "2025-06-25T13:48:45.2733818Z",
+  "iKey": "12345678-1234-1234-1234-123456789012",
+  "tags": {
+    "ai.cloud.roleInstance": "host-not-compared",
+    "ai.internal.sdkVersion": "version-not-compared"
+  },
+  "data": {
+    "baseType": "RemoteDependencyData",
+    "baseData": {
+      "ver": 2,
+      "name": "n/a",
+      "id": "80fbbd35a58a30d7",
+      "duration": "00:00:00",
+      "success": true
+    }
+  }
+}

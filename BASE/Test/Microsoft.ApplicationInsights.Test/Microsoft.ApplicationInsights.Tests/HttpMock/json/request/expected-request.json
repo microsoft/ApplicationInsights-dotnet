@@ -1,0 +1,26 @@
+{
+  "name": "AppRequests",
+  "time": "2025-06-25T11:29:41.3715997Z",
+  "iKey": "12345678-1234-1234-1234-123456789012",
+  "tags": {
+    "ai.cloud.roleInstance": "host-not-compared",
+    "ai.internal.sdkVersion": "version-not-compared"
+  },
+  "data": {
+    "baseType": "RequestData",
+    "baseData": {
+      "ver": 2,
+      "id": "c1a7b2aa26fd80e9",
+      "name": "GET /api/orders",
+      "duration": "00:00:00.1230000",
+      "success": true,
+      "responseCode": "200",
+      "properties": {
+        "Key1": "Value1",
+        "Key2": "Value2",
+        "global-Key2": "global-Value2",
+        "global-Key1": "global-Value1"
+      }
+    }
+  }
+}

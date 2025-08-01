@@ -1,0 +1,20 @@
+{
+  "name": "AppTraces",
+  "time": "2025-06-26T09:10:36.9450084Z",
+  "iKey": "12345678-1234-1234-1234-123456789012",
+  "tags": {
+    "ai.cloud.roleInstance": "host-not-compared",
+    "ai.internal.sdkVersion": "version-not-compared"
+  },
+  "data": {
+    "baseType": "MessageData",
+    "baseData": {
+      "ver": 2,
+      "message": "Application Insights trace",
+      "properties": {
+        "Key1": "Value1",
+        "Key2": "Value2"
+      }
+    }
+  }
+}

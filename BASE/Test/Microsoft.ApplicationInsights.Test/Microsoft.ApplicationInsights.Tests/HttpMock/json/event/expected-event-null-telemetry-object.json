@@ -1,0 +1,16 @@
+{
+  "name": "AppEvents",
+  "time": "2025-06-25T13:12:35.5861953Z",
+  "iKey": "12345678-1234-1234-1234-123456789012",
+  "tags": {
+    "ai.cloud.roleInstance": "host-not-compared",
+    "ai.internal.sdkVersion": "version-not-compared"
+  },
+  "data": {
+    "baseType": "EventData",
+    "baseData": {
+      "ver": 2,
+      "name": "n/a"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "AppMetrics",
+  "time": "2025-06-23T15:27:48.8845053Z",
+  "iKey": "12345678-1234-1234-1234-123456789012",
+  "tags": {
+    "ai.cloud.roleInstance": "host-not-compared",
+    "ai.internal.sdkVersion": "version-not-compared"
+  },
+  "data": {
+    "baseType": "MetricData",
+    "baseData": {
+      "ver": 2,
+      "metrics": [
+        {
+          "name": "testMetricWithSimpleMetricTelemetryObject",
+          "kind": "Aggregation",
+          "value": 12.249,
+          "count": 1
+        }
+      ]
+    }
+  }
+}

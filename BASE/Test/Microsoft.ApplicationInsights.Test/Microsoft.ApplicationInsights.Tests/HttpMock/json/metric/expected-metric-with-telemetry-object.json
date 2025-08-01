@@ -1,0 +1,48 @@
+{
+  "name": "AppMetrics",
+  "time": "2025-06-24T15:29:14.2957386Z",
+  "seq": "seq-123",
+  "iKey": "12345678-1234-1234-1234-123456789012",
+  "tags": {
+    "ai.application.ver": "3.2.1",
+    "ai.device.type": "Desktop",
+    "ai.device.id": "device-007",
+    "ai.device.osVersion": "Windows 11",
+    "ai.device.oemName": "Dell",
+    "ai.device.model": "Precision",
+    "ai.cloud.role": "backend",
+    "ai.cloud.roleInstance": "service01",
+    "ai.session.id": "session-5555",
+    "ai.user.id": "user-xyz",
+    "ai.user.accountId": "account-abcd",
+    "ai.operation.id": "op-4321",
+    "ai.operation.parentId": "op-root",
+    "ai.operation.correlationVector": "cv-0:a",
+    "ai.operation.name": "MetricOperation",
+    "ai.location.ip": "198.51.100.5",
+    "ai.internal.sdkVersion": "netcoreapp3.1:2.206.0",
+    "ai.internal.nodeName": "node-01"
+  },
+  "data": {
+    "baseType": "MetricData",
+    "baseData": {
+      "ver": 2,
+      "metrics": [
+        {
+          "name": "CustomMetric",
+          "kind": "Aggregation",
+          "value": 123.45,
+          "count": 5,
+          "min": 120,
+          "max": 130,
+          "stdDev": 3.2
+        }
+      ],
+      "properties": {
+        "Key1": "Value1",
+        "Key2": "Value2",
+        "ai.device.language": "en-US"
+      }
+    }
+  }
+}

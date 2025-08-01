@@ -1,0 +1,28 @@
+{
+  "name": "AppExceptions",
+  "time": "2025-06-24T15:49:08.6941943Z",
+  "iKey": "12345678-1234-1234-1234-123456789012",
+  "tags": {
+    "ai.cloud.roleInstance": "host-not-compared",
+    "ai.internal.sdkVersion": "version-not-compared"
+  },
+  "data": {
+    "baseType": "ExceptionData",
+    "baseData": {
+      "ver": 2,
+      "exceptions": [
+        {
+          "id": 59126933,
+          "outerId": 0,
+          "typeName": "System.InvalidOperationException",
+          "message": "Something went wrong",
+          "hasFullStack": true
+        }
+      ],
+      "properties": {
+        "Key1": "Value1",
+        "Key2": "Value2"
+      }
+    }
+  }
+}
