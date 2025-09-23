@@ -149,6 +149,55 @@
             Assert.IsTrue(parsedStackLength <= ExceptionConverter.MaxParsedStackLength);
         }
 
+        [TestMethod]
+        public void SanitizesLineNumberOnParsedStackFrame()
+        {
+            var stackFrame = ExceptionConverter.GetStackFrame(new System.Diagnostics.StackFrame("test", 1000001), 0);
+            
+            Assert.AreEqual(0, stackFrame.line);
+
+            stackFrame = ExceptionConverter.GetStackFrame(new System.Diagnostics.StackFrame("test", -1000001), 0);
+
+            Assert.AreEqual(0, stackFrame.line);
+
+            stackFrame = ExceptionConverter.GetStackFrame(new System.Diagnostics.StackFrame("test", 10), 0);
+
+            Assert.AreEqual(10, stackFrame.line);
+        }
+
+        [TestMethod]
+        public void TrimsExceptionMessagesGreaterThanMaxLength()
+        {
+            var exp = new Exception(new string('x', ExceptionConverter.MaxExceptionMessageLength + 5));
+
+            ExceptionDetails expDetails = ExceptionConverter.ConvertToExceptionDetails(exp, null);
+
+            Assert.AreEqual(ExceptionConverter.MaxExceptionMessageLength, expDetails.message.Length);
+        }
+
+        [TestMethod]
+        public void DoesNotTrimShortExceptionMessages()
+        {
+            var exp = new Exception(new string('x', 5));
+
+            ExceptionDetails expDetails = ExceptionConverter.ConvertToExceptionDetails(exp, null);
+
+            Assert.AreEqual(5, expDetails.message.Length);
+        }
+
+        [TestMethod]
+        [DataRow(null)]
+        [DataRow("")]
+        [DataRow(" ")]
+        public void ProvidesDefaultMessage(string message)
+        {
+            var exp = new ExceptionWithMessageOverride(message);
+
+            ExceptionDetails expDetails = ExceptionConverter.ConvertToExceptionDetails(exp, null);
+
+            Assert.AreEqual("n/a", expDetails.message);
+        }
+
         [MethodImplAttribute(MethodImplOptions.NoInlining)]
         private Exception CreateException(int numberOfStackpoints)
         {
@@ -175,6 +224,21 @@
             }
 
             throw new AggregateException("exception message");
+        }
+        
+        /// <summary>
+        /// Overrides the Message property of the base exception, so that null messages are
+        /// returned as null, rather than a default, e.g. "Exception of type 'System.Exception' was thrown".
+        /// </summary>
+        private class ExceptionWithMessageOverride : Exception
+        {
+            public ExceptionWithMessageOverride(string message)
+                : base(message)
+            {
+                Message = message;
+            }
+            
+            public override string Message { get; }
         }
     }
 }

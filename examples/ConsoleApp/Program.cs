@@ -1,9 +1,12 @@
-﻿using Microsoft.ApplicationInsights;
+﻿using Azure.Identity;
+
+using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
 using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
+using Microsoft.ApplicationInsights.WorkerService;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -25,9 +28,17 @@ namespace ConsoleAppWithApplicationInsights
             // Add custom TelemetryInitializer
             services.AddSingleton<ITelemetryInitializer, MyCustomTelemetryInitializer>();
 
+            // Configure TelemetryConfiguration
+            services.Configure<TelemetryConfiguration>(config =>
+            {
+                // Optionally configure AAD
+                //var credential = new DefaultAzureCredential();
+                //config.SetAzureTokenCredential(credential);
+            });
+
             // Being a regular console app, there is no appsettings.json or configuration providers enabled by default.
-            // Hence instrumentation key must be specified here.
-            services.AddApplicationInsightsTelemetryWorkerService("put_actual_ikey_here");
+            // Hence connection string must be specified here.
+            services.AddApplicationInsightsTelemetryWorkerService((ApplicationInsightsServiceOptions options) => options.ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000");
 
             // Add custom TelemetryProcessor
             services.AddApplicationInsightsTelemetryProcessor<MyCustomTelemetryProcessor>();
@@ -48,7 +59,25 @@ namespace ConsoleAppWithApplicationInsights
             var res = new HttpClient().GetAsync("https://bing.com").Result.StatusCode; // this dependency will be captured by Application Insights.
             logger.LogWarning("Response from bing is:" + res); // this will be captured by Application Insights.
 
-            telemetryClient.TrackEvent("sampleevent");
+            telemetryClient.TrackEvent("SampleEvent");
+            telemetryClient.TrackEvent(new EventTelemetry("SampleEventObject"));
+
+            telemetryClient.TrackTrace("A trace message");
+            telemetryClient.TrackTrace("A warning", SeverityLevel.Warning);
+            telemetryClient.TrackTrace("A trace with properties", new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
+            telemetryClient.TrackTrace("A trace with severity and properties", SeverityLevel.Error, new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
+            telemetryClient.TrackTrace(new TraceTelemetry("TraceTelemetry object", SeverityLevel.Information));
+
+            telemetryClient.TrackMetric("SampleMetric", 42.0);
+            telemetryClient.TrackMetric(new MetricTelemetry("SampleMetricObject", 42.0));
+
+            telemetryClient.TrackException(new InvalidOperationException("Something went wrong"));
+
+            telemetryClient.TrackDependency("SQL", "GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), true);
+            telemetryClient.TrackDependency(new DependencyTelemetry("SQL", "dbserver", "GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), "0", true));
+
+            telemetryClient.TrackRequest("GET Home", DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", true);
+            telemetryClient.TrackRequest(new RequestTelemetry("GET HomeObject", DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", true));
 
             // Explicitly call Flush() followed by sleep is required in Console Apps.
             // This is to ensure that even if application terminates, telemetry is sent to the back-end.

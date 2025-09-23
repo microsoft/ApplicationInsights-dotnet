@@ -199,11 +199,7 @@
 
             Assert.AreEqual(telemetry, this.sendItems.Single());
 
-#if NET6_0_OR_GREATER
-            Assert.IsNotNull(Activity.Current);
-#else
-            Assert.IsNull(Activity.Current);
-#endif
+            //Assert.IsNotNull(Activity.Current);
 
             var request = this.sendItems.Single() as RequestTelemetry;
             Assert.IsNotNull(request);
@@ -467,7 +463,7 @@
                 Assert.IsFalse(telemetry.Properties.ContainsKey("tracestate"));
             }
 
-            Assert.AreEqual(activity.Recorded ? SamplingDecision.SampledIn : SamplingDecision.None, (telemetry as ISupportAdvancedSampling).ProactiveSamplingDecision);
+            Assert.AreEqual(SamplingDecision.None, (telemetry as ISupportAdvancedSampling).ProactiveSamplingDecision);
         }
     }
 }

@@ -39,8 +39,6 @@
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
 
-    using Shared.Implementation;
-
     /// <summary>
     /// Extension methods for <see cref="IServiceCollection"/> that allow adding Application Insights services to application.
     /// </summary>
@@ -160,6 +158,7 @@
         /// <param name="endpointAddress">Sets telemetry endpoint address.</param>
         /// <param name="instrumentationKey">Sets instrumentation key.</param>
         /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
+        [Obsolete("InstrumentationKey based global ingestion is being deprecated. Use the AddApplicationInsightsSettings() overload which accepts string ConnectionString. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/2560 for more details.")]
         [SuppressMessage("ApiDesign", "RS0026:Do not add multiple public overloads with optional parameters", Justification = "We made a mistake here, but we can't remove it from the public API now.")]
         public static IConfigurationBuilder AddApplicationInsightsSettings(this IConfigurationBuilder configurationSourceRoot,  bool? developerMode = null, string endpointAddress = null, string instrumentationKey = null)
             => configurationSourceRoot.AddApplicationInsightsSettings(connectionString: null, developerMode: developerMode, endpointAddress: endpointAddress, instrumentationKey: instrumentationKey);
@@ -248,7 +247,9 @@
 
                 if (config.TryGetValue(primaryKey: InstrumentationKeyForWebSites, backupKey: InstrumentationKeyFromConfig, value: out string instrumentationKey))
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     serviceOptions.InstrumentationKey = instrumentationKey;
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
 
                 if (config.TryGetValue(primaryKey: DeveloperModeForWebSites, backupKey: DeveloperModeFromConfig, value: out string developerModeValue))
@@ -276,26 +277,6 @@
 #else
                 WorkerServiceEventSource.Instance.LogError(ex.ToInvariantString());
 #endif
-            }
-        }
-
-        /// <summary>
-        /// The AddSingleton method will not check if a class has already been added as an ImplementationType.
-        /// This extension method is to encapsulate those checks.
-        /// </summary>
-        /// <remarks>
-        /// Must check all three properties to avoid duplicates or null ref exceptions.
-        /// </remarks>
-        /// <typeparam name="TService">The type of the service to add.</typeparam>
-        /// <typeparam name="TImplementation">The type of the implementation to use.</typeparam>
-        /// <param name="services">The Microsoft.Extensions.DependencyInjection.IServiceCollection to add the service to.</param>
-        internal static void AddSingletonIfNotExists<TService, TImplementation>(this IServiceCollection services)
-            where TService : class
-            where TImplementation : class, TService
-        {
-            if (!services.Any(o => o.ImplementationFactory == null && typeof(TImplementation).IsAssignableFrom(o.ImplementationType ?? o.ImplementationInstance.GetType())))
-            {
-                services.AddSingleton<TService, TImplementation>();
             }
         }
 
@@ -331,7 +312,7 @@
         private static void AddCommonTelemetryModules(IServiceCollection services)
         {
             // Previously users were encouraged to manually add the DiagnosticsTelemetryModule.
-            services.AddSingletonIfNotExists<ITelemetryModule, DiagnosticsTelemetryModule>();
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<ITelemetryModule, DiagnosticsTelemetryModule>());
 
             // These modules add properties to Heartbeat and expect the DiagnosticsTelemetryModule to be configured in DI.
             services.AddSingleton<ITelemetryModule, AppServicesHeartbeatTelemetryModule>();

@@ -1,9 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="$(PropsRoot)\Test.props" />
 
   <PropertyGroup>
     <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
-    <TargetFrameworks Condition="$(OS) == 'Windows_NT'">net452;net46;net461;$(TargetFrameworks)</TargetFrameworks>
+    <TargetFrameworks>$(TargetFrameworks_WithLegacy)</TargetFrameworks>
+    
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
@@ -22,6 +23,7 @@
     <PackageReference Include="Moq" Version="4.10.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.3" />
     <PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'  Or '$(TargetFramework)' == 'net46' ">
@@ -42,8 +44,8 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(IsNetStandard20)' == 'True'">
-    <PackageReference Include="Azure.Identity" Version="1.3.0" /> <!-- Supports: netstandard2.0 -->
-    <PackageReference Include="Azure.Core" Version="1.14.0" /> <!-- Supports: net461, netstandard2.0, and net5.0 -->
+    <PackageReference Include="Azure.Identity" Version="1.11.4" />
+    <PackageReference Include="Azure.Core" Version="1.38.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(IsNetCore)' == 'True'">

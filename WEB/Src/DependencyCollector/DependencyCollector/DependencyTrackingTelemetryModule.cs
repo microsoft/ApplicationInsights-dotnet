@@ -81,7 +81,7 @@
         public ICollection<string> ExcludeComponentCorrelationHttpHeadersOnDomains { get; } = new SanitizedHostList();
 
         /// <summary>
-        /// Gets the list of diagnostic sources and activities to exclude from collection.
+        /// Gets the list of diagnostic sources and activities to include from collection.
         /// </summary>
         public ICollection<string> IncludeDiagnosticSourceActivities { get; } = new List<string>();
 
@@ -282,7 +282,13 @@
         [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
         private static void PrepareFirstActivity()
         {
+#if REDFIELD
+            // Redfield uses an older version of Diagnostic Source in which Activity is not Disposable.
+            var activity = new Activity("Microsoft.ApplicationInsights.Init");
+#else
             using var activity = new Activity("Microsoft.ApplicationInsights.Init");
+#endif
+
             activity.Start();
             activity.Stop();
         }

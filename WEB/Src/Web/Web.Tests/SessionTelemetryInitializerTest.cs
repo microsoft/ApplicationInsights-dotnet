@@ -114,7 +114,7 @@
 
             var initializer = new TestableSessionTelemetryInitializer();
             initializer.FakeContext
-                .AddRequestCookie(new HttpCookie("ai_session", string.Empty))
+                .AddRequestCookie(new HttpCookie("ai_session", string.Empty) { HttpOnly = true })
                 .AddRequestTelemetry(requestTelemetry);
 
             var telemetry = new EventTelemetry();
@@ -133,7 +133,7 @@
             var initializer = new TestableSessionTelemetryInitializer();
             string now = DateTimeOffset.Now.ToString("O", CultureInfo.InvariantCulture);
             initializer.FakeContext
-                .AddRequestCookie(new HttpCookie("ai_session", "123|" + now + "|" + now))
+                .AddRequestCookie(new HttpCookie("ai_session", "123|" + now + "|" + now) { HttpOnly = true })
                 .AddRequestTelemetry(requestTelemetry);
 
             var telemetry = new EventTelemetry();
