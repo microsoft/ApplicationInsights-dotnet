@@ -7,7 +7,7 @@
     using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
-
+    using Azure.Monitor.OpenTelemetry.Exporter;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -16,9 +16,10 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Sampling;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics;
     using Microsoft.ApplicationInsights.Metrics;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
+    using OpenTelemetry;
+    using OpenTelemetry.Trace;
 
     /// <summary>
     /// Encapsulates the global telemetry configuration typically loaded from the ApplicationInsights.config file.
@@ -30,12 +31,15 @@
     public sealed class TelemetryConfiguration : IDisposable
     {
         internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
-
         private static object syncRoot = new object();
         private static TelemetryConfiguration active;
 
+        private readonly object initLock = new object();
         private readonly SnapshottingList<ITelemetryInitializer> telemetryInitializers = new SnapshottingList<ITelemetryInitializer>();
         private readonly TelemetrySinkCollection telemetrySinks = new TelemetrySinkCollection();
+        private TracerProvider tracerProvider;
+        private ActivitySource activitySource;
+        private bool isInitialized = false;
 
         private TelemetryProcessorChain telemetryProcessorChain;
         private string instrumentationKey = string.Empty;
@@ -59,7 +63,7 @@
         /// </summary>
         static TelemetryConfiguration()
         {
-            ActivityExtensions.TryRun(() =>
+            /*ActivityExtensions.TryRun(() =>
             {
                 if (!Activity.ForceDefaultIdFormat)
                 {
@@ -67,7 +71,7 @@
                     Activity.ForceDefaultIdFormat = true;
                 }
             });
-            SelfDiagnosticsInitializer.EnsureInitialized();
+            SelfDiagnosticsInitializer.EnsureInitialized();*/
         }
 
         /// <summary>
@@ -231,6 +235,24 @@
         /// </remarks>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public IList<string> ExperimentalFeatures { get; } = new List<string>(0);
+
+        internal TracerProvider TracerProvider
+        {
+            get
+            {
+                this.EnsureInitialized();
+                return this.tracerProvider;
+            }
+        }
+
+        internal ActivitySource ActivitySource
+        {
+            get
+            {
+                this.EnsureInitialized();
+                return this.activitySource;
+            }
+        }
 
         /// <summary>
         /// Gets the list of <see cref="ITelemetryInitializer"/> objects that supply additional information about telemetry.
@@ -504,6 +526,35 @@
             {
                 SetTelemetryChannelEndpoint(tSink.TelemetryChannel, ingestionEndpoint, force: true);
             }
+        }
+
+        private void EnsureInitialized()
+        {
+            if (this.isInitialized)
+            {
+                return;
+            }
+
+            lock (this.initLock)
+            {
+                if (this.isInitialized)
+                {
+                    return;
+                }
+
+                this.InitializeOpenTelemetry();
+                this.isInitialized = true;
+            }
+        }
+
+        private void InitializeOpenTelemetry()
+        {
+            // Create ActivitySource and Meter for this configuration
+            this.activitySource = new ActivitySource("Microsoft.ApplicationInsights", "3.0.0");
+            this.tracerProvider = Sdk.CreateTracerProviderBuilder()
+                                 .AddSource(this.activitySource.Name)
+                                 .AddAzureMonitorTraceExporter(o => o.ConnectionString = this.connectionString)
+                                 .Build();
         }
 
         /// <summary>

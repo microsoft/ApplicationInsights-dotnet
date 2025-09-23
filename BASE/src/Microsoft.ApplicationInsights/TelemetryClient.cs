@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Globalization;
     using System.Threading;
     using System.Threading.Tasks;
@@ -12,8 +13,10 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Internals;
     using Microsoft.ApplicationInsights.Metrics;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
+    using OpenTelemetry.Trace;
 
     /// <summary>
     /// Send events, metrics and other telemetry to the Application Insights service.
@@ -54,12 +57,9 @@
                 configuration = TelemetryConfiguration.Active;
             }
 
-            this.configuration = configuration;
+            this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
-            if (this.configuration.TelemetryChannel == null)
-            {
-                throw new ArgumentException("The specified configuration does not have a telemetry channel.", nameof(configuration));
-            }
+            // this.configuration = configuration;
         }
 #pragma warning restore 612, 618 // TelemetryConfiguration.Active
 
@@ -505,7 +505,7 @@
             bool sampledOut = false;
             if (telemetryWithSampling != null)
             {
-                sampledOut = telemetryWithSampling.ProactiveSamplingDecision == SamplingDecision.SampledOut;
+                // sampledOut = telemetryWithSampling.ProactiveSamplingDecision == SamplingDecision.SampledOut;
             }
 
             if (!sampledOut)
@@ -617,7 +617,17 @@
         /// </remarks>
         public void TrackRequest(string name, DateTimeOffset startTime, TimeSpan duration, string responseCode, bool success)
         {
-            this.Track(new RequestTelemetry(name, startTime, duration, responseCode, success));
+            // this.Track(new RequestTelemetry(name, startTime, duration, responseCode, success));
+            using (var requestTelemetryActivity = this.TelemetryConfiguration.ActivitySource.StartActivity(name, ActivityKind.Server))
+            {
+                if (requestTelemetryActivity != null)
+                {
+                    requestTelemetryActivity.SetStartTime(startTime.UtcDateTime);
+                    requestTelemetryActivity.SetEndTime(startTime.Add(duration).UtcDateTime);
+                    requestTelemetryActivity.SetTag(SemanticConventions.AttributeHttpResponseStatusCode, responseCode);
+                    requestTelemetryActivity.SetStatus(success ? ActivityStatusCode.Ok : ActivityStatusCode.Error);
+                }
+            }
         }
 
         /// <summary>
@@ -629,12 +639,74 @@
         /// </remarks>
         public void TrackRequest(RequestTelemetry request)
         {
-            if (request == null)
+            /*if (request == null)
             {
                 request = new RequestTelemetry();
             }
 
-            this.Track(request);
+            this.Track(request);*/
+            if (request == null)
+            {
+               // request = new RequestTelemetry();
+                // Log message
+            }
+
+            using (var requestTelemetryActivity = this.TelemetryConfiguration.ActivitySource.StartActivity(request.Name, ActivityKind.Server))
+            {
+                if (requestTelemetryActivity != null)
+                {
+                    requestTelemetryActivity.SetStartTime(request.Timestamp.UtcDateTime);
+                    requestTelemetryActivity.SetEndTime(request.Timestamp.Add(request.Duration).UtcDateTime);
+
+                    // HTTP semantic conventions
+                    requestTelemetryActivity.SetTag(SemanticConventions.AttributeHttpResponseStatusCode, request.ResponseCode);
+                    requestTelemetryActivity.SetStatus(request.Success == true ? ActivityStatusCode.Ok : ActivityStatusCode.Error);
+
+                    if (request.Url != null)
+                    {
+                        requestTelemetryActivity.SetTag(SemanticConventions.AttributeUrlScheme, request.Url.Scheme);
+                        requestTelemetryActivity.SetTag(SemanticConventions.AttributeServerAddress, request.Url.Host);
+
+                        if (!request.Url.IsDefaultPort)
+                        {
+                            requestTelemetryActivity.SetTag(SemanticConventions.AttributeServerPort, request.Url.Port);
+                        }
+
+                        if (!string.IsNullOrEmpty(request.Url.AbsolutePath))
+                        {
+                            requestTelemetryActivity.SetTag(SemanticConventions.AttributeUrlPath, request.Url.AbsolutePath);
+                        }
+
+                        if (!string.IsNullOrEmpty(request.Url.Query))
+                        {
+                            requestTelemetryActivity.SetTag(SemanticConventions.AttributeUrlQuery, request.Url.Query);
+                        }
+
+                        requestTelemetryActivity.SetTag(SemanticConventions.AttributeUrlFull, request.Url.ToString());
+                    }
+
+                    if (!string.IsNullOrEmpty(request.Source))
+                    {
+                        requestTelemetryActivity.SetTag("request.source", request.Source);
+                    }
+
+                    string clientIp = request.Context.Location.Ip;
+                    if (!string.IsNullOrEmpty(clientIp))
+                    {
+                        requestTelemetryActivity.SetTag(SemanticConventions.AttributeClientAddress, clientIp);
+                    }
+
+                    if (request.Properties != null)
+                    {
+                        foreach (var property in request.Properties)
+                        {
+                            requestTelemetryActivity.SetTag($"custom.{property.Key}", property.Value);
+                        }
+                    }
+                }
+            }
+
+            RichPayloadEventSource.Log.Process(request);
         }
 
         /// <summary>
@@ -647,7 +719,9 @@
         {
             CoreEventSource.Log.TelemetlyClientFlush();
 
-            if (this.TryGetMetricManager(out MetricManager privateMetricManager))
+            this.TelemetryConfiguration.TracerProvider.ForceFlush();
+
+            /*if (this.TryGetMetricManager(out MetricManager privateMetricManager))
             {
                 privateMetricManager.Flush(flushDownstreamPipeline: false);
             }
@@ -660,7 +734,7 @@
 
                 ITelemetryChannel channel = pipeline.TelemetryChannel;
                 channel?.Flush();
-            }
+            }*/
         }
 
         /// <summary>

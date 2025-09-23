@@ -13,23 +13,23 @@
         {
             var telemetryConfig = new TelemetryConfiguration
             {
-                ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000",
+                ConnectionString = "InstrumentationKey=cfd11a0c-b911-4de5-885d-659e2317e020;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/;LiveEndpoint=https://westus2.livediagnostics.monitor.azure.com/;ApplicationId=50c16cf6-ec05-41ce-a7e7-c377548d53ef",
             };
 
             // Add custom TelemetryInitializer.
-            telemetryConfig.TelemetryInitializers.Add(new MyCustomTelemetryInitializer());
+            //telemetryConfig.TelemetryInitializers.Add(new MyCustomTelemetryInitializer());
 
             // Add custom TelemetryProcessor and build.
-            var builder = telemetryConfig.DefaultTelemetrySink.TelemetryProcessorChainBuilder;
-            builder.Use(next => new MyCustomTelemetryProcessor(next));
-            builder.Build();
+            //var builder = telemetryConfig.DefaultTelemetrySink.TelemetryProcessorChainBuilder;
+            //builder.Use(next => new MyCustomTelemetryProcessor(next));
+            //builder.Build();
 
             // Initialize the TelemetryClient
             var telemetryClient = new TelemetryClient(telemetryConfig);
 
             // **The following lines are examples of tracking different telemetry types.**
 
-            telemetryClient.TrackEvent("SampleEvent");
+            /*telemetryClient.TrackEvent("SampleEvent");
             telemetryClient.TrackEvent(new EventTelemetry("SampleEventObject"));
 
             telemetryClient.TrackTrace("A trace message");
@@ -44,7 +44,7 @@
             telemetryClient.TrackException(new InvalidOperationException("Something went wrong"));
 
             telemetryClient.TrackDependency("SQL", "GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), true);
-            telemetryClient.TrackDependency(new DependencyTelemetry("SQL", "dbserver", "GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), "0", true));
+            telemetryClient.TrackDependency(new DependencyTelemetry("SQL", "dbserver", "GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), "0", true));*/
 
             telemetryClient.TrackRequest("GET Home", DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", true);
             telemetryClient.TrackRequest(new RequestTelemetry("GET HomeObject", DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", true));
@@ -56,7 +56,7 @@
         }
     }
 
-    internal class MyCustomTelemetryInitializer : ITelemetryInitializer
+    /*internal class MyCustomTelemetryInitializer : ITelemetryInitializer
     {
         public void Initialize(ITelemetry telemetry)
         {
@@ -83,5 +83,5 @@
                 this.next.Process(item);
             }
         }
-    }
+    }*/
 }
