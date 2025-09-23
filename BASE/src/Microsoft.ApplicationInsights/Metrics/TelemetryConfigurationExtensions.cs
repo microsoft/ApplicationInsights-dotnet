@@ -4,7 +4,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>Container for extension methods on <c>TelemetryConfiguration</c>.</summary>
-    public static class TelemetryConfigurationExtensions
+    internal static class TelemetryConfigurationExtensions
     {
         /// <summary><c>TelemetryConfiguration.GetMetricManager(..)</c> is a internal method to avoid puluting the public surface.
         /// You can use the namespace <c>Microsoft.ApplicationInsights.Extensibility</c> to get access to the <c>MetricManager</c> via this extension method.</summary>

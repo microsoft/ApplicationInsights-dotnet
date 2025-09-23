@@ -6,7 +6,7 @@
     /// <summary>
     /// Event argument to track response from ingestion endpoint.
     /// </summary>
-    public class TransmissionStatusEventArgs : EventArgs
+    internal class TransmissionStatusEventArgs : EventArgs
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TransmissionStatusEventArgs"/> class.

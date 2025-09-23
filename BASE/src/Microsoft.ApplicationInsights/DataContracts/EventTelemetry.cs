@@ -13,7 +13,7 @@
     /// Telemetry type used to track custom events.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackevent">Learn more</a>
     /// </summary>
-    public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportAdvancedSampling, ISupportMetrics, IAiSerializableTelemetry
+    public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportMetrics, IAiSerializableTelemetry
     {
         internal const string EtwEnvelopeName = "Event";
         internal const string DefaultEnvelopeName = "AppEvents";
@@ -48,7 +48,6 @@
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
-            this.ProactiveSamplingDecision = source.ProactiveSamplingDecision;
             this.extension = source.extension?.DeepClone();
         }
 
@@ -88,15 +87,6 @@
         }
 
         /// <summary>
-        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
-        /// </summary>
-        public IExtension Extension
-        {
-            get { return this.extension; }
-            set { this.extension = value; }
-        }
-
-        /// <summary>
         /// Gets or sets the name of the event.
         /// </summary>
         public string Name
@@ -124,22 +114,13 @@
         }
 
         /// <summary>
-        /// Gets or sets data sampling percentage (between 0 and 100).
-        /// Should be 100/n where n is an integer. <a href="https://go.microsoft.com/fwlink/?linkid=832969">Learn more</a>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
         /// </summary>
-        double? ISupportSampling.SamplingPercentage
+        internal IExtension Extension
         {
-            get { return this.samplingPercentage; }
-            set { this.samplingPercentage = value; }
+            get { return this.extension; }
+            set { this.extension = value; }
         }
-
-        /// <summary>
-        /// Gets item type for sampling evaluation.
-        /// </summary>
-        public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.Event;
-
-        /// <inheritdoc/>
-        public SamplingDecision ProactiveSamplingDecision { get; set; }
 
         /// <summary>
         /// Deeply clones a <see cref="EventTelemetry"/> object.
@@ -161,8 +142,7 @@
             this.Metrics.SanitizeMeasurements();
         }
 
-        /// <inheritdoc/>
-        public void SerializeData(ISerializationWriter serializationWriter)
+        internal void SerializeData(ISerializationWriter serializationWriter)
         {
             if (serializationWriter == null)
             {

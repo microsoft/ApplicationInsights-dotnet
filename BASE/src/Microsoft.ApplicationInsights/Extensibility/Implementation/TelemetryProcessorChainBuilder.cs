@@ -32,24 +32,12 @@
         /// </summary>
         /// <param name="configuration">Configuration instance to use for constructing the processor chain.</param>
         /// <param name="telemetrySink">Telemetry sink the processor chain will be assigned to.</param>
-        public TelemetryProcessorChainBuilder(TelemetryConfiguration configuration, TelemetrySink telemetrySink) : this(configuration)
+        internal TelemetryProcessorChainBuilder(TelemetryConfiguration configuration, TelemetrySink telemetrySink) : this(configuration)
         {
             this.telemetrySink = telemetrySink ?? throw new ArgumentNullException(nameof(telemetrySink));
         }
 
         internal TelemetrySink TelemetrySink => this.telemetrySink;
-
-        /// <summary>
-        /// Uses given factory to add TelemetryProcessor to the chain of processors. The processors
-        /// in the chain will be invoked in the same order in which they are added.
-        /// </summary>
-        /// <param name="telemetryProcessorFactory">A delegate that returns a <see cref="ITelemetryProcessor"/>
-        /// , given the next <see cref="ITelemetryProcessor"/> in the call chain.</param>
-        public TelemetryProcessorChainBuilder Use(Func<ITelemetryProcessor, ITelemetryProcessor> telemetryProcessorFactory)
-        {
-            this.factories.Add(telemetryProcessorFactory);
-            return this;
-        }
 
         /// <summary>
         /// Builds the chain of linked <see cref="ITelemetryProcessor" /> instances and sets the same in configuration object passed.
@@ -109,7 +97,7 @@
                     }
                 }
             }
-            
+
             // Save changes to the TelemetryProcessorChain
             var telemetryProcessorChain = new TelemetryProcessorChain(telemetryProcessorsList.AsEnumerable().Reverse());
             if (this.telemetrySink != null)
@@ -120,6 +108,18 @@
             {
                 this.configuration.TelemetryProcessorChain = telemetryProcessorChain;
             }
+        }
+
+        /// <summary>
+        /// Uses given factory to add TelemetryProcessor to the chain of processors. The processors
+        /// in the chain will be invoked in the same order in which they are added.
+        /// </summary>
+        /// <param name="telemetryProcessorFactory">A delegate that returns a <see cref="ITelemetryProcessor"/>
+        /// , given the next <see cref="ITelemetryProcessor"/> in the call chain.</param>
+        internal TelemetryProcessorChainBuilder Use(Func<ITelemetryProcessor, ITelemetryProcessor> telemetryProcessorFactory)
+        {
+            this.factories.Add(telemetryProcessorFactory);
+            return this;
         }
     }
 }

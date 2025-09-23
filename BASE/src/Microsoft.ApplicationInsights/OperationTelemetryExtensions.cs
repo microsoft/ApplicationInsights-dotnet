@@ -9,7 +9,7 @@
     /// Extension functions to operation telemetry that start and stop the timer.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static class OperationTelemetryExtensions
+    internal static class OperationTelemetryExtensions
     {
         /// <summary>
         /// An extension to telemetry item that starts the timer for the respective telemetry.

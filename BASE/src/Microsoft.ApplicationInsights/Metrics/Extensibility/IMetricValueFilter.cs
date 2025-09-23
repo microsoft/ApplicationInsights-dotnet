@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
     /// <summary>Abstraction for a filter that can controll whether values are being tracked or ignored by a metric aggregator.</summary>
-    public interface IMetricValueFilter
+    internal interface IMetricValueFilter
     {
         /// <summary>Determine whether a value will be tracked or ignored while aggregating a metric data time series.</summary>
         /// <param name="dataSeries">A metric data time series.</param>

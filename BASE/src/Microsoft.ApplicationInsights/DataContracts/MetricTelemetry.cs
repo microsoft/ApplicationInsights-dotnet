@@ -168,15 +168,6 @@
         public TelemetryContext Context { get; }
 
         /// <summary>
-        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
-        /// </summary>
-        public IExtension Extension
-        {
-            get { return this.extension; }
-            set { this.extension = value; }
-        }
-
-        /// <summary>
         /// Gets or sets the name of the metric.
         /// </summary>
         public string MetricNamespace
@@ -259,23 +250,21 @@
         }
 
         /// <summary>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
+        /// </summary>
+        internal IExtension Extension
+        {
+            get { return this.extension; }
+            set { this.extension = value; }
+        }
+
+        /// <summary>
         /// Deeply clones a <see cref="MetricTelemetry"/> object.
         /// </summary>
         /// <returns>A cloned instance.</returns>
         public ITelemetry DeepClone()
         {
             return new MetricTelemetry(this);
-        }
-
-        /// <inheritdoc/>
-        public void SerializeData(ISerializationWriter serializationWriter)
-        {
-            if (serializationWriter == null)
-            {
-                throw new ArgumentNullException(nameof(serializationWriter));
-            }
-
-            serializationWriter.WriteProperty(this.Data);
         }
 
         /// <summary>
@@ -308,6 +297,16 @@
             {
                 this.StandardDeviation = Utils.SanitizeNanAndInfinity(this.StandardDeviation.Value);
             }
+        }
+
+        internal void SerializeData(ISerializationWriter serializationWriter)
+        {
+            if (serializationWriter == null)
+            {
+                throw new ArgumentNullException(nameof(serializationWriter));
+            }
+
+            serializationWriter.WriteProperty(this.Data);
         }
     }
 }

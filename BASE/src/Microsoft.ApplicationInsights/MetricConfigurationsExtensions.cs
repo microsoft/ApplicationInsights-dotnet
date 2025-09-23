@@ -10,7 +10,7 @@
     /// Do not use directly. Instead, use: <c>MetricConfigurations.Common.Xxxx()</c>.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static class MetricConfigurationsExtensions
+    internal static class MetricConfigurationsExtensions
     {
         private const int DefaultSeriesCountLimit = 1000;
         private const int DefaultValuesPerDimensionLimit = 100;

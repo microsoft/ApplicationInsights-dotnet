@@ -10,7 +10,7 @@
     /// <summary>
     /// Represents a destination for telemetry, consisting of a set of telemetry processors and a channel.
     /// </summary>
-    public sealed class TelemetrySink : IDisposable, ITelemetryModule
+    internal sealed class TelemetrySink : IDisposable, ITelemetryModule
     {
         /// <summary>
         /// The name to use for the default telemetry sink when specifying its properties through configuration.

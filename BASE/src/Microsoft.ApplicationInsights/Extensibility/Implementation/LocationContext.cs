@@ -7,7 +7,7 @@
     /// <summary>
     /// Encapsulates telemetry location information.
     /// </summary>
-    public sealed class LocationContext
+    internal sealed class LocationContext
     {
         private string ip;
 

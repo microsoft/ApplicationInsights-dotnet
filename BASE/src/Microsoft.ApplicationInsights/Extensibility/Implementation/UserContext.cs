@@ -8,7 +8,7 @@
     /// <summary>
     /// Encapsulates information about a user using an application.
     /// </summary>
-    public sealed class UserContext
+    internal sealed class UserContext
     {
         private string id;
         private string accountId;

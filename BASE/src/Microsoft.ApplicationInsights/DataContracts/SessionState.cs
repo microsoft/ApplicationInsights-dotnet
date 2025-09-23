@@ -8,7 +8,7 @@
     /// Contains values that identify state of a user session.
     /// </summary>
     [Obsolete("Session state events are no longer used.")]
-    public enum SessionState
+    internal enum SessionState
     {
         /// <summary>
         /// Indicates that a user session started.

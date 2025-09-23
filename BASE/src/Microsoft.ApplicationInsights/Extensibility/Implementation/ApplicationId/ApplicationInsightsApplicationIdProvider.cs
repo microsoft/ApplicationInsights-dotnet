@@ -11,7 +11,7 @@
     /// This will cache lookup results to prevent repeat queries.
     /// This will rely on the <see cref="ProfileServiceWrapper" /> and <see cref="FailedRequestsManager" /> to record failed requests and block additional failing requests.
     /// </summary>
-    public sealed class ApplicationInsightsApplicationIdProvider : IApplicationIdProvider, IDisposable
+    internal sealed class ApplicationInsightsApplicationIdProvider : IApplicationIdProvider, IDisposable
     {
         internal ConcurrentDictionary<string, bool> FetchTasks = new ConcurrentDictionary<string, bool>();
 

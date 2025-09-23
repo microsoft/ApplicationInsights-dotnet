@@ -13,7 +13,7 @@
     /// with terminology used by our portal and services and to encourage standardization of terminology within our
     /// organization. Once a consensus is reached, we will change type and property names to match.
     /// </remarks>
-    public sealed class ComponentContext
+    internal sealed class ComponentContext
     {
         private string version;
 

@@ -6,7 +6,7 @@
     /// <summary>A configuration for a metric that uses the Measurement aggregation kind.
     /// A measurement contains the Min, Max, Sum and Count of the values tracked over any given
     /// aggregation time period.</summary>
-    public sealed class MetricConfigurationForMeasurement : MetricConfiguration
+    internal sealed class MetricConfigurationForMeasurement : MetricConfiguration
     {
         /// <summary>Creates a new instance of <c>MetricConfigurationForMeasurement</c>.</summary>
         /// <param name="seriesCountLimit">How many data time series a metric can contain as a maximum.

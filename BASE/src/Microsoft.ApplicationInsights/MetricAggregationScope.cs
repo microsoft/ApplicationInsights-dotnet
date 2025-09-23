@@ -9,7 +9,7 @@
     /// </summary>
     /// <seealso cref="MetricAggregationScope.TelemetryConfiguration" />
     /// <seealso cref="MetricAggregationScope.TelemetryClient" />
-    public enum MetricAggregationScope
+    internal enum MetricAggregationScope
     {
         /// <summary>
         /// <para>Metric values will be aggregated ACROSS all telemetry clients that belong to the same <c>TelemetryConfiguration</c>.<br />

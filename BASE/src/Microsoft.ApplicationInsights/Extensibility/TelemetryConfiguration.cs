@@ -74,36 +74,8 @@
         /// Initializes a new instance of the TelemetryConfiguration class.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-#pragma warning disable CS0618 // Type or member is obsolete
-        public TelemetryConfiguration() : this(string.Empty, null)
-#pragma warning restore CS0618 // Type or member is obsolete
+        public TelemetryConfiguration()
         {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the TelemetryConfiguration class.
-        /// </summary>
-        /// <param name="instrumentationKey">The instrumentation key this configuration instance will provide.</param>
-        [Obsolete("InstrumentationKey based global ingestion is being deprecated. Use the default constructor and manually set TelemetryConfiguration.ConnectionString. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/2560 for more details.")]
-        public TelemetryConfiguration(string instrumentationKey) : this(instrumentationKey, null)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the TelemetryConfiguration class.
-        /// </summary>
-        /// <param name="instrumentationKey">The instrumentation key this configuration instance will provide.</param>
-        /// <param name="channel">The telemetry channel to provide with this configuration instance.</param>
-        [Obsolete("InstrumentationKey based global ingestion is being deprecated. Use the default constructor and manually set TelemetryConfiguration.ConnectionString. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/2560 for more details.")]
-        public TelemetryConfiguration(string instrumentationKey, ITelemetryChannel channel)
-        {
-            this.instrumentationKey = instrumentationKey ?? throw new ArgumentNullException(nameof(instrumentationKey));
-
-            var ingestionEndpoint = this.EndpointContainer.GetFormattedIngestionEndpoint(enableAAD: this.CredentialEnvelope != null);
-            SetTelemetryChannelEndpoint(channel, ingestionEndpoint, force: true);
-            var defaultSink = new TelemetrySink(this, channel);
-            defaultSink.Name = "default";
-            this.telemetrySinks.Add(defaultSink);
         }
 
         /// <summary>
@@ -190,32 +162,6 @@
         }
 
         /// <summary>
-        /// Gets the list of <see cref="ITelemetryInitializer"/> objects that supply additional information about telemetry.
-        /// </summary>
-        /// <remarks>
-        /// Telemetry initializers extend Application Insights telemetry collection by supplying additional information 
-        /// about individual <see cref="ITelemetry"/> items, such as <see cref="ITelemetry.Timestamp"/>. A <see cref="TelemetryClient"/>
-        /// invokes telemetry initializers each time <see cref="TelemetryClient.Track"/> method is called.
-        /// The default list of telemetry initializers is provided by the Application Insights NuGet packages and loaded from 
-        /// the ApplicationInsights.config file located in the application directory. 
-        /// </remarks>
-        public IList<ITelemetryInitializer> TelemetryInitializers
-        {
-            get { return this.telemetryInitializers; }
-        }
-
-        /// <summary>
-        /// Gets a readonly collection of TelemetryProcessors.
-        /// </summary>
-        public ReadOnlyCollection<ITelemetryProcessor> TelemetryProcessors
-        {
-            get
-            {
-                return new ReadOnlyCollection<ITelemetryProcessor>(this.TelemetryProcessorChain.TelemetryProcessors);
-            }
-        }
-
-        /// <summary>
         /// Gets the TelemetryProcessorChainBuilder which can build and populate TelemetryProcessors in the TelemetryConfiguration.
         /// </summary>
         public TelemetryProcessorChainBuilder TelemetryProcessorChainBuilder
@@ -231,54 +177,6 @@
                 this.builder = value;
             }
         }
-
-        /// <summary>
-        /// Gets or sets the telemetry channel for the default sink. Will also attempt to set the Channel's endpoint.
-        /// </summary>
-        public ITelemetryChannel TelemetryChannel
-        {
-            get
-            {
-                // We do not ensure not disposed here because TelemetryChannel is accessed during configuration disposal.
-                return this.telemetrySinks.DefaultSink.TelemetryChannel;
-            }
-
-            set
-            {
-                if (!this.isDisposed)
-                {
-                    this.telemetrySinks.DefaultSink.TelemetryChannel = value;
-                    var ingestionEndpoint = this.EndpointContainer.GetFormattedIngestionEndpoint(enableAAD: this.CredentialEnvelope != null);
-                    SetTelemetryChannelEndpoint(this.telemetrySinks.DefaultSink.TelemetryChannel, ingestionEndpoint);
-                    SetTelemetryChannelCredentialEnvelope(value, this.CredentialEnvelope);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the Application Id Provider.
-        /// </summary>
-        /// <remarks>
-        /// This feature is opt-in and must be configured to be enabled.
-        /// </remarks>
-        public IApplicationIdProvider ApplicationIdProvider
-        {
-            get
-            {
-                return this.applicationIdProvider;
-            }
-
-            set
-            {
-                this.applicationIdProvider = value;
-                SetApplicationIdEndpoint(this.applicationIdProvider, this.EndpointContainer.FormattedApplicationIdEndpoint);
-            }
-        }
-
-        /// <summary>
-        /// Gets the Endpoint Container responsible for making service endpoints available.
-        /// </summary>
-        public EndpointContainer EndpointContainer { get; private set; } = new EndpointContainer(new EndpointProvider());
 
         /// <summary>
         /// Gets or sets the connection string. Setting this value will also set (and overwrite) the <see cref="InstrumentationKey"/>. The endpoints are validated and will be set (and overwritten) for <see cref="InMemoryChannel"/> and ServerTelemetryChannel as well as the <see cref="ApplicationIdProvider"/>.
@@ -335,14 +233,88 @@
         public IList<string> ExperimentalFeatures { get; } = new List<string>(0);
 
         /// <summary>
+        /// Gets the list of <see cref="ITelemetryInitializer"/> objects that supply additional information about telemetry.
+        /// </summary>
+        /// <remarks>
+        /// Telemetry initializers extend Application Insights telemetry collection by supplying additional information 
+        /// about individual <see cref="ITelemetry"/> items, such as <see cref="ITelemetry.Timestamp"/>. A <see cref="TelemetryClient"/>
+        /// invokes telemetry initializers each time <see cref="TelemetryClient.Track"/> method is called.
+        /// The default list of telemetry initializers is provided by the Application Insights NuGet packages and loaded from 
+        /// the ApplicationInsights.config file located in the application directory. 
+        /// </remarks>
+        internal IList<ITelemetryInitializer> TelemetryInitializers
+        {
+            get { return this.telemetryInitializers; }
+        }
+
+        /// <summary>
+        /// Gets a readonly collection of TelemetryProcessors.
+        /// </summary>
+        internal ReadOnlyCollection<ITelemetryProcessor> TelemetryProcessors
+        {
+            get
+            {
+                return new ReadOnlyCollection<ITelemetryProcessor>(this.TelemetryProcessorChain.TelemetryProcessors);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the telemetry channel for the default sink. Will also attempt to set the Channel's endpoint.
+        /// </summary>
+        internal ITelemetryChannel TelemetryChannel
+        {
+            get
+            {
+                // We do not ensure not disposed here because TelemetryChannel is accessed during configuration disposal.
+                return this.telemetrySinks.DefaultSink.TelemetryChannel;
+            }
+
+            set
+            {
+                if (!this.isDisposed)
+                {
+                    this.telemetrySinks.DefaultSink.TelemetryChannel = value;
+                    var ingestionEndpoint = this.EndpointContainer.GetFormattedIngestionEndpoint(enableAAD: this.CredentialEnvelope != null);
+                    SetTelemetryChannelEndpoint(this.telemetrySinks.DefaultSink.TelemetryChannel, ingestionEndpoint);
+                    SetTelemetryChannelCredentialEnvelope(value, this.CredentialEnvelope);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the Application Id Provider.
+        /// </summary>
+        /// <remarks>
+        /// This feature is opt-in and must be configured to be enabled.
+        /// </remarks>
+        internal IApplicationIdProvider ApplicationIdProvider
+        {
+            get
+            {
+                return this.applicationIdProvider;
+            }
+
+            set
+            {
+                this.applicationIdProvider = value;
+                SetApplicationIdEndpoint(this.applicationIdProvider, this.EndpointContainer.FormattedApplicationIdEndpoint);
+            }
+        }
+
+        /// <summary>
+        /// Gets the Endpoint Container responsible for making service endpoints available.
+        /// </summary>
+        internal EndpointContainer EndpointContainer { get; private set; } = new EndpointContainer(new EndpointProvider());
+
+        /// <summary>
         /// Gets a list of telemetry sinks associated with the configuration.
         /// </summary>
-        public IList<TelemetrySink> TelemetrySinks => this.telemetrySinks;
+        internal IList<TelemetrySink> TelemetrySinks => this.telemetrySinks;
 
         /// <summary>
         /// Gets the default telemetry sink.
         /// </summary>
-        public TelemetrySink DefaultTelemetrySink => this.telemetrySinks.DefaultSink;
+        internal TelemetrySink DefaultTelemetrySink => this.telemetrySinks.DefaultSink;
 
         /// <summary>
         /// Gets an envelope for Azure.Core.TokenCredential which provides an AAD Authenticated token.

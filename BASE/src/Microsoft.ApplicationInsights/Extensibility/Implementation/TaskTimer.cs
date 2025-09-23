@@ -12,7 +12,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     /// Runs a task after a certain delay and log any error.
     /// </summary>
     [Obsolete("This class will be removed in the next major version. Application Insights base library wouldn't provide this functionality any longer.")]
-    public class TaskTimer : IDisposable
+    internal class TaskTimer : IDisposable
     {
         /// <summary>
         /// Represents an infinite time span.

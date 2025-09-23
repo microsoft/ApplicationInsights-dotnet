@@ -8,7 +8,7 @@
     /// <summary>Holds the metric aggregation results of a particular metric data series over an aggregation time period.
     /// The specific data fields on instanced of this class are not strongly typed (property bag) which allows using this
     /// aggregate type for aggregates of any aggregation kind.</summary>
-    public class MetricAggregate
+    internal class MetricAggregate
     {
         // We want to make the aggregate thread safe, but we expect no significant contention, so a simple lock will suffice.
         private readonly object updateLock = new object();

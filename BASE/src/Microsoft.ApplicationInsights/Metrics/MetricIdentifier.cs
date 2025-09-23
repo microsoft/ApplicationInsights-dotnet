@@ -9,7 +9,7 @@
 
     /// <summary>A metric identifier encapsulates all information required to uniquely identify a metric.
     /// A metric is identified by its name/id, its namespace and the names of its dimensions.</summary>
-    public sealed class MetricIdentifier : IEquatable<MetricIdentifier>
+    internal sealed class MetricIdentifier : IEquatable<MetricIdentifier>
     {
         /// <summary>@Max number of dimensions supported.</summary>
         public const int MaxDimensionsCount = 10;

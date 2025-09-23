@@ -14,7 +14,7 @@
     /// Use this at your own risk.
     /// </remarks>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static class ExperimentalFeaturesExtension
+    internal static class ExperimentalFeaturesExtension
     {
         /// <summary>
         /// Evaluate the TelemetryConfiguration to determine if a feature is enabled.

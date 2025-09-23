@@ -8,7 +8,7 @@
     /// Extension methods for TelemetryConfiguration.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static class TelemetryConfigurationExtensions
+    internal static class TelemetryConfigurationExtensions
     {
         /// <summary>
         /// Gets last known request sampling percentage to skip initializers for sampled requests.

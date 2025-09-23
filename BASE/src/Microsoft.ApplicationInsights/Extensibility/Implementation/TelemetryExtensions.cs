@@ -6,7 +6,7 @@
     /// <summary>
     /// Extensions for ITelemetry interface.
     /// </summary>
-    public static class TelemetryExtensions
+    internal static class TelemetryExtensions
     {
         private const string DefaultEnvelopeName = "Event";
 

@@ -20,7 +20,7 @@
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackrequest">Learn more</a>
     /// </remarks>
-    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportAdvancedSampling, IAiSerializableTelemetry
+    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, IAiSerializableTelemetry
     {
         internal const string EtwEnvelopeName = "Request";
         internal string EnvelopeName = "AppRequests";
@@ -84,7 +84,6 @@
             this.successFieldSet = source.successFieldSet;
             this.extension = source.extension?.DeepClone();
             this.samplingPercentage = source.samplingPercentage;
-            this.ProactiveSamplingDecision = source.ProactiveSamplingDecision;
         }
 
         /// <inheritdoc />
@@ -120,15 +119,6 @@
         public override TelemetryContext Context
         {
             get { return this.context; }
-        }
-
-        /// <summary>
-        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
-        /// </summary>
-        public override IExtension Extension
-        {
-            get { return this.extension; }
-            set { this.extension = value; }
         }
 
         /// <summary>
@@ -241,29 +231,21 @@
         }
 
         /// <summary>
-        /// Gets or sets data sampling percentage (between 0 and 100).
-        /// </summary>
-        double? ISupportSampling.SamplingPercentage
-        {
-            get { return this.samplingPercentage; }
-            set { this.samplingPercentage = value; }
-        }
-
-        /// <summary>
-        /// Gets item type for sampling evaluation.
-        /// </summary>
-        public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.Request;
-
-        /// <inheritdoc/>
-        public SamplingDecision ProactiveSamplingDecision { get; set; }
-
-        /// <summary>
         /// Gets or sets the source for the request telemetry object. This often is a hashed instrumentation key identifying the caller.
         /// </summary>
         public string Source
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
+        /// </summary>
+        internal override IExtension Extension
+        {
+            get { return this.extension; }
+            set { this.extension = value; }
         }
 
         /// <summary>
@@ -316,15 +298,6 @@
         public override ITelemetry DeepClone()
         {
             return new RequestTelemetry(this);
-        }
-
-        /// <inheritdoc/>
-        public override void SerializeData(ISerializationWriter serializationWriter)
-        {
-            // To ensure that all changes to telemetry are reflected in serialization,
-            // the underlying field is set to null, which forces it to be re-created.
-            this.dataPrivate = null;
-            serializationWriter.WriteProperty(this.Data);
         }
 
         /// <summary>

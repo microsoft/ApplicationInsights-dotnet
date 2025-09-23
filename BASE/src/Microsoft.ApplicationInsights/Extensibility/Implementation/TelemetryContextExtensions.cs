@@ -8,7 +8,7 @@
     /// Extension methods for TelemetryContext.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static class TelemetryContextExtensions
+    internal static class TelemetryContextExtensions
     {
         /// <summary>
         /// Returns TelemetryContext's Internal context.

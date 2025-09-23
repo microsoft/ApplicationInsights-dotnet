@@ -7,7 +7,7 @@
     /// period and creates an aggregate that summarizes the period when it is completed. The most common aggregator is
     /// the <see cref="MeasurementAggregator"/>, which produces aggregates that contain the Min, Max, Sum and
     /// Count of values tracked over the aggregation time period.</summary>
-    public interface IMetricSeriesAggregator
+    internal interface IMetricSeriesAggregator
     {
         /// <summary>Gets the data series aggregated by this aggregator.</summary>
         MetricSeries DataSeries { get; }

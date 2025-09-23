@@ -18,7 +18,7 @@
     /// <remarks>
     /// Additional exception details will need to be tracked manually.
     /// </remarks>
-    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportAdvancedSampling, ISupportMetrics, IAiSerializableTelemetry
+    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportMetrics, IAiSerializableTelemetry
     {
         internal const string EtwEnvelopeName = "Exception";
         internal string EnvelopeName = "AppExceptions";
@@ -91,7 +91,6 @@
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
-            this.ProactiveSamplingDecision = source.ProactiveSamplingDecision;
 
             if (!this.isCreatedFromExceptionInfo)
             {
@@ -134,15 +133,6 @@
         public TelemetryContext Context
         {
             get { return this.context; }
-        }
-
-        /// <summary>
-        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
-        /// </summary>
-        public IExtension Extension
-        {
-            get { return this.extension; }
-            set { this.extension = value; }
         }
 
         /// <summary>
@@ -289,22 +279,13 @@
         }
 
         /// <summary>
-        /// Gets or sets data sampling percentage (between 0 and 100).
-        /// Should be 100/n where n is an integer. <a href="https://go.microsoft.com/fwlink/?linkid=832969">Learn more</a>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
         /// </summary>
-        double? ISupportSampling.SamplingPercentage
+        internal IExtension Extension
         {
-            get { return this.samplingPercentage; }
-            set { this.samplingPercentage = value; }
+            get { return this.extension; }
+            set { this.extension = value; }
         }
-
-        /// <summary>
-        /// Gets item type for sampling evaluation.
-        /// </summary>
-        public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.Exception;
-
-        /// <inheritdoc/>
-        public SamplingDecision ProactiveSamplingDecision { get; set; }
 
         internal IList<ExceptionDetails> Exceptions
         {
@@ -318,26 +299,6 @@
         {
             get;
             set;
-        }
-
-        /// <summary>
-        /// Deeply clones a <see cref="ExceptionTelemetry"/> object.
-        /// </summary>
-        /// <returns>A cloned instance.</returns>
-        public ITelemetry DeepClone()
-        {
-            return new ExceptionTelemetry(this);
-        }
-
-        /// <inheritdoc/>
-        public void SerializeData(ISerializationWriter serializationWriter)
-        {
-            if (serializationWriter == null)
-            {
-                throw new ArgumentNullException(nameof(serializationWriter));
-            }
-
-            serializationWriter.WriteProperty(this.Data.Data);
         }
 
         /// <summary>
@@ -373,6 +334,15 @@
         }
 
         /// <summary>
+        /// Deeply clones a <see cref="ExceptionTelemetry"/> object.
+        /// </summary>
+        /// <returns>A cloned instance.</returns>
+        public ITelemetry DeepClone()
+        {
+            return new ExceptionTelemetry(this);
+        }
+
+        /// <summary>
         /// Sanitizes the properties based on constraints.
         /// </summary>
         void ITelemetry.Sanitize()
@@ -381,6 +351,16 @@
             this.message = this.message.SanitizeMessage();
             this.Properties.SanitizeProperties();
             this.Metrics.SanitizeMeasurements();
+        }
+
+        internal void SerializeData(ISerializationWriter serializationWriter)
+        {
+            if (serializationWriter == null)
+            {
+                throw new ArgumentNullException(nameof(serializationWriter));
+            }
+
+            serializationWriter.WriteProperty(this.Data.Data);
         }
 
         private void ConvertExceptionTree(Exception exception, ExceptionDetails parentExceptionDetails, List<ExceptionDetails> exceptions)

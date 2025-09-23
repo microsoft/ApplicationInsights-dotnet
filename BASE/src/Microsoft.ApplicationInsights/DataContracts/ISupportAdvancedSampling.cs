@@ -6,7 +6,7 @@
     /// Possible item types for sampling evaluation.
     /// </summary>
     [Flags]
-    public enum SamplingTelemetryItemTypes
+    internal enum SamplingTelemetryItemTypes
     {
         /// <summary>
         /// Unknown Telemetry Item Type
@@ -72,7 +72,7 @@
     /// <summary>
     /// Represents sampling decision.
     /// </summary>
-    public enum SamplingDecision
+    internal enum SamplingDecision
     {
         /// <summary>
         /// Sampling decision has not been made.
@@ -93,7 +93,7 @@
     /// <summary>
     /// Represent objects that support  advanced sampling features.
     /// </summary>
-    public interface ISupportAdvancedSampling : ISupportSampling
+    internal interface ISupportAdvancedSampling : ISupportSampling
     {
         /// <summary>
         /// Gets the flag indicating item's telemetry type to consider in sampling evaluation.

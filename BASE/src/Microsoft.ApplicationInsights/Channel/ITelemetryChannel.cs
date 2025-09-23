@@ -10,7 +10,7 @@ namespace Microsoft.ApplicationInsights.Channel
     /// <summary>
     /// Represents a communication channel for sending telemetry to application insights.
     /// </summary>
-    public interface ITelemetryChannel : IDisposable
+    internal interface ITelemetryChannel : IDisposable
     {
         /// <summary>
         /// Gets or sets a value indicating whether this channel is in developer mode.

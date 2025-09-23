@@ -6,7 +6,7 @@
     /// <summary>
     /// The interface for defining writers capable of serializing data into various formats.    
     /// </summary>
-    public interface ISerializationWriter
+    internal interface ISerializationWriter
     {
         /// <summary>
         /// Writes name and value for a string field.

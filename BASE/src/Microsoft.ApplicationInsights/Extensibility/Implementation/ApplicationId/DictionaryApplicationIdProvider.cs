@@ -18,7 +18,7 @@
         /// <remarks>
         /// This property is optional. If this is NULL, additional lookups will not be performed.
         /// </remarks>
-        public IApplicationIdProvider Next { get; set; }
+        internal IApplicationIdProvider Next { get; set; }
 
         /// <summary>
         /// Provides an Application Id based on an Instrumentation Key.

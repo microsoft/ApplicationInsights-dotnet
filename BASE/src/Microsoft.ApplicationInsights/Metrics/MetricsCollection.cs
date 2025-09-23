@@ -9,7 +9,7 @@
 
     /// <summary>A collection of metrics available at a specific scope.
     /// A metric is itself a colection of data time series identified by dimension name-values.</summary>
-    public sealed class MetricsCollection : ICollection<Metric>
+    internal sealed class MetricsCollection : ICollection<Metric>
     {
         private readonly MetricManager metricManager;
         private readonly ConcurrentDictionary<MetricIdentifier, Metric> metrics = new ConcurrentDictionary<MetricIdentifier, Metric>();

@@ -105,10 +105,8 @@
         /// <returns>standard string representing the target framework.</returns>
         private static string GetBaseSdkTargetFramework()
         {
-#if NET452
-            return "net452";
-#elif NET46
-            return "net46";
+#if NET462
+            return "net462";
 #elif NETSTANDARD2_0
             return "netstandard2.0";
 #else

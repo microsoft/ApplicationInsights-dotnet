@@ -112,15 +112,6 @@
         }
 
         /// <summary>
-        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
-        /// </summary>
-        public IExtension Extension
-        {
-            get { return this.Data.Extension; }
-            set { this.Data.Extension = value; }
-        }
-
-        /// <summary>
         /// Gets or sets the counter value.
         /// </summary>
         public double Value
@@ -201,6 +192,15 @@
         }
 
         /// <summary>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
+        /// </summary>
+        internal IExtension Extension
+        {
+            get { return this.Data.Extension; }
+            set { this.Data.Extension = value; }
+        }
+
+        /// <summary>
         /// Deeply clones a <see cref="PerformanceCounterTelemetry"/> object.
         /// </summary>
         /// <returns>A cloned instance.</returns>
@@ -209,18 +209,17 @@
             return new PerformanceCounterTelemetry(this);
         }
 
-        /// <inheritdoc/>
-        public void SerializeData(ISerializationWriter serializationWriter)
-        {
-            this.Data.SerializeData(serializationWriter);
-        }
-
         /// <summary>
         /// Sanitizes the properties based on constraints.
         /// </summary>
         void ITelemetry.Sanitize()
         {
             ((ITelemetry)this.Data).Sanitize();
+        }
+
+        internal void SerializeData(ISerializationWriter serializationWriter)
+        {
+            this.Data.SerializeData(serializationWriter);
         }
 
         private void UpdateName()

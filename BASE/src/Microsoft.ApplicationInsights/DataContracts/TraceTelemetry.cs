@@ -14,7 +14,7 @@
     /// Contains a time and message and optionally some additional metadata.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#tracktrace">Learn more</a>
     /// </summary>
-    public sealed class TraceTelemetry : ITelemetry, ISupportProperties, ISupportAdvancedSampling, IAiSerializableTelemetry
+    public sealed class TraceTelemetry : ITelemetry, ISupportProperties, IAiSerializableTelemetry
     {
         internal const string EtwEnvelopeName = "Message";
         internal readonly MessageData Data;
@@ -60,7 +60,6 @@
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
-            this.ProactiveSamplingDecision = source.ProactiveSamplingDecision;
             this.extension = source.extension?.DeepClone();
         }
 
@@ -97,15 +96,6 @@
         public TelemetryContext Context
         {
             get { return this.context; }
-        }
-
-        /// <summary>
-        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
-        /// </summary>
-        public IExtension Extension
-        {
-            get { return this.extension; }
-            set { this.extension = value; }
         }
 
         /// <summary>
@@ -146,30 +136,21 @@
         }
 
         /// <summary>
-        /// Gets or sets data sampling percentage (between 0 and 100).
-        /// Should be 100/n where n is an integer. <a href="https://go.microsoft.com/fwlink/?linkid=832969">Learn more</a>
-        /// </summary>
-        double? ISupportSampling.SamplingPercentage
-        {
-            get { return this.samplingPercentage; }
-            set { this.samplingPercentage = value; }
-        }
-
-        /// <summary>
-        /// Gets item type for sampling evaluation.
-        /// </summary>
-        public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.Message;
-
-        /// <inheritdoc/>
-        public SamplingDecision ProactiveSamplingDecision { get; set; }
-
-        /// <summary>
         /// Gets or sets the MetricExtractorInfo.
         /// </summary>
         internal string MetricExtractorInfo
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
+        /// </summary>
+        internal IExtension Extension
+        {
+            get { return this.extension; }
+            set { this.extension = value; }
         }
 
         /// <summary>
@@ -181,17 +162,6 @@
             return new TraceTelemetry(this);
         }
 
-        /// <inheritdoc/>
-        public void SerializeData(ISerializationWriter serializationWriter)
-        {
-            if (serializationWriter == null)
-            {
-                throw new ArgumentNullException(nameof(serializationWriter));
-            }
-
-            serializationWriter.WriteProperty(this.Data);
-        }
-
         /// <summary>
         /// Sanitizes the properties based on constraints.
         /// </summary>
@@ -200,6 +170,16 @@
             this.Data.message = this.Data.message.SanitizeMessage();
             this.Data.message = Utils.PopulateRequiredStringValue(this.Data.message, "message", typeof(TraceTelemetry).FullName);
             this.Data.properties.SanitizeProperties();
+        }
+
+        internal void SerializeData(ISerializationWriter serializationWriter)
+        {
+            if (serializationWriter == null)
+            {
+                throw new ArgumentNullException(nameof(serializationWriter));
+            }
+
+            serializationWriter.WriteProperty(this.Data);
         }
     }
 }

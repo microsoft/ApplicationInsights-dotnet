@@ -13,7 +13,7 @@
     /// Note that a metric manager deals with zero dimensional time series.
     /// Metric objects are multidimensional collections of such series and the manager 
     /// merely holds a collection of such containers for its scope.</summary>
-    public sealed class MetricManager
+    internal sealed class MetricManager
     {
         private readonly MetricAggregationManager aggregationManager;
         private readonly DefaultAggregationPeriodCycle aggregationCycle;

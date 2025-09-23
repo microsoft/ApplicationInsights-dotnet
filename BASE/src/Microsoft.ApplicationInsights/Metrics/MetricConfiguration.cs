@@ -6,7 +6,7 @@
     using static System.FormattableString;
 
     /// <summary>Encapsulates the configuration for a metric and its respective data time series.</summary>
-    public class MetricConfiguration : IEquatable<MetricConfiguration>
+    internal class MetricConfiguration : IEquatable<MetricConfiguration>
     {
         private readonly int hashCode;
 

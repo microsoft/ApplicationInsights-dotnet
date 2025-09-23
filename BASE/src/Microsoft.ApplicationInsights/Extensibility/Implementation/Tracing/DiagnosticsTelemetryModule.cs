@@ -10,7 +10,7 @@
     /// <summary>
     /// Use diagnostics telemetry module to report SDK internal problems to the portal and VS debug output window.
     /// </summary>
-    public sealed class DiagnosticsTelemetryModule : ITelemetryModule, IHeartbeatPropertyManager, IDisposable
+    internal sealed class DiagnosticsTelemetryModule : ITelemetryModule, IHeartbeatPropertyManager, IDisposable
     {
         internal readonly IList<IDiagnosticsSender> Senders = new List<IDiagnosticsSender>();
         internal readonly DiagnosticsListener EventListener;

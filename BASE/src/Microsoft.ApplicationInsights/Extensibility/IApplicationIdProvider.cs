@@ -3,7 +3,7 @@
     /// <summary>
     /// An interface for providing an Application Id for a given Instrumentation Key.
     /// </summary>
-    public interface IApplicationIdProvider
+    internal interface IApplicationIdProvider
     {
         /// <summary>
         /// Retrieves the Application Id to be used for Request.Source or Dependency.Target.

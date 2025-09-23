@@ -11,7 +11,7 @@
     /// W3C distributed tracing utilities.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static class W3CUtilities
+    internal static class W3CUtilities
     {
         private static readonly uint[] Lookup32 = CreateLookup32();
         private static readonly Regex TraceIdRegex = new Regex("^[a-f0-9]{32}$", RegexOptions.Compiled);

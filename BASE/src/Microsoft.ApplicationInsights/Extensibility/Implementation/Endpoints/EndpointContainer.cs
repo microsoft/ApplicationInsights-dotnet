@@ -5,7 +5,7 @@
     /// <summary>
     /// This class encapsulates the endpoint values.
     /// </summary>
-    public class EndpointContainer
+    internal class EndpointContainer
     {
         internal EndpointContainer(IEndpointProvider endpointProvider)
         {

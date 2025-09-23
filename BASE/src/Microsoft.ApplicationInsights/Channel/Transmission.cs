@@ -18,7 +18,7 @@
     /// <summary>
     /// Implements an asynchronous transmission of data to an HTTP POST endpoint.
     /// </summary>
-    public class Transmission
+    internal class Transmission
     {
         internal const string ContentEncodingHeader = "Content-Encoding";
 
@@ -119,7 +119,7 @@
         }
 
         /// <summary>
-        /// Gets a timeout value for the transmission.
+        /// Gets or sets a timeout value for the transmission.
         /// </summary>
         public TimeSpan Timeout
         {

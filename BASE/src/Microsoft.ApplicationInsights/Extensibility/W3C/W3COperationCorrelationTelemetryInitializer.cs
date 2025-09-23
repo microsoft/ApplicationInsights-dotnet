@@ -11,7 +11,7 @@
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
     [Obsolete("Obsolete in favor of OperationCorrelationTelemetryInitializer which is now W3C aware.")]
-    public class W3COperationCorrelationTelemetryInitializer : ITelemetryInitializer
+    internal class W3COperationCorrelationTelemetryInitializer : ITelemetryInitializer
     {
         /// <summary>
         /// Initializes telemetry item.

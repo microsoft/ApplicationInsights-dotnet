@@ -74,65 +74,6 @@
         public long Flags { get; set; }
 
         /// <summary>
-        /// Gets the object describing the component tracked by this <see cref="TelemetryContext"/>.
-        /// </summary>
-        public ComponentContext Component
-        {
-            get { return LazyInitializer.EnsureInitialized(ref this.component, () => new ComponentContext()); }
-        }
-
-        /// <summary>
-        /// Gets the object describing the device tracked by this <see cref="TelemetryContext"/>.
-        /// </summary>
-        public DeviceContext Device
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            get { return LazyInitializer.EnsureInitialized(ref this.device, () => new DeviceContext(this.Properties)); }
-#pragma warning restore CS0618 // Type or member is obsolete
-        }
-
-        /// <summary>
-        /// Gets the object describing the cloud tracked by this <see cref="TelemetryContext"/>.
-        /// </summary>
-        public CloudContext Cloud
-        {
-            get { return LazyInitializer.EnsureInitialized(ref this.cloud, () => new CloudContext()); }
-        }
-
-        /// <summary>
-        /// Gets the object describing a user session tracked by this <see cref="TelemetryContext"/>.
-        /// </summary>
-        public SessionContext Session
-        {
-            get { return LazyInitializer.EnsureInitialized(ref this.session, () => new SessionContext()); }
-        }
-
-        /// <summary>
-        /// Gets the object describing a user tracked by this <see cref="TelemetryContext"/>.
-        /// </summary>
-        public UserContext User
-        {
-            get { return LazyInitializer.EnsureInitialized(ref this.user, () => new UserContext()); }
-        }
-
-        /// <summary>
-        /// Gets the object describing a operation tracked by this <see cref="TelemetryContext"/>.
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#operationcontext">Learn more</a>
-        /// </summary>
-        public OperationContext Operation
-        {
-            get { return LazyInitializer.EnsureInitialized(ref this.operation, () => new OperationContext()); }
-        }
-
-        /// <summary>
-        /// Gets the object describing a location tracked by this <see cref="TelemetryContext" />.
-        /// </summary>
-        public LocationContext Location
-        {
-            get { return LazyInitializer.EnsureInitialized(ref this.location, () => new LocationContext()); }
-        }
-
-        /// <summary>
         /// Gets a dictionary of application-defined property values.
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>        
@@ -150,6 +91,65 @@
         public IDictionary<string, string> GlobalProperties
         {
             get { return LazyInitializer.EnsureInitialized(ref this.GlobalPropertiesValue, () => new ConcurrentDictionary<string, string>()); }
+        }
+
+        /// <summary>
+        /// Gets the object describing the component tracked by this <see cref="TelemetryContext"/>.
+        /// </summary>
+        internal ComponentContext Component
+        {
+            get { return LazyInitializer.EnsureInitialized(ref this.component, () => new ComponentContext()); }
+        }
+
+        /// <summary>
+        /// Gets the object describing the device tracked by this <see cref="TelemetryContext"/>.
+        /// </summary>
+        internal DeviceContext Device
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            get { return LazyInitializer.EnsureInitialized(ref this.device, () => new DeviceContext(this.Properties)); }
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
+
+        /// <summary>
+        /// Gets the object describing the cloud tracked by this <see cref="TelemetryContext"/>.
+        /// </summary>
+        internal CloudContext Cloud
+        {
+            get { return LazyInitializer.EnsureInitialized(ref this.cloud, () => new CloudContext()); }
+        }
+
+        /// <summary>
+        /// Gets the object describing a user session tracked by this <see cref="TelemetryContext"/>.
+        /// </summary>
+        internal SessionContext Session
+        {
+            get { return LazyInitializer.EnsureInitialized(ref this.session, () => new SessionContext()); }
+        }
+
+        /// <summary>
+        /// Gets the object describing a user tracked by this <see cref="TelemetryContext"/>.
+        /// </summary>
+        internal UserContext User
+        {
+            get { return LazyInitializer.EnsureInitialized(ref this.user, () => new UserContext()); }
+        }
+
+        /// <summary>
+        /// Gets the object describing a operation tracked by this <see cref="TelemetryContext"/>.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#operationcontext">Learn more</a>
+        /// </summary>
+        internal OperationContext Operation
+        {
+            get { return LazyInitializer.EnsureInitialized(ref this.operation, () => new OperationContext()); }
+        }
+
+        /// <summary>
+        /// Gets the object describing a location tracked by this <see cref="TelemetryContext" />.
+        /// </summary>
+        internal LocationContext Location
+        {
+            get { return LazyInitializer.EnsureInitialized(ref this.location, () => new LocationContext()); }
         }
 
         internal InternalContext Internal => this.internalContext;

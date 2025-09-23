@@ -12,7 +12,7 @@
     /// Telemetry initializer that populates OperationContext for the telemetry item from Activity.
     /// This initializer is responsible for correlation of telemetry items within the same process.
     /// </summary>
-    public class OperationCorrelationTelemetryInitializer : ITelemetryInitializer
+    internal class OperationCorrelationTelemetryInitializer : ITelemetryInitializer
     {
         private const string TracestatePropertyKey = "tracestate";
 

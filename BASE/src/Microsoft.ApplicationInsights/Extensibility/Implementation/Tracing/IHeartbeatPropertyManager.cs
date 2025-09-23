@@ -12,7 +12,7 @@
     /// heartbeat feature can be extended or configured as necessary.
     /// </remarks>
     /// </summary>
-    public interface IHeartbeatPropertyManager
+    internal interface IHeartbeatPropertyManager
     {
         /// <summary>
         /// Gets or sets a value indicating whether or not the Heartbeat feature is disabled.

@@ -6,7 +6,7 @@
     /// <summary>
     /// Utility class for sampling score generation.
     /// </summary>
-    public static class SamplingScoreGenerator
+    internal static class SamplingScoreGenerator
     {
         /// <summary>
         ///  Generates telemetry sampling score between 0 and 100.

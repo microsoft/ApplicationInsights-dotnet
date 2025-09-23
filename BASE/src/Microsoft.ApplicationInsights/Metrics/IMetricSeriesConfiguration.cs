@@ -5,7 +5,7 @@
 
     /// <summary>Abstraction for the configuration of a metric series.
     /// The configuration is a factory that can produce an arbitrary aggregator to be used by the respective series.</summary>
-    public interface IMetricSeriesConfiguration : IEquatable<IMetricSeriesConfiguration>
+    internal interface IMetricSeriesConfiguration : IEquatable<IMetricSeriesConfiguration>
     {
         /// <summary>Gets a value indicating whether the aggrgator produced by this settings object is
         /// persistent (carries state across aggregation periods) or not.</summary>

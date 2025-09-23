@@ -11,7 +11,7 @@
 
     /// <summary>Metric related extension methods for the <c>TelemetryClient</c>.
     /// Note that these APIs are in the ...Extensibility namespace and do not pollute the API surfact for users who do not import it.</summary>
-    public static class TelemetryClientExtensions
+    internal static class TelemetryClientExtensions
     {
         private static ConditionalWeakTable<TelemetryClient, MetricManager> metricManagersForTelemetryClients;
 

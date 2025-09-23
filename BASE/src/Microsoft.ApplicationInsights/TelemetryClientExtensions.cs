@@ -13,7 +13,7 @@
     /// Extension class to telemetry client that creates operation object with the respective fields initialized.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static class TelemetryClientExtensions
+    internal static class TelemetryClientExtensions
     {
         private const string ChildActivityName = "Microsoft.ApplicationInsights.OperationContext";        
 

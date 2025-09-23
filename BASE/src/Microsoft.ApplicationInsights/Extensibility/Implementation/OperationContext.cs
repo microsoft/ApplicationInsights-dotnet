@@ -8,7 +8,7 @@
     /// <summary>
     /// Encapsulates information about an operation. Operation normally reflects an end to end scenario that starts from a user action (e.g. button click).
     /// </summary>
-    public sealed class OperationContext
+    internal sealed class OperationContext
     {
         private string id;
         private string parentId;

@@ -26,7 +26,7 @@
     /// it delegates the aggregation of particular metrics. All those implementations share the
     /// same (dedicated) <see cref="Microsoft.ApplicationInsights.Metrics.MetricManager"/>-instance for metric aggregation.
     /// </summary>
-    public sealed class AutocollectedMetricsExtractor : ITelemetryProcessor, ITelemetryModule, IDisposable
+    internal sealed class AutocollectedMetricsExtractor : ITelemetryProcessor, ITelemetryModule, IDisposable
     {
         // List of all participating extractors that take care of specific metrics kinds:
         private readonly RequestMetricsExtractor extractorForRequestMetrics;

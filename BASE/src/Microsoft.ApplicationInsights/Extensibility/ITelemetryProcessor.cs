@@ -5,7 +5,7 @@
     /// <summary>
     /// Represents an object used to process telemetry as part of sending it to Application Insights.
     /// </summary>
-    public interface ITelemetryProcessor
+    internal interface ITelemetryProcessor
     {
         /// <summary>
         /// Process a collected telemetry item.

@@ -10,7 +10,7 @@
     /// <summary>
     /// Encapsulates Internal information.
     /// </summary>
-    public sealed class InternalContext
+    internal sealed class InternalContext
     {
         private string sdkVersion;
         private string agentVersion;

@@ -7,7 +7,7 @@
     /// <summary>
     /// Encapsulates information about a cloud where an application is running.
     /// </summary>
-    public sealed class CloudContext
+    internal sealed class CloudContext
     {
         private string roleName;
         private string roleInstance;

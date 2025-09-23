@@ -9,7 +9,7 @@
     /// <summary>
     /// Represents the TelemetryProcessor chain. Clients should use TelemetryProcessorChainBuilder to construct this object.
     /// </summary>
-    public sealed class TelemetryProcessorChain : IDisposable
+    internal sealed class TelemetryProcessorChain : IDisposable
     {        
         private readonly SnapshottingList<ITelemetryProcessor> telemetryProcessors = new SnapshottingList<ITelemetryProcessor>();
 

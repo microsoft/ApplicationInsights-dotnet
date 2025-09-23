@@ -151,15 +151,6 @@
         }
 
         /// <summary>
-        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
-        /// </summary>
-        public IExtension Extension
-        {
-            get { return this.extension; }
-            set { this.extension = value; }
-        }
-
-        /// <summary>
         /// Gets a dictionary of application-defined property names and values providing additional information about this availability test run.
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
@@ -192,17 +183,6 @@
         public ITelemetry DeepClone()
         {
             return new AvailabilityTelemetry(this);
-        }
-
-        /// <inheritdoc/>
-        public void SerializeData(ISerializationWriter serializationWriter)
-        {
-            if (serializationWriter == null)
-            {
-                throw new ArgumentNullException(nameof(serializationWriter));
-            }
-
-            serializationWriter.WriteProperty(this.Data);            
         }
 
         /// <summary>

@@ -8,7 +8,7 @@
     /// This API supports the AI Framework infrastructure and is not intended to be used directly from your code.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class TelemetryModules
+    internal class TelemetryModules
     {
         private static TelemetryModules instance;
 

@@ -15,7 +15,7 @@
     /// Represents a communication channel for sending telemetry to Application Insights via HTTPS. There will be a buffer that will not be persisted, to enforce the 
     /// queued telemetry items to be sent, <see cref="ITelemetryChannel.Flush"/> should be called.    
     /// </summary>
-    public class InMemoryChannel : ITelemetryChannel, IAsyncFlushable, ISupportCredentialEnvelope
+    internal class InMemoryChannel : ITelemetryChannel, IAsyncFlushable, ISupportCredentialEnvelope
     {
         private readonly TelemetryBuffer buffer;
         private readonly InMemoryTransmitter transmitter;

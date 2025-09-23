@@ -16,7 +16,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     /// <summary>
     /// Writes telemetry items to debug output.
     /// </summary>
-    public class TelemetryDebugWriter : IDebugOutput
+    internal class TelemetryDebugWriter : IDebugOutput
     {
         /// <summary>
         /// Gets or sets a value indicating whether writing telemetry items to debug output is enabled.

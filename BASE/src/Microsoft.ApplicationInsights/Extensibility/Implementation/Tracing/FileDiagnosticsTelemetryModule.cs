@@ -12,7 +12,7 @@
     /// <summary>
     /// Diagnostics telemetry module for azure web sites.
     /// </summary>
-    public class FileDiagnosticsTelemetryModule : IDisposable, ITelemetryModule
+    internal class FileDiagnosticsTelemetryModule : IDisposable, ITelemetryModule
     {
         private readonly TraceSourceForEventSource traceSource = new TraceSourceForEventSource(EventLevel.Error);
         private readonly DefaultTraceListener listener = new DefaultTraceListener();

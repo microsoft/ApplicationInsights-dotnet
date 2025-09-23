@@ -9,7 +9,7 @@
     /// An <see cref="ITelemetryInitializer"/> that populates <see cref="ITelemetry.Sequence"/> property for 
     /// the Microsoft internal telemetry sent to the Vortex endpoint.
     /// </summary>
-    public sealed class SequencePropertyInitializer : ITelemetryInitializer
+    internal sealed class SequencePropertyInitializer : ITelemetryInitializer
     {
         // https://microsoft.sharepoint.com/teams/CommonSchema/Shared%20Documents/Schema%20Specs/Common%20Schema%202%20-%20Language%20Specification.docx
         private readonly string stablePrefix = Convert.ToBase64String(Guid.NewGuid().ToByteArray()).TrimEnd('=') + ":";

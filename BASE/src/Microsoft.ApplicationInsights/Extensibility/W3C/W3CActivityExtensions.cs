@@ -16,7 +16,7 @@
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
     [Obsolete("Activity from System.Diagnostics.DiagnosticSource 4.6.0 onwards natively support W3C making extension methods in this class no longer required.")]
-    public static class W3CActivityExtensions
+    internal static class W3CActivityExtensions
     {
         /// <summary>
         /// Generate new W3C context.

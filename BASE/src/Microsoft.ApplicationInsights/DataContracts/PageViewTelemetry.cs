@@ -18,7 +18,7 @@
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#page-views">Learn more</a>
     /// </remarks>
-    public sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportAdvancedSampling, ISupportMetrics, IAiSerializableTelemetry
+    internal sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportAdvancedSampling, ISupportMetrics, IAiSerializableTelemetry
     {
         internal const string EtwEnvelopeName = "PageView";
         internal readonly PageViewData Data;
@@ -205,7 +205,6 @@
             return new PageViewTelemetry(this);
         }
 
-        /// <inheritdoc/>
         public void SerializeData(ISerializationWriter serializationWriter)
         {
             if (serializationWriter == null)

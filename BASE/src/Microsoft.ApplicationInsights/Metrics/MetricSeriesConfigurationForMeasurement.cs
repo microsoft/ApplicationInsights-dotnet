@@ -11,7 +11,7 @@
     /// <summary>Abstracts the configuration for a metric series aggregated using the "measurement" aggregation kind.
     /// A measurement is best suited for metrics describing sizes or durations.
     /// It contains the Min, Max, Sum and Count of values tracked during an aggregation period.</summary>
-    public class MetricSeriesConfigurationForMeasurement : IMetricSeriesConfiguration
+    internal class MetricSeriesConfigurationForMeasurement : IMetricSeriesConfiguration
     {
         private readonly bool restrictToUInt32Values;
         private readonly int hashCode;
