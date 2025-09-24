@@ -313,10 +313,10 @@
 
         private void Send()
         {
-            if (this.telemetryClient.TelemetryConfiguration.TelemetryChannel == null)
+            /*if (this.telemetryClient.TelemetryConfiguration.TelemetryChannel == null)
             {
                 return;
-            }
+            }*/
 
             var eventData = (MetricTelemetry)this.GatherData();
 

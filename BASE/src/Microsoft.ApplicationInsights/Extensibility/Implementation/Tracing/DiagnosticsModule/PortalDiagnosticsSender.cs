@@ -81,10 +81,10 @@
 
         private void InternalSendTraceTelemetry(TraceEvent eventData)
         {
-            if (this.telemetryClient.TelemetryConfiguration.TelemetryChannel == null)
+            /*if (this.telemetryClient.TelemetryConfiguration.TelemetryChannel == null)
             {
                 return;
-            }
+            }*/
 
             var traceTelemetry = new TraceTelemetry
             {

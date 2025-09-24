@@ -499,20 +499,21 @@
                 throw new ArgumentNullException(nameof(telemetry));
             }
 
-            ISupportAdvancedSampling telemetryWithSampling = telemetry as ISupportAdvancedSampling;
+            // ISupportAdvancedSampling telemetryWithSampling = telemetry as ISupportAdvancedSampling;
 
             // Telemetry can be already sampled out if that decision was made before calling Track()
             bool sampledOut = false;
-            if (telemetryWithSampling != null)
-            {
+            // if (telemetryWithSampling != null)
+            // {
                 // sampledOut = telemetryWithSampling.ProactiveSamplingDecision == SamplingDecision.SampledOut;
-            }
+            // }
 
             if (!sampledOut)
             {
                 if (telemetry is ISupportProperties telemetryWithProperties)
                 {
-                    if (this.configuration.TelemetryChannel?.DeveloperMode != null && this.configuration.TelemetryChannel.DeveloperMode.Value)
+                    bool isDeveloperMode = Environment.GetEnvironmentVariable("APPINSIGHTS_DEVELOPER_MODE") == "true";
+                    if (isDeveloperMode)
                     {
                         if (!telemetryWithProperties.Properties.ContainsKey("DeveloperMode"))
                         {
@@ -762,12 +763,12 @@
                 MetricManager sharedMetricManager = pipeline.GetMetricManager(createIfNotExists: false);
                 sharedMetricManager?.Flush(flushDownstreamPipeline: false);
 
-                ITelemetryChannel channel = pipeline.TelemetryChannel;
+                // ITelemetryChannel channel = pipeline.TelemetryChannel;
 
-                if (channel is IAsyncFlushable asyncFlushableChannel && !cancellationToken.IsCancellationRequested)
-                {
-                    return asyncFlushableChannel.FlushAsync(cancellationToken);
-                }
+                // if (channel is IAsyncFlushable asyncFlushableChannel && !cancellationToken.IsCancellationRequested)
+                // {
+                    // return asyncFlushableChannel.FlushAsync(cancellationToken);
+                // }
             }
 
             return cancellationToken.IsCancellationRequested ? TaskEx.FromCanceled<bool>(cancellationToken) : Task.FromResult(false);

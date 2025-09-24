@@ -14,15 +14,15 @@
         {
             json.WriteProperty("time", telemetry.Timestamp.UtcDateTime.ToString("o", CultureInfo.InvariantCulture));
 
-            var samplingSupportingTelemetry = telemetry as ISupportSampling;
+           // var samplingSupportingTelemetry = telemetry as ISupportSampling;
 
-            if (samplingSupportingTelemetry != null
+            /*if (samplingSupportingTelemetry != null
                 && samplingSupportingTelemetry.SamplingPercentage.HasValue
                 && (samplingSupportingTelemetry.SamplingPercentage.Value > 0.0 + 1.0E-12)
                 && (samplingSupportingTelemetry.SamplingPercentage.Value < 100.0 - 1.0E-12))
             {
                 json.WriteProperty("sampleRate", samplingSupportingTelemetry.SamplingPercentage.Value);
-            }
+            }*/
 
             json.WriteProperty("seq", telemetry.Sequence);
             WriteTelemetryContext(json, telemetry.Context);

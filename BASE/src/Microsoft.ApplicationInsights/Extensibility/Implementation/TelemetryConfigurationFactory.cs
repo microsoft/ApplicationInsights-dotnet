@@ -343,7 +343,7 @@
 
         private static void InitializeComponents(TelemetryConfiguration configuration, TelemetryModules modules)
         {
-            InitializeComponent(configuration.TelemetryChannel, configuration);
+            // InitializeComponent(configuration.TelemetryChannel, configuration);
             InitializeComponents(configuration.TelemetryInitializers, configuration);
             InitializeComponents(configuration.TelemetryProcessorChain.TelemetryProcessors, configuration);
 

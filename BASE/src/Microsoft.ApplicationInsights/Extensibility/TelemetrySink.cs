@@ -19,8 +19,8 @@
         public static readonly string DefaultSinkName = "default";
 
         private TelemetryConfiguration telemetryConfiguration;
-        private ITelemetryChannel telemetryChannel;
-        private bool shouldDisposeChannel;
+        // private ITelemetryChannel telemetryChannel;
+        // private bool shouldDisposeChannel;
         private TelemetryProcessorChain telemetryProcessorChain;
         private TelemetryProcessorChainBuilder telemetryProcessorChainBuilder;
         private string name;
@@ -30,24 +30,23 @@
         /// Initializes a new instance of the <see cref="TelemetrySink"/> class.
         /// </summary>
         /// <param name="telemetryConfiguration">Telemetry configuration to use for the new <see cref="TelemetrySink"/> instance.</param>
-        /// <param name="telemetryChannel">Telemetry channel to use for the new <see cref="TelemetrySink"/> instance.</param>
-        public TelemetrySink(TelemetryConfiguration telemetryConfiguration, ITelemetryChannel telemetryChannel = null)
+        public TelemetrySink(TelemetryConfiguration telemetryConfiguration/*, ITelemetryChannel telemetryChannel = null*/)
         {
             this.telemetryConfiguration = telemetryConfiguration ?? throw new ArgumentNullException(nameof(telemetryConfiguration));
 
-            if (telemetryChannel != null)
+            /*if (telemetryChannel != null)
             {
                 this.telemetryChannel = telemetryChannel;
                 this.shouldDisposeChannel = false;
             }
             else
             {
-                /*this.telemetryChannel = new InMemoryChannel
+                this.telemetryChannel = new InMemoryChannel
                 {
                     EndpointAddress = telemetryConfiguration.EndpointContainer.FormattedIngestionEndpoint,
-                };*/
+                };
                 this.shouldDisposeChannel = true;
-            }
+            }*/
         }
 
         /// <summary>
@@ -56,7 +55,7 @@
         public TelemetrySink()
         {
             // this.telemetryChannel = new InMemoryChannel();
-            this.shouldDisposeChannel = true;
+            // this.shouldDisposeChannel = true;
         }
 
         /// <summary>
@@ -94,10 +93,10 @@
             }
         }
 
-        /// <summary>
-        /// Gets or sets the telemetry channel.
-        /// </summary>
-        public ITelemetryChannel TelemetryChannel
+        // <summary>
+        // Gets or sets the telemetry channel.
+        // </summary>
+        /*public ITelemetryChannel TelemetryChannel
         {
             get => this.telemetryChannel;
             set
@@ -115,7 +114,7 @@
                     this.shouldDisposeChannel = false; // The new one wasn't created by us so it should be managed by whoever created it.
                 }
             }
-        }
+        }*/
 
         /// <summary>
         /// Gets or sets the name of the sink.
@@ -165,12 +164,12 @@
         {
             this.isDisposed = true;
 
-            if (this.shouldDisposeChannel)
+            /*if (this.shouldDisposeChannel)
             {
                 this.telemetryChannel?.Dispose();
             }
 
-            this.telemetryChannel = null;
+            this.telemetryChannel = null;*/
 
             this.telemetryProcessorChain?.Dispose();
             this.telemetryProcessorChain = null;
@@ -191,7 +190,7 @@
 
             this.telemetryConfiguration = configuration;
 
-            (this.telemetryChannel as ITelemetryModule)?.Initialize(configuration);
+            // (this.telemetryChannel as ITelemetryModule)?.Initialize(configuration);
             foreach (var telemetryProcessor in this.TelemetryProcessorChain.TelemetryProcessors)
             {
                 (telemetryProcessor as ITelemetryModule)?.Initialize(configuration);

@@ -20,7 +20,7 @@
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackrequest">Learn more</a>
     /// </remarks>
-    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, IAiSerializableTelemetry
+    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, IAiSerializableTelemetry
     {
         internal const string EtwEnvelopeName = "Request";
         internal string EnvelopeName = "AppRequests";

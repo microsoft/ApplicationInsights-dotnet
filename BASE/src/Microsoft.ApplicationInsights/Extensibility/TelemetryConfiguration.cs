@@ -11,10 +11,8 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Sampling;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Metrics;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
@@ -30,7 +28,7 @@
     /// </remarks>
     public sealed class TelemetryConfiguration : IDisposable
     {
-        internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
+        // internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
         private static object syncRoot = new object();
         private static TelemetryConfiguration active;
 
@@ -214,7 +212,7 @@
                     // this.SetTelemetryChannelEndpoint(ingestionEndpoint);
 
                     // UPDATE APPLICATION ID PROVIDER
-                    SetApplicationIdEndpoint(this.ApplicationIdProvider, this.EndpointContainer.FormattedApplicationIdEndpoint, force: true);
+                    // SetApplicationIdEndpoint(this.ApplicationIdProvider, this.EndpointContainer.FormattedApplicationIdEndpoint, force: true);
                 }
                 catch (Exception ex)
                 {
@@ -280,10 +278,8 @@
             }
         }
 
-        /// <summary>
-        /// Gets or sets the telemetry channel for the default sink. Will also attempt to set the Channel's endpoint.
-        /// </summary>
-        internal ITelemetryChannel TelemetryChannel
+        // Gets or sets the telemetry channel for the default sink. Will also attempt to set the Channel's endpoint
+        /*internal ITelemetryChannel TelemetryChannel
         {
             get
             {
@@ -301,7 +297,7 @@
                     SetTelemetryChannelCredentialEnvelope(value, this.CredentialEnvelope);
                 }
             }
-        }
+        }*/
 
         /// <summary>
         /// Gets or sets the Application Id Provider.
@@ -319,7 +315,7 @@
             set
             {
                 this.applicationIdProvider = value;
-                SetApplicationIdEndpoint(this.applicationIdProvider, this.EndpointContainer.FormattedApplicationIdEndpoint);
+                // SetApplicationIdEndpoint(this.applicationIdProvider, this.EndpointContainer.FormattedApplicationIdEndpoint);
             }
         }
 
@@ -421,7 +417,7 @@
         public void SetAzureTokenCredential(object tokenCredential)
         {
             this.CredentialEnvelope = new ReflectionCredentialEnvelope(tokenCredential);
-            this.SetTelemetryChannelCredentialEnvelope();
+            // this.SetTelemetryChannelCredentialEnvelope();
 
             // Update Ingestion Endpoint.
             var ingestionEndpoint = this.EndpointContainer.GetFormattedIngestionEndpoint(enableAAD: true);
@@ -452,14 +448,11 @@
             return manager;
         }
 
-        /// <summary>
-        /// This will check the ApplicationIdProvider and attempt to set the endpoint.
-        /// This only supports our first party providers <see cref="ApplicationInsightsApplicationIdProvider"/> and <see cref="DictionaryApplicationIdProvider"/>.
-        /// </summary>
-        /// <param name="applicationIdProvider">ApplicationIdProvider to set.</param>
-        /// <param name="endpoint">Endpoint value to set.</param>
-        /// <param name="force">When the ConnectionString is set, ApplicationId Endpoint should be forced to update. If the ApplicationId has been set separately, we will only set endpoint if it is null.</param>
-        private static void SetApplicationIdEndpoint(IApplicationIdProvider applicationIdProvider, string endpoint, bool force = false)
+        // <summary>
+        // This will check the ApplicationIdProvider and attempt to set the endpoint.
+        // This only supports our first party providers <see cref="ApplicationInsightsApplicationIdProvider"/> and <see cref="DictionaryApplicationIdProvider"/>.
+        // </summary>
+        /* private static void SetApplicationIdEndpoint(IApplicationIdProvider applicationIdProvider, string endpoint, bool force = false)
         {
             if (applicationIdProvider != null)
             {
@@ -481,7 +474,7 @@
                     }
                 }
             }
-        }
+        }*/
 
         // <summary>
         // This will check the TelemetryChannel and attempt to set the endpoint.
@@ -501,7 +494,7 @@
             }
         }*/
 
-        private static void SetTelemetryChannelCredentialEnvelope(ITelemetryChannel telemetryChannel, CredentialEnvelope credentialEnvelope)
+        /*private static void SetTelemetryChannelCredentialEnvelope(ITelemetryChannel telemetryChannel, CredentialEnvelope credentialEnvelope)
         {
             if (telemetryChannel is ISupportCredentialEnvelope tc)
             {
@@ -515,7 +508,7 @@
             {
                 SetTelemetryChannelCredentialEnvelope(tSink.TelemetryChannel, this.CredentialEnvelope);
             }
-        }
+        }*/
 
         /*private void SetTelemetryChannelEndpoint(string ingestionEndpoint)
         {

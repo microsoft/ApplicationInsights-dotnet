@@ -10,7 +10,7 @@
     /// <summary>
     /// Base class for telemetry types representing duration in time.
     /// </summary>
-    public abstract class OperationTelemetry : ITelemetry, ISupportMetrics, ISupportProperties
+    public abstract class OperationTelemetry : ITelemetry, ISupportProperties
     {
         internal const string TelemetryName = "Operation";
 

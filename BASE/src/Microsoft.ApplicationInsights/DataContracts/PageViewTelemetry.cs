@@ -18,7 +18,7 @@
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#page-views">Learn more</a>
     /// </remarks>
-    internal sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportAdvancedSampling, ISupportMetrics, IAiSerializableTelemetry
+    internal sealed class PageViewTelemetry : ITelemetry, ISupportProperties, IAiSerializableTelemetry
     {
         internal const string EtwEnvelopeName = "PageView";
         internal readonly PageViewData Data;
@@ -58,7 +58,7 @@
             this.extension = source.extension?.DeepClone();
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
-            this.ProactiveSamplingDecision = source.ProactiveSamplingDecision;
+            // this.ProactiveSamplingDecision = source.ProactiveSamplingDecision;
         }
 
         /// <inheritdoc />
@@ -178,23 +178,20 @@
             get { return this.Data.properties; }
         }
 
-        /// <summary>
-        /// Gets or sets data sampling percentage (between 0 and 100).
-        /// Should be 100/n where n is an integer. <a href="https://go.microsoft.com/fwlink/?linkid=832969">Learn more</a>
-        /// </summary>
-        double? ISupportSampling.SamplingPercentage
+        // <summary>
+        // Gets or sets data sampling percentage (between 0 and 100).
+        // Should be 100/n where n is an integer. <a href="https://go.microsoft.com/fwlink/?linkid=832969">Learn more</a>
+        // </summary>
+        /*double? ISupportSampling.SamplingPercentage
         {
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
-        }
+        }*/
 
-        /// <summary>
-        /// Gets item type for sampling evaluation.
-        /// </summary>
-        public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.PageView;
-
-        /// <inheritdoc/>
-        public SamplingDecision ProactiveSamplingDecision { get; set; }
+        // <summary>
+        // Gets item type for sampling evaluation.
+        // </summary>
+        // public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.PageView;
 
         /// <summary>
         /// Deeply clones a <see cref="PageViewTelemetry"/> object.

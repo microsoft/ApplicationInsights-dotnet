@@ -172,26 +172,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     telemetryItem.Context.Flags,
                     Keywords.Exceptions);
             }
-#pragma warning disable 618
-            else if (item is PerformanceCounterTelemetry)
-            {
-                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Metrics))
-                {
-                    return;
-                }
-                
-                var telemetryItem = (item as PerformanceCounterTelemetry).Data;
-                telemetryItem.FlattenIExtensionIfExists();
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
-                this.WriteEvent(
-                    MetricTelemetry.EtwEnvelopeName,
-                    telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.SanitizedTags,
-                    telemetryItem.Data,
-                    telemetryItem.Context.Flags,
-                    Keywords.Metrics);
-            }
+            
 #pragma warning restore 618
             else if (item is PageViewTelemetry)
             {
@@ -212,7 +193,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     telemetryItem.Context.Flags,
                     Keywords.PageViews);
             }
-            else if (item is PageViewPerformanceTelemetry)
+
+            /*else if (item is PageViewPerformanceTelemetry)
             {
                 if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.PageViewPerformance))
                 {
@@ -250,7 +232,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     telemetryItem.Data,
                     telemetryItem.Context.Flags,
                     Keywords.Events);
-            }
+            }*/
             else if (item is AvailabilityTelemetry)
             {
                 if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Availability))

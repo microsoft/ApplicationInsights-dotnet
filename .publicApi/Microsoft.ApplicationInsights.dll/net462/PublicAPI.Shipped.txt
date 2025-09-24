@@ -146,24 +146,6 @@ Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Timestamp.get -> Sys
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Timestamp.set -> void
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Value.get -> double
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Value.set -> void
-Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry
-Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.CategoryName.get -> string
-Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.CategoryName.set -> void
-Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
-Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.CounterName.get -> string
-Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.CounterName.set -> void
-Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
-Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.InstanceName.get -> string
-Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.InstanceName.set -> void
-Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.PerformanceCounterTelemetry() -> void
-Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.PerformanceCounterTelemetry(string categoryName, string counterName, string instanceName, double value) -> void
-Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.Properties.get -> System.Collections.Generic.IDictionary<string, string>
-Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.Sequence.get -> string
-Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.Sequence.set -> void
-Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.Timestamp.get -> System.DateTimeOffset
-Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.Timestamp.set -> void
-Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.Value.get -> double
-Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.Value.set -> void
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.HttpMethod.get -> string
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.HttpMethod.set -> void
@@ -208,11 +190,6 @@ Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Timestamp.set -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.TraceTelemetry() -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.TraceTelemetry(string message) -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.TraceTelemetry(string message, Microsoft.ApplicationInsights.DataContracts.SeverityLevel severityLevel) -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider
-Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.Defined.get -> System.Collections.Generic.IReadOnlyDictionary<string, string>
-Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.Defined.set -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.DictionaryApplicationIdProvider() -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.TryGetApplicationId(string instrumentationKey, out string applicationId) -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.OperationTelemetry() -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Sanitize() -> void

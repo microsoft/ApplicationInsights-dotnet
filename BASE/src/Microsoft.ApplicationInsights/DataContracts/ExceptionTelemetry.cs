@@ -18,7 +18,7 @@
     /// <remarks>
     /// Additional exception details will need to be tracked manually.
     /// </remarks>
-    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportMetrics, IAiSerializableTelemetry
+    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, IAiSerializableTelemetry
     {
         internal const string EtwEnvelopeName = "Exception";
         internal string EnvelopeName = "AppExceptions";

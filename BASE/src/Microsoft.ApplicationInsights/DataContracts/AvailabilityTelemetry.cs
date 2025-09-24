@@ -13,7 +13,7 @@
     /// Contains a time and message and optionally some additional metadata.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
     /// </summary>
-    public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties, ISupportMetrics, IAiSerializableTelemetry
+    public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties, IAiSerializableTelemetry
     {
         internal const string EtwEnvelopeName = "Availability";
         internal readonly AvailabilityData Data;

@@ -56,10 +56,10 @@
         /// </summary>
         private ITelemetryProcessor nextProcessorInPipeline = null;
 
-        /// <summary>
-        /// Marks if we ever log MetricExtractorAfterSamplingError so that if we do we use Verbosity level subsequently.
-        /// </summary>
-        private bool isMetricExtractorAfterSamplingLogged = false;
+        // <summary>
+        // Marks if we ever log MetricExtractorAfterSamplingError so that if we do we use Verbosity level subsequently.
+        // </summary>
+        // private bool isMetricExtractorAfterSamplingLogged = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AutocollectedMetricsExtractor" /> class.
@@ -522,10 +522,10 @@
         /// <param name="fromItem">The item from which to extract metrics.</param>
         private void ExtractMetrics(ITelemetry fromItem)
         {
-            if (fromItem is ISupportSampling potentiallySampledItem && false == this.EnsureItemNotSampled(potentiallySampledItem))
+            /*if (fromItem is ISupportSampling potentiallySampledItem && false == this.EnsureItemNotSampled(potentiallySampledItem))
             {
                 return;
-            }
+            }*/
 
             for (int e = 0; e < this.extractors.Length; e++)
             {
@@ -547,7 +547,7 @@
             }
         }
 
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        /*[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private bool EnsureItemNotSampled(ISupportSampling item)
         {
             if (item.SamplingPercentage.HasValue
@@ -568,7 +568,7 @@
             }
 
             return true;
-        }
+        }*/
 
         /// <summary>
         /// Invokes the subsequent telemetry processor if it has been initialized.

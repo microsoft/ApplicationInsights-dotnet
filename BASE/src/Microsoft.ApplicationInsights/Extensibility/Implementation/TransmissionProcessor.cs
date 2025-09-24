@@ -6,7 +6,6 @@
 
     /// <summary>
     /// An <see cref="ITelemetryProcessor"/> that act as a proxy to the Transmission of telemetry"/>.
-    /// The <see cref="ITelemetryChannel"/>, passed at construction time, will be used for transmission.
     /// This processor is always appended as the last processor in the chain.
     /// </summary>
     internal class TransmissionProcessor : ITelemetryProcessor
@@ -29,7 +28,7 @@
         {
             TelemetryDebugWriter.WriteTelemetry(item);
 
-            this.sink.TelemetryChannel.Send(item);
+            // this.sink.TelemetryChannel.Send(item);
         }
     }
 }
