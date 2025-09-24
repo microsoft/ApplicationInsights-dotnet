@@ -183,7 +183,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the connection string. Setting this value will also set (and overwrite) the <see cref="InstrumentationKey"/>. The endpoints are validated and will be set (and overwritten) for <see cref="InMemoryChannel"/> and ServerTelemetryChannel as well as the <see cref="ApplicationIdProvider"/>.
+        /// Gets or sets the connection string. Setting this value will also set (and overwrite) the <see cref="InstrumentationKey"/>. The endpoints are validated and will be set (and overwritten) for InMemoryChannel and ServerTelemetryChannel as well as the <see cref="ApplicationIdProvider"/>.
         /// </summary>
         public string ConnectionString
         {
@@ -211,7 +211,7 @@
 
                     // UPDATE TELEMETRY CHANNEL
                     var ingestionEndpoint = this.EndpointContainer.GetFormattedIngestionEndpoint(enableAAD: this.CredentialEnvelope != null);
-                    this.SetTelemetryChannelEndpoint(ingestionEndpoint);
+                    // this.SetTelemetryChannelEndpoint(ingestionEndpoint);
 
                     // UPDATE APPLICATION ID PROVIDER
                     SetApplicationIdEndpoint(this.ApplicationIdProvider, this.EndpointContainer.FormattedApplicationIdEndpoint, force: true);
@@ -297,7 +297,7 @@
                 {
                     this.telemetrySinks.DefaultSink.TelemetryChannel = value;
                     var ingestionEndpoint = this.EndpointContainer.GetFormattedIngestionEndpoint(enableAAD: this.CredentialEnvelope != null);
-                    SetTelemetryChannelEndpoint(this.telemetrySinks.DefaultSink.TelemetryChannel, ingestionEndpoint);
+                    // SetTelemetryChannelEndpoint(this.telemetrySinks.DefaultSink.TelemetryChannel, ingestionEndpoint);
                     SetTelemetryChannelCredentialEnvelope(value, this.CredentialEnvelope);
                 }
             }
@@ -425,7 +425,7 @@
 
             // Update Ingestion Endpoint.
             var ingestionEndpoint = this.EndpointContainer.GetFormattedIngestionEndpoint(enableAAD: true);
-            this.SetTelemetryChannelEndpoint(ingestionEndpoint);
+            // this.SetTelemetryChannelEndpoint(ingestionEndpoint);
         }
 
         internal MetricManager GetMetricManager(bool createIfNotExists)
@@ -483,14 +483,11 @@
             }
         }
 
-        /// <summary>
-        /// This will check the TelemetryChannel and attempt to set the endpoint.
-        /// This only supports our first party providers <see cref="InMemoryChannel"/> and ServerTelemetryChannel.
-        /// </summary>
-        /// <param name="channel">TelemetryChannel to set.</param>
-        /// <param name="endpoint">Endpoint value to set.</param>
-        /// /// <param name="force">When the ConnectionString is set, Channel Endpoint should be forced to update. If the Channel has been set separately, we will only set endpoint if it is null.</param>
-        private static void SetTelemetryChannelEndpoint(ITelemetryChannel channel, string endpoint, bool force = false)
+        // <summary>
+        // This will check the TelemetryChannel and attempt to set the endpoint.
+        // This only supports our first party providers InMemoryChannel and ServerTelemetryChannel.
+        // </summary>
+        /* private static void SetTelemetryChannelEndpoint(ITelemetryChannel channel, string endpoint, bool force = false)
         {
             if (channel != null)
             {
@@ -502,7 +499,7 @@
                     }
                 }
             }
-        }
+        }*/
 
         private static void SetTelemetryChannelCredentialEnvelope(ITelemetryChannel telemetryChannel, CredentialEnvelope credentialEnvelope)
         {
@@ -520,13 +517,13 @@
             }
         }
 
-        private void SetTelemetryChannelEndpoint(string ingestionEndpoint)
+        /*private void SetTelemetryChannelEndpoint(string ingestionEndpoint)
         {
             foreach (var tSink in this.TelemetrySinks)
             {
                 SetTelemetryChannelEndpoint(tSink.TelemetryChannel, ingestionEndpoint, force: true);
             }
-        }
+        }*/
 
         private void EnsureInitialized()
         {
