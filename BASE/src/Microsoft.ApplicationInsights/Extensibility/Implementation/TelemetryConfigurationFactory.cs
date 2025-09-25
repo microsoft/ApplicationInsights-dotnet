@@ -10,8 +10,6 @@
     using System.Reflection;
     using System.Xml;
     using System.Xml.Linq;
-
-    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;

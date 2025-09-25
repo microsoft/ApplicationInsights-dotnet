@@ -2,25 +2,18 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics;
 
     /// <summary>
     /// Telemetry type used for log messages.
     /// Contains a time and message and optionally some additional metadata.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#tracktrace">Learn more</a>
     /// </summary>
-    public sealed class TraceTelemetry : ITelemetry, ISupportProperties, IAiSerializableTelemetry
+    public sealed class TraceTelemetry : ITelemetry, ISupportProperties
     {
         internal const string EtwEnvelopeName = "Message";
-        internal readonly MessageData Data;
         internal string EnvelopeName = "AppTraces";
         private readonly TelemetryContext context;
-        private IExtension extension;
 
         private double? samplingPercentage;
 
@@ -29,8 +22,6 @@
         /// </summary>
         public TraceTelemetry()
         {
-            this.Data = new MessageData();
-            this.context = new TelemetryContext(this.Data.properties);
         }
 
         /// <summary>
@@ -55,30 +46,10 @@
         /// <param name="source">Source instance of <see cref="TraceTelemetry"/> to clone from.</param>
         private TraceTelemetry(TraceTelemetry source)
         {
-            this.Data = source.Data.DeepClone();
-            this.context = source.context.DeepClone(this.Data.properties);
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
-            this.extension = source.extension?.DeepClone();
         }
-
-        /// <inheritdoc />
-        string IAiSerializableTelemetry.TelemetryName
-        {
-            get
-            {
-                return this.EnvelopeName;
-            }
-
-            set
-            {
-                this.EnvelopeName = value;
-            }
-        }
-
-        /// <inheritdoc />
-        string IAiSerializableTelemetry.BaseType => nameof(MessageData);
 
         /// <summary>
         /// Gets or sets date and time when event was recorded.
@@ -103,8 +74,8 @@
         /// </summary>
         public string Message
         {
-            get { return this.Data.message; }
-            set { this.Data.message = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -112,15 +83,15 @@
         /// </summary>
         public SeverityLevel? SeverityLevel
         {
-            get { return this.Data.severityLevel.TranslateSeverityLevel(); }
-            set { this.Data.severityLevel = value.TranslateSeverityLevel(); }
+            get;
+            set;
         }
 
-        /// <summary>
-        /// Gets a dictionary of application-defined property names and values providing additional information about this trace.
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
-        /// </summary>
-        public IDictionary<string, string> Properties
+        // <summary>
+        // Gets a dictionary of application-defined property names and values providing additional information about this trace.
+        // <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
+        // </summary>
+        /*public IDictionary<string, string> Properties
         {
 #pragma warning disable CS0618 // Type or member is obsolete
             get
@@ -133,7 +104,7 @@
                 return this.Context.Properties;
 #pragma warning restore CS0618 // Type or member is obsolete
             }
-        }
+        }*/
 
         /// <summary>
         /// Gets or sets the MetricExtractorInfo.
@@ -145,41 +116,12 @@
         }
 
         /// <summary>
-        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
-        /// </summary>
-        internal IExtension Extension
-        {
-            get { return this.extension; }
-            set { this.extension = value; }
-        }
-
-        /// <summary>
         /// Deeply clones a <see cref="TraceTelemetry"/> object.
         /// </summary>
         /// <returns>A cloned instance.</returns>
         public ITelemetry DeepClone()
         {
             return new TraceTelemetry(this);
-        }
-
-        /// <summary>
-        /// Sanitizes the properties based on constraints.
-        /// </summary>
-        void ITelemetry.Sanitize()
-        {
-            this.Data.message = this.Data.message.SanitizeMessage();
-            this.Data.message = Utils.PopulateRequiredStringValue(this.Data.message, "message", typeof(TraceTelemetry).FullName);
-            this.Data.properties.SanitizeProperties();
-        }
-
-        internal void SerializeData(ISerializationWriter serializationWriter)
-        {
-            if (serializationWriter == null)
-            {
-                throw new ArgumentNullException(nameof(serializationWriter));
-            }
-
-            serializationWriter.WriteProperty(this.Data);
         }
     }
 }

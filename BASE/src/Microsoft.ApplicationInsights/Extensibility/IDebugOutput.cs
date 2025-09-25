@@ -4,8 +4,6 @@
 
 namespace Microsoft.ApplicationInsights.Extensibility
 {
-    using Microsoft.ApplicationInsights.Channel;
-
     /// <summary>
     /// Encapsulates method call that has to be compiled with DEBUG compiler constant.
     /// </summary>

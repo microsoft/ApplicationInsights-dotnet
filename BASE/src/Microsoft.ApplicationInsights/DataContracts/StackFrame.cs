@@ -1,7 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
-    using System;
-
     /// <summary>
     /// Wrapper class for <see cref="Extensibility.Implementation.External.StackFrame"/> for API exposure.
     /// </summary>

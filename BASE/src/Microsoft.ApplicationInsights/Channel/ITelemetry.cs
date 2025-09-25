@@ -2,7 +2,6 @@
 {
     using System;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
     /// The base telemetry type for application insights.
@@ -32,11 +31,6 @@
         /// From <a href="https://microsoft.sharepoint.com/teams/CommonSchema/Shared%20Documents/Schema%20Specs/Common%20Schema%202%20-%20Language%20Specification.docx"/>.
         /// </remarks>
         string Sequence { get; set; }
-
-        /// <summary>
-        /// Sanitizes the properties of the telemetry item based on DP constraints.
-        /// </summary>
-        void Sanitize();
 
         /// <summary>
         /// Clones the telemetry object deeply, so that the original object and the clone share no state 

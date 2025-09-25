@@ -2,7 +2,6 @@
 {
 #pragma warning disable CA1034 // "Do not nest type" - part of the public API and too late to change.
     using System;
-    using Microsoft.ApplicationInsights.Metrics;
 
     /// <summary>
     /// Contains constants used to refer to metric dimensions with special significance.

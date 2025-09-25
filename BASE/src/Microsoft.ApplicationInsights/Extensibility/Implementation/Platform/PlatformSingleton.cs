@@ -4,10 +4,6 @@
 
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
 {
-    using System;
-    using System.Linq;
-    using System.Reflection;
-
     /// <summary>
     /// Provides access to the <see cref="Current"/> platform.
     /// </summary>

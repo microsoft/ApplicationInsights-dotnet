@@ -14,8 +14,6 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Authentication;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Endpoints;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.Metrics;
-    using Microsoft.ApplicationInsights.Metrics.Extensibility;
     using OpenTelemetry;
     using OpenTelemetry.Trace;
 
@@ -44,7 +42,6 @@
         private string connectionString;
         private bool disableTelemetry = false;
         private TelemetryProcessorChainBuilder builder;
-        private MetricManager metricManager = null;
         private IApplicationIdProvider applicationIdProvider;
 
         /// <summary>
@@ -424,7 +421,7 @@
             // this.SetTelemetryChannelEndpoint(ingestionEndpoint);
         }
 
-        internal MetricManager GetMetricManager(bool createIfNotExists)
+        /*internal MetricManager GetMetricManager(bool createIfNotExists)
         {
             MetricManager manager = this.metricManager;
             if (manager == null && createIfNotExists)
@@ -446,7 +443,7 @@
             }
 
             return manager;
-        }
+        }*/
 
         // <summary>
         // This will check the ApplicationIdProvider and attempt to set the endpoint.
@@ -561,7 +558,7 @@
                 // I think we should be flushing this.telemetrySinks.DefaultSink.TelemetryChannel at this point.
                 // Filed https://github.com/Microsoft/ApplicationInsights-dotnet/issues/823 to track.
                 // For now just flushing the metrics:
-                this.metricManager?.Flush();
+                // this.metricManager?.Flush();
 
                 if (this.telemetryProcessorChain != null)
                 {

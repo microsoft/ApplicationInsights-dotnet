@@ -4,31 +4,25 @@ namespace Microsoft.ApplicationInsights.DataContracts
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Globalization;
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics;
-    using static System.Threading.LazyInitializer;
 
     /// <summary>
     /// The class that represents information about the collected dependency.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=839889">Learn more.</a>
     /// </summary>
-    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, IAiSerializableTelemetry
+    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties
     {
         internal const string EtwEnvelopeName = "RemoteDependency";
         internal string EnvelopeName = "AppDependencies";
         
         private readonly TelemetryContext context;
-        private IExtension extension;
         private double? samplingPercentage;
         private bool successFieldSet;
         private bool success = true;
         private IDictionary<string, double> measurementsValue;
-        private RemoteDependencyData internalDataPrivate;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class.
@@ -108,7 +102,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
             this.successFieldSet = source.successFieldSet;
-            this.extension = source.extension?.DeepClone();
             this.Name = source.Name;
             this.Id = source.Id;
             this.ResultCode = source.ResultCode;
@@ -118,23 +111,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Target = source.Target;
             this.Type = source.Type;            
         }
-
-        /// <inheritdoc />
-        string IAiSerializableTelemetry.TelemetryName
-        {
-            get
-            {
-                return this.EnvelopeName;
-            }
-
-            set
-            {
-                this.EnvelopeName = value;
-            }
-        }
-
-        /// <inheritdoc />
-        string IAiSerializableTelemetry.BaseType => nameof(RemoteDependencyData);
 
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
@@ -272,18 +248,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public override IDictionary<string, string> Properties
-        {            
-            get
-            {
-#pragma warning disable CS0618 // Type or member is obsolete
-                if (!string.IsNullOrEmpty(this.MetricExtractorInfo) && !this.Context.Properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
-                {
-                    this.Context.Properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
-                }
-
-                return this.Context.Properties;
-#pragma warning restore CS0618 // Type or member is obsolete
-            }
+        {
+            get;
         }
 
         /// <summary>
@@ -314,15 +280,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
-        /// Gets or sets gets the extension used to extend this telemetry instance using new strongly typed object.
-        /// </summary>
-        internal override IExtension Extension
-        {
-            get { return this.extension; }
-            set { this.extension = value; }
-        }
-
-        /// <summary>
         /// Gets or sets data sampling percentage (between 0 and 100).
         /// Should be 100/n where n is an integer. <a href="https://go.microsoft.com/fwlink/?linkid=832969">Learn more</a>
         /// </summary>
@@ -339,41 +296,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
         {
             get;
             set;
-        }
-
-        /// <summary>
-        /// Gets the InternalData associated with this Telemetry instance.
-        /// This is being served by a singleton instance, so this will
-        /// not pickup changes made to the telemetry after first call to this.
-        /// It is recommended to make all changes (including sanitization)
-        /// to this telemetry before calling InternalData.
-        /// </summary>
-        internal RemoteDependencyData InternalData
-        {
-            get
-            {
-                return LazyInitializer.EnsureInitialized(ref this.internalDataPrivate,
-                    () =>
-                    {
-                        var req = new RemoteDependencyData();
-                        req.duration = this.Duration;
-                        req.id = this.Id;
-                        req.measurements = this.measurementsValue;
-                        req.name = this.Name;
-                        req.properties = this.context.PropertiesValue;
-                        req.resultCode = this.ResultCode;
-                        req.target = this.Target;
-                        req.success = this.success;
-                        req.data = this.Data;
-                        req.type = this.Type;
-                        return req;
-                    });
-            }
-
-            private set
-            {
-                this.internalDataPrivate = value;
-            }
         }
 
         /// <summary>
@@ -408,21 +330,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
         public void SetOperationDetail(string key, object detail)
         {
             this.Context.StoreRawObject(key, detail, true);
-        }
-
-        /// <summary>
-        /// Sanitizes the properties based on constraints.
-        /// </summary>
-        void ITelemetry.Sanitize()
-        {
-            this.Name = this.Name.SanitizeName();
-            this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(DependencyTelemetry).FullName);
-            this.Id.SanitizeName();
-            this.ResultCode = this.ResultCode.SanitizeResultCode();
-            this.Type = this.Type.SanitizeDependencyType();
-            this.Data = this.Data.SanitizeData();
-            this.Properties.SanitizeProperties();
-            this.Metrics.SanitizeMeasurements();
         }
     }
 }

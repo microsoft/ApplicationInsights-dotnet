@@ -7,7 +7,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
     /// Event Source exposes Application Insights telemetry information as ETW events.
@@ -65,14 +64,14 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 // after .Data is called.
                 telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
-                this.WriteEvent(
+                // item.Sanitize();
+                /*this.WriteEvent(
                     RequestTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
                     telemetryItem.Context.Flags,
-                    Keywords.Requests);
+                    Keywords.Requests);*/
             }
             else if (item is TraceTelemetry)
             {
@@ -84,14 +83,14 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var telemetryItem = item as TraceTelemetry;
                 telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
+                /*item.Sanitize();
                 this.WriteEvent(
                     TraceTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
                     telemetryItem.Context.Flags,
-                    Keywords.Traces);
+                    Keywords.Traces);*/
             }
             else if (item is EventTelemetry)
             {
@@ -103,14 +102,14 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var telemetryItem = item as EventTelemetry;
                 telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
+                /*item.Sanitize();
                 this.WriteEvent(
                     EventTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
                     telemetryItem.Context.Flags,
-                    Keywords.Events);
+                    Keywords.Events);*/
             }
             else if (item is DependencyTelemetry)
             {
@@ -125,14 +124,14 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 // after .InternalData is called.
                 telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
+                /*item.Sanitize();
                 this.WriteEvent(
                     DependencyTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.InternalData,
                     telemetryItem.Context.Flags,
-                    Keywords.Dependencies);
+                    Keywords.Dependencies);*/
             }
             else if (item is MetricTelemetry)
             {
@@ -143,15 +142,15 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 
                 var telemetryItem = item as MetricTelemetry;
                 telemetryItem.FlattenIExtensionIfExists();
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
+                // CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                /*item.Sanitize();
                 this.WriteEvent(
                     MetricTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
                     telemetryItem.Context.Flags,
-                    Keywords.Metrics);
+                    Keywords.Metrics);*/
             }
             else if (item is ExceptionTelemetry)
             {
@@ -163,14 +162,14 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var telemetryItem = item as ExceptionTelemetry;
                 telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
+                /*item.Sanitize();
                 this.WriteEvent(
                     ExceptionTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data.Data,
                     telemetryItem.Context.Flags,
-                    Keywords.Exceptions);
+                    Keywords.Exceptions);*/
             }
             
 #pragma warning restore 618
@@ -184,14 +183,14 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var telemetryItem = item as PageViewTelemetry;
                 telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
+                /*item.Sanitize();
                 this.WriteEvent(
                     PageViewTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
                     telemetryItem.Context.Flags,
-                    Keywords.PageViews);
+                    Keywords.PageViews);*/
             }
 
             /*else if (item is PageViewPerformanceTelemetry)
@@ -243,14 +242,14 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var telemetryItem = item as AvailabilityTelemetry;
                 telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
+                /*item.Sanitize();
                 this.WriteEvent(
                     AvailabilityTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
                     telemetryItem.Context.Flags,
-                    Keywords.Availability);
+                    Keywords.Availability);*/
             }
             else
             {
@@ -259,9 +258,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     return;
                 }
 
-                item.Sanitize();
+                // item.Sanitize();
 
-                EventData telemetryData = item.FlattenTelemetryIntoEventData();
+                /*EventData telemetryData = item.FlattenTelemetryIntoEventData();
                 telemetryData.name = Constants.EventNameForUnknownTelemetry;
 
                 this.WriteEvent(
@@ -270,7 +269,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     item.Context.SanitizedTags,
                     telemetryData,
                     item.Context.Flags,
-                    Keywords.Events);                
+                    Keywords.Events);*/                
             }
         }
 

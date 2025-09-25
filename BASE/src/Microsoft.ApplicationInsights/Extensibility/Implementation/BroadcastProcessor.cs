@@ -5,9 +5,7 @@
     using System.Diagnostics;
     using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// An <see cref="ITelemetryProcessor"/> that asynchronously sends the data to multiple child telemetry sinks.

@@ -1,9 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights
 {
-    using System;
     using System.ComponentModel;
-
-    using Microsoft.ApplicationInsights.Metrics;
 
     /// <summary>
     /// Provides the default Metric Configuration for Measurements.

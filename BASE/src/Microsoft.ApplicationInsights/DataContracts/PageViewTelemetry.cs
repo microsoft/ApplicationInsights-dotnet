@@ -2,12 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
-    using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
     /// Telemetry type used to track page views.
@@ -18,13 +13,11 @@
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#page-views">Learn more</a>
     /// </remarks>
-    internal sealed class PageViewTelemetry : ITelemetry, ISupportProperties, IAiSerializableTelemetry
+    internal sealed class PageViewTelemetry : ITelemetry, ISupportProperties
     {
         internal const string EtwEnvelopeName = "PageView";
-        internal readonly PageViewData Data;
         internal string EnvelopeName = "AppPageViews";
         private readonly TelemetryContext context;
-        private IExtension extension;
 
         private double? samplingPercentage;
 
@@ -33,8 +26,6 @@
         /// </summary>
         public PageViewTelemetry()
         {
-            this.Data = new PageViewData();
-            this.context = new TelemetryContext(this.Data.properties);
         }
 
         /// <summary>
@@ -53,30 +44,10 @@
         /// <param name="source">Source instance of <see cref="PageViewTelemetry"/> to clone from.</param>
         private PageViewTelemetry(PageViewTelemetry source)
         {
-            this.Data = source.Data.DeepClone();
-            this.context = source.context.DeepClone(this.Data.properties);
-            this.extension = source.extension?.DeepClone();
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
             // this.ProactiveSamplingDecision = source.ProactiveSamplingDecision;
         }
-
-        /// <inheritdoc />
-        string IAiSerializableTelemetry.TelemetryName
-        {
-            get
-            {
-                return this.EnvelopeName;
-            }
-
-            set
-            {
-                this.EnvelopeName = value;
-            }
-        }
-
-        /// <inheritdoc />
-        string IAiSerializableTelemetry.BaseType => nameof(PageViewData);
 
         /// <summary>
         /// Gets or sets date and time when event was recorded.
@@ -97,21 +68,12 @@
         }
 
         /// <summary>
-        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
-        /// </summary>
-        public IExtension Extension
-        {
-            get { return this.extension; }
-            set { this.extension = value; }
-        }
-
-        /// <summary>
         /// Gets or sets page view ID.
         /// </summary>
         public string Id
         {
-            get { return this.Data.id; }
-            set { this.Data.id = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -119,8 +81,8 @@
         /// </summary>
         public string Name
         {
-            get { return this.Data.name; }
-            set { this.Data.name = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -128,27 +90,8 @@
         /// </summary>
         public Uri Url
         {
-            get
-            {
-                if (this.Data.url.IsNullOrWhiteSpace())
-                {
-                    return null;
-                }
-
-                return new Uri(this.Data.url, UriKind.RelativeOrAbsolute);
-            }
-
-            set
-            {
-                if (value == null)
-                {
-                    this.Data.url = null;
-                }
-                else
-                {
-                    this.Data.url = value.ToString();
-                }
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -156,8 +99,8 @@
         /// </summary>
         public TimeSpan Duration
         {
-            get { return Utils.ValidateDuration(this.Data.duration); }
-            set { this.Data.duration = value.ToString(); }
+            get;
+            set;
         }
 
         /// <summary>
@@ -166,7 +109,7 @@
         /// </summary>
         public IDictionary<string, double> Metrics
         {
-            get { return this.Data.measurements; }
+            get;
         }
 
         /// <summary>
@@ -175,10 +118,10 @@
         /// </summary>
         public IDictionary<string, string> Properties
         {
-            get { return this.Data.properties; }
+            get;
         }
 
-        // <summary>
+        // <summary>`
         // Gets or sets data sampling percentage (between 0 and 100).
         // Should be 100/n where n is an integer. <a href="https://go.microsoft.com/fwlink/?linkid=832969">Learn more</a>
         // </summary>
@@ -200,29 +143,6 @@
         public ITelemetry DeepClone()
         {
             return new PageViewTelemetry(this);
-        }
-
-        public void SerializeData(ISerializationWriter serializationWriter)
-        {
-            if (serializationWriter == null)
-            {
-                throw new ArgumentNullException(nameof(serializationWriter));
-            }
-
-            serializationWriter.WriteProperty(this.Data);
-        }
-
-        /// <summary>
-        /// Sanitizes the properties based on constraints.
-        /// </summary>
-        void ITelemetry.Sanitize()
-        {
-            this.Name = this.Name.SanitizeName();
-            this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(PageViewTelemetry).FullName);
-            this.Properties.SanitizeProperties();
-            this.Metrics.SanitizeMeasurements();
-            this.Url = this.Url.SanitizeUri();
-            this.Id.SanitizeName();
         }
     }
 }

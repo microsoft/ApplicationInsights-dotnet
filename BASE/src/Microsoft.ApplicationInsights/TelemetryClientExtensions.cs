@@ -3,11 +3,9 @@
     using System;
     using System.ComponentModel;
     using System.Diagnostics;
-    using System.Runtime.InteropServices;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.Extensibility.W3C;
 
     /// <summary>
     /// Extension class to telemetry client that creates operation object with the respective fields initialized.
@@ -58,7 +56,7 @@
                 {
                     if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
                     {
-                        if (W3CUtilities.IsCompatibleW3CTraceId(operationId))
+                        /*if (W3CUtilities.IsCompatibleW3CTraceId(operationId))
                         {
                             // If the user provided operationid is W3C Compatible, use it.
                             operationTelemetry.Context.Operation.Id = operationId;
@@ -69,7 +67,7 @@
                             // and store supplied value inside customproperty.
                             operationTelemetry.Context.Operation.Id = ActivityTraceId.CreateRandom().ToHexString();
                             operationTelemetry.Properties.Add(W3CConstants.LegacyRootIdProperty, operationId);
-                        }
+                        }*/
                     }
                     else
                     {
@@ -159,7 +157,7 @@
                 {
                     if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
                     {
-                        if (W3CUtilities.IsCompatibleW3CTraceId(telemetryContext.Id))
+                        /*if (W3CUtilities.IsCompatibleW3CTraceId(telemetryContext.Id))
                         {
                             // If the user provided operationId is W3C Compatible, use it.
                             operationActivity.SetParentId(ActivityTraceId.CreateFromString(telemetryContext.Id.AsSpan()),
@@ -171,7 +169,7 @@
                             // and store supplied value inside custom property.
                             operationTelemetry.Properties.Add(W3CConstants.LegacyRootIdProperty, telemetryContext.Id);
                             telemetryContext.Id = null;
-                        }
+                        }*/
                     }
                     else
                     {
@@ -314,7 +312,7 @@
                     // save parent
                     legacyParent = activity.ParentId;
 
-                    if (W3CUtilities.IsCompatibleW3CTraceId(activity.RootId))
+                    /*if (W3CUtilities.IsCompatibleW3CTraceId(activity.RootId))
                     {
                         // reuse root id when compatible with trace ID
                         activity = CopyFromCompatibleRoot(activity);
@@ -323,7 +321,7 @@
                     {
                         // or store legacy root in custom property
                         legacyRoot = activity.RootId;
-                    }
+                    }*/
                 }
             }
 
@@ -332,7 +330,7 @@
 
             if (legacyRoot != null)
             {
-                operationTelemetry.Properties.Add(W3CConstants.LegacyRootIdProperty, legacyRoot);
+                // operationTelemetry.Properties.Add(W3CConstants.LegacyRootIdProperty, legacyRoot);
             }
 
             if (legacyParent != null)

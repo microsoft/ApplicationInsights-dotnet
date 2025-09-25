@@ -5,10 +5,7 @@
     using System.Globalization;
     using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
@@ -18,7 +15,7 @@
     /// <remarks>
     /// Additional exception details will need to be tracked manually.
     /// </remarks>
-    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, IAiSerializableTelemetry
+    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties
     {
         internal const string EtwEnvelopeName = "Exception";
         internal string EnvelopeName = "AppExceptions";
@@ -28,7 +25,6 @@
         private readonly bool isCreatedFromExceptionInfo = false;
 
         private TelemetryContext context;
-        private IExtension extension;
         private Exception exception;
         private string message;
         private double? samplingPercentage;
@@ -38,7 +34,6 @@
         /// </summary>
         public ExceptionTelemetry()
         {
-            this.Data = new ExceptionInfo(new ExceptionData());
             this.context = new TelemetryContext(this.Data.Properties);
         }
 
@@ -75,7 +70,7 @@
             this.Data = exceptionInfo;
             this.context = new TelemetryContext(this.Data.Properties);
 
-            this.UpdateData(exceptionInfo);
+            // this.UpdateData(exceptionInfo);
         }
 
         /// <summary>
@@ -96,26 +91,7 @@
             {
                 this.exception = source.Exception;
             }
-
-            this.extension = source.extension?.DeepClone();
         }
-
-        /// <inheritdoc />
-        string IAiSerializableTelemetry.TelemetryName
-        {
-            get
-            {
-                return this.EnvelopeName;
-            }
-
-            set
-            {
-                this.EnvelopeName = value;
-            }
-        }
-
-        /// <inheritdoc />
-        string IAiSerializableTelemetry.BaseType => nameof(ExceptionData);
 
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
@@ -152,39 +128,15 @@
         }
 
         /// <summary>
-        /// Gets or sets the value indicated where the exception was handled.
-        /// </summary>
-        [Obsolete("Use custom properties to report exception handling layer")]
-        public ExceptionHandledAt HandledAt
-        {
-            get
-            {
-                if (this.Properties.ContainsKey("handledAt") && Enum.TryParse(this.Properties["handledAt"], out ExceptionHandledAt result))
-                {
-                    return result;
-                }
-                else
-                {
-                    return default(ExceptionHandledAt);
-                }
-            }
-
-            set
-            {
-                this.Properties["handledAt"] = value.ToString();
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the original exception tracked by this <see cref="ITelemetry"/>.
         /// </summary>
         public Exception Exception
         {
             get
             {
-                return this.isCreatedFromExceptionInfo
+                return /*this.isCreatedFromExceptionInfo
                     ? this.ConstructExceptionFromDetailsInfo(this.Data.ExceptionDetailsInfoList ?? new List<ExceptionDetailsInfo>().AsReadOnly())
-                    : this.exception;
+                    :*/ this.exception;
             }
 
             set
@@ -196,7 +148,7 @@
                 }
 
                 this.exception = value;
-                this.UpdateData(value);
+                // this.UpdateData(value);
             }
         }
 
@@ -230,7 +182,7 @@
                 }
                 else
                 {
-                    this.UpdateData(this.Exception);
+                    // this.UpdateData(this.Exception);
                 }
             }
         }
@@ -256,17 +208,7 @@
         /// </summary>
         public IDictionary<string, string> Properties
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            get
-            {
-                if (!string.IsNullOrEmpty(this.MetricExtractorInfo) && !this.Context.Properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
-                {
-                    this.Context.Properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
-                }
-
-                return this.Context.Properties;
-#pragma warning restore CS0618 // Type or member is obsolete
-            }
+            get;
         }
 
         /// <summary>
@@ -278,19 +220,10 @@
             set => this.Data.SeverityLevel = value;
         }
 
-        /// <summary>
-        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
-        /// </summary>
-        internal IExtension Extension
-        {
-            get { return this.extension; }
-            set { this.extension = value; }
-        }
-
-        internal IList<ExceptionDetails> Exceptions
+        /*internal IList<ExceptionDetails> Exceptions
         {
             get { return this.Data.Data.exceptions; }
-        }
+        }*/
 
         /// <summary>
         /// Gets or sets the MetricExtractorInfo.
@@ -301,10 +234,10 @@
             set;
         }
 
-        /// <summary>
-        /// Set parsedStack from an array of StackFrame objects.
-        /// </summary>
-        public void SetParsedStack(System.Diagnostics.StackFrame[] frames)
+        // <summary>
+        // Set parsedStack from an array of StackFrame objects.
+        // </summary>
+        /*public void SetParsedStack(System.Diagnostics.StackFrame[] frames)
         {
             if (this.Exceptions != null && this.Exceptions.Count > 0)
             {
@@ -331,7 +264,7 @@
                     }
                 }
             }
-        }
+        }*/
 
         /// <summary>
         /// Deeply clones a <see cref="ExceptionTelemetry"/> object.
@@ -342,28 +275,7 @@
             return new ExceptionTelemetry(this);
         }
 
-        /// <summary>
-        /// Sanitizes the properties based on constraints.
-        /// </summary>
-        void ITelemetry.Sanitize()
-        {
-            // Sanitize on the ExceptionDetails stack information for raw stack and parsed stack is done while creating the object in ExceptionConverter.cs
-            this.message = this.message.SanitizeMessage();
-            this.Properties.SanitizeProperties();
-            this.Metrics.SanitizeMeasurements();
-        }
-
-        internal void SerializeData(ISerializationWriter serializationWriter)
-        {
-            if (serializationWriter == null)
-            {
-                throw new ArgumentNullException(nameof(serializationWriter));
-            }
-
-            serializationWriter.WriteProperty(this.Data.Data);
-        }
-
-        private void ConvertExceptionTree(Exception exception, ExceptionDetails parentExceptionDetails, List<ExceptionDetails> exceptions)
+        /*private void ConvertExceptionTree(Exception exception, ExceptionDetails parentExceptionDetails, List<ExceptionDetails> exceptions)
         {
             if (exception == null)
             {
@@ -485,6 +397,6 @@
 
             // inner exception doesn't exist
             return null;
-        }
+        }*/
     }
 }

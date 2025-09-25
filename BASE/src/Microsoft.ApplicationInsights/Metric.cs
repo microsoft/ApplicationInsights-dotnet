@@ -3,8 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
-    using Microsoft.ApplicationInsights.Metrics;
-    using Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures;
 
     using static System.FormattableString;
 

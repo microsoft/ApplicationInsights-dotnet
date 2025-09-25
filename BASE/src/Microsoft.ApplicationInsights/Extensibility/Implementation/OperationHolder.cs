@@ -4,7 +4,6 @@
     using System.Diagnostics;
     using System.Globalization;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.Extensibility.W3C;
 
     /// <summary>
     /// Operation class that holds the telemetry item and the corresponding telemetry client.

@@ -2,40 +2,31 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
     /// Telemetry type used for availability web test results.
     /// Contains a time and message and optionally some additional metadata.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
     /// </summary>
-    public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties, IAiSerializableTelemetry
+    public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties
     {
         internal const string EtwEnvelopeName = "Availability";
-        internal readonly AvailabilityData Data;
         internal string EnvelopeName = "AppAvailabilityResults";
         private readonly TelemetryContext context;
-        private IExtension extension;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AvailabilityTelemetry"/> class with empty properties.
         /// </summary>
         public AvailabilityTelemetry()
         {
-            this.Data = new AvailabilityData();
-            this.context = new TelemetryContext(this.Data.properties);
-            this.Data.id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
             this.Success = true;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AvailabilityTelemetry"/> class with empty properties.
-        /// </summary>
-        public AvailabilityTelemetry(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message = null)
+        // <summary>
+        // Initializes a new instance of the <see cref="AvailabilityTelemetry"/> class with empty properties.
+        // </summary>
+        /*public AvailabilityTelemetry(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message = null)
             : this()
         {
             this.Data.name = name;
@@ -44,7 +35,7 @@
             this.Data.runLocation = runLocation;
             this.Data.message = message;
             this.Timestamp = timeStamp;
-        }
+        }*/
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AvailabilityTelemetry"/> class by cloning an existing instance.
@@ -52,37 +43,17 @@
         /// <param name="source">Source instance of <see cref="AvailabilityTelemetry"/> to clone from.</param>
         private AvailabilityTelemetry(AvailabilityTelemetry source)
         {
-            this.Data = source.Data.DeepClone();
-            this.context = source.context.DeepClone(this.Data.properties);
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
-            this.extension = source.extension?.DeepClone();
         }
-
-        /// <inheritdoc />
-        string IAiSerializableTelemetry.TelemetryName
-        {
-            get
-            {
-                return this.EnvelopeName;
-            }
-
-            set
-            {
-                this.EnvelopeName = value;
-            }
-        }
-
-        /// <inheritdoc />
-        string IAiSerializableTelemetry.BaseType => nameof(AvailabilityData);
 
         /// <summary>
         /// Gets or sets the test run id.
         /// </summary>
         public string Id
         {
-            get { return this.Data.id; }
-            set { this.Data.id = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -90,8 +61,8 @@
         /// </summary>
         public string Name
         {
-            get { return this.Data.name; }
-            set { this.Data.name = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -99,15 +70,9 @@
         /// </summary>
         public TimeSpan Duration
         {
-            get
-            {
-                return this.Data.duration;
-            }
+            get;
 
-            set
-            {
-                this.Data.duration = value;
-            }
+            set;
         }
 
         /// <summary>
@@ -115,8 +80,8 @@
         /// </summary>
         public bool Success
         {
-            get { return this.Data.success; }
-            set { this.Data.success = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -124,8 +89,8 @@
         /// </summary>
         public string RunLocation
         {
-            get { return this.Data.runLocation; }
-            set { this.Data.runLocation = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -133,8 +98,8 @@
         /// </summary>
         public string Message
         {
-            get { return this.Data.message; }
-            set { this.Data.message = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -156,7 +121,7 @@
         /// </summary>
         public IDictionary<string, string> Properties
         {
-            get { return this.Data.properties; }
+            get;
         }
 
         /// <summary>
@@ -165,7 +130,7 @@
         /// </summary>
         public IDictionary<string, double> Metrics
         {
-            get { return this.Data.measurements; }
+            get;
         }
 
         /// <summary>
@@ -183,24 +148,6 @@
         public ITelemetry DeepClone()
         {
             return new AvailabilityTelemetry(this);
-        }
-
-        /// <summary>
-        /// Sanitizes the properties based on constraints.
-        /// </summary>
-        void ITelemetry.Sanitize()
-        {
-            // Makes message content similar to OOB web test results on the portal.
-            this.Message = (this.Data.success && string.IsNullOrEmpty(this.Message)) ? "Passed" : ((!this.Data.success && string.IsNullOrEmpty(this.Message)) ? "Failed" : this.Message);
-
-            this.Name = this.Name.SanitizeTestName();
-            this.Name = Utils.PopulateRequiredStringValue(this.Name, "TestName", typeof(AvailabilityTelemetry).FullName);
-
-            this.RunLocation = this.RunLocation.SanitizeRunLocation();
-            this.Message = this.Message.SanitizeAvailabilityMessage();
-
-            this.Data.properties.SanitizeProperties();
-            this.Data.measurements.SanitizeMeasurements();
         }
     }
 }

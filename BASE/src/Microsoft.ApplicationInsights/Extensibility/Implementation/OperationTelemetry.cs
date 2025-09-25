@@ -76,24 +76,11 @@
         /// </summary>
         public abstract string Sequence { get; set; }
 
-        /// <summary>
-        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
-        /// </summary>
-        internal abstract IExtension Extension { get; set; }
-
         /// <summary>  
         /// Gets or sets Time in StopWatch ticks representing begin time of the operation. Used internally
         /// for calculating duration between begin and end.
         /// </summary>  
         internal long BeginTimeInTicks { get; set; }
-
-        /// <summary>
-        /// Sanitizes the properties based on constraints.
-        /// </summary>
-        void ITelemetry.Sanitize()
-        {
-            this.Sanitize();
-        }
 
         /// <summary>
         /// Deeply clones a <see cref="OperationTelemetry"/> object.
@@ -106,7 +93,7 @@
         /// </summary>
         internal void GenerateId()
         {
-            this.Id = W3C.W3CUtilities.GenerateSpanId();
+            // this.Id = W3C.W3CUtilities.GenerateSpanId();
         }
 
         /// <summary>

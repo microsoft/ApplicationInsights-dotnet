@@ -2,25 +2,18 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
-    using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
     /// Telemetry type used to track custom events.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackevent">Learn more</a>
     /// </summary>
-    public sealed class EventTelemetry : ITelemetry, ISupportProperties, IAiSerializableTelemetry
+    public sealed class EventTelemetry : ITelemetry, ISupportProperties
     {
         internal const string EtwEnvelopeName = "Event";
         internal const string DefaultEnvelopeName = "AppEvents";
-        internal readonly EventData Data;
         internal string EnvelopeName = DefaultEnvelopeName;
         private readonly TelemetryContext context;
-        private IExtension extension;
 
         private double? samplingPercentage;
 
@@ -29,8 +22,6 @@
         /// </summary>
         public EventTelemetry()
         {
-            this.Data = new EventData();
-            this.context = new TelemetryContext(this.Data.properties);
         }
 
         /// <summary>
@@ -43,30 +34,10 @@
 
         private EventTelemetry(EventTelemetry source)
         {
-            this.Data = source.Data.DeepClone();
-            this.context = source.context.DeepClone(this.Data.properties);
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
-            this.extension = source.extension?.DeepClone();
         }
-
-        /// <inheritdoc />
-        string IAiSerializableTelemetry.TelemetryName
-        {
-            get
-            {
-                return this.EnvelopeName;
-            }
-
-            set
-            {
-                this.EnvelopeName = value;
-            }
-        }
-
-        /// <inheritdoc />
-        string IAiSerializableTelemetry.BaseType => nameof(EventData);
 
         /// <summary>
         /// Gets or sets date and time when event was recorded.
@@ -91,8 +62,8 @@
         /// </summary>
         public string Name
         {
-            get { return this.Data.name; }
-            set { this.Data.name = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -101,7 +72,7 @@
         /// </summary>
         public IDictionary<string, double> Metrics
         {
-            get { return this.Data.measurements; }
+            get;
         }
 
         /// <summary>
@@ -110,16 +81,7 @@
         /// </summary>
         public IDictionary<string, string> Properties
         {
-            get { return this.Data.properties; }
-        }
-
-        /// <summary>
-        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
-        /// </summary>
-        internal IExtension Extension
-        {
-            get { return this.extension; }
-            set { this.extension = value; }
+            get;
         }
 
         /// <summary>
@@ -129,27 +91,6 @@
         public ITelemetry DeepClone()
         {
             return new EventTelemetry(this);
-        }
-
-        /// <summary>
-        /// Sanitizes the properties based on constraints.
-        /// </summary>
-        void ITelemetry.Sanitize()
-        {
-            this.Name = this.Name.SanitizeEventName();
-            this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(EventTelemetry).FullName);
-            this.Properties.SanitizeProperties();
-            this.Metrics.SanitizeMeasurements();
-        }
-
-        internal void SerializeData(ISerializationWriter serializationWriter)
-        {
-            if (serializationWriter == null)
-            {
-                throw new ArgumentNullException(nameof(serializationWriter));
-            }
-
-            serializationWriter.WriteProperty(this.Data);
         }
     }
 }

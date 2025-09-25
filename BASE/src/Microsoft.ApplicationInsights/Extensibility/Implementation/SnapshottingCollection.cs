@@ -4,11 +4,9 @@
 
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
-    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Threading;
 
     internal abstract class SnapshottingCollection<TItem, TCollection> : ICollection<TItem>
         where TCollection : class, ICollection<TItem>

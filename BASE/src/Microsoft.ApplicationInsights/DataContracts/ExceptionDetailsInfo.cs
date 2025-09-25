@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
     /// Wrapper class for <see cref="ExceptionDetails"/> that lets user gets/sets TypeName and Message.
