@@ -55,20 +55,5 @@
             get { return string.IsNullOrEmpty(this.authenticatedUserId) ? null : this.authenticatedUserId; }
             set { this.authenticatedUserId = value; }
         }
-
-        internal void UpdateTags(IDictionary<string, string> tags)
-        {
-            tags.UpdateTagValue(ContextTagKeys.Keys.UserId, this.Id);
-            tags.UpdateTagValue(ContextTagKeys.Keys.UserAccountId, this.AccountId);
-            tags.UpdateTagValue(ContextTagKeys.Keys.UserAuthUserId, this.AuthenticatedUserId);
-        }
-        
-        internal void CopyTo(UserContext target)
-        {
-            Tags.CopyTagValue(this.Id, ref target.id);
-            Tags.CopyTagValue(this.AccountId, ref target.accountId);
-            Tags.CopyTagValue(this.UserAgent, ref target.userAgent);
-            Tags.CopyTagValue(this.AuthenticatedUserId, ref target.authenticatedUserId);
-        }
     }
 }

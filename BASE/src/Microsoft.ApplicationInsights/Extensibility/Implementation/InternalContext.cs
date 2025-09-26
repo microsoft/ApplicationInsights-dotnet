@@ -41,19 +41,5 @@
             get { return string.IsNullOrEmpty(this.nodeName) ? null : this.nodeName; }
             set { this.nodeName = value; }
         }
-
-        internal void UpdateTags(IDictionary<string, string> tags)
-        {
-            tags.UpdateTagValue(ContextTagKeys.Keys.InternalSdkVersion, this.SdkVersion);
-            tags.UpdateTagValue(ContextTagKeys.Keys.InternalAgentVersion, this.AgentVersion);
-            tags.UpdateTagValue(ContextTagKeys.Keys.InternalNodeName, this.NodeName);
-        }
-        
-        internal void CopyTo(InternalContext target)
-        {
-            Tags.CopyTagValue(this.SdkVersion, ref target.sdkVersion);
-            Tags.CopyTagValue(this.AgentVersion, ref target.agentVersion);
-            Tags.CopyTagValue(this.NodeName, ref target.nodeName);
-        }
     }
 }

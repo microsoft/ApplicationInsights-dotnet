@@ -63,23 +63,5 @@
             get { return string.IsNullOrEmpty(this.syntheticSource) ? null : this.syntheticSource; }
             set { this.syntheticSource = value; }
         }
-
-        internal void UpdateTags(IDictionary<string, string> tags)
-        {
-            tags.UpdateTagValue(ContextTagKeys.Keys.OperationId, this.Id);
-            tags.UpdateTagValue(ContextTagKeys.Keys.OperationParentId, this.ParentId);
-            tags.UpdateTagValue(ContextTagKeys.Keys.OperationCorrelationVector, this.CorrelationVector);
-            tags.UpdateTagValue(ContextTagKeys.Keys.OperationName, this.Name);
-            tags.UpdateTagValue(ContextTagKeys.Keys.OperationSyntheticSource, this.SyntheticSource);
-        }
-
-        internal void CopyTo(OperationContext target)
-        {
-            Tags.CopyTagValue(this.Id, ref target.id);
-            Tags.CopyTagValue(this.ParentId, ref target.parentId);
-            Tags.CopyTagValue(this.CorrelationVector, ref target.correlationVector);
-            Tags.CopyTagValue(this.Name, ref target.name);
-            Tags.CopyTagValue(this.SyntheticSource, ref target.syntheticSource);
-        }
     }
 }

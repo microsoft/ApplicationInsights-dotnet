@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
     using System;
+    using System.Collections.Generic;
     using Microsoft.ApplicationInsights.Channel;
 
     /// <summary>
@@ -19,19 +20,6 @@
         public MetricTelemetry()
         {
         }
-
-        // <summary>
-        // Obsolete - use MetricTelemetry(name,count,sum,min,max,standardDeviation). Initializes a new instance of the <see cref="MetricTelemetry"/> class with the
-        // specified <paramref name="metricName"/> and <paramref name="metricValue"/>.
-        // </summary>
-        // <exception cref="ArgumentException">The <paramref name="metricName"/> is null or empty string.</exception>
-        /*public MetricTelemetry(string metricName, double metricValue) : this()
-        {
-            this.Name = metricName;
-#pragma warning disable 618
-            this.Value = metricValue;
-#pragma warning restore 618
-        }*/
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MetricTelemetry"/> class with properties provided.
@@ -190,6 +178,15 @@
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// Gets a dictionary of application-defined property names and values providing additional information about this metric.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
+        /// </summary>
+        public IDictionary<string, string> Properties
+        {
+            get;
         }
 
         /// <summary>

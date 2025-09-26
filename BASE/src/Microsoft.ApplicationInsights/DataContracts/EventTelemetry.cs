@@ -22,6 +22,7 @@
         /// </summary>
         public EventTelemetry()
         {
+            this.context = new TelemetryContext();
         }
 
         /// <summary>
@@ -30,6 +31,7 @@
         public EventTelemetry(string name) : this()
         {
             this.Name = name;
+            this.context = new TelemetryContext();
         }
 
         private EventTelemetry(EventTelemetry source)
@@ -37,6 +39,7 @@
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
+            this.context = new TelemetryContext();
         }
 
         /// <summary>

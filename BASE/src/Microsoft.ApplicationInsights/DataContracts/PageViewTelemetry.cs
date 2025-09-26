@@ -26,6 +26,7 @@
         /// </summary>
         public PageViewTelemetry()
         {
+            this.context = new TelemetryContext();
         }
 
         /// <summary>
@@ -36,6 +37,7 @@
         public PageViewTelemetry(string pageName) : this()
         {
             this.Name = pageName;
+            this.context = new TelemetryContext();
         }
 
         /// <summary>
@@ -46,6 +48,7 @@
         {
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
+            this.context = new TelemetryContext();
             // this.ProactiveSamplingDecision = source.ProactiveSamplingDecision;
         }
 

@@ -20,7 +20,6 @@ Microsoft.ApplicationInsights.Channel.IAsyncFlushable.FlushAsync(System.Threadin
 Microsoft.ApplicationInsights.Channel.ITelemetry
 Microsoft.ApplicationInsights.Channel.ITelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
 Microsoft.ApplicationInsights.Channel.ITelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
-Microsoft.ApplicationInsights.Channel.ITelemetry.Sanitize() -> void
 Microsoft.ApplicationInsights.Channel.ITelemetry.Sequence.get -> string
 Microsoft.ApplicationInsights.Channel.ITelemetry.Sequence.set -> void
 Microsoft.ApplicationInsights.Channel.ITelemetry.Timestamp.get -> System.DateTimeOffset
@@ -88,10 +87,6 @@ Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo.Message.get -> 
 Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo.Message.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo.TypeName.get -> string
 Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo.TypeName.set -> void
-Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt
-Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt.Platform = 2 -> Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt
-Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt.Unhandled = 0 -> Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt
-Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt.UserCode = 1 -> Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
@@ -101,8 +96,6 @@ Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ExceptionDetailsI
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ExceptionTelemetry() -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ExceptionTelemetry(System.Collections.Generic.IEnumerable<Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo> exceptionDetailsInfoList, Microsoft.ApplicationInsights.DataContracts.SeverityLevel? severityLevel, string problemId, System.Collections.Generic.IDictionary<string, string> properties, System.Collections.Generic.IDictionary<string, double> measurements) -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ExceptionTelemetry(System.Exception exception) -> void
-Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.HandledAt.get -> Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt
-Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.HandledAt.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Message.get -> string
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Message.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Metrics.get -> System.Collections.Generic.IDictionary<string, double>
@@ -128,7 +121,6 @@ Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Max.set -> void
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.MetricNamespace.get -> string
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.MetricNamespace.set -> void
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.MetricTelemetry() -> void
-Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.MetricTelemetry(string metricName, double metricValue) -> void
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.MetricTelemetry(string metricNamespace, string name, int count, double sum, double min, double max, double standardDeviation) -> void
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.MetricTelemetry(string name, int count, double sum, double min, double max, double standardDeviation) -> void
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Min.get -> double?
@@ -144,8 +136,6 @@ Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Sum.get -> double
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Sum.set -> void
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Timestamp.get -> System.DateTimeOffset
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Timestamp.set -> void
-Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Value.get -> double
-Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Value.set -> void
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.HttpMethod.get -> string
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.HttpMethod.set -> void

@@ -163,24 +163,19 @@
             set;
         }
 
-        // <summary>
-        // Gets a dictionary of application-defined property names and values providing additional information about this request.
-        // <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
-        // </summary>
-        /*public override IDictionary<string, string> Properties
+        /// <summary>
+        /// Gets a dictionary of application-defined property names and values providing additional information about this request.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
+        /// </summary>
+        public override IDictionary<string, string> Properties
         {
 #pragma warning disable CS0618 // Type or member is obsolete
             get
             {
-                if (!string.IsNullOrEmpty(this.MetricExtractorInfo) && !this.Context.Properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
-                {
-                    this.Context.Properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
-                }
-
                 return this.Context.Properties;
 #pragma warning restore CS0618 // Type or member is obsolete
             }
-        }*/
+        }
 
         /// <summary>
         /// Gets or sets request url (optional).

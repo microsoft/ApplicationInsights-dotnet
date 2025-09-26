@@ -81,7 +81,6 @@
         {
             this.isCreatedFromExceptionInfo = source.isCreatedFromExceptionInfo;
 
-            this.Data = source.Data.DeepClone();
             this.context = source.context.DeepClone(this.Data.Properties);
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
@@ -234,37 +233,16 @@
             set;
         }
 
-        // <summary>
-        // Set parsedStack from an array of StackFrame objects.
-        // </summary>
-        /*public void SetParsedStack(System.Diagnostics.StackFrame[] frames)
+        /// <summary>
+        /// Set parsedStack from an array of StackFrame objects.
+        /// </summary>
+#pragma warning disable CA1822 // Mark members as static
+#pragma warning disable CA1801 // Review unused parameters
+        public void SetParsedStack(System.Diagnostics.StackFrame[] frames)
+#pragma warning restore CA1801 // Review unused parameters
+#pragma warning restore CA1822 // Mark members as static
         {
-            if (this.Exceptions != null && this.Exceptions.Count > 0)
-            {
-                if (frames != null && frames.Length > 0)
-                {
-                    int stackLength = 0;
-
-                    this.Exceptions[0].parsedStack = new List<Extensibility.Implementation.External.StackFrame>();
-                    this.Exceptions[0].hasFullStack = true;
-
-                    for (int level = 0; level < frames.Length; level++)
-                    {
-                        var sf = ExceptionConverter.GetStackFrame(frames[level], level);
-
-                        stackLength += ExceptionConverter.GetStackFrameLength(sf);
-
-                        if (stackLength > ExceptionConverter.MaxParsedStackLength)
-                        {
-                            this.Exceptions[0].hasFullStack = false;
-                            break;
-                        }
-
-                        this.Exceptions[0].parsedStack.Add(sf);
-                    }
-                }
-            }
-        }*/
+        }
 
         /// <summary>
         /// Deeply clones a <see cref="ExceptionTelemetry"/> object.

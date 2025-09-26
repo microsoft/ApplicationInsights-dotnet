@@ -21,21 +21,20 @@
         public AvailabilityTelemetry()
         {
             this.Success = true;
+            this.context = new TelemetryContext();
         }
 
-        // <summary>
-        // Initializes a new instance of the <see cref="AvailabilityTelemetry"/> class with empty properties.
-        // </summary>
-        /*public AvailabilityTelemetry(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message = null)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AvailabilityTelemetry"/> class with empty properties.
+        /// </summary>
+#pragma warning disable CA1801 // Review unused parameters
+        public AvailabilityTelemetry(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message = null)
+#pragma warning restore CA1801 // Review unused parameters
             : this()
         {
-            this.Data.name = name;
-            this.Data.duration = duration;
-            this.Data.success = success;
-            this.Data.runLocation = runLocation;
-            this.Data.message = message;
             this.Timestamp = timeStamp;
-        }*/
+            this.context = new TelemetryContext();
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AvailabilityTelemetry"/> class by cloning an existing instance.
@@ -45,6 +44,7 @@
         {
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
+            this.context = new TelemetryContext();
         }
 
         /// <summary>

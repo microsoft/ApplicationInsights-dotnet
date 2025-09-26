@@ -39,17 +39,20 @@
         public TelemetryContext()
             : this(null, null)
         {
+            this.instrumentationKey = String.Empty;
         }
 
         internal TelemetryContext(IDictionary<string, string> properties)
             : this(properties, null)
         {
+            this.instrumentationKey = String.Empty;
         }
 
         internal TelemetryContext(IDictionary<string, string> properties, IDictionary<string, string> globalProperties)
         {
             this.PropertiesValue = properties;
             this.GlobalPropertiesValue = globalProperties;
+            this.instrumentationKey = String.Empty;
         }
 
         /// <summary>
@@ -63,8 +66,8 @@
         /// </remarks>
         public string InstrumentationKey
         {
-            get { return this.instrumentationKey ?? string.Empty; }
-            set { Property.Set(ref this.instrumentationKey, value); }
+            get;
+            set;
         }
 
         /// <summary> 
@@ -154,26 +157,6 @@
         internal InternalContext Internal => this.internalContext;
 
         /// <summary>
-        /// Gets a dictionary of context tags.
-        /// </summary>
-        internal IDictionary<string, string> SanitizedTags
-        {
-            get
-            {
-                var result = new Dictionary<string, string>();
-                this.component?.UpdateTags(result);
-                this.device?.UpdateTags(result);
-                this.cloud?.UpdateTags(result);
-                this.session?.UpdateTags(result);
-                this.user?.UpdateTags(result);
-                this.operation?.UpdateTags(result);
-                this.location?.UpdateTags(result);
-                this.Internal.UpdateTags(result);
-                return result;
-            }
-        }
-
-        /// <summary>
         /// Returns the raw object with the given key.        
         /// Objects retrieved here are not automatically serialized and sent to the backend.
         /// They are shared (i.e not cloned) if multiple sinks are configured, so sinks should treat them as read-only.
@@ -235,11 +218,6 @@
             }
         }
 
-        internal void SanitizeGlobalProperties()
-        {
-            this.GlobalPropertiesValue?.SanitizeProperties();
-        }
-
         internal void ClearTempRawObjects()
         {
             this.rawObjectsTemp.Clear();
@@ -285,23 +263,17 @@
             this.InitializeInstrumentationkey(instrumentationKey);
 
             this.Flags |= source.Flags;
-
-            source.component?.CopyTo(this.Component);
-            source.device?.CopyTo(this.Device);
-            source.cloud?.CopyTo(this.Cloud);
-            source.session?.CopyTo(this.Session);
-            source.user?.CopyTo(this.User);
-            source.operation?.CopyTo(this.Operation);
-            source.location?.CopyTo(this.Location);
-            source.Internal.CopyTo(this.Internal);
         }
 
         /// <summary>
         /// Initialize this instance's instrumentation key.
         /// </summary>
+#pragma warning disable CA1822 // Mark members as static
+#pragma warning disable CA1801 // Review unused parameters
         internal void InitializeInstrumentationkey(string instrumentationKey)
+#pragma warning restore CA1801 // Review unused parameters
+#pragma warning restore CA1822 // Mark members as static
         {
-            Property.Initialize(ref this.instrumentationKey, instrumentationKey);
         }
     }
 }

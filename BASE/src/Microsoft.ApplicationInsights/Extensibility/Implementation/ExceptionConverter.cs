@@ -6,7 +6,7 @@
 
     internal static class ExceptionConverter
     {
-        public const int MaxParsedStackLength = 32768;
+        /*public const int MaxParsedStackLength = 32768;
         public const int MaxExceptionMessageLength = 32768;
 
         /// <summary>
@@ -127,6 +127,6 @@
             }
 
             return new Tuple<List<TOutput>, bool>(orderedStackTrace, hasFullStack);
-        }
+        }*/
     }
 }

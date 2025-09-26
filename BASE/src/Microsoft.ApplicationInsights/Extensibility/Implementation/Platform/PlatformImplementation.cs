@@ -104,7 +104,7 @@
         /// </summary>
         public IDebugOutput GetDebugOutput()
         {
-            return this.debugOutput ?? (this.debugOutput = new TelemetryDebugWriter());
+            return this.debugOutput;
         }
 
         /// <inheritdoc />

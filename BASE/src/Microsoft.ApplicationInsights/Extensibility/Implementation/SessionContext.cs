@@ -31,17 +31,5 @@
             get { return this.isFirst; }
             set { this.isFirst = value; }
         }
-
-        internal void UpdateTags(IDictionary<string, string> tags)
-        {
-            tags.UpdateTagValue(ContextTagKeys.Keys.SessionId, this.Id);
-            tags.UpdateTagValue(ContextTagKeys.Keys.SessionIsFirst, this.IsFirst);
-        }
-        
-        internal void CopyTo(SessionContext target)
-        {
-            Tags.CopyTagValue(this.Id, ref target.id);
-            Tags.CopyTagValue(this.IsFirst, ref target.isFirst);
-        }
     }
 }

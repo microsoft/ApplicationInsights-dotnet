@@ -225,27 +225,24 @@
             this.Track(telemetry);
         }
 
-        // <summary>
-        // This method is not the preferred method for sending metrics.
-        // Metrics should always be pre-aggregated across a time period before being sent.<br />
-        // Use one of the <c>GetMetric(..)</c> overloads to get a metric object for accessing SDK pre-aggregation capabilities.<br />
-        // If you are implementing your own pre-aggregation logic, then you can use this method.
-        // If your application requires sending a separate telemetry item at every occasion without aggregation across time,
-        // you likely have a use case for event telemetry; see <see cref="TrackEvent(EventTelemetry)"/>.
-        // </summary>
-        // <param name="name">Metric name.</param>
-        // <param name="value">Metric value.</param>
-        // <param name="properties">Named string values you can use to classify and filter metrics.</param>        
-        /*public void TrackMetric(string name, double value, IDictionary<string, string> properties = null)
+        /// <summary>
+        /// This method is not the preferred method for sending metrics.
+        /// Metrics should always be pre-aggregated across a time period before being sent.<br />
+        /// Use one of the <c>GetMetric(..)</c> overloads to get a metric object for accessing SDK pre-aggregation capabilities.<br />
+        /// If you are implementing your own pre-aggregation logic, then you can use this method.
+        /// If your application requires sending a separate telemetry item at every occasion without aggregation across time,
+        /// you likely have a use case for event telemetry; see <see cref="TrackEvent(EventTelemetry)"/>.
+        /// </summary>
+        /// <param name="name">Metric name.</param>
+        /// <param name="value">Metric value.</param>
+        /// <param name="properties">Named string values you can use to classify and filter metrics.</param>        
+#pragma warning disable CA1822 // Mark members as static
+#pragma warning disable CA1801 // Review unused parameters
+        public void TrackMetric(string name, double value, IDictionary<string, string> properties = null)
+#pragma warning restore CA1801 // Review unused parameters
+#pragma warning restore CA1822 // Mark members as static
         {
-            var telemetry = new MetricTelemetry(name, value);
-            if (properties != null && properties.Count > 0)
-            {
-                Utils.CopyDictionary(properties, telemetry.Properties);
-            }
-
-            this.TrackMetric(telemetry);
-        }*/
+        }
 
         /// <summary>
         /// This method is not the preferred method for sending metrics.
@@ -387,21 +384,21 @@
             this.Track(telemetry);
         }
 
-        // <summary>
-        // Send information about availability of an application.
-        // </summary>
-        // <param name="name">Availability test name.</param>
-        // <param name="timeStamp">The time when the availability was captured.</param>
-        // <param name="duration">The time taken for the availability test to run.</param>
-        // <param name="runLocation">Name of the location the availability test was run from.</param>
-        // <param name="success">True if the availability test ran successfully.</param>
-        // <param name="message">Error message on availability test run failure.</param>
-        // <param name="properties">Named string values you can use to classify and search for this availability telemetry.</param>
-        // <param name="metrics">Additional values associated with this availability telemetry.</param>
-        // <remarks>
-        // <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
-        // </remarks>
-        /*public void TrackAvailability(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message = null, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
+        /// <summary>
+        /// Send information about availability of an application.
+        /// </summary>
+        /// <param name="name">Availability test name.</param>
+        /// <param name="timeStamp">The time when the availability was captured.</param>
+        /// <param name="duration">The time taken for the availability test to run.</param>
+        /// <param name="runLocation">Name of the location the availability test was run from.</param>
+        /// <param name="success">True if the availability test ran successfully.</param>
+        /// <param name="message">Error message on availability test run failure.</param>
+        /// <param name="properties">Named string values you can use to classify and search for this availability telemetry.</param>
+        /// <param name="metrics">Additional values associated with this availability telemetry.</param>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
+        /// </remarks>
+        public void TrackAvailability(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message = null, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
         {
             var availabilityTelemetry = new AvailabilityTelemetry(name, timeStamp, duration, runLocation, success, message);
 
@@ -416,7 +413,7 @@
             }
 
             this.TrackAvailability(availabilityTelemetry);
-        }*/
+        }
 
         /// <summary>
         /// Send information about availability of an application.

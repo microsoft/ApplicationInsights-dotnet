@@ -22,6 +22,7 @@
         /// </summary>
         public TraceTelemetry()
         {
+            this.context = new TelemetryContext();
         }
 
         /// <summary>
@@ -30,6 +31,7 @@
         public TraceTelemetry(string message) : this()
         {
             this.Message = message;
+            this.context = new TelemetryContext();
         }
 
         /// <summary>
@@ -38,6 +40,7 @@
         public TraceTelemetry(string message, SeverityLevel severityLevel) : this(message)
         {
             this.SeverityLevel = severityLevel;
+            this.context = new TelemetryContext();
         }
 
         /// <summary>
@@ -49,6 +52,7 @@
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
+            this.context = new TelemetryContext();
         }
 
         /// <summary>
@@ -87,24 +91,19 @@
             set;
         }
 
-        // <summary>
-        // Gets a dictionary of application-defined property names and values providing additional information about this trace.
-        // <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
-        // </summary>
-        /*public IDictionary<string, string> Properties
+        /// <summary>
+        /// Gets a dictionary of application-defined property names and values providing additional information about this trace.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
+        /// </summary>
+        public IDictionary<string, string> Properties
         {
 #pragma warning disable CS0618 // Type or member is obsolete
             get
             {
-                if (!string.IsNullOrEmpty(this.MetricExtractorInfo) && !this.Context.Properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
-                {
-                    this.Context.Properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
-                }
-
                 return this.Context.Properties;
 #pragma warning restore CS0618 // Type or member is obsolete
             }
-        }*/
+        }
 
         /// <summary>
         /// Gets or sets the MetricExtractorInfo.

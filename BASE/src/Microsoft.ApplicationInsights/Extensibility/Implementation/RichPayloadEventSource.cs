@@ -62,7 +62,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 // Sanitize, Copying global properties is to be done before calling .Data,
                 // as Data returns a singleton instance, which won't be updated with changes made
                 // after .Data is called.
-                telemetryItem.FlattenIExtensionIfExists();
+                // telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 // item.Sanitize();
                 /*this.WriteEvent(
@@ -81,8 +81,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 }
 
                 var telemetryItem = item as TraceTelemetry;
-                telemetryItem.FlattenIExtensionIfExists();
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                // telemetryItem.FlattenIExtensionIfExists();
+                // CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 /*item.Sanitize();
                 this.WriteEvent(
                     TraceTelemetry.EtwEnvelopeName,
@@ -100,8 +100,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 }
 
                 var telemetryItem = item as EventTelemetry;
-                telemetryItem.FlattenIExtensionIfExists();
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                // telemetryItem.FlattenIExtensionIfExists();
+                // CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 /*item.Sanitize();
                 this.WriteEvent(
                     EventTelemetry.EtwEnvelopeName,
@@ -122,8 +122,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 // Sanitize, Copying global properties is to be done before calling .InternalData,
                 // as InternalData returns a singleton instance, which won't be updated with changes made
                 // after .InternalData is called.
-                telemetryItem.FlattenIExtensionIfExists();
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                // telemetryItem.FlattenIExtensionIfExists();
+                // /CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 /*item.Sanitize();
                 this.WriteEvent(
                     DependencyTelemetry.EtwEnvelopeName,
@@ -141,7 +141,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 }
                 
                 var telemetryItem = item as MetricTelemetry;
-                telemetryItem.FlattenIExtensionIfExists();
+                // telemetryItem.FlattenIExtensionIfExists();
                 // CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 /*item.Sanitize();
                 this.WriteEvent(
@@ -160,7 +160,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 }
                 
                 var telemetryItem = item as ExceptionTelemetry;
-                telemetryItem.FlattenIExtensionIfExists();
+                // telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 /*item.Sanitize();
                 this.WriteEvent(
@@ -181,7 +181,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 }
                 
                 var telemetryItem = item as PageViewTelemetry;
-                telemetryItem.FlattenIExtensionIfExists();
+                // telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 /*item.Sanitize();
                 this.WriteEvent(
@@ -240,7 +240,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 }
                 
                 var telemetryItem = item as AvailabilityTelemetry;
-                telemetryItem.FlattenIExtensionIfExists();
+                // telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 /*item.Sanitize();
                 this.WriteEvent(

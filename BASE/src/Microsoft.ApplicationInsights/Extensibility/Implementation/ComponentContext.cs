@@ -26,15 +26,5 @@
             get { return string.IsNullOrEmpty(this.version) ? null : this.version; }
             set { this.version = value; }
         }
-
-        internal void UpdateTags(IDictionary<string, string> tags)
-        {
-            tags.UpdateTagValue(ContextTagKeys.Keys.ApplicationVersion, this.Version);
-        }
-        
-        internal void CopyTo(ComponentContext target)
-        {
-            Tags.CopyTagValue(this.Version, ref target.version);
-        }
     }
 }
