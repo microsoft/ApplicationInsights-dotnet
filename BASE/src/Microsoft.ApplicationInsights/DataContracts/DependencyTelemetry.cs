@@ -31,7 +31,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
         {            
             this.successFieldSet = true;
             this.context = new TelemetryContext();
-            this.GenerateId();
             this.Name = string.Empty;
             this.ResultCode = string.Empty;
             this.Duration = TimeSpan.Zero;
@@ -309,7 +308,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
 
         /// <summary>
         /// In specific collectors, objects are added to the dependency telemetry which may be useful
-        /// to enhance DependencyTelemetry telemetry by <see cref="ITelemetryInitializer" /> implementations.
+        /// to enhance DependencyTelemetry telemetry by ITelemetryInitializer implementations.
         /// Objects retrieved here are not automatically serialized and sent to the backend.
         /// </summary>
         /// <param name="key">The key of the value to get.</param>

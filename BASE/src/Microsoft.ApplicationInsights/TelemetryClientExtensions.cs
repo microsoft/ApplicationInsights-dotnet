@@ -122,12 +122,6 @@
             //    and does not require other properties in telemetry
             telemetryClient.Initialize(operationTelemetry);
 
-            // Initialize operation id if it wasn't initialized by telemetry initializers
-            if (string.IsNullOrEmpty(operationTelemetry.Id))
-            {
-                operationTelemetry.GenerateOperationId();
-            }
-
             // If the operation is not executing in the context of any other operation
             // set its name as a context (root) operation name.
             if (string.IsNullOrEmpty(telemetryContext.Name))

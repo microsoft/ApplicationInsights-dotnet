@@ -20,7 +20,6 @@
         public const long FlagDropIdentifiers = 0x200000;
         internal IDictionary<string, string> GlobalPropertiesValue;
         internal IDictionary<string, string> PropertiesValue;
-        private readonly InternalContext internalContext = new InternalContext();
         private string instrumentationKey;
 
         private IDictionary<string, object> rawObjectsTemp = new Dictionary<string, object>();
@@ -153,8 +152,6 @@
         {
             get { return LazyInitializer.EnsureInitialized(ref this.location, () => new LocationContext()); }
         }
-
-        internal InternalContext Internal => this.internalContext;
 
         /// <summary>
         /// Returns the raw object with the given key.        

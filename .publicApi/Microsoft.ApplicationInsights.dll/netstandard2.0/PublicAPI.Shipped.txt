@@ -185,9 +185,6 @@ Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Op
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Sanitize() -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.StartTime.get -> System.DateTimeOffset
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.StartTime.set -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryProcessorChainBuilder
-Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryProcessorChainBuilder.Build() -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryProcessorChainBuilder.TelemetryProcessorChainBuilder(Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration configuration) -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Extensions
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ConnectionString.get -> string
@@ -200,7 +197,6 @@ Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.Instrumentati
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.InstrumentationKey.set -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetAzureTokenCredential(object tokenCredential) -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.TelemetryConfiguration() -> void
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.TelemetryProcessorChainBuilder.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryProcessorChainBuilder
 Microsoft.ApplicationInsights.TelemetryClient
 Microsoft.ApplicationInsights.TelemetryClient.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
 Microsoft.ApplicationInsights.TelemetryClient.Flush() -> void

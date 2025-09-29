@@ -89,14 +89,6 @@
         public abstract ITelemetry DeepClone();
 
         /// <summary>
-        /// Sets operation Id.
-        /// </summary>
-        internal void GenerateId()
-        {
-            // this.Id = W3C.W3CUtilities.GenerateSpanId();
-        }
-
-        /// <summary>
         /// Allow to call OperationTelemetry.Sanitize method from child classes.
         /// </summary>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "This method is expected to be overloaded")]

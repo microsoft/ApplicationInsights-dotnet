@@ -87,20 +87,6 @@
         }
 
         /// <summary>
-        /// Generate random operation Id and set it to OperationContext.
-        /// </summary>
-        /// <param name="telemetry">Telemetry to initialize Operation id for.</param>
-        public static void GenerateOperationId(this OperationTelemetry telemetry)
-        {
-            if (telemetry == null)
-            {
-                throw new ArgumentNullException(nameof(telemetry));
-            }
-
-            telemetry.GenerateId();
-        }
-
-        /// <summary>
         /// Set the duration given a timestamp from a high-resolution <see cref="Stopwatch"/>.
         /// </summary>
         /// <param name="telemetry">Telemetry item object to update.</param>

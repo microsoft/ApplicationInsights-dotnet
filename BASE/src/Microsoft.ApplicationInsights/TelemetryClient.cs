@@ -11,7 +11,6 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Internals;
     using OpenTelemetry.Trace;
@@ -22,14 +21,7 @@
     /// </summary>
     public sealed class TelemetryClient
     {
-#if NETSTANDARD // This constant is defined for all versions of NetStandard https://docs.microsoft.com/en-us/dotnet/core/tutorials/libraries#how-to-multitarget
-        private const string VersionPrefix = "dotnetc:";
-#else
-        private const string VersionPrefix = "dotnet:";
-#endif  
         private readonly TelemetryConfiguration configuration;
-
-        private string sdkVersion;
 
 #pragma warning disable 612, 618 // TelemetryConfiguration.Active
         /// <summary>
@@ -452,9 +444,6 @@
 
                 telemetry.Context.ClearTempRawObjects();
 
-                // invokes the Process in the first processor in the chain
-                this.configuration.TelemetryProcessorChain.Process(telemetry);
-
                 // logs rich payload ETW event for any partners to process it
                 RichPayloadEventSource.Log.Process(telemetry);
             }
@@ -542,44 +531,14 @@
 
                 telemetry.Context.Initialize(this.Context, instrumentationKey);
 
-                for (int index = 0; index < this.configuration.TelemetryInitializers.Count; index++)
-                {
-                    try
-                    {
-                        this.configuration.TelemetryInitializers[index].Initialize(telemetry);
-                    }
-                    catch (Exception exception)
-                    {
-                        CoreEventSource.Log.LogError(string.Format(
-                                                        CultureInfo.InvariantCulture,
-                                                        "Exception while initializing {0}, exception message - {1}",
-                                                        this.configuration.TelemetryInitializers[index].GetType().FullName,
-                                                        exception));
-                    }
-                }
-
                 if (telemetry.Timestamp == default(DateTimeOffset))
                 {
                     telemetry.Timestamp = PreciseTimestamp.GetUtcNow();
                 }
 
-                // Currently backend requires SDK version to comply "name: version"
-                if (string.IsNullOrEmpty(telemetry.Context.Internal.SdkVersion))
-                {
-                    var version = this.sdkVersion ?? (this.sdkVersion = SdkVersionUtils.GetSdkVersion(VersionPrefix));
-                    telemetry.Context.Internal.SdkVersion = version;
-                }
-
-                // set NodeName to the machine name if it's not initialized yet, if RoleInstance is also not set then we send only RoleInstance
-                if (string.IsNullOrEmpty(telemetry.Context.Internal.NodeName) && !string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
-                {
-                    telemetry.Context.Internal.NodeName = PlatformSingleton.Current.GetMachineName();
-                }
-
                 // set RoleInstance to the machine name if it's not initialized yet
                 if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
                 {
-                    telemetry.Context.Cloud.RoleInstance = PlatformSingleton.Current.GetMachineName();
                 }
             }
             else
