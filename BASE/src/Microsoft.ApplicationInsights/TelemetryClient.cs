@@ -7,6 +7,7 @@
     using System.Globalization;
     using System.Threading;
     using System.Threading.Tasks;
+    using Azure.Core;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -370,10 +371,61 @@
         {
             if (telemetry == null)
             {
-                telemetry = new DependencyTelemetry();
+                return;
             }
 
-            this.Track(telemetry);
+            // this.Track(telemetry);
+            /*
+             * fields below are to note which props from dependency are not accounted for yet
+             * this.context
+            this.Sequence
+            this.samplingPercentage
+            this.successFieldSet 
+            this.Id  -->  exporter gets it from Activity.Context.SpanId but no override exists for this
+             */
+
+            using (var dependencyTelemetryActivity = this.TelemetryConfiguration.ActivitySource.StartActivity(telemetry.Name, ActivityKind.Client))
+            {
+                if (dependencyTelemetryActivity != null)
+                {
+                    dependencyTelemetryActivity.SetStartTime(telemetry.Timestamp.UtcDateTime);
+                    dependencyTelemetryActivity.SetEndTime(telemetry.Timestamp.Add(telemetry.Duration).UtcDateTime);
+                    dependencyTelemetryActivity.SetStatus(telemetry.Success == true ? ActivityStatusCode.Ok : ActivityStatusCode.Error);
+
+                    if (telemetry.ResultCode != null)
+                    {
+                        dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeHttpResponseStatusCode, telemetry.ResultCode);
+                    }
+
+                    if (telemetry.Type != null)
+                    {
+                        dependencyTelemetryActivity.SetTag("microsoft.dependency.type", telemetry.Type);
+                        if (String.Equals("Http", telemetry.Type, StringComparison.OrdinalIgnoreCase) && telemetry.Data != null)
+                        {
+                            if (Uri.TryCreate(telemetry.Data, UriKind.Absolute, out Uri uri))
+                            {
+                                dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeUrlFull, uri.ToString());
+                                dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeHttpMethod, "_OTHER");
+                                dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeServerAddress, uri.Host);
+                                dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeServerPort, uri.Port);
+                            }
+                        }
+                        else if (String.Equals("SQL", telemetry.Type, StringComparison.OrdinalIgnoreCase) && telemetry.Data != null)
+                        {
+                            dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeDbStatement, telemetry.Data);
+                        }
+                        else if (String.Equals("Queue Message", telemetry.Type, StringComparison.OrdinalIgnoreCase) && telemetry.Data != null)
+                        {
+                            dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMessagingSystem, telemetry.Data);
+                        }
+                    }
+
+                    if (telemetry.Target != null)
+                    {
+                        dependencyTelemetryActivity.SetTag("microsoft.dependency.target", telemetry.Target);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -602,6 +654,7 @@
             this.Track(request);*/
             if (request == null)
             {
+                return;
                // request = new RequestTelemetry();
                 // Log message
             }

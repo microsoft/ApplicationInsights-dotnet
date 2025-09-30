@@ -41,10 +41,10 @@
             telemetryClient.TrackMetric("SampleMetric", 42.0);
             telemetryClient.TrackMetric(new MetricTelemetry("SampleMetricObject", 42.0));
 
-            telemetryClient.TrackException(new InvalidOperationException("Something went wrong"));
+            telemetryClient.TrackException(new InvalidOperationException("Something went wrong"));*/
 
             telemetryClient.TrackDependency("SQL", "GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), true);
-            telemetryClient.TrackDependency(new DependencyTelemetry("SQL", "dbserver", "GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), "0", true));*/
+            telemetryClient.TrackDependency(new DependencyTelemetry("SQL", "dbserver", "GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), "0", true));
 
             telemetryClient.TrackRequest("GET Home", DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", true);
             telemetryClient.TrackRequest(new RequestTelemetry("GET HomeObject", DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", true));
