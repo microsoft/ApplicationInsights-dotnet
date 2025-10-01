@@ -14,6 +14,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Internals;
+    using Microsoft.Extensions.Logging;
     using OpenTelemetry.Trace;
 
     /// <summary>
@@ -23,6 +24,7 @@
     public sealed class TelemetryClient
     {
         private readonly TelemetryConfiguration configuration;
+        private ILogger<TelemetryClient> logger;
 
 #pragma warning disable 612, 618 // TelemetryConfiguration.Active
         /// <summary>
@@ -49,6 +51,7 @@
             }
 
             this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            this.logger = configuration.LoggerFactory?.CreateLogger<TelemetryClient>();
 
             // this.configuration = configuration;
         }
@@ -147,7 +150,7 @@
         /// <param name="message">Message to display.</param>
         public void TrackTrace(string message)
         {
-            this.TrackTrace(new TraceTelemetry(message));
+            this.LogBasedOnSeverity(message, SeverityLevel.Information);
         }
 
         /// <summary>
@@ -160,7 +163,7 @@
         /// <param name="severityLevel">Trace severity level.</param>
         public void TrackTrace(string message, SeverityLevel severityLevel)
         {
-            this.TrackTrace(new TraceTelemetry(message, severityLevel));
+            this.LogBasedOnSeverity(message, severityLevel);
         }
 
         /// <summary>
@@ -173,16 +176,19 @@
         /// <param name="properties">Named string values you can use to search and classify events.</param>
         public void TrackTrace(string message, IDictionary<string, string> properties)
         {
-            TraceTelemetry telemetry = new TraceTelemetry(message);
-
             if (properties != null && properties.Count > 0)
             {
-                // Utils.CopyDictionary(properties, telemetry.Properties);
+                using (this.logger.BeginScope(properties))
+                {
+                    this.logger.LogInformation(message);
+                }
             }
-
-            this.TrackTrace(telemetry);
+            else
+            {
+                this.logger.LogInformation(message);
+            }
         }
-
+ 
         /// <summary>
         /// Send a trace message for display in Diagnostic Search.
         /// </summary>
@@ -194,14 +200,17 @@
         /// <param name="properties">Named string values you can use to search and classify events.</param>
         public void TrackTrace(string message, SeverityLevel severityLevel, IDictionary<string, string> properties)
         {
-            TraceTelemetry telemetry = new TraceTelemetry(message, severityLevel);
-
             if (properties != null && properties.Count > 0)
             {
-                // Utils.CopyDictionary(properties, telemetry.Properties);
+                using (this.logger.BeginScope(properties))
+                {
+                    this.LogBasedOnSeverity(message, severityLevel);
+                }
             }
-
-            this.TrackTrace(telemetry);
+            else
+            {
+                this.LogBasedOnSeverity(message, severityLevel);
+            }
         }
 
         /// <summary>
@@ -413,10 +422,17 @@
                         else if (String.Equals("SQL", telemetry.Type, StringComparison.OrdinalIgnoreCase) && telemetry.Data != null)
                         {
                             dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeDbStatement, telemetry.Data);
+                            // not sure how to populate attrs like db.name, or db.system, or server related attrs that could be used to autopopulate target
                         }
                         else if (String.Equals("Queue Message", telemetry.Type, StringComparison.OrdinalIgnoreCase) && telemetry.Data != null)
                         {
-                            dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMessagingSystem, telemetry.Data);
+                            dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMessagingDestination, telemetry.Data);
+                            // not sure how to set messaging.destination_name, this would form part of target
+                            if (Uri.TryCreate(telemetry.Data, UriKind.Absolute, out Uri uri))
+                            {
+                                // for the other part of target
+                                dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeServerAddress, uri.Host);
+                            }
                         }
                     }
 
@@ -824,6 +840,31 @@
             }
 
             this.Track(telemetry);
+        }
+
+        private void LogBasedOnSeverity(string message, SeverityLevel severityLevel) 
+        {
+            switch (severityLevel)
+            {
+                case SeverityLevel.Critical:
+                    this.logger.LogCritical(message);
+                    break;
+                case SeverityLevel.Error:
+                    this.logger.LogError(message);
+                    break;
+                case SeverityLevel.Warning:
+                    this.logger.LogWarning(message);
+                    break;
+                case SeverityLevel.Information:
+                    this.logger.LogInformation(message);
+                    break;
+                case SeverityLevel.Verbose:
+                    this.logger.LogDebug(message);
+                    break;
+                default:
+                    this.logger.LogInformation(message);
+                    break;
+            }
         }
 
         // <summary>

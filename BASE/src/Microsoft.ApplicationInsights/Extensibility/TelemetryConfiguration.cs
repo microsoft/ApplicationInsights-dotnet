@@ -12,6 +12,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.Extensions.Logging;
     using OpenTelemetry;
     using OpenTelemetry.Trace;
 
@@ -30,6 +31,7 @@
 
         private readonly object initLock = new object();
         private TracerProvider tracerProvider;
+        private ILoggerFactory loggerFactory;
         private ActivitySource activitySource;
         private bool isInitialized = false;
 
@@ -195,6 +197,15 @@
             {
                 this.EnsureInitialized();
                 return this.activitySource;
+            }
+        }
+
+        internal ILoggerFactory LoggerFactory
+        {
+            get
+            {
+                this.EnsureInitialized();
+                return this.loggerFactory;
             }
         }
 
@@ -372,6 +383,13 @@
                                  .AddSource(this.activitySource.Name)
                                  .AddAzureMonitorTraceExporter(o => o.ConnectionString = this.connectionString)
                                  .Build();
+            this.loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.AddOpenTelemetry(options =>
+                {
+                    options.AddAzureMonitorLogExporter(o => o.ConnectionString = this.connectionString);
+                });
+            });
         }
 
         /// <summary>
