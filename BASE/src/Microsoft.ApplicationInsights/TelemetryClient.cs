@@ -223,8 +223,28 @@
         /// <param name="telemetry">Message with optional properties.</param>
         public void TrackTrace(TraceTelemetry telemetry)
         {
-            telemetry = telemetry ?? new TraceTelemetry();
-            this.Track(telemetry);
+            if (telemetry == null)
+            {
+                telemetry = new TraceTelemetry();
+            }
+
+            if (telemetry.Message == null)
+            {
+                telemetry.Message = String.Empty;
+            }
+
+            if (telemetry.SeverityLevel == null)
+            {
+                telemetry.SeverityLevel = SeverityLevel.Information;
+            }
+
+            String clientIP = telemetry.Context?.Location?.Ip;
+            if (clientIP != null)
+            {
+                telemetry.Properties["microsoft.client.ip"] = clientIP;
+            }
+
+            this.TrackTrace(telemetry.Message, telemetry.SeverityLevel.Value, telemetry.Properties);
         }
 
         /// <summary>
@@ -408,7 +428,7 @@
 
                     if (telemetry.Type != null)
                     {
-                        dependencyTelemetryActivity.SetTag("microsoft.dependency.type", telemetry.Type);
+                        // dependencyTelemetryActivity.SetTag("microsoft.dependency.type", telemetry.Type);
                         if (String.Equals("Http", telemetry.Type, StringComparison.OrdinalIgnoreCase) && telemetry.Data != null)
                         {
                             if (Uri.TryCreate(telemetry.Data, UriKind.Absolute, out Uri uri))

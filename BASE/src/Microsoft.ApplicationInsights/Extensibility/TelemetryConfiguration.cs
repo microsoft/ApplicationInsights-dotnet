@@ -383,7 +383,7 @@
                                  .AddSource(this.activitySource.Name)
                                  .AddAzureMonitorTraceExporter(o => o.ConnectionString = this.connectionString)
                                  .Build();
-            this.loggerFactory = LoggerFactory.Create(builder =>
+            this.loggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
             {
                 builder.AddOpenTelemetry(options =>
                 {
