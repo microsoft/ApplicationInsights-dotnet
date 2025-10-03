@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -21,7 +20,6 @@
         public const long FlagDropIdentifiers = 0x200000;
         internal IDictionary<string, string> GlobalPropertiesValue;
         internal IDictionary<string, string> PropertiesValue;
-        private readonly InternalContext internalContext = new InternalContext();
         private string instrumentationKey;
 
         private IDictionary<string, object> rawObjectsTemp = new Dictionary<string, object>();
@@ -40,17 +38,20 @@
         public TelemetryContext()
             : this(null, null)
         {
+            this.instrumentationKey = String.Empty;
         }
 
         internal TelemetryContext(IDictionary<string, string> properties)
             : this(properties, null)
         {
+            this.instrumentationKey = String.Empty;
         }
 
         internal TelemetryContext(IDictionary<string, string> properties, IDictionary<string, string> globalProperties)
         {
             this.PropertiesValue = properties;
             this.GlobalPropertiesValue = globalProperties;
+            this.instrumentationKey = String.Empty;
         }
 
         /// <summary>
@@ -64,73 +65,14 @@
         /// </remarks>
         public string InstrumentationKey
         {
-            get { return this.instrumentationKey ?? string.Empty; }
-            set { Property.Set(ref this.instrumentationKey, value); }
+            get;
+            set;
         }
 
         /// <summary> 
         /// Gets or sets flags which controls events priority and endpoint behavior.
         /// </summary> 
         public long Flags { get; set; }
-
-        /// <summary>
-        /// Gets the object describing the component tracked by this <see cref="TelemetryContext"/>.
-        /// </summary>
-        public ComponentContext Component
-        {
-            get { return LazyInitializer.EnsureInitialized(ref this.component, () => new ComponentContext()); }
-        }
-
-        /// <summary>
-        /// Gets the object describing the device tracked by this <see cref="TelemetryContext"/>.
-        /// </summary>
-        public DeviceContext Device
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            get { return LazyInitializer.EnsureInitialized(ref this.device, () => new DeviceContext(this.Properties)); }
-#pragma warning restore CS0618 // Type or member is obsolete
-        }
-
-        /// <summary>
-        /// Gets the object describing the cloud tracked by this <see cref="TelemetryContext"/>.
-        /// </summary>
-        public CloudContext Cloud
-        {
-            get { return LazyInitializer.EnsureInitialized(ref this.cloud, () => new CloudContext()); }
-        }
-
-        /// <summary>
-        /// Gets the object describing a user session tracked by this <see cref="TelemetryContext"/>.
-        /// </summary>
-        public SessionContext Session
-        {
-            get { return LazyInitializer.EnsureInitialized(ref this.session, () => new SessionContext()); }
-        }
-
-        /// <summary>
-        /// Gets the object describing a user tracked by this <see cref="TelemetryContext"/>.
-        /// </summary>
-        public UserContext User
-        {
-            get { return LazyInitializer.EnsureInitialized(ref this.user, () => new UserContext()); }
-        }
-
-        /// <summary>
-        /// Gets the object describing a operation tracked by this <see cref="TelemetryContext"/>.
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#operationcontext">Learn more</a>
-        /// </summary>
-        public OperationContext Operation
-        {
-            get { return LazyInitializer.EnsureInitialized(ref this.operation, () => new OperationContext()); }
-        }
-
-        /// <summary>
-        /// Gets the object describing a location tracked by this <see cref="TelemetryContext" />.
-        /// </summary>
-        public LocationContext Location
-        {
-            get { return LazyInitializer.EnsureInitialized(ref this.location, () => new LocationContext()); }
-        }
 
         /// <summary>
         /// Gets a dictionary of application-defined property values.
@@ -152,26 +94,63 @@
             get { return LazyInitializer.EnsureInitialized(ref this.GlobalPropertiesValue, () => new ConcurrentDictionary<string, string>()); }
         }
 
-        internal InternalContext Internal => this.internalContext;
+        /// <summary>
+        /// Gets the object describing the component tracked by this <see cref="TelemetryContext"/>.
+        /// </summary>
+        internal ComponentContext Component
+        {
+            get { return LazyInitializer.EnsureInitialized(ref this.component, () => new ComponentContext()); }
+        }
 
         /// <summary>
-        /// Gets a dictionary of context tags.
+        /// Gets the object describing the device tracked by this <see cref="TelemetryContext"/>.
         /// </summary>
-        internal IDictionary<string, string> SanitizedTags
+        internal DeviceContext Device
         {
-            get
-            {
-                var result = new Dictionary<string, string>();
-                this.component?.UpdateTags(result);
-                this.device?.UpdateTags(result);
-                this.cloud?.UpdateTags(result);
-                this.session?.UpdateTags(result);
-                this.user?.UpdateTags(result);
-                this.operation?.UpdateTags(result);
-                this.location?.UpdateTags(result);
-                this.Internal.UpdateTags(result);
-                return result;
-            }
+#pragma warning disable CS0618 // Type or member is obsolete
+            get { return LazyInitializer.EnsureInitialized(ref this.device, () => new DeviceContext(this.Properties)); }
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
+
+        /// <summary>
+        /// Gets the object describing the cloud tracked by this <see cref="TelemetryContext"/>.
+        /// </summary>
+        internal CloudContext Cloud
+        {
+            get { return LazyInitializer.EnsureInitialized(ref this.cloud, () => new CloudContext()); }
+        }
+
+        /// <summary>
+        /// Gets the object describing a user session tracked by this <see cref="TelemetryContext"/>.
+        /// </summary>
+        internal SessionContext Session
+        {
+            get { return LazyInitializer.EnsureInitialized(ref this.session, () => new SessionContext()); }
+        }
+
+        /// <summary>
+        /// Gets the object describing a user tracked by this <see cref="TelemetryContext"/>.
+        /// </summary>
+        internal UserContext User
+        {
+            get { return LazyInitializer.EnsureInitialized(ref this.user, () => new UserContext()); }
+        }
+
+        /// <summary>
+        /// Gets the object describing a operation tracked by this <see cref="TelemetryContext"/>.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#operationcontext">Learn more</a>
+        /// </summary>
+        internal OperationContext Operation
+        {
+            get { return LazyInitializer.EnsureInitialized(ref this.operation, () => new OperationContext()); }
+        }
+
+        /// <summary>
+        /// Gets the object describing a location tracked by this <see cref="TelemetryContext" />.
+        /// </summary>
+        internal LocationContext Location
+        {
+            get { return LazyInitializer.EnsureInitialized(ref this.location, () => new LocationContext()); }
         }
 
         /// <summary>
@@ -236,11 +215,6 @@
             }
         }
 
-        internal void SanitizeGlobalProperties()
-        {
-            this.GlobalPropertiesValue?.SanitizeProperties();
-        }
-
         internal void ClearTempRawObjects()
         {
             this.rawObjectsTemp.Clear();
@@ -286,23 +260,17 @@
             this.InitializeInstrumentationkey(instrumentationKey);
 
             this.Flags |= source.Flags;
-
-            source.component?.CopyTo(this.Component);
-            source.device?.CopyTo(this.Device);
-            source.cloud?.CopyTo(this.Cloud);
-            source.session?.CopyTo(this.Session);
-            source.user?.CopyTo(this.User);
-            source.operation?.CopyTo(this.Operation);
-            source.location?.CopyTo(this.Location);
-            source.Internal.CopyTo(this.Internal);
         }
 
         /// <summary>
         /// Initialize this instance's instrumentation key.
         /// </summary>
+#pragma warning disable CA1822 // Mark members as static
+#pragma warning disable CA1801 // Review unused parameters
         internal void InitializeInstrumentationkey(string instrumentationKey)
+#pragma warning restore CA1801 // Review unused parameters
+#pragma warning restore CA1822 // Mark members as static
         {
-            Property.Initialize(ref this.instrumentationKey, instrumentationKey);
         }
     }
 }

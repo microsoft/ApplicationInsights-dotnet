@@ -5,10 +5,7 @@
     using System.Globalization;
     using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
@@ -18,7 +15,7 @@
     /// <remarks>
     /// Additional exception details will need to be tracked manually.
     /// </remarks>
-    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportAdvancedSampling, ISupportMetrics, IAiSerializableTelemetry
+    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties
     {
         internal const string EtwEnvelopeName = "Exception";
         internal string EnvelopeName = "AppExceptions";
@@ -28,7 +25,6 @@
         private readonly bool isCreatedFromExceptionInfo = false;
 
         private TelemetryContext context;
-        private IExtension extension;
         private Exception exception;
         private string message;
         private double? samplingPercentage;
@@ -38,7 +34,6 @@
         /// </summary>
         public ExceptionTelemetry()
         {
-            this.Data = new ExceptionInfo(new ExceptionData());
             this.context = new TelemetryContext(this.Data.Properties);
         }
 
@@ -75,7 +70,7 @@
             this.Data = exceptionInfo;
             this.context = new TelemetryContext(this.Data.Properties);
 
-            this.UpdateData(exceptionInfo);
+            // this.UpdateData(exceptionInfo);
         }
 
         /// <summary>
@@ -86,37 +81,16 @@
         {
             this.isCreatedFromExceptionInfo = source.isCreatedFromExceptionInfo;
 
-            this.Data = source.Data.DeepClone();
             this.context = source.context.DeepClone(this.Data.Properties);
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
-            this.ProactiveSamplingDecision = source.ProactiveSamplingDecision;
 
             if (!this.isCreatedFromExceptionInfo)
             {
                 this.exception = source.Exception;
             }
-
-            this.extension = source.extension?.DeepClone();
         }
-
-        /// <inheritdoc />
-        string IAiSerializableTelemetry.TelemetryName
-        {
-            get
-            {
-                return this.EnvelopeName;
-            }
-
-            set
-            {
-                this.EnvelopeName = value;
-            }
-        }
-
-        /// <inheritdoc />
-        string IAiSerializableTelemetry.BaseType => nameof(ExceptionData);
 
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
@@ -137,15 +111,6 @@
         }
 
         /// <summary>
-        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
-        /// </summary>
-        public IExtension Extension
-        {
-            get { return this.extension; }
-            set { this.extension = value; }
-        }
-
-        /// <summary>
         /// Gets or sets the problemId.
         /// </summary>
         public string ProblemId
@@ -162,39 +127,15 @@
         }
 
         /// <summary>
-        /// Gets or sets the value indicated where the exception was handled.
-        /// </summary>
-        [Obsolete("Use custom properties to report exception handling layer")]
-        public ExceptionHandledAt HandledAt
-        {
-            get
-            {
-                if (this.Properties.ContainsKey("handledAt") && Enum.TryParse(this.Properties["handledAt"], out ExceptionHandledAt result))
-                {
-                    return result;
-                }
-                else
-                {
-                    return default(ExceptionHandledAt);
-                }
-            }
-
-            set
-            {
-                this.Properties["handledAt"] = value.ToString();
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the original exception tracked by this <see cref="ITelemetry"/>.
         /// </summary>
         public Exception Exception
         {
             get
             {
-                return this.isCreatedFromExceptionInfo
+                return /*this.isCreatedFromExceptionInfo
                     ? this.ConstructExceptionFromDetailsInfo(this.Data.ExceptionDetailsInfoList ?? new List<ExceptionDetailsInfo>().AsReadOnly())
-                    : this.exception;
+                    :*/ this.exception;
             }
 
             set
@@ -206,7 +147,7 @@
                 }
 
                 this.exception = value;
-                this.UpdateData(value);
+                // this.UpdateData(value);
             }
         }
 
@@ -240,7 +181,7 @@
                 }
                 else
                 {
-                    this.UpdateData(this.Exception);
+                    // this.UpdateData(this.Exception);
                 }
             }
         }
@@ -266,17 +207,7 @@
         /// </summary>
         public IDictionary<string, string> Properties
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            get
-            {
-                if (!string.IsNullOrEmpty(this.MetricExtractorInfo) && !this.Context.Properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
-                {
-                    this.Context.Properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
-                }
-
-                return this.Context.Properties;
-#pragma warning restore CS0618 // Type or member is obsolete
-            }
+            get;
         }
 
         /// <summary>
@@ -288,28 +219,10 @@
             set => this.Data.SeverityLevel = value;
         }
 
-        /// <summary>
-        /// Gets or sets data sampling percentage (between 0 and 100).
-        /// Should be 100/n where n is an integer. <a href="https://go.microsoft.com/fwlink/?linkid=832969">Learn more</a>
-        /// </summary>
-        double? ISupportSampling.SamplingPercentage
-        {
-            get { return this.samplingPercentage; }
-            set { this.samplingPercentage = value; }
-        }
-
-        /// <summary>
-        /// Gets item type for sampling evaluation.
-        /// </summary>
-        public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.Exception;
-
-        /// <inheritdoc/>
-        public SamplingDecision ProactiveSamplingDecision { get; set; }
-
-        internal IList<ExceptionDetails> Exceptions
+        /*internal IList<ExceptionDetails> Exceptions
         {
             get { return this.Data.Data.exceptions; }
-        }
+        }*/
 
         /// <summary>
         /// Gets or sets the MetricExtractorInfo.
@@ -321,6 +234,17 @@
         }
 
         /// <summary>
+        /// Set parsedStack from an array of StackFrame objects.
+        /// </summary>
+#pragma warning disable CA1822 // Mark members as static
+#pragma warning disable CA1801 // Review unused parameters
+        public void SetParsedStack(System.Diagnostics.StackFrame[] frames)
+#pragma warning restore CA1801 // Review unused parameters
+#pragma warning restore CA1822 // Mark members as static
+        {
+        }
+
+        /// <summary>
         /// Deeply clones a <see cref="ExceptionTelemetry"/> object.
         /// </summary>
         /// <returns>A cloned instance.</returns>
@@ -329,61 +253,7 @@
             return new ExceptionTelemetry(this);
         }
 
-        /// <inheritdoc/>
-        public void SerializeData(ISerializationWriter serializationWriter)
-        {
-            if (serializationWriter == null)
-            {
-                throw new ArgumentNullException(nameof(serializationWriter));
-            }
-
-            serializationWriter.WriteProperty(this.Data.Data);
-        }
-
-        /// <summary>
-        /// Set parsedStack from an array of StackFrame objects.
-        /// </summary>
-        public void SetParsedStack(System.Diagnostics.StackFrame[] frames)
-        {
-            if (this.Exceptions != null && this.Exceptions.Count > 0)
-            {
-                if (frames != null && frames.Length > 0)
-                {
-                    int stackLength = 0;
-
-                    this.Exceptions[0].parsedStack = new List<Extensibility.Implementation.External.StackFrame>();
-                    this.Exceptions[0].hasFullStack = true;
-
-                    for (int level = 0; level < frames.Length; level++)
-                    {
-                        var sf = ExceptionConverter.GetStackFrame(frames[level], level);
-
-                        stackLength += ExceptionConverter.GetStackFrameLength(sf);
-
-                        if (stackLength > ExceptionConverter.MaxParsedStackLength)
-                        {
-                            this.Exceptions[0].hasFullStack = false;
-                            break;
-                        }
-
-                        this.Exceptions[0].parsedStack.Add(sf);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Sanitizes the properties based on constraints.
-        /// </summary>
-        void ITelemetry.Sanitize()
-        {
-            // Sanitize on the ExceptionDetails stack information for raw stack and parsed stack is done while creating the object in ExceptionConverter.cs
-            this.message = this.message.SanitizeMessage();
-            this.Properties.SanitizeProperties();
-            this.Metrics.SanitizeMeasurements();
-        }
-
-        private void ConvertExceptionTree(Exception exception, ExceptionDetails parentExceptionDetails, List<ExceptionDetails> exceptions)
+        /*private void ConvertExceptionTree(Exception exception, ExceptionDetails parentExceptionDetails, List<ExceptionDetails> exceptions)
         {
             if (exception == null)
             {
@@ -505,6 +375,6 @@
 
             // inner exception doesn't exist
             return null;
-        }
+        }*/
     }
 }

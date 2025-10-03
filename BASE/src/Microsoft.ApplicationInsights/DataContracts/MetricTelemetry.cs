@@ -2,24 +2,16 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Globalization;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
     /// Telemetry type used to track metrics. Represents a sample set of values with a specified count, sum, max, min, and standard deviation.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackmetric">Learn more</a>
     /// </summary>
-    public sealed class MetricTelemetry : ITelemetry, ISupportProperties, IAiSerializableTelemetry
+    public sealed class MetricTelemetry : ITelemetry
     {
         internal const string EtwEnvelopeName = "Metric";
-        internal readonly MetricData Data;
-        internal readonly DataPoint Metric;
         internal string EnvelopeName = "AppMetrics";
-        private IExtension extension;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MetricTelemetry"/> class with empty
@@ -27,27 +19,6 @@
         /// </summary>
         public MetricTelemetry()
         {
-            this.Data = new MetricData();
-            this.Metric = new DataPoint();
-            this.Context = new TelemetryContext(this.Data.properties);
-
-            this.Metric.kind = DataPointType.Aggregation;
-
-            // We always have a single 'metric'.
-            this.Data.metrics.Add(this.Metric);
-        }
-
-        /// <summary>
-        /// Obsolete - use MetricTelemetry(name,count,sum,min,max,standardDeviation). Initializes a new instance of the <see cref="MetricTelemetry"/> class with the
-        /// specified <paramref name="metricName"/> and <paramref name="metricValue"/>.
-        /// </summary>
-        /// <exception cref="ArgumentException">The <paramref name="metricName"/> is null or empty string.</exception>
-        public MetricTelemetry(string metricName, double metricValue) : this()
-        {
-            this.Name = metricName;
-#pragma warning disable 618
-            this.Value = metricValue;
-#pragma warning restore 618
         }
 
         /// <summary>
@@ -127,30 +98,9 @@
         /// <param name="source">Source instance of <see cref="MetricTelemetry"/> to clone from.</param>
         private MetricTelemetry(MetricTelemetry source)
         {
-            this.Data = source.Data.DeepClone();
-            this.Metric = source.Metric.DeepClone();
-            this.Context = source.Context.DeepClone(this.Data.properties);
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
-            this.extension = source.extension?.DeepClone();
         }
-
-        /// <inheritdoc />
-        string IAiSerializableTelemetry.TelemetryName
-        {
-            get
-            {
-                return this.EnvelopeName;
-            }
-
-            set
-            {
-                this.EnvelopeName = value;
-            }
-        }
-
-        /// <inheritdoc />
-        string IAiSerializableTelemetry.BaseType => nameof(MetricData);
 
         /// <summary>
         /// Gets or sets date and time when event was recorded.
@@ -168,21 +118,12 @@
         public TelemetryContext Context { get; }
 
         /// <summary>
-        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
-        /// </summary>
-        public IExtension Extension
-        {
-            get { return this.extension; }
-            set { this.extension = value; }
-        }
-
-        /// <summary>
         /// Gets or sets the name of the metric.
         /// </summary>
         public string MetricNamespace
         {
-            get { return this.Metric.ns; }
-            set { this.Metric.ns = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -190,18 +131,8 @@
         /// </summary>
         public string Name
         {
-            get { return this.Metric.name; }
-            set { this.Metric.name = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the value of this metric.
-        /// </summary>
-        [Obsolete("This property is obsolete. Use Sum property instead.")]
-        public double Value
-        {
-            get { return this.Metric.value; }
-            set { this.Metric.value = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -209,8 +140,8 @@
         /// </summary>
         public double Sum
         {
-            get { return this.Metric.value; }
-            set { this.Metric.value = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -218,8 +149,8 @@
         /// </summary>
         public int? Count
         {
-            get { return this.Metric.count.HasValue ? this.Metric.count : 1; }
-            set { this.Metric.count = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -227,8 +158,8 @@
         /// </summary>
         public double? Min
         {
-            get { return this.Metric.min; }
-            set { this.Metric.min = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -236,8 +167,8 @@
         /// </summary>
         public double? Max
         {
-            get { return this.Metric.max; }
-            set { this.Metric.max = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -245,8 +176,8 @@
         /// </summary>
         public double? StandardDeviation
         {
-            get { return this.Metric.stdDev; }
-            set { this.Metric.stdDev = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -255,7 +186,7 @@
         /// </summary>
         public IDictionary<string, string> Properties
         {
-            get { return this.Data.properties; }
+            get;
         }
 
         /// <summary>
@@ -265,49 +196,6 @@
         public ITelemetry DeepClone()
         {
             return new MetricTelemetry(this);
-        }
-
-        /// <inheritdoc/>
-        public void SerializeData(ISerializationWriter serializationWriter)
-        {
-            if (serializationWriter == null)
-            {
-                throw new ArgumentNullException(nameof(serializationWriter));
-            }
-
-            serializationWriter.WriteProperty(this.Data);
-        }
-
-        /// <summary>
-        /// Sanitizes the properties based on constraints.
-        /// </summary>
-        void ITelemetry.Sanitize()
-        {
-            this.MetricNamespace = Property.TrimAndTruncate(this.MetricNamespace, Property.MaxMetricNamespaceLength);
-            this.Name = this.Name.SanitizeName();
-            this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(MetricTelemetry).FullName);
-            this.Properties.SanitizeProperties();
-            this.Sum = Utils.SanitizeNanAndInfinity(this.Sum);
-
-            // note: we set count to 1 if it isn't a positive integer
-            // thinking that if it is zero (negative case is clearly broken)
-            // that most likely means somebody created instance but forgot to set count
-            this.Count = (!this.Count.HasValue) || (this.Count <= 0) ? 1 : this.Count;
-
-            if (this.Min.HasValue)
-            {
-                this.Min = Utils.SanitizeNanAndInfinity(this.Min.Value);
-            }
-
-            if (this.Max.HasValue)
-            {
-                this.Max = Utils.SanitizeNanAndInfinity(this.Max.Value);
-            }
-
-            if (this.StandardDeviation.HasValue)
-            {
-                this.StandardDeviation = Utils.SanitizeNanAndInfinity(this.StandardDeviation.Value);
-            }
         }
     }
 }

@@ -1,13 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
-    using System.Collections.Generic;
-    using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
-
     /// <summary>
     /// Encapsulates information about a cloud where an application is running.
     /// </summary>
-    public sealed class CloudContext
+    internal sealed class CloudContext
     {
         private string roleName;
         private string roleInstance;
@@ -34,16 +30,16 @@
             set { this.roleInstance = value; }
         }
 
-        internal void UpdateTags(IDictionary<string, string> tags)
+        /*internal void UpdateTags(IDictionary<string, string> tags)
         {
-            tags.UpdateTagValue(ContextTagKeys.Keys.CloudRole, this.RoleName);
-            tags.UpdateTagValue(ContextTagKeys.Keys.CloudRoleInstance, this.RoleInstance);
+            Tags.UpdateTagValue(tags, "ai.cloud.role", this.RoleName);
+            Tags.UpdateTagValue(tags, "ai.cloud.roleInstance", this.RoleInstance);
         }
         
         internal void CopyTo(CloudContext target)
         {
             Tags.CopyTagValue(this.RoleName, ref target.roleName);
             Tags.CopyTagValue(this.RoleInstance, ref target.roleInstance);
-        }
+        }*/
     }
 }
