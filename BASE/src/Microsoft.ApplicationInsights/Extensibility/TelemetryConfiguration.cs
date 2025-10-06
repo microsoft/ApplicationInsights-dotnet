@@ -388,6 +388,7 @@
                 builder.AddOpenTelemetry(options =>
                 {
                     options.AddAzureMonitorLogExporter(o => o.ConnectionString = this.connectionString);
+                    options.IncludeScopes = true;
                 });
             });
         }
@@ -401,6 +402,7 @@
             if (!this.isDisposed && disposing)
             {
                 this.isDisposed = true;
+                this.loggerFactory.Dispose();
                 Interlocked.CompareExchange(ref active, null, this);
 
                 // I think we should be flushing this.telemetrySinks.DefaultSink.TelemetryChannel at this point.

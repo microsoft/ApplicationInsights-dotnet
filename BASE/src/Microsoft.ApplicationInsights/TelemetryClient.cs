@@ -4,10 +4,9 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Diagnostics;
-    using System.Globalization;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Azure.Core;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -178,7 +177,10 @@
         {
             if (properties != null && properties.Count > 0)
             {
-                using (this.logger.BeginScope(properties))
+                List<KeyValuePair<string, object>> scope = properties
+                    .ToList()
+                    .ConvertAll(kvp => new KeyValuePair<string, object>(kvp.Key, kvp.Value));
+                using (this.logger.BeginScope(scope))
                 {
                     this.logger.LogInformation(message);
                 }
@@ -202,7 +204,10 @@
         {
             if (properties != null && properties.Count > 0)
             {
-                using (this.logger.BeginScope(properties))
+                List<KeyValuePair<string, object>> scope = properties
+                    .ToList()
+                    .ConvertAll(kvp => new KeyValuePair<string, object>(kvp.Key, kvp.Value));
+                using (this.logger.BeginScope(scope))
                 {
                     this.LogBasedOnSeverity(message, severityLevel);
                 }
@@ -238,11 +243,20 @@
                 telemetry.SeverityLevel = SeverityLevel.Information;
             }
 
-            String clientIP = telemetry.Context?.Location?.Ip;
+            // TODO: LocationContext & UserContext are currently internal, so customer can't set them.
+            // Need to determine if its ok to set these to public again, just for properties below.
+
+            /*String clientIP = telemetry.Context?.Location?.Ip;
             if (clientIP != null)
             {
                 telemetry.Properties["microsoft.client.ip"] = clientIP;
             }
+
+            String userId = telemetry.Context?.User?.Id;
+            if (userId != null)
+            {
+                telemetry.Properties["enduser.pseudo.id"] = userId;
+            }*/
 
             this.TrackTrace(telemetry.Message, telemetry.SeverityLevel.Value, telemetry.Properties);
         }

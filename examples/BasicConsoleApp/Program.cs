@@ -13,7 +13,7 @@
         {
             var telemetryConfig = new TelemetryConfiguration
             {
-                ConnectionString = "InstrumentationKey=cfd11a0c-b911-4de5-885d-659e2317e020;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/;LiveEndpoint=https://westus2.livediagnostics.monitor.azure.com/;ApplicationId=50c16cf6-ec05-41ce-a7e7-c377548d53ef",
+                ConnectionString = "",
             };
 
             // Add custom TelemetryInitializer.
@@ -29,16 +29,16 @@
 
             // **The following lines are examples of tracking different telemetry types.**
 
-            /*telemetryClient.TrackEvent("SampleEvent");
+            //telemetryClient.TrackEvent("SampleEvent");
             telemetryClient.TrackEvent(new EventTelemetry("SampleEventObject"));
 
             telemetryClient.TrackTrace("A trace message");
             telemetryClient.TrackTrace("A warning", SeverityLevel.Warning);
             telemetryClient.TrackTrace("A trace with properties", new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
             telemetryClient.TrackTrace("A trace with severity and properties", SeverityLevel.Error, new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
-            telemetryClient.TrackTrace(new TraceTelemetry("TraceTelemetry object", SeverityLevel.Information));
+            telemetryClient.TrackTrace(new TraceTelemetry("TraceTelemetry object", SeverityLevel.Information));        
 
-            telemetryClient.TrackMetric("SampleMetric", 42.0);
+            /*telemetryClient.TrackMetric("SampleMetric", 42.0);
             telemetryClient.TrackMetric(new MetricTelemetry("SampleMetricObject", 42.0));
 
             telemetryClient.TrackException(new InvalidOperationException("Something went wrong"));*/
