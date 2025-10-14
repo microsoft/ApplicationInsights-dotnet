@@ -4,10 +4,8 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Diagnostics;
-    using System.Globalization;
     using System.Threading;
     using System.Threading.Tasks;
-    using Azure.Core;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -15,6 +13,9 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Internals;
     using Microsoft.Extensions.Logging;
+    using OpenTelemetry;
+    using OpenTelemetry.Logs;
+    using OpenTelemetry.Metrics;
     using OpenTelemetry.Trace;
 
     /// <summary>
@@ -24,18 +25,9 @@
     public sealed class TelemetryClient
     {
         private readonly TelemetryConfiguration configuration;
-        private ILogger<TelemetryClient> logger;
-
-#pragma warning disable 612, 618 // TelemetryConfiguration.Active
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TelemetryClient" /> class. Send telemetry with the active configuration, usually loaded from ApplicationInsights.config.
-        /// </summary>
-#if NETSTANDARD // This constant is defined for all versions of NetStandard https://docs.microsoft.com/en-us/dotnet/core/tutorials/libraries#how-to-multitarget
-        [Obsolete("We do not recommend using TelemetryConfiguration.Active on .NET Core. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/1152 for more details")]
-#endif
-        public TelemetryClient() : this(TelemetryConfiguration.Active)
-        {
-        }
+        private readonly OpenTelemetrySdk sdk;
+        private readonly ActivitySource activitySource;
+        private readonly ILogger<TelemetryClient> logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryClient" /> class. Send telemetry with the specified <paramref name="configuration"/>.
@@ -44,18 +36,17 @@
         /// <exception cref="ArgumentException">The <paramref name="configuration"/> does not contain a telemetry channel.</exception>
         public TelemetryClient(TelemetryConfiguration configuration)
         {
-            if (configuration == null)
-            {
-                CoreEventSource.Log.TelemetryClientConstructorWithNoTelemetryConfiguration();
-                configuration = TelemetryConfiguration.Active;
-            }
-
             this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            this.logger = configuration.LoggerFactory?.CreateLogger<TelemetryClient>();
 
-            // this.configuration = configuration;
+            // Build the configuration (this is idempotent - safe to call multiple times)
+            this.sdk = configuration.Build();
+
+            // Use the shared ActivitySource from configuration
+            this.activitySource = configuration.ApplicationInsightsActivitySource;
+
+            // Get logger from the SDK's service provider
+            this.logger = this.sdk.GetLoggerFactory().CreateLogger<TelemetryClient>();
         }
-#pragma warning restore 612, 618 // TelemetryConfiguration.Active
 
         /// <summary>
         /// Gets the current context that will be used to augment telemetry you send.
@@ -413,7 +404,7 @@
             this.Id  -->  exporter gets it from Activity.Context.SpanId but no override exists for this
              */
 
-            using (var dependencyTelemetryActivity = this.TelemetryConfiguration.ActivitySource.StartActivity(telemetry.Name, ActivityKind.Client))
+            using (var dependencyTelemetryActivity = this.activitySource.StartActivity(telemetry.Name, ActivityKind.Client))
             {
                 if (dependencyTelemetryActivity != null)
                 {
@@ -661,7 +652,7 @@
         public void TrackRequest(string name, DateTimeOffset startTime, TimeSpan duration, string responseCode, bool success)
         {
             // this.Track(new RequestTelemetry(name, startTime, duration, responseCode, success));
-            using (var requestTelemetryActivity = this.TelemetryConfiguration.ActivitySource.StartActivity(name, ActivityKind.Server))
+            using (var requestTelemetryActivity = this.activitySource.StartActivity(name, ActivityKind.Server))
             {
                 if (requestTelemetryActivity != null)
                 {
@@ -695,7 +686,7 @@
                 // Log message
             }
 
-            using (var requestTelemetryActivity = this.TelemetryConfiguration.ActivitySource.StartActivity(request.Name, ActivityKind.Server))
+            using (var requestTelemetryActivity = this.activitySource.StartActivity(request.Name, ActivityKind.Server))
             {
                 if (requestTelemetryActivity != null)
                 {
@@ -763,22 +754,10 @@
         {
             CoreEventSource.Log.TelemetlyClientFlush();
 
-            this.TelemetryConfiguration.TracerProvider.ForceFlush();
-
-            /*if (this.TryGetMetricManager(out MetricManager privateMetricManager))
-            {
-                privateMetricManager.Flush(flushDownstreamPipeline: false);
-            }
-
-            TelemetryConfiguration pipeline = this.configuration;
-            if (pipeline != null)
-            {
-                MetricManager sharedMetricManager = pipeline.GetMetricManager(createIfNotExists: false);
-                sharedMetricManager?.Flush(flushDownstreamPipeline: false);
-
-                ITelemetryChannel channel = pipeline.TelemetryChannel;
-                channel?.Flush();
-            }*/
+            // Force flush all providers
+            this.sdk.TracerProvider?.ForceFlush();
+            this.sdk.MeterProvider?.ForceFlush();
+            this.sdk.LoggerProvider?.ForceFlush();
         }
 
         /// <summary>
@@ -836,22 +815,22 @@
         // and aggregation scope, but with a different configuration. When calling this method to get a previously
         // created metric, you can simply avoid specifying any configuration (or specify null) to imply the
         // configuration used earlier.</exception>
-        /*internal Metric GetMetric(
-                            string metricId)
-        {
-            return this.GetOrCreateMetric(
-                        MetricAggregationScope.TelemetryConfiguration,
-                        new MetricIdentifier(metricId),
-                        metricConfiguration: null);
-        }*/
+                /*internal Metric GetMetric(
+                                    string metricId)
+                {
+                    return this.GetOrCreateMetric(
+                                MetricAggregationScope.TelemetryConfiguration,
+                                new MetricIdentifier(metricId),
+                                metricConfiguration: null);
+                }*/
 
-        /// <summary>
-        /// Send information about the page viewed in the application.
-        /// Create a separate <see cref="PageViewTelemetry"/> instance for each call to <see cref="TrackPageView(PageViewTelemetry)"/>.
-        /// </summary>
-        /// <remarks>
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#page-views">Learn more</a>
-        /// </remarks>
+                /// <summary>
+                /// Send information about the page viewed in the application.
+                /// Create a separate <see cref="PageViewTelemetry"/> instance for each call to <see cref="TrackPageView(PageViewTelemetry)"/>.
+                /// </summary>
+                /// <remarks>
+                /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#page-views">Learn more</a>
+                /// </remarks>
         internal void TrackPageView(PageViewTelemetry telemetry)
         {
             if (telemetry == null)

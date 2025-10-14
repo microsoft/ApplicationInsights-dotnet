@@ -187,6 +187,7 @@ Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.St
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.StartTime.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Extensions
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ConfigureOpenTelemetryBuilder(System.Action<OpenTelemetry.IOpenTelemetryBuilder> configure) -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ConnectionString.get -> string
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ConnectionString.set -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableTelemetry.get -> bool
@@ -206,7 +207,6 @@ Microsoft.ApplicationInsights.TelemetryClient.InitializeInstrumentationKey(Micro
 Microsoft.ApplicationInsights.TelemetryClient.InstrumentationKey.get -> string
 Microsoft.ApplicationInsights.TelemetryClient.InstrumentationKey.set -> void
 Microsoft.ApplicationInsights.TelemetryClient.IsEnabled() -> bool
-Microsoft.ApplicationInsights.TelemetryClient.TelemetryClient() -> void
 Microsoft.ApplicationInsights.TelemetryClient.TelemetryClient(Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration configuration) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TelemetryConfiguration.get -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
 Microsoft.ApplicationInsights.TelemetryClient.Track(Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> void
