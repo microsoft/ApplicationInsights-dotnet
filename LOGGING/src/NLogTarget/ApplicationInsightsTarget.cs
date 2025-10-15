@@ -13,8 +13,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility;
 
     using NLog;
     using NLog.Common;
@@ -29,8 +28,9 @@ namespace Microsoft.ApplicationInsights.NLogTarget
     public sealed class ApplicationInsightsTarget : TargetWithLayout
     {
         private TelemetryClient telemetryClient;
+        private TelemetryConfiguration telemetryConfiguration;
         private DateTime lastLogEventTime;
-        private NLog.Layouts.Layout instrumentationKeyLayout = string.Empty;
+        private NLog.Layouts.Layout connectionStringLayout = string.Empty;
 
         /// <summary>
         /// Initializers a new instance of ApplicationInsightsTarget type.
@@ -42,12 +42,12 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         }
 
         /// <summary>
-        /// Gets or sets the Application Insights instrumentationKey for your application. 
+        /// Gets or sets the Application Insights connection string for your application. 
         /// </summary>
-        public string InstrumentationKey
+        public string ConnectionString
         {
-            get => (this.instrumentationKeyLayout as NLog.Layouts.SimpleLayout)?.Text ?? null;
-            set => this.instrumentationKeyLayout = value ?? string.Empty;
+            get => (this.connectionStringLayout as NLog.Layouts.SimpleLayout)?.Text ?? null;
+            set => this.connectionStringLayout = value ?? string.Empty;
         }
 
         /// <summary>
@@ -108,23 +108,35 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         }
 
         /// <summary>
-        /// Initializes the Target and perform instrumentationKey validation.
+        /// Initializes the Target and perform connection string validation.
         /// </summary>
-        /// <exception cref="NLogConfigurationException">Will throw when <see cref="InstrumentationKey"/> is not set.</exception>
+        /// <exception cref="NLogConfigurationException">Will throw when <see cref="ConnectionString"/> is not set.</exception>
         protected override void InitializeTarget()
         {
             base.InitializeTarget();
-#pragma warning disable CS0618 // Type or member is obsolete: TelemtryConfiguration.Active is used in TelemetryClient constructor.
-            this.telemetryClient = new TelemetryClient();
-#pragma warning restore CS0618 // Type or member is obsolete
+            this.telemetryConfiguration = new TelemetryConfiguration();
 
-            string instrumentationKey = this.instrumentationKeyLayout.Render(LogEventInfo.CreateNullEvent());
-            if (!string.IsNullOrWhiteSpace(instrumentationKey))
+            string connectionString = this.connectionStringLayout.Render(LogEventInfo.CreateNullEvent());
+            if (!string.IsNullOrWhiteSpace(connectionString))
             {
-                this.telemetryClient.Context.InstrumentationKey = instrumentationKey;
+                this.telemetryConfiguration.ConnectionString = connectionString;
             }
 
-            this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("nlog:");
+            this.telemetryClient = new TelemetryClient(this.telemetryConfiguration);
+
+            // TODO: Uncomment once SdkVersionUtils is available.
+            // this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("nlog:");
+        }
+
+        /// <summary>
+        /// Closes the Target and disposes the TelemetryConfiguration.
+        /// </summary>
+        protected override void CloseTarget()
+        {
+            base.CloseTarget();
+            this.telemetryConfiguration?.Dispose();
+            this.telemetryConfiguration = null;
+            this.telemetryClient = null;
         }
 
         /// <summary>
@@ -142,7 +154,8 @@ namespace Microsoft.ApplicationInsights.NLogTarget
 
             if (logEvent.Exception != null)
             {
-                this.SendException(logEvent);
+                // TODO: Uncomment once  ExceptionTelemetry is tested and verified.
+                // this.SendException(logEvent);
             }
             else
             {
@@ -268,7 +281,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             }
 
             this.BuildPropertyBag(logEvent, exceptionTelemetry);
-            this.telemetryClient.Track(exceptionTelemetry);
+            this.telemetryClient.TrackException(exceptionTelemetry);
         }
 
         private void SendTrace(LogEventInfo logEvent)
@@ -280,7 +293,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             };
 
             this.BuildPropertyBag(logEvent, trace);
-            this.telemetryClient.Track(trace);
+            this.telemetryClient.TrackTrace(trace);
         }
     }
 }
