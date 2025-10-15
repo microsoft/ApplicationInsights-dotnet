@@ -9,6 +9,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{02
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicConsoleApp", "..\examples\BasicConsoleApp\BasicConsoleApp.csproj", "{6777AF33-A0CD-3F8A-8F4D-4F7C3E02B454}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLogConsoleApp", "..\examples\NLogConsoleApp\NLogConsoleApp.csproj", "{638BEEB8-40A0-47E0-9410-0B61FB9D6FA5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLogTarget", "..\LOGGING\src\NLogTarget\NLogTarget.csproj", "{D8DE51DE-0A54-34A0-71A6-81B430D62B4C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,14 +47,42 @@ Global
 		{6777AF33-A0CD-3F8A-8F4D-4F7C3E02B454}.Release|x64.Build.0 = Release|Any CPU
 		{6777AF33-A0CD-3F8A-8F4D-4F7C3E02B454}.Release|x86.ActiveCfg = Release|Any CPU
 		{6777AF33-A0CD-3F8A-8F4D-4F7C3E02B454}.Release|x86.Build.0 = Release|Any CPU
+		{638BEEB8-40A0-47E0-9410-0B61FB9D6FA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{638BEEB8-40A0-47E0-9410-0B61FB9D6FA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{638BEEB8-40A0-47E0-9410-0B61FB9D6FA5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{638BEEB8-40A0-47E0-9410-0B61FB9D6FA5}.Debug|x64.Build.0 = Debug|Any CPU
+		{638BEEB8-40A0-47E0-9410-0B61FB9D6FA5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{638BEEB8-40A0-47E0-9410-0B61FB9D6FA5}.Debug|x86.Build.0 = Debug|Any CPU
+		{638BEEB8-40A0-47E0-9410-0B61FB9D6FA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{638BEEB8-40A0-47E0-9410-0B61FB9D6FA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{638BEEB8-40A0-47E0-9410-0B61FB9D6FA5}.Release|x64.ActiveCfg = Release|Any CPU
+		{638BEEB8-40A0-47E0-9410-0B61FB9D6FA5}.Release|x64.Build.0 = Release|Any CPU
+		{638BEEB8-40A0-47E0-9410-0B61FB9D6FA5}.Release|x86.ActiveCfg = Release|Any CPU
+		{638BEEB8-40A0-47E0-9410-0B61FB9D6FA5}.Release|x86.Build.0 = Release|Any CPU
+		{D8DE51DE-0A54-34A0-71A6-81B430D62B4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8DE51DE-0A54-34A0-71A6-81B430D62B4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8DE51DE-0A54-34A0-71A6-81B430D62B4C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D8DE51DE-0A54-34A0-71A6-81B430D62B4C}.Debug|x64.Build.0 = Debug|Any CPU
+		{D8DE51DE-0A54-34A0-71A6-81B430D62B4C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D8DE51DE-0A54-34A0-71A6-81B430D62B4C}.Debug|x86.Build.0 = Debug|Any CPU
+		{D8DE51DE-0A54-34A0-71A6-81B430D62B4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8DE51DE-0A54-34A0-71A6-81B430D62B4C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8DE51DE-0A54-34A0-71A6-81B430D62B4C}.Release|x64.ActiveCfg = Release|Any CPU
+		{D8DE51DE-0A54-34A0-71A6-81B430D62B4C}.Release|x64.Build.0 = Release|Any CPU
+		{D8DE51DE-0A54-34A0-71A6-81B430D62B4C}.Release|x86.ActiveCfg = Release|Any CPU
+		{D8DE51DE-0A54-34A0-71A6-81B430D62B4C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{6777AF33-A0CD-3F8A-8F4D-4F7C3E02B454} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{638BEEB8-40A0-47E0-9410-0B61FB9D6FA5} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1C15D81D-35A4-4FD4-B98C-4A47ED4B98EB}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\LOGGING\src\CommonShared\CommonShared.projitems*{d8de51de-0a54-34a0-71a6-81b430d62b4c}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal
