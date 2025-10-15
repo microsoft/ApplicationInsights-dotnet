@@ -8,6 +8,7 @@
     using System.Threading;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
     using OpenTelemetry;
 
     /// <summary>
@@ -22,7 +23,7 @@
         // internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
 
         internal const string ApplicationInsightsActivitySourceName = "Microsoft.ApplicationInsights";
-        
+
         private static object syncRoot = new object();
         private static TelemetryConfiguration active;
 
@@ -278,25 +279,15 @@
                     return this.openTelemetrySdk;
                 }
 
-                // Build the final configuration action
-                var finalConfiguration = this.builderConfiguration;
-
-                // Add connection string configuration if provided
-                if (!string.IsNullOrEmpty(this.connectionString))
+                this.openTelemetrySdk = OpenTelemetrySdk.Create(builder =>
                 {
-                    var connectionStringCopy = this.connectionString;
-                    finalConfiguration = builder =>
+                    this.builderConfiguration(builder);
+                    builder.SetAzureMonitorExporter(options =>
                     {
-                        this.builderConfiguration(builder);
-                        builder.SetAzureMonitorExporter(options =>
-                        {
-                            options.ConnectionString = connectionStringCopy;
-                        });
-                    };
-                }
+                        options.ConnectionString = this.connectionString;
+                    });
+                });
 
-                // Create the OpenTelemetry SDK using the actual API
-                this.openTelemetrySdk = OpenTelemetrySdk.Create(finalConfiguration);
                 this.isBuilt = true;
 
                 this.StartHostedServices();
@@ -320,7 +311,7 @@
 
                     if (serviceProvider != null)
                     {
-                        var hostedServices = serviceProvider.GetServices<Microsoft.Extensions.Hosting.IHostedService>();
+                        var hostedServices = serviceProvider.GetServices<IHostedService>();
                         foreach (var hostedService in hostedServices)
                         {
                             hostedService.StartAsync(CancellationToken.None).GetAwaiter().GetResult();

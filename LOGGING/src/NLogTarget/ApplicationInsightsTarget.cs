@@ -10,11 +10,9 @@ namespace Microsoft.ApplicationInsights.NLogTarget
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
-
     using NLog;
     using NLog.Common;
     using NLog.Config;
@@ -117,11 +115,13 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             this.telemetryConfiguration = new TelemetryConfiguration();
 
             string connectionString = this.connectionStringLayout.Render(LogEventInfo.CreateNullEvent());
-            if (!string.IsNullOrWhiteSpace(connectionString))
+            if (string.IsNullOrWhiteSpace(connectionString))
             {
-                this.telemetryConfiguration.ConnectionString = connectionString;
+                throw new NLogConfigurationException("Azure Monitor connection string is required. Please provide a valid connection string.",
+                                                      new ArgumentNullException(nameof(connectionString)));
             }
 
+            this.telemetryConfiguration.ConnectionString = connectionString;
             this.telemetryClient = new TelemetryClient(this.telemetryConfiguration);
 
             // TODO: Uncomment once SdkVersionUtils is available.
@@ -172,6 +172,11 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             if (asyncContinuation == null)
             {
                 throw new ArgumentNullException(nameof(asyncContinuation));
+            }
+
+            if(this.TelemetryClient == null)
+            {
+                throw new InvalidOperationException("The TelemetryClient has not been initialized. Make sure the target has been initialized correctly.");
             }
 
             try
