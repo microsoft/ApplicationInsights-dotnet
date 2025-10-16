@@ -23,11 +23,12 @@
         // internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
 
         internal const string ApplicationInsightsActivitySourceName = "Microsoft.ApplicationInsights";
-
+        
         private static object syncRoot = new object();
         private static TelemetryConfiguration active;
 
         private readonly object lockObject = new object();
+        private readonly bool skipDefaultBuilderConfiguration;
 
         private string instrumentationKey = string.Empty;
         private string connectionString;
@@ -63,13 +64,26 @@
         /// Initializes a new instance of the TelemetryConfiguration class.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public TelemetryConfiguration()
+        public TelemetryConfiguration() : this(skipDefaultBuilderConfiguration: false)
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the TelemetryConfiguration class.
+        /// </summary>
+        /// <param name="skipDefaultBuilderConfiguration">If true, skips setting default builder configuration (used in DI scenarios).</param>
+        internal TelemetryConfiguration(bool skipDefaultBuilderConfiguration)
+        {
+            this.skipDefaultBuilderConfiguration = skipDefaultBuilderConfiguration;
+
             // Create the default ActivitySource
             this.defaultActivitySource = new ActivitySource(ApplicationInsightsActivitySourceName);
 
-            // Start with default Application Insights configuration
-            this.builderConfiguration = builder => builder.WithApplicationInsights();
+            // Only set default configuration for non-DI scenarios
+            if (!skipDefaultBuilderConfiguration)
+            {
+                this.builderConfiguration = builder => builder.WithApplicationInsights();
+            }
         }
 
         /// <summary>
@@ -181,6 +195,11 @@
         /// Once built, the configuration becomes read-only.
         /// </summary>
         internal bool IsBuilt => this.isBuilt;
+
+        /// <summary>
+        /// Gets a value indicating whether this configuration was created for DI scenarios.
+        /// </summary>
+        internal bool IsForDependencyInjection => this.skipDefaultBuilderConfiguration;
 
         /// <summary>
         /// Creates a new <see cref="TelemetryConfiguration"/> instance loaded from the ApplicationInsights.config file.
