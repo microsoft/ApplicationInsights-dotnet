@@ -4,8 +4,11 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Diagnostics;
+    using System.Reflection;
     using System.Threading;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
     using OpenTelemetry;
 
     /// <summary>
@@ -295,28 +298,50 @@
                     return this.openTelemetrySdk;
                 }
 
-                // Build the final configuration action
-                var finalConfiguration = this.builderConfiguration;
-
-                // Add connection string configuration if provided
-                if (!string.IsNullOrEmpty(this.connectionString))
+                this.openTelemetrySdk = OpenTelemetrySdk.Create(builder =>
                 {
-                    var connectionStringCopy = this.connectionString;
-                    finalConfiguration = builder =>
+                    this.builderConfiguration(builder);
+                    builder.SetAzureMonitorExporter(options =>
                     {
-                        this.builderConfiguration(builder);
-                        builder.SetAzureMonitorExporter(options =>
-                        {
-                            options.ConnectionString = connectionStringCopy;
-                        });
-                    };
-                }
+                        options.ConnectionString = this.connectionString;
+                    });
+                });
 
-                // Create the OpenTelemetry SDK using the actual API
-                this.openTelemetrySdk = OpenTelemetrySdk.Create(finalConfiguration);
                 this.isBuilt = true;
 
+                this.StartHostedServices();
+
                 return this.openTelemetrySdk;
+            }
+        }
+
+        private void StartHostedServices()
+        {
+            try
+            {
+                // Use reflection to access the internal Services property
+                var servicesProperty = typeof(OpenTelemetrySdk).GetProperty(
+                    "Services",
+                    BindingFlags.NonPublic | BindingFlags.Instance);
+
+                if (servicesProperty != null)
+                {
+                    var serviceProvider = servicesProperty.GetValue(this.openTelemetrySdk) as IServiceProvider;
+
+                    if (serviceProvider != null)
+                    {
+                        var hostedServices = serviceProvider.GetServices<IHostedService>();
+                        foreach (var hostedService in hostedServices)
+                        {
+                            hostedService.StartAsync(CancellationToken.None).GetAwaiter().GetResult();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // TODO: Log to event source, instead of Debug.
+                Debug.WriteLine($"Failed to start hosted services: {ex}");
             }
         }
 
