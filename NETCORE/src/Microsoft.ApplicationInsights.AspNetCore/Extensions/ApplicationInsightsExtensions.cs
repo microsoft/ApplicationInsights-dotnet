@@ -1,5 +1,8 @@
 ﻿namespace Microsoft.Extensions.DependencyInjection
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
     using Azure.Monitor.OpenTelemetry.Exporter;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNetCore;
@@ -8,16 +11,13 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.DependencyInjection.Extensions;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.DependencyInjection.Extensions;
     using Microsoft.Extensions.Options;
     using OpenTelemetry;
     using OpenTelemetry.Metrics;
     using OpenTelemetry.Resources;
     using OpenTelemetry.Trace;
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
 
     /// <summary>
     /// Extension methods for <see cref="IServiceCollection"/> that allow adding Application Insights services to application.

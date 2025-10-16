@@ -174,7 +174,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                 throw new ArgumentNullException(nameof(asyncContinuation));
             }
 
-            if(this.TelemetryClient == null)
+            if (this.TelemetryClient == null)
             {
                 throw new InvalidOperationException("The TelemetryClient has not been initialized. Make sure the target has been initialized correctly.");
             }

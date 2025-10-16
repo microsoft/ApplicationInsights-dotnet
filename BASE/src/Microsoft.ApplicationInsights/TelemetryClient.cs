@@ -25,8 +25,8 @@
     public sealed class TelemetryClient
     {
         private readonly TelemetryConfiguration configuration;
-        private OpenTelemetrySdk sdk;
         private readonly ActivitySource activitySource;
+        private OpenTelemetrySdk sdk;
         private ILogger<TelemetryClient> logger;
 
         /// <summary>
@@ -89,21 +89,6 @@
         }
 
         /// <summary>
-        /// Gets the SDK instance, building it lazily if needed (non-DI scenario).
-        /// </summary>
-        private OpenTelemetrySdk Sdk
-        {
-            get
-            {
-                if (this.sdk == null)
-                {
-                    this.sdk = this.configuration.Build();
-                }
-                return this.sdk;
-            }
-        }
-
-        /// <summary>
         /// Gets the logger instance, creating it lazily if needed (non-DI scenario).
         /// </summary>
         internal ILogger<TelemetryClient> Logger
@@ -114,7 +99,24 @@
                 {
                     this.logger = this.Sdk.GetLoggerFactory().CreateLogger<TelemetryClient>();
                 }
+
                 return this.logger;
+            }
+        }
+
+        /// <summary>
+        /// Gets the SDK instance, building it lazily if needed (non-DI scenario).
+        /// </summary>
+        private OpenTelemetrySdk Sdk
+        {
+            get
+            {
+                if (this.sdk == null)
+                {
+                    this.sdk = this.configuration.Build();
+                }
+
+                return this.sdk;
             }
         }
 
