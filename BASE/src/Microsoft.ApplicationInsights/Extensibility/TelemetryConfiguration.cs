@@ -4,11 +4,8 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Diagnostics;
-    using System.Reflection;
     using System.Threading;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Hosting;
     using OpenTelemetry;
 
     /// <summary>
@@ -23,11 +20,12 @@
         // internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
 
         internal const string ApplicationInsightsActivitySourceName = "Microsoft.ApplicationInsights";
-
+        
         private static object syncRoot = new object();
         private static TelemetryConfiguration active;
 
         private readonly object lockObject = new object();
+        private readonly bool skipDefaultBuilderConfiguration;
 
         private string instrumentationKey = string.Empty;
         private string connectionString;
@@ -63,13 +61,26 @@
         /// Initializes a new instance of the TelemetryConfiguration class.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public TelemetryConfiguration()
+        public TelemetryConfiguration() : this(skipDefaultBuilderConfiguration: false)
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the TelemetryConfiguration class.
+        /// </summary>
+        /// <param name="skipDefaultBuilderConfiguration">If true, skips setting default builder configuration (used in DI scenarios).</param>
+        internal TelemetryConfiguration(bool skipDefaultBuilderConfiguration)
+        {
+            this.skipDefaultBuilderConfiguration = skipDefaultBuilderConfiguration;
+
             // Create the default ActivitySource
             this.defaultActivitySource = new ActivitySource(ApplicationInsightsActivitySourceName);
 
-            // Start with default Application Insights configuration
-            this.builderConfiguration = builder => builder.WithApplicationInsights();
+            // Only set default configuration for non-DI scenarios
+            if (!skipDefaultBuilderConfiguration)
+            {
+                this.builderConfiguration = builder => builder.WithApplicationInsights();
+            }
         }
 
         /// <summary>
@@ -183,6 +194,11 @@
         internal bool IsBuilt => this.isBuilt;
 
         /// <summary>
+        /// Gets a value indicating whether this configuration was created for DI scenarios.
+        /// </summary>
+        internal bool IsForDependencyInjection => this.skipDefaultBuilderConfiguration;
+
+        /// <summary>
         /// Creates a new <see cref="TelemetryConfiguration"/> instance loaded from the ApplicationInsights.config file.
         /// If the configuration file does not exist, the new configuration instance is initialized with minimum defaults 
         /// needed to send telemetry to Application Insights.
@@ -279,50 +295,28 @@
                     return this.openTelemetrySdk;
                 }
 
-                this.openTelemetrySdk = OpenTelemetrySdk.Create(builder =>
-                {
-                    this.builderConfiguration(builder);
-                    builder.SetAzureMonitorExporter(options =>
-                    {
-                        options.ConnectionString = this.connectionString;
-                    });
-                });
+                // Build the final configuration action
+                var finalConfiguration = this.builderConfiguration;
 
+                // Add connection string configuration if provided
+                if (!string.IsNullOrEmpty(this.connectionString))
+                {
+                    var connectionStringCopy = this.connectionString;
+                    finalConfiguration = builder =>
+                    {
+                        this.builderConfiguration(builder);
+                        builder.SetAzureMonitorExporter(options =>
+                        {
+                            options.ConnectionString = connectionStringCopy;
+                        });
+                    };
+                }
+
+                // Create the OpenTelemetry SDK using the actual API
+                this.openTelemetrySdk = OpenTelemetrySdk.Create(finalConfiguration);
                 this.isBuilt = true;
 
-                this.StartHostedServices();
-
                 return this.openTelemetrySdk;
-            }
-        }
-
-        private void StartHostedServices()
-        {
-            try
-            {
-                // Use reflection to access the internal Services property
-                var servicesProperty = typeof(OpenTelemetrySdk).GetProperty(
-                    "Services",
-                    BindingFlags.NonPublic | BindingFlags.Instance);
-
-                if (servicesProperty != null)
-                {
-                    var serviceProvider = servicesProperty.GetValue(this.openTelemetrySdk) as IServiceProvider;
-
-                    if (serviceProvider != null)
-                    {
-                        var hostedServices = serviceProvider.GetServices<IHostedService>();
-                        foreach (var hostedService in hostedServices)
-                        {
-                            hostedService.StartAsync(CancellationToken.None).GetAwaiter().GetResult();
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // TODO: Log to event source, instead of Debug.
-                Debug.WriteLine($"Failed to start hosted services: {ex}");
             }
         }
 
