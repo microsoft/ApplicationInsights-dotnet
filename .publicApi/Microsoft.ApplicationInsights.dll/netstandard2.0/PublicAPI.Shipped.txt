@@ -263,6 +263,5 @@ override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Success.se
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Timestamp.get -> System.DateTimeOffset
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Timestamp.set -> void
 static Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Extensions.ToInvariantString(this System.Exception exception) -> string
-static Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.Active.get -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
 static Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.CreateDefault() -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
 static Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.CreateFromConfiguration(string config) -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration

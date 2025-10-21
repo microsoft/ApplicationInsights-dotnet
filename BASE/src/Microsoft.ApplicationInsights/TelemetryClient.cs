@@ -33,25 +33,38 @@
         /// Initializes a new instance of the <see cref="TelemetryClient" /> class. Send telemetry with the specified <paramref name="configuration"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException">The <paramref name="configuration"/> is null.</exception>
-        /// <exception cref="ArgumentException">The <paramref name="configuration"/> does not contain a telemetry channel.</exception>
         public TelemetryClient(TelemetryConfiguration configuration)
+            : this(configuration, isFromDependencyInjection: false)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TelemetryClient" /> class.
+        /// </summary>
+        /// <param name="configuration">The telemetry configuration.</param>
+        /// <param name="isFromDependencyInjection">Indicates whether this instance is being created by a DI container.</param>
+        internal TelemetryClient(TelemetryConfiguration configuration, bool isFromDependencyInjection)
         {
             this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
             // Use the shared ActivitySource from configuration
             this.activitySource = configuration.ApplicationInsightsActivitySource;
 
-            // Note: For DI scenarios, logger will be injected via the overload constructor
-            // For non-DI scenarios, sdk and logger will be lazily initialized via properties
+            // For non-DI scenarios: Build SDK eagerly to ensure TracerProvider is ready
+            // For DI scenarios: SDK will be built by configuration when accessed
+            if (!isFromDependencyInjection)
+            {
+                this.sdk = configuration.Build();
+            }
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TelemetryClient" /> class for DI scenarios.
+        /// Initializes a new instance of the <see cref="TelemetryClient" /> class for DI scenarios with logger injection.
         /// </summary>
         /// <param name="configuration">The telemetry configuration.</param>
         /// <param name="logger">The logger instance from DI container.</param>
         internal TelemetryClient(TelemetryConfiguration configuration, ILogger<TelemetryClient> logger)
-            : this(configuration)
+            : this(configuration, isFromDependencyInjection: true)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -97,26 +110,10 @@
             {
                 if (this.logger == null)
                 {
-                    this.logger = this.Sdk.GetLoggerFactory().CreateLogger<TelemetryClient>();
+                    this.logger = this.sdk.GetLoggerFactory().CreateLogger<TelemetryClient>();
                 }
 
                 return this.logger;
-            }
-        }
-
-        /// <summary>
-        /// Gets the SDK instance, building it lazily if needed (non-DI scenario).
-        /// </summary>
-        private OpenTelemetrySdk Sdk
-        {
-            get
-            {
-                if (this.sdk == null)
-                {
-                    this.sdk = this.configuration.Build();
-                }
-
-                return this.sdk;
             }
         }
 
@@ -795,9 +792,9 @@
             CoreEventSource.Log.TelemetlyClientFlush();
 
             // Force flush all providers
-            this.Sdk.TracerProvider?.ForceFlush();
-            this.Sdk.MeterProvider?.ForceFlush();
-            this.Sdk.LoggerProvider?.ForceFlush();
+            this.sdk.TracerProvider?.ForceFlush();
+            this.sdk.MeterProvider?.ForceFlush();
+            this.sdk.LoggerProvider?.ForceFlush();
         }
 
         /// <summary>

@@ -59,7 +59,7 @@
         /// </summary>
         /// <remarks>
         /// By default, this property is initialized with the <see cref="TelemetryConfiguration.InstrumentationKey"/> value
-        /// of the <see cref="TelemetryConfiguration.Active"/> instance of <see cref="TelemetryConfiguration"/>. You can specify it
+        /// of the TelemetryConfiguration.Active instance of <see cref="TelemetryConfiguration"/>. You can specify it
         /// for all telemetry tracked via a particular <see cref="TelemetryClient"/> or for a specific <see cref="ITelemetry"/>
         /// instance.
         /// </remarks>
