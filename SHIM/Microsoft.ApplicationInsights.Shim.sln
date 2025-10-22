@@ -23,6 +23,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCoreWebApp", "..\exam
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerService", "..\examples\WorkerService\WorkerService.csproj", "{FE4868CE-CE53-464D-B676-ED54519A99B3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web", "..\WEB\Src\Web\Web\Web.csproj", "{6835434F-678C-EAA1-AFBF-3ABDA158022B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassicAspNetWebApp", "..\examples\ClassicAspNetWebApp\ClassicAspNetWebApp.csproj", "{31EB3F86-42C6-4792-8ADA-E9D9AA5F7619}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -129,6 +133,30 @@ Global
 		{FE4868CE-CE53-464D-B676-ED54519A99B3}.Release|x64.Build.0 = Release|Any CPU
 		{FE4868CE-CE53-464D-B676-ED54519A99B3}.Release|x86.ActiveCfg = Release|Any CPU
 		{FE4868CE-CE53-464D-B676-ED54519A99B3}.Release|x86.Build.0 = Release|Any CPU
+		{6835434F-678C-EAA1-AFBF-3ABDA158022B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6835434F-678C-EAA1-AFBF-3ABDA158022B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6835434F-678C-EAA1-AFBF-3ABDA158022B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6835434F-678C-EAA1-AFBF-3ABDA158022B}.Debug|x64.Build.0 = Debug|Any CPU
+		{6835434F-678C-EAA1-AFBF-3ABDA158022B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6835434F-678C-EAA1-AFBF-3ABDA158022B}.Debug|x86.Build.0 = Debug|Any CPU
+		{6835434F-678C-EAA1-AFBF-3ABDA158022B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6835434F-678C-EAA1-AFBF-3ABDA158022B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6835434F-678C-EAA1-AFBF-3ABDA158022B}.Release|x64.ActiveCfg = Release|Any CPU
+		{6835434F-678C-EAA1-AFBF-3ABDA158022B}.Release|x64.Build.0 = Release|Any CPU
+		{6835434F-678C-EAA1-AFBF-3ABDA158022B}.Release|x86.ActiveCfg = Release|Any CPU
+		{6835434F-678C-EAA1-AFBF-3ABDA158022B}.Release|x86.Build.0 = Release|Any CPU
+		{31EB3F86-42C6-4792-8ADA-E9D9AA5F7619}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31EB3F86-42C6-4792-8ADA-E9D9AA5F7619}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31EB3F86-42C6-4792-8ADA-E9D9AA5F7619}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{31EB3F86-42C6-4792-8ADA-E9D9AA5F7619}.Debug|x64.Build.0 = Debug|Any CPU
+		{31EB3F86-42C6-4792-8ADA-E9D9AA5F7619}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{31EB3F86-42C6-4792-8ADA-E9D9AA5F7619}.Debug|x86.Build.0 = Debug|Any CPU
+		{31EB3F86-42C6-4792-8ADA-E9D9AA5F7619}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31EB3F86-42C6-4792-8ADA-E9D9AA5F7619}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31EB3F86-42C6-4792-8ADA-E9D9AA5F7619}.Release|x64.ActiveCfg = Release|Any CPU
+		{31EB3F86-42C6-4792-8ADA-E9D9AA5F7619}.Release|x64.Build.0 = Release|Any CPU
+		{31EB3F86-42C6-4792-8ADA-E9D9AA5F7619}.Release|x86.ActiveCfg = Release|Any CPU
+		{31EB3F86-42C6-4792-8ADA-E9D9AA5F7619}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -138,11 +166,13 @@ Global
 		{638BEEB8-40A0-47E0-9410-0B61FB9D6FA5} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{52878653-54FF-8F20-7D86-98CE35C8BBFB} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{FE4868CE-CE53-464D-B676-ED54519A99B3} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{31EB3F86-42C6-4792-8ADA-E9D9AA5F7619} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1C15D81D-35A4-4FD4-B98C-4A47ED4B98EB}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\WEB\Src\Common\Common.projitems*{6835434f-678c-eaa1-afbf-3abda158022b}*SharedItemsImports = 5
 		..\NETCORE\src\Shared\Shared.projitems*{8a629431-f127-539b-d96b-86fdb0983ef9}*SharedItemsImports = 5
 		..\NETCORE\src\Shared\Shared.projitems*{95fdfce3-6789-6c72-8acd-0eb6d2598170}*SharedItemsImports = 5
 		..\NETCORE\src\Shared\Shared.projitems*{d56f2979-d6bc-4ef2-bb9b-4077b3290599}*SharedItemsImports = 13
