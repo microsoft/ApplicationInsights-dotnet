@@ -12,14 +12,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\ApplicationInsightsExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\ApplicationInsightsServiceOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\DependencyCollectionOptions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ITelemetryModuleConfigurator.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ITelemetryProcessorFactory.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\NoOpTelemetryModule.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryConfigurationOptionsSetup.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryModuleConfigurator.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryProcessorFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Internals\ApplicationNameProvider.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TelemetryInitializers\ComponentVersionTelemetryInitializer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TelemetryInitializers\DomainNameRoleInstanceTelemetryInitializer.cs" />
   </ItemGroup>
 </Project>

@@ -3,9 +3,11 @@
     using System;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights;
-    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using OpenTelemetry;
+    using OpenTelemetry.Logs;
+    using OpenTelemetry.Trace;
 
     internal class Program
     {
@@ -13,7 +15,7 @@
         {
             var telemetryConfig = new TelemetryConfiguration
             {
-                ConnectionString = "",
+                ConnectionString = "InstrumentationKey=cfd11a0c-b911-4de5-885d-659e2317e020;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/;LiveEndpoint=https://westus2.livediagnostics.monitor.azure.com/;ApplicationId=50c16cf6-ec05-41ce-a7e7-c377548d53ef",
             };
 
             // Add custom TelemetryInitializer.
@@ -23,6 +25,9 @@
             //var builder = telemetryConfig.DefaultTelemetrySink.TelemetryProcessorChainBuilder;
             //builder.Use(next => new MyCustomTelemetryProcessor(next));
             //builder.Build();
+
+            telemetryConfig.ConfigureOpenTelemetryBuilder(builder => builder.WithTracing(tracing => tracing.AddConsoleExporter())
+                                                                     .WithLogging(logging => logging.AddConsoleExporter()));
 
             // Initialize the TelemetryClient
             var telemetryClient = new TelemetryClient(telemetryConfig);
@@ -43,6 +48,8 @@
 
             telemetryClient.TrackException(new InvalidOperationException("Something went wrong"));*/
 
+            // telemetryClient.TrackTrace("A trace with properties", new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
+            telemetryClient.TrackTrace("A trace with severity and properties", SeverityLevel.Error, new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
             telemetryClient.TrackDependency("SQL", "GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), true);
             telemetryClient.TrackDependency(new DependencyTelemetry("SQL", "dbserver", "GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), "0", true));
 

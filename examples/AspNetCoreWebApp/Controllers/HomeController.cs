@@ -31,7 +31,8 @@
 
         public IActionResult Index()
         {
-            this._telemetryClient.TrackEvent(eventName: "Hello World!");
+            // this._telemetryClient.TrackEvent(eventName: "Hello World!");
+            this._telemetryClient.TrackRequest("Test Request", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), "200", true);
 
             return View();
         }

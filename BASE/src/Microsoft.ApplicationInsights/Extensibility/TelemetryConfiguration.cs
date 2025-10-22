@@ -2,19 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Diagnostics;
+    using System.Reflection;
     using System.Threading;
-    using System.Threading.Tasks;
-    using Azure.Monitor.OpenTelemetry.Exporter;
-    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
     using OpenTelemetry;
-    using OpenTelemetry.Trace;
 
     /// <summary>
     /// Encapsulates the global telemetry configuration typically loaded from the ApplicationInsights.config file.
@@ -26,23 +21,24 @@
     public sealed class TelemetryConfiguration : IDisposable
     {
         // internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
+
+        internal const string ApplicationInsightsActivitySourceName = "Microsoft.ApplicationInsights";
+        
         private static object syncRoot = new object();
         private static TelemetryConfiguration active;
 
-        private readonly object initLock = new object();
-        private TracerProvider tracerProvider;
-        private ILoggerFactory loggerFactory;
-        private ActivitySource activitySource;
-        private bool isInitialized = false;
+        private readonly object lockObject = new object();
+        private readonly bool skipDefaultBuilderConfiguration;
 
         private string instrumentationKey = string.Empty;
         private string connectionString;
         private bool disableTelemetry = false;
-
-        /// <summary>
-        /// Indicates if this instance has been disposed of.
-        /// </summary>
+        private bool isBuilt = false;
         private bool isDisposed = false;
+
+        private Action<IOpenTelemetryBuilder> builderConfiguration;
+        private OpenTelemetrySdk openTelemetrySdk;
+        private ActivitySource defaultActivitySource;
 
         /// <summary>
         /// Static Constructor which sets ActivityID Format to W3C if Format not enforced.
@@ -68,8 +64,26 @@
         /// Initializes a new instance of the TelemetryConfiguration class.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public TelemetryConfiguration()
+        public TelemetryConfiguration() : this(skipDefaultBuilderConfiguration: false)
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the TelemetryConfiguration class.
+        /// </summary>
+        /// <param name="skipDefaultBuilderConfiguration">If true, skips setting default builder configuration (used in DI scenarios).</param>
+        internal TelemetryConfiguration(bool skipDefaultBuilderConfiguration)
+        {
+            this.skipDefaultBuilderConfiguration = skipDefaultBuilderConfiguration;
+
+            // Create the default ActivitySource
+            this.defaultActivitySource = new ActivitySource(ApplicationInsightsActivitySourceName);
+
+            // Only set default configuration for non-DI scenarios
+            if (!skipDefaultBuilderConfiguration)
+            {
+                this.builderConfiguration = builder => builder.WithApplicationInsights();
+            }
         }
 
         /// <summary>
@@ -140,16 +154,7 @@
 
             set
             {
-                // Log the state of tracking 
-                if (value)
-                {
-                    CoreEventSource.Log.TrackingWasDisabled();
-                }
-                else
-                {
-                    CoreEventSource.Log.TrackingWasEnabled();
-                }
-
+                this.ThrowIfBuilt();
                 this.disableTelemetry = value;
             }
         }
@@ -159,14 +164,12 @@
         /// </summary>
         public string ConnectionString
         {
-            get
-            {
-                return this.connectionString;
-            }
+            get => this.connectionString;
 
             set
             {
-                this.connectionString = value ?? throw new ArgumentNullException(nameof(this.ConnectionString));
+                this.ThrowIfBuilt();
+                this.connectionString = value ?? throw new ArgumentNullException(nameof(value));
             }
         }
 
@@ -182,32 +185,21 @@
         [EditorBrowsable(EditorBrowsableState.Never)]
         public IList<string> ExperimentalFeatures { get; } = new List<string>(0);
 
-        internal TracerProvider TracerProvider
-        {
-            get
-            {
-                this.EnsureInitialized();
-                return this.tracerProvider;
-            }
-        }
+        /// <summary>
+        /// Gets the default ActivitySource used by TelemetryClient.
+        /// </summary>
+        internal ActivitySource ApplicationInsightsActivitySource => this.defaultActivitySource;
 
-        internal ActivitySource ActivitySource
-        {
-            get
-            {
-                this.EnsureInitialized();
-                return this.activitySource;
-            }
-        }
+        /// <summary>
+        /// Gets a value indicating whether this configuration has been built.
+        /// Once built, the configuration becomes read-only.
+        /// </summary>
+        internal bool IsBuilt => this.isBuilt;
 
-        internal ILoggerFactory LoggerFactory
-        {
-            get
-            {
-                this.EnsureInitialized();
-                return this.loggerFactory;
-            }
-        }
+        /// <summary>
+        /// Gets a value indicating whether this configuration was created for DI scenarios.
+        /// </summary>
+        internal bool IsForDependencyInjection => this.skipDefaultBuilderConfiguration;
 
         /// <summary>
         /// Creates a new <see cref="TelemetryConfiguration"/> instance loaded from the ApplicationInsights.config file.
@@ -216,8 +208,7 @@
         /// </summary>
         public static TelemetryConfiguration CreateDefault()
         {
-            var configuration = new TelemetryConfiguration();
-            return configuration;
+            return new TelemetryConfiguration();
         }
 
         /// <summary>
@@ -234,6 +225,33 @@
 
             var configuration = new TelemetryConfiguration();
             return configuration;
+        }
+
+        /// <summary>
+        /// Allows extending the OpenTelemetry builder configuration.
+        /// </summary>
+        /// <remarks>
+        /// Use this to extend the telemetry pipeline with custom sources, processors, or exporters.
+        /// This can only be called before the configuration is built.
+        /// </remarks>
+        /// <param name="configure">Action to configure the OpenTelemetry builder.</param>
+        /// <exception cref="InvalidOperationException">Thrown if the configuration has already been built.</exception>
+        public void ConfigureOpenTelemetryBuilder(Action<IOpenTelemetryBuilder> configure)
+        {
+            this.ThrowIfBuilt();
+
+            if (configure == null)
+            {
+                throw new ArgumentNullException(nameof(configure));
+            }
+
+            // Chain the configurations
+            var previousConfiguration = this.builderConfiguration;
+            this.builderConfiguration = builder =>
+            {
+                previousConfiguration(builder);
+                configure(builder);
+            };
         }
 
         /// <summary>
@@ -262,135 +280,79 @@
         {
         }
 
-        /*internal MetricManager GetMetricManager(bool createIfNotExists)
+        /// <summary>
+        /// Builds the OpenTelemetry SDK with the current configuration.
+        /// This is called internally by TelemetryClient and should not be called directly.
+        /// </summary>
+        internal OpenTelemetrySdk Build()
         {
-            MetricManager manager = this.metricManager;
-            if (manager == null && createIfNotExists)
+            if (this.isBuilt)
             {
-                var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(this);
-                MetricManager newManager = new MetricManager(pipelineAdapter);
-                MetricManager prevManager = Interlocked.CompareExchange(ref this.metricManager, newManager, null);
-
-                if (prevManager == null)
-                {
-                    manager = newManager;
-                }
-                else
-                {
-                    // We just created a new manager that we are not using. Stop is before discarding.
-                    Task fireAndForget = newManager.StopDefaultAggregationCycleAsync();
-                    manager = prevManager;
-                }
+                return this.openTelemetrySdk;
             }
 
-            return manager;
-        }*/
-
-        // <summary>
-        // This will check the ApplicationIdProvider and attempt to set the endpoint.
-        // This only supports our first party providers <see cref="ApplicationInsightsApplicationIdProvider"/> and <see cref="DictionaryApplicationIdProvider"/>.
-        // </summary>
-        /* private static void SetApplicationIdEndpoint(IApplicationIdProvider applicationIdProvider, string endpoint, bool force = false)
-        {
-            if (applicationIdProvider != null)
+            lock (this.lockObject)
             {
-                if (applicationIdProvider is ApplicationInsightsApplicationIdProvider applicationInsightsApplicationIdProvider)
+                if (this.isBuilt)
                 {
-                    if (force || applicationInsightsApplicationIdProvider.ProfileQueryEndpoint == null)
-                    {
-                        applicationInsightsApplicationIdProvider.ProfileQueryEndpoint = endpoint;
-                    }
+                    return this.openTelemetrySdk;
                 }
-                else if (applicationIdProvider is DictionaryApplicationIdProvider dictionaryApplicationIdProvider)
+
+                this.openTelemetrySdk = OpenTelemetrySdk.Create(builder =>
                 {
-                    if (dictionaryApplicationIdProvider.Next is ApplicationInsightsApplicationIdProvider innerApplicationIdProvider)
+                    this.builderConfiguration(builder);
+                    builder.SetAzureMonitorExporter(options =>
                     {
-                        if (force || innerApplicationIdProvider.ProfileQueryEndpoint == null)
+                        options.ConnectionString = this.connectionString;
+                    });
+                });
+
+                this.isBuilt = true;
+
+                this.StartHostedServices();
+
+                return this.openTelemetrySdk;
+            }
+        }
+
+        private void StartHostedServices()
+        {
+            try
+            {
+                // Use reflection to access the internal Services property
+                var servicesProperty = typeof(OpenTelemetrySdk).GetProperty(
+                    "Services",
+                    BindingFlags.NonPublic | BindingFlags.Instance);
+
+                if (servicesProperty != null)
+                {
+                    var serviceProvider = servicesProperty.GetValue(this.openTelemetrySdk) as IServiceProvider;
+
+                    if (serviceProvider != null)
+                    {
+                        var hostedServices = serviceProvider.GetServices<IHostedService>();
+                        foreach (var hostedService in hostedServices)
                         {
-                            innerApplicationIdProvider.ProfileQueryEndpoint = endpoint;
+                            hostedService.StartAsync(CancellationToken.None).GetAwaiter().GetResult();
                         }
                     }
                 }
             }
-        }*/
-
-        // <summary>
-        // This will check the TelemetryChannel and attempt to set the endpoint.
-        // This only supports our first party providers InMemoryChannel and ServerTelemetryChannel.
-        // </summary>
-        /* private static void SetTelemetryChannelEndpoint(ITelemetryChannel channel, string endpoint, bool force = false)
-        {
-            if (channel != null)
+            catch (Exception ex)
             {
-                if (channel is InMemoryChannel || channel.GetType().FullName == "Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel")
-                {
-                    if (force || channel.EndpointAddress == null)
-                    {
-                        channel.EndpointAddress = endpoint;
-                    }
-                }
-            }
-        }*/
-
-        /*private static void SetTelemetryChannelCredentialEnvelope(ITelemetryChannel telemetryChannel, CredentialEnvelope credentialEnvelope)
-        {
-            if (telemetryChannel is ISupportCredentialEnvelope tc)
-            {
-                tc.CredentialEnvelope = credentialEnvelope;
+                // TODO: Log to event source, instead of Debug.
+                Debug.WriteLine($"Failed to start hosted services: {ex}");
             }
         }
 
-        private void SetTelemetryChannelCredentialEnvelope()
+        private void ThrowIfBuilt()
         {
-            foreach (var tSink in this.TelemetrySinks)
+            if (this.isBuilt)
             {
-                SetTelemetryChannelCredentialEnvelope(tSink.TelemetryChannel, this.CredentialEnvelope);
+                throw new InvalidOperationException(
+                    "Configuration cannot be modified after it has been built. " +
+                    "Create a new TelemetryConfiguration instance if you need different settings.");
             }
-        }*/
-
-        /*private void SetTelemetryChannelEndpoint(string ingestionEndpoint)
-        {
-            foreach (var tSink in this.TelemetrySinks)
-            {
-                SetTelemetryChannelEndpoint(tSink.TelemetryChannel, ingestionEndpoint, force: true);
-            }
-        }*/
-
-        private void EnsureInitialized()
-        {
-            if (this.isInitialized)
-            {
-                return;
-            }
-
-            lock (this.initLock)
-            {
-                if (this.isInitialized)
-                {
-                    return;
-                }
-
-                this.InitializeOpenTelemetry();
-                this.isInitialized = true;
-            }
-        }
-
-        private void InitializeOpenTelemetry()
-        {
-            // Create ActivitySource and Meter for this configuration
-            this.activitySource = new ActivitySource("Microsoft.ApplicationInsights", "3.0.0");
-            this.tracerProvider = Sdk.CreateTracerProviderBuilder()
-                                 .AddSource(this.activitySource.Name)
-                                 .AddAzureMonitorTraceExporter(o => o.ConnectionString = this.connectionString)
-                                 .Build();
-            this.loggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
-            {
-                builder.AddOpenTelemetry(options =>
-                {
-                    options.AddAzureMonitorLogExporter(o => o.ConnectionString = this.connectionString);
-                    options.IncludeScopes = true;
-                });
-            });
         }
 
         /// <summary>
@@ -401,8 +363,18 @@
         {
             if (!this.isDisposed && disposing)
             {
+                // Dispose OpenTelemetry SDK - this will dispose:
+                // - ServiceProvider
+                // - LoggerProvider
+                // - MeterProvider  
+                // - TracerProvider
+                // - All registered processors, exporters, etc.
+                this.openTelemetrySdk?.Dispose();
+
+                // Dispose the ActivitySource
+                this.defaultActivitySource?.Dispose();
+
                 this.isDisposed = true;
-                this.loggerFactory.Dispose();
                 Interlocked.CompareExchange(ref active, null, this);
 
                 // I think we should be flushing this.telemetrySinks.DefaultSink.TelemetryChannel at this point.

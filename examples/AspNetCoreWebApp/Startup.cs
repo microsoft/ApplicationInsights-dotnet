@@ -30,23 +30,18 @@ namespace AspNetCoreWebApp
         {
             services.AddControllersWithViews();
 
-            // Add custom TelemetryInitializer
-            services.AddSingleton<ITelemetryInitializer, MyCustomTelemetryInitializer>();
-
-            // Add custom TelemetryProcessor
-            services.AddApplicationInsightsTelemetryProcessor<MyCustomTelemetryProcessor>();
-
             // Use this for any other configurations not covered by extension methods.
-            services.Configure<TelemetryConfiguration>(config =>
+            /*services.Configure<TelemetryConfiguration>(config =>
             {
                 
-            });
+            });*/
 
             // Add and initialize the Application Insights SDK.
-            services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
+            services.AddApplicationInsightsTelemetry();
+            /*services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
             {
                 ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000"
-            });
+            });*/
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -75,32 +70,6 @@ namespace AspNetCoreWebApp
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
-        }
-
-        internal class MyCustomTelemetryInitializer : ITelemetryInitializer
-        {
-            public void Initialize(ITelemetry telemetry)
-            {
-                // Replace with actual properties.
-                (telemetry as ISupportProperties).Properties["MyCustomKey"] = "MyCustomValue";
-            }
-        }
-
-        internal class MyCustomTelemetryProcessor : ITelemetryProcessor
-        {
-            ITelemetryProcessor next;
-
-            public MyCustomTelemetryProcessor(ITelemetryProcessor next)
-            {
-                this.next = next;
-            }
-
-            public void Process(ITelemetry item)
-            {
-                // Example processor - not filtering out anything.
-                // This should be replaced with actual logic.
-                this.next.Process(item);
-            }
         }
     }
 }

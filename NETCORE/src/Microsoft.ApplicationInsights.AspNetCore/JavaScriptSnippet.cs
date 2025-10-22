@@ -44,7 +44,7 @@
         public JavaScriptSnippet(
             TelemetryConfiguration telemetryConfiguration,
             IOptions<ApplicationInsightsServiceOptions> serviceOptions,
-            IHttpContextAccessor httpContextAccessor,
+            IHttpContextAccessor httpContextAccessor = null,
             JavaScriptEncoder encoder = null)
         {
             if (serviceOptions == null)
@@ -91,10 +91,6 @@
                 if (!string.IsNullOrEmpty(this.telemetryConfiguration.ConnectionString))
                 {
                     insertConfig = string.Format(CultureInfo.InvariantCulture, "connectionString: '{0}'", this.telemetryConfiguration.ConnectionString);
-                }
-                else if (!string.IsNullOrEmpty(this.telemetryConfiguration.InstrumentationKey))
-                {
-                    insertConfig = string.Format(CultureInfo.InvariantCulture, "instrumentationKey: '{0}'", this.telemetryConfiguration.InstrumentationKey);
                 }
                 else
                 {
