@@ -15,7 +15,7 @@
     /// Encapsulates the global telemetry configuration typically loaded from the ApplicationInsights.config file.
     /// </summary>
     /// <remarks>
-    /// All <see cref="TelemetryContext"/> objects are initialized using the <see cref="Active"/> 
+    /// All <see cref="TelemetryContext"/> objects are initialized using the Active/> 
     /// telemetry configuration provided by this class.
     /// </remarks>
     public sealed class TelemetryConfiguration : IDisposable
@@ -23,9 +23,8 @@
         // internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
 
         internal const string ApplicationInsightsActivitySourceName = "Microsoft.ApplicationInsights";
-        
-        private static object syncRoot = new object();
-        private static TelemetryConfiguration active;
+        private static readonly Lazy<TelemetryConfiguration> DefaultInstance =
+                                                        new Lazy<TelemetryConfiguration>(() => new TelemetryConfiguration(), LazyThreadSafetyMode.ExecutionAndPublication);
 
         private readonly object lockObject = new object();
         private readonly bool skipDefaultBuilderConfiguration;
@@ -39,26 +38,6 @@
         private Action<IOpenTelemetryBuilder> builderConfiguration;
         private OpenTelemetrySdk openTelemetrySdk;
         private ActivitySource defaultActivitySource;
-
-        /// <summary>
-        /// Static Constructor which sets ActivityID Format to W3C if Format not enforced.
-        /// This ensures SDK operates in W3C mode, unless turned off explicitily with the following 2 lines
-        /// in user code in application startup.
-        /// Activity.DefaultIdFormat = ActivityIdFormat.Hierarchical
-        /// Activity.ForceDefaultIdFormat = true.
-        /// </summary>
-        static TelemetryConfiguration()
-        {
-            /*ActivityExtensions.TryRun(() =>
-            {
-                if (!Activity.ForceDefaultIdFormat)
-                {
-                    Activity.DefaultIdFormat = ActivityIdFormat.W3C;
-                    Activity.ForceDefaultIdFormat = true;
-                }
-            });
-            SelfDiagnosticsInitializer.EnsureInitialized();*/
-        }
 
         /// <summary>
         /// Initializes a new instance of the TelemetryConfiguration class.
@@ -83,41 +62,6 @@
             if (!skipDefaultBuilderConfiguration)
             {
                 this.builderConfiguration = builder => builder.WithApplicationInsights();
-            }
-        }
-
-        /// <summary>
-        /// Gets the active <see cref="TelemetryConfiguration"/> instance loaded from the ApplicationInsights.config file. 
-        /// If the configuration file does not exist, the active configuration instance is initialized with minimum defaults 
-        /// needed to send telemetry to Application Insights.
-        /// </summary>
-#if NETSTANDARD // This constant is defined for all versions of NetStandard https://docs.microsoft.com/en-us/dotnet/core/tutorials/libraries#how-to-multitarget
-        [Obsolete("We do not recommend using TelemetryConfiguration.Active on .NET Core. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/1152 for more details")]
-#endif
-        public static TelemetryConfiguration Active
-        {
-            get
-            {
-                if (active == null)
-                {
-                    lock (syncRoot)
-                    {
-                        if (active == null)
-                        {
-                            active = new TelemetryConfiguration();
-                        }
-                    }
-                }
-
-                return active;
-            }
-
-            internal set
-            {
-                lock (syncRoot)
-                {
-                    active = value;
-                }
             }
         }
 
@@ -208,7 +152,7 @@
         /// </summary>
         public static TelemetryConfiguration CreateDefault()
         {
-            return new TelemetryConfiguration();
+            return DefaultInstance.Value;
         }
 
         /// <summary>
@@ -375,7 +319,6 @@
                 this.defaultActivitySource?.Dispose();
 
                 this.isDisposed = true;
-                Interlocked.CompareExchange(ref active, null, this);
 
                 // I think we should be flushing this.telemetrySinks.DefaultSink.TelemetryChannel at this point.
                 // Filed https://github.com/Microsoft/ApplicationInsights-dotnet/issues/823 to track.
