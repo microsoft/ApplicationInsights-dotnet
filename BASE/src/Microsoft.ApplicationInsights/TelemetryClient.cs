@@ -137,19 +137,17 @@
         /// <param name="metrics">Measurements associated with this event.</param>
         public void TrackEvent(string eventName, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
         {
-            var telemetry = new EventTelemetry(eventName);
-
-            if (properties != null && properties.Count > 0)
+            Dictionary<string, string> allProperties = new Dictionary<string, string>();
+            allProperties.Add("microsoft.custom.event_name", eventName);
+            if (properties != null)
             {
-                Utils.CopyDictionary(properties, telemetry.Properties);
+                Utils.CopyDictionary(properties, allProperties);
             }
 
-            if (metrics != null && metrics.Count > 0)
+            if (metrics != null)
             {
-                Utils.CopyDictionary(metrics, telemetry.Metrics);
+                Utils.ConvertDoubleDictionaryToString(metrics, allProperties);
             }
-
-            this.TrackEvent(telemetry);
         }
 
         /// <summary>
