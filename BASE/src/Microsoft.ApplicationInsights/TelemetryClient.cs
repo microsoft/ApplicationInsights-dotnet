@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Diagnostics;
@@ -178,7 +179,7 @@
         /// <param name="message">Message to display.</param>
         public void TrackTrace(string message)
         {
-            this.LogBasedOnSeverity(message, SeverityLevel.Information);
+            this.Logger.Log(LogLevel.Information, message);
         }
 
         /// <summary>
@@ -191,7 +192,8 @@
         /// <param name="severityLevel">Trace severity level.</param>
         public void TrackTrace(string message, SeverityLevel severityLevel)
         {
-            this.LogBasedOnSeverity(message, severityLevel);
+            LogLevel logLevel = GetLogLevel(severityLevel);
+            this.Logger.Log(logLevel, message);
         }
 
         /// <summary>
@@ -204,17 +206,8 @@
         /// <param name="properties">Named string values you can use to search and classify events.</param>
         public void TrackTrace(string message, IDictionary<string, string> properties)
         {
-            if (properties != null && properties.Count > 0)
-            {
-                using (this.Logger.BeginScope(properties))
-                {
-                    this.Logger.LogInformation(message);
-                }
-            }
-            else
-            {
-                this.Logger.LogInformation(message);
-            }
+            var state = new DictionaryLogState(properties, message);
+            this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
  
         /// <summary>
@@ -228,17 +221,9 @@
         /// <param name="properties">Named string values you can use to search and classify events.</param>
         public void TrackTrace(string message, SeverityLevel severityLevel, IDictionary<string, string> properties)
         {
-            if (properties != null && properties.Count > 0)
-            {
-                using (this.Logger.BeginScope(properties))
-                {
-                    this.LogBasedOnSeverity(message, severityLevel);
-                }
-            }
-            else
-            {
-                this.LogBasedOnSeverity(message, severityLevel);
-            }
+            LogLevel logLevel = GetLogLevel(severityLevel);
+            var state = new DictionaryLogState(properties, message);
+            this.Logger.Log(logLevel, 0, state, null, (s, ex) => s.Message);
         }
 
         /// <summary>
@@ -266,11 +251,20 @@
                 telemetry.SeverityLevel = SeverityLevel.Information;
             }
 
-            String clientIP = telemetry.Context?.Location?.Ip;
+            // TODO: LocationContext & UserContext are currently internal, so customer can't set them.
+            // Need to determine if its ok to set these to public again, just for properties below.
+
+            /*String clientIP = telemetry.Context?.Location?.Ip;
             if (clientIP != null)
             {
                 telemetry.Properties["microsoft.client.ip"] = clientIP;
             }
+
+            String userId = telemetry.Context?.User?.Id;
+            if (userId != null)
+            {
+                telemetry.Properties["enduser.pseudo.id"] = userId;
+            }*/
 
             this.TrackTrace(telemetry.Message, telemetry.SeverityLevel.Value, telemetry.Properties);
         }
@@ -878,29 +872,52 @@
             this.Track(telemetry);
         }
 
-        private void LogBasedOnSeverity(string message, SeverityLevel severityLevel) 
+        private static LogLevel GetLogLevel(SeverityLevel severityLevel)
         {
-            switch (severityLevel)
+            return severityLevel switch
             {
-                case SeverityLevel.Critical:
-                    this.Logger.LogCritical(message);
-                    break;
-                case SeverityLevel.Error:
-                    this.Logger.LogError(message);
-                    break;
-                case SeverityLevel.Warning:
-                    this.Logger.LogWarning(message);
-                    break;
-                case SeverityLevel.Information:
-                    this.Logger.LogInformation(message);
-                    break;
-                case SeverityLevel.Verbose:
-                    this.Logger.LogDebug(message);
-                    break;
-                default:
-                    this.Logger.LogInformation(message);
-                    break;
+                SeverityLevel.Verbose => LogLevel.Debug,
+                SeverityLevel.Information => LogLevel.Information,
+                SeverityLevel.Warning => LogLevel.Warning,
+                SeverityLevel.Error => LogLevel.Error,
+                SeverityLevel.Critical => LogLevel.Critical,
+                _ => LogLevel.None
+            };
+        }
+
+        private readonly struct DictionaryLogState : IReadOnlyList<KeyValuePair<string, object>>
+        {
+            public readonly string Message;
+            private readonly IReadOnlyList<KeyValuePair<string, object>> items;
+
+            public DictionaryLogState(IDictionary<string, string> properties, string message)
+            {
+                this.Message = message ?? string.Empty;
+
+                if (properties == null || properties.Count == 0)
+                {
+                    this.items = new[] { new KeyValuePair<string, object>("{OriginalFormat}", message ?? string.Empty) };
+                }
+                else
+                {
+                    var list = new List<KeyValuePair<string, object>>(properties.Count + 1);
+                    foreach (var kvp in properties)
+                    {
+                        list.Add(new KeyValuePair<string, object>(kvp.Key, kvp.Value));
+                    }
+
+                    list.Add(new KeyValuePair<string, object>("{OriginalFormat}", message ?? string.Empty));
+                    this.items = list;
+                }
             }
+
+            public int Count => this.items.Count;
+
+            public KeyValuePair<string, object> this[int index] => this.items[index];
+
+            public IEnumerator<KeyValuePair<string, object>> GetEnumerator() => this.items.GetEnumerator();
+
+            IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
         }
     }
 }

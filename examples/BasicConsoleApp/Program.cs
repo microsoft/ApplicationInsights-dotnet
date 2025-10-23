@@ -15,7 +15,7 @@
         {
             var telemetryConfig = new TelemetryConfiguration
             {
-                ConnectionString = "InstrumentationKey=Ikey",
+                ConnectionString = "",
             };
 
             // Add custom TelemetryInitializer.
@@ -34,16 +34,16 @@
 
             // **The following lines are examples of tracking different telemetry types.**
 
-            /*telemetryClient.TrackEvent("SampleEvent");
+            //telemetryClient.TrackEvent("SampleEvent");
             telemetryClient.TrackEvent(new EventTelemetry("SampleEventObject"));
 
             telemetryClient.TrackTrace("A trace message");
             telemetryClient.TrackTrace("A warning", SeverityLevel.Warning);
             telemetryClient.TrackTrace("A trace with properties", new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
             telemetryClient.TrackTrace("A trace with severity and properties", SeverityLevel.Error, new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
-            telemetryClient.TrackTrace(new TraceTelemetry("TraceTelemetry object", SeverityLevel.Information));
+            telemetryClient.TrackTrace(new TraceTelemetry("TraceTelemetry object", SeverityLevel.Information));        
 
-            telemetryClient.TrackMetric("SampleMetric", 42.0);
+            /*telemetryClient.TrackMetric("SampleMetric", 42.0);
             telemetryClient.TrackMetric(new MetricTelemetry("SampleMetricObject", 42.0));
 
             telemetryClient.TrackException(new InvalidOperationException("Something went wrong"));*/
