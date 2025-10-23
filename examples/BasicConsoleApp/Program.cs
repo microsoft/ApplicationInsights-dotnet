@@ -15,7 +15,7 @@
         {
             var telemetryConfig = new TelemetryConfiguration
             {
-                ConnectionString = "InstrumentationKey=cfd11a0c-b911-4de5-885d-659e2317e020;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/;LiveEndpoint=https://westus2.livediagnostics.monitor.azure.com/;ApplicationId=50c16cf6-ec05-41ce-a7e7-c377548d53ef",
+                ConnectionString = "",
             };
 
             // Add custom TelemetryInitializer.
