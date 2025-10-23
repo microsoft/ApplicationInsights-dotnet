@@ -892,7 +892,7 @@
 
             public DictionaryLogState(IDictionary<string, string> properties, string message)
             {
-                this.properties = properties;
+                this.properties = properties ?? new Dictionary<string, string>();
                 this.Message = message;
             }
 
