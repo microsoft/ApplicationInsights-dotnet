@@ -312,29 +312,17 @@
         /// </summary>
         /// <param name="exception">The exception to log.</param>
         /// <param name="properties">Named string values you can use to classify and search for this exception.</param>
-        /// <param name="metrics">Additional values associated with this exception.</param>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackexception">Learn more</a>
         /// </remarks>
-        public void TrackException(Exception exception, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
+        public void TrackException(Exception exception, IDictionary<string, string> properties = null)
         {
             if (exception == null)
             {
                 exception = new Exception(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
             }
 
-            IDictionary<string, string> allProperties = new Dictionary<string, string>();
-            if (properties != null)
-            {
-                Utils.CopyDictionary(properties, allProperties);
-            }
-
-            if (metrics != null)
-            {
-                Utils.ConvertDoubleDictionaryToString(metrics, allProperties);
-            }
-
-            var state = new DictionaryLogState(allProperties, exception.Message);
+            var state = new DictionaryLogState(properties, exception.Message);
             this.Logger.Log(LogLevel.Error, 0, state, exception, (s, ex) => s.Message);
         }
 
@@ -353,19 +341,7 @@
                 telemetry = new ExceptionTelemetry(exception);
             }
 
-            var attributes = new Dictionary<string, string>();
-
-            if (telemetry.Properties != null)
-            {
-                Utils.CopyDictionary(telemetry.Properties, attributes);
-            }
-
-            if (telemetry.Metrics != null)
-            {
-                Utils.ConvertDoubleDictionaryToString(telemetry.Metrics, attributes);
-            }
-
-            var state = new DictionaryLogState(attributes, telemetry.Exception.Message);
+            var state = new DictionaryLogState(telemetry.Properties, telemetry.Exception.Message);
             var logLevel = GetLogLevel(telemetry.SeverityLevel ?? SeverityLevel.Error);
             this.Logger.Log(logLevel, 0, state, telemetry.Exception, (s, ex) => s.Message);
         }

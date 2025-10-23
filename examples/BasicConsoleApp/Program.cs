@@ -15,7 +15,7 @@
         {
             var telemetryConfig = new TelemetryConfiguration
             {
-                ConnectionString = "",
+                ConnectionString = "InstrumentationKey=cfd11a0c-b911-4de5-885d-659e2317e020;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/;LiveEndpoint=https://westus2.livediagnostics.monitor.azure.com/;ApplicationId=50c16cf6-ec05-41ce-a7e7-c377548d53ef",
             };
 
             // Add custom TelemetryInitializer.
@@ -46,7 +46,7 @@
             /*telemetryClient.TrackMetric("SampleMetric", 42.0);
             telemetryClient.TrackMetric(new MetricTelemetry("SampleMetricObject", 42.0));*/
 
-            telemetryClient.TrackException(new InvalidOperationException("Something went wrong"));
+            telemetryClient.TrackException(new InvalidOperationException("Something went wrong"), new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } } );
             telemetryClient.TrackException(new ExceptionTelemetry(new InvalidOperationException("ExceptionTelemetry object")));
 
             // telemetryClient.TrackTrace("A trace with properties", new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
