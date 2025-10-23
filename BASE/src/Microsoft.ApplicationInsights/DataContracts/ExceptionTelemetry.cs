@@ -34,9 +34,10 @@
         /// </summary>
         public ExceptionTelemetry()
         {
+            // keeping this.Data init so that getters don't throw an exception when this.Data is null.
             this.Data = new ExceptionInfo(new List<ExceptionDetailsInfo>(), null, null,
-                new Dictionary<string, string>(), new Dictionary<string, double>());
-            this.context = new TelemetryContext(new Dictionary<string, string>());
+                 new Dictionary<string, string>(), new Dictionary<string, double>());
+            this.context = new TelemetryContext();
         }
 
         /// <summary>
