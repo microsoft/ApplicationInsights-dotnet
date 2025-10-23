@@ -28,6 +28,22 @@
             }
         }
 
+        public static void ConvertDoubleDictionaryToString(IDictionary<string, double> source, IDictionary<string, string> target)
+        {
+            foreach (KeyValuePair<string, double> pair in source)
+            {
+                if (string.IsNullOrEmpty(pair.Key))
+                {
+                    continue;
+                }
+
+                if (!target.ContainsKey(pair.Key))
+                {
+                    target[pair.Key] = pair.Value.ToString("F3", CultureInfo.InvariantCulture);
+                }
+            }
+        }
+
         /// <summary>
         /// Validates the string and if null or empty populates it with '$parameterName is a required field for $telemetryType' value.
         /// </summary>

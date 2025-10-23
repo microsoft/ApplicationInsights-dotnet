@@ -323,19 +323,19 @@
                 exception = new Exception(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
             }
 
-            var telemetry = new ExceptionTelemetry(exception);
-
-            if (properties != null && properties.Count > 0)
+            IDictionary<string, string> allProperties = new Dictionary<string, string>();
+            if (properties != null)
             {
-                // Utils.CopyDictionary(properties, telemetry.Properties);
+                Utils.CopyDictionary(properties, allProperties);
             }
 
-            if (metrics != null && metrics.Count > 0)
+            if (metrics != null)
             {
-                Utils.CopyDictionary(metrics, telemetry.Metrics);
+                Utils.ConvertDoubleDictionaryToString(metrics, allProperties);
             }
 
-            this.TrackException(telemetry);
+            var state = new DictionaryLogState(allProperties, exception.Message);
+            this.Logger.Log(LogLevel.Error, 0, state, exception, (s, ex) => s.Message);
         }
 
         /// <summary>
@@ -353,7 +353,21 @@
                 telemetry = new ExceptionTelemetry(exception);
             }
 
-            this.Track(telemetry);
+            var attributes = new Dictionary<string, string>();
+
+            if (telemetry.Properties != null)
+            {
+                Utils.CopyDictionary(telemetry.Properties, attributes);
+            }
+
+            if (telemetry.Metrics != null)
+            {
+                Utils.ConvertDoubleDictionaryToString(telemetry.Metrics, attributes);
+            }
+
+            var state = new DictionaryLogState(attributes, telemetry.Exception.Message);
+            var logLevel = GetLogLevel(telemetry.SeverityLevel ?? SeverityLevel.Error);
+            this.Logger.Log(logLevel, 0, state, telemetry.Exception, (s, ex) => s.Message);
         }
 
         /// <summary>

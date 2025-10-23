@@ -44,9 +44,10 @@
             telemetryClient.TrackTrace(new TraceTelemetry("TraceTelemetry object", SeverityLevel.Information));        
 
             /*telemetryClient.TrackMetric("SampleMetric", 42.0);
-            telemetryClient.TrackMetric(new MetricTelemetry("SampleMetricObject", 42.0));
+            telemetryClient.TrackMetric(new MetricTelemetry("SampleMetricObject", 42.0));*/
 
-            telemetryClient.TrackException(new InvalidOperationException("Something went wrong"));*/
+            telemetryClient.TrackException(new InvalidOperationException("Something went wrong"));
+            telemetryClient.TrackException(new ExceptionTelemetry(new InvalidOperationException("ExceptionTelemetry object")));
 
             // telemetryClient.TrackTrace("A trace with properties", new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
             telemetryClient.TrackTrace("A trace with severity and properties", SeverityLevel.Error, new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
