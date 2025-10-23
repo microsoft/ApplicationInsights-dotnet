@@ -888,52 +888,34 @@
         private readonly struct DictionaryLogState : IReadOnlyList<KeyValuePair<string, object>>
         {
             public readonly string Message;
-            private readonly IDictionary<string, string> properties;
+            private readonly IReadOnlyList<KeyValuePair<string, object>> items;
 
             public DictionaryLogState(IDictionary<string, string> properties, string message)
             {
-                this.properties = properties ?? new Dictionary<string, string>();
-                this.Message = message;
-            }
+                this.Message = message ?? string.Empty;
 
-            public int Count => this.properties.Count + 1;
-
-            public KeyValuePair<string, object> this[int index]
-            {
-                get
+                if (properties == null || properties.Count == 0)
                 {
-                    if (index < this.properties.Count)
+                    this.items = new[] { new KeyValuePair<string, object>("{OriginalFormat}", message ?? string.Empty) };
+                }
+                else
+                {
+                    var list = new List<KeyValuePair<string, object>>(properties.Count + 1);
+                    foreach (var kvp in properties)
                     {
-                        int i = 0;
-                        foreach (var kvp in this.properties)
-                        {
-                            if (i == index)
-                            {
-                                return new KeyValuePair<string, object>(kvp.Key, kvp.Value);
-                            }
-
-                            i++;
-                        }
+                        list.Add(new KeyValuePair<string, object>(kvp.Key, kvp.Value));
                     }
 
-                    if (index == this.properties.Count)
-                    {
-                        return new KeyValuePair<string, object>("{OriginalFormat}", this.Message);
-                    }
-
-                    throw new ArgumentOutOfRangeException(nameof(index));
+                    list.Add(new KeyValuePair<string, object>("{OriginalFormat}", message ?? string.Empty));
+                    this.items = list;
                 }
             }
 
-            public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
-            {
-                foreach (var kvp in this.properties)
-                {
-                    yield return new KeyValuePair<string, object>(kvp.Key, kvp.Value);
-                }
+            public int Count => this.items.Count;
 
-                yield return new KeyValuePair<string, object>("{OriginalFormat}", this.Message);
-            }
+            public KeyValuePair<string, object> this[int index] => this.items[index];
+
+            public IEnumerator<KeyValuePair<string, object>> GetEnumerator() => this.items.GetEnumerator();
 
             IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
         }
