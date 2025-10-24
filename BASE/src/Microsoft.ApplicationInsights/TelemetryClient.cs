@@ -134,20 +134,21 @@
         /// </remarks>
         /// <param name="eventName">A name for the event.</param>
         /// <param name="properties">Named string values you can use to search and classify events.</param>
-        /// <param name="metrics">Measurements associated with this event.</param>
-        public void TrackEvent(string eventName, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
+        public void TrackEvent(string eventName, IDictionary<string, string> properties = null)
         {
-            Dictionary<string, string> allProperties = new Dictionary<string, string>();
-            allProperties.Add("microsoft.custom.event_name", eventName);
-            if (properties != null)
+            if (string.IsNullOrEmpty(eventName))
             {
-                Utils.CopyDictionary(properties, allProperties);
+                eventName = "CustomEventDefaultName";   
             }
 
-            if (metrics != null)
+            if (properties == null)
             {
-                Utils.ConvertDoubleDictionaryToString(metrics, allProperties);
+                properties = new Dictionary<string, string>();
             }
+
+            properties.Add("microsoft.custom_event.name", eventName);
+            var state = new DictionaryLogState(properties, String.Empty);
+            this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
         /// <summary>
@@ -165,7 +166,7 @@
                 telemetry = new EventTelemetry();
             }
 
-            this.Track(telemetry);
+            this.TrackEvent(telemetry.Name, telemetry.Properties);
         }
 
         /// <summary>
