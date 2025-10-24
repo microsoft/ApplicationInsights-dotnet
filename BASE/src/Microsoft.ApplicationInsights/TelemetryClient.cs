@@ -138,7 +138,7 @@
         {
             if (string.IsNullOrEmpty(eventName))
             {
-                eventName = "CustomEventDefaultName";   
+                // TODO: log to event source   
             }
 
             if (properties == null)
@@ -163,7 +163,8 @@
         {
             if (telemetry == null)
             {
-                telemetry = new EventTelemetry();
+                // TODO: log to event source
+                return;
             }
 
             this.TrackEvent(telemetry.Name, telemetry.Properties);
