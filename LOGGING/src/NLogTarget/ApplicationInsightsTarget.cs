@@ -31,7 +31,6 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         private TelemetryConfiguration telemetryConfiguration;
         private DateTime lastLogEventTime;
         private NLog.Layouts.Layout connectionStringLayout = string.Empty;
-        private bool initializationFailed;
 
         /// <summary>
         /// Initializers a new instance of ApplicationInsightsTarget type.
@@ -114,16 +113,14 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         protected override void InitializeTarget()
         {
             base.InitializeTarget();
-            this.telemetryConfiguration = new TelemetryConfiguration();
-            this.initializationFailed = false;
 
             string connectionString = this.connectionStringLayout.Render(LogEventInfo.CreateNullEvent());
             if (string.IsNullOrWhiteSpace(connectionString))
             {
-                this.initializationFailed = true;
-                return;
+                throw new NLogConfigurationException(ConnectionStringRequiredMessage);
             }
 
+            this.telemetryConfiguration = new TelemetryConfiguration();
             this.telemetryConfiguration.ConnectionString = connectionString;
             this.telemetryClient = new TelemetryClient(this.telemetryConfiguration);
 
@@ -140,7 +137,6 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             this.telemetryConfiguration?.Dispose();
             this.telemetryConfiguration = null;
             this.telemetryClient = null;
-            this.initializationFailed = false;
         }
 
         /// <summary>
@@ -170,9 +166,9 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                 throw new ArgumentNullException(nameof(logEvent));
             }
 
-            if (this.telemetryClient == null || this.initializationFailed)
+            if (this.telemetryClient == null)
             {
-                throw new NLogConfigurationException(ConnectionStringRequiredMessage);
+                throw new NLogRuntimeException(ConnectionStringRequiredMessage);
             }
 
             this.lastLogEventTime = DateTime.UtcNow;
@@ -200,25 +196,24 @@ namespace Microsoft.ApplicationInsights.NLogTarget
 
             try
             {
-                if (this.telemetryClient == null || this.initializationFailed)
+                if (this.telemetryClient == null)
                 {
-                    InternalLogger.Debug("ApplicationInsightsTarget.FlushAsync skipped - telemetry client not initialized.");
-                    asyncContinuation(null);
-                    return;
-                }
-
-                InternalLogger.Debug("ApplicationInsightsTarget.FlushAsync flushing telemetry client.");
-                this.TelemetryClient.Flush();
-                if (DateTime.UtcNow.AddSeconds(-30) > this.lastLogEventTime)
-                {
-                    // Nothing has been written, so nothing to wait for
                     asyncContinuation(null);
                 }
                 else
                 {
-                    // Documentation says it is important to wait after flush, else nothing will happen
-                    // https://docs.microsoft.com/azure/application-insights/app-insights-api-custom-events-metrics#flushing-data
-                    System.Threading.Tasks.Task.Delay(TimeSpan.FromMilliseconds(500)).ContinueWith((task) => asyncContinuation(null));
+                    this.TelemetryClient.Flush();
+                    if (DateTime.UtcNow.AddSeconds(-30) > this.lastLogEventTime)
+                    {
+                        // Nothing has been written, so nothing to wait for
+                        asyncContinuation(null);
+                    }
+                    else
+                    {
+                        // Documentation says it is important to wait after flush, else nothing will happen
+                        // https://docs.microsoft.com/azure/application-insights/app-insights-api-custom-events-metrics#flushing-data
+                        System.Threading.Tasks.Task.Delay(TimeSpan.FromMilliseconds(500)).ContinueWith((task) => asyncContinuation(null));
+                    }
                 }
             }
             catch (Exception ex)
