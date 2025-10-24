@@ -34,7 +34,7 @@
 
             // **The following lines are examples of tracking different telemetry types.**
 
-            //telemetryClient.TrackEvent("SampleEvent");
+            telemetryClient.TrackEvent("SampleEvent");
             telemetryClient.TrackEvent(new EventTelemetry("SampleEventObject"));
 
             telemetryClient.TrackTrace("A trace message");

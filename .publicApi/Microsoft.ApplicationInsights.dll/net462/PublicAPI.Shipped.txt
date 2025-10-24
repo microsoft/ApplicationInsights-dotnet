@@ -217,7 +217,7 @@ Microsoft.ApplicationInsights.TelemetryClient.TrackDependency(string dependencyN
 Microsoft.ApplicationInsights.TelemetryClient.TrackDependency(string dependencyTypeName, string dependencyName, string data, System.DateTimeOffset startTime, System.TimeSpan duration, bool success) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackDependency(string dependencyTypeName, string target, string dependencyName, string data, System.DateTimeOffset startTime, System.TimeSpan duration, string resultCode, bool success) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackEvent(Microsoft.ApplicationInsights.DataContracts.EventTelemetry telemetry) -> void
-Microsoft.ApplicationInsights.TelemetryClient.TrackEvent(string eventName, System.Collections.Generic.IDictionary<string, string> properties = null, System.Collections.Generic.IDictionary<string, double> metrics = null) -> void
+Microsoft.ApplicationInsights.TelemetryClient.TrackEvent(string eventName, System.Collections.Generic.IDictionary<string, string> properties = null) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackException(Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry telemetry) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackException(System.Exception exception, System.Collections.Generic.IDictionary<string, string> properties = null) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackMetric(Microsoft.ApplicationInsights.DataContracts.MetricTelemetry telemetry) -> void
