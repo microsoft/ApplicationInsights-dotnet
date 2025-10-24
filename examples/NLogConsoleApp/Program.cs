@@ -3,6 +3,9 @@
 Console.WriteLine("NLog Console App - Application Insights Example");
 Console.WriteLine("================================================\n");
 
+NLog.Common.InternalLogger.LogToConsole = true;
+NLog.Common.InternalLogger.LogLevel = NLog.LogLevel.Warn;
+
 // Get NLog logger - the ApplicationInsightsTarget will handle telemetry
 var logger = LogManager.GetCurrentClassLogger();
 
