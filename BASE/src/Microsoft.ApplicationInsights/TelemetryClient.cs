@@ -310,30 +310,18 @@
         /// </summary>
         /// <param name="exception">The exception to log.</param>
         /// <param name="properties">Named string values you can use to classify and search for this exception.</param>
-        /// <param name="metrics">Additional values associated with this exception.</param>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackexception">Learn more</a>
         /// </remarks>
-        public void TrackException(Exception exception, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
+        public void TrackException(Exception exception, IDictionary<string, string> properties = null)
         {
             if (exception == null)
             {
                 exception = new Exception(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
             }
 
-            var telemetry = new ExceptionTelemetry(exception);
-
-            if (properties != null && properties.Count > 0)
-            {
-                // Utils.CopyDictionary(properties, telemetry.Properties);
-            }
-
-            if (metrics != null && metrics.Count > 0)
-            {
-                Utils.CopyDictionary(metrics, telemetry.Metrics);
-            }
-
-            this.TrackException(telemetry);
+            var state = new DictionaryLogState(properties, exception.Message);
+            this.Logger.Log(LogLevel.Error, 0, state, exception, (s, ex) => s.Message);
         }
 
         /// <summary>
@@ -351,7 +339,9 @@
                 telemetry = new ExceptionTelemetry(exception);
             }
 
-            this.Track(telemetry);
+            var state = new DictionaryLogState(telemetry.Properties, telemetry.Exception.Message);
+            var logLevel = GetLogLevel(telemetry.SeverityLevel ?? SeverityLevel.Error);
+            this.Logger.Log(logLevel, 0, state, telemetry.Exception, (s, ex) => s.Message);
         }
 
         /// <summary>
