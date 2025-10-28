@@ -5,6 +5,8 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Diagnostics;
+    using System.Diagnostics.Metrics;
+    using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
@@ -29,6 +31,8 @@
         private readonly ActivitySource activitySource;
         private OpenTelemetrySdk sdk;
         private ILogger<TelemetryClient> logger;
+        private Meter meter = new Meter("ApplicationInsightsShimMeter", "1.0.0");
+        private Dictionary<string, Counter<double>> metricInstruments = new Dictionary<string, Counter<double>>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryClient" /> class. Send telemetry with the specified <paramref name="configuration"/>.
@@ -286,6 +290,37 @@
 #pragma warning restore CA1801 // Review unused parameters
 #pragma warning restore CA1822 // Mark members as static
         {
+            if (string.IsNullOrEmpty(name))
+            {
+                // log to event source
+                return;
+            }
+
+            if (!this.metricInstruments.TryGetValue(name, out Counter<double> counter))
+            {
+                counter = this.meter.CreateCounter<double>(name);
+                this.metricInstruments[name] = counter;
+            }
+
+            if (properties != null)
+            {
+                TagList tags = new TagList();
+                tags.
+                counter.Add(value, tags);
+            }
+            else 
+            {
+                counter.Add(value);
+            }   
+
+
+
+            // check if the provided name is in the counter list
+            // doublecounter instrument 
+            // add instrument name to the list
+            // increment counter with value
+            // properties need to converted to 
+            // IEnumerable<KeyValuePair<String, Object>>
         }
 
         /// <summary>
@@ -297,7 +332,7 @@
         /// you likely have a use case for event telemetry; see <see cref="TrackEvent(EventTelemetry)"/>.
         /// </summary>
         /// <param name="telemetry">The metric telemetry item.</param>        
-        public void TrackMetric(MetricTelemetry telemetry)
+        internal void TrackMetric(MetricTelemetry telemetry)
         {
             if (telemetry == null)
             {

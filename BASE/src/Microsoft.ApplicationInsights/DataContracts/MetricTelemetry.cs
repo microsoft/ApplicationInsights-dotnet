@@ -8,7 +8,7 @@
     /// Telemetry type used to track metrics. Represents a sample set of values with a specified count, sum, max, min, and standard deviation.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackmetric">Learn more</a>
     /// </summary>
-    public sealed class MetricTelemetry : ITelemetry
+    internal sealed class MetricTelemetry : ITelemetry
     {
         internal const string EtwEnvelopeName = "Metric";
         internal string EnvelopeName = "AppMetrics";
@@ -120,7 +120,7 @@
         /// <summary>
         /// Gets or sets the name of the metric.
         /// </summary>
-        public string MetricNamespace
+        public string MetricNamespace // meter name
         {
             get;
             set;
@@ -129,7 +129,7 @@
         /// <summary>
         /// Gets or sets the name of the metric.
         /// </summary>
-        public string Name
+        public string Name // instrument name
         {
             get;
             set;
