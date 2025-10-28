@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -260,7 +261,7 @@ namespace IntegrationTests.Tests
             return items;
         }
 
-        private static bool TryParseTelemetry(string rawJson, out AzureMonitorTelemetryEnvelope envelope)
+        private static bool TryParseTelemetry(string rawJson, [NotNullWhen(true)] out AzureMonitorTelemetryEnvelope? envelope)
         {
             envelope = null;
 
@@ -305,6 +306,7 @@ namespace IntegrationTests.Tests
                     return envelope != null;
 
                 default:
+                    envelope = null;
                     return false;
             }
         }
@@ -470,15 +472,15 @@ namespace IntegrationTests.Tests
         {
         }
 
-        protected override bool TryGetHeader(string name, out string? value)
+        protected override bool TryGetHeader(string name, out string value)
         {
-            value = null;
+            value = string.Empty;
             return false;
         }
 
-        protected override bool TryGetHeaderValues(string name, out IEnumerable<string>? values)
+        protected override bool TryGetHeaderValues(string name, out IEnumerable<string> values)
         {
-            values = null;
+            values = Array.Empty<string>();
             return false;
         }
 
