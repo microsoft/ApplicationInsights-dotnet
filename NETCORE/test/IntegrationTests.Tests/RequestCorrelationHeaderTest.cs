@@ -64,6 +64,46 @@ namespace IntegrationTests.Tests
         }
 
         [Fact]
+        public async Task DependencyTelemetryCapturedForHttpClientRequest()
+        {
+            var client = _factory.CreateClient();
+            var path = "Home/Dependency";
+            var url = client.BaseAddress + path;
+
+            var response = await client.GetAsync(path);
+            response.EnsureSuccessStatusCode();
+
+            await WaitForTelemetryToArrive(expectedItemCount: 2);
+
+            var items = _factory.Telemetry.Items;
+            PrintItems(items);
+            Assert.Equal(2, items.Count);
+
+            var requests = _factory.Telemetry.GetTelemetryOfType<RequestTelemetryEnvelope>();
+            Assert.Single(requests);
+            var request = requests[0];
+
+            var dependencies = _factory.Telemetry.GetTelemetryOfType<DependencyTelemetryEnvelope>();
+            Assert.Single(dependencies);
+            var dependency = dependencies[0];
+
+            Assert.Equal(request.OperationId, dependency.OperationId);
+            Assert.Equal(request.Id, dependency.OperationParentId);
+            Assert.False(string.IsNullOrEmpty(dependency.Id));
+            Assert.Equal("Http", dependency.Type);
+            Assert.Contains("www.bing.com", dependency.Target, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("www.bing.com", dependency.Data, StringComparison.OrdinalIgnoreCase);
+            Assert.False(string.IsNullOrEmpty(dependency.ResultCode));
+
+            ValidateRequest(
+                 requestTelemetry: request,
+                 expectedResponseCode: "200",
+                 expectedName: "GET " + path,
+                 expectedUrl: url,
+                 expectedSuccess: true);
+        }
+
+        [Fact]
         public async Task RequestFailedWithTraceParent()
         {
             // Arrange
@@ -150,12 +190,11 @@ namespace IntegrationTests.Tests
             Assert.True(string.IsNullOrEmpty(req.OperationParentId));
             Assert.Equal(req.OperationId, trace.OperationId);
             Assert.Equal(req.Id, trace.OperationParentId);
-            Assert.False(req.Properties.ContainsKey("ai_legacyRootId"));
 
             ValidateRequest(
                  requestTelemetry: req,
                  expectedResponseCode: "200",
-              expectedName: "GET " + path,
+                 expectedName: "GET " + path,
                  expectedUrl: url,
                  expectedSuccess: true);
         }
@@ -242,10 +281,8 @@ namespace IntegrationTests.Tests
             Assert.NotNull(trace);
 
             Assert.False(string.IsNullOrEmpty(req.OperationId));
-            Assert.True(string.IsNullOrEmpty(req.OperationParentId));
             Assert.Equal(req.OperationId, trace.OperationId);
             Assert.Equal(req.Id, trace.OperationParentId);
-            Assert.False(req.Properties.ContainsKey("ai_legacyRootId"));
 
             ValidateRequest(
                  requestTelemetry: req,

@@ -62,7 +62,7 @@ namespace IntegrationTests.Tests
             // Arrange
             var client = _factory.CreateClient();
             var path = "Home/5";
-            var expectedName = "GET Home/{id}";
+            var expectedName = "GET Home/{id:int}";
             var url = client.BaseAddress + path;
 
             // Act

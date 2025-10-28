@@ -195,6 +195,19 @@ namespace IntegrationTests.Tests
         IReadOnlyDictionary<string, string> Properties)
         : AzureMonitorTelemetryEnvelope("MessageData", Name, OperationId, OperationParentId, Properties);
 
+    internal sealed record DependencyTelemetryEnvelope(
+        string Name,
+        string OperationId,
+        string? OperationParentId,
+        string Id,
+        string Type,
+        string Target,
+        string Data,
+        string ResultCode,
+        bool Success,
+        IReadOnlyDictionary<string, string> Properties)
+        : AzureMonitorTelemetryEnvelope("RemoteDependencyData", Name, OperationId, OperationParentId, Properties);
+
     internal static class AzureMonitorPayloadParser
     {
         public static IReadOnlyList<AzureMonitorTelemetryEnvelope> Parse(Request request)
@@ -305,6 +318,10 @@ namespace IntegrationTests.Tests
                     envelope = ParseTraceTelemetry(baseData, name, operationId, operationParentId, properties);
                     return envelope != null;
 
+                case "RemoteDependencyData":
+                    envelope = ParseDependencyTelemetry(baseData, name, operationId, operationParentId, properties);
+                    return envelope != null;
+
                 default:
                     envelope = null;
                     return false;
@@ -394,6 +411,43 @@ namespace IntegrationTests.Tests
                 OperationParentId: operationParentId,
                 Message: messageElement.GetString() ?? string.Empty,
                 SeverityLevel: severity,
+                Properties: properties);
+        }
+
+        private static DependencyTelemetryEnvelope? ParseDependencyTelemetry(
+            JsonElement baseData,
+            string name,
+            string? operationId,
+            string? operationParentId,
+            IReadOnlyDictionary<string, string> properties)
+        {
+            if (!baseData.TryGetProperty("id", out var idElement) ||
+                !baseData.TryGetProperty("type", out var typeElement) ||
+                !baseData.TryGetProperty("target", out var targetElement) ||
+                !baseData.TryGetProperty("data", out var dataElement) ||
+                !baseData.TryGetProperty("resultCode", out var resultCodeElement) ||
+                !baseData.TryGetProperty("success", out var successElement))
+            {
+                return null;
+            }
+
+            var dependencyId = idElement.GetString() ?? string.Empty;
+            var dependencyType = typeElement.GetString() ?? string.Empty;
+            var target = targetElement.GetString() ?? string.Empty;
+            var data = dataElement.GetString() ?? string.Empty;
+            var resultCode = resultCodeElement.GetString() ?? string.Empty;
+            var success = successElement.GetBoolean();
+
+            return new DependencyTelemetryEnvelope(
+                Name: baseData.TryGetProperty("name", out var dependencyNameElement) ? dependencyNameElement.GetString() ?? name : name,
+                OperationId: operationId ?? string.Empty,
+                OperationParentId: operationParentId,
+                Id: dependencyId,
+                Type: dependencyType,
+                Target: target,
+                Data: data,
+                ResultCode: resultCode,
+                Success: success,
                 Properties: properties);
         }
 
