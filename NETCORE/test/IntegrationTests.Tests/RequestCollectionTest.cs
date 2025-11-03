@@ -1,8 +1,5 @@
 ﻿using IntegrationTests.WebApp;
-using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.DataContracts;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -22,7 +19,7 @@ namespace IntegrationTests.Tests
         {
             this.output = output;
             _factory = factory;
-            _factory.sentItems.Clear();
+            _factory.Telemetry.Clear();
         }
 
         [Fact]
@@ -41,13 +38,13 @@ namespace IntegrationTests.Tests
             // Assert
             response.EnsureSuccessStatusCode();
 
-            await WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive(expectedItemCount: 1);
 
-            var items = _factory.sentItems;
+          var items = _factory.Telemetry.Items;
             PrintItems(items);
             Assert.Equal(1, items.Count);
 
-            var reqs = GetTelemetryOfType<RequestTelemetry>(items);
+          var reqs = _factory.Telemetry.GetTelemetryOfType<RequestTelemetryEnvelope>();
             Assert.Single(reqs);
             var req = reqs[0];
             Assert.NotNull(req);
@@ -65,7 +62,7 @@ namespace IntegrationTests.Tests
             // Arrange
             var client = _factory.CreateClient();
             var path = "Home/5";
-            var expectedName = "GET Home/Get [id]";
+            var expectedName = "GET Home/{id:int}";
             var url = client.BaseAddress + path;
 
             // Act
@@ -76,18 +73,18 @@ namespace IntegrationTests.Tests
             // Assert
             response.EnsureSuccessStatusCode();
 
-            await WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive(expectedItemCount: 2);
 
-            var items = _factory.sentItems;
+            var items = _factory.Telemetry.Items;
             PrintItems(items);
             Assert.Equal(2, items.Count);
 
-            var reqs = GetTelemetryOfType<RequestTelemetry>(items);
+            var reqs = _factory.Telemetry.GetTelemetryOfType<RequestTelemetryEnvelope>();
             Assert.Single(reqs);
             var req = reqs[0];
             Assert.NotNull(req);
 
-            var traces = GetTelemetryOfType<TraceTelemetry>(items);
+            var traces = _factory.Telemetry.GetTelemetryOfType<TraceTelemetryEnvelope>();
             Assert.Single(traces);
             var trace = traces[0];
             Assert.NotNull(trace);
@@ -116,14 +113,14 @@ namespace IntegrationTests.Tests
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
-            await WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive(expectedItemCount: 2);
 
-            var items = _factory.sentItems;
+          var items = _factory.Telemetry.Items;
             PrintItems(items);
             Assert.Equal(2, items.Count);
 
-            var reqs = GetTelemetryOfType<RequestTelemetry>(items);
-            var exceptions = GetTelemetryOfType<ExceptionTelemetry>(items);
+          var reqs = _factory.Telemetry.GetTelemetryOfType<RequestTelemetryEnvelope>();
+          var exceptions = _factory.Telemetry.GetTelemetryOfType<ExceptionTelemetryEnvelope>();
             Assert.Single(reqs);
             Assert.Single(exceptions);
 
@@ -132,7 +129,9 @@ namespace IntegrationTests.Tests
             Assert.NotNull(req);
             Assert.NotNull(exc);
 
-            Assert.Equal(exc.Context.Operation.Id, req.Context.Operation.Id);
+        // TODO: Validate Exception.
+
+          Assert.Equal(exc.OperationId, req.OperationId);
             ValidateRequest(
                  requestTelemetry: req,
                  expectedResponseCode: "500",
@@ -157,13 +156,13 @@ namespace IntegrationTests.Tests
             // Assert
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
-            await WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive(expectedItemCount: 1);
 
-            var items = _factory.sentItems;
+            var items = _factory.Telemetry.Items;
             PrintItems(items);
             Assert.Equal(1, items.Count);
 
-            var reqs = GetTelemetryOfType<RequestTelemetry>(items);
+            var reqs = _factory.Telemetry.GetTelemetryOfType<RequestTelemetryEnvelope>();
             Assert.Single(reqs);
             var req = reqs[0];
             Assert.NotNull(req);
@@ -176,18 +175,25 @@ namespace IntegrationTests.Tests
                  expectedSuccess: false);
         }
 
-        private async Task WaitForTelemetryToArrive()
+        private async Task WaitForTelemetryToArrive(int expectedItemCount)
         {
-            // The response to the test server request is completed
-            // before the actual telemetry is sent from HostingDiagnosticListener.
-            // This could be a TestServer issue/feature. (In a real application, the response is not
-            // sent to the user until TrackRequest() is called.)
-            // The simplest workaround is to do a wait here.
-            // This could be improved when entire functional tests are migrated to use this pattern.
-            await Task.Delay(1000);
+            var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(5);
+            while (DateTime.UtcNow < deadline)
+            {
+                await Task.Delay(100);
+
+                var currentCount = _factory.Telemetry.Items.Count;
+                if (currentCount >= expectedItemCount)
+                {
+                    return;
+                }
+            }
+
+            // Allow any final exporter flush.
+            await Task.Delay(200);
         }
 
-        private void ValidateRequest(RequestTelemetry requestTelemetry,
+        private void ValidateRequest(RequestTelemetryEnvelope requestTelemetry,
             string expectedResponseCode,
             string expectedName,
             string expectedUrl,
@@ -196,7 +202,7 @@ namespace IntegrationTests.Tests
             Assert.Equal(expectedResponseCode, requestTelemetry.ResponseCode);
             Assert.Equal(expectedName, requestTelemetry.Name);
             Assert.Equal(expectedSuccess, requestTelemetry.Success);
-            Assert.Equal(expectedUrl, requestTelemetry.Url.ToString());
+            Assert.Equal(expectedUrl, requestTelemetry.Url?.ToString());
             Assert.True(requestTelemetry.Duration.TotalMilliseconds > 0);
             // requestTelemetry.Timestamp
         }
@@ -216,62 +222,44 @@ namespace IntegrationTests.Tests
             return httpRequestMessage;
         }
 
-        private List<T> GetTelemetryOfType<T>(ConcurrentBag<ITelemetry> items)
-        {
-            List<T> foundItems = new List<T>();
-            foreach (var item in items)
-            {
-                if (item is T)
-                {
-                    foundItems.Add((T)item);
-                }
-            }
-
-            return foundItems;
-        }
-
-        private void PrintItems(ConcurrentBag<ITelemetry> items)
+        private void PrintItems(IReadOnlyList<AzureMonitorTelemetryEnvelope> items)
         {
             int i = 1;
             foreach (var item in items)
             {
                 this.output.WriteLine("Item " + (i++) + ".");
 
-                if (item is RequestTelemetry req)
+                this.output.WriteLine("OperationId:" + item.OperationId);
+                if (!string.IsNullOrEmpty(item.OperationParentId))
+                {
+                    this.output.WriteLine("OperationParentId:" + item.OperationParentId);
+                }
+
+                if (item is RequestTelemetryEnvelope req)
                 {
                     this.output.WriteLine("RequestTelemetry");
                     this.output.WriteLine(req.Name);
                     this.output.WriteLine(req.Duration.ToString());
+                    this.output.WriteLine("RequestId:" + req.Id);
                 }
-                else if (item is DependencyTelemetry dep)
-                {
-                    this.output.WriteLine("DependencyTelemetry");
-                    this.output.WriteLine(dep.Name);
-                }
-                else if (item is TraceTelemetry trace)
+                else if (item is TraceTelemetryEnvelope trace)
                 {
                     this.output.WriteLine("TraceTelemetry");
                     this.output.WriteLine(trace.Message);
                 }
-                else if (item is ExceptionTelemetry exc)
+                else if (item is ExceptionTelemetryEnvelope exc)
                 {
                     this.output.WriteLine("ExceptionTelemetry");
                     this.output.WriteLine(exc.Message);
                 }
-                else if (item is MetricTelemetry met)
-                {
-                    this.output.WriteLine("MetricTelemetry");
-                    this.output.WriteLine(met.Name + "" + met.Sum);
-                }
-
-                PrintProperties(item as ISupportProperties);
+                PrintProperties(item.Properties);
                 this.output.WriteLine("----------------------------");
             }
         }
 
-        private void PrintProperties(ISupportProperties itemProps)
+        private void PrintProperties(IReadOnlyDictionary<string, string> itemProps)
         {
-            foreach (var prop in itemProps.Properties)
+            foreach (var prop in itemProps)
             {
                 this.output.WriteLine(prop.Key + ":" + prop.Value);
             }

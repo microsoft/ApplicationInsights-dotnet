@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace IntegrationTests.WebApp.Controllers
@@ -28,7 +29,7 @@ namespace IntegrationTests.WebApp.Controllers
         }
 
         // GET api/values/5
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public ActionResult<string> Get(int id)
         {
             _logger.LogWarning("sample warning");
@@ -39,6 +40,23 @@ namespace IntegrationTests.WebApp.Controllers
         [HttpGet("GetEmpty")]
         public ActionResult GetEmpty()
         {
+            return new OkResult();
+        }
+
+        [HttpGet("Dependency")]
+        public ActionResult Dependency()
+        {
+            try
+            {
+                using var client = new HttpClient();
+                var response = client.GetAsync("https://www.bing.com/").Result;
+                response.EnsureSuccessStatusCode();
+            }
+            catch
+            {
+                // Allow the request to complete even if the dependency call fails.
+            }
+
             return new OkResult();
         }
 

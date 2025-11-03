@@ -192,6 +192,10 @@
                     {
                         exporterOptions.EnableLiveMetrics = true;
                     }
+                    else
+                    {
+                        exporterOptions.EnableLiveMetrics = false;
+                    }
                 });
 
             builder.UseAzureMonitorExporter();
