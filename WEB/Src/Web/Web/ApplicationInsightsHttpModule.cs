@@ -1,18 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.Web
 {
-    using Azure.Monitor.OpenTelemetry.Exporter;
-    using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.Web.Extensions;
-    using Microsoft.ApplicationInsights.Web.Implementation;
-    using OpenTelemetry;
-    using OpenTelemetry.Exporter;
-    using OpenTelemetry.Trace;
     using System;
-    using System.Diagnostics;
-    using System.Reflection;
-    using System.Threading;
     using System.Web;
+    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Web.Extensions;
 
     /// <summary>
     /// Platform agnostic module for web application instrumentation.
@@ -20,10 +11,10 @@
     public sealed class ApplicationInsightsHttpModule : IHttpModule
     {
         // Static fields to track initialization across all module instances
-        private static int _initializationCount = 0;
-        private static readonly object _staticLockObject = new object();
-        private static TelemetryConfiguration _sharedTelemetryConfiguration;
-        private static bool _isInitialized = false;
+        private static readonly object StaticLockObject = new object();
+        private static int initializationCount = 0;
+        private static TelemetryConfiguration sharedTelemetryConfiguration;
+        private static bool isInitialized = false;
 
         private readonly object lockObject = new object();
         private TelemetryConfiguration telemetryConfiguration;
@@ -47,22 +38,22 @@
                 throw new ArgumentNullException(nameof(context));
             }
 
-            lock (_staticLockObject)
+            lock (StaticLockObject)
             {
-                _initializationCount++;
-                System.Diagnostics.Debug.WriteLine($"Module Init called #{_initializationCount} at {DateTime.Now:HH:mm:ss.fff}");
+                initializationCount++;
+                System.Diagnostics.Debug.WriteLine($"Module Init called #{initializationCount} at {DateTime.Now:HH:mm:ss.fff}");
                 System.Diagnostics.Debug.WriteLine($"AppDomain: {AppDomain.CurrentDomain.Id}");
 
                 // Only initialize the shared configuration once per AppDomain
-                if (!_isInitialized)
+                if (!isInitialized)
                 {
                     System.Diagnostics.Debug.WriteLine("Performing first-time initialization");
 
-                    _sharedTelemetryConfiguration = TelemetryConfiguration.CreateDefault();
-                    _sharedTelemetryConfiguration.ConfigureOpenTelemetryBuilder(
+                    sharedTelemetryConfiguration = TelemetryConfiguration.CreateDefault();
+                    sharedTelemetryConfiguration.ConfigureOpenTelemetryBuilder(
                         builder => builder.UseApplicationInsightsAspNetTelemetry());
 
-                    _isInitialized = true;
+                    isInitialized = true;
                 }
                 else
                 {
@@ -70,7 +61,7 @@
                 }
 
                 // Use the shared configuration for this instance
-                this.telemetryConfiguration = _sharedTelemetryConfiguration;
+                this.telemetryConfiguration = sharedTelemetryConfiguration;
             }
 
             // Subscribe to events (this is safe to do multiple times as ASP.NET handles duplicate subscriptions)
