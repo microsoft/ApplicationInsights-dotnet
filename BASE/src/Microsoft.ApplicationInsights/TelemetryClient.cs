@@ -134,22 +134,21 @@
         /// </remarks>
         /// <param name="eventName">A name for the event.</param>
         /// <param name="properties">Named string values you can use to search and classify events.</param>
-        /// <param name="metrics">Measurements associated with this event.</param>
-        public void TrackEvent(string eventName, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
+        public void TrackEvent(string eventName, IDictionary<string, string> properties = null)
         {
-            var telemetry = new EventTelemetry(eventName);
-
-            if (properties != null && properties.Count > 0)
+            if (string.IsNullOrEmpty(eventName))
             {
-                Utils.CopyDictionary(properties, telemetry.Properties);
+                // TODO: log to event source   
             }
 
-            if (metrics != null && metrics.Count > 0)
+            if (properties == null)
             {
-                Utils.CopyDictionary(metrics, telemetry.Metrics);
+                properties = new Dictionary<string, string>();
             }
 
-            this.TrackEvent(telemetry);
+            properties.Add("microsoft.custom_event.name", eventName);
+            var state = new DictionaryLogState(properties, String.Empty);
+            this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
         /// <summary>
@@ -164,10 +163,11 @@
         {
             if (telemetry == null)
             {
-                telemetry = new EventTelemetry();
+                // TODO: log to event source
+                return;
             }
 
-            this.Track(telemetry);
+            this.TrackEvent(telemetry.Name, telemetry.Properties);
         }
 
         /// <summary>
@@ -312,30 +312,18 @@
         /// </summary>
         /// <param name="exception">The exception to log.</param>
         /// <param name="properties">Named string values you can use to classify and search for this exception.</param>
-        /// <param name="metrics">Additional values associated with this exception.</param>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackexception">Learn more</a>
         /// </remarks>
-        public void TrackException(Exception exception, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
+        public void TrackException(Exception exception, IDictionary<string, string> properties = null)
         {
             if (exception == null)
             {
                 exception = new Exception(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
             }
 
-            var telemetry = new ExceptionTelemetry(exception);
-
-            if (properties != null && properties.Count > 0)
-            {
-                // Utils.CopyDictionary(properties, telemetry.Properties);
-            }
-
-            if (metrics != null && metrics.Count > 0)
-            {
-                Utils.CopyDictionary(metrics, telemetry.Metrics);
-            }
-
-            this.TrackException(telemetry);
+            var state = new DictionaryLogState(properties, exception.Message);
+            this.Logger.Log(LogLevel.Error, 0, state, exception, (s, ex) => s.Message);
         }
 
         /// <summary>
@@ -353,7 +341,9 @@
                 telemetry = new ExceptionTelemetry(exception);
             }
 
-            this.Track(telemetry);
+            var state = new DictionaryLogState(telemetry.Properties, telemetry.Exception.Message);
+            var logLevel = GetLogLevel(telemetry.SeverityLevel ?? SeverityLevel.Error);
+            this.Logger.Log(logLevel, 0, state, telemetry.Exception, (s, ex) => s.Message);
         }
 
         /// <summary>
