@@ -25,9 +25,13 @@ namespace Microsoft.ApplicationInsights.NLogTarget
     [Target("ApplicationInsightsTarget")]
     public sealed class ApplicationInsightsTarget : TargetWithLayout
     {
+        private const string ConnectionStringRequiredMessage = "Azure Monitor connection string is required. Please provide a valid connection string.";
+
         private TelemetryClient telemetryClient;
         private TelemetryConfiguration telemetryConfiguration;
+        private DateTime lastLogEventTime;
         private NLog.Layouts.Layout connectionStringLayout = string.Empty;
+        private bool initializationFailed;
 
         /// <summary>
         /// Initializers a new instance of ApplicationInsightsTarget type.
@@ -112,12 +116,13 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         {
             base.InitializeTarget();
             this.telemetryConfiguration = new TelemetryConfiguration();
+            this.initializationFailed = false;
 
             string connectionString = this.connectionStringLayout.Render(LogEventInfo.CreateNullEvent());
             if (string.IsNullOrWhiteSpace(connectionString))
             {
-                throw new NLogConfigurationException("Azure Monitor connection string is required. Please provide a valid connection string.",
-                                                      new ArgumentNullException(nameof(connectionString)));
+                this.initializationFailed = true;
+                return;
             }
 
             this.telemetryConfiguration.ConnectionString = connectionString;
@@ -136,6 +141,23 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             this.telemetryConfiguration?.Dispose();
             this.telemetryConfiguration = null;
             this.telemetryClient = null;
+            this.initializationFailed = false;
+        }
+
+        /// <summary>
+        /// Releases the resources used by the target.
+        /// </summary>
+        /// <param name="disposing">True if disposing managed resources.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.telemetryConfiguration?.Dispose();
+                this.telemetryConfiguration = null;
+                this.telemetryClient = null;
+            }
+
+            base.Dispose(disposing);
         }
 
         /// <summary>
@@ -149,10 +171,16 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                 throw new ArgumentNullException(nameof(logEvent));
             }
 
+            if (this.telemetryClient == null || this.initializationFailed)
+            {
+                throw new NLogConfigurationException(ConnectionStringRequiredMessage);
+            }
+
+            this.lastLogEventTime = DateTime.UtcNow;
+
             if (logEvent.Exception != null)
             {
-                // TODO: Uncomment once  ExceptionTelemetry is tested and verified.
-                // this.SendException(logEvent);
+                this.SendException(logEvent);
             }
             else
             {
@@ -171,14 +199,28 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                 throw new ArgumentNullException(nameof(asyncContinuation));
             }
 
-            if (this.TelemetryClient == null)
-            {
-                throw new InvalidOperationException("The TelemetryClient has not been initialized. Make sure the target has been initialized correctly.");
-            }
-
             try
             {
-                this.telemetryClient.FlushAsync(System.Threading.CancellationToken.None).ContinueWith(t => asyncContinuation(t.Exception));
+                if (this.telemetryClient == null || this.initializationFailed)
+                {
+                    InternalLogger.Debug("ApplicationInsightsTarget.FlushAsync skipped - telemetry client not initialized.");
+                    asyncContinuation(null);
+                    return;
+                }
+
+                InternalLogger.Debug("ApplicationInsightsTarget.FlushAsync flushing telemetry client.");
+                this.TelemetryClient.Flush();
+                if (DateTime.UtcNow.AddSeconds(-30) > this.lastLogEventTime)
+                {
+                    // Nothing has been written, so nothing to wait for
+                    asyncContinuation(null);
+                }
+                else
+                {
+                    // Documentation says it is important to wait after flush, else nothing will happen
+                    // https://docs.microsoft.com/azure/application-insights/app-insights-api-custom-events-metrics#flushing-data
+                    System.Threading.Tasks.Task.Delay(TimeSpan.FromMilliseconds(500)).ContinueWith((task) => asyncContinuation(null));
+                }
             }
             catch (Exception ex)
             {
@@ -259,6 +301,12 @@ namespace Microsoft.ApplicationInsights.NLogTarget
 
         private void SendException(LogEventInfo logEvent)
         {
+            if (logEvent.Exception == null)
+            {
+                InternalLogger.Warn("SendException called without an exception instance.");
+                return;
+            }
+
             var exceptionTelemetry = new ExceptionTelemetry(logEvent.Exception)
             {
                 SeverityLevel = GetSeverityLevel(logEvent.Level),
@@ -271,8 +319,11 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                 exceptionTelemetry.Properties.Add("Message", logMessage);
             }
 
+            InternalLogger.Debug("ApplicationInsightsTarget.SendException building property bag.");
             this.BuildPropertyBag(logEvent, exceptionTelemetry);
+            InternalLogger.Debug("ApplicationInsightsTarget.SendException tracking exception telemetry.");
             this.telemetryClient.TrackException(exceptionTelemetry);
+            InternalLogger.Debug("ApplicationInsightsTarget.SendException completed.");
         }
 
         private void SendTrace(LogEventInfo logEvent)

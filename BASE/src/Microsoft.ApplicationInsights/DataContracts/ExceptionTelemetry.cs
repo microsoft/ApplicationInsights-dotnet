@@ -2,11 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// Telemetry type used to track exceptions. This will capture TypeName, Message, and CallStack.
@@ -36,7 +34,7 @@
         {
             // keeping this.Data init so that getters don't throw an exception when this.Data is null.
             this.Data = new ExceptionInfo(new List<ExceptionDetailsInfo>(), null, null,
-                 new Dictionary<string, string>(), new Dictionary<string, double>());
+                 new Dictionary<string, string>());
             this.context = new TelemetryContext();
         }
 
@@ -62,13 +60,12 @@
         /// <param name="severityLevel">Severity level.</param>
         /// <param name="problemId">Problem id.</param>
         /// <param name="properties">Properties.</param>
-        /// <param name="measurements">Measurements.</param>
         public ExceptionTelemetry(IEnumerable<ExceptionDetailsInfo> exceptionDetailsInfoList, SeverityLevel? severityLevel, string problemId,
-            IDictionary<string, string> properties, IDictionary<string, double> measurements)
+            IDictionary<string, string> properties)
         {
             this.isCreatedFromExceptionInfo = true;
 
-            ExceptionInfo exceptionInfo = new ExceptionInfo(exceptionDetailsInfoList, severityLevel, problemId, properties, measurements);
+            ExceptionInfo exceptionInfo = new ExceptionInfo(exceptionDetailsInfoList, severityLevel, problemId, properties);
 
             this.Data = exceptionInfo;
             this.context = new TelemetryContext(this.Data.Properties);
@@ -190,15 +187,6 @@
         }
 
         /// <summary>
-        /// Gets a dictionary of application-defined exception metrics.
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
-        /// </summary>
-        public IDictionary<string, double> Metrics
-        {
-            get { return this.Data.Measurements; }
-        }
-
-        /// <summary>
         /// Gets the list of <see cref="ExceptionDetailsInfo"/>. User can modify the contents of individual object, but
         /// not the list itself.
         /// </summary>
@@ -210,7 +198,18 @@
         /// </summary>
         public IDictionary<string, string> Properties
         {
-            get;
+#pragma warning disable CS0618 // Type or member is obsolete
+            // TODO: Remove context and Add a private ConcurrentDictionary<string,string>.
+            get
+            {
+                if (this.context == null)
+                {
+                    this.context = new TelemetryContext();
+                }
+
+                return this.context.Properties;
+            }
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         /// <summary>

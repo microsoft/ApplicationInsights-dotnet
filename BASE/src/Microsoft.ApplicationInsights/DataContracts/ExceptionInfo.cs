@@ -10,16 +10,23 @@
     /// </summary>
     internal sealed class ExceptionInfo
     {
-        // TODO: fix properties in the constructor
-
         /// <summary>
         /// Constructs the instance of <see cref="ExceptionInfo"/>.
         /// </summary>
 #pragma warning disable CA1801 // Review unused parameters
         public ExceptionInfo(IEnumerable<ExceptionDetailsInfo> exceptionDetailsInfoList, SeverityLevel? severityLevel, string problemId,
-            IDictionary<string, string> properties, IDictionary<string, double> measurements)
+            IDictionary<string, string> properties)
 #pragma warning restore CA1801 // Review unused parameters
         {
+            this.ExceptionDetailsInfoList = exceptionDetailsInfoList != null
+                ? new List<ExceptionDetailsInfo>(exceptionDetailsInfoList)
+                : new List<ExceptionDetailsInfo>();
+
+            this.SeverityLevel = severityLevel;
+            this.ProblemId = problemId;
+            this.Properties = properties != null
+                ? new ConcurrentDictionary<string, string>(properties)
+                : new ConcurrentDictionary<string, string>();
         }
 
         /// <summary>
@@ -49,15 +56,6 @@
         /// Gets or sets properties collection.
         /// </summary>
         public IDictionary<string, string> Properties
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets measurements collection.
-        /// </summary>
-        public IDictionary<string, double> Measurements
         {
             get;
             set;
