@@ -145,6 +145,22 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         }
 
         /// <summary>
+        /// Releases the resources used by the target.
+        /// </summary>
+        /// <param name="disposing">True if disposing managed resources.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.telemetryConfiguration?.Dispose();
+                this.telemetryConfiguration = null;
+                this.telemetryClient = null;
+            }
+
+            base.Dispose(disposing);
+        }
+
+        /// <summary>
         /// Send the log message to Application Insights.
         /// </summary>
         /// <exception cref="ArgumentNullException">If <paramref name="logEvent"/> is null.</exception>
