@@ -2,29 +2,32 @@
 # .NET CLI: https://docs.microsoft.com/dotnet/core/tools/
 # Description: The purpose of this workflow is to compile and run unit tests.
 
-name: Build And Test, WEB
+name: Build And Test, SHIM
 
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [ "main", "develop", "master" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main", "develop", "master" ]
 
 jobs:
-  build-test-WEB:
+  build-test-SHIM:
 
     runs-on: ${{ matrix.os }}
 
     env:
-      SOLUTION: ./WEB/Src/Microsoft.ApplicationInsights.Web.sln
+      SOLUTION: ./SHIM/Microsoft.ApplicationInsights.Shim.sln
       TEST_RESULTS_DIRECTORY: ${{ github.workspace }}/TestResults
 
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest]
-        framework: [net452, net462, net472, net480, net481, netcoreapp3.1, net6.0, net7.0, net8.0, net9.0]
+        os: [ubuntu-latest, windows-latest]
+        framework: [net462, net472, net480, net481, net8.0, net9.0]
+        include: 
+          - os: ubuntu-latest
+            args: "--filter TestCategory!=WindowsOnly"
 
     steps:
     - uses: actions/checkout@v4
