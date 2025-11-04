@@ -241,13 +241,6 @@
 
         [TestMethod]
         [TestCategory("NLogTarget")]
-        [Ignore("Sequence number is managed by the exporter and not exposed in the shim telemetry payload.")]
-        public void TraceHasSequenceId()
-        {
-        }
-
-        [TestMethod]
-        [TestCategory("NLogTarget")]
         public async Task TraceHasCustomProperties()
         {
             var logger = this.CreateLogger();
