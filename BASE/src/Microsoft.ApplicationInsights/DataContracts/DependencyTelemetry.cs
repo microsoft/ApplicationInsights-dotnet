@@ -34,6 +34,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Target = string.Empty;
             this.Type = string.Empty;
             this.Data = string.Empty;
+            this.Properties = new Dictionary<string, string>();
         }
 
         /// <summary>

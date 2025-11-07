@@ -36,6 +36,7 @@
             this.Data = new ExceptionInfo(new List<ExceptionDetailsInfo>(), null, null,
                  new Dictionary<string, string>());
             this.context = new TelemetryContext();
+            this.Properties = new Dictionary<string, string>();
         }
 
         /// <summary>

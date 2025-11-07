@@ -13,6 +13,7 @@
     {
         private readonly TelemetryClient telemetryClient;
         private readonly Activity activity;
+        private readonly Activity suppressedActivity;
         private bool isDisposed;
 
         /// <summary>
@@ -22,6 +23,18 @@
         /// <param name="telemetry">Telemetry item created for this operation.</param>
         /// <param name="activity">Activity that represents the operation context. May be null if sampled out or no listener.</param>
         public OperationHolder(TelemetryClient telemetryClient, T telemetry, Activity activity)
+            : this(telemetryClient, telemetry, activity, null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OperationHolder{T}"/> class.
+        /// </summary>
+        /// <param name="telemetryClient">Telemetry client associated with this operation.</param>
+        /// <param name="telemetry">Telemetry item created for this operation.</param>
+        /// <param name="activity">Activity that represents the operation context. May be null if sampled out or no listener.</param>
+        /// <param name="suppressedActivity">An ambient activity that was suppressed to create a root operation and should be restored on dispose.</param>
+        public OperationHolder(TelemetryClient telemetryClient, T telemetry, Activity activity, Activity suppressedActivity)
         {
             if (telemetryClient == null)
             {
@@ -36,6 +49,7 @@
             this.telemetryClient = telemetryClient;
             this.Telemetry = telemetry;
             this.activity = activity;
+            this.suppressedActivity = suppressedActivity;
         }
 
         /// <summary>
@@ -71,6 +85,13 @@
                 }
 
                 this.activity.Stop();
+            }
+
+            // Restore the ambient activity that was suppressed when creating a root operation
+            // Only restore if the suppressed activity hasn't been stopped
+            if (this.suppressedActivity != null && this.suppressedActivity.Duration == TimeSpan.Zero)
+            {
+                Activity.Current = this.suppressedActivity;
             }
         }
     }

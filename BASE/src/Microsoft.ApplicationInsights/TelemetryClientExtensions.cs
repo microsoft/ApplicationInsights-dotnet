@@ -47,11 +47,11 @@
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="telemetryClient"/> is null.</exception>
         public static IOperationHolder<T> StartOperation<T>(
-            this TelemetryClient telemetryClient,
-            string operationName,
-            string operationId,
-            string parentOperationId = null)
-            where T : OperationTelemetry, new()
+     this TelemetryClient telemetryClient,
+     string operationName,
+     string operationId,
+     string parentOperationId = null)
+     where T : OperationTelemetry, new()
         {
             if (telemetryClient == null)
             {
@@ -62,6 +62,7 @@
             var kind = ResolveActivityKind<T>();
             var source = telemetryClient.TelemetryConfiguration.ApplicationInsightsActivitySource;
             ActivityContext parentContext = default;
+            Activity savedActivity = null;
 
             if (!string.IsNullOrEmpty(operationId) && operationId.Length == 32)
             {
@@ -70,9 +71,17 @@
                     var traceId = ActivityTraceId.CreateFromString(operationId.AsSpan());
                     var spanId = !string.IsNullOrEmpty(parentOperationId) && parentOperationId.Length == 16
                         ? ActivitySpanId.CreateFromString(parentOperationId.AsSpan())
-                        : ActivitySpanId.CreateRandom();
+                        : default(ActivitySpanId);
 
                     parentContext = new ActivityContext(traceId, spanId, ActivityTraceFlags.Recorded);
+
+                    // When creating a root operation (spanId is default), suppress ambient activity
+                    // to prevent it from becoming the parent
+                    if (spanId == default && Activity.Current != null)
+                    {
+                        savedActivity = Activity.Current;
+                        Activity.Current = null;
+                    }
                 }
                 catch
                 {
@@ -90,6 +99,9 @@
                     null);
             }
 
+            // Store the operation name as a tag for retrieval
+            activity.SetOperationName(effectiveName);
+
             var telemetry = new T
             {
                 Name = effectiveName,
@@ -98,9 +110,13 @@
             };
 
             telemetry.Context.Operation.Id = activity.TraceId.ToHexString();
-            telemetry.Context.Operation.ParentId = activity.ParentSpanId.ToHexString();
+            // CHANGE: Only set ParentId if it's not default (all zeros)
+            telemetry.Context.Operation.ParentId = activity.ParentSpanId != default
+                ? activity.ParentSpanId.ToHexString()
+                : null;
+            telemetry.Context.Operation.Name = effectiveName;
 
-            return new OperationHolder<T>(telemetryClient, telemetry, activity);
+            return new OperationHolder<T>(telemetryClient, telemetry, activity, savedActivity);
         }
 
         /// <summary>
@@ -137,6 +153,7 @@
             var kind = ResolveActivityKind<T>();
             var source = telemetryClient.TelemetryConfiguration.ApplicationInsightsActivitySource;
             ActivityContext parentContext = default;
+            Activity savedActivity = null;
 
             if (!string.IsNullOrEmpty(operationTelemetry.Context?.Operation?.Id) &&
                 operationTelemetry.Context.Operation.Id.Length == 32)
@@ -147,9 +164,17 @@
                     var spanId = !string.IsNullOrEmpty(operationTelemetry.Context.Operation.ParentId) &&
                                  operationTelemetry.Context.Operation.ParentId.Length == 16
                                  ? ActivitySpanId.CreateFromString(operationTelemetry.Context.Operation.ParentId.AsSpan())
-                                 : ActivitySpanId.CreateRandom();
+                                 : default(ActivitySpanId);
 
                     parentContext = new ActivityContext(traceId, spanId, ActivityTraceFlags.Recorded);
+
+                    // When creating a root operation (spanId is default), suppress ambient activity
+                    // to prevent it from becoming the parent
+                    if (spanId == default && Activity.Current != null)
+                    {
+                        savedActivity = Activity.Current;
+                        Activity.Current = null;
+                    }
                 }
                 catch
                 {
@@ -164,12 +189,18 @@
                 return new OperationHolder<T>(telemetryClient, operationTelemetry, null);
             }
 
+            // Store the operation name as a tag for retrieval
+            activity.SetOperationName(operationTelemetry.Name);
+
             operationTelemetry.Timestamp = DateTimeOffset.UtcNow;
             operationTelemetry.Id = activity.SpanId.ToHexString();
             operationTelemetry.Context.Operation.Id = activity.TraceId.ToHexString();
-            operationTelemetry.Context.Operation.ParentId = activity.ParentSpanId.ToHexString();
+            operationTelemetry.Context.Operation.ParentId = activity.ParentSpanId != default
+                ? activity.ParentSpanId.ToHexString()
+                : null;
+            operationTelemetry.Context.Operation.Name = operationTelemetry.Name;
 
-            return new OperationHolder<T>(telemetryClient, operationTelemetry, activity);
+            return new OperationHolder<T>(telemetryClient, operationTelemetry, activity, savedActivity);
         }
 
         /// <summary>
@@ -181,9 +212,10 @@
         /// <param name="activity">The existing <see cref="Activity"/> to associate with this operation.</param>
         /// <returns>An <see cref="IOperationHolder{T}"/> linking telemetry and activity for unified tracking.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="telemetryClient"/> or <paramref name="activity"/> is null.</exception>
-        public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient,
-                                                            Activity activity)
-                                                            where T : OperationTelemetry, new()
+        public static IOperationHolder<T> StartOperation<T>(
+            this TelemetryClient telemetryClient,
+            Activity activity)
+            where T : OperationTelemetry, new()
         {
             if (telemetryClient == null)
             {
@@ -195,49 +227,34 @@
                 throw new ArgumentNullException(nameof(activity));
             }
 
-            var effectiveName = activity.DisplayName ?? typeof(T).Name;
-            var kind = ResolveActivityKind<T>();
-            var source = telemetryClient.TelemetryConfiguration.ApplicationInsightsActivitySource;
-
-            // ensure we always create a *listened* Activity even if input wasn’t from an ActivitySource
-            ActivityContext parentContext = new (
-                activity.TraceId,
-                activity.SpanId != default ? activity.SpanId : ActivitySpanId.CreateRandom(),
-                activity.ActivityTraceFlags,
-                activity.TraceStateString);
-
-            var newActivity = source.StartActivity(effectiveName, kind, parentContext);
-
-            if (newActivity == null)
+            // if already started activity, we just link it — not create a new one
+            if (activity.Id == null)
             {
-                // no listeners or sampled out → inert holder
-                return new OperationHolder<T>(
-                    telemetryClient,
-                    new T { Name = effectiveName, Timestamp = DateTimeOffset.UtcNow },
-                    null);
+                activity.SetIdFormat(ActivityIdFormat.W3C);
+                activity.Start();
             }
 
-            // Copy baggage and tags from the provided Activity
-            foreach (var kvp in activity.Baggage)
+            var telemetry = new T
             {
-                newActivity.SetBaggage(kvp.Key, kvp.Value);
+                Name = activity.DisplayName ?? typeof(T).Name,
+                Timestamp = activity.StartTimeUtc == default ? DateTimeOffset.UtcNow : activity.StartTimeUtc,
+            };
+
+            // Copy baggage (cross-process context)
+            foreach (var item in activity.Baggage)
+            {
+                if (!telemetry.Properties.ContainsKey(item.Key))
+                {
+                    telemetry.Properties[item.Key] = item.Value;
+                }
             }
 
             foreach (var kvp in activity.Tags)
             {
-                newActivity.SetTag(kvp.Key, kvp.Value);
+                telemetry.Properties[kvp.Key] = kvp.Value?.ToString();
             }
 
-            newActivity.TraceStateString = activity.TraceStateString;
-
-            var telemetry = new T
-            {
-                Name = effectiveName,
-                Timestamp = DateTimeOffset.UtcNow,
-            };
-
-            // No need to map IDs or context — Activity drives everything.
-            return new OperationHolder<T>(telemetryClient, telemetry, newActivity);
+            return new OperationHolder<T>(telemetryClient, telemetry, activity);
         }
 
         /// <summary>
