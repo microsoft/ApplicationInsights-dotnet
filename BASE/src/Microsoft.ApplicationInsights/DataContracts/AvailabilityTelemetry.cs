@@ -37,17 +37,6 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AvailabilityTelemetry"/> class by cloning an existing instance.
-        /// </summary>
-        /// <param name="source">Source instance of <see cref="AvailabilityTelemetry"/> to clone from.</param>
-        private AvailabilityTelemetry(AvailabilityTelemetry source)
-        {
-            this.Sequence = source.Sequence;
-            this.Timestamp = source.Timestamp;
-            this.context = new TelemetryContext();
-        }
-
-        /// <summary>
         /// Gets or sets the test run id.
         /// </summary>
         public string Id
@@ -125,29 +114,11 @@
         }
 
         /// <summary>
-        /// Gets a dictionary of application-defined event metrics.
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
-        /// </summary>
-        public IDictionary<string, double> Metrics
-        {
-            get;
-        }
-
-        /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
         /// </summary>
         public DateTimeOffset Timestamp
         {
             get; set;
-        }
-
-        /// <summary>
-        /// Deeply clones an  <see cref="AvailabilityTelemetry"/> object.
-        /// </summary>
-        /// <returns>A cloned instance.</returns>
-        public ITelemetry DeepClone()
-        {
-            return new AvailabilityTelemetry(this);
         }
     }
 }

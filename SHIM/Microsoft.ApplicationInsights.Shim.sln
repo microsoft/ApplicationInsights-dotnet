@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests.Tests", ".
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLogTarget.Tests", "..\LOGGING\test\NLogTarget.Tests\NLogTarget.Tests.csproj", "{38A877C3-1A97-80CC-B5C6-69D975A95239}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ApplicationInsights.Tests", "..\BASE\Test\Microsoft.ApplicationInsights.Test\Microsoft.ApplicationInsights.Tests\Microsoft.ApplicationInsights.Tests.csproj", "{2529B41A-7B12-011E-83B4-D19888F402B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -185,6 +187,18 @@ Global
 		{38A877C3-1A97-80CC-B5C6-69D975A95239}.Release|x64.Build.0 = Release|Any CPU
 		{38A877C3-1A97-80CC-B5C6-69D975A95239}.Release|x86.ActiveCfg = Release|Any CPU
 		{38A877C3-1A97-80CC-B5C6-69D975A95239}.Release|x86.Build.0 = Release|Any CPU
+		{2529B41A-7B12-011E-83B4-D19888F402B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2529B41A-7B12-011E-83B4-D19888F402B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2529B41A-7B12-011E-83B4-D19888F402B4}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2529B41A-7B12-011E-83B4-D19888F402B4}.Debug|x64.Build.0 = Debug|Any CPU
+		{2529B41A-7B12-011E-83B4-D19888F402B4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2529B41A-7B12-011E-83B4-D19888F402B4}.Debug|x86.Build.0 = Debug|Any CPU
+		{2529B41A-7B12-011E-83B4-D19888F402B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2529B41A-7B12-011E-83B4-D19888F402B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2529B41A-7B12-011E-83B4-D19888F402B4}.Release|x64.ActiveCfg = Release|Any CPU
+		{2529B41A-7B12-011E-83B4-D19888F402B4}.Release|x64.Build.0 = Release|Any CPU
+		{2529B41A-7B12-011E-83B4-D19888F402B4}.Release|x86.ActiveCfg = Release|Any CPU
+		{2529B41A-7B12-011E-83B4-D19888F402B4}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

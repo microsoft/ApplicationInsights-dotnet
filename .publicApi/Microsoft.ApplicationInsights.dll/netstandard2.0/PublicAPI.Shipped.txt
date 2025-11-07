@@ -1,15 +1,11 @@
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
-abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Duration.get -> System.TimeSpan
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Duration.set -> void
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Id.get -> string
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Id.set -> void
-abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Metrics.get -> System.Collections.Generic.IDictionary<string, double>
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Name.get -> string
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Name.set -> void
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Properties.get -> System.Collections.Generic.IDictionary<string, string>
-abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Sequence.get -> string
-abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Sequence.set -> void
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Success.get -> bool?
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Success.set -> void
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Timestamp.get -> System.DateTimeOffset
@@ -19,23 +15,18 @@ Microsoft.ApplicationInsights.Channel.IAsyncFlushable
 Microsoft.ApplicationInsights.Channel.IAsyncFlushable.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
 Microsoft.ApplicationInsights.Channel.ITelemetry
 Microsoft.ApplicationInsights.Channel.ITelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
-Microsoft.ApplicationInsights.Channel.ITelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
-Microsoft.ApplicationInsights.Channel.ITelemetry.Sequence.get -> string
-Microsoft.ApplicationInsights.Channel.ITelemetry.Sequence.set -> void
 Microsoft.ApplicationInsights.Channel.ITelemetry.Timestamp.get -> System.DateTimeOffset
 Microsoft.ApplicationInsights.Channel.ITelemetry.Timestamp.set -> void
 Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry
 Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.AvailabilityTelemetry() -> void
 Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.AvailabilityTelemetry(string name, System.DateTimeOffset timeStamp, System.TimeSpan duration, string runLocation, bool success, string message = null) -> void
 Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
-Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
 Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.Duration.get -> System.TimeSpan
 Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.Duration.set -> void
 Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.Id.get -> string
 Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.Id.set -> void
 Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.Message.get -> string
 Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.Message.set -> void
-Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.Metrics.get -> System.Collections.Generic.IDictionary<string, double>
 Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.Name.get -> string
 Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.Name.set -> void
 Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.Properties.get -> System.Collections.Generic.IDictionary<string, string>
@@ -48,18 +39,11 @@ Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.Success.set ->
 Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.Timestamp.get -> System.DateTimeOffset
 Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.Timestamp.set -> void
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry
-Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.CommandName.get -> string
-Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.CommandName.set -> void
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Data.get -> string
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Data.set -> void
-Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.DependencyKind.get -> string
-Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.DependencyKind.set -> void
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.DependencyTelemetry() -> void
-Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.DependencyTelemetry(string dependencyName, string data, System.DateTimeOffset startTime, System.TimeSpan duration, bool success) -> void
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.DependencyTelemetry(string dependencyTypeName, string target, string dependencyName, string data) -> void
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.DependencyTelemetry(string dependencyTypeName, string target, string dependencyName, string data, System.DateTimeOffset startTime, System.TimeSpan duration, string resultCode, bool success) -> void
-Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.DependencyTypeName.get -> string
-Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.DependencyTypeName.set -> void
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.ResultCode.get -> string
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.ResultCode.set -> void
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.SetOperationDetail(string key, object detail) -> void
@@ -70,15 +54,12 @@ Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Type.get -> stri
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Type.set -> void
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
-Microsoft.ApplicationInsights.DataContracts.EventTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.EventTelemetry() -> void
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.EventTelemetry(string name) -> void
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Metrics.get -> System.Collections.Generic.IDictionary<string, double>
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Name.get -> string
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Name.set -> void
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Properties.get -> System.Collections.Generic.IDictionary<string, string>
-Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Sequence.get -> string
-Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Sequence.set -> void
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Timestamp.get -> System.DateTimeOffset
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Timestamp.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo
@@ -89,7 +70,6 @@ Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo.TypeName.get ->
 Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo.TypeName.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
-Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Exception.get -> System.Exception
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Exception.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ExceptionDetailsInfoList.get -> System.Collections.Generic.IReadOnlyList<Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo>
@@ -114,7 +94,6 @@ Microsoft.ApplicationInsights.DataContracts.MetricTelemetry
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Count.get -> int?
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Count.set -> void
-Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Max.get -> double?
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Max.set -> void
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.MetricNamespace.get -> string
@@ -127,8 +106,6 @@ Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Min.set -> void
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Name.get -> string
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Name.set -> void
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Properties.get -> System.Collections.Generic.IDictionary<string, string>
-Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Sequence.get -> string
-Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Sequence.set -> void
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.StandardDeviation.get -> double?
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.StandardDeviation.set -> void
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Sum.get -> double
@@ -136,8 +113,6 @@ Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Sum.set -> void
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Timestamp.get -> System.DateTimeOffset
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Timestamp.set -> void
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry
-Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.HttpMethod.get -> string
-Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.HttpMethod.set -> void
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.RequestTelemetry() -> void
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.RequestTelemetry(string name, System.DateTimeOffset startTime, System.TimeSpan duration, string responseCode, bool success) -> void
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.ResponseCode.get -> string
@@ -166,7 +141,6 @@ Microsoft.ApplicationInsights.DataContracts.TelemetryContext.TelemetryContext() 
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.TryGetRawObject(string key, out object rawObject) -> bool
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
-Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Message.get -> string
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Message.set -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Properties.get -> System.Collections.Generic.IDictionary<string, string>
@@ -182,9 +156,9 @@ Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.TraceTelemetry(string
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.OperationTelemetry() -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Sanitize() -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.StartTime.get -> System.DateTimeOffset
-Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.StartTime.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Extensions
+Microsoft.ApplicationInsights.Extensibility.IOperationHolder<T>
+Microsoft.ApplicationInsights.Extensibility.IOperationHolder<T>.Telemetry.get -> T
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ConfigureOpenTelemetryBuilder(System.Action<OpenTelemetry.IOpenTelemetryBuilder> configure) -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ConnectionString.get -> string
@@ -210,9 +184,8 @@ Microsoft.ApplicationInsights.TelemetryClient.TelemetryClient(Microsoft.Applicat
 Microsoft.ApplicationInsights.TelemetryClient.TelemetryConfiguration.get -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
 Microsoft.ApplicationInsights.TelemetryClient.Track(Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackAvailability(Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry telemetry) -> void
-Microsoft.ApplicationInsights.TelemetryClient.TrackAvailability(string name, System.DateTimeOffset timeStamp, System.TimeSpan duration, string runLocation, bool success, string message = null, System.Collections.Generic.IDictionary<string, string> properties = null, System.Collections.Generic.IDictionary<string, double> metrics = null) -> void
+Microsoft.ApplicationInsights.TelemetryClient.TrackAvailability(string name, System.DateTimeOffset timeStamp, System.TimeSpan duration, string runLocation, bool success, string message = null, System.Collections.Generic.IDictionary<string, string> properties = null) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackDependency(Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry telemetry) -> void
-Microsoft.ApplicationInsights.TelemetryClient.TrackDependency(string dependencyName, string data, System.DateTimeOffset startTime, System.TimeSpan duration, bool success) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackDependency(string dependencyTypeName, string dependencyName, string data, System.DateTimeOffset startTime, System.TimeSpan duration, bool success) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackDependency(string dependencyTypeName, string target, string dependencyName, string data, System.DateTimeOffset startTime, System.TimeSpan duration, string resultCode, bool success) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackEvent(Microsoft.ApplicationInsights.DataContracts.EventTelemetry telemetry) -> void
@@ -221,7 +194,6 @@ Microsoft.ApplicationInsights.TelemetryClient.TrackException(Microsoft.Applicati
 Microsoft.ApplicationInsights.TelemetryClient.TrackException(System.Exception exception, System.Collections.Generic.IDictionary<string, string> properties = null) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackMetric(Microsoft.ApplicationInsights.DataContracts.MetricTelemetry telemetry) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackMetric(string name, double value, System.Collections.Generic.IDictionary<string, string> properties = null) -> void
-Microsoft.ApplicationInsights.TelemetryClient.TrackPageView(string name) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackRequest(Microsoft.ApplicationInsights.DataContracts.RequestTelemetry request) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackRequest(string name, System.DateTimeOffset startTime, System.TimeSpan duration, string responseCode, bool success) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackTrace(Microsoft.ApplicationInsights.DataContracts.TraceTelemetry telemetry) -> void
@@ -229,34 +201,27 @@ Microsoft.ApplicationInsights.TelemetryClient.TrackTrace(string message) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackTrace(string message, Microsoft.ApplicationInsights.DataContracts.SeverityLevel severityLevel) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackTrace(string message, Microsoft.ApplicationInsights.DataContracts.SeverityLevel severityLevel, System.Collections.Generic.IDictionary<string, string> properties) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackTrace(string message, System.Collections.Generic.IDictionary<string, string> properties) -> void
+Microsoft.ApplicationInsights.TelemetryClientExtensions
 override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
-override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
 override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Duration.get -> System.TimeSpan
 override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Duration.set -> void
 override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Id.get -> string
 override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Id.set -> void
-override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Metrics.get -> System.Collections.Generic.IDictionary<string, double>
 override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Name.get -> string
 override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Name.set -> void
 override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Properties.get -> System.Collections.Generic.IDictionary<string, string>
-override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Sequence.get -> string
-override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Sequence.set -> void
 override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Success.get -> bool?
 override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Success.set -> void
 override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Timestamp.get -> System.DateTimeOffset
 override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Timestamp.set -> void
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
-override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Duration.get -> System.TimeSpan
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Duration.set -> void
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Id.get -> string
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Id.set -> void
-override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Metrics.get -> System.Collections.Generic.IDictionary<string, double>
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Name.get -> string
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Name.set -> void
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Properties.get -> System.Collections.Generic.IDictionary<string, string>
-override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Sequence.get -> string
-override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Sequence.set -> void
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Success.get -> bool?
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Success.set -> void
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Timestamp.get -> System.DateTimeOffset
@@ -264,3 +229,8 @@ override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Timestamp.
 static Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Extensions.ToInvariantString(this System.Exception exception) -> string
 static Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.CreateDefault() -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
 static Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.CreateFromConfiguration(string config) -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
+static Microsoft.ApplicationInsights.TelemetryClientExtensions.StartOperation<T>(this Microsoft.ApplicationInsights.TelemetryClient telemetryClient, string operationName) -> Microsoft.ApplicationInsights.Extensibility.IOperationHolder<T>
+static Microsoft.ApplicationInsights.TelemetryClientExtensions.StartOperation<T>(this Microsoft.ApplicationInsights.TelemetryClient telemetryClient, string operationName, string operationId, string parentOperationId = null) -> Microsoft.ApplicationInsights.Extensibility.IOperationHolder<T>
+static Microsoft.ApplicationInsights.TelemetryClientExtensions.StartOperation<T>(this Microsoft.ApplicationInsights.TelemetryClient telemetryClient, System.Diagnostics.Activity activity) -> Microsoft.ApplicationInsights.Extensibility.IOperationHolder<T>
+static Microsoft.ApplicationInsights.TelemetryClientExtensions.StartOperation<T>(this Microsoft.ApplicationInsights.TelemetryClient telemetryClient, T operationTelemetry) -> Microsoft.ApplicationInsights.Extensibility.IOperationHolder<T>
+static Microsoft.ApplicationInsights.TelemetryClientExtensions.StopOperation<T>(this Microsoft.ApplicationInsights.TelemetryClient telemetryClient, Microsoft.ApplicationInsights.Extensibility.IOperationHolder<T> operation) -> void

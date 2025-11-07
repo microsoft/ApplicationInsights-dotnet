@@ -15,8 +15,6 @@
         internal string EnvelopeName = DefaultEnvelopeName;
         private readonly TelemetryContext context;
 
-        private double? samplingPercentage;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="EventTelemetry"/> class.
         /// </summary>
@@ -34,23 +32,10 @@
             this.context = new TelemetryContext();
         }
 
-        private EventTelemetry(EventTelemetry source)
-        {
-            this.Sequence = source.Sequence;
-            this.Timestamp = source.Timestamp;
-            this.samplingPercentage = source.samplingPercentage;
-            this.context = new TelemetryContext();
-        }
-
         /// <summary>
         /// Gets or sets date and time when event was recorded.
         /// </summary>
         public DateTimeOffset Timestamp { get; set; }
-
-        /// <summary>
-        /// Gets or sets the value that defines absolute order of the telemetry item.
-        /// </summary>
-        public string Sequence { get; set; }
 
         /// <summary>
         /// Gets the context associated with the current telemetry item.
@@ -85,15 +70,6 @@
         public IDictionary<string, string> Properties
         {
             get;
-        }
-
-        /// <summary>
-        /// Deeply clones a <see cref="EventTelemetry"/> object.
-        /// </summary>
-        /// <returns>A cloned instance.</returns>
-        public ITelemetry DeepClone()
-        {
-            return new EventTelemetry(this);
         }
     }
 }

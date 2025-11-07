@@ -68,7 +68,6 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         internal void BuildPropertyBag(LogEventInfo logEvent, ITelemetry trace)
         {
             trace.Timestamp = logEvent.TimeStamp;
-            trace.Sequence = logEvent.SequenceID.ToString(CultureInfo.InvariantCulture);
 
             IDictionary<string, string> propertyBag;
 

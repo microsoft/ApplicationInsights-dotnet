@@ -3,100 +3,121 @@
     using System;
     using System.ComponentModel;
     using System.Diagnostics;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
-    /// Extension class to telemetry client that creates operation object with the respective fields initialized.
+    /// Extension class providing operation lifecycle helpers for <see cref="TelemetryClient"/>.
+    /// Enables automatic correlation of telemetry with <see cref="Activity"/> instances.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    internal static class TelemetryClientExtensions
+    public static class TelemetryClientExtensions
     {
-        private const string ChildActivityName = "Microsoft.ApplicationInsights.OperationContext";        
-
         /// <summary>
-        /// Start operation creates an operation object with a respective telemetry item. 
+        /// Starts a new telemetry operation (e.g., request, dependency, etc.) with the specified name.
+        /// Creates and starts an <see cref="Activity"/> that defines the operation context.
         /// </summary>
-        /// <typeparam name="T">Type of the telemetry item.</typeparam>
-        /// <param name="telemetryClient">Telemetry client object.</param>
-        /// <param name="operationName">Name of the operation that customer is planning to propagate.</param>
-        /// <returns>Operation item object with a new telemetry item having current start time and timestamp.</returns>
-        public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient, string operationName) where T : OperationTelemetry, new()
+        /// <typeparam name="T">The type of telemetry item (e.g., <see cref="RequestTelemetry"/> or <see cref="DependencyTelemetry"/>).</typeparam>
+        /// <param name="telemetryClient">The <see cref="TelemetryClient"/> instance used to create and track the operation.</param>
+        /// <param name="operationName">The operation name, used as the <see cref="Activity.DisplayName"/>.</param>
+        /// <returns>
+        /// An <see cref="IOperationHolder{T}"/> that holds the telemetry and the corresponding activity.
+        /// Disposing this object stops the operation and sends telemetry automatically.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="telemetryClient"/> is null.</exception>
+        public static IOperationHolder<T> StartOperation<T>(
+            this TelemetryClient telemetryClient, string operationName)
+            where T : OperationTelemetry, new()
         {
             return StartOperation<T>(telemetryClient, operationName, operationId: null, parentOperationId: null);
         }
 
         /// <summary>
-        /// Start operation creates an operation object with a respective telemetry item. 
+        /// Starts a new telemetry operation with a specific operation and parent operation ID for correlation.
         /// </summary>
-        /// <typeparam name="T">Type of the telemetry item.</typeparam>
-        /// <param name="telemetryClient">Telemetry client object.</param>
-        /// <param name="operationName">Name of the operation that customer is planning to propagate.</param>
-        /// <param name="operationId">Operation ID to set in the new operation.</param>
-        /// <param name="parentOperationId">Optional parent operation ID to set in the new operation.</param>
-        /// <returns>Operation item object with a new telemetry item having current start time and timestamp.</returns>
-        public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient, string operationName, string operationId, string parentOperationId = null) where T : OperationTelemetry, new()
+        /// <typeparam name="T">The type of telemetry item (e.g., <see cref="RequestTelemetry"/> or <see cref="DependencyTelemetry"/>).</typeparam>
+        /// <param name="telemetryClient">The <see cref="TelemetryClient"/> instance used to create and track the operation.</param>
+        /// <param name="operationName">The name of the operation to create.</param>
+        /// <param name="operationId">The W3C trace ID (32-character hex string) to use for the operation.</param>
+        /// <param name="parentOperationId">The optional parent span ID (16-character hex string) to correlate with the parent operation.</param>
+        /// <returns>
+        /// An <see cref="IOperationHolder{T}"/> containing the telemetry item and associated <see cref="Activity"/>.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="telemetryClient"/> is null.</exception>
+        public static IOperationHolder<T> StartOperation<T>(
+            this TelemetryClient telemetryClient,
+            string operationName,
+            string operationId,
+            string parentOperationId = null)
+            where T : OperationTelemetry, new()
         {
             if (telemetryClient == null)
             {
                 throw new ArgumentNullException(nameof(telemetryClient));
             }
 
-            var operationTelemetry = new T();
+            var effectiveName = string.IsNullOrEmpty(operationName) ? typeof(T).Name : operationName;
+            var kind = ResolveActivityKind<T>();
+            var source = telemetryClient.TelemetryConfiguration.ApplicationInsightsActivitySource;
+            ActivityContext parentContext = default;
 
-            if (string.IsNullOrEmpty(operationTelemetry.Name) && !string.IsNullOrEmpty(operationName))
+            if (!string.IsNullOrEmpty(operationId) && operationId.Length == 32)
             {
-                operationTelemetry.Name = operationName;
-            }
-
-            if (string.IsNullOrEmpty(operationTelemetry.Context.Operation.Id) && !string.IsNullOrEmpty(operationId))
-            {
-                var isActivityAvailable = ActivityExtensions.TryRun(() =>
+                try
                 {
-                    if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
-                    {
-                        /*if (W3CUtilities.IsCompatibleW3CTraceId(operationId))
-                        {
-                            // If the user provided operationid is W3C Compatible, use it.
-                            operationTelemetry.Context.Operation.Id = operationId;
-                        }
-                        else
-                        {
-                            // If user provided operationid is not W3C compatible, generate a new one instead.
-                            // and store supplied value inside customproperty.
-                            operationTelemetry.Context.Operation.Id = ActivityTraceId.CreateRandom().ToHexString();
-                            operationTelemetry.Properties.Add(W3CConstants.LegacyRootIdProperty, operationId);
-                        }*/
-                    }
-                    else
-                    {
-                        operationTelemetry.Context.Operation.Id = operationId;
-                    }
-                });
+                    var traceId = ActivityTraceId.CreateFromString(operationId.AsSpan());
+                    var spanId = !string.IsNullOrEmpty(parentOperationId) && parentOperationId.Length == 16
+                        ? ActivitySpanId.CreateFromString(parentOperationId.AsSpan())
+                        : ActivitySpanId.CreateRandom();
 
-                if (!isActivityAvailable)
+                    parentContext = new ActivityContext(traceId, spanId, ActivityTraceFlags.Recorded);
+                }
+                catch
                 {
-                    operationTelemetry.Context.Operation.Id = operationId;
+                    // ignore malformed IDs
                 }
             }
 
-            if (string.IsNullOrEmpty(operationTelemetry.Context.Operation.ParentId) && !string.IsNullOrEmpty(parentOperationId))
+            var activity = source.StartActivity(effectiveName, kind, parentContext);
+
+            if (activity == null)
             {
-                operationTelemetry.Context.Operation.ParentId = parentOperationId;
+                return new OperationHolder<T>(
+                    telemetryClient,
+                    new T { Name = effectiveName, Timestamp = DateTimeOffset.UtcNow },
+                    null);
             }
 
-            return StartOperation(telemetryClient, operationTelemetry);
+            var telemetry = new T
+            {
+                Name = effectiveName,
+                Timestamp = DateTimeOffset.UtcNow,
+                Id = activity.SpanId.ToHexString(),
+            };
+
+            telemetry.Context.Operation.Id = activity.TraceId.ToHexString();
+            telemetry.Context.Operation.ParentId = activity.ParentSpanId.ToHexString();
+
+            return new OperationHolder<T>(telemetryClient, telemetry, activity);
         }
 
         /// <summary>
-        /// Creates an operation object with a given telemetry item. 
+        /// Starts a telemetry operation using an existing telemetry object.
+        /// This overload is useful when the telemetry item is pre-populated with metadata or custom properties.
         /// </summary>
-        /// <typeparam name="T">Type of the telemetry item.</typeparam>
-        /// <param name="telemetryClient">Telemetry client object.</param>
-        /// <param name="operationTelemetry">Operation to start.</param>
-        /// <returns>Operation item object with a new telemetry item having current start time and timestamp.</returns>
-        public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient, T operationTelemetry) where T : OperationTelemetry
+        /// <typeparam name="T">The type of telemetry item.</typeparam>
+        /// <param name="telemetryClient">The <see cref="TelemetryClient"/> used to create and track the operation.</param>
+        /// <param name="operationTelemetry">The telemetry item to associate with the new operation.</param>
+        /// <returns>
+        /// An <see cref="IOperationHolder{T}"/> containing the provided telemetry and its associated activity.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="telemetryClient"/> is null.</exception>
+        public static IOperationHolder<T> StartOperation<T>(
+            this TelemetryClient telemetryClient,
+            T operationTelemetry)
+            where T : OperationTelemetry
         {
             if (telemetryClient == null)
             {
@@ -108,126 +129,128 @@
                 throw new ArgumentNullException(nameof(operationTelemetry));
             }
 
-            var telemetryContext = operationTelemetry.Context.Operation;
-            bool idsAssignedByUser = !string.IsNullOrEmpty(telemetryContext.Id);
-
-            // We initialize telemetry here AND in Track method because of RichPayloadEventSource.
-            // It sends Start and Stop events for OperationTelemetry. During Start event telemetry
-            // has to contain essential telemetry properties such as correlations ids and ikey.
-            // Also, examples in our documentation rely on the fact that correlation Ids are set
-            // after StartOperation call and before operation is stopped.
-            // Before removing this call (for optimization), make sure:
-            // 1) correlation ids are set before method leaves
-            // 2) RichPayloadEventSource is re-factored to work without ikey in Start event (or ikey is set)
-            //    and does not require other properties in telemetry
-            telemetryClient.Initialize(operationTelemetry);
-
-            // If the operation is not executing in the context of any other operation
-            // set its name as a context (root) operation name.
-            if (string.IsNullOrEmpty(telemetryContext.Name))
+            if (string.IsNullOrEmpty(operationTelemetry.Name))
             {
-                telemetryContext.Name = operationTelemetry.Name;
+                operationTelemetry.Name = typeof(T).Name;
             }
 
-            OperationHolder<T> operationHolder = null;
+            var kind = ResolveActivityKind<T>();
+            var source = telemetryClient.TelemetryConfiguration.ApplicationInsightsActivitySource;
+            ActivityContext parentContext = default;
 
-            var isActivityAvailable = ActivityExtensions.TryRun(() =>
+            if (!string.IsNullOrEmpty(operationTelemetry.Context?.Operation?.Id) &&
+                operationTelemetry.Context.Operation.Id.Length == 32)
             {
-                var parentActivity = Activity.Current;
-                var operationActivity = new Activity(ChildActivityName);
-
-                string operationName = telemetryContext.Name;
-                if (string.IsNullOrEmpty(operationName))
+                try
                 {
-                    operationName = parentActivity?.GetOperationName();
+                    var traceId = ActivityTraceId.CreateFromString(operationTelemetry.Context.Operation.Id.AsSpan());
+                    var spanId = !string.IsNullOrEmpty(operationTelemetry.Context.Operation.ParentId) &&
+                                 operationTelemetry.Context.Operation.ParentId.Length == 16
+                                 ? ActivitySpanId.CreateFromString(operationTelemetry.Context.Operation.ParentId.AsSpan())
+                                 : ActivitySpanId.CreateRandom();
+
+                    parentContext = new ActivityContext(traceId, spanId, ActivityTraceFlags.Recorded);
                 }
-
-                if (!string.IsNullOrEmpty(operationName))
+                catch
                 {
-                    operationActivity.SetOperationName(operationName);
+                    // ignore malformed IDs
                 }
-
-                if (idsAssignedByUser)
-                {
-                    if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
-                    {
-                        /*if (W3CUtilities.IsCompatibleW3CTraceId(telemetryContext.Id))
-                        {
-                            // If the user provided operationId is W3C Compatible, use it.
-                            operationActivity.SetParentId(ActivityTraceId.CreateFromString(telemetryContext.Id.AsSpan()),
-                                default(ActivitySpanId), ActivityTraceFlags.None);
-                        }
-                        else
-                        {
-                            // If user provided operationId is not W3C compatible, generate a new one instead.
-                            // and store supplied value inside custom property.
-                            operationTelemetry.Properties.Add(W3CConstants.LegacyRootIdProperty, telemetryContext.Id);
-                            telemetryContext.Id = null;
-                        }*/
-                    }
-                    else
-                    {
-                        operationActivity.SetParentId(telemetryContext.Id);
-                    }
-                }
-
-                operationActivity.Start();
-
-                if (operationActivity.IdFormat == ActivityIdFormat.W3C)
-                {
-                    if (string.IsNullOrEmpty(telemetryContext.Id))
-                    {
-                        telemetryContext.Id = operationActivity.TraceId.ToHexString();
-                    }
-
-                    operationTelemetry.Id = operationActivity.SpanId.ToHexString();
-                }
-                else
-                {
-                    if (string.IsNullOrEmpty(telemetryContext.Id))
-                    {
-                        telemetryContext.Id = operationActivity.RootId;
-                    }
-
-                    operationTelemetry.Id = operationActivity.Id;
-                }
-
-                operationHolder = new OperationHolder<T>(telemetryClient, operationTelemetry, parentActivity == operationActivity.Parent ? null : parentActivity);
-            });
-
-            if (!isActivityAvailable)
-            {
-                // Parent context store is assigned to operation that is used to restore call context.
-                operationHolder = new OperationHolder<T>(telemetryClient, operationTelemetry)
-                {
-                    ParentContext = CallContextHelpers.GetCurrentOperationContext(),
-                };
-                telemetryContext.Id = operationTelemetry.Id;
             }
 
-            operationTelemetry.Start();
+            var activity = source.StartActivity(operationTelemetry.Name, kind, parentContext);
 
-            if (!isActivityAvailable)
+            if (activity == null)
             {
-                // Update the call context to store certain fields that can be used for subsequent operations.
-                var operationContext = new OperationContextForCallContext
-                {
-                    ParentOperationId = operationTelemetry.Id,
-                    RootOperationId = operationTelemetry.Context.Operation.Id,
-                    RootOperationName = operationTelemetry.Context.Operation.Name,
-                };
-                CallContextHelpers.SaveOperationContext(operationContext);
+                return new OperationHolder<T>(telemetryClient, operationTelemetry, null);
             }
 
-            return operationHolder;
+            operationTelemetry.Timestamp = DateTimeOffset.UtcNow;
+            operationTelemetry.Id = activity.SpanId.ToHexString();
+            operationTelemetry.Context.Operation.Id = activity.TraceId.ToHexString();
+            operationTelemetry.Context.Operation.ParentId = activity.ParentSpanId.ToHexString();
+
+            return new OperationHolder<T>(telemetryClient, operationTelemetry, activity);
         }
 
         /// <summary>
-        /// Stop operation computes the duration of the operation and tracks it using the respective telemetry client.
+        /// Starts a telemetry operation based on an existing <see cref="Activity"/> instance that carries trace context.
+        /// The activity must have been created by the caller or extracted from incoming telemetry.
         /// </summary>
-        /// <param name="telemetryClient">Telemetry client object.</param>
-        /// <param name="operation">Operation object to compute duration and track.</param>
-        public static void StopOperation<T>(this TelemetryClient telemetryClient, IOperationHolder<T> operation) where T : OperationTelemetry
+        /// <typeparam name="T">The type of telemetry item (request, dependency, etc.).</typeparam>
+        /// <param name="telemetryClient">The <see cref="TelemetryClient"/> that will manage and emit the telemetry.</param>
+        /// <param name="activity">The existing <see cref="Activity"/> to associate with this operation.</param>
+        /// <returns>An <see cref="IOperationHolder{T}"/> linking telemetry and activity for unified tracking.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="telemetryClient"/> or <paramref name="activity"/> is null.</exception>
+        public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient,
+                                                            Activity activity)
+                                                            where T : OperationTelemetry, new()
+        {
+            if (telemetryClient == null)
+            {
+                throw new ArgumentNullException(nameof(telemetryClient));
+            }
+
+            if (activity == null)
+            {
+                throw new ArgumentNullException(nameof(activity));
+            }
+
+            var effectiveName = activity.DisplayName ?? typeof(T).Name;
+            var kind = ResolveActivityKind<T>();
+            var source = telemetryClient.TelemetryConfiguration.ApplicationInsightsActivitySource;
+
+            // ensure we always create a *listened* Activity even if input wasn’t from an ActivitySource
+            ActivityContext parentContext = new (
+                activity.TraceId,
+                activity.SpanId != default ? activity.SpanId : ActivitySpanId.CreateRandom(),
+                activity.ActivityTraceFlags,
+                activity.TraceStateString);
+
+            var newActivity = source.StartActivity(effectiveName, kind, parentContext);
+
+            if (newActivity == null)
+            {
+                // no listeners or sampled out → inert holder
+                return new OperationHolder<T>(
+                    telemetryClient,
+                    new T { Name = effectiveName, Timestamp = DateTimeOffset.UtcNow },
+                    null);
+            }
+
+            // Copy baggage and tags from the provided Activity
+            foreach (var kvp in activity.Baggage)
+            {
+                newActivity.SetBaggage(kvp.Key, kvp.Value);
+            }
+
+            foreach (var kvp in activity.Tags)
+            {
+                newActivity.SetTag(kvp.Key, kvp.Value);
+            }
+
+            newActivity.TraceStateString = activity.TraceStateString;
+
+            var telemetry = new T
+            {
+                Name = effectiveName,
+                Timestamp = DateTimeOffset.UtcNow,
+            };
+
+            // No need to map IDs or context — Activity drives everything.
+            return new OperationHolder<T>(telemetryClient, telemetry, newActivity);
+        }
+
+        /// <summary>
+        /// Stops a telemetry operation started by <see cref="StartOperation{T}(TelemetryClient, string)"/> or its overloads.
+        /// Disposes the operation holder, stopping the associated activity and emitting telemetry.
+        /// </summary>
+        /// <typeparam name="T">The type of telemetry item being tracked.</typeparam>
+        /// <param name="telemetryClient">The <see cref="TelemetryClient"/> used to stop the operation.</param>
+        /// <param name="operation">The <see cref="IOperationHolder{T}"/> representing the operation to stop.</param>
+        public static void StopOperation<T>(
+            this TelemetryClient telemetryClient,
+            IOperationHolder<T> operation)
+            where T : OperationTelemetry
         {
             if (telemetryClient == null)
             {
@@ -240,178 +263,22 @@
                 return;
             }
 
-            operation.Dispose();
+            operation.Dispose(); // ensures Activity.Stop() is called
         }
 
-        /// <summary>
-        /// Creates an operation object with a respective telemetry item using <see cref="Activity"/> instance that holds tracing context. 
-        /// </summary>
-        /// <example>
-        /// <code>
-        ///   // receive message from a queue service (or any kind of the request/message from external service)
-        ///   var message = queue.Receive();
-        /// 
-        ///   // Extract tracing context from the message before processing it
-        ///   // Note that some protocols may define how Activity should be serialized into the message,
-        ///   // and some client SDKs implementing them may provide Extract method.
-        ///   // For other protocols/libraries, serialization has to be agreed between producer and consumer
-        ///   // and Inject/Extract pattern to be implemented
-        ///   var activity = message.ExtractActivity();
-        /// 
-        ///   // Track processing of the message
-        ///   using (telemetryClient.StartOperation&lt;RequestTelemetry&gt;(activity))
-        ///   {
-        ///     // process message
-        ///   }
-        ///  // telemetry is reported when operation is disposed.
-        /// </code>
-        /// </example>
-        /// <remarks><para>Activity represents tracing context; it contains correlation identifiers and extended properties that are propagated to external calls.
-        /// See <a href="https://github.com/dotnet/corefx/blob/master/src/System.Diagnostics.DiagnosticSource/src/ActivityUserGuide.md"/> for more details.</para>
-        /// <para>When Activity instance is passed to StartOperation, it is expected that Activity has ParentId (if it was provided by upstream service), but has not been started yet.
-        /// It may also have additional Tags and Baggage to augment telemetry.</para>
-        /// </remarks>
-        /// <typeparam name="T">Type of the telemetry item.</typeparam>
-        /// <param name="telemetryClient">Telemetry client object.</param>
-        /// <param name="activity">Activity to get tracing context and telemetry properties from.</param>
-        /// <returns>Operation item object with a new telemetry item having current start time and timestamp.</returns>
-        public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient, Activity activity) where T : OperationTelemetry, new()
+        private static ActivityKind ResolveActivityKind<T>() where T : OperationTelemetry
         {
-            if (telemetryClient == null)
+            if (typeof(T) == typeof(RequestTelemetry))
             {
-                throw new ArgumentNullException(nameof(telemetryClient));
+                return ActivityKind.Server;
             }
 
-            if (activity == null)
+            if (typeof(T) == typeof(DependencyTelemetry))
             {
-                throw new ArgumentNullException(nameof(activity));
+                return ActivityKind.Client;
             }
 
-            Activity originalActivity = null;
-            
-            // not started activity, default case
-            if (activity.Id == null)
-            {
-                originalActivity = Activity.Current;
-            }
-
-            string legacyRoot = null;
-            string legacyParent = null;
-            if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
-            {
-                // if parent is not  W3C
-                if (activity.ParentId != null &&
-                    !activity.ParentId.StartsWith("00-", StringComparison.Ordinal))
-                {
-                    // save parent
-                    legacyParent = activity.ParentId;
-
-                    /*if (W3CUtilities.IsCompatibleW3CTraceId(activity.RootId))
-                    {
-                        // reuse root id when compatible with trace ID
-                        activity = CopyFromCompatibleRoot(activity);
-                    }
-                    else
-                    {
-                        // or store legacy root in custom property
-                        legacyRoot = activity.RootId;
-                    }*/
-                }
-            }
-
-            activity.Start();
-            T operationTelemetry = ActivityToTelemetry<T>(activity);
-
-            if (legacyRoot != null)
-            {
-                // operationTelemetry.Properties.Add(W3CConstants.LegacyRootIdProperty, legacyRoot);
-            }
-
-            if (legacyParent != null)
-            {
-                operationTelemetry.Context.Operation.ParentId = legacyParent;
-            }
-
-            // We initialize telemetry here AND in Track method because of RichPayloadEventSource.
-            // It sends Start and Stop events for OperationTelemetry. During Start event telemetry
-            // has to contain essential telemetry properties such as correlations ids and ikey.
-            // Also, examples in our documentation rely on the fact that correlation Ids are set
-            // after StartOperation call and before operation is stopped.
-            // Before removing this call (for optimization), make sure:
-            // 1) correlation ids are set before method leaves
-            // 2) RichPayloadEventSource is re-factored to work without ikey in Start event (or ikey is set)
-            //    and does not require other properties in telemetry
-            telemetryClient.Initialize(operationTelemetry);
-
-            operationTelemetry.Start();
-
-            return new OperationHolder<T>(telemetryClient, operationTelemetry, originalActivity);
-        }
-
-        private static T ActivityToTelemetry<T>(Activity activity) where T : OperationTelemetry, new()
-        {
-            Debug.Assert(activity.Id != null, "Activity must be started prior calling this method");
-
-            var telemetry = new T { Name = activity.OperationName };
-
-            OperationContext operationContext = telemetry.Context.Operation;
-            operationContext.Name = activity.GetOperationName();            
-            
-            if (activity.IdFormat == ActivityIdFormat.W3C)
-            {
-                operationContext.Id = activity.TraceId.ToHexString();
-                telemetry.Id = activity.SpanId.ToHexString();
-
-                if (string.IsNullOrEmpty(operationContext.ParentId) && activity.ParentSpanId != default)
-                {
-                    operationContext.ParentId = activity.ParentSpanId.ToHexString();
-                }
-            }
-            else
-            {
-                operationContext.Id = activity.RootId;
-                operationContext.ParentId = activity.ParentId;
-                telemetry.Id = activity.Id;
-            }
-
-            foreach (var item in activity.Baggage)
-            {
-                if (!telemetry.Properties.ContainsKey(item.Key))
-                {
-                    telemetry.Properties.Add(item);
-                }
-            }
-
-            foreach (var item in activity.Tags)
-            {
-                if (!telemetry.Properties.ContainsKey(item.Key))
-                {
-                    telemetry.Properties.Add(item);
-                }
-            }
-
-            return telemetry;
-        }
-
-        private static Activity CopyFromCompatibleRoot(Activity from)
-        {
-            var copy = new Activity(from.OperationName);
-            copy.SetParentId(ActivityTraceId.CreateFromString(from.RootId.AsSpan()),
-                default(ActivitySpanId), from.ActivityTraceFlags);
-
-            foreach (var tag in from.Tags)
-            {
-                copy.AddTag(tag.Key, tag.Value);
-            }
-
-            foreach (var baggage in from.Baggage)
-            {
-                copy.AddBaggage(baggage.Key, baggage.Value);
-            }
-
-            copy.TraceStateString = from.TraceStateString;
-
-            return copy;
+            return ActivityKind.Internal;
         }
     }
 }

@@ -15,14 +15,13 @@
         internal string EnvelopeName = "AppTraces";
         private readonly TelemetryContext context;
 
-        private double? samplingPercentage;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="TraceTelemetry"/> class.
         /// </summary>
         public TraceTelemetry()
         {
             this.context = new TelemetryContext();
+            this.Properties = new Dictionary<string, string>();
         }
 
         /// <summary>
@@ -40,18 +39,6 @@
         public TraceTelemetry(string message, SeverityLevel severityLevel) : this(message)
         {
             this.SeverityLevel = severityLevel;
-            this.context = new TelemetryContext();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TraceTelemetry"/> class by cloning an existing instance.
-        /// </summary>
-        /// <param name="source">Source instance of <see cref="TraceTelemetry"/> to clone from.</param>
-        private TraceTelemetry(TraceTelemetry source)
-        {
-            this.Sequence = source.Sequence;
-            this.Timestamp = source.Timestamp;
-            this.samplingPercentage = source.samplingPercentage;
             this.context = new TelemetryContext();
         }
 
@@ -97,30 +84,7 @@
         /// </summary>
         public IDictionary<string, string> Properties
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            get
-            {
-                return this.Context.Properties;
-#pragma warning restore CS0618 // Type or member is obsolete
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the MetricExtractorInfo.
-        /// </summary>
-        internal string MetricExtractorInfo
-        {
             get;
-            set;
-        }
-
-        /// <summary>
-        /// Deeply clones a <see cref="TraceTelemetry"/> object.
-        /// </summary>
-        /// <returns>A cloned instance.</returns>
-        public ITelemetry DeepClone()
-        {
-            return new TraceTelemetry(this);
         }
     }
 }

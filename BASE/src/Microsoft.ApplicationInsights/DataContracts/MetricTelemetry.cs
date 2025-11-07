@@ -93,24 +93,9 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MetricTelemetry"/> class by cloning an existing instance.
-        /// </summary>
-        /// <param name="source">Source instance of <see cref="MetricTelemetry"/> to clone from.</param>
-        private MetricTelemetry(MetricTelemetry source)
-        {
-            this.Sequence = source.Sequence;
-            this.Timestamp = source.Timestamp;
-        }
-
-        /// <summary>
         /// Gets or sets date and time when event was recorded.
         /// </summary>
         public DateTimeOffset Timestamp { get; set; }
-
-        /// <summary>
-        /// Gets or sets the value that defines absolute order of the telemetry item.
-        /// </summary>
-        public string Sequence { get; set; }
 
         /// <summary>
         /// Gets the context associated with the current telemetry item.
@@ -187,15 +172,6 @@
         public IDictionary<string, string> Properties
         {
             get;
-        }
-
-        /// <summary>
-        /// Deeply clones a <see cref="MetricTelemetry"/> object.
-        /// </summary>
-        /// <returns>A cloned instance.</returns>
-        public ITelemetry DeepClone()
-        {
-            return new MetricTelemetry(this);
         }
     }
 }

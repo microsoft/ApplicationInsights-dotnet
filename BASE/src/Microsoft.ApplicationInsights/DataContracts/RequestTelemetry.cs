@@ -23,9 +23,7 @@
 
         private readonly TelemetryContext context;
         private bool successFieldSet;
-        private double? samplingPercentage;
         private bool success = true;
-        private IDictionary<string, double> measurementsValue;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestTelemetry"/> class.
@@ -37,6 +35,7 @@
             this.Name = string.Empty;
             this.ResponseCode = string.Empty;            
             this.Duration = System.TimeSpan.Zero;
+            this.Properties = new Dictionary<string, string>();
         }
 
         /// <summary>
@@ -54,39 +53,9 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RequestTelemetry"/> class by cloning an existing instance.
-        /// </summary>
-        /// <param name="source">Source instance of <see cref="RequestTelemetry"/> to clone from.</param>
-        private RequestTelemetry(RequestTelemetry source)
-        {
-            this.Duration = source.Duration;
-            this.Id = source.Id;
-            if (source.measurementsValue != null)
-            {
-                Utils.CopyDictionary(source.Metrics, this.Metrics);
-            }
-
-            this.Name = source.Name;
-            this.context = source.context.DeepClone();
-            this.ResponseCode = source.ResponseCode;
-            this.Source = source.Source;
-            this.Success = source.Success;
-            this.Url = source.Url;
-            this.Sequence = source.Sequence;
-            this.Timestamp = source.Timestamp;
-            this.successFieldSet = source.successFieldSet;
-            this.samplingPercentage = source.samplingPercentage;
-        }
-
-        /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
         /// </summary>
         public override DateTimeOffset Timestamp { get; set; }
-
-        /// <summary>
-        /// Gets or sets the value that defines absolute order of the telemetry item.
-        /// </summary>
-        public override string Sequence { get; set; }
 
         /// <summary>
         /// Gets the object that contains contextual information about the application at the time when it handled the request.
@@ -168,12 +137,7 @@
         /// </summary>
         public override IDictionary<string, string> Properties
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            get
-            {
-                return this.Context.Properties;
-#pragma warning restore CS0618 // Type or member is obsolete
-            }
+            get;
         }
 
         /// <summary>
@@ -182,49 +146,12 @@
         public Uri Url { get; set; }
 
         /// <summary>
-        /// Gets a dictionary of application-defined request metrics.
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
-        /// </summary>
-        public override IDictionary<string, double> Metrics
-        {
-            get { return LazyInitializer.EnsureInitialized(ref this.measurementsValue, () => new ConcurrentDictionary<string, double>()); }
-        }
-
-        /// <summary>
-        /// Gets or sets the HTTP method of the request.
-        /// </summary>
-        [Obsolete("Include http verb into request telemetry name and use custom properties to report http method as a dimension.")]
-        public string HttpMethod
-        {
-            get { return this.Properties["httpMethod"]; }
-            set { this.Properties["httpMethod"] = value; }
-        }
-
-        /// <summary>
         /// Gets or sets the source for the request telemetry object. This often is a hashed instrumentation key identifying the caller.
         /// </summary>
         public string Source
         {
             get;
             set;
-        }
-
-        /// <summary>
-        /// Gets or sets the MetricExtractorInfo.
-        /// </summary>
-        internal string MetricExtractorInfo
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Deeply clones a <see cref="RequestTelemetry"/> object.
-        /// </summary>
-        /// <returns>A cloned instance.</returns>
-        public override ITelemetry DeepClone()
-        {
-            return new RequestTelemetry(this);
         }
     }
 }
