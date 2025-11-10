@@ -341,9 +341,29 @@
                 telemetry = new ExceptionTelemetry(exception);
             }
 
-            var state = new DictionaryLogState(telemetry.Properties, telemetry.Exception.Message);
+            var reconstructedException = ConvertToException(telemetry);
+
+            // Merge Context.GlobalProperties and telemetry.Properties
+            var allProperties = new Dictionary<string, string>();
+            if (telemetry.Context?.GlobalProperties != null)
+            {
+                foreach (var kvp in telemetry.Context.GlobalProperties)
+                {
+                    allProperties[kvp.Key] = kvp.Value;
+                }
+            }
+
+            if (telemetry.Properties != null)
+            {
+                foreach (var kvp in telemetry.Properties)
+                {
+                    allProperties[kvp.Key] = kvp.Value; // Properties override GlobalProperties
+                }
+            }
+
+            var state = new DictionaryLogState(allProperties, reconstructedException.Message);
             var logLevel = GetLogLevel(telemetry.SeverityLevel ?? SeverityLevel.Error);
-            this.Logger.Log(logLevel, 0, state, telemetry.Exception, (s, ex) => s.Message);
+            this.Logger.Log(logLevel, 0, state, reconstructedException, (s, ex) => s.Message);
         }
 
         /// <summary>
@@ -833,6 +853,133 @@
                 SeverityLevel.Critical => LogLevel.Critical,
                 _ => LogLevel.None
             };
+        }
+
+        /// <summary>
+        /// Reconstructs a complete Exception from ExceptionTelemetry, including inner exceptions, stack frames, and metadata.
+        /// </summary>
+        /// <param name="telemetry">The exception telemetry to convert.</param>
+        /// <returns>A reconstructed Exception with all diagnostic details.</returns>
+        private static Exception ConvertToException(ExceptionTelemetry telemetry)
+        {
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
+            Exception rootException = null;
+
+            // If the telemetry already has an Exception, use it as the base
+            if (telemetry.Exception != null)
+            {
+                rootException = telemetry.Exception;
+            }
+            else if (telemetry.ExceptionDetailsInfoList != null && telemetry.ExceptionDetailsInfoList.Count > 0)
+            {
+                // Reconstruct exception chain from ExceptionDetailsInfoList
+                // The list is ordered from innermost to outermost, so we process it in reverse
+                rootException = ReconstructExceptionChain(telemetry.ExceptionDetailsInfoList);
+            }
+            else
+            {
+                // Fallback: create a generic exception with the message
+                rootException = new Exception(telemetry.Message ?? "<no message>");
+            }
+
+            // Enrich the exception with metadata
+            EnrichExceptionWithMetadata(rootException, telemetry);
+
+            return rootException;
+        }
+
+        /// <summary>
+        /// Reconstructs an exception chain from a list of ExceptionDetailsInfo.
+        /// </summary>
+        /// <param name="exceptionDetailsList">The list of exception details.</param>
+        /// <returns>The outermost exception with inner exceptions properly chained.</returns>
+        private static Exception ReconstructExceptionChain(IReadOnlyList<ExceptionDetailsInfo> exceptionDetailsList)
+        {
+            if (exceptionDetailsList == null || exceptionDetailsList.Count == 0)
+            {
+                return new Exception("<no exception details>");
+            }
+
+            // Process from innermost (index 0) to outermost (last index)
+            Exception innerException = null;
+
+            // Start with the innermost exception (first in the list)
+            for (int i = 0; i < exceptionDetailsList.Count; i++)
+            {
+                var details = exceptionDetailsList[i];
+                var message = details.Message ?? "<no message>";
+                var typeName = details.TypeName ?? "System.Exception";
+
+                // Create a new exception with the message and previous inner exception
+                // Include the type name in the message since we can't safely create typed exceptions via reflection
+                Exception currentException;
+
+                if (innerException != null)
+                {
+                    currentException = new Exception($"[{typeName}] {message}", innerException);
+                }
+                else
+                {
+                    currentException = new Exception($"[{typeName}] {message}");
+                }
+
+                // Set the current exception as the inner for the next iteration
+                innerException = currentException;
+            }
+
+            return innerException; // This is now the outermost exception
+        }
+
+        /// <summary>
+        /// Enriches an exception with metadata from ExceptionTelemetry.
+        /// </summary>
+        /// <param name="exception">The exception to enrich.</param>
+        /// <param name="telemetry">The telemetry containing metadata.</param>
+        private static void EnrichExceptionWithMetadata(Exception exception, ExceptionTelemetry telemetry)
+        {
+            if (exception == null || telemetry == null)
+            {
+                return;
+            }
+
+            // Store metadata in Exception.Data
+            try
+            {
+                if (!string.IsNullOrEmpty(telemetry.ProblemId))
+                {
+                    exception.Data["ProblemId"] = telemetry.ProblemId;
+                }
+
+                if (telemetry.SeverityLevel.HasValue)
+                {
+                    exception.Data["SeverityLevel"] = telemetry.SeverityLevel.Value.ToString();
+                }
+
+                if (!string.IsNullOrEmpty(telemetry.Message))
+                {
+                    exception.Data["TelemetryMessage"] = telemetry.Message;
+                }
+
+                // Format and store parsed stack frames if available
+                if (telemetry.ExceptionDetailsInfoList != null)
+                {
+                    for (int i = 0; i < telemetry.ExceptionDetailsInfoList.Count; i++)
+                    {
+                        var details = telemetry.ExceptionDetailsInfoList[i];
+                        exception.Data[$"ExceptionDetails[{i}].TypeName"] = details.TypeName ?? "<unknown>";
+                        exception.Data[$"ExceptionDetails[{i}].Message"] = details.Message ?? "<no message>";
+                    }
+                }
+            }
+            catch
+            {
+                // Silently ignore any issues enriching the exception
+                // The core exception object is still valid
+            }
         }
 
         private readonly struct DictionaryLogState : IReadOnlyList<KeyValuePair<string, object>>

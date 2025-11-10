@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     /// <summary>
     /// Telemetry type used to track exceptions. This will capture TypeName, Message, and CallStack.
@@ -20,23 +19,16 @@
 
         internal ExceptionInfo Data = null;
 
-        private readonly bool isCreatedFromExceptionInfo = false;
-
         private TelemetryContext context;
         private Exception exception;
-        private string message;
-        private double? samplingPercentage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExceptionTelemetry"/> class with empty properties.
         /// </summary>
         public ExceptionTelemetry()
         {
-            // keeping this.Data init so that getters don't throw an exception when this.Data is null.
-            this.Data = new ExceptionInfo(new List<ExceptionDetailsInfo>(), null, null,
-                 new Dictionary<string, string>());
+            this.Data = new ExceptionInfo(new List<ExceptionDetailsInfo>(), null, null, new Dictionary<string, string>());
             this.context = new TelemetryContext();
-            this.Properties = new Dictionary<string, string>();
         }
 
         /// <summary>
@@ -46,11 +38,6 @@
         public ExceptionTelemetry(Exception exception)
             : this()
         {
-            if (exception == null)
-            {
-                exception = new Exception(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
-            }
-
             this.Exception = exception;
         }
 
@@ -64,33 +51,8 @@
         public ExceptionTelemetry(IEnumerable<ExceptionDetailsInfo> exceptionDetailsInfoList, SeverityLevel? severityLevel, string problemId,
             IDictionary<string, string> properties)
         {
-            this.isCreatedFromExceptionInfo = true;
-
-            ExceptionInfo exceptionInfo = new ExceptionInfo(exceptionDetailsInfoList, severityLevel, problemId, properties);
-
-            this.Data = exceptionInfo;
+            this.Data = new ExceptionInfo(exceptionDetailsInfoList, severityLevel, problemId, properties);
             this.context = new TelemetryContext(this.Data.Properties);
-
-            // this.UpdateData(exceptionInfo);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ExceptionTelemetry"/> class by cloning an existing instance.
-        /// </summary>
-        /// <param name="source">Source instance of <see cref="ExceptionTelemetry"/> to clone from.</param>
-        private ExceptionTelemetry(ExceptionTelemetry source)
-        {
-            this.isCreatedFromExceptionInfo = source.isCreatedFromExceptionInfo;
-
-            this.context = source.context.DeepClone(this.Data.Properties);
-            this.Sequence = source.Sequence;
-            this.Timestamp = source.Timestamp;
-            this.samplingPercentage = source.samplingPercentage;
-
-            if (!this.isCreatedFromExceptionInfo)
-            {
-                this.exception = source.Exception;
-            }
         }
 
         /// <summary>
@@ -134,21 +96,30 @@
         {
             get
             {
-                return /*this.isCreatedFromExceptionInfo
-                    ? this.ConstructExceptionFromDetailsInfo(this.Data.ExceptionDetailsInfoList ?? new List<ExceptionDetailsInfo>().AsReadOnly())
-                    :*/ this.exception;
+                if (this.exception == null && this.Data?.ExceptionDetailsInfoList != null && this.Data.ExceptionDetailsInfoList.Count > 0)
+                {
+                    // Lazy-load: reconstruct exception from ExceptionDetailsInfoList
+                    this.exception = ReconstructExceptionFromDetails(this.Data.ExceptionDetailsInfoList);
+                }
+
+                return this.exception;
             }
 
             set
             {
-                if (this.isCreatedFromExceptionInfo)
-                {
-                    throw new InvalidOperationException(
-                        "The property is unavailable to be set on an instance created with the ExceptionDetailsInfo-based constructor");
-                }
-
                 this.exception = value;
-                // this.UpdateData(value);
+                
+                // Populate ExceptionDetailsInfoList from the exception
+                if (value != null)
+                {
+                    var exceptionDetailsList = new List<ExceptionDetailsInfo>();
+                    ConvertExceptionTree(value, null, exceptionDetailsList);
+                    this.Data = new ExceptionInfo(exceptionDetailsList, this.Data?.SeverityLevel, this.Data?.ProblemId, this.Data?.Properties ?? new Dictionary<string, string>());
+                }
+                else
+                {
+                    this.Data = new ExceptionInfo(new List<ExceptionDetailsInfo>(), this.Data?.SeverityLevel, this.Data?.ProblemId, this.Data?.Properties ?? new Dictionary<string, string>());
+                }
             }
         }
 
@@ -157,34 +128,8 @@
         /// </summary>
         public string Message
         {
-            get
-            {
-                const string ExceptionMessageSeparator = " <--- ";
-
-                return this.isCreatedFromExceptionInfo
-                    ? (this.Data.ExceptionDetailsInfoList != null ? string.Join(ExceptionMessageSeparator, this.Data.ExceptionDetailsInfoList.Select(info => info.Message)) : string.Empty)
-                    : this.message;
-            }
-
-            set
-            {
-                if (this.isCreatedFromExceptionInfo)
-                {
-                    throw new InvalidOperationException(
-                        "The property is unavailable to be set on an instance created with the ExceptionDetailsInfo-based constructor");
-                }
-
-                this.message = value;
-
-                if (this.Data.ExceptionDetailsInfoList != null && this.Data.ExceptionDetailsInfoList.Count > 0)
-                {
-                    this.Data.ExceptionDetailsInfoList[0].Message = value;
-                }
-                else
-                {
-                    // this.UpdateData(this.Exception);
-                }
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -199,7 +144,15 @@
         /// </summary>
         public IDictionary<string, string> Properties
         {
-            get;
+            get
+            {
+                if (this.context == null)
+                {
+                    this.context = new TelemetryContext();
+                }
+
+                return this.context.Properties;
+            }
         }
 
         /// <summary>
@@ -211,145 +164,143 @@
             set => this.Data.SeverityLevel = value;
         }
 
-        /*internal IList<ExceptionDetails> Exceptions
-        {
-            get { return this.Data.Data.exceptions; }
-        }*/
-
         /// <summary>
         /// Set parsedStack from an array of StackFrame objects.
         /// </summary>
-#pragma warning disable CA1822 // Mark members as static
-#pragma warning disable CA1801 // Review unused parameters
+        /// <param name="frames">Array of System.Diagnostics.StackFrame to convert to parsed stack.</param>
         public void SetParsedStack(System.Diagnostics.StackFrame[] frames)
-#pragma warning restore CA1801 // Review unused parameters
-#pragma warning restore CA1822 // Mark members as static
         {
+            if (this.Data?.ExceptionDetailsInfoList != null && this.Data.ExceptionDetailsInfoList.Count > 0)
+            {
+                if (frames != null && frames.Length > 0)
+                {
+                    const int MaxParsedStackLength = 32768;
+                    int stackLength = 0;
+
+                    var parsedStack = new List<StackFrame>();
+                    bool hasFullStack = true;
+
+                    for (int level = 0; level < frames.Length; level++)
+                    {
+                        var frame = frames[level];
+#pragma warning disable IL2026 // Suppressed for backward compatibility - method metadata might be incomplete when trimmed
+                        var method = frame.GetMethod();
+#pragma warning restore IL2026
+                        
+                        var sf = new StackFrame(
+                            assembly: method?.DeclaringType?.Assembly?.FullName,
+                            fileName: frame.GetFileName(),
+                            level: level,
+                            line: frame.GetFileLineNumber(),
+                            method: method?.Name);
+
+                        // Approximate stack frame length
+                        stackLength += (sf.Assembly?.Length ?? 0) + (sf.FileName?.Length ?? 0) + (sf.Method?.Length ?? 0) + 20;
+
+                        if (stackLength > MaxParsedStackLength)
+                        {
+                            hasFullStack = false;
+                            break;
+                        }
+
+                        parsedStack.Add(sf);
+                    }
+
+                    // Update the first exception details with parsed stack
+                    var firstException = this.Data.ExceptionDetailsInfoList[0] as ExceptionDetailsInfo;
+                    if (firstException != null)
+                    {
+                        firstException.ParsedStack = parsedStack;
+                        firstException.HasFullStack = hasFullStack;
+                    }
+                }
+            }
         }
 
-        /*
-        private void ConvertExceptionTree(Exception exception, ExceptionDetails parentExceptionDetails, List<ExceptionDetails> exceptions)
+        /// <summary>
+        /// Converts exception tree to a list of ExceptionDetailsInfo objects.
+        /// </summary>
+        private static void ConvertExceptionTree(Exception exception, int? parentId, List<ExceptionDetailsInfo> detailsList)
         {
-            if (exception == null)
+            // Limit to prevent infinite loops
+            if (exception == null || detailsList.Count >= 10)
             {
-                exception = new Exception(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
+                return;
             }
 
-            ExceptionDetails exceptionDetails = ExceptionConverter.ConvertToExceptionDetails(exception, parentExceptionDetails);
+            int currentId = detailsList.Count;
+            var exceptionDetail = new ExceptionDetailsInfo(
+                id: currentId,
+                outerId: parentId ?? -1,
+                typeName: exception.GetType().FullName,
+                message: exception.Message,
+                hasFullStack: exception.StackTrace != null,
+                stack: exception.StackTrace,
+                parsedStack: System.Array.Empty<StackFrame>());
 
-            // For upper level exception see if Message was provided and do not use exceptiom.message in that case
-            if (parentExceptionDetails == null && !string.IsNullOrWhiteSpace(this.Message))
+            detailsList.Add(exceptionDetail);
+
+            // Handle AggregateException specially
+            if (exception is AggregateException aggregateException && aggregateException.InnerExceptions != null)
             {
-                exceptionDetails.message = this.Message;
-            }
-
-            exceptions.Add(exceptionDetails);
-
-            if (exception is AggregateException aggregate)
-            {
-                foreach (Exception inner in aggregate.InnerExceptions)
+                foreach (var innerException in aggregateException.InnerExceptions)
                 {
-                    this.ConvertExceptionTree(inner, exceptionDetails, exceptions);
+                    ConvertExceptionTree(innerException, currentId, detailsList);
                 }
             }
             else if (exception.InnerException != null)
             {
-                this.ConvertExceptionTree(exception.InnerException, exceptionDetails, exceptions);
+                ConvertExceptionTree(exception.InnerException, currentId, detailsList);
             }
         }
 
-        private void UpdateData(Exception exception)
+        /// <summary>
+        /// Reconstructs an exception chain from ExceptionDetailsInfo list using id/outerId structure.
+        /// </summary>
+        private static Exception ReconstructExceptionFromDetails(IReadOnlyList<ExceptionDetailsInfo> detailsList)
         {
-            if (this.isCreatedFromExceptionInfo)
+            if (detailsList == null || detailsList.Count == 0)
             {
-                throw new InvalidOperationException("Operation is not supported given the state of the object.");
+                return null;
             }
 
-            try
+            // Build a dictionary of id -> Exception
+            // We need to build from the innermost to outermost
+            var exceptionDict = new Dictionary<int, Exception>();
+            
+            // Sort by id descending so we build inner exceptions first
+            var sortedDetails = detailsList.OrderByDescending(d => d.Id).ToList();
+            
+            foreach (var detail in sortedDetails)
             {
-                // collect the set of exceptions detail info from the passed in exception
-                List<ExceptionDetails> exceptions = new List<ExceptionDetails>();
-                this.ConvertExceptionTree(exception, null, exceptions);
-
-                // trim if we have too many, also add a custom exception to let the user know we're trimmed
-                if (exceptions.Count > Constants.MaxExceptionCountToSave)
+                var message = detail.Message ?? "<no message>";
+                Exception innerException = null;
+                
+                // Find all children (exceptions that have this as outerId)
+                var children = detailsList.Where(d => d.OuterId == detail.Id).ToList();
+                
+                if (children.Count == 1)
                 {
-                    // TODO: when we localize these messages, we should consider not using InvariantCulture
-                    // create our "message" exception.
-                    InnerExceptionCountExceededException countExceededException =
-                        new InnerExceptionCountExceededException(
-                            string.Format(
-                                CultureInfo.InvariantCulture,
-                                "The number of inner exceptions was {0} which is larger than {1}, the maximum number allowed during transmission. All but the first {1} have been dropped.",
-                                exceptions.Count,
-                                Constants.MaxExceptionCountToSave));
-
-                    // remove all but the first N exceptions
-                    exceptions.RemoveRange(Constants.MaxExceptionCountToSave,
-                        exceptions.Count - Constants.MaxExceptionCountToSave);
-
-                    // we'll add our new exception and parent it to the root exception (first one in the list)
-                    exceptions.Add(ExceptionConverter.ConvertToExceptionDetails(countExceededException, exceptions[0]));
+                    // Single inner exception
+                    innerException = exceptionDict[children[0].Id];
                 }
-
-                this.Data = new ExceptionInfo(exceptions.Select(ex => new ExceptionDetailsInfo(ex)), this.SeverityLevel,
-                    this.ProblemId, this.Properties);
-
-                if (this.context == null)
+                else if (children.Count > 1)
                 {
-                    this.context = new TelemetryContext(this.Data.Properties);
+                    // Multiple inner exceptions - create AggregateException
+                    var innerExceptions = children.Select(c => exceptionDict[c.Id]).ToList();
+                    innerException = new AggregateException(message, innerExceptions);
+                    exceptionDict[detail.Id] = innerException;
+                    continue;
                 }
-                else
-                {
-                    this.context = this.context.DeepClone(this.Data.Properties);
-                }
+                
+                // Create exception with inner if it exists
+                var exception = innerException != null ? new Exception(message, innerException) : new Exception(message);
+                exceptionDict[detail.Id] = exception;
             }
-            catch (Exception ex)
-            {
-                CoreEventSource.Log.UpdateDataFailed(ex.ToInvariantString());
-            }
+
+            // Find the root exception (one with outerId == -1)
+            var rootDetail = detailsList.FirstOrDefault(d => d.OuterId == -1);
+            return rootDetail != null ? exceptionDict[rootDetail.Id] : exceptionDict[detailsList[0].Id];
         }
-
-        private void UpdateData(ExceptionInfo exceptionInfo)
-        {
-            if (!this.isCreatedFromExceptionInfo)
-            {
-                throw new InvalidOperationException("Operation is not supported given the state of the object.");
-            }
-
-            this.Data = exceptionInfo ?? throw new ArgumentNullException(nameof(exceptionInfo));
-            this.context = new TelemetryContext(this.Data.Properties);
-        }
-
-        private Exception ConstructExceptionFromDetailsInfo(IReadOnlyList<ExceptionDetailsInfo> exceptionInfos)
-        {
-            if (!this.isCreatedFromExceptionInfo)
-            {
-                throw new InvalidOperationException("Operation is not supported given the state of the object.");
-            }
-
-            // construct a fake Exception object based on provided information
-            if (!exceptionInfos.Any())
-            {
-                return new Exception(string.Empty);
-            }
-
-            return new Exception(exceptionInfos[0].Message, this.ConstructInnerException(exceptionInfos, 0));
-        }
-
-        private Exception ConstructInnerException(IReadOnlyList<ExceptionDetailsInfo> exceptionInfos, int parentExceptionIndex)
-        {
-            // inner exception is the next one after the parent
-            int index = parentExceptionIndex + 1;
-
-            if (index < exceptionInfos.Count)
-            {
-                // inner exception exists
-                return new Exception(exceptionInfos[index].Message, this.ConstructInnerException(exceptionInfos, index));
-            }
-
-            // inner exception doesn't exist
-            return null;
-        }*/
     }
 }
