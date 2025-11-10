@@ -36,6 +36,7 @@
             this.Data = new ExceptionInfo(new List<ExceptionDetailsInfo>(), null, null,
                  new Dictionary<string, string>());
             this.context = new TelemetryContext();
+            this.Properties = new Dictionary<string, string>();
         }
 
         /// <summary>
@@ -198,18 +199,7 @@
         /// </summary>
         public IDictionary<string, string> Properties
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            // TODO: Remove context and Add a private ConcurrentDictionary<string,string>.
-            get
-            {
-                if (this.context == null)
-                {
-                    this.context = new TelemetryContext();
-                }
-
-                return this.context.Properties;
-            }
-#pragma warning restore CS0618 // Type or member is obsolete
+            get;
         }
 
         /// <summary>
@@ -227,15 +217,6 @@
         }*/
 
         /// <summary>
-        /// Gets or sets the MetricExtractorInfo.
-        /// </summary>
-        internal string MetricExtractorInfo
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// Set parsedStack from an array of StackFrame objects.
         /// </summary>
 #pragma warning disable CA1822 // Mark members as static
@@ -246,16 +227,8 @@
         {
         }
 
-        /// <summary>
-        /// Deeply clones a <see cref="ExceptionTelemetry"/> object.
-        /// </summary>
-        /// <returns>A cloned instance.</returns>
-        public ITelemetry DeepClone()
-        {
-            return new ExceptionTelemetry(this);
-        }
-
-        /*private void ConvertExceptionTree(Exception exception, ExceptionDetails parentExceptionDetails, List<ExceptionDetails> exceptions)
+        /*
+        private void ConvertExceptionTree(Exception exception, ExceptionDetails parentExceptionDetails, List<ExceptionDetails> exceptions)
         {
             if (exception == null)
             {
@@ -320,7 +293,7 @@
                 }
 
                 this.Data = new ExceptionInfo(exceptions.Select(ex => new ExceptionDetailsInfo(ex)), this.SeverityLevel,
-                    this.ProblemId, this.Properties, this.Metrics);
+                    this.ProblemId, this.Properties);
 
                 if (this.context == null)
                 {

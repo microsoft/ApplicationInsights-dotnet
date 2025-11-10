@@ -6,7 +6,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
     using System.ComponentModel;
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     /// <summary>
@@ -19,10 +18,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         internal string EnvelopeName = "AppDependencies";
         
         private readonly TelemetryContext context;
-        private double? samplingPercentage;
         private bool successFieldSet;
         private bool success = true;
-        private IDictionary<string, double> measurementsValue;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class.
@@ -37,21 +34,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Target = string.Empty;
             this.Type = string.Empty;
             this.Data = string.Empty;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyName"/>, <paramref name="data"/>,
-        /// <paramref name="startTime"/>, <paramref name="duration"/> and <paramref name="success"/> property values.
-        /// </summary>
-        [Obsolete("Use other constructors which allows to define dependency call with all the properties.")]
-        public DependencyTelemetry(string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, bool success)
-            : this()
-        {
-            this.Name = dependencyName;
-            this.Data = data;
-            this.Duration = duration;
-            this.Success = success;
-            this.Timestamp = startTime;
+            this.Properties = new Dictionary<string, string>();
         }
 
         /// <summary>
@@ -86,40 +69,9 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class by cloning an existing instance.
-        /// </summary>
-        /// <param name="source">Source instance of <see cref="DependencyTelemetry"/> to clone from.</param>
-        private DependencyTelemetry(DependencyTelemetry source)
-        {            
-            if (source.measurementsValue != null)
-            {
-                Utils.CopyDictionary(source.Metrics, this.Metrics);
-            }
-
-            this.context = source.context.DeepClone();
-            this.Sequence = source.Sequence;
-            this.Timestamp = source.Timestamp;
-            this.samplingPercentage = source.samplingPercentage;
-            this.successFieldSet = source.successFieldSet;
-            this.Name = source.Name;
-            this.Id = source.Id;
-            this.ResultCode = source.ResultCode;
-            this.Duration = source.Duration;
-            this.Success = source.Success;
-            this.Data = source.Data;
-            this.Target = source.Target;
-            this.Type = source.Type;            
-        }
-
-        /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
         /// </summary>
         public override DateTimeOffset Timestamp { get; set; }
-
-        /// <summary>
-        /// Gets or sets the value that defines absolute order of the telemetry item.
-        /// </summary>
-        public override string Sequence { get; set; }
 
         /// <summary>
         /// Gets the context associated with the current telemetry item.
@@ -157,16 +109,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
-        /// Gets or sets text of SQL command or empty it not applicable.
-        /// </summary>
-        [Obsolete("Renamed to Data")]
-        public string CommandName
-        {
-            get { return this.Data; }
-            set { this.Data = value; }
-        }
-
-        /// <summary>
         /// Gets or sets data associated with the current dependency instance. Command name/statement for SQL dependency, URL for http dependency.
         /// </summary>
         public string Data
@@ -182,16 +124,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
         {
             get;
             set;
-        }
-
-        /// <summary>
-        /// Gets or sets the dependency type name.
-        /// </summary>
-        [Obsolete("Renamed to Type")]
-        public string DependencyTypeName
-        {
-            get { return this.Type;  }
-            set { this.Type = value; }
         }
 
         /// <summary>
@@ -249,61 +181,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
         public override IDictionary<string, string> Properties
         {
             get;
-        }
-
-        /// <summary>
-        /// Gets a dictionary of application-defined event metrics.
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
-        /// </summary>
-        public override IDictionary<string, double> Metrics
-        {
-            get { return LazyInitializer.EnsureInitialized(ref this.measurementsValue, () => new ConcurrentDictionary<string, double>()); }
-        }
-
-        /// <summary>
-        /// Gets or sets the dependency kind, like SQL, HTTP, Azure, etc.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("Use Type")]
-        public string DependencyKind
-        {
-            get
-            {
-                return this.DependencyTypeName;
-            }
-
-            set
-            {
-                this.DependencyTypeName = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets data sampling percentage (between 0 and 100).
-        /// Should be 100/n where n is an integer. <a href="https://go.microsoft.com/fwlink/?linkid=832969">Learn more</a>
-        /// </summary>
-        internal double? SamplingPercentage
-        {
-            get { return this.samplingPercentage; }
-            set { this.samplingPercentage = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the MetricExtractorInfo.
-        /// </summary>
-        internal string MetricExtractorInfo
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Deeply clones a <see cref="DependencyTelemetry"/> object.
-        /// </summary>
-        /// <returns>A cloned instance.</returns>
-        public override ITelemetry DeepClone()
-        {
-            return new DependencyTelemetry(this);
         }
 
         /// <summary>

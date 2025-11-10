@@ -14,23 +14,6 @@
     {
         internal const string TelemetryName = "Operation";
 
-        /// <summary>
-        /// Gets or sets the start time of the operation.
-        /// </summary>
-        [Obsolete("Use Timestamp")]
-        public DateTimeOffset StartTime
-        {
-            get
-            {
-                return this.Timestamp;
-            }
-
-            set
-            {
-                this.Timestamp = value;
-            }
-        }
-
         /// <summary>  
         /// Gets or sets Operation ID.
         /// </summary>  
@@ -52,11 +35,6 @@
         public abstract TimeSpan Duration { get; set;  }
 
         /// <summary>
-        /// Gets the custom metrics collection.
-        /// </summary>
-        public abstract IDictionary<string, double> Metrics { get; }
-
-        /// <summary>
         /// Gets the custom properties collection.
         /// </summary>
         public abstract IDictionary<string, string> Properties { get; }
@@ -71,22 +49,11 @@
         /// </summary>
         public abstract TelemetryContext Context { get; }
 
-        /// <summary>
-        /// Gets or sets the value that defines absolute order of the telemetry item.
-        /// </summary>
-        public abstract string Sequence { get; set; }
-
         /// <summary>  
         /// Gets or sets Time in StopWatch ticks representing begin time of the operation. Used internally
         /// for calculating duration between begin and end.
         /// </summary>  
         internal long BeginTimeInTicks { get; set; }
-
-        /// <summary>
-        /// Deeply clones a <see cref="OperationTelemetry"/> object.
-        /// </summary>
-        /// <returns>A cloned instance.</returns>
-        public abstract ITelemetry DeepClone();
 
         /// <summary>
         /// Allow to call OperationTelemetry.Sanitize method from child classes.

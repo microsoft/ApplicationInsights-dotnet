@@ -13,10 +13,8 @@
         /// <summary>
         /// Constructs the instance of <see cref="ExceptionInfo"/>.
         /// </summary>
-#pragma warning disable CA1801 // Review unused parameters
         public ExceptionInfo(IEnumerable<ExceptionDetailsInfo> exceptionDetailsInfoList, SeverityLevel? severityLevel, string problemId,
             IDictionary<string, string> properties)
-#pragma warning restore CA1801 // Review unused parameters
         {
             this.ExceptionDetailsInfoList = exceptionDetailsInfoList != null
                 ? new List<ExceptionDetailsInfo>(exceptionDetailsInfoList)
