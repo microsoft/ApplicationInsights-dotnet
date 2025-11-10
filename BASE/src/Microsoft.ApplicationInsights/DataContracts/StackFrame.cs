@@ -5,17 +5,41 @@
     /// </summary>
     public sealed class StackFrame
     {
-        // TODO: fix the constructor to set properties
-
         /// <summary>
         /// Constructs an instance.
         /// </summary>
-#pragma warning disable IDE0290 // Use primary constructor
-#pragma warning disable CA1801 // Review unused parameters
         public StackFrame(string assembly, string fileName, int level, int line, string method)
-#pragma warning restore CA1801 // Review unused parameters
-#pragma warning restore IDE0290 // Use primary constructor
         {
+            this.Assembly = assembly;
+            this.FileName = fileName;
+            this.Level = level;
+            this.Line = line;
+            this.Method = method;
         }
+
+        /// <summary>
+        /// Gets or sets the assembly name.
+        /// </summary>
+        public string Assembly { get; set; }
+
+        /// <summary>
+        /// Gets or sets the file name.
+        /// </summary>
+        public string FileName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the level.
+        /// </summary>
+        public int Level { get; set; }
+
+        /// <summary>
+        /// Gets or sets the line number.
+        /// </summary>
+        public int Line { get; set; }
+
+        /// <summary>
+        /// Gets or sets the method name.
+        /// </summary>
+        public string Method { get; set; }
     }
 }
