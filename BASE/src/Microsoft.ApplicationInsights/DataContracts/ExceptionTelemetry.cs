@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
 
     /// <summary>
@@ -108,12 +109,30 @@
         {
             get
             {
+                if (this.exception == null && this.Data?.ExceptionDetailsInfoList != null && this.Data.ExceptionDetailsInfoList.Count > 0)
+                {
+                    // Lazy-load: reconstruct exception from ExceptionDetailsInfoList
+                    this.exception = ReconstructExceptionFromDetails(this.Data.ExceptionDetailsInfoList);
+                }
+
                 return this.exception;
             }
 
             set
             {
                 this.exception = value;
+                
+                // Populate ExceptionDetailsInfoList from the exception
+                if (value != null)
+                {
+                    var exceptionDetailsList = new List<ExceptionDetailsInfo>();
+                    ConvertExceptionTree(value, null, exceptionDetailsList);
+                    this.Data = new ExceptionInfo(exceptionDetailsList, this.Data?.SeverityLevel, this.Data?.ProblemId, this.Data?.Properties ?? new Dictionary<string, string>());
+                }
+                else
+                {
+                    this.Data = new ExceptionInfo(new List<ExceptionDetailsInfo>(), this.Data?.SeverityLevel, this.Data?.ProblemId, this.Data?.Properties ?? new Dictionary<string, string>());
+                }
             }
         }
 
@@ -162,12 +181,151 @@
         }
 
         /// <summary>
+        /// Set parsedStack from an array of StackFrame objects.
+        /// </summary>
+        /// <param name="frames">Array of System.Diagnostics.StackFrame to convert to parsed stack.</param>
+        public void SetParsedStack(System.Diagnostics.StackFrame[] frames)
+        {
+            if (this.Data?.ExceptionDetailsInfoList != null && this.Data.ExceptionDetailsInfoList.Count > 0)
+            {
+                if (frames != null && frames.Length > 0)
+                {
+                    const int MaxParsedStackLength = 32768;
+                    int stackLength = 0;
+
+                    var parsedStack = new List<StackFrame>();
+                    bool hasFullStack = true;
+
+                    for (int level = 0; level < frames.Length; level++)
+                    {
+                        var frame = frames[level];
+#pragma warning disable IL2026 // Suppressed for backward compatibility - method metadata might be incomplete when trimmed
+                        var method = frame.GetMethod();
+#pragma warning restore IL2026
+                        
+                        var sf = new StackFrame(
+                            assembly: method?.DeclaringType?.Assembly?.FullName,
+                            fileName: frame.GetFileName(),
+                            level: level,
+                            line: frame.GetFileLineNumber(),
+                            method: method?.Name);
+
+                        // Approximate stack frame length
+                        stackLength += (sf.Assembly?.Length ?? 0) + (sf.FileName?.Length ?? 0) + (sf.Method?.Length ?? 0) + 20;
+
+                        if (stackLength > MaxParsedStackLength)
+                        {
+                            hasFullStack = false;
+                            break;
+                        }
+
+                        parsedStack.Add(sf);
+                    }
+
+                    // Update the first exception details with parsed stack
+                    var firstException = this.Data.ExceptionDetailsInfoList[0] as ExceptionDetailsInfo;
+                    if (firstException != null)
+                    {
+                        firstException.ParsedStack = parsedStack;
+                        firstException.HasFullStack = hasFullStack;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Deeply clones a <see cref="ExceptionTelemetry"/> object.
         /// </summary>
         /// <returns>A cloned instance.</returns>
         public ITelemetry DeepClone()
         {
             return new ExceptionTelemetry(this);
+        }
+
+        /// <summary>
+        /// Converts exception tree to a list of ExceptionDetailsInfo objects.
+        /// </summary>
+        private static void ConvertExceptionTree(Exception exception, int? parentId, List<ExceptionDetailsInfo> detailsList)
+        {
+            // Limit to prevent infinite loops
+            if (exception == null || detailsList.Count >= 10)
+            {
+                return;
+            }
+
+            int currentId = detailsList.Count;
+            var exceptionDetail = new ExceptionDetailsInfo(
+                id: currentId,
+                outerId: parentId ?? -1,
+                typeName: exception.GetType().FullName,
+                message: exception.Message,
+                hasFullStack: exception.StackTrace != null,
+                stack: exception.StackTrace,
+                parsedStack: System.Array.Empty<StackFrame>());
+
+            detailsList.Add(exceptionDetail);
+
+            // Handle AggregateException specially
+            if (exception is AggregateException aggregateException && aggregateException.InnerExceptions != null)
+            {
+                foreach (var innerException in aggregateException.InnerExceptions)
+                {
+                    ConvertExceptionTree(innerException, currentId, detailsList);
+                }
+            }
+            else if (exception.InnerException != null)
+            {
+                ConvertExceptionTree(exception.InnerException, currentId, detailsList);
+            }
+        }
+
+        /// <summary>
+        /// Reconstructs an exception chain from ExceptionDetailsInfo list using id/outerId structure.
+        /// </summary>
+        private static Exception ReconstructExceptionFromDetails(IReadOnlyList<ExceptionDetailsInfo> detailsList)
+        {
+            if (detailsList == null || detailsList.Count == 0)
+            {
+                return null;
+            }
+
+            // Build a dictionary of id -> Exception
+            // We need to build from the innermost to outermost
+            var exceptionDict = new Dictionary<int, Exception>();
+            
+            // Sort by id descending so we build inner exceptions first
+            var sortedDetails = detailsList.OrderByDescending(d => d.Id).ToList();
+            
+            foreach (var detail in sortedDetails)
+            {
+                var message = detail.Message ?? "<no message>";
+                Exception innerException = null;
+                
+                // Find all children (exceptions that have this as outerId)
+                var children = detailsList.Where(d => d.OuterId == detail.Id).ToList();
+                
+                if (children.Count == 1)
+                {
+                    // Single inner exception
+                    innerException = exceptionDict[children[0].Id];
+                }
+                else if (children.Count > 1)
+                {
+                    // Multiple inner exceptions - create AggregateException
+                    var innerExceptions = children.Select(c => exceptionDict[c.Id]).ToList();
+                    innerException = new AggregateException(message, innerExceptions);
+                    exceptionDict[detail.Id] = innerException;
+                    continue;
+                }
+                
+                // Create exception with inner if it exists
+                var exception = innerException != null ? new Exception(message, innerException) : new Exception(message);
+                exceptionDict[detail.Id] = exception;
+            }
+
+            // Find the root exception (one with outerId == -1)
+            var rootDetail = detailsList.FirstOrDefault(d => d.OuterId == -1);
+            return rootDetail != null ? exceptionDict[rootDetail.Id] : exceptionDict[detailsList[0].Id];
         }
     }
 }

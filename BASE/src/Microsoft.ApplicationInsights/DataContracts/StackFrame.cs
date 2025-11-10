@@ -20,26 +20,26 @@
         /// <summary>
         /// Gets or sets the assembly name.
         /// </summary>
-        public string Assembly { get; set; }
+        internal string Assembly { get; set; }
 
         /// <summary>
         /// Gets or sets the file name.
         /// </summary>
-        public string FileName { get; set; }
+        internal string FileName { get; set; }
 
         /// <summary>
         /// Gets or sets the level.
         /// </summary>
-        public int Level { get; set; }
+        internal int Level { get; set; }
 
         /// <summary>
         /// Gets or sets the line number.
         /// </summary>
-        public int Line { get; set; }
+        internal int Line { get; set; }
 
         /// <summary>
         /// Gets or sets the method name.
         /// </summary>
-        public string Method { get; set; }
+        internal string Method { get; set; }
     }
 }

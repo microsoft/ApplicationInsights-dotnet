@@ -342,7 +342,26 @@
             }
 
             var reconstructedException = ConvertToException(telemetry);
-            var state = new DictionaryLogState(telemetry.Properties, reconstructedException.Message);
+            
+            // Merge Context.GlobalProperties and telemetry.Properties
+            var allProperties = new Dictionary<string, string>();
+            if (telemetry.Context?.GlobalProperties != null)
+            {
+                foreach (var kvp in telemetry.Context.GlobalProperties)
+                {
+                    allProperties[kvp.Key] = kvp.Value;
+                }
+            }
+
+            if (telemetry.Properties != null)
+            {
+                foreach (var kvp in telemetry.Properties)
+                {
+                    allProperties[kvp.Key] = kvp.Value; // Properties override GlobalProperties
+                }
+            }
+
+            var state = new DictionaryLogState(allProperties, reconstructedException.Message);
             var logLevel = GetLogLevel(telemetry.SeverityLevel ?? SeverityLevel.Error);
             this.Logger.Log(logLevel, 0, state, reconstructedException, (s, ex) => s.Message);
         }
