@@ -1,6 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights
 {
     using System;
+    using System.Diagnostics;
+    using System.Diagnostics.Metrics;
 
     /// <summary>
     /// Represents a zero- or multi-dimensional metric.<br />
@@ -10,6 +12,26 @@
     /// </summary>
     public sealed class Metric
     {
+        private readonly TelemetryClient client;
+        private readonly string metricName;
+        private readonly string metricNamespace;
+        private readonly string[] dimensionNames;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Metric"/> class.
+        /// </summary>
+        /// <param name="client">The telemetry client.</param>
+        /// <param name="metricName">The metric name.</param>
+        /// <param name="metricNamespace">The metric namespace.</param>
+        /// <param name="dimensionNames">The dimension names.</param>
+        internal Metric(TelemetryClient client, string metricName, string metricNamespace, string[] dimensionNames)
+        {
+            this.client = client ?? throw new ArgumentNullException(nameof(client));
+            this.metricName = metricName ?? throw new ArgumentNullException(nameof(metricName));
+            this.metricNamespace = metricNamespace;
+            this.dimensionNames = dimensionNames ?? Array.Empty<string>();
+        }
+
         /// <summary>
         /// Tracks the specified value.<br />
         /// An aggregate representing tracked values will be automatically sent to the cloud ingestion endpoint at the end of each aggregation period.<br />
@@ -19,7 +41,11 @@
         /// <param name="metricValue">The value to be aggregated.</param>
         public void TrackValue(double metricValue)
         {
-            // this.zeroDimSeries.TrackValue(metricValue);
+            var histogram = this.client.TelemetryConfiguration.MetricsManager.GetOrCreateHistogram(
+                this.metricName,
+                this.metricNamespace);
+
+            histogram.Record(metricValue);
         }
 
         /// <summary>
@@ -31,7 +57,15 @@
         /// <param name="metricValue">The value to be aggregated.</param>
         public void TrackValue(object metricValue)
         {
-            // this.zeroDimSeries.TrackValue(metricValue);
+            if (metricValue == null)
+            {
+                return;
+            }
+
+            if (double.TryParse(metricValue.ToString(), out double value))
+            {
+                this.TrackValue(value);
+            }
         }
 
         /// <summary>
@@ -46,7 +80,23 @@
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
         public bool TrackValue(double metricValue, string dimension1Value)
         {
-            return false;
+            if (this.dimensionNames.Length != 1)
+            {
+                // TODO: Log exception
+                return false;
+            }
+
+            var histogram = this.client.TelemetryConfiguration.MetricsManager.GetOrCreateHistogram(
+                this.metricName,
+                this.metricNamespace);
+
+            var tags = new TagList
+            {
+                { this.dimensionNames[0], dimension1Value },
+            };
+
+            histogram.Record(metricValue, tags);
+            return true;
         }
 
         /// <summary>
@@ -61,6 +111,16 @@
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
         public bool TrackValue(object metricValue, string dimension1Value)
         {
+            if (metricValue == null)
+            {
+                return false;
+            }
+
+            if (double.TryParse(metricValue.ToString(), out double value))
+            {
+                return this.TrackValue(value, dimension1Value);
+            }
+
             return false;
         }
 
@@ -77,7 +137,25 @@
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
         public bool TrackValue(double metricValue, string dimension1Value, string dimension2Value)
         {
-            return false;
+            if (this.dimensionNames.Length != 2)
+            {
+                // throw new ArgumentException("This metric expects 2 dimension values.");
+                // TODO: Log exception
+                return false;
+            }
+
+            var histogram = this.client.TelemetryConfiguration.MetricsManager.GetOrCreateHistogram(
+                this.metricName,
+                this.metricNamespace);
+
+            var tags = new TagList
+            {
+                { this.dimensionNames[0], dimension1Value },
+                { this.dimensionNames[1], dimension2Value },
+            };
+
+            histogram.Record(metricValue, tags);
+            return true;
         }
 
         /// <summary>
@@ -93,6 +171,16 @@
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
         public bool TrackValue(object metricValue, string dimension1Value, string dimension2Value)
         {
+            if (metricValue == null)
+            {
+                return false;
+            }
+
+            if (double.TryParse(metricValue.ToString(), out double value))
+            {
+                return this.TrackValue(value, dimension1Value, dimension2Value);
+            }
+
             return false;
         }
 
@@ -110,7 +198,26 @@
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
         public bool TrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value)
         {
-            return false;
+            if (this.dimensionNames.Length != 3)
+            {
+                // throw new ArgumentException("This metric expects 3 dimension values.");
+                // TODO: Log exception
+                return false;
+            }
+
+            var histogram = this.client.TelemetryConfiguration.MetricsManager.GetOrCreateHistogram(
+                this.metricName,
+                this.metricNamespace);
+
+            var tags = new TagList
+            {
+                { this.dimensionNames[0], dimension1Value },
+                { this.dimensionNames[1], dimension2Value },
+                { this.dimensionNames[2], dimension3Value },
+            };
+
+            histogram.Record(metricValue, tags);
+            return true;
         }
 
         /// <summary>
@@ -127,6 +234,16 @@
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
         public bool TrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value)
         {
+            if (metricValue == null)
+            {
+                return false;
+            }
+
+            if (double.TryParse(metricValue.ToString(), out double value))
+            {
+                return this.TrackValue(value, dimension1Value, dimension2Value, dimension3Value);
+            }
+
             return false;
         }
 
@@ -145,7 +262,27 @@
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
         public bool TrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value)
         {
-            return false;
+            if (this.dimensionNames.Length != 4)
+            {
+                // throw new ArgumentException("This metric expects 4 dimension values.");
+                // TODO: Log exception
+                return false;
+            }
+
+            var histogram = this.client.TelemetryConfiguration.MetricsManager.GetOrCreateHistogram(
+                this.metricName,
+                this.metricNamespace);
+
+            var tags = new TagList
+            {
+                { this.dimensionNames[0], dimension1Value },
+                { this.dimensionNames[1], dimension2Value },
+                { this.dimensionNames[2], dimension3Value },
+                { this.dimensionNames[3], dimension4Value },
+            };
+
+            histogram.Record(metricValue, tags);
+            return true;
         }
 
         /// <summary>
@@ -163,6 +300,16 @@
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
         public bool TrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value)
         {
+            if (metricValue == null)
+            {
+                return false;
+            }
+
+            if (double.TryParse(metricValue.ToString(), out double value))
+            {
+                return this.TrackValue(value, dimension1Value, dimension2Value, dimension3Value, dimension4Value);
+            }
+
             return false;
         }
 
@@ -188,7 +335,28 @@
                                 string dimension4Value,
                                 string dimension5Value)
         {
-            return false;
+            if (this.dimensionNames.Length != 5)
+            {
+                // throw new ArgumentException("This metric expects 5 dimension values.");
+                // TODO: Log exception
+                return false;
+            }
+
+            var histogram = this.client.TelemetryConfiguration.MetricsManager.GetOrCreateHistogram(
+                this.metricName,
+                this.metricNamespace);
+
+            var tags = new TagList
+            {
+                { this.dimensionNames[0], dimension1Value },
+                { this.dimensionNames[1], dimension2Value },
+                { this.dimensionNames[2], dimension3Value },
+                { this.dimensionNames[3], dimension4Value },
+                { this.dimensionNames[4], dimension5Value },
+            };
+
+            histogram.Record(metricValue, tags);
+            return true;
         }
 
         /// <summary>
@@ -213,6 +381,16 @@
                                 string dimension4Value,
                                 string dimension5Value)
         {
+            if (metricValue == null)
+            {
+                return false;
+            }
+
+            if (double.TryParse(metricValue.ToString(), out double value))
+            {
+                return this.TrackValue(value, dimension1Value, dimension2Value, dimension3Value, dimension4Value, dimension5Value);
+            }
+
             return false;
         }
 
@@ -240,7 +418,29 @@
                                 string dimension5Value,
                                 string dimension6Value)
         {
-            return false;
+            if (this.dimensionNames.Length != 6)
+            {
+                // throw new ArgumentException("This metric expects 6 dimension values.");
+                // TODO: Log exception
+                return false;
+            }
+
+            var histogram = this.client.TelemetryConfiguration.MetricsManager.GetOrCreateHistogram(
+                this.metricName,
+                this.metricNamespace);
+
+            var tags = new TagList
+            {
+                { this.dimensionNames[0], dimension1Value },
+                { this.dimensionNames[1], dimension2Value },
+                { this.dimensionNames[2], dimension3Value },
+                { this.dimensionNames[3], dimension4Value },
+                { this.dimensionNames[4], dimension5Value },
+                { this.dimensionNames[5], dimension6Value },
+            };
+
+            histogram.Record(metricValue, tags);
+            return true;
         }
 
         /// <summary>
@@ -267,6 +467,16 @@
                                 string dimension5Value,
                                 string dimension6Value)
         {
+            if (metricValue == null)
+            {
+                return false;
+            }
+
+            if (double.TryParse(metricValue.ToString(), out double value))
+            {
+                return this.TrackValue(value, dimension1Value, dimension2Value, dimension3Value, dimension4Value, dimension5Value, dimension6Value);
+            }
+
             return false;
         }
 
@@ -296,7 +506,30 @@
                                 string dimension6Value,
                                 string dimension7Value)
         {
-            return false;
+            if (this.dimensionNames.Length != 7)
+            {
+                // throw new ArgumentException("This metric expects 7 dimension values.");
+                // TODO: Log exception
+                return false;
+            }
+
+            var histogram = this.client.TelemetryConfiguration.MetricsManager.GetOrCreateHistogram(
+                this.metricName,
+                this.metricNamespace);
+
+            var tags = new TagList
+            {
+                { this.dimensionNames[0], dimension1Value },
+                { this.dimensionNames[1], dimension2Value },
+                { this.dimensionNames[2], dimension3Value },
+                { this.dimensionNames[3], dimension4Value },
+                { this.dimensionNames[4], dimension5Value },
+                { this.dimensionNames[5], dimension6Value },
+                { this.dimensionNames[6], dimension7Value },
+            };
+
+            histogram.Record(metricValue, tags);
+            return true;
         }
 
         /// <summary>
@@ -325,6 +558,16 @@
                                 string dimension6Value,
                                 string dimension7Value)
         {
+            if (metricValue == null)
+            {
+                return false;
+            }
+
+            if (double.TryParse(metricValue.ToString(), out double value))
+            {
+                return this.TrackValue(value, dimension1Value, dimension2Value, dimension3Value, dimension4Value, dimension5Value, dimension6Value, dimension7Value);
+            }
+
             return false;
         }
 
@@ -356,7 +599,31 @@
                                 string dimension7Value,
                                 string dimension8Value)
         {
-            return false;
+            if (this.dimensionNames.Length != 8)
+            {
+                // throw new ArgumentException("This metric expects 8 dimension values.");
+                // TODO: Log exception
+                return false;
+            }
+
+            var histogram = this.client.TelemetryConfiguration.MetricsManager.GetOrCreateHistogram(
+                this.metricName,
+                this.metricNamespace);
+
+            var tags = new TagList
+            {
+                { this.dimensionNames[0], dimension1Value },
+                { this.dimensionNames[1], dimension2Value },
+                { this.dimensionNames[2], dimension3Value },
+                { this.dimensionNames[3], dimension4Value },
+                { this.dimensionNames[4], dimension5Value },
+                { this.dimensionNames[5], dimension6Value },
+                { this.dimensionNames[6], dimension7Value },
+                { this.dimensionNames[7], dimension8Value },
+            };
+
+            histogram.Record(metricValue, tags);
+            return true;
         }
 
         /// <summary>
@@ -387,6 +654,16 @@
                                 string dimension7Value,
                                 string dimension8Value)
         {
+            if (metricValue == null)
+            {
+                return false;
+            }
+
+            if (double.TryParse(metricValue.ToString(), out double value))
+            {
+                return this.TrackValue(value, dimension1Value, dimension2Value, dimension3Value, dimension4Value, dimension5Value, dimension6Value, dimension7Value, dimension8Value);
+            }
+
             return false;
         }
 
@@ -420,6 +697,31 @@
                                 string dimension8Value,
                                 string dimension9Value)
         {
+            if (this.dimensionNames.Length != 9)
+            {
+                // throw new ArgumentException("This metric expects 9 dimension values.");
+                // TODO: Log exception
+                return false;
+            }
+
+            var histogram = this.client.TelemetryConfiguration.MetricsManager.GetOrCreateHistogram(
+                this.metricName,
+                this.metricNamespace);
+
+            var tags = new TagList
+            {
+                { this.dimensionNames[0], dimension1Value },
+                { this.dimensionNames[1], dimension2Value },
+                { this.dimensionNames[2], dimension3Value },
+                { this.dimensionNames[3], dimension4Value },
+                { this.dimensionNames[4], dimension5Value },
+                { this.dimensionNames[5], dimension6Value },
+                { this.dimensionNames[6], dimension7Value },
+                { this.dimensionNames[7], dimension8Value },
+                { this.dimensionNames[8], dimension9Value },
+            };
+
+            histogram.Record(metricValue, tags);
             return true;
         }
 
@@ -453,6 +755,16 @@
                                 string dimension8Value,
                                 string dimension9Value)
         {
+            if (metricValue == null)
+            {
+                return false;
+            }
+
+            if (double.TryParse(metricValue.ToString(), out double value))
+            {
+                return this.TrackValue(value, dimension1Value, dimension2Value, dimension3Value, dimension4Value, dimension5Value, dimension6Value, dimension7Value, dimension8Value, dimension9Value);
+            }
+
             return false;
         }
 
@@ -488,6 +800,32 @@
                                 string dimension9Value,
                                 string dimension10Value)
         {
+            if (this.dimensionNames.Length != 10)
+            {
+                // throw new ArgumentException("This metric expects 10 dimension values.");
+                // TODO: Log exception
+                return false;
+            }
+
+            var histogram = this.client.TelemetryConfiguration.MetricsManager.GetOrCreateHistogram(
+                this.metricName,
+                this.metricNamespace);
+
+            var tags = new TagList
+            {
+                { this.dimensionNames[0], dimension1Value },
+                { this.dimensionNames[1], dimension2Value },
+                { this.dimensionNames[2], dimension3Value },
+                { this.dimensionNames[3], dimension4Value },
+                { this.dimensionNames[4], dimension5Value },
+                { this.dimensionNames[5], dimension6Value },
+                { this.dimensionNames[6], dimension7Value },
+                { this.dimensionNames[7], dimension8Value },
+                { this.dimensionNames[8], dimension9Value },
+                { this.dimensionNames[9], dimension10Value },
+            };
+
+            histogram.Record(metricValue, tags);
             return true;
         }
 
@@ -523,6 +861,16 @@
                                 string dimension9Value,
                                 string dimension10Value)
         {
+            if (metricValue == null)
+            {
+                return false;
+            }
+
+            if (double.TryParse(metricValue.ToString(), out double value))
+            {
+                return this.TrackValue(value, dimension1Value, dimension2Value, dimension3Value, dimension4Value, dimension5Value, dimension6Value, dimension7Value, dimension8Value, dimension9Value, dimension10Value);
+            }
+
             return false;
         }
     }

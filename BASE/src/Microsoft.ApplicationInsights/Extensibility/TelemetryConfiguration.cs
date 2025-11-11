@@ -7,6 +7,7 @@
     using System.Reflection;
     using System.Threading;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Metrics;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using OpenTelemetry;
@@ -23,6 +24,7 @@
         // internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
 
         internal const string ApplicationInsightsActivitySourceName = "Microsoft.ApplicationInsights";
+        internal const string ApplicationInsightsMeterName = "Microsoft.ApplicationInsights";
         private static readonly Lazy<TelemetryConfiguration> DefaultInstance =
                                                         new Lazy<TelemetryConfiguration>(() => new TelemetryConfiguration(), LazyThreadSafetyMode.ExecutionAndPublication);
 
@@ -38,6 +40,7 @@
         private Action<IOpenTelemetryBuilder> builderConfiguration;
         private OpenTelemetrySdk openTelemetrySdk;
         private ActivitySource defaultActivitySource;
+        private MetricsManager metricsManager;
 
         /// <summary>
         /// Initializes a new instance of the TelemetryConfiguration class.
@@ -57,6 +60,9 @@
 
             // Create the default ActivitySource
             this.defaultActivitySource = new ActivitySource(ApplicationInsightsActivitySourceName);
+
+            // Create the MetricsManager
+            this.metricsManager = new MetricsManager(ApplicationInsightsMeterName);
 
             // Only set default configuration for non-DI scenarios
             if (!skipDefaultBuilderConfiguration)
@@ -133,6 +139,11 @@
         /// Gets the default ActivitySource used by TelemetryClient.
         /// </summary>
         internal ActivitySource ApplicationInsightsActivitySource => this.defaultActivitySource;
+
+        /// <summary>
+        /// Gets the MetricsManager used by TelemetryClient for metrics tracking.
+        /// </summary>
+        internal MetricsManager MetricsManager => this.metricsManager;
 
         /// <summary>
         /// Gets a value indicating whether this configuration has been built.
@@ -317,6 +328,9 @@
 
                 // Dispose the ActivitySource
                 this.defaultActivitySource?.Dispose();
+
+                // Dispose the MetricsManager
+                this.metricsManager?.Dispose();
 
                 this.isDisposed = true;
 

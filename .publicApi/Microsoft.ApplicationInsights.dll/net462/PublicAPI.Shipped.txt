@@ -11,6 +11,7 @@ abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTel
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Timestamp.get -> System.DateTimeOffset
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Timestamp.set -> void
 const Microsoft.ApplicationInsights.DataContracts.TelemetryContext.FlagDropIdentifiers = 2097152 -> long
+const Microsoft.ApplicationInsights.Metrics.MetricIdentifier.MaxDimensionsCount = 10 -> int
 Microsoft.ApplicationInsights.Channel.IAsyncFlushable
 Microsoft.ApplicationInsights.Channel.IAsyncFlushable.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
 Microsoft.ApplicationInsights.Channel.ITelemetry
@@ -162,7 +163,6 @@ Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.Instrumentati
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetAzureTokenCredential(object tokenCredential) -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.TelemetryConfiguration() -> void
 Microsoft.ApplicationInsights.Metric
-Microsoft.ApplicationInsights.Metric.Metric() -> void
 Microsoft.ApplicationInsights.Metric.TrackValue(double metricValue) -> void
 Microsoft.ApplicationInsights.Metric.TrackValue(double metricValue, string dimension1Value) -> bool
 Microsoft.ApplicationInsights.Metric.TrackValue(double metricValue, string dimension1Value, string dimension2Value) -> bool
@@ -185,10 +185,31 @@ Microsoft.ApplicationInsights.Metric.TrackValue(object metricValue, string dimen
 Microsoft.ApplicationInsights.Metric.TrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value, string dimension7Value, string dimension8Value) -> bool
 Microsoft.ApplicationInsights.Metric.TrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value, string dimension7Value, string dimension8Value, string dimension9Value) -> bool
 Microsoft.ApplicationInsights.Metric.TrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value, string dimension7Value, string dimension8Value, string dimension9Value, string dimension10Value) -> bool
+Microsoft.ApplicationInsights.Metrics.MetricIdentifier
+Microsoft.ApplicationInsights.Metrics.MetricIdentifier.DimensionsCount.get -> int
+Microsoft.ApplicationInsights.Metrics.MetricIdentifier.Equals(Microsoft.ApplicationInsights.Metrics.MetricIdentifier otherMetricIdentifier) -> bool
+Microsoft.ApplicationInsights.Metrics.MetricIdentifier.GetDimensionName(int dimensionNumber) -> string
+Microsoft.ApplicationInsights.Metrics.MetricIdentifier.GetDimensionNames() -> System.Collections.Generic.IEnumerable<string>
+Microsoft.ApplicationInsights.Metrics.MetricIdentifier.MetricId.get -> string
+Microsoft.ApplicationInsights.Metrics.MetricIdentifier.MetricIdentifier(string metricId) -> void
+Microsoft.ApplicationInsights.Metrics.MetricIdentifier.MetricIdentifier(string metricNamespace, string metricId) -> void
+Microsoft.ApplicationInsights.Metrics.MetricIdentifier.MetricIdentifier(string metricNamespace, string metricId, string dimension1Name) -> void
+Microsoft.ApplicationInsights.Metrics.MetricIdentifier.MetricIdentifier(string metricNamespace, string metricId, string dimension1Name, string dimension2Name) -> void
+Microsoft.ApplicationInsights.Metrics.MetricIdentifier.MetricIdentifier(string metricNamespace, string metricId, string dimension1Name, string dimension2Name, string dimension3Name) -> void
+Microsoft.ApplicationInsights.Metrics.MetricIdentifier.MetricIdentifier(string metricNamespace, string metricId, string dimension1Name, string dimension2Name, string dimension3Name, string dimension4Name) -> void
+Microsoft.ApplicationInsights.Metrics.MetricIdentifier.MetricIdentifier(string metricNamespace, string metricId, string dimension1Name, string dimension2Name, string dimension3Name, string dimension4Name, string dimension5Name) -> void
+Microsoft.ApplicationInsights.Metrics.MetricIdentifier.MetricIdentifier(string metricNamespace, string metricId, string dimension1Name, string dimension2Name, string dimension3Name, string dimension4Name, string dimension5Name, string dimension6Name) -> void
+Microsoft.ApplicationInsights.Metrics.MetricIdentifier.MetricIdentifier(string metricNamespace, string metricId, string dimension1Name, string dimension2Name, string dimension3Name, string dimension4Name, string dimension5Name, string dimension6Name, string dimension7Name) -> void
+Microsoft.ApplicationInsights.Metrics.MetricIdentifier.MetricIdentifier(string metricNamespace, string metricId, string dimension1Name, string dimension2Name, string dimension3Name, string dimension4Name, string dimension5Name, string dimension6Name, string dimension7Name, string dimension8Name) -> void
+Microsoft.ApplicationInsights.Metrics.MetricIdentifier.MetricIdentifier(string metricNamespace, string metricId, string dimension1Name, string dimension2Name, string dimension3Name, string dimension4Name, string dimension5Name, string dimension6Name, string dimension7Name, string dimension8Name, string dimension9Name) -> void
+Microsoft.ApplicationInsights.Metrics.MetricIdentifier.MetricIdentifier(string metricNamespace, string metricId, string dimension1Name, string dimension2Name, string dimension3Name, string dimension4Name, string dimension5Name, string dimension6Name, string dimension7Name, string dimension8Name, string dimension9Name, string dimension10Name) -> void
+Microsoft.ApplicationInsights.Metrics.MetricIdentifier.MetricIdentifier(string metricNamespace, string metricId, System.Collections.Generic.IList<string> dimensionNames) -> void
+Microsoft.ApplicationInsights.Metrics.MetricIdentifier.MetricNamespace.get -> string
 Microsoft.ApplicationInsights.TelemetryClient
 Microsoft.ApplicationInsights.TelemetryClient.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
 Microsoft.ApplicationInsights.TelemetryClient.Flush() -> void
 Microsoft.ApplicationInsights.TelemetryClient.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
+Microsoft.ApplicationInsights.TelemetryClient.GetMetric(Microsoft.ApplicationInsights.Metrics.MetricIdentifier metricIdentifier) -> Microsoft.ApplicationInsights.Metric
 Microsoft.ApplicationInsights.TelemetryClient.GetMetric(string metricId) -> Microsoft.ApplicationInsights.Metric
 Microsoft.ApplicationInsights.TelemetryClient.GetMetric(string metricId, string dimension1Name) -> Microsoft.ApplicationInsights.Metric
 Microsoft.ApplicationInsights.TelemetryClient.GetMetric(string metricId, string dimension1Name, string dimension2Name) -> Microsoft.ApplicationInsights.Metric
@@ -245,9 +266,14 @@ override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Success.ge
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Success.set -> void
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Timestamp.get -> System.DateTimeOffset
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Timestamp.set -> void
+override Microsoft.ApplicationInsights.Metrics.MetricIdentifier.Equals(object otherObj) -> bool
+override Microsoft.ApplicationInsights.Metrics.MetricIdentifier.GetHashCode() -> int
+override Microsoft.ApplicationInsights.Metrics.MetricIdentifier.ToString() -> string
 static Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Extensions.ToInvariantString(this System.Exception exception) -> string
 static Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.CreateDefault() -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
 static Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.CreateFromConfiguration(string config) -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
+static Microsoft.ApplicationInsights.Metrics.MetricIdentifier.DefaultMetricNamespace.get -> string
+static Microsoft.ApplicationInsights.Metrics.MetricIdentifier.DefaultMetricNamespace.set -> void
 static Microsoft.ApplicationInsights.TelemetryClientExtensions.StartOperation<T>(this Microsoft.ApplicationInsights.TelemetryClient telemetryClient, string operationName) -> Microsoft.ApplicationInsights.Extensibility.IOperationHolder<T>
 static Microsoft.ApplicationInsights.TelemetryClientExtensions.StartOperation<T>(this Microsoft.ApplicationInsights.TelemetryClient telemetryClient, string operationName, string operationId, string parentOperationId = null) -> Microsoft.ApplicationInsights.Extensibility.IOperationHolder<T>
 static Microsoft.ApplicationInsights.TelemetryClientExtensions.StartOperation<T>(this Microsoft.ApplicationInsights.TelemetryClient telemetryClient, System.Diagnostics.Activity activity) -> Microsoft.ApplicationInsights.Extensibility.IOperationHolder<T>

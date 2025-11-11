@@ -5,6 +5,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using OpenTelemetry;
     using OpenTelemetry.Logs;
+    using OpenTelemetry.Metrics;
     using OpenTelemetry.Trace;
     using System;
     using System.Diagnostics;
@@ -30,7 +31,8 @@
             //builder.Build();
 
             telemetryConfig.ConfigureOpenTelemetryBuilder(builder => builder.WithTracing(tracing => tracing.AddSource("MyCompany.MyProduct.MyLibrary").AddConsoleExporter())
-                                                                     .WithLogging(logging => logging.AddConsoleExporter()));
+                                                                     .WithLogging(logging => logging.AddConsoleExporter())
+                                                                     .WithMetrics(metrics => metrics.AddConsoleExporter()));
 
             // Initialize the TelemetryClient
             var telemetryClient = new TelemetryClient(telemetryConfig);
@@ -46,19 +48,36 @@
             telemetryClient.TrackTrace("A trace with severity and properties", SeverityLevel.Error, new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
             telemetryClient.TrackTrace(new TraceTelemetry("TraceTelemetry object", SeverityLevel.Information));        
 
-            /*telemetryClient.TrackMetric("SampleMetric", 42.0);
-            telemetryClient.TrackMetric(new MetricTelemetry("SampleMetricObject", 42.0));*/
+            // **Metrics Examples**
+            telemetryClient.TrackMetric("SampleMetric", 42.0);
+            telemetryClient.TrackMetric("SampleMetricWithProperties", 99.5, new System.Collections.Generic.Dictionary<string, string> { { "Environment", "Production" } });
+            telemetryClient.TrackMetric(new MetricTelemetry("SampleMetricObject", 42.0));
+
+            // GetMetric().TrackValue() - Preferred approach for metrics
+            var responseTimeMetric = telemetryClient.GetMetric("ResponseTime");
+            responseTimeMetric.TrackValue(123.45);
+            responseTimeMetric.TrackValue(234.56);
+
+            // GetMetric with dimensions
+            var requestsPerEndpoint = telemetryClient.GetMetric("RequestsPerEndpoint", "Endpoint");
+            requestsPerEndpoint.TrackValue(1, "/api/users");
+            requestsPerEndpoint.TrackValue(1, "/api/orders");
+            requestsPerEndpoint.TrackValue(1, "/api/users");
+
+            // Run comprehensive metrics examples
+            Console.WriteLine("\n--- Running Comprehensive Metrics Examples ---");
+            MetricsExamples.RunAllScenarios(telemetryClient);
 
             telemetryClient.TrackException(new InvalidOperationException("Something went wrong"), new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } } );
             telemetryClient.TrackException(new ExceptionTelemetry(new InvalidOperationException("ExceptionTelemetry object")));
 
             // telemetryClient.TrackTrace("A trace with properties", new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
             //telemetryClient.TrackTrace("A trace with severity and properties", SeverityLevel.Error, new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
-            // telemetryClient.TrackDependency("SQL", "GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), true);
-            //telemetryClient.TrackDependency(new DependencyTelemetry("SQL", "dbserver", "GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), "0", true));
+            telemetryClient.TrackDependency("SQL", "GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), true);
+            telemetryClient.TrackDependency(new DependencyTelemetry("SQL", "dbserver", "GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), "0", true));
 
-            //telemetryClient.TrackRequest("GET Home", DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", true);
-            //telemetryClient.TrackRequest(new RequestTelemetry("GET HomeObject", DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", true));
+            telemetryClient.TrackRequest("GET Home", DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", true);
+            telemetryClient.TrackRequest(new RequestTelemetry("GET HomeObject", DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", true));
 
             // 1. Simple request operation
             using (var operation = telemetryClient.StartOperation<RequestTelemetry>("TestRequest"))
@@ -102,7 +121,7 @@
             // Explicitly call Flush() followed by sleep is required in Console Apps.
             // This is to ensure that even if application terminates, telemetry is sent to the back-end.
             telemetryClient.Flush();
-            Task.Delay(500000).Wait();
+            Task.Delay(5000).Wait();
         }
     }
 
