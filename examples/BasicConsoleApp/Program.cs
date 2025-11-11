@@ -21,16 +21,10 @@
                 ConnectionString = "",
             };
 
-            // Add custom TelemetryInitializer.
-            //telemetryConfig.TelemetryInitializers.Add(new MyCustomTelemetryInitializer());
-
-            // Add custom TelemetryProcessor and build.
-            //var builder = telemetryConfig.DefaultTelemetrySink.TelemetryProcessorChainBuilder;
-            //builder.Use(next => new MyCustomTelemetryProcessor(next));
-            //builder.Build();
-
-            telemetryConfig.ConfigureOpenTelemetryBuilder(builder => builder.WithTracing(tracing => tracing.AddSource("MyCompany.MyProduct.MyLibrary").AddConsoleExporter())
-                                                                     .WithLogging(logging => logging.AddConsoleExporter()));
+            telemetryConfig.ConfigureOpenTelemetryBuilder(builder => builder
+                .WithTracing(tracing => tracing.AddSource("MyCompany.MyProduct.MyLibrary").AddConsoleExporter())
+                .WithLogging(logging => logging
+                    .AddConsoleExporter()));
 
             // Initialize the TelemetryClient
             var telemetryClient = new TelemetryClient(telemetryConfig);
@@ -44,21 +38,22 @@
             telemetryClient.TrackTrace("A warning", SeverityLevel.Warning);
             telemetryClient.TrackTrace("A trace with properties", new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
             telemetryClient.TrackTrace("A trace with severity and properties", SeverityLevel.Error, new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
-            telemetryClient.TrackTrace(new TraceTelemetry("TraceTelemetry object", SeverityLevel.Information));        
+            telemetryClient.TrackTrace(new TraceTelemetry("TraceTelemetry object", SeverityLevel.Information));
 
             /*telemetryClient.TrackMetric("SampleMetric", 42.0);
             telemetryClient.TrackMetric(new MetricTelemetry("SampleMetricObject", 42.0));*/
 
-            telemetryClient.TrackException(new InvalidOperationException("Something went wrong"), new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } } );
-            telemetryClient.TrackException(new ExceptionTelemetry(new InvalidOperationException("ExceptionTelemetry object")));
+            // Run all ExceptionTelemetry examples
+            ExceptionTelemetryExamples.Run(telemetryClient);
 
-            // telemetryClient.TrackTrace("A trace with properties", new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
-            //telemetryClient.TrackTrace("A trace with severity and properties", SeverityLevel.Error, new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
-            // telemetryClient.TrackDependency("SQL", "GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), true);
-            //telemetryClient.TrackDependency(new DependencyTelemetry("SQL", "dbserver", "GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), "0", true));
 
-            //telemetryClient.TrackRequest("GET Home", DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", true);
-            //telemetryClient.TrackRequest(new RequestTelemetry("GET HomeObject", DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", true));
+            telemetryClient.TrackTrace("A trace with properties", new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
+            telemetryClient.TrackTrace("A trace with severity and properties", SeverityLevel.Error, new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
+            telemetryClient.TrackDependency("SQL", "GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), true);
+            telemetryClient.TrackDependency(new DependencyTelemetry("SQL", "dbserver", "GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), "0", true));
+
+            telemetryClient.TrackRequest("GET Home", DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", true);
+            telemetryClient.TrackRequest(new RequestTelemetry("GET HomeObject", DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", true));
 
             // 1. Simple request operation
             using (var operation = telemetryClient.StartOperation<RequestTelemetry>("TestRequest"))
@@ -118,20 +113,20 @@
     internal class MyCustomTelemetryProcessor : ITelemetryProcessor
     {
         ITelemetryProcessor next;
-
+            
         public MyCustomTelemetryProcessor(ITelemetryProcessor next)
-        {
+            {
             this.next = next;
 
         }
-
+            
         public void Process(ITelemetry item)
         {
             // Example: Filter out all RequestTelemetry items.
             if (item is not RequestTelemetry)
             {
                 this.next.Process(item);
-            }
         }
-    }*/
+    }
+}*/
 }
