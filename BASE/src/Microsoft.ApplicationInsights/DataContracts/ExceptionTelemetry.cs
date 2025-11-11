@@ -21,13 +21,15 @@
 
         private TelemetryContext context;
         private Exception exception;
+        private IDictionary<string, string> properties;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExceptionTelemetry"/> class with empty properties.
         /// </summary>
         public ExceptionTelemetry()
         {
-            this.Data = new ExceptionInfo(new List<ExceptionDetailsInfo>(), null, null, new Dictionary<string, string>());
+            this.properties = new Dictionary<string, string>();
+            this.Data = new ExceptionInfo(new List<ExceptionDetailsInfo>(), null, null, this.properties);
             this.context = new TelemetryContext();
         }
 
@@ -51,8 +53,9 @@
         public ExceptionTelemetry(IEnumerable<ExceptionDetailsInfo> exceptionDetailsInfoList, SeverityLevel? severityLevel, string problemId,
             IDictionary<string, string> properties)
         {
-            this.Data = new ExceptionInfo(exceptionDetailsInfoList, severityLevel, problemId, properties);
-            this.context = new TelemetryContext(this.Data.Properties);
+            this.properties = properties ?? new Dictionary<string, string>();
+            this.Data = new ExceptionInfo(exceptionDetailsInfoList, severityLevel, problemId, this.properties);
+            this.context = new TelemetryContext();
         }
 
         /// <summary>
@@ -114,11 +117,11 @@
                 {
                     var exceptionDetailsList = new List<ExceptionDetailsInfo>();
                     ConvertExceptionTree(value, null, exceptionDetailsList);
-                    this.Data = new ExceptionInfo(exceptionDetailsList, this.Data?.SeverityLevel, this.Data?.ProblemId, this.Data?.Properties ?? new Dictionary<string, string>());
+                    this.Data = new ExceptionInfo(exceptionDetailsList, this.Data?.SeverityLevel, this.Data?.ProblemId, this.properties ?? new Dictionary<string, string>());
                 }
                 else
                 {
-                    this.Data = new ExceptionInfo(new List<ExceptionDetailsInfo>(), this.Data?.SeverityLevel, this.Data?.ProblemId, this.Data?.Properties ?? new Dictionary<string, string>());
+                    this.Data = new ExceptionInfo(new List<ExceptionDetailsInfo>(), this.Data?.SeverityLevel, this.Data?.ProblemId, this.properties ?? new Dictionary<string, string>());
                 }
             }
         }
@@ -146,12 +149,7 @@
         {
             get
             {
-                if (this.context == null)
-                {
-                    this.context = new TelemetryContext();
-                }
-
-                return this.context.Properties;
+                return this.properties ?? (this.properties = new Dictionary<string, string>());
             }
         }
 

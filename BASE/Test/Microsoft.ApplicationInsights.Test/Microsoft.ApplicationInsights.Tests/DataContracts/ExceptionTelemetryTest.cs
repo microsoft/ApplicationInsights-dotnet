@@ -42,6 +42,38 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         [TestMethod]
+        public void ParameterlessConstructorInitializesAllProperties()
+        {
+            // ACT - Create exception telemetry with parameterless constructor
+            var telemetry = new ExceptionTelemetry();
+            
+            // ASSERT - Verify all properties are initialized properly
+            Assert.IsNotNull(telemetry.Context, "Context should not be null");
+            Assert.IsNotNull(telemetry.Properties, "Properties should not be null");
+            Assert.AreEqual(0, telemetry.Properties.Count, "Properties should be empty");
+            Assert.IsNotNull(telemetry.ExceptionDetailsInfoList, "ExceptionDetailsInfoList should not be null");
+            Assert.AreEqual(0, telemetry.ExceptionDetailsInfoList.Count, "ExceptionDetailsInfoList should be empty");
+            Assert.IsNull(telemetry.Exception, "Exception should be null");
+            Assert.IsNull(telemetry.SeverityLevel, "SeverityLevel should be null");
+            Assert.IsNull(telemetry.ProblemId, "ProblemId should be null");
+            Assert.IsNull(telemetry.Message, "Message should be null");
+            
+            // Verify properties can be set and tracked
+            telemetry.Properties["key1"] = "value1";
+            telemetry.Exception = new Exception("Test exception");
+            telemetry.SeverityLevel = SeverityLevel.Warning;
+            
+            this.telemetryClient.TrackException(telemetry);
+            this.telemetryClient.Flush();
+            
+            Assert.AreEqual(1, this.logItems.Count);
+            var logRecord = this.logItems[0];
+            Assert.IsNotNull(logRecord.Exception);
+            Assert.AreEqual("Test exception", logRecord.Exception.Message);
+            Assert.AreEqual(LogLevel.Warning, logRecord.LogLevel);
+        }
+
+        [TestMethod]
         public void ExceptionTelemetryCreatedWithCustomExceptionDetailsCanBeTracked()
         {
             // ARRANGE - Customer creates exception telemetry with custom exception details

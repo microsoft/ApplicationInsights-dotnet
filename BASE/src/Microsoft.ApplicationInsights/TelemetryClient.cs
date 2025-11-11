@@ -167,7 +167,11 @@
                 return;
             }
 
-            this.TrackEvent(telemetry.Name, telemetry.Properties);
+            var properties = telemetry.Properties ?? new Dictionary<string, string>();
+            properties.Add("microsoft.custom_event.name", telemetry.Name);
+            
+            var state = new DictionaryLogState(telemetry.Context, properties, String.Empty);
+            this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
         /// <summary>
@@ -266,7 +270,9 @@
                 telemetry.Properties["enduser.pseudo.id"] = userId;
             }*/
 
-            this.TrackTrace(telemetry.Message, telemetry.SeverityLevel.Value, telemetry.Properties);
+            LogLevel logLevel = GetLogLevel(telemetry.SeverityLevel.Value);
+            var state = new DictionaryLogState(telemetry.Context, telemetry.Properties, telemetry.Message);
+            this.Logger.Log(logLevel, 0, state, null, (s, ex) => s.Message);
         }
 
         /// <summary>
@@ -343,25 +349,7 @@
 
             var reconstructedException = ConvertToException(telemetry);
 
-            // Merge Context.GlobalProperties and telemetry.Properties
-            var allProperties = new Dictionary<string, string>();
-            if (telemetry.Context?.GlobalProperties != null)
-            {
-                foreach (var kvp in telemetry.Context.GlobalProperties)
-                {
-                    allProperties[kvp.Key] = kvp.Value;
-                }
-            }
-
-            if (telemetry.Properties != null)
-            {
-                foreach (var kvp in telemetry.Properties)
-                {
-                    allProperties[kvp.Key] = kvp.Value; // Properties override GlobalProperties
-                }
-            }
-
-            var state = new DictionaryLogState(allProperties, reconstructedException.Message);
+            var state = new DictionaryLogState(telemetry.Context, telemetry.Properties, reconstructedException.Message);
             var logLevel = GetLogLevel(telemetry.SeverityLevel ?? SeverityLevel.Error);
             this.Logger.Log(logLevel, 0, state, reconstructedException, (s, ex) => s.Message);
         }
@@ -999,6 +987,52 @@
                 {
                     var list = new List<KeyValuePair<string, object>>(properties.Count + 1);
                     foreach (var kvp in properties)
+                    {
+                        list.Add(new KeyValuePair<string, object>(kvp.Key, kvp.Value));
+                    }
+
+                    list.Add(new KeyValuePair<string, object>("{OriginalFormat}", message ?? string.Empty));
+                    this.items = list;
+                }
+            }
+
+            /// <summary>
+            /// Constructor that merges TelemetryContext.GlobalProperties with item-level properties.
+            /// </summary>
+            /// <param name="context">The telemetry context containing GlobalProperties.</param>
+            /// <param name="properties">Item-level properties (override GlobalProperties if keys conflict).</param>
+            /// <param name="message">The log message.</param>
+            public DictionaryLogState(TelemetryContext context, IDictionary<string, string> properties, string message)
+            {
+                this.Message = message ?? string.Empty;
+
+                // Merge GlobalProperties and properties
+                var allProperties = new Dictionary<string, string>();
+                
+                if (context?.GlobalProperties != null)
+                {
+                    foreach (var kvp in context.GlobalProperties)
+                    {
+                        allProperties[kvp.Key] = kvp.Value;
+                    }
+                }
+
+                if (properties != null)
+                {
+                    foreach (var kvp in properties)
+                    {
+                        allProperties[kvp.Key] = kvp.Value; // Properties override GlobalProperties
+                    }
+                }
+
+                if (allProperties.Count == 0)
+                {
+                    this.items = new[] { new KeyValuePair<string, object>("{OriginalFormat}", message ?? string.Empty) };
+                }
+                else
+                {
+                    var list = new List<KeyValuePair<string, object>>(allProperties.Count + 1);
+                    foreach (var kvp in allProperties)
                     {
                         list.Add(new KeyValuePair<string, object>(kvp.Key, kvp.Value));
                     }
