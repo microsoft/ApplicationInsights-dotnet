@@ -99,7 +99,7 @@
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public TelemetryConfiguration TelemetryConfiguration
-        {   
+        {
             get { return this.configuration; }
         }
 
@@ -742,7 +742,6 @@
 
                     // HTTP semantic conventions
                     requestTelemetryActivity.SetTag(SemanticConventions.AttributeHttpResponseStatusCode, request.ResponseCode);
-                    requestTelemetryActivity.SetTag("microsoft.request.source", request.Source);
                     requestTelemetryActivity.SetStatus(request.Success == true ? ActivityStatusCode.Ok : ActivityStatusCode.Error);
 
                     if (request.Url != null)

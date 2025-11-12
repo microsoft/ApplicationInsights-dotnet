@@ -39,11 +39,7 @@ namespace Microsoft.ApplicationInsights
             configuration.ConnectionString = "InstrumentationKey=" + configuration.InstrumentationKey;
             configuration.ConfigureOpenTelemetryBuilder(b => b
                 .WithLogging(l => l.AddInMemoryExporter(logItems))
-                .WithMetrics(m => m
-                    .AddInMemoryExporter(metricItems, metricReaderOptions =>
-                    {
-                        metricReaderOptions.PeriodicExportingMetricReaderOptions.ExportIntervalMilliseconds = 100;
-                    })));
+                .WithMetrics(m => m.AddInMemoryExporter(metricItems)));
             this.telemetryClient = new TelemetryClient(configuration);
         }
 

@@ -18,7 +18,7 @@
         internal string EnvelopeName = "AppMetrics";
 
         /// <summary>
-        /// Obsolete - use MetricTelemetry(name,count,sum,min,max,standardDeviation). Initializes a new instance of the <see cref="MetricTelemetry"/> class with the
+        /// Initializes a new instance of the <see cref="MetricTelemetry"/> class with the
         /// specified <paramref name="metricName"/> and <paramref name="metricValue"/>.
         /// </summary>
         /// <exception cref="ArgumentException">The <paramref name="metricName"/> is null or empty string.</exception>
@@ -26,15 +26,6 @@
         {
             this.Name = metricName;
             this.Value = metricValue;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MetricTelemetry"/> class by cloning an existing instance.
-        /// </summary>
-        /// <param name="source">Source instance of <see cref="MetricTelemetry"/> to clone from.</param>
-        private MetricTelemetry(MetricTelemetry source)
-        {
-            this.Timestamp = source.Timestamp;
         }
 
         /// <summary>
