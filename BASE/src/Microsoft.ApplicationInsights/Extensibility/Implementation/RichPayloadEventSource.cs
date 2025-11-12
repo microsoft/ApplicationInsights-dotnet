@@ -7,7 +7,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
     /// Event Source exposes Application Insights telemetry information as ETW events.
@@ -63,16 +62,16 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 // Sanitize, Copying global properties is to be done before calling .Data,
                 // as Data returns a singleton instance, which won't be updated with changes made
                 // after .Data is called.
-                telemetryItem.FlattenIExtensionIfExists();
+                // telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
-                this.WriteEvent(
+                // item.Sanitize();
+                /*this.WriteEvent(
                     RequestTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
                     telemetryItem.Context.Flags,
-                    Keywords.Requests);
+                    Keywords.Requests);*/
             }
             else if (item is TraceTelemetry)
             {
@@ -82,16 +81,16 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 }
 
                 var telemetryItem = item as TraceTelemetry;
-                telemetryItem.FlattenIExtensionIfExists();
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
+                // telemetryItem.FlattenIExtensionIfExists();
+                // CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                /*item.Sanitize();
                 this.WriteEvent(
                     TraceTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
                     telemetryItem.Context.Flags,
-                    Keywords.Traces);
+                    Keywords.Traces);*/
             }
             else if (item is EventTelemetry)
             {
@@ -101,16 +100,16 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 }
 
                 var telemetryItem = item as EventTelemetry;
-                telemetryItem.FlattenIExtensionIfExists();
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
+                // telemetryItem.FlattenIExtensionIfExists();
+                // CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                /*item.Sanitize();
                 this.WriteEvent(
                     EventTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
                     telemetryItem.Context.Flags,
-                    Keywords.Events);
+                    Keywords.Events);*/
             }
             else if (item is DependencyTelemetry)
             {
@@ -123,16 +122,16 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 // Sanitize, Copying global properties is to be done before calling .InternalData,
                 // as InternalData returns a singleton instance, which won't be updated with changes made
                 // after .InternalData is called.
-                telemetryItem.FlattenIExtensionIfExists();
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
+                // telemetryItem.FlattenIExtensionIfExists();
+                // /CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                /*item.Sanitize();
                 this.WriteEvent(
                     DependencyTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.InternalData,
                     telemetryItem.Context.Flags,
-                    Keywords.Dependencies);
+                    Keywords.Dependencies);*/
             }
             else if (item is MetricTelemetry)
             {
@@ -142,114 +141,16 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 }
                 
                 var telemetryItem = item as MetricTelemetry;
-                telemetryItem.FlattenIExtensionIfExists();
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
+                // telemetryItem.FlattenIExtensionIfExists();
+                // CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                /*item.Sanitize();
                 this.WriteEvent(
                     MetricTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
                     telemetryItem.Context.Flags,
-                    Keywords.Metrics);
-            }
-            else if (item is ExceptionTelemetry)
-            {
-                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Exceptions))
-                {
-                    return;
-                }
-                
-                var telemetryItem = item as ExceptionTelemetry;
-                telemetryItem.FlattenIExtensionIfExists();
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
-                this.WriteEvent(
-                    ExceptionTelemetry.EtwEnvelopeName,
-                    telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.SanitizedTags,
-                    telemetryItem.Data.Data,
-                    telemetryItem.Context.Flags,
-                    Keywords.Exceptions);
-            }
-#pragma warning disable 618
-            else if (item is PerformanceCounterTelemetry)
-            {
-                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Metrics))
-                {
-                    return;
-                }
-                
-                var telemetryItem = (item as PerformanceCounterTelemetry).Data;
-                telemetryItem.FlattenIExtensionIfExists();
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
-                this.WriteEvent(
-                    MetricTelemetry.EtwEnvelopeName,
-                    telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.SanitizedTags,
-                    telemetryItem.Data,
-                    telemetryItem.Context.Flags,
-                    Keywords.Metrics);
-            }
-#pragma warning restore 618
-            else if (item is PageViewTelemetry)
-            {
-                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.PageViews))
-                {
-                    return;
-                }
-                
-                var telemetryItem = item as PageViewTelemetry;
-                telemetryItem.FlattenIExtensionIfExists();
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
-                this.WriteEvent(
-                    PageViewTelemetry.EtwEnvelopeName,
-                    telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.SanitizedTags,
-                    telemetryItem.Data,
-                    telemetryItem.Context.Flags,
-                    Keywords.PageViews);
-            }
-            else if (item is PageViewPerformanceTelemetry)
-            {
-                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.PageViewPerformance))
-                {
-                    return;
-                }
-                
-                var telemetryItem = item as PageViewPerformanceTelemetry;
-                telemetryItem.FlattenIExtensionIfExists();
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
-                this.WriteEvent(
-                    PageViewPerformanceTelemetry.EtwEnvelopeName,
-                    telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.SanitizedTags,
-                    telemetryItem.Data,
-                    telemetryItem.Context.Flags,
-                    Keywords.PageViewPerformance);
-            }
-#pragma warning disable 618
-            else if (item is SessionStateTelemetry)
-            {
-                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Events))
-                {
-                    return;
-                }
-                
-                var telemetryItem = (item as SessionStateTelemetry).Data;
-                telemetryItem.FlattenIExtensionIfExists();
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
-                this.WriteEvent(
-                    EventTelemetry.EtwEnvelopeName,
-                    telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.SanitizedTags,
-                    telemetryItem.Data,
-                    telemetryItem.Context.Flags,
-                    Keywords.Events);
+                    Keywords.Metrics);*/
             }
             else if (item is AvailabilityTelemetry)
             {
@@ -259,16 +160,16 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 }
                 
                 var telemetryItem = item as AvailabilityTelemetry;
-                telemetryItem.FlattenIExtensionIfExists();
+                // telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
+                /*item.Sanitize();
                 this.WriteEvent(
                     AvailabilityTelemetry.EtwEnvelopeName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
                     telemetryItem.Context.Flags,
-                    Keywords.Availability);
+                    Keywords.Availability);*/
             }
             else
             {
@@ -277,9 +178,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     return;
                 }
 
-                item.Sanitize();
+                // item.Sanitize();
 
-                EventData telemetryData = item.FlattenTelemetryIntoEventData();
+                /*EventData telemetryData = item.FlattenTelemetryIntoEventData();
                 telemetryData.name = Constants.EventNameForUnknownTelemetry;
 
                 this.WriteEvent(
@@ -288,7 +189,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     item.Context.SanitizedTags,
                     telemetryData,
                     item.Context.Flags,
-                    Keywords.Events);                
+                    Keywords.Events);*/                
             }
         }
 

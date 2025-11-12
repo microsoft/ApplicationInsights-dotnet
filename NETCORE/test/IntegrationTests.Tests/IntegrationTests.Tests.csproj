@@ -11,7 +11,7 @@
 
   <PropertyGroup>
     <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
-    <TargetFrameworks>$(TargetFrameworks_NetCoreOnly)</TargetFrameworks>
+    <TargetFrameworks>net9.0;net8.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

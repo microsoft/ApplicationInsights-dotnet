@@ -1,19 +1,23 @@
 ﻿namespace Microsoft.ApplicationInsights
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Globalization;
+    using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.Metrics;
-    using Microsoft.ApplicationInsights.Metrics.Extensibility;
+    using Microsoft.ApplicationInsights.Internals;
+    using Microsoft.Extensions.Logging;
+    using OpenTelemetry;
+    using OpenTelemetry.Logs;
+    using OpenTelemetry.Metrics;
+    using OpenTelemetry.Trace;
 
     /// <summary>
     /// Send events, metrics and other telemetry to the Application Insights service.
@@ -21,47 +25,50 @@
     /// </summary>
     public sealed class TelemetryClient
     {
-#if NETSTANDARD // This constant is defined for all versions of NetStandard https://docs.microsoft.com/en-us/dotnet/core/tutorials/libraries#how-to-multitarget
-        private const string VersionPrefix = "dotnetc:";
-#else
-        private const string VersionPrefix = "dotnet:";
-#endif  
         private readonly TelemetryConfiguration configuration;
-
-        private string sdkVersion;
-
-#pragma warning disable 612, 618 // TelemetryConfiguration.Active
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TelemetryClient" /> class. Send telemetry with the active configuration, usually loaded from ApplicationInsights.config.
-        /// </summary>
-#if NETSTANDARD // This constant is defined for all versions of NetStandard https://docs.microsoft.com/en-us/dotnet/core/tutorials/libraries#how-to-multitarget
-        [Obsolete("We do not recommend using TelemetryConfiguration.Active on .NET Core. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/1152 for more details")]
-#endif
-        public TelemetryClient() : this(TelemetryConfiguration.Active)
-        {
-        }
+        private readonly ActivitySource activitySource;
+        private OpenTelemetrySdk sdk;
+        private ILogger<TelemetryClient> logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryClient" /> class. Send telemetry with the specified <paramref name="configuration"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException">The <paramref name="configuration"/> is null.</exception>
-        /// <exception cref="ArgumentException">The <paramref name="configuration"/> does not contain a telemetry channel.</exception>
         public TelemetryClient(TelemetryConfiguration configuration)
+            : this(configuration, isFromDependencyInjection: false)
         {
-            if (configuration == null)
-            {
-                CoreEventSource.Log.TelemetryClientConstructorWithNoTelemetryConfiguration();
-                configuration = TelemetryConfiguration.Active;
-            }
+        }
 
-            this.configuration = configuration;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TelemetryClient" /> class.
+        /// </summary>
+        /// <param name="configuration">The telemetry configuration.</param>
+        /// <param name="isFromDependencyInjection">Indicates whether this instance is being created by a DI container.</param>
+        internal TelemetryClient(TelemetryConfiguration configuration, bool isFromDependencyInjection)
+        {
+            this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
-            if (this.configuration.TelemetryChannel == null)
+            // Use the shared ActivitySource from configuration
+            this.activitySource = configuration.ApplicationInsightsActivitySource;
+
+            // For non-DI scenarios: Build SDK eagerly to ensure TracerProvider is ready
+            // For DI scenarios: SDK will be built by configuration when accessed
+            if (!isFromDependencyInjection)
             {
-                throw new ArgumentException("The specified configuration does not have a telemetry channel.", nameof(configuration));
+                this.sdk = configuration.Build();
             }
         }
-#pragma warning restore 612, 618 // TelemetryConfiguration.Active
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TelemetryClient" /> class for DI scenarios with logger injection.
+        /// </summary>
+        /// <param name="configuration">The telemetry configuration.</param>
+        /// <param name="logger">The logger instance from DI container.</param>
+        internal TelemetryClient(TelemetryConfiguration configuration, ILogger<TelemetryClient> logger)
+            : this(configuration, isFromDependencyInjection: true)
+        {
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
 
         /// <summary>
         /// Gets the current context that will be used to augment telemetry you send.
@@ -96,6 +103,22 @@
         }
 
         /// <summary>
+        /// Gets the logger instance, creating it lazily if needed (non-DI scenario).
+        /// </summary>
+        internal ILogger<TelemetryClient> Logger
+        {
+            get
+            {
+                if (this.logger == null)
+                {
+                    this.logger = this.sdk.GetLoggerFactory().CreateLogger<TelemetryClient>();
+                }
+
+                return this.logger;
+            }
+        }
+
+        /// <summary>
         /// Check to determine if the tracking is enabled.
         /// </summary>
         public bool IsEnabled()
@@ -111,22 +134,21 @@
         /// </remarks>
         /// <param name="eventName">A name for the event.</param>
         /// <param name="properties">Named string values you can use to search and classify events.</param>
-        /// <param name="metrics">Measurements associated with this event.</param>
-        public void TrackEvent(string eventName, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
+        public void TrackEvent(string eventName, IDictionary<string, string> properties = null)
         {
-            var telemetry = new EventTelemetry(eventName);
-
-            if (properties != null && properties.Count > 0)
+            if (string.IsNullOrEmpty(eventName))
             {
-                Utils.CopyDictionary(properties, telemetry.Properties);
+                // TODO: log to event source   
             }
 
-            if (metrics != null && metrics.Count > 0)
+            if (properties == null)
             {
-                Utils.CopyDictionary(metrics, telemetry.Metrics);
+                properties = new Dictionary<string, string>();
             }
 
-            this.TrackEvent(telemetry);
+            properties.Add("microsoft.custom_event.name", eventName);
+            var state = new DictionaryLogState(properties, String.Empty);
+            this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
         /// <summary>
@@ -141,10 +163,15 @@
         {
             if (telemetry == null)
             {
-                telemetry = new EventTelemetry();
+                // TODO: log to event source
+                return;
             }
 
-            this.Track(telemetry);
+            var properties = telemetry.Properties ?? new Dictionary<string, string>();
+            properties.Add("microsoft.custom_event.name", telemetry.Name);
+            
+            var state = new DictionaryLogState(telemetry.Context, properties, String.Empty);
+            this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
         /// <summary>
@@ -156,7 +183,7 @@
         /// <param name="message">Message to display.</param>
         public void TrackTrace(string message)
         {
-            this.TrackTrace(new TraceTelemetry(message));
+            this.Logger.Log(LogLevel.Information, message);
         }
 
         /// <summary>
@@ -169,7 +196,8 @@
         /// <param name="severityLevel">Trace severity level.</param>
         public void TrackTrace(string message, SeverityLevel severityLevel)
         {
-            this.TrackTrace(new TraceTelemetry(message, severityLevel));
+            LogLevel logLevel = GetLogLevel(severityLevel);
+            this.Logger.Log(logLevel, message);
         }
 
         /// <summary>
@@ -182,14 +210,8 @@
         /// <param name="properties">Named string values you can use to search and classify events.</param>
         public void TrackTrace(string message, IDictionary<string, string> properties)
         {
-            TraceTelemetry telemetry = new TraceTelemetry(message);
-
-            if (properties != null && properties.Count > 0)
-            {
-                Utils.CopyDictionary(properties, telemetry.Properties);
-            }
-
-            this.TrackTrace(telemetry);
+            var state = new DictionaryLogState(properties, message);
+            this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
         /// <summary>
@@ -203,14 +225,9 @@
         /// <param name="properties">Named string values you can use to search and classify events.</param>
         public void TrackTrace(string message, SeverityLevel severityLevel, IDictionary<string, string> properties)
         {
-            TraceTelemetry telemetry = new TraceTelemetry(message, severityLevel);
-
-            if (properties != null && properties.Count > 0)
-            {
-                Utils.CopyDictionary(properties, telemetry.Properties);
-            }
-
-            this.TrackTrace(telemetry);
+            LogLevel logLevel = GetLogLevel(severityLevel);
+            var state = new DictionaryLogState(properties, message);
+            this.Logger.Log(logLevel, 0, state, null, (s, ex) => s.Message);
         }
 
         /// <summary>
@@ -223,8 +240,39 @@
         /// <param name="telemetry">Message with optional properties.</param>
         public void TrackTrace(TraceTelemetry telemetry)
         {
-            telemetry = telemetry ?? new TraceTelemetry();
-            this.Track(telemetry);
+            if (telemetry == null)
+            {
+                telemetry = new TraceTelemetry();
+            }
+
+            if (telemetry.Message == null)
+            {
+                telemetry.Message = String.Empty;
+            }
+
+            if (telemetry.SeverityLevel == null)
+            {
+                telemetry.SeverityLevel = SeverityLevel.Information;
+            }
+
+            // TODO: LocationContext & UserContext are currently internal, so customer can't set them.
+            // Need to determine if its ok to set these to public again, just for properties below.
+
+            /*String clientIP = telemetry.Context?.Location?.Ip;
+            if (clientIP != null)
+            {
+                telemetry.Properties["microsoft.client.ip"] = clientIP;
+            }
+
+            String userId = telemetry.Context?.User?.Id;
+            if (userId != null)
+            {
+                telemetry.Properties["enduser.pseudo.id"] = userId;
+            }*/
+
+            LogLevel logLevel = GetLogLevel(telemetry.SeverityLevel.Value);
+            var state = new DictionaryLogState(telemetry.Context, telemetry.Properties, telemetry.Message);
+            this.Logger.Log(logLevel, 0, state, null, (s, ex) => s.Message);
         }
 
         /// <summary>
@@ -238,15 +286,12 @@
         /// <param name="name">Metric name.</param>
         /// <param name="value">Metric value.</param>
         /// <param name="properties">Named string values you can use to classify and filter metrics.</param>        
+#pragma warning disable CA1822 // Mark members as static
+#pragma warning disable CA1801 // Review unused parameters
         public void TrackMetric(string name, double value, IDictionary<string, string> properties = null)
+#pragma warning restore CA1801 // Review unused parameters
+#pragma warning restore CA1822 // Mark members as static
         {
-            var telemetry = new MetricTelemetry(name, value);
-            if (properties != null && properties.Count > 0)
-            {
-                Utils.CopyDictionary(properties, telemetry.Properties);
-            }
-
-            this.TrackMetric(telemetry);
         }
 
         /// <summary>
@@ -273,30 +318,18 @@
         /// </summary>
         /// <param name="exception">The exception to log.</param>
         /// <param name="properties">Named string values you can use to classify and search for this exception.</param>
-        /// <param name="metrics">Additional values associated with this exception.</param>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackexception">Learn more</a>
         /// </remarks>
-        public void TrackException(Exception exception, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
+        public void TrackException(Exception exception, IDictionary<string, string> properties = null)
         {
             if (exception == null)
             {
                 exception = new Exception(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
             }
 
-            var telemetry = new ExceptionTelemetry(exception);
-
-            if (properties != null && properties.Count > 0)
-            {
-                Utils.CopyDictionary(properties, telemetry.Properties);
-            }
-
-            if (metrics != null && metrics.Count > 0)
-            {
-                Utils.CopyDictionary(metrics, telemetry.Metrics);
-            }
-
-            this.TrackException(telemetry);
+            var state = new DictionaryLogState(properties, exception.Message);
+            this.Logger.Log(LogLevel.Error, 0, state, exception, (s, ex) => s.Message);
         }
 
         /// <summary>
@@ -314,26 +347,11 @@
                 telemetry = new ExceptionTelemetry(exception);
             }
 
-            this.Track(telemetry);
-        }
+            var reconstructedException = ConvertToException(telemetry);
 
-        /// <summary>
-        /// Send information about an external dependency (outgoing call) in the application.
-        /// </summary>
-        /// <param name="dependencyName">Name of the command initiated with this dependency call. Low cardinality value. Examples are stored procedure name and URL path template.</param>
-        /// <param name="data">Command initiated by this dependency call. Examples are SQL statement and HTTP URL's with all query parameters.</param>
-        /// <param name="startTime">The time when the dependency was called.</param>
-        /// <param name="duration">The time taken by the external dependency to handle the call.</param>
-        /// <param name="success">True if the dependency call was handled successfully.</param>
-        /// <remarks>
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackdependency">Learn more</a>
-        /// </remarks>
-        [Obsolete("Please use a different overload of TrackDependency")]
-        public void TrackDependency(string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, bool success)
-        {
-#pragma warning disable 618
-            this.TrackDependency(new DependencyTelemetry(dependencyName, data, startTime, duration, success));
-#pragma warning restore 618
+            var state = new DictionaryLogState(telemetry.Context, telemetry.Properties, reconstructedException.Message);
+            var logLevel = GetLogLevel(telemetry.SeverityLevel ?? SeverityLevel.Error);
+            this.Logger.Log(logLevel, 0, state, reconstructedException, (s, ex) => s.Message);
         }
 
         /// <summary>
@@ -383,10 +401,68 @@
         {
             if (telemetry == null)
             {
-                telemetry = new DependencyTelemetry();
+                return;
             }
 
-            this.Track(telemetry);
+            // this.Track(telemetry);
+            /*
+             * fields below are to note which props from dependency are not accounted for yet
+             * this.context
+            this.Sequence
+            this.samplingPercentage
+            this.successFieldSet 
+            this.Id  -->  exporter gets it from Activity.Context.SpanId but no override exists for this
+             */
+
+            using (var dependencyTelemetryActivity = this.activitySource.StartActivity(telemetry.Name, ActivityKind.Client))
+            {
+                if (dependencyTelemetryActivity != null)
+                {
+                    dependencyTelemetryActivity.SetStartTime(telemetry.Timestamp.UtcDateTime);
+                    dependencyTelemetryActivity.SetEndTime(telemetry.Timestamp.Add(telemetry.Duration).UtcDateTime);
+                    dependencyTelemetryActivity.SetStatus(telemetry.Success == true ? ActivityStatusCode.Ok : ActivityStatusCode.Error);
+
+                    if (telemetry.ResultCode != null)
+                    {
+                        dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeHttpResponseStatusCode, telemetry.ResultCode);
+                    }
+
+                    if (telemetry.Type != null)
+                    {
+                        // dependencyTelemetryActivity.SetTag("microsoft.dependency.type", telemetry.Type);
+                        if (String.Equals("Http", telemetry.Type, StringComparison.OrdinalIgnoreCase) && telemetry.Data != null)
+                        {
+                            if (Uri.TryCreate(telemetry.Data, UriKind.Absolute, out Uri uri))
+                            {
+                                dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeUrlFull, uri.ToString());
+                                dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeHttpMethod, "_OTHER");
+                                dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeServerAddress, uri.Host);
+                                dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeServerPort, uri.Port);
+                            }
+                        }
+                        else if (String.Equals("SQL", telemetry.Type, StringComparison.OrdinalIgnoreCase) && telemetry.Data != null)
+                        {
+                            dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeDbStatement, telemetry.Data);
+                            // not sure how to populate attrs like db.name, or db.system, or server related attrs that could be used to autopopulate target
+                        }
+                        else if (String.Equals("Queue Message", telemetry.Type, StringComparison.OrdinalIgnoreCase) && telemetry.Data != null)
+                        {
+                            dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMessagingDestination, telemetry.Data);
+                            // not sure how to set messaging.destination_name, this would form part of target
+                            if (Uri.TryCreate(telemetry.Data, UriKind.Absolute, out Uri uri))
+                            {
+                                // for the other part of target
+                                dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeServerAddress, uri.Host);
+                            }
+                        }
+                    }
+
+                    if (telemetry.Target != null)
+                    {
+                        dependencyTelemetryActivity.SetTag("microsoft.dependency.target", telemetry.Target);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -399,22 +475,16 @@
         /// <param name="success">True if the availability test ran successfully.</param>
         /// <param name="message">Error message on availability test run failure.</param>
         /// <param name="properties">Named string values you can use to classify and search for this availability telemetry.</param>
-        /// <param name="metrics">Additional values associated with this availability telemetry.</param>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
         /// </remarks>
-        public void TrackAvailability(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message = null, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
+        public void TrackAvailability(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message = null, IDictionary<string, string> properties = null)
         {
             var availabilityTelemetry = new AvailabilityTelemetry(name, timeStamp, duration, runLocation, success, message);
 
             if (properties != null && properties.Count > 0)
             {
                 Utils.CopyDictionary(properties, availabilityTelemetry.Properties);
-            }
-
-            if (metrics != null && metrics.Count > 0)
-            {
-                Utils.CopyDictionary(metrics, availabilityTelemetry.Metrics);
             }
 
             this.TrackAvailability(availabilityTelemetry);
@@ -448,20 +518,31 @@
                 throw new ArgumentNullException(nameof(telemetry));
             }
 
-            // TALK TO YOUR TEAM MATES BEFORE CHANGING THIS.
-            // This method needs to be public so that we can build and ship new telemetry types without having to ship core.
-            // It is hidden from intellisense to prevent customer confusion.
-            if (this.IsEnabled())
+            switch (telemetry)
             {
-                this.Initialize(telemetry);
+                case RequestTelemetry req:
+                    this.TrackRequest(req);
+                    break;
 
-                telemetry.Context.ClearTempRawObjects();
+                case DependencyTelemetry dep:
+                    this.TrackDependency(dep);
+                    break;
 
-                // invokes the Process in the first processor in the chain
-                this.configuration.TelemetryProcessorChain.Process(telemetry);
+                case TraceTelemetry trace:
+                    this.TrackTrace(trace);
+                    break;
 
-                // logs rich payload ETW event for any partners to process it
-                RichPayloadEventSource.Log.Process(telemetry);
+                case EventTelemetry evt:
+                    this.TrackEvent(evt);
+                    break;
+
+                case ExceptionTelemetry ex:
+                    this.TrackException(ex);
+                    break;
+
+                default:
+                    // TODO: Log other telemetry types are not supported.
+                    break;
             }
         }
 
@@ -499,20 +580,21 @@
                 throw new ArgumentNullException(nameof(telemetry));
             }
 
-            ISupportAdvancedSampling telemetryWithSampling = telemetry as ISupportAdvancedSampling;
+            // ISupportAdvancedSampling telemetryWithSampling = telemetry as ISupportAdvancedSampling;
 
             // Telemetry can be already sampled out if that decision was made before calling Track()
             bool sampledOut = false;
-            if (telemetryWithSampling != null)
-            {
-                sampledOut = telemetryWithSampling.ProactiveSamplingDecision == SamplingDecision.SampledOut;
-            }
+            // if (telemetryWithSampling != null)
+            // {
+            // sampledOut = telemetryWithSampling.ProactiveSamplingDecision == SamplingDecision.SampledOut;
+            // }
 
             if (!sampledOut)
             {
                 if (telemetry is ISupportProperties telemetryWithProperties)
                 {
-                    if (this.configuration.TelemetryChannel?.DeveloperMode != null && this.configuration.TelemetryChannel.DeveloperMode.Value)
+                    bool isDeveloperMode = Environment.GetEnvironmentVariable("APPINSIGHTS_DEVELOPER_MODE") == "true";
+                    if (isDeveloperMode)
                     {
                         if (!telemetryWithProperties.Properties.ContainsKey("DeveloperMode"))
                         {
@@ -546,79 +628,20 @@
 
                 telemetry.Context.Initialize(this.Context, instrumentationKey);
 
-                for (int index = 0; index < this.configuration.TelemetryInitializers.Count; index++)
-                {
-                    try
-                    {
-                        this.configuration.TelemetryInitializers[index].Initialize(telemetry);
-                    }
-                    catch (Exception exception)
-                    {
-                        CoreEventSource.Log.LogError(string.Format(
-                                                        CultureInfo.InvariantCulture,
-                                                        "Exception while initializing {0}, exception message - {1}",
-                                                        this.configuration.TelemetryInitializers[index].GetType().FullName,
-                                                        exception));
-                    }
-                }
-
                 if (telemetry.Timestamp == default(DateTimeOffset))
                 {
                     telemetry.Timestamp = PreciseTimestamp.GetUtcNow();
                 }
 
-                // Currently backend requires SDK version to comply "name: version"
-                if (string.IsNullOrEmpty(telemetry.Context.Internal.SdkVersion))
-                {
-                    var version = this.sdkVersion ?? (this.sdkVersion = SdkVersionUtils.GetSdkVersion(VersionPrefix));
-                    telemetry.Context.Internal.SdkVersion = version;
-                }
-
-                // set NodeName to the machine name if it's not initialized yet, if RoleInstance is also not set then we send only RoleInstance
-                if (string.IsNullOrEmpty(telemetry.Context.Internal.NodeName) && !string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
-                {
-                    telemetry.Context.Internal.NodeName = PlatformSingleton.Current.GetMachineName();
-                }
-
                 // set RoleInstance to the machine name if it's not initialized yet
                 if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
                 {
-                    telemetry.Context.Cloud.RoleInstance = PlatformSingleton.Current.GetMachineName();
                 }
             }
             else
             {
                 CoreEventSource.Log.InitializationIsSkippedForSampledItem();
             }
-        }
-
-        /// <summary>
-        /// Send information about the page viewed in the application.
-        /// </summary>
-        /// <param name="name">Name of the page.</param>
-        /// <remarks>
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#page-views">Learn more</a>
-        /// </remarks>
-        public void TrackPageView(string name)
-        {
-            this.Track(new PageViewTelemetry(name));
-        }
-
-        /// <summary>
-        /// Send information about the page viewed in the application.
-        /// Create a separate <see cref="PageViewTelemetry"/> instance for each call to <see cref="TrackPageView(PageViewTelemetry)"/>.
-        /// </summary>
-        /// <remarks>
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#page-views">Learn more</a>
-        /// </remarks>
-        public void TrackPageView(PageViewTelemetry telemetry)
-        {
-            if (telemetry == null)
-            {
-                telemetry = new PageViewTelemetry();
-            }
-
-            this.Track(telemetry);
         }
 
         /// <summary>
@@ -634,7 +657,17 @@
         /// </remarks>
         public void TrackRequest(string name, DateTimeOffset startTime, TimeSpan duration, string responseCode, bool success)
         {
-            this.Track(new RequestTelemetry(name, startTime, duration, responseCode, success));
+            // this.Track(new RequestTelemetry(name, startTime, duration, responseCode, success));
+            using (var requestTelemetryActivity = this.activitySource.StartActivity(name, ActivityKind.Server))
+            {
+                if (requestTelemetryActivity != null)
+                {
+                    requestTelemetryActivity.SetStartTime(startTime.UtcDateTime);
+                    requestTelemetryActivity.SetEndTime(startTime.Add(duration).UtcDateTime);
+                    requestTelemetryActivity.SetTag(SemanticConventions.AttributeHttpResponseStatusCode, responseCode);
+                    requestTelemetryActivity.SetStatus(success ? ActivityStatusCode.Ok : ActivityStatusCode.Error);
+                }
+            }
         }
 
         /// <summary>
@@ -646,12 +679,75 @@
         /// </remarks>
         public void TrackRequest(RequestTelemetry request)
         {
-            if (request == null)
+            /*if (request == null)
             {
                 request = new RequestTelemetry();
             }
 
-            this.Track(request);
+            this.Track(request);*/
+            if (request == null)
+            {
+                return;
+                // request = new RequestTelemetry();
+                // Log message
+            }
+
+            using (var requestTelemetryActivity = this.activitySource.StartActivity(request.Name, ActivityKind.Server))
+            {
+                if (requestTelemetryActivity != null)
+                {
+                    requestTelemetryActivity.SetStartTime(request.Timestamp.UtcDateTime);
+                    requestTelemetryActivity.SetEndTime(request.Timestamp.Add(request.Duration).UtcDateTime);
+
+                    // HTTP semantic conventions
+                    requestTelemetryActivity.SetTag(SemanticConventions.AttributeHttpResponseStatusCode, request.ResponseCode);
+                    requestTelemetryActivity.SetStatus(request.Success == true ? ActivityStatusCode.Ok : ActivityStatusCode.Error);
+
+                    if (request.Url != null)
+                    {
+                        requestTelemetryActivity.SetTag(SemanticConventions.AttributeUrlScheme, request.Url.Scheme);
+                        requestTelemetryActivity.SetTag(SemanticConventions.AttributeServerAddress, request.Url.Host);
+
+                        if (!request.Url.IsDefaultPort)
+                        {
+                            requestTelemetryActivity.SetTag(SemanticConventions.AttributeServerPort, request.Url.Port);
+                        }
+
+                        if (!string.IsNullOrEmpty(request.Url.AbsolutePath))
+                        {
+                            requestTelemetryActivity.SetTag(SemanticConventions.AttributeUrlPath, request.Url.AbsolutePath);
+                        }
+
+                        if (!string.IsNullOrEmpty(request.Url.Query))
+                        {
+                            requestTelemetryActivity.SetTag(SemanticConventions.AttributeUrlQuery, request.Url.Query);
+                        }
+
+                        requestTelemetryActivity.SetTag(SemanticConventions.AttributeUrlFull, request.Url.ToString());
+                    }
+
+                    if (!string.IsNullOrEmpty(request.Source))
+                    {
+                        requestTelemetryActivity.SetTag("request.source", request.Source);
+                    }
+
+                    string clientIp = request.Context.Location.Ip;
+                    if (!string.IsNullOrEmpty(clientIp))
+                    {
+                        requestTelemetryActivity.SetTag(SemanticConventions.AttributeClientAddress, clientIp);
+                    }
+
+                    if (request.Properties != null)
+                    {
+                        foreach (var property in request.Properties)
+                        {
+                            requestTelemetryActivity.SetTag($"custom.{property.Key}", property.Value);
+                        }
+                    }
+                }
+            }
+
+            RichPayloadEventSource.Log.Process(request);
         }
 
         /// <summary>
@@ -664,20 +760,10 @@
         {
             CoreEventSource.Log.TelemetlyClientFlush();
 
-            if (this.TryGetMetricManager(out MetricManager privateMetricManager))
-            {
-                privateMetricManager.Flush(flushDownstreamPipeline: false);
-            }
-
-            TelemetryConfiguration pipeline = this.configuration;
-            if (pipeline != null)
-            {
-                MetricManager sharedMetricManager = pipeline.GetMetricManager(createIfNotExists: false);
-                sharedMetricManager?.Flush(flushDownstreamPipeline: false);
-
-                ITelemetryChannel channel = pipeline.TelemetryChannel;
-                channel?.Flush();
-            }
+            // Force flush all providers
+            this.sdk.TracerProvider?.ForceFlush();
+            this.sdk.MeterProvider?.ForceFlush();
+            this.sdk.LoggerProvider?.ForceFlush();
         }
 
         /// <summary>
@@ -694,609 +780,275 @@
         /// TODO: Metrics flush to respect CancellationToken.
         public Task<bool> FlushAsync(CancellationToken cancellationToken)
         {
-            if (this.TryGetMetricManager(out MetricManager privateMetricManager))
+            /*if (this.TryGetMetricManager(out MetricManager privateMetricManager))
             {
                 privateMetricManager.Flush(flushDownstreamPipeline: false);
-            }
+            }*/
 
             TelemetryConfiguration pipeline = this.configuration;
             if (pipeline != null)
             {
-                MetricManager sharedMetricManager = pipeline.GetMetricManager(createIfNotExists: false);
-                sharedMetricManager?.Flush(flushDownstreamPipeline: false);
+                // MetricManager sharedMetricManager = pipeline.GetMetricManager(createIfNotExists: false);
+                // sharedMetricManager?.Flush(flushDownstreamPipeline: false);
 
-                ITelemetryChannel channel = pipeline.TelemetryChannel;
+                // ITelemetryChannel channel = pipeline.TelemetryChannel;
 
-                if (channel is IAsyncFlushable asyncFlushableChannel && !cancellationToken.IsCancellationRequested)
-                {
-                    return asyncFlushableChannel.FlushAsync(cancellationToken);
-                }
+                // if (channel is IAsyncFlushable asyncFlushableChannel && !cancellationToken.IsCancellationRequested)
+                // {
+                // return asyncFlushableChannel.FlushAsync(cancellationToken);
+                // }
             }
 
             return cancellationToken.IsCancellationRequested ? TaskEx.FromCanceled<bool>(cancellationToken) : Task.FromResult(false);
         }
 
-        /// <summary>
-        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
-        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
-        /// </summary>
-        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
-        /// associated with this client.<br />
-        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
-        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
-        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
-        /// <param name="metricId">The ID (name) of the metric.
-        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, use an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
-        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
-        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
-        /// instance of <c>Metric</c>.</returns>
-        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
-        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
-        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
-        /// configuration used earlier.</exception>
-        public Metric GetMetric(
+        // <summary>
+        // Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
+        // Optionally specify a metric configuration to control how the tracked values are aggregated.
+        // </summary>
+        // <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
+        // associated with this client.<br />
+        // The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
+        // means that all values tracked for a given metric ID and dimensions will be aggregated together
+        // across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
+        // <param name="metricId">The ID (name) of the metric.
+        //   (The namespace specified in MetricIdentifier.DefaultMetricNamespace will be used.
+        //   To specify another namespace, use an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
+        // <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
+        // with the same metric ID and dimensions for a given aggregation scope, you will receive the same
+        // instance of <c>Metric</c>.</returns>
+        // <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
+        // and aggregation scope, but with a different configuration. When calling this method to get a previously
+        // created metric, you can simply avoid specifying any configuration (or specify null) to imply the
+        // configuration used earlier.</exception>
+        /*internal Metric GetMetric(
                             string metricId)
         {
             return this.GetOrCreateMetric(
                         MetricAggregationScope.TelemetryConfiguration,
                         new MetricIdentifier(metricId),
                         metricConfiguration: null);
+        }*/
+
+        private static LogLevel GetLogLevel(SeverityLevel severityLevel)
+        {
+            return severityLevel switch
+            {
+                SeverityLevel.Verbose => LogLevel.Debug,
+                SeverityLevel.Information => LogLevel.Information,
+                SeverityLevel.Warning => LogLevel.Warning,
+                SeverityLevel.Error => LogLevel.Error,
+                SeverityLevel.Critical => LogLevel.Critical,
+                _ => LogLevel.None
+            };
         }
 
         /// <summary>
-        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
-        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
+        /// Reconstructs a complete Exception from ExceptionTelemetry, including inner exceptions, stack frames, and metadata.
         /// </summary>
-        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
-        /// associated with this client.<br />
-        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
-        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
-        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
-        /// <param name="metricId">The ID (name) of the metric.
-        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, use an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
-        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
-        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
-        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
-        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
-        /// instance of <c>Metric</c>.</returns>
-        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
-        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
-        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
-        /// configuration used earlier.</exception>
-        public Metric GetMetric(
-                            string metricId,
-                            MetricConfiguration metricConfiguration)
+        /// <param name="telemetry">The exception telemetry to convert.</param>
+        /// <returns>A reconstructed Exception with all diagnostic details.</returns>
+        private static Exception ConvertToException(ExceptionTelemetry telemetry)
         {
-            return this.GetOrCreateMetric(
-                        MetricAggregationScope.TelemetryConfiguration,
-                        new MetricIdentifier(metricId),
-                        metricConfiguration: metricConfiguration);
+            if (telemetry == null)
+            {
+                throw new ArgumentNullException(nameof(telemetry));
+            }
+
+            Exception rootException = null;
+
+            // If the telemetry already has an Exception, use it as the base
+            if (telemetry.Exception != null)
+            {
+                rootException = telemetry.Exception;
+            }
+            else if (telemetry.ExceptionDetailsInfoList != null && telemetry.ExceptionDetailsInfoList.Count > 0)
+            {
+                // Reconstruct exception chain from ExceptionDetailsInfoList
+                // The list is ordered from innermost to outermost, so we process it in reverse
+                rootException = ReconstructExceptionChain(telemetry.ExceptionDetailsInfoList);
+            }
+            else
+            {
+                // Fallback: create a generic exception with the message
+                rootException = new Exception(telemetry.Message ?? "<no message>");
+            }
+
+            // Enrich the exception with metadata
+            EnrichExceptionWithMetadata(rootException, telemetry);
+
+            return rootException;
         }
 
         /// <summary>
-        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
-        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
+        /// Reconstructs an exception chain from a list of ExceptionDetailsInfo.
         /// </summary>
-        /// <param name="metricId">The ID (name) of the metric.
-        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, use an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
-        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
-        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
-        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
-        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
-        /// instance of <c>Metric</c>.</returns>
-        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
-        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
-        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
-        /// configuration used earlier.</exception>
-        /// <param name="aggregationScope">The scope across which the values for the metric are to be aggregated in memory.
-        /// See <see cref="MetricAggregationScope" /> for more info.</param>
-        /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
-        public Metric GetMetric(
-                            string metricId,
-                            MetricConfiguration metricConfiguration,
-                            MetricAggregationScope aggregationScope)
+        /// <param name="exceptionDetailsList">The list of exception details.</param>
+        /// <returns>The outermost exception with inner exceptions properly chained.</returns>
+        private static Exception ReconstructExceptionChain(IReadOnlyList<ExceptionDetailsInfo> exceptionDetailsList)
         {
-            return this.GetOrCreateMetric(
-                        aggregationScope,
-                        new MetricIdentifier(metricId),
-                        metricConfiguration: metricConfiguration);
+            if (exceptionDetailsList == null || exceptionDetailsList.Count == 0)
+            {
+                return new Exception("<no exception details>");
+            }
+
+            // Process from innermost (index 0) to outermost (last index)
+            Exception innerException = null;
+
+            // Start with the innermost exception (first in the list)
+            for (int i = 0; i < exceptionDetailsList.Count; i++)
+            {
+                var details = exceptionDetailsList[i];
+                var message = details.Message ?? "<no message>";
+                var typeName = details.TypeName ?? "System.Exception";
+
+                // Create a new exception with the message and previous inner exception
+                // Include the type name in the message since we can't safely create typed exceptions via reflection
+                Exception currentException;
+
+                if (innerException != null)
+                {
+                    currentException = new Exception($"[{typeName}] {message}", innerException);
+                }
+                else
+                {
+                    currentException = new Exception($"[{typeName}] {message}");
+                }
+
+                // Set the current exception as the inner for the next iteration
+                innerException = currentException;
+            }
+
+            return innerException; // This is now the outermost exception
         }
 
         /// <summary>
-        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
-        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
+        /// Enriches an exception with metadata from ExceptionTelemetry.
         /// </summary>
-        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
-        /// associated with this client.<br />
-        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
-        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
-        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
-        /// <param name="metricId">The ID (name) of the metric.
-        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, use an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
-        /// <param name="dimension1Name">The name of the first dimension.</param>
-        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
-        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
-        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
-        /// configuration used earlier.</exception>
-        /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
-        public Metric GetMetric(
-                            string metricId,
-                            string dimension1Name)
+        /// <param name="exception">The exception to enrich.</param>
+        /// <param name="telemetry">The telemetry containing metadata.</param>
+        private static void EnrichExceptionWithMetadata(Exception exception, ExceptionTelemetry telemetry)
         {
-            return this.GetOrCreateMetric(
-                        MetricAggregationScope.TelemetryConfiguration,
-                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name),
-                        metricConfiguration: null);
+            if (exception == null || telemetry == null)
+            {
+                return;
+            }
+
+            // Store metadata in Exception.Data
+            try
+            {
+                if (!string.IsNullOrEmpty(telemetry.ProblemId))
+                {
+                    exception.Data["ProblemId"] = telemetry.ProblemId;
+                }
+
+                if (telemetry.SeverityLevel.HasValue)
+                {
+                    exception.Data["SeverityLevel"] = telemetry.SeverityLevel.Value.ToString();
+                }
+
+                if (!string.IsNullOrEmpty(telemetry.Message))
+                {
+                    exception.Data["TelemetryMessage"] = telemetry.Message;
+                }
+
+                // Format and store parsed stack frames if available
+                if (telemetry.ExceptionDetailsInfoList != null)
+                {
+                    for (int i = 0; i < telemetry.ExceptionDetailsInfoList.Count; i++)
+                    {
+                        var details = telemetry.ExceptionDetailsInfoList[i];
+                        exception.Data[$"ExceptionDetails[{i}].TypeName"] = details.TypeName ?? "<unknown>";
+                        exception.Data[$"ExceptionDetails[{i}].Message"] = details.Message ?? "<no message>";
+                    }
+                }
+            }
+            catch
+            {
+                // Silently ignore any issues enriching the exception
+                // The core exception object is still valid
+            }
         }
 
-        /// <summary>
-        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
-        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
-        /// </summary>
-        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
-        /// associated with this client.<br />
-        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
-        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
-        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
-        /// <param name="metricId">The ID (name) of the metric.
-        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, use an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
-        /// <param name="dimension1Name">The name of the first dimension.</param>
-        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
-        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
-        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
-        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
-        /// instance of <c>Metric</c>.</returns>
-        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
-        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
-        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
-        /// configuration used earlier.</exception>
-        public Metric GetMetric(
-                            string metricId,
-                            string dimension1Name,
-                            MetricConfiguration metricConfiguration)
+        private readonly struct DictionaryLogState : IReadOnlyList<KeyValuePair<string, object>>
         {
-            return this.GetOrCreateMetric(
-                        MetricAggregationScope.TelemetryConfiguration,
-                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name),
-                        metricConfiguration: metricConfiguration);
-        }
+            public readonly string Message;
+            private readonly IReadOnlyList<KeyValuePair<string, object>> items;
 
-        /// <summary>
-        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
-        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
-        /// </summary>
-        /// <param name="metricId">The ID (name) of the metric.
-        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, use an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
-        /// <param name="dimension1Name">The name of the first dimension.</param>
-        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
-        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
-        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
-        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
-        /// instance of <c>Metric</c>.</returns>
-        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
-        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
-        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
-        /// configuration used earlier.</exception>
-        /// <param name="aggregationScope">The scope across which the values for the metric are to be aggregated in memory.
-        /// See <see cref="MetricAggregationScope" /> for more info.</param>
-        public Metric GetMetric(
-                            string metricId,
-                            string dimension1Name,
-                            MetricConfiguration metricConfiguration,
-                            MetricAggregationScope aggregationScope)
-        {
-            return this.GetOrCreateMetric(
-                        aggregationScope,
-                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name),
-                        metricConfiguration: metricConfiguration);
-        }
+            public DictionaryLogState(IDictionary<string, string> properties, string message)
+            {
+                this.Message = message ?? string.Empty;
 
-        /// <summary>
-        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
-        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
-        /// </summary>
-        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
-        /// associated with this client.<br />
-        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
-        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
-        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
-        /// <param name="metricId">The ID (name) of the metric.
-        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, use an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
-        /// <param name="dimension1Name">The name of the first dimension.</param>
-        /// <param name="dimension2Name">The name of the second dimension.</param>
-        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
-        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
-        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
-        /// configuration used earlier.</exception>
-        /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
-        public Metric GetMetric(
-                            string metricId,
-                            string dimension1Name,
-                            string dimension2Name)
-        {
-            return this.GetOrCreateMetric(
-                        MetricAggregationScope.TelemetryConfiguration,
-                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name),
-                        metricConfiguration: null);
-        }
+                if (properties == null || properties.Count == 0)
+                {
+                    this.items = new[] { new KeyValuePair<string, object>("{OriginalFormat}", message ?? string.Empty) };
+                }
+                else
+                {
+                    var list = new List<KeyValuePair<string, object>>(properties.Count + 1);
+                    foreach (var kvp in properties)
+                    {
+                        list.Add(new KeyValuePair<string, object>(kvp.Key, kvp.Value));
+                    }
 
-        /// <summary>
-        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
-        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
-        /// </summary>
-        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
-        /// associated with this client.<br />
-        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
-        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
-        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
-        /// <param name="metricId">The ID (name) of the metric.
-        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, use an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
-        /// <param name="dimension1Name">The name of the first dimension.</param>
-        /// <param name="dimension2Name">The name of the second dimension.</param>
-        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
-        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
-        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
-        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
-        /// instance of <c>Metric</c>.</returns>
-        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
-        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
-        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
-        /// configuration used earlier.</exception>
-        public Metric GetMetric(
-                            string metricId,
-                            string dimension1Name,
-                            string dimension2Name,
-                            MetricConfiguration metricConfiguration)
-        {
-            return this.GetOrCreateMetric(
-                        MetricAggregationScope.TelemetryConfiguration,
-                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name),
-                        metricConfiguration);
-        }
+                    list.Add(new KeyValuePair<string, object>("{OriginalFormat}", message ?? string.Empty));
+                    this.items = list;
+                }
+            }
 
-        /// <summary>
-        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
-        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
-        /// </summary>
-        /// <param name="metricId">The ID (name) of the metric.
-        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, use an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
-        /// <param name="dimension1Name">The name of the first dimension.</param>
-        /// <param name="dimension2Name">The name of the second dimension.</param>
-        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
-        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
-        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
-        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
-        /// instance of <c>Metric</c>.</returns>
-        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
-        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
-        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
-        /// configuration used earlier.</exception>
-        /// <param name="aggregationScope">The scope across which the values for the metric are to be aggregated in memory.
-        /// See <see cref="MetricAggregationScope" /> for more info.</param>
-        public Metric GetMetric(
-                            string metricId,
-                            string dimension1Name,
-                            string dimension2Name,
-                            MetricConfiguration metricConfiguration,
-                            MetricAggregationScope aggregationScope)
-        {
-            return this.GetOrCreateMetric(
-                        aggregationScope,
-                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name),
-                        metricConfiguration);
-        }
+            /// <summary>
+            /// Constructor that merges TelemetryContext.GlobalProperties with item-level properties.
+            /// </summary>
+            /// <param name="context">The telemetry context containing GlobalProperties.</param>
+            /// <param name="properties">Item-level properties (override GlobalProperties if keys conflict).</param>
+            /// <param name="message">The log message.</param>
+            public DictionaryLogState(TelemetryContext context, IDictionary<string, string> properties, string message)
+            {
+                this.Message = message ?? string.Empty;
 
-        /// <summary>
-        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
-        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
-        /// </summary>
-        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
-        /// associated with this client.<br />
-        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
-        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
-        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
-        /// <param name="metricId">The ID (name) of the metric.
-        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, use an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
-        /// <param name="dimension1Name">The name of the first dimension.</param>
-        /// <param name="dimension2Name">The name of the second dimension.</param>
-        /// <param name="dimension3Name">The name of the third dimension.</param>
-        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
-        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
-        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
-        /// configuration used earlier.</exception>
-        /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
-        public Metric GetMetric(
-                            string metricId,
-                            string dimension1Name,
-                            string dimension2Name,
-                            string dimension3Name)
-        {
-            return this.GetOrCreateMetric(
-                        MetricAggregationScope.TelemetryConfiguration,
-                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name, dimension3Name),
-                        metricConfiguration: null);
-        }
+                // Merge GlobalProperties and properties
+                var allProperties = new Dictionary<string, string>();
+                
+                if (context?.GlobalProperties != null)
+                {
+                    foreach (var kvp in context.GlobalProperties)
+                    {
+                        allProperties[kvp.Key] = kvp.Value;
+                    }
+                }
 
-        /// <summary>
-        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
-        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
-        /// </summary>
-        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
-        /// associated with this client.<br />
-        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
-        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
-        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
-        /// <param name="metricId">The ID (name) of the metric.
-        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, use an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
-        /// <param name="dimension1Name">The name of the first dimension.</param>
-        /// <param name="dimension2Name">The name of the second dimension.</param>
-        /// <param name="dimension3Name">The name of the third dimension.</param>
-        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
-        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
-        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
-        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
-        /// instance of <c>Metric</c>.</returns>
-        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
-        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
-        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
-        /// configuration used earlier.</exception>
-        public Metric GetMetric(
-                            string metricId,
-                            string dimension1Name,
-                            string dimension2Name,
-                            string dimension3Name,
-                            MetricConfiguration metricConfiguration)
-        {
-            return this.GetOrCreateMetric(
-                        MetricAggregationScope.TelemetryConfiguration,
-                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name, dimension3Name),
-                        metricConfiguration);
-        }
+                if (properties != null)
+                {
+                    foreach (var kvp in properties)
+                    {
+                        allProperties[kvp.Key] = kvp.Value; // Properties override GlobalProperties
+                    }
+                }
 
-        /// <summary>
-        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
-        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
-        /// </summary>
-        /// <param name="metricId">The ID (name) of the metric.
-        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, use an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
-        /// <param name="dimension1Name">The name of the first dimension.</param>
-        /// <param name="dimension2Name">The name of the second dimension.</param>
-        /// <param name="dimension3Name">The name of the third dimension.</param>
-        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
-        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
-        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
-        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
-        /// instance of <c>Metric</c>.</returns>
-        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
-        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
-        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
-        /// configuration used earlier.</exception>
-        /// <param name="aggregationScope">The scope across which the values for the metric are to be aggregated in memory.
-        /// See <see cref="MetricAggregationScope" /> for more info.</param>
-        public Metric GetMetric(
-                            string metricId,
-                            string dimension1Name,
-                            string dimension2Name,
-                            string dimension3Name,
-                            MetricConfiguration metricConfiguration,
-                            MetricAggregationScope aggregationScope)
-        {
-            return this.GetOrCreateMetric(
-                        aggregationScope,
-                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name, dimension3Name),
-                        metricConfiguration);
-        }
+                if (allProperties.Count == 0)
+                {
+                    this.items = new[] { new KeyValuePair<string, object>("{OriginalFormat}", message ?? string.Empty) };
+                }
+                else
+                {
+                    var list = new List<KeyValuePair<string, object>>(allProperties.Count + 1);
+                    foreach (var kvp in allProperties)
+                    {
+                        list.Add(new KeyValuePair<string, object>(kvp.Key, kvp.Value));
+                    }
 
-        /// <summary>
-        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
-        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
-        /// </summary>
-        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
-        /// associated with this client.<br />
-        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
-        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
-        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
-        /// <param name="metricId">The ID (name) of the metric.
-        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, use an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
-        /// <param name="dimension1Name">The name of the first dimension.</param>
-        /// <param name="dimension2Name">The name of the second dimension.</param>
-        /// <param name="dimension3Name">The name of the third dimension.</param>
-        /// <param name="dimension4Name">The name of the fourth dimension.</param>
-        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
-        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
-        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
-        /// configuration used earlier.</exception>
-        /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
-        public Metric GetMetric(
-                            string metricId,
-                            string dimension1Name,
-                            string dimension2Name,
-                            string dimension3Name,
-                            string dimension4Name)
-        {
-            return this.GetOrCreateMetric(
-                        MetricAggregationScope.TelemetryConfiguration,
-                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name, dimension3Name, dimension4Name),
-                        metricConfiguration: null);
-        }
+                    list.Add(new KeyValuePair<string, object>("{OriginalFormat}", message ?? string.Empty));
+                    this.items = list;
+                }
+            }
 
-        /// <summary>
-        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
-        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
-        /// </summary>
-        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
-        /// associated with this client.<br />
-        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
-        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
-        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
-        /// <param name="metricId">The ID (name) of the metric.
-        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, use an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
-        /// <param name="dimension1Name">The name of the first dimension.</param>
-        /// <param name="dimension2Name">The name of the second dimension.</param>
-        /// <param name="dimension3Name">The name of the third dimension.</param>
-        /// <param name="dimension4Name">The name of the fourth dimension.</param>
-        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
-        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
-        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
-        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
-        /// instance of <c>Metric</c>.</returns>
-        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
-        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
-        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
-        /// configuration used earlier.</exception>
-        public Metric GetMetric(
-                            string metricId,
-                            string dimension1Name,
-                            string dimension2Name,
-                            string dimension3Name,
-                            string dimension4Name,
-                            MetricConfiguration metricConfiguration)
-        {
-            return this.GetOrCreateMetric(
-                        MetricAggregationScope.TelemetryConfiguration,
-                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name, dimension3Name, dimension4Name),
-                        metricConfiguration);
-        }
+            public int Count => this.items.Count;
 
-        /// <summary>
-        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
-        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
-        /// </summary>
-        /// <param name="metricId">The ID (name) of the metric.
-        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, use an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
-        /// <param name="dimension1Name">The name of the first dimension.</param>
-        /// <param name="dimension2Name">The name of the second dimension.</param>
-        /// <param name="dimension3Name">The name of the third dimension.</param>
-        /// <param name="dimension4Name">The name of the fourth dimension.</param>
-        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
-        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
-        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
-        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
-        /// instance of <c>Metric</c>.</returns>
-        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
-        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
-        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
-        /// configuration used earlier.</exception>
-        /// <param name="aggregationScope">The scope across which the values for the metric are to be aggregated in memory.
-        /// See <see cref="MetricAggregationScope" /> for more info.</param>
-        public Metric GetMetric(
-                            string metricId,
-                            string dimension1Name,
-                            string dimension2Name,
-                            string dimension3Name,
-                            string dimension4Name,
-                            MetricConfiguration metricConfiguration,
-                            MetricAggregationScope aggregationScope)
-        {
-            return this.GetOrCreateMetric(
-                        aggregationScope,
-                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name, dimension3Name, dimension4Name),
-                        metricConfiguration);
-        }
+            public KeyValuePair<string, object> this[int index] => this.items[index];
 
-        /// <summary>
-        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
-        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
-        /// </summary>
-        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
-        /// associated with this client.<br />
-        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
-        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
-        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
-        /// <param name="metricIdentifier">A grouping containing the Namespace, the ID (name) and the dimension names of the metric.</param>
-        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
-        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
-        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
-        /// configuration used earlier.</exception>
-        /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
-        public Metric GetMetric(
-                            MetricIdentifier metricIdentifier)
-        {
-            return this.GetOrCreateMetric(
-                        MetricAggregationScope.TelemetryConfiguration,
-                        metricIdentifier,
-                        metricConfiguration: null);
-        }
+            public IEnumerator<KeyValuePair<string, object>> GetEnumerator() => this.items.GetEnumerator();
 
-        /// <summary>
-        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
-        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
-        /// </summary>
-        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
-        /// associated with this client.<br />
-        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
-        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
-        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
-        /// <param name="metricIdentifier">A grouping containing the Namespace, the ID (name) and the dimension names of the metric.</param>
-        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
-        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
-        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
-        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
-        /// instance of <c>Metric</c>.</returns>
-        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
-        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
-        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
-        /// configuration used earlier.</exception>
-        public Metric GetMetric(
-                            MetricIdentifier metricIdentifier,
-                            MetricConfiguration metricConfiguration)
-        {
-            return this.GetOrCreateMetric(
-                        MetricAggregationScope.TelemetryConfiguration,
-                        metricIdentifier,
-                        metricConfiguration);
-        }
-
-        /// <summary>
-        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
-        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
-        /// </summary>
-        /// <param name="metricIdentifier">A grouping containing the Namespace, the ID (name) and the dimension names of the metric.</param>
-        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
-        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
-        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
-        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
-        /// instance of <c>Metric</c>.</returns>
-        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
-        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
-        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
-        /// configuration used earlier.</exception>
-        /// <param name="aggregationScope">The scope across which the values for the metric are to be aggregated in memory.
-        /// See <see cref="MetricAggregationScope" /> for more info.</param>
-        public Metric GetMetric(
-                            MetricIdentifier metricIdentifier,
-                            MetricConfiguration metricConfiguration,
-                            MetricAggregationScope aggregationScope)
-        {
-            return this.GetOrCreateMetric(
-                        aggregationScope,
-                        metricIdentifier,
-                        metricConfiguration);
-        }
-
-        private Metric GetOrCreateMetric(
-                                    MetricAggregationScope aggregationScope,
-                                    MetricIdentifier metricIdentifier,
-                                    MetricConfiguration metricConfiguration)
-        {
-            MetricManager metricManager = this.GetMetricManager(aggregationScope);
-            Metric metric = metricManager.Metrics.GetOrCreate(metricIdentifier, metricConfiguration);
-            return metric;
+            IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
         }
     }
 }

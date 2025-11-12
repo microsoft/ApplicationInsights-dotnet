@@ -68,7 +68,7 @@
     /// <summary>
     /// Helps to define whether thread is performing SDK internal operation at the moment.
     /// </summary>
-    public static class SdkInternalOperationsMonitor
+    internal static class SdkInternalOperationsMonitor
     {
         private static AsyncLocal<object> asyncLocalContext = new AsyncLocal<object>();
 

@@ -1,19 +1,10 @@
-﻿using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.DataContracts;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Xunit;
-using Xunit.Abstractions;
+﻿using IntegrationTests.WebApp;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.ApplicationInsights;
-using IntegrationTests.WebApp;
+using System;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace IntegrationTests.Tests
 {
@@ -27,7 +18,7 @@ namespace IntegrationTests.Tests
 
             var client = _factory.WithWebHostBuilder(builder =>
             builder.ConfigureTestServices((services) =>
-            services.AddLogging(logBuilder => logBuilder.AddFilter<ApplicationInsightsLoggerProvider>(loggerCategory, LogLevel.Information))
+            services.AddLogging(logBuilder => logBuilder.AddFilter(loggerCategory, LogLevel.Information))
             )).CreateClient();
 
             var path = "Home";
@@ -41,27 +32,29 @@ namespace IntegrationTests.Tests
             // Assert
             response.EnsureSuccessStatusCode();
 
-            await WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive(expectedItemCount: 3);
 
-            var items = _factory.sentItems;
+            var items = _factory.Telemetry.Items;
             PrintItems(items);
             Assert.Equal(3, items.Count);
 
-            var reqs = GetTelemetryOfType<RequestTelemetry>(items);
+            var reqs = _factory.Telemetry.GetTelemetryOfType<RequestTelemetryEnvelope>();
             Assert.Single(reqs);
             var req = reqs[0];
             Assert.NotNull(req);
 
-            var traces = GetTelemetryOfType<TraceTelemetry>(items);
+            var traces = _factory.Telemetry.GetTelemetryOfType<TraceTelemetryEnvelope>();
             Assert.Equal(2, traces.Count);
             var trace1 = traces[0];
             var trace2 = traces[1];
-            Assert.Equal(trace1.Context.Operation.ParentId, req.Id);
+            Assert.Equal(req.Id, trace1.OperationParentId);
+
+            // TODO: Validate traces
 
             ValidateRequest(
                  requestTelemetry: req,
                  expectedResponseCode: "200",
-                 expectedName: "GET " + path + "/Get",
+                  expectedName: "GET " + path,
                  expectedUrl: url,
                  expectedSuccess: true);
 
@@ -71,7 +64,6 @@ namespace IntegrationTests.Tests
         [Fact]
         public async Task IloggerWarningOrAboveCapturedByDefault()
         {
-            // Arrange
             var client = _factory.CreateClient();
 
             var path = "Home";
@@ -85,26 +77,28 @@ namespace IntegrationTests.Tests
             // Assert
             response.EnsureSuccessStatusCode();
 
-            await WaitForTelemetryToArrive();
+            await WaitForTelemetryToArrive(expectedItemCount: 2);
 
-            var items = _factory.sentItems;
+            var items = _factory.Telemetry.Items;
             PrintItems(items);
             Assert.Equal(2, items.Count);
 
-            var reqs = GetTelemetryOfType<RequestTelemetry>(items);
+            var reqs = _factory.Telemetry.GetTelemetryOfType<RequestTelemetryEnvelope>();
             Assert.Single(reqs);
             var req = reqs[0];
             Assert.NotNull(req);
 
-            var traces = GetTelemetryOfType<TraceTelemetry>(items);
+            var traces = _factory.Telemetry.GetTelemetryOfType<TraceTelemetryEnvelope>();
             Assert.Single(traces);
             var trace = traces[0];
-            Assert.Equal(trace.Context.Operation.ParentId, req.Id);
+            Assert.Equal(req.Id, trace.OperationParentId);
+
+            // TODO: Validate traces
 
             ValidateRequest(
                  requestTelemetry: req,
                  expectedResponseCode: "200",
-                 expectedName: "GET " + path + "/Get",
+                    expectedName: "GET " + path,
                  expectedUrl: url,
                  expectedSuccess: true);
 

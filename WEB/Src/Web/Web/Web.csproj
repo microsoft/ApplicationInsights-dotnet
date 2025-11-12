@@ -4,7 +4,7 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.Web</RootNamespace>
     <AssemblyName>Microsoft.AI.Web</AssemblyName>
-    <TargetFrameworks>net452</TargetFrameworks>
+    <TargetFrameworks>net462</TargetFrameworks>
     <!-- Important: This project is exclusively NetFramework. This will not be upgraded to NetStandard nor NetCore. -->
     <Prefer32Bit>false</Prefer32Bit>
     <DefineConstants>$(DefineConstants);ALLOW_AGGRESSIVE_INLIGNING_ATTRIBUTE</DefineConstants>
@@ -16,33 +16,37 @@
     <Title>Application Insights for Web Applications</Title>
     <Description>Application Insights for .NET web applications. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
     <PackageTags>Azure Monitoring Analytics ApplicationInsights Telemetry AppInsights</PackageTags>
+    <UserSecretsId>28eb75fe-d19e-475a-a841-a6d3e19bbb93</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <!--Common Dependencies-->
     <ProjectReference Include="..\..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
-    <PackageReference Include="Microsoft.AspNet.TelemetryCorrelation" Version="1.0.8" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="$(SystemDiagnosticsDiagnosticSourcePkgVer)" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.13.1" />
+    <!--<PackageReference Include="Microsoft.AspNet.TelemetryCorrelation" Version="1.0.8" />-->
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="9.0.0" />
+	<PackageReference Include="OpenTelemetry.Instrumentation.AspNet" Version="1.13.0-beta.1" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.12.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.12.0-beta.3" />
+    <PackageReference Include="OpenTelemetry.Resources.Azure" Version="1.12.0-beta.1" />
   </ItemGroup>
 
   <ItemGroup>
     <!--Nuget Transforms (install.xdt, uninstall.xdt, config.transform): "nupkg\content\<framework>\*.*-->
-    <Content Include="net452\*" />
+    <Content Include="net462\*" />
     <Content Include="Microsoft.ApplicationInsights.Web.targets" PackagePath="build" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\WindowsServer\WindowsServer\WindowsServer.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <!--Framework References-->
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Web" />
   </ItemGroup>
 
   <ItemGroup>
     <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\$(TargetFramework)\PublicAPI.Shipped.txt" />
     <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\$(TargetFramework)\PublicAPI.Unshipped.txt" />
   </ItemGroup>
+
   <Import Project="..\..\Common\Common.projitems" Label="Shared" />
 </Project>

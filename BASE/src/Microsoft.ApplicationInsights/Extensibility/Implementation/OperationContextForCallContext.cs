@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
-    using System;
     using System.Collections.Generic;
 
     /// <summary>

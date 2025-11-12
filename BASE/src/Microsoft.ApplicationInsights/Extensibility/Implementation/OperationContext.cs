@@ -2,13 +2,11 @@
 {
     using System.Collections.Generic;
     using System.ComponentModel;
-    using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
     /// Encapsulates information about an operation. Operation normally reflects an end to end scenario that starts from a user action (e.g. button click).
     /// </summary>
-    public sealed class OperationContext
+    internal sealed class OperationContext
     {
         private string id;
         private string parentId;
@@ -64,24 +62,6 @@
         {
             get { return string.IsNullOrEmpty(this.syntheticSource) ? null : this.syntheticSource; }
             set { this.syntheticSource = value; }
-        }
-
-        internal void UpdateTags(IDictionary<string, string> tags)
-        {
-            tags.UpdateTagValue(ContextTagKeys.Keys.OperationId, this.Id);
-            tags.UpdateTagValue(ContextTagKeys.Keys.OperationParentId, this.ParentId);
-            tags.UpdateTagValue(ContextTagKeys.Keys.OperationCorrelationVector, this.CorrelationVector);
-            tags.UpdateTagValue(ContextTagKeys.Keys.OperationName, this.Name);
-            tags.UpdateTagValue(ContextTagKeys.Keys.OperationSyntheticSource, this.SyntheticSource);
-        }
-
-        internal void CopyTo(OperationContext target)
-        {
-            Tags.CopyTagValue(this.Id, ref target.id);
-            Tags.CopyTagValue(this.ParentId, ref target.parentId);
-            Tags.CopyTagValue(this.CorrelationVector, ref target.correlationVector);
-            Tags.CopyTagValue(this.Name, ref target.name);
-            Tags.CopyTagValue(this.SyntheticSource, ref target.syntheticSource);
         }
     }
 }

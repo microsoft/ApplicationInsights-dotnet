@@ -9,7 +9,7 @@
     /// Extension functions to operation telemetry that start and stop the timer.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static class OperationTelemetryExtensions
+    internal static class OperationTelemetryExtensions
     {
         /// <summary>
         /// An extension to telemetry item that starts the timer for the respective telemetry.
@@ -84,20 +84,6 @@
             {
                 StopImpl(telemetry, duration: TimeSpan.Zero);
             }
-        }
-
-        /// <summary>
-        /// Generate random operation Id and set it to OperationContext.
-        /// </summary>
-        /// <param name="telemetry">Telemetry to initialize Operation id for.</param>
-        public static void GenerateOperationId(this OperationTelemetry telemetry)
-        {
-            if (telemetry == null)
-            {
-                throw new ArgumentNullException(nameof(telemetry));
-            }
-
-            telemetry.GenerateId();
         }
 
         /// <summary>

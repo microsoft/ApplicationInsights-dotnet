@@ -1,42 +1,51 @@
-﻿using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.AspNetCore.Extensions;
-using Microsoft.ApplicationInsights.Channel;
+﻿using System.Diagnostics;
+using Azure.Core.Pipeline;
+using Azure.Monitor.OpenTelemetry.Exporter;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.ApplicationInsights;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace IntegrationTests.Tests
 {
     public class CustomWebApplicationFactory<TStartup>
     : WebApplicationFactory<TStartup> where TStartup : class
     {
-        internal ConcurrentBag<ITelemetry> sentItems = new ConcurrentBag<ITelemetry>();
-
+        internal TelemetryCollector Telemetry { get; } = new TelemetryCollector();
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
+            Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+            Activity.ForceDefaultIdFormat = true;
 
             builder.ConfigureServices(services =>
             {
                 services.AddLogging(loggingBuilder =>
-                loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager", LogLevel.None));
+                    loggingBuilder.AddFilter(
+                        "Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager",
+                        LogLevel.None)
+                                   .AddFilter(
+                                       "IntegrationTests.WebApp.Controllers.HomeController",
+                                       LogLevel.Warning));
 
-                services.AddSingleton<ITelemetryChannel>(new StubChannel()
+                services.AddSingleton<TelemetryCollector>(_ => this.Telemetry);
+                services.AddSingleton<HttpPipelineTransport>(provider =>
+                    new RecordingTransport(provider.GetRequiredService<TelemetryCollector>()));
+
+                services.AddOptions<AzureMonitorExporterOptions>()
+                        .Configure<HttpPipelineTransport>((options, transport) =>
+                        {
+                            options.Transport = transport;
+                            options.DisableOfflineStorage = true;
+                        });
+
+                services.AddApplicationInsightsTelemetry(options =>
                 {
-                    OnSend = (item) => this.sentItems.Add(item)
+                    options.AddAutoCollectedMetricExtractor = false;
+                    options.EnableQuickPulseMetricStream = false;
+                    options.EnableAdaptiveSampling = false;
+                    options.ConnectionString = "InstrumentationKey=ikey";
                 });
-                var aiOptions = new ApplicationInsightsServiceOptions();
-                aiOptions.AddAutoCollectedMetricExtractor = false;
-                aiOptions.EnableAdaptiveSampling = false;
-                aiOptions.InstrumentationKey = "ikey";
-                services.AddApplicationInsightsTelemetry(aiOptions);
             });
         }
     }

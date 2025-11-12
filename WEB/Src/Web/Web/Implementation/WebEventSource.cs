@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
+    using System.Diagnostics.Tracing;
 #if NET452
     using System.Diagnostics.Tracing;
 #endif

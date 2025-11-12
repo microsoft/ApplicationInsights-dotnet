@@ -20,14 +20,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
-    <ProjectReference Include="..\..\..\BASE\src\ServerTelemetryChannel\TelemetryChannel.csproj" />
-    <ProjectReference Include="..\..\..\LOGGING\src\ILogger\ILogger.csproj" />
-    <ProjectReference Include="..\..\..\WEB\Src\DependencyCollector\DependencyCollector\DependencyCollector.csproj" />
-    <ProjectReference Include="..\..\..\WEB\Src\EventCounterCollector\EventCounterCollector\EventCounterCollector.csproj" />
-    <ProjectReference Include="..\..\..\WEB\Src\PerformanceCollector\PerformanceCollector\Perf.csproj" />
-    <ProjectReference Include="..\..\..\WEB\Src\WindowsServer\WindowsServer\WindowsServer.csproj" />
-
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.1" />
+	  
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.13.1" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.12.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.12.0-beta.3" />
+    <PackageReference Include="OpenTelemetry.Resources.Azure" Version="1.12.0-beta.1" />
   </ItemGroup>
 
   <ItemGroup>
