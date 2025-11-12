@@ -1,15 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
     using System.Collections.Generic;
-    using System.Linq;
 
     /// <summary>
     /// Wrapper class for ExceptionDetails"/> that lets user gets/sets TypeName and Message.
     /// </summary>
     public sealed class ExceptionDetailsInfo
     {
-        // TODO : fix the constructor to set properties
-
         /// <summary>
         /// Constructs the instance of <see cref="ExceptionDetailsInfo"/>.
         /// </summary>
@@ -20,29 +17,51 @@
         /// <param name="hasFullStack">Indicates that this exception has full stack information.</param>
         /// <param name="stack">Exception's stack trace.</param>
         /// <param name="parsedStack">Exception's stack.</param>
-#pragma warning disable CA1801 // Review unused parameters
         public ExceptionDetailsInfo(int id, int outerId, string typeName, string message, bool hasFullStack,
             string stack, IEnumerable<StackFrame> parsedStack)
-#pragma warning restore CA1801 // Review unused parameters
         {
+            this.Id = id;
+            this.OuterId = outerId;
+            this.TypeName = typeName;
+            this.Message = message;
+            this.Stack = stack;
+            this.ParsedStack = parsedStack != null ? new List<StackFrame>(parsedStack) : null;
+            this.HasFullStack = hasFullStack;
         }
 
         /// <summary>
         /// Gets or sets type name of the underlying <see cref="System.Exception"/> that this object represents.
         /// </summary>
-        public string TypeName
-        {
-            get;
-            set;
-        }
+        public string TypeName { get; set; }
 
         /// <summary>
         /// Gets or sets message name of the underlying <see cref="System.Exception"/> that this object represents.
         /// </summary>
-        public string Message
-        {
-            get;
-            set;
-        }
+        public string Message { get; set; }
+
+        /// <summary>
+        /// Gets or sets the exception ID.
+        /// </summary>
+        internal int Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets the outer exception ID.
+        /// </summary>
+        internal int OuterId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the stack trace as a string.
+        /// </summary>
+        internal string Stack { get; set; }
+
+        /// <summary>
+        /// Gets or sets the parsed stack frames for the exception.
+        /// </summary>
+        internal IList<StackFrame> ParsedStack { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this exception has full stack information.
+        /// </summary>
+        internal bool HasFullStack { get; set; }
     }
 }

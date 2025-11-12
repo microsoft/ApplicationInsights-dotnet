@@ -61,10 +61,12 @@
             config.AddTarget("AITarget", target);
             config.LoggingRules.Add(rule);
 
-            LogManager.Configuration = config;
-            var logger = LogManager.GetLogger("AITarget");
-
-            Assert.ThrowsException<NLogConfigurationException>(() => logger.Info("trigger"));
+            Assert.ThrowsException<NLogConfigurationException>(() =>
+            {
+                LogManager.Configuration = config;
+                var logger = LogManager.GetLogger("AITarget");
+                logger.Info("trigger");
+            });
         }
 
         [TestMethod]
@@ -81,10 +83,12 @@
             config.AddTarget("AITarget", target);
             config.LoggingRules.Add(rule);
 
-            LogManager.Configuration = config;
-            var logger = LogManager.GetLogger("AITarget");
-
-            Assert.ThrowsException<NLogConfigurationException>(() => logger.Info("trigger"));
+            Assert.ThrowsException<NLogConfigurationException>(() =>
+            {
+                LogManager.Configuration = config;
+                var logger = LogManager.GetLogger("AITarget");
+                logger.Info("trigger");
+            });
         }
 
         [TestMethod]

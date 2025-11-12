@@ -22,14 +22,6 @@
                 ConnectionString = "",
             };
 
-            // Add custom TelemetryInitializer.
-            //telemetryConfig.TelemetryInitializers.Add(new MyCustomTelemetryInitializer());
-
-            // Add custom TelemetryProcessor and build.
-            //var builder = telemetryConfig.DefaultTelemetrySink.TelemetryProcessorChainBuilder;
-            //builder.Use(next => new MyCustomTelemetryProcessor(next));
-            //builder.Build();
-
             telemetryConfig.ConfigureOpenTelemetryBuilder(builder => builder.WithTracing(tracing => tracing.AddSource("MyCompany.MyProduct.MyLibrary").AddConsoleExporter())
                                                                      .WithLogging(logging => logging.AddConsoleExporter())
                                                                      .WithMetrics(metrics => metrics.AddConsoleExporter()));
@@ -46,7 +38,7 @@
             telemetryClient.TrackTrace("A warning", SeverityLevel.Warning);
             telemetryClient.TrackTrace("A trace with properties", new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
             telemetryClient.TrackTrace("A trace with severity and properties", SeverityLevel.Error, new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
-            telemetryClient.TrackTrace(new TraceTelemetry("TraceTelemetry object", SeverityLevel.Information));        
+            telemetryClient.TrackTrace(new TraceTelemetry("TraceTelemetry object", SeverityLevel.Information));
 
             // **Metrics Examples**
             telemetryClient.TrackMetric("SampleMetric", 42.0);
@@ -64,15 +56,14 @@
             requestsPerEndpoint.TrackValue(1, "/api/orders");
             requestsPerEndpoint.TrackValue(1, "/api/users");
 
+            // Run all ExceptionTelemetry examples
+            ExceptionTelemetryExamples.Run(telemetryClient);
             // Run comprehensive metrics examples
             Console.WriteLine("\n--- Running Comprehensive Metrics Examples ---");
             MetricsExamples.RunAllScenarios(telemetryClient);
 
-            telemetryClient.TrackException(new InvalidOperationException("Something went wrong"), new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } } );
-            telemetryClient.TrackException(new ExceptionTelemetry(new InvalidOperationException("ExceptionTelemetry object")));
-
-            // telemetryClient.TrackTrace("A trace with properties", new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
-            //telemetryClient.TrackTrace("A trace with severity and properties", SeverityLevel.Error, new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
+            telemetryClient.TrackTrace("A trace with properties", new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
+            telemetryClient.TrackTrace("A trace with severity and properties", SeverityLevel.Error, new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
             telemetryClient.TrackDependency("SQL", "GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), true);
             telemetryClient.TrackDependency(new DependencyTelemetry("SQL", "dbserver", "GetOrders", "SELECT * FROM Orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), "0", true));
 
@@ -137,20 +128,20 @@
     internal class MyCustomTelemetryProcessor : ITelemetryProcessor
     {
         ITelemetryProcessor next;
-
+            
         public MyCustomTelemetryProcessor(ITelemetryProcessor next)
-        {
+            {
             this.next = next;
 
         }
-
+            
         public void Process(ITelemetry item)
         {
             // Example: Filter out all RequestTelemetry items.
             if (item is not RequestTelemetry)
             {
                 this.next.Process(item);
-            }
         }
-    }*/
+    }
+}*/
 }
