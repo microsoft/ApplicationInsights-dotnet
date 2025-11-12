@@ -35,7 +35,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             // Create a composite key if namespace is provided
             string key = string.IsNullOrEmpty(metricNamespace) 
                 ? metricName 
-                : $"{metricNamespace}:{metricName}";
+                : $"{metricNamespace}-{metricName}";
 
             return this.histograms.GetOrAdd(key, _ => 
                 this.meter.CreateHistogram<double>(key));
