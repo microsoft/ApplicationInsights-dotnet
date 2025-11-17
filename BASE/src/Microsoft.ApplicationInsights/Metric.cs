@@ -76,8 +76,8 @@
         /// <param name="metricValue">The value to be aggregated.</param>
         /// <param name="dimension1Value">The value of the 1st dimension.</param>
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
-        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
-        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached,
+        /// or if the number of specified dimension values does not match the dimensionality of this <c>Metric</c>.</returns>
         public bool TrackValue(double metricValue, string dimension1Value)
         {
             if (this.dimensionNames.Length != 1)
@@ -107,8 +107,8 @@
         /// <param name="metricValue">The value to be aggregated.</param>
         /// <param name="dimension1Value">The value of the 1st dimension.</param>
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
-        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
-        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached,
+        /// or if the number of specified dimension values does not match the dimensionality of this <c>Metric</c>.</returns>
         public bool TrackValue(object metricValue, string dimension1Value)
         {
             if (metricValue == null)
@@ -133,8 +133,8 @@
         /// <param name="dimension1Value">The value of the 1st dimension.</param>
         /// <param name="dimension2Value">The value of the 2nd dimension.</param>
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
-        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
-        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached,
+        /// or if the number of specified dimension values does not match the dimensionality of this <c>Metric</c>.</returns>
         public bool TrackValue(double metricValue, string dimension1Value, string dimension2Value)
         {
             if (this.dimensionNames.Length != 2)
@@ -167,8 +167,8 @@
         /// <param name="dimension1Value">The value of the 1st dimension.</param>
         /// <param name="dimension2Value">The value of the 2nd dimension.</param>
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
-        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
-        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached,
+        /// or if the number of specified dimension values does not match the dimensionality of this <c>Metric</c>.</returns>
         public bool TrackValue(object metricValue, string dimension1Value, string dimension2Value)
         {
             if (metricValue == null)
@@ -194,8 +194,8 @@
         /// <param name="dimension2Value">The value of the 2nd dimension.</param>
         /// <param name="dimension3Value">The value of the 3rd dimension.</param>
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
-        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
-        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached,
+        /// or if the number of specified dimension values does not match the dimensionality of this <c>Metric</c>.</returns>
         public bool TrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value)
         {
             if (this.dimensionNames.Length != 3)
@@ -230,8 +230,8 @@
         /// <param name="dimension2Value">The value of the 2nd dimension.</param>
         /// <param name="dimension3Value">The value of the 3rd dimension.</param>
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
-        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
-        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached,
+        /// or if the number of specified dimension values does not match the dimensionality of this <c>Metric</c>.</returns>
         public bool TrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value)
         {
             if (metricValue == null)
@@ -258,8 +258,8 @@
         /// <param name="dimension3Value">The value of the 3rd dimension.</param>
         /// <param name="dimension4Value">The value of the 4th dimension.</param>
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
-        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
-        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached,
+        /// or if the number of specified dimension values does not match the dimensionality of this <c>Metric</c>.</returns>
         public bool TrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value)
         {
             if (this.dimensionNames.Length != 4)
@@ -296,8 +296,8 @@
         /// <param name="dimension3Value">The value of the 3rd dimension.</param>
         /// <param name="dimension4Value">The value of the 4th dimension.</param>
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
-        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
-        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached,
+        /// or if the number of specified dimension values does not match the dimensionality of this <c>Metric</c>.</returns>
         public bool TrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value)
         {
             if (metricValue == null)
@@ -325,8 +325,8 @@
         /// <param name="dimension4Value">The value of the 4th dimension.</param>
         /// <param name="dimension5Value">The value of the 5th dimension.</param>
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
-        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
-        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached,
+        /// or if the number of specified dimension values does not match the dimensionality of this <c>Metric</c>.</returns>
         public bool TrackValue(
                                 double metricValue,
                                 string dimension1Value,
@@ -371,8 +371,8 @@
         /// <param name="dimension4Value">The value of the 4th dimension.</param>
         /// <param name="dimension5Value">The value of the 5th dimension.</param>
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
-        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
-        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached,
+        /// or if the number of specified dimension values does not match the dimensionality of this <c>Metric</c>.</returns>
         public bool TrackValue(
                                 object metricValue,
                                 string dimension1Value,
@@ -407,8 +407,8 @@
         /// <param name="dimension5Value">The value of the 5th dimension.</param>
         /// <param name="dimension6Value">The value of the 6th dimension.</param>
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
-        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
-        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached,
+        /// or if the number of specified dimension values does not match the dimensionality of this <c>Metric</c>.</returns>
         public bool TrackValue(
                                 double metricValue,
                                 string dimension1Value,
@@ -456,8 +456,8 @@
         /// <param name="dimension5Value">The value of the 5th dimension.</param>
         /// <param name="dimension6Value">The value of the 6th dimension.</param>
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
-        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
-        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached,
+        /// or if the number of specified dimension values does not match the dimensionality of this <c>Metric</c>.</returns>
         public bool TrackValue(
                                 object metricValue,
                                 string dimension1Value,
@@ -494,8 +494,8 @@
         /// <param name="dimension6Value">The value of the 6th dimension.</param>
         /// <param name="dimension7Value">The value of the 7th dimension.</param>
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
-        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
-        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached,
+        /// or if the number of specified dimension values does not match the dimensionality of this <c>Metric</c>.</returns>
         public bool TrackValue(
                                 double metricValue,
                                 string dimension1Value,
@@ -546,8 +546,8 @@
         /// <param name="dimension6Value">The value of the 6th dimension.</param>
         /// <param name="dimension7Value">The value of the 7th dimension.</param>
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
-        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
-        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached,
+        /// or if the number of specified dimension values does not match the dimensionality of this <c>Metric</c>.</returns>
         public bool TrackValue(
                                 object metricValue,
                                 string dimension1Value,
@@ -586,8 +586,8 @@
         /// <param name="dimension7Value">The value of the 7th dimension.</param>
         /// <param name="dimension8Value">The value of the 8th dimension.</param>
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
-        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
-        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached,
+        /// or if the number of specified dimension values does not match the dimensionality of this <c>Metric</c>.</returns>
         public bool TrackValue(
                                 double metricValue,
                                 string dimension1Value,
@@ -641,8 +641,8 @@
         /// <param name="dimension7Value">The value of the 7th dimension.</param>
         /// <param name="dimension8Value">The value of the 8th dimension.</param>
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
-        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
-        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached,
+        /// or if the number of specified dimension values does not match the dimensionality of this <c>Metric</c>.</returns>
         public bool TrackValue(
                                 object metricValue,
                                 string dimension1Value,
@@ -683,8 +683,8 @@
         /// <param name="dimension8Value">The value of the 8th dimension.</param>
         /// <param name="dimension9Value">The value of the 9th dimension.</param>
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
-        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
-        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached,
+        /// or if the number of specified dimension values does not match the dimensionality of this <c>Metric</c>.</returns>
         public bool TrackValue(
                                 double metricValue,
                                 string dimension1Value,
@@ -741,8 +741,8 @@
         /// <param name="dimension8Value">The value of the 8th dimension.</param>
         /// <param name="dimension9Value">The value of the 9th dimension.</param>
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
-        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
-        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached,
+        /// or if the number of specified dimension values does not match the dimensionality of this <c>Metric</c>.</returns>
         public bool TrackValue(
                                 object metricValue,
                                 string dimension1Value,
@@ -785,8 +785,8 @@
         /// <param name="dimension9Value">The value of the 9th dimension.</param>
         /// <param name="dimension10Value">The value of the 10th dimension.</param>
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
-        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
-        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached,
+        /// or if the number of specified dimension values does not match the dimensionality of this <c>Metric</c>.</returns>
         public bool TrackValue(
                                 double metricValue,
                                 string dimension1Value,
@@ -846,8 +846,8 @@
         /// <param name="dimension9Value">The value of the 9th dimension.</param>
         /// <param name="dimension10Value">The value of the 10th dimension.</param>
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
-        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
-        /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached,
+        /// or if the number of specified dimension values does not match the dimensionality of this <c>Metric</c>.</returns>
         public bool TrackValue(
                                 object metricValue,
                                 string dimension1Value,

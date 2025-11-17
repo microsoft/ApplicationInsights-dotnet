@@ -46,7 +46,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// </summary>
         public void Dispose()
         {
-            this.meter?.Dispose();
+            this.meter.Dispose();
         }
     }
 }
