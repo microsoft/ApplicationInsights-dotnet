@@ -775,7 +775,7 @@
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#flushing-data">Learn more</a>
         /// The caller controls the timeout by creating a CancellationTokenSource with the desired timeout.
         /// Example: using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-        ///          await client.FlushAsync(cts.Token);
+        ///          await client.FlushAsync(cts.Token);.
         /// </remarks>
         /// <returns>
         /// Returns true when all telemetry providers successfully flushed their data.
