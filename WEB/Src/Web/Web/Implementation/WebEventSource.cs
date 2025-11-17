@@ -111,6 +111,75 @@
                 this.applicationNameProvider.Name);
         }
 
+        [Event(
+            8,
+            Message = "[msg=AuthIdTrackingCookieNotAvailable];",
+            Level = EventLevel.Verbose)]
+        public void AuthIdTrackingCookieNotAvailable(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                8,
+                this.applicationNameProvider.Name);
+        }
+
+        [Event(
+            9,
+            Message = "[msg=WebSessionTrackingSessionCookieIsNotSpecifiedInRequest];",
+            Level = EventLevel.Verbose)]
+        public void WebSessionTrackingSessionCookieIsNotSpecifiedInRequest(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                9,
+                this.applicationNameProvider.Name);
+        }
+
+        [Event(
+            10,
+            Message = "[msg=WebUserTrackingUserCookieIsIncomplete];[cookieValue={0}];",
+            Level = EventLevel.Verbose)]
+        public void WebUserTrackingUserCookieIsIncomplete(string cookieValue, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                10,
+                cookieValue ?? string.Empty,
+                this.applicationNameProvider.Name);
+        }
+
+        [Event(
+            11,
+            Message = "[msg=WebUserTrackingUserCookieNotAvailable];",
+            Level = EventLevel.Verbose)]
+        public void WebUserTrackingUserCookieNotAvailable(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                11,
+                this.applicationNameProvider.Name);
+        }
+
+        [Event(
+            12,
+            Message = "[msg=WebLocationIdHeaderFound];[headerName={0}];",
+            Level = EventLevel.Verbose)]
+        public void WebLocationIdHeaderFound(string headerName, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                12,
+                headerName ?? string.Empty,
+                this.applicationNameProvider.Name);
+        }
+
+        [Event(
+            13,
+            Message = "[msg=WebLocationIdSet];[locationId={0}];",
+            Level = EventLevel.Verbose)]
+        public void WebLocationIdSet(string locationId, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                13,
+                locationId ?? string.Empty,
+                this.applicationNameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the PlatformEventSource. Those keywords should match keywords in Core.
         /// </summary>
