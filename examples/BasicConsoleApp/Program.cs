@@ -5,6 +5,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using OpenTelemetry;
     using OpenTelemetry.Logs;
+    using OpenTelemetry.Metrics;
     using OpenTelemetry.Trace;
     using System;
     using System.Diagnostics;
@@ -21,10 +22,9 @@
                 ConnectionString = "",
             };
 
-            telemetryConfig.ConfigureOpenTelemetryBuilder(builder => builder
-                .WithTracing(tracing => tracing.AddSource("MyCompany.MyProduct.MyLibrary").AddConsoleExporter())
-                .WithLogging(logging => logging
-                    .AddConsoleExporter()));
+            telemetryConfig.ConfigureOpenTelemetryBuilder(builder => builder.WithTracing(tracing => tracing.AddSource("MyCompany.MyProduct.MyLibrary").AddConsoleExporter())
+                                                                     .WithLogging(logging => logging.AddConsoleExporter())
+                                                                     .WithMetrics(metrics => metrics.AddConsoleExporter()));
 
             // Initialize the TelemetryClient
             var telemetryClient = new TelemetryClient(telemetryConfig);
@@ -40,12 +40,27 @@
             telemetryClient.TrackTrace("A trace with severity and properties", SeverityLevel.Error, new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
             telemetryClient.TrackTrace(new TraceTelemetry("TraceTelemetry object", SeverityLevel.Information));
 
-            /*telemetryClient.TrackMetric("SampleMetric", 42.0);
-            telemetryClient.TrackMetric(new MetricTelemetry("SampleMetricObject", 42.0));*/
+            // **Metrics Examples**
+            telemetryClient.TrackMetric("SampleMetric", 42.0);
+            telemetryClient.TrackMetric("SampleMetricWithProperties", 99.5, new System.Collections.Generic.Dictionary<string, string> { { "Environment", "Production" } });
+            telemetryClient.TrackMetric(new MetricTelemetry("SampleMetricObject", 42.0));
+
+            // GetMetric().TrackValue() - Preferred approach for metrics
+            var responseTimeMetric = telemetryClient.GetMetric("ResponseTime");
+            responseTimeMetric.TrackValue(123.45);
+            responseTimeMetric.TrackValue(234.56);
+
+            // GetMetric with dimensions
+            var requestsPerEndpoint = telemetryClient.GetMetric("RequestsPerEndpoint", "Endpoint");
+            requestsPerEndpoint.TrackValue(1, "/api/users");
+            requestsPerEndpoint.TrackValue(1, "/api/orders");
+            requestsPerEndpoint.TrackValue(1, "/api/users");
 
             // Run all ExceptionTelemetry examples
             ExceptionTelemetryExamples.Run(telemetryClient);
-
+            // Run comprehensive metrics examples
+            Console.WriteLine("\n--- Running Comprehensive Metrics Examples ---");
+            MetricsExamples.RunAllScenarios(telemetryClient);
 
             telemetryClient.TrackTrace("A trace with properties", new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
             telemetryClient.TrackTrace("A trace with severity and properties", SeverityLevel.Error, new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
@@ -97,7 +112,7 @@
             // Explicitly call Flush() followed by sleep is required in Console Apps.
             // This is to ensure that even if application terminates, telemetry is sent to the back-end.
             telemetryClient.Flush();
-            Task.Delay(500000).Wait();
+            Task.Delay(5000).Wait();
         }
     }
 
