@@ -23,7 +23,7 @@ namespace Microsoft.ApplicationInsights
         {
             builder
                 .WithLogging()
-                .WithMetrics()
+                .WithMetrics(metrics => metrics.AddMeter(TelemetryConfiguration.ApplicationInsightsMeterName))
                 .WithTracing(tracing => tracing.AddSource(TelemetryConfiguration.ApplicationInsightsActivitySourceName));
 
             // Note: Connection string should be set via UseAzureMonitor() 
