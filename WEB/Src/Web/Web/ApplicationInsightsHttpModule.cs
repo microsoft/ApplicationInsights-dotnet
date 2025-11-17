@@ -50,6 +50,19 @@
                     System.Diagnostics.Debug.WriteLine("Performing first-time initialization");
 
                     sharedTelemetryConfiguration = TelemetryConfiguration.CreateDefault();
+                    
+                    // Read connection string from applicationinsights.config
+                    string connectionString = Implementation.ApplicationInsightsConfigurationReader.GetConnectionString();
+                    if (!string.IsNullOrEmpty(connectionString))
+                    {
+                        sharedTelemetryConfiguration.ConnectionString = connectionString;
+                        System.Diagnostics.Debug.WriteLine($"ConnectionString loaded from config: {connectionString}");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("No ConnectionString found in applicationinsights.config");
+                    }
+
                     sharedTelemetryConfiguration.ConfigureOpenTelemetryBuilder(
                         builder => builder.UseApplicationInsightsAspNetTelemetry());
 
