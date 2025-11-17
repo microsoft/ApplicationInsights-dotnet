@@ -4,6 +4,7 @@
     using System.Web;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Web.Extensions;
+    using Microsoft.ApplicationInsights.Web.Implementation;
 
     /// <summary>
     /// Platform agnostic module for web application instrumentation.
@@ -50,6 +51,19 @@
                     System.Diagnostics.Debug.WriteLine("Performing first-time initialization");
 
                     sharedTelemetryConfiguration = TelemetryConfiguration.CreateDefault();
+                    
+                    // Read connection string from applicationinsights.config
+                    string connectionString = ApplicationInsightsConfigurationReader.GetConnectionString();
+                    if (!string.IsNullOrEmpty(connectionString))
+                    {
+                        sharedTelemetryConfiguration.ConnectionString = connectionString;
+                        // TODO: Log - $"ConnectionString loaded from config: {connectionString}"
+                    }
+                    else
+                    {
+                        // TODO: Log - "No ConnectionString found in applicationinsights.config"
+                    }
+
                     sharedTelemetryConfiguration.ConfigureOpenTelemetryBuilder(
                         builder => builder.UseApplicationInsightsAspNetTelemetry());
 
