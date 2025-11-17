@@ -139,7 +139,8 @@
         {
             if (string.IsNullOrEmpty(eventName))
             {
-                // TODO: log to event source   
+                CoreEventSource.Log.TrackEventInvalidName();
+                return;
             }
 
             if (properties == null)
@@ -164,7 +165,7 @@
         {
             if (telemetry == null)
             {
-                // TODO: log to event source
+                CoreEventSource.Log.TrackEventTelemetryIsNull();
                 return;
             }
 
@@ -582,7 +583,7 @@
                     break;
 
                 default:
-                    // TODO: Log other telemetry types are not supported.
+                    CoreEventSource.Log.UnsupportedTelemetryType(telemetry?.GetType()?.Name ?? "null");
                     break;
             }
         }
@@ -810,37 +811,66 @@
         /// <summary>
         /// Asynchronously Flushes the in-memory buffer and any metrics being pre-aggregated.
         /// </summary>
+        /// <param name="cancellationToken">Cancellation token to control the flush timeout and cancellation.</param>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#flushing-data">Learn more</a>
+        /// The caller controls the timeout by creating a CancellationTokenSource with the desired timeout.
+        /// Example: using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+        ///          await client.FlushAsync(cts.Token);.
         /// </remarks>
         /// <returns>
-        /// Returns true when telemetry data is transferred out of process (application insights server or local storage) and are emitted before the flush invocation.
-        /// Returns false when transfer of telemetry data to server has failed with non-retriable http status.
-        /// FlushAsync on InMemoryChannel always returns true, as the channel offers minimal reliability guarantees and doesn't retry sending telemetry after a failure.
+        /// Returns true when all telemetry providers successfully flushed their data.
+        /// Returns false if any provider failed to flush or if the operation was cancelled.
         /// </returns>
-        /// TODO: Metrics flush to respect CancellationToken.
-        public Task<bool> FlushAsync(CancellationToken cancellationToken)
+        public async Task<bool> FlushAsync(CancellationToken cancellationToken)
         {
-            /*if (this.TryGetMetricManager(out MetricManager privateMetricManager))
+            if (cancellationToken.IsCancellationRequested)
             {
-                privateMetricManager.Flush(flushDownstreamPipeline: false);
-            }*/
-
-            TelemetryConfiguration pipeline = this.configuration;
-            if (pipeline != null)
-            {
-                // MetricManager sharedMetricManager = pipeline.GetMetricManager(createIfNotExists: false);
-                // sharedMetricManager?.Flush(flushDownstreamPipeline: false);
-
-                // ITelemetryChannel channel = pipeline.TelemetryChannel;
-
-                // if (channel is IAsyncFlushable asyncFlushableChannel && !cancellationToken.IsCancellationRequested)
-                // {
-                // return asyncFlushableChannel.FlushAsync(cancellationToken);
-                // }
+                return false;
             }
 
-            return cancellationToken.IsCancellationRequested ? TaskEx.FromCanceled<bool>(cancellationToken) : Task.FromResult(false);
+            CoreEventSource.Log.TelemetryClientFlushAsync();
+
+            try
+            {
+                // Force flush all providers sequentially
+                // The cancellation token controls the overall timeout
+                bool success = await Task.Run(() =>
+                {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        return false;
+                    }
+
+                    bool tracerResult = this.sdk.TracerProvider?.ForceFlush() ?? true;
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        return false;
+                    }
+
+                    bool meterResult = this.sdk.MeterProvider?.ForceFlush() ?? true;
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        return false;
+                    }
+
+                    bool loggerResult = this.sdk.LoggerProvider?.ForceFlush() ?? true;
+
+                    return tracerResult && meterResult && loggerResult;
+                }, cancellationToken).ConfigureAwait(false);
+
+                return success;
+            }
+            catch (OperationCanceledException)
+            {
+                CoreEventSource.Log.FlushAsyncCancelled();
+                return false;
+            }
+            catch (Exception ex)
+            {
+                CoreEventSource.Log.FlushAsyncFailed(ex.Message ?? ex.ToString());
+                return false;
+            }
         }
 
         /// <summary>
