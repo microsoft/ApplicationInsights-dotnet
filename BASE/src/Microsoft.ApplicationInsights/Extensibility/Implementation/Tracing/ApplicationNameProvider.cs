@@ -26,7 +26,7 @@
             }
             catch (Exception exp)
             {
-                name = "Undefined " + exp.Message ?? exp.ToString();
+                name = "Undefined " + (exp.Message ?? exp.ToString());
             }
 
             return name;
