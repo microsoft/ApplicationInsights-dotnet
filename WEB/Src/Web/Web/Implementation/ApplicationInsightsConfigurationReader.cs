@@ -2,8 +2,6 @@ namespace Microsoft.ApplicationInsights.Web.Implementation
 {
     using System;
     using System.IO;
-    using System.Linq;
-    using System.Web;
     using System.Xml.Linq;
 
     /// <summary>
@@ -20,22 +18,50 @@ namespace Microsoft.ApplicationInsights.Web.Implementation
         /// <returns>The connection string if found; otherwise, null.</returns>
         public static string GetConnectionString()
         {
+            string configPath = GetConfigFilePath();
+            
+            if (configPath == null)
+            {
+                return null;
+            }
+
             try
             {
-                string configPath = GetConfigFilePath();
-                if (configPath == null || !File.Exists(configPath))
+                // Ensure config file actually exists
+                if (!File.Exists(configPath))
                 {
-                    WebEventSource.Log.ApplicationInsightsConfigNotFound(configPath ?? "null");
+                    WebEventSource.Log.ApplicationInsightsConfigNotFound(configPath);
                     return null;
                 }
 
                 return ReadConnectionStringFromConfig(configPath);
             }
+            catch (FileNotFoundException)
+            {
+                WebEventSource.Log.ApplicationInsightsConfigNotFound(configPath);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                WebEventSource.Log.ApplicationInsightsConfigNotFound(configPath);
+            }
+            catch (IOException)
+            {
+                WebEventSource.Log.ApplicationInsightsConfigNotFound(configPath);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                WebEventSource.Log.ApplicationInsightsConfigReadError("UnauthorizedAccessException reading config file");
+            }
+            catch (System.Security.SecurityException)
+            {
+                WebEventSource.Log.ApplicationInsightsConfigReadError("SecurityException reading config file");
+            }
             catch (Exception ex)
             {
                 WebEventSource.Log.ApplicationInsightsConfigReadError(ex.ToString());
-                return null;
             }
+
+            return null;
         }
 
         /// <summary>
@@ -44,24 +70,16 @@ namespace Microsoft.ApplicationInsights.Web.Implementation
         /// <returns>The full path to the config file, or null if not found.</returns>
         private static string GetConfigFilePath()
         {
-            // Try to get the application's base directory
-            if (HttpContext.Current != null && HttpContext.Current.Server != null)
+            try
             {
-                string basePath = HttpContext.Current.Server.MapPath("~");
-                if (!string.IsNullOrEmpty(basePath))
-                {
-                    return Path.Combine(basePath, ConfigFileName);
-                }
+                // Config file should be in the base directory of the app domain
+                return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ConfigFileName);
             }
-
-            // Fallback to AppDomain base directory
-            string appDomainPath = AppDomain.CurrentDomain.BaseDirectory;
-            if (!string.IsNullOrEmpty(appDomainPath))
+            catch (System.Security.SecurityException)
             {
-                return Path.Combine(appDomainPath, ConfigFileName);
+                WebEventSource.Log.ApplicationInsightsConfigReadError("SecurityException accessing AppDomain.CurrentDomain.BaseDirectory");
+                return null;
             }
-
-            return null;
         }
 
         /// <summary>
