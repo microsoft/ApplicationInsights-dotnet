@@ -58,7 +58,6 @@ namespace Microsoft.ApplicationInsights
         {
             this.telemetryClient.TrackEvent("TestEvent");
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
             
             Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
             var logRecord = this.logItems.FirstOrDefault(l => 
@@ -73,7 +72,6 @@ namespace Microsoft.ApplicationInsights
         {
             this.telemetryClient.TrackEvent(new EventTelemetry("TestEvent"));
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
             
             Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
             var logRecord = this.logItems.FirstOrDefault(l => 
@@ -87,7 +85,6 @@ namespace Microsoft.ApplicationInsights
         {
             this.telemetryClient.TrackEvent("Test", new Dictionary<string, string> { { "blah", "yoyo" } });
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
             
             Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
             var logRecord = this.logItems.FirstOrDefault(l => 
@@ -121,7 +118,6 @@ namespace Microsoft.ApplicationInsights
             
             this.telemetryClient.TrackEvent(eventTelemetry);
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
             
             Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
             var logRecord = this.logItems.FirstOrDefault(l => 
@@ -149,9 +145,6 @@ namespace Microsoft.ApplicationInsights
             // TrackEvent should handle null EventTelemetry gracefully without throwing
             this.telemetryClient.TrackEvent((EventTelemetry)null);
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
-            
-            // Should not throw, and no event should be logged
             // Note: This test verifies error handling, not that an event is created
         }
 
@@ -161,9 +154,6 @@ namespace Microsoft.ApplicationInsights
             // TrackEvent should handle empty name gracefully without throwing
             this.telemetryClient.TrackEvent(string.Empty);
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
-            
-            // Should not throw, and no event should be logged
             // Note: This test verifies error handling
         }
 
@@ -173,9 +163,6 @@ namespace Microsoft.ApplicationInsights
             // TrackEvent should handle null name gracefully without throwing
             this.telemetryClient.TrackEvent((string)null);
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
-            
-            // Should not throw, and no event should be logged
             // Note: This test verifies error handling
         }
 
@@ -188,7 +175,6 @@ namespace Microsoft.ApplicationInsights
         {
             this.telemetryClient.TrackTrace("TestTrace");
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
             
             Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
             var logRecord = this.logItems.FirstOrDefault(l => 
@@ -202,7 +188,6 @@ namespace Microsoft.ApplicationInsights
         {
             this.telemetryClient.TrackTrace(new TraceTelemetry { Message = "TestTrace" });
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
             
             Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
             var logRecord = this.logItems.FirstOrDefault(l => 
@@ -215,7 +200,6 @@ namespace Microsoft.ApplicationInsights
         {
             this.telemetryClient.TrackTrace("Test", SeverityLevel.Error);
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
             
             Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
             var logRecord = this.logItems.FirstOrDefault(l => 
@@ -229,7 +213,6 @@ namespace Microsoft.ApplicationInsights
         {
             this.telemetryClient.TrackTrace("Test");
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
             
             Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
             var logRecord = this.logItems.FirstOrDefault(l => 
@@ -250,7 +233,6 @@ namespace Microsoft.ApplicationInsights
             
             this.telemetryClient.TrackTrace("TraceWithProps", properties);
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
             
             Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
             var logRecord = this.logItems.FirstOrDefault(l => 
@@ -285,7 +267,6 @@ namespace Microsoft.ApplicationInsights
             
             this.telemetryClient.TrackTrace("ErrorTrace", SeverityLevel.Error, properties);
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
             
             Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
             var logRecord = this.logItems.FirstOrDefault(l => 
@@ -319,7 +300,6 @@ namespace Microsoft.ApplicationInsights
             
             this.telemetryClient.TrackTrace(traceTelemetry);
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
             
             Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
             var logRecord = this.logItems.FirstOrDefault(l => 
@@ -364,7 +344,6 @@ namespace Microsoft.ApplicationInsights
             }
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(500);  // Increased wait time for all logs
             
             // Verify all logs were collected
             Assert.IsTrue(this.logItems.Count >= 4, $"Expected at least 4 logs, but got {this.logItems.Count}");
@@ -384,9 +363,6 @@ namespace Microsoft.ApplicationInsights
         {
             this.telemetryClient.TrackTrace((TraceTelemetry)null);
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
-            
-            // Should handle null gracefully and create a default trace
             Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected for null TraceTelemetry");
             var logRecord = this.logItems[0];
             Assert.AreEqual(LogLevel.Information, logRecord.LogLevel, "Default log level should be Information");
@@ -400,7 +376,6 @@ namespace Microsoft.ApplicationInsights
             
             this.telemetryClient.TrackTrace(traceTelemetry);
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
             
             Assert.IsTrue(this.logItems.Count > 0, "Log should be collected even with empty message");
             var logRecord = this.logItems[0];
@@ -418,9 +393,6 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Flush();
             
             // Wait briefly for metrics to be exported
-            System.Threading.Thread.Sleep(200);
-            
-            // Verify metric was collected
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             
             var metric = this.metricItems.FirstOrDefault(m => m.Name == "TestMetric");
@@ -448,9 +420,6 @@ namespace Microsoft.ApplicationInsights
         {
             this.telemetryClient.TrackMetric("TestMetric", 4.2, new Dictionary<string, string> { { "property1", "value1" } });
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
-            
-            // Verify metric was collected with properties as tags
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             
             var metric = this.metricItems.FirstOrDefault(m => m.Name == "TestMetric");
@@ -486,9 +455,6 @@ namespace Microsoft.ApplicationInsights
         {
             this.telemetryClient.TrackMetric("TestMetric", 4.2, null);
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
-            
-            // Verify API doesn't throw and metric is collected
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var metric = this.metricItems.FirstOrDefault(m => m.Name == "TestMetric");
             Assert.IsNotNull(metric, "TestMetric should be collected");
@@ -504,9 +470,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue(20.0);
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
-            
-            // Verify metric was collected
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "TestMetric");
             Assert.IsNotNull(collectedMetric, "TestMetric should be collected");
@@ -533,9 +496,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue(120.0, "200");
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
-            
-            // Verify metric was collected with dimension tags
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "RequestDuration");
             Assert.IsNotNull(collectedMetric, "RequestDuration metric should be collected");
@@ -570,9 +530,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue(80.0, "OrdersDB", "INSERT");
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
-            
-            // Verify metric was collected
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "DatabaseQuery");
             Assert.IsNotNull(collectedMetric, "DatabaseQuery metric should be collected");
@@ -601,9 +558,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue(200.0, "/api/users", "GET", "WestUS");
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
-            
-            // Verify metric was collected
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "ApiLatency");
             Assert.IsNotNull(collectedMetric, "ApiLatency metric should be collected");
@@ -627,9 +581,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue(1.0, "Redis", "WestUS", "TenantA", "Prod");
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
-            
-            // Verify metric was collected
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "CacheHit");
             Assert.IsNotNull(collectedMetric, "CacheHit metric should be collected");
@@ -658,9 +609,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue(75.0, "Value1", "Value2", "Value3");
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
-            
-            // Verify metric was collected with namespace
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "MyNamespace-ComplexMetric" || m.Name == "ComplexMetric");
             Assert.IsNotNull(collectedMetric, "ComplexMetric should be collected");
@@ -691,9 +639,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5");
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
-            
-            // Verify metric was collected
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             
             // Verify we recorded 2 values with sum = 300
@@ -725,7 +670,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5", "V6");
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
             
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name.Contains("SixDimensionMetric"));
@@ -747,7 +691,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7");
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
             
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name.Contains("SevenDimensionMetric"));
@@ -769,7 +712,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8");
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
             
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name.Contains("EightDimensionMetric"));
@@ -791,7 +733,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9");
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
             
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name.Contains("NineDimensionMetric"));
@@ -813,7 +754,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10");
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
             
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name.Contains("TenDimensionMetric"));
