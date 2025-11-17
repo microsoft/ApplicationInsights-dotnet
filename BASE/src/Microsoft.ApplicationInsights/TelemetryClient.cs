@@ -138,7 +138,8 @@
         {
             if (string.IsNullOrEmpty(eventName))
             {
-                // TODO: log to event source   
+                CoreEventSource.Log.TrackEventInvalidName();
+                return;
             }
 
             if (properties == null)
@@ -163,7 +164,7 @@
         {
             if (telemetry == null)
             {
-                // TODO: log to event source
+                CoreEventSource.Log.TrackEventTelemetryIsNull();
                 return;
             }
 
@@ -541,7 +542,7 @@
                     break;
 
                 default:
-                    // TODO: Log other telemetry types are not supported.
+                    CoreEventSource.Log.UnsupportedTelemetryType(telemetry?.GetType()?.Name ?? "null");
                     break;
             }
         }

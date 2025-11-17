@@ -7,6 +7,8 @@
     using System.Reflection;
     using System.Threading;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using OpenTelemetry;
@@ -284,8 +286,7 @@
             }
             catch (Exception ex)
             {
-                // TODO: Log to event source, instead of Debug.
-                Debug.WriteLine($"Failed to start hosted services: {ex}");
+                CoreEventSource.Log.FailedToStartHostedServices(ex.ToInvariantString());
             }
         }
 
