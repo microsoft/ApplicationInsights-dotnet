@@ -118,6 +118,15 @@
         [Event(12, Message = "Track was called with an unsupported telemetry type: {0}. Only RequestTelemetry, DependencyTelemetry, TraceTelemetry, EventTelemetry, and ExceptionTelemetry are supported.", Level = EventLevel.Warning, Keywords = Keywords.UserActionable)]
         public void UnsupportedTelemetryType(string telemetryType, string appDomainName = "Incorrect") => this.WriteEvent(12, telemetryType ?? "Unknown", this.nameProvider.Name);
 
+        [Event(13, Message = "FlushAsync failed with exception: {0}", Level = EventLevel.Warning, Keywords = Keywords.UserActionable)]
+        public void FlushAsyncFailed(string exception, string appDomainName = "Incorrect") => this.WriteEvent(13, exception ?? string.Empty, this.nameProvider.Name);
+
+        [Event(14, Message = "TelemetryClient.FlushAsync was invoked.", Level = EventLevel.Verbose)]
+        public void TelemetryClientFlushAsync(string appDomainName = "Incorrect") => this.WriteEvent(14, this.nameProvider.Name);
+
+        [Event(15, Message = "FlushAsync was cancelled by the caller.", Level = EventLevel.Informational)]
+        public void FlushAsyncCancelled(string appDomainName = "Incorrect") => this.WriteEvent(15, this.nameProvider.Name);
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>
