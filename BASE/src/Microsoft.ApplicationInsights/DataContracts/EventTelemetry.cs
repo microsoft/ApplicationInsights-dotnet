@@ -21,6 +21,7 @@
         public EventTelemetry()
         {
             this.context = new TelemetryContext();
+            this.Properties = new Dictionary<string, string>();
         }
 
         /// <summary>
@@ -29,7 +30,6 @@
         public EventTelemetry(string name) : this()
         {
             this.Name = name;
-            this.context = new TelemetryContext();
         }
 
         /// <summary>

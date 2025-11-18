@@ -51,6 +51,339 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient?.TelemetryConfiguration?.Dispose();
         }
 
+        #region TrackEvent
+
+        [TestMethod]
+        public void TrackEventSendsEventTelemetryWithSpecifiedNameToProvideSimplestWayOfSendingEventTelemetry()
+        {
+            this.telemetryClient.TrackEvent("TestEvent");
+            this.telemetryClient.Flush();
+            
+            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.Attributes != null && l.Attributes.Any(a => 
+                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "TestEvent"));
+            Assert.IsNotNull(logRecord, "TestEvent should be collected");
+            Assert.AreEqual(LogLevel.Information, logRecord.LogLevel);
+        }
+
+        [TestMethod]
+        public void TrackEventSendsEventTelemetryWithSpecifiedObjectTelemetry()
+        {
+            this.telemetryClient.TrackEvent(new EventTelemetry("TestEvent"));
+            this.telemetryClient.Flush();
+            
+            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.Attributes != null && l.Attributes.Any(a => 
+                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "TestEvent"));
+            Assert.IsNotNull(logRecord, "TestEvent should be collected");
+        }
+
+        [TestMethod]
+        public void TrackEventWillSendPropertiesIfProvidedInline()
+        {
+            this.telemetryClient.TrackEvent("Test", new Dictionary<string, string> { { "blah", "yoyo" } });
+            this.telemetryClient.Flush();
+            
+            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.Attributes != null && l.Attributes.Any(a => 
+                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "Test"));
+            Assert.IsNotNull(logRecord, "Test event should be collected");
+            
+            // Verify property is in attributes
+            bool hasBlahProperty = false;
+            if (logRecord.Attributes != null)
+            {
+                foreach (var attr in logRecord.Attributes)
+                {
+                    if (attr.Key == "blah" && attr.Value?.ToString() == "yoyo")
+                    {
+                        hasBlahProperty = true;
+                        break;
+                    }
+                }
+            }
+            Assert.IsTrue(hasBlahProperty, "Property 'blah' should be 'yoyo'");
+        }
+
+        [TestMethod]
+        public void TrackEventWithEventTelemetryAndProperties()
+        {
+            // Test EventTelemetry with properties set via Properties dictionary
+            var eventTelemetry = new EventTelemetry("TestEventWithProps");
+            eventTelemetry.Properties["customProp"] = "customValue";
+            eventTelemetry.Properties["environment"] = "test";
+            
+            this.telemetryClient.TrackEvent(eventTelemetry);
+            this.telemetryClient.Flush();
+            
+            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.Attributes != null && l.Attributes.Any(a => 
+                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "TestEventWithProps"));
+            Assert.IsNotNull(logRecord, "TestEventWithProps should be collected");
+            Assert.IsNotNull(logRecord.Attributes, "LogRecord should have attributes");
+            
+            // Verify properties are in attributes
+            bool hasCustomProp = false, hasEnvironment = false;
+            foreach (var attr in logRecord.Attributes)
+            {
+                if (attr.Key == "customProp" && attr.Value?.ToString() == "customValue")
+                    hasCustomProp = true;
+                if (attr.Key == "environment" && attr.Value?.ToString() == "test")
+                    hasEnvironment = true;
+            }
+            Assert.IsTrue(hasCustomProp, "Property customProp should be in log record");
+            Assert.IsTrue(hasEnvironment, "Property environment should be in log record");
+        }
+
+        [TestMethod]
+        public void TrackEventWithNullEventTelemetryHandlesGracefully()
+        {
+            // TrackEvent should handle null EventTelemetry gracefully without throwing
+            this.telemetryClient.TrackEvent((EventTelemetry)null);
+            this.telemetryClient.Flush();
+            // Note: This test verifies error handling, not that an event is created
+        }
+
+        [TestMethod]
+        public void TrackEventWithEmptyNameHandlesGracefully()
+        {
+            // TrackEvent should handle empty name gracefully without throwing
+            this.telemetryClient.TrackEvent(string.Empty);
+            this.telemetryClient.Flush();
+            // Note: This test verifies error handling
+        }
+
+        [TestMethod]
+        public void TrackEventWithNullNameHandlesGracefully()
+        {
+            // TrackEvent should handle null name gracefully without throwing
+            this.telemetryClient.TrackEvent((string)null);
+            this.telemetryClient.Flush();
+            // Note: This test verifies error handling
+        }
+
+        #endregion
+
+        #region TrackTrace
+
+        [TestMethod]
+        public void TrackTraceSendsTraceTelemetryWithSpecifiedNameToProvideSimplestWayOfSendingTraceTelemetry()
+        {
+            this.telemetryClient.TrackTrace("TestTrace");
+            this.telemetryClient.Flush();
+            
+            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.FormattedMessage != null && l.FormattedMessage.Contains("TestTrace"));
+            Assert.IsNotNull(logRecord, "TestTrace should be collected");
+            Assert.AreEqual(LogLevel.Information, logRecord.LogLevel);
+        }
+
+        [TestMethod]
+        public void TrackTraceSendsTraceTelemetryWithSpecifiedObjectTelemetry()
+        {
+            this.telemetryClient.TrackTrace(new TraceTelemetry { Message = "TestTrace" });
+            this.telemetryClient.Flush();
+            
+            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.FormattedMessage != null && l.FormattedMessage.Contains("TestTrace"));
+            Assert.IsNotNull(logRecord, "TestTrace should be collected");
+        }
+
+        [TestMethod]
+        public void TrackTraceWillSendSeverityLevelIfProvidedInline()
+        {
+            this.telemetryClient.TrackTrace("Test", SeverityLevel.Error);
+            this.telemetryClient.Flush();
+            
+            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.FormattedMessage != null && l.FormattedMessage.Contains("Test"));
+            Assert.IsNotNull(logRecord, "Test trace should be collected");
+            Assert.AreEqual(LogLevel.Error, logRecord.LogLevel);
+        }
+
+        [TestMethod]
+        public void TrackTraceWillNotSetSeverityLevelIfCustomerProvidedOnlyName()
+        {
+            this.telemetryClient.TrackTrace("Test");
+            this.telemetryClient.Flush();
+            
+            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.FormattedMessage != null && l.FormattedMessage.Contains("Test"));
+            Assert.IsNotNull(logRecord, "Test trace should be collected");
+            // Default log level is Information when no severity is specified
+            Assert.AreEqual(LogLevel.Information, logRecord.LogLevel);
+        }
+
+        [TestMethod]
+        public void TrackTraceWithMessageAndProperties()
+        {
+            var properties = new Dictionary<string, string>
+            {
+                { "prop1", "value1" },
+                { "prop2", "value2" }
+            };
+            
+            this.telemetryClient.TrackTrace("TraceWithProps", properties);
+            this.telemetryClient.Flush();
+            
+            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.FormattedMessage != null && l.FormattedMessage.Contains("TraceWithProps"));
+            Assert.IsNotNull(logRecord, "TraceWithProps should be collected");
+            Assert.AreEqual(LogLevel.Information, logRecord.LogLevel);
+            
+            // Verify properties
+            bool hasProp1 = false, hasProp2 = false;
+            if (logRecord.Attributes != null)
+            {
+                foreach (var attr in logRecord.Attributes)
+                {
+                    if (attr.Key == "prop1" && attr.Value?.ToString() == "value1")
+                        hasProp1 = true;
+                    if (attr.Key == "prop2" && attr.Value?.ToString() == "value2")
+                        hasProp2 = true;
+                }
+            }
+            Assert.IsTrue(hasProp1, "Property prop1 should be in log record");
+            Assert.IsTrue(hasProp2, "Property prop2 should be in log record");
+        }
+
+        [TestMethod]
+        public void TrackTraceWithSeverityLevelAndProperties()
+        {
+            var properties = new Dictionary<string, string>
+            {
+                { "errorCode", "500" },
+                { "component", "API" }
+            };
+            
+            this.telemetryClient.TrackTrace("ErrorTrace", SeverityLevel.Error, properties);
+            this.telemetryClient.Flush();
+            
+            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.FormattedMessage != null && l.FormattedMessage.Contains("ErrorTrace"));
+            Assert.IsNotNull(logRecord, "ErrorTrace should be collected");
+            Assert.AreEqual(LogLevel.Error, logRecord.LogLevel);
+            
+            // Verify properties
+            bool hasErrorCode = false, hasComponent = false;
+            if (logRecord.Attributes != null)
+            {
+                foreach (var attr in logRecord.Attributes)
+                {
+                    if (attr.Key == "errorCode" && attr.Value?.ToString() == "500")
+                        hasErrorCode = true;
+                    if (attr.Key == "component" && attr.Value?.ToString() == "API")
+                        hasComponent = true;
+                }
+            }
+            Assert.IsTrue(hasErrorCode, "Property errorCode should be in log record");
+            Assert.IsTrue(hasComponent, "Property component should be in log record");
+        }
+
+        [TestMethod]
+        public void TrackTraceWithTraceTelemetryAndProperties()
+        {
+            var traceTelemetry = new TraceTelemetry("TraceTelemetryWithProps");
+            traceTelemetry.SeverityLevel = SeverityLevel.Warning;
+            traceTelemetry.Properties["customProp"] = "customValue";
+            traceTelemetry.Properties["source"] = "UnitTest";
+            
+            this.telemetryClient.TrackTrace(traceTelemetry);
+            this.telemetryClient.Flush();
+            
+            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.FormattedMessage != null && l.FormattedMessage.Contains("TraceTelemetryWithProps"));
+            Assert.IsNotNull(logRecord, "TraceTelemetryWithProps should be collected");
+            Assert.AreEqual(LogLevel.Warning, logRecord.LogLevel);
+            
+            // Verify properties
+            bool hasCustomProp = false, hasSource = false;
+            if (logRecord.Attributes != null)
+            {
+                foreach (var attr in logRecord.Attributes)
+                {
+                    if (attr.Key == "customProp" && attr.Value?.ToString() == "customValue")
+                        hasCustomProp = true;
+                    if (attr.Key == "source" && attr.Value?.ToString() == "UnitTest")
+                        hasSource = true;
+                }
+            }
+            Assert.IsTrue(hasCustomProp, "Property customProp should be in log record");
+            Assert.IsTrue(hasSource, "Property source should be in log record");
+        }
+
+        [TestMethod]
+        public void TrackTraceWithTraceTelemetryAndAllSeverityLevels()
+        {
+            // Test all severity levels in sequence (Note: Verbose/Trace may be filtered by default logger configuration)
+            var testData = new[]
+            {
+                (SeverityLevel.Information, LogLevel.Information, "Trace-Information"),
+                (SeverityLevel.Warning, LogLevel.Warning, "Trace-Warning"),
+                (SeverityLevel.Error, LogLevel.Error, "Trace-Error"),
+                (SeverityLevel.Critical, LogLevel.Critical, "Trace-Critical")
+            };
+            
+            foreach (var (severity, expectedLogLevel, message) in testData)
+            {
+                var traceTelemetry = new TraceTelemetry(message);
+                traceTelemetry.SeverityLevel = severity;
+                
+                this.telemetryClient.TrackTrace(traceTelemetry);
+            }
+            
+            this.telemetryClient.Flush();
+            
+            // Verify all logs were collected
+            Assert.IsTrue(this.logItems.Count >= 4, $"Expected at least 4 logs, but got {this.logItems.Count}");
+            
+            // Verify each severity level was logged correctly
+            foreach (var (severity, expectedLogLevel, message) in testData)
+            {
+                var logRecord = this.logItems.FirstOrDefault(l => 
+                    l.FormattedMessage != null && l.FormattedMessage.Contains(message));
+                Assert.IsNotNull(logRecord, $"{message} should be collected");
+                Assert.AreEqual(expectedLogLevel, logRecord.LogLevel, $"Severity {severity} should map to {expectedLogLevel}");
+            }
+        }
+
+        [TestMethod]
+        public void TrackTraceWithNullTraceTelemetryCreatesDefaultTrace()
+        {
+            this.telemetryClient.TrackTrace((TraceTelemetry)null);
+            this.telemetryClient.Flush();
+            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected for null TraceTelemetry");
+            var logRecord = this.logItems[0];
+            Assert.AreEqual(LogLevel.Information, logRecord.LogLevel, "Default log level should be Information");
+        }
+
+        [TestMethod]
+        public void TrackTraceWithEmptyMessageInTraceTelemetry()
+        {
+            var traceTelemetry = new TraceTelemetry();
+            traceTelemetry.Message = string.Empty;
+            
+            this.telemetryClient.TrackTrace(traceTelemetry);
+            this.telemetryClient.Flush();
+            
+            Assert.IsTrue(this.logItems.Count > 0, "Log should be collected even with empty message");
+            var logRecord = this.logItems[0];
+            Assert.IsNotNull(logRecord, "Log record should exist");
+        }
+
+        #endregion
+
         #region TrackMetric
 
         [TestMethod]
@@ -59,10 +392,6 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.TrackMetric("TestMetric", 42.5);
             this.telemetryClient.Flush();
             
-            // Wait briefly for metrics to be exported
-            System.Threading.Thread.Sleep(200);
-            
-            // Verify metric was collected
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             
             var metric = this.metricItems.FirstOrDefault(m => m.Name == "TestMetric");
@@ -90,9 +419,6 @@ namespace Microsoft.ApplicationInsights
         {
             this.telemetryClient.TrackMetric("TestMetric", 4.2, new Dictionary<string, string> { { "property1", "value1" } });
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
-            
-            // Verify metric was collected with properties as tags
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             
             var metric = this.metricItems.FirstOrDefault(m => m.Name == "TestMetric");
@@ -128,9 +454,6 @@ namespace Microsoft.ApplicationInsights
         {
             this.telemetryClient.TrackMetric("TestMetric", 4.2, null);
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
-            
-            // Verify API doesn't throw and metric is collected
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var metric = this.metricItems.FirstOrDefault(m => m.Name == "TestMetric");
             Assert.IsNotNull(metric, "TestMetric should be collected");
@@ -146,9 +469,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue(20.0);
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
-            
-            // Verify metric was collected
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "TestMetric");
             Assert.IsNotNull(collectedMetric, "TestMetric should be collected");
@@ -175,9 +495,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue(120.0, "200");
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
-            
-            // Verify metric was collected with dimension tags
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "RequestDuration");
             Assert.IsNotNull(collectedMetric, "RequestDuration metric should be collected");
@@ -212,9 +529,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue(80.0, "OrdersDB", "INSERT");
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
-            
-            // Verify metric was collected
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "DatabaseQuery");
             Assert.IsNotNull(collectedMetric, "DatabaseQuery metric should be collected");
@@ -243,9 +557,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue(200.0, "/api/users", "GET", "WestUS");
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
-            
-            // Verify metric was collected
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "ApiLatency");
             Assert.IsNotNull(collectedMetric, "ApiLatency metric should be collected");
@@ -269,9 +580,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue(1.0, "Redis", "WestUS", "TenantA", "Prod");
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
-            
-            // Verify metric was collected
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "CacheHit");
             Assert.IsNotNull(collectedMetric, "CacheHit metric should be collected");
@@ -300,9 +608,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue(75.0, "Value1", "Value2", "Value3");
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
-            
-            // Verify metric was collected with namespace
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "MyNamespace-ComplexMetric" || m.Name == "ComplexMetric");
             Assert.IsNotNull(collectedMetric, "ComplexMetric should be collected");
@@ -333,9 +638,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5");
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
-            
-            // Verify metric was collected
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             
             // Verify we recorded 2 values with sum = 300
@@ -367,7 +669,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5", "V6");
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
             
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name.Contains("SixDimensionMetric"));
@@ -389,7 +690,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7");
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
             
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name.Contains("SevenDimensionMetric"));
@@ -411,7 +711,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8");
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
             
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name.Contains("EightDimensionMetric"));
@@ -433,7 +732,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9");
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
             
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name.Contains("NineDimensionMetric"));
@@ -455,7 +753,6 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10");
             
             this.telemetryClient.Flush();
-            System.Threading.Thread.Sleep(200);
             
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name.Contains("TenDimensionMetric"));
