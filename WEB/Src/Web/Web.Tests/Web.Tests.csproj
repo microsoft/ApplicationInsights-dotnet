@@ -4,7 +4,7 @@
   <PropertyGroup>
     <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
     <!-- Important: This project is exclusively NetFramework. This will not be upgraded to NetStandard nor NetCore. -->
-    <TargetFrameworks>$(TargetFrameworks_NetFrameworkOnly)</TargetFrameworks>
+    <TargetFrameworks>net462</TargetFrameworks>
     
     <AssemblyName>Microsoft.ApplicationInsights.Web.Tests</AssemblyName>
   </PropertyGroup>
@@ -48,7 +48,5 @@
     <PackageReference Include="Microsoft.AspNet.TelemetryCorrelation" Version="1.0.8" />
     <PackageReference Include="Microsoft.AspNet.WebApi" Version="5.2.4" />
   </ItemGroup>
-  
-  <Import Project="..\..\TestFramework\Shared\TestFramework.Shared.projitems" Label="Shared" />
   
 </Project>
