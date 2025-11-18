@@ -392,7 +392,6 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.TrackMetric("TestMetric", 42.5);
             this.telemetryClient.Flush();
             
-            // Wait briefly for metrics to be exported
             Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
             
             var metric = this.metricItems.FirstOrDefault(m => m.Name == "TestMetric");
