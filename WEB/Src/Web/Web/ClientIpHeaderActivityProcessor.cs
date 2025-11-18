@@ -1,18 +1,17 @@
-﻿namespace Microsoft.ApplicationInsights.Web
+namespace Microsoft.ApplicationInsights.Web
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Net;
     using System.Web;
-    using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Web.Implementation;
+    using OpenTelemetry;
 
     /// <summary>
-    /// Telemetry initializer populates client IP address for the current request.
+    /// Activity processor that populates client IP address for the current request.
     /// </summary>
-    public class ClientIpHeaderTelemetryInitializer : WebTelemetryInitializerBase
+    internal class ClientIpHeaderActivityProcessor : BaseProcessor<Activity>
     {
         private const string HeaderNameDefault = "X-Forwarded-For";
         private readonly char[] headerValuesSeparatorDefault = new char[] { ',' };
@@ -21,9 +20,9 @@
         private char[] headerValueSeparators;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ClientIpHeaderTelemetryInitializer"/> class.
+        /// Initializes a new instance of the <see cref="ClientIpHeaderActivityProcessor"/> class.
         /// </summary>
-        public ClientIpHeaderTelemetryInitializer()
+        public ClientIpHeaderActivityProcessor()
         {
             this.headerNames = new List<string>();
             this.HeaderNames.Add(HeaderNameDefault);
@@ -67,39 +66,58 @@
         public bool UseFirstIp { get; set; }
 
         /// <summary>
-        /// Implements initialization logic.
+        /// Called when an activity ends. Sets the client IP address tag.
         /// </summary>
-        /// <param name="platformContext">Http context.</param>
-        /// <param name="requestTelemetry">Request telemetry object associated with the current request.</param>
-        /// <param name="telemetry">Telemetry item to initialize.</param>
-        protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
+        /// <param name="activity">The activity that ended.</param>
+        public override void OnEnd(Activity activity)
         {
-            if (telemetry == null)
+            if (activity == null)
             {
-                throw new ArgumentNullException(nameof(telemetry));
+                return;
             }
 
-            if (requestTelemetry == null)
+            var context = HttpContext.Current;
+            if (context == null)
             {
-                throw new ArgumentNullException(nameof(requestTelemetry));
+                return;
             }
 
-            if (platformContext == null)
+            // Only process if client IP is not already set
+            var existingIp = activity.GetTagItem("client.address") ?? activity.GetTagItem("microsoft.client.ip");
+            if (existingIp == null || string.IsNullOrEmpty(existingIp?.ToString()))
             {
-                throw new ArgumentNullException(nameof(platformContext));
-            }
-
-            if (string.IsNullOrEmpty(telemetry.Context.Location.Ip))
-            {
-                var location = requestTelemetry.Context.Location;
-
-                if (string.IsNullOrEmpty(location.Ip))
+                string resultIp = null;
+                foreach (var clientIpHeaderName in this.HeaderNames)
                 {
-                    this.UpdateRequestTelemetry(platformContext, location);
+                    var clientIpsFromHeader = context.Request.UnvalidatedGetHeader(clientIpHeaderName);
+
+                    if (!string.IsNullOrWhiteSpace(clientIpsFromHeader))
+                    {
+                        WebEventSource.Log.WebLocationIdHeaderFound(clientIpHeaderName);
+
+                        string ip = this.GetIpFromHeader(clientIpsFromHeader);
+                        if (TryParseIpWithPort(ip, out var ipAddressString))
+                        {
+                            resultIp = ipAddressString;
+                            break;
+                        }
+                    }
                 }
 
-                telemetry.Context.Location.Ip = location.Ip;
+                if (string.IsNullOrEmpty(resultIp))
+                {
+                    resultIp = context.Request.GetUserHostAddress();
+                }
+
+                if (!string.IsNullOrEmpty(resultIp))
+                {
+                    // Set as OpenTelemetry semantic convention for client address
+                    activity.SetTag("client.address", resultIp);
+                    WebEventSource.Log.WebLocationIdSet(resultIp);
+                }
             }
+
+            base.OnEnd(activity);
         }
 
         private static bool TryParseIpWithPort(string input, out string ipAddressString)
@@ -124,38 +142,6 @@
         {
             var ips = clientIpsFromHeader.Split(this.headerValueSeparators, StringSplitOptions.RemoveEmptyEntries);
             return this.UseFirstIp ? ips[0].Trim() : ips[ips.Length - 1].Trim();
-        }
-
-        private void UpdateRequestTelemetry(HttpContext platformContext, LocationContext location)
-        {
-            string resultIp = null;
-            foreach (var clientIpHeaderName in this.HeaderNames)
-            {
-                var clientIpsFromHeader = platformContext.Request.UnvalidatedGetHeader(clientIpHeaderName);
-
-                if (!string.IsNullOrWhiteSpace(clientIpsFromHeader))
-                {
-                    WebEventSource.Log.WebLocationIdHeaderFound(clientIpHeaderName);
-
-                    string ip = this.GetIpFromHeader(clientIpsFromHeader);
-                    if (TryParseIpWithPort(ip, out var ipAddressString))
-                    {
-                        resultIp = ipAddressString;
-                        break;
-                    }
-                }
-            }
-
-            if (!string.IsNullOrEmpty(resultIp))
-            {
-                location.Ip = resultIp;
-            }
-            else
-            {
-                location.Ip = platformContext.Request.GetUserHostAddress();
-            }
-
-            WebEventSource.Log.WebLocationIdSet(location.Ip);
         }
     }
 }
