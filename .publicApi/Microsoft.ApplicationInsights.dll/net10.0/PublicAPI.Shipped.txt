@@ -47,17 +47,14 @@ Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.DependencyTeleme
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.DependencyTelemetry(string dependencyTypeName, string target, string dependencyName, string data, System.DateTimeOffset startTime, System.TimeSpan duration, string resultCode, bool success) -> void
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.ResultCode.get -> string
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.ResultCode.set -> void
-Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.SetOperationDetail(string key, object detail) -> void
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Target.get -> string
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Target.set -> void
-Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.TryGetOperationDetail(string key, out object detail) -> bool
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Type.get -> string
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Type.set -> void
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.EventTelemetry() -> void
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.EventTelemetry(string name) -> void
-Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Metrics.get -> System.Collections.Generic.IDictionary<string, double>
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Name.get -> string
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Name.set -> void
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Properties.get -> System.Collections.Generic.IDictionary<string, string>
@@ -82,8 +79,6 @@ Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Message.set -> vo
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ProblemId.get -> string
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ProblemId.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Properties.get -> System.Collections.Generic.IDictionary<string, string>
-Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Sequence.get -> string
-Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Sequence.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.SetParsedStack(System.Diagnostics.StackFrame[] frames) -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.SeverityLevel.get -> Microsoft.ApplicationInsights.DataContracts.SeverityLevel?
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.SeverityLevel.set -> void
@@ -126,7 +121,6 @@ Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Flags.set -> void
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.GlobalProperties.get -> System.Collections.Generic.IDictionary<string, string>
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.InstrumentationKey.get -> string
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.InstrumentationKey.set -> void
-Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Properties.get -> System.Collections.Generic.IDictionary<string, string>
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.StoreRawObject(string key, object rawObject, bool keepForInitializationOnly = true) -> void
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.TelemetryContext() -> void
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.TryGetRawObject(string key, out object rawObject) -> bool
@@ -156,7 +150,6 @@ Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ConnectionStr
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableTelemetry.get -> bool
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableTelemetry.set -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.Dispose() -> void
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ExperimentalFeatures.get -> System.Collections.Generic.IList<string>
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.InstrumentationKey.get -> string
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.InstrumentationKey.set -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetAzureTokenCredential(object tokenCredential) -> void
@@ -214,10 +207,6 @@ Microsoft.ApplicationInsights.TelemetryClient.GetMetric(string metricId, string 
 Microsoft.ApplicationInsights.TelemetryClient.GetMetric(string metricId, string dimension1Name, string dimension2Name) -> Microsoft.ApplicationInsights.Metric
 Microsoft.ApplicationInsights.TelemetryClient.GetMetric(string metricId, string dimension1Name, string dimension2Name, string dimension3Name) -> Microsoft.ApplicationInsights.Metric
 Microsoft.ApplicationInsights.TelemetryClient.GetMetric(string metricId, string dimension1Name, string dimension2Name, string dimension3Name, string dimension4Name) -> Microsoft.ApplicationInsights.Metric
-Microsoft.ApplicationInsights.TelemetryClient.Initialize(Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> void
-Microsoft.ApplicationInsights.TelemetryClient.InitializeInstrumentationKey(Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> void
-Microsoft.ApplicationInsights.TelemetryClient.InstrumentationKey.get -> string
-Microsoft.ApplicationInsights.TelemetryClient.InstrumentationKey.set -> void
 Microsoft.ApplicationInsights.TelemetryClient.IsEnabled() -> bool
 Microsoft.ApplicationInsights.TelemetryClient.TelemetryClient(Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration configuration) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TelemetryConfiguration.get -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration

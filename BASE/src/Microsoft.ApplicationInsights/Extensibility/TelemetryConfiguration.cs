@@ -126,18 +126,6 @@
         }
 
         /// <summary>
-        /// Gets a collection of strings indicating if an experimental feature should be enabled.
-        /// The presence of a string in this collection will be evaluated as 'true'.
-        /// </summary>
-        /// <remarks>
-        /// This property allows the dev team to ship and evaluate features before adding these to the public API.
-        /// We are not committing to support any features enabled through this property.
-        /// Use this at your own risk.
-        /// </remarks>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public IList<string> ExperimentalFeatures { get; } = new List<string>(0);
-
-        /// <summary>
         /// Gets the default ActivitySource used by TelemetryClient.
         /// </summary>
         internal ActivitySource ApplicationInsightsActivitySource => this.defaultActivitySource;
@@ -146,17 +134,6 @@
         /// Gets the MetricsManager used by TelemetryClient for metrics tracking.
         /// </summary>
         internal MetricsManager MetricsManager => this.metricsManager;
-
-        /// <summary>
-        /// Gets a value indicating whether this configuration has been built.
-        /// Once built, the configuration becomes read-only.
-        /// </summary>
-        internal bool IsBuilt => this.isBuilt;
-
-        /// <summary>
-        /// Gets a value indicating whether this configuration was created for DI scenarios.
-        /// </summary>
-        internal bool IsForDependencyInjection => this.skipDefaultBuilderConfiguration;
 
         /// <summary>
         /// Creates a new <see cref="TelemetryConfiguration"/> instance loaded from the ApplicationInsights.config file.

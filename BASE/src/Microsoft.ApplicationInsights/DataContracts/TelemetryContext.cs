@@ -20,7 +20,6 @@
         public const long FlagDropIdentifiers = 0x200000;
         internal IDictionary<string, string> GlobalPropertiesValue;
         internal IDictionary<string, string> PropertiesValue;
-        private string instrumentationKey;
 
         private IDictionary<string, object> rawObjectsTemp = new Dictionary<string, object>();
         private IDictionary<string, object> rawObjectsPerm = new Dictionary<string, object>();
@@ -38,20 +37,17 @@
         public TelemetryContext()
             : this(null, null)
         {
-            this.instrumentationKey = String.Empty;
         }
 
         internal TelemetryContext(IDictionary<string, string> properties)
             : this(properties, null)
         {
-            this.instrumentationKey = String.Empty;
         }
 
         internal TelemetryContext(IDictionary<string, string> properties, IDictionary<string, string> globalProperties)
         {
             this.PropertiesValue = properties;
             this.GlobalPropertiesValue = globalProperties;
-            this.instrumentationKey = String.Empty;
         }
 
         /// <summary>
@@ -73,16 +69,6 @@
         /// Gets or sets flags which controls events priority and endpoint behavior.
         /// </summary> 
         public long Flags { get; set; }
-
-        /// <summary>
-        /// Gets a dictionary of application-defined property values.
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
-        /// </summary>        
-        [Obsolete("Use GlobalProperties to set global level properties. For properties at item level, use ISupportProperties.Properties.")]
-        public IDictionary<string, string> Properties
-        {
-            get { return LazyInitializer.EnsureInitialized(ref this.PropertiesValue, () => new ConcurrentDictionary<string, string>()); }
-        }
 
         /// <summary>
         /// Gets a dictionary of application-defined property values which are global in scope.
@@ -108,7 +94,7 @@
         internal DeviceContext Device
         {
 #pragma warning disable CS0618 // Type or member is obsolete
-            get { return LazyInitializer.EnsureInitialized(ref this.device, () => new DeviceContext(this.Properties)); }
+            get { return LazyInitializer.EnsureInitialized(ref this.device, () => new DeviceContext(default)); }
 #pragma warning restore CS0618 // Type or member is obsolete
         }
 
@@ -233,11 +219,11 @@
             if (this.PropertiesValue != null)
             {
 #pragma warning disable CS0618 // Type or member is obsolete
-                Utils.CopyDictionary(this.Properties, newTelemetryContext.Properties);
+                // Utils.CopyDictionary(this.Properties, newTelemetryContext.Properties);
 #pragma warning restore CS0618 // Type or member is obsolete
             }
 
-            newTelemetryContext.Initialize(this, this.instrumentationKey);
+            // newTelemetryContext.Initialize(this, this.instrumentationKey);
 
             // RawObject collection is not cloned by design, they share the same collection.
             newTelemetryContext.rawObjectsTemp = this.rawObjectsTemp;

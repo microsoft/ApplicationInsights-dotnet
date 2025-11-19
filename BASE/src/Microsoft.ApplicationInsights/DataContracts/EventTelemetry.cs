@@ -55,15 +55,6 @@
         }
 
         /// <summary>
-        /// Gets a dictionary of application-defined event metrics.
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
-        /// </summary>
-        public IDictionary<string, double> Metrics
-        {
-            get;
-        }
-
-        /// <summary>
         /// Gets a dictionary of application-defined property names and values providing additional information about this event.
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>

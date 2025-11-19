@@ -64,11 +64,6 @@
         public DateTimeOffset Timestamp { get; set; }
 
         /// <summary>
-        /// Gets or sets the value that defines absolute order of the telemetry item.
-        /// </summary>
-        public string Sequence { get; set; }
-
-        /// <summary>
         /// Gets the context associated with the current telemetry item.
         /// </summary>
         public TelemetryContext Context
