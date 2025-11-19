@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <AssemblyName>Microsoft.ApplicationInsights.WorkerService</AssemblyName>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net10.0;net9.0;net8.0;netstandard2.0;</TargetFrameworks>
     <DefineConstants>$(DefineConstants);AI_ASPNETCORE_WORKER;</DefineConstants>
   </PropertyGroup>
 
@@ -21,10 +21,10 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
 	  
-    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.13.1" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.12.0" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.12.0-beta.3" />
-    <PackageReference Include="OpenTelemetry.Resources.Azure" Version="1.12.0-beta.1" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.14.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.14.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.14.0-beta.1" />
+    <PackageReference Include="OpenTelemetry.Resources.Azure" Version="1.14.0-beta.1" />
   </ItemGroup>
 
   <ItemGroup>
