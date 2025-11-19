@@ -21,12 +21,14 @@ namespace Microsoft.ApplicationInsights
     using OpenTelemetry;
     using OpenTelemetry.Logs;
     using OpenTelemetry.Metrics;
+    using OpenTelemetry.Trace;
 
     [TestClass]
     public class TelemetryClientTest
     {
         private List<LogRecord> logItems;
         private List<OpenTelemetry.Metrics.Metric> metricItems;
+        private List<Activity> activityItems;
         private TelemetryClient telemetryClient;
 
         [TestInitialize]
@@ -35,17 +37,20 @@ namespace Microsoft.ApplicationInsights
             var configuration = new TelemetryConfiguration();
             this.logItems = new List<LogRecord>();
             this.metricItems = new List<OpenTelemetry.Metrics.Metric>();
+            this.activityItems = new List<Activity>();
             configuration.InstrumentationKey = Guid.NewGuid().ToString();
             configuration.ConnectionString = "InstrumentationKey=" + configuration.InstrumentationKey;
             configuration.ConfigureOpenTelemetryBuilder(b => b
                 .WithLogging(l => l.AddInMemoryExporter(logItems))
-                .WithMetrics(m => m.AddInMemoryExporter(metricItems)));
+                .WithMetrics(m => m.AddInMemoryExporter(metricItems))
+                .WithTracing(t => t.AddInMemoryExporter(activityItems)));
             this.telemetryClient = new TelemetryClient(configuration);
         }
 
         [TestCleanup]
         public void TestCleanup()
         {
+            this.activityItems?.Clear();
             this.metricItems?.Clear();
             this.logItems?.Clear();
             this.telemetryClient?.TelemetryConfiguration?.Dispose();
@@ -927,6 +932,404 @@ namespace Microsoft.ApplicationInsights
             // The exception should have inner exception
             Assert.IsNotNull(logRecord.Exception.InnerException);
             Assert.AreEqual("Inner exception message", logRecord.Exception.InnerException.Message);
+        }
+
+        #endregion
+
+        #region TrackRequest
+
+        [TestMethod]
+        public void TrackRequestCreatesActivityWithCorrectName()
+        {
+            var request = new RequestTelemetry("GET /api/users", DateTimeOffset.UtcNow, TimeSpan.FromMilliseconds(100), "200", true);
+            
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            // Verify activity was created
+            Assert.AreEqual(1, this.activityItems.Count, "One activity should be created");
+            Assert.AreEqual("GET /api/users", this.activityItems[0].DisplayName);
+            Assert.AreEqual(ActivityKind.Server, this.activityItems[0].Kind);
+        }
+
+        [TestMethod]
+        public void TrackRequestWithServiceBusUrlSetsMessagingAttributes()
+        {
+            var request = new RequestTelemetry
+            {
+                Name = "ServiceBus Message",
+                Url = new Uri("sb://myservicebus.servicebus.windows.net/mytopic"),
+                Source = "mytopic",
+                ResponseCode = "0",
+                Duration = TimeSpan.FromMilliseconds(75),
+                Success = true
+            };
+
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            Assert.AreEqual(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            
+            // Verify Consumer ActivityKind for messaging
+            Assert.AreEqual(ActivityKind.Consumer, activity.Kind);
+            Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
+            
+            // Verify override attributes preserve original AI values
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.name" && t.Value == "ServiceBus Message"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.url" && t.Value == "sb://myservicebus.servicebus.windows.net/mytopic"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.source" && t.Value == "mytopic"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.resultCode" && t.Value == "0"));
+        }
+
+        [TestMethod]
+        public void TrackRequestSetsOverrideAttributes()
+        {
+            var request = new RequestTelemetry
+            {
+                Name = "Custom Request",
+                Url = new Uri("https://api.example.com/v1/resource"),
+                Source = "mobile-app",
+                ResponseCode = "201",
+                Duration = TimeSpan.FromMilliseconds(200),
+                Success = true
+            };
+            request.Context.Operation.Name = "CreateResource";
+
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            Assert.AreEqual(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            
+            // Verify override attributes
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.name" && t.Value == "Custom Request"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.url" && t.Value == "https://api.example.com/v1/resource"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.source" && t.Value == "mobile-app"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.resultCode" && t.Value == "201"));
+            Assert.AreEqual(ActivityKind.Server, activity.Kind);
+            Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
+        }
+
+        [TestMethod]
+        public void TrackRequestWithPropertiesIncludesCustomProperties()
+        {
+            this.activityItems.Clear();
+
+            var request = new RequestTelemetry("Test Request", DateTimeOffset.UtcNow, TimeSpan.FromMilliseconds(100), "200", true);
+            request.Properties["userId"] = "12345";
+            request.Properties["region"] = "us-west";
+            
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            Assert.AreEqual(1, activityItems.Count);
+            var activity = activityItems[0];
+            
+            // Verify custom properties are included
+            Assert.AreEqual("userId", activity.Tags.FirstOrDefault(t => t.Key == "userId").Key);
+            Assert.AreEqual("12345", activity.Tags.FirstOrDefault(t => t.Key == "userId").Value);
+            Assert.AreEqual("region", activity.Tags.FirstOrDefault(t => t.Key == "region").Key);
+            Assert.AreEqual("us-west", activity.Tags.FirstOrDefault(t => t.Key == "region").Value);
+            
+            // Verify standard attributes
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.name" && t.Value == "Test Request"));
+            Assert.AreEqual(ActivityKind.Server, activity.Kind);
+        }
+
+        [TestMethod]
+        public void TrackRequestWithFailedResponseCodeMarksAsError()
+        {
+            var request = new RequestTelemetry
+            {
+                Name = "GET /api/error",
+                Url = new Uri("https://example.com/api/error"),
+                ResponseCode = "500",
+                Success = false,
+                Duration = TimeSpan.FromMilliseconds(50)
+            };
+
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            Assert.AreEqual(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            
+            // Verify error status
+            Assert.AreEqual(ActivityStatusCode.Error, activity.Status);
+            Assert.AreEqual(ActivityKind.Server, activity.Kind);
+            
+            // Verify override attributes
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.name" && t.Value == "GET /api/error"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.url" && t.Value == "https://example.com/api/error"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.resultCode" && t.Value == "500"));
+        }
+
+        [TestMethod]
+        public void TrackRequestWithQueueSourceSetsMessagingSystem()
+        {
+            var request = new RequestTelemetry
+            {
+                Name = "Queue Message Handler",
+                Source = "orders-queue",
+                ResponseCode = "0",
+                Duration = TimeSpan.FromMilliseconds(120),
+                Success = true
+            };
+
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            Assert.AreEqual(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            
+            // Verify Consumer ActivityKind for queue messaging
+            Assert.AreEqual(ActivityKind.Consumer, activity.Kind);
+            Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
+            
+            // Verify override attributes
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.name" && t.Value == "Queue Message Handler"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.source" && t.Value == "orders-queue"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.resultCode" && t.Value == "0"));
+        }
+
+        [TestMethod]
+        public void TrackRequestHandlesNullRequestTelemetryGracefully()
+        {
+            this.telemetryClient.TrackRequest((RequestTelemetry)null);
+            this.telemetryClient.Flush();
+
+            // Should not throw exception and should not create any activity
+            Assert.AreEqual(0, this.activityItems.Count);
+        }
+
+        #endregion
+
+        #region TrackDependency
+
+        [TestMethod]
+        public void TrackDependencyWithServiceBusTypeSetsBrokerAttributes()
+        {
+            var dependency = new DependencyTelemetry
+            {
+                Type = "Azure Service Bus",
+                Target = "myservicebus.servicebus.windows.net/mytopic",
+                Name = "Publish event",
+                Data = "sb://myservicebus.servicebus.windows.net/mytopic",
+                ResultCode = "0",
+                Duration = TimeSpan.FromMilliseconds(35),
+                Success = true
+            };
+
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            Assert.AreEqual(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            
+            // Verify Producer ActivityKind
+            Assert.AreEqual(ActivityKind.Producer, activity.Kind);
+            Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
+            
+            // Verify override attributes
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "Azure Service Bus"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "myservicebus.servicebus.windows.net/mytopic"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.name" && t.Value == "Publish event"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "sb://myservicebus.servicebus.windows.net/mytopic"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "0"));
+        }
+
+        [TestMethod]
+        public void TrackDependencyWithAzureSDKTypeSetsAzureNamespace()
+        {
+            var dependency = new DependencyTelemetry
+            {
+                Type = "InProc | Microsoft.Storage",
+                Target = "mystorageaccount.blob.core.windows.net",
+                Name = "Upload blob",
+                Data = "PUT /container/blob.txt",
+                ResultCode = "201",
+                Duration = TimeSpan.FromMilliseconds(200),
+                Success = true
+            };
+
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            Assert.AreEqual(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            
+            // Verify Internal ActivityKind for InProc
+            Assert.AreEqual(ActivityKind.Internal, activity.Kind);
+            Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
+            
+            // Verify override attributes preserve Azure namespace in type
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "InProc | Microsoft.Storage"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "mystorageaccount.blob.core.windows.net"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.name" && t.Value == "Upload blob"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "PUT /container/blob.txt"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "201"));
+        }
+
+        [TestMethod]
+        public void TrackDependencySetsOverrideAttributes()
+        {
+            var dependency = new DependencyTelemetry
+            {
+                Type = "Http",
+                Target = "api.example.com",
+                Name = "POST /orders",
+                Data = "https://api.example.com/orders",
+                Duration = TimeSpan.FromMilliseconds(250),
+                Success = true,
+                ResultCode = "201"
+            };
+
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            Assert.AreEqual(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            
+            // Verify ActivityKind and Status
+            Assert.AreEqual(ActivityKind.Client, activity.Kind);
+            Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
+            
+            // Verify override attributes
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "Http"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "api.example.com"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.name" && t.Value == "POST /orders"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "https://api.example.com/orders"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "201"));
+        }
+
+        [TestMethod]
+        public void TrackDependencyWithPropertiesIncludesCustomProperties()
+        {
+            this.activityItems.Clear();
+
+            var dependency = new DependencyTelemetry("redis", "cache.example.com", "GET user:123", "GET user:123", DateTimeOffset.UtcNow, TimeSpan.FromMilliseconds(5), "200", true);
+            dependency.Properties["operation"] = "query";
+            dependency.Properties["cacheHit"] = "false";
+            
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            Assert.AreEqual(1, activityItems.Count);
+            var activity = activityItems[0];
+            
+            // Verify custom properties are included
+            Assert.AreEqual("operation", activity.Tags.FirstOrDefault(t => t.Key == "operation").Key);
+            Assert.AreEqual("query", activity.Tags.FirstOrDefault(t => t.Key == "operation").Value);
+            Assert.AreEqual("cacheHit", activity.Tags.FirstOrDefault(t => t.Key == "cacheHit").Key);
+            Assert.AreEqual("false", activity.Tags.FirstOrDefault(t => t.Key == "cacheHit").Value);
+            
+            // Verify standard attributes
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "redis"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "cache.example.com"));
+            Assert.AreEqual(ActivityKind.Client, activity.Kind);
+        }
+
+        [TestMethod]
+        public void TrackDependencyWithFailedCallMarksAsError()
+        {
+            var dependency = new DependencyTelemetry
+            {
+                Type = "Http",
+                Target = "api.example.com",
+                Name = "GET /error",
+                Data = "https://api.example.com/error",
+                Duration = TimeSpan.FromMilliseconds(50),
+                Success = false,
+                ResultCode = "500"
+            };
+
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            Assert.AreEqual(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            
+            // Verify error status
+            Assert.AreEqual(ActivityStatusCode.Error, activity.Status);
+            Assert.AreEqual(ActivityKind.Client, activity.Kind);
+            
+            // Verify override attributes
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "Http"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "https://api.example.com/error"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "500"));
+        }
+
+        [TestMethod]
+        public void TrackDependencyHandlesNullDependencyTelemetryGracefully()
+        {
+            this.telemetryClient.TrackDependency((DependencyTelemetry)null);
+            this.telemetryClient.Flush();
+
+            // Should not throw exception and should not create any activity
+            Assert.AreEqual(0, this.activityItems.Count);
+        }
+
+        [TestMethod]
+        public void TrackDependencyWithCaseInsensitiveHttpType()
+        {
+            var dependency = new DependencyTelemetry
+            {
+                Type = "HTTP", // uppercase
+                Target = "api.example.com",
+                Name = "GET /data",
+                Data = "https://api.example.com/data",
+                Duration = TimeSpan.FromMilliseconds(75),
+                Success = true,
+                ResultCode = "200"
+            };
+
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            Assert.AreEqual(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            
+            // Verify ActivityKind detection works regardless of case
+            Assert.AreEqual(ActivityKind.Client, activity.Kind);
+            Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
+            
+            // Verify override attributes preserve original case
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "HTTP"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "https://api.example.com/data"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "api.example.com"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "200"));
+        }
+
+        [TestMethod]
+        public void TrackDependencyWithCaseInsensitiveSqlType()
+        {
+            var dependency = new DependencyTelemetry
+            {
+                Type = "sql", // lowercase
+                Target = "localhost | testdb",
+                Name = "Query",
+                Data = "SELECT COUNT(*) FROM Orders",
+                Duration = TimeSpan.FromMilliseconds(35),
+                Success = true,
+                ResultCode = "0"
+            };
+
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            Assert.AreEqual(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            
+            // Verify ActivityKind detection works regardless of case
+            Assert.AreEqual(ActivityKind.Client, activity.Kind);
+            Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
+            
+            // Verify override attributes preserve original case
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "sql"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "SELECT COUNT(*) FROM Orders"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "localhost | testdb"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "0"));
         }
 
         #endregion

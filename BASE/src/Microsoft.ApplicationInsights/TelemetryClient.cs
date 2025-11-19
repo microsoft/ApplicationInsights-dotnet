@@ -437,6 +437,39 @@
         /// Create a separate <see cref="DependencyTelemetry"/> instance for each call to <see cref="TrackDependency(DependencyTelemetry)"/>.
         /// </summary>
         /// <remarks>
+        /// <para>
+        /// This method implements a shim layer that converts Application Insights DependencyTelemetry objects 
+        /// into OpenTelemetry Activities. The Azure Monitor Exporter then processes these Activities to emit telemetry.
+        /// </para>
+        /// <para>
+        /// <strong>ActivityKind Mapping:</strong>
+        /// </para>
+        /// <list type="bullet">
+        /// <item><description>HTTP/Http → ActivityKind.Client</description></item>
+        /// <item><description>SQL/Database types → ActivityKind.Client</description></item>
+        /// <item><description>Messaging (Queue Message, Azure Service Bus, Azure Event Hubs) → ActivityKind.Producer</description></item>
+        /// <item><description>InProc → ActivityKind.Internal</description></item>
+        /// <item><description>Other types → ActivityKind.Client</description></item>
+        /// </list>
+        /// <para>
+        /// <strong>Override Attributes:</strong>
+        /// </para>
+        /// <para>
+        /// This method sets Microsoft override attributes to preserve exact Application Insights semantics.
+        /// The Azure Monitor Exporter uses these attributes to populate RemoteDependencyData fields:
+        /// </para>
+        /// <list type="bullet">
+        /// <item><description>microsoft.dependency.type → RemoteDependencyData.Type</description></item>
+        /// <item><description>microsoft.dependency.data → RemoteDependencyData.Data</description></item>
+        /// <item><description>microsoft.dependency.name → RemoteDependencyData.Name</description></item>
+        /// <item><description>microsoft.dependency.target → RemoteDependencyData.Target</description></item>
+        /// <item><description>microsoft.dependency.resultCode → RemoteDependencyData.ResultCode</description></item>
+        /// </list>
+        /// <para>
+        /// These override attributes ensure backward compatibility and prevent data loss during the OpenTelemetry migration.
+        /// For Activities created by OpenTelemetry instrumentation (without override attributes), the exporter will map 
+        /// semantic convention attributes (url.full, db.system, messaging.system, etc.) to Application Insights fields.
+        /// </para>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackdependency">Learn more</a>
         /// </remarks>
         public void TrackDependency(DependencyTelemetry telemetry)
@@ -446,62 +479,58 @@
                 return;
             }
 
-            // this.Track(telemetry);
-            /*
-             * fields below are to note which props from dependency are not accounted for yet
-             * this.context
-            this.Sequence
-            this.samplingPercentage
-            this.successFieldSet 
-            this.Id  -->  exporter gets it from Activity.Context.SpanId but no override exists for this
-             */
+            // Determine the appropriate ActivityKind based on dependency type
+            ActivityKind activityKind = GetActivityKindForDependency(telemetry.Type);
 
-            using (var dependencyTelemetryActivity = this.activitySource.StartActivity(telemetry.Name, ActivityKind.Client))
+            using (var dependencyTelemetryActivity = this.activitySource.StartActivity(telemetry.Name, activityKind))
             {
                 if (dependencyTelemetryActivity != null)
                 {
+                    // Set timing information
                     dependencyTelemetryActivity.SetStartTime(telemetry.Timestamp.UtcDateTime);
                     dependencyTelemetryActivity.SetEndTime(telemetry.Timestamp.Add(telemetry.Duration).UtcDateTime);
                     dependencyTelemetryActivity.SetStatus(telemetry.Success == true ? ActivityStatusCode.Ok : ActivityStatusCode.Error);
 
-                    if (telemetry.ResultCode != null)
+                    // Set override attributes to preserve Application Insights semantics
+                    // The Azure Monitor Exporter will use these to populate RemoteDependencyData
+                    if (!string.IsNullOrEmpty(telemetry.Type))
                     {
-                        dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeHttpResponseStatusCode, telemetry.ResultCode);
+                        dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMicrosoftDependencyType, telemetry.Type);
                     }
 
-                    if (telemetry.Type != null)
+                    if (!string.IsNullOrEmpty(telemetry.Data))
                     {
-                        // dependencyTelemetryActivity.SetTag("microsoft.dependency.type", telemetry.Type);
-                        if (String.Equals("Http", telemetry.Type, StringComparison.OrdinalIgnoreCase) && telemetry.Data != null)
+                        dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMicrosoftDependencyData, telemetry.Data);
+                    }
+
+                    if (!string.IsNullOrEmpty(telemetry.Name))
+                    {
+                        dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMicrosoftDependencyName, telemetry.Name);
+                    }
+
+                    if (!string.IsNullOrEmpty(telemetry.Target))
+                    {
+                        dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMicrosoftDependencyTarget, telemetry.Target);
+                    }
+
+                    if (!string.IsNullOrEmpty(telemetry.ResultCode))
+                    {
+                        dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMicrosoftDependencyResultCode, telemetry.ResultCode);
+                    }
+
+                    // Add custom properties
+                    if (telemetry.Properties != null)
+                    {
+                        foreach (var property in telemetry.Properties)
                         {
-                            if (Uri.TryCreate(telemetry.Data, UriKind.Absolute, out Uri uri))
-                            {
-                                dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeUrlFull, uri.ToString());
-                                dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeHttpMethod, "_OTHER");
-                                dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeServerAddress, uri.Host);
-                                dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeServerPort, uri.Port);
-                            }
-                        }
-                        else if (String.Equals("SQL", telemetry.Type, StringComparison.OrdinalIgnoreCase) && telemetry.Data != null)
-                        {
-                            dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeDbStatement, telemetry.Data);
-                            // not sure how to populate attrs like db.name, or db.system, or server related attrs that could be used to autopopulate target
-                        }
-                        else if (String.Equals("Queue Message", telemetry.Type, StringComparison.OrdinalIgnoreCase) && telemetry.Data != null)
-                        {
-                            dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMessagingDestination, telemetry.Data);
-                            // not sure how to set messaging.destination_name, this would form part of target
-                            if (Uri.TryCreate(telemetry.Data, UriKind.Absolute, out Uri uri))
-                            {
-                                // for the other part of target
-                                dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeServerAddress, uri.Host);
-                            }
+                            dependencyTelemetryActivity.SetTag(property.Key, property.Value);
                         }
                     }
 
-                    if (telemetry.Target != null)
+                    // Add context information
+                    if (!string.IsNullOrEmpty(telemetry.Context?.User?.Id))
                     {
-                        dependencyTelemetryActivity.SetTag("microsoft.dependency.target", telemetry.Target);
+                        dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeEnduserId, telemetry.Context.User.Id);
                     }
                 }
             }
@@ -700,16 +729,7 @@
         public void TrackRequest(string name, DateTimeOffset startTime, TimeSpan duration, string responseCode, bool success)
         {
             // this.Track(new RequestTelemetry(name, startTime, duration, responseCode, success));
-            using (var requestTelemetryActivity = this.activitySource.StartActivity(name, ActivityKind.Server))
-            {
-                if (requestTelemetryActivity != null)
-                {
-                    requestTelemetryActivity.SetStartTime(startTime.UtcDateTime);
-                    requestTelemetryActivity.SetEndTime(startTime.Add(duration).UtcDateTime);
-                    requestTelemetryActivity.SetTag(SemanticConventions.AttributeHttpResponseStatusCode, responseCode);
-                    requestTelemetryActivity.SetStatus(success ? ActivityStatusCode.Ok : ActivityStatusCode.Error);
-                }
-            }
+            this.TrackRequest(new RequestTelemetry(name, startTime, duration, responseCode, success));
         }
 
         /// <summary>
@@ -717,73 +737,97 @@
         /// Create a separate <see cref="RequestTelemetry"/> instance for each call to <see cref="TrackRequest(RequestTelemetry)"/>.
         /// </summary>
         /// <remarks>
+        /// <para>
+        /// This method implements a shim layer that converts Application Insights RequestTelemetry objects 
+        /// into OpenTelemetry Activities. The Azure Monitor Exporter then processes these Activities to emit telemetry.
+        /// </para>
+        /// <para>
+        /// <strong>ActivityKind Mapping:</strong>
+        /// </para>
+        /// <list type="bullet">
+        /// <item><description>HTTP requests (http/https URL schemes) → ActivityKind.Server</description></item>
+        /// <item><description>Messaging requests (sb://, amqp://, servicebus, eventhub URLs or Source) → ActivityKind.Consumer</description></item>
+        /// <item><description>Queue processing (Source contains "queue" or "topic") → ActivityKind.Consumer</description></item>
+        /// <item><description>Default → ActivityKind.Server</description></item>
+        /// </list>
+        /// <para>
+        /// <strong>Override Attributes:</strong>
+        /// </para>
+        /// <para>
+        /// This method sets Microsoft override attributes to preserve exact Application Insights semantics.
+        /// The Azure Monitor Exporter uses these attributes to populate RequestData fields:
+        /// </para>
+        /// <list type="bullet">
+        /// <item><description>microsoft.request.name → RequestData.Name</description></item>
+        /// <item><description>microsoft.request.url → RequestData.Url</description></item>
+        /// <item><description>microsoft.request.source → RequestData.Source</description></item>
+        /// <item><description>microsoft.request.resultCode → RequestData.ResponseCode</description></item>
+        /// <item><description>microsoft.operation_name → RequestData.Context.Operation.Name</description></item>
+        /// </list>
+        /// <para>
+        /// These override attributes ensure backward compatibility and prevent data loss during the OpenTelemetry migration.
+        /// For Activities created by OpenTelemetry instrumentation (without override attributes), the exporter will map 
+        /// semantic convention attributes (url.full, http.response.status_code, messaging.system, etc.) to Application Insights fields.
+        /// </para>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackrequest">Learn more</a>
         /// </remarks>
         public void TrackRequest(RequestTelemetry request)
         {
-            /*if (request == null)
-            {
-                request = new RequestTelemetry();
-            }
-
-            this.Track(request);*/
             if (request == null)
             {
                 return;
-                // request = new RequestTelemetry();
-                // Log message
             }
 
-            using (var requestTelemetryActivity = this.activitySource.StartActivity(request.Name, ActivityKind.Server))
-            {
-                if (requestTelemetryActivity != null)
-                {
-                    requestTelemetryActivity.SetStartTime(request.Timestamp.UtcDateTime);
-                    requestTelemetryActivity.SetEndTime(request.Timestamp.Add(request.Duration).UtcDateTime);
+            // Determine ActivityKind based on request properties
+            var activityKind = GetActivityKindForRequest(request);
 
-                    // HTTP semantic conventions
-                    requestTelemetryActivity.SetTag(SemanticConventions.AttributeHttpResponseStatusCode, request.ResponseCode);
-                    requestTelemetryActivity.SetStatus(request.Success == true ? ActivityStatusCode.Ok : ActivityStatusCode.Error);
+            using (var activity = this.activitySource.StartActivity(request.Name, activityKind))
+            {
+                if (activity != null)
+                {
+                    activity.SetStartTime(request.Timestamp.UtcDateTime);
+                    activity.SetEndTime(request.Timestamp.Add(request.Duration).UtcDateTime);
+                    activity.SetStatus(request.Success == true ? ActivityStatusCode.Ok : ActivityStatusCode.Error);
+
+                    // Set override attributes to preserve Application Insights semantics
+                    // The Azure Monitor Exporter will use these to populate RequestData
+                    if (!string.IsNullOrEmpty(request.Name))
+                    {
+                        activity.SetTag(SemanticConventions.AttributeMicrosoftRequestName, request.Name);
+                    }
 
                     if (request.Url != null)
                     {
-                        requestTelemetryActivity.SetTag(SemanticConventions.AttributeUrlScheme, request.Url.Scheme);
-                        requestTelemetryActivity.SetTag(SemanticConventions.AttributeServerAddress, request.Url.Host);
-
-                        if (!request.Url.IsDefaultPort)
-                        {
-                            requestTelemetryActivity.SetTag(SemanticConventions.AttributeServerPort, request.Url.Port);
-                        }
-
-                        if (!string.IsNullOrEmpty(request.Url.AbsolutePath))
-                        {
-                            requestTelemetryActivity.SetTag(SemanticConventions.AttributeUrlPath, request.Url.AbsolutePath);
-                        }
-
-                        if (!string.IsNullOrEmpty(request.Url.Query))
-                        {
-                            requestTelemetryActivity.SetTag(SemanticConventions.AttributeUrlQuery, request.Url.Query);
-                        }
-
-                        requestTelemetryActivity.SetTag(SemanticConventions.AttributeUrlFull, request.Url.ToString());
+                        activity.SetTag(SemanticConventions.AttributeMicrosoftRequestUrl, request.Url.ToString());
                     }
 
                     if (!string.IsNullOrEmpty(request.Source))
                     {
-                        requestTelemetryActivity.SetTag("request.source", request.Source);
+                        activity.SetTag(SemanticConventions.AttributeMicrosoftRequestSource, request.Source);
                     }
 
-                    string clientIp = request.Context.Location.Ip;
-                    if (!string.IsNullOrEmpty(clientIp))
+                    if (!string.IsNullOrEmpty(request.ResponseCode))
                     {
-                        requestTelemetryActivity.SetTag(SemanticConventions.AttributeClientAddress, clientIp);
+                        activity.SetTag(SemanticConventions.AttributeMicrosoftRequestResultCode, request.ResponseCode);
                     }
 
+                    if (!string.IsNullOrEmpty(request.Context?.Operation?.Name))
+                    {
+                        activity.SetTag(SemanticConventions.AttributeMicrosoftOperationName, request.Context.Operation.Name);
+                    }
+
+                    // Add context information
+                    if (!string.IsNullOrEmpty(request.Context?.User?.Id))
+                    {
+                        activity.SetTag(SemanticConventions.AttributeEnduserId, request.Context.User.Id);
+                    }
+
+                    // Add custom properties
                     if (request.Properties != null)
                     {
                         foreach (var property in request.Properties)
                         {
-                            requestTelemetryActivity.SetTag($"custom.{property.Key}", property.Value);
+                            activity.SetTag(property.Key, property.Value);
                         }
                     }
                 }
@@ -1058,6 +1102,79 @@
                 SeverityLevel.Critical => LogLevel.Critical,
                 _ => LogLevel.None
             };
+        }
+
+        private static ActivityKind GetActivityKindForRequest(RequestTelemetry request)
+        {
+            // Check if this is a messaging request (queue/topic processing)
+            if (request.Url != null)
+            {
+                string scheme = request.Url.Scheme ?? string.Empty;
+
+                // Check for common messaging schemes (case-insensitive)
+                if (scheme.Equals("sb", StringComparison.OrdinalIgnoreCase) ||
+                    scheme.Equals("amqp", StringComparison.OrdinalIgnoreCase) ||
+                    scheme.Equals("amqps", StringComparison.OrdinalIgnoreCase))
+                {
+                    return ActivityKind.Consumer;
+                }
+
+#pragma warning disable CA2249 // Use StringComparison for consistency
+                // Check URL for messaging patterns
+                string urlString = request.Url.ToString();
+                if (urlString.IndexOf("servicebus", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    urlString.IndexOf("eventhub", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    urlString.IndexOf("/queue", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    urlString.IndexOf("/topic", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    return ActivityKind.Consumer;
+                }
+            }
+
+            // Check Source for messaging indicators
+            if (!string.IsNullOrEmpty(request.Source))
+            {
+                if (request.Source.IndexOf("queue", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    request.Source.IndexOf("topic", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    request.Source.IndexOf("servicebus", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    request.Source.IndexOf("eventhub", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    return ActivityKind.Consumer;
+                }
+            }
+#pragma warning restore CA2249
+
+            // Default to Server for HTTP requests
+            return ActivityKind.Server;
+        }
+
+        private static ActivityKind GetActivityKindForDependency(string dependencyType)
+        {
+            if (string.IsNullOrEmpty(dependencyType))
+            {
+                return ActivityKind.Client;
+            }
+
+            // Check for in-process calls (e.g., "InProc" or "InProc | Microsoft.Storage")
+            if (dependencyType.StartsWith("InProc", StringComparison.OrdinalIgnoreCase))
+            {
+                return ActivityKind.Internal;
+            }
+
+#pragma warning disable CA2249 // Use StringComparison for consistency
+            // Check for messaging types that should be Producer
+            if (dependencyType.IndexOf("message", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                dependencyType.IndexOf("service bus", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                dependencyType.IndexOf("servicebus", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                dependencyType.IndexOf("event hub", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                dependencyType.IndexOf("eventhub", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return ActivityKind.Producer;
+            }
+#pragma warning restore CA2249
+
+            // Default to Client for HTTP, SQL, and other outgoing calls
+            return ActivityKind.Client;
         }
 
         /// <summary>

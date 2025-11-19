@@ -147,7 +147,6 @@ Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.TraceTelemetry(string
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.OperationTelemetry() -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Sanitize() -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Extensions
 Microsoft.ApplicationInsights.Extensibility.IOperationHolder<T>
 Microsoft.ApplicationInsights.Extensibility.IOperationHolder<T>.Telemetry.get -> T
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
@@ -269,7 +268,6 @@ override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Timestamp.
 override Microsoft.ApplicationInsights.Metrics.MetricIdentifier.Equals(object otherObj) -> bool
 override Microsoft.ApplicationInsights.Metrics.MetricIdentifier.GetHashCode() -> int
 override Microsoft.ApplicationInsights.Metrics.MetricIdentifier.ToString() -> string
-static Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Extensions.ToInvariantString(this System.Exception exception) -> string
 static Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.CreateDefault() -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
 static Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.CreateFromConfiguration(string config) -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
 static Microsoft.ApplicationInsights.Metrics.MetricIdentifier.DefaultMetricNamespace.get -> string

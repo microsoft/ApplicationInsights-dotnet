@@ -399,7 +399,7 @@
             this.dimension10Name = dimension10Name;
 
             this.identifierString = this.GetIdentifierString();
-            this.hashCode = this.identifierString.GetHashCode();
+            this.hashCode = StringComparer.Ordinal.GetHashCode(this.identifierString);
         }
 
         /// <summary>Initializes a new metric identifier.</summary>
