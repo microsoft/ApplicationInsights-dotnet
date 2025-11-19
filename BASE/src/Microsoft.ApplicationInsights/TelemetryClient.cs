@@ -83,17 +83,6 @@
         = new TelemetryContext();
 
         /// <summary>
-        /// Gets or sets the default instrumentation key for all <see cref="ITelemetry"/> objects logged in this <see cref="TelemetryClient"/>.
-        /// </summary>
-        public string InstrumentationKey
-        {
-            get => this.Context.InstrumentationKey;
-
-            [Obsolete("InstrumentationKey based global ingestion is being deprecated. Recommended to set TelemetryConfiguration.ConnectionString. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/2560 for more details.")]
-            set { this.Context.InstrumentationKey = value; }
-        }
-
-        /// <summary>
         /// Gets the <see cref="TelemetryConfiguration"/> object associated with this telemetry client instance.
         /// Changes made to the configuration can affect other clients.
         /// </summary>
@@ -614,104 +603,6 @@
                 default:
                     CoreEventSource.Log.UnsupportedTelemetryType(telemetry?.GetType()?.Name ?? "null");
                     break;
-            }
-        }
-
-        /// <summary>
-        /// This method is an internal part of Application Insights infrastructure. Do not call.
-        /// </summary>
-        /// <param name="telemetry">Telemetry item to initialize instrumentation key.</param>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public void InitializeInstrumentationKey(ITelemetry telemetry)
-        {
-            if (telemetry == null)
-            {
-                throw new ArgumentNullException(nameof(telemetry));
-            }
-
-            string instrumentationKey = this.Context.InstrumentationKey;
-
-            if (string.IsNullOrEmpty(instrumentationKey))
-            {
-                instrumentationKey = this.configuration.InstrumentationKey;
-            }
-
-            telemetry.Context.InitializeInstrumentationkey(instrumentationKey);
-        }
-
-        /// <summary>
-        /// This method is an internal part of Application Insights infrastructure. Do not call.
-        /// </summary>
-        /// <param name="telemetry">Telemetry item to initialize.</param>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public void Initialize(ITelemetry telemetry)
-        {
-            if (telemetry == null)
-            {
-                throw new ArgumentNullException(nameof(telemetry));
-            }
-
-            // ISupportAdvancedSampling telemetryWithSampling = telemetry as ISupportAdvancedSampling;
-
-            // Telemetry can be already sampled out if that decision was made before calling Track()
-            bool sampledOut = false;
-            // if (telemetryWithSampling != null)
-            // {
-            // sampledOut = telemetryWithSampling.ProactiveSamplingDecision == SamplingDecision.SampledOut;
-            // }
-
-            if (!sampledOut)
-            {
-                if (telemetry is ISupportProperties telemetryWithProperties)
-                {
-                    bool isDeveloperMode = Environment.GetEnvironmentVariable("APPINSIGHTS_DEVELOPER_MODE") == "true";
-                    if (isDeveloperMode)
-                    {
-                        if (!telemetryWithProperties.Properties.ContainsKey("DeveloperMode"))
-                        {
-                            telemetryWithProperties.Properties.Add("DeveloperMode", "true");
-                        }
-                    }
-                }
-
-                // Properties set of TelemetryClient's Context are copied over to that of ITelemetry's Context
-#pragma warning disable CS0618 // Type or member is obsolete
-                if (this.Context.PropertiesValue != null)
-                {
-                    Utils.CopyDictionary(this.Context.Properties, telemetry.Context.Properties);
-                }
-
-#pragma warning restore CS0618 // Type or member is obsolete
-
-                // This check avoids accessing the public accessor GlobalProperties
-                // unless needed, to avoid the penalty of ConcurrentDictionary instantiation.
-                if (this.Context.GlobalPropertiesValue != null)
-                {
-                    Utils.CopyDictionary(this.Context.GlobalProperties, telemetry.Context.GlobalProperties);
-                }
-
-                string instrumentationKey = this.Context.InstrumentationKey;
-
-                if (string.IsNullOrEmpty(instrumentationKey))
-                {
-                    instrumentationKey = this.configuration.InstrumentationKey;
-                }
-
-                telemetry.Context.Initialize(this.Context, instrumentationKey);
-
-                if (telemetry.Timestamp == default(DateTimeOffset))
-                {
-                    telemetry.Timestamp = PreciseTimestamp.GetUtcNow();
-                }
-
-                // set RoleInstance to the machine name if it's not initialized yet
-                if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
-                {
-                }
-            }
-            else
-            {
-                CoreEventSource.Log.InitializationIsSkippedForSampledItem();
             }
         }
 

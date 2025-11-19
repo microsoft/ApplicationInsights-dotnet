@@ -182,30 +182,5 @@ namespace Microsoft.ApplicationInsights.DataContracts
         {
             get;
         }
-
-        /// <summary>
-        /// In specific collectors, objects are added to the dependency telemetry which may be useful
-        /// to enhance DependencyTelemetry telemetry by ITelemetryInitializer implementations.
-        /// Objects retrieved here are not automatically serialized and sent to the backend.
-        /// </summary>
-        /// <param name="key">The key of the value to get.</param>
-        /// <param name="detail">When this method returns, contains the object that has the specified key, or the default value of the type if the operation failed.</param>
-        /// <returns>true if the key was found; otherwise, false.</returns>
-        public bool TryGetOperationDetail(string key, out object detail)
-        {
-            return this.Context.TryGetRawObject(key, out detail);
-        }
-
-        /// <summary>
-        /// Sets the operation detail specific against the key specified. Objects set through this method
-        /// are not automatically serialized and sent to the backend.
-        /// </summary>
-        /// <param name="key">The key to store the detail against.</param>
-        /// <param name="detail">Detailed information collected by the tracked operation.</param>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public void SetOperationDetail(string key, object detail)
-        {
-            this.Context.StoreRawObject(key, detail, true);
-        }
     }
 }
