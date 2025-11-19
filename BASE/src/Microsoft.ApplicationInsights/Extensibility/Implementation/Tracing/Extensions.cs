@@ -9,7 +9,7 @@
     /// Provides a set of extension methods for tracing.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static class Extensions
+    internal static class Extensions
     {
         /// <summary>
         /// Returns a culture-independent string representation of the given <paramref name="exception"/> object, 
