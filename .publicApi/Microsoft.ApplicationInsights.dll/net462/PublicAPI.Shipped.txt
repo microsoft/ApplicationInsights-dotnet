@@ -10,7 +10,6 @@ abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTel
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Success.set -> void
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Timestamp.get -> System.DateTimeOffset
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Timestamp.set -> void
-const Microsoft.ApplicationInsights.DataContracts.TelemetryContext.FlagDropIdentifiers = 2097152 -> long
 const Microsoft.ApplicationInsights.Metrics.MetricIdentifier.MaxDimensionsCount = 10 -> int
 Microsoft.ApplicationInsights.Channel.IAsyncFlushable
 Microsoft.ApplicationInsights.Channel.IAsyncFlushable.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
@@ -116,14 +115,12 @@ Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Warning = 2 -> Microso
 Microsoft.ApplicationInsights.DataContracts.StackFrame
 Microsoft.ApplicationInsights.DataContracts.StackFrame.StackFrame(string assembly, string fileName, int level, int line, string method) -> void
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext
-Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Flags.get -> long
-Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Flags.set -> void
+Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Cloud.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.CloudContext
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.GlobalProperties.get -> System.Collections.Generic.IDictionary<string, string>
-Microsoft.ApplicationInsights.DataContracts.TelemetryContext.InstrumentationKey.get -> string
-Microsoft.ApplicationInsights.DataContracts.TelemetryContext.InstrumentationKey.set -> void
-Microsoft.ApplicationInsights.DataContracts.TelemetryContext.StoreRawObject(string key, object rawObject, bool keepForInitializationOnly = true) -> void
+Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Location.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.LocationContext
+Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Operation.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.OperationContext
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.TelemetryContext() -> void
-Microsoft.ApplicationInsights.DataContracts.TelemetryContext.TryGetRawObject(string key, out object rawObject) -> bool
+Microsoft.ApplicationInsights.DataContracts.TelemetryContext.User.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Message.get -> string
@@ -138,9 +135,29 @@ Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Timestamp.set -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.TraceTelemetry() -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.TraceTelemetry(string message) -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.TraceTelemetry(string message, Microsoft.ApplicationInsights.DataContracts.SeverityLevel severityLevel) -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.CloudContext
+Microsoft.ApplicationInsights.Extensibility.Implementation.CloudContext.RoleInstance.get -> string
+Microsoft.ApplicationInsights.Extensibility.Implementation.CloudContext.RoleInstance.set -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.CloudContext.RoleName.get -> string
+Microsoft.ApplicationInsights.Extensibility.Implementation.CloudContext.RoleName.set -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.LocationContext
+Microsoft.ApplicationInsights.Extensibility.Implementation.LocationContext.Ip.get -> string
+Microsoft.ApplicationInsights.Extensibility.Implementation.LocationContext.Ip.set -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.OperationContext
+Microsoft.ApplicationInsights.Extensibility.Implementation.OperationContext.Name.get -> string
+Microsoft.ApplicationInsights.Extensibility.Implementation.OperationContext.Name.set -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.OperationContext.SyntheticSource.get -> string
+Microsoft.ApplicationInsights.Extensibility.Implementation.OperationContext.SyntheticSource.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.OperationTelemetry() -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Sanitize() -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext
+Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext.AuthenticatedUserId.get -> string
+Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext.AuthenticatedUserId.set -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext.Id.get -> string
+Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext.Id.set -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext.UserAgent.get -> string
+Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext.UserAgent.set -> void
 Microsoft.ApplicationInsights.Extensibility.IOperationHolder<T>
 Microsoft.ApplicationInsights.Extensibility.IOperationHolder<T>.Telemetry.get -> T
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
@@ -150,8 +167,6 @@ Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ConnectionStr
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableTelemetry.get -> bool
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableTelemetry.set -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.Dispose() -> void
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.InstrumentationKey.get -> string
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.InstrumentationKey.set -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetAzureTokenCredential(object tokenCredential) -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.TelemetryConfiguration() -> void
 Microsoft.ApplicationInsights.Metric

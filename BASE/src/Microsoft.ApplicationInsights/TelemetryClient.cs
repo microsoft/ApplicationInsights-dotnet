@@ -1296,6 +1296,24 @@
             }
         }
 
+        /// <summary>
+        /// Applies CloudContext (RoleName/RoleInstance) and ComponentContext (Version) to the OpenTelemetry Resource if set.
+        /// </summary>
+        private void ApplyCloudContextToResource()
+        {
+            var roleName = this.Context.Cloud.RoleName;
+            var roleInstance = this.Context.Cloud.RoleInstance;
+            var componentVersion = this.Context.Component.Version;
+
+            if (!string.IsNullOrEmpty(roleName) || !string.IsNullOrEmpty(roleInstance) || !string.IsNullOrEmpty(componentVersion))
+            {
+                this.configuration.SetCloudRole(
+                    serviceName: roleName,
+                    serviceInstanceId: roleInstance,
+                    serviceVersion: componentVersion);
+            }
+        }
+
         private readonly struct DictionaryLogState : IReadOnlyList<KeyValuePair<string, object>>
         {
             public readonly string Message;
@@ -1375,24 +1393,6 @@
             public IEnumerator<KeyValuePair<string, object>> GetEnumerator() => this.items.GetEnumerator();
 
             IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
-        }
-
-        /// <summary>
-        /// Applies CloudContext (RoleName/RoleInstance) and ComponentContext (Version) to the OpenTelemetry Resource if set.
-        /// </summary>
-        private void ApplyCloudContextToResource()
-        {
-            var roleName = this.Context.Cloud.RoleName;
-            var roleInstance = this.Context.Cloud.RoleInstance;
-            var componentVersion = this.Context.Component.Version;
-
-            if (!string.IsNullOrEmpty(roleName) || !string.IsNullOrEmpty(roleInstance) || !string.IsNullOrEmpty(componentVersion))
-            {
-                this.configuration.SetCloudRole(
-                    serviceName: roleName,
-                    serviceInstanceId: roleInstance,
-                    serviceVersion: componentVersion);
-            }
         }
     }
 }

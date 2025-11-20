@@ -19,6 +19,24 @@
         }
 
         /// <summary>
+        /// Gets or sets the application-defined topmost operation's name.
+        /// </summary>
+        public string Name
+        {
+            get { return string.IsNullOrEmpty(this.name) ? null : this.name; }
+            set { this.name = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the application-defined operation SyntheticSource.
+        /// </summary>
+        public string SyntheticSource
+        {
+            get { return string.IsNullOrEmpty(this.syntheticSource) ? null : this.syntheticSource; }
+            set { this.syntheticSource = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the application-defined operation ID for the topmost operation.
         /// </summary>
         internal string Id
@@ -44,24 +62,6 @@
         {
             get { return string.IsNullOrEmpty(this.correlationVector) ? null : this.correlationVector; }
             set { this.correlationVector = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the application-defined topmost operation's name.
-        /// </summary>
-        public string Name
-        {
-            get { return string.IsNullOrEmpty(this.name) ? null : this.name; }
-            set { this.name = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the application-defined operation SyntheticSource.
-        /// </summary>
-        public string SyntheticSource
-        {
-            get { return string.IsNullOrEmpty(this.syntheticSource) ? null : this.syntheticSource; }
-            set { this.syntheticSource = value; }
         }
     }
 }

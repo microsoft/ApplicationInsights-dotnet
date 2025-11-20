@@ -172,6 +172,32 @@
         }
 
         /// <summary>
+        /// Releases resources used by the current instance of the <see cref="TelemetryConfiguration"/> class.
+        /// </summary>
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Set a TokenCredential for this configuration.
+        /// </summary>
+        /// <remarks>
+        /// For more information on expected types, review the documentation for the Azure.Identity library.
+        /// (https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/identity/Azure.Identity).
+        /// </remarks>
+        /// <param name="tokenCredential">An instance of Azure.Core.TokenCredential.</param>
+        /// <exception cref="ArgumentException">An ArgumentException is thrown if the provided object does not inherit Azure.Core.TokenCredential.</exception>
+#pragma warning disable CA1822 // Mark members as static
+#pragma warning disable CA1801 // Review unused parameters
+        public void SetAzureTokenCredential(object tokenCredential)
+#pragma warning restore CA1801 // Review unused parameters
+#pragma warning restore CA1822 // Mark members as static
+        {
+        }
+
+        /// <summary>
         /// Sets the cloud role name and role instance for telemetry.
         /// This configures the OpenTelemetry Resource with service.name, service.namespace, service.instance.id, and service.version attributes
         /// which map to Cloud.RoleName, Cloud.RoleInstance, and Application.Ver in Application Insights.
@@ -211,32 +237,6 @@
                     }
                 });
             });
-        }
-
-        /// <summary>
-        /// Releases resources used by the current instance of the <see cref="TelemetryConfiguration"/> class.
-        /// </summary>
-        public void Dispose()
-        {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Set a TokenCredential for this configuration.
-        /// </summary>
-        /// <remarks>
-        /// For more information on expected types, review the documentation for the Azure.Identity library.
-        /// (https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/identity/Azure.Identity).
-        /// </remarks>
-        /// <param name="tokenCredential">An instance of Azure.Core.TokenCredential.</param>
-        /// <exception cref="ArgumentException">An ArgumentException is thrown if the provided object does not inherit Azure.Core.TokenCredential.</exception>
-#pragma warning disable CA1822 // Mark members as static
-#pragma warning disable CA1801 // Review unused parameters
-        public void SetAzureTokenCredential(object tokenCredential)
-#pragma warning restore CA1801 // Review unused parameters
-#pragma warning restore CA1822 // Mark members as static
-        {
         }
 
         /// <summary>
