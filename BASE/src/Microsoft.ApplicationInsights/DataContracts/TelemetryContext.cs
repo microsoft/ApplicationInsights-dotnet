@@ -14,15 +14,9 @@
     /// </summary>
     public sealed class TelemetryContext
     {
-        /// <summary>
-        /// Value for the flag that indicates that server should not store IP address from incoming events.
-        /// </summary>
-        public const long FlagDropIdentifiers = 0x200000;
         internal IDictionary<string, string> GlobalPropertiesValue;
         internal IDictionary<string, string> PropertiesValue;
 
-        private IDictionary<string, object> rawObjectsTemp = new Dictionary<string, object>();
-        private IDictionary<string, object> rawObjectsPerm = new Dictionary<string, object>();
         private ComponentContext component;
         private DeviceContext device;
         private CloudContext cloud;
@@ -49,26 +43,6 @@
             this.PropertiesValue = properties;
             this.GlobalPropertiesValue = globalProperties;
         }
-
-        /// <summary>
-        /// Gets or sets the default instrumentation key for all <see cref="ITelemetry"/> objects logged in this <see cref="TelemetryContext"/>.
-        /// </summary>
-        /// <remarks>
-        /// By default, this property is initialized with the <see cref="TelemetryConfiguration.InstrumentationKey"/> value
-        /// of the TelemetryConfiguration.Active instance of <see cref="TelemetryConfiguration"/>. You can specify it
-        /// for all telemetry tracked via a particular <see cref="TelemetryClient"/> or for a specific <see cref="ITelemetry"/>
-        /// instance.
-        /// </remarks>
-        public string InstrumentationKey
-        {
-            get;
-            set;
-        }
-
-        /// <summary> 
-        /// Gets or sets flags which controls events priority and endpoint behavior.
-        /// </summary> 
-        public long Flags { get; set; }
 
         /// <summary>
         /// Gets a dictionary of application-defined property values which are global in scope.
@@ -101,7 +75,7 @@
         /// <summary>
         /// Gets the object describing the cloud tracked by this <see cref="TelemetryContext"/>.
         /// </summary>
-        internal CloudContext Cloud
+        public CloudContext Cloud
         {
             get { return LazyInitializer.EnsureInitialized(ref this.cloud, () => new CloudContext()); }
         }
@@ -117,7 +91,7 @@
         /// <summary>
         /// Gets the object describing a user tracked by this <see cref="TelemetryContext"/>.
         /// </summary>
-        internal UserContext User
+        public UserContext User
         {
             get { return LazyInitializer.EnsureInitialized(ref this.user, () => new UserContext()); }
         }
@@ -126,7 +100,7 @@
         /// Gets the object describing a operation tracked by this <see cref="TelemetryContext"/>.
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#operationcontext">Learn more</a>
         /// </summary>
-        internal OperationContext Operation
+        public OperationContext Operation
         {
             get { return LazyInitializer.EnsureInitialized(ref this.operation, () => new OperationContext()); }
         }
@@ -134,129 +108,9 @@
         /// <summary>
         /// Gets the object describing a location tracked by this <see cref="TelemetryContext" />.
         /// </summary>
-        internal LocationContext Location
+        public LocationContext Location
         {
             get { return LazyInitializer.EnsureInitialized(ref this.location, () => new LocationContext()); }
-        }
-
-        /// <summary>
-        /// Returns the raw object with the given key.        
-        /// Objects retrieved here are not automatically serialized and sent to the backend.
-        /// They are shared (i.e not cloned) if multiple sinks are configured, so sinks should treat them as read-only.
-        /// </summary>
-        /// <param name="key">The key of the value to get.</param>
-        /// <param name="rawObject">When this method returns, contains the object that has the specified key, or the default value of the type if the operation failed.</param>
-        /// <returns>true if the key was found; otherwise, false.</returns>
-        /// <remarks>
-        /// This method is not thread-safe. Objects should be stored from Collectors or TelemetryInitializers that are run synchronously.
-        /// </remarks>        
-        public bool TryGetRawObject(string key, out object rawObject)
-        {
-            if (key == null)
-            {
-                rawObject = null;
-                return false;
-            }
-
-            if (this.rawObjectsTemp.TryGetValue(key, out rawObject))
-            {
-                return true;
-            }
-            else
-            {
-                return this.rawObjectsPerm.TryGetValue(key, out rawObject);
-            }
-        }
-
-        /// <summary>
-        /// Stores the raw object against the key specified.
-        /// Use this to store raw objects from data collectors so that TelemetryInitializers can access
-        /// them to extract additional details to enrich telemetry.
-        /// Objects stored through this method are not automatically serialized and sent to the backend.
-        /// They are shared (i.e not cloned) if multiple sinks are configured, so sinks should treat them as read-only.
-        /// </summary>
-        /// <param name="key">The key to store the object against.</param>
-        /// <param name="rawObject">Object to be stored.</param>
-        /// <param name="keepForInitializationOnly">Boolean flag indicating if this object should be made available only during TelemetryInitializers.
-        /// If set to true, then the object will not accessible in TelemetryProcessors and TelemetryChannel.</param>
-        /// <remarks>
-        /// This method is not thread-safe. Objects should be stored from Collectors or TelemetryInitializers that are run synchronously.
-        /// </remarks>
-        public void StoreRawObject(string key, object rawObject, bool keepForInitializationOnly = true)
-        {
-            if (key == null)
-            {
-                return;
-            }
-
-            if (keepForInitializationOnly)
-            {
-                this.rawObjectsTemp[key] = rawObject;
-                this.rawObjectsPerm.Remove(key);
-            }
-            else
-            {
-                this.rawObjectsPerm[key] = rawObject;
-                this.rawObjectsTemp.Remove(key);
-            }
-        }
-
-        internal void ClearTempRawObjects()
-        {
-            this.rawObjectsTemp.Clear();
-        }
-
-        internal TelemetryContext DeepClone(IDictionary<string, string> properties)
-        {
-            var newTelemetryContext = new TelemetryContext(properties);
-            // This check avoids accessing the public accessor GlobalProperties
-            // unless needed, to avoid the penality of ConcurrentDictionary instantiation.
-            if (this.GlobalPropertiesValue != null)
-            {
-                Utils.CopyDictionary(this.GlobalProperties, newTelemetryContext.GlobalProperties);
-            }
-
-            if (this.PropertiesValue != null)
-            {
-#pragma warning disable CS0618 // Type or member is obsolete
-                // Utils.CopyDictionary(this.Properties, newTelemetryContext.Properties);
-#pragma warning restore CS0618 // Type or member is obsolete
-            }
-
-            // newTelemetryContext.Initialize(this, this.instrumentationKey);
-
-            // RawObject collection is not cloned by design, they share the same collection.
-            newTelemetryContext.rawObjectsTemp = this.rawObjectsTemp;
-            newTelemetryContext.rawObjectsPerm = this.rawObjectsPerm;
-            return newTelemetryContext;
-        }
-
-        internal TelemetryContext DeepClone()
-        {
-            return this.DeepClone(null);
-        }
-
-        /// <summary>
-        /// Initialize this instance's Context properties with the values from another TelemetryContext.
-        /// First check that source is not null, then copy to this instance.
-        /// Note that invoking the public getter instead of the private field will call the LazyInitializer.
-        /// </summary>
-        internal void Initialize(TelemetryContext source, string instrumentationKey)
-        {
-            this.InitializeInstrumentationkey(instrumentationKey);
-
-            this.Flags |= source.Flags;
-        }
-
-        /// <summary>
-        /// Initialize this instance's instrumentation key.
-        /// </summary>
-#pragma warning disable CA1822 // Mark members as static
-#pragma warning disable CA1801 // Review unused parameters
-        internal void InitializeInstrumentationkey(string instrumentationKey)
-#pragma warning restore CA1801 // Review unused parameters
-#pragma warning restore CA1822 // Mark members as static
-        {
         }
     }
 }

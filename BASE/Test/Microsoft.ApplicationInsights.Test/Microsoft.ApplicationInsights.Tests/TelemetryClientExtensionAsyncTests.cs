@@ -38,11 +38,10 @@ namespace Microsoft.ApplicationInsights
             this.traceItems = new List<Activity>();
             this.logItems = new List<LogRecord>();
             this.sendItemsLock = new object();
-            configuration.InstrumentationKey = Guid.NewGuid().ToString();
-            configuration.ConnectionString = "InstrumentationKey=" + configuration.InstrumentationKey;
+            var instrumentationKey = Guid.NewGuid().ToString();
+            configuration.ConnectionString = "InstrumentationKey=" + instrumentationKey;
             configuration.ConfigureOpenTelemetryBuilder(b => b.WithTracing(t => t.AddInMemoryExporter(traceItems)).WithLogging(l => l.AddInMemoryExporter(logItems)));
             this.telemetryClient = new TelemetryClient(configuration);
-            CallContextHelpers.SaveOperationContext(null);
         }
 
         /// <summary>

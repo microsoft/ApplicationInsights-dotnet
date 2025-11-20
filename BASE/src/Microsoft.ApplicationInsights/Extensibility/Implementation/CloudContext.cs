@@ -3,7 +3,7 @@
     /// <summary>
     /// Encapsulates information about a cloud where an application is running.
     /// </summary>
-    internal sealed class CloudContext
+    public sealed class CloudContext
     {
         private string roleName;
         private string roleInstance;
@@ -29,17 +29,5 @@
             get { return string.IsNullOrEmpty(this.roleInstance) ? null : this.roleInstance; }
             set { this.roleInstance = value; }
         }
-
-        /*internal void UpdateTags(IDictionary<string, string> tags)
-        {
-            Tags.UpdateTagValue(tags, "ai.cloud.role", this.RoleName);
-            Tags.UpdateTagValue(tags, "ai.cloud.roleInstance", this.RoleInstance);
-        }
-        
-        internal void CopyTo(CloudContext target)
-        {
-            Tags.CopyTagValue(this.RoleName, ref target.roleName);
-            Tags.CopyTagValue(this.RoleInstance, ref target.roleInstance);
-        }*/
     }
 }

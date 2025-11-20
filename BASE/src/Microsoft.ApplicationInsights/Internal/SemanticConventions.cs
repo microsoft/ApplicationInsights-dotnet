@@ -66,6 +66,7 @@
         public const string AttributeNetHostName = "net.host.name";
 
         public const string AttributeEnduserId = "enduser.id";
+        public const string AttributeEnduserPseudoId = "enduser.pseudo.id";
         public const string AttributeEnduserRole = "enduser.role";
         public const string AttributeEnduserScope = "enduser.scope";
 

@@ -64,23 +64,5 @@
             get { return string.IsNullOrEmpty(this.model) ? null : this.model; }
             set { this.model = value; }
         }
-
-        /*internal void UpdateTags(IDictionary<string, string> tags)
-        {
-            tags.UpdateTagValue(ContextTagKeys.Keys.DeviceType, this.Type);
-            tags.UpdateTagValue(ContextTagKeys.Keys.DeviceId, this.Id);
-            tags.UpdateTagValue(ContextTagKeys.Keys.DeviceOSVersion, this.OperatingSystem);
-            tags.UpdateTagValue(ContextTagKeys.Keys.DeviceOEMName, this.OemName);
-            tags.UpdateTagValue(ContextTagKeys.Keys.DeviceModel, this.Model);
-        }
-        
-        internal void CopyTo(DeviceContext target)
-        {
-            Tags.CopyTagValue(this.Type, ref target.type);
-            Tags.CopyTagValue(this.Id, ref target.id);
-            Tags.CopyTagValue(this.OperatingSystem, ref target.operatingSystem);
-            Tags.CopyTagValue(this.OemName, ref target.oemName);
-            Tags.CopyTagValue(this.Model, ref target.model);
-        }*/
     }
 }

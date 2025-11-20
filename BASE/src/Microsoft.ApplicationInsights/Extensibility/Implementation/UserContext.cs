@@ -5,7 +5,7 @@
     /// <summary>
     /// Encapsulates information about a user using an application.
     /// </summary>
-    internal sealed class UserContext
+    public sealed class UserContext
     {
         private string id;
         private string accountId;
@@ -31,7 +31,7 @@
         /// <summary>
         /// Gets or sets the ID of an application-defined account associated with the user.
         /// </summary>
-        public string AccountId
+        internal string AccountId
         {
             get { return string.IsNullOrEmpty(this.accountId) ? null : this.accountId; }
             set { this.accountId = value; }

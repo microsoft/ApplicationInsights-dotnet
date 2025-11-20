@@ -34,17 +34,15 @@
             this.sendItems = new List<ITelemetry>();
             this.traceItems = new List<Activity>();
             this.logItems = new List<LogRecord>();
-            telemetryConfiguration.InstrumentationKey = Guid.NewGuid().ToString();
-            telemetryConfiguration.ConnectionString = "InstrumentationKey=" + telemetryConfiguration.InstrumentationKey;
+            var instrumentationKey = Guid.NewGuid().ToString();
+            telemetryConfiguration.ConnectionString = "InstrumentationKey=" + instrumentationKey;
             telemetryConfiguration.ConfigureOpenTelemetryBuilder(b => b.WithTracing(t => t.AddInMemoryExporter(traceItems)).WithLogging(l => l.AddInMemoryExporter(logItems)));
             this.telemetryClient = new TelemetryClient(telemetryConfiguration);
-            CallContextHelpers.SaveOperationContext(null);
         }
 
         [TestCleanup]
         public void TestCleanup()
         {
-            CallContextHelpers.SaveOperationContext(null);
             while (Activity.Current != null)
             {
                 Activity.Current.Stop();
