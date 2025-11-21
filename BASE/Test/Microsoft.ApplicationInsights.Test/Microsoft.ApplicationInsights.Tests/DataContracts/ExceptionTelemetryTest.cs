@@ -6,19 +6,17 @@ namespace Microsoft.ApplicationInsights.DataContracts
     using System.Reflection;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.Extensions.Logging;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Xunit;
     using OpenTelemetry;
     using OpenTelemetry.Logs;
     using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
 
-    [TestClass]
-    public class ExceptionTelemetryTest
+    public class ExceptionTelemetryTest : IDisposable
     {
         private List<LogRecord> logItems;
         private TelemetryClient telemetryClient;
 
-        [TestInitialize]
-        public void TestInitialize()
+        public ExceptionTelemetryTest()
         {
             var configuration = new TelemetryConfiguration();
             this.logItems = new List<LogRecord>();
@@ -28,35 +26,40 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.telemetryClient = new TelemetryClient(configuration);
         }
 
-        [TestMethod]
-        public void ClassIsPublicAndCanBeUsedByCustomersDirectly()
+        public void Dispose()
         {
-            Assert.IsTrue(typeof(ExceptionTelemetry).GetTypeInfo().IsPublic);
+            this.telemetryClient?.TelemetryConfiguration?.Dispose();
         }
 
-        [TestMethod]
+        [Fact]
+        public void ClassIsPublicAndCanBeUsedByCustomersDirectly()
+        {
+            Assert.True(typeof(ExceptionTelemetry).GetTypeInfo().IsPublic);
+        }
+
+        [Fact]
         public void ExceptionTelemetryReturnsNonNullContext()
         {
             ExceptionTelemetry item = new ExceptionTelemetry();
-            Assert.IsNotNull(item.Context);
+            Assert.NotNull(item.Context);
         }
 
-        [TestMethod]
+        [Fact]
         public void ParameterlessConstructorInitializesAllProperties()
         {
             // ACT - Create exception telemetry with parameterless constructor
             var telemetry = new ExceptionTelemetry();
             
             // ASSERT - Verify all properties are initialized properly
-            Assert.IsNotNull(telemetry.Context, "Context should not be null");
-            Assert.IsNotNull(telemetry.Properties, "Properties should not be null");
-            Assert.AreEqual(0, telemetry.Properties.Count, "Properties should be empty");
-            Assert.IsNotNull(telemetry.ExceptionDetailsInfoList, "ExceptionDetailsInfoList should not be null");
-            Assert.AreEqual(0, telemetry.ExceptionDetailsInfoList.Count, "ExceptionDetailsInfoList should be empty");
-            Assert.IsNull(telemetry.Exception, "Exception should be null");
-            Assert.IsNull(telemetry.SeverityLevel, "SeverityLevel should be null");
-            Assert.IsNull(telemetry.ProblemId, "ProblemId should be null");
-            Assert.IsNull(telemetry.Message, "Message should be null");
+            Assert.NotNull(telemetry.Context);
+            Assert.NotNull(telemetry.Properties);
+            Assert.Equal(0, telemetry.Properties.Count);
+            Assert.NotNull(telemetry.ExceptionDetailsInfoList);
+            Assert.Equal(0, telemetry.ExceptionDetailsInfoList.Count);
+            Assert.Null(telemetry.Exception);
+            Assert.Null(telemetry.SeverityLevel);
+            Assert.Null(telemetry.ProblemId);
+            Assert.Null(telemetry.Message);
             
             // Verify properties can be set and tracked
             telemetry.Properties["key1"] = "value1";
@@ -66,14 +69,14 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.telemetryClient.TrackException(telemetry);
             this.telemetryClient.Flush();
             
-            Assert.AreEqual(1, this.logItems.Count);
+            Assert.Equal(1, this.logItems.Count);
             var logRecord = this.logItems[0];
-            Assert.IsNotNull(logRecord.Exception);
-            Assert.AreEqual("Test exception", logRecord.Exception.Message);
-            Assert.AreEqual(LogLevel.Warning, logRecord.LogLevel);
+            Assert.NotNull(logRecord.Exception);
+            Assert.Equal("Test exception", logRecord.Exception.Message);
+            Assert.Equal(LogLevel.Warning, logRecord.LogLevel);
         }
 
-        [TestMethod]
+        [Fact]
         public void ExceptionTelemetryCreatedWithCustomExceptionDetailsCanBeTracked()
         {
             // ARRANGE - Customer creates exception telemetry with custom exception details
@@ -101,18 +104,18 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.telemetryClient.Flush();
 
             // ASSERT - Verify data is captured in OpenTelemetry logs
-            Assert.AreEqual(1, this.logItems.Count);
+            Assert.Equal(1, this.logItems.Count);
             var logRecord = this.logItems[0];
             
-            Assert.IsNotNull(logRecord.Exception);
-            Assert.AreEqual("Top level exception", logRecord.Exception.Message);
+            Assert.NotNull(logRecord.Exception);
+            Assert.Equal("Top level exception", logRecord.Exception.Message);
             // Note: We reconstruct generic Exception objects, so GetType().Name will be "Exception"
             // The original TypeName is preserved in ExceptionDetailsInfo
-            Assert.IsNotNull(logRecord.Exception.InnerException);
-            Assert.AreEqual("Inner exception", logRecord.Exception.InnerException.Message);
+            Assert.NotNull(logRecord.Exception.InnerException);
+            Assert.Equal("Inner exception", logRecord.Exception.InnerException.Message);
             
             // Verify severity mapped correctly
-            Assert.AreEqual(LogLevel.Error, logRecord.LogLevel);
+            Assert.Equal(LogLevel.Error, logRecord.LogLevel);
             
             // Verify properties are present
             bool hasProperty1 = false, hasProperty2 = false;
@@ -124,11 +127,11 @@ namespace Microsoft.ApplicationInsights.DataContracts
                     if (attr.Key == "property2" && attr.Value?.ToString() == "value2") hasProperty2 = true;
                 }
             }
-            Assert.IsTrue(hasProperty1, "property1 should be captured");
-            Assert.IsTrue(hasProperty2, "property2 should be captured");
+            Assert.True(hasProperty1, "property1 should be captured");
+            Assert.True(hasProperty2, "property2 should be captured");
         }
 
-        [TestMethod]
+        [Fact]
         public void ExceptionTelemetryWithNestedInnerExceptionsReconstructsCorrectly()
         {
             // ARRANGE
@@ -148,25 +151,25 @@ namespace Microsoft.ApplicationInsights.DataContracts
             Exception reconstructed = item.Exception;
 
             // ASSERT - Verify full chain is reconstructed
-            Assert.AreEqual("Top level exception", reconstructed.Message);
-            Assert.IsNotNull(reconstructed.InnerException);
-            Assert.AreEqual("Inner exception", reconstructed.InnerException.Message);
-            Assert.IsNotNull(reconstructed.InnerException.InnerException);
-            Assert.AreEqual("Inner inner exception", reconstructed.InnerException.InnerException.Message);
-            Assert.IsNull(reconstructed.InnerException.InnerException.InnerException);
+            Assert.Equal("Top level exception", reconstructed.Message);
+            Assert.NotNull(reconstructed.InnerException);
+            Assert.Equal("Inner exception", reconstructed.InnerException.Message);
+            Assert.NotNull(reconstructed.InnerException.InnerException);
+            Assert.Equal("Inner inner exception", reconstructed.InnerException.InnerException.Message);
+            Assert.Null(reconstructed.InnerException.InnerException.InnerException);
         }
 
-        [TestMethod]
+        [Fact]
         public void ConstructorAddsExceptionToExceptionProperty()
         {
             Exception constructorException = new Exception("ConstructorException");
             var testExceptionTelemetry = new ExceptionTelemetry(constructorException);
 
-            Assert.AreSame(constructorException, testExceptionTelemetry.Exception);
-            Assert.AreEqual(constructorException.Message, testExceptionTelemetry.ExceptionDetailsInfoList.First().Message);
+            Assert.Same(constructorException, testExceptionTelemetry.Exception);
+            Assert.Equal(constructorException.Message, testExceptionTelemetry.ExceptionDetailsInfoList.First().Message);
         }
 
-        [TestMethod]
+        [Fact]
         public void ExceptionPropertySetterReplacesExceptionDetails()
         {
             Exception constructorException = new Exception("ConstructorException");
@@ -175,11 +178,11 @@ namespace Microsoft.ApplicationInsights.DataContracts
             Exception nextException = new Exception("NextException");
             testExceptionTelemetry.Exception = nextException;
 
-            Assert.AreSame(nextException, testExceptionTelemetry.Exception);
-            Assert.AreEqual(nextException.Message, testExceptionTelemetry.ExceptionDetailsInfoList.First().Message);
+            Assert.Same(nextException, testExceptionTelemetry.Exception);
+            Assert.Equal(nextException.Message, testExceptionTelemetry.ExceptionDetailsInfoList.First().Message);
         }
 
-        [TestMethod]
+        [Fact]
         public void ExceptionPropertySetterPreservesContext()
         {
             // ARRANGE
@@ -198,27 +201,27 @@ namespace Microsoft.ApplicationInsights.DataContracts
             testExceptionTelemetry.Exception = nextException;
 
             // ASSERT
-            Assert.AreEqual(expectedAccountId, testExceptionTelemetry.Context.User.AccountId);
-            Assert.AreEqual(expectedAuthenticatedUserId, testExceptionTelemetry.Context.User.AuthenticatedUserId);
-            Assert.AreEqual(expectedUserAgent, testExceptionTelemetry.Context.User.UserAgent);
+            Assert.Equal(expectedAccountId, testExceptionTelemetry.Context.User.AccountId);
+            Assert.Equal(expectedAuthenticatedUserId, testExceptionTelemetry.Context.User.AuthenticatedUserId);
+            Assert.Equal(expectedUserAgent, testExceptionTelemetry.Context.User.UserAgent);
         }
 
-        [TestMethod]
+        [Fact]
         public void ConstructorDoesNotSetSeverityLevel()
         {
             var telemetry = new ExceptionTelemetry();
-            Assert.AreEqual(null, telemetry.SeverityLevel);
+            Assert.Equal(null, telemetry.SeverityLevel);
         }
 
-        [TestMethod]
+        [Fact]
         public void PropertiesReturnsEmptyDictionaryByDefaultToPreventNullReferenceExceptions()
         {
             var @exception = new ExceptionTelemetry(new Exception());
             var properties = @exception.Properties;
-            Assert.IsNotNull(properties);
+            Assert.NotNull(properties);
         }
 
-        [TestMethod]
+        [Fact]
         public void ExceptionPropertySetterHandlesAggregateExceptionsWithMultipleNestedExceptions()
         {
             Exception exception1121 = new Exception("1.1.2.1");
@@ -242,37 +245,37 @@ namespace Microsoft.ApplicationInsights.DataContracts
                                                 "1.2.1"
                                             };
 
-            Assert.AreEqual(expectedSequence.Length, telemetry.ExceptionDetailsInfoList.Count);
+            Assert.Equal(expectedSequence.Length, telemetry.ExceptionDetailsInfoList.Count);
             for(int counter = 0; counter < expectedSequence.Length; counter++)
             {
                 ExceptionDetailsInfo details = telemetry.ExceptionDetailsInfoList[counter];
                 if (details.TypeName.Contains("AggregateException"))
                 {
-                    Assert.IsTrue(details.Message.StartsWith(expectedSequence[counter]));
+                    Assert.True(details.Message.StartsWith(expectedSequence[counter]));
                 }
                 else
                 {
-                    Assert.AreEqual(expectedSequence[counter], details.Message);
+                    Assert.Equal(expectedSequence[counter], details.Message);
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ExceptionTelemetryPropertiesFromContextAndItemAreTracked()
         {
             var expected = CreateExceptionTelemetry();
 
-            Assert.AreEqual(1, expected.Properties.Count);
-            Assert.AreEqual(1, expected.Context.GlobalProperties.Count);
-            Assert.IsTrue(expected.Properties.ContainsKey("TestProperty"));
-            Assert.IsTrue(expected.Context.GlobalProperties.ContainsKey("TestPropertyGlobal"));
+            Assert.Equal(1, expected.Properties.Count);
+            Assert.Equal(1, expected.Context.GlobalProperties.Count);
+            Assert.True(expected.Properties.ContainsKey("TestProperty"));
+            Assert.True(expected.Context.GlobalProperties.ContainsKey("TestPropertyGlobal"));
 
             // ACT
             this.telemetryClient.TrackException(expected);
             this.telemetryClient.Flush();
 
             // ASSERT - Verify properties are captured
-            Assert.AreEqual(1, this.logItems.Count);
+            Assert.Equal(1, this.logItems.Count);
             var logRecord = this.logItems[0];
             bool hasTestProperty = false, hasTestPropertyGlobal = false;
             if (logRecord.Attributes != null)
@@ -283,11 +286,11 @@ namespace Microsoft.ApplicationInsights.DataContracts
                     if (attr.Key == "TestPropertyGlobal") hasTestPropertyGlobal = true;
                 }
             }
-            Assert.IsTrue(hasTestProperty, "TestProperty should be captured");
-            Assert.IsTrue(hasTestPropertyGlobal, "TestPropertyGlobal should be captured");
+            Assert.True(hasTestProperty, "TestProperty should be captured");
+            Assert.True(hasTestPropertyGlobal, "TestPropertyGlobal should be captured");
         }
 
-        [TestMethod]
+        [Fact]
         public void SetParsedStackUpdatesExceptionDetails()
         {
             var exception = new Exception("Test");
@@ -303,10 +306,10 @@ namespace Microsoft.ApplicationInsights.DataContracts
             telemetry.SetParsedStack(frames);
 
             // ASSERT - Verify method doesn't throw and can be called
-            Assert.IsNotNull(telemetry.ExceptionDetailsInfoList);
+            Assert.NotNull(telemetry.ExceptionDetailsInfoList);
         }
 
-        [TestMethod]
+        [Fact]
         public void ExceptionDetailsInfoPreservesStackTraceString()
         {
             // ARRANGE
@@ -324,15 +327,15 @@ namespace Microsoft.ApplicationInsights.DataContracts
                 });
 
             // ASSERT - Verify stack trace string is stored in the Stack property
-            Assert.AreEqual(stackTraceString, exceptionDetails.Stack, "Stack trace string should be preserved");
-            Assert.AreEqual("System.Exception", exceptionDetails.TypeName);
-            Assert.AreEqual("Test exception", exceptionDetails.Message);
-            Assert.IsTrue(exceptionDetails.HasFullStack);
-            Assert.AreEqual(1, exceptionDetails.Id);
-            Assert.AreEqual(-1, exceptionDetails.OuterId);
+            Assert.Equal(stackTraceString, exceptionDetails.Stack);
+            Assert.Equal("System.Exception", exceptionDetails.TypeName);
+            Assert.Equal("Test exception", exceptionDetails.Message);
+            Assert.True(exceptionDetails.HasFullStack);
+            Assert.Equal(1, exceptionDetails.Id);
+            Assert.Equal(-1, exceptionDetails.OuterId);
         }
 
-        [TestMethod]
+        [Fact]
         public void TimestampPropertyCanBeGetAndSet()
         {
             var telemetry = new ExceptionTelemetry(new Exception());
@@ -340,10 +343,10 @@ namespace Microsoft.ApplicationInsights.DataContracts
             
             telemetry.Timestamp = timestamp;
             
-            Assert.AreEqual(timestamp, telemetry.Timestamp);
+            Assert.Equal(timestamp, telemetry.Timestamp);
         }
 
-        [TestMethod]
+        [Fact]
         public void MessagePropertyCanBeGetAndSet()
         {
             var telemetry = new ExceptionTelemetry(new Exception());
@@ -351,39 +354,39 @@ namespace Microsoft.ApplicationInsights.DataContracts
             
             telemetry.Message = expectedMessage;
             
-            Assert.AreEqual(expectedMessage, telemetry.Message);
+            Assert.Equal(expectedMessage, telemetry.Message);
         }
 
-        [TestMethod]
+        [Fact]
         public void SeverityLevelPropertyCanBeGetAndSet()
         {
             var telemetry = new ExceptionTelemetry(new Exception());
             
             // Default should be null
-            Assert.IsNull(telemetry.SeverityLevel);
+            Assert.Null(telemetry.SeverityLevel);
             
             // Set and verify each severity level
             telemetry.SeverityLevel = SeverityLevel.Verbose;
-            Assert.AreEqual(SeverityLevel.Verbose, telemetry.SeverityLevel);
+            Assert.Equal(SeverityLevel.Verbose, telemetry.SeverityLevel);
             
             telemetry.SeverityLevel = SeverityLevel.Information;
-            Assert.AreEqual(SeverityLevel.Information, telemetry.SeverityLevel);
+            Assert.Equal(SeverityLevel.Information, telemetry.SeverityLevel);
             
             telemetry.SeverityLevel = SeverityLevel.Warning;
-            Assert.AreEqual(SeverityLevel.Warning, telemetry.SeverityLevel);
+            Assert.Equal(SeverityLevel.Warning, telemetry.SeverityLevel);
             
             telemetry.SeverityLevel = SeverityLevel.Error;
-            Assert.AreEqual(SeverityLevel.Error, telemetry.SeverityLevel);
+            Assert.Equal(SeverityLevel.Error, telemetry.SeverityLevel);
             
             telemetry.SeverityLevel = SeverityLevel.Critical;
-            Assert.AreEqual(SeverityLevel.Critical, telemetry.SeverityLevel);
+            Assert.Equal(SeverityLevel.Critical, telemetry.SeverityLevel);
             
             // Can be set back to null
             telemetry.SeverityLevel = null;
-            Assert.IsNull(telemetry.SeverityLevel);
+            Assert.Null(telemetry.SeverityLevel);
         }
 
-        [TestMethod]
+        [Fact]
         public void ExceptionDetailsInfoListReturnsReadOnlyList()
         {
             var exception = new Exception("Test exception");
@@ -391,45 +394,45 @@ namespace Microsoft.ApplicationInsights.DataContracts
             
             var detailsList = telemetry.ExceptionDetailsInfoList;
             
-            Assert.IsNotNull(detailsList);
-            Assert.AreEqual(1, detailsList.Count);
-            Assert.AreEqual("Test exception", detailsList[0].Message);
-            Assert.AreEqual("System.Exception", detailsList[0].TypeName);
+            Assert.NotNull(detailsList);
+            Assert.Equal(1, detailsList.Count);
+            Assert.Equal("Test exception", detailsList[0].Message);
+            Assert.Equal("System.Exception", detailsList[0].TypeName);
         }
 
-        [TestMethod]
+        [Fact]
         public void ExceptionPropertyAcceptsNull()
         {
             var telemetry = new ExceptionTelemetry(new Exception("Initial exception"));
             
             // Verify initial exception is set
-            Assert.IsNotNull(telemetry.Exception);
-            Assert.AreEqual("Initial exception", telemetry.Exception.Message);
-            Assert.AreEqual(1, telemetry.ExceptionDetailsInfoList.Count);
+            Assert.NotNull(telemetry.Exception);
+            Assert.Equal("Initial exception", telemetry.Exception.Message);
+            Assert.Equal(1, telemetry.ExceptionDetailsInfoList.Count);
             
             // Set to null
             telemetry.Exception = null;
             
             // Verify exception is now null and list is empty
-            Assert.IsNull(telemetry.Exception);
-            Assert.AreEqual(0, telemetry.ExceptionDetailsInfoList.Count);
+            Assert.Null(telemetry.Exception);
+            Assert.Equal(0, telemetry.ExceptionDetailsInfoList.Count);
         }
 
-        [TestMethod]
+        [Fact]
         public void ExceptionDetailsInfoListReflectsExceptionChanges()
         {
             var telemetry = new ExceptionTelemetry(new Exception("First exception"));
             
             // Verify initial state
-            Assert.AreEqual(1, telemetry.ExceptionDetailsInfoList.Count);
-            Assert.AreEqual("First exception", telemetry.ExceptionDetailsInfoList[0].Message);
+            Assert.Equal(1, telemetry.ExceptionDetailsInfoList.Count);
+            Assert.Equal("First exception", telemetry.ExceptionDetailsInfoList[0].Message);
             
             // Change exception
             telemetry.Exception = new Exception("Second exception");
             
             // Verify list is updated
-            Assert.AreEqual(1, telemetry.ExceptionDetailsInfoList.Count);
-            Assert.AreEqual("Second exception", telemetry.ExceptionDetailsInfoList[0].Message);
+            Assert.Equal(1, telemetry.ExceptionDetailsInfoList.Count);
+            Assert.Equal("Second exception", telemetry.ExceptionDetailsInfoList[0].Message);
         }
 
         private static Exception CreateExceptionWithStackTrace()

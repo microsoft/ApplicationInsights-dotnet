@@ -17,22 +17,21 @@ namespace Microsoft.ApplicationInsights
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.Extensions.Logging;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Xunit;
     using OpenTelemetry;
     using OpenTelemetry.Logs;
     using OpenTelemetry.Metrics;
     using OpenTelemetry.Trace;
 
-    [TestClass]
-    public class TelemetryClientTest
+    [Collection("TelemetryClientTests")]
+    public class TelemetryClientTest : IDisposable
     {
         private List<LogRecord> logItems;
         private List<OpenTelemetry.Metrics.Metric> metricItems;
         private List<Activity> activityItems;
         private TelemetryClient telemetryClient;
 
-        [TestInitialize]
-        public void TestInitialize()
+        public TelemetryClientTest()
         {
             var configuration = new TelemetryConfiguration();
             this.logItems = new List<LogRecord>();
@@ -47,8 +46,7 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient = new TelemetryClient(configuration);
         }
 
-        [TestCleanup]
-        public void TestCleanup()
+        public void Dispose()
         {
             this.activityItems?.Clear();
             this.metricItems?.Clear();
@@ -58,44 +56,44 @@ namespace Microsoft.ApplicationInsights
 
         #region TrackEvent
 
-        [TestMethod]
+        [Fact]
         public void TrackEventSendsEventTelemetryWithSpecifiedNameToProvideSimplestWayOfSendingEventTelemetry()
         {
             this.telemetryClient.TrackEvent("TestEvent");
             this.telemetryClient.Flush();
             
-            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
             var logRecord = this.logItems.FirstOrDefault(l => 
                 l.Attributes != null && l.Attributes.Any(a => 
                     a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "TestEvent"));
-            Assert.IsNotNull(logRecord, "TestEvent should be collected");
-            Assert.AreEqual(LogLevel.Information, logRecord.LogLevel);
+            Assert.NotNull(logRecord);
+            Assert.Equal(LogLevel.Information, logRecord.LogLevel);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackEventSendsEventTelemetryWithSpecifiedObjectTelemetry()
         {
             this.telemetryClient.TrackEvent(new EventTelemetry("TestEvent"));
             this.telemetryClient.Flush();
             
-            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
+            Assert.True(this.logItems.Count > 0);
             var logRecord = this.logItems.FirstOrDefault(l => 
                 l.Attributes != null && l.Attributes.Any(a => 
                     a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "TestEvent"));
-            Assert.IsNotNull(logRecord, "TestEvent should be collected");
+            Assert.NotNull(logRecord);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackEventWillSendPropertiesIfProvidedInline()
         {
             this.telemetryClient.TrackEvent("Test", new Dictionary<string, string> { { "blah", "yoyo" } });
             this.telemetryClient.Flush();
             
-            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
             var logRecord = this.logItems.FirstOrDefault(l => 
                 l.Attributes != null && l.Attributes.Any(a => 
                     a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "Test"));
-            Assert.IsNotNull(logRecord, "Test event should be collected");
+            Assert.NotNull(logRecord);
             
             // Verify property is in attributes
             bool hasBlahProperty = false;
@@ -110,10 +108,10 @@ namespace Microsoft.ApplicationInsights
                     }
                 }
             }
-            Assert.IsTrue(hasBlahProperty, "Property 'blah' should be 'yoyo'");
+            Assert.True(hasBlahProperty, "Property 'blah' should be 'yoyo'");
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackEventWithEventTelemetryAndProperties()
         {
             // Test EventTelemetry with properties set via Properties dictionary
@@ -124,12 +122,12 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.TrackEvent(eventTelemetry);
             this.telemetryClient.Flush();
             
-            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
             var logRecord = this.logItems.FirstOrDefault(l => 
                 l.Attributes != null && l.Attributes.Any(a => 
                     a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "TestEventWithProps"));
-            Assert.IsNotNull(logRecord, "TestEventWithProps should be collected");
-            Assert.IsNotNull(logRecord.Attributes, "LogRecord should have attributes");
+            Assert.NotNull(logRecord);
+            Assert.NotNull(logRecord.Attributes);
             
             // Verify properties are in attributes
             bool hasCustomProp = false, hasEnvironment = false;
@@ -140,11 +138,11 @@ namespace Microsoft.ApplicationInsights
                 if (attr.Key == "environment" && attr.Value?.ToString() == "test")
                     hasEnvironment = true;
             }
-            Assert.IsTrue(hasCustomProp, "Property customProp should be in log record");
-            Assert.IsTrue(hasEnvironment, "Property environment should be in log record");
+            Assert.True(hasCustomProp, "Property customProp should be in log record");
+            Assert.True(hasEnvironment, "Property environment should be in log record");
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackEventWithNullEventTelemetryHandlesGracefully()
         {
             // TrackEvent should handle null EventTelemetry gracefully without throwing
@@ -153,7 +151,7 @@ namespace Microsoft.ApplicationInsights
             // Note: This test verifies error handling, not that an event is created
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackEventWithEmptyNameHandlesGracefully()
         {
             // TrackEvent should handle empty name gracefully without throwing
@@ -162,7 +160,7 @@ namespace Microsoft.ApplicationInsights
             // Note: This test verifies error handling
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackEventWithNullNameHandlesGracefully()
         {
             // TrackEvent should handle null name gracefully without throwing
@@ -175,59 +173,59 @@ namespace Microsoft.ApplicationInsights
 
         #region TrackTrace
 
-        [TestMethod]
+        [Fact]
         public void TrackTraceSendsTraceTelemetryWithSpecifiedNameToProvideSimplestWayOfSendingTraceTelemetry()
         {
             this.telemetryClient.TrackTrace("TestTrace");
             this.telemetryClient.Flush();
             
-            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
             var logRecord = this.logItems.FirstOrDefault(l => 
                 l.FormattedMessage != null && l.FormattedMessage.Contains("TestTrace"));
-            Assert.IsNotNull(logRecord, "TestTrace should be collected");
-            Assert.AreEqual(LogLevel.Information, logRecord.LogLevel);
+            Assert.NotNull(logRecord);
+            Assert.Equal(LogLevel.Information, logRecord.LogLevel);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackTraceSendsTraceTelemetryWithSpecifiedObjectTelemetry()
         {
             this.telemetryClient.TrackTrace(new TraceTelemetry { Message = "TestTrace" });
             this.telemetryClient.Flush();
             
-            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
+            Assert.True(this.logItems.Count > 0);
             var logRecord = this.logItems.FirstOrDefault(l => 
                 l.FormattedMessage != null && l.FormattedMessage.Contains("TestTrace"));
-            Assert.IsNotNull(logRecord, "TestTrace should be collected");
+            Assert.NotNull(logRecord);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackTraceWillSendSeverityLevelIfProvidedInline()
         {
             this.telemetryClient.TrackTrace("Test", SeverityLevel.Error);
             this.telemetryClient.Flush();
             
-            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
             var logRecord = this.logItems.FirstOrDefault(l => 
                 l.FormattedMessage != null && l.FormattedMessage.Contains("Test"));
-            Assert.IsNotNull(logRecord, "Test trace should be collected");
-            Assert.AreEqual(LogLevel.Error, logRecord.LogLevel);
+            Assert.NotNull(logRecord);
+            Assert.Equal(LogLevel.Error, logRecord.LogLevel);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackTraceWillNotSetSeverityLevelIfCustomerProvidedOnlyName()
         {
             this.telemetryClient.TrackTrace("Test");
             this.telemetryClient.Flush();
             
-            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
+            Assert.True(this.logItems.Count > 0);
             var logRecord = this.logItems.FirstOrDefault(l => 
                 l.FormattedMessage != null && l.FormattedMessage.Contains("Test"));
-            Assert.IsNotNull(logRecord, "Test trace should be collected");
+            Assert.NotNull(logRecord);
             // Default log level is Information when no severity is specified
-            Assert.AreEqual(LogLevel.Information, logRecord.LogLevel);
+            Assert.Equal(LogLevel.Information, logRecord.LogLevel);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackTraceWithMessageAndProperties()
         {
             var properties = new Dictionary<string, string>
@@ -239,11 +237,11 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.TrackTrace("TraceWithProps", properties);
             this.telemetryClient.Flush();
             
-            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
             var logRecord = this.logItems.FirstOrDefault(l => 
                 l.FormattedMessage != null && l.FormattedMessage.Contains("TraceWithProps"));
-            Assert.IsNotNull(logRecord, "TraceWithProps should be collected");
-            Assert.AreEqual(LogLevel.Information, logRecord.LogLevel);
+            Assert.NotNull(logRecord);
+            Assert.Equal(LogLevel.Information, logRecord.LogLevel);
             
             // Verify properties
             bool hasProp1 = false, hasProp2 = false;
@@ -257,11 +255,11 @@ namespace Microsoft.ApplicationInsights
                         hasProp2 = true;
                 }
             }
-            Assert.IsTrue(hasProp1, "Property prop1 should be in log record");
-            Assert.IsTrue(hasProp2, "Property prop2 should be in log record");
+            Assert.True(hasProp1, "Property prop1 should be in log record");
+            Assert.True(hasProp2, "Property prop2 should be in log record");
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackTraceWithSeverityLevelAndProperties()
         {
             var properties = new Dictionary<string, string>
@@ -273,11 +271,11 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.TrackTrace("ErrorTrace", SeverityLevel.Error, properties);
             this.telemetryClient.Flush();
             
-            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
             var logRecord = this.logItems.FirstOrDefault(l => 
                 l.FormattedMessage != null && l.FormattedMessage.Contains("ErrorTrace"));
-            Assert.IsNotNull(logRecord, "ErrorTrace should be collected");
-            Assert.AreEqual(LogLevel.Error, logRecord.LogLevel);
+            Assert.NotNull(logRecord);
+            Assert.Equal(LogLevel.Error, logRecord.LogLevel);
             
             // Verify properties
             bool hasErrorCode = false, hasComponent = false;
@@ -291,11 +289,11 @@ namespace Microsoft.ApplicationInsights
                         hasComponent = true;
                 }
             }
-            Assert.IsTrue(hasErrorCode, "Property errorCode should be in log record");
-            Assert.IsTrue(hasComponent, "Property component should be in log record");
+            Assert.True(hasErrorCode, "Property errorCode should be in log record");
+            Assert.True(hasComponent, "Property component should be in log record");
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackTraceWithTraceTelemetryAndProperties()
         {
             var traceTelemetry = new TraceTelemetry("TraceTelemetryWithProps");
@@ -306,11 +304,11 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.TrackTrace(traceTelemetry);
             this.telemetryClient.Flush();
             
-            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected");
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
             var logRecord = this.logItems.FirstOrDefault(l => 
                 l.FormattedMessage != null && l.FormattedMessage.Contains("TraceTelemetryWithProps"));
-            Assert.IsNotNull(logRecord, "TraceTelemetryWithProps should be collected");
-            Assert.AreEqual(LogLevel.Warning, logRecord.LogLevel);
+            Assert.NotNull(logRecord);
+            Assert.Equal(LogLevel.Warning, logRecord.LogLevel);
             
             // Verify properties
             bool hasCustomProp = false, hasSource = false;
@@ -324,11 +322,11 @@ namespace Microsoft.ApplicationInsights
                         hasSource = true;
                 }
             }
-            Assert.IsTrue(hasCustomProp, "Property customProp should be in log record");
-            Assert.IsTrue(hasSource, "Property source should be in log record");
+            Assert.True(hasCustomProp, "Property customProp should be in log record");
+            Assert.True(hasSource, "Property source should be in log record");
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackTraceWithTraceTelemetryAndAllSeverityLevels()
         {
             // Test all severity levels in sequence (Note: Verbose/Trace may be filtered by default logger configuration)
@@ -351,29 +349,29 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Flush();
             
             // Verify all logs were collected
-            Assert.IsTrue(this.logItems.Count >= 4, $"Expected at least 4 logs, but got {this.logItems.Count}");
+            Assert.True(this.logItems.Count >= 4, $"Expected at least 4 logs, but got {this.logItems.Count}");
             
             // Verify each severity level was logged correctly
             foreach (var (severity, expectedLogLevel, message) in testData)
             {
                 var logRecord = this.logItems.FirstOrDefault(l => 
                     l.FormattedMessage != null && l.FormattedMessage.Contains(message));
-                Assert.IsNotNull(logRecord, $"{message} should be collected");
-                Assert.AreEqual(expectedLogLevel, logRecord.LogLevel, $"Severity {severity} should map to {expectedLogLevel}");
+                Assert.NotNull(logRecord);
+                Assert.Equal(expectedLogLevel, logRecord.LogLevel);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackTraceWithNullTraceTelemetryCreatesDefaultTrace()
         {
             this.telemetryClient.TrackTrace((TraceTelemetry)null);
             this.telemetryClient.Flush();
-            Assert.IsTrue(this.logItems.Count > 0, "At least one log should be collected for null TraceTelemetry");
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected for null TraceTelemetry");
             var logRecord = this.logItems[0];
-            Assert.AreEqual(LogLevel.Information, logRecord.LogLevel, "Default log level should be Information");
+            Assert.Equal(LogLevel.Information, logRecord.LogLevel);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackTraceWithEmptyMessageInTraceTelemetry()
         {
             var traceTelemetry = new TraceTelemetry();
@@ -382,25 +380,25 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.TrackTrace(traceTelemetry);
             this.telemetryClient.Flush();
             
-            Assert.IsTrue(this.logItems.Count > 0, "Log should be collected even with empty message");
+            Assert.True(this.logItems.Count > 0, "Log should be collected even with empty message");
             var logRecord = this.logItems[0];
-            Assert.IsNotNull(logRecord, "Log record should exist");
+            Assert.NotNull(logRecord);
         }
 
         #endregion
 
         #region TrackMetric
 
-        [TestMethod]
+        [Fact]
         public void TrackMetricWithNameAndValue()
         {
             this.telemetryClient.TrackMetric("TestMetric", 42.5);
             this.telemetryClient.Flush();
             
-            Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
             
             var metric = this.metricItems.FirstOrDefault(m => m.Name == "TestMetric");
-            Assert.IsNotNull(metric, "TestMetric should be collected");
+            Assert.NotNull(metric);
             
             // Verify the metric has data points with histogram data
             var metricPoints = metric.GetMetricPoints();
@@ -412,22 +410,22 @@ namespace Microsoft.ApplicationInsights
                     hasData = true;
                     // Verify histogram sum is close to the tracked value
                     var sum = point.GetHistogramSum();
-                    Assert.IsTrue(sum > 0, "Histogram sum should be positive");
+                    Assert.True(sum > 0, "Histogram sum should be positive");
                     break;
                 }
             }
-            Assert.IsTrue(hasData, "Metric should have recorded histogram data");
+            Assert.True(hasData, "Metric should have recorded histogram data");
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackMetricWithProperties()
         {
             this.telemetryClient.TrackMetric("TestMetric", 4.2, new Dictionary<string, string> { { "property1", "value1" } });
             this.telemetryClient.Flush();
-            Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
             
             var metric = this.metricItems.FirstOrDefault(m => m.Name == "TestMetric");
-            Assert.IsNotNull(metric, "TestMetric should be collected");
+            Assert.NotNull(metric);
             
             // Verify histogram has data
             bool hasData = false;
@@ -447,62 +445,61 @@ namespace Microsoft.ApplicationInsights
                             break;
                         }
                     }
-                    Assert.IsTrue(hasProperty, "Metric should have property1 tag");
+                    Assert.True(hasProperty, "Metric should have property1 tag");
                     break;
                 }
             }
-            Assert.IsTrue(hasData, "Metric should have recorded data");
+            Assert.True(hasData, "Metric should have recorded data");
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackMetricWithNullPropertiesDoesNotThrow()
         {
             this.telemetryClient.TrackMetric("TestMetric", 4.2, null);
             this.telemetryClient.Flush();
-            Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
             var metric = this.metricItems.FirstOrDefault(m => m.Name == "TestMetric");
-            Assert.IsNotNull(metric, "TestMetric should be collected");
+            Assert.NotNull(metric);
         }
 
-        [TestMethod]
+        [Fact]
         public void GetMetricWithZeroDimensions()
         {
             var metric = this.telemetryClient.GetMetric("TestMetric");
-            Assert.IsNotNull(metric);
+            Assert.NotNull(metric);
             
             metric.TrackValue(10.0);
             metric.TrackValue(20.0);
             
             this.telemetryClient.Flush();
-            Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
+            Assert.True(this.metricItems.Count > 0);
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "TestMetric");
-            Assert.IsNotNull(collectedMetric, "TestMetric should be collected");
+            Assert.NotNull(collectedMetric);
             
             // Verify we recorded 2 values (count should be 2)
             foreach (var point in collectedMetric.GetMetricPoints())
             {
                 var count = point.GetHistogramCount();
-                Assert.AreEqual(2, (int)count, "Should have recorded 2 values");
+                Assert.Equal(2, (int)count);
                 var sum = point.GetHistogramSum();
-                Assert.AreEqual(30.0, sum, 0.01, "Sum should be 10 + 20 = 30");
+                Assert.Equal(30.0, sum, 2);
                 break;
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void GetMetricWithOneDimension()
         {
             var metric = this.telemetryClient.GetMetric("RequestDuration", "StatusCode");
-            Assert.IsNotNull(metric);
+            Assert.NotNull(metric);
             
-            metric.TrackValue(100.0, "200");
             metric.TrackValue(150.0, "404");
             metric.TrackValue(120.0, "200");
             
             this.telemetryClient.Flush();
-            Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "RequestDuration");
-            Assert.IsNotNull(collectedMetric, "RequestDuration metric should be collected");
+            Assert.NotNull(collectedMetric);
             
             // Verify dimensions are present in tags
             int pointCount = 0;
@@ -519,24 +516,24 @@ namespace Microsoft.ApplicationInsights
                         break;
                     }
                 }
-                Assert.IsTrue(hasStatusCodeTag, "Should have StatusCode dimension tag");
+                Assert.True(hasStatusCodeTag, "Should have StatusCode dimension tag");
             }
-            Assert.IsTrue(pointCount > 0, "Should have metric points");
+            Assert.True(pointCount > 0, "Should have metric points");
         }
 
-        [TestMethod]
+        [Fact]
         public void GetMetricWithTwoDimensions()
         {
             var metric = this.telemetryClient.GetMetric("DatabaseQuery", "Database", "Operation");
-            Assert.IsNotNull(metric);
+            Assert.NotNull(metric);
             
             metric.TrackValue(50.0, "UsersDB", "SELECT");
             metric.TrackValue(80.0, "OrdersDB", "INSERT");
             
             this.telemetryClient.Flush();
-            Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "DatabaseQuery");
-            Assert.IsNotNull(collectedMetric, "DatabaseQuery metric should be collected");
+            Assert.NotNull(collectedMetric);
             
             // Verify both dimensions are present
             foreach (var point in collectedMetric.GetMetricPoints())
@@ -548,56 +545,56 @@ namespace Microsoft.ApplicationInsights
                     if (tag.Key == "Database") hasDatabase = true;
                     if (tag.Key == "Operation") hasOperation = true;
                 }
-                Assert.IsTrue(hasDatabase && hasOperation, "Should have both dimension tags");
+                Assert.True(hasDatabase && hasOperation, "Should have both dimension tags");
                 break;
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void GetMetricWithThreeDimensions()
         {
             var metric = this.telemetryClient.GetMetric("ApiLatency", "Endpoint", "Method", "Region");
-            Assert.IsNotNull(metric);
+            Assert.NotNull(metric);
             
             metric.TrackValue(200.0, "/api/users", "GET", "WestUS");
             
             this.telemetryClient.Flush();
-            Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "ApiLatency");
-            Assert.IsNotNull(collectedMetric, "ApiLatency metric should be collected");
+            Assert.NotNull(collectedMetric);
             
             // Verify all three dimensions
             foreach (var point in collectedMetric.GetMetricPoints())
             {
-                Assert.AreEqual(1, (int)point.GetHistogramCount(), "Should have 1 value");
+                Assert.Equal(1, (int)point.GetHistogramCount());
                 var sum = point.GetHistogramSum();
-                Assert.AreEqual(200.0, sum, 0.01, "Sum should equal the tracked value");
+                Assert.Equal(200.0, sum, 2);
                 break;
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void GetMetricWithFourDimensions()
         {
             var metric = this.telemetryClient.GetMetric("CacheHit", "CacheType", "Region", "Tenant", "Environment");
-            Assert.IsNotNull(metric);
+            Assert.NotNull(metric);
             
             metric.TrackValue(1.0, "Redis", "WestUS", "TenantA", "Prod");
             
             this.telemetryClient.Flush();
-            Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "CacheHit");
-            Assert.IsNotNull(collectedMetric, "CacheHit metric should be collected");
+            Assert.NotNull(collectedMetric);
             
             foreach (var point in collectedMetric.GetMetricPoints())
             {
-                Assert.AreEqual(1, (int)point.GetHistogramCount(), "Should have 1 value");
-                Assert.AreEqual(1.0, point.GetHistogramSum(), 0.01, "Sum should be 1.0");
+                Assert.Equal(1, (int)point.GetHistogramCount());
+                Assert.Equal(1.0, point.GetHistogramSum(), 2);
                 break;
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void GetMetricWithMetricIdentifier()
         {
             var metricId = new Microsoft.ApplicationInsights.Metrics.MetricIdentifier(
@@ -608,24 +605,24 @@ namespace Microsoft.ApplicationInsights
                 "Dim3");
             
             var metric = this.telemetryClient.GetMetric(metricId);
-            Assert.IsNotNull(metric);
+            Assert.NotNull(metric);
             
             metric.TrackValue(75.0, "Value1", "Value2", "Value3");
             
             this.telemetryClient.Flush();
-            Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "MyNamespace-ComplexMetric" || m.Name == "ComplexMetric");
-            Assert.IsNotNull(collectedMetric, "ComplexMetric should be collected");
+            Assert.NotNull(collectedMetric);
             
             foreach (var point in collectedMetric.GetMetricPoints())
             {
-                Assert.AreEqual(1, (int)point.GetHistogramCount(), "Should have 1 value");
-                Assert.AreEqual(75.0, point.GetHistogramSum(), 0.01, "Sum should be 75.0");
+                Assert.Equal(1, (int)point.GetHistogramCount());
+                Assert.Equal(75.0, point.GetHistogramSum(), 2);
                 break;
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackValueWithFiveDimensions()
         {
             var metricId = new Microsoft.ApplicationInsights.Metrics.MetricIdentifier(
@@ -634,7 +631,7 @@ namespace Microsoft.ApplicationInsights
                 "Dim1", "Dim2", "Dim3", "Dim4", "Dim5");
             
             var metric = this.telemetryClient.GetMetric(metricId);
-            Assert.IsNotNull(metric);
+            Assert.NotNull(metric);
             
             // Test double overload
             metric.TrackValue(100.0, "V1", "V2", "V3", "V4", "V5");
@@ -643,23 +640,23 @@ namespace Microsoft.ApplicationInsights
             metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5");
             
             this.telemetryClient.Flush();
-            Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
             
             // Verify we recorded 2 values with sum = 300
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name.Contains("FiveDimensionMetric"));
-            Assert.IsNotNull(collectedMetric, "FiveDimensionMetric should be collected");
+            Assert.NotNull(collectedMetric);
             
             foreach (var point in collectedMetric.GetMetricPoints())
             {
                 var count = point.GetHistogramCount();
-                Assert.IsTrue(count >= 2, "Should have at least 2 values");
+                Assert.True(count >= 2, "Should have at least 2 values");
                 var sum = point.GetHistogramSum();
-                Assert.IsTrue(sum >= 300.0, "Sum should be at least 300 (100 + 200)");
+                Assert.True(sum >= 300.0, "Sum should be at least 300 (100 + 200)");
                 break;
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackValueWithSixDimensions()
         {
             var metricId = new Microsoft.ApplicationInsights.Metrics.MetricIdentifier(
@@ -668,19 +665,19 @@ namespace Microsoft.ApplicationInsights
                 "Dim1", "Dim2", "Dim3", "Dim4", "Dim5", "Dim6");
             
             var metric = this.telemetryClient.GetMetric(metricId);
-            Assert.IsNotNull(metric);
+            Assert.NotNull(metric);
             
             metric.TrackValue(100.0, "V1", "V2", "V3", "V4", "V5", "V6");
             metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5", "V6");
             
             this.telemetryClient.Flush();
             
-            Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name.Contains("SixDimensionMetric"));
-            Assert.IsNotNull(collectedMetric, "Metric should be collected");
+            Assert.NotNull(collectedMetric);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackValueWithSevenDimensions()
         {
             var metricId = new Microsoft.ApplicationInsights.Metrics.MetricIdentifier(
@@ -689,19 +686,19 @@ namespace Microsoft.ApplicationInsights
                 "Dim1", "Dim2", "Dim3", "Dim4", "Dim5", "Dim6", "Dim7");
             
             var metric = this.telemetryClient.GetMetric(metricId);
-            Assert.IsNotNull(metric);
+            Assert.NotNull(metric);
             
             metric.TrackValue(100.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7");
             metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7");
             
             this.telemetryClient.Flush();
             
-            Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name.Contains("SevenDimensionMetric"));
-            Assert.IsNotNull(collectedMetric, "Metric should be collected");
+            Assert.NotNull(collectedMetric);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackValueWithEightDimensions()
         {
             var metricId = new Microsoft.ApplicationInsights.Metrics.MetricIdentifier(
@@ -710,19 +707,19 @@ namespace Microsoft.ApplicationInsights
                 "Dim1", "Dim2", "Dim3", "Dim4", "Dim5", "Dim6", "Dim7", "Dim8");
             
             var metric = this.telemetryClient.GetMetric(metricId);
-            Assert.IsNotNull(metric);
+            Assert.NotNull(metric);
             
             metric.TrackValue(100.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8");
             metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8");
             
             this.telemetryClient.Flush();
             
-            Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name.Contains("EightDimensionMetric"));
-            Assert.IsNotNull(collectedMetric, "Metric should be collected");
+            Assert.NotNull(collectedMetric);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackValueWithNineDimensions()
         {
             var metricId = new Microsoft.ApplicationInsights.Metrics.MetricIdentifier(
@@ -731,19 +728,19 @@ namespace Microsoft.ApplicationInsights
                 "Dim1", "Dim2", "Dim3", "Dim4", "Dim5", "Dim6", "Dim7", "Dim8", "Dim9");
             
             var metric = this.telemetryClient.GetMetric(metricId);
-            Assert.IsNotNull(metric);
+            Assert.NotNull(metric);
             
             metric.TrackValue(100.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9");
             metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9");
             
             this.telemetryClient.Flush();
             
-            Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name.Contains("NineDimensionMetric"));
-            Assert.IsNotNull(collectedMetric, "Metric should be collected");
+            Assert.NotNull(collectedMetric);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackValueWithTenDimensions()
         {
             var metricId = new Microsoft.ApplicationInsights.Metrics.MetricIdentifier(
@@ -752,16 +749,16 @@ namespace Microsoft.ApplicationInsights
                 "Dim1", "Dim2", "Dim3", "Dim4", "Dim5", "Dim6", "Dim7", "Dim8", "Dim9", "Dim10");
             
             var metric = this.telemetryClient.GetMetric(metricId);
-            Assert.IsNotNull(metric);
+            Assert.NotNull(metric);
             
             metric.TrackValue(100.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10");
             metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10");
             
             this.telemetryClient.Flush();
             
-            Assert.IsTrue(this.metricItems.Count > 0, "At least one metric should be collected");
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
             var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name.Contains("TenDimensionMetric"));
-            Assert.IsNotNull(collectedMetric, "Metric should be collected");
+            Assert.NotNull(collectedMetric);
         }
 
         #endregion
@@ -771,7 +768,7 @@ namespace Microsoft.ApplicationInsights
 
         #region TrackException
 
-        [TestMethod]
+        [Fact]
         public void TrackExceptionSendsExceptionTelemetryWithSpecifiedNameToProvideSimplestWayOfSendingExceptionTelemetry()
         {
             Exception ex = new Exception("Test exception message");
@@ -779,27 +776,27 @@ namespace Microsoft.ApplicationInsights
 
             this.telemetryClient.Flush();
 
-            Assert.AreEqual(1, this.logItems.Count);
+            Assert.Equal(1, this.logItems.Count);
             var logRecord = this.logItems[0];
-            Assert.IsNotNull(logRecord.Exception);
-            Assert.AreSame(ex, logRecord.Exception);
-            Assert.AreEqual(LogLevel.Error, logRecord.LogLevel);
+            Assert.NotNull(logRecord.Exception);
+            Assert.Same(ex, logRecord.Exception);
+            Assert.Equal(LogLevel.Error, logRecord.LogLevel);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackExceptionWillUseRequiredFieldAsTextForTheExceptionNameWhenTheExceptionNameIsEmptyToHideUserErrors()
         {
             this.telemetryClient.TrackException((Exception)null);
 
             this.telemetryClient.Flush();
 
-            Assert.AreEqual(1, this.logItems.Count);
+            Assert.Equal(1, this.logItems.Count);
             var logRecord = this.logItems[0];
-            Assert.IsNotNull(logRecord.Exception);
-            Assert.AreEqual("n/a", logRecord.Exception.Message);
+            Assert.NotNull(logRecord.Exception);
+            Assert.Equal("n/a", logRecord.Exception.Message);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackExceptionSendsExceptionTelemetryWithSpecifiedObjectTelemetry()
         {
             Exception ex = new Exception("Test telemetry exception");
@@ -807,36 +804,36 @@ namespace Microsoft.ApplicationInsights
 
             this.telemetryClient.Flush();
 
-            Assert.AreEqual(1, this.logItems.Count);
+            Assert.Equal(1, this.logItems.Count);
             var logRecord = this.logItems[0];
-            Assert.IsNotNull(logRecord.Exception);
-            Assert.AreEqual("Test telemetry exception", logRecord.Exception.Message);
+            Assert.NotNull(logRecord.Exception);
+            Assert.Equal("Test telemetry exception", logRecord.Exception.Message);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackExceptionWillUseABlankObjectAsTheExceptionToHideUserErrors()
         {
             this.telemetryClient.TrackException((ExceptionTelemetry)null);
 
             this.telemetryClient.Flush();
 
-            Assert.AreEqual(1, this.logItems.Count);
+            Assert.Equal(1, this.logItems.Count);
             var logRecord = this.logItems[0];
-            Assert.IsNotNull(logRecord.Exception);
+            Assert.NotNull(logRecord.Exception);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackExceptionUsesErrorLogLevelByDefault()
         {
             this.telemetryClient.TrackException(new Exception());
 
             this.telemetryClient.Flush();
 
-            Assert.AreEqual(1, this.logItems.Count);
-            Assert.AreEqual(LogLevel.Error, this.logItems[0].LogLevel);
+            Assert.Equal(1, this.logItems.Count);
+            Assert.Equal(LogLevel.Error, this.logItems[0].LogLevel);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackExceptionWithExceptionTelemetryRespectsSeverityLevel()
         {
             var telemetry = new ExceptionTelemetry(new Exception("Critical error"))
@@ -847,11 +844,11 @@ namespace Microsoft.ApplicationInsights
 
             this.telemetryClient.Flush();
 
-            Assert.AreEqual(1, this.logItems.Count);
-            Assert.AreEqual(LogLevel.Critical, this.logItems[0].LogLevel);
+            Assert.Equal(1, this.logItems.Count);
+            Assert.Equal(LogLevel.Critical, this.logItems[0].LogLevel);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackExceptionWithPropertiesIncludesPropertiesInLogRecord()
         {
             var properties = new Dictionary<string, string>
@@ -864,7 +861,7 @@ namespace Microsoft.ApplicationInsights
 
             this.telemetryClient.Flush();
 
-            Assert.AreEqual(1, this.logItems.Count);
+            Assert.Equal(1, this.logItems.Count);
             var logRecord = this.logItems[0];
             
             // Properties should be in the log record attributes
@@ -881,11 +878,11 @@ namespace Microsoft.ApplicationInsights
                 }
             }
 
-            Assert.IsTrue(hasKey1, "Property key1 should be in log record");
-            Assert.IsTrue(hasKey2, "Property key2 should be in log record");
+            Assert.True(hasKey1);
+            Assert.True(hasKey2, "Property key2 should be in log record");
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackExceptionWithExceptionTelemetryIncludesProperties()
         {
             var telemetry = new ExceptionTelemetry(new Exception("Test exception"));
@@ -895,7 +892,7 @@ namespace Microsoft.ApplicationInsights
 
             this.telemetryClient.Flush();
 
-            Assert.AreEqual(1, this.logItems.Count);
+            Assert.Equal(1, this.logItems.Count);
             var logRecord = this.logItems[0];
             
             var hasCustomKey = false;
@@ -911,10 +908,10 @@ namespace Microsoft.ApplicationInsights
                 }
             }
 
-            Assert.IsTrue(hasCustomKey, "Custom property should be in log record");
+            Assert.True(hasCustomKey);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackExceptionWithInnerExceptionPreservesInnerException()
         {
             var innerException = new InvalidOperationException("Inner exception message");
@@ -924,21 +921,21 @@ namespace Microsoft.ApplicationInsights
 
             this.telemetryClient.Flush();
 
-            Assert.AreEqual(1, this.logItems.Count);
+            Assert.Equal(1, this.logItems.Count);
             var logRecord = this.logItems[0];
-            Assert.IsNotNull(logRecord.Exception);
-            Assert.AreEqual("Outer exception message", logRecord.Exception.Message);
+            Assert.NotNull(logRecord.Exception);
+            Assert.Equal("Outer exception message", logRecord.Exception.Message);
             
             // The exception should have inner exception
-            Assert.IsNotNull(logRecord.Exception.InnerException);
-            Assert.AreEqual("Inner exception message", logRecord.Exception.InnerException.Message);
+            Assert.NotNull(logRecord.Exception.InnerException);
+            Assert.Equal("Inner exception message", logRecord.Exception.InnerException.Message);
         }
 
         #endregion
 
         #region TrackRequest
 
-        [TestMethod]
+        [Fact]
         public void TrackRequestCreatesActivityWithCorrectName()
         {
             var request = new RequestTelemetry("GET /api/users", DateTimeOffset.UtcNow, TimeSpan.FromMilliseconds(100), "200", true);
@@ -947,12 +944,12 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Flush();
 
             // Verify activity was created
-            Assert.AreEqual(1, this.activityItems.Count, "One activity should be created");
-            Assert.AreEqual("GET /api/users", this.activityItems[0].DisplayName);
-            Assert.AreEqual(ActivityKind.Server, this.activityItems[0].Kind);
+            Assert.Equal(1, this.activityItems.Count);
+            Assert.Equal("GET /api/users", this.activityItems[0].DisplayName);
+            Assert.Equal(ActivityKind.Server, this.activityItems[0].Kind);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackRequestWithServiceBusUrlSetsMessagingAttributes()
         {
             var request = new RequestTelemetry
@@ -968,21 +965,21 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.TrackRequest(request);
             this.telemetryClient.Flush();
 
-            Assert.AreEqual(1, this.activityItems.Count);
+            Assert.Equal(1, this.activityItems.Count);
             var activity = this.activityItems[0];
             
             // Verify Consumer ActivityKind for messaging
-            Assert.AreEqual(ActivityKind.Consumer, activity.Kind);
-            Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
+            Assert.Equal(ActivityKind.Consumer, activity.Kind);
+            Assert.Equal(ActivityStatusCode.Ok, activity.Status);
             
             // Verify override attributes preserve original AI values
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.name" && t.Value == "ServiceBus Message"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.url" && t.Value == "sb://myservicebus.servicebus.windows.net/mytopic"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.source" && t.Value == "mytopic"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.resultCode" && t.Value == "0"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.name" && t.Value == "ServiceBus Message"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.url" && t.Value == "sb://myservicebus.servicebus.windows.net/mytopic"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.source" && t.Value == "mytopic"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.resultCode" && t.Value == "0"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackRequestSetsOverrideAttributes()
         {
             var request = new RequestTelemetry
@@ -999,19 +996,19 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.TrackRequest(request);
             this.telemetryClient.Flush();
 
-            Assert.AreEqual(1, this.activityItems.Count);
+            Assert.Equal(1, this.activityItems.Count);
             var activity = this.activityItems[0];
             
             // Verify override attributes
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.name" && t.Value == "Custom Request"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.url" && t.Value == "https://api.example.com/v1/resource"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.source" && t.Value == "mobile-app"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.resultCode" && t.Value == "201"));
-            Assert.AreEqual(ActivityKind.Server, activity.Kind);
-            Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.name" && t.Value == "Custom Request"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.url" && t.Value == "https://api.example.com/v1/resource"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.source" && t.Value == "mobile-app"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.resultCode" && t.Value == "201"));
+            Assert.Equal(ActivityKind.Server, activity.Kind);
+            Assert.Equal(ActivityStatusCode.Ok, activity.Status);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackRequestWithPropertiesIncludesCustomProperties()
         {
             this.activityItems.Clear();
@@ -1023,21 +1020,21 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.TrackRequest(request);
             this.telemetryClient.Flush();
 
-            Assert.AreEqual(1, activityItems.Count);
+            Assert.Equal(1, activityItems.Count);
             var activity = activityItems[0];
             
             // Verify custom properties are included
-            Assert.AreEqual("userId", activity.Tags.FirstOrDefault(t => t.Key == "userId").Key);
-            Assert.AreEqual("12345", activity.Tags.FirstOrDefault(t => t.Key == "userId").Value);
-            Assert.AreEqual("region", activity.Tags.FirstOrDefault(t => t.Key == "region").Key);
-            Assert.AreEqual("us-west", activity.Tags.FirstOrDefault(t => t.Key == "region").Value);
+            Assert.Equal("userId", activity.Tags.FirstOrDefault(t => t.Key == "userId").Key);
+            Assert.Equal("12345", activity.Tags.FirstOrDefault(t => t.Key == "userId").Value);
+            Assert.Equal("region", activity.Tags.FirstOrDefault(t => t.Key == "region").Key);
+            Assert.Equal("us-west", activity.Tags.FirstOrDefault(t => t.Key == "region").Value);
             
             // Verify standard attributes
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.name" && t.Value == "Test Request"));
-            Assert.AreEqual(ActivityKind.Server, activity.Kind);
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.name" && t.Value == "Test Request"));
+            Assert.Equal(ActivityKind.Server, activity.Kind);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackRequestWithFailedResponseCodeMarksAsError()
         {
             var request = new RequestTelemetry
@@ -1052,20 +1049,20 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.TrackRequest(request);
             this.telemetryClient.Flush();
 
-            Assert.AreEqual(1, this.activityItems.Count);
+            Assert.Equal(1, this.activityItems.Count);
             var activity = this.activityItems[0];
             
             // Verify error status
-            Assert.AreEqual(ActivityStatusCode.Error, activity.Status);
-            Assert.AreEqual(ActivityKind.Server, activity.Kind);
+            Assert.Equal(ActivityStatusCode.Error, activity.Status);
+            Assert.Equal(ActivityKind.Server, activity.Kind);
             
             // Verify override attributes
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.name" && t.Value == "GET /api/error"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.url" && t.Value == "https://example.com/api/error"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.resultCode" && t.Value == "500"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.name" && t.Value == "GET /api/error"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.url" && t.Value == "https://example.com/api/error"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.resultCode" && t.Value == "500"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackRequestWithQueueSourceSetsMessagingSystem()
         {
             var request = new RequestTelemetry
@@ -1080,34 +1077,34 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.TrackRequest(request);
             this.telemetryClient.Flush();
 
-            Assert.AreEqual(1, this.activityItems.Count);
+            Assert.Equal(1, this.activityItems.Count);
             var activity = this.activityItems[0];
             
             // Verify Consumer ActivityKind for queue messaging
-            Assert.AreEqual(ActivityKind.Consumer, activity.Kind);
-            Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
+            Assert.Equal(ActivityKind.Consumer, activity.Kind);
+            Assert.Equal(ActivityStatusCode.Ok, activity.Status);
             
             // Verify override attributes
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.name" && t.Value == "Queue Message Handler"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.source" && t.Value == "orders-queue"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.request.resultCode" && t.Value == "0"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.name" && t.Value == "Queue Message Handler"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.source" && t.Value == "orders-queue"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.resultCode" && t.Value == "0"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackRequestHandlesNullRequestTelemetryGracefully()
         {
             this.telemetryClient.TrackRequest((RequestTelemetry)null);
             this.telemetryClient.Flush();
 
             // Should not throw exception and should not create any activity
-            Assert.AreEqual(0, this.activityItems.Count);
+            Assert.Equal(0, this.activityItems.Count);
         }
 
         #endregion
 
         #region TrackDependency
 
-        [TestMethod]
+        [Fact]
         public void TrackDependencyWithServiceBusTypeSetsBrokerAttributes()
         {
             var dependency = new DependencyTelemetry
@@ -1124,22 +1121,22 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.TrackDependency(dependency);
             this.telemetryClient.Flush();
 
-            Assert.AreEqual(1, this.activityItems.Count);
+            Assert.Equal(1, this.activityItems.Count);
             var activity = this.activityItems[0];
             
             // Verify Producer ActivityKind
-            Assert.AreEqual(ActivityKind.Producer, activity.Kind);
-            Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
+            Assert.Equal(ActivityKind.Producer, activity.Kind);
+            Assert.Equal(ActivityStatusCode.Ok, activity.Status);
             
             // Verify override attributes
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "Azure Service Bus"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "myservicebus.servicebus.windows.net/mytopic"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.name" && t.Value == "Publish event"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "sb://myservicebus.servicebus.windows.net/mytopic"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "0"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "Azure Service Bus"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "myservicebus.servicebus.windows.net/mytopic"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.name" && t.Value == "Publish event"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "sb://myservicebus.servicebus.windows.net/mytopic"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "0"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackDependencyWithAzureSDKTypeSetsAzureNamespace()
         {
             var dependency = new DependencyTelemetry
@@ -1156,22 +1153,22 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.TrackDependency(dependency);
             this.telemetryClient.Flush();
 
-            Assert.AreEqual(1, this.activityItems.Count);
+            Assert.Equal(1, this.activityItems.Count);
             var activity = this.activityItems[0];
             
             // Verify Internal ActivityKind for InProc
-            Assert.AreEqual(ActivityKind.Internal, activity.Kind);
-            Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
+            Assert.Equal(ActivityKind.Internal, activity.Kind);
+            Assert.Equal(ActivityStatusCode.Ok, activity.Status);
             
             // Verify override attributes preserve Azure namespace in type
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "InProc | Microsoft.Storage"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "mystorageaccount.blob.core.windows.net"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.name" && t.Value == "Upload blob"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "PUT /container/blob.txt"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "201"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "InProc | Microsoft.Storage"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "mystorageaccount.blob.core.windows.net"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.name" && t.Value == "Upload blob"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "PUT /container/blob.txt"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "201"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackDependencySetsOverrideAttributes()
         {
             var dependency = new DependencyTelemetry
@@ -1188,22 +1185,22 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.TrackDependency(dependency);
             this.telemetryClient.Flush();
 
-            Assert.AreEqual(1, this.activityItems.Count);
+            Assert.Equal(1, this.activityItems.Count);
             var activity = this.activityItems[0];
             
             // Verify ActivityKind and Status
-            Assert.AreEqual(ActivityKind.Client, activity.Kind);
-            Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
+            Assert.Equal(ActivityKind.Client, activity.Kind);
+            Assert.Equal(ActivityStatusCode.Ok, activity.Status);
             
             // Verify override attributes
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "Http"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "api.example.com"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.name" && t.Value == "POST /orders"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "https://api.example.com/orders"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "201"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "Http"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "api.example.com"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.name" && t.Value == "POST /orders"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "https://api.example.com/orders"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "201"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackDependencyWithPropertiesIncludesCustomProperties()
         {
             this.activityItems.Clear();
@@ -1215,22 +1212,22 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.TrackDependency(dependency);
             this.telemetryClient.Flush();
 
-            Assert.AreEqual(1, activityItems.Count);
+            Assert.Equal(1, activityItems.Count);
             var activity = activityItems[0];
             
             // Verify custom properties are included
-            Assert.AreEqual("operation", activity.Tags.FirstOrDefault(t => t.Key == "operation").Key);
-            Assert.AreEqual("query", activity.Tags.FirstOrDefault(t => t.Key == "operation").Value);
-            Assert.AreEqual("cacheHit", activity.Tags.FirstOrDefault(t => t.Key == "cacheHit").Key);
-            Assert.AreEqual("false", activity.Tags.FirstOrDefault(t => t.Key == "cacheHit").Value);
+            Assert.Equal("operation", activity.Tags.FirstOrDefault(t => t.Key == "operation").Key);
+            Assert.Equal("query", activity.Tags.FirstOrDefault(t => t.Key == "operation").Value);
+            Assert.Equal("cacheHit", activity.Tags.FirstOrDefault(t => t.Key == "cacheHit").Key);
+            Assert.Equal("false", activity.Tags.FirstOrDefault(t => t.Key == "cacheHit").Value);
             
             // Verify standard attributes
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "redis"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "cache.example.com"));
-            Assert.AreEqual(ActivityKind.Client, activity.Kind);
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "redis"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "cache.example.com"));
+            Assert.Equal(ActivityKind.Client, activity.Kind);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackDependencyWithFailedCallMarksAsError()
         {
             var dependency = new DependencyTelemetry
@@ -1247,30 +1244,30 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.TrackDependency(dependency);
             this.telemetryClient.Flush();
 
-            Assert.AreEqual(1, this.activityItems.Count);
+            Assert.Equal(1, this.activityItems.Count);
             var activity = this.activityItems[0];
             
             // Verify error status
-            Assert.AreEqual(ActivityStatusCode.Error, activity.Status);
-            Assert.AreEqual(ActivityKind.Client, activity.Kind);
+            Assert.Equal(ActivityStatusCode.Error, activity.Status);
+            Assert.Equal(ActivityKind.Client, activity.Kind);
             
             // Verify override attributes
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "Http"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "https://api.example.com/error"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "500"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "Http"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "https://api.example.com/error"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "500"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackDependencyHandlesNullDependencyTelemetryGracefully()
         {
             this.telemetryClient.TrackDependency((DependencyTelemetry)null);
             this.telemetryClient.Flush();
 
             // Should not throw exception and should not create any activity
-            Assert.AreEqual(0, this.activityItems.Count);
+            Assert.Equal(0, this.activityItems.Count);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackDependencyWithCaseInsensitiveHttpType()
         {
             var dependency = new DependencyTelemetry
@@ -1287,21 +1284,21 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.TrackDependency(dependency);
             this.telemetryClient.Flush();
 
-            Assert.AreEqual(1, this.activityItems.Count);
+            Assert.Equal(1, this.activityItems.Count);
             var activity = this.activityItems[0];
             
             // Verify ActivityKind detection works regardless of case
-            Assert.AreEqual(ActivityKind.Client, activity.Kind);
-            Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
+            Assert.Equal(ActivityKind.Client, activity.Kind);
+            Assert.Equal(ActivityStatusCode.Ok, activity.Status);
             
             // Verify override attributes preserve original case
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "HTTP"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "https://api.example.com/data"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "api.example.com"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "200"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "HTTP"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "https://api.example.com/data"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "api.example.com"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "200"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackDependencyWithCaseInsensitiveSqlType()
         {
             var dependency = new DependencyTelemetry
@@ -1318,25 +1315,25 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.TrackDependency(dependency);
             this.telemetryClient.Flush();
 
-            Assert.AreEqual(1, this.activityItems.Count);
+            Assert.Equal(1, this.activityItems.Count);
             var activity = this.activityItems[0];
             
             // Verify ActivityKind detection works regardless of case
-            Assert.AreEqual(ActivityKind.Client, activity.Kind);
-            Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
+            Assert.Equal(ActivityKind.Client, activity.Kind);
+            Assert.Equal(ActivityStatusCode.Ok, activity.Status);
             
             // Verify override attributes preserve original case
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "sql"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "SELECT COUNT(*) FROM Orders"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "localhost | testdb"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "0"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "sql"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "SELECT COUNT(*) FROM Orders"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "localhost | testdb"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "0"));
         }
 
         #endregion
 
         #region GlobalProperties
 
-        [TestMethod]
+        [Fact]
         public void TrackEvent_IncludesGlobalProperties()
         {
             // Arrange
@@ -1348,20 +1345,20 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Flush();
 
             // Assert
-            Assert.IsTrue(this.logItems.Count > 0);
+            Assert.True(this.logItems.Count > 0);
             var logRecord = this.logItems.FirstOrDefault(l => 
                 l.Attributes != null && l.Attributes.Any(a => 
                     a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "TestEvent"));
-            Assert.IsNotNull(logRecord);
+            Assert.NotNull(logRecord);
             
             var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
-            Assert.IsTrue(attributes.ContainsKey("Environment"));
-            Assert.AreEqual("Test", attributes["Environment"]);
-            Assert.IsTrue(attributes.ContainsKey("Version"));
-            Assert.AreEqual("1.0", attributes["Version"]);
+            Assert.True(attributes.ContainsKey("Environment"));
+            Assert.Equal("Test", attributes["Environment"]);
+            Assert.True(attributes.ContainsKey("Version"));
+            Assert.Equal("1.0", attributes["Version"]);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackEvent_ItemPropertiesOverrideGlobalProperties()
         {
             // Arrange
@@ -1380,15 +1377,15 @@ namespace Microsoft.ApplicationInsights
             var logRecord = this.logItems.FirstOrDefault(l => 
                 l.Attributes != null && l.Attributes.Any(a => 
                     a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "TestEvent"));
-            Assert.IsNotNull(logRecord);
+            Assert.NotNull(logRecord);
             
             var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
-            Assert.AreEqual("Production", attributes["Environment"], "Item property should override global");
-            Assert.AreEqual("1.0", attributes["Version"], "Non-overridden global should remain");
-            Assert.AreEqual("CustomValue", attributes["CustomProp"]);
+            Assert.Equal("Production", attributes["Environment"]);
+            Assert.Equal("1.0", attributes["Version"]);
+            Assert.Equal("CustomValue", attributes["CustomProp"]);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackTrace_IncludesGlobalProperties()
         {
             // Arrange
@@ -1400,17 +1397,17 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Flush();
 
             // Assert
-            Assert.IsTrue(this.logItems.Count > 0);
+            Assert.True(this.logItems.Count > 0);
             var logRecord = this.logItems.Last();
             var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
             
-            Assert.IsTrue(attributes.ContainsKey("Component"));
-            Assert.AreEqual("Auth", attributes["Component"]);
-            Assert.IsTrue(attributes.ContainsKey("DataCenter"));
-            Assert.AreEqual("WestUS", attributes["DataCenter"]);
+            Assert.True(attributes.ContainsKey("Component"));
+            Assert.Equal("Auth", attributes["Component"]);
+            Assert.True(attributes.ContainsKey("DataCenter"));
+            Assert.Equal("WestUS", attributes["DataCenter"]);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackTrace_WithSeverity_IncludesGlobalProperties()
         {
             // Arrange
@@ -1422,12 +1419,12 @@ namespace Microsoft.ApplicationInsights
 
             // Assert
             var logRecord = this.logItems.FirstOrDefault(l => l.LogLevel == LogLevel.Warning);
-            Assert.IsNotNull(logRecord);
+            Assert.NotNull(logRecord);
             var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
-            Assert.AreEqual("req-123", attributes["RequestId"]);
+            Assert.Equal("req-123", attributes["RequestId"]);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackException_IncludesGlobalProperties()
         {
             // Arrange
@@ -1441,13 +1438,13 @@ namespace Microsoft.ApplicationInsights
 
             // Assert
             var logRecord = this.logItems.FirstOrDefault(l => l.LogLevel == LogLevel.Error);
-            Assert.IsNotNull(logRecord);
+            Assert.NotNull(logRecord);
             var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
-            Assert.AreEqual("user-456", attributes["UserId"]);
-            Assert.AreEqual("session-789", attributes["SessionId"]);
+            Assert.Equal("user-456", attributes["UserId"]);
+            Assert.Equal("session-789", attributes["SessionId"]);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackException_WithProperties_MergesWithGlobalProperties()
         {
             // Arrange
@@ -1464,13 +1461,13 @@ namespace Microsoft.ApplicationInsights
 
             // Assert
             var logRecord = this.logItems.FirstOrDefault(l => l.LogLevel == LogLevel.Error);
-            Assert.IsNotNull(logRecord);
+            Assert.NotNull(logRecord);
             var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
-            Assert.AreEqual("2.1", attributes["AppVersion"], "Item property should override");
-            Assert.AreEqual("Payment", attributes["Operation"]);
+            Assert.Equal("2.1", attributes["AppVersion"]);
+            Assert.Equal("Payment", attributes["Operation"]);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackDependency_IncludesGlobalPropertiesAsTags()
         {
             // Arrange
@@ -1491,13 +1488,13 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Flush();
 
             // Assert
-            Assert.AreEqual(1, this.activityItems.Count);
+            Assert.Equal(1, this.activityItems.Count);
             var activity = this.activityItems[0];
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "TenantId" && t.Value == "tenant-123"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "Region" && t.Value == "US-West"));
+            Assert.True(activity.Tags.Any(t => t.Key == "TenantId" && t.Value == "tenant-123"));
+            Assert.True(activity.Tags.Any(t => t.Key == "Region" && t.Value == "US-West"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackDependency_ItemPropertiesOverrideGlobalProperties()
         {
             // Arrange
@@ -1521,14 +1518,14 @@ namespace Microsoft.ApplicationInsights
 
             // Assert
             var activity = this.activityItems[0];
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "Environment" && t.Value == "Staging"), 
+            Assert.True(activity.Tags.Any(t => t.Key == "Environment" && t.Value == "Staging"), 
                 "Item property should override global");
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "BuildId" && t.Value == "100"),
+            Assert.True(activity.Tags.Any(t => t.Key == "BuildId" && t.Value == "100"),
                 "Non-overridden global should remain");
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "QueryType" && t.Value == "Select"));
+            Assert.True(activity.Tags.Any(t => t.Key == "QueryType" && t.Value == "Select"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackRequest_IncludesGlobalPropertiesAsTags()
         {
             // Arrange
@@ -1547,13 +1544,13 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Flush();
 
             // Assert
-            Assert.AreEqual(1, this.activityItems.Count);
+            Assert.Equal(1, this.activityItems.Count);
             var activity = this.activityItems[0];
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "ServiceName" && t.Value == "WebAPI"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "InstanceId" && t.Value == "instance-1"));
+            Assert.True(activity.Tags.Any(t => t.Key == "ServiceName" && t.Value == "WebAPI"));
+            Assert.True(activity.Tags.Any(t => t.Key == "InstanceId" && t.Value == "instance-1"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackRequest_ItemPropertiesOverrideGlobalProperties()
         {
             // Arrange
@@ -1576,14 +1573,14 @@ namespace Microsoft.ApplicationInsights
 
             // Assert
             var activity = this.activityItems[0];
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "Controller" && t.Value == "OrderController"),
+            Assert.True(activity.Tags.Any(t => t.Key == "Controller" && t.Value == "OrderController"),
                 "Item property should override global");
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "Version" && t.Value == "1.0"),
+            Assert.True(activity.Tags.Any(t => t.Key == "Version" && t.Value == "1.0"),
                 "Non-overridden global should remain");
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "Action" && t.Value == "Create"));
+            Assert.True(activity.Tags.Any(t => t.Key == "Action" && t.Value == "Create"));
         }
 
-        [TestMethod]
+        [Fact]
         public void GlobalProperties_EmptyDictionary_DoesNotCauseErrors()
         {
             // Arrange - Don't add any global properties
@@ -1595,10 +1592,10 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Flush();
 
             // Verify telemetry was recorded
-            Assert.IsTrue(this.logItems.Count >= 3);
+            Assert.True(this.logItems.Count >= 3);
         }
 
-        [TestMethod]
+        [Fact]
         public void TelemetryContextGlobalProperties_OverrideClientGlobalProperties()
         {
             // Arrange
@@ -1616,17 +1613,17 @@ namespace Microsoft.ApplicationInsights
             var logRecord = this.logItems.FirstOrDefault(l => 
                 l.Attributes != null && l.Attributes.Any(a => 
                     a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "TestEvent"));
-            Assert.IsNotNull(logRecord);
+            Assert.NotNull(logRecord);
             var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
-            Assert.AreEqual("Telemetry", attributes["Source"], "Telemetry context should override client context");
-            Assert.AreEqual("Value", attributes["Extra"]);
+            Assert.Equal("Telemetry", attributes["Source"]);
+            Assert.Equal("Value", attributes["Extra"]);
         }
 
         #endregion
 
         #region Context Properties (User, Location, Operation)
 
-        [TestMethod]
+        [Fact]
         public void TrackEvent_IncludesUserContextAsEnduserIdAttribute()
         {
             // Arrange
@@ -1641,13 +1638,13 @@ namespace Microsoft.ApplicationInsights
             var logRecord = this.logItems.FirstOrDefault(l => 
                 l.Attributes != null && l.Attributes.Any(a => 
                     a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "UserAction"));
-            Assert.IsNotNull(logRecord);
+            Assert.NotNull(logRecord);
             var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
-            Assert.IsTrue(attributes.ContainsKey("enduser.pseudo.id"));
-            Assert.AreEqual("user-12345", attributes["enduser.pseudo.id"]);
+            Assert.True(attributes.ContainsKey("enduser.pseudo.id"));
+            Assert.Equal("user-12345", attributes["enduser.pseudo.id"]);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackEvent_IncludesLocationContextAsClientIpAttribute()
         {
             // Arrange
@@ -1662,13 +1659,13 @@ namespace Microsoft.ApplicationInsights
             var logRecord = this.logItems.FirstOrDefault(l => 
                 l.Attributes != null && l.Attributes.Any(a => 
                     a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "PageView"));
-            Assert.IsNotNull(logRecord);
+            Assert.NotNull(logRecord);
             var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
-            Assert.IsTrue(attributes.ContainsKey("microsoft.client.ip"));
-            Assert.AreEqual("192.168.1.1", attributes["microsoft.client.ip"]);
+            Assert.True(attributes.ContainsKey("microsoft.client.ip"));
+            Assert.Equal("192.168.1.1", attributes["microsoft.client.ip"]);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackTrace_IncludesUserAndLocationContext()
         {
             // Arrange
@@ -1683,11 +1680,11 @@ namespace Microsoft.ApplicationInsights
             // Assert
             var logRecord = this.logItems.Last();
             var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
-            Assert.AreEqual("user-999", attributes["enduser.pseudo.id"]);
-            Assert.AreEqual("10.0.0.1", attributes["microsoft.client.ip"]);
+            Assert.Equal("user-999", attributes["enduser.pseudo.id"]);
+            Assert.Equal("10.0.0.1", attributes["microsoft.client.ip"]);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackException_IncludesUserAndLocationContext()
         {
             // Arrange
@@ -1701,13 +1698,13 @@ namespace Microsoft.ApplicationInsights
 
             // Assert
             var logRecord = this.logItems.FirstOrDefault(l => l.LogLevel == LogLevel.Error);
-            Assert.IsNotNull(logRecord);
+            Assert.NotNull(logRecord);
             var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
-            Assert.AreEqual("user-abc", attributes["enduser.pseudo.id"]);
-            Assert.AreEqual("172.16.0.1", attributes["microsoft.client.ip"]);
+            Assert.Equal("user-abc", attributes["enduser.pseudo.id"]);
+            Assert.Equal("172.16.0.1", attributes["microsoft.client.ip"]);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackDependency_IncludesUserAndLocationContextAsTags()
         {
             // Arrange
@@ -1726,13 +1723,13 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Flush();
 
             // Assert
-            Assert.AreEqual(1, this.activityItems.Count);
+            Assert.Equal(1, this.activityItems.Count);
             var activity = this.activityItems[0];
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "enduser.pseudo.id" && t.Value == "user-dep-123"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.client.ip" && t.Value == "192.168.100.50"));
+            Assert.True(activity.Tags.Any(t => t.Key == "enduser.pseudo.id" && t.Value == "user-dep-123"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.client.ip" && t.Value == "192.168.100.50"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackRequest_IncludesUserAndLocationContextAsTags()
         {
             // Arrange
@@ -1751,13 +1748,13 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Flush();
 
             // Assert
-            Assert.AreEqual(1, this.activityItems.Count);
+            Assert.Equal(1, this.activityItems.Count);
             var activity = this.activityItems[0];
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "enduser.pseudo.id" && t.Value == "user-req-456"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.client.ip" && t.Value == "203.0.113.1"));
+            Assert.True(activity.Tags.Any(t => t.Key == "enduser.pseudo.id" && t.Value == "user-req-456"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.client.ip" && t.Value == "203.0.113.1"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackRequest_IncludesOperationNameAsOverrideAttribute()
         {
             // Arrange
@@ -1775,12 +1772,12 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Flush();
 
             // Assert
-            Assert.AreEqual(1, this.activityItems.Count);
+            Assert.Equal(1, this.activityItems.Count);
             var activity = this.activityItems[0];
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.operation_name" && t.Value == "GetAllUsers"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.operation_name" && t.Value == "GetAllUsers"));
         }
 
-        [TestMethod]
+        [Fact]
         public void ContextProperties_NullValues_DoNotCauseErrors()
         {
             // Arrange
@@ -1793,10 +1790,10 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Flush();
 
             // Verify telemetry was recorded
-            Assert.IsTrue(this.logItems.Count > 0);
+            Assert.True(this.logItems.Count > 0);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackEvent_UserId_MapsToEnduserPseudoId()
         {
             // Arrange
@@ -1809,13 +1806,13 @@ namespace Microsoft.ApplicationInsights
 
             // Assert
             var logRecord = this.logItems.FirstOrDefault(l => l.Attributes != null && l.Attributes.Any(a => a.Key == "microsoft.custom_event.name"));
-            Assert.IsNotNull(logRecord);
+            Assert.NotNull(logRecord);
             var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
-            Assert.IsTrue(attributes.ContainsKey("enduser.pseudo.id"));
-            Assert.AreEqual("anonymous-user-123", attributes["enduser.pseudo.id"]);
+            Assert.True(attributes.ContainsKey("enduser.pseudo.id"));
+            Assert.Equal("anonymous-user-123", attributes["enduser.pseudo.id"]);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackException_AuthenticatedUserId_MapsToEnduserId()
         {
             // Arrange
@@ -1828,13 +1825,13 @@ namespace Microsoft.ApplicationInsights
 
             // Assert
             var logRecord = this.logItems.FirstOrDefault(l => l.LogLevel == LogLevel.Error);
-            Assert.IsNotNull(logRecord);
+            Assert.NotNull(logRecord);
             var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
-            Assert.IsTrue(attributes.ContainsKey("enduser.id"));
-            Assert.AreEqual("authenticated-user-456", attributes["enduser.id"]);
+            Assert.True(attributes.ContainsKey("enduser.id"));
+            Assert.Equal("authenticated-user-456", attributes["enduser.id"]);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackRequest_UserAgent_MapsToUserAgentOriginal()
         {
             // Arrange
@@ -1852,12 +1849,12 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Flush();
 
             // Assert
-            Assert.AreEqual(1, this.activityItems.Count);
+            Assert.Equal(1, this.activityItems.Count);
             var activity = this.activityItems[0];
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "user_agent.original" && t.Value == "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"));
+            Assert.True(activity.Tags.Any(t => t.Key == "user_agent.original" && t.Value == "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackDependency_UserAgent_DoesNotMapToUserAgentOriginal()
         {
             // Arrange
@@ -1875,12 +1872,12 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Flush();
 
             // Assert - UserAgent should NOT be mapped for non-request telemetry
-            Assert.AreEqual(1, this.activityItems.Count);
+            Assert.Equal(1, this.activityItems.Count);
             var activity = this.activityItems[0];
-            Assert.IsFalse(activity.Tags.Any(t => t.Key == "user_agent.original"));
+            Assert.False(activity.Tags.Any(t => t.Key == "user_agent.original"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackEvent_UserAgent_DoesNotMapToUserAgentOriginal()
         {
             // Arrange
@@ -1893,12 +1890,12 @@ namespace Microsoft.ApplicationInsights
 
             // Assert - UserAgent should NOT be mapped for events
             var logRecord = this.logItems.FirstOrDefault(l => l.Attributes != null && l.Attributes.Any(a => a.Key == "microsoft.custom_event.name"));
-            Assert.IsNotNull(logRecord);
+            Assert.NotNull(logRecord);
             var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
-            Assert.IsFalse(attributes.ContainsKey("user_agent.original"));
+            Assert.False(attributes.ContainsKey("user_agent.original"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackRequest_BothUserIdAndAuthenticatedUserId_MapsToBothAttributes()
         {
             // Arrange
@@ -1917,10 +1914,10 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Flush();
 
             // Assert
-            Assert.AreEqual(1, this.activityItems.Count);
+            Assert.Equal(1, this.activityItems.Count);
             var activity = this.activityItems[0];
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "enduser.pseudo.id" && t.Value == "anonymous-789"));
-            Assert.IsTrue(activity.Tags.Any(t => t.Key == "enduser.id" && t.Value == "auth-user-789"));
+            Assert.True(activity.Tags.Any(t => t.Key == "enduser.pseudo.id" && t.Value == "anonymous-789"));
+            Assert.True(activity.Tags.Any(t => t.Key == "enduser.id" && t.Value == "auth-user-789"));
         }
 
         #endregion
@@ -1938,3 +1935,4 @@ namespace Microsoft.ApplicationInsights
         }
     }
 }
+
