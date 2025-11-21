@@ -22,8 +22,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         {
             var configuration = new TelemetryConfiguration();
             this.logItems = new List<LogRecord>();
-            configuration.InstrumentationKey = Guid.NewGuid().ToString();
-            configuration.ConnectionString = "InstrumentationKey=" + configuration.InstrumentationKey;
+            var instrumentationKey = Guid.NewGuid().ToString();
+            configuration.ConnectionString = "InstrumentationKey=" + instrumentationKey;
             configuration.ConfigureOpenTelemetryBuilder(b => b.WithLogging(l => l.AddInMemoryExporter(logItems)));
             this.telemetryClient = new TelemetryClient(configuration);
         }
@@ -453,7 +453,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
 
             ExceptionTelemetry output = new ExceptionTelemetry(exception) { Timestamp = DateTimeOffset.UtcNow };
             output.Context.GlobalProperties.Add("TestPropertyGlobal", "contextpropvalue");
-            output.Context.InstrumentationKey = "required";
             output.Properties.Add("TestProperty", "TestPropertyValue");
             return output;
         }

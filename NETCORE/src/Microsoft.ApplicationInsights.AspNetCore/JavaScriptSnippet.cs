@@ -127,8 +127,7 @@
             }
             else
             {
-                return !(string.IsNullOrEmpty(this.telemetryConfiguration.ConnectionString)
-                    && string.IsNullOrEmpty(this.telemetryConfiguration.InstrumentationKey));
+                return !string.IsNullOrEmpty(this.telemetryConfiguration.ConnectionString);
             }
         }
     }

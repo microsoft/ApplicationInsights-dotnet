@@ -38,8 +38,8 @@ namespace Microsoft.ApplicationInsights
             this.logItems = new List<LogRecord>();
             this.metricItems = new List<OpenTelemetry.Metrics.Metric>();
             this.activityItems = new List<Activity>();
-            configuration.InstrumentationKey = Guid.NewGuid().ToString();
-            configuration.ConnectionString = "InstrumentationKey=" + configuration.InstrumentationKey;
+            var instrumentationKey = Guid.NewGuid().ToString();
+            configuration.ConnectionString = "InstrumentationKey=" + instrumentationKey;
             configuration.ConfigureOpenTelemetryBuilder(b => b
                 .WithLogging(l => l.AddInMemoryExporter(logItems))
                 .WithMetrics(m => m.AddInMemoryExporter(metricItems))
@@ -1330,6 +1330,597 @@ namespace Microsoft.ApplicationInsights
             Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "SELECT COUNT(*) FROM Orders"));
             Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "localhost | testdb"));
             Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "0"));
+        }
+
+        #endregion
+
+        #region GlobalProperties
+
+        [TestMethod]
+        public void TrackEvent_IncludesGlobalProperties()
+        {
+            // Arrange
+            this.telemetryClient.Context.GlobalProperties["Environment"] = "Test";
+            this.telemetryClient.Context.GlobalProperties["Version"] = "1.0";
+
+            // Act
+            this.telemetryClient.TrackEvent("TestEvent");
+            this.telemetryClient.Flush();
+
+            // Assert
+            Assert.IsTrue(this.logItems.Count > 0);
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.Attributes != null && l.Attributes.Any(a => 
+                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "TestEvent"));
+            Assert.IsNotNull(logRecord);
+            
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.IsTrue(attributes.ContainsKey("Environment"));
+            Assert.AreEqual("Test", attributes["Environment"]);
+            Assert.IsTrue(attributes.ContainsKey("Version"));
+            Assert.AreEqual("1.0", attributes["Version"]);
+        }
+
+        [TestMethod]
+        public void TrackEvent_ItemPropertiesOverrideGlobalProperties()
+        {
+            // Arrange
+            this.telemetryClient.Context.GlobalProperties["Environment"] = "Test";
+            this.telemetryClient.Context.GlobalProperties["Version"] = "1.0";
+
+            // Act - override Environment with item property
+            this.telemetryClient.TrackEvent("TestEvent", new Dictionary<string, string>
+            {
+                { "Environment", "Production" },  // Override
+                { "CustomProp", "CustomValue" }
+            });
+            this.telemetryClient.Flush();
+
+            // Assert
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.Attributes != null && l.Attributes.Any(a => 
+                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "TestEvent"));
+            Assert.IsNotNull(logRecord);
+            
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.AreEqual("Production", attributes["Environment"], "Item property should override global");
+            Assert.AreEqual("1.0", attributes["Version"], "Non-overridden global should remain");
+            Assert.AreEqual("CustomValue", attributes["CustomProp"]);
+        }
+
+        [TestMethod]
+        public void TrackTrace_IncludesGlobalProperties()
+        {
+            // Arrange
+            this.telemetryClient.Context.GlobalProperties["Component"] = "Auth";
+            this.telemetryClient.Context.GlobalProperties["DataCenter"] = "WestUS";
+
+            // Act
+            this.telemetryClient.TrackTrace("Test message");
+            this.telemetryClient.Flush();
+
+            // Assert
+            Assert.IsTrue(this.logItems.Count > 0);
+            var logRecord = this.logItems.Last();
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            
+            Assert.IsTrue(attributes.ContainsKey("Component"));
+            Assert.AreEqual("Auth", attributes["Component"]);
+            Assert.IsTrue(attributes.ContainsKey("DataCenter"));
+            Assert.AreEqual("WestUS", attributes["DataCenter"]);
+        }
+
+        [TestMethod]
+        public void TrackTrace_WithSeverity_IncludesGlobalProperties()
+        {
+            // Arrange
+            this.telemetryClient.Context.GlobalProperties["RequestId"] = "req-123";
+
+            // Act
+            this.telemetryClient.TrackTrace("Warning message", SeverityLevel.Warning);
+            this.telemetryClient.Flush();
+
+            // Assert
+            var logRecord = this.logItems.FirstOrDefault(l => l.LogLevel == LogLevel.Warning);
+            Assert.IsNotNull(logRecord);
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.AreEqual("req-123", attributes["RequestId"]);
+        }
+
+        [TestMethod]
+        public void TrackException_IncludesGlobalProperties()
+        {
+            // Arrange
+            this.telemetryClient.Context.GlobalProperties["UserId"] = "user-456";
+            this.telemetryClient.Context.GlobalProperties["SessionId"] = "session-789";
+
+            // Act
+            var exception = new InvalidOperationException("Test exception");
+            this.telemetryClient.TrackException(exception);
+            this.telemetryClient.Flush();
+
+            // Assert
+            var logRecord = this.logItems.FirstOrDefault(l => l.LogLevel == LogLevel.Error);
+            Assert.IsNotNull(logRecord);
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.AreEqual("user-456", attributes["UserId"]);
+            Assert.AreEqual("session-789", attributes["SessionId"]);
+        }
+
+        [TestMethod]
+        public void TrackException_WithProperties_MergesWithGlobalProperties()
+        {
+            // Arrange
+            this.telemetryClient.Context.GlobalProperties["AppVersion"] = "2.0";
+
+            // Act
+            var exception = new InvalidOperationException("Test");
+            this.telemetryClient.TrackException(exception, new Dictionary<string, string>
+            {
+                { "Operation", "Payment" },
+                { "AppVersion", "2.1" }  // Override global
+            });
+            this.telemetryClient.Flush();
+
+            // Assert
+            var logRecord = this.logItems.FirstOrDefault(l => l.LogLevel == LogLevel.Error);
+            Assert.IsNotNull(logRecord);
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.AreEqual("2.1", attributes["AppVersion"], "Item property should override");
+            Assert.AreEqual("Payment", attributes["Operation"]);
+        }
+
+        [TestMethod]
+        public void TrackDependency_IncludesGlobalPropertiesAsTags()
+        {
+            // Arrange
+            this.telemetryClient.Context.GlobalProperties["TenantId"] = "tenant-123";
+            this.telemetryClient.Context.GlobalProperties["Region"] = "US-West";
+
+            // Act
+            var dependency = new DependencyTelemetry
+            {
+                Type = "HTTP",
+                Name = "GET /api/data",
+                Data = "https://api.example.com/data",
+                Target = "api.example.com",
+                Duration = TimeSpan.FromMilliseconds(100),
+                Success = true
+            };
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            // Assert
+            Assert.AreEqual(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "TenantId" && t.Value == "tenant-123"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "Region" && t.Value == "US-West"));
+        }
+
+        [TestMethod]
+        public void TrackDependency_ItemPropertiesOverrideGlobalProperties()
+        {
+            // Arrange
+            this.telemetryClient.Context.GlobalProperties["Environment"] = "Dev";
+            this.telemetryClient.Context.GlobalProperties["BuildId"] = "100";
+
+            // Act
+            var dependency = new DependencyTelemetry
+            {
+                Type = "SQL",
+                Name = "Query",
+                Data = "SELECT * FROM Users",
+                Duration = TimeSpan.FromMilliseconds(50),
+                Success = true
+            };
+            dependency.Properties["Environment"] = "Staging";  // Override
+            dependency.Properties["QueryType"] = "Select";
+            
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            // Assert
+            var activity = this.activityItems[0];
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "Environment" && t.Value == "Staging"), 
+                "Item property should override global");
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "BuildId" && t.Value == "100"),
+                "Non-overridden global should remain");
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "QueryType" && t.Value == "Select"));
+        }
+
+        [TestMethod]
+        public void TrackRequest_IncludesGlobalPropertiesAsTags()
+        {
+            // Arrange
+            this.telemetryClient.Context.GlobalProperties["ServiceName"] = "WebAPI";
+            this.telemetryClient.Context.GlobalProperties["InstanceId"] = "instance-1";
+
+            // Act
+            var request = new RequestTelemetry
+            {
+                Name = "GET /users",
+                Duration = TimeSpan.FromMilliseconds(75),
+                ResponseCode = "200",
+                Success = true
+            };
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            // Assert
+            Assert.AreEqual(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "ServiceName" && t.Value == "WebAPI"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "InstanceId" && t.Value == "instance-1"));
+        }
+
+        [TestMethod]
+        public void TrackRequest_ItemPropertiesOverrideGlobalProperties()
+        {
+            // Arrange
+            this.telemetryClient.Context.GlobalProperties["Controller"] = "Default";
+            this.telemetryClient.Context.GlobalProperties["Version"] = "1.0";
+
+            // Act
+            var request = new RequestTelemetry
+            {
+                Name = "POST /orders",
+                Duration = TimeSpan.FromMilliseconds(120),
+                ResponseCode = "201",
+                Success = true
+            };
+            request.Properties["Controller"] = "OrderController";  // Override
+            request.Properties["Action"] = "Create";
+            
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            // Assert
+            var activity = this.activityItems[0];
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "Controller" && t.Value == "OrderController"),
+                "Item property should override global");
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "Version" && t.Value == "1.0"),
+                "Non-overridden global should remain");
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "Action" && t.Value == "Create"));
+        }
+
+        [TestMethod]
+        public void GlobalProperties_EmptyDictionary_DoesNotCauseErrors()
+        {
+            // Arrange - Don't add any global properties
+            
+            // Act & Assert - Should not throw
+            this.telemetryClient.TrackEvent("TestEvent");
+            this.telemetryClient.TrackTrace("Test message");
+            this.telemetryClient.TrackException(new Exception("Test"));
+            this.telemetryClient.Flush();
+
+            // Verify telemetry was recorded
+            Assert.IsTrue(this.logItems.Count >= 3);
+        }
+
+        [TestMethod]
+        public void TelemetryContextGlobalProperties_OverrideClientGlobalProperties()
+        {
+            // Arrange
+            this.telemetryClient.Context.GlobalProperties["Source"] = "Client";
+            
+            var eventTelemetry = new EventTelemetry("TestEvent");
+            eventTelemetry.Context.GlobalProperties["Source"] = "Telemetry";  // Should override
+            eventTelemetry.Context.GlobalProperties["Extra"] = "Value";
+
+            // Act
+            this.telemetryClient.TrackEvent(eventTelemetry);
+            this.telemetryClient.Flush();
+
+            // Assert
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.Attributes != null && l.Attributes.Any(a => 
+                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "TestEvent"));
+            Assert.IsNotNull(logRecord);
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.AreEqual("Telemetry", attributes["Source"], "Telemetry context should override client context");
+            Assert.AreEqual("Value", attributes["Extra"]);
+        }
+
+        #endregion
+
+        #region Context Properties (User, Location, Operation)
+
+        [TestMethod]
+        public void TrackEvent_IncludesUserContextAsEnduserIdAttribute()
+        {
+            // Arrange
+            var eventTelemetry = new EventTelemetry("UserAction");
+            eventTelemetry.Context.User.Id = "user-12345";
+
+            // Act
+            this.telemetryClient.TrackEvent(eventTelemetry);
+            this.telemetryClient.Flush();
+
+            // Assert
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.Attributes != null && l.Attributes.Any(a => 
+                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "UserAction"));
+            Assert.IsNotNull(logRecord);
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.IsTrue(attributes.ContainsKey("enduser.pseudo.id"));
+            Assert.AreEqual("user-12345", attributes["enduser.pseudo.id"]);
+        }
+
+        [TestMethod]
+        public void TrackEvent_IncludesLocationContextAsClientIpAttribute()
+        {
+            // Arrange
+            var eventTelemetry = new EventTelemetry("PageView");
+            eventTelemetry.Context.Location.Ip = "192.168.1.1";
+
+            // Act
+            this.telemetryClient.TrackEvent(eventTelemetry);
+            this.telemetryClient.Flush();
+
+            // Assert
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.Attributes != null && l.Attributes.Any(a => 
+                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "PageView"));
+            Assert.IsNotNull(logRecord);
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.IsTrue(attributes.ContainsKey("microsoft.client.ip"));
+            Assert.AreEqual("192.168.1.1", attributes["microsoft.client.ip"]);
+        }
+
+        [TestMethod]
+        public void TrackTrace_IncludesUserAndLocationContext()
+        {
+            // Arrange
+            var traceTelemetry = new TraceTelemetry("Trace message");
+            traceTelemetry.Context.User.Id = "user-999";
+            traceTelemetry.Context.Location.Ip = "10.0.0.1";
+
+            // Act
+            this.telemetryClient.TrackTrace(traceTelemetry);
+            this.telemetryClient.Flush();
+
+            // Assert
+            var logRecord = this.logItems.Last();
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.AreEqual("user-999", attributes["enduser.pseudo.id"]);
+            Assert.AreEqual("10.0.0.1", attributes["microsoft.client.ip"]);
+        }
+
+        [TestMethod]
+        public void TrackException_IncludesUserAndLocationContext()
+        {
+            // Arrange
+            var exceptionTelemetry = new ExceptionTelemetry(new Exception("Test"));
+            exceptionTelemetry.Context.User.Id = "user-abc";
+            exceptionTelemetry.Context.Location.Ip = "172.16.0.1";
+
+            // Act
+            this.telemetryClient.TrackException(exceptionTelemetry);
+            this.telemetryClient.Flush();
+
+            // Assert
+            var logRecord = this.logItems.FirstOrDefault(l => l.LogLevel == LogLevel.Error);
+            Assert.IsNotNull(logRecord);
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.AreEqual("user-abc", attributes["enduser.pseudo.id"]);
+            Assert.AreEqual("172.16.0.1", attributes["microsoft.client.ip"]);
+        }
+
+        [TestMethod]
+        public void TrackDependency_IncludesUserAndLocationContextAsTags()
+        {
+            // Arrange
+            var dependency = new DependencyTelemetry
+            {
+                Type = "HTTP",
+                Name = "GET /api",
+                Duration = TimeSpan.FromMilliseconds(100),
+                Success = true
+            };
+            dependency.Context.User.Id = "user-dep-123";
+            dependency.Context.Location.Ip = "192.168.100.50";
+
+            // Act
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            // Assert
+            Assert.AreEqual(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "enduser.pseudo.id" && t.Value == "user-dep-123"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.client.ip" && t.Value == "192.168.100.50"));
+        }
+
+        [TestMethod]
+        public void TrackRequest_IncludesUserAndLocationContextAsTags()
+        {
+            // Arrange
+            var request = new RequestTelemetry
+            {
+                Name = "POST /api/orders",
+                Duration = TimeSpan.FromMilliseconds(200),
+                ResponseCode = "200",
+                Success = true
+            };
+            request.Context.User.Id = "user-req-456";
+            request.Context.Location.Ip = "203.0.113.1";
+
+            // Act
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            // Assert
+            Assert.AreEqual(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "enduser.pseudo.id" && t.Value == "user-req-456"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.client.ip" && t.Value == "203.0.113.1"));
+        }
+
+        [TestMethod]
+        public void TrackRequest_IncludesOperationNameAsOverrideAttribute()
+        {
+            // Arrange
+            var request = new RequestTelemetry
+            {
+                Name = "GET /api/users",
+                Duration = TimeSpan.FromMilliseconds(50),
+                ResponseCode = "200",
+                Success = true
+            };
+            request.Context.Operation.Name = "GetAllUsers";
+
+            // Act
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            // Assert
+            Assert.AreEqual(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "microsoft.operation_name" && t.Value == "GetAllUsers"));
+        }
+
+        [TestMethod]
+        public void ContextProperties_NullValues_DoNotCauseErrors()
+        {
+            // Arrange
+            var eventTelemetry = new EventTelemetry("Test");
+            eventTelemetry.Context.User.Id = null;
+            eventTelemetry.Context.Location.Ip = null;
+
+            // Act & Assert - Should not throw
+            this.telemetryClient.TrackEvent(eventTelemetry);
+            this.telemetryClient.Flush();
+
+            // Verify telemetry was recorded
+            Assert.IsTrue(this.logItems.Count > 0);
+        }
+
+        [TestMethod]
+        public void TrackEvent_UserId_MapsToEnduserPseudoId()
+        {
+            // Arrange
+            var eventTelemetry = new EventTelemetry("TestEvent");
+            eventTelemetry.Context.User.Id = "anonymous-user-123";
+
+            // Act
+            this.telemetryClient.TrackEvent(eventTelemetry);
+            this.telemetryClient.Flush();
+
+            // Assert
+            var logRecord = this.logItems.FirstOrDefault(l => l.Attributes != null && l.Attributes.Any(a => a.Key == "microsoft.custom_event.name"));
+            Assert.IsNotNull(logRecord);
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.IsTrue(attributes.ContainsKey("enduser.pseudo.id"));
+            Assert.AreEqual("anonymous-user-123", attributes["enduser.pseudo.id"]);
+        }
+
+        [TestMethod]
+        public void TrackException_AuthenticatedUserId_MapsToEnduserId()
+        {
+            // Arrange
+            var exception = new ExceptionTelemetry(new InvalidOperationException("Test"));
+            exception.Context.User.AuthenticatedUserId = "authenticated-user-456";
+
+            // Act
+            this.telemetryClient.TrackException(exception);
+            this.telemetryClient.Flush();
+
+            // Assert
+            var logRecord = this.logItems.FirstOrDefault(l => l.LogLevel == LogLevel.Error);
+            Assert.IsNotNull(logRecord);
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.IsTrue(attributes.ContainsKey("enduser.id"));
+            Assert.AreEqual("authenticated-user-456", attributes["enduser.id"]);
+        }
+
+        [TestMethod]
+        public void TrackRequest_UserAgent_MapsToUserAgentOriginal()
+        {
+            // Arrange
+            var request = new RequestTelemetry
+            {
+                Name = "GET /api/test",
+                Duration = TimeSpan.FromMilliseconds(100),
+                ResponseCode = "200",
+                Success = true
+            };
+            request.Context.User.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)";
+
+            // Act
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            // Assert
+            Assert.AreEqual(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "user_agent.original" && t.Value == "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"));
+        }
+
+        [TestMethod]
+        public void TrackDependency_UserAgent_DoesNotMapToUserAgentOriginal()
+        {
+            // Arrange
+            var dependency = new DependencyTelemetry
+            {
+                Type = "HTTP",
+                Name = "GET /external",
+                Duration = TimeSpan.FromMilliseconds(50),
+                Success = true
+            };
+            dependency.Context.User.UserAgent = "TestAgent/1.0";
+
+            // Act
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            // Assert - UserAgent should NOT be mapped for non-request telemetry
+            Assert.AreEqual(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            Assert.IsFalse(activity.Tags.Any(t => t.Key == "user_agent.original"));
+        }
+
+        [TestMethod]
+        public void TrackEvent_UserAgent_DoesNotMapToUserAgentOriginal()
+        {
+            // Arrange
+            var eventTelemetry = new EventTelemetry("TestEvent");
+            eventTelemetry.Context.User.UserAgent = "TestAgent/2.0";
+
+            // Act
+            this.telemetryClient.TrackEvent(eventTelemetry);
+            this.telemetryClient.Flush();
+
+            // Assert - UserAgent should NOT be mapped for events
+            var logRecord = this.logItems.FirstOrDefault(l => l.Attributes != null && l.Attributes.Any(a => a.Key == "microsoft.custom_event.name"));
+            Assert.IsNotNull(logRecord);
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.IsFalse(attributes.ContainsKey("user_agent.original"));
+        }
+
+        [TestMethod]
+        public void TrackRequest_BothUserIdAndAuthenticatedUserId_MapsToBothAttributes()
+        {
+            // Arrange
+            var request = new RequestTelemetry
+            {
+                Name = "POST /api/secure",
+                Duration = TimeSpan.FromMilliseconds(150),
+                ResponseCode = "201",
+                Success = true
+            };
+            request.Context.User.Id = "anonymous-789";
+            request.Context.User.AuthenticatedUserId = "auth-user-789";
+
+            // Act
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            // Assert
+            Assert.AreEqual(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "enduser.pseudo.id" && t.Value == "anonymous-789"));
+            Assert.IsTrue(activity.Tags.Any(t => t.Key == "enduser.id" && t.Value == "auth-user-789"));
         }
 
         #endregion

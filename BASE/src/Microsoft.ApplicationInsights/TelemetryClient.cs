@@ -52,6 +52,9 @@
             // Use the shared ActivitySource from configuration
             this.activitySource = configuration.ApplicationInsightsActivitySource;
 
+            // Apply CloudContext to Resource if set
+            this.ApplyCloudContextToResource();
+
             // For non-DI scenarios: Build SDK eagerly to ensure TracerProvider is ready
             // For DI scenarios: SDK will be built by configuration when accessed
             if (!isFromDependencyInjection)
@@ -138,7 +141,7 @@
             }
 
             properties.Add("microsoft.custom_event.name", eventName);
-            var state = new DictionaryLogState(properties, String.Empty);
+            var state = new DictionaryLogState(this.Context, properties, String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -161,6 +164,22 @@
             var properties = telemetry.Properties ?? new Dictionary<string, string>();
             properties.Add("microsoft.custom_event.name", telemetry.Name);
             
+            // Map context properties to semantic conventions
+            if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
+            {
+                properties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
+            }
+
+            if (!string.IsNullOrEmpty(telemetry.Context?.User?.Id))
+            {
+                properties[SemanticConventions.AttributeEnduserPseudoId] = telemetry.Context.User.Id;
+            }
+
+            if (!string.IsNullOrEmpty(telemetry.Context?.User?.AuthenticatedUserId))
+            {
+                properties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
+            }
+            
             var state = new DictionaryLogState(telemetry.Context, properties, String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
@@ -174,7 +193,8 @@
         /// <param name="message">Message to display.</param>
         public void TrackTrace(string message)
         {
-            this.Logger.Log(LogLevel.Information, message);
+            var state = new DictionaryLogState(this.Context, null, message);
+            this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
         /// <summary>
@@ -188,7 +208,8 @@
         public void TrackTrace(string message, SeverityLevel severityLevel)
         {
             LogLevel logLevel = GetLogLevel(severityLevel);
-            this.Logger.Log(logLevel, message);
+            var state = new DictionaryLogState(this.Context, null, message);
+            this.Logger.Log(logLevel, 0, state, null, (s, ex) => s.Message);
         }
 
         /// <summary>
@@ -201,7 +222,7 @@
         /// <param name="properties">Named string values you can use to search and classify events.</param>
         public void TrackTrace(string message, IDictionary<string, string> properties)
         {
-            var state = new DictionaryLogState(properties, message);
+            var state = new DictionaryLogState(this.Context, properties, message);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -217,7 +238,7 @@
         public void TrackTrace(string message, SeverityLevel severityLevel, IDictionary<string, string> properties)
         {
             LogLevel logLevel = GetLogLevel(severityLevel);
-            var state = new DictionaryLogState(properties, message);
+            var state = new DictionaryLogState(this.Context, properties, message);
             this.Logger.Log(logLevel, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -246,23 +267,26 @@
                 telemetry.SeverityLevel = SeverityLevel.Information;
             }
 
-            // TODO: LocationContext & UserContext are currently internal, so customer can't set them.
-            // Need to determine if its ok to set these to public again, just for properties below.
-
-            /*String clientIP = telemetry.Context?.Location?.Ip;
-            if (clientIP != null)
+            // Map context properties to semantic conventions that exporter understands
+            var properties = telemetry.Properties ?? new Dictionary<string, string>();
+            
+            if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
             {
-                telemetry.Properties["microsoft.client.ip"] = clientIP;
+                properties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
             }
 
-            String userId = telemetry.Context?.User?.Id;
-            if (userId != null)
+            if (!string.IsNullOrEmpty(telemetry.Context?.User?.Id))
             {
-                telemetry.Properties["enduser.pseudo.id"] = userId;
-            }*/
+                properties[SemanticConventions.AttributeEnduserPseudoId] = telemetry.Context.User.Id;
+            }
+
+            if (!string.IsNullOrEmpty(telemetry.Context?.User?.AuthenticatedUserId))
+            {
+                properties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
+            }
 
             LogLevel logLevel = GetLogLevel(telemetry.SeverityLevel.Value);
-            var state = new DictionaryLogState(telemetry.Context, telemetry.Properties, telemetry.Message);
+            var state = new DictionaryLogState(telemetry.Context, properties, telemetry.Message);
             this.Logger.Log(logLevel, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -359,7 +383,7 @@
                 exception = new Exception(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
             }
 
-            var state = new DictionaryLogState(properties, exception.Message);
+            var state = new DictionaryLogState(this.Context, properties, exception.Message);
             this.Logger.Log(LogLevel.Error, 0, state, exception, (s, ex) => s.Message);
         }
 
@@ -380,7 +404,25 @@
 
             var reconstructedException = ConvertToException(telemetry);
 
-            var state = new DictionaryLogState(telemetry.Context, telemetry.Properties, reconstructedException.Message);
+            // Map context properties to semantic conventions
+            var properties = telemetry.Properties ?? new Dictionary<string, string>();
+            
+            if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
+            {
+                properties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
+            }
+
+            if (!string.IsNullOrEmpty(telemetry.Context?.User?.Id))
+            {
+                properties[SemanticConventions.AttributeEnduserPseudoId] = telemetry.Context.User.Id;
+            }
+
+            if (!string.IsNullOrEmpty(telemetry.Context?.User?.AuthenticatedUserId))
+            {
+                properties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
+            }
+
+            var state = new DictionaryLogState(telemetry.Context, properties, reconstructedException.Message);
             var logLevel = GetLogLevel(telemetry.SeverityLevel ?? SeverityLevel.Error);
             this.Logger.Log(logLevel, 0, state, reconstructedException, (s, ex) => s.Message);
         }
@@ -507,7 +549,25 @@
                         dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMicrosoftDependencyResultCode, telemetry.ResultCode);
                     }
 
-                    // Add custom properties
+                    // Add GlobalProperties first (lower priority)
+                    if (this.Context?.GlobalPropertiesValue != null)
+                    {
+                        foreach (var property in this.Context.GlobalPropertiesValue)
+                        {
+                            dependencyTelemetryActivity.SetTag(property.Key, property.Value);
+                        }
+                    }
+
+                    // Add telemetry context GlobalProperties
+                    if (telemetry.Context?.GlobalPropertiesValue != null)
+                    {
+                        foreach (var property in telemetry.Context.GlobalPropertiesValue)
+                        {
+                            dependencyTelemetryActivity.SetTag(property.Key, property.Value);
+                        }
+                    }
+
+                    // Add custom properties (these override GlobalProperties)
                     if (telemetry.Properties != null)
                     {
                         foreach (var property in telemetry.Properties)
@@ -519,7 +579,17 @@
                     // Add context information
                     if (!string.IsNullOrEmpty(telemetry.Context?.User?.Id))
                     {
-                        dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeEnduserId, telemetry.Context.User.Id);
+                        dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeEnduserPseudoId, telemetry.Context.User.Id);
+                    }
+
+                    if (!string.IsNullOrEmpty(telemetry.Context?.User?.AuthenticatedUserId))
+                    {
+                        dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeEnduserId, telemetry.Context.User.AuthenticatedUserId);
+                    }
+
+                    if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
+                    {
+                        dependencyTelemetryActivity.SetTag("microsoft.client.ip", telemetry.Context.Location.Ip);
                     }
                 }
             }
@@ -707,13 +777,46 @@
                         activity.SetTag(SemanticConventions.AttributeMicrosoftOperationName, request.Context.Operation.Name);
                     }
 
+                    // Add GlobalProperties first (lower priority)
+                    if (this.Context?.GlobalPropertiesValue != null)
+                    {
+                        foreach (var property in this.Context.GlobalPropertiesValue)
+                        {
+                            activity.SetTag(property.Key, property.Value);
+                        }
+                    }
+
+                    // Add request context GlobalProperties
+                    if (request.Context?.GlobalPropertiesValue != null)
+                    {
+                        foreach (var property in request.Context.GlobalPropertiesValue)
+                        {
+                            activity.SetTag(property.Key, property.Value);
+                        }
+                    }
+
                     // Add context information
                     if (!string.IsNullOrEmpty(request.Context?.User?.Id))
                     {
-                        activity.SetTag(SemanticConventions.AttributeEnduserId, request.Context.User.Id);
+                        activity.SetTag(SemanticConventions.AttributeEnduserPseudoId, request.Context.User.Id);
                     }
 
-                    // Add custom properties
+                    if (!string.IsNullOrEmpty(request.Context?.User?.AuthenticatedUserId))
+                    {
+                        activity.SetTag(SemanticConventions.AttributeEnduserId, request.Context.User.AuthenticatedUserId);
+                    }
+
+                    if (!string.IsNullOrEmpty(request.Context?.User?.UserAgent))
+                    {
+                        activity.SetTag(SemanticConventions.AttributeUserAgentOriginal, request.Context.User.UserAgent);
+                    }
+
+                    if (!string.IsNullOrEmpty(request.Context?.Location?.Ip))
+                    {
+                        activity.SetTag("microsoft.client.ip", request.Context.Location.Ip);
+                    }
+
+                    // Add custom properties (these override GlobalProperties)
                     if (request.Properties != null)
                     {
                         foreach (var property in request.Properties)
@@ -723,8 +826,6 @@
                     }
                 }
             }
-
-            RichPayloadEventSource.Log.Process(request);
         }
 
         /// <summary>
@@ -1192,6 +1293,24 @@
             {
                 // Silently ignore any issues enriching the exception
                 // The core exception object is still valid
+            }
+        }
+
+        /// <summary>
+        /// Applies CloudContext (RoleName/RoleInstance) and ComponentContext (Version) to the OpenTelemetry Resource if set.
+        /// </summary>
+        private void ApplyCloudContextToResource()
+        {
+            var roleName = this.Context.Cloud.RoleName;
+            var roleInstance = this.Context.Cloud.RoleInstance;
+            var componentVersion = this.Context.Component.Version;
+
+            if (!string.IsNullOrEmpty(roleName) || !string.IsNullOrEmpty(roleInstance) || !string.IsNullOrEmpty(componentVersion))
+            {
+                this.configuration.SetCloudRole(
+                    serviceName: roleName,
+                    serviceInstanceId: roleInstance,
+                    serviceVersion: componentVersion);
             }
         }
 

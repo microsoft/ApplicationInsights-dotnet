@@ -13,6 +13,7 @@
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using OpenTelemetry;
+    using OpenTelemetry.Resources;
 
     /// <summary>
     /// Encapsulates the global telemetry configuration typically loaded from the ApplicationInsights.config file.
@@ -33,7 +34,6 @@
         private readonly object lockObject = new object();
         private readonly bool skipDefaultBuilderConfiguration;
 
-        private string instrumentationKey = string.Empty;
         private string connectionString;
         private bool disableTelemetry = false;
         private bool isBuilt = false;
@@ -74,23 +74,6 @@
         }
 
         /// <summary>
-        /// Gets or sets the default instrumentation key for the application.
-        /// </summary>
-        /// <exception cref="ArgumentNullException">The new value is null.</exception>
-        /// <remarks>
-        /// This instrumentation key value is used by default by all <see cref="TelemetryClient"/> instances
-        /// created in the application. This value can be overwritten by setting the <see cref="TelemetryContext.InstrumentationKey"/>
-        /// property of the <see cref="TelemetryClient.Context"/>.
-        /// </remarks>
-        public string InstrumentationKey
-        {
-            get => this.instrumentationKey;
-
-            [Obsolete("InstrumentationKey based global ingestion is being deprecated. Use TelemetryConfiguration.ConnectionString. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/2560 for more details.")]
-            set { this.instrumentationKey = value ?? throw new ArgumentNullException(nameof(this.InstrumentationKey)); }
-        }
-
-        /// <summary>
         /// Gets or sets a value indicating whether sending of telemetry to Application Insights is disabled.
         /// </summary>
         /// <remarks>
@@ -112,7 +95,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the connection string. Setting this value will also set (and overwrite) the <see cref="InstrumentationKey"/>. The endpoints are validated and will be set (and overwritten) for InMemoryChannel and ServerTelemetryChannel as well as the ApplicationIdProvider"/>.
+        /// Gets or sets the connection string.
         /// </summary>
         public string ConnectionString
         {
@@ -212,6 +195,48 @@
 #pragma warning restore CA1801 // Review unused parameters
 #pragma warning restore CA1822 // Mark members as static
         {
+        }
+
+        /// <summary>
+        /// Sets the cloud role name and role instance for telemetry.
+        /// This configures the OpenTelemetry Resource with service.name, service.namespace, service.instance.id, and service.version attributes
+        /// which map to Cloud.RoleName, Cloud.RoleInstance, and Application.Ver in Application Insights.
+        /// </summary>
+        /// <param name="serviceName">The service name (maps to Cloud.RoleName).</param>
+        /// <param name="serviceInstanceId">Optional. The service instance ID (maps to Cloud.RoleInstance). If not provided, defaults to hostname.</param>
+        /// <param name="serviceVersion">Optional. The service version (maps to Application.Ver).</param>
+        /// <exception cref="InvalidOperationException">Thrown if the configuration has already been built.</exception>
+        internal void SetCloudRole(string serviceName, string serviceInstanceId = null, string serviceVersion = null)
+        {
+            this.ThrowIfBuilt();
+
+            this.ConfigureOpenTelemetryBuilder(builder =>
+            {
+                builder.ConfigureResource(resourceBuilder =>
+                {
+                    var attributes = new List<KeyValuePair<string, object>>();
+
+                    if (serviceName != null)
+                    {
+                        attributes.Add(new KeyValuePair<string, object>("service.name", serviceName));
+                    }
+
+                    if (serviceInstanceId != null)
+                    {
+                        attributes.Add(new KeyValuePair<string, object>("service.instance.id", serviceInstanceId));
+                    }
+
+                    if (serviceVersion != null)
+                    {
+                        attributes.Add(new KeyValuePair<string, object>("service.version", serviceVersion));
+                    }
+
+                    if (attributes.Count > 0)
+                    {
+                        resourceBuilder.AddAttributes(attributes);
+                    }
+                });
+            });
         }
 
         /// <summary>
