@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.ApplicationInsights.AspNetCore\Microsoft.ApplicationInsights.AspNetCore.csproj" />
+    <ProjectReference Include="..\IntegrationTests.WebApp\IntegrationTests.WebApp.csproj" />
   </ItemGroup>
 
   <ItemGroup>

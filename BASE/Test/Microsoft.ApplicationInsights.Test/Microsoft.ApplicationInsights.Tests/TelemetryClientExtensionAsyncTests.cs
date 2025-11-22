@@ -101,7 +101,7 @@ namespace Microsoft.ApplicationInsights
         /// Ensure that context being propagated via Begin/End.
         /// </summary>
         [Fact(Timeout = 2000)]
-        public void ContextPropagatesThroughBeginEnd()
+        public async Task ContextPropagatesThroughBeginEnd()
         {
 
             int id1 = Thread.CurrentThread.ManagedThreadId;
@@ -125,7 +125,7 @@ namespace Microsoft.ApplicationInsights
                 });
 
                 // Wait for completion
-                task.Wait();
+                await task;
 
                 // Assert propagation
                 Assert.NotEqual(id1, id2);
