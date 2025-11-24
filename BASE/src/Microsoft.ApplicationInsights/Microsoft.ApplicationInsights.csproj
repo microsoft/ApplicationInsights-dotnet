@@ -39,8 +39,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\$(TargetFramework)\PublicAPI.Shipped.txt" />
-    <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\$(TargetFramework)\PublicAPI.Unshipped.txt" />
+    <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\Stable\PublicAPI.Shipped.txt" />
+    <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\Stable\PublicAPI.Unshipped.txt" />
   </ItemGroup>
 
 </Project>
