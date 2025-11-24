@@ -185,6 +185,100 @@
         }
 
         /// <summary>
+        /// Send information about availability of an application.
+        /// </summary>
+        /// <param name="name">Availability test name.</param>
+        /// <param name="timeStamp">The time when the availability was captured.</param>
+        /// <param name="duration">The time taken for the availability test to run.</param>
+        /// <param name="runLocation">Name of the location the availability test was run from.</param>
+        /// <param name="success">True if the availability test ran successfully.</param>
+        /// <param name="message">Error message on availability test run failure.</param>
+        /// <param name="properties">Named string values you can use to classify and search for this availability telemetry.</param>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
+        /// </remarks>
+        public void TrackAvailability(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message = null, IDictionary<string, string> properties = null)
+        {
+            var availabilityTelemetry = new AvailabilityTelemetry(name, timeStamp, duration, runLocation, success, message);
+
+            if (properties != null && properties.Count > 0)
+            {
+                foreach (var kvp in properties)
+                {
+                    availabilityTelemetry.Properties[kvp.Key] = kvp.Value;
+                }
+            }
+
+            this.TrackAvailability(availabilityTelemetry);
+        }
+
+        /// <summary>
+        /// Send information about availability of an application.
+        /// Create a separate <see cref="AvailabilityTelemetry"/> instance for each call to <see cref="TrackAvailability(AvailabilityTelemetry)"/>.
+        /// </summary>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
+        /// </remarks>
+        /// <param name="telemetry">An availability telemetry item.</param>
+        public void TrackAvailability(AvailabilityTelemetry telemetry)
+        {
+            if (telemetry == null)
+            {
+                CoreEventSource.Log.TrackAvailabilityTelemetryIsNull();
+                return;
+            }
+
+            var properties = new Dictionary<string, string>();
+            
+            // Add the magic marker attribute
+            properties.Add("microsoft.availability.id", telemetry.Id ?? Guid.NewGuid().ToString());
+            properties.Add("microsoft.availability.name", telemetry.Name);
+            properties.Add("microsoft.availability.duration", telemetry.Duration.ToString());
+            properties.Add("microsoft.availability.success", telemetry.Success.ToString());
+            
+            if (!string.IsNullOrEmpty(telemetry.RunLocation))
+            {
+                properties.Add("microsoft.availability.runLocation", telemetry.RunLocation);
+            }
+            
+            if (!string.IsNullOrEmpty(telemetry.Message))
+            {
+                properties.Add("microsoft.availability.message", telemetry.Message);
+            }
+
+            // Add custom properties from telemetry
+            if (telemetry.Properties != null)
+            {
+                foreach (var kvp in telemetry.Properties)
+                {
+                    if (!properties.ContainsKey(kvp.Key))
+                    {
+                        properties.Add(kvp.Key, kvp.Value);
+                    }
+                }
+            }
+
+            // Map context properties to semantic conventions
+            if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
+            {
+                properties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
+            }
+
+            if (!string.IsNullOrEmpty(telemetry.Context?.User?.Id))
+            {
+                properties[SemanticConventions.AttributeEnduserPseudoId] = telemetry.Context.User.Id;
+            }
+
+            if (!string.IsNullOrEmpty(telemetry.Context?.User?.AuthenticatedUserId))
+            {
+                properties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
+            }
+            
+            var state = new DictionaryLogState(telemetry.Context, properties, telemetry.Message ?? String.Empty);
+            this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
+        }
+
+        /// <summary>
         /// Send a trace message for display in Diagnostic Search.
         /// </summary>
         /// <remarks>
@@ -593,48 +687,6 @@
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Send information about availability of an application.
-        /// </summary>
-        /// <param name="name">Availability test name.</param>
-        /// <param name="timeStamp">The time when the availability was captured.</param>
-        /// <param name="duration">The time taken for the availability test to run.</param>
-        /// <param name="runLocation">Name of the location the availability test was run from.</param>
-        /// <param name="success">True if the availability test ran successfully.</param>
-        /// <param name="message">Error message on availability test run failure.</param>
-        /// <param name="properties">Named string values you can use to classify and search for this availability telemetry.</param>
-        /// <remarks>
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
-        /// </remarks>
-        public void TrackAvailability(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message = null, IDictionary<string, string> properties = null)
-        {
-            var availabilityTelemetry = new AvailabilityTelemetry(name, timeStamp, duration, runLocation, success, message);
-
-            if (properties != null && properties.Count > 0)
-            {
-                Utils.CopyDictionary(properties, availabilityTelemetry.Properties);
-            }
-
-            this.TrackAvailability(availabilityTelemetry);
-        }
-
-        /// <summary>
-        /// Send information about availability of an application.
-        /// Create a separate <see cref="AvailabilityTelemetry"/> instance for each call to <see cref="TrackAvailability(AvailabilityTelemetry)"/>.
-        /// </summary>
-        /// <remarks>
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
-        /// </remarks>
-        public void TrackAvailability(AvailabilityTelemetry telemetry)
-        {
-            if (telemetry == null)
-            {
-                telemetry = new AvailabilityTelemetry();
-            }
-
-            this.Track(telemetry);
         }
 
         /// <summary>

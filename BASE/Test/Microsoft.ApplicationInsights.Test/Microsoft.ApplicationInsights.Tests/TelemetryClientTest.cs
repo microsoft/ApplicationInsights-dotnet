@@ -171,6 +171,138 @@ namespace Microsoft.ApplicationInsights
 
         #endregion
 
+        #region TrackAvailability
+
+        [Fact]
+        public void TrackAvailabilitySendsAvailabilityTelemetryWithAllParameters()
+        {
+            var name = "MyAvailabilityTest";
+            var timeStamp = DateTimeOffset.UtcNow;
+            var duration = TimeSpan.FromSeconds(5);
+            var runLocation = "West US";
+            var success = true;
+            var message = "Test passed";
+            var properties = new Dictionary<string, string> { { "Environment", "Production" } };
+
+            this.telemetryClient.TrackAvailability(name, timeStamp, duration, runLocation, success, message, properties);
+            this.telemetryClient.Flush();
+
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l =>
+                l.Attributes != null && l.Attributes.Any(a =>
+                    a.Key == "microsoft.availability.name" && a.Value?.ToString() == name));
+            Assert.NotNull(logRecord);
+            Assert.Equal(LogLevel.Information, logRecord.LogLevel);
+
+            // Verify availability attributes
+            Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.name" && a.Value?.ToString() == name);
+            Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.duration" && a.Value?.ToString() == duration.ToString());
+            Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.success" && a.Value?.ToString() == success.ToString());
+            Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.runLocation" && a.Value?.ToString() == runLocation);
+            Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.message" && a.Value?.ToString() == message);
+            Assert.Contains(logRecord.Attributes, a => a.Key == "Environment" && a.Value?.ToString() == "Production");
+        }
+
+        [Fact]
+        public void TrackAvailabilitySendsAvailabilityTelemetryWithMinimalParameters()
+        {
+            var name = "MinimalTest";
+            var timeStamp = DateTimeOffset.UtcNow;
+            var duration = TimeSpan.FromSeconds(2);
+            var runLocation = "East US";
+            var success = false;
+
+            this.telemetryClient.TrackAvailability(name, timeStamp, duration, runLocation, success);
+            this.telemetryClient.Flush();
+
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l =>
+                l.Attributes != null && l.Attributes.Any(a =>
+                    a.Key == "microsoft.availability.name" && a.Value?.ToString() == name));
+            Assert.NotNull(logRecord);
+            
+            // Verify required attributes are present
+            Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.name");
+            Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.duration");
+            Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.success" && a.Value?.ToString() == "False");
+        }
+
+        [Fact]
+        public void TrackAvailabilityWithAvailabilityTelemetryObject()
+        {
+            var availabilityTelemetry = new AvailabilityTelemetry("TestWithObject", DateTimeOffset.UtcNow, TimeSpan.FromSeconds(3), "North Europe", true, "Success");
+            availabilityTelemetry.Properties["CustomProp"] = "CustomValue";
+
+            this.telemetryClient.TrackAvailability(availabilityTelemetry);
+            this.telemetryClient.Flush();
+
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l =>
+                l.Attributes != null && l.Attributes.Any(a =>
+                    a.Key == "microsoft.availability.name" && a.Value?.ToString() == "TestWithObject"));
+            Assert.NotNull(logRecord);
+            
+            // Verify custom property
+            Assert.Contains(logRecord.Attributes, a => a.Key == "CustomProp" && a.Value?.ToString() == "CustomValue");
+        }
+
+        [Fact]
+        public void TrackAvailabilityWithNullTelemetryHandlesGracefully()
+        {
+            // Should not throw
+            this.telemetryClient.TrackAvailability((AvailabilityTelemetry)null);
+            this.telemetryClient.Flush();
+            
+            // No log record should be created for null telemetry
+            var availabilityLogs = this.logItems.Where(l =>
+                l.Attributes != null && l.Attributes.Any(a => a.Key.StartsWith("microsoft.availability.")));
+            Assert.Empty(availabilityLogs);
+        }
+
+        [Fact]
+        public void TrackAvailabilityWithCustomProperties()
+        {
+            var availabilityTelemetry = new AvailabilityTelemetry("PropertiesTest", DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1), "Local", true);
+            availabilityTelemetry.Properties["Environment"] = "Production";
+            availabilityTelemetry.Properties["Region"] = "WestUS";
+            
+            this.telemetryClient.TrackAvailability(availabilityTelemetry);
+            this.telemetryClient.Flush();
+
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l =>
+                l.Attributes != null && l.Attributes.Any(a =>
+                    a.Key == "microsoft.availability.name" && a.Value?.ToString() == "PropertiesTest"));
+            Assert.NotNull(logRecord);
+
+            // Verify custom properties are included
+            Assert.Contains(logRecord.Attributes, a => a.Key == "Environment" && a.Value?.ToString() == "Production");
+            Assert.Contains(logRecord.Attributes, a => a.Key == "Region" && a.Value?.ToString() == "WestUS");
+        }
+
+        [Fact]
+        public void TrackAvailabilityGeneratesIdIfNotProvided()
+        {
+            var availabilityTelemetry = new AvailabilityTelemetry("AutoIdTest", DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1), "Local", true);
+            // Don't set Id, it should be auto-generated
+
+            this.telemetryClient.TrackAvailability(availabilityTelemetry);
+            this.telemetryClient.Flush();
+
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l =>
+                l.Attributes != null && l.Attributes.Any(a =>
+                    a.Key == "microsoft.availability.name" && a.Value?.ToString() == "AutoIdTest"));
+            Assert.NotNull(logRecord);
+
+            // Verify ID attribute exists and is a valid GUID
+            var idAttr = logRecord.Attributes.FirstOrDefault(a => a.Key == "microsoft.availability.id");
+            Assert.NotNull(idAttr.Value);
+            Assert.True(Guid.TryParse(idAttr.Value?.ToString(), out _), "ID should be a valid GUID");
+        }
+
+        #endregion
+
         #region TrackTrace
 
         [Fact]
