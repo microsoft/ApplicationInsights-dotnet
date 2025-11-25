@@ -163,7 +163,7 @@
 
             var properties = telemetry.Properties ?? new Dictionary<string, string>();
             properties.Add("microsoft.custom_event.name", telemetry.Name);
-            
+
             // Map context properties to semantic conventions
             if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
             {
@@ -179,7 +179,7 @@
             {
                 properties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
             }
-            
+
             var state = new DictionaryLogState(telemetry.Context, properties, String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
@@ -203,10 +203,7 @@
 
             if (properties != null && properties.Count > 0)
             {
-                foreach (var kvp in properties)
-                {
-                    availabilityTelemetry.Properties[kvp.Key] = kvp.Value;
-                }
+                Utils.CopyDictionary(properties, availabilityTelemetry.Properties);
             }
 
             this.TrackAvailability(availabilityTelemetry);
@@ -229,33 +226,27 @@
             }
 
             var properties = new Dictionary<string, string>();
-            
+
             // Add the magic marker attribute
             properties.Add("microsoft.availability.id", telemetry.Id ?? Guid.NewGuid().ToString());
             properties.Add("microsoft.availability.name", telemetry.Name);
             properties.Add("microsoft.availability.duration", telemetry.Duration.ToString());
             properties.Add("microsoft.availability.success", telemetry.Success.ToString());
-            
+
             if (!string.IsNullOrEmpty(telemetry.RunLocation))
             {
                 properties.Add("microsoft.availability.runLocation", telemetry.RunLocation);
             }
-            
+
             if (!string.IsNullOrEmpty(telemetry.Message))
             {
                 properties.Add("microsoft.availability.message", telemetry.Message);
             }
 
             // Add custom properties from telemetry
-            if (telemetry.Properties != null)
+            if (telemetry.Properties != null && telemetry.Properties.Count > 0)
             {
-                foreach (var kvp in telemetry.Properties)
-                {
-                    if (!properties.ContainsKey(kvp.Key))
-                    {
-                        properties.Add(kvp.Key, kvp.Value);
-                    }
-                }
+                Utils.CopyDictionary(properties, telemetry.Properties);
             }
 
             // Map context properties to semantic conventions
@@ -273,7 +264,7 @@
             {
                 properties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
             }
-            
+
             var state = new DictionaryLogState(telemetry.Context, properties, telemetry.Message ?? String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
@@ -363,7 +354,7 @@
 
             // Map context properties to semantic conventions that exporter understands
             var properties = telemetry.Properties ?? new Dictionary<string, string>();
-            
+
             if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
             {
                 properties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
@@ -403,7 +394,7 @@
         {
             // Get or create histogram for this metric
             var histogram = this.configuration.MetricsManager.GetOrCreateHistogram(name, null);
-            
+
             // Build tags from properties
             if (properties != null && properties.Count > 0)
             {
@@ -440,9 +431,9 @@
 
             // Get or create histogram for this metric
             var histogram = this.configuration.MetricsManager.GetOrCreateHistogram(
-                telemetry.Name, 
+                telemetry.Name,
                 telemetry.MetricNamespace);
-            
+
             // Build tags from properties
             if (telemetry.Properties != null && telemetry.Properties.Count > 0)
             {
@@ -458,7 +449,7 @@
             {
                 histogram.Record(telemetry.Value);
             }
-            
+
             this.Track(telemetry);
         }
 
@@ -500,7 +491,7 @@
 
             // Map context properties to semantic conventions
             var properties = telemetry.Properties ?? new Dictionary<string, string>();
-            
+
             if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
             {
                 properties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
@@ -1404,7 +1395,7 @@
 
                 // Merge GlobalProperties and properties
                 var allProperties = new Dictionary<string, string>();
-                
+
                 if (context?.GlobalProperties != null)
                 {
                     foreach (var kvp in context.GlobalProperties)
