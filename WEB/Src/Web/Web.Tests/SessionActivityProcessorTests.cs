@@ -35,7 +35,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             // Arrange
             string now = DateTimeOffset.Now.ToString("O", CultureInfo.InvariantCulture);
             var context = HttpModuleHelper.GetFakeHttpContext();
-            context.AddRequestCookie(new HttpCookie("ai_session", "session123|" + now + "|" + now) { HttpOnly = true });
+            context.AddRequestCookie(new HttpCookie("ai_session", "session123|" + now + "|" + now) { HttpOnly = true, Secure = true });
 
             var processor = new SessionActivityProcessor();
             SetupTracerProvider(processor);
@@ -77,7 +77,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
         {
             // Arrange
             var context = HttpModuleHelper.GetFakeHttpContext();
-            context.AddRequestCookie(new HttpCookie("ai_session", string.Empty) { HttpOnly = true });
+            context.AddRequestCookie(new HttpCookie("ai_session", string.Empty) { HttpOnly = true, Secure = true });
             SetupTracerProvider(new SessionActivityProcessor());
 
             // Act
@@ -98,7 +98,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             // Arrange
             string now = DateTimeOffset.Now.ToString("O", CultureInfo.InvariantCulture);
             var context = HttpModuleHelper.GetFakeHttpContext();
-            context.AddRequestCookie(new HttpCookie("ai_session", "session123|" + now + "|" + now) { HttpOnly = true });
+            context.AddRequestCookie(new HttpCookie("ai_session", "session123|" + now + "|" + now) { HttpOnly = true, Secure = true });
             SetupTracerProvider(new SessionActivityProcessor());
 
             // Act
@@ -119,7 +119,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
         {
             // Arrange
             var context = HttpModuleHelper.GetFakeHttpContext();
-            context.AddRequestCookie(new HttpCookie("ai_session", "session123") { HttpOnly = true });
+            context.AddRequestCookie(new HttpCookie("ai_session", "session123") { HttpOnly = true, Secure = true });
             SetupTracerProvider(new SessionActivityProcessor());
 
             // Act
@@ -141,7 +141,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             // Arrange
             string now = DateTimeOffset.Now.ToString("O", CultureInfo.InvariantCulture);
             var context = HttpModuleHelper.GetFakeHttpContext();
-            context.AddRequestCookie(new HttpCookie("ai_session", $"session123|{now}|{now}") { HttpOnly = true });
+            context.AddRequestCookie(new HttpCookie("ai_session", $"session123|{now}|{now}") { HttpOnly = true, Secure = true });
             SetupTracerProvider(new SessionActivityProcessor());
 
             // Act
@@ -167,7 +167,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             string acquisitionDate = DateTimeOffset.Now.AddHours(-1).ToString("O", CultureInfo.InvariantCulture);
             string renewalDate = DateTimeOffset.Now.ToString("O", CultureInfo.InvariantCulture);
             var context = HttpModuleHelper.GetFakeHttpContext();
-            context.AddRequestCookie(new HttpCookie("ai_session", $"session123|{acquisitionDate}|{renewalDate}") { HttpOnly = true });
+            context.AddRequestCookie(new HttpCookie("ai_session", $"session123|{acquisitionDate}|{renewalDate}") { HttpOnly = true, Secure = true });
             SetupTracerProvider(new SessionActivityProcessor());
 
             // Act
@@ -190,7 +190,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
         {
             // Arrange
             var context = HttpModuleHelper.GetFakeHttpContext();
-            context.AddRequestCookie(new HttpCookie("ai_session", "session123") { HttpOnly = true });
+            context.AddRequestCookie(new HttpCookie("ai_session", "session123") { HttpOnly = true, Secure = true });
             SetupTracerProvider(new SessionActivityProcessor());
 
             // Act

@@ -34,7 +34,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
         {
             // Arrange
             var context = HttpModuleHelper.GetFakeHttpContext();
-            context.AddRequestCookie(new HttpCookie("ai_user", "user123|" + DateTimeOffset.Now.ToString("O", CultureInfo.InvariantCulture)) { HttpOnly = true });
+            context.AddRequestCookie(new HttpCookie("ai_user", "user123|" + DateTimeOffset.Now.ToString("O", CultureInfo.InvariantCulture)) { HttpOnly = true, Secure = true });
             SetupTracerProvider(new UserActivityProcessor());
 
             // Act
@@ -74,7 +74,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
         {
             // Arrange
             var context = HttpModuleHelper.GetFakeHttpContext();
-            context.AddRequestCookie(new HttpCookie("ai_user", string.Empty) { HttpOnly = true });
+            context.AddRequestCookie(new HttpCookie("ai_user", string.Empty) { HttpOnly = true, Secure = true });
             SetupTracerProvider(new UserActivityProcessor());
 
             // Act
@@ -94,7 +94,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
         {
             // Arrange
             var context = HttpModuleHelper.GetFakeHttpContext();
-            context.AddRequestCookie(new HttpCookie("ai_user", "user123|" + DateTimeOffset.Now.ToString("O", CultureInfo.InvariantCulture)) { HttpOnly = true });
+            context.AddRequestCookie(new HttpCookie("ai_user", "user123|" + DateTimeOffset.Now.ToString("O", CultureInfo.InvariantCulture)) { HttpOnly = true, Secure = true });
             SetupTracerProvider(new UserActivityProcessor());
 
             // Act
@@ -115,7 +115,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
         {
             // Arrange
             var context = HttpModuleHelper.GetFakeHttpContext();
-            context.AddRequestCookie(new HttpCookie("ai_user", "user123") { HttpOnly = true });
+            context.AddRequestCookie(new HttpCookie("ai_user", "user123") { HttpOnly = true, Secure = true });
             SetupTracerProvider(new UserActivityProcessor());
 
             // Act
@@ -136,7 +136,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             // Arrange
             var time = DateTimeOffset.Now.ToString("O", CultureInfo.InvariantCulture);
             var context = HttpModuleHelper.GetFakeHttpContext();
-            context.AddRequestCookie(new HttpCookie("ai_user", "user123|" + time + "|extraPart") { HttpOnly = true });
+            context.AddRequestCookie(new HttpCookie("ai_user", "user123|" + time + "|extraPart") { HttpOnly = true, Secure = true });
             SetupTracerProvider(new UserActivityProcessor());
 
             // Act
@@ -157,7 +157,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
         {
             // Arrange
             var context = HttpModuleHelper.GetFakeHttpContext();
-            context.AddRequestCookie(new HttpCookie("ai_user", "user123|NotATimestamp") { HttpOnly = true });
+            context.AddRequestCookie(new HttpCookie("ai_user", "user123|NotATimestamp") { HttpOnly = true, Secure = true });
             SetupTracerProvider(new UserActivityProcessor());
 
             // Act
@@ -178,7 +178,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             // Arrange
             var validTimestamp = DateTimeOffset.Now.ToString("O", CultureInfo.InvariantCulture);
             var context = HttpModuleHelper.GetFakeHttpContext();
-            context.AddRequestCookie(new HttpCookie("ai_user", $"user123|{validTimestamp}") { HttpOnly = true });
+            context.AddRequestCookie(new HttpCookie("ai_user", $"user123|{validTimestamp}") { HttpOnly = true, Secure = true });
             SetupTracerProvider(new UserActivityProcessor());
 
             // Act

@@ -15,7 +15,8 @@ namespace Microsoft.ApplicationInsights.Web.Helpers
                     RequestTrackingConstants.WebAuthenticatedUserCookieName,
                     HttpUtility.UrlEncode(cookieString)) 
                 { 
-                    HttpOnly = true 
+                    HttpOnly = true,
+                    Secure = true
                 });
             
             return context;
