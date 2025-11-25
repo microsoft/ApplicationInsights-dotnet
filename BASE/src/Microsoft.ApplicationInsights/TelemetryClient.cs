@@ -246,7 +246,7 @@
             // Add custom properties from telemetry
             if (telemetry.Properties != null && telemetry.Properties.Count > 0)
             {
-                Utils.CopyDictionary(properties, telemetry.Properties);
+                Utils.CopyDictionary(telemetry.Properties, properties);
             }
 
             // Map context properties to semantic conventions
