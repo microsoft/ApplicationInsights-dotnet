@@ -11,8 +11,10 @@ namespace Microsoft.ApplicationInsights.Web.Tests
     /// </summary>
     public abstract class ActivityProcessorTestBase : IDisposable
     {
-        protected static readonly ActivitySource TestActivitySource = new ActivitySource("Microsoft.ApplicationInsights.Web.Tests");
-        protected TracerProvider TracerProvider { get; set; }
+        private const string TestActivitySourceName = "Microsoft.ApplicationInsights.Web.Tests";
+        private static readonly ActivitySource TestActivitySource = new ActivitySource(TestActivitySourceName);
+        
+        private TracerProvider tracerProvider;
 
         protected ActivityProcessorTestBase()
         {
@@ -24,8 +26,11 @@ namespace Microsoft.ApplicationInsights.Web.Tests
         /// </summary>
         protected void SetupTracerProvider(BaseProcessor<Activity> processor)
         {
-            TracerProvider = Sdk.CreateTracerProviderBuilder()
-                .AddSource(TestActivitySource.Name)
+            // Dispose existing provider if any
+            this.tracerProvider?.Dispose();
+            
+            this.tracerProvider = Sdk.CreateTracerProviderBuilder()
+                .AddSource(TestActivitySourceName)
                 .AddProcessor(processor)
                 .Build();
         }
@@ -41,14 +46,18 @@ namespace Microsoft.ApplicationInsights.Web.Tests
 
         public virtual void Dispose()
         {
-            // Cleanup: Stop any running activities and clear HttpContext
+            // Cleanup: Stop any running activities
             while (Activity.Current != null)
             {
                 Activity.Current.Stop();
             }
 
+            // Dispose TracerProvider to flush and release resources
+            this.tracerProvider?.Dispose();
+            this.tracerProvider = null;
+
+            // Clear HttpContext to prevent test pollution
             HttpContext.Current = null;
-            TracerProvider?.Dispose();
         }
     }
 }
