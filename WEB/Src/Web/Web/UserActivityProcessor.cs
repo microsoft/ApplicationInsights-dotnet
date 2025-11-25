@@ -42,7 +42,8 @@ namespace Microsoft.ApplicationInsights.Web
             var existingUserId = activity.GetTagItem("ai.user.id");
             if (existingUserId == null || string.IsNullOrEmpty(existingUserId?.ToString()))
             {
-                var userCookie = context.Request.UnvalidatedGetCookie(WebUserCookieName);
+                // Try Unvalidated first, fall back to regular Cookies for test environments
+                var userCookie = context.Request.UnvalidatedGetCookie(WebUserCookieName) ?? context.Request.Cookies[WebUserCookieName];
                 if (userCookie != null && !string.IsNullOrEmpty(userCookie.Value))
                 {
                     var cookieParts = userCookie.Value.Split('|');
@@ -50,10 +51,17 @@ namespace Microsoft.ApplicationInsights.Web
                     if (cookieParts.Length >= 2)
                     {
                         var userId = cookieParts[0];
-                        if (!string.IsNullOrEmpty(userId))
+                        var timestamp = cookieParts[1];
+
+                        // Validate timestamp format (should be ISO 8601 DateTime)
+                        if (!string.IsNullOrEmpty(userId) && DateTimeOffset.TryParse(timestamp, out _))
                         {
                             // Set as Application Insights convention for anonymous user
                             activity.SetTag("ai.user.id", userId);
+                        }
+                        else
+                        {
+                            WebEventSource.Log.WebUserTrackingUserCookieIsIncomplete(userCookie.Value);
                         }
                     }
                     else

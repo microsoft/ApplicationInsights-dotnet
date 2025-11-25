@@ -46,8 +46,18 @@ namespace Microsoft.ApplicationInsights.Web
                 var request = context.GetRequest();
                 if (request != null)
                 {
+                    // Try Unvalidated first, fall back to regular Headers for test environments
                     var runIdHeader = request.UnvalidatedGetHeader(TestRunHeader);
+                    if (string.IsNullOrEmpty(runIdHeader))
+                    {
+                        runIdHeader = request.Headers[TestRunHeader];
+                    }
+
                     var locationHeader = request.UnvalidatedGetHeader(TestLocationHeader);
+                    if (string.IsNullOrEmpty(locationHeader))
+                    {
+                        locationHeader = request.Headers[TestLocationHeader];
+                    }
 
                     if (!string.IsNullOrEmpty(runIdHeader) && !string.IsNullOrEmpty(locationHeader))
                     {
