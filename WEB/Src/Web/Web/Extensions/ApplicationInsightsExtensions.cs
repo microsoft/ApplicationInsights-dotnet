@@ -45,7 +45,15 @@
                                 }
 
                                 return true;
-                            }));
+                            })
+                            // Add Application Insights Web-specific activity processors
+                            .AddProcessor(new WebTestActivityProcessor())
+                            .AddProcessor(new SyntheticUserAgentActivityProcessor())
+                            .AddProcessor(new SessionActivityProcessor())
+                            .AddProcessor(new UserActivityProcessor())
+                            .AddProcessor(new AuthenticatedUserIdActivityProcessor())
+                            .AddProcessor(new AccountIdActivityProcessor())
+                            .AddProcessor(new ClientIpHeaderActivityProcessor()));
 
             builder.WithMetrics(b => b.AddAspNetInstrumentation()
                                       .AddHttpClientInstrumentation());

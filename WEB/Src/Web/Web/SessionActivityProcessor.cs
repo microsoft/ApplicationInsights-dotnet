@@ -14,6 +14,7 @@ namespace Microsoft.ApplicationInsights.Web
     {
         private const string WebSessionCookieName = "ai_session";
         private const int SessionCookieSessionIdIndex = 0;
+        private const int SessionCookieAcquisitionDateIndex = 1;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SessionActivityProcessor"/> class.
@@ -43,7 +44,8 @@ namespace Microsoft.ApplicationInsights.Web
             var existingSessionId = activity.GetTagItem("session.id");
             if (existingSessionId == null || string.IsNullOrEmpty(existingSessionId?.ToString()))
             {
-                var sessionCookie = context.Request.UnvalidatedGetCookie(WebSessionCookieName);
+                // Try Unvalidated first, fall back to regular Cookies for test environments
+                var sessionCookie = context.Request.UnvalidatedGetCookie(WebSessionCookieName) ?? context.Request.Cookies[WebSessionCookieName];
                 if (sessionCookie != null && !string.IsNullOrWhiteSpace(sessionCookie.Value))
                 {
                     var parts = sessionCookie.Value.Split('|');
@@ -55,6 +57,21 @@ namespace Microsoft.ApplicationInsights.Web
                         {
                             // Set as OpenTelemetry semantic convention for session
                             activity.SetTag("session.id", sessionId);
+
+                            // Check if this is the first session (acquisition date matches last activity date)
+                            if (parts.Length > SessionCookieAcquisitionDateIndex + 1)
+                            {
+                                var acquisitionDate = parts[SessionCookieAcquisitionDateIndex];
+                                var renewalDate = parts[SessionCookieAcquisitionDateIndex + 1];
+                                
+                                if (!string.IsNullOrEmpty(acquisitionDate) && !string.IsNullOrEmpty(renewalDate))
+                                {
+                                    if (acquisitionDate == renewalDate)
+                                    {
+                                        activity.SetTag("session.isFirst", true);
+                                    }
+                                }
+                            }
                         }
                     }
                 }

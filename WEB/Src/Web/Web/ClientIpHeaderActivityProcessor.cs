@@ -89,7 +89,12 @@ namespace Microsoft.ApplicationInsights.Web
                 string resultIp = null;
                 foreach (var clientIpHeaderName in this.HeaderNames)
                 {
+                    // Try Unvalidated first, fall back to regular Headers for test environments
                     var clientIpsFromHeader = context.Request.UnvalidatedGetHeader(clientIpHeaderName);
+                    if (string.IsNullOrWhiteSpace(clientIpsFromHeader))
+                    {
+                        clientIpsFromHeader = context.Request.Headers[clientIpHeaderName];
+                    }
 
                     if (!string.IsNullOrWhiteSpace(clientIpsFromHeader))
                     {
