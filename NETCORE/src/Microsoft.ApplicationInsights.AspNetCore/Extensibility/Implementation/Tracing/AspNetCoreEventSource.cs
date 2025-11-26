@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing
 {
 #if AI_ASPNETCORE_WEB
-    using Microsoft.ApplicationInsights.AspNetCore.Implementation;
     using Microsoft.ApplicationInsights.Shared.Internals;
 #endif
     using System;

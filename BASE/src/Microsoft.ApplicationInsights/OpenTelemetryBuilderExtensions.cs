@@ -5,9 +5,11 @@
 namespace Microsoft.ApplicationInsights
 {
     using System;
+    using System.Collections.Generic;
     using Azure.Monitor.OpenTelemetry.Exporter;
     using Microsoft.ApplicationInsights.Extensibility;
     using OpenTelemetry;
+    using OpenTelemetry.Resources;
 
     /// <summary>
     /// Extension methods for configuring Application Insights with OpenTelemetry.
@@ -22,6 +24,7 @@ namespace Microsoft.ApplicationInsights
         public static IOpenTelemetryBuilder WithApplicationInsights(this IOpenTelemetryBuilder builder)
         {
             builder
+                .ConfigureResource(r => r.AddAttributes(new[] { new KeyValuePair<string, object>("telemetry.distro.name", "Microsoft.ApplicationInsights") }))
                 .WithLogging()
                 .WithMetrics(metrics => metrics.AddMeter(TelemetryConfiguration.ApplicationInsightsMeterName))
                 .WithTracing(tracing => tracing.AddSource(TelemetryConfiguration.ApplicationInsightsActivitySourceName));
