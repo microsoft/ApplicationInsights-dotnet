@@ -22,18 +22,21 @@
         {
             this.Success = true;
             this.context = new TelemetryContext();
+            this.Properties = new Dictionary<string, string>();
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AvailabilityTelemetry"/> class with empty properties.
         /// </summary>
-#pragma warning disable CA1801 // Review unused parameters
         public AvailabilityTelemetry(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message = null)
-#pragma warning restore CA1801 // Review unused parameters
             : this()
         {
+            this.Name = name;
             this.Timestamp = timeStamp;
-            this.context = new TelemetryContext();
+            this.Duration = duration;
+            this.RunLocation = runLocation;
+            this.Success = success;
+            this.Message = message;
         }
 
         /// <summary>
@@ -60,7 +63,6 @@
         public TimeSpan Duration
         {
             get;
-
             set;
         }
 
@@ -118,7 +120,8 @@
         /// </summary>
         public DateTimeOffset Timestamp
         {
-            get; set;
+            get;
+            set;
         }
     }
 }

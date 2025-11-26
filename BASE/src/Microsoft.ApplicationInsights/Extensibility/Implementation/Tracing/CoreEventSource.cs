@@ -127,6 +127,9 @@
         [Event(15, Message = "FlushAsync was cancelled by the caller.", Level = EventLevel.Informational)]
         public void FlushAsyncCancelled(string appDomainName = "Incorrect") => this.WriteEvent(15, this.nameProvider.Name);
 
+        [Event(16, Message = "TrackAvailability was called with a null AvailabilityTelemetry object. The availability test result will be ignored.", Level = EventLevel.Warning, Keywords = Keywords.UserActionable)]
+        public void TrackAvailabilityTelemetryIsNull(string appDomainName = "Incorrect") => this.WriteEvent(16, this.nameProvider.Name);
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>

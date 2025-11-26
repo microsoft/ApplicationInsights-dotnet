@@ -163,7 +163,7 @@
 
             var properties = telemetry.Properties ?? new Dictionary<string, string>();
             properties.Add("microsoft.custom_event.name", telemetry.Name);
-            
+
             // Map context properties to semantic conventions
             if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
             {
@@ -179,8 +179,93 @@
             {
                 properties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
             }
-            
+
             var state = new DictionaryLogState(telemetry.Context, properties, String.Empty);
+            this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
+        }
+
+        /// <summary>
+        /// Send information about availability of an application.
+        /// </summary>
+        /// <param name="name">Availability test name.</param>
+        /// <param name="timeStamp">The time when the availability was captured.</param>
+        /// <param name="duration">The time taken for the availability test to run.</param>
+        /// <param name="runLocation">Name of the location the availability test was run from.</param>
+        /// <param name="success">True if the availability test ran successfully.</param>
+        /// <param name="message">Error message on availability test run failure.</param>
+        /// <param name="properties">Named string values you can use to classify and search for this availability telemetry.</param>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
+        /// </remarks>
+        public void TrackAvailability(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message = null, IDictionary<string, string> properties = null)
+        {
+            var availabilityTelemetry = new AvailabilityTelemetry(name, timeStamp, duration, runLocation, success, message);
+
+            if (properties != null && properties.Count > 0)
+            {
+                Utils.CopyDictionary(properties, availabilityTelemetry.Properties);
+            }
+
+            this.TrackAvailability(availabilityTelemetry);
+        }
+
+        /// <summary>
+        /// Send information about availability of an application.
+        /// Create a separate <see cref="AvailabilityTelemetry"/> instance for each call to <see cref="TrackAvailability(AvailabilityTelemetry)"/>.
+        /// </summary>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
+        /// </remarks>
+        /// <param name="telemetry">An availability telemetry item.</param>
+        public void TrackAvailability(AvailabilityTelemetry telemetry)
+        {
+            if (telemetry == null)
+            {
+                CoreEventSource.Log.TrackAvailabilityTelemetryIsNull();
+                return;
+            }
+
+            var properties = new Dictionary<string, string>();
+
+            // Add the magic marker attribute
+            properties.Add("microsoft.availability.id", telemetry.Id ?? Guid.NewGuid().ToString());
+            properties.Add("microsoft.availability.name", telemetry.Name);
+            properties.Add("microsoft.availability.duration", telemetry.Duration.ToString());
+            properties.Add("microsoft.availability.success", telemetry.Success.ToString());
+
+            if (!string.IsNullOrEmpty(telemetry.RunLocation))
+            {
+                properties.Add("microsoft.availability.runLocation", telemetry.RunLocation);
+            }
+
+            if (!string.IsNullOrEmpty(telemetry.Message))
+            {
+                properties.Add("microsoft.availability.message", telemetry.Message);
+            }
+
+            // Add custom properties from telemetry
+            if (telemetry.Properties != null && telemetry.Properties.Count > 0)
+            {
+                Utils.CopyDictionary(telemetry.Properties, properties);
+            }
+
+            // Map context properties to semantic conventions
+            if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
+            {
+                properties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
+            }
+
+            if (!string.IsNullOrEmpty(telemetry.Context?.User?.Id))
+            {
+                properties[SemanticConventions.AttributeEnduserPseudoId] = telemetry.Context.User.Id;
+            }
+
+            if (!string.IsNullOrEmpty(telemetry.Context?.User?.AuthenticatedUserId))
+            {
+                properties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
+            }
+
+            var state = new DictionaryLogState(telemetry.Context, properties, telemetry.Message ?? String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -269,7 +354,7 @@
 
             // Map context properties to semantic conventions that exporter understands
             var properties = telemetry.Properties ?? new Dictionary<string, string>();
-            
+
             if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
             {
                 properties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
@@ -309,7 +394,7 @@
         {
             // Get or create histogram for this metric
             var histogram = this.configuration.MetricsManager.GetOrCreateHistogram(name, null);
-            
+
             // Build tags from properties
             if (properties != null && properties.Count > 0)
             {
@@ -346,9 +431,9 @@
 
             // Get or create histogram for this metric
             var histogram = this.configuration.MetricsManager.GetOrCreateHistogram(
-                telemetry.Name, 
+                telemetry.Name,
                 telemetry.MetricNamespace);
-            
+
             // Build tags from properties
             if (telemetry.Properties != null && telemetry.Properties.Count > 0)
             {
@@ -364,7 +449,7 @@
             {
                 histogram.Record(telemetry.Value);
             }
-            
+
             this.Track(telemetry);
         }
 
@@ -406,7 +491,7 @@
 
             // Map context properties to semantic conventions
             var properties = telemetry.Properties ?? new Dictionary<string, string>();
-            
+
             if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
             {
                 properties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
@@ -593,48 +678,6 @@
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Send information about availability of an application.
-        /// </summary>
-        /// <param name="name">Availability test name.</param>
-        /// <param name="timeStamp">The time when the availability was captured.</param>
-        /// <param name="duration">The time taken for the availability test to run.</param>
-        /// <param name="runLocation">Name of the location the availability test was run from.</param>
-        /// <param name="success">True if the availability test ran successfully.</param>
-        /// <param name="message">Error message on availability test run failure.</param>
-        /// <param name="properties">Named string values you can use to classify and search for this availability telemetry.</param>
-        /// <remarks>
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
-        /// </remarks>
-        public void TrackAvailability(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message = null, IDictionary<string, string> properties = null)
-        {
-            var availabilityTelemetry = new AvailabilityTelemetry(name, timeStamp, duration, runLocation, success, message);
-
-            if (properties != null && properties.Count > 0)
-            {
-                Utils.CopyDictionary(properties, availabilityTelemetry.Properties);
-            }
-
-            this.TrackAvailability(availabilityTelemetry);
-        }
-
-        /// <summary>
-        /// Send information about availability of an application.
-        /// Create a separate <see cref="AvailabilityTelemetry"/> instance for each call to <see cref="TrackAvailability(AvailabilityTelemetry)"/>.
-        /// </summary>
-        /// <remarks>
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
-        /// </remarks>
-        public void TrackAvailability(AvailabilityTelemetry telemetry)
-        {
-            if (telemetry == null)
-            {
-                telemetry = new AvailabilityTelemetry();
-            }
-
-            this.Track(telemetry);
         }
 
         /// <summary>
@@ -1352,7 +1395,7 @@
 
                 // Merge GlobalProperties and properties
                 var allProperties = new Dictionary<string, string>();
-                
+
                 if (context?.GlobalProperties != null)
                 {
                     foreach (var kvp in context.GlobalProperties)
