@@ -17,8 +17,8 @@ namespace ClassicAspNetWebApp
             // Code that runs on application startup
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             // BundleConfig.RegisterBundles(BundleTable.Bundles);
-            var telemetryConfig = TelemetryConfiguration.CreateDefault();
-            telemetryConfig.ConnectionString = "InstrumentationKey=Ikey";
+            // var telemetryConfig = TelemetryConfiguration.CreateDefault();
+            // telemetryConfig.ConnectionString = "InstrumentationKey=Ikey";
         }
     }
 }
