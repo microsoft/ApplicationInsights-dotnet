@@ -162,6 +162,9 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <None Include="applicationinsights.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
