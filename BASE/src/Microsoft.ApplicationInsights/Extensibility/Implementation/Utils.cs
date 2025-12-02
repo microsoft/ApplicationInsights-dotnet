@@ -1,9 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
-    using System;
     using System.Collections.Generic;
-    using System.Globalization;
-    using System.Linq;
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 

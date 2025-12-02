@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.WorkerService.Implementation.Tracing
 {
-    using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
     using Microsoft.ApplicationInsights.Shared.Internals;

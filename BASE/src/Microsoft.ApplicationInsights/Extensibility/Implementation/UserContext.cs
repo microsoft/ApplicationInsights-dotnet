@@ -1,7 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
-    using System.Collections.Generic;
-
     /// <summary>
     /// Encapsulates information about a user using an application.
     /// </summary>

@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
-    using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
 
@@ -129,6 +128,12 @@
 
         [Event(16, Message = "TrackAvailability was called with a null AvailabilityTelemetry object. The availability test result will be ignored.", Level = EventLevel.Warning, Keywords = Keywords.UserActionable)]
         public void TrackAvailabilityTelemetryIsNull(string appDomainName = "Incorrect") => this.WriteEvent(16, this.nameProvider.Name);
+
+        [Event(17, Message = "TrackValue was called with an incorrect number of dimension values. Expected {0} dimension(s) but got {1}.", Level = EventLevel.Warning, Keywords = Keywords.UserActionable)]
+        public void MetricDimensionMismatch(int expected, int actual, string appDomainName = "Incorrect") => this.WriteEvent(17, expected, actual, this.nameProvider.Name);
+
+        [Event(18, Message = "TrackMetric was called with a null MetricTelemetry object. The metric will be ignored.", Level = EventLevel.Warning, Keywords = Keywords.UserActionable)]
+        public void TrackMetricTelemetryIsNull(string appDomainName = "Incorrect") => this.WriteEvent(18, this.nameProvider.Name);
 
         /// <summary>
         /// Keywords for the PlatformEventSource.

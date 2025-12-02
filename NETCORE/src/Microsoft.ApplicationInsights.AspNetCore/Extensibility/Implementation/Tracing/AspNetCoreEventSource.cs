@@ -3,7 +3,6 @@
 #if AI_ASPNETCORE_WEB
     using Microsoft.ApplicationInsights.Shared.Internals;
 #endif
-    using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
 

@@ -11,8 +11,6 @@ abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTel
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Timestamp.get -> System.DateTimeOffset
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Timestamp.set -> void
 const Microsoft.ApplicationInsights.Metrics.MetricIdentifier.MaxDimensionsCount = 10 -> int
-Microsoft.ApplicationInsights.Channel.IAsyncFlushable
-Microsoft.ApplicationInsights.Channel.IAsyncFlushable.FlushAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>
 Microsoft.ApplicationInsights.Channel.ITelemetry
 Microsoft.ApplicationInsights.Channel.ITelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
 Microsoft.ApplicationInsights.Channel.ITelemetry.Timestamp.get -> System.DateTimeOffset
@@ -167,7 +165,6 @@ Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ConnectionStr
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableTelemetry.get -> bool
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableTelemetry.set -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.Dispose() -> void
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetAzureTokenCredential(object tokenCredential) -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.TelemetryConfiguration() -> void
 Microsoft.ApplicationInsights.Metric
 Microsoft.ApplicationInsights.Metric.TrackValue(double metricValue) -> void
