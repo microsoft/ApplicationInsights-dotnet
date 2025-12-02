@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
-    using System.Collections.Generic;
     using System.ComponentModel;
 
     /// <summary>

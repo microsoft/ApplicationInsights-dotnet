@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.Web.Implementation
 {
-    using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
     using Microsoft.ApplicationInsights.Common;
@@ -177,6 +176,29 @@
             this.WriteEvent(
                 13,
                 locationId ?? string.Empty,
+                this.applicationNameProvider.Name);
+        }
+
+        [Event(
+            14,
+            Message = "ConnectionString loaded from config: {0}",
+            Level = EventLevel.Informational)]
+        public void ConnectionStringLoadedFromConfig(string connectionString, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                14,
+                connectionString ?? string.Empty,
+                this.applicationNameProvider.Name);
+        }
+
+        [Event(
+            15,
+            Message = "No ConnectionString found in applicationinsights.config",
+            Level = EventLevel.Warning)]
+        public void NoConnectionStringFoundInConfig(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                15,
                 this.applicationNameProvider.Name);
         }
 

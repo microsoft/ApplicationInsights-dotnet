@@ -1,7 +1,6 @@
 namespace BasicConsoleApp
 {
     using Microsoft.ApplicationInsights;
-    using Microsoft.ApplicationInsights.DataContracts;
     using System;
     using System.Collections.Generic;
 

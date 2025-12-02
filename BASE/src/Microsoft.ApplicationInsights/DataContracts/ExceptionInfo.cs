@@ -2,8 +2,6 @@
 {
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Linq;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     /// <summary>
     /// Wrapper class for ExceptionData"/> that lets user provide exception data without having the actual Exception object.

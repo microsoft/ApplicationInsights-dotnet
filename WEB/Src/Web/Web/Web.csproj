@@ -23,7 +23,6 @@
     <!--Common Dependencies-->
     <ProjectReference Include="..\..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
     <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.14.0" />
-    <!--<PackageReference Include="Microsoft.AspNet.TelemetryCorrelation" Version="1.0.8" />-->
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="10.0.0" />
 	<PackageReference Include="OpenTelemetry.Instrumentation.AspNet" Version="1.14.0-rc.1" />
     <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.14.0" />
