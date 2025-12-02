@@ -425,7 +425,7 @@
         {
             if (telemetry == null)
             {
-                // TODO: log error
+                CoreEventSource.Log.TrackMetricTelemetryIsNull();
                 return;
             }
 

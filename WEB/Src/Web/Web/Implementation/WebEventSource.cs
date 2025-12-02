@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.Web.Implementation
 {
-    using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
     using Microsoft.ApplicationInsights.Common;

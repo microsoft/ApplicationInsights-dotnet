@@ -2,7 +2,7 @@
 {
     using System;
     using System.Diagnostics;
-    using System.Diagnostics.Metrics;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// Represents a zero- or multi-dimensional metric.<br />
@@ -82,7 +82,7 @@
         {
             if (this.dimensionNames.Length != 1)
             {
-                // TODO: Log exception
+                CoreEventSource.Log.MetricDimensionMismatch(1, this.dimensionNames.Length);
                 return false;
             }
 
@@ -140,7 +140,7 @@
             if (this.dimensionNames.Length != 2)
             {
                 // throw new ArgumentException("This metric expects 2 dimension values.");
-                // TODO: Log exception
+                CoreEventSource.Log.MetricDimensionMismatch(2, this.dimensionNames.Length);
                 return false;
             }
 
@@ -201,7 +201,7 @@
             if (this.dimensionNames.Length != 3)
             {
                 // throw new ArgumentException("This metric expects 3 dimension values.");
-                // TODO: Log exception
+                CoreEventSource.Log.MetricDimensionMismatch(3, this.dimensionNames.Length);
                 return false;
             }
 
@@ -265,7 +265,7 @@
             if (this.dimensionNames.Length != 4)
             {
                 // throw new ArgumentException("This metric expects 4 dimension values.");
-                // TODO: Log exception
+                CoreEventSource.Log.MetricDimensionMismatch(4, this.dimensionNames.Length);
                 return false;
             }
 
@@ -338,7 +338,7 @@
             if (this.dimensionNames.Length != 5)
             {
                 // throw new ArgumentException("This metric expects 5 dimension values.");
-                // TODO: Log exception
+                CoreEventSource.Log.MetricDimensionMismatch(5, this.dimensionNames.Length);
                 return false;
             }
 
@@ -421,7 +421,7 @@
             if (this.dimensionNames.Length != 6)
             {
                 // throw new ArgumentException("This metric expects 6 dimension values.");
-                // TODO: Log exception
+                CoreEventSource.Log.MetricDimensionMismatch(6, this.dimensionNames.Length);
                 return false;
             }
 
@@ -509,7 +509,7 @@
             if (this.dimensionNames.Length != 7)
             {
                 // throw new ArgumentException("This metric expects 7 dimension values.");
-                // TODO: Log exception
+                CoreEventSource.Log.MetricDimensionMismatch(7, this.dimensionNames.Length);
                 return false;
             }
 
@@ -602,7 +602,7 @@
             if (this.dimensionNames.Length != 8)
             {
                 // throw new ArgumentException("This metric expects 8 dimension values.");
-                // TODO: Log exception
+                CoreEventSource.Log.MetricDimensionMismatch(8, this.dimensionNames.Length);
                 return false;
             }
 
@@ -700,7 +700,7 @@
             if (this.dimensionNames.Length != 9)
             {
                 // throw new ArgumentException("This metric expects 9 dimension values.");
-                // TODO: Log exception
+                CoreEventSource.Log.MetricDimensionMismatch(9, this.dimensionNames.Length);
                 return false;
             }
 
@@ -803,7 +803,7 @@
             if (this.dimensionNames.Length != 10)
             {
                 // throw new ArgumentException("This metric expects 10 dimension values.");
-                // TODO: Log exception
+                CoreEventSource.Log.MetricDimensionMismatch(10, this.dimensionNames.Length);
                 return false;
             }
 

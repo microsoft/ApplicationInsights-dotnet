@@ -7,7 +7,6 @@
     using System.Reflection;
     using System.Threading;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Metrics;
     using Microsoft.Extensions.DependencyInjection;

@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Specialized;
     using System.Web;
-    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
