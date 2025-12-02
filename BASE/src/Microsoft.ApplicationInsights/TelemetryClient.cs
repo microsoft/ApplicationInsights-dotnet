@@ -386,11 +386,7 @@
         /// <param name="name">Metric name.</param>
         /// <param name="value">Metric value.</param>
         /// <param name="properties">Named string values you can use to classify and filter metrics.</param>        
-#pragma warning disable CA1822 // Mark members as static
-#pragma warning disable CA1801 // Review unused parameters
         public void TrackMetric(string name, double value, IDictionary<string, string> properties = null)
-#pragma warning restore CA1801 // Review unused parameters
-#pragma warning restore CA1822 // Mark members as static
         {
             // Get or create histogram for this metric
             var histogram = this.configuration.MetricsManager.GetOrCreateHistogram(name, null);

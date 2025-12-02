@@ -190,7 +190,7 @@
         /// <exception cref="ArgumentException">An ArgumentException is thrown if the provided object does not inherit Azure.Core.TokenCredential.</exception>
 #pragma warning disable CA1822 // Mark members as static
 #pragma warning disable CA1801 // Review unused parameters
-        public void SetAzureTokenCredential(object tokenCredential)
+        internal void SetAzureTokenCredential(object tokenCredential)
 #pragma warning restore CA1801 // Review unused parameters
 #pragma warning restore CA1822 // Mark members as static
         {

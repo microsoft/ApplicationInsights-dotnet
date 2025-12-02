@@ -57,11 +57,11 @@
                     if (!string.IsNullOrEmpty(connectionString))
                     {
                         sharedTelemetryConfiguration.ConnectionString = connectionString;
-                        // TODO: Log - $"ConnectionString loaded from config: {connectionString}"
+                        WebEventSource.Log.ConnectionStringLoadedFromConfig(connectionString);
                     }
                     else
                     {
-                        // TODO: Log - "No ConnectionString found in applicationinsights.config"
+                        WebEventSource.Log.NoConnectionStringFoundInConfig();
                     }
 
                     sharedTelemetryConfiguration.ConfigureOpenTelemetryBuilder(
