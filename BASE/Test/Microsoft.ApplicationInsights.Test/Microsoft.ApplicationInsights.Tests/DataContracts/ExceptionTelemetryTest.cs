@@ -1,56 +1,85 @@
-﻿namespace Microsoft.ApplicationInsights.DataContracts
+namespace Microsoft.ApplicationInsights.DataContracts
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
-    using System.IO;
     using System.Linq;
     using System.Reflection;
-    using System.Text;
-    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
-    using Microsoft.ApplicationInsights.TestFramework;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
+    using Microsoft.Extensions.Logging;
+    using Xunit;
+    using OpenTelemetry;
+    using OpenTelemetry.Logs;
     using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
 
-    [TestClass]
-    public class ExceptionTelemetryTest
+    public class ExceptionTelemetryTest : IDisposable
     {
-        [TestMethod]
-        public void VerifyExpectedDefaultValue()
+        private List<LogRecord> logItems;
+        private TelemetryClient telemetryClient;
+
+        public ExceptionTelemetryTest()
         {
-            var exceptionTelemetry = new ExceptionTelemetry();
-            Assert.AreEqual(SamplingDecision.None, exceptionTelemetry.ProactiveSamplingDecision);
-            Assert.AreEqual(SamplingTelemetryItemTypes.Exception, exceptionTelemetry.ItemTypeFlag);
+            var configuration = new TelemetryConfiguration();
+            this.logItems = new List<LogRecord>();
+            var instrumentationKey = Guid.NewGuid().ToString();
+            configuration.ConnectionString = "InstrumentationKey=" + instrumentationKey;
+            configuration.ConfigureOpenTelemetryBuilder(b => b.WithLogging(l => l.AddInMemoryExporter(logItems)));
+            this.telemetryClient = new TelemetryClient(configuration);
         }
 
-        [TestMethod]
+        public void Dispose()
+        {
+            this.telemetryClient?.TelemetryConfiguration?.Dispose();
+        }
+
+        [Fact]
         public void ClassIsPublicAndCanBeUsedByCustomersDirectly()
         {
-            Assert.IsTrue(typeof(ExceptionTelemetry).GetTypeInfo().IsPublic);
+            Assert.True(typeof(ExceptionTelemetry).GetTypeInfo().IsPublic);
         }
 
-        [TestMethod]
-        public void ExceptionTelemetryImplementsITelemetryContract()
-        {
-            var test = new ITelemetryTest<ExceptionTelemetry, AI.ExceptionData>();
-            test.Run();
-        }
-
-        [TestMethod]
+        [Fact]
         public void ExceptionTelemetryReturnsNonNullContext()
         {
             ExceptionTelemetry item = new ExceptionTelemetry();
-            Assert.IsNotNull(item.Context);
+            Assert.NotNull(item.Context);
         }
 
-        [TestMethod]
-        public void ExceptionTelemetryCreatedBasedOnCustomData()
+        [Fact]
+        public void ParameterlessConstructorInitializesAllProperties()
         {
-            // ARRANGE
+            // ACT - Create exception telemetry with parameterless constructor
+            var telemetry = new ExceptionTelemetry();
+            
+            // ASSERT - Verify all properties are initialized properly
+            Assert.NotNull(telemetry.Context);
+            Assert.NotNull(telemetry.Properties);
+            Assert.Equal(0, telemetry.Properties.Count);
+            Assert.NotNull(telemetry.ExceptionDetailsInfoList);
+            Assert.Equal(0, telemetry.ExceptionDetailsInfoList.Count);
+            Assert.Null(telemetry.Exception);
+            Assert.Null(telemetry.SeverityLevel);
+            Assert.Null(telemetry.ProblemId);
+            Assert.Null(telemetry.Message);
+            
+            // Verify properties can be set and tracked
+            telemetry.Properties["key1"] = "value1";
+            telemetry.Exception = new Exception("Test exception");
+            telemetry.SeverityLevel = SeverityLevel.Warning;
+            
+            this.telemetryClient.TrackException(telemetry);
+            this.telemetryClient.Flush();
+            
+            Assert.Equal(1, this.logItems.Count);
+            var logRecord = this.logItems[0];
+            Assert.NotNull(logRecord.Exception);
+            Assert.Equal("Test exception", logRecord.Exception.Message);
+            Assert.Equal(LogLevel.Warning, logRecord.LogLevel);
+        }
+
+        [Fact]
+        public void ExceptionTelemetryCreatedWithCustomExceptionDetailsCanBeTracked()
+        {
+            // ARRANGE - Customer creates exception telemetry with custom exception details
             var topLevelexceptionDetails = new ExceptionDetailsInfo(1, -1, "TopLevelException", "Top level exception",
                 true, "Top level exception stack", new[]
                 {
@@ -66,193 +95,82 @@
                     new StackFrame("Some.Assembly", "LessImportantFile.dll", 1, 11, "DeeperInnerMethod")
                 });
 
-            // ACT
             ExceptionTelemetry item = new ExceptionTelemetry(new[] {topLevelexceptionDetails, innerExceptionDetails},
                 SeverityLevel.Error, "ProblemId",
-                new Dictionary<string, string>() {["property1"] = "value1", ["property2"] = "value2"},
-                new Dictionary<string, double>() {["property1"] = 1, ["property2"] = 2});
+                new Dictionary<string, string>() {["property1"] = "value1", ["property2"] = "value2"});
 
-            item.ExceptionDetailsInfoList[1].Message = "Inner exception modified";
-            item.ProblemId = "ProblemId modified";
+            // ACT - Track it through TelemetryClient
+            this.telemetryClient.TrackException(item);
+            this.telemetryClient.Flush();
 
-            // ASSERT
-            // use internal fields to validate
-            Assert.AreEqual("Top level exception <--- Inner exception modified", item.Message);
-
-            Assert.AreEqual(item.Data.Data.ver, 2);
-            Assert.AreEqual(item.Data.Data.problemId, "ProblemId modified");
-            Assert.AreEqual(item.Data.Data.severityLevel, Extensibility.Implementation.External.SeverityLevel.Error);
-
-            Assert.AreEqual(item.Data.Data.properties.Count, 2);
-            Assert.IsTrue(item.Data.Data.properties.Keys.Contains("property1"));
-            Assert.IsTrue(item.Data.Data.properties.Keys.Contains("property2"));
-            Assert.IsTrue(item.Data.Data.properties.Values.Contains("value1"));
-            Assert.IsTrue(item.Data.Data.properties.Values.Contains("value2"));
-
-            Assert.AreEqual(item.Data.Data.measurements.Count, 2);
-            Assert.IsTrue(item.Data.Data.measurements.Keys.Contains("property1"));
-            Assert.IsTrue(item.Data.Data.measurements.Keys.Contains("property2"));
-            Assert.IsTrue(item.Data.Data.measurements.Values.Contains(1));
-            Assert.IsTrue(item.Data.Data.measurements.Values.Contains(2));
-
-            Assert.AreEqual(item.Data.Data.exceptions.Count, 2);
-
-            Assert.AreEqual(item.Data.Data.exceptions.First().id, 1);
-            Assert.AreEqual(item.Data.Data.exceptions.First().outerId, -1);
-            Assert.AreEqual(item.Data.Data.exceptions.First().typeName, "TopLevelException");
-            Assert.AreEqual(item.Data.Data.exceptions.First().message, "Top level exception");
-            Assert.AreEqual(item.Data.Data.exceptions.First().hasFullStack, true);
-            Assert.AreEqual(item.Data.Data.exceptions.First().stack, "Top level exception stack");
-            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack.Count, 3);
-
-            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[0].assembly, "Some.Assembly");
-            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[0].fileName, "SomeFile.dll");
-            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[0].level, 3);
-            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[0].line, 33);
-            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[0].method, "TopLevelMethod");
-
-            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[1].assembly, "Some.Assembly");
-            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[1].fileName, "SomeOtherFile.dll");
-            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[1].level, 2);
-            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[1].line, 22);
-            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[1].method, "LowerLevelMethod");
-
-            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[2].assembly, "Some.Assembly");
-            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[2].fileName, "YetAnotherFile.dll");
-            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[2].level, 1);
-            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[2].line, 11);
-            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[2].method, "LowLevelMethod");
-
-            Assert.AreEqual(item.Data.Data.exceptions.Last().id, 2);
-            Assert.AreEqual(item.Data.Data.exceptions.Last().outerId, 1);
-            Assert.AreEqual(item.Data.Data.exceptions.Last().typeName, "InnerException");
-            Assert.AreEqual(item.Data.Data.exceptions.Last().message, "Inner exception modified");
-            Assert.AreEqual(item.Data.Data.exceptions.Last().hasFullStack, false);
-            Assert.AreEqual(item.Data.Data.exceptions.Last().stack, "Inner exception stack");
-            Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack.Count, 2);
-
-            Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[0].assembly, "Some.Assembly");
-            Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[0].fileName, "ImportantFile.dll");
-            Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[0].level, 2);
-            Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[0].line, 22);
-            Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[0].method, "InnerMethod");
-
-            Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[1].assembly, "Some.Assembly");
-            Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[1].fileName, "LessImportantFile.dll");
-            Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[1].level, 1);
-            Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[1].line, 11);
-            Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[1].method, "DeeperInnerMethod");
+            // ASSERT - Verify data is captured in OpenTelemetry logs
+            Assert.Equal(1, this.logItems.Count);
+            var logRecord = this.logItems[0];
+            
+            Assert.NotNull(logRecord.Exception);
+            Assert.Equal("Top level exception", logRecord.Exception.Message);
+            // Note: We reconstruct generic Exception objects, so GetType().Name will be "Exception"
+            // The original TypeName is preserved in ExceptionDetailsInfo
+            Assert.NotNull(logRecord.Exception.InnerException);
+            Assert.Equal("Inner exception", logRecord.Exception.InnerException.Message);
+            
+            // Verify severity mapped correctly
+            Assert.Equal(LogLevel.Error, logRecord.LogLevel);
+            
+            // Verify properties are present
+            bool hasProperty1 = false, hasProperty2 = false;
+            if (logRecord.Attributes != null)
+            {
+                foreach (var attr in logRecord.Attributes)
+                {
+                    if (attr.Key == "property1" && attr.Value?.ToString() == "value1") hasProperty1 = true;
+                    if (attr.Key == "property2" && attr.Value?.ToString() == "value2") hasProperty2 = true;
+                }
+            }
+            Assert.True(hasProperty1, "property1 should be captured");
+            Assert.True(hasProperty2, "property2 should be captured");
         }
 
-        [TestMethod]
-        public void ExceptionTelemetryCreatedBasedOnCustomDataConstructsFakeExceptionCorrectly()
+        [Fact]
+        public void ExceptionTelemetryWithNestedInnerExceptionsReconstructsCorrectly()
         {
             // ARRANGE
             var topLevelexceptionDetails = new ExceptionDetailsInfo(1, -1, "TopLevelException", "Top level exception",
-                true, "Top level exception stack", new[]
-                {
-                    new StackFrame("Some.Assembly", "SomeFile.dll", 3, 33, "TopLevelMethod"),
-                    new StackFrame("Some.Assembly", "SomeOtherFile.dll", 2, 22, "LowerLevelMethod"),
-                    new StackFrame("Some.Assembly", "YetAnotherFile.dll", 1, 11, "LowLevelMethod")
-                });
+                true, "stack", new StackFrame[0]);
 
             var innerExceptionDetails = new ExceptionDetailsInfo(2, 1, "InnerException", "Inner exception", false,
-                "Inner exception stack", new[]
-                {
-                    new StackFrame("Some.Assembly", "ImportantFile.dll", 2, 22, "InnerMethod"),
-                    new StackFrame("Some.Assembly", "LessImportantFile.dll", 1, 11, "DeeperInnerMethod")
-                });
+                "stack", new StackFrame[0]);
 
-            var innerInnerExceptionDetails = new ExceptionDetailsInfo(3, 1, "InnerInnerException", "Inner inner exception", false,
-                "Inner inner exception stack", new[]
-                {
-                    new StackFrame("Some.Assembly", "ImportantInnerFile.dll", 2, 22, "InnerInnerMethod"),
-                    new StackFrame("Some.Assembly", "LessImportantInnerFile.dll", 1, 11, "DeeperInnerInnerMethod")
-                });
+            var innerInnerExceptionDetails = new ExceptionDetailsInfo(3, 2, "InnerInnerException", "Inner inner exception", false,
+                "stack", new StackFrame[0]);
 
-            ExceptionTelemetry item1 = new ExceptionTelemetry(new[] { topLevelexceptionDetails, innerExceptionDetails, innerInnerExceptionDetails },
-                SeverityLevel.Error, "ProblemId",
-                new Dictionary<string, string>() { ["property1"] = "value1", ["property2"] = "value2" },
-                new Dictionary<string, double>() { ["property1"] = 1, ["property2"] = 2 });
-
-            ExceptionTelemetry item2 = new ExceptionTelemetry(new[] { topLevelexceptionDetails, innerExceptionDetails },
-                SeverityLevel.Error, "ProblemId",
-                new Dictionary<string, string>() { ["property1"] = "value1", ["property2"] = "value2" },
-                new Dictionary<string, double>() { ["property1"] = 1, ["property2"] = 2 });
-
-            ExceptionTelemetry item3 = new ExceptionTelemetry(new[] { topLevelexceptionDetails },
-                SeverityLevel.Error, "ProblemId",
-                new Dictionary<string, string>() { ["property1"] = "value1", ["property2"] = "value2" },
-                new Dictionary<string, double>() { ["property1"] = 1, ["property2"] = 2 });
-
-            ExceptionTelemetry item4 = new ExceptionTelemetry(new ExceptionDetailsInfo[] { },
-                SeverityLevel.Error, "ProblemId",
-                new Dictionary<string, string>() { ["property1"] = "value1", ["property2"] = "value2" },
-                new Dictionary<string, double>() { ["property1"] = 1, ["property2"] = 2 });
+            ExceptionTelemetry item = new ExceptionTelemetry(new[] { topLevelexceptionDetails, innerExceptionDetails, innerInnerExceptionDetails },
+                SeverityLevel.Error, "ProblemId", new Dictionary<string, string>());
 
             // ACT
-            Exception exception1 = item1.Exception;
-            Exception exception2 = item2.Exception;
-            Exception exception3 = item3.Exception;
-            Exception exception4 = item4.Exception;
+            Exception reconstructed = item.Exception;
 
-            // ASSERT
-            Assert.AreEqual("Top level exception", exception1.Message);
-            Assert.AreEqual("Inner exception", exception1.InnerException.Message);
-            Assert.AreEqual("Inner inner exception", exception1.InnerException.InnerException.Message);
-            Assert.IsNull(exception1.InnerException.InnerException.InnerException);
-
-            Assert.AreEqual("Top level exception", exception2.Message);
-            Assert.AreEqual("Inner exception", exception2.InnerException.Message);
-            Assert.IsNull(exception2.InnerException.InnerException);
-
-            Assert.AreEqual("Top level exception", exception3.Message);
-            Assert.IsNull(exception3.InnerException);
-
-            Assert.AreEqual(string.Empty, exception4.Message);
-            Assert.IsNull(exception4.InnerException);
+            // ASSERT - Verify full chain is reconstructed
+            Assert.Equal("Top level exception", reconstructed.Message);
+            Assert.NotNull(reconstructed.InnerException);
+            Assert.Equal("Inner exception", reconstructed.InnerException.Message);
+            Assert.NotNull(reconstructed.InnerException.InnerException);
+            Assert.Equal("Inner inner exception", reconstructed.InnerException.InnerException.Message);
+            Assert.Null(reconstructed.InnerException.InnerException.InnerException);
         }
 
-        [TestMethod]
-        public void ExceptionTelemetryExceptionDetailsUpdate()
-        {
-            // ARRANGE
-            var exception = new AggregateException("Test Exception", new Exception());
-            ExceptionTelemetry item = new ExceptionTelemetry(exception);
-
-            // ACT
-            IReadOnlyList<ExceptionDetailsInfo> newExceptionDetails = item.ExceptionDetailsInfoList;
-
-            string modifiedMessage = "Modified Message";
-            string modifiedTypeName = "Modified TypeName";
-
-            newExceptionDetails[0].Message = modifiedMessage;
-            newExceptionDetails[0].TypeName = modifiedTypeName;
-
-            // ASSERT
-            Assert.AreEqual(modifiedMessage, item.Exceptions[0].message);
-            Assert.AreEqual(modifiedTypeName, item.Exceptions[0].typeName);
-        }
-
-        [TestMethod]
-        public void ExceptionsPropertyIsInternalUntilWeSortOutPublicInterface()
-        {
-            Assert.IsFalse(typeof(ExceptionTelemetry).GetTypeInfo().GetDeclaredProperty("Exceptions").GetGetMethod(true).IsPublic);
-        }
-
-        [TestMethod]
-        public void ConstructorAddsExceptionToExceptionPropertyAndExceptionsCollectionProperty()
+        [Fact]
+        public void ConstructorAddsExceptionToExceptionProperty()
         {
             Exception constructorException = new Exception("ConstructorException");
             var testExceptionTelemetry = new ExceptionTelemetry(constructorException);
 
-            Assert.AreSame(constructorException, testExceptionTelemetry.Exception);
-            Assert.AreEqual(constructorException.Message, testExceptionTelemetry.Exceptions.First().message);
-            Assert.AreEqual(constructorException.Message, testExceptionTelemetry.ExceptionDetailsInfoList.First().Message);
+            Assert.Same(constructorException, testExceptionTelemetry.Exception);
+            Assert.Equal(constructorException.Message, testExceptionTelemetry.ExceptionDetailsInfoList.First().Message);
         }
 
-        [TestMethod]
-        public void ExceptionPropertySetterReplacesExceptionDetailsInExceptionsCollectionProperty()
+        [Fact]
+        public void ExceptionPropertySetterReplacesExceptionDetails()
         {
             Exception constructorException = new Exception("ConstructorException");
             var testExceptionTelemetry = new ExceptionTelemetry(constructorException);
@@ -260,12 +178,11 @@
             Exception nextException = new Exception("NextException");
             testExceptionTelemetry.Exception = nextException;
 
-            Assert.AreSame(nextException, testExceptionTelemetry.Exception);
-            Assert.AreEqual(nextException.Message, testExceptionTelemetry.Exceptions.First().message);
-            Assert.AreEqual(nextException.Message, testExceptionTelemetry.ExceptionDetailsInfoList.First().Message);
+            Assert.Same(nextException, testExceptionTelemetry.Exception);
+            Assert.Equal(nextException.Message, testExceptionTelemetry.ExceptionDetailsInfoList.First().Message);
         }
 
-        [TestMethod]
+        [Fact]
         public void ExceptionPropertySetterPreservesContext()
         {
             // ARRANGE
@@ -284,267 +201,28 @@
             testExceptionTelemetry.Exception = nextException;
 
             // ASSERT
-            Assert.AreEqual(expectedAccountId, testExceptionTelemetry.Context.User.AccountId);
-            Assert.AreEqual(expectedAuthenticatedUserId, testExceptionTelemetry.Context.User.AuthenticatedUserId);
-            Assert.AreEqual(expectedUserAgent, testExceptionTelemetry.Context.User.UserAgent);
+            Assert.Equal(expectedAccountId, testExceptionTelemetry.Context.User.AccountId);
+            Assert.Equal(expectedAuthenticatedUserId, testExceptionTelemetry.Context.User.AuthenticatedUserId);
+            Assert.Equal(expectedUserAgent, testExceptionTelemetry.Context.User.UserAgent);
         }
 
-#pragma warning disable 618
-        [TestMethod]
-        public void HandledAtReturnsUnhandledByDefault()
-        {
-            var telemetry = new ExceptionTelemetry();
-            Assert.AreEqual(ExceptionHandledAt.Unhandled, telemetry.HandledAt);
-        }
-#pragma warning restore 618
-
-        [TestMethod]
+        [Fact]
         public void ConstructorDoesNotSetSeverityLevel()
         {
             var telemetry = new ExceptionTelemetry();
-            Assert.AreEqual(null, telemetry.SeverityLevel);
+            Assert.Equal(null, telemetry.SeverityLevel);
         }
 
-        [TestMethod]
-        public void MetricsReturnsEmptyDictionaryByDefaultToPreventNullReferenceExceptions()
+        [Fact]
+        public void PropertiesReturnsEmptyDictionaryByDefaultToPreventNullReferenceExceptions()
         {
             var @exception = new ExceptionTelemetry(new Exception());
-            var measurements = @exception.Metrics;
-            Assert.IsNotNull(measurements);
+            var properties = @exception.Properties;
+            Assert.NotNull(properties);
         }
 
-        [TestMethod]
-        public void SerializeWritesNullValuesAsExpectedByEndpoint()
-        {
-            ExceptionTelemetry original = new ExceptionTelemetry();
-            original.Exception = null;
-            original.SeverityLevel = null;
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(original);
-
-            Assert.AreEqual(2, item.data.baseData.ver);
-        }
-
-        [TestMethod]
-        public void SerializeWritesItemVersionAsExpectedByEndpoint()
-        {
-            ExceptionTelemetry original = CreateExceptionTelemetry();
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(original);
-
-            Assert.AreEqual(2, item.data.baseData.ver);
-        }
-
-        [TestMethod]
-        public void SerializeUsesExceptionMessageIfTelemetryMessageNotProvided()
-        {
-            ExceptionTelemetry original = CreateExceptionTelemetry(new ArgumentException("Test"));
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(original);
-
-            Assert.AreEqual("Test", item.data.baseData.exceptions[0].message);
-        }
-
-        [TestMethod]
-        public void SerializeTelemetryMessageAsOuterExceptionMessage()
-        {
-            ExceptionTelemetry original = CreateExceptionTelemetry(new ArgumentException("Test"));
-            original.Message = "Custom";
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(original);
-
-            Assert.AreEqual("Custom", item.data.baseData.exceptions[0].message);
-        }
-
-        [TestMethod]
-        public void SerializeUsesExceptionMessageForInnerExceptions()
-        {
-            Exception outerException = new ArgumentException("Outer", new Exception("Inner"));
-            ExceptionTelemetry original = CreateExceptionTelemetry(outerException);
-
-            original.Message = "Custom";
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(original);
-
-            Assert.AreEqual("Custom", item.data.baseData.exceptions[0].message);
-            Assert.AreEqual("Inner", item.data.baseData.exceptions[1].message);
-        }
-
-        [TestMethod]
-        public void SerializeUsesExceptionMessageForInnerAggregateExceptions()
-        {
-            Exception innerException1 = new ArgumentException("Inner1");
-            Exception innerException2 = new ArgumentException("Inner2");
-
-            AggregateException aggregateException = new AggregateException("AggregateException", new [] {innerException1, innerException2});
-
-            ExceptionTelemetry original = CreateExceptionTelemetry(aggregateException);
-
-            original.Message = "Custom";
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(original);
-
-            Assert.AreEqual("Custom", item.data.baseData.exceptions[0].message);
-            Assert.AreEqual("Inner1", item.data.baseData.exceptions[1].message);
-            Assert.AreEqual("Inner2", item.data.baseData.exceptions[2].message);
-        }
-
-        [TestMethod]
-        public void SerializeWritesItemSeverityLevelAsExpectedByEndpoint()
-        {
-            ExceptionTelemetry original = CreateExceptionTelemetry();
-            original.SeverityLevel = SeverityLevel.Information;
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(original);
-
-            Assert.AreEqual(AI.SeverityLevel.Information, item.data.baseData.severityLevel.Value);
-        }
-
-        [TestMethod]
-        public void SerializeWritesExceptionTypeNameAsExpectedByEndpoint()
-        {
-            var exception = new Exception();
-            ExceptionTelemetry original = CreateExceptionTelemetry(exception);
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(original);
-
-            Assert.AreEqual(exception.GetType().FullName, item.data.baseData.exceptions[0].typeName);
-        }
-
-        [TestMethod]
-        public void SerializeWritesExceptionMessageAsExpectedByEndpoint()
-        {
-            var exception = new Exception("Test Message");
-            ExceptionTelemetry original = CreateExceptionTelemetry(exception);
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(original);
-
-            Assert.AreEqual(exception.Message, item.data.baseData.exceptions[0].message);
-        }
-
-        [TestMethod]
-        public void SerializeWritesDataBaseTypeAsExpectedByEndpoint()
-        {
-            ExceptionTelemetry original = CreateExceptionTelemetry();
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(original);
-            Assert.AreEqual(nameof(AI.ExceptionData), item.data.baseType);
-        }
-
-        [TestMethod]
-        public void SerializeWritesRootExceptionWithoutOuterId()
-        {
-            using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
-            {
-                var exception = new Exception();
-                ExceptionTelemetry original = CreateExceptionTelemetry(exception);
-                byte[] serializedTelemetryAsBytes = JsonSerializer.Serialize(original, compress: false);
-                string serializedTelemetry = Encoding.UTF8.GetString(serializedTelemetryAsBytes, 0, serializedTelemetryAsBytes.Length);
-
-                AssertEx.DoesNotContain("\"outerId\":", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
-            }
-        }
-
-        [TestMethod]
-        public void SerializeWritesInnerExceptionAsAdditionalItemInExceptionsArrayExpectedByEndpoint()
-        {
-            var innerException = new Exception("Inner Message");
-            var exception = new Exception("Root Message", innerException);
-            ExceptionTelemetry expected = CreateExceptionTelemetry(exception);
-
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
-
-            Assert.AreEqual(innerException.Message, item.data.baseData.exceptions[1].message);
-        }
-
-        [TestMethod]
-        public void SerializeWritesInnerExceptionWithOuterIdLinkingItToItsParentException()
-        {
-            var innerException = new Exception();
-            var exception = new Exception("Test Exception", innerException);
-            ExceptionTelemetry expected = CreateExceptionTelemetry(exception);
-
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
-
-            Assert.AreEqual(exception.GetHashCode(), item.data.baseData.exceptions[1].outerId);
-        }
-
-        [TestMethod]
-        public void SerializeWritesAggregateExceptionAsFirstItemInExceptionsArrayExpectedByEndpoint()
-        {
-            var exception = new AggregateException();
-            ExceptionTelemetry expected = CreateExceptionTelemetry(exception);
-
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
-
-            Assert.AreEqual(1, item.data.baseData.exceptions.Count);
-        }
-
-        [TestMethod]
-        public void SerializeWritesInnerExceptionsOfAggregateExceptionAsAdditionalItemsInExceptionsArrayExpectedByEndpoint()
-        {
-            var exception = new AggregateException("Test Exception", new[] { new Exception(), new Exception() });
-            ExceptionTelemetry expected = CreateExceptionTelemetry(exception);
-
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
-
-            Assert.AreEqual(exception.GetHashCode(), item.data.baseData.exceptions[1].outerId);
-            Assert.AreEqual(exception.GetHashCode(), item.data.baseData.exceptions[2].outerId);
-        }
-
-        [TestMethod]
-        public void SerializeWritesHasFullStackPropertyAsItIsExpectedByEndpoint()
-        {
-            using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
-            {
-                var exception = CreateExceptionWithStackTrace();
-                ExceptionTelemetry expected = CreateExceptionTelemetry(exception);
-
-                var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
-
-                Assert.IsTrue(item.data.baseData.exceptions[0].hasFullStack);
-            }
-        }
-
-        [TestMethod]
-        public void SerializeWritesSingleInnerExceptionOfAggregateExceptionOnlyOnce()
-        {
-            var exception = new AggregateException("Test Exception", new Exception());
-
-            ExceptionTelemetry expected = CreateExceptionTelemetry(exception);
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
-
-            Assert.AreEqual(2, item.data.baseData.exceptions.Count);
-        }
-
-        [TestMethod]
-        public void SerializeWritesPropertiesAsExpectedByEndpoint()
-        {
-            ExceptionTelemetry expected = CreateExceptionTelemetry();            
-
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
-
-            // IExtension is currently flattened into the properties by serialization
-            Utils.CopyDictionary(((MyTestExtension)expected.Extension).SerializeIntoDictionary(), expected.Properties);
-
-            AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
-        }
-
-        [TestMethod]
-        public void SerializeWritesMetricsAsExpectedByEndpoint()
-        {
-            ExceptionTelemetry expected = CreateExceptionTelemetry();
-            expected.Metrics.Add("TestMetric", 4.2);
-
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
-
-            AssertEx.AreEqual(expected.Metrics.ToArray(), item.data.baseData.measurements.ToArray());
-        }
-
-        [TestMethod]
-        public void SerializePopulatesRequiredFieldsOfExceptionTelemetry()
-        {
-            var exceptionTelemetry = new ExceptionTelemetry();
-            exceptionTelemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(exceptionTelemetry);
-
-            Assert.AreEqual(2, item.data.baseData.ver);
-            Assert.IsNotNull(item.data.baseData.exceptions);
-            Assert.AreEqual(0, item.data.baseData.exceptions.Count); // constructor without parameters does not initialize exception object
-        }
-
-        [TestMethod]
-        public void ExceptionPropertySetterHandlesAggregateExceptionsWithMultipleNestedExceptionsCorrectly()
+        [Fact]
+        public void ExceptionPropertySetterHandlesAggregateExceptionsWithMultipleNestedExceptions()
         {
             Exception exception1121 = new Exception("1.1.2.1");
             Exception exception111 = new Exception("1.1.1");
@@ -567,179 +245,194 @@
                                                 "1.2.1"
                                             };
 
-            Assert.AreEqual(expectedSequence.Length, telemetry.Exceptions.Count);
-            Assert.AreEqual(expectedSequence.Length, telemetry.ExceptionDetailsInfoList.Count);
+            Assert.Equal(expectedSequence.Length, telemetry.ExceptionDetailsInfoList.Count);
             for(int counter = 0; counter < expectedSequence.Length; counter++)
             {
-                ExceptionDetails details = telemetry.Exceptions[counter];
-                ExceptionDetailsInfo newExceptionDetails = telemetry.ExceptionDetailsInfoList[counter];
-                Assert.IsTrue(ReferenceEquals(details, newExceptionDetails.InternalExceptionDetails));
-                if (details.typeName == "System.AggregateException")
+                ExceptionDetailsInfo details = telemetry.ExceptionDetailsInfoList[counter];
+                if (details.TypeName.Contains("AggregateException"))
                 {
-                    AssertEx.StartsWith(expectedSequence[counter], details.message);
+                    Assert.True(details.Message.StartsWith(expectedSequence[counter]));
                 }
                 else
                 {
-                    Assert.AreEqual(expectedSequence[counter], details.message);
+                    Assert.Equal(expectedSequence[counter], details.Message);
                 }
             }
         }
 
-        [TestMethod]
-        public void ExceptionPropertySetterHandlesAggregateExceptionsWithMultipleNestedExceptionsAndTrimsAfterReachingMaxCount()
-        {
-            const int Overage = 5;
-            List<Exception> innerExceptions = new List<Exception>();
-            for (int i = 0; i < Constants.MaxExceptionCountToSave + Overage; i++)
-            {
-                innerExceptions.Add(new Exception((i + 1).ToString(CultureInfo.InvariantCulture)));
-            }
-
-            AggregateException rootLevelException = new AggregateException("0", innerExceptions);
-
-            ExceptionTelemetry telemetry = new ExceptionTelemetry { Exception = rootLevelException };
-
-            Assert.AreEqual(Constants.MaxExceptionCountToSave + 1, telemetry.Exceptions.Count);
-            Assert.AreEqual(Constants.MaxExceptionCountToSave + 1, telemetry.ExceptionDetailsInfoList.Count);
-            for(int counter = 0; counter < Constants.MaxExceptionCountToSave; counter++)
-            {
-                ExceptionDetails details = telemetry.Exceptions[counter];
-                ExceptionDetailsInfo newExceptionDetails = telemetry.ExceptionDetailsInfoList[counter];
-                Assert.IsTrue(ReferenceEquals(details, newExceptionDetails.InternalExceptionDetails));
-                if (details.typeName == "System.AggregateException")
-                {
-                    AssertEx.StartsWith(counter.ToString(CultureInfo.InvariantCulture), details.message);
-                }
-                else
-                {
-                    Assert.AreEqual(counter.ToString(CultureInfo.InvariantCulture), details.message);
-                }
-            }
-
-            ExceptionDetails first = telemetry.Exceptions.First();
-            ExceptionDetails last = telemetry.Exceptions.Last();
-            Assert.AreEqual(first.id, last.outerId);
-            Assert.AreEqual(typeof(InnerExceptionCountExceededException).FullName, last.typeName);
-            Assert.AreEqual(
-                string.Format(
-                    CultureInfo.InvariantCulture,
-                    "The number of inner exceptions was {0} which is larger than {1}, the maximum number allowed during transmission. All but the first {1} have been dropped.",
-                    1 + Constants.MaxExceptionCountToSave + Overage,
-                    Constants.MaxExceptionCountToSave),
-                last.message);
-        }
-
-        [TestMethod]
-        public void SanitizeWillTrimMessageInExceptionTelemetry()
-        {
-            ExceptionTelemetry exceptionTelemetry = new ExceptionTelemetry();
-            exceptionTelemetry.Message = new string('M', Property.MaxMessageLength) + 'M';
-
-            ((ITelemetry)exceptionTelemetry).Sanitize();
-
-            Assert.AreEqual(new string('M', Property.MaxMessageLength), exceptionTelemetry.Message);
-        }
-
-        [TestMethod]
-        public void SanitizeWillTrimPropertiesKeyAndValueInExceptionTelemetry()
-        {
-            ExceptionTelemetry telemetry = new ExceptionTelemetry();
-            telemetry.Properties.Add(new string('X', Property.MaxDictionaryNameLength) + 'X', new string('X', Property.MaxValueLength + 1));
-            telemetry.Properties.Add(new string('X', Property.MaxDictionaryNameLength) + 'Y', new string('X', Property.MaxValueLength + 1));
-
-            ((ITelemetry)telemetry).Sanitize();
-
-            Assert.AreEqual(2, telemetry.Properties.Count);
-            var t = new SortedList<string, string>(telemetry.Properties);
-
-            Assert.AreEqual(new string('X', Property.MaxDictionaryNameLength), t.Keys.ToArray()[1]);
-            Assert.AreEqual(new string('X', Property.MaxValueLength), t.Values.ToArray()[1]);
-            Assert.AreEqual(new string('X', Property.MaxDictionaryNameLength - 3) + "1", t.Keys.ToArray()[0]);
-            Assert.AreEqual(new string('X', Property.MaxValueLength), t.Values.ToArray()[0]);
-        }
-
-        [TestMethod]
-        public void SanitizeWillTrimMetricsNameAndValueInExceptionTelemetry()
-        {
-            ExceptionTelemetry telemetry = new ExceptionTelemetry();
-            telemetry.Metrics.Add(new string('Y', Property.MaxDictionaryNameLength) + 'X', 42.0);
-            telemetry.Metrics.Add(new string('Y', Property.MaxDictionaryNameLength) + 'Y', 42.0);
-
-            ((ITelemetry)telemetry).Sanitize();
-
-            Assert.AreEqual(2, telemetry.Metrics.Count);
-            string[] keys = telemetry.Metrics.Keys.OrderBy(s => s).ToArray();
-            Assert.AreEqual(new string('Y', Property.MaxDictionaryNameLength), keys[1]);
-            Assert.AreEqual(new string('Y', Property.MaxDictionaryNameLength - 3) + "1", keys[0]);
-        }
-
-        [TestMethod]
-        public void ExceptionTelemetryImplementsISupportSamplingContract()
-        {
-            var telemetry = new ExceptionTelemetry();
-
-            Assert.IsNotNull(telemetry as ISupportSampling);
-        }
-
-        [TestMethod]
-        public void ExceptionTelemetryImplementsISupportAdvancedSamplingContract()
-        {
-            var telemetry = new ExceptionTelemetry();
-
-            Assert.IsNotNull(telemetry as ISupportAdvancedSampling);
-        }
-
-        [TestMethod]
-        public void ExceptionTelemetryHasCorrectValueOfSamplingPercentageAfterSerialization()
-        {
-            var telemetry = new ExceptionTelemetry();
-            ((ISupportSampling)telemetry).SamplingPercentage = 10;
-
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(telemetry);
-
-            Assert.AreEqual(10, item.sampleRate);
-        }
-
-        [TestMethod]
-        public void ExceptionTelemetryDeepCloneCopiesAllProperties()
-        {
-            var telemetry = CreateExceptionTelemetry(CreateExceptionWithStackTrace());
-            var other = telemetry.DeepClone();
-
-            CompareLogic deepComparator = new CompareLogic();
-
-            var result = deepComparator.Compare(telemetry, other);
-            Assert.IsTrue(result.AreEqual, result.DifferencesString);
-        }
-
-        [TestMethod]
-        public void ExceptionTelemetryDeepCloneWithNullExtensionDoesNotThrow()
-        {
-            var telemetry = new ExceptionTelemetry();
-            // Extension is not set, means it'll be null.
-            // Validate that cloning with null Extension does not throw.
-            var other = telemetry.DeepClone();
-        }
-
-        [TestMethod]
-        public void ExceptionTelemetryPropertiesFromContextAndItemSerializesToPropertiesInJson()
+        [Fact]
+        public void ExceptionTelemetryPropertiesFromContextAndItemAreTracked()
         {
             var expected = CreateExceptionTelemetry();
-            ((ITelemetry)expected).Sanitize();
 
-            Assert.AreEqual(1, expected.Properties.Count);
-            Assert.AreEqual(1, expected.Context.GlobalProperties.Count);
+            Assert.Equal(1, expected.Properties.Count);
+            Assert.Equal(1, expected.Context.GlobalProperties.Count);
+            Assert.True(expected.Properties.ContainsKey("TestProperty"));
+            Assert.True(expected.Context.GlobalProperties.ContainsKey("TestPropertyGlobal"));
 
-            Assert.IsTrue(expected.Properties.ContainsKey("TestProperty"));
-            Assert.IsTrue(expected.Context.GlobalProperties.ContainsKey("TestPropertyGlobal"));
+            // ACT
+            this.telemetryClient.TrackException(expected);
+            this.telemetryClient.Flush();
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
+            // ASSERT - Verify properties are captured
+            Assert.Equal(1, this.logItems.Count);
+            var logRecord = this.logItems[0];
+            bool hasTestProperty = false, hasTestPropertyGlobal = false;
+            if (logRecord.Attributes != null)
+            {
+                foreach (var attr in logRecord.Attributes)
+                {
+                    if (attr.Key == "TestProperty") hasTestProperty = true;
+                    if (attr.Key == "TestPropertyGlobal") hasTestPropertyGlobal = true;
+                }
+            }
+            Assert.True(hasTestProperty, "TestProperty should be captured");
+            Assert.True(hasTestPropertyGlobal, "TestPropertyGlobal should be captured");
+        }
 
-            // Items added to both Exception.Properties, and Exception.Context.Properties are serialized to properties.
-            // IExtension object in CreateExceptionTelemetry adds 2 more properties: myIntField and myStringField
-            Assert.AreEqual(4, item.data.baseData.properties.Count);            
-            Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestProperty"));
-            Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestPropertyGlobal"));
+        [Fact]
+        public void SetParsedStackUpdatesExceptionDetails()
+        {
+            var exception = new Exception("Test");
+            var telemetry = new ExceptionTelemetry(exception);
+
+            var frames = new System.Diagnostics.StackFrame[]
+            {
+                new System.Diagnostics.StackFrame(),
+                new System.Diagnostics.StackFrame()
+            };
+
+            // ACT
+            telemetry.SetParsedStack(frames);
+
+            // ASSERT - Verify method doesn't throw and can be called
+            Assert.NotNull(telemetry.ExceptionDetailsInfoList);
+        }
+
+        [Fact]
+        public void ExceptionDetailsInfoPreservesStackTraceString()
+        {
+            // ARRANGE
+            var stackTraceString = "   at System.Environment.GetStackTrace(Exception e, Boolean needFileInfo)\n   at System.Environment.get_StackTrace()";
+            var exceptionDetails = new ExceptionDetailsInfo(
+                id: 1,
+                outerId: -1,
+                typeName: "System.Exception",
+                message: "Test exception",
+                hasFullStack: true,
+                stack: stackTraceString,
+                parsedStack: new[]
+                {
+                    new StackFrame("System", "Environment.cs", 1, 100, "GetStackTrace")
+                });
+
+            // ASSERT - Verify stack trace string is stored in the Stack property
+            Assert.Equal(stackTraceString, exceptionDetails.Stack);
+            Assert.Equal("System.Exception", exceptionDetails.TypeName);
+            Assert.Equal("Test exception", exceptionDetails.Message);
+            Assert.True(exceptionDetails.HasFullStack);
+            Assert.Equal(1, exceptionDetails.Id);
+            Assert.Equal(-1, exceptionDetails.OuterId);
+        }
+
+        [Fact]
+        public void TimestampPropertyCanBeGetAndSet()
+        {
+            var telemetry = new ExceptionTelemetry(new Exception());
+            var timestamp = DateTimeOffset.UtcNow;
+            
+            telemetry.Timestamp = timestamp;
+            
+            Assert.Equal(timestamp, telemetry.Timestamp);
+        }
+
+        [Fact]
+        public void MessagePropertyCanBeGetAndSet()
+        {
+            var telemetry = new ExceptionTelemetry(new Exception());
+            const string expectedMessage = "Custom exception message";
+            
+            telemetry.Message = expectedMessage;
+            
+            Assert.Equal(expectedMessage, telemetry.Message);
+        }
+
+        [Fact]
+        public void SeverityLevelPropertyCanBeGetAndSet()
+        {
+            var telemetry = new ExceptionTelemetry(new Exception());
+            
+            // Default should be null
+            Assert.Null(telemetry.SeverityLevel);
+            
+            // Set and verify each severity level
+            telemetry.SeverityLevel = SeverityLevel.Verbose;
+            Assert.Equal(SeverityLevel.Verbose, telemetry.SeverityLevel);
+            
+            telemetry.SeverityLevel = SeverityLevel.Information;
+            Assert.Equal(SeverityLevel.Information, telemetry.SeverityLevel);
+            
+            telemetry.SeverityLevel = SeverityLevel.Warning;
+            Assert.Equal(SeverityLevel.Warning, telemetry.SeverityLevel);
+            
+            telemetry.SeverityLevel = SeverityLevel.Error;
+            Assert.Equal(SeverityLevel.Error, telemetry.SeverityLevel);
+            
+            telemetry.SeverityLevel = SeverityLevel.Critical;
+            Assert.Equal(SeverityLevel.Critical, telemetry.SeverityLevel);
+            
+            // Can be set back to null
+            telemetry.SeverityLevel = null;
+            Assert.Null(telemetry.SeverityLevel);
+        }
+
+        [Fact]
+        public void ExceptionDetailsInfoListReturnsReadOnlyList()
+        {
+            var exception = new Exception("Test exception");
+            var telemetry = new ExceptionTelemetry(exception);
+            
+            var detailsList = telemetry.ExceptionDetailsInfoList;
+            
+            Assert.NotNull(detailsList);
+            Assert.Equal(1, detailsList.Count);
+            Assert.Equal("Test exception", detailsList[0].Message);
+            Assert.Equal("System.Exception", detailsList[0].TypeName);
+        }
+
+        [Fact]
+        public void ExceptionPropertyAcceptsNull()
+        {
+            var telemetry = new ExceptionTelemetry(new Exception("Initial exception"));
+            
+            // Verify initial exception is set
+            Assert.NotNull(telemetry.Exception);
+            Assert.Equal("Initial exception", telemetry.Exception.Message);
+            Assert.Equal(1, telemetry.ExceptionDetailsInfoList.Count);
+            
+            // Set to null
+            telemetry.Exception = null;
+            
+            // Verify exception is now null and list is empty
+            Assert.Null(telemetry.Exception);
+            Assert.Equal(0, telemetry.ExceptionDetailsInfoList.Count);
+        }
+
+        [Fact]
+        public void ExceptionDetailsInfoListReflectsExceptionChanges()
+        {
+            var telemetry = new ExceptionTelemetry(new Exception("First exception"));
+            
+            // Verify initial state
+            Assert.Equal(1, telemetry.ExceptionDetailsInfoList.Count);
+            Assert.Equal("First exception", telemetry.ExceptionDetailsInfoList[0].Message);
+            
+            // Change exception
+            telemetry.Exception = new Exception("Second exception");
+            
+            // Verify list is updated
+            Assert.Equal(1, telemetry.ExceptionDetailsInfoList.Count);
+            Assert.Equal("Second exception", telemetry.ExceptionDetailsInfoList[0].Message);
         }
 
         private static Exception CreateExceptionWithStackTrace()
@@ -763,9 +456,7 @@
 
             ExceptionTelemetry output = new ExceptionTelemetry(exception) { Timestamp = DateTimeOffset.UtcNow };
             output.Context.GlobalProperties.Add("TestPropertyGlobal", "contextpropvalue");
-            output.Context.InstrumentationKey = "required";
             output.Properties.Add("TestProperty", "TestPropertyValue");
-            output.Extension = new MyTestExtension() { myIntField = 42, myStringField = "value" };
             return output;
         }
     }

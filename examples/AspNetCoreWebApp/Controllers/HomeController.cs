@@ -1,10 +1,7 @@
 ﻿namespace WebApp.AspNetCore.Controllers
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
-    using System.Threading.Tasks;
 
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -31,7 +28,8 @@
 
         public IActionResult Index()
         {
-            this._telemetryClient.TrackEvent(eventName: "Hello World!");
+            // this._telemetryClient.TrackEvent(eventName: "Hello World!");
+            this._telemetryClient.TrackRequest("Test Request", DateTimeOffset.Now, TimeSpan.FromMilliseconds(123), "200", true);
 
             return View();
         }

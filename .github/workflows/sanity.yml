@@ -19,14 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        solution: [
-          ./NETCORE/ApplicationInsights.AspNetCore.sln,
-          ./Everything.sln,
-          ./ProjectsForSigning.sln,
-          ./examples/Examples.sln,
-          ./LOGGING/Logging.sln,
-          ./BASE/Microsoft.ApplicationInsights.sln,
-          ./WEB/Src/Microsoft.ApplicationInsights.Web.sln]
+        solution: [./SHIM/Microsoft.ApplicationInsights.Shim.sln]
 
     steps:
     - uses: actions/checkout@v4
@@ -35,11 +28,9 @@ jobs:
       uses: actions/setup-dotnet@v4.3.1
       with:
         dotnet-version: |
-            3.1.x
-            6.0.x
-            7.0.x
             8.0.x
             9.0.x
+            10.0.x
 
     - name: Restore
       run: dotnet restore ${{ matrix.solution }}

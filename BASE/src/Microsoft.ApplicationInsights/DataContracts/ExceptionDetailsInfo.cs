@@ -1,16 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
     using System.Collections.Generic;
-    using System.Linq;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
-    /// Wrapper class for <see cref="ExceptionDetails"/> that lets user gets/sets TypeName and Message.
+    /// Wrapper class for ExceptionDetails"/> that lets user gets/sets TypeName and Message.
     /// </summary>
     public sealed class ExceptionDetailsInfo
     {
-        internal readonly ExceptionDetails InternalExceptionDetails = null;
-
         /// <summary>
         /// Constructs the instance of <see cref="ExceptionDetailsInfo"/>.
         /// </summary>
@@ -24,41 +20,48 @@
         public ExceptionDetailsInfo(int id, int outerId, string typeName, string message, bool hasFullStack,
             string stack, IEnumerable<StackFrame> parsedStack)
         {
-            this.InternalExceptionDetails = new ExceptionDetails()
-            {
-                id = id,
-                outerId = outerId,
-                typeName = typeName,
-                message = message,
-                hasFullStack = hasFullStack,
-                stack = stack,
-                parsedStack = parsedStack.Select(ps => ps.Data).ToList(),
-            };
-        }
-
-        internal ExceptionDetailsInfo(ExceptionDetails exceptionDetails)
-        {
-            this.InternalExceptionDetails = exceptionDetails;
+            this.Id = id;
+            this.OuterId = outerId;
+            this.TypeName = typeName;
+            this.Message = message;
+            this.Stack = stack;
+            this.ParsedStack = parsedStack != null ? new List<StackFrame>(parsedStack) : null;
+            this.HasFullStack = hasFullStack;
         }
 
         /// <summary>
         /// Gets or sets type name of the underlying <see cref="System.Exception"/> that this object represents.
         /// </summary>
-        public string TypeName
-        {
-            get => this.InternalExceptionDetails.typeName;
-            set => this.InternalExceptionDetails.typeName = value;
-        }
+        public string TypeName { get; set; }
 
         /// <summary>
         /// Gets or sets message name of the underlying <see cref="System.Exception"/> that this object represents.
         /// </summary>
-        public string Message
-        {
-            get => this.InternalExceptionDetails.message;
-            set => this.InternalExceptionDetails.message = value;
-        }
+        public string Message { get; set; }
 
-        internal ExceptionDetails ExceptionDetails => this.InternalExceptionDetails;
+        /// <summary>
+        /// Gets or sets the exception ID.
+        /// </summary>
+        internal int Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets the outer exception ID.
+        /// </summary>
+        internal int OuterId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the stack trace as a string.
+        /// </summary>
+        internal string Stack { get; set; }
+
+        /// <summary>
+        /// Gets or sets the parsed stack frames for the exception.
+        /// </summary>
+        internal IList<StackFrame> ParsedStack { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this exception has full stack information.
+        /// </summary>
+        internal bool HasFullStack { get; set; }
     }
 }

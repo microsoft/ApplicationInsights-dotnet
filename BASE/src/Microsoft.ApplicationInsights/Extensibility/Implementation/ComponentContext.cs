@@ -1,10 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
-    using System;
-    using System.Collections.Generic;
-    using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
-
     /// <summary>
     /// Encapsulates information describing an Application Insights component.
     /// </summary>
@@ -13,7 +8,7 @@
     /// with terminology used by our portal and services and to encourage standardization of terminology within our
     /// organization. Once a consensus is reached, we will change type and property names to match.
     /// </remarks>
-    public sealed class ComponentContext
+    internal sealed class ComponentContext
     {
         private string version;
 
@@ -28,16 +23,6 @@
         {
             get { return string.IsNullOrEmpty(this.version) ? null : this.version; }
             set { this.version = value; }
-        }
-
-        internal void UpdateTags(IDictionary<string, string> tags)
-        {
-            tags.UpdateTagValue(ContextTagKeys.Keys.ApplicationVersion, this.Version);
-        }
-        
-        internal void CopyTo(ComponentContext target)
-        {
-            Tags.CopyTagValue(this.Version, ref target.version);
         }
     }
 }

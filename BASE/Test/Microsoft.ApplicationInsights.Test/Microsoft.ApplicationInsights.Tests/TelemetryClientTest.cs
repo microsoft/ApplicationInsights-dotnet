@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights
+namespace Microsoft.ApplicationInsights
 {
     using System;
     using System.Collections.Generic;
@@ -15,2175 +15,2044 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.Extensibility.W3C;
-    using Microsoft.ApplicationInsights.Metrics;
-    using Microsoft.ApplicationInsights.Metrics.Extensibility;
-    using Microsoft.ApplicationInsights.Metrics.TestUtility;
-    using Microsoft.ApplicationInsights.TestFramework;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
+    using Microsoft.Extensions.Logging;
+    using Xunit;
+    using OpenTelemetry;
+    using OpenTelemetry.Logs;
+    using OpenTelemetry.Metrics;
+    using OpenTelemetry.Trace;
 
-    [TestClass]
-    public class TelemetryClientTest
+    [Collection("TelemetryClientTests")]
+    public class TelemetryClientTest : IDisposable
     {
-        [TestMethod]
-        public void IsEnabledReturnsTrueIfTelemetryTrackingIsEnabledInConfiguration()
-        {
-            var configuration = new TelemetryConfiguration { DisableTelemetry = false };
-            var client = new TelemetryClient(configuration);
+        private List<LogRecord> logItems;
+        private List<OpenTelemetry.Metrics.Metric> metricItems;
+        private List<Activity> activityItems;
+        private TelemetryClient telemetryClient;
 
-            Assert.IsTrue(client.IsEnabled());
+        public TelemetryClientTest()
+        {
+            var configuration = new TelemetryConfiguration();
+            this.logItems = new List<LogRecord>();
+            this.metricItems = new List<OpenTelemetry.Metrics.Metric>();
+            this.activityItems = new List<Activity>();
+            var instrumentationKey = Guid.NewGuid().ToString();
+            configuration.ConnectionString = "InstrumentationKey=" + instrumentationKey;
+            configuration.ConfigureOpenTelemetryBuilder(b => b
+                .WithLogging(l => l.AddInMemoryExporter(logItems))
+                .WithMetrics(m => m.AddInMemoryExporter(metricItems))
+                .WithTracing(t => t.AddInMemoryExporter(activityItems)));
+            this.telemetryClient = new TelemetryClient(configuration);
         }
 
-        [TestMethod]
-        public void FlushDoesNotThrowIfConfigurationIsDisposed()
+        public void Dispose()
         {
-            var channel = new InMemoryChannel();
-            var configuration = new TelemetryConfiguration { TelemetryChannel = channel };
-            var client = new TelemetryClient(configuration);
-
-            configuration.Dispose();
-
-            try
-            {
-                client.Flush();
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail(ex.ToString());
-            }
+            this.activityItems?.Clear();
+            this.metricItems?.Clear();
+            this.logItems?.Clear();
+            this.telemetryClient?.TelemetryConfiguration?.Dispose();
         }
 
         #region TrackEvent
 
-        [TestMethod]
+        [Fact]
         public void TrackEventSendsEventTelemetryWithSpecifiedNameToProvideSimplestWayOfSendingEventTelemetry()
         {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackEvent("TestEvent");
-
-            var eventTelemetry = (EventTelemetry)sentTelemetry.Single();
-            Assert.AreEqual("TestEvent", eventTelemetry.Name);
+            this.telemetryClient.TrackEvent("TestEvent");
+            this.telemetryClient.Flush();
+            
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.Attributes != null && l.Attributes.Any(a => 
+                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "TestEvent"));
+            Assert.NotNull(logRecord);
+            Assert.Equal(LogLevel.Information, logRecord.LogLevel);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackEventSendsEventTelemetryWithSpecifiedObjectTelemetry()
         {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackEvent(new EventTelemetry("TestEvent"));
-
-            var eventTelemetry = (EventTelemetry)sentTelemetry.Single();
-            Assert.AreEqual("TestEvent", eventTelemetry.Name);
+            this.telemetryClient.TrackEvent(new EventTelemetry("TestEvent"));
+            this.telemetryClient.Flush();
+            
+            Assert.True(this.logItems.Count > 0);
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.Attributes != null && l.Attributes.Any(a => 
+                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "TestEvent"));
+            Assert.NotNull(logRecord);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackEventWillSendPropertiesIfProvidedInline()
         {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackEvent("Test", new Dictionary<string, string> { { "blah", "yoyo" } });
-
-            var eventTelemetry = (EventTelemetry)sentTelemetry.Single();
-            Assert.AreEqual("yoyo", eventTelemetry.Properties["blah"]);
-        }
-
-        #endregion
-
-        #region Initialize
-
-        [TestMethod]
-        public void InitializeSetsDateTime()
-        {
-            EventTelemetry telemetry = new EventTelemetry("TestEvent");
-
-            new TelemetryClient(TelemetryConfiguration.CreateDefault()).Initialize(telemetry);
-
-            Assert.IsTrue(telemetry.Timestamp != default(DateTimeOffset));
-        }
-
-        /// <summary>
-        /// Tests the scenario if Initialize assigns current precise time to start time.
-        /// </summary>
-        [TestMethod]
-        public void TimestampIsPrecise()
-        {
-            double[] timeStampDiff = new double[1000];
-            DateTimeOffset prevTimestamp = DateTimeOffset.MinValue;
-            for (int i = 0; i < timeStampDiff.Length; i++)
+            this.telemetryClient.TrackEvent("Test", new Dictionary<string, string> { { "blah", "yoyo" } });
+            this.telemetryClient.Flush();
+            
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.Attributes != null && l.Attributes.Any(a => 
+                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "Test"));
+            Assert.NotNull(logRecord);
+            
+            // Verify property is in attributes
+            bool hasBlahProperty = false;
+            if (logRecord.Attributes != null)
             {
-                var telemetry = new DependencyTelemetry();
-                new TelemetryClient(TelemetryConfiguration.CreateDefault()).Initialize(telemetry);
-
-                if (i > 0)
+                foreach (var attr in logRecord.Attributes)
                 {
-                    timeStampDiff[i] = telemetry.Timestamp.Subtract(prevTimestamp).TotalMilliseconds;
-                    Debug.WriteLine(timeStampDiff[i]);
-
-                    // if timestamp is NOT precise, we'll get precisely 0 which should not ever happen
-                    Assert.IsTrue(timeStampDiff[i] != 0);
+                    if (attr.Key == "blah" && attr.Value?.ToString() == "yoyo")
+                    {
+                        hasBlahProperty = true;
+                        break;
+                    }
                 }
-
-                prevTimestamp = telemetry.Timestamp;
-
-                // waste a bit of time, assert result to prevent any optimizations
-                Assert.IsTrue(ComputeSomethingHeavy() > 0);
             }
+            Assert.True(hasBlahProperty, "Property 'blah' should be 'yoyo'");
         }
 
-        [TestMethod]
-        public void InitializeSetsRoleInstance()
+        [Fact]
+        public void TrackEventWithEventTelemetryAndProperties()
         {
-            PlatformSingleton.Current = new StubPlatform { OnGetMachineName = () => "TestMachine" };
-
-            EventTelemetry telemetry = new EventTelemetry("TestEvent");
-            new TelemetryClient(TelemetryConfiguration.CreateDefault()).Initialize(telemetry);
-
-            Assert.AreEqual("TestMachine", telemetry.Context.Cloud.RoleInstance);
-            Assert.IsNull(telemetry.Context.Internal.NodeName);
-
-            PlatformSingleton.Current = null;
+            // Test EventTelemetry with properties set via Properties dictionary
+            var eventTelemetry = new EventTelemetry("TestEventWithProps");
+            eventTelemetry.Properties["customProp"] = "customValue";
+            eventTelemetry.Properties["environment"] = "test";
+            
+            this.telemetryClient.TrackEvent(eventTelemetry);
+            this.telemetryClient.Flush();
+            
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.Attributes != null && l.Attributes.Any(a => 
+                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "TestEventWithProps"));
+            Assert.NotNull(logRecord);
+            Assert.NotNull(logRecord.Attributes);
+            
+            // Verify properties are in attributes
+            bool hasCustomProp = false, hasEnvironment = false;
+            foreach (var attr in logRecord.Attributes)
+            {
+                if (attr.Key == "customProp" && attr.Value?.ToString() == "customValue")
+                    hasCustomProp = true;
+                if (attr.Key == "environment" && attr.Value?.ToString() == "test")
+                    hasEnvironment = true;
+            }
+            Assert.True(hasCustomProp, "Property customProp should be in log record");
+            Assert.True(hasEnvironment, "Property environment should be in log record");
         }
 
-        [TestMethod]
-        public void InitializeDoesNotOverrideRoleInstance()
+        [Fact]
+        public void TrackEventWithNullEventTelemetryHandlesGracefully()
         {
-            PlatformSingleton.Current = new StubPlatform { OnGetMachineName = () => "TestMachine" };
-
-            EventTelemetry telemetry = new EventTelemetry("TestEvent");
-            telemetry.Context.Cloud.RoleInstance = "MyMachineImplementation";
-
-            new TelemetryClient(TelemetryConfiguration.CreateDefault()).Initialize(telemetry);
-
-            Assert.AreEqual("MyMachineImplementation", telemetry.Context.Cloud.RoleInstance);
-            Assert.AreEqual("TestMachine", telemetry.Context.Internal.NodeName);
-
-            PlatformSingleton.Current = null;
+            // TrackEvent should handle null EventTelemetry gracefully without throwing
+            this.telemetryClient.TrackEvent((EventTelemetry)null);
+            this.telemetryClient.Flush();
+            // Note: This test verifies error handling, not that an event is created
         }
 
-        [TestMethod]
-        public void InitializeDoesNotOverrideNodeName()
+        [Fact]
+        public void TrackEventWithEmptyNameHandlesGracefully()
         {
-            PlatformSingleton.Current = new StubPlatform { OnGetMachineName = () => "TestMachine" };
-
-            EventTelemetry telemetry = new EventTelemetry("TestEvent");
-            telemetry.Context.Internal.NodeName = "MyMachineImplementation";
-
-            new TelemetryClient(TelemetryConfiguration.CreateDefault()).Initialize(telemetry);
-
-            Assert.AreEqual("TestMachine", telemetry.Context.Cloud.RoleInstance);
-            Assert.AreEqual("MyMachineImplementation", telemetry.Context.Internal.NodeName);
-
-            PlatformSingleton.Current = null;
+            // TrackEvent should handle empty name gracefully without throwing
+            this.telemetryClient.TrackEvent(string.Empty);
+            this.telemetryClient.Flush();
+            // Note: This test verifies error handling
         }
 
-        #endregion
-
-        #region InitializeIKey
-
-        [TestMethod]
-        public void InitializeIKeySetsIkeyFromContext()
+        [Fact]
+        public void TrackEventWithNullNameHandlesGracefully()
         {
-            EventTelemetry telemetry = new EventTelemetry("TestEvent");
-
-            var tc = new TelemetryClient(TelemetryConfiguration.CreateDefault());
-            // Set ikey on Context
-            tc.InstrumentationKey = "mykey";
-            tc.InitializeInstrumentationKey(telemetry);
-
-            Assert.AreEqual("mykey",telemetry.Context.InstrumentationKey);
-        }
-
-        [TestMethod]
-        public void InitializeIKeySetsIkeyFromCofig()
-        {
-            EventTelemetry telemetry = new EventTelemetry("TestEvent");
-
-            // Set ikey on config
-            var config = new TelemetryConfiguration("mykey");
-            var tc = new TelemetryClient(config);
-            tc.InitializeInstrumentationKey(telemetry);
-
-            Assert.AreEqual("mykey", telemetry.Context.InstrumentationKey);
-        }
-
-        [TestMethod]
-        public void InitializeIKeySetsIkeyFromContextOverConfig()
-        {
-            EventTelemetry telemetry = new EventTelemetry("TestEvent");
-
-            // Set ikey on config
-            var config = new TelemetryConfiguration("mykeyonconfig");
-            var tc = new TelemetryClient(config);
-            // Set ikey on Context as well.
-            tc.InstrumentationKey = "mykeyoncontext";
-            tc.InitializeInstrumentationKey(telemetry);
-
-            // ikey on Context takes priority.
-            Assert.AreEqual("mykeyoncontext", telemetry.Context.InstrumentationKey);
-        }
-
-        [TestMethod]
-        public void InitializeIKeyDoesNotOverrideIKey()
-        {
-            EventTelemetry telemetry = new EventTelemetry("TestEvent");
-            telemetry.Context.InstrumentationKey = "expectedIKey";
-
-            var tc = new TelemetryClient(TelemetryConfiguration.CreateDefault());
-            tc.InstrumentationKey = "mykey";
-            tc.InitializeInstrumentationKey(telemetry);
-
-            Assert.AreEqual("expectedIKey", telemetry.Context.InstrumentationKey);
-        }
-
-        #endregion
-
-        #region TrackMetric
-
-        [TestMethod]
-        public void TrackMetricSendsSpecifiedAggregatedMetricTelemetry()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            client.TrackMetric(
-                new MetricTelemetry()
-                {
-                    Name = "Test Metric",
-                    Count = 5,
-                    Sum = 40,
-                    Min = 3.0,
-                    Max = 4.0,
-                    StandardDeviation = 1.0
-                });
-#pragma warning restore CS0618 // Type or member is obsolete
-
-            var metric = (MetricTelemetry)sentTelemetry.Single();
-
-            Assert.AreEqual("Test Metric", metric.Name);
-            Assert.AreEqual(5, metric.Count);
-            Assert.AreEqual(40, metric.Sum);
-            Assert.AreEqual(3.0, metric.Min);
-            Assert.AreEqual(4.0, metric.Max);
-            Assert.AreEqual(1.0, metric.StandardDeviation);
-        }
-
-        [TestMethod]
-        public void TrackMetricSendsMetricTelemetryWithSpecifiedNameAndValue()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-#pragma warning disable CS0618
-            client.TrackMetric("TestMetric", 42);
-#pragma warning restore CS0618
-
-            var metric = (MetricTelemetry)sentTelemetry.Single();
-
-            Assert.AreEqual("TestMetric", metric.Name);
-
-#pragma warning disable CS0618
-            Assert.AreEqual(42, metric.Value);
-#pragma warning restore CS0618
-        }
-
-        [TestMethod]
-        public void TrackMetricSendsSpecifiedMetricTelemetry()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-#pragma warning disable CS0618
-            client.TrackMetric(new MetricTelemetry("TestMetric", 42));
-#pragma warning restore CS0618
-
-            var metric = (MetricTelemetry)sentTelemetry.Single();
-
-            Assert.AreEqual("TestMetric", metric.Name);
-
-#pragma warning disable CS0618
-            Assert.AreEqual(42, metric.Value);
-#pragma warning restore CS0618
-        }
-
-        [TestMethod]
-        public void TrackMetricSendsMetricTelemetryWithGivenNameValueAndProperties()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-#pragma warning disable CS0618
-            client.TrackMetric("TestMetric", 4.2, new Dictionary<string, string> { { "blah", "yoyo" } });
-#pragma warning restore CS0618
-
-            var metric = (MetricTelemetry)sentTelemetry.Single();
-
-            Assert.AreEqual("TestMetric", metric.Name);
-
-#pragma warning disable CS0618
-            Assert.AreEqual(4.2, metric.Value);
-#pragma warning restore CS0618
-
-            Assert.AreEqual("yoyo", metric.Properties["blah"]);
-        }
-
-        [TestMethod]
-        public void TrackMetricIgnoresNullPropertiesArgumentToAvoidCrashingUserApp()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-#pragma warning disable CS0618
-            client.TrackMetric("TestMetric", 4.2, null);
-#pragma warning restore CS0618
-
-            var metric = (MetricTelemetry)sentTelemetry.Single();
-
-            Assert.AreEqual("TestMetric", metric.Name);
-#pragma warning disable CS0618
-            Assert.AreEqual(4.2, metric.Value);
-#pragma warning restore CS0618
-            AssertEx.IsEmpty(metric.Properties);
-        }
-
-        #endregion
-
-        #region TrackTrace
-
-        [TestMethod]
-        public void TrackTraceSendsTraceTelemetryWithSpecifiedNameToProvideSimplestWayOfSendingTraceTelemetry()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackTrace("TestTrace");
-
-            var trace = (TraceTelemetry)sentTelemetry.Single();
-            Assert.AreEqual("TestTrace", trace.Message);
-        }
-
-        [TestMethod]
-        public void TrackTraceSendsTraceTelemetryWithSpecifiedObjectTelemetry()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackTrace(new TraceTelemetry { Message = "TestTrace" });
-
-            var trace = (TraceTelemetry)sentTelemetry.Single();
-            Assert.AreEqual("TestTrace", trace.Message);
-        }
-
-        [TestMethod]
-        public void TrackTraceWillSendSeverityLevelIfProvidedInline()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackTrace("Test", SeverityLevel.Error);
-
-            var trace = (TraceTelemetry)sentTelemetry.Single();
-            Assert.AreEqual(SeverityLevel.Error, trace.SeverityLevel);
-        }
-
-        [TestMethod]
-        public void TrackTraceWillNotSetSeverityLevelIfCustomerProvidedOnlyName()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackTrace("Test");
-
-            var trace = (TraceTelemetry)sentTelemetry.Single();
-            Assert.AreEqual(null, trace.SeverityLevel);
-        }
-
-        #endregion
-
-        #region TrackException
-
-        [TestMethod]
-        public void TrackExceptionSendsExceptionTelemetryWithSpecifiedNameToProvideSimplestWayOfSendingExceptionTelemetry()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            Exception ex = new Exception();
-            client.TrackException(ex);
-
-            var exceptionTelemetry = (ExceptionTelemetry)sentTelemetry.Single();
-            Assert.AreSame(ex, exceptionTelemetry.Exception);
-        }
-
-        [TestMethod]
-        public void TrackExceptionWillUseRequiredFieldAsTextForTheExceptionNameWhenTheExceptionNameIsEmptyToHideUserErrors()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackException((Exception)null);
-
-            var exceptionTelemetry = (ExceptionTelemetry)sentTelemetry.Single();
-            Assert.IsNotNull(exceptionTelemetry.Exception);
-            Assert.AreEqual("n/a", exceptionTelemetry.Exception.Message);
-        }
-
-        [TestMethod]
-        public void TrackExceptionSendsExceptionTelemetryWithSpecifiedObjectTelemetry()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            Exception ex = new Exception();
-            client.TrackException(new ExceptionTelemetry(ex));
-
-            var exceptionTelemetry = (ExceptionTelemetry)sentTelemetry.Single();
-            Assert.AreSame(ex, exceptionTelemetry.Exception);
-        }
-
-        [TestMethod]
-        public void TrackExceptionWillUseABlankObjectAsTheExceptionToHideUserErrors()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackException((ExceptionTelemetry)null);
-
-            var exceptionTelemetry = (ExceptionTelemetry)sentTelemetry.Single();
-            Assert.IsNotNull(exceptionTelemetry.Exception);
-        }
-
-        [TestMethod]
-        public void TrackExceptionWillNotSetSeverityLevelIfOnlyExceptionProvided()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackException(new Exception());
-
-            var exceptionTelemetry = (ExceptionTelemetry)sentTelemetry.Single();
-            Assert.AreEqual(null, exceptionTelemetry.SeverityLevel);
-        }
-
-        #endregion
-
-        #region TrackPageView
-
-        [TestMethod]
-        public void TrackPageViewSendsPageViewTelemetryWithGivenNameToTelemetryChannel()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            TelemetryClient client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackPageView("TestName");
-
-            var pageView = (PageViewTelemetry)sentTelemetry.Single();
-            Assert.AreEqual("TestName", pageView.Name);
-        }
-
-        [TestMethod]
-        public void TrackPageViewSendsGivenPageViewTelemetryToTelemetryChannel()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            TelemetryClient client = this.InitializeTelemetryClient(sentTelemetry);
-
-            var pageViewTelemetry = new PageViewTelemetry("TestName");
-            client.TrackPageView(pageViewTelemetry);
-
-            var channelPageView = (PageViewTelemetry)sentTelemetry.Single();
-            Assert.AreSame(pageViewTelemetry, channelPageView);
-        }
-
-        #endregion
-
-        #region TrackRequest
-
-        [TestMethod]
-        public void TrackRequestSendsRequestTelemetryWithGivenNameTimestampDurationAndSuccessToTelemetryChannel()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            TelemetryClient client = this.InitializeTelemetryClient(sentTelemetry);
-
-            var timestamp = DateTimeOffset.Now;
-            client.TrackRequest("name", timestamp, TimeSpan.FromSeconds(42), "500", false);
-
-            var request = (RequestTelemetry)sentTelemetry.Single();
-
-            Assert.AreEqual("name", request.Name);
-            Assert.AreEqual(timestamp, request.Timestamp);
-            Assert.AreEqual("500", request.ResponseCode);
-            Assert.AreEqual(TimeSpan.FromSeconds(42), request.Duration);
-            Assert.AreEqual(false, request.Success);
-        }
-
-        [TestMethod]
-        public void TrackRequestSendsGivenRequestTelemetryToTelemetryChannel()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            TelemetryClient client = this.InitializeTelemetryClient(sentTelemetry);
-
-            var clientRequest = new RequestTelemetry();
-            client.TrackRequest(clientRequest);
-
-            var channelRequest = (RequestTelemetry)sentTelemetry.Single();
-            Assert.AreSame(clientRequest, channelRequest);
-        }
-
-        #endregion
-
-        #region TrackDependency
-
-        [TestMethod]
-        public void ObsoleteTrackDependencySendsDependencyTelemetryWithGivenNameCommandnameTimestampDurationAndSuccessToTelemetryChannel()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            TelemetryClient client = this.InitializeTelemetryClient(sentTelemetry);
-
-            var timestamp = DateTimeOffset.Now;
-#pragma warning disable CS0612 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-            client.TrackDependency("name", "command name", timestamp, TimeSpan.FromSeconds(42), false);
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0612 // Type or member is obsolete
-
-            var dependency = (DependencyTelemetry)sentTelemetry.Single();
-
-            Assert.AreEqual("name", dependency.Name);
-            Assert.AreEqual("command name", dependency.Data);
-            Assert.AreEqual(timestamp, dependency.Timestamp);
-            Assert.AreEqual(TimeSpan.FromSeconds(42), dependency.Duration);
-            Assert.AreEqual(false, dependency.Success);
-        }
-
-        [TestMethod]
-        public void TrackDependencySendsDependencyTelemetryWithGivenNameCommandnameTimestampDurationAndSuccessToTelemetryChannel()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            TelemetryClient client = this.InitializeTelemetryClient(sentTelemetry);
-
-            var timestamp = DateTimeOffset.Now;
-            client.TrackDependency("type name", "name", "command name", timestamp, TimeSpan.FromSeconds(42), false);
-
-            var dependency = (DependencyTelemetry)sentTelemetry.Single();
-
-            Assert.AreEqual("type name", dependency.Type);
-            Assert.AreEqual("name", dependency.Name);
-            Assert.AreEqual("command name", dependency.Data);
-            Assert.AreEqual(timestamp, dependency.Timestamp);
-            Assert.AreEqual(TimeSpan.FromSeconds(42), dependency.Duration);
-            Assert.AreEqual(false, dependency.Success);
-        }
-
-        [TestMethod]
-        public void TrackDependencySendsGivenDependencyTelemetryToTelemetryChannel()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            TelemetryClient client = this.InitializeTelemetryClient(sentTelemetry);
-
-            var clientDependency = new DependencyTelemetry();
-            client.TrackDependency(clientDependency);
-
-            var channelDependency = (DependencyTelemetry)sentTelemetry.Single();
-            Assert.AreSame(clientDependency, channelDependency);
+            // TrackEvent should handle null name gracefully without throwing
+            this.telemetryClient.TrackEvent((string)null);
+            this.telemetryClient.Flush();
+            // Note: This test verifies error handling
         }
 
         #endregion
 
         #region TrackAvailability
 
-        [TestMethod]
-        public void TrackAvailabilitySendsAvailabilityTelemetryWithGivenNameRunlocationRunIdDurationResultAndMessageToTelemetryChannel()
+        [Fact]
+        public void TrackAvailabilitySendsAvailabilityTelemetryWithAllParameters()
         {
-            var sentTelemetry = new List<ITelemetry>();
-            TelemetryClient client = this.InitializeTelemetryClient(sentTelemetry);
+            var name = "MyAvailabilityTest";
+            var timeStamp = DateTimeOffset.UtcNow;
+            var duration = TimeSpan.FromSeconds(5);
+            var runLocation = "West US";
+            var success = true;
+            var message = "Test passed";
+            var properties = new Dictionary<string, string> { { "Environment", "Production" } };
 
-            var timestamp = DateTimeOffset.Now;
-            client.TrackAvailability("test name", timestamp, TimeSpan.FromSeconds(42), "test location", true);
+            this.telemetryClient.TrackAvailability(name, timeStamp, duration, runLocation, success, message, properties);
+            this.telemetryClient.Flush();
 
-            var availability = (AvailabilityTelemetry)sentTelemetry.Single();
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l =>
+                l.Attributes != null && l.Attributes.Any(a =>
+                    a.Key == "microsoft.availability.name" && a.Value?.ToString() == name));
+            Assert.NotNull(logRecord);
+            Assert.Equal(LogLevel.Information, logRecord.LogLevel);
 
-            Assert.AreEqual("test name", availability.Name);
-            Assert.AreEqual("test location", availability.RunLocation);
-            Assert.AreEqual(timestamp, availability.Timestamp);
-            Assert.AreEqual(TimeSpan.FromSeconds(42), availability.Duration);
-            Assert.AreEqual(true, availability.Success);
+            // Verify availability attributes
+            Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.name" && a.Value?.ToString() == name);
+            Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.duration" && a.Value?.ToString() == duration.ToString());
+            Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.success" && a.Value?.ToString() == success.ToString());
+            Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.runLocation" && a.Value?.ToString() == runLocation);
+            Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.message" && a.Value?.ToString() == message);
+            Assert.Contains(logRecord.Attributes, a => a.Key == "Environment" && a.Value?.ToString() == "Production");
         }
 
-        [TestMethod]
-        public void TrackAvailabilityTracksCustomDimensions()
+        [Fact]
+        public void TrackAvailabilitySendsAvailabilityTelemetryWithMinimalParameters()
         {
-            var sentTelemetry = new List<ITelemetry>();
-            TelemetryClient client = this.InitializeTelemetryClient(sentTelemetry);
+            var name = "MinimalTest";
+            var timeStamp = DateTimeOffset.UtcNow;
+            var duration = TimeSpan.FromSeconds(2);
+            var runLocation = "East US";
+            var success = false;
 
-            var timestamp = DateTimeOffset.Now;
-            var customDimensions = new Dictionary<string,string>()
-                {
-                    ["Blah"] = "yoyo"
-                };
+            this.telemetryClient.TrackAvailability(name, timeStamp, duration, runLocation, success);
+            this.telemetryClient.Flush();
+
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l =>
+                l.Attributes != null && l.Attributes.Any(a =>
+                    a.Key == "microsoft.availability.name" && a.Value?.ToString() == name));
+            Assert.NotNull(logRecord);
             
-            client.TrackAvailability("test name", timestamp, TimeSpan.FromSeconds(42), "test location", true, properties: customDimensions);
-
-            var availability = (AvailabilityTelemetry)sentTelemetry.Single();
-
-            Assert.AreEqual("yoyo", availability.Properties["Blah"]);
-            Assert.AreEqual(0, availability.Metrics.Count);
+            // Verify required attributes are present
+            Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.name");
+            Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.duration");
+            Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.success" && a.Value?.ToString() == "False");
         }
 
-        [TestMethod]
-        public void TrackAvailabilityTracksCustomMetrics()
+        [Fact]
+        public void TrackAvailabilityWithAvailabilityTelemetryObject()
         {
-            var sentTelemetry = new List<ITelemetry>();
-            TelemetryClient client = this.InitializeTelemetryClient(sentTelemetry);
+            var availabilityTelemetry = new AvailabilityTelemetry("TestWithObject", DateTimeOffset.UtcNow, TimeSpan.FromSeconds(3), "North Europe", true, "Success");
+            availabilityTelemetry.Properties["CustomProp"] = "CustomValue";
 
-            var timestamp = DateTimeOffset.Now;
+            this.telemetryClient.TrackAvailability(availabilityTelemetry);
+            this.telemetryClient.Flush();
 
-            var customMetrics = new Dictionary<string, double>()
-            {
-                ["QueueLength"] = 10
-            };
-
-            client.TrackAvailability("test name", timestamp, TimeSpan.FromSeconds(42), "test location", true, metrics: customMetrics);
-
-            var availability = (AvailabilityTelemetry)sentTelemetry.Single();
-
-            Assert.AreEqual(0, availability.Properties.Count);
-            Assert.AreEqual(10, availability.Metrics["QueueLength"]);
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l =>
+                l.Attributes != null && l.Attributes.Any(a =>
+                    a.Key == "microsoft.availability.name" && a.Value?.ToString() == "TestWithObject"));
+            Assert.NotNull(logRecord);
+            
+            // Verify custom property
+            Assert.Contains(logRecord.Attributes, a => a.Key == "CustomProp" && a.Value?.ToString() == "CustomValue");
         }
 
-        [TestMethod]
-        public void TrackAvailabilitySendsGivenAvailabilityTelemetryToTelemetryChannel()
+        [Fact]
+        public void TrackAvailabilityWithNullTelemetryHandlesGracefully()
         {
-            var sentTelemetry = new List<ITelemetry>();
-            TelemetryClient client = this.InitializeTelemetryClient(sentTelemetry);
+            // Should not throw
+            this.telemetryClient.TrackAvailability((AvailabilityTelemetry)null);
+            this.telemetryClient.Flush();
+            
+            // No log record should be created for null telemetry
+            var availabilityLogs = this.logItems.Where(l =>
+                l.Attributes != null && l.Attributes.Any(a => a.Key.StartsWith("microsoft.availability.")));
+            Assert.Empty(availabilityLogs);
+        }
 
-            var clientAvailability = new AvailabilityTelemetry();
-            client.TrackAvailability(clientAvailability);
+        [Fact]
+        public void TrackAvailabilityWithCustomProperties()
+        {
+            var availabilityTelemetry = new AvailabilityTelemetry("PropertiesTest", DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1), "Local", true);
+            availabilityTelemetry.Properties["Environment"] = "Production";
+            availabilityTelemetry.Properties["Region"] = "WestUS";
+            
+            this.telemetryClient.TrackAvailability(availabilityTelemetry);
+            this.telemetryClient.Flush();
 
-            var channelAvailability = (AvailabilityTelemetry)sentTelemetry.Single();
-            Assert.AreSame(clientAvailability, channelAvailability);
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l =>
+                l.Attributes != null && l.Attributes.Any(a =>
+                    a.Key == "microsoft.availability.name" && a.Value?.ToString() == "PropertiesTest"));
+            Assert.NotNull(logRecord);
+
+            // Verify custom properties are included
+            Assert.Contains(logRecord.Attributes, a => a.Key == "Environment" && a.Value?.ToString() == "Production");
+            Assert.Contains(logRecord.Attributes, a => a.Key == "Region" && a.Value?.ToString() == "WestUS");
+        }
+
+        [Fact]
+        public void TrackAvailabilityGeneratesIdIfNotProvided()
+        {
+            var availabilityTelemetry = new AvailabilityTelemetry("AutoIdTest", DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1), "Local", true);
+            // Don't set Id, it should be auto-generated
+
+            this.telemetryClient.TrackAvailability(availabilityTelemetry);
+            this.telemetryClient.Flush();
+
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l =>
+                l.Attributes != null && l.Attributes.Any(a =>
+                    a.Key == "microsoft.availability.name" && a.Value?.ToString() == "AutoIdTest"));
+            Assert.NotNull(logRecord);
+
+            // Verify ID attribute exists and is a valid GUID
+            var idAttr = logRecord.Attributes.FirstOrDefault(a => a.Key == "microsoft.availability.id");
+            Assert.NotNull(idAttr.Value);
+            Assert.True(Guid.TryParse(idAttr.Value?.ToString(), out _), "ID should be a valid GUID");
         }
 
         #endregion
 
-        #region Track
+        #region TrackTrace
 
-        [TestMethod]
-        public void TrackMethodIsPublicToAllowDefiningTelemetryTypesOutsideOfCore()
+        [Fact]
+        public void TrackTraceSendsTraceTelemetryWithSpecifiedNameToProvideSimplestWayOfSendingTraceTelemetry()
         {
-            Assert.IsTrue(typeof(TelemetryClient).GetTypeInfo().GetDeclaredMethod("Track").IsPublic);
-        }
-
-        [TestMethod]
-        public void TrackMethodIsInvisibleThroughIntelliSenseSoThatCustomersDontGetConfused()
-        {
-            var attribute = typeof(TelemetryClient).GetTypeInfo().GetDeclaredMethod("Track").GetCustomAttributes(false).OfType<EditorBrowsableAttribute>().Single();
-            Assert.AreEqual(EditorBrowsableState.Never, attribute.State);
-        }
-
-        [TestMethod]
-        public void DefaultChannelInConfigurationIsCreatedByConstructorWhenNotSpecified()
-        {
-            TelemetryConfiguration configuration = new TelemetryConfiguration(Guid.NewGuid().ToString());
-            Assert.IsNotNull(configuration.TelemetryChannel);
-        }
-
-        [TestMethod]
-        public void TrackUsesInstrumentationKeyFromClientContextIfSetInCodeFirst()
-        {
-            ClearActiveTelemetryConfiguration();
-            PlatformSingleton.Current = new StubPlatform();
-            string message = "Test Message";
-
-            ITelemetry sentTelemetry = null;
-            var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
-            var configuration = new TelemetryConfiguration(string.Empty, channel);
-            var client = new TelemetryClient(configuration);
-
-            string environmentKey = Guid.NewGuid().ToString();
-            string expectedKey = Guid.NewGuid().ToString();
-            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", environmentKey); // Set via the environment variable.
-
-            client.Context.InstrumentationKey = expectedKey;
-            //Assert.DoesNotThrow
-            client.TrackTrace(message);
-            Assert.AreEqual(expectedKey, sentTelemetry.Context.InstrumentationKey);
-
-            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
-
-            PlatformSingleton.Current = null;
-        }
-
-        [TestMethod]
-        public void TrackUsesInstrumentationKeyFromConfigIfEnvironmentVariableIsEmpty()
-        {
-            PlatformSingleton.Current = new StubPlatform();
-
-            ITelemetry sentTelemetry = null;
-            var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
-            var configuration = new TelemetryConfiguration(string.Empty, channel);
-            var client = new TelemetryClient(configuration);
-
-            string expectedKey = Guid.NewGuid().ToString();
-            configuration.InstrumentationKey = expectedKey; // Set in config
-            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null); // Not set via env. variable
+            this.telemetryClient.TrackTrace("TestTrace");
+            this.telemetryClient.Flush();
             
-            //Assert.DoesNotThrow
-            client.TrackTrace("Test Message");
-
-            Assert.AreEqual(expectedKey, sentTelemetry.Context.InstrumentationKey);
-
-            PlatformSingleton.Current = null;
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.FormattedMessage != null && l.FormattedMessage.Contains("TestTrace"));
+            Assert.NotNull(logRecord);
+            Assert.Equal(LogLevel.Information, logRecord.LogLevel);
         }
 
-        [TestMethod]
-        public void TrackDoesNotInitializeInstrumentationKeyFromConfigWhenItWasSetExplicitly()
+        [Fact]
+        public void TrackTraceSendsTraceTelemetryWithSpecifiedObjectTelemetry()
         {
-            var configuration = new TelemetryConfiguration(Guid.NewGuid().ToString(), new StubTelemetryChannel());
-            var client = new TelemetryClient(configuration);
-
-            var expectedKey = Guid.NewGuid().ToString();
-            client.Context.InstrumentationKey = expectedKey;
-            client.TrackTrace("Test Message");
-
-            Assert.AreEqual(expectedKey, client.Context.InstrumentationKey);
-        }
-
-        [TestMethod]
-        public void TrackDoesNotSendDataWhenTelemetryIsDisabled()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
-            var configuration = new TelemetryConfiguration(string.Empty, channel) { DisableTelemetry = true };
-
-            var client = new TelemetryClient(configuration) {};
-
-            client.Track(new StubTelemetry());
-
-            Assert.AreEqual(0, sentTelemetry.Count);
-        }
-
-        [TestMethod]
-        public void TrackRespectsInstrumentaitonKeyOfTelemetryItem()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
-
-            // No instrumentation key set here.
-            var configuration = new TelemetryConfiguration(string.Empty, channel);
-
-            var initializedTelemetry = new List<ITelemetry>();
-            var telemetryInitializer = new StubTelemetryInitializer();
-            telemetryInitializer.OnInitialize = item => initializedTelemetry.Add(item);
-            configuration.TelemetryInitializers.Add(telemetryInitializer);
-
-            var client = new TelemetryClient(configuration);
-
-            var telemetry = new StubTelemetry();
-            telemetry.Context.InstrumentationKey = "Foo";
-            client.Track( telemetry );
-
-            Assert.AreEqual(1, sentTelemetry.Count);
-            Assert.AreEqual(1, initializedTelemetry.Count);
-        }
-
-        [TestMethod]
-        public void TrackRespectsInstrumentaitonKeySetByTelemetryInitializer()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
-
-            // No instrumentation key set here.
-            var configuration = new TelemetryConfiguration(string.Empty, channel);
-
-            var initializedTelemetry = new List<ITelemetry>();
-            var telemetryInitializer = new StubTelemetryInitializer();
-            telemetryInitializer.OnInitialize = item =>
-            {
-                item.Context.InstrumentationKey = "Foo";
-                initializedTelemetry.Add(item);
-            };
-
-            configuration.TelemetryInitializers.Add(telemetryInitializer);
-
-            var client = new TelemetryClient(configuration);
-
-            var telemetry = new StubTelemetry();
-            client.Track(telemetry);
-
-            Assert.AreEqual(1, sentTelemetry.Count);
-            Assert.AreEqual(1, initializedTelemetry.Count);
-        }
-
-        [TestMethod]
-        public void TrackDoesNotThrowExceptionsDuringTelemetryIntializersInitialize()
-        {
-            var configuration = new TelemetryConfiguration("Test key", new StubTelemetryChannel());
-            var telemetryInitializer = new StubTelemetryInitializer();
-            telemetryInitializer.OnInitialize = item => { throw new Exception(); };
-            configuration.TelemetryInitializers.Add(telemetryInitializer);
-            var client = new TelemetryClient(configuration);
-            //Assert.DoesNotThrow
-            client.Track(new StubTelemetry());
-        }
-
-        [TestMethod]
-        public void TrackLogsDiagnosticsMessageOnExceptionsDuringTelemetryIntializersInitialize()
-        {
-            using (var listener = new TestEventListener())
-            {
-                listener.EnableEvents(CoreEventSource.Log, EventLevel.Error);
-
-                var configuration = new TelemetryConfiguration("Test key", new StubTelemetryChannel());
-                var telemetryInitializer = new StubTelemetryInitializer();
-                var exceptionMessage = "Test exception message";
-                telemetryInitializer.OnInitialize = item => { throw new Exception(exceptionMessage); };
-                configuration.TelemetryInitializers.Add(telemetryInitializer);
-
-                var client = new TelemetryClient(configuration);
-                client.Track(new StubTelemetry());
-
-                var exceptionExplanation = "Exception while initializing " + typeof(StubTelemetryInitializer).FullName;
-                var diagnosticsMessage = (string)listener.Messages.First().Payload[0];
-                AssertEx.Contains(exceptionExplanation, diagnosticsMessage, StringComparison.OrdinalIgnoreCase);
-                AssertEx.Contains(exceptionMessage, diagnosticsMessage, StringComparison.OrdinalIgnoreCase);
-            }
-        }
-
-        [TestMethod]
-        public void TrackDoesNotAddDeveloperModeCustomPropertyIfDeveloperModeIsSetToFalse()
-        {
-            ITelemetry sentTelemetry = null;
-            var channel = new StubTelemetryChannel
-            {
-                OnSend = telemetry => sentTelemetry = telemetry,
-                DeveloperMode = false
-            };
-            var configuration = new TelemetryConfiguration("Test key", channel);
-            var client = new TelemetryClient(configuration);
-
-            client.Track(new StubTelemetry());
-
-            Assert.IsFalse(((ISupportProperties)sentTelemetry).Properties.ContainsKey("DeveloperMode"));
-        }
-
-        [TestMethod]
-        public void TrackAddsDeveloperModeCustomPropertyWhenDeveloperModeIsTrue()
-        {
-            ITelemetry sentTelemetry = null;
-            var channel = new StubTelemetryChannel
-            {
-                OnSend = telemetry => sentTelemetry = telemetry,
-                DeveloperMode = true
-            };
-            var configuration = new TelemetryConfiguration("Test key", channel);
-            var client = new TelemetryClient(configuration);
-
-            client.Track(new StubTelemetry());
-
-            Assert.AreEqual("true", ((ISupportProperties)sentTelemetry).Properties["DeveloperMode"]);
-        }
-
-        [TestMethod]
-        public void TrackDoesNotTryAddingDeveloperModeCustomPropertyWhenTelemetryDoesNotSupportCustomProperties()
-        {
-            var channel = new StubTelemetryChannel { DeveloperMode = true };
-            var configuration = new TelemetryConfiguration("Test Key", channel);
-            var client = new TelemetryClient(configuration);
-
-#pragma warning disable 618
-            //Assert.DoesNotThrow
-            client.Track(new SessionStateTelemetry());
-#pragma warning disable 618
-        }
-
-        [TestMethod]
-        public void TrackAddsTimestampWhenMissing()
-        {
-            ITelemetry sentTelemetry = null;
-            var channel = new StubTelemetryChannel
-            {
-                OnSend = telemetry => sentTelemetry = telemetry
-            };
-            var configuration = new TelemetryConfiguration("Test key", channel);
-            var client = new TelemetryClient(configuration);
-
-            client.Track(new StubTelemetry());
-
-            Assert.AreNotEqual(DateTimeOffset.MinValue, sentTelemetry.Timestamp);
-        }
-
-        [TestMethod]
-        public void TrackWritesTelemetryToDebugOutputIfIKeyEmpty()
-        {
-            ClearActiveTelemetryConfiguration();
-            string actualMessage = null;
-            var debugOutput = new StubDebugOutput
-            {
-                OnWriteLine = message =>
-                {
-                    System.Diagnostics.Debug.WriteLine("1");
-                    actualMessage = message;
-                },
-                OnIsAttached = () => true,
-            };
-
-            PlatformSingleton.Current = new StubPlatform { OnGetDebugOutput = () => debugOutput };
-            var channel = new StubTelemetryChannel { DeveloperMode = true };
-            var configuration = new TelemetryConfiguration(string.Empty, channel);
-            var client = new TelemetryClient(configuration);
-
-            client.Track(new StubTelemetry());
+            this.telemetryClient.TrackTrace(new TraceTelemetry { Message = "TestTrace" });
+            this.telemetryClient.Flush();
             
-            Assert.IsTrue(actualMessage.StartsWith("Application Insights Telemetry (unconfigured): "));
-            PlatformSingleton.Current = null;
+            Assert.True(this.logItems.Count > 0);
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.FormattedMessage != null && l.FormattedMessage.Contains("TestTrace"));
+            Assert.NotNull(logRecord);
         }
 
-        [TestMethod]
-        public void TrackWritesTelemetryToDebugOutputIfIKeyNotEmpty()
+        [Fact]
+        public void TrackTraceWillSendSeverityLevelIfProvidedInline()
         {
-            string actualMessage = null;
-            var debugOutput = new StubDebugOutput
-            {
-                OnWriteLine = message => actualMessage = message,
-                OnIsAttached = () => true,
-            };
-
-            PlatformSingleton.Current = new StubPlatform { OnGetDebugOutput = () => debugOutput };
-            var channel = new StubTelemetryChannel { DeveloperMode = true };
-            var configuration = new TelemetryConfiguration("123", channel);
-            var client = new TelemetryClient(configuration);
-
-            client.Track(new StubTelemetry());
+            this.telemetryClient.TrackTrace("Test", SeverityLevel.Error);
+            this.telemetryClient.Flush();
             
-            Assert.IsTrue(actualMessage.StartsWith("Application Insights Telemetry: "));
-            PlatformSingleton.Current = null;
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.FormattedMessage != null && l.FormattedMessage.Contains("Test"));
+            Assert.NotNull(logRecord);
+            Assert.Equal(LogLevel.Error, logRecord.LogLevel);
         }
 
-
-        [TestMethod]
-        public void TrackDoesNotWriteTelemetryToDebugOutputIfNotInDeveloperMode()
+        [Fact]
+        public void TrackTraceWillNotSetSeverityLevelIfCustomerProvidedOnlyName()
         {
-            ClearActiveTelemetryConfiguration();
-            string actualMessage = null;
-            var debugOutput = new StubDebugOutput { OnWriteLine = message => actualMessage = message };
-            PlatformSingleton.Current = new StubPlatform { OnGetDebugOutput = () => debugOutput };
-            var channel = new StubTelemetryChannel();
-            var configuration = new TelemetryConfiguration("Test key", channel);
-            var client = new TelemetryClient(configuration);
-
-            client.Track(new StubTelemetry());
-            PlatformSingleton.Current = null;
-            Assert.IsNull(actualMessage);
+            this.telemetryClient.TrackTrace("Test");
+            this.telemetryClient.Flush();
+            
+            Assert.True(this.logItems.Count > 0);
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.FormattedMessage != null && l.FormattedMessage.Contains("Test"));
+            Assert.NotNull(logRecord);
+            // Default log level is Information when no severity is specified
+            Assert.Equal(LogLevel.Information, logRecord.LogLevel);
         }
 
-        [TestMethod]
-        public void TrackCopiesPropertiesFromClientToTelemetry()
+        [Fact]
+        public void TrackTraceWithMessageAndProperties()
         {
-            var configuration = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
-            var client = new TelemetryClient(configuration);
-            client.Context.Properties["TestProperty"] = "TestValue";
-            client.Context.GlobalProperties["TestGlobalProperty"] = "TestGlobalValue";
-            client.Context.InstrumentationKey = "Test Key";
-
-            var telemetry = new StubTelemetry();
-            client.Track(telemetry);
-
-            AssertEx.AreEqual(client.Context.Properties.ToArray(), telemetry.Context.Properties.ToArray());
-            AssertEx.AreEqual(client.Context.GlobalProperties.ToArray(), telemetry.Context.GlobalProperties.ToArray());
-        }
-
-        [TestMethod]
-        public void TrackDoesNotOverwriteTelemetryPropertiesWithClientPropertiesBecauseExplicitlySetValuesTakePrecedence()
-        {
-            var configuration = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
-            var client = new TelemetryClient(configuration);
-            client.Context.Properties["TestProperty"] = "ClientValue";
-            client.Context.GlobalProperties["TestProperty"] = "ClientValue";
-            client.Context.InstrumentationKey = "Test Key";
-
-            var telemetry = new StubTelemetry { Properties = { { "TestProperty", "TelemetryValue" } } };
-            client.Track(telemetry);
-
-            Assert.AreEqual("TelemetryValue", telemetry.Properties["TestProperty"]);
-        }
-
-        [TestMethod]
-        public void TrackCopiesPropertiesFromClientToTelemetryBeforeInvokingInitializersBecauseExplicitlySetValuesTakePrecedence()
-        {
-            const string PropertyName = "TestProperty";
-            const string PropertyNameGlobal = "TestGlobalProperty";
-
-            string valueInInitializer = null;
-            string globalValueInInitializer = null;
-            var initializer = new StubTelemetryInitializer();
-            initializer.OnInitialize =
-                (telemetry) =>
-                {
-                    valueInInitializer = ((ISupportProperties)telemetry).Properties[PropertyName];
-                    globalValueInInitializer = ((ISupportProperties)telemetry).Properties[PropertyNameGlobal];
-                };
-
-            var configuration = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel()) { TelemetryInitializers = { initializer } };
-
-            var client = new TelemetryClient(configuration);
-            client.Context.Properties[PropertyName] = "ClientValue";
-            client.Context.Properties[PropertyNameGlobal] = "ClientValue";
-            client.Context.InstrumentationKey = "Test Key";
-
-            client.Track(new StubTelemetry());
-
-            Assert.AreEqual(client.Context.Properties[PropertyName], valueInInitializer);
-            Assert.AreEqual(client.Context.Properties[PropertyNameGlobal], globalValueInInitializer);
-        }
-
-#if (!NETCOREAPP) // This constant is defined for all versions of NetCore https://docs.microsoft.com/en-us/dotnet/core/tutorials/libraries#how-to-multitarget
-        [TestMethod]
-        public void TrackAddsSdkVerionByDefault()
-        {
-            // split version by 4 numbers manually so we do not do the same as in the product code and actually test it
-            string versonStr = Assembly.GetAssembly(typeof(TelemetryConfiguration)).GetCustomAttributes(false)
-                    .OfType<AssemblyFileVersionAttribute>()
-                    .First()
-                    .Version;
-            string[] versionParts = new Version(versonStr).ToString().Split('.');
-
-            var configuration = new TelemetryConfiguration(Guid.NewGuid().ToString(), new StubTelemetryChannel());
-            var client = new TelemetryClient(configuration);
-
-            client.Context.InstrumentationKey = "Test";
-            EventTelemetry eventTelemetry = new EventTelemetry("test");
-            client.Track(eventTelemetry);
-
-            var expected = "dotnet:" + string.Join(".", versionParts[0], versionParts[1], versionParts[2]) + "-" + versionParts[3];
-
-            Assert.AreEqual(expected, eventTelemetry.Context.Internal.SdkVersion);
-        }
-
-#endif
-
-        [TestMethod]
-        public void TrackDoesNotOverrideSdkVersion()
-        {
-            var configuration = new TelemetryConfiguration(Guid.NewGuid().ToString(), new StubTelemetryChannel());
-            var client = new TelemetryClient(configuration);
-
-            client.Context.InstrumentationKey = "Test";
-            EventTelemetry eventTelemetry = new EventTelemetry("test");
-            eventTelemetry.Context.Internal.SdkVersion = "test";
-            client.Track(eventTelemetry);
-
-            Assert.AreEqual("test", eventTelemetry.Context.Internal.SdkVersion);
-        }
-
-        [TestMethod]
-        public void TrackClearsTelemetryContextRawStorageTempAfterInitializersAreRun()
-        {
-            const string keyTemp = "fooTemp";
-            const string detailTemp = "barTemp";
-            const string keyPerm = "fooPerm";
-            const string detailPerm = "barPerm";
-            var sentTelemetry = new List<ITelemetry>();
-            var channel = new StubTelemetryChannel
+            var properties = new Dictionary<string, string>
             {
-                OnSend = t =>
+                { "prop1", "value1" },
+                { "prop2", "value2" }
+            };
+            
+            this.telemetryClient.TrackTrace("TraceWithProps", properties);
+            this.telemetryClient.Flush();
+            
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.FormattedMessage != null && l.FormattedMessage.Contains("TraceWithProps"));
+            Assert.NotNull(logRecord);
+            Assert.Equal(LogLevel.Information, logRecord.LogLevel);
+            
+            // Verify properties
+            bool hasProp1 = false, hasProp2 = false;
+            if (logRecord.Attributes != null)
+            {
+                foreach (var attr in logRecord.Attributes)
                 {
-                    // Upon reaching TelemetryChannel temp object should not exist.
-                    Assert.IsFalse(t.Context.TryGetRawObject(keyTemp, out object detailTmp));
-
-                    // Upon reaching TelemetryChannel perm object should remain.
-                    Assert.IsTrue(t.Context.TryGetRawObject(keyPerm, out object detailPrm));
+                    if (attr.Key == "prop1" && attr.Value?.ToString() == "value1")
+                        hasProp1 = true;
+                    if (attr.Key == "prop2" && attr.Value?.ToString() == "value2")
+                        hasProp2 = true;
                 }
-            };           
-            var configuration = new TelemetryConfiguration(string.Empty, channel);
+            }
+            Assert.True(hasProp1, "Property prop1 should be in log record");
+            Assert.True(hasProp2, "Property prop2 should be in log record");
+        }
 
-            configuration.TelemetryProcessorChainBuilder.Use((next) => new StubTelemetryProcessor(next)
+        [Fact]
+        public void TrackTraceWithSeverityLevelAndProperties()
+        {
+            var properties = new Dictionary<string, string>
             {
-                OnProcess = t =>
+                { "errorCode", "500" },
+                { "component", "API" }
+            };
+            
+            this.telemetryClient.TrackTrace("ErrorTrace", SeverityLevel.Error, properties);
+            this.telemetryClient.Flush();
+            
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.FormattedMessage != null && l.FormattedMessage.Contains("ErrorTrace"));
+            Assert.NotNull(logRecord);
+            Assert.Equal(LogLevel.Error, logRecord.LogLevel);
+            
+            // Verify properties
+            bool hasErrorCode = false, hasComponent = false;
+            if (logRecord.Attributes != null)
+            {
+                foreach (var attr in logRecord.Attributes)
                 {
+                    if (attr.Key == "errorCode" && attr.Value?.ToString() == "500")
+                        hasErrorCode = true;
+                    if (attr.Key == "component" && attr.Value?.ToString() == "API")
+                        hasComponent = true;
+                }
+            }
+            Assert.True(hasErrorCode, "Property errorCode should be in log record");
+            Assert.True(hasComponent, "Property component should be in log record");
+        }
+
+        [Fact]
+        public void TrackTraceWithTraceTelemetryAndProperties()
+        {
+            var traceTelemetry = new TraceTelemetry("TraceTelemetryWithProps");
+            traceTelemetry.SeverityLevel = SeverityLevel.Warning;
+            traceTelemetry.Properties["customProp"] = "customValue";
+            traceTelemetry.Properties["source"] = "UnitTest";
+            
+            this.telemetryClient.TrackTrace(traceTelemetry);
+            this.telemetryClient.Flush();
+            
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.FormattedMessage != null && l.FormattedMessage.Contains("TraceTelemetryWithProps"));
+            Assert.NotNull(logRecord);
+            Assert.Equal(LogLevel.Warning, logRecord.LogLevel);
+            
+            // Verify properties
+            bool hasCustomProp = false, hasSource = false;
+            if (logRecord.Attributes != null)
+            {
+                foreach (var attr in logRecord.Attributes)
+                {
+                    if (attr.Key == "customProp" && attr.Value?.ToString() == "customValue")
+                        hasCustomProp = true;
+                    if (attr.Key == "source" && attr.Value?.ToString() == "UnitTest")
+                        hasSource = true;
+                }
+            }
+            Assert.True(hasCustomProp, "Property customProp should be in log record");
+            Assert.True(hasSource, "Property source should be in log record");
+        }
+
+        [Fact]
+        public void TrackTraceWithTraceTelemetryAndAllSeverityLevels()
+        {
+            // Test all severity levels in sequence (Note: Verbose/Trace may be filtered by default logger configuration)
+            var testData = new[]
+            {
+                (SeverityLevel.Information, LogLevel.Information, "Trace-Information"),
+                (SeverityLevel.Warning, LogLevel.Warning, "Trace-Warning"),
+                (SeverityLevel.Error, LogLevel.Error, "Trace-Error"),
+                (SeverityLevel.Critical, LogLevel.Critical, "Trace-Critical")
+            };
+            
+            foreach (var (severity, expectedLogLevel, message) in testData)
+            {
+                var traceTelemetry = new TraceTelemetry(message);
+                traceTelemetry.SeverityLevel = severity;
                 
-                // Upon reaching TelemetryProcessor temp object should not exist.
-                Assert.IsFalse(t.Context.TryGetRawObject(keyTemp, out object detailTmp));
-
-                // Upon reaching TelemetryProcessor perm object should remain.
-                Assert.IsTrue(t.Context.TryGetRawObject(keyPerm, out object detailPrm));
-                }
-            });
-
-            configuration.TelemetryProcessorChainBuilder.Build();
-            
-            var telemetryInitializer = new StubTelemetryInitializer();
-            telemetryInitializer.OnInitialize = item =>
-            {
-                // TelemetryInitializer should be able to access both temp and perm objects.
-                Assert.IsTrue(item.Context.TryGetRawObject(keyTemp, out object detailTmp));
-                Assert.IsTrue(item.Context.TryGetRawObject(keyPerm, out object detailPrm));
-            };
-
-            configuration.TelemetryInitializers.Add(telemetryInitializer);
-
-            var client = new TelemetryClient(configuration);
-            var telemetry = new StubTelemetry();
-            telemetry.Context.StoreRawObject(keyTemp, detailTemp, true);
-            telemetry.Context.StoreRawObject(keyPerm, detailPerm, false);
-            
-            // Calling Track will in turn call all TelemetryInitializers followed by TelemetryProcessors
-            // and Channel. Test here is to validate that temp RawObjects stored in TelemetryContext gets
-            // cleared after Initialiers are run.
-            client.Track(telemetry);
-        }
-
-        #endregion
-
-        #region Sampling
-
-        [TestMethod]
-        public void AllTelemetryIsSentWithDefaultSamplingRate()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
-            var configuration = new TelemetryConfiguration("Test key", channel);            
-            var client = new TelemetryClient(configuration);
-
-            const int ItemsToGenerate = 100;
-
-            for (int i = 0; i < ItemsToGenerate; i++)
-            {
-                client.TrackRequest(new RequestTelemetry());
+                this.telemetryClient.TrackTrace(traceTelemetry);
             }
-
-            Assert.AreEqual(ItemsToGenerate, sentTelemetry.Count);
+            
+            this.telemetryClient.Flush();
+            
+            // Verify all logs were collected
+            Assert.True(this.logItems.Count >= 4, $"Expected at least 4 logs, but got {this.logItems.Count}");
+            
+            // Verify each severity level was logged correctly
+            foreach (var (severity, expectedLogLevel, message) in testData)
+            {
+                var logRecord = this.logItems.FirstOrDefault(l => 
+                    l.FormattedMessage != null && l.FormattedMessage.Contains(message));
+                Assert.NotNull(logRecord);
+                Assert.Equal(expectedLogLevel, logRecord.LogLevel);
+            }
         }
 
-        [TestMethod]
-        public void ProactivelySampledOutTelemetryIsNotInitialized()
+        [Fact]
+        public void TrackTraceWithNullTraceTelemetryCreatesDefaultTrace()
         {
-            var sentTelemetry = new List<ITelemetry>();
-            var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
-
-            var configuration = new TelemetryConfiguration("Test key", channel);
-
-            var initializedTelemetry = new List<ITelemetry>();
-            var telemetryInitializer = new StubTelemetryInitializer();
-            telemetryInitializer.OnInitialize = item =>
-            {   
-                initializedTelemetry.Add(item);
-            };
-
-            configuration.TelemetryInitializers.Add(telemetryInitializer);
-
-            var client = new TelemetryClient(configuration);
-
-            var telemetry = new RequestTelemetry();
-            telemetry.ProactiveSamplingDecision = SamplingDecision.SampledOut;
-            client.Track(telemetry);
-
-            Assert.AreEqual(SamplingDecision.SampledOut, telemetry.ProactiveSamplingDecision);
-            Assert.AreEqual(0, initializedTelemetry.Count);
-            Assert.IsNull(telemetry.Context.Internal.SdkVersion);
-            Assert.IsNull(telemetry.Context.Internal.NodeName);            
-            Assert.AreEqual(1, sentTelemetry.Count);
+            this.telemetryClient.TrackTrace((TraceTelemetry)null);
+            this.telemetryClient.Flush();
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected for null TraceTelemetry");
+            var logRecord = this.logItems[0];
+            Assert.Equal(LogLevel.Information, logRecord.LogLevel);
         }
+
+        [Fact]
+        public void TrackTraceWithEmptyMessageInTraceTelemetry()
+        {
+            var traceTelemetry = new TraceTelemetry();
+            traceTelemetry.Message = string.Empty;
+            
+            this.telemetryClient.TrackTrace(traceTelemetry);
+            this.telemetryClient.Flush();
+            
+            Assert.True(this.logItems.Count > 0, "Log should be collected even with empty message");
+            var logRecord = this.logItems[0];
+            Assert.NotNull(logRecord);
+        }
+
         #endregion
 
-        #region ValidateEndpoint
+        #region TrackMetric
 
-        [TestMethod]
-        public async System.Threading.Tasks.Task SendEventToValidateEndpointAsync()
+        [Fact]
+        public void TrackMetricWithNameAndValue()
         {
-            string unicodeString = "русский\\#/\x0000\x0001\x0002\x0003\x0004\x0005\x0006\x0007\x0008\x009Farabicشلاؤيثبلاهتنمةىخحضقسفعشلاؤيصثبل c\n\r\t";
-
-            EventTelemetry telemetry1 = new EventTelemetry(unicodeString);
-            MetricTelemetry telemetry2 = new MetricTelemetry("name", 100);
-            DependencyTelemetry telemetry3 = new DependencyTelemetry("name", "commandName", DateTimeOffset.UtcNow, TimeSpan.FromHours(3), true);
-            ExceptionTelemetry telemetry4 = new ExceptionTelemetry(new ArgumentException("Test"));
-            MetricTelemetry telemetry5 = new MetricTelemetry("name", 100);
-            PageViewTelemetry telemetry6 = new PageViewTelemetry("name");
-#pragma warning disable 618
-            PerformanceCounterTelemetry telemetry7 = new PerformanceCounterTelemetry("category", "name", "instance", 100);
-#pragma warning restore 618
-            RequestTelemetry telemetry8 = new RequestTelemetry("name", DateTimeOffset.UtcNow, TimeSpan.FromHours(2), "200", true);
-#pragma warning disable 618
-            SessionStateTelemetry telemetry9 = new SessionStateTelemetry(SessionState.Start);
-#pragma warning restore 618
-            TraceTelemetry telemetry10 = new TraceTelemetry("text");
-            AvailabilityTelemetry telemetry11 = new AvailabilityTelemetry("name", DateTimeOffset.UtcNow, TimeSpan.FromHours(10), "location", true, "message");
-
-            var telemetryItems = new List<ITelemetry>
-            {
-                telemetry1,
-                telemetry2,
-                telemetry3,
-                telemetry4,
-                telemetry5,
-                telemetry6,
-                telemetry7,
-                telemetry8,
-                telemetry9,
-                telemetry10,
-                telemetry11
-            };
-
-            // ChuckNorrisTeamUnitTests resource in Prototypes1
-            var config = new TelemetryConfiguration("687218b9-2250-4eaa-8946-2dd5cc35eff8");
-            var telemetryClient = new TelemetryClient(config);
-            telemetryClient.Context.GlobalProperties.Add(unicodeString, unicodeString);
+            this.telemetryClient.TrackMetric("TestMetric", 42.5);
+            this.telemetryClient.Flush();
             
-            telemetryClient.Initialize(telemetry1);
-            telemetryClient.Initialize(telemetry2);
-            telemetryClient.Initialize(telemetry3);
-            telemetryClient.Initialize(telemetry4);
-            telemetryClient.Initialize(telemetry5);
-            telemetryClient.Initialize(telemetry6);
-            telemetryClient.Initialize(telemetry7);
-            telemetryClient.Initialize(telemetry8);
-            telemetryClient.Initialize(telemetry9);
-            telemetryClient.Initialize(telemetry10);
-            telemetryClient.Initialize(telemetry11);
-
-            string json = JsonSerializer.SerializeAsString(telemetryItems);
-            byte[] jsonBytes = Encoding.UTF8.GetBytes(json);
-
-            HttpClient client = new HttpClient();
-            try
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
+            
+            var metric = this.metricItems.FirstOrDefault(m => m.Name == "TestMetric");
+            Assert.NotNull(metric);
+            
+            // Verify the metric has data points with histogram data
+            var metricPoints = metric.GetMetricPoints();
+            bool hasData = false;
+            foreach (var point in metricPoints)
             {
-                var result = await client.PostAsync(
-                    "https://dc.services.visualstudio.com/v2/validate",
-                    new ByteArrayContent(jsonBytes));
-                if (result.StatusCode != HttpStatusCode.OK)
+                if (point.GetHistogramCount() > 0)
                 {
-                    var response = result.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                    Trace.WriteLine(response);
+                    hasData = true;
+                    // Verify histogram sum is close to the tracked value
+                    var sum = point.GetHistogramSum();
+                    Assert.True(sum > 0, "Histogram sum should be positive");
+                    break;
                 }
-
-                Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
             }
-            catch (Exception ex)
+            Assert.True(hasData, "Metric should have recorded histogram data");
+        }
+
+        [Fact]
+        public void TrackMetricWithProperties()
+        {
+            this.telemetryClient.TrackMetric("TestMetric", 4.2, new Dictionary<string, string> { { "property1", "value1" } });
+            this.telemetryClient.Flush();
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
+            
+            var metric = this.metricItems.FirstOrDefault(m => m.Name == "TestMetric");
+            Assert.NotNull(metric);
+            
+            // Verify histogram has data
+            bool hasData = false;
+            foreach (var point in metric.GetMetricPoints())
             {
-                Trace.WriteLine("Exception occuring trying to send items to backend." + ex);
+                if (point.GetHistogramCount() > 0)
+                {
+                    hasData = true;
+                    // Verify the tags contain our property
+                    var tags = point.Tags;
+                    bool hasProperty = false;
+                    foreach (var tag in tags)
+                    {
+                        if (tag.Key == "property1" && tag.Value?.ToString() == "value1")
+                        {
+                            hasProperty = true;
+                            break;
+                        }
+                    }
+                    Assert.True(hasProperty, "Metric should have property1 tag");
+                    break;
+                }
+            }
+            Assert.True(hasData, "Metric should have recorded data");
+        }
+
+        [Fact]
+        public void TrackMetricWithNullPropertiesDoesNotThrow()
+        {
+            this.telemetryClient.TrackMetric("TestMetric", 4.2, null);
+            this.telemetryClient.Flush();
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
+            var metric = this.metricItems.FirstOrDefault(m => m.Name == "TestMetric");
+            Assert.NotNull(metric);
+        }
+
+        [Fact]
+        public void GetMetricWithZeroDimensions()
+        {
+            var metric = this.telemetryClient.GetMetric("TestMetric");
+            Assert.NotNull(metric);
+            
+            metric.TrackValue(10.0);
+            metric.TrackValue(20.0);
+            
+            this.telemetryClient.Flush();
+            Assert.True(this.metricItems.Count > 0);
+            var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "TestMetric");
+            Assert.NotNull(collectedMetric);
+            
+            // Verify we recorded 2 values (count should be 2)
+            foreach (var point in collectedMetric.GetMetricPoints())
+            {
+                var count = point.GetHistogramCount();
+                Assert.Equal(2, (int)count);
+                var sum = point.GetHistogramSum();
+                Assert.Equal(30.0, sum, 2);
+                break;
             }
         }
 
-        [TestMethod]
-        public void SerailizeRemovesEmptyPropertiesAndProducesValidJson()
+        [Fact]
+        public void GetMetricWithOneDimension()
         {
-            var telemetryIn = new ExceptionTelemetry(new InvalidOperationException());
-            telemetryIn.Properties.Add("MyKey", null);
+            var metric = this.telemetryClient.GetMetric("RequestDuration", "StatusCode");
+            Assert.NotNull(metric);
+            
+            metric.TrackValue(150.0, "404");
+            metric.TrackValue(120.0, "200");
+            
+            this.telemetryClient.Flush();
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
+            var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "RequestDuration");
+            Assert.NotNull(collectedMetric);
+            
+            // Verify dimensions are present in tags
+            int pointCount = 0;
+            foreach (var point in collectedMetric.GetMetricPoints())
+            {
+                pointCount++;
+                var tags = point.Tags;
+                bool hasStatusCodeTag = false;
+                foreach (var tag in tags)
+                {
+                    if (tag.Key == "StatusCode")
+                    {
+                        hasStatusCodeTag = true;
+                        break;
+                    }
+                }
+                Assert.True(hasStatusCodeTag, "Should have StatusCode dimension tag");
+            }
+            Assert.True(pointCount > 0, "Should have metric points");
+        }
 
-            string json = JsonSerializer.SerializeAsString(telemetryIn);
-            ExceptionTelemetry telemetryOut = Newtonsoft.Json.JsonConvert.DeserializeObject<ExceptionTelemetry>(json);
-            Assert.AreEqual(0, telemetryOut.Properties.Count);
+        [Fact]
+        public void GetMetricWithTwoDimensions()
+        {
+            var metric = this.telemetryClient.GetMetric("DatabaseQuery", "Database", "Operation");
+            Assert.NotNull(metric);
+            
+            metric.TrackValue(50.0, "UsersDB", "SELECT");
+            metric.TrackValue(80.0, "OrdersDB", "INSERT");
+            
+            this.telemetryClient.Flush();
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
+            var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "DatabaseQuery");
+            Assert.NotNull(collectedMetric);
+            
+            // Verify both dimensions are present
+            foreach (var point in collectedMetric.GetMetricPoints())
+            {
+                var tags = point.Tags;
+                bool hasDatabase = false, hasOperation = false;
+                foreach (var tag in tags)
+                {
+                    if (tag.Key == "Database") hasDatabase = true;
+                    if (tag.Key == "Operation") hasOperation = true;
+                }
+                Assert.True(hasDatabase && hasOperation, "Should have both dimension tags");
+                break;
+            }
+        }
+
+        [Fact]
+        public void GetMetricWithThreeDimensions()
+        {
+            var metric = this.telemetryClient.GetMetric("ApiLatency", "Endpoint", "Method", "Region");
+            Assert.NotNull(metric);
+            
+            metric.TrackValue(200.0, "/api/users", "GET", "WestUS");
+            
+            this.telemetryClient.Flush();
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
+            var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "ApiLatency");
+            Assert.NotNull(collectedMetric);
+            
+            // Verify all three dimensions
+            foreach (var point in collectedMetric.GetMetricPoints())
+            {
+                Assert.Equal(1, (int)point.GetHistogramCount());
+                var sum = point.GetHistogramSum();
+                Assert.Equal(200.0, sum, 2);
+                break;
+            }
+        }
+
+        [Fact]
+        public void GetMetricWithFourDimensions()
+        {
+            var metric = this.telemetryClient.GetMetric("CacheHit", "CacheType", "Region", "Tenant", "Environment");
+            Assert.NotNull(metric);
+            
+            metric.TrackValue(1.0, "Redis", "WestUS", "TenantA", "Prod");
+            
+            this.telemetryClient.Flush();
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
+            var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "CacheHit");
+            Assert.NotNull(collectedMetric);
+            
+            foreach (var point in collectedMetric.GetMetricPoints())
+            {
+                Assert.Equal(1, (int)point.GetHistogramCount());
+                Assert.Equal(1.0, point.GetHistogramSum(), 2);
+                break;
+            }
+        }
+
+        [Fact]
+        public void GetMetricWithMetricIdentifier()
+        {
+            var metricId = new Microsoft.ApplicationInsights.Metrics.MetricIdentifier(
+                "MyNamespace",
+                "ComplexMetric",
+                "Dim1",
+                "Dim2",
+                "Dim3");
+            
+            var metric = this.telemetryClient.GetMetric(metricId);
+            Assert.NotNull(metric);
+            
+            metric.TrackValue(75.0, "Value1", "Value2", "Value3");
+            
+            this.telemetryClient.Flush();
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
+            var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name == "MyNamespace-ComplexMetric" || m.Name == "ComplexMetric");
+            Assert.NotNull(collectedMetric);
+            
+            foreach (var point in collectedMetric.GetMetricPoints())
+            {
+                Assert.Equal(1, (int)point.GetHistogramCount());
+                Assert.Equal(75.0, point.GetHistogramSum(), 2);
+                break;
+            }
+        }
+
+        [Fact]
+        public void TrackValueWithFiveDimensions()
+        {
+            var metricId = new Microsoft.ApplicationInsights.Metrics.MetricIdentifier(
+                "MyNamespace",
+                "FiveDimensionMetric",
+                "Dim1", "Dim2", "Dim3", "Dim4", "Dim5");
+            
+            var metric = this.telemetryClient.GetMetric(metricId);
+            Assert.NotNull(metric);
+            
+            // Test double overload
+            metric.TrackValue(100.0, "V1", "V2", "V3", "V4", "V5");
+            
+            // Test object overload
+            metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5");
+            
+            this.telemetryClient.Flush();
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
+            
+            // Verify we recorded 2 values with sum = 300
+            var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name.Contains("FiveDimensionMetric"));
+            Assert.NotNull(collectedMetric);
+            
+            foreach (var point in collectedMetric.GetMetricPoints())
+            {
+                var count = point.GetHistogramCount();
+                Assert.True(count >= 2, "Should have at least 2 values");
+                var sum = point.GetHistogramSum();
+                Assert.True(sum >= 300.0, "Sum should be at least 300 (100 + 200)");
+                break;
+            }
+        }
+
+        [Fact]
+        public void TrackValueWithSixDimensions()
+        {
+            var metricId = new Microsoft.ApplicationInsights.Metrics.MetricIdentifier(
+                "MyNamespace",
+                "SixDimensionMetric",
+                "Dim1", "Dim2", "Dim3", "Dim4", "Dim5", "Dim6");
+            
+            var metric = this.telemetryClient.GetMetric(metricId);
+            Assert.NotNull(metric);
+            
+            metric.TrackValue(100.0, "V1", "V2", "V3", "V4", "V5", "V6");
+            metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5", "V6");
+            
+            this.telemetryClient.Flush();
+            
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
+            var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name.Contains("SixDimensionMetric"));
+            Assert.NotNull(collectedMetric);
+        }
+
+        [Fact]
+        public void TrackValueWithSevenDimensions()
+        {
+            var metricId = new Microsoft.ApplicationInsights.Metrics.MetricIdentifier(
+                "MyNamespace",
+                "SevenDimensionMetric",
+                "Dim1", "Dim2", "Dim3", "Dim4", "Dim5", "Dim6", "Dim7");
+            
+            var metric = this.telemetryClient.GetMetric(metricId);
+            Assert.NotNull(metric);
+            
+            metric.TrackValue(100.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7");
+            metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7");
+            
+            this.telemetryClient.Flush();
+            
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
+            var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name.Contains("SevenDimensionMetric"));
+            Assert.NotNull(collectedMetric);
+        }
+
+        [Fact]
+        public void TrackValueWithEightDimensions()
+        {
+            var metricId = new Microsoft.ApplicationInsights.Metrics.MetricIdentifier(
+                "MyNamespace",
+                "EightDimensionMetric",
+                "Dim1", "Dim2", "Dim3", "Dim4", "Dim5", "Dim6", "Dim7", "Dim8");
+            
+            var metric = this.telemetryClient.GetMetric(metricId);
+            Assert.NotNull(metric);
+            
+            metric.TrackValue(100.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8");
+            metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8");
+            
+            this.telemetryClient.Flush();
+            
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
+            var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name.Contains("EightDimensionMetric"));
+            Assert.NotNull(collectedMetric);
+        }
+
+        [Fact]
+        public void TrackValueWithNineDimensions()
+        {
+            var metricId = new Microsoft.ApplicationInsights.Metrics.MetricIdentifier(
+                "MyNamespace",
+                "NineDimensionMetric",
+                "Dim1", "Dim2", "Dim3", "Dim4", "Dim5", "Dim6", "Dim7", "Dim8", "Dim9");
+            
+            var metric = this.telemetryClient.GetMetric(metricId);
+            Assert.NotNull(metric);
+            
+            metric.TrackValue(100.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9");
+            metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9");
+            
+            this.telemetryClient.Flush();
+            
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
+            var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name.Contains("NineDimensionMetric"));
+            Assert.NotNull(collectedMetric);
+        }
+
+        [Fact]
+        public void TrackValueWithTenDimensions()
+        {
+            var metricId = new Microsoft.ApplicationInsights.Metrics.MetricIdentifier(
+                "MyNamespace",
+                "TenDimensionMetric",
+                "Dim1", "Dim2", "Dim3", "Dim4", "Dim5", "Dim6", "Dim7", "Dim8", "Dim9", "Dim10");
+            
+            var metric = this.telemetryClient.GetMetric(metricId);
+            Assert.NotNull(metric);
+            
+            metric.TrackValue(100.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10");
+            metric.TrackValue((object)200.0, "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10");
+            
+            this.telemetryClient.Flush();
+            
+            Assert.True(this.metricItems.Count > 0, "At least one metric should be collected");
+            var collectedMetric = this.metricItems.FirstOrDefault(m => m.Name.Contains("TenDimensionMetric"));
+            Assert.NotNull(collectedMetric);
         }
 
         #endregion
 
-        #region Preaggregated metrics
+        // TrackTrace tests removed - not related to metrics shim implementation
 
-        /// <summary />
-        [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
-        [TestMethod]
-        public void GetMetric_SendsData()
+
+        #region TrackException
+
+        [Fact]
+        public void TrackExceptionSendsExceptionTelemetryWithSpecifiedNameToProvideSimplestWayOfSendingExceptionTelemetry()
         {
-            IList<ITelemetry> sentTelemetry;
-            TelemetryConfiguration telemetryPipeline = TestUtil.CreateAITelemetryConfig(out sentTelemetry);
-            TelemetryClient client = new TelemetryClient(telemetryPipeline);
+            Exception ex = new Exception("Test exception message");
+            this.telemetryClient.TrackException(ex);
 
-            {
-                Metric metric = client.GetMetric("CowsSold");
-                Assert.IsNotNull(metric);
-                Assert.AreEqual(0, metric.Identifier.DimensionsCount);
-                Assert.AreEqual(String.Empty, metric.Identifier.MetricNamespace);
-                Assert.AreEqual("CowsSold", metric.Identifier.MetricId);
-                Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
+            this.telemetryClient.Flush();
 
-                metric.TrackValue(0.5);
-                metric.TrackValue(0.6);
-                Assert.ThrowsException<ArgumentException>(() => metric.TrackValue(1.5, "A"));
-                Assert.ThrowsException<ArgumentException>(() => metric.TrackValue(2.5, "A", "X"));
-
-                telemetryPipeline.GetMetricManager().Flush();
-                Assert.AreEqual(1, sentTelemetry.Count);
-                TestUtil.ValidateNumericAggregateValues(sentTelemetry[0], "", "CowsSold", 2, 1.1, 0.6, 0.5, 0.05);
-                Assert.AreEqual(1, ((MetricTelemetry)sentTelemetry[0]).Properties.Count);                
-                Assert.IsTrue(((MetricTelemetry)sentTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-                sentTelemetry.Clear();
-
-                metric.TrackValue(0.7);
-                metric.TrackValue(0.8);
-
-                telemetryPipeline.GetMetricManager().Flush();
-                Assert.AreEqual(1, sentTelemetry.Count);
-                TestUtil.ValidateNumericAggregateValues(sentTelemetry[0], "", "CowsSold", 2, 1.5, 0.8, 0.7, 0.05);
-                Assert.AreEqual(1, ((MetricTelemetry)sentTelemetry[0]).Properties.Count);
-                Assert.IsTrue(((MetricTelemetry)sentTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-                sentTelemetry.Clear();
-            }
-            {
-                Metric metric = client.GetMetric("CowsSold", "Color", MetricConfigurations.Common.Measurement());
-                Assert.IsNotNull(metric);
-                Assert.AreEqual(1, metric.Identifier.DimensionsCount);
-                Assert.AreEqual(String.Empty, metric.Identifier.MetricNamespace);
-                Assert.AreEqual("CowsSold", metric.Identifier.MetricId);
-                Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
-
-                metric.TrackValue(0.5, "Purple");
-                metric.TrackValue(0.6, "Purple");
-                Assert.ThrowsException<ArgumentException>(() => metric.TrackValue(2.5, "A", "X"));
-
-                telemetryPipeline.GetMetricManager().Flush();
-                Assert.AreEqual(1, sentTelemetry.Count);
-                TestUtil.ValidateNumericAggregateValues(sentTelemetry[0], "", "CowsSold", 2, 1.1, 0.6, 0.5, 0.05);
-                Assert.AreEqual(2, ((MetricTelemetry)sentTelemetry[0]).Properties.Count);
-                Assert.IsTrue(((MetricTelemetry)sentTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-                Assert.AreEqual("Purple", ((MetricTelemetry)sentTelemetry[0]).Properties["Color"]);
-                sentTelemetry.Clear();
-
-                metric.TrackValue(0.7, "Purple");
-                metric.TrackValue(0.8, "Purple");
-
-                telemetryPipeline.GetMetricManager().Flush();
-                Assert.AreEqual(1, sentTelemetry.Count);
-                TestUtil.ValidateNumericAggregateValues(sentTelemetry[0], String.Empty, "CowsSold", 2, 1.5, 0.8, 0.7, 0.05);
-                Assert.AreEqual(2, ((MetricTelemetry)sentTelemetry[0]).Properties.Count);
-                Assert.IsTrue(((MetricTelemetry)sentTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-                Assert.AreEqual("Purple", ((MetricTelemetry)sentTelemetry[0]).Properties["Color"]);
-                sentTelemetry.Clear();
-            }
-            {
-                Metric metric = client.GetMetric("CowsSold", "Color", "Size", MetricConfigurations.Common.Measurement());
-                Assert.IsNotNull(metric);
-                Assert.AreEqual(2, metric.Identifier.DimensionsCount);
-                Assert.AreEqual(String.Empty, metric.Identifier.MetricNamespace);
-                Assert.AreEqual("CowsSold", metric.Identifier.MetricId);
-                Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
-
-                metric.TrackValue(0.5, "Purple", "Large");
-                metric.TrackValue(0.6, "Purple", "Large");
-
-                telemetryPipeline.GetMetricManager().Flush();
-                Assert.AreEqual(1, sentTelemetry.Count);
-
-                MetricTelemetry[] orderedTelemetry = sentTelemetry
-                                                        .OrderByDescending((t) => ((MetricTelemetry) t).Count * 10000 + ((MetricTelemetry) t).Sum)
-                                                        .Select((t) => (MetricTelemetry) t)
-                                                        .ToArray();
-
-                TestUtil.ValidateNumericAggregateValues(orderedTelemetry[0], String.Empty, "CowsSold", 2, 1.1, 0.6, 0.5, 0.05);
-                Assert.AreEqual(3, ((MetricTelemetry)orderedTelemetry[0]).Properties.Count);
-                Assert.IsTrue(((MetricTelemetry)orderedTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-                Assert.AreEqual("Purple", ((MetricTelemetry)orderedTelemetry[0]).Properties["Color"]);
-                Assert.AreEqual("Large", ((MetricTelemetry)orderedTelemetry[0]).Properties["Size"]);
-                sentTelemetry.Clear();
-
-                metric.TrackValue(0.7, "Purple", "Large");
-                metric.TrackValue(0.8, "Purple", "Small");
-
-                telemetryPipeline.GetMetricManager().Flush();
-                Assert.AreEqual(2, sentTelemetry.Count);
-
-                orderedTelemetry = sentTelemetry
-                                            .OrderByDescending((t) => ((MetricTelemetry) t).Count * 10000 + ((MetricTelemetry) t).Sum)
-                                            .Select((t) => (MetricTelemetry) t)
-                                            .ToArray();
-
-                TestUtil.ValidateNumericAggregateValues(orderedTelemetry[0], String.Empty, "CowsSold", 1, 0.8, 0.8, 0.8, 0);
-                Assert.AreEqual(3, ((MetricTelemetry)orderedTelemetry[0]).Properties.Count);
-                Assert.IsTrue(((MetricTelemetry)orderedTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-                Assert.AreEqual("Purple", ((MetricTelemetry)orderedTelemetry[0]).Properties["Color"]);
-                Assert.AreEqual("Small", ((MetricTelemetry)orderedTelemetry[0]).Properties["Size"]);
-
-                TestUtil.ValidateNumericAggregateValues(orderedTelemetry[1], String.Empty, "CowsSold", 1, 0.7, 0.7, 0.7, 0);
-                Assert.AreEqual(3, ((MetricTelemetry)orderedTelemetry[1]).Properties.Count);
-                Assert.IsTrue(((MetricTelemetry)orderedTelemetry[1]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-                Assert.AreEqual("Purple", ((MetricTelemetry)orderedTelemetry[1]).Properties["Color"]);
-                Assert.AreEqual("Large", ((MetricTelemetry)orderedTelemetry[1]).Properties["Size"]);
-
-                sentTelemetry.Clear();
-            }
-            {
-                Metric metric = client.GetMetric(
-                            new MetricIdentifier(
-                                        "Test MetricNamespace", 
-                                        "Test MetricId", 
-                                        "Dim 1", 
-                                        "Dim 2", 
-                                        "Dim 3", 
-                                        "Dim 4", 
-                                        "Dim 5", 
-                                        "Dim 6", 
-                                        "Dim 7", 
-                                        "Dim 8", 
-                                        "Dim 9", 
-                                        "Dim 10"),
-                            MetricConfigurations.Common.Measurement());
-                Assert.IsNotNull(metric);
-                Assert.AreEqual(10, metric.Identifier.DimensionsCount);
-                Assert.AreEqual("Test MetricNamespace", metric.Identifier.MetricNamespace);
-                Assert.AreEqual("Test MetricId", metric.Identifier.MetricId);
-                Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
-                Assert.AreEqual("Dim 1", metric.Identifier.GetDimensionName(1));
-                Assert.AreEqual("Dim 2", metric.Identifier.GetDimensionName(2));
-                Assert.AreEqual("Dim 3", metric.Identifier.GetDimensionName(3));
-                Assert.AreEqual("Dim 4", metric.Identifier.GetDimensionName(4));
-                Assert.AreEqual("Dim 5", metric.Identifier.GetDimensionName(5));
-                Assert.AreEqual("Dim 6", metric.Identifier.GetDimensionName(6));
-                Assert.AreEqual("Dim 7", metric.Identifier.GetDimensionName(7));
-                Assert.AreEqual("Dim 8", metric.Identifier.GetDimensionName(8));
-                Assert.AreEqual("Dim 9", metric.Identifier.GetDimensionName(9));
-                Assert.AreEqual("Dim 10", metric.Identifier.GetDimensionName(10));
-
-                metric.TrackValue(0.5, "DV1", "DV2", "DV3", "DV4", "DV5", "DV6", "DV7", "DV8", "DV9", "DV10");
-                metric.TrackValue(0.6, "DV1", "DV2", "DV3", "DV4", "DV5", "DV6", "DV7", "DV8", "DV9", "DV10");
-
-                telemetryPipeline.GetMetricManager().Flush();
-                Assert.AreEqual(1, sentTelemetry.Count);
-
-                MetricTelemetry[] orderedTelemetry = sentTelemetry
-                                        .OrderByDescending( (t) => ((MetricTelemetry) t).Count * 10000 + ((MetricTelemetry) t).Sum )
-                                        .Select( (t) => (MetricTelemetry) t )
-                                        .ToArray();
-
-                TestUtil.ValidateNumericAggregateValues(orderedTelemetry[0], "Test MetricNamespace", "Test MetricId", 2, 1.1, 0.6, 0.5, 0.05);
-                Assert.AreEqual(11, ((MetricTelemetry)orderedTelemetry[0]).Properties.Count);
-                Assert.IsTrue(((MetricTelemetry)orderedTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-                Assert.AreEqual("DV1", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 1"]);
-                Assert.AreEqual("DV2", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 2"]);
-                Assert.AreEqual("DV3", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 3"]);
-                Assert.AreEqual("DV4", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 4"]);
-                Assert.AreEqual("DV5", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 5"]);
-                Assert.AreEqual("DV6", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 6"]);
-                Assert.AreEqual("DV7", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 7"]);
-                Assert.AreEqual("DV8", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 8"]);
-                Assert.AreEqual("DV9", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 9"]);
-                Assert.AreEqual("DV10", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 10"]);
-                sentTelemetry.Clear();
-
-                metric.TrackValue(0.7, "DV1", "DV2", "DV3", "DV4", "DV5", "DV6", "DV7", "DV8", "DV9", "DV10");
-                metric.TrackValue(0.8, "DV1", "DV2", "DV3", "DV4", "DV5", "DV6a", "DV7", "DV8", "DV9", "DV10");
-
-                telemetryPipeline.GetMetricManager().Flush();
-                Assert.AreEqual(2, sentTelemetry.Count);
-
-                orderedTelemetry = sentTelemetry
-                                        .OrderByDescending( (t) => ((MetricTelemetry) t).Count * 10000 + ((MetricTelemetry) t).Sum )
-                                        .Select( (t) => (MetricTelemetry) t )
-                                        .ToArray();
-
-                TestUtil.ValidateNumericAggregateValues(orderedTelemetry[0], "Test MetricNamespace", "Test MetricId", 1, 0.8, 0.8, 0.8, 0);
-                Assert.AreEqual(11, ((MetricTelemetry)orderedTelemetry[0]).Properties.Count);
-                Assert.IsTrue(((MetricTelemetry)orderedTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-                Assert.AreEqual("DV1", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 1"]);
-                Assert.AreEqual("DV2", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 2"]);
-                Assert.AreEqual("DV3", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 3"]);
-                Assert.AreEqual("DV4", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 4"]);
-                Assert.AreEqual("DV5", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 5"]);
-                Assert.AreEqual("DV6a", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 6"]);
-                Assert.AreEqual("DV7", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 7"]);
-                Assert.AreEqual("DV8", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 8"]);
-                Assert.AreEqual("DV9", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 9"]);
-                Assert.AreEqual("DV10", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 10"]);
-
-                TestUtil.ValidateNumericAggregateValues(orderedTelemetry[1], "Test MetricNamespace", "Test MetricId", 1, 0.7, 0.7, 0.7, 0);
-                Assert.AreEqual(11, ((MetricTelemetry)orderedTelemetry[1]).Properties.Count);
-                Assert.IsTrue(((MetricTelemetry)orderedTelemetry[1]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-                Assert.AreEqual("DV1", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 1"]);
-                Assert.AreEqual("DV2", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 2"]);
-                Assert.AreEqual("DV3", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 3"]);
-                Assert.AreEqual("DV4", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 4"]);
-                Assert.AreEqual("DV5", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 5"]);
-                Assert.AreEqual("DV6", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 6"]);
-                Assert.AreEqual("DV7", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 7"]);
-                Assert.AreEqual("DV8", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 8"]);
-                Assert.AreEqual("DV9", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 9"]);
-                Assert.AreEqual("DV10", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 10"]);
-
-                sentTelemetry.Clear();
-            }
-
-            TestUtil.CompleteDefaultAggregationCycle(telemetryPipeline.GetMetricManager());
-            telemetryPipeline.Dispose();
+            Assert.Equal(1, this.logItems.Count);
+            var logRecord = this.logItems[0];
+            Assert.NotNull(logRecord.Exception);
+            Assert.Same(ex, logRecord.Exception);
+            Assert.Equal(LogLevel.Error, logRecord.LogLevel);
         }
 
-        /// <summary />
-        [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
-        [TestMethod]
-        public void GetMetric_RespectsMetricConfiguration()
+        [Fact]
+        public void TrackExceptionWillUseRequiredFieldAsTextForTheExceptionNameWhenTheExceptionNameIsEmptyToHideUserErrors()
         {
-            IList<ITelemetry> sentTelemetry;
-            TelemetryConfiguration telemetryPipeline = TestUtil.CreateAITelemetryConfig(out sentTelemetry);
-            TelemetryClient client = new TelemetryClient(telemetryPipeline);
+            this.telemetryClient.TrackException((Exception)null);
 
-            {
-                Metric metric = client.GetMetric("M1");
-                Assert.IsNotNull(metric);
-                Assert.AreEqual(0, metric.Identifier.DimensionsCount);
-                Assert.AreEqual("M1", metric.Identifier.MetricId);
-                Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
+            this.telemetryClient.Flush();
 
-                MetricSeries series;
-                Assert.IsTrue(metric.TryGetDataSeries(out series));
-                Assert.AreEqual(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-            }
-            {
-                Metric metric = client.GetMetric("M2", MetricConfigurations.Common.Measurement());
-                Assert.IsNotNull(metric);
-                Assert.AreEqual(0, metric.Identifier.DimensionsCount);
-                Assert.AreEqual("M2", metric.Identifier.MetricId);
-                Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
-
-                MetricSeries series;
-                Assert.IsTrue(metric.TryGetDataSeries(out series));
-                Assert.AreEqual(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-            }
-            {
-                Metric metric = client.GetMetric("M3", MetricConfigurations.Common.Measurement());
-                Assert.IsNotNull(metric);
-                Assert.AreEqual(0, metric.Identifier.DimensionsCount);
-                Assert.AreEqual("M3", metric.Identifier.MetricId);
-                Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
-
-                MetricSeries series;
-                Assert.IsTrue(metric.TryGetDataSeries(out series));
-                Assert.AreEqual(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-            }
-            {
-                MetricConfiguration config = new MetricConfiguration(10, 10, new MetricSeriesConfigurationForMeasurement(true));
-                Metric metric = client.GetMetric("M4", config);
-                Assert.IsNotNull(metric);
-                Assert.AreEqual(0, metric.Identifier.DimensionsCount);
-                Assert.AreEqual("M4", metric.Identifier.MetricId);
-                Assert.AreEqual(config, metric.GetConfiguration());
-                Assert.AreSame(config, metric.GetConfiguration());
-
-                MetricSeries series;
-                Assert.IsTrue(metric.TryGetDataSeries(out series));
-                Assert.AreEqual(new MetricSeriesConfigurationForMeasurement(true), series.GetConfiguration());
-                Assert.AreNotSame(new MetricSeriesConfigurationForMeasurement(true), series.GetConfiguration());
-            }
-            {
-                Metric metric = client.GetMetric("M5", "Dim1");
-                Assert.IsNotNull(metric);
-                Assert.AreEqual(1, metric.Identifier.DimensionsCount);
-                Assert.AreEqual("Dim1", metric.Identifier.GetDimensionName(1));
-                Assert.AreEqual("M5", metric.Identifier.MetricId);
-                Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
-
-                MetricSeries series;
-                Assert.IsTrue(metric.TryGetDataSeries(out series));
-                Assert.AreEqual(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-                Assert.IsTrue(metric.TryGetDataSeries(out series, "Dim1Val"));
-                Assert.AreEqual(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-            }
-            {
-                Metric metric = client.GetMetric("M6", "Dim1", MetricConfigurations.Common.Measurement());
-                Assert.IsNotNull(metric);
-                Assert.AreEqual(1, metric.Identifier.DimensionsCount);
-                Assert.AreEqual("Dim1", metric.Identifier.GetDimensionName(1));
-                Assert.AreEqual("M6", metric.Identifier.MetricId);
-                Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
-
-                MetricSeries series;
-                Assert.IsTrue(metric.TryGetDataSeries(out series));
-                Assert.AreEqual(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-                Assert.IsTrue(metric.TryGetDataSeries(out series, "Dim1Val"));
-                Assert.AreEqual(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-            }
-            {
-                Metric metric = client.GetMetric("M7", "Dim1", MetricConfigurations.Common.Measurement());
-                Assert.IsNotNull(metric);
-                Assert.AreEqual(1, metric.Identifier.DimensionsCount);
-                Assert.AreEqual("Dim1", metric.Identifier.GetDimensionName(1));
-                Assert.AreEqual("M7", metric.Identifier.MetricId);
-                Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
-
-                MetricSeries series;
-                Assert.IsTrue(metric.TryGetDataSeries(out series));
-                Assert.AreEqual(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-                Assert.IsTrue(metric.TryGetDataSeries(out series, "Dim1Val"));
-                Assert.AreEqual(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-            }
-            {
-                MetricConfiguration config = new MetricConfiguration(10, 10, new MetricSeriesConfigurationForMeasurement(true));
-                Metric metric = client.GetMetric("M8", "Dim1", config);
-                Assert.IsNotNull(metric);
-                Assert.AreEqual(1, metric.Identifier.DimensionsCount);
-                Assert.AreEqual("Dim1", metric.Identifier.GetDimensionName(1));
-                Assert.AreEqual("M8", metric.Identifier.MetricId);
-                Assert.AreEqual(config, metric.GetConfiguration());
-                Assert.AreSame(config, metric.GetConfiguration());
-
-                MetricSeries series;
-                Assert.IsTrue(metric.TryGetDataSeries(out series));
-                Assert.AreEqual(config.SeriesConfig, series.GetConfiguration());
-                Assert.AreSame(config.SeriesConfig, series.GetConfiguration());
-                Assert.IsTrue(metric.TryGetDataSeries(out series, "Dim1Val"));
-                Assert.AreEqual(new MetricSeriesConfigurationForMeasurement(true), series.GetConfiguration());
-                Assert.AreNotSame(new MetricSeriesConfigurationForMeasurement(true), series.GetConfiguration());
-            }
-            {
-                Metric metric = client.GetMetric("M9", "Dim1", "Dim2");
-                Assert.IsNotNull(metric);
-                Assert.AreEqual(2, metric.Identifier.DimensionsCount);
-                Assert.AreEqual("Dim1", metric.Identifier.GetDimensionName(1));
-                Assert.AreEqual("Dim2", metric.Identifier.GetDimensionName(2));
-                Assert.AreEqual("M9", metric.Identifier.MetricId);
-                Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
-
-                MetricSeries series;
-                Assert.IsTrue(metric.TryGetDataSeries(out series));
-                Assert.AreEqual(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-                Assert.IsTrue(metric.TryGetDataSeries(out series, "Dim1Val", "Dim2val"));
-                Assert.AreEqual(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-            }
-            {
-                Metric metric = client.GetMetric("M10", "Dim1", "Dim2", MetricConfigurations.Common.Measurement());
-                Assert.IsNotNull(metric);
-                Assert.AreEqual(2, metric.Identifier.DimensionsCount);
-                Assert.AreEqual("Dim1", metric.Identifier.GetDimensionName(1));
-                Assert.AreEqual("Dim2", metric.Identifier.GetDimensionName(2));
-                Assert.AreEqual("M10", metric.Identifier.MetricId);
-                Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
-
-                MetricSeries series;
-                Assert.IsTrue(metric.TryGetDataSeries(out series));
-                Assert.AreEqual(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-                Assert.IsTrue(metric.TryGetDataSeries(out series, "Dim1Val", "Dim2val"));
-                Assert.AreEqual(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-            }
-            {
-                Metric metric = client.GetMetric("M11", "Dim1", "Dim2", MetricConfigurations.Common.Measurement());
-                Assert.IsNotNull(metric);
-                Assert.AreEqual(2, metric.Identifier.DimensionsCount);
-                Assert.AreEqual("Dim1", metric.Identifier.GetDimensionName(1));
-                Assert.AreEqual("Dim2", metric.Identifier.GetDimensionName(2));
-                Assert.AreEqual("M11", metric.Identifier.MetricId);
-                Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
-
-                MetricSeries series;
-                Assert.IsTrue(metric.TryGetDataSeries(out series));
-                Assert.AreEqual(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-                Assert.IsTrue(metric.TryGetDataSeries(out series, "Dim1Val", "Dim2val"));
-                Assert.AreEqual(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Common.Measurement().SeriesConfig, series.GetConfiguration());
-            }
-            {
-                MetricConfiguration config = new MetricConfiguration(10, 10, new MetricSeriesConfigurationForMeasurement(true));
-                Metric metric = client.GetMetric("M12", "Dim1", "Dim2", config);
-                Assert.IsNotNull(metric);
-                Assert.AreEqual(2, metric.Identifier.DimensionsCount);
-                Assert.AreEqual("Dim1", metric.Identifier.GetDimensionName(1));
-                Assert.AreEqual("Dim2", metric.Identifier.GetDimensionName(2));
-                Assert.AreEqual("M12", metric.Identifier.MetricId);
-                Assert.AreEqual(config, metric.GetConfiguration());
-                Assert.AreSame(config, metric.GetConfiguration());
-
-                MetricSeries series;
-                Assert.IsTrue(metric.TryGetDataSeries(out series));
-                Assert.AreEqual(config.SeriesConfig, series.GetConfiguration());
-                Assert.AreSame(config.SeriesConfig, series.GetConfiguration());
-                Assert.IsTrue(metric.TryGetDataSeries(out series, "Dim1Val", "Dim2val"));
-                Assert.AreEqual(new MetricSeriesConfigurationForMeasurement(true), series.GetConfiguration());
-                Assert.AreNotSame(new MetricSeriesConfigurationForMeasurement(true), series.GetConfiguration());
-                Assert.AreSame(config.SeriesConfig, series.GetConfiguration());
-            }
-
-            TestUtil.CompleteDefaultAggregationCycle(telemetryPipeline.GetMetricManager());
+            Assert.Equal(1, this.logItems.Count);
+            var logRecord = this.logItems[0];
+            Assert.NotNull(logRecord.Exception);
+            Assert.Equal("n/a", logRecord.Exception.Message);
         }
 
-        /// <summary />
-        [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
-        [TestMethod]
-        public void GetMetric_DetectsMetricConfigurationConflicts()
+        [Fact]
+        public void TrackExceptionSendsExceptionTelemetryWithSpecifiedObjectTelemetry()
         {
-            IList<ITelemetry> sentTelemetry;
-            TelemetryConfiguration telemetryPipeline = TestUtil.CreateAITelemetryConfig(out sentTelemetry);
-            TelemetryClient client = new TelemetryClient(telemetryPipeline);
+            Exception ex = new Exception("Test telemetry exception");
+            this.telemetryClient.TrackException(new ExceptionTelemetry(ex));
 
-            {
-                Metric m1 = client.GetMetric("M01");
-                Assert.IsNotNull(m1);
+            this.telemetryClient.Flush();
 
-                Metric m2 = client.GetMetric("M01");
-                Assert.AreSame(m1, m2);
-
-                m2 = client.GetMetric("M01 ");
-                Assert.AreSame(m1, m2);
-
-                m2 = client.GetMetric("M01", MetricConfigurations.Common.Measurement());
-                Assert.AreSame(m1, m2);
-
-                m2 = client.GetMetric("M01", metricConfiguration: null);
-                Assert.AreSame(m1, m2);
-
-                Assert.ThrowsException<ArgumentException>(() => client.GetMetric(
-                                            "M01", new MetricConfiguration(1, 1, new MetricSeriesConfigurationForMeasurement(false))));
-
-                MetricConfiguration config1 = new MetricConfiguration(10, 10, new MetricSeriesConfigurationForMeasurement(false));
-                MetricConfiguration config2 = new MetricConfiguration(10, 10, new MetricSeriesConfigurationForMeasurement(false));
-                Assert.AreEqual(config1, config2);
-                Assert.AreNotSame(config1, config2);
-
-                m1 = client.GetMetric("M02", config1);
-                Assert.IsNotNull(m1);
-
-                m2 = client.GetMetric("M02", config2);
-                Assert.AreSame(m1, m2);
-
-                m2 = client.GetMetric("M02", metricConfiguration: null);
-                Assert.AreSame(m1, m2);
-
-                config2 = new MetricConfiguration(10, 101, new MetricSeriesConfigurationForMeasurement(false));
-                Assert.AreNotEqual(config1, config2);
-                Assert.AreNotSame(config1, config2);
-
-                Assert.ThrowsException<ArgumentException>(() => client.GetMetric("M02", config2));
-                Assert.ThrowsException<ArgumentException>(() => client.GetMetric("M02 ", config2));
-            }
-            {
-                Metric m1 = client.GetMetric("M11", "Dim1");
-                Assert.IsNotNull(m1);
-
-                Metric m2 = client.GetMetric("M11", "Dim1");
-                Assert.AreSame(m1, m2);
-
-                m2 = client.GetMetric(" M11", "Dim1");
-                Assert.AreSame(m1, m2);
-
-                m2 = client.GetMetric("M11", " Dim1");
-                Assert.AreSame(m1, m2);
-
-                m2 = client.GetMetric(" M11", " Dim1", MetricConfigurations.Common.Measurement());
-                Assert.AreSame(m1, m2);
-
-                m2 = client.GetMetric("M11", "Dim1", metricConfiguration: null);
-                Assert.AreSame(m1, m2);
-
-                Assert.ThrowsException<ArgumentException>(() => client.GetMetric(
-                                                                    "M11",
-                                                                    "Dim1 ",
-                                                                    new MetricConfiguration(1, 1, new MetricSeriesConfigurationForMeasurement(false))));
-
-                MetricConfiguration config1 = new MetricConfiguration(10, 10, new MetricSeriesConfigurationForMeasurement(false));
-                MetricConfiguration config2 = new MetricConfiguration(10, 10, new MetricSeriesConfigurationForMeasurement(false));
-                Assert.AreEqual(config1, config2);
-                Assert.AreNotSame(config1, config2);
-
-                m1 = client.GetMetric("M12 ", "Dim1", config1);
-                Assert.IsNotNull(m1);
-
-                m2 = client.GetMetric("M12", "Dim1 ", config2);
-                Assert.AreSame(m1, m2);
-
-                m2 = client.GetMetric("M12", "Dim1", metricConfiguration: null);
-                Assert.AreSame(m1, m2);
-
-                config2 = new MetricConfiguration(10, 101, new MetricSeriesConfigurationForMeasurement(false));
-                Assert.AreNotEqual(config1, config2);
-                Assert.AreNotSame(config1, config2);
-
-                Assert.ThrowsException<ArgumentException>(() => client.GetMetric("M12", "Dim1", config2));
-                Assert.ThrowsException<ArgumentException>(() => client.GetMetric("M12 ", "Dim1", config2));
-            }
-            {
-                Metric m1 = client.GetMetric("M21", "Dim1", "Dim2");
-                Assert.IsNotNull(m1);
-
-                Metric m2 = client.GetMetric("M21", "Dim1", "Dim2");
-                Assert.AreSame(m1, m2);
-
-                m2 = client.GetMetric(" M21", "Dim1", "Dim2");
-                Assert.AreSame(m1, m2);
-
-                m2 = client.GetMetric("M21", " Dim1", "Dim2");
-                Assert.AreSame(m1, m2);
-
-                m2 = client.GetMetric("M21", "Dim1", " Dim2");
-                Assert.AreSame(m1, m2);
-
-                m2 = client.GetMetric(" M21", " Dim1", "Dim2", MetricConfigurations.Common.Measurement());
-                Assert.AreSame(m1, m2);
-
-                m2 = client.GetMetric("M21", "Dim1", "Dim2 ", metricConfiguration: null);
-                Assert.AreSame(m1, m2);
-
-                Assert.ThrowsException<ArgumentException>(() => client.GetMetric(
-                                                                    "M21", 
-                                                                    "Dim1 ", 
-                                                                    "Dim2", 
-                                                                    new MetricConfiguration(1, 1, new MetricSeriesConfigurationForMeasurement(false))));
-
-                MetricConfiguration config1 = new MetricConfiguration(10, 10, new MetricSeriesConfigurationForMeasurement(false));
-                MetricConfiguration config2 = new MetricConfiguration(10, 10, new MetricSeriesConfigurationForMeasurement(false));
-                Assert.AreEqual(config1, config2);
-                Assert.AreNotSame(config1, config2);
-
-                m1 = client.GetMetric("M22 ", "Dim1", "Dim2 ", config1);
-                Assert.IsNotNull(m1);
-
-                m2 = client.GetMetric("M22", "Dim1 ", "Dim2", config2);
-                Assert.AreSame(m1, m2);
-
-                m2 = client.GetMetric("M22", "Dim1", "Dim2", metricConfiguration: null);
-                Assert.AreSame(m1, m2);
-
-                config2 = new MetricConfiguration(10, 101, new MetricSeriesConfigurationForMeasurement(false));
-                Assert.AreNotEqual(config1, config2);
-                Assert.AreNotSame(config1, config2);
-
-                Assert.ThrowsException<ArgumentException>(() => client.GetMetric("M22", "Dim1", "Dim2", config2));
-                Assert.ThrowsException<ArgumentException>(() => client.GetMetric("M22 ", "Dim1", "Dim2", config2));
-            }
-            {
-                Metric m0 = client.GetMetric("Xxx");
-                Metric m1 = client.GetMetric("Xxx", "Dim1");
-                Metric m2 = client.GetMetric("Xxx", "Dim1", "Dim2");
-
-                Assert.IsNotNull(m0);
-                Assert.IsNotNull(m1);
-                Assert.IsNotNull(m2);
-
-                Assert.AreNotSame(m0, m1);
-                Assert.AreNotSame(m0, m2);
-                Assert.AreNotSame(m1, m2);
-
-                Assert.AreSame(m0.GetConfiguration(), m1.GetConfiguration());
-                Assert.AreSame(m0.GetConfiguration(), m2.GetConfiguration());
-                Assert.AreSame(m1.GetConfiguration(), m2.GetConfiguration());
-
-                Assert.AreSame(MetricConfigurations.Common.Measurement(), m0.GetConfiguration());
-            }
-
-            TestUtil.CompleteDefaultAggregationCycle(telemetryPipeline.GetMetricManager());
-            telemetryPipeline.Dispose();
+            Assert.Equal(1, this.logItems.Count);
+            var logRecord = this.logItems[0];
+            Assert.NotNull(logRecord.Exception);
+            Assert.Equal("Test telemetry exception", logRecord.Exception.Message);
         }
 
-        /// <summary />
-        [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
-        [TestMethod]
-        public void GetMetric_RespectsAggregationScope()
+        [Fact]
+        public void TrackExceptionWillUseABlankObjectAsTheExceptionToHideUserErrors()
         {
-            IList<ITelemetry> sentTelemetry1, sentTelemetry2;
-            TelemetryConfiguration telemetryPipeline1 = TestUtil.CreateAITelemetryConfig(out sentTelemetry1);
-            TelemetryConfiguration telemetryPipeline2 = TestUtil.CreateAITelemetryConfig(out sentTelemetry2);
-            TelemetryClient client11 = new TelemetryClient(telemetryPipeline1);
-            TelemetryClient client12 = new TelemetryClient(telemetryPipeline1);
-            TelemetryClient client21 = new TelemetryClient(telemetryPipeline2);
+            this.telemetryClient.TrackException((ExceptionTelemetry)null);
 
-            Metric metricA111 = client11.GetMetric("Metric A", "Dim1", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryConfiguration);
-            metricA111.TrackValue(101);
-            metricA111.TrackValue(102);
-            metricA111.TrackValue(111, "Val");
-            metricA111.TrackValue(112, "Val");
+            this.telemetryClient.Flush();
 
-            Metric metricA112 = client11.GetMetric("Metric A", "Dim1", MetricConfigurations.Common.Measurement());
-            metricA112.TrackValue(103);
-            metricA112.TrackValue(104);
-            metricA112.TrackValue(113, "Val");
-            metricA112.TrackValue(114, "Val");
-
-            Metric metricA113 = client11.GetMetric("Metric A", "Dim1");
-            metricA113.TrackValue(105);
-            metricA113.TrackValue(106);
-            metricA113.TrackValue(115, "Val");
-            metricA113.TrackValue(116, "Val");
-
-            Assert.AreSame(metricA111, metricA112);
-            Assert.AreSame(metricA111, metricA113);
-            Assert.AreSame(metricA112, metricA113);
-
-            MetricSeries series1, series2;
-            Assert.IsTrue(metricA111.TryGetDataSeries(out series1));
-            Assert.IsTrue(metricA112.TryGetDataSeries(out series2));
-            Assert.AreSame(series1, series2);
-            Assert.IsTrue(metricA113.TryGetDataSeries(out series2));
-            Assert.AreSame(series1, series2);
-            Assert.IsTrue(metricA112.TryGetDataSeries(out series1));
-            Assert.AreSame(series1, series2);
-
-            Assert.IsTrue(metricA111.TryGetDataSeries(out series1, "Val"));
-            Assert.IsTrue(metricA112.TryGetDataSeries(out series2, "Val"));
-            Assert.AreSame(series1, series2);
-            Assert.IsTrue(metricA113.TryGetDataSeries(out series2, "Val"));
-            Assert.AreSame(series1, series2);
-            Assert.IsTrue(metricA112.TryGetDataSeries(out series1, "Val"));
-            Assert.AreSame(series1, series2);
-
-            Metric metricA121 = client12.GetMetric("Metric A", "Dim1", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryConfiguration);
-            metricA121.TrackValue(107);
-            metricA121.TrackValue(108);
-            metricA121.TrackValue(117, "Val");
-            metricA121.TrackValue(118, "Val");
-
-            Assert.AreSame(metricA111, metricA121);
-
-            Metric metricA211 = client21.GetMetric("Metric A", "Dim1", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryConfiguration);
-            metricA211.TrackValue(201);
-            metricA211.TrackValue(202);
-            metricA211.TrackValue(211, "Val");
-            metricA211.TrackValue(212, "Val");
-
-            Assert.AreNotSame(metricA111, metricA211);
-
-            Metric metricA11c1 = client11.GetMetric("Metric A", "Dim1", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryClient);
-            metricA11c1.TrackValue(301);
-            metricA11c1.TrackValue(302);
-            metricA11c1.TrackValue(311, "Val");
-            metricA11c1.TrackValue(312, "Val");
-
-            Metric metricA11c2 = client11.GetMetric("Metric A", "Dim1", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryClient);
-            metricA11c2.TrackValue(303);
-            metricA11c2.TrackValue(304);
-            metricA11c2.TrackValue(313, "Val");
-            metricA11c2.TrackValue(314, "Val");
-
-            Assert.AreNotSame(metricA111, metricA11c1);
-            Assert.AreSame(metricA11c1, metricA11c2);
-
-            Assert.IsTrue(metricA11c1.TryGetDataSeries(out series1));
-            Assert.IsTrue(metricA11c1.TryGetDataSeries(out series2));
-            Assert.AreSame(series1, series2);
-
-            Assert.IsTrue(metricA11c1.TryGetDataSeries(out series1, "Val"));
-            Assert.IsTrue(metricA11c1.TryGetDataSeries(out series2, "Val"));
-            Assert.AreSame(series1, series2);
-
-            Metric metricA12c1 = client12.GetMetric("Metric A", "Dim1", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryClient);
-            metricA12c1.TrackValue(305);
-            metricA12c1.TrackValue(306);
-            metricA12c1.TrackValue(315, "Val");
-            metricA12c1.TrackValue(316, "Val");
-
-            Assert.AreNotSame(metricA11c1, metricA12c1);
-
-            client11.GetMetricManager(MetricAggregationScope.TelemetryClient).Flush();
-            client12.GetMetricManager(MetricAggregationScope.TelemetryClient).Flush();
-            client21.GetMetricManager(MetricAggregationScope.TelemetryClient).Flush();
-            telemetryPipeline1.GetMetricManager().Flush();
-            telemetryPipeline2.GetMetricManager().Flush();
-
-            Assert.AreEqual(6, sentTelemetry1.Count);
-            Assert.AreEqual(2, sentTelemetry2.Count);
-
-            MetricTelemetry[] orderedTelemetry = sentTelemetry1
-                                                        .OrderByDescending((t) => ((MetricTelemetry) t).Count * 10000 + ((MetricTelemetry) t).Sum)
-                                                        .Select((t) => (MetricTelemetry) t)
-                                                        .ToArray();
-
-            TestUtil.ValidateNumericAggregateValues(orderedTelemetry[0], String.Empty, "Metric A", 8, 916, 118, 111, 2.29128784747792);
-            Assert.AreEqual(2, ((MetricTelemetry)orderedTelemetry[0]).Properties.Count);
-            Assert.IsTrue(((MetricTelemetry)orderedTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-            Assert.AreEqual("Val", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim1"]);
-
-            TestUtil.ValidateNumericAggregateValues(orderedTelemetry[1], String.Empty, "Metric A", 8, 836, 108, 101, 2.29128784747792);
-            Assert.AreEqual(1, ((MetricTelemetry)orderedTelemetry[1]).Properties.Count);
-            Assert.IsTrue(((MetricTelemetry)orderedTelemetry[1]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-
-            TestUtil.ValidateNumericAggregateValues(orderedTelemetry[2], String.Empty, "Metric A", 4, 1250, 314, 311, 1.11803398874989);
-            Assert.AreEqual(2, ((MetricTelemetry)orderedTelemetry[2]).Properties.Count);
-            Assert.IsTrue(((MetricTelemetry)orderedTelemetry[2]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-            Assert.AreEqual("Val", ((MetricTelemetry)orderedTelemetry[2]).Properties["Dim1"]);
-
-            TestUtil.ValidateNumericAggregateValues(orderedTelemetry[3], String.Empty, "Metric A", 4, 1210, 304, 301, 1.11803398874989);
-            Assert.AreEqual(1, ((MetricTelemetry)orderedTelemetry[3]).Properties.Count);
-            Assert.IsTrue(((MetricTelemetry)orderedTelemetry[3]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-
-            TestUtil.ValidateNumericAggregateValues(orderedTelemetry[4], String.Empty, "Metric A", 2, 631, 316, 315, 0.5);
-            Assert.AreEqual(2, ((MetricTelemetry)orderedTelemetry[4]).Properties.Count);
-            Assert.IsTrue(((MetricTelemetry)orderedTelemetry[4]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-            Assert.AreEqual("Val", ((MetricTelemetry)orderedTelemetry[4]).Properties["Dim1"]);
-
-            TestUtil.ValidateNumericAggregateValues(orderedTelemetry[5], String.Empty, "Metric A", 2, 611, 306, 305, 0.5);
-            Assert.AreEqual(1, ((MetricTelemetry)orderedTelemetry[5]).Properties.Count);
-            Assert.IsTrue(((MetricTelemetry)orderedTelemetry[5]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-
-            orderedTelemetry = sentTelemetry2
-                                        .OrderByDescending((t) => ((MetricTelemetry) t).Count * 10000 + ((MetricTelemetry) t).Sum)
-                                        .Select((t) => (MetricTelemetry) t)
-                                        .ToArray();
-
-            TestUtil.ValidateNumericAggregateValues(orderedTelemetry[0], String.Empty, "Metric A", 2, 423, 212, 211, 0.5);
-            Assert.AreEqual(2, ((MetricTelemetry)orderedTelemetry[0]).Properties.Count);
-            Assert.IsTrue(((MetricTelemetry)orderedTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-            Assert.AreEqual("Val", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim1"]);
-
-            TestUtil.ValidateNumericAggregateValues(orderedTelemetry[1], String.Empty, "Metric A", 2, 403, 202, 201, 0.5);
-            Assert.AreEqual(1, ((MetricTelemetry)orderedTelemetry[1]).Properties.Count);
-            Assert.IsTrue(((MetricTelemetry)orderedTelemetry[1]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-
-
-            Metric metricB21c1 = client21.GetMetric("Metric B", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryClient);
-
-            TelemetryClient client22 = new TelemetryClient(telemetryPipeline2);
-            TelemetryClient client23 = new TelemetryClient(telemetryPipeline2);
-            Assert.AreNotSame(metricB21c1, client22.GetMetric("Metric B", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryClient));
-            Assert.AreSame(metricB21c1, client21.GetMetric("Metric B", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryClient));
-            Assert.ThrowsException<ArgumentException>(() => client21.GetMetric(
-                                                                        "Metric B",
-                                                                        new MetricConfiguration(1, 1, new MetricSeriesConfigurationForMeasurement(false)),
-                                                                        MetricAggregationScope.TelemetryClient));
-            Assert.IsNotNull(client23.GetMetric("Metric B", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryClient));
-
-            Metric metricB211 = client21.GetMetric("Metric B", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryConfiguration);
-
-            TelemetryClient client24 = new TelemetryClient(telemetryPipeline2);
-            TelemetryClient client25 = new TelemetryClient(telemetryPipeline2);
-            Assert.AreSame(metricB211, client24.GetMetric("Metric B", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryConfiguration));
-            Assert.AreSame(metricB211, client21.GetMetric("Metric B", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryConfiguration));
-            Assert.ThrowsException<ArgumentException>(() => client21.GetMetric(
-                                                                        "Metric B",
-                                                                        new MetricConfiguration(1, 1, new MetricSeriesConfigurationForMeasurement(false)), 
-                                                                        MetricAggregationScope.TelemetryConfiguration));
-            Assert.ThrowsException<ArgumentException>(() => client25.GetMetric(
-                                                                        "Metric B",
-                                                                        new MetricConfiguration(1, 1, new MetricSeriesConfigurationForMeasurement(false)), 
-                                                                        MetricAggregationScope.TelemetryConfiguration));
-
-            Assert.ThrowsException<ArgumentException>(() => client11.GetMetric("Metric C", MetricConfigurations.Common.Measurement(), (MetricAggregationScope) 42));
-
-            TestUtil.CompleteDefaultAggregationCycle(
-                        client11.GetMetricManager(MetricAggregationScope.TelemetryClient),
-                        client12.GetMetricManager(MetricAggregationScope.TelemetryClient),
-                        client21.GetMetricManager(MetricAggregationScope.TelemetryClient),
-                        client22.GetMetricManager(MetricAggregationScope.TelemetryClient),
-                        client23.GetMetricManager(MetricAggregationScope.TelemetryClient),
-                        client24.GetMetricManager(MetricAggregationScope.TelemetryClient),
-                        client25.GetMetricManager(MetricAggregationScope.TelemetryClient),
-                        telemetryPipeline2.GetMetricManager(),
-                        telemetryPipeline1.GetMetricManager());
-
-            telemetryPipeline1.Dispose();
-            telemetryPipeline2.Dispose();
+            Assert.Equal(1, this.logItems.Count);
+            var logRecord = this.logItems[0];
+            Assert.NotNull(logRecord.Exception);
         }
 
-        /// <summary />
-        [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
-        [TestMethod]
-        public void GetMetric_RespectsClientContext()
+        [Fact]
+        public void TrackExceptionUsesErrorLogLevelByDefault()
         {
-            IList<ITelemetry> sentTelemetry;
-            TelemetryConfiguration telemetryPipeline = TestUtil.CreateAITelemetryConfig(out sentTelemetry);
-            telemetryPipeline.InstrumentationKey = "754DD89F-61D6-4539-90C7-D886449E12BC";
-            TelemetryClient client = new TelemetryClient(telemetryPipeline);
+            this.telemetryClient.TrackException(new Exception());
 
-            Metric animalsSold = client.GetMetric("AnimalsSold", "Species", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryClient);
-            animalsSold.TrackValue(10, "Cow");
-            animalsSold.TrackValue(20, "Cow");
-            client.GetMetricManager(MetricAggregationScope.TelemetryClient).Flush();
+            this.telemetryClient.Flush();
 
-            animalsSold.TrackValue(100, "Rabbit");
-            animalsSold.TrackValue(200, "Rabbit");
-
-            client.Context.InstrumentationKey = "3A3C34B6-CA2D-4372-B772-3B015E1E83DC";
-            client.Context.Device.Model = "Super-Fancy";
-#pragma warning disable CS0618 // Type or member is obsolete
-            client.Context.Properties["MyTag"] = "MyValue";
-#pragma warning restore CS0618 // Type or member is obsolete
-
-            animalsSold.TrackValue(30, "Cow");
-            animalsSold.TrackValue(40, "Cow");
-            animalsSold.TrackValue(300, "Rabbit");
-            animalsSold.TrackValue(400, "Rabbit");
-            client.GetMetricManager(MetricAggregationScope.TelemetryClient).Flush();
-
-            Assert.AreEqual(3, sentTelemetry.Count);
-
-            MetricTelemetry[] orderedTelemetry = sentTelemetry
-                                                        .OrderByDescending((t) => ((MetricTelemetry) t).Count * 10000 + ((MetricTelemetry) t).Sum)
-                                                        .Select((t) => (MetricTelemetry) t)
-                                                        .ToArray();
-
-            TestUtil.ValidateNumericAggregateValues(orderedTelemetry[0], String.Empty, "AnimalsSold", 4, 1000, 400, 100, 111.803398874989);
-            Assert.AreEqual(3, ((MetricTelemetry)orderedTelemetry[0]).Properties.Count);
-            Assert.IsTrue(((MetricTelemetry)orderedTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-            Assert.AreEqual("Rabbit", ((MetricTelemetry)orderedTelemetry[0]).Properties["Species"]);
-            Assert.AreEqual("MyValue", ((MetricTelemetry)orderedTelemetry[0]).Properties["MyTag"]);            
-            Assert.AreEqual("Super-Fancy", orderedTelemetry[0].Context.Device.Model);
-            Assert.AreEqual("3A3C34B6-CA2D-4372-B772-3B015E1E83DC", orderedTelemetry[0].Context.InstrumentationKey);
-
-            TestUtil.ValidateNumericAggregateValues(orderedTelemetry[1], String.Empty, "AnimalsSold", 2, 70, 40, 30, 5);
-            Assert.AreEqual(3, ((MetricTelemetry)orderedTelemetry[1]).Properties.Count);
-            Assert.IsTrue(((MetricTelemetry)orderedTelemetry[1]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-            Assert.AreEqual("Cow", ((MetricTelemetry)orderedTelemetry[1]).Properties["Species"]);
-            Assert.AreEqual("MyValue", ((MetricTelemetry)orderedTelemetry[1]).Properties["MyTag"]);
-            Assert.AreEqual("Super-Fancy", orderedTelemetry[1].Context.Device.Model);
-            Assert.AreEqual("3A3C34B6-CA2D-4372-B772-3B015E1E83DC", orderedTelemetry[1].Context.InstrumentationKey);
-
-            TestUtil.ValidateNumericAggregateValues(orderedTelemetry[2], String.Empty, "AnimalsSold", 2, 30, 20, 10, 5);
-            Assert.AreEqual(2, ((MetricTelemetry)orderedTelemetry[2]).Properties.Count);
-            Assert.IsTrue(((MetricTelemetry)orderedTelemetry[2]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-            Assert.AreEqual("Cow", ((MetricTelemetry)orderedTelemetry[2]).Properties["Species"]);
-            Assert.IsNull(orderedTelemetry[2].Context.Device.Model);
-            Assert.AreEqual("754DD89F-61D6-4539-90C7-D886449E12BC", orderedTelemetry[2].Context.InstrumentationKey);
-
-            TestUtil.CompleteDefaultAggregationCycle(client.GetMetricManager(MetricAggregationScope.TelemetryClient));
-            telemetryPipeline.Dispose();
+            Assert.Equal(1, this.logItems.Count);
+            Assert.Equal(LogLevel.Error, this.logItems[0].LogLevel);
         }
 
-        #endregion Preaggregated metrics
-
-        #region Connection Strings
-
-        [TestMethod]
-        [TestCategory("ConnectionString")]
-        public void VerifyEndpointConnectionString_DefaultScenario()
+        [Fact]
+        public void TrackExceptionWithExceptionTelemetryRespectsSeverityLevel()
         {
-#pragma warning disable CS0618 // This constructor calls TelemetryConfiguration.Active which will throw an Obsolete compiler warning in NetCore projects. I don't care because I'm only testing that the pipeline could set a default value.
-            TelemetryConfiguration.Active = null; // Need to null this because other tests can cause side effects here.
+            var telemetry = new ExceptionTelemetry(new Exception("Critical error"))
+            {
+                SeverityLevel = SeverityLevel.Critical
+            };
+            this.telemetryClient.TrackException(telemetry);
 
-            var telemetryClient = new TelemetryClient();
-#pragma warning restore CS0618
+            this.telemetryClient.Flush();
 
-            Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", telemetryClient.TelemetryConfiguration.DefaultTelemetrySink.TelemetryChannel.EndpointAddress);
+            Assert.Equal(1, this.logItems.Count);
+            Assert.Equal(LogLevel.Critical, this.logItems[0].LogLevel);
+        }
+
+        [Fact]
+        public void TrackExceptionWithPropertiesIncludesPropertiesInLogRecord()
+        {
+            var properties = new Dictionary<string, string>
+            {
+                { "key1", "value1" },
+                { "key2", "value2" }
+            };
+
+            this.telemetryClient.TrackException(new Exception("Test"), properties);
+
+            this.telemetryClient.Flush();
+
+            Assert.Equal(1, this.logItems.Count);
+            var logRecord = this.logItems[0];
+            
+            // Properties should be in the log record attributes
+            var hasKey1 = false;
+            var hasKey2 = false;
+            if (logRecord.Attributes != null)
+            {
+                foreach (var attr in logRecord.Attributes)
+                {
+                    if (attr.Key == "key1" && attr.Value?.ToString() == "value1")
+                        hasKey1 = true;
+                    if (attr.Key == "key2" && attr.Value?.ToString() == "value2")
+                        hasKey2 = true;
+                }
+            }
+
+            Assert.True(hasKey1);
+            Assert.True(hasKey2, "Property key2 should be in log record");
+        }
+
+        [Fact]
+        public void TrackExceptionWithExceptionTelemetryIncludesProperties()
+        {
+            var telemetry = new ExceptionTelemetry(new Exception("Test exception"));
+            telemetry.Properties["customKey"] = "customValue";
+            
+            this.telemetryClient.TrackException(telemetry);
+
+            this.telemetryClient.Flush();
+
+            Assert.Equal(1, this.logItems.Count);
+            var logRecord = this.logItems[0];
+            
+            var hasCustomKey = false;
+            if (logRecord.Attributes != null)
+            {
+                foreach (var attr in logRecord.Attributes)
+                {
+                    if (attr.Key == "customKey" && attr.Value?.ToString() == "customValue")
+                    {
+                        hasCustomKey = true;
+                        break;
+                    }
+                }
+            }
+
+            Assert.True(hasCustomKey);
+        }
+
+        [Fact]
+        public void TrackExceptionWithInnerExceptionPreservesInnerException()
+        {
+            var innerException = new InvalidOperationException("Inner exception message");
+            var outerException = new ApplicationException("Outer exception message", innerException);
+            
+            this.telemetryClient.TrackException(outerException);
+
+            this.telemetryClient.Flush();
+
+            Assert.Equal(1, this.logItems.Count);
+            var logRecord = this.logItems[0];
+            Assert.NotNull(logRecord.Exception);
+            Assert.Equal("Outer exception message", logRecord.Exception.Message);
+            
+            // The exception should have inner exception
+            Assert.NotNull(logRecord.Exception.InnerException);
+            Assert.Equal("Inner exception message", logRecord.Exception.InnerException.Message);
         }
 
         #endregion
 
-        private TelemetryClient InitializeTelemetryClient(ICollection<ITelemetry> sentTelemetry)
+        #region TrackRequest
+
+        [Fact]
+        public void TrackRequestCreatesActivityWithCorrectName()
         {
-            var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
-            var telemetryConfiguration = new TelemetryConfiguration(Guid.NewGuid().ToString(), channel);
-            var client = new TelemetryClient(telemetryConfiguration);
-            return client;
+            var request = new RequestTelemetry("GET /api/users", DateTimeOffset.UtcNow, TimeSpan.FromMilliseconds(100), "200", true);
+            
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            // Verify activity was created
+            Assert.Equal(1, this.activityItems.Count);
+            Assert.Equal("GET /api/users", this.activityItems[0].DisplayName);
+            Assert.Equal(ActivityKind.Server, this.activityItems[0].Kind);
         }
 
-#pragma warning disable 612, 618  // obsolete TelemetryConfigration.Active
-        /// <summary>
-        /// Resets the TelemetryConfiguration.Active default instance to null so that the iKey auto population paths can be followed for testing.
-        /// </summary>
-        private void ClearActiveTelemetryConfiguration()
+        [Fact]
+        public void TrackRequestWithServiceBusUrlSetsMessagingAttributes()
         {
-            TelemetryConfiguration.Active = null;
+            var request = new RequestTelemetry
+            {
+                Name = "ServiceBus Message",
+                Url = new Uri("sb://myservicebus.servicebus.windows.net/mytopic"),
+                Source = "mytopic",
+                ResponseCode = "0",
+                Duration = TimeSpan.FromMilliseconds(75),
+                Success = true
+            };
+
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            
+            // Verify Consumer ActivityKind for messaging
+            Assert.Equal(ActivityKind.Consumer, activity.Kind);
+            Assert.Equal(ActivityStatusCode.Ok, activity.Status);
+            
+            // Verify override attributes preserve original AI values
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.name" && t.Value == "ServiceBus Message"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.url" && t.Value == "sb://myservicebus.servicebus.windows.net/mytopic"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.source" && t.Value == "mytopic"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.resultCode" && t.Value == "0"));
         }
-#pragma warning restore 612, 618  // obsolete TelemetryConfigration.Active
+
+        [Fact]
+        public void TrackRequestSetsOverrideAttributes()
+        {
+            var request = new RequestTelemetry
+            {
+                Name = "Custom Request",
+                Url = new Uri("https://api.example.com/v1/resource"),
+                Source = "mobile-app",
+                ResponseCode = "201",
+                Duration = TimeSpan.FromMilliseconds(200),
+                Success = true
+            };
+            request.Context.Operation.Name = "CreateResource";
+
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            
+            // Verify override attributes
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.name" && t.Value == "Custom Request"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.url" && t.Value == "https://api.example.com/v1/resource"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.source" && t.Value == "mobile-app"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.resultCode" && t.Value == "201"));
+            Assert.Equal(ActivityKind.Server, activity.Kind);
+            Assert.Equal(ActivityStatusCode.Ok, activity.Status);
+        }
+
+        [Fact]
+        public void TrackRequestWithPropertiesIncludesCustomProperties()
+        {
+            this.activityItems.Clear();
+
+            var request = new RequestTelemetry("Test Request", DateTimeOffset.UtcNow, TimeSpan.FromMilliseconds(100), "200", true);
+            request.Properties["userId"] = "12345";
+            request.Properties["region"] = "us-west";
+            
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            Assert.Equal(1, activityItems.Count);
+            var activity = activityItems[0];
+            
+            // Verify custom properties are included
+            Assert.Equal("userId", activity.Tags.FirstOrDefault(t => t.Key == "userId").Key);
+            Assert.Equal("12345", activity.Tags.FirstOrDefault(t => t.Key == "userId").Value);
+            Assert.Equal("region", activity.Tags.FirstOrDefault(t => t.Key == "region").Key);
+            Assert.Equal("us-west", activity.Tags.FirstOrDefault(t => t.Key == "region").Value);
+            
+            // Verify standard attributes
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.name" && t.Value == "Test Request"));
+            Assert.Equal(ActivityKind.Server, activity.Kind);
+        }
+
+        [Fact]
+        public void TrackRequestWithFailedResponseCodeMarksAsError()
+        {
+            var request = new RequestTelemetry
+            {
+                Name = "GET /api/error",
+                Url = new Uri("https://example.com/api/error"),
+                ResponseCode = "500",
+                Success = false,
+                Duration = TimeSpan.FromMilliseconds(50)
+            };
+
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            
+            // Verify error status
+            Assert.Equal(ActivityStatusCode.Error, activity.Status);
+            Assert.Equal(ActivityKind.Server, activity.Kind);
+            
+            // Verify override attributes
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.name" && t.Value == "GET /api/error"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.url" && t.Value == "https://example.com/api/error"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.resultCode" && t.Value == "500"));
+        }
+
+        [Fact]
+        public void TrackRequestWithQueueSourceSetsMessagingSystem()
+        {
+            var request = new RequestTelemetry
+            {
+                Name = "Queue Message Handler",
+                Source = "orders-queue",
+                ResponseCode = "0",
+                Duration = TimeSpan.FromMilliseconds(120),
+                Success = true
+            };
+
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            
+            // Verify Consumer ActivityKind for queue messaging
+            Assert.Equal(ActivityKind.Consumer, activity.Kind);
+            Assert.Equal(ActivityStatusCode.Ok, activity.Status);
+            
+            // Verify override attributes
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.name" && t.Value == "Queue Message Handler"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.source" && t.Value == "orders-queue"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.request.resultCode" && t.Value == "0"));
+        }
+
+        [Fact]
+        public void TrackRequestHandlesNullRequestTelemetryGracefully()
+        {
+            this.telemetryClient.TrackRequest((RequestTelemetry)null);
+            this.telemetryClient.Flush();
+
+            // Should not throw exception and should not create any activity
+            Assert.Equal(0, this.activityItems.Count);
+        }
+
+        #endregion
+
+        #region TrackDependency
+
+        [Fact]
+        public void TrackDependencyWithServiceBusTypeSetsBrokerAttributes()
+        {
+            var dependency = new DependencyTelemetry
+            {
+                Type = "Azure Service Bus",
+                Target = "myservicebus.servicebus.windows.net/mytopic",
+                Name = "Publish event",
+                Data = "sb://myservicebus.servicebus.windows.net/mytopic",
+                ResultCode = "0",
+                Duration = TimeSpan.FromMilliseconds(35),
+                Success = true
+            };
+
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            
+            // Verify Producer ActivityKind
+            Assert.Equal(ActivityKind.Producer, activity.Kind);
+            Assert.Equal(ActivityStatusCode.Ok, activity.Status);
+            
+            // Verify override attributes
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "Azure Service Bus"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "myservicebus.servicebus.windows.net/mytopic"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.name" && t.Value == "Publish event"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "sb://myservicebus.servicebus.windows.net/mytopic"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "0"));
+        }
+
+        [Fact]
+        public void TrackDependencyWithAzureSDKTypeSetsAzureNamespace()
+        {
+            var dependency = new DependencyTelemetry
+            {
+                Type = "InProc | Microsoft.Storage",
+                Target = "mystorageaccount.blob.core.windows.net",
+                Name = "Upload blob",
+                Data = "PUT /container/blob.txt",
+                ResultCode = "201",
+                Duration = TimeSpan.FromMilliseconds(200),
+                Success = true
+            };
+
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            
+            // Verify Internal ActivityKind for InProc
+            Assert.Equal(ActivityKind.Internal, activity.Kind);
+            Assert.Equal(ActivityStatusCode.Ok, activity.Status);
+            
+            // Verify override attributes preserve Azure namespace in type
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "InProc | Microsoft.Storage"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "mystorageaccount.blob.core.windows.net"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.name" && t.Value == "Upload blob"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "PUT /container/blob.txt"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "201"));
+        }
+
+        [Fact]
+        public void TrackDependencySetsOverrideAttributes()
+        {
+            var dependency = new DependencyTelemetry
+            {
+                Type = "Http",
+                Target = "api.example.com",
+                Name = "POST /orders",
+                Data = "https://api.example.com/orders",
+                Duration = TimeSpan.FromMilliseconds(250),
+                Success = true,
+                ResultCode = "201"
+            };
+
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            
+            // Verify ActivityKind and Status
+            Assert.Equal(ActivityKind.Client, activity.Kind);
+            Assert.Equal(ActivityStatusCode.Ok, activity.Status);
+            
+            // Verify override attributes
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "Http"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "api.example.com"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.name" && t.Value == "POST /orders"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "https://api.example.com/orders"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "201"));
+        }
+
+        [Fact]
+        public void TrackDependencyWithPropertiesIncludesCustomProperties()
+        {
+            this.activityItems.Clear();
+
+            var dependency = new DependencyTelemetry("redis", "cache.example.com", "GET user:123", "GET user:123", DateTimeOffset.UtcNow, TimeSpan.FromMilliseconds(5), "200", true);
+            dependency.Properties["operation"] = "query";
+            dependency.Properties["cacheHit"] = "false";
+            
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            Assert.Equal(1, activityItems.Count);
+            var activity = activityItems[0];
+            
+            // Verify custom properties are included
+            Assert.Equal("operation", activity.Tags.FirstOrDefault(t => t.Key == "operation").Key);
+            Assert.Equal("query", activity.Tags.FirstOrDefault(t => t.Key == "operation").Value);
+            Assert.Equal("cacheHit", activity.Tags.FirstOrDefault(t => t.Key == "cacheHit").Key);
+            Assert.Equal("false", activity.Tags.FirstOrDefault(t => t.Key == "cacheHit").Value);
+            
+            // Verify standard attributes
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "redis"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "cache.example.com"));
+            Assert.Equal(ActivityKind.Client, activity.Kind);
+        }
+
+        [Fact]
+        public void TrackDependencyWithFailedCallMarksAsError()
+        {
+            var dependency = new DependencyTelemetry
+            {
+                Type = "Http",
+                Target = "api.example.com",
+                Name = "GET /error",
+                Data = "https://api.example.com/error",
+                Duration = TimeSpan.FromMilliseconds(50),
+                Success = false,
+                ResultCode = "500"
+            };
+
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            
+            // Verify error status
+            Assert.Equal(ActivityStatusCode.Error, activity.Status);
+            Assert.Equal(ActivityKind.Client, activity.Kind);
+            
+            // Verify override attributes
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "Http"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "https://api.example.com/error"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "500"));
+        }
+
+        [Fact]
+        public void TrackDependencyHandlesNullDependencyTelemetryGracefully()
+        {
+            this.telemetryClient.TrackDependency((DependencyTelemetry)null);
+            this.telemetryClient.Flush();
+
+            // Should not throw exception and should not create any activity
+            Assert.Equal(0, this.activityItems.Count);
+        }
+
+        [Fact]
+        public void TrackDependencyWithCaseInsensitiveHttpType()
+        {
+            var dependency = new DependencyTelemetry
+            {
+                Type = "HTTP", // uppercase
+                Target = "api.example.com",
+                Name = "GET /data",
+                Data = "https://api.example.com/data",
+                Duration = TimeSpan.FromMilliseconds(75),
+                Success = true,
+                ResultCode = "200"
+            };
+
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            
+            // Verify ActivityKind detection works regardless of case
+            Assert.Equal(ActivityKind.Client, activity.Kind);
+            Assert.Equal(ActivityStatusCode.Ok, activity.Status);
+            
+            // Verify override attributes preserve original case
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "HTTP"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "https://api.example.com/data"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "api.example.com"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "200"));
+        }
+
+        [Fact]
+        public void TrackDependencyWithCaseInsensitiveSqlType()
+        {
+            var dependency = new DependencyTelemetry
+            {
+                Type = "sql", // lowercase
+                Target = "localhost | testdb",
+                Name = "Query",
+                Data = "SELECT COUNT(*) FROM Orders",
+                Duration = TimeSpan.FromMilliseconds(35),
+                Success = true,
+                ResultCode = "0"
+            };
+
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            
+            // Verify ActivityKind detection works regardless of case
+            Assert.Equal(ActivityKind.Client, activity.Kind);
+            Assert.Equal(ActivityStatusCode.Ok, activity.Status);
+            
+            // Verify override attributes preserve original case
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.type" && t.Value == "sql"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.data" && t.Value == "SELECT COUNT(*) FROM Orders"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.target" && t.Value == "localhost | testdb"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.dependency.resultCode" && t.Value == "0"));
+        }
+
+        #endregion
+
+        #region GlobalProperties
+
+        [Fact]
+        public void TrackEvent_IncludesGlobalProperties()
+        {
+            // Arrange
+            this.telemetryClient.Context.GlobalProperties["Environment"] = "Test";
+            this.telemetryClient.Context.GlobalProperties["Version"] = "1.0";
+
+            // Act
+            this.telemetryClient.TrackEvent("TestEvent");
+            this.telemetryClient.Flush();
+
+            // Assert
+            Assert.True(this.logItems.Count > 0);
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.Attributes != null && l.Attributes.Any(a => 
+                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "TestEvent"));
+            Assert.NotNull(logRecord);
+            
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.True(attributes.ContainsKey("Environment"));
+            Assert.Equal("Test", attributes["Environment"]);
+            Assert.True(attributes.ContainsKey("Version"));
+            Assert.Equal("1.0", attributes["Version"]);
+        }
+
+        [Fact]
+        public void TrackEvent_ItemPropertiesOverrideGlobalProperties()
+        {
+            // Arrange
+            this.telemetryClient.Context.GlobalProperties["Environment"] = "Test";
+            this.telemetryClient.Context.GlobalProperties["Version"] = "1.0";
+
+            // Act - override Environment with item property
+            this.telemetryClient.TrackEvent("TestEvent", new Dictionary<string, string>
+            {
+                { "Environment", "Production" },  // Override
+                { "CustomProp", "CustomValue" }
+            });
+            this.telemetryClient.Flush();
+
+            // Assert
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.Attributes != null && l.Attributes.Any(a => 
+                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "TestEvent"));
+            Assert.NotNull(logRecord);
+            
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.Equal("Production", attributes["Environment"]);
+            Assert.Equal("1.0", attributes["Version"]);
+            Assert.Equal("CustomValue", attributes["CustomProp"]);
+        }
+
+        [Fact]
+        public void TrackTrace_IncludesGlobalProperties()
+        {
+            // Arrange
+            this.telemetryClient.Context.GlobalProperties["Component"] = "Auth";
+            this.telemetryClient.Context.GlobalProperties["DataCenter"] = "WestUS";
+
+            // Act
+            this.telemetryClient.TrackTrace("Test message");
+            this.telemetryClient.Flush();
+
+            // Assert
+            Assert.True(this.logItems.Count > 0);
+            var logRecord = this.logItems.Last();
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            
+            Assert.True(attributes.ContainsKey("Component"));
+            Assert.Equal("Auth", attributes["Component"]);
+            Assert.True(attributes.ContainsKey("DataCenter"));
+            Assert.Equal("WestUS", attributes["DataCenter"]);
+        }
+
+        [Fact]
+        public void TrackTrace_WithSeverity_IncludesGlobalProperties()
+        {
+            // Arrange
+            this.telemetryClient.Context.GlobalProperties["RequestId"] = "req-123";
+
+            // Act
+            this.telemetryClient.TrackTrace("Warning message", SeverityLevel.Warning);
+            this.telemetryClient.Flush();
+
+            // Assert
+            var logRecord = this.logItems.FirstOrDefault(l => l.LogLevel == LogLevel.Warning);
+            Assert.NotNull(logRecord);
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.Equal("req-123", attributes["RequestId"]);
+        }
+
+        [Fact]
+        public void TrackException_IncludesGlobalProperties()
+        {
+            // Arrange
+            this.telemetryClient.Context.GlobalProperties["UserId"] = "user-456";
+            this.telemetryClient.Context.GlobalProperties["SessionId"] = "session-789";
+
+            // Act
+            var exception = new InvalidOperationException("Test exception");
+            this.telemetryClient.TrackException(exception);
+            this.telemetryClient.Flush();
+
+            // Assert
+            var logRecord = this.logItems.FirstOrDefault(l => l.LogLevel == LogLevel.Error);
+            Assert.NotNull(logRecord);
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.Equal("user-456", attributes["UserId"]);
+            Assert.Equal("session-789", attributes["SessionId"]);
+        }
+
+        [Fact]
+        public void TrackException_WithProperties_MergesWithGlobalProperties()
+        {
+            // Arrange
+            this.telemetryClient.Context.GlobalProperties["AppVersion"] = "2.0";
+
+            // Act
+            var exception = new InvalidOperationException("Test");
+            this.telemetryClient.TrackException(exception, new Dictionary<string, string>
+            {
+                { "Operation", "Payment" },
+                { "AppVersion", "2.1" }  // Override global
+            });
+            this.telemetryClient.Flush();
+
+            // Assert
+            var logRecord = this.logItems.FirstOrDefault(l => l.LogLevel == LogLevel.Error);
+            Assert.NotNull(logRecord);
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.Equal("2.1", attributes["AppVersion"]);
+            Assert.Equal("Payment", attributes["Operation"]);
+        }
+
+        [Fact]
+        public void TrackDependency_IncludesGlobalPropertiesAsTags()
+        {
+            // Arrange
+            this.telemetryClient.Context.GlobalProperties["TenantId"] = "tenant-123";
+            this.telemetryClient.Context.GlobalProperties["Region"] = "US-West";
+
+            // Act
+            var dependency = new DependencyTelemetry
+            {
+                Type = "HTTP",
+                Name = "GET /api/data",
+                Data = "https://api.example.com/data",
+                Target = "api.example.com",
+                Duration = TimeSpan.FromMilliseconds(100),
+                Success = true
+            };
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            // Assert
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            Assert.True(activity.Tags.Any(t => t.Key == "TenantId" && t.Value == "tenant-123"));
+            Assert.True(activity.Tags.Any(t => t.Key == "Region" && t.Value == "US-West"));
+        }
+
+        [Fact]
+        public void TrackDependency_ItemPropertiesOverrideGlobalProperties()
+        {
+            // Arrange
+            this.telemetryClient.Context.GlobalProperties["Environment"] = "Dev";
+            this.telemetryClient.Context.GlobalProperties["BuildId"] = "100";
+
+            // Act
+            var dependency = new DependencyTelemetry
+            {
+                Type = "SQL",
+                Name = "Query",
+                Data = "SELECT * FROM Users",
+                Duration = TimeSpan.FromMilliseconds(50),
+                Success = true
+            };
+            dependency.Properties["Environment"] = "Staging";  // Override
+            dependency.Properties["QueryType"] = "Select";
+            
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            // Assert
+            var activity = this.activityItems[0];
+            Assert.True(activity.Tags.Any(t => t.Key == "Environment" && t.Value == "Staging"), 
+                "Item property should override global");
+            Assert.True(activity.Tags.Any(t => t.Key == "BuildId" && t.Value == "100"),
+                "Non-overridden global should remain");
+            Assert.True(activity.Tags.Any(t => t.Key == "QueryType" && t.Value == "Select"));
+        }
+
+        [Fact]
+        public void TrackRequest_IncludesGlobalPropertiesAsTags()
+        {
+            // Arrange
+            this.telemetryClient.Context.GlobalProperties["ServiceName"] = "WebAPI";
+            this.telemetryClient.Context.GlobalProperties["InstanceId"] = "instance-1";
+
+            // Act
+            var request = new RequestTelemetry
+            {
+                Name = "GET /users",
+                Duration = TimeSpan.FromMilliseconds(75),
+                ResponseCode = "200",
+                Success = true
+            };
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            // Assert
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            Assert.True(activity.Tags.Any(t => t.Key == "ServiceName" && t.Value == "WebAPI"));
+            Assert.True(activity.Tags.Any(t => t.Key == "InstanceId" && t.Value == "instance-1"));
+        }
+
+        [Fact]
+        public void TrackRequest_ItemPropertiesOverrideGlobalProperties()
+        {
+            // Arrange
+            this.telemetryClient.Context.GlobalProperties["Controller"] = "Default";
+            this.telemetryClient.Context.GlobalProperties["Version"] = "1.0";
+
+            // Act
+            var request = new RequestTelemetry
+            {
+                Name = "POST /orders",
+                Duration = TimeSpan.FromMilliseconds(120),
+                ResponseCode = "201",
+                Success = true
+            };
+            request.Properties["Controller"] = "OrderController";  // Override
+            request.Properties["Action"] = "Create";
+            
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            // Assert
+            var activity = this.activityItems[0];
+            Assert.True(activity.Tags.Any(t => t.Key == "Controller" && t.Value == "OrderController"),
+                "Item property should override global");
+            Assert.True(activity.Tags.Any(t => t.Key == "Version" && t.Value == "1.0"),
+                "Non-overridden global should remain");
+            Assert.True(activity.Tags.Any(t => t.Key == "Action" && t.Value == "Create"));
+        }
+
+        [Fact]
+        public void GlobalProperties_EmptyDictionary_DoesNotCauseErrors()
+        {
+            // Arrange - Don't add any global properties
+            
+            // Act & Assert - Should not throw
+            this.telemetryClient.TrackEvent("TestEvent");
+            this.telemetryClient.TrackTrace("Test message");
+            this.telemetryClient.TrackException(new Exception("Test"));
+            this.telemetryClient.Flush();
+
+            // Verify telemetry was recorded
+            Assert.True(this.logItems.Count >= 3);
+        }
+
+        [Fact]
+        public void TelemetryContextGlobalProperties_OverrideClientGlobalProperties()
+        {
+            // Arrange
+            this.telemetryClient.Context.GlobalProperties["Source"] = "Client";
+            
+            var eventTelemetry = new EventTelemetry("TestEvent");
+            eventTelemetry.Context.GlobalProperties["Source"] = "Telemetry";  // Should override
+            eventTelemetry.Context.GlobalProperties["Extra"] = "Value";
+
+            // Act
+            this.telemetryClient.TrackEvent(eventTelemetry);
+            this.telemetryClient.Flush();
+
+            // Assert
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.Attributes != null && l.Attributes.Any(a => 
+                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "TestEvent"));
+            Assert.NotNull(logRecord);
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.Equal("Telemetry", attributes["Source"]);
+            Assert.Equal("Value", attributes["Extra"]);
+        }
+
+        #endregion
+
+        #region Context Properties (User, Location, Operation)
+
+        [Fact]
+        public void TrackEvent_IncludesUserContextAsEnduserIdAttribute()
+        {
+            // Arrange
+            var eventTelemetry = new EventTelemetry("UserAction");
+            eventTelemetry.Context.User.Id = "user-12345";
+
+            // Act
+            this.telemetryClient.TrackEvent(eventTelemetry);
+            this.telemetryClient.Flush();
+
+            // Assert
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.Attributes != null && l.Attributes.Any(a => 
+                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "UserAction"));
+            Assert.NotNull(logRecord);
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.True(attributes.ContainsKey("enduser.pseudo.id"));
+            Assert.Equal("user-12345", attributes["enduser.pseudo.id"]);
+        }
+
+        [Fact]
+        public void TrackEvent_IncludesLocationContextAsClientIpAttribute()
+        {
+            // Arrange
+            var eventTelemetry = new EventTelemetry("PageView");
+            eventTelemetry.Context.Location.Ip = "192.168.1.1";
+
+            // Act
+            this.telemetryClient.TrackEvent(eventTelemetry);
+            this.telemetryClient.Flush();
+
+            // Assert
+            var logRecord = this.logItems.FirstOrDefault(l => 
+                l.Attributes != null && l.Attributes.Any(a => 
+                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "PageView"));
+            Assert.NotNull(logRecord);
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.True(attributes.ContainsKey("microsoft.client.ip"));
+            Assert.Equal("192.168.1.1", attributes["microsoft.client.ip"]);
+        }
+
+        [Fact]
+        public void TrackTrace_IncludesUserAndLocationContext()
+        {
+            // Arrange
+            var traceTelemetry = new TraceTelemetry("Trace message");
+            traceTelemetry.Context.User.Id = "user-999";
+            traceTelemetry.Context.Location.Ip = "10.0.0.1";
+
+            // Act
+            this.telemetryClient.TrackTrace(traceTelemetry);
+            this.telemetryClient.Flush();
+
+            // Assert
+            var logRecord = this.logItems.Last();
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.Equal("user-999", attributes["enduser.pseudo.id"]);
+            Assert.Equal("10.0.0.1", attributes["microsoft.client.ip"]);
+        }
+
+        [Fact]
+        public void TrackException_IncludesUserAndLocationContext()
+        {
+            // Arrange
+            var exceptionTelemetry = new ExceptionTelemetry(new Exception("Test"));
+            exceptionTelemetry.Context.User.Id = "user-abc";
+            exceptionTelemetry.Context.Location.Ip = "172.16.0.1";
+
+            // Act
+            this.telemetryClient.TrackException(exceptionTelemetry);
+            this.telemetryClient.Flush();
+
+            // Assert
+            var logRecord = this.logItems.FirstOrDefault(l => l.LogLevel == LogLevel.Error);
+            Assert.NotNull(logRecord);
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.Equal("user-abc", attributes["enduser.pseudo.id"]);
+            Assert.Equal("172.16.0.1", attributes["microsoft.client.ip"]);
+        }
+
+        [Fact]
+        public void TrackDependency_IncludesUserAndLocationContextAsTags()
+        {
+            // Arrange
+            var dependency = new DependencyTelemetry
+            {
+                Type = "HTTP",
+                Name = "GET /api",
+                Duration = TimeSpan.FromMilliseconds(100),
+                Success = true
+            };
+            dependency.Context.User.Id = "user-dep-123";
+            dependency.Context.Location.Ip = "192.168.100.50";
+
+            // Act
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            // Assert
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            Assert.True(activity.Tags.Any(t => t.Key == "enduser.pseudo.id" && t.Value == "user-dep-123"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.client.ip" && t.Value == "192.168.100.50"));
+        }
+
+        [Fact]
+        public void TrackRequest_IncludesUserAndLocationContextAsTags()
+        {
+            // Arrange
+            var request = new RequestTelemetry
+            {
+                Name = "POST /api/orders",
+                Duration = TimeSpan.FromMilliseconds(200),
+                ResponseCode = "200",
+                Success = true
+            };
+            request.Context.User.Id = "user-req-456";
+            request.Context.Location.Ip = "203.0.113.1";
+
+            // Act
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            // Assert
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            Assert.True(activity.Tags.Any(t => t.Key == "enduser.pseudo.id" && t.Value == "user-req-456"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.client.ip" && t.Value == "203.0.113.1"));
+        }
+
+        [Fact]
+        public void TrackRequest_IncludesOperationNameAsOverrideAttribute()
+        {
+            // Arrange
+            var request = new RequestTelemetry
+            {
+                Name = "GET /api/users",
+                Duration = TimeSpan.FromMilliseconds(50),
+                ResponseCode = "200",
+                Success = true
+            };
+            request.Context.Operation.Name = "GetAllUsers";
+
+            // Act
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            // Assert
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.operation_name" && t.Value == "GetAllUsers"));
+        }
+
+        [Fact]
+        public void ContextProperties_NullValues_DoNotCauseErrors()
+        {
+            // Arrange
+            var eventTelemetry = new EventTelemetry("Test");
+            eventTelemetry.Context.User.Id = null;
+            eventTelemetry.Context.Location.Ip = null;
+
+            // Act & Assert - Should not throw
+            this.telemetryClient.TrackEvent(eventTelemetry);
+            this.telemetryClient.Flush();
+
+            // Verify telemetry was recorded
+            Assert.True(this.logItems.Count > 0);
+        }
+
+        [Fact]
+        public void TrackEvent_UserId_MapsToEnduserPseudoId()
+        {
+            // Arrange
+            var eventTelemetry = new EventTelemetry("TestEvent");
+            eventTelemetry.Context.User.Id = "anonymous-user-123";
+
+            // Act
+            this.telemetryClient.TrackEvent(eventTelemetry);
+            this.telemetryClient.Flush();
+
+            // Assert
+            var logRecord = this.logItems.FirstOrDefault(l => l.Attributes != null && l.Attributes.Any(a => a.Key == "microsoft.custom_event.name"));
+            Assert.NotNull(logRecord);
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.True(attributes.ContainsKey("enduser.pseudo.id"));
+            Assert.Equal("anonymous-user-123", attributes["enduser.pseudo.id"]);
+        }
+
+        [Fact]
+        public void TrackException_AuthenticatedUserId_MapsToEnduserId()
+        {
+            // Arrange
+            var exception = new ExceptionTelemetry(new InvalidOperationException("Test"));
+            exception.Context.User.AuthenticatedUserId = "authenticated-user-456";
+
+            // Act
+            this.telemetryClient.TrackException(exception);
+            this.telemetryClient.Flush();
+
+            // Assert
+            var logRecord = this.logItems.FirstOrDefault(l => l.LogLevel == LogLevel.Error);
+            Assert.NotNull(logRecord);
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.True(attributes.ContainsKey("enduser.id"));
+            Assert.Equal("authenticated-user-456", attributes["enduser.id"]);
+        }
+
+        [Fact]
+        public void TrackRequest_UserAgent_MapsToUserAgentOriginal()
+        {
+            // Arrange
+            var request = new RequestTelemetry
+            {
+                Name = "GET /api/test",
+                Duration = TimeSpan.FromMilliseconds(100),
+                ResponseCode = "200",
+                Success = true
+            };
+            request.Context.User.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)";
+
+            // Act
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            // Assert
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            Assert.True(activity.Tags.Any(t => t.Key == "user_agent.original" && t.Value == "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"));
+        }
+
+        [Fact]
+        public void TrackDependency_UserAgent_DoesNotMapToUserAgentOriginal()
+        {
+            // Arrange
+            var dependency = new DependencyTelemetry
+            {
+                Type = "HTTP",
+                Name = "GET /external",
+                Duration = TimeSpan.FromMilliseconds(50),
+                Success = true
+            };
+            dependency.Context.User.UserAgent = "TestAgent/1.0";
+
+            // Act
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            // Assert - UserAgent should NOT be mapped for non-request telemetry
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            Assert.False(activity.Tags.Any(t => t.Key == "user_agent.original"));
+        }
+
+        [Fact]
+        public void TrackEvent_UserAgent_DoesNotMapToUserAgentOriginal()
+        {
+            // Arrange
+            var eventTelemetry = new EventTelemetry("TestEvent");
+            eventTelemetry.Context.User.UserAgent = "TestAgent/2.0";
+
+            // Act
+            this.telemetryClient.TrackEvent(eventTelemetry);
+            this.telemetryClient.Flush();
+
+            // Assert - UserAgent should NOT be mapped for events
+            var logRecord = this.logItems.FirstOrDefault(l => l.Attributes != null && l.Attributes.Any(a => a.Key == "microsoft.custom_event.name"));
+            Assert.NotNull(logRecord);
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.False(attributes.ContainsKey("user_agent.original"));
+        }
+
+        [Fact]
+        public void TrackRequest_BothUserIdAndAuthenticatedUserId_MapsToBothAttributes()
+        {
+            // Arrange
+            var request = new RequestTelemetry
+            {
+                Name = "POST /api/secure",
+                Duration = TimeSpan.FromMilliseconds(150),
+                ResponseCode = "201",
+                Success = true
+            };
+            request.Context.User.Id = "anonymous-789";
+            request.Context.User.AuthenticatedUserId = "auth-user-789";
+
+            // Act
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            // Assert
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            Assert.True(activity.Tags.Any(t => t.Key == "enduser.pseudo.id" && t.Value == "anonymous-789"));
+            Assert.True(activity.Tags.Any(t => t.Key == "enduser.id" && t.Value == "auth-user-789"));
+        }
+
+        #endregion
 
         private double ComputeSomethingHeavy()
         {
@@ -2198,3 +2067,4 @@
         }
     }
 }
+

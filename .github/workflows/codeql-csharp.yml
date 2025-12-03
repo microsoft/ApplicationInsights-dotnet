@@ -45,13 +45,7 @@ jobs:
       fail-fast: false
       matrix:
         solution:
-          - ./NETCORE/ApplicationInsights.AspNetCore.sln
-          - ./Everything.sln
-          - ./ProjectsForSigning.sln
-          - ./examples/Examples.sln
-          - ./LOGGING/Logging.sln
-          - ./BASE/Microsoft.ApplicationInsights.sln
-          - ./WEB/Src/Microsoft.ApplicationInsights.Web.sln
+          - ./SHIM/Microsoft.ApplicationInsights.Shim.sln
         include:
         - language: csharp
           build-mode: manual
@@ -72,11 +66,9 @@ jobs:
       uses: actions/setup-dotnet@v4.3.1
       with:
         dotnet-version: |
-            3.1.x
-            6.0.x
-            7.0.x
             8.0.x
             9.0.x
+            10.0.x
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
@@ -84,6 +76,7 @@ jobs:
       with:
         languages: ${{ matrix.language }}
         build-mode: ${{ matrix.build-mode }}
+        config-file: ./.github/codeql/codeql-config.yml
         # If you wish to specify custom queries, you can do so here or in a config file.
         # By default, queries listed here will override any specified in a config file.
         # Prefix the list here with "+" to use these queries and those in the config file.

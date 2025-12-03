@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Specialized;
     using System.Web;
-    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
@@ -19,7 +18,7 @@
         public static string UnvalidatedGetHeader(this HttpRequest httpRequest, string headerName)
         {
             string value = httpRequest.Unvalidated.Headers[headerName];
-            return StringUtilities.EnforceMaxLength(value, InjectionGuardConstants.RequestHeaderMaxLength);
+            return string.Empty;
         }
 
         public static Uri UnvalidatedGetUrl(this HttpRequest httpRequest)

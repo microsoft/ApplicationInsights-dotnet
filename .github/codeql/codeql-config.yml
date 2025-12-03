@@ -1,0 +1,13 @@
+name: "CodeQL config"
+
+# Suppress false positive alerts for Activity Processors
+# These processors read Application Insights telemetry tracking cookies set by the JavaScript SDK
+# for correlation purposes. They are not authentication cookies, and the impact of user-controlled
+# values is limited to incorrect telemetry data, not a security breach.
+
+query-filters:
+  - exclude:
+      id: cs/user-controlled-bypass
+      paths:
+        - "**/WEB/Src/Web/Web/AccountIdActivityProcessor.cs"
+        - "**/WEB/Src/Web/Web/AuthenticatedUserIdActivityProcessor.cs"
