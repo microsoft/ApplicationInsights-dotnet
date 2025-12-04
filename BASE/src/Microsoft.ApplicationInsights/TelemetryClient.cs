@@ -477,6 +477,7 @@
         /// </remarks>
         public void TrackException(ExceptionTelemetry telemetry)
         {
+            // TODO investigate how problem id, custom message, etc should appear in portal
             if (telemetry == null)
             {
                 var exception = new Exception(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
