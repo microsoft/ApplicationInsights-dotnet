@@ -36,15 +36,15 @@ The following packages are published from this repository:
 
 |  | Latest Official Release | Latest Official Release (including pre-release) |
 |---|---|---|
-| **Base SDKs** |  |  |  |
+| **Base SDKs** |  |  |
 | - [Microsoft.ApplicationInsights](https://www.nuget.org/packages/Microsoft.ApplicationInsights/) | [![Nuget](https://img.shields.io/nuget/v/Microsoft.ApplicationInsights.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights/) | [![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights/) |
 | **Auto Collectors (ASP.NET)** |  |  |  |
 | - [Microsoft.ApplicationInsights.Web](https://www.nuget.org/packages/Microsoft.ApplicationInsights.Web/) | [![Nuget](https://img.shields.io/nuget/v/Microsoft.ApplicationInsights.Web.svg)](https://nuget.org/packages/Microsoft.ApplicationInsights.Web) | [![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.Web.svg)](https://nuget.org/packages/Microsoft.ApplicationInsights.Web) |
-| **Auto Collectors (ASP.NET Core)** |  |  |  |
+| **Auto Collectors (ASP.NET Core)** |  |  |
 | - [Microsoft.ApplicationInsights.AspNetCore](https://www.nuget.org/packages/Microsoft.ApplicationInsights.AspNetCore/) | [![Nuget](https://img.shields.io/nuget/v/Microsoft.ApplicationInsights.AspNetCore.svg)](https://nuget.org/packages/Microsoft.ApplicationInsights.AspNetCore) | [![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.AspNetCore.svg)](https://nuget.org/packages/Microsoft.ApplicationInsights.AspNetCore) |
-| **Auto Collectors (WorkerService, Console Application, etc.)** |  |  |  |
+| **Auto Collectors (WorkerService, Console Application, etc.)** |  |  |
 | - [Microsoft.ApplicationInsights.WorkerService](https://www.nuget.org/packages/Microsoft.ApplicationInsights.WorkerService/) | [![Nuget](https://img.shields.io/nuget/v/Microsoft.ApplicationInsights.WorkerService.svg)](https://nuget.org/packages/Microsoft.ApplicationInsights.WorkerService) | [![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.WorkerService.svg)](https://nuget.org/packages/Microsoft.ApplicationInsights.WorkerService) |
-| **Logging Adapters** |  |  |  |
+| **Logging Adapters** |  |  |
 | - For `NLog`: [Microsoft.ApplicationInsights.NLogTarget](http://www.nuget.org/packages/Microsoft.ApplicationInsights.NLogTarget/) | [![Nuget](https://img.shields.io/nuget/v/Microsoft.ApplicationInsights.NLogTarget.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.NLogTarget/) | [![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.NLogTarget.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.NLogTarget/) |
 
 Customers are encouraged to use the latest stable version as that is the version that will get fixes and updates. 
