@@ -31,14 +31,11 @@ The `TelemetryClient` also exposes several `Track` methods that can be used to s
 Please review the full [API summary for custom events and metrics](https://docs.microsoft.com/azure/azure-monitor/app/api-custom-events-metrics) for more examples.
 
 ```C#
-tc.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
-
 tc.TrackTrace(message: "Custom message.");
 
 tc.TrackEvent(
     eventName: "PurchaseOrderSubmitted", 
-    properties: new Dictionary<string, string>() { { "CouponCode", "JULY2015" } }, 
-    metrics: new Dictionary<string, double>() { { "OrderTotal", 68.99 }, { "ItemsOrdered", 5 } }
+    properties: new Dictionary<string, string>() { { "CouponCode", "JULY2015" } }
     );
 	
 try
@@ -51,34 +48,11 @@ catch(Exception ex)
 }
 ``` 
 
-### Flushing
-When your application is shutting down, we recommend Flushing the `TelemetryClient` to clear the buffer and prevent telemetry from being lost.
-
-Please review our examples here: [Flushing data](https://learn.microsoft.com/azure/azure-monitor/app/api-custom-events-metrics#flushing-data).
-
-## Telemetry Channels
-Telemetry channels are responsible for sending the telemetry data to the designated place. Optional features can be provided by the telemetry channels, for example, buffering the data and sending in them in batches, persisting the data to a local storage in case of transmission failure (e.g. network outage), traffic shaping and retry mechanisms
-
-The .NET and .NET Core versions of the SDKs provide two built-in telemetry channels:
-- [InMemoryChannel](https://github.com/microsoft/ApplicationInsights-dotnet/blob/develop/BASE/src/Microsoft.ApplicationInsights/Channel/InMemoryChannel.cs): A lightweight channel that buffers items in memory until they're sent. Items are buffered in memory and flushed once every 30 seconds, or whenever 500 items are buffered.
-- [ServerTelemetryChannel](https://github.com/microsoft/ApplicationInsights-dotnet/blob/develop/BASE/src/ServerTelemetryChannel/ServerTelemetryChannel.cs): A more advanced channel that has retry policies and the capability to store data on a local disk.
-
-Please review our full guide on [Telemetry Channels in Application Insights](https://docs.microsoft.com/azure/azure-monitor/app/telemetry-channels).
-
-## TelemetryProcessors and TelemetryInitializers
-You can write and configure plug-ins for the Application Insights SDK to customize how telemetry can be enriched and processed before it's sent to the Application Insights service.
-
-Please review our full guide on [Filtering and preprocessing telemetry](https://docs.microsoft.com/azure/azure-monitor/app/api-filtering-sampling).
-
 ## Telemetry correlation
 Application Insights supports distributed telemetry correlation, which you use to detect which component is responsible for failures or performance degradation.
 
 Please review our full guide on [Telemetry correlation in Application Insights](https://docs.microsoft.com/azure/azure-monitor/app/correlation).
 
-## Custom metric collection
-The Azure Monitor Application Insights .NET and .NET Core SDKs have two different methods of collecting custom metrics, `TrackMetric()`, and `GetMetric()`. The key difference between these two methods is local aggregation.
-
-Please review our full guide on [Custom metric collection in .NET and .NET Core](https://docs.microsoft.com/azure/azure-monitor/app/get-metric).
 
 ## Sampling
 Sampling is the recommended way to reduce telemetry traffic, data costs, and storage costs, while preserving a statistically correct analysis of application data.
