@@ -1,10 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
-    using System;
-    using System.Collections.Generic;
-    using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
-
     /// <summary>
     /// Encapsulates information about a user using an application.
     /// </summary>
@@ -32,15 +27,6 @@
         }
 
         /// <summary>
-        /// Gets or sets the ID of an application-defined account associated with the user.
-        /// </summary>
-        public string AccountId
-        {
-            get { return string.IsNullOrEmpty(this.accountId) ? null : this.accountId; }
-            set { this.accountId = value; }
-        }
-
-        /// <summary>
         /// Gets or sets the UserAgent of an application-defined account associated with the user.
         /// </summary>
         public string UserAgent
@@ -59,19 +45,13 @@
             set { this.authenticatedUserId = value; }
         }
 
-        internal void UpdateTags(IDictionary<string, string> tags)
+        /// <summary>
+        /// Gets or sets the ID of an application-defined account associated with the user.
+        /// </summary>
+        internal string AccountId
         {
-            tags.UpdateTagValue(ContextTagKeys.Keys.UserId, this.Id);
-            tags.UpdateTagValue(ContextTagKeys.Keys.UserAccountId, this.AccountId);
-            tags.UpdateTagValue(ContextTagKeys.Keys.UserAuthUserId, this.AuthenticatedUserId);
-        }
-        
-        internal void CopyTo(UserContext target)
-        {
-            Tags.CopyTagValue(this.Id, ref target.id);
-            Tags.CopyTagValue(this.AccountId, ref target.accountId);
-            Tags.CopyTagValue(this.UserAgent, ref target.userAgent);
-            Tags.CopyTagValue(this.AuthenticatedUserId, ref target.authenticatedUserId);
+            get { return string.IsNullOrEmpty(this.accountId) ? null : this.accountId; }
+            set { this.accountId = value; }
         }
     }
 }

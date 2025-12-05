@@ -1,11 +1,9 @@
 using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using System;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +12,7 @@ namespace WorkerService
 {
     public class Worker : BackgroundService
     {
+        private static readonly ActivitySource activitySource = new ActivitySource("WorkerServiceSampleWithApplicationInsights.Worker");
         private readonly ILogger<Worker> _logger;
         private TelemetryClient tc;
         private static HttpClient httpClient = new HttpClient();
@@ -33,11 +32,19 @@ namespace WorkerService
                 // as appsettings.json configured Information level for the category 'WorkerServiceSampleWithApplicationInsights.Worker'
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
-                using (tc.StartOperation<RequestTelemetry>("workeroperation"))
+                using (var activity = activitySource.StartActivity("workeroperation", ActivityKind.Server))
                 {
                     var res = httpClient.GetAsync("https://bing.com").Result.StatusCode;
                     _logger.LogInformation("bing http call completed with status:" + res);
                 }
+
+                // TODO: Uncomment after we shim start operation.
+                /*
+                using (tc.StartOperation<RequestTelemetry>("workeroperation"))
+                {
+                    var res = httpClient.GetAsync("https://bing.com").Result.StatusCode;
+                    _logger.LogInformation("bing http call completed with status:" + res);
+                }*/
 
                 await Task.Delay(1000, stoppingToken);
             }

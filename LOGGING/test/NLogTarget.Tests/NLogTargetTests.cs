@@ -2,296 +2,322 @@
 {
     using System;
     using System.Linq;
-
-    using Microsoft.ApplicationInsights.CommonTestShared;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.NLogTarget;
-    using Microsoft.ApplicationInsights.Tracing.Tests;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+    using Xunit;
     using NLog;
     using NLog.Config;
+    using NLog.Targets;
+    using TargetPropertyWithContext = Microsoft.ApplicationInsights.NLogTarget.TargetPropertyWithContext;
 
-    [TestClass]
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable", Justification = "Disposing the object on the TestCleanup method")]
-    public class ApplicationInsightsTargetTests
+    public class ApplicationInsightsTargetTests : IDisposable
     {
-        private AdapterHelper adapterHelper;
+        private const string DefaultInstrumentationKey = "F8474271-D231-45B6-8DD4-D344C309AE69";
+        private const string DefaultConnectionString = "InstrumentationKey=" + DefaultInstrumentationKey;
 
-        public TestContext TestContext { get; set; }
+        private TelemetryTestEnvironment telemetryEnvironment;
 
-        [TestInitialize]
-        public void Initialize()
+        public ApplicationInsightsTargetTests()
         {
-            this.adapterHelper = new AdapterHelper();
+            LogManager.ThrowExceptions = true;
+            this.telemetryEnvironment = new TelemetryTestEnvironment();
+            this.telemetryEnvironment.Collector.Clear();
+            LogManager.Configuration = null;
         }
 
-        [TestCleanup]
-        public void Cleanup()
+        public void Dispose()
         {
+            try
+            {
+                LogManager.Configuration = null;
+            }
+            finally
+            {
+                LogManager.Shutdown();
+            }
+
             NLog.GlobalDiagnosticsContext.Clear();
-            this.adapterHelper.Dispose();
+            this.telemetryEnvironment?.Dispose();
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void InitializeTargetNotThrowsWhenInstrumentationKeyIsNull()
+        [Fact]
+        [Trait("Category", "NLogTarget")]
+        public void InitializeTargetThrowsWhenConnectionStringIsNull()
         {
-            try
+            var target = new ApplicationInsightsTarget
             {
-                this.CreateTargetWithGivenInstrumentationKey(null);
-            }
-            catch (NLogConfigurationException ex)
+                ConnectionString = null
+            };
+
+            var rule = new LoggingRule("*", LogLevel.Trace, target);
+            var config = new LoggingConfiguration();
+            config.AddTarget("AITarget", target);
+            config.LoggingRules.Add(rule);
+
+            Assert.Throws<NLogConfigurationException>(() =>
             {
-                Assert.Fail("Not expecting to get NLogConfigurationException but was thrown {0}", ex.Message);
-            }
+                LogManager.Configuration = config;
+                var logger = LogManager.GetLogger("AITarget");
+                logger.Info("trigger");
+            });
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void InitializeTargetNotThrowsWhenInstrumentationKeyIsEmptyString()
+        [Fact]
+        [Trait("Category", "NLogTarget")]
+        public void InitializeTargetThrowsWhenConnectionStringIsEmpty()
         {
-            try
+            var target = new ApplicationInsightsTarget
             {
-                this.CreateTargetWithGivenInstrumentationKey(string.Empty);
-            }
-            catch (NLogConfigurationException ex)
+                ConnectionString = string.Empty
+            };
+
+            var rule = new LoggingRule("*", LogLevel.Trace, target);
+            var config = new LoggingConfiguration();
+            config.AddTarget("AITarget", target);
+            config.LoggingRules.Add(rule);
+
+            Assert.Throws<NLogConfigurationException>(() =>
             {
-                Assert.Fail("Expected NLogConfigurationException but none was thrown with message:{0}", ex.Message);
-            }
+                LogManager.Configuration = config;
+                var logger = LogManager.GetLogger("AITarget");
+                logger.Info("trigger");
+            });
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
+        [Fact]
+        [Trait("Category", "NLogTarget")]
         public void ExceptionsDoNotEscapeNLog()
         {
-            string instrumentationKey = "93d9c2b7-e633-4571-8520-d391511a1df5";
-
-            Action<Logger> loggerAction = aiLogger => aiLogger.Trace("Hello World");
-            this.CreateTargetWithGivenInstrumentationKey(instrumentationKey, loggerAction);
+            var logger = this.CreateLogger();
+            logger.Trace("Hello World");
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void TracesAreEnqueuedInChannel()
+        [Fact]
+        [Trait("Category", "NLogTarget")]
+        public async Task TracesAreCapturedByExporter()
         {
-            string instrumentationKey = "93d9c2b7-e633-4571-8520-d391511a1df5";
+            var logger = this.CreateLogger();
+            this.EmitAllLevels(logger);
 
-            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey(instrumentationKey);
-            this.VerifyMessagesInMockChannel(aiLogger, instrumentationKey);
+            await this.telemetryEnvironment.WaitForTelemetryAsync(expectedItemCount: 6).ConfigureAwait(false);
+
+            var traces = this.telemetryEnvironment.Collector.GetTelemetryOfType<TraceTelemetryEnvelope>();
+            Assert.Equal(6, traces.Count);
+            foreach (var trace in traces)
+            {
+                Assert.Equal(DefaultInstrumentationKey, trace.InstrumentationKey);
+            }
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void InstrumentationKeyIsReadFromEnvironment()
+        [Fact]
+        [Trait("Category", "NLogTarget")]
+        public async Task ConnectionStringIsResolvedFromEnvironment()
         {
-            string instrumentationKey = "F8474271-D231-45B6-8DD4-D344C309AE69";
+            const string variableName = "APPINSIGHTS_CONNECTION_STRING";
+            var connectionString = $"InstrumentationKey={Guid.NewGuid():D}";
+            Environment.SetEnvironmentVariable(variableName, connectionString);
 
-            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey(instrumentationKey);
-            this.VerifyMessagesInMockChannel(aiLogger, instrumentationKey);
+            try
+            {
+                var target = new ApplicationInsightsTarget
+                {
+                    ConnectionString = $"${{environment:variable={variableName}}}"
+                };
+
+                var logger = this.CreateLogger(connectionString: null, target: target);
+                logger.Info("environment based");
+
+                await this.telemetryEnvironment.WaitForTelemetryAsync(1).ConfigureAwait(false);
+
+                var trace = this.telemetryEnvironment.Collector.GetTelemetryOfType<TraceTelemetryEnvelope>().Single();
+                Assert.Equal(ExtractInstrumentationKey(connectionString), trace.InstrumentationKey);
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable(variableName, null);
+            }
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void InstrumentationKeyIsReadFromLayout()
+        [Fact]
+        [Trait("Category", "NLogTarget")]
+        public async Task ConnectionStringIsResolvedFromLayout()
         {
-            string instrumentationKey = "F8474271-D231-45B6-8DD4-D344C309AE69";
-
+            var connectionString = $"InstrumentationKey={Guid.NewGuid():D}";
             var gdcKey = Guid.NewGuid().ToString();
-            NLog.GlobalDiagnosticsContext.Set(gdcKey, instrumentationKey);
+            NLog.GlobalDiagnosticsContext.Set(gdcKey, connectionString);
 
-            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey($"${{gdc:item={gdcKey}}}");
-            this.VerifyMessagesInMockChannel(aiLogger, instrumentationKey);
+            var target = new ApplicationInsightsTarget
+            {
+                ConnectionString = $"${{gdc:item={gdcKey}}}"
+            };
+
+            var logger = this.CreateLogger(connectionString: null, target: target);
+            logger.Info("layout based");
+
+            await this.telemetryEnvironment.WaitForTelemetryAsync(1).ConfigureAwait(false);
+
+            var trace = this.telemetryEnvironment.Collector.GetTelemetryOfType<TraceTelemetryEnvelope>().Single();
+            Assert.Equal(ExtractInstrumentationKey(connectionString), trace.InstrumentationKey);
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void TraceAreEnqueuedInChannelAndContainAllProperties()
+        [Fact]
+        [Trait("Category", "NLogTarget")]
+        public async Task TracePayloadIncludesProperties()
         {
-            string instrumentationKey = "F8474271-D231-45B6-8DD4-D344C309AE69";
+            var logger = this.CreateLogger();
+            var value = Guid.NewGuid().ToString("N");
 
-            Random random = new Random();
-            int number = random.Next();
+            logger.Debug("Message {0}", value);
 
-            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey(instrumentationKey);
+            await this.telemetryEnvironment.WaitForTelemetryAsync(1).ConfigureAwait(false);
 
-            aiLogger.Debug("Message {0}, using instrumentation key:{1}", number, instrumentationKey);
-
-            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.IsNotNull(telemetry, "Didn't get the log event from the channel");
-
-            string loggerName;
-            telemetry.Properties.TryGetValue("LoggerName", out loggerName);
-            Assert.AreEqual("AITarget", loggerName);
+            var trace = this.telemetryEnvironment.Collector.GetTelemetryOfType<TraceTelemetryEnvelope>().Single();
+            Assert.Equal("AITarget", trace.Properties["LoggerName"]);
+            Assert.True(trace.Properties.Values.Any(v => v.Contains(value, StringComparison.Ordinal)));
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void SdkVersionIsCorrect()
+        [Fact]
+        [Trait("Category", "NLogTarget")]
+        public async Task SdkVersionIsPresentInExportedProperties()
         {
-            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+            var logger = this.CreateLogger();
+            logger.Debug("Message");
 
-            aiLogger.Debug("Message");
+            await this.telemetryEnvironment.WaitForTelemetryAsync(1).ConfigureAwait(false);
 
-            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
+            var trace = this.telemetryEnvironment.Collector.GetTelemetryOfType<TraceTelemetryEnvelope>().Single();
+            Assert.True(trace.Properties.TryGetValue("ai.internal.sdkVersion", out var sdkVersion));
 
-            string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(prefix: "nlog:", loggerType: typeof(ApplicationInsightsTarget));
-            Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
+            var expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(prefix: "nlog:", loggerType: typeof(ApplicationInsightsTarget));
+            Assert.Equal(expectedVersion, sdkVersion);
         }
 
-        [TestMethod]
-        [Ignore]
-        [TestCategory("NLogTarget")]
-        public void TelemetryIsAcceptedByValidateEndpoint()
+        [Fact]
+        [Trait("Category", "NLogTarget")]
+        public async Task TraceHasTimestamp()
         {
-            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+            var logger = this.CreateLogger();
+            logger.Debug("Message");
 
-            aiLogger.Debug("Message");
+            await this.telemetryEnvironment.WaitForTelemetryAsync(1).ConfigureAwait(false);
 
-            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
-
-            Assert.IsNull(TelemetrySender.ValidateEndpointSend(telemetry));
+            var trace = this.telemetryEnvironment.Collector.GetTelemetryOfType<TraceTelemetryEnvelope>().Single();
+            Assert.NotEqual(default, trace.Timestamp);
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void TraceHasTimestamp()
+        [Fact]
+        [Trait("Category", "NLogTarget")]
+        public async Task TraceMessageRespectsLayout()
         {
-            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+            var target = new ApplicationInsightsTarget
+            {
+                Layout = @"${uppercase:${level}} ${message}"
+            };
 
-            aiLogger.Debug("Message");
+            var logger = this.CreateLogger(connectionString: DefaultConnectionString, target: target);
+            logger.Debug("Message");
 
-            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.IsNotNull(telemetry, "Didn't get the log event from the channel");
+            await this.telemetryEnvironment.WaitForTelemetryAsync(1).ConfigureAwait(false);
 
-            Assert.AreNotEqual((default(DateTimeOffset)), telemetry.Timestamp);
+            var trace = this.telemetryEnvironment.Collector.GetTelemetryOfType<TraceTelemetryEnvelope>().Single();
+            Assert.Equal("DEBUG Message", trace.Message);
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void TraceMessageCanBeFormedUsingLayout()
+        [Fact]
+        [Trait("Category", "NLogTarget")]
+        public async Task TraceMessageDefaultsToOriginal()
         {
-            ApplicationInsightsTarget target = new ApplicationInsightsTarget();
-            target.Layout = @"${uppercase:${level}} ${message}";
+            var logger = this.CreateLogger();
+            logger.Debug("My Message");
 
-            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey("test", null, target);
+            await this.telemetryEnvironment.WaitForTelemetryAsync(1).ConfigureAwait(false);
 
-            aiLogger.Debug("Message");
-
-            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.IsNotNull(telemetry, "Didn't get the log event from the channel");
-
-            Assert.AreEqual("DEBUG Message", telemetry.Message);
+            var trace = this.telemetryEnvironment.Collector.GetTelemetryOfType<TraceTelemetryEnvelope>().Single();
+            Assert.Equal("My Message", trace.Message);
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void TraceMessageWithoutLayoutDefaultsToMessagePassed()
+        [Fact]
+        [Trait("Category", "NLogTarget")]
+        public async Task TraceHasCustomProperties()
         {
-            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
-
-            aiLogger.Debug("My Message");
-
-            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.IsNotNull(telemetry, "Didn't get the log event from the channel");
-
-            Assert.AreEqual("My Message", telemetry.Message);
-        }
-
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void TraceHasSequesnceId()
-        {
-            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
-
-            aiLogger.Debug("Message");
-
-            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.IsNotNull(telemetry, "Didn't get the log event from the channel");
-
-            Assert.AreNotEqual("0", telemetry.Sequence);
-        }
-
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void TraceHasCustomProperties()
-        {
-            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
-
+            var logger = this.CreateLogger();
             var eventInfo = new LogEventInfo(LogLevel.Trace, "TestLogger", "Hello!");
             eventInfo.Properties["Name"] = "Value";
-            aiLogger.Log(eventInfo);
+            logger.Log(eventInfo);
 
-            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.IsNotNull(telemetry, "Didn't get the log event from the channel");
-            Assert.AreEqual("Value", telemetry.Properties["Name"]); 
+            await this.telemetryEnvironment.WaitForTelemetryAsync(1).ConfigureAwait(false);
+
+            var trace = this.telemetryEnvironment.Collector.GetTelemetryOfType<TraceTelemetryEnvelope>().Single();
+            Assert.Equal("Value", trace.Properties["Name"]);
         }
 
-
-    [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void GlobalDiagnosticContextPropertiesAreAddedToProperties()
+        [Fact]
+        [Trait("Category", "NLogTarget")]
+        public async Task GlobalDiagnosticContextPropertiesAreAddedToProperties()
         {
-            ApplicationInsightsTarget target = new ApplicationInsightsTarget();
+            var target = new ApplicationInsightsTarget();
             target.ContextProperties.Add(new TargetPropertyWithContext("global_prop", "${gdc:item=global_prop}"));
-            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey(target: target);
+            var logger = this.CreateLogger(target: target);
 
             NLog.GlobalDiagnosticsContext.Set("global_prop", "global_value");
-            aiLogger.Debug("Message");
+            logger.Debug("Message");
 
-            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.AreEqual("global_value", telemetry.Properties["global_prop"]);
+            await this.telemetryEnvironment.WaitForTelemetryAsync(1).ConfigureAwait(false);
+
+            var trace = this.telemetryEnvironment.Collector.GetTelemetryOfType<TraceTelemetryEnvelope>().Single();
+            Assert.Equal("global_value", trace.Properties["global_prop"]);
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void GlobalDiagnosticContextPropertiesSupplementEventProperties()
+        [Fact]
+        [Trait("Category", "NLogTarget")]
+        public async Task GlobalDiagnosticContextPropertiesSupplementEventProperties()
         {
-            ApplicationInsightsTarget target = new ApplicationInsightsTarget();
+            var target = new ApplicationInsightsTarget();
             target.ContextProperties.Add(new TargetPropertyWithContext("global_prop", "${gdc:item=global_prop}"));
-            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey(target: target);
+            var logger = this.CreateLogger(target: target);
 
             NLog.GlobalDiagnosticsContext.Set("global_prop", "global_value");
 
             var eventInfo = new LogEventInfo(LogLevel.Trace, "TestLogger", "Hello!");
             eventInfo.Properties["Name"] = "Value";
-            aiLogger.Log(eventInfo);
+            logger.Log(eventInfo);
 
-            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.AreEqual("global_value", telemetry.Properties["global_prop"]); 
-            Assert.AreEqual("Value", telemetry.Properties["Name"]); 
+            await this.telemetryEnvironment.WaitForTelemetryAsync(1).ConfigureAwait(false);
+
+            var trace = this.telemetryEnvironment.Collector.GetTelemetryOfType<TraceTelemetryEnvelope>().Single();
+            Assert.Equal("global_value", trace.Properties["global_prop"]);
+            Assert.Equal("Value", trace.Properties["Name"]);
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
+        [Fact]
+        [Trait("Category", "NLogTarget")]
 #pragma warning disable CA1707 // Identifiers should not contain underscores
-        public void EventPropertyKeyNameIsAppendedWith_1_IfSameAsGlobalDiagnosticContextKeyName()
+        public async Task EventPropertyKeyNameIsAppendedWith_1_WhenConflictingWithGlobalDiagnosticContext()
 #pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            ApplicationInsightsTarget target = new ApplicationInsightsTarget();
+            var target = new ApplicationInsightsTarget();
             target.ContextProperties.Add(new TargetPropertyWithContext("Name", "${gdc:item=Name}"));
-            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey(target: target);
+            var logger = this.CreateLogger(target: target);
 
             NLog.GlobalDiagnosticsContext.Set("Name", "Global Value");
             var eventInfo = new LogEventInfo(LogLevel.Trace, "TestLogger", "Hello!");
             eventInfo.Properties["Name"] = "Value";
-            aiLogger.Log(eventInfo);
+            logger.Log(eventInfo);
 
-            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.IsTrue(telemetry.Properties.ContainsKey("Name")); 
-            Assert.AreEqual("Global Value", telemetry.Properties["Name"]); 
-            Assert.IsTrue(telemetry.Properties.ContainsKey("Name_1"), "Key name altered"); 
-            Assert.AreEqual("Value", telemetry.Properties["Name_1"]); 
+            await this.telemetryEnvironment.WaitForTelemetryAsync(1).ConfigureAwait(false);
+
+            var trace = this.telemetryEnvironment.Collector.GetTelemetryOfType<TraceTelemetryEnvelope>().Single();
+            Assert.Equal("Global Value", trace.Properties["Name"]);
+            Assert.Equal("Value", trace.Properties["Name_1"]);
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void TraceAreEnqueuedInChannelAndContainExceptionMessage()
+        [Fact]
+        [Trait("Category", "NLogTarget")]
+        public async Task ExceptionTelemetryContainsExceptionDetails()
         {
-            string instrumentationKey = "F8474271-D231-45B6-8DD4-D344C309AE69";
-            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey(instrumentationKey);
+            var logger = this.CreateLogger();
             Exception expectedException;
 
             try
@@ -301,19 +327,21 @@
             catch (Exception exception)
             {
                 expectedException = exception;
-                aiLogger.Debug(exception, "testing exception scenario");
+                logger.Debug(exception, "testing exception scenario");
             }
 
-            var telemetry = (ExceptionTelemetry)this.adapterHelper.Channel.SentItems.First();
-            Assert.AreEqual("System.Exception: Test logging exception", telemetry.Message);
-            Assert.AreEqual(expectedException.Message, telemetry.Exception.Message);
+            await this.telemetryEnvironment.WaitForTelemetryAsync(1).ConfigureAwait(false);
+
+            var exceptionTelemetry = this.telemetryEnvironment.Collector.GetTelemetryOfType<ExceptionTelemetryEnvelope>().Single();
+            Assert.Equal("System.Exception: Test logging exception", exceptionTelemetry.Message);
+            Assert.Equal(expectedException.GetType().FullName, exceptionTelemetry.TypeName);
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void CustomMessageIsAddedToExceptionTelemetryCustomProperties()
+        [Fact]
+        [Trait("Category", "NLogTarget")]
+        public async Task CustomMessageIsAddedToExceptionTelemetryCustomProperties()
         {
-            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+            var logger = this.CreateLogger();
 
             try
             {
@@ -321,88 +349,96 @@
             }
             catch (Exception exception)
             {
-                aiLogger.Debug(exception, "custom message");
+                logger.Debug(exception, "custom message");
             }
 
-            ExceptionTelemetry telemetry = (ExceptionTelemetry)this.adapterHelper.Channel.SentItems.First();
-            Assert.AreEqual("System.Exception: Test logging exception", telemetry.Message);
-            Assert.IsTrue(telemetry.Properties["Message"].StartsWith("custom message", StringComparison.Ordinal));
+            await this.telemetryEnvironment.WaitForTelemetryAsync(1).ConfigureAwait(false);
+
+            var exceptionTelemetry = this.telemetryEnvironment.Collector.GetTelemetryOfType<ExceptionTelemetryEnvelope>().Single();
+            Assert.Equal("System.Exception: Test logging exception", exceptionTelemetry.Message);
+            Assert.True(exceptionTelemetry.Properties.TryGetValue("Message", out var messageProperty) && messageProperty.StartsWith("custom message", StringComparison.Ordinal));
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void NLogTraceIsSentAsVerboseTraceItem()
+        [Fact]
+        [Trait("Category", "NLogTarget")]
+        public async Task NLogTraceIsSentAsVerboseTraceItem()
         {
-            var aiLogger = this.CreateTargetWithGivenInstrumentationKey("F8474271-D231-45B6-8DD4-D344C309AE69");
+            var logger = this.CreateLogger();
+            logger.Trace("trace");
 
-            aiLogger.Trace("trace");
+            await this.telemetryEnvironment.WaitForTelemetryAsync(1).ConfigureAwait(false);
 
-            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.AreEqual(SeverityLevel.Verbose, telemetry.SeverityLevel);
+            var trace = this.telemetryEnvironment.Collector.GetTelemetryOfType<TraceTelemetryEnvelope>().Single();
+            Assert.Equal(SeverityLevel.Verbose, ToSeverityLevel(trace.SeverityLevel));
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void NLogDebugIsSentAsVerboseTraceItem()
+        [Fact]
+        [Trait("Category", "NLogTarget")]
+        public async Task NLogDebugIsSentAsVerboseTraceItem()
         {
-            var aiLogger = this.CreateTargetWithGivenInstrumentationKey("F8474271-D231-45B6-8DD4-D344C309AE69");
+            var logger = this.CreateLogger();
+            logger.Debug("trace");
 
-            aiLogger.Debug("trace");
+            await this.telemetryEnvironment.WaitForTelemetryAsync(1).ConfigureAwait(false);
 
-            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.AreEqual(SeverityLevel.Verbose, telemetry.SeverityLevel);
+            var trace = this.telemetryEnvironment.Collector.GetTelemetryOfType<TraceTelemetryEnvelope>().Single();
+            Assert.Equal(SeverityLevel.Verbose, ToSeverityLevel(trace.SeverityLevel));
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void NLogInfoIsSentAsInformationTraceItem()
+        [Fact]
+        [Trait("Category", "NLogTarget")]
+        public async Task NLogInfoIsSentAsInformationTraceItem()
         {
-            var aiLogger = this.CreateTargetWithGivenInstrumentationKey("F8474271-D231-45B6-8DD4-D344C309AE69");
+            var logger = this.CreateLogger();
+            logger.Info("trace");
 
-            aiLogger.Info("trace");
+            await this.telemetryEnvironment.WaitForTelemetryAsync(1).ConfigureAwait(false);
 
-            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.AreEqual(SeverityLevel.Information, telemetry.SeverityLevel);
+            var trace = this.telemetryEnvironment.Collector.GetTelemetryOfType<TraceTelemetryEnvelope>().Single();
+            Assert.Equal(SeverityLevel.Information, ToSeverityLevel(trace.SeverityLevel));
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void NLogWarnIsSentAsWarningTraceItem()
+        [Fact]
+        [Trait("Category", "NLogTarget")]
+        public async Task NLogWarnIsSentAsWarningTraceItem()
         {
-            var aiLogger = this.CreateTargetWithGivenInstrumentationKey("F8474271-D231-45B6-8DD4-D344C309AE69");
+            var logger = this.CreateLogger();
+            logger.Warn("trace");
 
-            aiLogger.Warn("trace");
+            await this.telemetryEnvironment.WaitForTelemetryAsync(1).ConfigureAwait(false);
 
-            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.AreEqual(SeverityLevel.Warning, telemetry.SeverityLevel);
+            var trace = this.telemetryEnvironment.Collector.GetTelemetryOfType<TraceTelemetryEnvelope>().Single();
+            Assert.Equal(SeverityLevel.Warning, ToSeverityLevel(trace.SeverityLevel));
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void NLogErrorIsSentAsErrorTraceItem()
+        [Fact]
+        [Trait("Category", "NLogTarget")]
+        public async Task NLogErrorIsSentAsErrorTraceItem()
         {
-            var aiLogger = this.CreateTargetWithGivenInstrumentationKey("F8474271-D231-45B6-8DD4-D344C309AE69");
+            var logger = this.CreateLogger();
+            logger.Error("trace");
 
-            aiLogger.Error("trace");
+            await this.telemetryEnvironment.WaitForTelemetryAsync(1).ConfigureAwait(false);
 
-            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.AreEqual(SeverityLevel.Error, telemetry.SeverityLevel);
+            var trace = this.telemetryEnvironment.Collector.GetTelemetryOfType<TraceTelemetryEnvelope>().Single();
+            Assert.Equal(SeverityLevel.Error, ToSeverityLevel(trace.SeverityLevel));
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
-        public void NLogFatalIsSentAsCriticalTraceItem()
+        [Fact]
+        [Trait("Category", "NLogTarget")]
+        public async Task NLogFatalIsSentAsCriticalTraceItem()
         {
-            var aiLogger = this.CreateTargetWithGivenInstrumentationKey("F8474271-D231-45B6-8DD4-D344C309AE69");
+            var logger = this.CreateLogger();
+            logger.Fatal("trace");
 
-            aiLogger.Fatal("trace");
+            await this.telemetryEnvironment.WaitForTelemetryAsync(1).ConfigureAwait(false);
 
-            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.AreEqual(SeverityLevel.Critical, telemetry.SeverityLevel);
+            var trace = this.telemetryEnvironment.Collector.GetTelemetryOfType<TraceTelemetryEnvelope>().Single();
+            Assert.Equal(SeverityLevel.Critical, ToSeverityLevel(trace.SeverityLevel));
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
+        [Fact]
+        [Trait("Category", "NLogTarget")]
         public void NLogPropertyDuplicateKeyDuplicateValue()
         {
             var aiTarget = new ApplicationInsightsTarget();
@@ -416,12 +452,12 @@
 
             aiTarget.BuildPropertyBag(logEventInfo, traceTelemetry);
 
-            Assert.IsTrue(traceTelemetry.Properties.ContainsKey("LoggerName"));
-            Assert.AreEqual(loggerNameVal, traceTelemetry.Properties["LoggerName"]);
+            Assert.True(traceTelemetry.Properties.ContainsKey("LoggerName"));
+            Assert.Equal(loggerNameVal, traceTelemetry.Properties["LoggerName"]);
         }
 
-        [TestMethod]
-        [TestCategory("NLogTarget")]
+        [Fact]
+        [Trait("Category", "NLogTarget")]
         public void NLogPropertyDuplicateKeyDifferentValue()
         {
             var aiTarget = new ApplicationInsightsTarget();
@@ -436,73 +472,112 @@
 
             aiTarget.BuildPropertyBag(logEventInfo, traceTelemetry);
 
-            Assert.IsTrue(traceTelemetry.Properties.ContainsKey("LoggerName"));
-            Assert.AreEqual(loggerNameVal, traceTelemetry.Properties["LoggerName"]);
+            Assert.True(traceTelemetry.Properties.ContainsKey("LoggerName"));
+            Assert.Equal(loggerNameVal, traceTelemetry.Properties["LoggerName"]);
 
-            Assert.IsTrue(traceTelemetry.Properties.ContainsKey("LoggerName_1"));
-            Assert.AreEqual(loggerNameVal2, traceTelemetry.Properties["LoggerName_1"]);
+            Assert.True(traceTelemetry.Properties.ContainsKey("LoggerName_1"));
+            Assert.Equal(loggerNameVal2, traceTelemetry.Properties["LoggerName_1"]);
         }
 
-
-        [TestMethod]
-        [TestCategory("NLogTarget")]
+        [Fact]
+        [Trait("Category", "NLogTarget")]
         public void NLogTargetFlushesTelemetryClient()
         {
-            var aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+            var logger = this.CreateLogger();
 
-            var flushEvent = new System.Threading.ManualResetEvent(false);
+            var flushEvent = new ManualResetEvent(false);
             Exception flushException = null;
-            NLog.Common.AsyncContinuation asyncContinuation = (ex) => { flushException = ex; flushEvent.Set(); };
-            aiLogger.Factory.Flush(asyncContinuation, 5000);
-            Assert.IsTrue(flushEvent.WaitOne(5000));
-            Assert.IsNotNull(flushException);
-            Assert.AreEqual("Flush called", flushException.Message);
-        }
-
-        private void VerifyMessagesInMockChannel(Logger aiLogger, string instrumentationKey)
-        {
-            aiLogger.Trace("Sample trace message");
-            aiLogger.Debug("Sample debug message");
-            aiLogger.Info("Sample informational message");
-            aiLogger.Warn("Sample warning message");
-            aiLogger.Error("Sample error message");
-            aiLogger.Fatal("Sample fatal error message");
-
-            AdapterHelper.ValidateChannel(this.adapterHelper, instrumentationKey, 6);
-        }
-
-        private Logger CreateTargetWithGivenInstrumentationKey(
-            string instrumentationKey = "TEST",
-            Action<Logger> loggerAction = null,
-            ApplicationInsightsTarget target = null)
-        {
-            // Mock channel to validate that our appender is trying to send logs
-#pragma warning disable CS0618 // Type or member is obsolete
-            TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
-#pragma warning restore CS0618 // Type or member is obsolete
-
-            if (target == null)
+            NLog.Common.AsyncContinuation asyncContinuation = ex =>
             {
-                target = new ApplicationInsightsTarget();
+                flushException = ex;
+                flushEvent.Set();
+            };
+
+            logger.Factory.Flush(asyncContinuation, 5000);
+            Assert.True(flushEvent.WaitOne(TimeSpan.FromSeconds(5)));
+            Assert.Null(flushException);
+        }
+
+        private Logger CreateLogger(string connectionString = DefaultConnectionString, ApplicationInsightsTarget target = null)
+        {
+            target ??= new ApplicationInsightsTarget();
+
+            if (connectionString != null)
+            {
+                target.ConnectionString = NormalizeConnectionString(connectionString);
             }
 
-            target.InstrumentationKey = instrumentationKey;
-            LoggingRule rule = new LoggingRule("*", LogLevel.Trace, target);
-            LoggingConfiguration config = new LoggingConfiguration();
+            var rule = new LoggingRule("*", LogLevel.Trace, target);
+            var config = new LoggingConfiguration();
             config.AddTarget("AITarget", target);
             config.LoggingRules.Add(rule);
 
             LogManager.Configuration = config;
-            Logger aiLogger = LogManager.GetLogger("AITarget");
+            var logger = LogManager.GetLogger("AITarget");
 
-            if (loggerAction != null)
+            this.telemetryEnvironment.ConfigureTarget(target);
+
+            return logger;
+        }
+
+        private void EmitAllLevels(Logger logger)
+        {
+            logger.Trace("Sample trace message");
+            logger.Debug("Sample debug message");
+            logger.Info("Sample informational message");
+            logger.Warn("Sample warning message");
+            logger.Error("Sample error message");
+            logger.Fatal("Sample fatal error message");
+        }
+
+        private static string ExtractInstrumentationKey(string connectionString)
+        {
+            if (string.IsNullOrWhiteSpace(connectionString))
             {
-                loggerAction(aiLogger);
-                target.Dispose();
+                return string.Empty;
+            }
+
+            var parts = connectionString.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var part in parts)
+            {
+                var kvp = part.Split(new[] { '=' }, 2);
+                if (kvp.Length == 2 && kvp[0].Trim().Equals("InstrumentationKey", StringComparison.OrdinalIgnoreCase))
+                {
+                    return kvp[1].Trim();
+                }
+            }
+
+            return string.Empty;
+        }
+
+        private static string NormalizeConnectionString(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return value;
+            }
+
+            if (value.Contains("${", StringComparison.Ordinal))
+            {
+                return value;
+            }
+
+            if (value.Contains('=') )
+            {
+                return value;
+            }
+
+            return $"InstrumentationKey={value}";
+        }
+
+        private static SeverityLevel? ToSeverityLevel(int? severity)
+        {
+            if (!severity.HasValue)
+            {
                 return null;
             }
 
-            return aiLogger;
+            return (SeverityLevel)severity.Value;
         }
     }
 }

@@ -2,50 +2,41 @@
 {
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Linq;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
-    /// Wrapper class for <see cref="ExceptionData"/> that lets user provide exception data without having the actual Exception object.
+    /// Wrapper class for ExceptionData"/> that lets user provide exception data without having the actual Exception object.
     /// </summary>
     internal sealed class ExceptionInfo
     {
-        private readonly ExceptionData data;
-        
         /// <summary>
         /// Constructs the instance of <see cref="ExceptionInfo"/>.
         /// </summary>
         public ExceptionInfo(IEnumerable<ExceptionDetailsInfo> exceptionDetailsInfoList, SeverityLevel? severityLevel, string problemId,
-            IDictionary<string, string> properties, IDictionary<string, double> measurements)
+            IDictionary<string, string> properties)
         {
-            this.data = new ExceptionData
-            {
-                exceptions = exceptionDetailsInfoList.Select(edi => edi.ExceptionDetails).ToList(),
-                severityLevel = severityLevel.TranslateSeverityLevel(),
-                problemId = problemId,
-                properties = new ConcurrentDictionary<string, string>(properties),
-                measurements = new ConcurrentDictionary<string, double>(measurements),
-            };
-        }
+            this.ExceptionDetailsInfoList = exceptionDetailsInfoList != null
+                ? new List<ExceptionDetailsInfo>(exceptionDetailsInfoList)
+                : new List<ExceptionDetailsInfo>();
 
-        internal ExceptionInfo(ExceptionData data)
-        {
-            this.data = data;
+            this.SeverityLevel = severityLevel;
+            this.ProblemId = problemId;
+            this.Properties = properties != null
+                ? new ConcurrentDictionary<string, string>(properties)
+                : new ConcurrentDictionary<string, string>();
         }
 
         /// <summary>
         /// Gets a list of <see cref="ExceptionDetailsInfo"/> to modify as needed.
         /// </summary>
-        public IReadOnlyList<ExceptionDetailsInfo> ExceptionDetailsInfoList => this.data.exceptions.Select(ed => new ExceptionDetailsInfo(ed)).ToList().AsReadOnly();
+        public IReadOnlyList<ExceptionDetailsInfo> ExceptionDetailsInfoList { get; }
 
         /// <summary>
         /// Gets or sets Exception severity level.
         /// </summary>
         public SeverityLevel? SeverityLevel
         {
-            get => this.data.severityLevel.TranslateSeverityLevel();
-            set => this.data.severityLevel = value.TranslateSeverityLevel();
+            get;
+            set;
         }
 
         /// <summary>
@@ -53,8 +44,8 @@
         /// </summary>
         public string ProblemId
         {
-            get => this.data.problemId;
-            set => this.data.problemId = value;
+            get;
+            set;
         }
 
         /// <summary>
@@ -62,24 +53,8 @@
         /// </summary>
         public IDictionary<string, string> Properties
         {
-            get => this.data.properties;
-            set => this.data.properties = value;
-        }
-
-        /// <summary>
-        /// Gets or sets measurements collection.
-        /// </summary>
-        public IDictionary<string, double> Measurements
-        {
-            get => this.data.measurements;
-            set => this.data.measurements = value;
-        }
-
-        internal ExceptionData Data => this.data;
-
-        internal ExceptionInfo DeepClone()
-        {
-            return new ExceptionInfo(this.data.DeepClone());
+            get;
+            set;
         }
     }
 }

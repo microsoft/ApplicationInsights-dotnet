@@ -1,10 +1,11 @@
 
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using OpenTelemetry;
+using OpenTelemetry.Trace;
+using System.Diagnostics;
 
 namespace WorkerService
 {
@@ -21,45 +22,52 @@ namespace WorkerService
                 {
                     services.AddHostedService<Worker>();
 
-                    // Application Insights
-
-                    // Add custom TelemetryInitializer
-                    services.AddSingleton<ITelemetryInitializer, MyCustomTelemetryInitializer>();
-
-                    // Add custom TelemetryProcessor
-                    services.AddApplicationInsightsTelemetryProcessor<MyCustomTelemetryProcessor>();
-
-                    // Example on Configuring TelemetryModules.
-                    // [SuppressMessage("Microsoft.Security", "CS002:SecretInNextLine", Justification="Not a real api key, this is example code.")]
-                    services.ConfigureTelemetryModule<QuickPulseTelemetryModule>((mod, opt) => mod.AuthenticationApiKey = "put_actual_authentication_key_here");
-
                     // instrumentation key is read automatically from appsettings.json
                     services.AddApplicationInsightsTelemetryWorkerService();
+                    services.ConfigureOpenTelemetryTracerProvider(tracer => tracer.AddProcessor(new MyCustomProcessor()));
                 });
 
-        internal class MyCustomTelemetryInitializer : ITelemetryInitializer
+        internal class MyCustomProcessor : BaseProcessor<Activity>
         {
+            private readonly string name;
+
+            public MyCustomProcessor(string name = "MyProcessor")
+            {
+                this.name = name;
+            }
+
+            public override void OnStart(Activity activity)
+            {
+                Debug.WriteLine($"{this.name}.OnStart({activity.DisplayName})");
+            }
+
+            public override void OnEnd(Activity activity)
+            {
+                Debug.WriteLine($"{this.name}.OnEnd({activity.DisplayName})");
+                activity.SetTag("MyCustomProcessorTag", "MyCustomProcessorValue");
+            }
+
+            protected override bool OnForceFlush(int timeoutMilliseconds)
+            {
+                Debug.WriteLine($"{this.name}.OnForceFlush({timeoutMilliseconds})");
+                return true;
+            }
+
+            protected override bool OnShutdown(int timeoutMilliseconds)
+            {
+                Debug.WriteLine($"{this.name}.OnShutdown({timeoutMilliseconds})");
+                return true;
+            }
+
+            protected override void Dispose(bool disposing)
+            {
+                base.Dispose(disposing);
+                Debug.WriteLine($"{this.name}.Dispose({disposing})");
+            }
             public void Initialize(ITelemetry telemetry)
             {
                 // Replace with actual properties.
                 (telemetry as ISupportProperties).Properties["MyCustomKey"] = "MyCustomValue";
-            }
-        }
-
-        internal class MyCustomTelemetryProcessor : ITelemetryProcessor
-        {
-            ITelemetryProcessor next;
-
-            public MyCustomTelemetryProcessor(ITelemetryProcessor next)
-            {
-                this.next = next;
-            }
-
-            public void Process(ITelemetry item)
-            {
-                // Example processor - not filtering out anything.
-                // This should be replaced with actual logic.
-                this.next.Process(item);
             }
         }
     }

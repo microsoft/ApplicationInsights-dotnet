@@ -4,9 +4,7 @@
     namespace Microsoft.ApplicationInsights.WorkerService
 #endif
 {
-    using System;
     using System.Reflection;
-    using Microsoft.ApplicationInsights.DependencyCollector;
 
     /// <summary>
     /// Application Insights service options defines the custom behavior of the features to add, as opposed to the default selection of features obtained from Application Insights.
@@ -26,42 +24,18 @@
         public bool EnablePerformanceCounterCollectionModule { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether AppServicesHeartbeatTelemetryModule should be enabled.
-        /// Defaults to <value>true</value>.
-        /// IMPORTANT: This setting will be ignored if either <see cref="EnableDiagnosticsTelemetryModule"/> or <see cref="EnableHeartbeat"/> are set to false.
-        /// </summary>
-        public bool EnableAppServicesHeartbeatTelemetryModule { get; set; } = true;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether AzureInstanceMetadataTelemetryModule should be enabled.
-        /// Defaults to <value>true</value>.
-        /// IMPORTANT: This setting will be ignored if either <see cref="EnableDiagnosticsTelemetryModule"/> or <see cref="EnableHeartbeat"/> are set to false.
-        /// </summary>
-        public bool EnableAzureInstanceMetadataTelemetryModule { get; set; } = true;
-
-        /// <summary>
         /// Gets or sets a value indicating whether DependencyTrackingTelemetryModule should be enabled.
         /// Defaults to <value>true</value>.
         /// </summary>
         public bool EnableDependencyTrackingTelemetryModule { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether EventCounterCollectionModule should be enabled.
+        /// Gets or sets a value indicating whether telemetry processor that controls sampling is added to the service.
+        /// Setting EnableAdaptiveSampling to <value>false</value>, will disable sampling entirely. 
+        /// When <value>true</value> (default), enables rate-limit based sampling in Azure Monitor Exporter.
         /// Defaults to <value>true</value>.
         /// </summary>
-        public bool EnableEventCounterCollectionModule { get; set; } = true;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether telemetry processor that controls sampling is added to the service.
-        /// Setting EnableAdaptiveSampling to <value>false</value>, will disable the default adaptive sampling feature. Defaults to <value>true</value>.
-        /// </summary>
         public bool EnableAdaptiveSampling { get; set; } = true;
-
-        /// <summary>
-        /// Gets or sets the default instrumentation key for the application.
-        /// </summary>
-        [Obsolete("InstrumentationKey based global ingestion is being deprecated. Use ApplicationInsightsServiceOptions.ConnectionString. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/2560 for more details.")]
-        public string InstrumentationKey { get; set; }
 
         /// <summary>
         /// Gets or sets the connection string for the application.
@@ -89,15 +63,6 @@
         public bool EnableDebugLogger { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether heartbeats are enabled.
-        /// IMPORTANT: This setting will be ignored if <see cref="EnableDiagnosticsTelemetryModule"/> is set to false.
-        /// IMPORTANT: Disabling this will cause the following settings to be ignored:
-        /// <see cref="EnableAzureInstanceMetadataTelemetryModule"/>.
-        /// <see cref="EnableAppServicesHeartbeatTelemetryModule"/>.
-        /// </summary>
-        public bool EnableHeartbeat { get; set; } = true;
-
-        /// <summary>
         /// Gets or sets a value indicating whether AutoCollectedMetricExtractors are added or not.
         /// Defaults to <value>true</value>.
         /// </summary>
@@ -105,7 +70,7 @@
 
 #if AI_ASPNETCORE_WEB
         /// <summary>
-        /// Gets <see cref="RequestCollectionOptions"/> that allow to manage <see cref="RequestTrackingTelemetryModule"/>.
+        /// Gets <see cref="RequestCollectionOptions"/> that allow to manage RequestTrackingTelemetryModule" />.
         /// </summary>
         public RequestCollectionOptions RequestCollectionOptions { get; } = new RequestCollectionOptions();
 
@@ -123,16 +88,7 @@
 #endif
 
         /// <summary>
-        /// Gets or sets a value indicating whether the <see cref="Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule"/> should be enabled.
-        /// IMPORTANT: Disabling this will cause the following settings to be ignored:
-        /// <see cref="EnableHeartbeat"/>.
-        /// <see cref="EnableAzureInstanceMetadataTelemetryModule"/>.
-        /// <see cref="EnableAppServicesHeartbeatTelemetryModule"/>.
-        /// </summary>
-        public bool EnableDiagnosticsTelemetryModule { get; set; } = true;
-
-        /// <summary>
-        /// Gets <see cref="DependencyCollectionOptions"/> that allow to manage <see cref="DependencyTrackingTelemetryModule"/>.
+        /// Gets <see cref="DependencyCollectionOptions"/> that allow to manage DependencyTrackingTelemetryModule/>.
         /// </summary>
         public DependencyCollectionOptions DependencyCollectionOptions { get; } = new DependencyCollectionOptions();
 
@@ -163,13 +119,6 @@
                 target.EndpointAddress = this.EndpointAddress;
             }
 
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (!string.IsNullOrEmpty(this.InstrumentationKey))
-            {
-                target.InstrumentationKey = this.InstrumentationKey;
-            }
-#pragma warning restore CS0618 // Type or member is obsolete
-
             if (!string.IsNullOrEmpty(this.ConnectionString))
             {
                 target.ConnectionString = this.ConnectionString;
@@ -179,14 +128,9 @@
             target.EnableAdaptiveSampling = this.EnableAdaptiveSampling;
             target.EnableDebugLogger = this.EnableDebugLogger;
             target.EnableQuickPulseMetricStream = this.EnableQuickPulseMetricStream;
-            target.EnableHeartbeat = this.EnableHeartbeat;
             target.AddAutoCollectedMetricExtractor = this.AddAutoCollectedMetricExtractor;
             target.EnablePerformanceCounterCollectionModule = this.EnablePerformanceCounterCollectionModule;
             target.EnableDependencyTrackingTelemetryModule = this.EnableDependencyTrackingTelemetryModule;
-            target.EnableAppServicesHeartbeatTelemetryModule = this.EnableAppServicesHeartbeatTelemetryModule;
-            target.EnableAzureInstanceMetadataTelemetryModule = this.EnableAzureInstanceMetadataTelemetryModule;
-            target.EnableDiagnosticsTelemetryModule = this.EnableDiagnosticsTelemetryModule;
-            target.EnableEventCounterCollectionModule = this.EnableEventCounterCollectionModule;
 
 #if AI_ASPNETCORE_WEB
             target.EnableAuthenticationTrackingJavaScript = this.EnableAuthenticationTrackingJavaScript;

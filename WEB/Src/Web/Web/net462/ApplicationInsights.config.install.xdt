@@ -1,0 +1,4 @@
+<ApplicationInsights xdt:Transform="SetAttributes" xmlns="http://schemas.microsoft.com/ApplicationInsights/2013/Settings" xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+  <!-- Learn more about Application Insights configuration with ApplicationInsights.config here: http://go.microsoft.com/fwlink/?LinkID=513840 -->
+  <ConnectionString xdt:Transform="InsertIfMissing"></ConnectionString>
+</ApplicationInsights>

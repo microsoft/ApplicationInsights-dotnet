@@ -1,7 +1,14 @@
 # Changelog
 
-## VNext
-- UnitTest updates to fix codeQL issues, no product code changes.
+## Version 3.0.0-beta1
+- The following Application Insights packages in this repo now use OpenTelemetry internally. OpenTelemetry is the industry standard for telemetry collection and provides better interoperability with other observability tools.
+  - Microsoft.ApplicationInsights
+  - Microsoft.ApplicationInsights.AspNetCore
+  - Microsoft.ApplicationInsights.WorkerService
+  - Microsoft.ApplicationInsights.Web
+  - Microsoft.ApplicationInsights.NLogTarget
+- Classic APIs of the above packages are preserved; calls are translated to OpenTelemetry telemetry.
+- Other packages not listed above (such as certain auto-collectors and logging adapters that were published from this repo previously) will not have future versions published. See BreakingChanges.md for details.
 
 ## Version 2.23.0
 - no changes since beta.
