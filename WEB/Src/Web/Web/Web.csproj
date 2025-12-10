@@ -51,5 +51,4 @@
     <Compile Include="..\..\..\..\BASE\src\Microsoft.ApplicationInsights\Extensibility\Implementation\Tracing\Extensions.cs" Link="Extensions.cs" />
   </ItemGroup>
 
-  <Import Project="..\..\Common\Common.projitems" Label="Shared" />
 </Project>
