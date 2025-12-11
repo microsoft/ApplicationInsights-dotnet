@@ -70,7 +70,6 @@ Select the option that best describes your situation:
   - [Configuration Changes](#configuration-changes)
   - [Replacing ITelemetryInitializer](#replacing-itelemetryinitializer)
   - [Replacing ITelemetryProcessor](#replacing-itelemetryprocessor)
-- [Best Practices](#best-practices)
 - [Troubleshooting](#troubleshooting)
 - [SDK Layering](#sdk-layering)
 - [Contributing](#contributing)
@@ -288,7 +287,7 @@ configuration.ConfigureOpenTelemetryBuilder(builder =>
 **Key Differences:**
 
 | Aspect | OpenTelemetry Activity | TelemetryClient |
-|--------|----------------------|-----------------||
+|--------|----------------------|-----------------|
 | **Use Case** | Distributed tracing (spans, dependencies) | Events, metrics, compatibility |
 | **Shows As** | Dependency or Request in App Insights | Event, Metric, or custom telemetry type |
 | **Registration** | Requires `AddSource()` registration | Works immediately |
@@ -1085,30 +1084,6 @@ configuration.ConfigureOpenTelemetryBuilder(builder =>
 
 ---
 
-## Best Practices
-
-Based on experience with Application Insights 3.x across numerous applications, here are recommended practices to ensure optimal performance, cost-effectiveness, and maintainability:
-
-1. **Use a Single TelemetryClient Instance**: Create one instance and reuse it throughout your application. `TelemetryClient` is thread-safe.
-
-2. **Always Flush Before Exit**: Call `telemetryClient.Flush()` before application shutdown to ensure telemetry is sent.
-
-3. **Set Context Properties Early**: Configure `TelemetryClient.Context` properties at startup for consistent telemetry.
-
-4. **Use Structured Properties**: Add properties to telemetry items for rich querying in Application Insights.
-
-5. **Track Exceptions with Context**: Include relevant properties when tracking exceptions to aid debugging.
-
-6. **Use OpenTelemetry APIs for New Code**: For new instrumentation, consider using OpenTelemetry `ActivitySource` directly for better interoperability.
-
-7. **Configure Resource Detectors**: Use Resource Detectors to automatically enrich all telemetry with contextual information.
-
-8. **Test Telemetry Configuration**: Verify telemetry appears in Application Insights during development.
-
-9. **Use Dependency Injection**: Leverage DI for easier testing and configuration management.
-
-10. **Mind PII**: Avoid logging personally identifiable information (PII) in telemetry properties.
-
 ## Troubleshooting
 
 ### Telemetry Not Appearing in Portal
@@ -1205,10 +1180,7 @@ The core `Microsoft.ApplicationInsights` package provides the foundational `Tele
 
 These packages configure OpenTelemetry instrumentation libraries and the Azure Monitor Exporter automatically, eliminating most manual configuration.  
 
-## Branches
-
-- [master][master] contains the *latest* published release located on [NuGet][NuGetCore].
-- [develop][develop] contains the code for the *next* release. 
+> **Note:** For classic Application Insights SDK (version 2.x), refer to the [2.x branch documentation](https://github.com/microsoft/ApplicationInsights-dotnet/tree/2.x).
 
 ## Contributing
 
