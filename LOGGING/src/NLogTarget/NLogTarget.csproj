@@ -31,6 +31,4 @@
     <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\Stable\PublicAPI.Shipped.txt" />
     <AdditionalFiles Include="$(PublicApiRoot)\$(AssemblyName).dll\Stable\PublicAPI.Unshipped.txt" />
   </ItemGroup>
-
-  <Import Project="..\CommonShared\CommonShared.projitems" Label="Shared" />
 </Project>
