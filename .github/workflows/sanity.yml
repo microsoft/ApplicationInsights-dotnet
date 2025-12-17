@@ -22,7 +22,7 @@ jobs:
         solution: [./SHIM/Microsoft.ApplicationInsights.Shim.sln]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Setup dotnet
       uses: actions/setup-dotnet@v5.0.1
