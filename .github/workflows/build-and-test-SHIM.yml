@@ -17,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     env:
-      SOLUTION: ./SHIM/Microsoft.ApplicationInsights.Shim.sln
+      SOLUTION: .\Everything.sln
       TEST_RESULTS_DIRECTORY: ${{ github.workspace }}/TestResults
 
     strategy:

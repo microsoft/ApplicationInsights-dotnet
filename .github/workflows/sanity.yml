@@ -19,7 +19,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        solution: [./SHIM/Microsoft.ApplicationInsights.Shim.sln]
+        solution: [
+          ./NETCORE/ApplicationInsights.AspNetCore.sln,
+          ./Everything.sln,
+          ./ProjectsForSigning.sln,
+          ./LOGGING/Logging.sln,
+          ./BASE/Microsoft.ApplicationInsights.sln,
+          ./WEB/Src/Microsoft.ApplicationInsights.Web.sln]
 
     steps:
     - uses: actions/checkout@v6
