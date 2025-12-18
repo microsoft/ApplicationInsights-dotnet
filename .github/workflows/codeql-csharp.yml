@@ -45,7 +45,7 @@ jobs:
       fail-fast: false
       matrix:
         solution:
-          - ./SHIM/Microsoft.ApplicationInsights.Shim.sln
+          - ./Everything.sln
         include:
         - language: csharp
           build-mode: manual
