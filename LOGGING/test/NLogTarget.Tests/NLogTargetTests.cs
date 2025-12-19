@@ -94,6 +94,20 @@
             logger.Trace("Hello World");
         }
 
+        [Trait("Category", "NLogTarget")]
+        [Fact]
+        public void CredentialPropertyCanBeSetAndRetrieved()
+        {
+            var mockCredential = new MockTokenCredential();
+            var target = new ApplicationInsightsTarget
+            {
+                ConnectionString = DefaultConnectionString,
+                Credential = mockCredential
+            };
+
+            Assert.Same(mockCredential, target.Credential);
+        }
+
         [Fact]
         [Trait("Category", "NLogTarget")]
         public async Task TracesAreCapturedByExporter()
@@ -578,6 +592,20 @@
             }
 
             return (SeverityLevel)severity.Value;
+        }
+    }
+
+    // Mock TokenCredential for testing
+    internal class MockTokenCredential : Azure.Core.TokenCredential
+    {
+        public override Azure.Core.AccessToken GetToken(Azure.Core.TokenRequestContext requestContext, CancellationToken cancellationToken)
+        {
+            return new Azure.Core.AccessToken("mock_token", DateTimeOffset.UtcNow.AddHours(1));
+        }
+
+        public override ValueTask<Azure.Core.AccessToken> GetTokenAsync(Azure.Core.TokenRequestContext requestContext, CancellationToken cancellationToken)
+        {
+            return new ValueTask<Azure.Core.AccessToken>(GetToken(requestContext, cancellationToken));
         }
     }
 }
