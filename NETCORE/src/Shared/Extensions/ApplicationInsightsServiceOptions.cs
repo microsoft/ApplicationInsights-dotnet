@@ -1,10 +1,11 @@
 ﻿#if AI_ASPNETCORE_WEB
-    namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
+namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
 #else
     namespace Microsoft.ApplicationInsights.WorkerService
 #endif
 {
     using System.Reflection;
+    using Azure.Core;
 
     /// <summary>
     /// Application Insights service options defines the custom behavior of the features to add, as opposed to the default selection of features obtained from Application Insights.
@@ -43,11 +44,11 @@
         public string ConnectionString { get; set; }
 
         /// <summary>
-        /// Gets or sets the value of <see cref="Azure.Core.TokenCredential" />.
-        /// If <see cref="Azure.Core.TokenCredential" /> is not set, AAD authentication is disabled
+        /// Gets or sets the value of <see cref="TokenCredential" />.
+        /// If <see cref="TokenCredential" /> is not set, AAD authentication is disabled
         /// and Instrumentation Key from the Connection String will be used.
         /// </summary>
-        public Azure.Core.TokenCredential Credential { get; set; }
+        public TokenCredential Credential { get; set; }
 
         /// <summary>
         /// Gets or sets the application version reported with telemetries.

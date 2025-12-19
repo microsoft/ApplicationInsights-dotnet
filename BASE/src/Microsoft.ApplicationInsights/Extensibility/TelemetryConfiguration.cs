@@ -6,6 +6,7 @@
     using System.Diagnostics;
     using System.Reflection;
     using System.Threading;
+    using Azure.Core;
     using Azure.Monitor.OpenTelemetry.Exporter;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -187,8 +188,8 @@
         /// For more information on expected types, review the documentation for the Azure.Identity library.
         /// (https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/identity/Azure.Identity).
         /// </remarks>
-        /// <param name="tokenCredential">An instance of Azure.Core.TokenCredential.</param>
-        public void SetAzureTokenCredential(Azure.Core.TokenCredential tokenCredential)
+        /// <param name="tokenCredential">An instance of TokenCredential.</param>
+        public void SetAzureTokenCredential(TokenCredential tokenCredential)
         {
             this.ThrowIfBuilt();
 
