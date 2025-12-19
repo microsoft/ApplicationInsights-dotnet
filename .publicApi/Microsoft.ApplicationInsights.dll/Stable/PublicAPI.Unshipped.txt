@@ -1,0 +1,1 @@
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetAzureTokenCredential(Azure.Core.TokenCredential tokenCredential) -> void

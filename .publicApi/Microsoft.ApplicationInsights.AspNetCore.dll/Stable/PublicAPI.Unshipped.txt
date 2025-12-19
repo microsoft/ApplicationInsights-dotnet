@@ -1,0 +1,2 @@
+Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.Credential.get -> Azure.Core.TokenCredential
+Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.Credential.set -> void

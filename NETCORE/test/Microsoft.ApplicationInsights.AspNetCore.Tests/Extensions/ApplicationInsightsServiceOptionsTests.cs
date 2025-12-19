@@ -359,5 +359,60 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensions
             Assert.True(module.IsInitialized, "module was not initialized");
             Assert.Equal(isEnable, module.IsHeartbeatEnabled);
         }
+
+        /// <summary>
+        /// Tests that the Credential property can be set and is properly copied.
+        /// </summary>
+        [Fact]
+        public static void CredentialProperty_CanBeSet()
+        {
+            // Arrange
+            var options = new ApplicationInsightsServiceOptions();
+            var credential = new MockTokenCredential();
+
+            // Act
+            options.Credential = credential;
+
+            // Assert
+            Assert.NotNull(options.Credential);
+            Assert.Same(credential, options.Credential);
+        }
+
+        /// <summary>
+        /// Tests that the Credential property is copied during CopyPropertiesTo.
+        /// </summary>
+        [Fact]
+        public static void CredentialProperty_IsCopiedInCopyPropertiesTo()
+        {
+            // Arrange
+            var source = new ApplicationInsightsServiceOptions();
+            var target = new ApplicationInsightsServiceOptions();
+            var credential = new MockTokenCredential();
+            source.Credential = credential;
+
+            // Act
+            source.CopyPropertiesTo(target);
+
+            // Assert
+            Assert.NotNull(target.Credential);
+            Assert.Same(credential, target.Credential);
+        }
+
+        /// <summary>
+        /// Mock TokenCredential for testing purposes.
+        /// </summary>
+        private class MockTokenCredential : Azure.Core.TokenCredential
+        {
+            public override Azure.Core.AccessToken GetToken(Azure.Core.TokenRequestContext requestContext, System.Threading.CancellationToken cancellationToken)
+            {
+                return new Azure.Core.AccessToken("mock-token", DateTimeOffset.UtcNow.AddHours(1));
+            }
+
+            public override System.Threading.Tasks.ValueTask<Azure.Core.AccessToken> GetTokenAsync(Azure.Core.TokenRequestContext requestContext, System.Threading.CancellationToken cancellationToken)
+            {
+                return new System.Threading.Tasks.ValueTask<Azure.Core.AccessToken>(
+                    new Azure.Core.AccessToken("mock-token", DateTimeOffset.UtcNow.AddHours(1)));
+            }
+        }
     }
 }
