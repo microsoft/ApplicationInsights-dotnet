@@ -1,7 +1,4 @@
 ﻿using NLog;
-// Uncomment these for Azure Active Directory (AAD) authentication
-// using Microsoft.ApplicationInsights.Extensibility;
-// using Azure.Identity;
 
 Console.WriteLine("NLog Console App - Application Insights Example");
 Console.WriteLine("================================================\n");
@@ -9,13 +6,31 @@ Console.WriteLine("================================================\n");
 NLog.Common.InternalLogger.LogToConsole = true;
 NLog.Common.InternalLogger.LogLevel = NLog.LogLevel.Warn;
 
-// Optional: Configure Azure Active Directory (AAD) authentication
-// This must be done BEFORE LogManager.GetCurrentClassLogger() is called
-// Requires: Install-Package Azure.Identity
 /*
-var telemetryConfig = TelemetryConfiguration.CreateDefault();
-telemetryConfig.ConnectionString = "InstrumentationKey=YOUR_IKEY;IngestionEndpoint=https://ingestion-endpoint.applicationinsights.azure.com/";
-telemetryConfig.SetAzureTokenCredential(new DefaultAzureCredential());
+// Optional: Configure Azure Active Directory (AAD) authentication
+// Requires: Install-Package Azure.Identity
+
+var config = new LoggingConfiguration();
+
+// Add console target so you can see the output
+var consoleTarget = new NLog.Targets.ConsoleTarget("console")
+{
+    Layout = "${longdate}|${level:uppercase=true}|${logger}|${message} ${exception:format=tostring}"
+};
+config.AddTarget(consoleTarget);
+config.AddRule(LogLevel.Trace, LogLevel.Fatal, consoleTarget);
+
+// Add AI target with AAD
+var aiTarget = new ApplicationInsightsTarget
+{
+    Name = "aiTarget",
+    ConnectionString = "InstrumentationKey=YOUR_IKEY;IngestionEndpoint=https://ingestion-endpoint.applicationinsights.azure.com/",
+    Credential = new DefaultAzureCredential()
+};
+config.AddTarget("aiTarget", aiTarget);
+config.AddRule(LogLevel.Info, LogLevel.Fatal, aiTarget);
+
+LogManager.Configuration = config;
 */
 
 // Get NLog logger - the ApplicationInsightsTarget will handle telemetry

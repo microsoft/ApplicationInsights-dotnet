@@ -10,6 +10,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using Azure.Core;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -17,6 +18,8 @@ namespace Microsoft.ApplicationInsights.NLogTarget
     using NLog.Common;
     using NLog.Config;
     using NLog.Targets;
+    using OpenTelemetry;
+    using OpenTelemetry.Resources;
 
     /// <summary>
     /// NLog Target that routes all logging output to the Application Insights logging framework.
@@ -40,6 +43,13 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             this.Layout = @"${message}";
             this.OptimizeBufferReuse = true;
         }
+
+        /// <summary>
+        /// Gets or sets the Azure Active Directory (AAD) TokenCredential for authentication.
+        /// When set, this credential will be used to authenticate with Azure Monitor.
+        /// </summary>
+        [CLSCompliant(false)]
+        public TokenCredential Credential { get; set; }
 
         /// <summary>
         /// Gets or sets the Application Insights connection string for your application. 
@@ -122,10 +132,23 @@ namespace Microsoft.ApplicationInsights.NLogTarget
 
             this.telemetryConfiguration = new TelemetryConfiguration();
             this.telemetryConfiguration.ConnectionString = connectionString;
-            this.telemetryClient = new TelemetryClient(this.telemetryConfiguration);
+            
+            // Configure OpenTelemetry resource with distro name
+            this.telemetryConfiguration.ConfigureOpenTelemetryBuilder(builder =>
+            {
+                builder.ConfigureResource(r => r.AddAttributes(new[] 
+                { 
+                    new System.Collections.Generic.KeyValuePair<string, object>("telemetry.distro.name", "Microsoft.ApplicationInsights.NLogTarget"),
+                }));
+            });
 
-            // TODO: Uncomment once SdkVersionUtils is available.
-            // this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("nlog:");
+            // Set AAD credential if provided
+            if (this.Credential != null)
+            {
+                this.telemetryConfiguration.SetAzureTokenCredential(this.Credential);
+            }
+            
+            this.telemetryClient = new TelemetryClient(this.telemetryConfiguration);
         }
 
         /// <summary>

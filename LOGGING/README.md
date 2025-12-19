@@ -39,19 +39,26 @@ If your application does not have web.config then it can also be configured manu
 
 ### Azure Active Directory (AAD) Authentication
 
-To use AAD authentication with NLog, configure the TelemetryConfiguration before initializing NLog:
+To use AAD authentication with NLog, set the `Credential` property on the `ApplicationInsightsTarget`:
 
 ```csharp
-using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.NLogTarget;
 using Azure.Identity;
 using NLog;
+using NLog.Config;
 
-// Configure Application Insights with AAD authentication BEFORE NLog initialization
-var telemetryConfig = TelemetryConfiguration.CreateDefault();
-telemetryConfig.ConnectionString = "InstrumentationKey=YOUR_IKEY;IngestionEndpoint=https://ingestion-endpoint.applicationinsights.azure.com/";
-telemetryConfig.SetAzureTokenCredential(new DefaultAzureCredential());
+// Configure NLog programmatically with AAD
+var config = new LoggingConfiguration();
+var aiTarget = new ApplicationInsightsTarget
+{
+    Name = "aiTarget",
+    ConnectionString = "InstrumentationKey=YOUR_IKEY;IngestionEndpoint=https://ingestion-endpoint.applicationinsights.azure.com/",
+    Credential = new DefaultAzureCredential()  // Set AAD credential
+};
+config.AddTarget(aiTarget);
+config.AddRule(LogLevel.Trace, LogLevel.Fatal, aiTarget);
+LogManager.Configuration = config;
 
-// Now initialize NLog - it will use the configured TelemetryConfiguration
 var logger = LogManager.GetCurrentClassLogger();
 logger.Info("Using AAD authentication");
 ```
