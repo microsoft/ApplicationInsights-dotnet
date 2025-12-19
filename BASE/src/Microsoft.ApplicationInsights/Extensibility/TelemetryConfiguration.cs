@@ -6,6 +6,8 @@
     using System.Diagnostics;
     using System.Reflection;
     using System.Threading;
+    using Azure.Core;
+    using Azure.Monitor.OpenTelemetry.Exporter;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Metrics;
@@ -186,14 +188,24 @@
         /// For more information on expected types, review the documentation for the Azure.Identity library.
         /// (https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/identity/Azure.Identity).
         /// </remarks>
-        /// <param name="tokenCredential">An instance of Azure.Core.TokenCredential.</param>
-        /// <exception cref="ArgumentException">An ArgumentException is thrown if the provided object does not inherit Azure.Core.TokenCredential.</exception>
-#pragma warning disable CA1822 // Mark members as static
-#pragma warning disable CA1801 // Review unused parameters
-        internal void SetAzureTokenCredential(object tokenCredential)
-#pragma warning restore CA1801 // Review unused parameters
-#pragma warning restore CA1822 // Mark members as static
+        /// <param name="tokenCredential">An instance of TokenCredential.</param>
+        public void SetAzureTokenCredential(TokenCredential tokenCredential)
         {
+            this.ThrowIfBuilt();
+
+            if (tokenCredential == null)
+            {
+                throw new ArgumentNullException(nameof(tokenCredential));
+            }
+
+            // Configure the OpenTelemetry builder to pass the credential to Azure Monitor Exporter
+            this.ConfigureOpenTelemetryBuilder(builder =>
+            {
+                builder.Services.Configure<AzureMonitorExporterOptions>(exporterOptions =>
+                {
+                    exporterOptions.Credential = tokenCredential;
+                });
+            });
         }
 
         /// <summary>

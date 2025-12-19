@@ -37,6 +37,31 @@ Application Insights NLog Target nuget package adds ApplicationInsights target i
 
 If your application does not have web.config then it can also be configured manually.
 
+### Azure Active Directory (AAD) Authentication
+
+To use AAD authentication with NLog, configure the TelemetryConfiguration before initializing NLog:
+
+```csharp
+using Microsoft.ApplicationInsights.Extensibility;
+using Azure.Identity;
+using NLog;
+
+// Configure Application Insights with AAD authentication BEFORE NLog initialization
+var telemetryConfig = TelemetryConfiguration.CreateDefault();
+telemetryConfig.ConnectionString = "InstrumentationKey=YOUR_IKEY;IngestionEndpoint=https://ingestion-endpoint.applicationinsights.azure.com/";
+telemetryConfig.SetAzureTokenCredential(new DefaultAzureCredential());
+
+// Now initialize NLog - it will use the configured TelemetryConfiguration
+var logger = LogManager.GetCurrentClassLogger();
+logger.Info("Using AAD authentication");
+```
+
+**Note:** You need to install the `Azure.Identity` NuGet package to use AAD authentication.
+
+For more information, see the [Azure.Identity documentation](https://learn.microsoft.com/dotnet/api/overview/azure/identity-readme).
+
+### Configuration
+
  * **Configure ApplicationInsightsTarget using NLog.config** :
 
 ```xml

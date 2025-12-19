@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Added
+- [Added support for Entra ID (Azure Active Directory) authentication using Azure.Core.TokenCredential](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3054)
+
 ## Version 3.0.0-beta1
 - The following Application Insights packages in this repo now use OpenTelemetry internally. OpenTelemetry is the industry standard for telemetry collection and provides better interoperability with other observability tools.
   - Microsoft.ApplicationInsights
