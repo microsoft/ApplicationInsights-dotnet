@@ -1,4 +1,1 @@
-Microsoft.ApplicationInsights.Web.ApplicationInsightsHttpModule
-Microsoft.ApplicationInsights.Web.ApplicationInsightsHttpModule.ApplicationInsightsHttpModule() -> void
-Microsoft.ApplicationInsights.Web.ApplicationInsightsHttpModule.Dispose() -> void
-Microsoft.ApplicationInsights.Web.ApplicationInsightsHttpModule.Init(System.Web.HttpApplication context) -> void
+
