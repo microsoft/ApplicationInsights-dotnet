@@ -43,7 +43,7 @@
         public string ConnectionString { get; set; }
 
         /// <summary>
-        /// Get or sets the value of <see cref="Azure.Core.TokenCredential" />.
+        /// Gets or sets the value of <see cref="Azure.Core.TokenCredential" />.
         /// If <see cref="Azure.Core.TokenCredential" /> is not set, AAD authentication is disabled
         /// and Instrumentation Key from the Connection String will be used.
         /// </summary>
