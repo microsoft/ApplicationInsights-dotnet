@@ -17,8 +17,12 @@ namespace ClassicAspNetWebApp
             // Code that runs on application startup
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             // BundleConfig.RegisterBundles(BundleTable.Bundles);
+            
+            // Example: Configure Azure Active Directory (AAD) authentication for Application Insights
+            // Requires: Install-Package Azure.Identity
             // var telemetryConfig = TelemetryConfiguration.CreateDefault();
-            // telemetryConfig.ConnectionString = "InstrumentationKey=Ikey";
+            // telemetryConfig.ConnectionString = "InstrumentationKey=YOUR_IKEY;IngestionEndpoint=https://ingestion-endpoint.applicationinsights.azure.com/";
+            // telemetryConfig.SetAzureTokenCredential(new Azure.Identity.DefaultAzureCredential());
         }
     }
 }

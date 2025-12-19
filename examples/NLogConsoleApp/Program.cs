@@ -1,10 +1,22 @@
 ﻿using NLog;
+// Uncomment these for Azure Active Directory (AAD) authentication
+// using Microsoft.ApplicationInsights.Extensibility;
+// using Azure.Identity;
 
 Console.WriteLine("NLog Console App - Application Insights Example");
 Console.WriteLine("================================================\n");
 
 NLog.Common.InternalLogger.LogToConsole = true;
 NLog.Common.InternalLogger.LogLevel = NLog.LogLevel.Warn;
+
+// Optional: Configure Azure Active Directory (AAD) authentication
+// This must be done BEFORE LogManager.GetCurrentClassLogger() is called
+// Requires: Install-Package Azure.Identity
+/*
+var telemetryConfig = TelemetryConfiguration.CreateDefault();
+telemetryConfig.ConnectionString = "InstrumentationKey=YOUR_IKEY;IngestionEndpoint=https://ingestion-endpoint.applicationinsights.azure.com/";
+telemetryConfig.SetAzureTokenCredential(new DefaultAzureCredential());
+*/
 
 // Get NLog logger - the ApplicationInsightsTarget will handle telemetry
 var logger = LogManager.GetCurrentClassLogger();

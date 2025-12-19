@@ -181,6 +181,12 @@
                         exporterOptions.ConnectionString = serviceOptions.ConnectionString;
                     }
                     
+                    // Copy credential to Azure Monitor Exporter
+                    if (serviceOptions.Credential != null)
+                    {
+                        exporterOptions.Credential = serviceOptions.Credential;
+                    }
+                    
                     if (!serviceOptions.EnableAdaptiveSampling)
                     {
                         exporterOptions.SamplingRatio = 1.0F;

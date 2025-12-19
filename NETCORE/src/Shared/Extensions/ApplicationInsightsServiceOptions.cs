@@ -43,6 +43,13 @@
         public string ConnectionString { get; set; }
 
         /// <summary>
+        /// Get or sets the value of <see cref="Azure.Core.TokenCredential" />.
+        /// If <see cref="Azure.Core.TokenCredential" /> is not set, AAD authentication is disabled
+        /// and Instrumentation Key from the Connection String will be used.
+        /// </summary>
+        public Azure.Core.TokenCredential Credential { get; set; }
+
+        /// <summary>
         /// Gets or sets the application version reported with telemetries.
         /// </summary>
         public string ApplicationVersion { get; set; } = Assembly.GetEntryAssembly()?.GetName().Version.ToString();
@@ -122,6 +129,11 @@
             if (!string.IsNullOrEmpty(this.ConnectionString))
             {
                 target.ConnectionString = this.ConnectionString;
+            }
+
+            if (this.Credential != null)
+            {
+                target.Credential = this.Credential;
             }
 
             target.ApplicationVersion = this.ApplicationVersion;
