@@ -2,6 +2,7 @@
 
 ## Unreleased
 ### Added
+- [Automatic configuration binding from "ApplicationInsights" section in appsettings.json for both AspNetCore and WorkerService packages with configuration precedence: environment variables > explicit configuration > appsettings.json](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3064/changes)
 - [Added support for Entra ID (Azure Active Directory) authentication using Azure.Core.TokenCredential](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3054)
 
 ## Version 3.0.0-beta1
