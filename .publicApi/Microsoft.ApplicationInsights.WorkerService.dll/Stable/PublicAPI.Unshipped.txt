@@ -9,8 +9,6 @@ Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.Co
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.Credential.get -> Azure.Core.TokenCredential
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.Credential.set -> void
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.DependencyCollectionOptions.get -> Microsoft.ApplicationInsights.WorkerService.DependencyCollectionOptions
-Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.DeveloperMode.get -> bool?
-Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.DeveloperMode.set -> void
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableAdaptiveSampling.get -> bool
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableAdaptiveSampling.set -> void
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableDebugLogger.get -> bool

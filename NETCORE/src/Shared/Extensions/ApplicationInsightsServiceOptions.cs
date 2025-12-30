@@ -56,11 +56,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
         public string ApplicationVersion { get; set; } = Assembly.GetEntryAssembly()?.GetName().Version.ToString();
 
         /// <summary>
-        /// Gets or sets a value indicating whether telemetry channel should be set to developer mode.
-        /// </summary>
-        public bool? DeveloperMode { get; set; }
-
-        /// <summary>
         /// Gets or sets the endpoint address of the channel.
         /// </summary>
         public string EndpointAddress { get; set; }
@@ -117,11 +112,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
         /// <param name="target">Target instance to copy properties to.</param>
         internal void CopyPropertiesTo(ApplicationInsightsServiceOptions target)
         {
-            if (this.DeveloperMode != null)
-            {
-                target.DeveloperMode = this.DeveloperMode;
-            }
-
             if (!string.IsNullOrEmpty(this.EndpointAddress))
             {
                 target.EndpointAddress = this.EndpointAddress;

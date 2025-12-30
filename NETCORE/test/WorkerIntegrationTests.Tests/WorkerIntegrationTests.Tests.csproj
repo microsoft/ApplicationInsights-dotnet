@@ -20,8 +20,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\Shared\ConfigurationTests.cs" Link="ConfigurationTests.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="xunit.runner.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\IntegrationTests.Tests\content\*.json" Link="content\%(FileName)%(Extension)">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

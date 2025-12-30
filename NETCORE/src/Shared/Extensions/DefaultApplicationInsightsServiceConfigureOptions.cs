@@ -1,15 +1,20 @@
-﻿namespace Microsoft.ApplicationInsights.WorkerService
+#if AI_ASPNETCORE_WEB
+namespace Microsoft.AspNetCore.Hosting
+#else
+namespace Microsoft.ApplicationInsights.WorkerService
+#endif
 {
-    using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
+#if AI_ASPNETCORE_WEB
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+#endif
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Options;
 
     /// <summary>
-    /// <see cref="IConfigureOptions&lt;ApplicationInsightsServiceOptions&gt;"/> implementation that reads options from provided IConfiguration.
+    /// <see cref="IConfigureOptions{ApplicationInsightsServiceOptions}"/> implementation that reads options from provided IConfiguration.
     /// </summary>
-    [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "This class is instantiated by Dependency Injection.")]
     internal class DefaultApplicationInsightsServiceConfigureOptions : IConfigureOptions<ApplicationInsightsServiceOptions>
     {
         private readonly IConfiguration configuration;
@@ -29,11 +34,6 @@
             if (this.configuration != null)
             {
                 ApplicationInsightsExtensions.AddTelemetryConfiguration(this.configuration, options);
-            }
-
-            if (Debugger.IsAttached)
-            {
-                options.DeveloperMode = true;
             }
         }
     }

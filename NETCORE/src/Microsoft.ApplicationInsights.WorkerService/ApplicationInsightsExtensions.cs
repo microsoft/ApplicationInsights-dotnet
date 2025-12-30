@@ -81,6 +81,13 @@
             {
                 if (!IsApplicationInsightsAdded(services))
                 {
+                    // Register the default configuration options to automatically read from appsettings.json
+                    services.AddOptions<ApplicationInsightsServiceOptions>()
+                        .Configure<IConfiguration>((options, config) =>
+                        {
+                            AddTelemetryConfiguration(config, options);
+                        });
+
                     services.AddOpenTelemetry()
                             .WithApplicationInsights()
                             .UseApplicationInsightsTelemetry();
@@ -187,10 +194,7 @@
                         exporterOptions.SamplingRatio = 1.0F;
                     }
 
-                    if (serviceOptions.EnableQuickPulseMetricStream)
-                    {
-                        exporterOptions.EnableLiveMetrics = true;
-                    }
+                    exporterOptions.EnableLiveMetrics = serviceOptions.EnableQuickPulseMetricStream;
                 });
 
             builder.UseAzureMonitorExporter();
