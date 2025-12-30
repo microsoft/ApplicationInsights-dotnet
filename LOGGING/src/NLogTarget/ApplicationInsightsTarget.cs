@@ -172,17 +172,9 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                         exporterOptions.SamplingRatio = 1.0F;
                     }
 
-                    // Configure live metrics
-                    if (this.EnableLiveMetrics)
-                    {
-                        exporterOptions.EnableLiveMetrics = true;
-                    }
-
-                    // Configure offline storage
-                    if (this.DisableOfflineStorage)
-                    {
-                        exporterOptions.DisableOfflineStorage = true;
-                    }
+                    // Configure live metrics and offline storage
+                    exporterOptions.EnableLiveMetrics = this.EnableLiveMetrics;
+                    exporterOptions.DisableOfflineStorage = this.DisableOfflineStorage;
                 });
             });
 
