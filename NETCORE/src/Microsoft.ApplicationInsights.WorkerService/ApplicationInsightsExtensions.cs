@@ -194,10 +194,7 @@
                         exporterOptions.SamplingRatio = 1.0F;
                     }
 
-                    if (serviceOptions.EnableQuickPulseMetricStream)
-                    {
-                        exporterOptions.EnableLiveMetrics = true;
-                    }
+                    exporterOptions.EnableLiveMetrics = serviceOptions.EnableQuickPulseMetricStream;
                 });
 
             builder.UseAzureMonitorExporter();

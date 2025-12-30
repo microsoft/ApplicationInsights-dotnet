@@ -1,15 +1,22 @@
 using System;
 using System.IO;
 using Azure.Monitor.OpenTelemetry.Exporter;
-using Microsoft.ApplicationInsights.WorkerService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace IntegrationTests.Tests
+#if AI_ASPNETCORE_WEB
+namespace Microsoft.ApplicationInsights.AspNetCore.Tests
 {
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+#else
+namespace Microsoft.ApplicationInsights.WorkerService.Tests
+{
+    using Microsoft.ApplicationInsights.WorkerService;
+#endif
+
     public class ConfigurationTests
     {
         private readonly ITestOutputHelper output;
@@ -32,7 +39,11 @@ namespace IntegrationTests.Tests
             services.AddSingleton<IConfiguration>(config);
 
             // ACT
+#if AI_ASPNETCORE_WEB
+            services.AddApplicationInsightsTelemetry();
+#else
             services.AddApplicationInsightsTelemetryWorkerService();
+#endif
 
             // VALIDATE
             IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -52,7 +63,11 @@ namespace IntegrationTests.Tests
             services.AddSingleton<IConfiguration>(config);
 
             // ACT
+#if AI_ASPNETCORE_WEB
+            services.AddApplicationInsightsTelemetry();
+#else
             services.AddApplicationInsightsTelemetryWorkerService();
+#endif
 
             // VALIDATE
             IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -72,7 +87,11 @@ namespace IntegrationTests.Tests
             services.AddSingleton<IConfiguration>(config);
 
             // ACT
+#if AI_ASPNETCORE_WEB
+            services.AddApplicationInsightsTelemetry();
+#else
             services.AddApplicationInsightsTelemetryWorkerService();
+#endif
 
             // VALIDATE
             IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -92,7 +111,11 @@ namespace IntegrationTests.Tests
             services.AddSingleton<IConfiguration>(config);
 
             // ACT
+#if AI_ASPNETCORE_WEB
+            services.AddApplicationInsightsTelemetry();
+#else
             services.AddApplicationInsightsTelemetryWorkerService();
+#endif
 
             // VALIDATE
             IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -112,20 +135,24 @@ namespace IntegrationTests.Tests
             services.AddSingleton<IConfiguration>(config);
 
             // ACT
+#if AI_ASPNETCORE_WEB
+            services.AddApplicationInsightsTelemetry();
+#else
             services.AddApplicationInsightsTelemetryWorkerService();
+#endif
 
             // VALIDATE
             IServiceProvider serviceProvider = services.BuildServiceProvider();
             
             // Verify ApplicationInsightsServiceOptions
             var aiOptions = serviceProvider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
-            Assert.Equal("InstrumentationKey=22222222-2222-3333-4444-555555555555;IngestionEndpoint=http://testendpoint", aiOptions.ConnectionString);
+            Assert.Equal("InstrumentationKey=22222222-2222-3333-4444-555555555555", aiOptions.ConnectionString);
             Assert.False(aiOptions.EnableAdaptiveSampling);
             Assert.False(aiOptions.EnableQuickPulseMetricStream);
             
             // Verify AzureMonitorExporterOptions gets the values
             var exporterOptions = serviceProvider.GetRequiredService<IOptions<AzureMonitorExporterOptions>>().Value;
-            Assert.Equal("InstrumentationKey=22222222-2222-3333-4444-555555555555;IngestionEndpoint=http://testendpoint", exporterOptions.ConnectionString);
+            Assert.Equal("InstrumentationKey=22222222-2222-3333-4444-555555555555", exporterOptions.ConnectionString);
             Assert.Equal(1.0F, exporterOptions.SamplingRatio); // No sampling when EnableAdaptiveSampling is false
             Assert.False(exporterOptions.EnableLiveMetrics);
         }
@@ -147,7 +174,11 @@ namespace IntegrationTests.Tests
                 services.AddSingleton<IConfiguration>(config);
 
                 // ACT
+#if AI_ASPNETCORE_WEB
+                services.AddApplicationInsightsTelemetry();
+#else
                 services.AddApplicationInsightsTelemetryWorkerService();
+#endif
 
                 // VALIDATE
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -173,7 +204,11 @@ namespace IntegrationTests.Tests
             services.AddSingleton<IConfiguration>(config);
 
             // ACT - Pass explicit options
+#if AI_ASPNETCORE_WEB
+            services.AddApplicationInsightsTelemetry(options =>
+#else
             services.AddApplicationInsightsTelemetryWorkerService(options =>
+#endif
             {
                 options.ConnectionString = explicitConnectionString;
             });
@@ -183,5 +218,28 @@ namespace IntegrationTests.Tests
             var options = serviceProvider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
             Assert.Equal(explicitConnectionString, options.ConnectionString);
         }
+
+#if AI_ASPNETCORE_WEB
+        [Fact]
+        public void ReadsRequestCollectionOptionsFromApplicationInsightsSectionInConfig()
+        {
+            // ARRANGE
+            var jsonFullPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "config-all-settings-false.json");
+            this.output.WriteLine("json:" + jsonFullPath);
+            var config = new ConfigurationBuilder().AddJsonFile(jsonFullPath).Build();
+            
+            var services = new ServiceCollection();
+            services.AddSingleton<IConfiguration>(config);
+
+            // ACT
+            services.AddApplicationInsightsTelemetry();
+
+            // VALIDATE
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+            var options = serviceProvider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
+            Assert.False(options.RequestCollectionOptions.InjectResponseHeaders);
+            Assert.False(options.RequestCollectionOptions.TrackExceptions);
+        }
+#endif
     }
 }
