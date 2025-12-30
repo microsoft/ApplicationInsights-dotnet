@@ -11,9 +11,11 @@ namespace Microsoft.ApplicationInsights.NLogTarget
     using System.Collections.Generic;
     using System.Globalization;
     using Azure.Core;
+    using Azure.Monitor.OpenTelemetry.Exporter;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.Extensions.DependencyInjection;
     using NLog;
     using NLog.Common;
     using NLog.Config;
@@ -59,6 +61,26 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             get => (this.connectionStringLayout as NLog.Layouts.SimpleLayout)?.Text ?? null;
             set => this.connectionStringLayout = value ?? string.Empty;
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether adaptive sampling is enabled.
+        /// When set to false, sets sampling ratio to 1.0 (100% sampling).
+        /// Defaults to true.
+        /// </summary>
+        public bool EnableAdaptiveSampling { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether live metrics stream is enabled.
+        /// Defaults to false.
+        /// </summary>
+        public bool EnableLiveMetrics { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether offline storage is disabled.
+        /// When set to true, telemetry will not be stored offline when network is unavailable.
+        /// Defaults to false (offline storage is enabled).
+        /// </summary>
+        public bool DisableOfflineStorage { get; set; } = false;
 
         /// <summary>
         /// Gets the array of custom attributes to be passed into the logevent context.
@@ -133,13 +155,35 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             this.telemetryConfiguration = new TelemetryConfiguration();
             this.telemetryConfiguration.ConnectionString = connectionString;
             
-            // Configure OpenTelemetry resource with distro name
+            // Configure OpenTelemetry resource with distro name and exporter options
             this.telemetryConfiguration.ConfigureOpenTelemetryBuilder(builder =>
             {
                 builder.ConfigureResource(r => r.AddAttributes(new[] 
                 { 
                     new System.Collections.Generic.KeyValuePair<string, object>("telemetry.distro.name", "Microsoft.ApplicationInsights.NLogTarget"),
                 }));
+
+                // Configure Azure Monitor Exporter options
+                builder.Services.Configure<AzureMonitorExporterOptions>(exporterOptions =>
+                {
+                    // Configure sampling
+                    if (!this.EnableAdaptiveSampling)
+                    {
+                        exporterOptions.SamplingRatio = 1.0F;
+                    }
+
+                    // Configure live metrics
+                    if (this.EnableLiveMetrics)
+                    {
+                        exporterOptions.EnableLiveMetrics = true;
+                    }
+
+                    // Configure offline storage
+                    if (this.DisableOfflineStorage)
+                    {
+                        exporterOptions.DisableOfflineStorage = true;
+                    }
+                });
             });
 
             // Set AAD credential if provided

@@ -108,6 +108,90 @@
             Assert.Same(mockCredential, target.Credential);
         }
 
+        [Trait("Category", "NLogTarget")]
+        [Fact]
+        public void EnableAdaptiveSamplingPropertyCanBeSetAndRetrieved()
+        {
+            var target = new ApplicationInsightsTarget
+            {
+                ConnectionString = DefaultConnectionString,
+                EnableAdaptiveSampling = false
+            };
+
+            Assert.False(target.EnableAdaptiveSampling);
+
+            target.EnableAdaptiveSampling = true;
+            Assert.True(target.EnableAdaptiveSampling);
+        }
+
+        [Trait("Category", "NLogTarget")]
+        [Fact]
+        public void EnableAdaptiveSamplingDefaultsToTrue()
+        {
+            var target = new ApplicationInsightsTarget
+            {
+                ConnectionString = DefaultConnectionString
+            };
+
+            Assert.True(target.EnableAdaptiveSampling);
+        }
+
+        [Trait("Category", "NLogTarget")]
+        [Fact]
+        public void EnableLiveMetricsPropertyCanBeSetAndRetrieved()
+        {
+            var target = new ApplicationInsightsTarget
+            {
+                ConnectionString = DefaultConnectionString,
+                EnableLiveMetrics = true
+            };
+
+            Assert.True(target.EnableLiveMetrics);
+
+            target.EnableLiveMetrics = false;
+            Assert.False(target.EnableLiveMetrics);
+        }
+
+        [Trait("Category", "NLogTarget")]
+        [Fact]
+        public void EnableLiveMetricsDefaultsToFalse()
+        {
+            var target = new ApplicationInsightsTarget
+            {
+                ConnectionString = DefaultConnectionString
+            };
+
+            Assert.False(target.EnableLiveMetrics);
+        }
+
+        [Trait("Category", "NLogTarget")]
+        [Fact]
+        public void DisableOfflineStoragePropertyCanBeSetAndRetrieved()
+        {
+            var target = new ApplicationInsightsTarget
+            {
+                ConnectionString = DefaultConnectionString,
+                DisableOfflineStorage = true
+            };
+
+            Assert.True(target.DisableOfflineStorage);
+
+            target.DisableOfflineStorage = false;
+            Assert.False(target.DisableOfflineStorage);
+        }
+
+        [Trait("Category", "NLogTarget")]
+        [Fact]
+        public void DisableOfflineStorageDefaultsToFalse()
+        {
+            var target = new ApplicationInsightsTarget
+            {
+                ConnectionString = DefaultConnectionString
+            };
+
+            Assert.False(target.DisableOfflineStorage);
+        }
+
         [Fact]
         [Trait("Category", "NLogTarget")]
         public async Task TracesAreCapturedByExporter()
