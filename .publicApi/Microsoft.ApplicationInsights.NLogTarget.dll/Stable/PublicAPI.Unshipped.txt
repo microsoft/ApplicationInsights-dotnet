@@ -5,6 +5,12 @@ Microsoft.ApplicationInsights.NLogTarget.ApplicationInsightsTarget.ConnectionStr
 Microsoft.ApplicationInsights.NLogTarget.ApplicationInsightsTarget.ContextProperties.get -> System.Collections.Generic.IList<Microsoft.ApplicationInsights.NLogTarget.TargetPropertyWithContext>
 Microsoft.ApplicationInsights.NLogTarget.ApplicationInsightsTarget.Credential.get -> Azure.Core.TokenCredential
 Microsoft.ApplicationInsights.NLogTarget.ApplicationInsightsTarget.Credential.set -> void
+Microsoft.ApplicationInsights.NLogTarget.ApplicationInsightsTarget.DisableOfflineStorage.get -> bool
+Microsoft.ApplicationInsights.NLogTarget.ApplicationInsightsTarget.DisableOfflineStorage.set -> void
+Microsoft.ApplicationInsights.NLogTarget.ApplicationInsightsTarget.EnableAdaptiveSampling.get -> bool
+Microsoft.ApplicationInsights.NLogTarget.ApplicationInsightsTarget.EnableAdaptiveSampling.set -> void
+Microsoft.ApplicationInsights.NLogTarget.ApplicationInsightsTarget.EnableLiveMetrics.get -> bool
+Microsoft.ApplicationInsights.NLogTarget.ApplicationInsightsTarget.EnableLiveMetrics.set -> void
 Microsoft.ApplicationInsights.NLogTarget.TargetPropertyWithContext
 Microsoft.ApplicationInsights.NLogTarget.TargetPropertyWithContext.Layout.get -> NLog.Layouts.Layout
 Microsoft.ApplicationInsights.NLogTarget.TargetPropertyWithContext.Layout.set -> void

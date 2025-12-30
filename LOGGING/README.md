@@ -67,6 +67,38 @@ logger.Info("Using AAD authentication");
 
 For more information, see the [Azure.Identity documentation](https://learn.microsoft.com/dotnet/api/overview/azure/identity-readme).
 
+### Exporter Options
+
+The `ApplicationInsightsTarget` supports configuring Azure Monitor Exporter options:
+
+- **EnableAdaptiveSampling** (default: `true`) - Controls adaptive sampling. Set to `false` to disable sampling (100% of telemetry is sent).
+- **EnableLiveMetrics** (default: `false`) - Enables live metrics stream for real-time monitoring.
+- **DisableOfflineStorage** (default: `false`) - Set to `true` to disable offline storage when network is unavailable.
+
+These options can be configured in XML or code:
+
+```xml
+<target xsi:type="ApplicationInsightsTarget" name="aiTarget">
+    <connectionString>InstrumentationKey=YOUR_IKEY;IngestionEndpoint=https://...</connectionString>
+    <enableAdaptiveSampling>true</enableAdaptiveSampling>
+    <enableLiveMetrics>false</enableLiveMetrics>
+    <disableOfflineStorage>false</disableOfflineStorage>
+</target>
+```
+
+Or in code:
+
+```csharp
+var aiTarget = new ApplicationInsightsTarget
+{
+    Name = "aiTarget",
+    ConnectionString = "InstrumentationKey=YOUR_IKEY;IngestionEndpoint=https://...",
+    EnableAdaptiveSampling = true,
+    EnableLiveMetrics = false,
+    DisableOfflineStorage = false
+};
+```
+
 ### Configuration
 
  * **Configure ApplicationInsightsTarget using NLog.config** :
@@ -78,7 +110,7 @@ For more information, see the [Azure.Identity documentation](https://learn.micro
     </extensions>
 	<targets>
 		<target xsi:type="ApplicationInsightsTarget" name="aiTarget">
-			<instrumentationKey>Your_Resource_Key</instrumentationKey>	<!-- Only required if not using ApplicationInsights.config -->
+			<connectionString>InstrumentationKey=YOUR_IKEY</connectionString>
 			<contextproperty name="threadid" layout="${threadid}" />	<!-- Can be repeated with more context -->
 		</target>
 	</targets>
@@ -91,7 +123,7 @@ For more information, see the [Azure.Identity documentation](https://learn.micro
 NLog allows you to configure conditional configs:
 
 ```xml
-<instrumentationKey>${configsetting:APPINSIGHTS.INSTRUMENTATIONKEY:whenEmpty=${environment:APPINSIGHTS_INSTRUMENTATIONKEY}}</instrumentationKey>	
+<connectionString>${configsetting:APPINSIGHTS.CONNECTIONSTRING:whenEmpty=${environment:APPINSIGHTS_CONNECTIONSTRING}}</connectionString>	
 ```
 
 For more information see:
@@ -102,11 +134,21 @@ For more information see:
 
 
 ```csharp
-// You need this only if you did not define InstrumentationKey in ApplicationInsights.config (Or in the NLog.config)
-TelemetryConfiguration.Active.InstrumentationKey = "Your_Resource_Key";
+// Configure ApplicationInsightsTarget programmatically
+var config = new LoggingConfiguration();
 
-Logger logger = LogManager.GetLogger("Example");
+var aiTarget = new ApplicationInsightsTarget
+{
+    ConnectionString = "InstrumentationKey=YOUR_IKEY",
+    EnableAdaptiveSampling = true
+};
 
+var rule = new LoggingRule("*", LogLevel.Trace, aiTarget);
+config.LoggingRules.Add(rule);
+
+LogManager.Configuration = config;
+
+var logger = LogManager.GetLogger("Example");
 logger.Trace("trace log message");
 ```
 
@@ -116,17 +158,17 @@ If you configure NLog programmatically with the [NLog Config API](https://github
 ```csharp
 var config = new LoggingConfiguration();
 
-ApplicationInsightsTarget target = new ApplicationInsightsTarget();
-// You need this only if you did not define InstrumentationKey in ApplicationInsights.config or want to use different instrumentation key
-target.InstrumentationKey = "Your_Resource_Key";
+var target = new ApplicationInsightsTarget
+{
+    ConnectionString = "InstrumentationKey=YOUR_IKEY"
+};
 
-LoggingRule rule = new LoggingRule("*", LogLevel.Trace, target);
+var rule = new LoggingRule("*", LogLevel.Trace, target);
 config.LoggingRules.Add(rule);
 
 LogManager.Configuration = config;
 
-Logger logger = LogManager.GetLogger("Example");
-
+var logger = LogManager.GetLogger("Example");
 logger.Trace("trace log message");
 ``` 
 

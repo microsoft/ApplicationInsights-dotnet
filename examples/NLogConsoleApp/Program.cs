@@ -7,7 +7,7 @@ NLog.Common.InternalLogger.LogToConsole = true;
 NLog.Common.InternalLogger.LogLevel = NLog.LogLevel.Warn;
 
 /*
-// Optional: Configure Azure Active Directory (AAD) authentication
+// Optional: Configure Azure Active Directory (AAD) authentication and exporter options
 // Requires: Install-Package Azure.Identity
 
 var config = new LoggingConfiguration();
@@ -20,12 +20,15 @@ var consoleTarget = new NLog.Targets.ConsoleTarget("console")
 config.AddTarget(consoleTarget);
 config.AddRule(LogLevel.Trace, LogLevel.Fatal, consoleTarget);
 
-// Add AI target with AAD
+// Add AI target with AAD and exporter options
 var aiTarget = new ApplicationInsightsTarget
 {
     Name = "aiTarget",
     ConnectionString = "InstrumentationKey=YOUR_IKEY;IngestionEndpoint=https://ingestion-endpoint.applicationinsights.azure.com/",
-    Credential = new DefaultAzureCredential()
+    Credential = new DefaultAzureCredential(),
+    EnableAdaptiveSampling = true,     // Default: true (enables adaptive sampling)
+    EnableLiveMetrics = false,          // Default: false (live metrics stream disabled)
+    DisableOfflineStorage = false       // Default: false (offline storage enabled)
 };
 config.AddTarget("aiTarget", aiTarget);
 config.AddRule(LogLevel.Info, LogLevel.Fatal, aiTarget);
