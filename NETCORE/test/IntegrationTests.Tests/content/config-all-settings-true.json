@@ -1,0 +1,15 @@
+﻿{
+  "ApplicationInsights": {
+    "ConnectionString": "InstrumentationKey=22222222-2222-3333-4444-555555555555;IngestionEndpoint=http://testendpoint",
+    "EnableAdaptiveSampling": true,
+    "EnableQuickPulseMetricStream": true,
+    "ApplicationVersion": "1.0.0",
+    "RequestCollectionOptions": {
+      "InjectResponseHeaders": true,
+      "TrackExceptions": true
+    },
+    "DependencyCollectionOptions": {
+      "EnableLegacyCorrelationHeadersInjection": true
+    }
+  }
+}

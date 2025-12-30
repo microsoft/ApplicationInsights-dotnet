@@ -81,6 +81,13 @@
             {
                 if (!IsApplicationInsightsAdded(services))
                 {
+                    // Register the default configuration options to automatically read from appsettings.json
+                    services.AddOptions<ApplicationInsightsServiceOptions>()
+                        .Configure<IConfiguration>((options, config) =>
+                        {
+                            AddTelemetryConfiguration(config, options);
+                        });
+
                     services.AddOpenTelemetry()
                             .WithApplicationInsights()
                             .UseApplicationInsightsTelemetry();

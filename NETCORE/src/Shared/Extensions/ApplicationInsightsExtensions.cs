@@ -29,15 +29,10 @@
     {
         private const string VersionKeyFromConfig = "version";
         private const string ConnectionStringFromConfig = "ApplicationInsights:ConnectionString";
-        private const string DeveloperModeFromConfig = "ApplicationInsights:TelemetryChannel:DeveloperMode";
-        private const string EndpointAddressFromConfig = "ApplicationInsights:TelemetryChannel:EndpointAddress";
 
         private const string ConnectionStringEnvironmentVariable = "APPLICATIONINSIGHTS_CONNECTION_STRING";
-        private const string DeveloperModeForWebSites = "APPINSIGHTS_DEVELOPER_MODE";
-        private const string EndpointAddressForWebSites = "APPINSIGHTS_ENDPOINTADDRESS";
 
         private const string ApplicationInsightsSectionFromConfig = "ApplicationInsights";
-        private const string TelemetryChannelSectionFromConfig = "ApplicationInsights:TelemetryChannel";
 
         /// <summary>
         /// Read configuration from appSettings.json, appsettings.{env.EnvironmentName}.json,
@@ -54,24 +49,10 @@
             try
             {
                 config.GetSection(ApplicationInsightsSectionFromConfig).Bind(serviceOptions);
-                config.GetSection(TelemetryChannelSectionFromConfig).Bind(serviceOptions);
 
                 if (config.TryGetValue(primaryKey: ConnectionStringEnvironmentVariable, backupKey: ConnectionStringFromConfig, value: out string connectionStringValue))
                 {
                     serviceOptions.ConnectionString = connectionStringValue;
-                }
-
-                if (config.TryGetValue(primaryKey: DeveloperModeForWebSites, backupKey: DeveloperModeFromConfig, value: out string developerModeValue))
-                {
-                    if (bool.TryParse(developerModeValue, out bool developerMode))
-                    {
-                        serviceOptions.DeveloperMode = developerMode;
-                    }
-                }
-
-                if (config.TryGetValue(primaryKey: EndpointAddressForWebSites, backupKey: EndpointAddressFromConfig, value: out string endpointAddress))
-                {
-                    serviceOptions.EndpointAddress = endpointAddress;
                 }
 
                 if (config.TryGetValue(primaryKey: VersionKeyFromConfig, value: out string version))
