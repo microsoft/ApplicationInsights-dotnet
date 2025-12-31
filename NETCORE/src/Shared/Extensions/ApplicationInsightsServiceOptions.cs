@@ -39,6 +39,32 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
         public bool EnableAdaptiveSampling { get; set; } = true;
 
         /// <summary>
+        /// Gets or sets the target number of traces per second to be collected.
+        /// Defaults to <value>5.0</value>.
+        /// </summary>
+        public double TracesPerSecond { get; set; } = 5.0;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether offline storage should be disabled.
+        /// When <value>true</value>, telemetry will not be stored locally when transmission fails.
+        /// Defaults to <value>false</value>.
+        /// </summary>
+        public bool DisableOfflineStorage { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the directory path for storing telemetry when offline.
+        /// If not specified, the default storage directory will be used.
+        /// </summary>
+        public string StorageDirectory { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the trace-based logs sampler is enabled.
+        /// When <value>true</value> (default), logs are sampled based on their associated trace.
+        /// Defaults to <value>true</value>.
+        /// </summary>
+        public bool EnableTraceBasedLogsSampler { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets the connection string for the application.
         /// </summary>
         public string ConnectionString { get; set; }
@@ -129,6 +155,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
 
             target.ApplicationVersion = this.ApplicationVersion;
             target.EnableAdaptiveSampling = this.EnableAdaptiveSampling;
+            target.TracesPerSecond = this.TracesPerSecond;
+            target.DisableOfflineStorage = this.DisableOfflineStorage;
+            target.StorageDirectory = this.StorageDirectory;
+            target.EnableTraceBasedLogsSampler = this.EnableTraceBasedLogsSampler;
             target.EnableDebugLogger = this.EnableDebugLogger;
             target.EnableQuickPulseMetricStream = this.EnableQuickPulseMetricStream;
             target.AddAutoCollectedMetricExtractor = this.AddAutoCollectedMetricExtractor;

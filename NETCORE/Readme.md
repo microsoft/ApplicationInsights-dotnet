@@ -164,7 +164,36 @@ builder.Services.AddApplicationInsightsTelemetry(options =>
     // When true, enables rate-limit based sampling in Azure Monitor Exporter
     // When false, sampling is disabled (100% collection)
     options.EnableAdaptiveSampling = true;
+    
+    // Target number of traces per second for sampling (default: 5.0)
+    options.TracesPerSecond = 5.0;
+    
+    // Disable offline storage for failed telemetry (default: false)
+    options.DisableOfflineStorage = false;
+    
+    // Custom directory for offline storage
+    options.StorageDirectory = "C:\\AppInsightsStorage";
+    
+    // Enable trace-based logs sampling (default: true)
+    // When true, logs are sampled based on their associated trace
+    options.EnableTraceBasedLogsSampler = true;
 });
+```
+
+These options can also be configured via `appsettings.json`:
+
+```json
+{
+  "ApplicationInsights": {
+    "ConnectionString": "InstrumentationKey=...",
+    "EnableQuickPulseMetricStream": true,
+    "EnableAdaptiveSampling": true,
+    "TracesPerSecond": 5.0,
+    "DisableOfflineStorage": false,
+    "StorageDirectory": "C:\\AppInsightsStorage",
+    "EnableTraceBasedLogsSampler": true
+  }
+}
 ```
 
 > **Note**: In version 3.x, many properties from `ApplicationInsightsServiceOptions` in 2.x are no longer functional because they related to telemetry modules, processors, and channels that have been replaced by OpenTelemetry components. The properties shown above are the ones that are actively used in the 3.x OpenTelemetry-based implementation.
