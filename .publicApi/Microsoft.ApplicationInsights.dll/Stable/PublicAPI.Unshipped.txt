@@ -164,8 +164,14 @@ Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ConnectionStr
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ConnectionString.set -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableTelemetry.get -> bool
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableTelemetry.set -> void
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableLiveMetrics() -> void
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableOfflineStorage() -> void
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableTraceBasedLogsSampling() -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.Dispose() -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetAzureTokenCredential(Azure.Core.TokenCredential tokenCredential) -> void
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetSamplingRatio(float samplingRatio) -> void
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetStorageDirectory(string storageDirectory) -> void
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetTracesPerSecond(double tracesPerSecond) -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.TelemetryConfiguration() -> void
 Microsoft.ApplicationInsights.Metric
 Microsoft.ApplicationInsights.Metric.TrackValue(double metricValue) -> void
