@@ -194,6 +194,23 @@
                         exporterOptions.SamplingRatio = 1.0F;
                     }
 
+                    // Copy TracesPerSecond to Azure Monitor Exporter (with validation)
+                    if (serviceOptions.TracesPerSecond > 0)
+                    {
+                        exporterOptions.TracesPerSecond = serviceOptions.TracesPerSecond;
+                    }
+
+                    // Copy offline storage settings to Azure Monitor Exporter
+                    exporterOptions.DisableOfflineStorage = serviceOptions.DisableOfflineStorage;
+
+                    if (!string.IsNullOrEmpty(serviceOptions.StorageDirectory))
+                    {
+                        exporterOptions.StorageDirectory = serviceOptions.StorageDirectory;
+                    }
+
+                    // Copy trace-based logs sampler setting to Azure Monitor Exporter
+                    exporterOptions.EnableTraceBasedLogsSampler = serviceOptions.EnableTraceBasedLogsSampler;
+
                     exporterOptions.EnableLiveMetrics = serviceOptions.EnableQuickPulseMetricStream;
                 });
 
