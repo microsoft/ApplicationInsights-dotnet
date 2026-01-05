@@ -17,10 +17,9 @@
 
         static void Main(string[] args)
         {
-            var telemetryConfig = new TelemetryConfiguration
-            {
-                ConnectionString = "",
-            };
+
+            var telemetryConfig = TelemetryConfiguration.CreateDefault();
+            telemetryConfig.ConnectionString = "";
 
             telemetryConfig.ConfigureOpenTelemetryBuilder(builder => builder.WithTracing(tracing => tracing.AddSource("MyCompany.MyProduct.MyLibrary").AddConsoleExporter())
                                                                      .WithLogging(logging => logging.AddConsoleExporter())

@@ -40,6 +40,14 @@
         private bool isBuilt = false;
         private bool isDisposed = false;
 
+        // Exporter options
+        private float? samplingRatio;
+        private double? tracesPerSecond;
+        private string storageDirectory;
+        private bool? disableOfflineStorage;
+        private bool? enableLiveMetrics;
+        private bool? enableTraceBasedLogsSampler;
+
         private Action<IOpenTelemetryBuilder> builderConfiguration;
         private OpenTelemetrySdk openTelemetrySdk;
         private ActivitySource defaultActivitySource;
@@ -106,6 +114,91 @@
             {
                 this.ThrowIfBuilt();
                 this.connectionString = value ?? throw new ArgumentNullException(nameof(value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the sampling ratio for traces (0.0 to 1.0).
+        /// A value of 1.0 means all telemetry is sent, 0.5 means 50% is sent.
+        /// When null, the Azure Monitor Exporter default of 1.0 is used.
+        /// </summary>
+        public float? SamplingRatio
+        {
+            get => this.samplingRatio;
+            set
+            {
+                this.ThrowIfBuilt();
+                this.samplingRatio = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the number of traces per second for rate-limited sampling.
+        /// When null, the Azure Monitor Exporter default of 5.0 is used.
+        /// </summary>
+        public double? TracesPerSecond
+        {
+            get => this.tracesPerSecond;
+            set
+            {
+                this.ThrowIfBuilt();
+                this.tracesPerSecond = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the directory for offline telemetry storage.
+        /// When null, the Azure Monitor Exporter default (system default location) is used.
+        /// </summary>
+        public string StorageDirectory
+        {
+            get => this.storageDirectory;
+            set
+            {
+                this.ThrowIfBuilt();
+                this.storageDirectory = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether offline storage is disabled.
+        /// When null, the Azure Monitor Exporter default of false (offline storage enabled) is used.
+        /// </summary>
+        public bool? DisableOfflineStorage
+        {
+            get => this.disableOfflineStorage;
+            set
+            {
+                this.ThrowIfBuilt();
+                this.disableOfflineStorage = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether Live Metrics is enabled.
+        /// When null, the Azure Monitor Exporter default of true is used.
+        /// </summary>
+        public bool? EnableLiveMetrics
+        {
+            get => this.enableLiveMetrics;
+            set
+            {
+                this.ThrowIfBuilt();
+                this.enableLiveMetrics = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether trace-based log sampling is enabled.
+        /// When null, the Azure Monitor Exporter default of true is used.
+        /// </summary>
+        public bool? EnableTraceBasedLogsSampler
+        {
+            get => this.enableTraceBasedLogsSampler;
+            set
+            {
+                this.ThrowIfBuilt();
+                this.enableTraceBasedLogsSampler = value;
             }
         }
 
@@ -274,6 +367,36 @@
                     builder.SetAzureMonitorExporter(options =>
                     {
                         options.ConnectionString = this.connectionString;
+
+                        if (this.samplingRatio.HasValue)
+                        {
+                            options.SamplingRatio = this.samplingRatio.Value;
+                        }
+
+                        if (this.tracesPerSecond.HasValue)
+                        {
+                            options.TracesPerSecond = this.tracesPerSecond.Value;
+                        }
+
+                        if (this.storageDirectory != null)
+                        {
+                            options.StorageDirectory = this.storageDirectory;
+                        }
+
+                        if (this.disableOfflineStorage.HasValue)
+                        {
+                            options.DisableOfflineStorage = this.disableOfflineStorage.Value;
+                        }
+
+                        if (this.enableLiveMetrics.HasValue)
+                        {
+                            options.EnableLiveMetrics = this.enableLiveMetrics.Value;
+                        }
+
+                        if (this.enableTraceBasedLogsSampler.HasValue)
+                        {
+                            options.EnableTraceBasedLogsSampler = this.enableTraceBasedLogsSampler.Value;
+                        }
                     });
                 });
 
