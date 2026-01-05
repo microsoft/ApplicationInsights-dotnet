@@ -43,7 +43,7 @@
         // Exporter options
         private float? samplingRatio;
         private double? tracesPerSecond;
-        private string? storageDirectory;
+        private string storageDirectory;
         private bool? disableOfflineStorage;
         private bool? enableLiveMetrics;
         private bool? enableTraceBasedLogsSampler;
@@ -150,7 +150,7 @@
         /// Gets or sets the directory for offline telemetry storage.
         /// When null, the Azure Monitor Exporter default (system default location) is used.
         /// </summary>
-        public string? StorageDirectory
+        public string StorageDirectory
         {
             get => this.storageDirectory;
             set

@@ -174,7 +174,7 @@ Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.EnableTraceBa
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SamplingRatio.get -> float?
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SamplingRatio.set -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetAzureTokenCredential(Azure.Core.TokenCredential tokenCredential) -> void
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.StorageDirectory.get -> string?
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.StorageDirectory.get -> string
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.StorageDirectory.set -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.TelemetryConfiguration() -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.TracesPerSecond.get -> double?
