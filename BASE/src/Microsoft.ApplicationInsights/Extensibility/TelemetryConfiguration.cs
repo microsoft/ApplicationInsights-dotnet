@@ -40,6 +40,14 @@
         private bool isBuilt = false;
         private bool isDisposed = false;
 
+        // Exporter options
+        private float samplingRatio = 1.0f;
+        private double tracesPerSecond = 5.0;
+        private string storageDirectory;
+        private bool disableOfflineStorage = false;
+        private bool enableLiveMetrics = true;
+        private bool enableTraceBasedLogsSampler = true;
+
         private Action<IOpenTelemetryBuilder> builderConfiguration;
         private OpenTelemetrySdk openTelemetrySdk;
         private ActivitySource defaultActivitySource;
@@ -106,6 +114,91 @@
             {
                 this.ThrowIfBuilt();
                 this.connectionString = value ?? throw new ArgumentNullException(nameof(value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the sampling ratio for traces (0.0 to 1.0).
+        /// A value of 1.0 means all telemetry is sent, 0.5 means 50% is sent.
+        /// Default is 1.0 (all telemetry sent).
+        /// </summary>
+        public float SamplingRatio
+        {
+            get => this.samplingRatio;
+            set
+            {
+                this.ThrowIfBuilt();
+                this.samplingRatio = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the number of traces per second for rate-limited sampling.
+        /// Default is 5.0.
+        /// </summary>
+        public double TracesPerSecond
+        {
+            get => this.tracesPerSecond;
+            set
+            {
+                this.ThrowIfBuilt();
+                this.tracesPerSecond = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the directory for offline telemetry storage.
+        /// Default is null (uses system default location).
+        /// </summary>
+        public string StorageDirectory
+        {
+            get => this.storageDirectory;
+            set
+            {
+                this.ThrowIfBuilt();
+                this.storageDirectory = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether offline storage is disabled.
+        /// Default is false (offline storage is enabled).
+        /// </summary>
+        public bool DisableOfflineStorage
+        {
+            get => this.disableOfflineStorage;
+            set
+            {
+                this.ThrowIfBuilt();
+                this.disableOfflineStorage = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether Live Metrics is enabled.
+        /// Default is true.
+        /// </summary>
+        public bool EnableLiveMetrics
+        {
+            get => this.enableLiveMetrics;
+            set
+            {
+                this.ThrowIfBuilt();
+                this.enableLiveMetrics = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether trace-based log sampling is enabled.
+        /// Default is true.
+        /// </summary>
+        public bool EnableTraceBasedLogsSampler
+        {
+            get => this.enableTraceBasedLogsSampler;
+            set
+            {
+                this.ThrowIfBuilt();
+                this.enableTraceBasedLogsSampler = value;
             }
         }
 
@@ -209,156 +302,6 @@
         }
 
         /// <summary>
-        /// Sets the sampling ratio for traces.
-        /// </summary>
-        /// <remarks>
-        /// The sampling ratio controls what percentage of trace telemetry is sent to Application Insights.
-        /// A value of 1.0 means all telemetry is sent, 0.5 means 50% is sent, etc.
-        /// </remarks>
-        /// <param name="samplingRatio">The sampling ratio between 0.0 and 1.0 inclusive.</param>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if samplingRatio is not between 0.0 and 1.0.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if the configuration has already been built.</exception>
-        public void SetSamplingRatio(float samplingRatio)
-        {
-            this.ThrowIfBuilt();
-
-            if (samplingRatio < 0.0F || samplingRatio > 1.0F)
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(samplingRatio),
-                    samplingRatio,
-                    "Sampling ratio must be between 0.0 and 1.0 inclusive.");
-            }
-
-            this.ConfigureOpenTelemetryBuilder(builder =>
-            {
-                builder.Services.Configure<AzureMonitorExporterOptions>(exporterOptions =>
-                {
-                    exporterOptions.SamplingRatio = samplingRatio;
-                });
-            });
-        }
-
-        /// <summary>
-        /// Sets the number of traces per second to be sampled when using rate-limited sampling.
-        /// </summary>
-        /// <remarks>
-        /// When set, this takes precedence over <see cref="SetSamplingRatio"/>.
-        /// For example, specifying 0.5 means one request every two seconds.
-        /// </remarks>
-        /// <param name="tracesPerSecond">The number of traces per second. Must be greater than or equal to zero.</param>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if tracesPerSecond is negative.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if the configuration has already been built.</exception>
-        public void SetTracesPerSecond(double tracesPerSecond)
-        {
-            this.ThrowIfBuilt();
-
-            if (tracesPerSecond < 0.0)
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(tracesPerSecond),
-                    tracesPerSecond,
-                    "Traces per second must be greater than or equal to zero.");
-            }
-
-            this.ConfigureOpenTelemetryBuilder(builder =>
-            {
-                builder.Services.Configure<AzureMonitorExporterOptions>(exporterOptions =>
-                {
-                    exporterOptions.TracesPerSecond = tracesPerSecond;
-                });
-            });
-        }
-
-        /// <summary>
-        /// Sets the directory where telemetry will be stored when offline.
-        /// </summary>
-        /// <remarks>
-        /// By default, telemetry is cached locally when the application loses connection to Application Insights
-        /// and automatically retried for up to 48 hours.
-        /// </remarks>
-        /// <param name="storageDirectory">The path to the storage directory.</param>
-        /// <exception cref="ArgumentException">Thrown if storageDirectory is null or empty.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if the configuration has already been built.</exception>
-        public void SetStorageDirectory(string storageDirectory)
-        {
-            this.ThrowIfBuilt();
-
-            if (string.IsNullOrWhiteSpace(storageDirectory))
-            {
-                throw new ArgumentException(
-                    "Storage directory cannot be null or empty.",
-                    nameof(storageDirectory));
-            }
-
-            this.ConfigureOpenTelemetryBuilder(builder =>
-            {
-                builder.Services.Configure<AzureMonitorExporterOptions>(exporterOptions =>
-                {
-                    exporterOptions.StorageDirectory = storageDirectory;
-                });
-            });
-        }
-
-        /// <summary>
-        /// Disables offline storage for telemetry. By default, offline storage is enabled.
-        /// </summary>
-        /// <remarks>
-        /// When disabled, telemetry that cannot be sent immediately will be dropped instead of being cached locally.
-        /// </remarks>
-        /// <exception cref="InvalidOperationException">Thrown if the configuration has already been built.</exception>
-        public void DisableOfflineStorage()
-        {
-            this.ThrowIfBuilt();
-
-            this.ConfigureOpenTelemetryBuilder(builder =>
-            {
-                builder.Services.Configure<AzureMonitorExporterOptions>(exporterOptions =>
-                {
-                    exporterOptions.DisableOfflineStorage = true;
-                });
-            });
-        }
-
-        /// <summary>
-        /// Disables the Live Metrics feature - it is enabled by default.
-        /// </summary>
-        /// <exception cref="InvalidOperationException">Thrown if the configuration has already been built.</exception>
-        public void DisableLiveMetrics()
-        {
-            this.ThrowIfBuilt();
-
-            this.ConfigureOpenTelemetryBuilder(builder =>
-            {
-                builder.Services.Configure<AzureMonitorExporterOptions>(exporterOptions =>
-                {
-                    exporterOptions.EnableLiveMetrics = false;
-                });
-            });
-        }
-
-        /// <summary>
-        /// Disables trace-based log sampling.
-        /// </summary>
-        /// <remarks>
-        /// When trace-based log sampling is enabled (the default), logs belonging to unsampled traces are dropped.
-        /// Use this method to export all logs regardless of trace sampling decisions.
-        /// </remarks>
-        /// <exception cref="InvalidOperationException">Thrown if the configuration has already been built.</exception>
-        public void DisableTraceBasedLogsSampling()
-        {
-            this.ThrowIfBuilt();
-
-            this.ConfigureOpenTelemetryBuilder(builder =>
-            {
-                builder.Services.Configure<AzureMonitorExporterOptions>(exporterOptions =>
-                {
-                    exporterOptions.EnableTraceBasedLogsSampler = false;
-                });
-            });
-        }
-
-        /// <summary>
         /// Sets the cloud role name and role instance for telemetry.
         /// This configures the OpenTelemetry Resource with service.name, service.namespace, service.instance.id, and service.version attributes
         /// which map to Cloud.RoleName, Cloud.RoleInstance, and Application.Ver in Application Insights.
@@ -424,6 +367,16 @@
                     builder.SetAzureMonitorExporter(options =>
                     {
                         options.ConnectionString = this.connectionString;
+                        options.SamplingRatio = this.samplingRatio;
+                        options.TracesPerSecond = this.tracesPerSecond;
+                        options.DisableOfflineStorage = this.disableOfflineStorage;
+                        options.EnableLiveMetrics = this.enableLiveMetrics;
+                        options.EnableTraceBasedLogsSampler = this.enableTraceBasedLogsSampler;
+
+                        if (!string.IsNullOrEmpty(this.storageDirectory))
+                        {
+                            options.StorageDirectory = this.storageDirectory;
+                        }
                     });
                 });
 

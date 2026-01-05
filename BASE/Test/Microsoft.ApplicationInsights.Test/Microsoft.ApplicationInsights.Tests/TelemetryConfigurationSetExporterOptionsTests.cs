@@ -11,7 +11,7 @@ namespace Microsoft.ApplicationInsights.Tests
     using Xunit;
 
     /// <summary>
-    /// Tests for Azure Monitor Exporter configuration methods in TelemetryConfiguration.
+    /// Tests for Azure Monitor Exporter configuration properties in TelemetryConfiguration.
     /// </summary>
     public class TelemetryConfigurationSetExporterOptionsTests : IDisposable
     {
@@ -19,7 +19,6 @@ namespace Microsoft.ApplicationInsights.Tests
 
         public TelemetryConfigurationSetExporterOptionsTests()
         {
-            this.telemetryConfiguration = new TelemetryConfiguration();
         }
 
         public void Dispose()
@@ -63,16 +62,36 @@ namespace Microsoft.ApplicationInsights.Tests
             return sdkField?.GetValue(client) as OpenTelemetrySdk;
         }
 
-        #region SetSamplingRatio Tests
 
         [Fact]
-        public void SetSamplingRatio_WithValidRatio_SetsSamplingRatioInExporterOptions()
+        public void AllDefaults_AreSetCorrectly()
+        {
+            this.telemetryConfiguration = new TelemetryConfiguration();
+            this.telemetryConfiguration.ConnectionString = "InstrumentationKey=test-ikey";
+
+            // Build and verify exporter options
+            var sdk = this.BuildConfiguration();
+            var exporterOptions = this.GetExporterOptions(sdk);
+
+            Assert.Equal(1.0f, exporterOptions.SamplingRatio);
+            Assert.Equal(5.0, exporterOptions.TracesPerSecond);
+            Assert.True(exporterOptions.EnableLiveMetrics);
+            Assert.True(exporterOptions.EnableTraceBasedLogsSampler);
+            Assert.False(exporterOptions.DisableOfflineStorage);
+            Assert.Null(exporterOptions.StorageDirectory);
+        }
+
+        #region SamplingRatio Tests
+
+        [Fact]
+        public void SamplingRatio_SetsSamplingRatioInExporterOptions()
         {
             // Arrange
+            this.telemetryConfiguration = new TelemetryConfiguration();
             this.telemetryConfiguration.ConnectionString = "InstrumentationKey=test-ikey";
 
             // Act
-            this.telemetryConfiguration.SetSamplingRatio(0.5F);
+            this.telemetryConfiguration.SamplingRatio = 0.5F;
 
             // Build the configuration by creating a TelemetryClient
             var sdk = this.BuildConfiguration();
@@ -83,9 +102,10 @@ namespace Microsoft.ApplicationInsights.Tests
         }
 
         [Fact]
-        public void SetSamplingRatio_AfterBuild_ThrowsInvalidOperationException()
+        public void SamplingRatio_AfterBuild_ThrowsInvalidOperationException()
         {
             // Arrange
+            this.telemetryConfiguration = new TelemetryConfiguration();
             this.telemetryConfiguration.ConnectionString = "InstrumentationKey=test-ikey";
 
             // Build the configuration by creating a TelemetryClient
@@ -93,43 +113,22 @@ namespace Microsoft.ApplicationInsights.Tests
 
             // Act & Assert
             Assert.Throws<InvalidOperationException>(() =>
-                this.telemetryConfiguration.SetSamplingRatio(0.5F));
-        }
-
-        [Fact]
-        public void SetSamplingRatio_WithRatioGreaterThanOne_ThrowsArgumentOutOfRangeException()
-        {
-            // Arrange
-            this.telemetryConfiguration.ConnectionString = "InstrumentationKey=test-ikey";
-
-            // Act & Assert
-            Assert.Throws<ArgumentOutOfRangeException>(() =>
-                this.telemetryConfiguration.SetSamplingRatio(1.5F));
-        }
-
-        [Fact]
-        public void SetSamplingRatio_WithNegativeRatio_ThrowsArgumentOutOfRangeException()
-        {
-            // Arrange
-            this.telemetryConfiguration.ConnectionString = "InstrumentationKey=test-ikey";
-
-            // Act & Assert
-            Assert.Throws<ArgumentOutOfRangeException>(() =>
-                this.telemetryConfiguration.SetSamplingRatio(-0.5F));
+                this.telemetryConfiguration.SamplingRatio = 0.5F);
         }
 
         #endregion
 
-        #region SetTracesPerSecond Tests
+        #region TracesPerSecond Tests
 
         [Fact]
-        public void SetTracesPerSecond_WithValidValue_SetsTracesPerSecondInExporterOptions()
+        public void TracesPerSecond_SetsTracesPerSecondInExporterOptions()
         {
             // Arrange
+            this.telemetryConfiguration = new TelemetryConfiguration();
             this.telemetryConfiguration.ConnectionString = "InstrumentationKey=test-ikey";
 
             // Act
-            this.telemetryConfiguration.SetTracesPerSecond(1.5);
+            this.telemetryConfiguration.TracesPerSecond = 1.5;
 
             // Build the configuration by creating a TelemetryClient
             var sdk = this.BuildConfiguration();
@@ -140,20 +139,10 @@ namespace Microsoft.ApplicationInsights.Tests
         }
 
         [Fact]
-        public void SetTracesPerSecond_WithNegativeValue_ThrowsArgumentOutOfRangeException()
+        public void TracesPerSecond_AfterBuild_ThrowsInvalidOperationException()
         {
             // Arrange
-            this.telemetryConfiguration.ConnectionString = "InstrumentationKey=test-ikey";
-
-            // Act & Assert
-            Assert.Throws<ArgumentOutOfRangeException>(() =>
-                this.telemetryConfiguration.SetTracesPerSecond(-1.0));
-        }
-
-        [Fact]
-        public void SetTracesPerSecond_AfterBuild_ThrowsInvalidOperationException()
-        {
-            // Arrange
+            this.telemetryConfiguration = new TelemetryConfiguration();
             this.telemetryConfiguration.ConnectionString = "InstrumentationKey=test-ikey";
 
             // Build the configuration by creating a TelemetryClient
@@ -161,40 +150,22 @@ namespace Microsoft.ApplicationInsights.Tests
 
             // Act & Assert
             Assert.Throws<InvalidOperationException>(() =>
-                this.telemetryConfiguration.SetTracesPerSecond(1.5));
-        }
-
-        [Fact]
-        public void SetTracesPerSecond_WithValidValue_AndDisableLiveMetrics_BeforeBuild()
-        {
-            // Arrange
-            this.telemetryConfiguration.ConnectionString = "InstrumentationKey=test-ikey";
-
-            // Act - chain multiple configuration calls
-            this.telemetryConfiguration.SetTracesPerSecond(1.5);
-            this.telemetryConfiguration.DisableLiveMetrics();
-
-            // Build the configuration by creating a TelemetryClient
-            var sdk = this.BuildConfiguration();
-            var exporterOptions = this.GetExporterOptions(sdk);
-
-            // Assert - verify both values
-            Assert.Equal(1.5, exporterOptions.TracesPerSecond);
-            Assert.False(exporterOptions.EnableLiveMetrics);
+                this.telemetryConfiguration.TracesPerSecond = 1.5);
         }
 
         #endregion
 
-        #region SetStorageDirectory Tests
+        #region StorageDirectory Tests
 
         [Fact]
-        public void SetStorageDirectory_WithValidPath_SetsStorageDirectoryInExporterOptions()
+        public void StorageDirectory_SetsStorageDirectoryInExporterOptions()
         {
             // Arrange
+            this.telemetryConfiguration = new TelemetryConfiguration();
             this.telemetryConfiguration.ConnectionString = "InstrumentationKey=test-ikey";
 
             // Act
-            this.telemetryConfiguration.SetStorageDirectory("C:\\TelemetryStorage");
+            this.telemetryConfiguration.StorageDirectory = "C:\\TelemetryStorage";
 
             // Build the configuration by creating a TelemetryClient
             var sdk = this.BuildConfiguration();
@@ -205,31 +176,10 @@ namespace Microsoft.ApplicationInsights.Tests
         }
 
         [Fact]
-        public void SetStorageDirectory_WithNullPath_ThrowsArgumentException()
+        public void StorageDirectory_AfterBuild_ThrowsInvalidOperationException()
         {
             // Arrange
-            this.telemetryConfiguration.ConnectionString = "InstrumentationKey=test-ikey";
-
-            // Act & Assert
-            Assert.Throws<ArgumentException>(() =>
-                this.telemetryConfiguration.SetStorageDirectory(null));
-        }
-
-        [Fact]
-        public void SetStorageDirectory_WithEmptyPath_ThrowsArgumentException()
-        {
-            // Arrange
-            this.telemetryConfiguration.ConnectionString = "InstrumentationKey=test-ikey";
-
-            // Act & Assert
-            Assert.Throws<ArgumentException>(() =>
-                this.telemetryConfiguration.SetStorageDirectory(string.Empty));
-        }
-
-        [Fact]
-        public void SetStorageDirectory_AfterBuild_ThrowsInvalidOperationException()
-        {
-            // Arrange
+            this.telemetryConfiguration = new TelemetryConfiguration();
             this.telemetryConfiguration.ConnectionString = "InstrumentationKey=test-ikey";
 
             // Build the configuration by creating a TelemetryClient
@@ -237,7 +187,7 @@ namespace Microsoft.ApplicationInsights.Tests
 
             // Act & Assert
             Assert.Throws<InvalidOperationException>(() =>
-                this.telemetryConfiguration.SetStorageDirectory("C:\\TelemetryStorage"));
+                this.telemetryConfiguration.StorageDirectory = "C:\\TelemetryStorage");
         }
 
         #endregion
@@ -248,10 +198,11 @@ namespace Microsoft.ApplicationInsights.Tests
         public void DisableOfflineStorage_SetsDisableOfflineStorageInExporterOptions()
         {
             // Arrange
+            this.telemetryConfiguration = new TelemetryConfiguration();
             this.telemetryConfiguration.ConnectionString = "InstrumentationKey=test-ikey";
 
             // Act
-            this.telemetryConfiguration.DisableOfflineStorage();
+            this.telemetryConfiguration.DisableOfflineStorage = true;
 
             // Build the configuration by creating a TelemetryClient
             var sdk = this.BuildConfiguration();
@@ -265,6 +216,7 @@ namespace Microsoft.ApplicationInsights.Tests
         public void DisableOfflineStorage_AfterBuild_ThrowsInvalidOperationException()
         {
             // Arrange
+            this.telemetryConfiguration = new TelemetryConfiguration();
             this.telemetryConfiguration.ConnectionString = "InstrumentationKey=test-ikey";
 
             // Build the configuration by creating a TelemetryClient
@@ -272,21 +224,22 @@ namespace Microsoft.ApplicationInsights.Tests
 
             // Act & Assert
             Assert.Throws<InvalidOperationException>(() =>
-                this.telemetryConfiguration.DisableOfflineStorage());
+                this.telemetryConfiguration.DisableOfflineStorage = true);
         }
 
         #endregion
 
-        #region DisableLiveMetrics Tests
+        #region EnableLiveMetrics Tests
 
         [Fact]
-        public void DisableLiveMetrics_SetsEnableLiveMetricsFalseInExporterOptions()
+        public void EnableLiveMetrics_SetsEnableLiveMetricsFalseInExporterOptions()
         {
             // Arrange
+            this.telemetryConfiguration = new TelemetryConfiguration();
             this.telemetryConfiguration.ConnectionString = "InstrumentationKey=test-ikey";
 
             // Act
-            this.telemetryConfiguration.DisableLiveMetrics();
+            this.telemetryConfiguration.EnableLiveMetrics = false;
 
             // Build the configuration by creating a TelemetryClient
             var sdk = this.BuildConfiguration();
@@ -297,9 +250,10 @@ namespace Microsoft.ApplicationInsights.Tests
         }
 
         [Fact]
-        public void DisableLiveMetrics_AfterBuild_ThrowsInvalidOperationException()
+        public void EnableLiveMetrics_AfterBuild_ThrowsInvalidOperationException()
         {
             // Arrange
+            this.telemetryConfiguration = new TelemetryConfiguration();
             this.telemetryConfiguration.ConnectionString = "InstrumentationKey=test-ikey";
 
             // Build the configuration by creating a TelemetryClient
@@ -307,21 +261,22 @@ namespace Microsoft.ApplicationInsights.Tests
 
             // Act & Assert
             Assert.Throws<InvalidOperationException>(() =>
-                this.telemetryConfiguration.DisableLiveMetrics());
+                this.telemetryConfiguration.EnableLiveMetrics = false);
         }
 
         #endregion
 
-        #region DisableTraceBasedLogsSampling Tests
+        #region EnableTraceBasedLogsSampler Tests
 
         [Fact]
-        public void DisableTraceBasedLogsSampling_SetsEnableTraceBasedLogsSamplerFalseInExporterOptions()
+        public void EnableTraceBasedLogsSampler_SetsEnableTraceBasedLogsSamplerFalseInExporterOptions()
         {
             // Arrange
+            this.telemetryConfiguration = new TelemetryConfiguration();
             this.telemetryConfiguration.ConnectionString = "InstrumentationKey=test-ikey";
 
             // Act
-            this.telemetryConfiguration.DisableTraceBasedLogsSampling();
+            this.telemetryConfiguration.EnableTraceBasedLogsSampler = false;
 
             // Build the configuration by creating a TelemetryClient
             var sdk = this.BuildConfiguration();
@@ -332,9 +287,10 @@ namespace Microsoft.ApplicationInsights.Tests
         }
 
         [Fact]
-        public void DisableTraceBasedLogsSampling_AfterBuild_ThrowsInvalidOperationException()
+        public void EnableTraceBasedLogsSampler_AfterBuild_ThrowsInvalidOperationException()
         {
             // Arrange
+            this.telemetryConfiguration = new TelemetryConfiguration();
             this.telemetryConfiguration.ConnectionString = "InstrumentationKey=test-ikey";
 
             // Build the configuration by creating a TelemetryClient
@@ -342,7 +298,39 @@ namespace Microsoft.ApplicationInsights.Tests
 
             // Act & Assert
             Assert.Throws<InvalidOperationException>(() =>
-                this.telemetryConfiguration.DisableTraceBasedLogsSampling());
+                this.telemetryConfiguration.EnableTraceBasedLogsSampler = false);
+        }
+
+        #endregion
+
+        #region Combined Options Tests
+
+        [Fact]
+        public void AllOptions_BeforeBuild_SetsAllValuesInExporterOptions()
+        {
+            // Arrange
+            this.telemetryConfiguration = TelemetryConfiguration.CreateDefault();
+            this.telemetryConfiguration.ConnectionString = "InstrumentationKey=test-ikey";
+
+            // Act - set all properties
+            this.telemetryConfiguration.SamplingRatio = 0.75F;
+            this.telemetryConfiguration.TracesPerSecond = 1.5;
+            this.telemetryConfiguration.StorageDirectory = "C:\\TelemetryStorage";
+            this.telemetryConfiguration.DisableOfflineStorage = true;
+            this.telemetryConfiguration.EnableLiveMetrics = false;
+            this.telemetryConfiguration.EnableTraceBasedLogsSampler = false;
+
+            // Build the configuration by creating a TelemetryClient
+            var sdk = this.BuildConfiguration();
+            var exporterOptions = this.GetExporterOptions(sdk);
+
+            // Assert - verify all values
+            Assert.Equal(0.75F, exporterOptions.SamplingRatio);
+            Assert.Equal(1.5, exporterOptions.TracesPerSecond);
+            Assert.Equal("C:\\TelemetryStorage", exporterOptions.StorageDirectory);
+            Assert.True(exporterOptions.DisableOfflineStorage);
+            Assert.False(exporterOptions.EnableLiveMetrics);
+            Assert.False(exporterOptions.EnableTraceBasedLogsSampler);
         }
 
         #endregion

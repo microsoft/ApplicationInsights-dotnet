@@ -164,15 +164,21 @@ Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ConnectionStr
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ConnectionString.set -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableTelemetry.get -> bool
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableTelemetry.set -> void
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableLiveMetrics() -> void
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableOfflineStorage() -> void
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableTraceBasedLogsSampling() -> void
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableOfflineStorage.get -> bool
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.DisableOfflineStorage.set -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.Dispose() -> void
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.EnableLiveMetrics.get -> bool
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.EnableLiveMetrics.set -> void
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.EnableTraceBasedLogsSampler.get -> bool
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.EnableTraceBasedLogsSampler.set -> void
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SamplingRatio.get -> float
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SamplingRatio.set -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetAzureTokenCredential(Azure.Core.TokenCredential tokenCredential) -> void
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetSamplingRatio(float samplingRatio) -> void
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetStorageDirectory(string storageDirectory) -> void
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetTracesPerSecond(double tracesPerSecond) -> void
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.StorageDirectory.get -> string
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.StorageDirectory.set -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.TelemetryConfiguration() -> void
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.TracesPerSecond.get -> double
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.TracesPerSecond.set -> void
 Microsoft.ApplicationInsights.Metric
 Microsoft.ApplicationInsights.Metric.TrackValue(double metricValue) -> void
 Microsoft.ApplicationInsights.Metric.TrackValue(double metricValue, string dimension1Value) -> bool
