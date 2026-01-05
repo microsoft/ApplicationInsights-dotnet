@@ -62,25 +62,6 @@ namespace Microsoft.ApplicationInsights.Tests
             return sdkField?.GetValue(client) as OpenTelemetrySdk;
         }
 
-
-        [Fact]
-        public void AllDefaults_AreSetCorrectly()
-        {
-            this.telemetryConfiguration = new TelemetryConfiguration();
-            this.telemetryConfiguration.ConnectionString = "InstrumentationKey=test-ikey";
-
-            // Build and verify exporter options
-            var sdk = this.BuildConfiguration();
-            var exporterOptions = this.GetExporterOptions(sdk);
-
-            Assert.Equal(1.0f, exporterOptions.SamplingRatio);
-            Assert.Equal(5.0, exporterOptions.TracesPerSecond);
-            Assert.True(exporterOptions.EnableLiveMetrics);
-            Assert.True(exporterOptions.EnableTraceBasedLogsSampler);
-            Assert.False(exporterOptions.DisableOfflineStorage);
-            Assert.Null(exporterOptions.StorageDirectory);
-        }
-
         #region SamplingRatio Tests
 
         [Fact]
