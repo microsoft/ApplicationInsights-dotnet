@@ -59,7 +59,7 @@ Select the option that best describes your situation:
   - [Tracking Page Views](#tracking-page-views)
 - [Configuration](#configuration)
   - [TelemetryConfiguration](#telemetryconfiguration)
-  - [Setting Context Properties](#setting-context-properties)
+- [Setting Context Properties](#setting-context-properties)
   - [Dependency Injection](#dependency-injection)
 - [Advanced Scenarios](#advanced-scenarios)
   - [Enriching Telemetry with Activity Processors](#enriching-telemetry-with-activity-processors)
@@ -624,6 +624,44 @@ var configuration = new TelemetryConfiguration
     
     // Disable telemetry collection (useful for testing)
     DisableTelemetry = false
+};
+```
+
+#### Telemetry Configuration Properties 
+
+`TelemetryConfiguration` exposes properties that configure settings related to sampling, offline storage, and live metrics emission. 
+
+| Property | Type | Default (when null) | Description |
+|----------|------|---------------------|-------------|
+| `SamplingRatio` | `float?` | `1.0` (100%) | Percentage of opentelemetry traces to sample (0.0 to 1.0) |
+| `TracesPerSecond` | `double?` | None | Traces per second (rate-limited sampling) |
+| `StorageDirectory` | `string` | Platform-specific* | Directory for offline telemetry storage |
+| `DisableOfflineStorage` | `bool?` | `false` | When `true`, disables offline storage for failed transmissions |
+| `EnableLiveMetrics` | `bool?` | `true` | Enables Live Metrics stream in Azure Portal |
+| `EnableTraceBasedLogsSampler` | `bool?` | `true` | Applies trace sampling decisions to related logs |
+
+*Storage directory defaults: Windows: `%LOCALAPPDATA%\Microsoft\AzureMonitor`, Linux/macOS: `$TMPDIR/Microsoft/AzureMonitor`
+
+> **⚠️ Sampling Configuration:** Configure **either** `SamplingRatio` **or** `TracesPerSecond`, not both. Use `SamplingRatio` for percentage-based sampling (e.g., keep 50% of telemetry). Use `TracesPerSecond` for rate-limited sampling (e.g., keep at most 5 traces per second regardless of load).
+
+**Example:**
+
+```csharp
+var configuration = new TelemetryConfiguration
+{
+    ConnectionString = "InstrumentationKey=...;IngestionEndpoint=...",
+    
+    // Sampling: Choose ONE of these approaches
+    SamplingRatio = 0.5f,       // Keep 50% of telemetry
+    // TracesPerSecond = 5.0,   // OR: Keep max 5 traces/second
+    
+    // Offline storage
+    StorageDirectory = @"C:\AppData\MyApp\Telemetry",
+    DisableOfflineStorage = false,
+    
+    // Features
+    EnableLiveMetrics = true,
+    EnableTraceBasedLogsSampler = true
 };
 ```
 
