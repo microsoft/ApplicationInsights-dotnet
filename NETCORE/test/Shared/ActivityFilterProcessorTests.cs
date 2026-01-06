@@ -44,7 +44,7 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
         }
 
         [Fact]
-        public void WhenEnableDependencyTrackingIsFalse_FiltersClientActivities()
+        public void WhenDependencyTrackingDisabled_FiltersClientActivities()
         {
             // ARRANGE
             var options = new ApplicationInsightsServiceOptions
@@ -66,7 +66,7 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
         }
 
         [Fact]
-        public void WhenEnableDependencyTrackingIsFalse_FiltersInternalActivities()
+        public void WhenDependencyTrackingDisabled_FiltersInternalActivities()
         {
             // ARRANGE
             var options = new ApplicationInsightsServiceOptions
@@ -88,7 +88,7 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
         }
 
         [Fact]
-        public void WhenEnableDependencyTrackingIsFalse_FiltersProducerActivities()
+        public void WhenDependencyTrackingDisabled_FiltersProducerActivities()
         {
             // ARRANGE
             var options = new ApplicationInsightsServiceOptions
@@ -111,7 +111,7 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
 
 #if AI_ASPNETCORE_WEB
         [Fact]
-        public void WhenEnableRequestTrackingIsFalse_FiltersServerActivities()
+        public void WhenRequestTrackingDisabled_FiltersServerActivities()
         {
             // ARRANGE
             var options = new ApplicationInsightsServiceOptions
@@ -133,7 +133,7 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
         }
 
         [Fact]
-        public void WhenEnableRequestTrackingIsFalse_FiltersConsumerActivities()
+        public void WhenRequestTrackingDisabled_FiltersConsumerActivities()
         {
             // ARRANGE
             var options = new ApplicationInsightsServiceOptions
@@ -216,7 +216,7 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
         }
 
         [Fact]
-        public void WhenEnableDependencyTrackingIsFalse_DoesNotFilterServerActivities()
+        public void WhenDependencyTrackingDisabled_DoesNotFilterServerActivities()
         {
             // ARRANGE
             var options = new ApplicationInsightsServiceOptions
@@ -239,7 +239,7 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
 
 #if AI_ASPNETCORE_WEB
         [Fact]
-        public void WhenEnableRequestTrackingIsFalse_DoesNotFilterClientActivities()
+        public void WhenRequestTrackingDisabled_DoesNotFilterClientActivities()
         {
             // ARRANGE
             var options = new ApplicationInsightsServiceOptions
