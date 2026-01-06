@@ -38,3 +38,6 @@ public class Global : HttpApplication
 **Note:** You need to install the `Azure.Identity` NuGet package to use AAD authentication.
 
 For more information, see the [Azure.Identity documentation](https://learn.microsoft.com/dotnet/api/overview/azure/identity-readme).
+
+### Sampling, Offline Storage, and other configuration
+Other options can also be set via the TelemetryConfiguration in the `Global.asax.cs` file. See [documentation for Microsoft.ApplicationInsights](../../../BASE/README.smd#azure-monitor-exporter-options).
