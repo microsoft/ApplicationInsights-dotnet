@@ -142,7 +142,11 @@
                                 }
 
                                 return true;
-                            }));
+                            })
+                            .AddProcessor<ActivityFilterProcessor>());
+
+            // Register ActivityFilterProcessor in DI
+            builder.Services.AddSingleton<ActivityFilterProcessor>();
 
             builder.WithMetrics(b => b.AddHttpClientMetrics());
 

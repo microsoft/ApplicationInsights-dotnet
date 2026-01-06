@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Compile Include="..\Shared\ConfigurationTests.cs" Link="ConfigurationTests.cs" />
+    <Compile Include="..\Shared\ActivityFilterProcessorTests.cs" Link="ActivityFilterProcessorTests.cs" />
   </ItemGroup>
 
   <ItemGroup>
