@@ -59,8 +59,7 @@ Select the option that best describes your situation:
   - [Tracking Page Views](#tracking-page-views)
 - [Configuration](#configuration)
   - [TelemetryConfiguration](#telemetryconfiguration)
-  - [Azure Monitor Exporter Options](#azure-monitor-exporter-options)
-  - [Setting Context Properties](#setting-context-properties)
+- [Setting Context Properties](#setting-context-properties)
   - [Dependency Injection](#dependency-injection)
 - [Advanced Scenarios](#advanced-scenarios)
   - [Enriching Telemetry with Activity Processors](#enriching-telemetry-with-activity-processors)
@@ -628,9 +627,9 @@ var configuration = new TelemetryConfiguration
 };
 ```
 
-#### Azure Monitor Exporter Options
+#### Telemetry Configuration Properties 
 
-`TelemetryConfiguration` exposes properties that configure the underlying Azure Monitor Exporter. When left as `null`, the exporter's default values are used.
+`TelemetryConfiguration` exposes properties that configure settings related to sampling, offline storage, and live metrics emission. 
 
 | Property | Type | Default (when null) | Description |
 |----------|------|---------------------|-------------|
@@ -661,7 +660,7 @@ var configuration = new TelemetryConfiguration
     DisableOfflineStorage = false,
     
     // Features
-    EnableLiveMetrics = true,
+    EnableLiveMetsrics = true,
     EnableTraceBasedLogsSampler = true
 };
 ```

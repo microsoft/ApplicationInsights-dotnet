@@ -22,8 +22,8 @@ namespace ClassicAspNetWebApp
             // EXAMPLE: Configure Application Insights with Azure Monitor Exporter Options
             // ============================================================================
             // 
-            var telemetryConfig = TelemetryConfiguration.CreateDefault();
-            telemetryConfig.ConnectionString = "";
+            // var telemetryConfig = TelemetryConfiguration.CreateDefault();
+            // telemetryConfig.ConnectionString = "";
             //
             // // SAMPLING: Choose ONE approach (not both)
             // // SamplingRatio: Percentage of telemetry to keep (0.0 to 1.0). Default: 1.0 (100%)
@@ -49,8 +49,8 @@ namespace ClassicAspNetWebApp
             // // Requires: Install-Package Azure.Identity
             // // telemetryConfig.SetAzureTokenCredential(new Azure.Identity.DefaultAzureCredential());
             //
-            var telemetryClient = new TelemetryClient(telemetryConfig);
-            telemetryClient.Context.Cloud.RoleName = "MyWebApp";
+            // var telemetryClient = new TelemetryClient(telemetryConfig);
+            // telemetryClient.Context.Cloud.RoleName = "MyWebApp";
         }
     }
 }

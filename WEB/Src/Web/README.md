@@ -39,5 +39,5 @@ public class Global : HttpApplication
 
 For more information, see the [Azure.Identity documentation](https://learn.microsoft.com/dotnet/api/overview/azure/identity-readme).
 
-### Azure Monitor Exporter Options
-Other Azure Monitor Exporter Options can also be set via the TelemetryConfiguration. See [documentation for Microsoft.ApplicationInsights](../../../BASE/README.md#azure-monitor-exporter-options). 
+### Sampling, Offline Storage, and other configuration
+Other options can also be set via the TelemetryConfiguration in the `Global.asax.cs` file. See [documentation for Microsoft.ApplicationInsights](../../../BASE/README.smd#azure-monitor-exporter-options).
