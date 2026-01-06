@@ -56,11 +56,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
         public string ApplicationVersion { get; set; } = Assembly.GetEntryAssembly()?.GetName().Version.ToString();
 
         /// <summary>
-        /// Gets or sets the endpoint address of the channel.
-        /// </summary>
-        public string EndpointAddress { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether a logger would be registered automatically in debug mode.
         /// </summary>
         public bool EnableDebugLogger { get; set; } = true;
@@ -95,28 +90,12 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
         /// </summary>
         public DependencyCollectionOptions DependencyCollectionOptions { get; } = new DependencyCollectionOptions();
 
-#if AI_ASPNETCORE_WEB
-        /// <summary>
-        /// Gets or sets a value indicating whether TelemetryConfiguration.Active should be initialized.
-        /// Former versions of this library had a dependency on this static instance. 
-        /// This dependency has been removed and we no longer initialize this by default.
-        /// If users depended on this behavior you should enable this.
-        /// However, we recommend migrating away from using TelemetryConfiguration.Active in your projects.
-        /// </summary>
-        public bool EnableActiveTelemetryConfigurationSetup { get; set; } = false;
-#endif
-
         /// <summary>
         /// Copy the properties from this <see cref="ApplicationInsightsServiceOptions"/> to a target instance.
         /// </summary>
         /// <param name="target">Target instance to copy properties to.</param>
         internal void CopyPropertiesTo(ApplicationInsightsServiceOptions target)
         {
-            if (!string.IsNullOrEmpty(this.EndpointAddress))
-            {
-                target.EndpointAddress = this.EndpointAddress;
-            }
-
             if (!string.IsNullOrEmpty(this.ConnectionString))
             {
                 target.ConnectionString = this.ConnectionString;
@@ -138,7 +117,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
 #if AI_ASPNETCORE_WEB
             target.EnableAuthenticationTrackingJavaScript = this.EnableAuthenticationTrackingJavaScript;
             target.EnableRequestTrackingTelemetryModule = this.EnableRequestTrackingTelemetryModule;
-            target.EnableActiveTelemetryConfigurationSetup = this.EnableActiveTelemetryConfigurationSetup;
 #endif
         }
     }
