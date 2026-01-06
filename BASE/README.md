@@ -660,7 +660,7 @@ var configuration = new TelemetryConfiguration
     DisableOfflineStorage = false,
     
     // Features
-    EnableLiveMetsrics = true,
+    EnableLiveMetrics = true,
     EnableTraceBasedLogsSampler = true
 };
 ```
