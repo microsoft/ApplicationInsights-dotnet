@@ -19,8 +19,6 @@ Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.En
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnablePerformanceCounterCollectionModule.set -> void
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableQuickPulseMetricStream.get -> bool
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableQuickPulseMetricStream.set -> void
-Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EndpointAddress.get -> string
-Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EndpointAddress.set -> void
 Microsoft.ApplicationInsights.WorkerService.DependencyCollectionOptions
 Microsoft.ApplicationInsights.WorkerService.DependencyCollectionOptions.DependencyCollectionOptions() -> void
 Microsoft.ApplicationInsights.WorkerService.DependencyCollectionOptions.EnableLegacyCorrelationHeadersInjection.get -> bool

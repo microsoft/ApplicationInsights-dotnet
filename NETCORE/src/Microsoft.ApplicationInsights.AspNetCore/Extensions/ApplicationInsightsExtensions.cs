@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Reflection;
     using Azure.Monitor.OpenTelemetry.Exporter;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNetCore;
@@ -147,7 +148,11 @@
                                 }
 
                                 return true;
-                            }));
+                            })
+                            .AddProcessor<ActivityFilterProcessor>());
+
+            // Register ActivityFilterProcessor in DI
+            builder.Services.AddSingleton<ActivityFilterProcessor>();
 
             builder.WithMetrics(b => b.AddHttpClientAndServerMetrics());
 
@@ -207,6 +212,18 @@
                     {
                         exporterOptions.EnableLiveMetrics = false;
                     }
+
+                    // Configure standard metrics and performance counter collection using reflection
+                    // Only set when false since the default is true
+                    if (!serviceOptions.AddAutoCollectedMetricExtractor)
+                    {
+                        TrySetInternalProperty(exporterOptions, "EnableStandardMetrics", false);
+                    }
+
+                    if (!serviceOptions.EnablePerformanceCounterCollectionModule)
+                    {
+                        TrySetInternalProperty(exporterOptions, "EnablePerfCounters", false);
+                    }
                 });
 
             builder.UseAzureMonitorExporter();
@@ -219,6 +236,23 @@
             return Environment.Version.Major >= 8 ?
                 meterProviderBuilder.AddMeter("Microsoft.AspNetCore.Hosting").AddMeter("System.Net.Http")
                 : meterProviderBuilder.AddAspNetCoreInstrumentation().AddHttpClientInstrumentation();
+        }
+
+        private static void TrySetInternalProperty(object target, string propertyName, bool value)
+        {
+            try
+            {
+                var property = target.GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                if (property != null && property.CanWrite && property.PropertyType == typeof(bool))
+                {
+                    property.SetValue(target, value);
+                }
+            }
+            catch
+            {
+                // Silently ignore if property doesn't exist or can't be set
+                // This allows forward/backward compatibility across versions
+            }
         }
     }
 }
