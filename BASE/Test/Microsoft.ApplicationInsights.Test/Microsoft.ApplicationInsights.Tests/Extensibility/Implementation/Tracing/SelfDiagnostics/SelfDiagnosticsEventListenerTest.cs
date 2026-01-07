@@ -1,11 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics
 {
+    using Moq;
     using System;
     using System.Diagnostics.Tracing;
     using System.Globalization;
     using System.Text;
     using Xunit;
-    using Moq;
 
     public class SelfDiagnosticsEventListenerTest
     {
