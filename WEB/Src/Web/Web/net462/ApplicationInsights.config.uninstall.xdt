@@ -1,6 +1,7 @@
 <ApplicationInsights xmlns="http://schemas.microsoft.com/ApplicationInsights/2013/Settings" xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
   <!-- Core Configuration -->
   <ConnectionString xdt:Transform="Remove" />
+  <DisableTelemetry xdt:Transform="Remove" />
   
   <!-- Sampling & Rate Limiting -->
   <SamplingRatio xdt:Transform="Remove" />

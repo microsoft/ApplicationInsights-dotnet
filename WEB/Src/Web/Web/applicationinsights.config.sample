@@ -33,7 +33,6 @@
   
   <!-- Enable adaptive (rate-limit) sampling (default: true)
        When false, disables rate-limit sampling by setting SamplingRatio to 1.0 -->
-  <!-- <EnableAdaptiveSampling>true</EnableAdaptiveSampling> -->
   
   <!-- Sampling ratio: 0.0 to 1.0, where 1.0 = 100% of telemetry sent (default: 1.0) -->
   <!-- <SamplingRatio>1.0</SamplingRatio> -->
@@ -59,10 +58,7 @@
     =======================================================================
   -->
   
-  <!-- Enable Live Metrics (default: true) -->
-  <!-- <EnableLiveMetrics>true</EnableLiveMetrics> -->
-  
-  <!-- Enable Quick Pulse Metric Stream - alias for EnableLiveMetrics (default: true) -->
+  <!-- Enable Quick Pulse Metric Stream (default: true) -->
   <!-- <EnableQuickPulseMetricStream>true</EnableQuickPulseMetricStream> -->
   
   <!-- Enable trace-based logs sampler (default: true) -->

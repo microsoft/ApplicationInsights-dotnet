@@ -94,7 +94,7 @@ namespace Microsoft.ApplicationInsights.Web.Implementation
         }
 
         /// <summary>
-        /// Reads the connection string from the XML configuration file.
+        /// Reads all configuration options from the XML ApplicationInsights configuration file.
         /// </summary>
         /// <param name="configPath">The path to the config file.</param>
         /// <returns>The configuration options if found; otherwise, null.</returns>
@@ -146,12 +146,13 @@ namespace Microsoft.ApplicationInsights.Web.Implementation
             options.EnableRequestTrackingTelemetryModule = ReadBoolElement(root, "EnableRequestTrackingTelemetryModule");
 
             // Track if any value was set
-            if (options.DisableTelemetry.HasValue || options.SamplingRatio.HasValue || 
-                options.TracesPerSecond.HasValue || options.DisableOfflineStorage.HasValue ||
-                options.EnableQuickPulseMetricStream.HasValue || options.EnableTraceBasedLogsSampler.HasValue ||
-                options.EnablePerformanceCounterCollectionModule.HasValue || options.AddAutoCollectedMetricExtractor.HasValue ||
-                options.EnableDependencyTrackingTelemetryModule.HasValue || options.EnableRequestTrackingTelemetryModule.HasValue ||
-                !string.IsNullOrWhiteSpace(options.StorageDirectory) || !string.IsNullOrWhiteSpace(options.ApplicationVersion))
+            if (!hasAnyValue &&
+                (options.DisableTelemetry.HasValue || options.SamplingRatio.HasValue ||
+                 options.TracesPerSecond.HasValue || options.DisableOfflineStorage.HasValue ||
+                 options.EnableQuickPulseMetricStream.HasValue || options.EnableTraceBasedLogsSampler.HasValue ||
+                 options.EnablePerformanceCounterCollectionModule.HasValue || options.AddAutoCollectedMetricExtractor.HasValue ||
+                 options.EnableDependencyTrackingTelemetryModule.HasValue || options.EnableRequestTrackingTelemetryModule.HasValue ||
+                 !string.IsNullOrWhiteSpace(options.StorageDirectory) || !string.IsNullOrWhiteSpace(options.ApplicationVersion)))
             {
                 hasAnyValue = true;
             }

@@ -41,6 +41,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             content = content.Replace("<!-- <EnablePerformanceCounterCollectionModule>true</EnablePerformanceCounterCollectionModule> -->", "<EnablePerformanceCounterCollectionModule>true</EnablePerformanceCounterCollectionModule>");
             content = content.Replace("<!-- <AddAutoCollectedMetricExtractor>true</AddAutoCollectedMetricExtractor> -->", "<AddAutoCollectedMetricExtractor>true</AddAutoCollectedMetricExtractor>");
             content = content.Replace("<!-- <EnableDependencyTrackingTelemetryModule>true</EnableDependencyTrackingTelemetryModule> -->", "<EnableDependencyTrackingTelemetryModule>true</EnableDependencyTrackingTelemetryModule>");
+            content = content.Replace("<!-- <EnableRequestTrackingTelemetryModule>true</EnableRequestTrackingTelemetryModule> -->", "<EnableRequestTrackingTelemetryModule>true</EnableRequestTrackingTelemetryModule>");
 
             // Write to temp config file
             string tempConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ApplicationInsights.config");
@@ -65,6 +66,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
                 Assert.True(options.EnablePerformanceCounterCollectionModule);
                 Assert.True(options.AddAutoCollectedMetricExtractor);
                 Assert.True(options.EnableDependencyTrackingTelemetryModule);
+                Assert.True(options.EnableRequestTrackingTelemetryModule);
             }
             finally
             {
@@ -128,6 +130,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             Assert.Contains("EnableQuickPulseMetricStream", propertyNames);
             Assert.Contains("EnablePerformanceCounterCollectionModule", propertyNames);
             Assert.Contains("AddAutoCollectedMetricExtractor", propertyNames);
+            Assert.Contains("EnableRequestTrackingTelemetryModule", propertyNames);
             Assert.Contains("EnableDependencyTrackingTelemetryModule", propertyNames);
             Assert.Contains("ApplicationVersion", propertyNames);
 
@@ -142,6 +145,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             Assert.Contains("EnableQuickPulseMetricStream", content);
             Assert.Contains("EnablePerformanceCounterCollectionModule", content);
             Assert.Contains("AddAutoCollectedMetricExtractor", content);
+            Assert.Contains("EnableRequestTrackingTelemetryModule", content);
             Assert.Contains("EnableDependencyTrackingTelemetryModule", content);
             Assert.Contains("ApplicationVersion", content);
         }
