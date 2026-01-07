@@ -5,7 +5,6 @@
     using System.IO;
     using System.Text;
     using System.Text.RegularExpressions;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
 
     internal class SelfDiagnosticsConfigParser
     {
@@ -44,7 +43,7 @@
                 var configFilePath = ConfigFileName;
 
                 // First, check whether the enviornment variable was set.
-                if (PlatformSingleton.Current.TryGetEnvironmentVariable(LogDiagnosticsEnvironmentVariable, out string logDiagnosticsPath))
+                if (TryGetEnvironmentVariable(LogDiagnosticsEnvironmentVariable, out string logDiagnosticsPath))
                 {
                     configFilePath = Path.Combine(logDiagnosticsPath, ConfigFileName);
                     logDirectory = logDiagnosticsPath;
@@ -134,6 +133,12 @@
             var logLevelResult = LogLevelRegex.Match(configJson);
             logLevel = logLevelResult.Groups["LogLevel"].Value;
             return logLevelResult.Success && !string.IsNullOrWhiteSpace(logLevel);
+        }
+
+        private static bool TryGetEnvironmentVariable(string variable, out string value)
+        {
+            value = Environment.GetEnvironmentVariable(variable);
+            return !string.IsNullOrEmpty(value);
         }
     }
 }
