@@ -1,4 +1,26 @@
 <ApplicationInsights xdt:Transform="SetAttributes" xmlns="http://schemas.microsoft.com/ApplicationInsights/2013/Settings" xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
   <!-- Learn more about Application Insights configuration with ApplicationInsights.config here: http://go.microsoft.com/fwlink/?LinkID=513840 -->
+  
+  <!-- Core Configuration -->
   <ConnectionString xdt:Transform="InsertIfMissing"></ConnectionString>
+  
+  <!-- Sampling & Rate Limiting -->
+  <!-- For adaptive sampling (rate-limit based), use TracesPerSecond. Sets the number of traces per second to be sampled. -->
+  <!-- For example, 0.5 means one request every two seconds. Default is 5.0. -->
+  <!-- To turn off adaptive sampling and use fixed-rate sampling, set SamplingRatio and comment out TracesPerSecond. -->
+  <!-- SamplingRatio sets the ratio of telemetry items to be sampled (0.0 to 1.0). For example, 0.4 means 40% of traces are sampled and 60% are dropped. -->
+  <!-- When both TracesPerSecond and SamplingRatio are specified, TracesPerSecond takes precedence. -->
+  <!--<SamplingRatio xdt:Transform="InsertIfMissing">1.0</SamplingRatio>-->
+  <TracesPerSecond xdt:Transform="InsertIfMissing">5.0</TracesPerSecond>
+  <!-- Enables or disables filtering logs based on trace sampling decisions. -->
+  <!-- When enabled, only logs associated with sampled traces are exported. -->
+  <!-- Logs without trace context are always exported. -->
+  <!-- This reduces log volume while maintaining trace-log correlation. -->
+  <EnableTraceBasedLogsSampler xdt:Transform="InsertIfMissing">true</EnableTraceBasedLogsSampler>
+  
+  <!-- Feature Flags -->
+  <EnableQuickPulseMetricStream xdt:Transform="InsertIfMissing">true</EnableQuickPulseMetricStream>
+  <EnablePerformanceCounterCollectionModule xdt:Transform="InsertIfMissing">true</EnablePerformanceCounterCollectionModule>
+  <AddAutoCollectedMetricExtractor xdt:Transform="InsertIfMissing">true</AddAutoCollectedMetricExtractor>
+  <EnableDependencyTrackingTelemetryModule xdt:Transform="InsertIfMissing">true</EnableDependencyTrackingTelemetryModule>
 </ApplicationInsights>
