@@ -16,6 +16,7 @@
   <EnablePerformanceCounterCollectionModule xdt:Transform="Remove" />
   <AddAutoCollectedMetricExtractor xdt:Transform="Remove" />
   <EnableDependencyTrackingTelemetryModule xdt:Transform="Remove" />
+  <EnableRequestTrackingTelemetryModule xdt:Transform="Remove" />
   
   <!-- Legacy properties for backward compatibility -->
   <ApplicationVersion xdt:Transform="Remove" />

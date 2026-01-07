@@ -175,9 +175,9 @@
                 }
             });
 
-            // Handle EnableDependencyTrackingTelemetryModule - add activity filter processor
+            // Handle EnableDependencyTrackingTelemetryModule and EnableRequestTrackingTelemetryModule - add activity filter processor
             bool enableDependencyTracking = configOptions.EnableDependencyTrackingTelemetryModule ?? true;
-            bool enableRequestTracking = true; // Classic ASP.NET doesn't have a config for this yet, always enabled by default
+            bool enableRequestTracking = configOptions.EnableRequestTrackingTelemetryModule ?? true;
 
             // Only add processor if either feature is disabled
             if (!enableDependencyTracking || !enableRequestTracking)

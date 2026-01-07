@@ -143,14 +143,15 @@ namespace Microsoft.ApplicationInsights.Web.Implementation
             options.EnablePerformanceCounterCollectionModule = ReadBoolElement(root, "EnablePerformanceCounterCollectionModule");
             options.AddAutoCollectedMetricExtractor = ReadBoolElement(root, "AddAutoCollectedMetricExtractor");
             options.EnableDependencyTrackingTelemetryModule = ReadBoolElement(root, "EnableDependencyTrackingTelemetryModule");
+            options.EnableRequestTrackingTelemetryModule = ReadBoolElement(root, "EnableRequestTrackingTelemetryModule");
 
             // Track if any value was set
             if (options.DisableTelemetry.HasValue || options.SamplingRatio.HasValue || 
                 options.TracesPerSecond.HasValue || options.DisableOfflineStorage.HasValue ||
                 options.EnableQuickPulseMetricStream.HasValue || options.EnableTraceBasedLogsSampler.HasValue ||
                 options.EnablePerformanceCounterCollectionModule.HasValue || options.AddAutoCollectedMetricExtractor.HasValue ||
-                options.EnableDependencyTrackingTelemetryModule.HasValue || !string.IsNullOrWhiteSpace(options.StorageDirectory) ||
-                !string.IsNullOrWhiteSpace(options.ApplicationVersion))
+                options.EnableDependencyTrackingTelemetryModule.HasValue || options.EnableRequestTrackingTelemetryModule.HasValue ||
+                !string.IsNullOrWhiteSpace(options.StorageDirectory) || !string.IsNullOrWhiteSpace(options.ApplicationVersion))
             {
                 hasAnyValue = true;
             }

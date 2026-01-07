@@ -23,4 +23,5 @@
   <EnablePerformanceCounterCollectionModule xdt:Transform="InsertIfMissing">true</EnablePerformanceCounterCollectionModule>
   <AddAutoCollectedMetricExtractor xdt:Transform="InsertIfMissing">true</AddAutoCollectedMetricExtractor>
   <EnableDependencyTrackingTelemetryModule xdt:Transform="InsertIfMissing">true</EnableDependencyTrackingTelemetryModule>
+  <EnableRequestTrackingTelemetryModule xdt:Transform="InsertIfMissing">true</EnableRequestTrackingTelemetryModule>
 </ApplicationInsights>

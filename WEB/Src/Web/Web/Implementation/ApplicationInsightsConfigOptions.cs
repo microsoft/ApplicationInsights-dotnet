@@ -61,6 +61,11 @@ namespace Microsoft.ApplicationInsights.Web.Implementation
         public bool? EnableDependencyTrackingTelemetryModule { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether request tracking is enabled.
+        /// </summary>
+        public bool? EnableRequestTrackingTelemetryModule { get; set; }
+
+        /// <summary>
         /// Gets or sets the application version.
         /// </summary>
         public string ApplicationVersion { get; set; }

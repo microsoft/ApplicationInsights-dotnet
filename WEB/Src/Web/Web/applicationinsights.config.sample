@@ -68,16 +68,16 @@
   <!-- Enable trace-based logs sampler (default: true) -->
   <!-- <EnableTraceBasedLogsSampler>true</EnableTraceBasedLogsSampler> -->
   
-  <!-- Enable performance counter collection (default: true)
-       NOTE: Not yet implemented in config - requires code-based configuration -->
+  <!-- Enable performance counter collection (default: true) -->
   <!-- <EnablePerformanceCounterCollectionModule>true</EnablePerformanceCounterCollectionModule> -->
   
-  <!-- Enable auto-collected metric extractor (default: true)
-       NOTE: Not yet implemented in config - requires code-based configuration -->
+  <!-- Enable auto-collected metric extractor (default: true) -->
   <!-- <AddAutoCollectedMetricExtractor>true</AddAutoCollectedMetricExtractor> -->
   
-  <!-- Enable dependency tracking (default: true)
-       NOTE: Not yet implemented in config - requires code-based configuration -->
+  <!-- Enable dependency tracking (default: true) -->
   <!-- <EnableDependencyTrackingTelemetryModule>true</EnableDependencyTrackingTelemetryModule> -->
+
+  <!-- Enable request tracking (default: true) -->
+  <!-- <EnableRequestTrackingTelemetryModule>true</EnableRequestTrackingTelemetryModule> -->
 
 </ApplicationInsights>
