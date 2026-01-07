@@ -5,14 +5,13 @@
     using System.IO;
     using System.Text;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Xunit;
 
-    [TestClass]
     public class MemoryMappedFileHandlerTest
     {
         public static readonly byte[] MessageOnNewFile = MemoryMappedFileHandler.MessageOnNewFile;
 
-        [TestMethod]
+        [Fact]
         public void MemoryMappedFileHandler_Success()
         {
             string filePath;
@@ -26,10 +25,10 @@
 
             var actualBytes = ReadFile(filePath, MessageOnNewFile.Length);
 
-            CollectionAssert.AreEqual(MessageOnNewFile, actualBytes);
+            Assert.Equal(MessageOnNewFile, actualBytes);
         }
 
-        [TestMethod]
+        [Fact]
         public void MemoryMappedFileHandler_Circular_Success()
         {
             var fileSize = 1024;
@@ -52,8 +51,8 @@
 
             var actualBytes = ReadFile(filePath, buffer.Length);
 
-            CollectionAssert.AreEqual(expectedBytesAtStart, SubArray(actualBytes, 0, expectedBytesAtStart.Length));
-            CollectionAssert.AreEqual(expectedBytesAtEnd, SubArray(actualBytes, actualBytes.Length - expectedBytesAtEnd.Length, expectedBytesAtEnd.Length));
+            Assert.Equal(expectedBytesAtStart, SubArray(actualBytes, 0, expectedBytesAtStart.Length));
+            Assert.Equal(expectedBytesAtEnd, SubArray(actualBytes, actualBytes.Length - expectedBytesAtEnd.Length, expectedBytesAtEnd.Length));
         }
 
         private static byte[] ReadFile(string filePath, int byteCount)

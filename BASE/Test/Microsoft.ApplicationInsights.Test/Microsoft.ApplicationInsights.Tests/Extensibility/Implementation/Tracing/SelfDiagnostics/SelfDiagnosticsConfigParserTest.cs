@@ -1,43 +1,42 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Xunit;
 
-    [TestClass]
     public class SelfDiagnosticsConfigParserTest
     {
-        [TestMethod]
+        [Fact]
         public void SelfDiagnosticsConfigParser_TryParseFilePath_Success()
         {
             string configJson = "{ \t \n "
                                 + "\t    \"LogDirectory\" \t : \"Diagnostics\", \n"
                                 + "FileSize \t : \t \n"
                                 + " 1024 \n}\n";
-            Assert.IsTrue(SelfDiagnosticsConfigParser.TryParseLogDirectory(configJson, out string logDirectory));
-            Assert.AreEqual("Diagnostics", logDirectory);
+            Assert.True(SelfDiagnosticsConfigParser.TryParseLogDirectory(configJson, out string logDirectory));
+            Assert.Equal("Diagnostics", logDirectory);
         }
 
-        [TestMethod]
+        [Fact]
         public void SelfDiagnosticsConfigParser_TryParseFilePath_MissingField()
         {
             string configJson = @"{
                     ""path"": ""Diagnostics"",
                     ""FileSize"": 1024
                     }";
-            Assert.IsFalse(SelfDiagnosticsConfigParser.TryParseLogDirectory(configJson, out string logDirectory));
+            Assert.False(SelfDiagnosticsConfigParser.TryParseLogDirectory(configJson, out string logDirectory));
         }
 
-        [TestMethod]
+        [Fact]
         public void SelfDiagnosticsConfigParser_TryParseFileSize()
         {
             string configJson = @"{
                     ""LogDirectory"": ""Diagnostics"",
                     ""FileSize"": 1024
                     }";
-            Assert.IsTrue(SelfDiagnosticsConfigParser.TryParseFileSize(configJson, out int fileSize));
-            Assert.AreEqual(1024, fileSize);
+            Assert.True(SelfDiagnosticsConfigParser.TryParseFileSize(configJson, out int fileSize));
+            Assert.Equal(1024, fileSize);
         }
 
-        [TestMethod]
+        [Fact]
         public void SelfDiagnosticsConfigParser_TryParseFileSize_CaseInsensitive()
         {
             string configJson = @"{
@@ -45,21 +44,21 @@
                     ""fileSize"" :
                                    2048
                     }";
-            Assert.IsTrue(SelfDiagnosticsConfigParser.TryParseFileSize(configJson, out int fileSize));
-            Assert.AreEqual(2048, fileSize);
+            Assert.True(SelfDiagnosticsConfigParser.TryParseFileSize(configJson, out int fileSize));
+            Assert.Equal(2048, fileSize);
         }
 
-        [TestMethod]
+        [Fact]
         public void SelfDiagnosticsConfigParser_TryParseFileSize_MissingField()
         {
             string configJson = @"{
                     ""LogDirectory"": ""Diagnostics"",
                     ""size"": 1024
                     }";
-            Assert.IsFalse(SelfDiagnosticsConfigParser.TryParseFileSize(configJson, out int fileSize));
+            Assert.False(SelfDiagnosticsConfigParser.TryParseFileSize(configJson, out int fileSize));
         }
 
-        [TestMethod]
+        [Fact]
         public void SelfDiagnosticsConfigParser_TryParseLogLevel()
         {
             string configJson = @"{
@@ -67,8 +66,8 @@
                     ""FileSize"": 1024,
                     ""LogLevel"": ""Error""
                     }";
-            Assert.IsTrue(SelfDiagnosticsConfigParser.TryParseLogLevel(configJson, out string logLevelString));
-            Assert.AreEqual("Error", logLevelString);
+            Assert.True(SelfDiagnosticsConfigParser.TryParseLogLevel(configJson, out string logLevelString));
+            Assert.Equal("Error", logLevelString);
         }
     }
 }

@@ -4,24 +4,21 @@
     using System.Diagnostics.Tracing;
     using System.Globalization;
     using System.Text;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Xunit;
     using Moq;
 
-    [TestClass]
     public class SelfDiagnosticsEventListenerTest
     {
         private const string Ellipses = "...\n";
         private const string EllipsesWithBrackets = "{...}\n";
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
+        [Fact]
         public void SelfDiagnosticsEventListener_constructor_Invalid_Input()
         {
-            // no configRefresher object
-            _ = new SelfDiagnosticsEventListener(EventLevel.Error, null);
+            Assert.Throws<ArgumentNullException>(() => new SelfDiagnosticsEventListener(EventLevel.Error, null));
         }
 
-        [TestMethod]
+        [Fact]
         public void SelfDiagnosticsEventListener_EventSourceSetup_LowerSeverity()
         {
             var fileHandlerMock = new Mock<MemoryMappedFileHandler>();
@@ -32,11 +29,12 @@
             fileHandlerMock.Verify(fileHandler => fileHandler.Write(It.IsAny<byte[]>(), It.IsAny<int>()), Times.Never());
         }
 
-        [TestMethod]
+        [Fact]
         public void SelfDiagnosticsEventListener_EventSourceSetup_HigherSeverity()
         {
             var fileHandlerMock = new Mock<MemoryMappedFileHandler>();
-            fileHandlerMock.Setup(fileHandler => fileHandler.Write(It.IsAny<byte[]>(), It.IsAny<int>()));
+            fileHandlerMock.Setup(fileHandler => fileHandler.Write(It.IsAny<byte[]>(), It.IsAny<int>()))
+                           .Verifiable();
             var listener = new SelfDiagnosticsEventListener(EventLevel.Error, fileHandlerMock.Object);
 
             // Emitting an Error event. Or any EventSource event with higher than or equal to to Error severity.
@@ -44,7 +42,7 @@
             fileHandlerMock.Verify(fileHandler => fileHandler.Write(It.IsAny<byte[]>(), It.IsAny<int>()));
         }
 
-        [TestMethod]
+        [Fact]
         public void SelfDiagnosticsEventListener_DateTimeGetBytes()
         {
             var fileHandlerMock = new Mock<MemoryMappedFileHandler>();
@@ -79,19 +77,19 @@
                 pos += len;
             }
 
-            CollectionAssert.AreEqual(expected, results);
+            Assert.Equal(expected, results);
         }
 
-        [TestMethod]
+        [Fact]
         public void SelfDiagnosticsEventListener_EncodeInBuffer_Null()
         {
             byte[] buffer = new byte[20];
             int startPos = 0;
             int endPos = SelfDiagnosticsEventListener.EncodeInBuffer(null, false, buffer, startPos);
-            Assert.AreEqual(startPos, endPos);
+            Assert.Equal(startPos, endPos);
         }
 
-        [TestMethod]
+        [Fact]
         public void SelfDiagnosticsEventListener_EncodeInBuffer_Empty()
         {
             byte[] buffer = new byte[20];
@@ -101,7 +99,7 @@
             AssertBufferOutput(expected, buffer, startPos, endPos);
         }
 
-        [TestMethod]
+        [Fact]
         public void SelfDiagnosticsEventListener_EncodeInBuffer_EnoughSpace()
         {
             byte[] buffer = new byte[20];
@@ -114,7 +112,7 @@
             AssertBufferOutput(expected, buffer, startPos, endPos + 1);
         }
 
-        [TestMethod]
+        [Fact]
         public void SelfDiagnosticsEventListener_EncodeInBuffer_NotEnoughSpaceForFullString()
         {
             byte[] buffer = new byte[20];
@@ -127,7 +125,7 @@
             AssertBufferOutput(expected, buffer, startPos, endPos + 1);
         }
 
-        [TestMethod]
+        [Fact]
         public void SelfDiagnosticsEventListener_EncodeInBuffer_NotEvenSpaceForTruncatedString()
         {
             byte[] buffer = new byte[20];
@@ -137,16 +135,16 @@
             AssertBufferOutput(expected, buffer, startPos, endPos + 1);
         }
 
-        [TestMethod]
+        [Fact]
         public void SelfDiagnosticsEventListener_EncodeInBuffer_NotEvenSpaceForTruncationEllipses()
         {
             byte[] buffer = new byte[20];
             int startPos = buffer.Length - Ellipses.Length + 1;  // Not enough space for "...\n".
             int endPos = SelfDiagnosticsEventListener.EncodeInBuffer("abc", false, buffer, startPos);
-            Assert.AreEqual(startPos, endPos);
+            Assert.Equal(startPos, endPos);
         }
 
-        [TestMethod]
+        [Fact]
         public void SelfDiagnosticsEventListener_EncodeInBuffer_IsParameter_EnoughSpace()
         {
             byte[] buffer = new byte[20];
@@ -156,7 +154,7 @@
             AssertBufferOutput(expected, buffer, startPos, endPos + 1);
         }
 
-        [TestMethod]
+        [Fact]
         public void SelfDiagnosticsEventListener_EncodeInBuffer_IsParameter_NotEnoughSpaceForFullString()
         {
             byte[] buffer = new byte[20];
@@ -166,7 +164,7 @@
             AssertBufferOutput(expected, buffer, startPos, endPos + 1);
         }
 
-        [TestMethod]
+        [Fact]
         public void SelfDiagnosticsEventListener_EncodeInBuffer_IsParameter_NotEvenSpaceForTruncatedString()
         {
             byte[] buffer = new byte[20];
@@ -176,21 +174,21 @@
             AssertBufferOutput(expected, buffer, startPos, endPos + 1);
         }
 
-        [TestMethod]
+        [Fact]
         public void SelfDiagnosticsEventListener_EncodeInBuffer_IsParameter_NotEvenSpaceForTruncationEllipses()
         {
             byte[] buffer = new byte[20];
             int startPos = buffer.Length - EllipsesWithBrackets.Length + 1;  // Not enough space for "{...}\n".
             int endPos = SelfDiagnosticsEventListener.EncodeInBuffer("abc", true, buffer, startPos);
-            Assert.AreEqual(startPos, endPos);
+            Assert.Equal(startPos, endPos);
         }
 
         private static void AssertBufferOutput(byte[] expected, byte[] buffer, int startPos, int endPos)
         {
-            Assert.AreEqual(expected.Length, endPos - startPos);
+            Assert.Equal(expected.Length, endPos - startPos);
             for (int i = 0, j = startPos; j < endPos; ++i, ++j)
             {
-                Assert.AreEqual(expected[i], buffer[j]);
+                Assert.Equal(expected[i], buffer[j]);
             }
         }
     }

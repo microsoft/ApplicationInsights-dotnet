@@ -6,11 +6,10 @@
     using System.Runtime.InteropServices;
     using System.Text;
     using System.Text.RegularExpressions;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Xunit;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
-    [TestClass]
     public class SelfDiagnosticsConfigRefresherTest
     {
         private static readonly string ConfigFilePath = SelfDiagnosticsConfigParser.ConfigFileName;
@@ -20,7 +19,7 @@
         private static readonly Regex TimeStringRegex = new Regex(
             @"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{7}Z:", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        [TestMethod]
+        [Fact]
         public void SelfDiagnosticsConfigRefresher_OmitAsConfigured()
         {
             try
@@ -36,10 +35,10 @@
                     int bufferSize = 512;
                     byte[] actualBytes = ReadFile(filePath, bufferSize);
                     string logText = Encoding.UTF8.GetString(actualBytes);
-                    Assert.IsTrue(logText.StartsWith(MessageOnNewFileString));
+                    Assert.StartsWith(MessageOnNewFileString, logText);
 
                     // The event was omitted
-                    Assert.AreEqual('\0', (char)actualBytes[MessageOnNewFile.Length]);
+                    Assert.Equal('\0', (char)actualBytes[MessageOnNewFile.Length]);
                 }
             }
             finally
@@ -48,7 +47,7 @@
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void SelfDiagnosticsConfigRefresher_CaptureAsConfigured()
         {
             try
@@ -64,13 +63,13 @@
                     int bufferSize = 512;
                     byte[] actualBytes = ReadFile(filePath, bufferSize);
                     string logText = Encoding.UTF8.GetString(actualBytes);
-                    Assert.IsTrue(logText.StartsWith(MessageOnNewFileString));
+                    Assert.StartsWith(MessageOnNewFileString, logText);
 
                     // The event was captured
                     string logLine = logText.Substring(MessageOnNewFileString.Length);
                     string logMessage = ParseLogMessage(logLine);
                     string expectedMessage = "Operation to stop does not match the current operation. Telemetry is not tracked.";
-                    Assert.IsTrue(logMessage.StartsWith(expectedMessage));
+                    Assert.StartsWith(expectedMessage, logMessage);
                 }
             }
             finally
@@ -79,11 +78,11 @@
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void SelfDiagnosticsConfigRefresher_ReadFromEnviornmentVar()
         {
             var key = "APPLICATIONINSIGHTS_LOG_DIAGNOSTICS";
-            var val = @"C:\home\LogFiles\SelfDiagnostics";
+            var val = @"C:\\home\\LogFiles\\SelfDiagnostics";
             Environment.SetEnvironmentVariable(key, val);
 
             try
@@ -98,13 +97,13 @@
                     int bufferSize = 512;
                     byte[] actualBytes = ReadFile(filePath, bufferSize);
                     string logText = Encoding.UTF8.GetString(actualBytes);
-                    Assert.IsTrue(logText.StartsWith(MessageOnNewFileString));
+                    Assert.StartsWith(MessageOnNewFileString, logText);
 
                     // The event was captured
                     string logLine = logText.Substring(MessageOnNewFileString.Length);
                     string logMessage = ParseLogMessage(logLine);
                     string expectedMessage = "Operation to stop does not match the current operation. Telemetry is not tracked.";
-                    Assert.IsTrue(logMessage.StartsWith(expectedMessage));
+                    Assert.StartsWith(expectedMessage, logMessage);
                 }
             }
             finally
@@ -118,7 +117,7 @@
         private static string ParseLogMessage(string logLine)
         {
             int timestampPrefixLength = "2020-08-14T20:33:24.4788109Z:".Length;
-            Assert.IsTrue(TimeStringRegex.IsMatch(logLine.Substring(0, timestampPrefixLength)));
+            Assert.True(TimeStringRegex.IsMatch(logLine.Substring(0, timestampPrefixLength)));
             return logLine.Substring(timestampPrefixLength);
         }
 
