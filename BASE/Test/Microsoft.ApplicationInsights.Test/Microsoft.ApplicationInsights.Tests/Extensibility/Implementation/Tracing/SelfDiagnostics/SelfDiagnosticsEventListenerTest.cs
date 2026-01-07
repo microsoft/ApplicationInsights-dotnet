@@ -38,7 +38,7 @@
             var listener = new SelfDiagnosticsEventListener(EventLevel.Error, fileHandlerMock.Object);
 
             // Emitting an Error event. Or any EventSource event with higher than or equal to to Error severity.
-            CoreEventSource.Log.InvalidOperationToStopError();
+            CoreEventSource.Log.TypeWasNotFoundConfigurationError("NoClass");
             fileHandlerMock.Verify(fileHandler => fileHandler.Write(It.IsAny<byte[]>(), It.IsAny<int>()));
         }
 

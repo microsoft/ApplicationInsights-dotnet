@@ -7,8 +7,7 @@
     using System.Text;
     using System.Text.RegularExpressions;
     using Xunit;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
+    using System.Text.Json;
 
     public class SelfDiagnosticsConfigRefresherTest
     {
@@ -56,7 +55,7 @@
                 using (var configRefresher = new SelfDiagnosticsConfigRefresher())
                 {
                     // Emitting event of EventLevel.Error
-                    CoreEventSource.Log.InvalidOperationToStopError();
+                    CoreEventSource.Log.TypeWasNotFoundConfigurationError("NoClass");
 
                     var filePath = configRefresher.CurrentFilePath;
 
@@ -68,7 +67,7 @@
                     // The event was captured
                     string logLine = logText.Substring(MessageOnNewFileString.Length);
                     string logMessage = ParseLogMessage(logLine);
-                    string expectedMessage = "Operation to stop does not match the current operation. Telemetry is not tracked.";
+                    string expectedMessage = "ApplicationInsights configuration file loading failed. Type '{0}' was not found. Type loading was skipped. Monitoring will continue.";
                     Assert.StartsWith(expectedMessage, logMessage);
                 }
             }
@@ -91,7 +90,7 @@
                 using (var configRefresher = new SelfDiagnosticsConfigRefresher())
                 {
                     // Emitting event of EventLevel.Error
-                    CoreEventSource.Log.InvalidOperationToStopError();
+                    CoreEventSource.Log.TypeWasNotFoundConfigurationError("NoClass");
                     var filePath = configRefresher.CurrentFilePath;
 
                     int bufferSize = 512;
@@ -102,14 +101,13 @@
                     // The event was captured
                     string logLine = logText.Substring(MessageOnNewFileString.Length);
                     string logMessage = ParseLogMessage(logLine);
-                    string expectedMessage = "Operation to stop does not match the current operation. Telemetry is not tracked.";
+                    string expectedMessage = "ApplicationInsights configuration file loading failed. Type '{0}' was not found. Type loading was skipped. Monitoring will continue.";
                     Assert.StartsWith(expectedMessage, logMessage);
                 }
             }
             finally
             {
                 Environment.SetEnvironmentVariable(key, null);
-                Platform.PlatformSingleton.Current = null; // Force reinitialization in future tests so that new environment variables will be loaded.
                 CleanupConfigFile();
             }
         }
@@ -148,7 +146,7 @@
                 configFileObj.LogDirectory = envVarVal;
             }
 
-            string configJson = JsonConvert.SerializeObject(configFileObj);
+            string configJson = JsonSerializer.Serialize(configFileObj);
             using (FileStream file = File.Open(ConfigFilePath, FileMode.Create, FileAccess.Write))
             {
                 byte[] configBytes = Encoding.UTF8.GetBytes(configJson);
