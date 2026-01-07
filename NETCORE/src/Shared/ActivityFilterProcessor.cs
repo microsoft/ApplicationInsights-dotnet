@@ -1,5 +1,7 @@
 #if AI_ASPNETCORE_WEB
 namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
+#elif AI_CLASSIC_WEB
+namespace Microsoft.ApplicationInsights.Web.Implementation
 #else
 namespace Microsoft.ApplicationInsights.WorkerService
 #endif
@@ -17,10 +19,22 @@ namespace Microsoft.ApplicationInsights.WorkerService
     internal sealed class ActivityFilterProcessor : BaseProcessor<Activity>
     {
         private readonly bool enableDependencyTracking;
-#if AI_ASPNETCORE_WEB
+#if AI_ASPNETCORE_WEB || AI_CLASSIC_WEB
         private readonly bool enableRequestTracking;
 #endif
 
+#if AI_CLASSIC_WEB
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ActivityFilterProcessor"/> class for classic ASP.NET.
+        /// </summary>
+        /// <param name="enableDependencyTracking">Whether dependency tracking is enabled.</param>
+        /// <param name="enableRequestTracking">Whether request tracking is enabled.</param>
+        public ActivityFilterProcessor(bool enableDependencyTracking, bool enableRequestTracking)
+        {
+            this.enableDependencyTracking = enableDependencyTracking;
+            this.enableRequestTracking = enableRequestTracking;
+        }
+#else
         /// <summary>
         /// Initializes a new instance of the <see cref="ActivityFilterProcessor"/> class.
         /// </summary>
@@ -33,6 +47,7 @@ namespace Microsoft.ApplicationInsights.WorkerService
             this.enableRequestTracking = serviceOptions.EnableRequestTrackingTelemetryModule;
 #endif
         }
+#endif
 
         /// <summary>
         /// Called when an activity is started. Applies filtering logic based on activity kind and service options.
@@ -58,9 +73,8 @@ namespace Microsoft.ApplicationInsights.WorkerService
                 }
             }
 
-#if AI_ASPNETCORE_WEB
+#if AI_ASPNETCORE_WEB || AI_CLASSIC_WEB
             // Filter request activities (inbound calls) when EnableRequestTrackingTelemetryModule is false
-            // Only available in AspNetCore, not WorkerService
             if (!this.enableRequestTracking)
             {
                 if (activity.Kind == ActivityKind.Server ||

@@ -7,7 +7,7 @@
     <TargetFrameworks>net462</TargetFrameworks>
     <!-- Important: This project is exclusively NetFramework. This will not be upgraded to NetStandard nor NetCore. -->
     <Prefer32Bit>false</Prefer32Bit>
-    <DefineConstants>$(DefineConstants);ALLOW_AGGRESSIVE_INLIGNING_ATTRIBUTE</DefineConstants>
+    <DefineConstants>$(DefineConstants);ALLOW_AGGRESSIVE_INLIGNING_ATTRIBUTE;AI_CLASSIC_WEB</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -49,6 +49,7 @@
 
   <ItemGroup>
     <Compile Include="..\..\..\..\BASE\src\Microsoft.ApplicationInsights\Extensibility\Implementation\Tracing\Extensions.cs" Link="Extensions.cs" />
+    <Compile Include="..\..\..\..\NETCORE\src\Shared\ActivityFilterProcessor.cs" Link="Implementation\ActivityFilterProcessor.cs" />
   </ItemGroup>
 
 </Project>
