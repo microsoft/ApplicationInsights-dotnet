@@ -1,20 +1,21 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
+    using Azure.Core;
+    using Azure.Monitor.OpenTelemetry.Exporter;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics;
+    using Microsoft.ApplicationInsights.Metrics;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
+    using OpenTelemetry;
+    using OpenTelemetry.Resources;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Reflection;
     using System.Threading;
-    using Azure.Core;
-    using Azure.Monitor.OpenTelemetry.Exporter;
-    using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.Metrics;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Hosting;
-    using OpenTelemetry;
-    using OpenTelemetry.Resources;
 
     /// <summary>
     /// Encapsulates the global telemetry configuration typically loaded from the ApplicationInsights.config file.
@@ -80,6 +81,8 @@
             {
                 this.builderConfiguration = builder => builder.WithApplicationInsights();
             }
+
+            SelfDiagnosticsInitializer.EnsureInitialized();
         }
 
         /// <summary>
