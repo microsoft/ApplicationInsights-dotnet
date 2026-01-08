@@ -1,3 +1,25 @@
 <ApplicationInsights xmlns="http://schemas.microsoft.com/ApplicationInsights/2013/Settings" xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+  <!-- Core Configuration -->
   <ConnectionString xdt:Transform="Remove" />
+  <DisableTelemetry xdt:Transform="Remove" />
+  
+  <!-- Sampling & Rate Limiting -->
+  <SamplingRatio xdt:Transform="Remove" />
+  <TracesPerSecond xdt:Transform="Remove" />
+  <EnableTraceBasedLogsSampler xdt:Transform="Remove" />
+  
+  <!-- Storage Configuration -->
+  <StorageDirectory xdt:Transform="Remove" />
+  <DisableOfflineStorage xdt:Transform="Remove" />
+  
+  <!-- Feature Flags -->
+  <EnableQuickPulseMetricStream xdt:Transform="Remove" />
+  <EnablePerformanceCounterCollectionModule xdt:Transform="Remove" />
+  <AddAutoCollectedMetricExtractor xdt:Transform="Remove" />
+  <EnableDependencyTrackingTelemetryModule xdt:Transform="Remove" />
+  <EnableRequestTrackingTelemetryModule xdt:Transform="Remove" />
+  
+  <!-- Legacy properties for backward compatibility -->
+  <ApplicationVersion xdt:Transform="Remove" />
+  <EnableAdaptiveSampling xdt:Transform="Remove" />
 </ApplicationInsights>

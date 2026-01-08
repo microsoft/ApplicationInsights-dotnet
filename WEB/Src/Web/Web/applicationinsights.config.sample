@@ -1,4 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ApplicationInsights xmlns="http://schemas.microsoft.com/ApplicationInsights/2013/Settings">
+  <!-- 
+    =======================================================================
+    Application Insights Configuration Sample
+    =======================================================================
+    This file configures Application Insights telemetry collection.
+    Commented-out elements show available options with their default values.
+    XML comments are automatically ignored - simply uncomment to enable.
+    =======================================================================
+  -->
+
+  <!-- 
+    =======================================================================
+    CORE CONFIGURATION (Required)
+    =======================================================================
+  -->
+  
+  <!-- Connection string for Azure Monitor (Required) -->
   <ConnectionString>InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://your-ingestion-endpoint.applicationinsights.azure.com/</ConnectionString>
+  
+  <!-- Disable all telemetry collection (default: false) -->
+  <!-- <DisableTelemetry>false</DisableTelemetry> -->
+  
+  <!-- Application version for telemetry (default: null) -->
+  <!-- <ApplicationVersion>1.0.0</ApplicationVersion> -->
+
+  <!-- 
+    =======================================================================
+    SAMPLING & RATE LIMITING
+    =======================================================================
+  -->
+  
+  <!-- Enable adaptive (rate-limit) sampling (default: true)
+       When false, disables rate-limit sampling by setting SamplingRatio to 1.0 -->
+  
+  <!-- Sampling ratio: 0.0 to 1.0, where 1.0 = 100% of telemetry sent (default: 1.0) -->
+  <!-- <SamplingRatio>1.0</SamplingRatio> -->
+  
+  <!-- Rate limit for traces per second (default: 5.0) -->
+  <!-- <TracesPerSecond>5.0</TracesPerSecond> -->
+
+  <!-- 
+    =======================================================================
+    STORAGE CONFIGURATION
+    =======================================================================
+  -->
+  
+  <!-- Directory path for offline storage (default: system temp directory) -->
+  <!-- <StorageDirectory>C:\temp\applicationinsights</StorageDirectory> -->
+  
+  <!-- Disable offline storage (default: false) -->
+  <!-- <DisableOfflineStorage>false</DisableOfflineStorage> -->
+
+  <!-- 
+    =======================================================================
+    FEATURE FLAGS
+    =======================================================================
+  -->
+  
+  <!-- Enable Quick Pulse Metric Stream (default: true) -->
+  <!-- <EnableQuickPulseMetricStream>true</EnableQuickPulseMetricStream> -->
+  
+  <!-- Enable trace-based logs sampler (default: true) -->
+  <!-- <EnableTraceBasedLogsSampler>true</EnableTraceBasedLogsSampler> -->
+  
+  <!-- Enable performance counter collection (default: true) -->
+  <!-- <EnablePerformanceCounterCollectionModule>true</EnablePerformanceCounterCollectionModule> -->
+  
+  <!-- Enable auto-collected metric extractor (default: true) -->
+  <!-- <AddAutoCollectedMetricExtractor>true</AddAutoCollectedMetricExtractor> -->
+  
+  <!-- Enable dependency tracking (default: true) -->
+  <!-- <EnableDependencyTrackingTelemetryModule>true</EnableDependencyTrackingTelemetryModule> -->
+
+  <!-- Enable request tracking (default: true) -->
+  <!-- <EnableRequestTrackingTelemetryModule>true</EnableRequestTrackingTelemetryModule> -->
+
 </ApplicationInsights>
