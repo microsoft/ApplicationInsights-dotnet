@@ -26,6 +26,7 @@
             var actualBytes = ReadFile(filePath, MessageOnNewFile.Length);
 
             Assert.Equal(MessageOnNewFile, actualBytes);
+            CleanupFile(filePath);
         }
 
         [Fact]
@@ -53,6 +54,7 @@
 
             Assert.Equal(expectedBytesAtStart, SubArray(actualBytes, 0, expectedBytesAtStart.Length));
             Assert.Equal(expectedBytesAtEnd, SubArray(actualBytes, actualBytes.Length - expectedBytesAtEnd.Length, expectedBytesAtEnd.Length));
+            CleanupFile(filePath);
         }
 
         private static byte[] ReadFile(string filePath, int byteCount)
@@ -70,6 +72,18 @@
             byte[] result = new byte[length];
             Array.Copy(array, offset, result, 0, length);
             return result;
+        }
+        
+        private static void CleanupFile(string filePath)
+        {
+            try
+            {
+                File.Delete(filePath);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to delete file '{filePath}': {ex}");
+            }
         }
     }
 }

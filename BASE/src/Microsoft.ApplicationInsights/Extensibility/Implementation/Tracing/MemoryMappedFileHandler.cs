@@ -56,7 +56,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Sel
 
                 // Because the API [MemoryMappedFile.CreateFromFile][1](the string version) behaves differently on
                 // .NET Framework and .NET Core, here I am using the [FileStream version][2] of it.
-                // Taking the last four prameter values from [.NET Framework]
+                // Taking the last four parameter values from [.NET Framework]
                 // (https://referencesource.microsoft.com/#system.core/System/IO/MemoryMappedFiles/MemoryMappedFile.cs,148)
                 // and [.NET Core]
                 // (https://github.com/dotnet/runtime/blob/master/src/libraries/System.IO.MemoryMappedFiles/src/System/IO/MemoryMappedFiles/MemoryMappedFile.cs#L152)

@@ -9,7 +9,7 @@
     internal class SelfDiagnosticsInitializer : IDisposable
     {
         /// <summary>
-        /// Long-living object that hold relevant resources.
+        /// Long-living object that holds relevant resources.
         /// </summary>
         private static readonly SelfDiagnosticsInitializer Instance = new SelfDiagnosticsInitializer();
 
@@ -31,8 +31,8 @@
         }
 
         /// <summary>
-        /// Trigger CLR to initialize static fields and static constructors of SelfDiagnosticsModule.
-        /// No member of SelfDiagnosticsModule class is explicitly called when an EventSource class, say
+        /// Trigger CLR to initialize static fields and static constructors of SelfDiagnosticsInitializer.
+        /// No member of SelfDiagnosticsInitializer class is explicitly called when an EventSource class, say
         /// AspNetCoreEventSource, is invoked to send an event.
         /// This method needs to be called in order to capture any EventSource event.
         /// </summary>

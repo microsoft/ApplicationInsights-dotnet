@@ -245,14 +245,7 @@
                     for (int i = 0; i < payload.Count; ++i)
                     {
                         object obj = payload[i];
-                        if (obj != null)
-                        {
-                            pos = EncodeInBuffer(obj.ToString(), true, buffer, pos);
-                        }
-                        else
-                        {
-                            pos = EncodeInBuffer("null", true, buffer, pos);
-                        }
+                        pos = EncodeInBuffer(obj != null ? obj.ToString() : "null", true, buffer, pos);
                     }
                 }
 
@@ -307,7 +300,7 @@
         {
             // Note: The EventSource check here works around a bug in EventListener.
             // See: https://github.com/open-telemetry/opentelemetry-dotnet/pull/5046
-            if (eventData.EventSource.Name.StartsWith(EventSourceNamePrefix, StringComparison.OrdinalIgnoreCase)
+            if (eventData.EventSource.Name.StartsWith(EventSourceNamePrefix, StringComparison.Ordinal)
                 || eventData.EventSource.Name.StartsWith(OTelEventSourceNamePrefix, StringComparison.Ordinal))
             {
                 this.WriteEvent(eventData.Message, eventData.Payload);

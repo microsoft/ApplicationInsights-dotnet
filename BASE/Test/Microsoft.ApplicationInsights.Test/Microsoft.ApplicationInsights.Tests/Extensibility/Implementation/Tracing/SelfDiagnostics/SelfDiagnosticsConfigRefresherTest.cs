@@ -11,7 +11,7 @@
 
     public class SelfDiagnosticsConfigRefresherTest
     {
-        private static readonly string ConfigFilePath = SelfDiagnosticsConfigParser.ConfigFileName;
+        private static readonly string ConfigFileName = SelfDiagnosticsConfigParser.ConfigFileName;
         private static readonly byte[] MessageOnNewFile = MemoryMappedFileHandler.MessageOnNewFile;
         private static readonly string MessageOnNewFileString = Encoding.UTF8.GetString(MessageOnNewFile);
 
@@ -21,9 +21,9 @@
         [Fact]
         public void SelfDiagnosticsConfigRefresher_OmitAsConfigured()
         {
+            var configFilePath = CreateConfigFile();
             try
-            {
-                CreateConfigFile();
+            {   
                 using (var configRefresher = new SelfDiagnosticsConfigRefresher())
                 {
                     // Emitting event of EventLevel.Warning
@@ -42,16 +42,16 @@
             }
             finally
             {
-                CleanupConfigFile();
+                CleanupConfigFile(configFilePath);
             }
         }
 
         [Fact]
         public void SelfDiagnosticsConfigRefresher_CaptureAsConfigured()
         {
+            var configFilePath = CreateConfigFile();
             try
             {
-                CreateConfigFile();
                 using (var configRefresher = new SelfDiagnosticsConfigRefresher())
                 {
                     // Emitting event of EventLevel.Error
@@ -73,20 +73,24 @@
             }
             finally
             {
-                CleanupConfigFile();
+                CleanupConfigFile(configFilePath);
             }
         }
 
         [Fact]
-        public void SelfDiagnosticsConfigRefresher_ReadFromEnviornmentVar()
+        public void SelfDiagnosticsConfigRefresher_ReadFromEnvironmentVariable()
         {
             var key = "APPLICATIONINSIGHTS_LOG_DIAGNOSTICS";
             var val = @"C:\\home\\LogFiles\\SelfDiagnostics";
+            if (!Directory.Exists(val))
+            {
+                val = ".";
+            }
             Environment.SetEnvironmentVariable(key, val);
 
+            var configFilePath = CreateConfigFile(false, val);
             try
             {
-                CreateConfigFile(false, val);
                 using (var configRefresher = new SelfDiagnosticsConfigRefresher())
                 {
                     // Emitting event of EventLevel.Error
@@ -108,7 +112,7 @@
             finally
             {
                 Environment.SetEnvironmentVariable(key, null);
-                CleanupConfigFile();
+                CleanupConfigFile(configFilePath);
             }
         }
 
@@ -129,29 +133,23 @@
             }
         }
 
-        private void CreateConfigFile(bool userDefinedLogDirectory = true, string envVarVal = "")
+        private string CreateConfigFile(bool userDefinedLogDirectory = true, string envVarVal = "")
         {
             ConfigFileObj configFileObj = new()
             {
                 FileSize = 1024,
-                LogLevel = "Error"
+                LogLevel = "Error",
+                LogDirectory = userDefinedLogDirectory ? "." : envVarVal
             };
 
-            if (userDefinedLogDirectory)
-            {
-                configFileObj.LogDirectory = ".";
-            }
-            else
-            {
-                configFileObj.LogDirectory = envVarVal;
-            }
-
             string configJson = JsonSerializer.Serialize(configFileObj);
-            using (FileStream file = File.Open(ConfigFilePath, FileMode.Create, FileAccess.Write))
+            string configFilePath = Path.Combine(configFileObj.LogDirectory, ConfigFileName);
+            using (FileStream file = File.Open(configFilePath, FileMode.Create, FileAccess.Write))
             {
                 byte[] configBytes = Encoding.UTF8.GetBytes(configJson);
                 file.Write(configBytes, 0, configBytes.Length);
             }
+            return configFilePath;
         }
 
         private class ConfigFileObj
@@ -161,14 +159,15 @@
             public string LogDirectory { get; set; }
         };
 
-        private static void CleanupConfigFile()
+        private static void CleanupConfigFile(string configFilePath)
         {
             try
             {
-                File.Delete(ConfigFilePath);
+                File.Delete(configFilePath);
             }
-            catch
+            catch (Exception ex)
             {
+                Debug.WriteLine($"Failed to delete config file '{configFilePath}': {ex}");
             }
         }
     }

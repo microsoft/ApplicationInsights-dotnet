@@ -42,7 +42,7 @@
             {
                 var configFilePath = ConfigFileName;
 
-                // First, check whether the enviornment variable was set.
+                // First, check whether the environment variable was set.
                 if (TryGetEnvironmentVariable(LogDiagnosticsEnvironmentVariable, out string logDiagnosticsPath))
                 {
                     configFilePath = Path.Combine(logDiagnosticsPath, ConfigFileName);
