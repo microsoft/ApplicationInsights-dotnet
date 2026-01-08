@@ -6,10 +6,12 @@
     using System.Diagnostics;
     using System.Reflection;
     using System.Threading;
+
     using Azure.Core;
     using Azure.Monitor.OpenTelemetry.Exporter;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics;
     using Microsoft.ApplicationInsights.Metrics;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
@@ -80,6 +82,8 @@
             {
                 this.builderConfiguration = builder => builder.WithApplicationInsights();
             }
+
+            SelfDiagnosticsInitializer.EnsureInitialized();
         }
 
         /// <summary>
