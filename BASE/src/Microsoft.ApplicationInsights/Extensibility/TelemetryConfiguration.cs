@@ -1,5 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Diagnostics;
+    using System.Reflection;
+    using System.Threading;
+
     using Azure.Core;
     using Azure.Monitor.OpenTelemetry.Exporter;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -10,12 +17,6 @@
     using Microsoft.Extensions.Hosting;
     using OpenTelemetry;
     using OpenTelemetry.Resources;
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Diagnostics;
-    using System.Reflection;
-    using System.Threading;
 
     /// <summary>
     /// Encapsulates the global telemetry configuration typically loaded from the ApplicationInsights.config file.
