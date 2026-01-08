@@ -20,7 +20,10 @@
             }
 
             Action<ResourceBuilder> configureResource = (r) => r
-                .AddAttributes(new[] { new KeyValuePair<string, object>("telemetry.distro.name", "Microsoft.ApplicationInsights.Web") })
+                .AddAttributes(new[] { 
+                    new KeyValuePair<string, object>("telemetry.distro.name", "Microsoft.ApplicationInsights.Web"),
+                    // TODO: include telemetry.distro.version, but VersionUtils is not accessible from here
+                })
                 .AddAzureAppServiceDetector()
                 .AddAzureVMDetector();
 
