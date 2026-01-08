@@ -445,8 +445,6 @@
             {
                 histogram.Record(telemetry.Value);
             }
-
-            this.Track(telemetry);
         }
 
         /// <summary>
