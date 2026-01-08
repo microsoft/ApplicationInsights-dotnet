@@ -18,6 +18,7 @@
 #else
         private const string EventSourceNamePrefix = "Microsoft-ApplicationInsights-";
 #endif
+        private const string OTelEventSourceNamePrefix = "OpenTelemetry-";
         // Buffer size of the log line. A UTF-16 encoded character in C# can take up to 4 bytes if encoded in UTF-8.
         private const int BUFFERSIZE = 4 * 5120;
         private readonly ThreadLocal<byte[]> writeBuffer = new ThreadLocal<byte[]>(() => null);
@@ -267,7 +268,8 @@
 
         protected override void OnEventSourceCreated(EventSource eventSource)
         {
-            if (eventSource.Name.StartsWith(EventSourceNamePrefix, StringComparison.Ordinal))
+            if (eventSource.Name.StartsWith(EventSourceNamePrefix, StringComparison.Ordinal)
+                || eventSource.Name.StartsWith(OTelEventSourceNamePrefix, StringComparison.Ordinal))
             {
                 // If there are EventSource classes already initialized as of now, this method would be called from
                 // the base class constructor before the first line of code in SelfDiagnosticsEventListener constructor.
