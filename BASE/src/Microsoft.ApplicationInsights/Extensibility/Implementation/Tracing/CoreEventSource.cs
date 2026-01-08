@@ -135,6 +135,9 @@
         [Event(18, Message = "TrackMetric was called with a null MetricTelemetry object. The metric will be ignored.", Level = EventLevel.Warning, Keywords = Keywords.UserActionable)]
         public void TrackMetricTelemetryIsNull(string appDomainName = "Incorrect") => this.WriteEvent(18, this.nameProvider.Name);
 
+        [Event(19, Keywords = Keywords.UserActionable, Message = "Failed to create file for self diagnostics at {0}. Error message: {1}.", Level = EventLevel.Error)]
+        public void SelfDiagnosticsFileCreateException(string logDirectory, string exception, string appDomainName = "Incorrect") => this.WriteEvent(19, logDirectory, exception, this.nameProvider.Name);
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>
