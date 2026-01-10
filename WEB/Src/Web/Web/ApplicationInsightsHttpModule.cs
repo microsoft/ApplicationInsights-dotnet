@@ -80,14 +80,18 @@
                             sharedTelemetryConfiguration.DisableTelemetry = configOptions.DisableTelemetry.Value;
                         }
 
-                        if (configOptions.SamplingRatio.HasValue)
-                        {
-                            sharedTelemetryConfiguration.SamplingRatio = configOptions.SamplingRatio.Value;
-                        }
-
                         if (configOptions.TracesPerSecond.HasValue)
                         {
                             sharedTelemetryConfiguration.TracesPerSecond = configOptions.TracesPerSecond.Value;
+                        }
+
+                        if (configOptions.SamplingRatio.HasValue)
+                        {
+                            sharedTelemetryConfiguration.SamplingRatio = configOptions.SamplingRatio.Value;
+                            if (!configOptions.TracesPerSecond.HasValue)
+                            {
+                                sharedTelemetryConfiguration.TracesPerSecond = null;
+                            }
                         }
 
                         if (!string.IsNullOrEmpty(configOptions.StorageDirectory))
