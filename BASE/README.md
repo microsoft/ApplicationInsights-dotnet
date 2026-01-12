@@ -633,8 +633,8 @@ var configuration = new TelemetryConfiguration
 
 | Property | Type | Default (when null) | Description |
 |----------|------|---------------------|-------------|
-| `SamplingRatio` | `float?` | `1.0` (100%) | Percentage of opentelemetry traces to sample (0.0 to 1.0) |
-| `TracesPerSecond` | `double?` | None | Traces per second (rate-limited sampling) |
+| `SamplingRatio` | `float?` | None | Percentage of opentelemetry traces to sample (0.0 to 1.0) |
+| `TracesPerSecond` | `double?` | 5 | Traces per second (rate-limited sampling) |
 | `StorageDirectory` | `string` | Platform-specific* | Directory for offline telemetry storage |
 | `DisableOfflineStorage` | `bool?` | `false` | When `true`, disables offline storage for failed transmissions |
 | `EnableLiveMetrics` | `bool?` | `true` | Enables Live Metrics stream in Azure Portal |
@@ -675,13 +675,11 @@ configuration.ConfigureOpenTelemetryBuilder(builder =>
     // Add custom ActivitySources (explained below)
     builder.AddSource("MyApp.*");
     
-    // Configure sampling
-    builder.SetSampler(new TraceIdRatioBasedSampler(0.1));
-    
     // Add processors
     builder.AddProcessor<CustomEnrichmentProcessor>();
 });
 ```
+Note: Setting an OTel Sampler via builder.SetSampler() is currently unsupported and will lead to unexpected sampling behavior.
 
 #### Understanding ActivitySource
 

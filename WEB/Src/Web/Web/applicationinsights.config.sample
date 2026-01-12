@@ -31,7 +31,7 @@
     =======================================================================
   -->
   
-  <!-- Sampling ratio: 0.0 to 1.0, where 1.0 = 100% of telemetry sent (default: 1.0) -->
+  <!-- Sampling ratio: 0.0 to 1.0, where 1.0 = 100% of telemetry sent  -->
   <!-- <SamplingRatio>1.0</SamplingRatio> -->
   
   <!-- Rate limit for traces per second (default: 5.0) -->

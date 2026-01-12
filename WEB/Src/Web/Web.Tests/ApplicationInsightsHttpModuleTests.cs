@@ -3,10 +3,13 @@ namespace Microsoft.ApplicationInsights.Web.Tests
     using System;
     using System.IO;
     using System.Reflection;
+    using System.Threading;
     using System.Web;
     using Azure.Monitor.OpenTelemetry.Exporter;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Web.Implementation;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Options;
     using OpenTelemetry;
     using Xunit;
 
@@ -305,6 +308,118 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             Assert.NotNull(config);
         }
 
+        [Fact]
+        public void Init_SetsSamplingRatio_FlowsToExporterOptions()
+        {
+            // Arrange
+            string configContent = @"<?xml version=""1.0"" encoding=""utf-8""?>
+        <ApplicationInsights xmlns=""http://schemas.microsoft.com/ApplicationInsights/2013/Settings"">
+            <ConnectionString>InstrumentationKey=test</ConnectionString>
+            <SamplingRatio>0.25</SamplingRatio>
+        </ApplicationInsights>";
+
+            CreateConfigInTestDirectory(configContent);
+
+            var module = new ApplicationInsightsHttpModule();
+            var httpApp = CreateMockHttpApplication();
+
+            // Act
+            module.Init(httpApp);
+
+            // Get TelemetryConfiguration and create TelemetryClient to trigger Build()
+            var config = GetTelemetryConfigurationFromModule(module);
+            var client = new TelemetryClient(config);
+
+            // Get OpenTelemetrySdk from TelemetryClient via reflection
+            var sdkField = typeof(TelemetryClient).GetField("sdk", BindingFlags.NonPublic | BindingFlags.Instance);
+            var sdk = sdkField?.GetValue(client) as OpenTelemetrySdk;
+
+            // Get IServiceProvider from OpenTelemetrySdk via reflection
+            var servicesProperty = typeof(OpenTelemetrySdk).GetProperty("Services", BindingFlags.NonPublic | BindingFlags.Instance);
+            var serviceProvider = servicesProperty?.GetValue(sdk) as IServiceProvider;
+
+            // Assert - verify exporter options
+            Assert.NotNull(serviceProvider);
+            var exporterOptions = serviceProvider.GetService<IOptions<AzureMonitorExporterOptions>>();
+            Assert.NotNull(exporterOptions);
+            Assert.Equal(0.25f, exporterOptions.Value.SamplingRatio);
+            Assert.Null(exporterOptions.Value.TracesPerSecond); // Should be null when only SamplingRatio is set
+        }
+
+        [Fact]
+        public void Init_SetsTracesPerSecond_FlowsToExporterOptions()
+        {
+            // Arrange
+            string configContent = @"<?xml version=""1.0"" encoding=""utf-8""?>
+        <ApplicationInsights xmlns=""http://schemas.microsoft.com/ApplicationInsights/2013/Settings"">
+            <ConnectionString>InstrumentationKey=test</ConnectionString>
+            <TracesPerSecond>5.5</TracesPerSecond>
+        </ApplicationInsights>";
+
+            CreateConfigInTestDirectory(configContent);
+
+            var module = new ApplicationInsightsHttpModule();
+            var httpApp = CreateMockHttpApplication();
+
+            // Act
+            module.Init(httpApp);
+
+            // Get TelemetryConfiguration and create TelemetryClient to trigger Build()
+            var config = GetTelemetryConfigurationFromModule(module);
+            var client = new TelemetryClient(config);
+
+            // Get OpenTelemetrySdk from TelemetryClient via reflection
+            var sdkField = typeof(TelemetryClient).GetField("sdk", BindingFlags.NonPublic | BindingFlags.Instance);
+            var sdk = sdkField?.GetValue(client) as OpenTelemetrySdk;
+
+            // Get IServiceProvider from OpenTelemetrySdk via reflection
+            var servicesProperty = typeof(OpenTelemetrySdk).GetProperty("Services", BindingFlags.NonPublic | BindingFlags.Instance);
+            var serviceProvider = servicesProperty?.GetValue(sdk) as IServiceProvider;
+
+            // Assert - verify exporter options
+            Assert.NotNull(serviceProvider);
+            var exporterOptions = serviceProvider.GetService<IOptions<AzureMonitorExporterOptions>>();
+            Assert.NotNull(exporterOptions);
+            Assert.Equal(5.5, exporterOptions.Value.TracesPerSecond);
+        }
+
+        [Fact]
+        public void Init_NoSamplingTagsSet_UseDefaultExporterValues()
+        {
+            // Arrange
+            string configContent = @"<?xml version=""1.0"" encoding=""utf-8""?>
+        <ApplicationInsights xmlns=""http://schemas.microsoft.com/ApplicationInsights/2013/Settings"">
+            <ConnectionString>InstrumentationKey=test</ConnectionString>
+        </ApplicationInsights>";
+
+            CreateConfigInTestDirectory(configContent);
+
+            var module = new ApplicationInsightsHttpModule();
+            var httpApp = CreateMockHttpApplication();
+
+            // Act
+            module.Init(httpApp);
+
+            // Get TelemetryConfiguration and create TelemetryClient to trigger Build()
+            var config = GetTelemetryConfigurationFromModule(module);
+            var client = new TelemetryClient(config);
+
+            // Get OpenTelemetrySdk from TelemetryClient via reflection
+            var sdkField = typeof(TelemetryClient).GetField("sdk", BindingFlags.NonPublic | BindingFlags.Instance);
+            var sdk = sdkField?.GetValue(client) as OpenTelemetrySdk;
+
+            // Get IServiceProvider from OpenTelemetrySdk via reflection
+            var servicesProperty = typeof(OpenTelemetrySdk).GetProperty("Services", BindingFlags.NonPublic | BindingFlags.Instance);
+            var serviceProvider = servicesProperty?.GetValue(sdk) as IServiceProvider;
+
+            // Assert - verify exporter options
+            Assert.NotNull(serviceProvider);
+            var exporterOptions = serviceProvider.GetService<IOptions<AzureMonitorExporterOptions>>();
+            Assert.NotNull(exporterOptions);
+            Assert.Equal(5.0, exporterOptions.Value.TracesPerSecond);
+            Assert.Equal(1.0f, exporterOptions.Value.SamplingRatio);
+        }
+
         private void CreateConfigInTestDirectory(string content)
         {
             File.WriteAllText(configFilePath, content);
@@ -347,6 +462,19 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             if (initCountField != null)
             {
                 initCountField.SetValue(null, 0);
+            }
+
+            // This next block is added because of tests that check the value of exporter options for sampling settings.
+            // Also reset the TelemetryConfiguration.DefaultInstance static Lazy field
+            // This is necessary because CreateDefault() returns a singleton that can only be built once
+            var telemetryConfigType = typeof(TelemetryConfiguration);
+            var defaultInstanceField = telemetryConfigType.GetField("DefaultInstance", BindingFlags.Static | BindingFlags.NonPublic);
+            if (defaultInstanceField != null)
+            {
+                // Create a new Lazy<TelemetryConfiguration> instance to replace the existing one
+                var lazyType = typeof(Lazy<TelemetryConfiguration>);
+                var newLazy = new Lazy<TelemetryConfiguration>(() => new TelemetryConfiguration(), LazyThreadSafetyMode.ExecutionAndPublication);
+                defaultInstanceField.SetValue(null, newLazy);
             }
         }
     }
