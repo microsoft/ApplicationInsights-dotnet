@@ -73,6 +73,42 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
             IServiceProvider serviceProvider = services.BuildServiceProvider();
             var options = serviceProvider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
             Assert.False(options.EnableAdaptiveSampling);
+
+            // Verify underlying AzureMonitorExporterOptions
+            var exporterOptions = serviceProvider.GetRequiredService<IOptions<AzureMonitorExporterOptions>>().Value;
+            Assert.Equal(1.0F, exporterOptions.SamplingRatio);
+            Assert.Null(exporterOptions.TracesPerSecond);
+        }
+
+        [Fact]
+        public void DefaultEnableAdaptiveSampling_ExporterHasDefaultSamplingValues()
+        {
+            // ARRANGE - use config that doesn't specify EnableAdaptiveSampling
+            var jsonFullPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "config-connection-string.json");
+            this.output.WriteLine("json:" + jsonFullPath);
+            var config = new ConfigurationBuilder().AddJsonFile(jsonFullPath).Build();
+            
+            var services = new ServiceCollection();
+            services.AddSingleton<IConfiguration>(config);
+
+            // ACT
+        #if AI_ASPNETCORE_WEB
+            services.AddApplicationInsightsTelemetry();
+        #else
+            services.AddApplicationInsightsTelemetryWorkerService();
+        #endif
+
+            // VALIDATE
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+            
+            // Verify ApplicationInsightsServiceOptions has default EnableAdaptiveSampling = true
+            var options = serviceProvider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
+            Assert.True(options.EnableAdaptiveSampling);
+            
+            // Verify underlying AzureMonitorExporterOptions for adaptive sampling
+            var exporterOptions = serviceProvider.GetRequiredService<IOptions<AzureMonitorExporterOptions>>().Value;
+            Assert.Equal(1.0F, exporterOptions.SamplingRatio);
+            Assert.Equal(5.0, exporterOptions.TracesPerSecond);
         }
 
         [Fact]

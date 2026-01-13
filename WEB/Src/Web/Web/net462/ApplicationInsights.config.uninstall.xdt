@@ -21,5 +21,4 @@
   
   <!-- Legacy properties for backward compatibility -->
   <ApplicationVersion xdt:Transform="Remove" />
-  <EnableAdaptiveSampling xdt:Transform="Remove" />
 </ApplicationInsights>

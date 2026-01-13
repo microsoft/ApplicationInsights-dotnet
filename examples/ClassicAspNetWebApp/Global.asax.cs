@@ -26,9 +26,9 @@ namespace ClassicAspNetWebApp
             // telemetryConfig.ConnectionString = "";
             //
             // // SAMPLING: Choose ONE approach (not both)
-            // // SamplingRatio: Percentage of telemetry to keep (0.0 to 1.0). Default: 1.0 (100%)
+            // // SamplingRatio: Percentage of telemetry to keep (0.0 to 1.0).
             // telemetryConfig.SamplingRatio = 0.5f;           // Keep 50% of telemetry
-            // // TracesPerSecond: Rate-limited sampling. Default: null (disabled)
+            // // TracesPerSecond: Rate-limited sampling. Default: 5.0
             // // telemetryConfig.TracesPerSecond = 5.0;       // OR: Keep max 5 traces/second
             //
             // // OFFLINE STORAGE: Persists telemetry when network is unavailable

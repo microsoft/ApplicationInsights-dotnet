@@ -80,6 +80,23 @@ namespace Microsoft.ApplicationInsights.Tests
 
             // Assert - verify the actual value
             Assert.Equal(0.5F, exporterOptions.SamplingRatio);
+            Assert.Null(exporterOptions.TracesPerSecond);
+        }
+
+        [Fact]
+        public void WhenNoSamplingPropertiesSet_DefaultExporterValuesArePresent()
+        {
+            // Arrange
+            this.telemetryConfiguration = new TelemetryConfiguration();
+            this.telemetryConfiguration.ConnectionString = "InstrumentationKey=test-ikey";
+
+            // Build the configuration by creating a TelemetryClient
+            var sdk = this.BuildConfiguration();
+            var exporterOptions = this.GetExporterOptions(sdk);
+
+            // Assert - verify the actual value
+            Assert.Equal(1.0F, exporterOptions.SamplingRatio);
+            Assert.Equal(5.0, exporterOptions.TracesPerSecond);
         }
 
         [Fact]
@@ -117,6 +134,7 @@ namespace Microsoft.ApplicationInsights.Tests
 
             // Assert - verify the actual value
             Assert.Equal(1.5, exporterOptions.TracesPerSecond);
+            Assert.Equal(1.0F, exporterOptions.SamplingRatio);
         }
 
         [Fact]

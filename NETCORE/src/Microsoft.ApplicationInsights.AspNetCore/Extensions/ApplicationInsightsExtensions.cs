@@ -202,6 +202,7 @@
                     if (!serviceOptions.EnableAdaptiveSampling)
                     {
                         exporterOptions.SamplingRatio = 1.0F;
+                        exporterOptions.TracesPerSecond = null;
                     }
 
                     if (serviceOptions.EnableQuickPulseMetricStream)

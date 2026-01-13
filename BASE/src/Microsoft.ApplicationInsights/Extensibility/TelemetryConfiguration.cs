@@ -124,7 +124,7 @@
         /// <summary>
         /// Gets or sets the sampling ratio for traces (0.0 to 1.0).
         /// A value of 1.0 means all telemetry is sent, 0.5 means 50% is sent.
-        /// When null, the Azure Monitor Exporter default of 1.0 is used.
+        /// When null, rate limiting sampling is used instead.
         /// </summary>
         public float? SamplingRatio
         {
@@ -138,7 +138,7 @@
 
         /// <summary>
         /// Gets or sets the number of traces per second for rate-limited sampling.
-        /// When null, the Azure Monitor Exporter default of 5.0 is used.
+        /// Rate limited sampling is the default form of sampling.
         /// </summary>
         public double? TracesPerSecond
         {
@@ -372,14 +372,18 @@
                     {
                         options.ConnectionString = this.connectionString;
 
-                        if (this.samplingRatio.HasValue)
-                        {
-                            options.SamplingRatio = this.samplingRatio.Value;
-                        }
-
                         if (this.tracesPerSecond.HasValue)
                         {
                             options.TracesPerSecond = this.tracesPerSecond.Value;
+                        }
+
+                        if (this.samplingRatio.HasValue)
+                        {
+                            options.SamplingRatio = this.samplingRatio.Value;
+                            if (!this.tracesPerSecond.HasValue)
+                            {
+                                options.TracesPerSecond = null;
+                            }
                         }
 
                         if (this.storageDirectory != null)
