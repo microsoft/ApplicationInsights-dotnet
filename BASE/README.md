@@ -679,7 +679,7 @@ configuration.ConfigureOpenTelemetryBuilder(builder =>
     builder.AddProcessor<CustomEnrichmentProcessor>();
 });
 ```
-Note: Setting an OTel Sampler via builder.SetSampler() is currently unsupported and will lead to unexpected sampling behavior.
+Note: Setting an OpenTelemetry Sampler via `builder.SetSampler()` is currently unsupported and will lead to unexpected sampling behavior.
 
 #### Understanding ActivitySource
 
