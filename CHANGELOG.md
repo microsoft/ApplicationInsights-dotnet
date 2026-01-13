@@ -7,7 +7,7 @@
 - [Added Self Diagnostics feature](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3070)
 - [Updated the default sampler from Fixed Rate to Rate-Limited Sampling.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3073)
 - [Update Azure Monitor Exporter to 1.6.0-beta.2](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3073)
-- [Add comprehensive applicationinishgts.config support](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3069)
+- [Add comprehensive applicationinsights.config support](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3069)
 - [Add properties in TelemetryConfiguration to configure underlying exporter](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3065)
 
 ### Bug fix
