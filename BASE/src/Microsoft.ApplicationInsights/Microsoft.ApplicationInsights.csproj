@@ -27,8 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!--<PackageReference Include="Azure.Monitor.OpenTelemetry.Exporter" Version="1.6.0-beta.1" />-->
-    <ProjectReference Include="C:\repos\forked\azure-sdk-for-net\sdk\monitor\Azure.Monitor.OpenTelemetry.Exporter\src\Azure.Monitor.OpenTelemetry.Exporter.csproj" />
+    <PackageReference Include="Azure.Monitor.OpenTelemetry.Exporter" Version="1.6.0-beta.2" />
     <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28" Condition="$(OS) == 'Windows_NT' And '$(TargetFramework)' != 'net8.0' And '$(TargetFramework)' != 'net9.0' And '$(TargetFramework)' != 'net10.0'">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
