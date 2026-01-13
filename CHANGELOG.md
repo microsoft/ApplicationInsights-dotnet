@@ -6,7 +6,7 @@
 - [Added support for Entra ID (Azure Active Directory) authentication using Azure.Core.TokenCredential](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3054)
 - [Added Self Diagnostics feature](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3070)
 - [Updated the default sampler from Fixed Rate to Rate-Limited Sampling.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3073)
-- Update Azure Monitor Exporter to 1.6.0-beta.2
+- [Update Azure Monitor Exporter to 1.6.0-beta.2](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3073)
 
 ## Version 3.0.0-beta1
 - The following Application Insights packages in this repo now use OpenTelemetry internally. OpenTelemetry is the industry standard for telemetry collection and provides better interoperability with other observability tools.
