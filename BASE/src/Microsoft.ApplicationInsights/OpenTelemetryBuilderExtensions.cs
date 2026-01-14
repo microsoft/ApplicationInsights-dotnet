@@ -25,7 +25,8 @@ namespace Microsoft.ApplicationInsights
         public static IOpenTelemetryBuilder WithApplicationInsights(this IOpenTelemetryBuilder builder)
         {
             builder
-                .ConfigureResource(r => r.AddAttributes(new[] {
+                .ConfigureResource(r => r.AddAttributes(new[]
+                {
                     new KeyValuePair<string, object>("telemetry.distro.name", "Microsoft.ApplicationInsights"),
                     new KeyValuePair<string, object>("telemetry.distro.version", VersionUtils.GetVersion(typeof(OpenTelemetryBuilderExtensions))),
                 }))
