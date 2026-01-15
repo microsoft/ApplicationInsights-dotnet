@@ -11,8 +11,8 @@ namespace Microsoft.ApplicationInsights.Internals
         /// <summary>
         /// Returns a human-readable version string for a specific type. If the version cannot be determined, returns "u".
         /// </summary>
-        /// <param name="type">The type for which to get the version</param>
-        /// <returns>String representation of the type's version</returns>
+        /// <param name="type">The type for which to get the version.</param>
+        /// <returns>String representation of the type's version.</returns>
         internal static string GetVersion(Type type)
         {
             string versionString = type
