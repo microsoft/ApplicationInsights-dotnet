@@ -121,7 +121,8 @@
             }
 
             Action<ResourceBuilder> configureResource = (r) => r
-                .AddAttributes(new[] {
+                .AddAttributes(new[]
+                {
                     new KeyValuePair<string, object>("telemetry.distro.name", "Microsoft.ApplicationInsights.WorkerService"),
                     new KeyValuePair<string, object>("telemetry.distro.version", VersionUtils.GetVersion(typeof(ApplicationInsightsExtensions))),
                 })
