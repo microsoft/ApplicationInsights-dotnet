@@ -1,7 +1,6 @@
 namespace Microsoft.ApplicationInsights.Internals
 {
     using System;
-    using System.Linq;
     using System.Reflection;
 
     /// <summary>
