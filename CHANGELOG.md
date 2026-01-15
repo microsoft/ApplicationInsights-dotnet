@@ -1,6 +1,5 @@
 # Changelog
 
-<<<<<<< HEAD
 ## Version 3.0.0-beta2
 ### Added
 - [Automatic configuration binding from "ApplicationInsights" section in appsettings.json for both AspNetCore and WorkerService packages with configuration precedence: environment variables > explicit configuration > appsettings.json](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3064)
@@ -23,10 +22,6 @@
   - Microsoft.ApplicationInsights.NLogTarget
 - Classic APIs of the above packages are preserved; calls are translated to OpenTelemetry telemetry.
 - Other packages not listed above (such as certain auto-collectors and logging adapters that were published from this repo previously) will not have future versions published. See BreakingChanges.md for details.
-=======
-## VNext
-- UnitTest updates to fix codeQL issues, no product code changes.
->>>>>>> 02467257 (revert changelog)
 
 ## Version 2.23.0
 - no changes since beta.
