@@ -83,22 +83,6 @@ All `GetMetric` overloads have been simplified:
 
 This applies to all dimension combinations (1D, 2D, 3D, 4D).
 
-### Methods Unchanged (Identical Signatures)
-The following methods remain unchanged:
-- `IsEnabled()` - Returns bool
-- `TrackTrace(string message)`
-- `TrackTrace(string message, SeverityLevel severityLevel)`
-- `TrackTrace(string message, IDictionary<string, string> properties)`
-- `TrackTrace(string message, SeverityLevel severityLevel, IDictionary<string, string> properties)`
-- `TrackTrace(TraceTelemetry telemetry)`
-- `TrackMetric(string name, double value, IDictionary<string, string> properties)`
-- `TrackMetric(MetricTelemetry telemetry)`
-- `TrackDependency(string dependencyTypeName, string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, bool success)`
-- `TrackDependency(string dependencyTypeName, string target, string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, string resultCode, bool success)`
-- `TrackDependency(DependencyTelemetry telemetry)`
-- `Flush()`
-- `FlushAsync(CancellationToken cancellationToken)`
-
 ---
 
 ## TelemetryConfiguration Breaking Changes
@@ -122,29 +106,56 @@ The following methods remain unchanged:
 - ❌ `TelemetryConfiguration(string instrumentationKey)`
 - ❌ `TelemetryConfiguration(string instrumentationKey, ITelemetryChannel channel)`
 
-#### Methods
-- ❌ **`CreateDefault()` changed from public to internal** - No longer part of public API
-
 ### Properties with Changed Behavior
 - ✅ **`ConnectionString`** - Still exists but behavior differs
   - **2.x**: String property
   - **3.x**: Setting this calls OpenTelemetry configuration internally
-- ✅ **`DisableTelemetry`** - Still exists but implementation differs
-  - **3.x**: Calls `IsEnabled(false)` in setter
+- ✅ **`DisableTelemetry`** - Still exists but does not disable flow of telemetry (will be fixed later)
+
+### Methods with changed Behavior
+- CreateDefault() returns an internal static configuration instead of a new TelemetryConfiguration()
 
 ### New APIs Added in 3.x
-- ✅ **`ConfigureOpenTelemetryBuilder(Action<OpenTelemetryBuilder> configure)`** - Allows extending OpenTelemetry configuration
-- ✅ `ApplicationInsightsActivitySource` (internal) - Gets the default ActivitySource
-- ✅ `MetricsManager` (internal) - Gets the MetricsManager for metrics tracking
-- ✅ `Build()` (internal) - Builds the OpenTelemetry SDK
-- ✅ `ConfigureCloudRole(string roleName, string roleInstance)` (internal) - Configures cloud role
+- ✅ **`SamplingRatio`** (float?) - Gets or sets the sampling ratio for traces (0.0 to 1.0). A value of 1.0 means all telemetry is sent.
+- ✅ **`TracesPerSecond`** (double?) - Gets or sets the number of traces per second for rate-limited sampling (default sampling mode).
+- ✅ **`StorageDirectory`** (string) - Gets or sets the directory for offline telemetry storage.
+- ✅ **`DisableOfflineStorage`** (bool?) - Gets or sets whether offline storage is disabled.
+- ✅ **`EnableLiveMetrics`** (bool?) - Gets or sets whether Live Metrics is enabled.
+- ✅ **`EnableTraceBasedLogsSampler`** (bool?) - Gets or sets whether trace-based log sampling is enabled.
+- ✅ **`ConfigureOpenTelemetryBuilder(Action<IOpenTelemetryBuilder> configure)`** - Allows extending OpenTelemetry configuration
+- ✅ **`SetAzureTokenCredential(TokenCredential tokenCredential)`** - Call this method to enable Azure Active Directory (AAD) authentication for Application Insights ingestion
 
 ### Migration Impact
-**Critical:** The removal of the telemetry pipeline infrastructure means:
-1. Custom telemetry processors must be replaced with OpenTelemetry processors
-2. Telemetry initializers must be replaced with OpenTelemetry enrichment patterns
+1. Custom telemetry processors and initializers should be replaced by OpenTelemetry BaseProcessors or attributes added to the OpenTelemetry records.
 3. Multi-sink scenarios are no longer supported
-4. Endpoint customization must be done through OpenTelemetry configuration
+4. Endpoint customization is removed. Endpoints are parsed from the connection string.
+
+---
+
+## TelemetryContext Breaking Changes
+
+Most TelemetryContext modules have now been marked internal or removed. The properties that have been retained are listed below.
+
+### Properties Retained
+
+The following remain **public**:
+- ✅ `Cloud` (RoleName, RoleInstance)
+    - Note: These are settable via resource attributes (service.name & service.instance.id) in OpenTelemetry; we are working on fixing functionality for setting the same via CloudContext.
+- ✅ `User` (Id, AuthenticatedUserId, UserAgent)
+- ✅ `Operation` (Name, SyntheticSource)
+    - Note: A future work item is to make sure SyntheticSource can be read from properly and emitted in the telemetry item.
+- ✅ `Location` (Ip)
+- ✅ `GlobalProperties`
+
+### Removed Properties
+
+- ❌ **`Properties`** (obsolete) - Was obsoleted in 2.x in favor of `GlobalProperties`, now removed entirely
+
+### Migration Guidance
+- Please check your application code to make sure it does not make reference to removed or internalized Context properties.
+- To set the cloud role name and instance, it is best to do so by utilizing the service.name & service.instance.id resource attributes when calling ConfigureOpenTelemetryBuilder.
+- OpenTelemetry resource attributes can replace many of the context fields that are now internal. An alternative path is to add custom properties to the telemetry item.
+
 
 ---
 
@@ -196,31 +207,33 @@ The following extension methods remain with identical signatures:
 - ❌ `OperationNameTelemetryInitializer`
 - ❌ `WebSessionTelemetryInitializer`
 
-### Folders/Subsystems Removed
-- ❌ `DiagnosticListeners` folder (containing `HostingDiagnosticListener`, `MvcDiagnosticListener`, etc.)
-- ❌ `Implementation` folder (various internal classes)
-- ❌ `Logging` folder (logger infrastructure)
-
 ## ApplicationInsightsServiceOptions Changes
 
 ### Properties Removed
 - ❌ **`InstrumentationKey`** - Obsolete property removed (use `ConnectionString`)
-- ❌ **`EnableQuickPulseMetricStream`** - Replaced with OpenTelemetry live metrics
 - ❌ **`DeveloperMode`** - No longer configurable
-- ❌ **`EnableAuthenticationTrackingJavaScript`** - JavaScript config removed
-- ❌ **`EnableDebugLogger`** - Debug logging handled by OpenTelemetry
-- ❌ **`RequestCollectionOptions`** - Request tracking configuration removed
+- ❌ **`EndpointAddress`** - No longer configurable (`ConnectionString` contains endpoint information)
 - ❌ **`TelemetryInitializers`** - Cannot configure initializers
+- ❌ **`EnableHeartbeat`** - Heartbeat configuration removed
 
 ### Properties Retained
 - ✅ **`ConnectionString`** - Primary configuration method
 - ✅ **`EnableAdaptiveSampling`** - Still configurable (but behavior changed)
   - **2.x**: Controls traditional adaptive sampling
-  - **3.x**: Maps to rate-limit based sampling in Azure Monitor Exporter
+  - **3.x**: Maps to rate-limit based sampling in Azure Monitor Exporter, set at 5 OpenTelemetry traces per second by default
 - ✅ **`ApplicationVersion`**
 - ✅ **`DependencyCollectionOptions`**
-- ✅ **`EnableHeartbeat`**
+- ✅ **`RequestCollectionOptions`** - Request tracking configuration retained
 - ✅ **`AddAutoCollectedMetricExtractor`**
+- ✅ **`EnableQuickPulseMetricStream`** 
+- ✅ **`EnableDebugLogger`** - Retained but has no effect
+- ✅ **`EnableAuthenticationTrackingJavaScript`** - JavaScript auth tracking config
+- ✅ **`EnableDependencyTrackingTelemetryModule`** - Dependency tracking toggle
+- ✅ **`EnablePerformanceCounterCollectionModule`** - Performance counter toggle
+- ✅ **`EnableRequestTrackingTelemetryModule`** - Request tracking toggle
+
+### New Properties Added in 3.x
+- ✅ **`Credential`** (Azure.Core.TokenCredential) - Enables Azure Active Directory (AAD) authentication
 
 ### JavaScriptSnippet Constructor Change
 **2.x:**
@@ -241,18 +254,10 @@ public JavaScriptSnippet(
     JavaScriptEncoder encoder = null)
 ```
 
-## Migration Impact
-
-### High Impact
-1. **All custom telemetry processors and modules configuration removed** - Must use OpenTelemetry Processors
-2. **All custom telemetry initializers removed** - Use OpenTelemetry Processors, resource detectors and enrichment
-3. **Request tracking configuration removed** - Handled automatically by OpenTelemetry
-4. **No more manual middleware registration** - OpenTelemetry handles it
-
-### Low Impact
-- Basic `AddApplicationInsightsTelemetry()` calls remain compatible
-- `ConnectionString`-based configuration still works
-- Most service options remain the same
+## Migration Guidance
+- Any code depending on `InstrumentationKey` must migrate to `ConnectionString`
+- Code checking or configuring the removed options will break
+- Direct dependency on traditional AI SDK modules/processors/initializers will fail - consider learning about OpenTelemetry processors, resource detectors, and enrichment of telemetry. 
 
 ---
 
@@ -277,47 +282,24 @@ The following extension methods remain with identical signatures:
 - ❌ **`EnableAzureInstanceMetadataTelemetryModule`** - Azure instance metadata module removed
 - ❌ **`EnableHeartbeat`** - Heartbeat configuration removed
 - ❌ **`EnableDiagnosticsTelemetryModule`** - Diagnostics telemetry module removed
+- ❌ **`DeveloperMode`** - No longer configurable
+- ❌ **`EndpointAddress`** - No longer configurable (`ConnectionString` contains endpoints)
 
 ### Properties Retained
 - ✅ **`ConnectionString`** - Primary configuration method (maps to `AzureMonitorExporterOptions.ConnectionString`)
 - ✅ **`ApplicationVersion`** - Still configurable
-- ✅ **`DeveloperMode`** - Still configurable
-- ✅ **`EndpointAddress`** - Still configurable
-- ✅ **`EnableAdaptiveSampling`** - Now controls `SamplingRatio` in Azure Monitor Exporter (1.0F when disabled)
+- ✅ **`EnableAdaptiveSampling`** - When true the rate limited sampler is used at 5 traces per second.
 - ✅ **`EnableDependencyTrackingTelemetryModule`** - Still configurable
 - ✅ **`EnablePerformanceCounterCollectionModule`** - Still configurable
 - ✅ **`EnableQuickPulseMetricStream`** - Maps to `AzureMonitorExporterOptions.EnableLiveMetrics`
-- ✅ **`EnableDebugLogger`** - Still configurable
+- ✅ **`EnableDebugLogger`** - Still configurable though has no effect
 - ✅ **`AddAutoCollectedMetricExtractor`** - Still configurable
 - ✅ **`DependencyCollectionOptions`** - Still available
 
-## Implementation Changes
-
-### 2.x Architecture:
-- Direct Application Insights SDK integration
-- Manual registration of telemetry modules, initializers, channels
-- Dependencies: ServerTelemetryChannel, DependencyCollector, PerformanceCollector, etc.
-
-### 3.x Architecture:
-- Built on OpenTelemetry with Azure Monitor Exporter
-- Auto-instrumentation via:
-  - `OpenTelemetry.Instrumentation.Runtime`
-  - `OpenTelemetry.Instrumentation.Http`
-  - `OpenTelemetry.Instrumentation.SqlClient`
-- All traditional telemetry modules replaced with OpenTelemetry instrumentation
-
 ## Migration Impact
-
-### Low Impact (Compatible)
-- Basic service registration calls remain unchanged
-- `ConnectionString`-based configuration still works
-- Main extension methods have same signatures
-
-### High Impact (Breaking)
 - Any code depending on `InstrumentationKey` must migrate to `ConnectionString`
-- Code checking or configuring the removed options will break
-- Direct dependency on traditional AI SDK modules/processors will fail
-- Custom telemetry modules or initializers need OpenTelemetry equivalents
+- Code checking or configuring the removed options (`DeveloperMode`, `EndpointAddress`, etc.) will break
+- Direct dependency on traditional AI SDK modules/processors/initialzers will fail - consider learning about OpenTelemetry processors, resource detectors, and enrichment of telemetry. 
 
 ---
 
@@ -331,15 +313,10 @@ The following extension methods remain with identical signatures:
   - **3.x**: Completely removed
   - **Migration**: Use `ConnectionString` property instead
 
+### New Property Added in 3.x
+- ✅ **`Credential`** (Azure.Core.TokenCredential) - Enables Azure Active Directory (AAD) authentication for Application Insights
+
 ### Configuration Breaking Changes
-
-#### Authentication Configuration (CRITICAL)
-| Aspect | 2.x | 3.x |
-|--------|-----|-----|
-| **Configuration Property** | `InstrumentationKey` | `ConnectionString` |
-| **Required?** | No (optional with warning) | **YES** (throws exception if missing) |
-| **Validation** | Warns if empty | **Throws `NLogRuntimeException`** |
-
 **Migration Required:** Users MUST update their NLog configuration:
 
 **2.x Configuration:**
@@ -352,42 +329,10 @@ The following extension methods remain with identical signatures:
 <target type="ApplicationInsightsTarget" ConnectionString="InstrumentationKey=xxx;IngestionEndpoint=https://..." />
 ```
 
-### New Lifecycle Methods
-```csharp
-// 3.x only
-protected override void CloseTarget()
-protected override void Dispose(bool disposing)
-```
-- Properly disposes `TelemetryConfiguration` to prevent resource leaks
-- Users relying on disposal behavior may see differences
-
-### Behavioral Changes
-
-#### TelemetryClient Initialization
-**2.x:** Uses deprecated `TelemetryConfiguration.Active` singleton
-```csharp
-this.telemetryClient = new TelemetryClient(); // Uses Active config
-```
-
-**3.x:** Creates explicit `TelemetryConfiguration` instance
-```csharp
-this.telemetryConfiguration = new TelemetryConfiguration();
-this.telemetryConfiguration.ConnectionString = connectionString;
-this.telemetryClient = new TelemetryClient(this.telemetryConfiguration);
-```
-
-#### FlushAsync
-- **2.x**: Always attempts to flush
-- **3.x**: Checks if `telemetryClient` is null before flushing (safer)
-
 ### Target Framework Changes
 - **2.x**: `net452`, `netstandard2.0`
 - **3.x**: `net462`, `netstandard2.0`
 - **Breaking**: Minimum .NET Framework version raised from **4.5.2** → **4.6.2**
-
-### Internal Implementation Changes
-- **2.x**: `telemetryClient.Context.GetInternalContext().SdkVersion = ...`
-- **3.x**: SDK version setting temporarily disabled (commented out with TODO)
 
 ## Migration Checklist
 
@@ -395,11 +340,6 @@ this.telemetryClient = new TelemetryClient(this.telemetryConfiguration);
 1. Replace `InstrumentationKey` with `ConnectionString` in NLog configuration
 2. Ensure connection string is always provided (no longer optional)
 3. Update minimum .NET Framework from 4.5.2 to 4.6.2 if using .NET Framework
-
-✅ **Recommended Actions:**
-1. Test disposal behavior if relying on cleanup logic
-2. Review any code expecting `InstrumentationKey` property
-3. Enable NLog internal logging if debugging telemetry issues
 
 ---
 
@@ -421,23 +361,9 @@ this.telemetryClient = new TelemetryClient(this.telemetryConfiguration);
 
 All public **TelemetryInitializers** from 2.x are **REMOVED from the public API** in 3.x:
 
-| 2.x Telemetry Initializer (PUBLIC) | 3.x Status |
-|-------------------------------------|-----------|
-| `WebTestTelemetryInitializer` | ⚠️ Converted to internal `WebTestActivityProcessor` |
-| `SyntheticUserAgentTelemetryInitializer` | ⚠️ Converted to internal `SyntheticUserAgentActivityProcessor` |
-| `ClientIpHeaderTelemetryInitializer` | ⚠️ Converted to internal `ClientIpHeaderActivityProcessor` |
-| `OperationNameTelemetryInitializer` | ❌ Removed (handled by OpenTelemetry) |
-| `OperationCorrelationTelemetryInitializer` | ❌ Removed (handled by OpenTelemetry) |
-| `UserTelemetryInitializer` | ⚠️ Converted to internal `UserActivityProcessor` |
-| `AuthenticatedUserIdTelemetryInitializer` | ⚠️ Converted to internal `AuthenticatedUserIdActivityProcessor` |
-| `AccountIdTelemetryInitializer` | ⚠️ Converted to internal `AccountIdActivityProcessor` |
-| `SessionTelemetryInitializer` | ⚠️ Converted to internal `SessionActivityProcessor` |
-| `ComponentVersionTelemetryInitializer` | ❌ Removed (handled by OpenTelemetry) |
-
 **Impact**: 
 - The public telemetry initializers are **removed from the public API**
-- Many have been converted to **internal Activity Processors** that run automatically
-- The functionality is preserved but no longer customizable through the same extensibility points
+- Many have been converted to **internal OpenTelemetry Processors** that run automatically
 - Custom telemetry initializers must be replaced with OpenTelemetry's extensibility model (Activity Processors and Resource Detectors)
 
 ## Base Classes REMOVED
@@ -446,37 +372,7 @@ All public **TelemetryInitializers** from 2.x are **REMOVED from the public API*
 - **Impact**: No public extensibility model for creating custom web-specific initializers/modules
 
 ## Extension Methods Changes
-
-### 2.x:
-```csharp
-// Two extension method classes (both public)
-namespace System.Web
-{
-    public static class HttpContextExtension
-    {
-        public static RequestTelemetry GetRequestTelemetry(this HttpContext context);
-    }
-    
-    public static class HttpContextBaseExtension  
-    {
-        [Obsolete]
-        public static RequestTelemetry GetRequestTelemetry(this HttpContextBase context);
-    }
-}
-```
-
-### 3.x:
-```csharp
-// Only HttpContextExtension remains
-namespace System.Web
-{
-    public static class HttpContextExtension
-    {
-        public static RequestTelemetry GetRequestTelemetry(this HttpContext context);
-    }
-}
-```
-
+- ❌ **`HttpContextExtension` class removed from public API**, though some functionality is maintained internally
 - ❌ **`HttpContextBaseExtension` class removed entirely**
 
 ## Configuration Model Changes
@@ -509,87 +405,29 @@ namespace System.Web
 ```xml
 <ApplicationInsights>
   <ConnectionString>InstrumentationKey=your-key;IngestionEndpoint=https://...</ConnectionString>
+  <DisableTelemetry>false</DisableTelemetry>
+  <ApplicationVersion>1.0.0</ApplicationVersion>
+  <SamplingRatio>1.0</SamplingRatio>
+  <TracesPerSecond>5</TracesPerSecond>
+  <StorageDirectory>C:\Logs</StorageDirectory>
+  <DisableOfflineStorage>false</DisableOfflineStorage>
+  <EnableQuickPulseMetricStream>true</EnableQuickPulseMetricStream>
+  <EnableTraceBasedLogsSampler>false</EnableTraceBasedLogsSampler>
+  <EnablePerformanceCounterCollectionModule>true</EnablePerformanceCounterCollectionModule>
+  <AddAutoCollectedMetricExtractor>true</AddAutoCollectedMetricExtractor>
+  <EnableDependencyTrackingTelemetryModule>true</EnableDependencyTrackingTelemetryModule>
+  <EnableRequestTrackingTelemetryModule>true</EnableRequestTrackingTelemetryModule>
 </ApplicationInsights>
 ```
 
-**Breaking Changes:**
+**Summary of config changes:**
 - ❌ `<TelemetryInitializers>` section no longer supported
 - ❌ `<TelemetryModules>` section no longer supported
 - ❌ `<InstrumentationKey>` replaced with `<ConnectionString>`
-- ✅ Only `ConnectionString` is read from config
+- ✅ Multiple new configuration elements supported (see example above)
 - All instrumentation now **auto-configured via OpenTelemetry**
 
 ## Target Framework Changes
 - **2.x**: `net452` (Targets .NET Framework 4.5.2)
 - **3.x**: `net462` (Targets .NET Framework 4.6.2)
 - **Breaking**: Minimum framework version raised from **4.5.2** → **4.6.2**
-
-## Dependency Changes
-
-### 2.x Dependencies:
-```xml
-<PackageReference Include="Microsoft.AspNet.TelemetryCorrelation" Version="1.0.8" />
-<ProjectReference Include="WindowsServer.csproj" />
-```
-
-### 3.x Dependencies:
-```xml
-<PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.14.0" />
-<PackageReference Include="OpenTelemetry.Instrumentation.AspNet" Version="1.14.0-rc.1" />
-<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.14.0" />
-<PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.14.0-beta.1" />
-<PackageReference Include="OpenTelemetry.Resources.Azure" Version="1.14.0-beta.1" />
-```
-
-- ❌ Removed `Microsoft.AspNet.TelemetryCorrelation` dependency
-- ❌ Removed `WindowsServer` project reference
-- ✅ Now based entirely on **OpenTelemetry instrumentation libraries**
-
-## Migration Impact Summary
-
-### Public API Removals:
-1. ❌ All **10 public TelemetryInitializer classes** removed
-2. ❌ All **3 public TelemetryModule classes** removed
-3. ❌ **2 public base classes** removed
-4. ❌ `HttpContextBaseExtension` class removed
-5. ❌ Configuration via `applicationinsights.config` greatly simplified
-
-### Architecture Changes:
-- **Moved from**: Custom telemetry modules/initializers
-- **Moved to**: OpenTelemetry Activity Processors (internal)
-- All instrumentation handled automatically via OpenTelemetry libraries
-- Telemetry configuration is no longer XML-based, but code-based through OpenTelemetry
-
-### Migration Path:
-- Users must **remove all custom TelemetryInitializers/Modules** from config file
-- Customization must be done through **OpenTelemetry SDK** extensibility
-- Update `applicationinsights.config` to use `ConnectionString` instead of `InstrumentationKey`
-- Minimum .NET Framework version must be **4.6.2 or higher**
-
----
-
-## General Migration Guidance
-
-### Key Principles
-1. **ConnectionString is mandatory** - All packages now require `ConnectionString` instead of `InstrumentationKey`
-2. **OpenTelemetry-first** - Customization uses OpenTelemetry extensibility patterns
-3. **Simplified configuration** - Reduced surface area with automatic instrumentation
-4. **Minimum framework versions increased** - .NET Framework 4.6.2+ required
-
-### Common Migration Steps
-1. Update all Application Insights packages to 3.x together
-2. Replace `InstrumentationKey` with `ConnectionString` everywhere
-3. Remove custom telemetry initializers/processors and reimplement using OpenTelemetry patterns
-4. Remove telemetry module configurations from XML config files
-5. Test thoroughly - internal behavior has changed significantly despite similar APIs
-
-### OpenTelemetry Extensibility
-For customization in 3.x, use:
-- **Activity Processors** (instead of Telemetry Processors)
-- **Resource Detectors** (instead of Telemetry Initializers)
-- **OpenTelemetry Builder extensions** via `TelemetryConfiguration.ConfigureOpenTelemetryBuilder()`
-
-### Additional Resources
-- [Shim Breaking Changes Documentation](docs/shim_breaking_changes.md)
-- [OpenTelemetry .NET Documentation](https://opentelemetry.io/docs/instrumentation/net/)
-- [Azure Monitor OpenTelemetry Exporter](https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-enable)
