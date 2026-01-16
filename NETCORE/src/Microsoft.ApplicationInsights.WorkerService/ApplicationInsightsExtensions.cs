@@ -7,6 +7,7 @@
     using Azure.Monitor.OpenTelemetry.Exporter;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Internals;
     using Microsoft.ApplicationInsights.WorkerService;
     using Microsoft.ApplicationInsights.WorkerService.Implementation.Tracing;
     using Microsoft.Extensions.Configuration;
@@ -120,7 +121,11 @@
             }
 
             Action<ResourceBuilder> configureResource = (r) => r
-                .AddAttributes(new[] { new KeyValuePair<string, object>("telemetry.distro.name", "Microsoft.ApplicationInsights.WorkerService") })
+                .AddAttributes(new[]
+                {
+                    new KeyValuePair<string, object>("telemetry.distro.name", "Microsoft.ApplicationInsights.WorkerService"),
+                    new KeyValuePair<string, object>("telemetry.distro.version", VersionUtils.GetVersion(typeof(ApplicationInsightsExtensions))),
+                })
                 .AddAzureAppServiceDetector()
                 .AddAzureVMDetector();
 

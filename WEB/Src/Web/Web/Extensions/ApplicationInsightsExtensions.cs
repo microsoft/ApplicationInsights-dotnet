@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using Microsoft.ApplicationInsights.Internals;
     using OpenTelemetry;
     using OpenTelemetry.Metrics;
     using OpenTelemetry.Resources;
@@ -20,7 +21,11 @@
             }
 
             Action<ResourceBuilder> configureResource = (r) => r
-                .AddAttributes(new[] { new KeyValuePair<string, object>("telemetry.distro.name", "Microsoft.ApplicationInsights.Web") })
+                .AddAttributes(new[]
+                {
+                    new KeyValuePair<string, object>("telemetry.distro.name", "Microsoft.ApplicationInsights.Web"),
+                    new KeyValuePair<string, object>("telemetry.distro.version", VersionUtils.GetVersion(typeof(ApplicationInsightsExtensions))),
+                })
                 .AddAzureAppServiceDetector()
                 .AddAzureVMDetector();
 

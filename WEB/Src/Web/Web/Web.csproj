@@ -48,8 +48,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\..\..\BASE\src\Microsoft.ApplicationInsights\Extensibility\Implementation\Tracing\Extensions.cs" Link="Extensions.cs" />
     <Compile Include="..\..\..\..\NETCORE\src\Shared\ActivityFilterProcessor.cs" Link="Implementation\ActivityFilterProcessor.cs" />
   </ItemGroup>
-
 </Project>
