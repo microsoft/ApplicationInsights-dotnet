@@ -127,8 +127,8 @@ This applies to all dimension combinations (1D, 2D, 3D, 4D).
 
 ### Migration Impact
 1. Custom telemetry processors and initializers should be replaced by OpenTelemetry BaseProcessors or attributes added to the OpenTelemetry records.
-3. Multi-sink scenarios are no longer supported
-4. Endpoint customization is removed. Endpoints are parsed from the connection string.
+2. Multi-sink scenarios are no longer supported
+3. Endpoint customization is removed. Endpoints are parsed from the connection string.
 
 ---
 
@@ -299,7 +299,7 @@ The following extension methods remain with identical signatures:
 ## Migration Impact
 - Any code depending on `InstrumentationKey` must migrate to `ConnectionString`
 - Code checking or configuring the removed options (`DeveloperMode`, `EndpointAddress`, etc.) will break
-- Direct dependency on traditional AI SDK modules/processors/initialzers will fail - consider learning about OpenTelemetry processors, resource detectors, and enrichment of telemetry. 
+- Direct dependency on traditional AI SDK modules/processors/initializers will fail - consider learning about OpenTelemetry processors, resource detectors, and enrichment of telemetry. 
 
 ---
 
