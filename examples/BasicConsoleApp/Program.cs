@@ -32,6 +32,7 @@
 
             telemetryClient.TrackEvent("SampleEvent");
             telemetryClient.TrackEvent(new EventTelemetry("SampleEventObject"));
+            
             telemetryClient.TrackTrace("A trace message");
             telemetryClient.TrackTrace("A warning", SeverityLevel.Warning);
             telemetryClient.TrackTrace("A trace with properties", new System.Collections.Generic.Dictionary<string, string> { { "Key", "Value" } });
