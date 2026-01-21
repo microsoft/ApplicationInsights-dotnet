@@ -109,7 +109,7 @@
                     }
                 }
 
-                var snippet = Snippet.Replace("instrumentationKey: \"INSTRUMENTATION_KEY\"", insertConfig);
+                var snippet = Snippet.Replace("connectionString: \"YOUR_CONNECTION_STRING\"", insertConfig);
                 // Return snippet
                 return string.Concat(snippet, insertAuthUserContext);
             }
