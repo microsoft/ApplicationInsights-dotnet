@@ -39,17 +39,16 @@ See the [Migration Guide](#migrating-from-2x-to-3x) for detailed upgrade instruc
   - [Installation](#installation)
   - [Configuration](#configuration)
 - [Using TelemetryClient](#using-telemetryclient)
+  - [Recommended Pattern: Initialize in Global.asax.cs](#recommended-pattern-initialize-in-globalasaxcs)
+  - [Use the Shared Instance in Controllers](#use-the-shared-instance-in-controllers)
 - [Advanced Configuration](#advanced-configuration)
   - [Customizing Telemetry Collection](#customizing-telemetry-collection)
-  - [Adding Custom Properties](#adding-custom-properties)
+  - [Filtering Telemetry](#filtering-telemetry)
   - [Performance Counters](#performance-counters)
 - [Migrating from 2.x to 3.x](#migrating-from-2x-to-3x)
   - [Migration Steps](#migration-steps)
   - [Configuration Changes](#configuration-changes)
-  - [Replacing Telemetry Initializers](#replacing-telemetry-initializers)
-- [Architecture](#architecture)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
+  - [Replacing Telemetry Initializers and Processors](#replacing-telemetry-initializers-and-processors)
 
 ## Getting Started
 
