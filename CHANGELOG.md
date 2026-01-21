@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- [The JavaScript in `Microsoft.ApplicationInsights.AspNetCore` has been updated to version 10.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3078)
+
 ## Version 3.0.0-beta2
 ### Added
 - [Automatic configuration binding from "ApplicationInsights" section in appsettings.json for both AspNetCore and WorkerService packages with configuration precedence: environment variables > explicit configuration > appsettings.json](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3064)
