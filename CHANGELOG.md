@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- [Updated JavaScript to version 10 in Microsoft.ApplicationInsights.AspNetCore](https://github.com/microsoft/ApplicationInsights-dotnet/pull/)
+- [The JavaScript in `Microsoft.ApplicationInsights.AspNetCore` has been updated to version 10.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3078)
 
 ## Version 3.0.0-beta2
 ### Added
