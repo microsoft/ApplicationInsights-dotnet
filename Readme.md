@@ -3,18 +3,29 @@
 
 This is the .NET SDK for sending data to [Azure Monitor](https://docs.microsoft.com/azure/azure-monitor/overview) & [Application Insights](https://docs.microsoft.com/azure/azure-monitor/app/app-insights-overview).
 
-## Getting Started
+## What's New in Version 3.x
 
-Please review our How-to guides to review which packages are appropriate for your project:
+Version 3.x represents a major architectural shift in the Application Insights SDK:
 
-* [Console App](https://docs.microsoft.com/azure/azure-monitor/app/console)
-* [ASP.NET](https://docs.microsoft.com/azure/azure-monitor/app/asp-net)
-* [ASP.NET Core](https://docs.microsoft.com/azure/azure-monitor/app/asp-net-core)
-* [WorkerService](https://docs.microsoft.com/azure/azure-monitor/app/worker-service)
+- **Built on OpenTelemetry**: The SDK now uses [OpenTelemetry](https://opentelemetry.io/) as the underlying telemetry collection framework with the [Azure Monitor Exporter](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/monitor/Azure.Monitor.OpenTelemetry.Exporter) for transmission.
+- **TelemetryClient as Shim**: The familiar `TelemetryClient` API is preserved as a compatibility layer that translates calls into OpenTelemetry primitives (Activity, ActivityEvent, LogRecord).
+- **OpenTelemetry Extensibility**: You can extend telemetry collection using standard OpenTelemetry patterns (Activity Processors, Resource Detectors, custom instrumentation).
+- **Unified Observability**: Seamlessly integrates with the broader OpenTelemetry ecosystem, allowing you to send telemetry to multiple backends.
+
+See [breaking changes](BreakingChanges.md) for more information on what has changed between versions 2.x and 3.x.
+
+## Quick Start: Choose Your Path
+
+Select the option that best describes your situation:
+
+- **📦 Building an ASP.NET Core web application?** → Use the [ASP.NET Core SDK](../NETCORE/Readme.md) for automatic instrumentation
+- **⚙️ Building a Worker Service, console app, or background service?** → Use the [Worker Service SDK](../NETCORE/WorkerService.md) for simplified configuration
+- **🔧 Need the core TelemetryClient API for custom scenarios?** → Use the [base SDK](/BASE/README.md)
+- **Need compatibility with NLog?** -> Use the [Logging SDK](/LOGGING/README.md)
 
 ### Understanding our SDK
 
-We've gathered a list of concepts, code examples, and links to full guides [here](docs/concepts.md).
+We've gathered a list of concepts [here](docs/concepts.md).
 
 ## Contributing
 

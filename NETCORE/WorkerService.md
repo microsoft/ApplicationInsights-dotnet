@@ -112,7 +112,11 @@ The connection string can be configured in multiple ways (listed in order of pre
 
 ### ApplicationInsightsServiceOptions
 
-The same configuration options available in ASP.NET Core apply to Worker Services:
+Most configuration options available in ASP.NET Core also apply to Worker Services, except for request-specific options:
+
+- `EnableRequestTrackingTelemetryModule`
+- `EnableAuthenticationTrackingJavaScript`
+- `RequestCollectionOptions`
 
 ```csharp
 builder.Services.AddApplicationInsightsTelemetryWorkerService(options =>
@@ -175,22 +179,11 @@ All advanced configuration options from ASP.NET Core are available for Worker Se
 
 For detailed examples and guidance, see the [ASP.NET Core Advanced Configuration documentation](Readme.md#advanced-configuration).
 
-## Migration from 2.x to 3.x
-
-The migration guidance for ASP.NET Core also applies to Worker Services. The key difference is the method name:
-
-- **2.x**: `AddApplicationInsightsTelemetryWorkerService()`
-- **3.x**: `AddApplicationInsightsTelemetryWorkerService()` (same name, but now OpenTelemetry-based)
-
-For complete migration steps, breaking changes, and examples, see the [ASP.NET Core Migration Guide](Readme.md#migration-from-2x-to-3x).
-
 ## Examples
 
 Complete working examples are available in the repository:
 
 - [Worker Service Example](../examples/WorkerService/)
-- [Background Tasks with Hosted Service Example](../examples/BackgroundTasksWithHostedService/)
-- [Console Application Example](../examples/ConsoleApp/)
 
 ## Key Differences from ASP.NET Core
 
@@ -203,23 +196,3 @@ Complete working examples are available in the repository:
 | SQL Client Instrumentation | ✅ Included | ✅ Included |
 | Live Metrics | ✅ Supported | ✅ Supported |
 | Custom Telemetry | ✅ TelemetryClient + OTel APIs | ✅ TelemetryClient + OTel APIs |
-
-## Troubleshooting
-
-For troubleshooting guidance including self-diagnostics and Azure SDK instrumentation, see the [ASP.NET Core Troubleshooting section](Readme.md#troubleshooting).
-
-## Additional Resources
-
-- [ASP.NET Core Documentation](Readme.md) - Most documentation applies to Worker Services as well
-- [Application Insights Documentation](https://docs.microsoft.com/azure/azure-monitor/app/worker-service)
-- [OpenTelemetry .NET Documentation](https://github.com/open-telemetry/opentelemetry-dotnet)
-- [Azure Monitor OpenTelemetry Exporter](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/monitor/Azure.Monitor.OpenTelemetry.Exporter)
-
-## Support
-
-If you encounter any issues or have questions:
-- Check the [ASP.NET Core troubleshooting guide](Readme.md#troubleshooting)
-- Review [GitHub Issues](https://github.com/microsoft/ApplicationInsights-dotnet/issues)
-- Consult [Microsoft Q&A](https://learn.microsoft.com/answers/tags/azure-monitor/)
-
----

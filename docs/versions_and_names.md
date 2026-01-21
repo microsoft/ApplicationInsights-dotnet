@@ -1,5 +1,11 @@
 # SDK Version
 
+> ⚠️ **Note:** This document describes the SDK version format used in **Application Insights 2.x**. In version 3.x, the SDK uses OpenTelemetry Resource attributes instead:
+> - `telemetry.distro.name` = `"Microsoft.ApplicationInsights"`
+> - `telemetry.distro.version` = Assembly version
+> 
+> The `ai.internal.sdkVersion` tag and the prefix/SDK name registry below do not apply to 3.x.
+
 SDK version is a field you can specify on every telemetry item. This field represent the specific SDK collected this particular item. This field is used for troubleshooting.
 
 To review version numbers click [here](https://github.com/Microsoft/ApplicationInsights-Home/wiki/SDK-Release-Schedule).
