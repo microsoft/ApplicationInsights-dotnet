@@ -22,12 +22,12 @@
   <ItemGroup>
     <!--Common Dependencies-->
     <ProjectReference Include="..\..\..\..\BASE\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
-    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.14.0" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="10.0.0" />
-	<PackageReference Include="OpenTelemetry.Instrumentation.AspNet" Version="1.14.0-rc.1" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.14.0" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.14.0-beta.1" />
-    <PackageReference Include="OpenTelemetry.Resources.Azure" Version="1.14.0-beta.1" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" />
+	<PackageReference Include="OpenTelemetry.Instrumentation.AspNet" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" />
+    <PackageReference Include="OpenTelemetry.Resources.Azure" />
   </ItemGroup>
 
   <ItemGroup>
