@@ -11,7 +11,7 @@
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.Internals;
+    using Microsoft.ApplicationInsights.Internal;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
     using OpenTelemetry;
@@ -96,7 +96,7 @@
                         .WithApplicationInsights()
                         .UseApplicationInsightsTelemetry();
 
-                    AddTelemetryConfigAndClient(services);
+                    AddTelemetryConfigAndClient(services, VersionUtils.ExtensionLabelShimWorkerService + VersionUtils.GetVersion(typeof(ApplicationInsightsExtensions)));
                     services.AddSingleton<IJavaScriptSnippet, JavaScriptSnippet>();
                     services.AddSingleton<JavaScriptSnippet>();
                 }
@@ -193,23 +193,35 @@
                 {
                     var serviceOptions = aiOptions.Value;
 
+<<<<<<< HEAD
                     // Set OTEL_SDK_DISABLED in configuration if DisableTelemetry is true
                     if (telemetryConfig.DisableTelemetry)
                     {
                         config["OTEL_SDK_DISABLED"] = "true";
                     }
                     
+=======
+>>>>>>> 0e79420b (obvious stuff)
                     // Copy connection string to Azure Monitor Exporter
                     if (!string.IsNullOrEmpty(serviceOptions.ConnectionString))
                     {
                         exporterOptions.ConnectionString = serviceOptions.ConnectionString;
                     }
-                    
+
                     // Copy credential to Azure Monitor Exporter
                     if (serviceOptions.Credential != null)
                     {
                         exporterOptions.Credential = serviceOptions.Credential;
                     }
+<<<<<<< HEAD
+=======
+
+                    if (!serviceOptions.EnableAdaptiveSampling)
+                    {
+                        exporterOptions.SamplingRatio = 1.0F;
+                        exporterOptions.TracesPerSecond = null;
+                    }
+>>>>>>> 51eabb9a (obvious stuff)
 
                     if (serviceOptions.EnableQuickPulseMetricStream)
                     {

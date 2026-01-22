@@ -12,6 +12,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics;
+    using Microsoft.ApplicationInsights.Internal;
     using Microsoft.ApplicationInsights.Metrics;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
@@ -49,6 +50,7 @@
         private bool? disableOfflineStorage;
         private bool? enableLiveMetrics;
         private bool? enableTraceBasedLogsSampler;
+        private string extensionVersion = "sha" + VersionUtils.GetVersion(typeof(TelemetryClient));
 
         private Action<IOpenTelemetryBuilder> builderConfiguration;
         private OpenTelemetrySdk openTelemetrySdk;
@@ -205,6 +207,21 @@
                 this.enableTraceBasedLogsSampler = value;
             }
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating the version string to report to SDK stats. Eg., "shc1.2.3"
+        /// </summary>
+        internal string ExtensionVersion
+        {
+            get => this.extensionVersion;
+            set
+            {
+                this.ThrowIfBuilt();
+                this.extensionVersion = value;
+            }
+        }
+
+
 
         /// <summary>
         /// Gets the default ActivitySource used by TelemetryClient.

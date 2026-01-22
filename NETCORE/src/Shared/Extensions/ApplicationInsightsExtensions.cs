@@ -88,7 +88,7 @@
             return services.Any(service => service.ServiceType == typeof(TelemetryClient));
         }
 
-        private static void AddTelemetryConfigAndClient(IServiceCollection services)
+        private static void AddTelemetryConfigAndClient(IServiceCollection services, string extensionVersion)
         {
             services.AddOptions();
             
@@ -100,6 +100,8 @@
                 
                 // Create configuration for DI scenario (skip default builder configuration)
                 var configuration = new TelemetryConfiguration(skipDefaultBuilderConfiguration: true);
+
+                configuration.ExtensionVersion = extensionVersion;
                 
                 // Apply connection string from options if available
                 if (!string.IsNullOrEmpty(options.ConnectionString))

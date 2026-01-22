@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using Microsoft.ApplicationInsights.Internals;
+    using Microsoft.ApplicationInsights.Internal;
     using OpenTelemetry;
     using OpenTelemetry.Metrics;
     using OpenTelemetry.Resources;
