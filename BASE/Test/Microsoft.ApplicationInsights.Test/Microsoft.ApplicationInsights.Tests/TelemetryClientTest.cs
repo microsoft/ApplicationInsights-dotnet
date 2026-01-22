@@ -34,6 +34,7 @@ namespace Microsoft.ApplicationInsights
         public TelemetryClientTest()
         {
             var configuration = new TelemetryConfiguration();
+            configuration.SamplingRatio = 1.0f;
             this.logItems = new List<LogRecord>();
             this.metricItems = new List<OpenTelemetry.Metrics.Metric>();
             this.activityItems = new List<Activity>();

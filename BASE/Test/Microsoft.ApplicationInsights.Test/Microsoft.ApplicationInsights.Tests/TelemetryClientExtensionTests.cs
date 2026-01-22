@@ -30,6 +30,7 @@ namespace Microsoft.ApplicationInsights
         public TelemetryClientExtensionTests()
         {
             this.telemetryConfiguration = new TelemetryConfiguration();
+            this.telemetryConfiguration.SamplingRatio = 1.0f;
             this.sendItems = new List<ITelemetry>();
             this.traceItems = new List<Activity>();
             this.logItems = new List<LogRecord>();
