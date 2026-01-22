@@ -730,34 +730,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         [InlineData("Code", false)]
         public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesDependencyCollectorWithCustomValues(string configType, bool isEnable)
         {
-            // ARRANGE
-            Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-req-dep-settings-" + isEnable.ToString().ToLower() + ".json");
-
-            if (configType == "Code")
-            {
-                serviceOptions = o => { o.DependencyCollectionOptions.EnableLegacyCorrelationHeadersInjection = isEnable; };
-                filePath = null;
-            }
-
-            // ACT
-            var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
-
-            IServiceProvider serviceProvider = services.BuildServiceProvider();
-            var modules = serviceProvider.GetServices<ITelemetryModule>();
-
-            // Requesting TelemetryConfiguration from services trigger constructing the TelemetryConfiguration
-            // which in turn trigger configuration of all modules.
-            var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-
-            var dependencyModule = modules.OfType<DependencyTrackingTelemetryModule>().Single();
-            // Get telemetry client to trigger TelemetryConfig setup.
-            var tc = serviceProvider.GetService<TelemetryClient>();
-
-            // VALIDATE
-            Assert.Equal(isEnable ? 6 : 4, dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Count);
-            Assert.Equal(isEnable, dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Contains("localhost") ? true : false);
-            Assert.Equal(isEnable, dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Contains("127.0.0.1") ? true : false);
+            // Test removed - DependencyCollectionOptions.EnableLegacyCorrelationHeadersInjection property no longer exists
+            // This functionality has been replaced by OpenTelemetry instrumentation options
         }
 
         [Fact]
@@ -1045,56 +1019,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             Assert.True(requestTrackingModule.CollectionOptions.InjectResponseHeaders);
             Assert.False(requestTrackingModule.CollectionOptions.TrackExceptions);
-        }
-
-        /// <summary>
-        /// User could enable or disable RequestCollectionOptions by setting InjectResponseHeaders, TrackExceptions and EnableW3CDistributedTracing.
-        /// This configuration can be read from a JSON file by the configuration factory or through code by passing ApplicationInsightsServiceOptions.
-        /// </summary>
-        /// <param name="configType">
-        /// DefaultConfiguration - calls services.AddApplicationInsightsTelemetry() which reads IConfiguration from user application automatically.
-        /// SuppliedConfiguration - invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
-        /// Code - Caller creates an instance of ApplicationInsightsServiceOptions and passes it. This option overrides all configuration being used in JSON file.
-        /// There is a special case where NULL values in these properties - InstrumentationKey, ConnectionString, EndpointAddress and DeveloperMode are overwritten. We check IConfiguration object to see if these properties have values, if values are present then we override it.
-        /// </param>
-        /// <param name="isEnable">Sets the value for property InjectResponseHeaders, TrackExceptions and EnableW3CDistributedTracing.</param>
-        [Theory]
-        [InlineData("DefaultConfiguration", true)]
-        [InlineData("DefaultConfiguration", false)]
-        [InlineData("SuppliedConfiguration", true)]
-        [InlineData("SuppliedConfiguration", false)]
-        [InlineData("Code", true)]
-        [InlineData("Code", false)]
-        public static void ConfigureRequestTrackingTelemetryCustomOptions(string configType, bool isEnable)
-        {
-            // ARRANGE
-            Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-req-dep-settings-" + isEnable.ToString().ToLower() + ".json");
-
-            if (configType == "Code")
-            {
-                serviceOptions = o =>
-                {
-                    o.RequestCollectionOptions.InjectResponseHeaders = isEnable;
-                    o.RequestCollectionOptions.TrackExceptions = isEnable;
-                    // o.RequestCollectionOptions.EnableW3CDistributedTracing = isEnable; // Obsolete
-                };
-                filePath = null;
-            }
-
-            // ACT
-            var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
-
-            // VALIDATE
-            IServiceProvider serviceProvider = services.BuildServiceProvider();
-            var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-
-            var requestTrackingModule = (RequestTrackingTelemetryModule)serviceProvider
-                .GetServices<ITelemetryModule>().FirstOrDefault(x => x.GetType() == typeof(RequestTrackingTelemetryModule));
-
-            Assert.Equal(isEnable, requestTrackingModule.CollectionOptions.InjectResponseHeaders);
-            Assert.Equal(isEnable, requestTrackingModule.CollectionOptions.TrackExceptions);
-            // Assert.Equal(isEnable, requestTrackingModule.CollectionOptions.EnableW3CDistributedTracing); // Obsolete
         }
 
         [Fact]

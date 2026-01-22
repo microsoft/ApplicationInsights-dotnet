@@ -8,7 +8,6 @@ Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOp
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.ConnectionString.set -> void
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.Credential.get -> Azure.Core.TokenCredential
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.Credential.set -> void
-Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.DependencyCollectionOptions.get -> Microsoft.ApplicationInsights.AspNetCore.Extensions.DependencyCollectionOptions
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableAdaptiveSampling.get -> bool
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableAdaptiveSampling.set -> void
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableAuthenticationTrackingJavaScript.get -> bool
@@ -23,17 +22,6 @@ Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOp
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableQuickPulseMetricStream.set -> void
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableRequestTrackingTelemetryModule.get -> bool
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableRequestTrackingTelemetryModule.set -> void
-Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.RequestCollectionOptions.get -> Microsoft.ApplicationInsights.AspNetCore.Extensions.RequestCollectionOptions
-Microsoft.ApplicationInsights.AspNetCore.Extensions.DependencyCollectionOptions
-Microsoft.ApplicationInsights.AspNetCore.Extensions.DependencyCollectionOptions.DependencyCollectionOptions() -> void
-Microsoft.ApplicationInsights.AspNetCore.Extensions.DependencyCollectionOptions.EnableLegacyCorrelationHeadersInjection.get -> bool
-Microsoft.ApplicationInsights.AspNetCore.Extensions.DependencyCollectionOptions.EnableLegacyCorrelationHeadersInjection.set -> void
-Microsoft.ApplicationInsights.AspNetCore.Extensions.RequestCollectionOptions
-Microsoft.ApplicationInsights.AspNetCore.Extensions.RequestCollectionOptions.InjectResponseHeaders.get -> bool
-Microsoft.ApplicationInsights.AspNetCore.Extensions.RequestCollectionOptions.InjectResponseHeaders.set -> void
-Microsoft.ApplicationInsights.AspNetCore.Extensions.RequestCollectionOptions.RequestCollectionOptions() -> void
-Microsoft.ApplicationInsights.AspNetCore.Extensions.RequestCollectionOptions.TrackExceptions.get -> bool
-Microsoft.ApplicationInsights.AspNetCore.Extensions.RequestCollectionOptions.TrackExceptions.set -> void
 Microsoft.ApplicationInsights.AspNetCore.IJavaScriptSnippet
 Microsoft.ApplicationInsights.AspNetCore.IJavaScriptSnippet.FullScript.get -> string
 Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet

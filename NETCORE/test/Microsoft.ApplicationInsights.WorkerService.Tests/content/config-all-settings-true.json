@@ -16,14 +16,6 @@
     "EnableAuthenticationTrackingJavaScript": true,
     "EnableDiagnosticsTelemetryModule": true,
     "EnableActiveTelemetryConfigurationSetup": true,
-    "RequestCollectionOptions": {
-      "InjectResponseHeaders": true,
-      "TrackExceptions": true,
-      "EnableW3CDistributedTracing": true
-    },
-    "DependencyCollectionOptions": {
-      "EnableLegacyCorrelationHeadersInjection": true
-    },
     "TelemetryChannel": {
       "EndpointAddress": "http://testendpoint/v2/track",
       "DeveloperMode": true

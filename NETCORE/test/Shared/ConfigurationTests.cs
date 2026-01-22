@@ -254,28 +254,5 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
             var options = serviceProvider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
             Assert.Equal(explicitConnectionString, options.ConnectionString);
         }
-
-#if AI_ASPNETCORE_WEB
-        [Fact]
-        public void ReadsRequestCollectionOptionsFromApplicationInsightsSectionInConfig()
-        {
-            // ARRANGE
-            var jsonFullPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "config-all-settings-false.json");
-            this.output.WriteLine("json:" + jsonFullPath);
-            var config = new ConfigurationBuilder().AddJsonFile(jsonFullPath).Build();
-            
-            var services = new ServiceCollection();
-            services.AddSingleton<IConfiguration>(config);
-
-            // ACT
-            services.AddApplicationInsightsTelemetry();
-
-            // VALIDATE
-            IServiceProvider serviceProvider = services.BuildServiceProvider();
-            var options = serviceProvider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
-            Assert.False(options.RequestCollectionOptions.InjectResponseHeaders);
-            Assert.False(options.RequestCollectionOptions.TrackExceptions);
-        }
-#endif
     }
 }

@@ -2,13 +2,6 @@
   "ApplicationInsights": {
     "ConnectionString": "InstrumentationKey=22222222-2222-3333-4444-555555555555",
     "EnableAdaptiveSampling": false,
-    "EnableQuickPulseMetricStream": false,
-    "RequestCollectionOptions": {
-      "InjectResponseHeaders": false,
-      "TrackExceptions": false
-    },
-    "DependencyCollectionOptions": {
-      "EnableLegacyCorrelationHeadersInjection": false
-    }
+    "EnableQuickPulseMetricStream": false
   }
 }
