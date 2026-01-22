@@ -68,11 +68,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
 
 #if AI_ASPNETCORE_WEB
         /// <summary>
-        /// Gets <see cref="RequestCollectionOptions"/> that allow to manage RequestTrackingTelemetryModule" />.
-        /// </summary>
-        public RequestCollectionOptions RequestCollectionOptions { get; } = new RequestCollectionOptions();
-
-        /// <summary>
         /// Gets or sets a value indicating whether RequestTrackingTelemetryModule should be enabled.
         /// Defaults to <value>true</value>.
         /// </summary>
@@ -84,11 +79,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
         /// </summary>
         public bool EnableAuthenticationTrackingJavaScript { get; set; } = false;
 #endif
-
-        /// <summary>
-        /// Gets <see cref="DependencyCollectionOptions"/> that allow to manage DependencyTrackingTelemetryModule/>.
-        /// </summary>
-        public DependencyCollectionOptions DependencyCollectionOptions { get; } = new DependencyCollectionOptions();
 
         /// <summary>
         /// Copy the properties from this <see cref="ApplicationInsightsServiceOptions"/> to a target instance.

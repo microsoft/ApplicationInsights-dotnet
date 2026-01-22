@@ -15,14 +15,6 @@
     "EnableHeartbeat": true,
     "EnableAuthenticationTrackingJavaScript": false,
     "ApplicationVersion": "Version",
-    "RequestCollectionOptions": {
-      "InjectResponseHeaders": true,
-      "TrackExceptions": false,
-      "EnableW3CDistributedTracing": true
-    },
-    "DependencyCollectionOptions": {
-      "EnableLegacyCorrelationHeadersInjection": false
-    },
     "TelemetryChannel": {
       "EndpointAddress": "http://testendpoint/v2/track",
       "DeveloperMode": true

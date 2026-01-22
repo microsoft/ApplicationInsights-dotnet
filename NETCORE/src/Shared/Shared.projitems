@@ -12,7 +12,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)ActivityFilterProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\ApplicationInsightsExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\ApplicationInsightsServiceOptions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensions\DependencyCollectionOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Internals\ApplicationNameProvider.cs" />
   </ItemGroup>
 </Project>
