@@ -215,6 +215,8 @@ The following extension methods remain with identical signatures:
 - ❌ **`EndpointAddress`** - No longer configurable (`ConnectionString` contains endpoint information)
 - ❌ **`TelemetryInitializers`** - Cannot configure initializers
 - ❌ **`EnableHeartbeat`** - Heartbeat configuration removed
+- ❌ **`RequestCollectionOptions`** - Removed (non-functional, use OpenTelemetry instrumentation options)
+- ❌ **`DependencyCollectionOptions`** - Removed (non-functional, use OpenTelemetry instrumentation options)
 
 ### Properties Retained
 - ✅ **`ConnectionString`** - Primary configuration method
@@ -222,8 +224,6 @@ The following extension methods remain with identical signatures:
   - **2.x**: Controls traditional adaptive sampling
   - **3.x**: Maps to rate-limit based sampling in Azure Monitor Exporter, set at 5 OpenTelemetry traces per second by default
 - ✅ **`ApplicationVersion`**
-- ✅ **`DependencyCollectionOptions`**
-- ✅ **`RequestCollectionOptions`** - Request tracking configuration retained
 - ✅ **`AddAutoCollectedMetricExtractor`**
 - ✅ **`EnableQuickPulseMetricStream`** 
 - ✅ **`EnableDebugLogger`** - Retained but has no effect
@@ -284,6 +284,7 @@ The following extension methods remain with identical signatures:
 - ❌ **`EnableDiagnosticsTelemetryModule`** - Diagnostics telemetry module removed
 - ❌ **`DeveloperMode`** - No longer configurable
 - ❌ **`EndpointAddress`** - No longer configurable (`ConnectionString` contains endpoints)
+- ❌ **`DependencyCollectionOptions`** - Removed (non-functional, use OpenTelemetry instrumentation options)
 
 ### Properties Retained
 - ✅ **`ConnectionString`** - Primary configuration method (maps to `AzureMonitorExporterOptions.ConnectionString`)
@@ -294,7 +295,6 @@ The following extension methods remain with identical signatures:
 - ✅ **`EnableQuickPulseMetricStream`** - Maps to `AzureMonitorExporterOptions.EnableLiveMetrics`
 - ✅ **`EnableDebugLogger`** - Still configurable though has no effect
 - ✅ **`AddAutoCollectedMetricExtractor`** - Still configurable
-- ✅ **`DependencyCollectionOptions`** - Still available
 
 ## Migration Impact
 - Any code depending on `InstrumentationKey` must migrate to `ConnectionString`
