@@ -12,9 +12,16 @@ namespace Microsoft.ApplicationInsights.Internal
 
     internal sealed class ConnectionString
     {
-        private readonly Dictionary<string, string> _pairs;
-        private readonly string _pairSeparator;
-        private readonly string _keywordValueSeparator;
+        private readonly Dictionary<string, string> pairs;
+        private readonly string pairSeparator;
+        private readonly string keywordValueSeparator;
+
+        private ConnectionString(Dictionary<string, string> pairs, string pairSeparator, string keywordValueSeparator)
+        {
+            this.pairs = pairs;
+            this.pairSeparator = pairSeparator;
+            this.keywordValueSeparator = keywordValueSeparator;
+        }
 
         public static ConnectionString Parse(string connectionString, string segmentSeparator = ";", string keywordValueSeparator = "=", bool allowEmptyValues = false)
         {
@@ -25,52 +32,45 @@ namespace Microsoft.ApplicationInsights.Internal
         public static ConnectionString Empty(string segmentSeparator = ";", string keywordValueSeparator = "=") =>
             new (new Dictionary<string, string>(), segmentSeparator, keywordValueSeparator);
 
-        private ConnectionString(Dictionary<string, string> pairs, string pairSeparator, string keywordValueSeparator)
-        {
-            _pairs = pairs;
-            _pairSeparator = pairSeparator;
-            _keywordValueSeparator = keywordValueSeparator;
-        }
-
         public string GetRequired(string keyword) =>
-            _pairs.TryGetValue(keyword, out var value) ? value : throw new InvalidOperationException($"Required keyword '{keyword}' is missing in connection string.");
+            pairs.TryGetValue(keyword, out var value) ? value : throw new InvalidOperationException($"Required keyword '{keyword}' is missing in connection string.");
 
         public string? GetNonRequired(string keyword) =>
-            _pairs.TryGetValue(keyword, out var value) ? value : null;
+            pairs.TryGetValue(keyword, out var value) ? value : null;
 
         public bool TryGetSegmentValue(string keyword, out string? value) =>
-            _pairs.TryGetValue(keyword, out value);
+            pairs.TryGetValue(keyword, out value);
 
         public string? GetSegmentValueOrDefault(string keyword, string defaultValue) =>
-            _pairs.TryGetValue(keyword, out var value) switch {
+            pairs.TryGetValue(keyword, out var value) switch {
                 false => defaultValue,
                 true => value
             };
 
         public bool ContainsSegmentKey(string keyword) =>
-            _pairs.ContainsKey(keyword);
+            pairs.ContainsKey(keyword);
 
         public void Replace(string keyword, string value)
         {
-            if (_pairs.ContainsKey(keyword))
+            if (pairs.ContainsKey(keyword))
             {
-                _pairs[keyword] = value;
+                pairs[keyword] = value;
             }
         }
 
         public void Add(string keyword, string value) =>
-            _pairs.Add(keyword, value);
+            pairs.Add(keyword, value);
 
         public override string ToString()
         {
-            if (_pairs.Count == 0)
+            if (pairs.Count == 0)
             {
                 return string.Empty;
             }
 
             var stringBuilder = new StringBuilder();
             var isFirst = true;
-            foreach (KeyValuePair<string, string> pair in _pairs)
+            foreach (KeyValuePair<string, string> pair in pairs)
             {
                 if (isFirst)
                 {
@@ -78,13 +78,13 @@ namespace Microsoft.ApplicationInsights.Internal
                 }
                 else
                 {
-                    stringBuilder.Append(_pairSeparator);
+                    stringBuilder.Append(pairSeparator);
                 }
 
                 stringBuilder.Append(pair.Key);
                 if (pair.Value != null)
                 {
-                    stringBuilder.Append(_keywordValueSeparator).Append(pair.Value);
+                    stringBuilder.Append(keywordValueSeparator).Append(pair.Value);
                 }
             }
 

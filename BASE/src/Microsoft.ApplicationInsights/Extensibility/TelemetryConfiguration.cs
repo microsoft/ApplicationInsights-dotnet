@@ -28,18 +28,18 @@
     /// </remarks>
     public sealed class TelemetryConfiguration : IDisposable
     {
+        internal FeatureMetricEmissionHelper FeatureReporter;
+
         // internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
         internal const string ApplicationInsightsActivitySourceName = "Microsoft.ApplicationInsights";
         internal const string ApplicationInsightsMeterName = "Microsoft.ApplicationInsights";
         private static readonly Lazy<TelemetryConfiguration> DefaultInstance =
                                                         new Lazy<TelemetryConfiguration>(() => new TelemetryConfiguration(), LazyThreadSafetyMode.ExecutionAndPublication);
 
-
         private readonly object lockObject = new object();
         private readonly bool skipDefaultBuilderConfiguration;
 
         private string connectionString;
-        internal FeatureMetricEmissionHelper featureReporter;
         private bool disableTelemetry = false;
         private bool isBuilt = false;
         private bool isDisposed = false;
@@ -210,7 +210,7 @@
         }
 
         /// <summary>
-        /// Gets or sets a value indicating the version string to report to SDK stats. Eg., "shc1.2.3"
+        /// Gets or sets a value indicating the version string to report to SDK stats. Eg., "shc1.2.3".
         /// </summary>
         internal string ExtensionVersion
         {
@@ -351,8 +351,8 @@
         {
             var connectionString = Microsoft.ApplicationInsights.Internal.ConnectionString.Parse(this.ConnectionString);
             var ciKey = connectionString.GetNonRequired("InstrumentationKey");
-            featureReporter = FeatureMetricEmissionHelper.GetOrCreate(ciKey, this.extensionVersion);
-            return featureReporter;
+            FeatureReporter = FeatureMetricEmissionHelper.GetOrCreate(ciKey, this.extensionVersion);
+            return FeatureReporter;
         }
 
         /// <summary>
@@ -483,7 +483,7 @@
 
                 this.defaultActivitySource?.Dispose();
                 this.metricsManager?.Dispose();
-                this.featureReporter?.Dispose();
+                this.FeatureReporter?.Dispose();
 
                 this.isDisposed = true;
 

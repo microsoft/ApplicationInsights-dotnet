@@ -8,6 +8,21 @@ namespace Microsoft.ApplicationInsights.Internal
     /// </summary>
     internal class VersionUtils
     {
+        /// <summary>Application Insights base shim (Microsoft.ApplicationInsights).</summary>
+        internal const string ExtensionLabelShimBase = "sha";
+
+        /// <summary>Application Insights AspNetCore shim (Microsoft.ApplicationInsights.AspNetCore).</summary>
+        internal const string ExtensionLabelShimAspNetCore = "shc";
+
+        /// <summary>Application Insights WorkerService shim (Microsoft.ApplicationInsights.WorkerService).</summary>
+        internal const string ExtensionLabelShimWorkerService = "shw";
+
+        /// <summary>Application Insights Web shim (Microsoft.ApplicationInsights.Web).</summary>
+        internal const string ExtensionLabelShimWeb = "shf";
+        
+        /// <summary>Application Insights NLog shim (Microsoft.ApplicationInsights.NLogTarget).</summary>
+        internal const string ExtensionLabelShimNLog = "shn";
+
         /// <summary>
         /// Returns a human-readable version string for a specific type. If the version cannot be determined, returns "u".
         /// </summary>
@@ -26,16 +41,5 @@ namespace Microsoft.ApplicationInsights.Internal
             string shortVersion = versionString.Split('+', '@', ' ')[0];
             return shortVersion;
         }
-
-        /// <summary>Application Insights base shim (Microsoft.ApplicationInsights).</summary>
-        internal const string ExtensionLabelShimBase = "sha";
-        /// <summary>Application Insights AspNetCore shim (Microsoft.ApplicationInsights.AspNetCore).</summary>
-        internal const string ExtensionLabelShimAspNetCore = "shc";
-        /// <summary>Application Insights WorkerService shim (Microsoft.ApplicationInsights.WorkerService).</summary>
-        internal const string ExtensionLabelShimWorkerService = "shw";
-        /// <summary>Application Insights Web shim (Microsoft.ApplicationInsights.Web).</summary>
-        internal const string ExtensionLabelShimWeb = "shf";
-        /// <summary>Application Insights NLog shim (Microsoft.ApplicationInsights.NLogTarget).</summary>
-        internal const string ExtensionLabelShimNLog = "shn";
     }
 }

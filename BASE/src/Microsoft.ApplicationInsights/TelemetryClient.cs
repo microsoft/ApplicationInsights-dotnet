@@ -26,7 +26,7 @@
     /// </summary>
     public sealed class TelemetryClient
     {
-        internal readonly TelemetryConfiguration configuration;
+        internal readonly TelemetryConfiguration Configuration;
         private readonly ActivitySource activitySource;
         private OpenTelemetrySdk sdk;
         private ILogger<TelemetryClient> logger;
@@ -47,7 +47,7 @@
         /// <param name="isFromDependencyInjection">Indicates whether this instance is being created by a DI container.</param>
         internal TelemetryClient(TelemetryConfiguration configuration, bool isFromDependencyInjection)
         {
-            this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            this.Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
             // Use the shared ActivitySource from configuration
             this.activitySource = configuration.ApplicationInsightsActivitySource;
@@ -94,7 +94,7 @@
         [EditorBrowsable(EditorBrowsableState.Never)]
         public TelemetryConfiguration TelemetryConfiguration
         {
-            get { return this.configuration; }
+            get { return this.Configuration; }
         }
 
         /// <summary>
@@ -118,7 +118,7 @@
         /// </summary>
         public bool IsEnabled()
         {
-            return !this.configuration.DisableTelemetry;
+            return !this.Configuration.DisableTelemetry;
         }
 
         /// <summary>
@@ -131,7 +131,7 @@
         /// <param name="properties">Named string values you can use to search and classify events.</param>
         public void TrackEvent(string eventName, IDictionary<string, string> properties = null)
         {
-            configuration.featureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackEvent);
+            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackEvent);
             if (string.IsNullOrEmpty(eventName))
             {
                 CoreEventSource.Log.TrackEventInvalidName();
@@ -158,7 +158,7 @@
         /// <param name="telemetry">An event log item.</param>
         public void TrackEvent(EventTelemetry telemetry)
         {
-            configuration.featureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackEvent);
+            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackEvent);
             if (telemetry == null)
             {
                 CoreEventSource.Log.TrackEventTelemetryIsNull();
@@ -203,7 +203,7 @@
         /// </remarks>
         public void TrackAvailability(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message = null, IDictionary<string, string> properties = null)
         {
-            configuration.featureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackAvailability);
+            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackAvailability);
             var availabilityTelemetry = new AvailabilityTelemetry(name, timeStamp, duration, runLocation, success, message);
 
             if (properties != null && properties.Count > 0)
@@ -224,7 +224,7 @@
         /// <param name="telemetry">An availability telemetry item.</param>
         public void TrackAvailability(AvailabilityTelemetry telemetry)
         {
-            configuration.featureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackAvailability);
+            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackAvailability);
             if (telemetry == null)
             {
                 CoreEventSource.Log.TrackAvailabilityTelemetryIsNull();
@@ -284,7 +284,7 @@
         /// <param name="message">Message to display.</param>
         public void TrackTrace(string message)
         {
-            configuration.featureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
+            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
             var state = new DictionaryLogState(this.Context, null, message);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
@@ -299,7 +299,7 @@
         /// <param name="severityLevel">Trace severity level.</param>
         public void TrackTrace(string message, SeverityLevel severityLevel)
         {
-            configuration.featureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
+            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
             LogLevel logLevel = GetLogLevel(severityLevel);
             var state = new DictionaryLogState(this.Context, null, message);
             this.Logger.Log(logLevel, 0, state, null, (s, ex) => s.Message);
@@ -315,7 +315,7 @@
         /// <param name="properties">Named string values you can use to search and classify events.</param>
         public void TrackTrace(string message, IDictionary<string, string> properties)
         {
-            configuration.featureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
+            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
             var state = new DictionaryLogState(this.Context, properties, message);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
@@ -331,7 +331,7 @@
         /// <param name="properties">Named string values you can use to search and classify events.</param>
         public void TrackTrace(string message, SeverityLevel severityLevel, IDictionary<string, string> properties)
         {
-            configuration.featureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
+            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
             LogLevel logLevel = GetLogLevel(severityLevel);
             var state = new DictionaryLogState(this.Context, properties, message);
             this.Logger.Log(logLevel, 0, state, null, (s, ex) => s.Message);
@@ -347,7 +347,7 @@
         /// <param name="telemetry">Message with optional properties.</param>
         public void TrackTrace(TraceTelemetry telemetry)
         {
-            configuration.featureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
+            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
             if (telemetry == null)
             {
                 telemetry = new TraceTelemetry();
@@ -399,9 +399,9 @@
         /// <param name="properties">Named string values you can use to classify and filter metrics.</param>        
         public void TrackMetric(string name, double value, IDictionary<string, string> properties = null)
         {
-            configuration.featureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackMetric);
+            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackMetric);
             // Get or create histogram for this metric
-            var histogram = this.configuration.MetricsManager.GetOrCreateHistogram(name, null);
+            var histogram = this.Configuration.MetricsManager.GetOrCreateHistogram(name, null);
 
             // Build tags from properties
             if (properties != null && properties.Count > 0)
@@ -431,7 +431,7 @@
         /// <param name="telemetry">The metric telemetry item.</param>        
         public void TrackMetric(MetricTelemetry telemetry)
         {
-            configuration.featureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackMetric);
+            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackMetric);
             if (telemetry == null)
             {
                 CoreEventSource.Log.TrackMetricTelemetryIsNull();
@@ -439,7 +439,7 @@
             }
 
             // Get or create histogram for this metric
-            var histogram = this.configuration.MetricsManager.GetOrCreateHistogram(
+            var histogram = this.Configuration.MetricsManager.GetOrCreateHistogram(
                 telemetry.Name,
                 telemetry.MetricNamespace);
 
@@ -470,7 +470,7 @@
         /// </remarks>
         public void TrackException(Exception exception, IDictionary<string, string> properties = null)
         {
-            configuration.featureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackException);
+            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackException);
             if (exception == null)
             {
                 exception = new Exception(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
@@ -489,7 +489,7 @@
         /// </remarks>
         public void TrackException(ExceptionTelemetry telemetry)
         {
-            configuration.featureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackException);
+            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackException);
             // TODO investigate how problem id, custom message, etc should appear in portal
             if (telemetry == null)
             {
@@ -600,7 +600,7 @@
         /// </remarks>
         public void TrackDependency(DependencyTelemetry telemetry)
         {
-            configuration.featureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackDependency);
+            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackDependency);
             if (telemetry == null)
             {
                 return;
@@ -788,7 +788,7 @@
         /// </remarks>
         public void TrackRequest(RequestTelemetry request)
         {
-            configuration.featureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackRequest);
+            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackRequest);
             if (request == null)
             {
                 return;
@@ -1362,7 +1362,7 @@
 
             if (!string.IsNullOrEmpty(roleName) || !string.IsNullOrEmpty(roleInstance) || !string.IsNullOrEmpty(componentVersion))
             {
-                this.configuration.SetCloudRole(
+                this.Configuration.SetCloudRole(
                     serviceName: roleName,
                     serviceInstanceId: roleInstance,
                     serviceVersion: componentVersion);

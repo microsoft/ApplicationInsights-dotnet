@@ -58,7 +58,7 @@ namespace Microsoft.ApplicationInsights
         [Fact]
         public void TelemetryClientInitializesFeatureReporter()
         {
-            Assert.NotNull(this.telemetryClient.configuration.featureReporter);
+            Assert.NotNull(this.telemetryClient.Configuration.FeatureReporter);
         }
 
         #region TrackEvent
