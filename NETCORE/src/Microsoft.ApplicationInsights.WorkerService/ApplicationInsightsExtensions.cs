@@ -6,6 +6,7 @@
     using System.Reflection;
     using Azure.Monitor.OpenTelemetry.Exporter;
     using Microsoft.ApplicationInsights;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Internals;
     using Microsoft.ApplicationInsights.WorkerService;
@@ -183,9 +184,15 @@
 
             // Configure Azure Monitor Exporter with connection string and sampling from ApplicationInsightsServiceOptions
             builder.Services.AddOptions<AzureMonitorExporterOptions>()
-                .Configure<IOptions<ApplicationInsightsServiceOptions>>((exporterOptions, aiOptions) =>
+                .Configure<IOptions<ApplicationInsightsServiceOptions>, TelemetryConfiguration, IConfiguration>((exporterOptions, aiOptions, telemetryConfig, config) =>
                 {
                     var serviceOptions = aiOptions.Value;
+
+                    // Set OTEL_SDK_DISABLED in configuration if DisableTelemetry is true
+                    if (telemetryConfig.DisableTelemetry)
+                    {
+                        config["OTEL_SDK_DISABLED"] = "true";
+                    }
 
                     // Copy connection string to Azure Monitor Exporter
                     if (!string.IsNullOrEmpty(serviceOptions.ConnectionString))

@@ -3,7 +3,6 @@
 ## Unreleased
 
 - [The JavaScript in `Microsoft.ApplicationInsights.AspNetCore` has been updated to version 10.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3078)
-
 - [Centralized package version management](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3080)
 - [Update OpenTelemetry dependencies](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3080)
   - OpenTelemetry 1.15.0
@@ -12,7 +11,8 @@
   - OpenTelemetry.Instrumentation.Http 1.15.0
   - OpenTelemetry.Instrumentation.SqlClient 1.15.0-rc.1
   - OpenTelemetry.Resources.Azure 1.15.0-beta.1
-
+- [Added support to disable telemetry via TelemetryConfiguration.DisableTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/XXXX)
+ 
 ## Version 3.0.0-beta2
 ### Added
 - [Automatic configuration binding from "ApplicationInsights" section in appsettings.json for both AspNetCore and WorkerService packages with configuration precedence: environment variables > explicit configuration > appsettings.json](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3064)

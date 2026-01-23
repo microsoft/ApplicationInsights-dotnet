@@ -1,5 +1,6 @@
 namespace AspNetCoreWebApp
 {
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
@@ -25,6 +26,8 @@ namespace AspNetCoreWebApp
             {
                 
             });*/
+
+            // services.Configure<TelemetryConfiguration>(tc => tc.DisableTelemetry = true);
 
             // Add and initialize the Application Insights SDK.
             services.AddApplicationInsightsTelemetry();

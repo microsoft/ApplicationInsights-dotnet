@@ -283,7 +283,6 @@ override Microsoft.ApplicationInsights.Metrics.MetricIdentifier.Equals(object ot
 override Microsoft.ApplicationInsights.Metrics.MetricIdentifier.GetHashCode() -> int
 override Microsoft.ApplicationInsights.Metrics.MetricIdentifier.ToString() -> string
 static Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.CreateDefault() -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
-static Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.CreateFromConfiguration(string config) -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
 static Microsoft.ApplicationInsights.Metrics.MetricIdentifier.DefaultMetricNamespace.get -> string
 static Microsoft.ApplicationInsights.Metrics.MetricIdentifier.DefaultMetricNamespace.set -> void
 static Microsoft.ApplicationInsights.TelemetryClientExtensions.StartOperation<T>(this Microsoft.ApplicationInsights.TelemetryClient telemetryClient, string operationName) -> Microsoft.ApplicationInsights.Extensibility.IOperationHolder<T>
