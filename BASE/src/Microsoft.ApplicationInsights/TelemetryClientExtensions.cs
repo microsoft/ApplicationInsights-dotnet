@@ -58,6 +58,8 @@
                 throw new ArgumentNullException(nameof(telemetryClient));
             }
 
+            telemetryClient.featureReporter.MarkFeatureInUse(Internal.StatsbeatFeatures.StartOperation);
+
             var effectiveName = string.IsNullOrEmpty(operationName) ? typeof(T).Name : operationName;
             var kind = ResolveActivityKind<T>();
             var source = telemetryClient.TelemetryConfiguration.ApplicationInsightsActivitySource;
@@ -150,6 +152,8 @@
                 operationTelemetry.Name = typeof(T).Name;
             }
 
+            telemetryClient.featureReporter.MarkFeatureInUse(Internal.StatsbeatFeatures.StartOperation);
+
             var kind = ResolveActivityKind<T>();
             var source = telemetryClient.TelemetryConfiguration.ApplicationInsightsActivitySource;
             ActivityContext parentContext = default;
@@ -226,6 +230,8 @@
             {
                 return null;
             }
+
+            telemetryClient.featureReporter.MarkFeatureInUse(Internal.StatsbeatFeatures.StartOperation);
 
             // if already started activity, we just link it — not create a new one
             if (activity.Id == null)

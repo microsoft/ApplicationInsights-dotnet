@@ -31,7 +31,7 @@
         private OpenTelemetrySdk sdk;
         private ILogger<TelemetryClient> logger;
 
-        private FeatureMetricEmissionHelper featureReporter;
+        internal FeatureMetricEmissionHelper featureReporter;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryClient" /> class. Send telemetry with the specified <paramref name="configuration"/>.

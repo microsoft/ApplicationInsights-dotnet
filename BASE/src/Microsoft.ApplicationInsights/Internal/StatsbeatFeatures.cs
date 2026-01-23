@@ -40,5 +40,9 @@ namespace Microsoft.ApplicationInsights.Internal
         /// This feature measures whether the TrackRequest API in Application Insights is used.
         /// </summary>
         TrackRequest = 1 << 6,
+        /// <summary>
+        /// This feature measures whether the StartOperation API in Application Insights is used.
+        /// </summary>
+        StartOperation = 1 << 7,
     }
 }
