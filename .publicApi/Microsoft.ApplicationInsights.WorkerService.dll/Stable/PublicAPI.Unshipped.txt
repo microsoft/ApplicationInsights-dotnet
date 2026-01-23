@@ -10,8 +10,6 @@ Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.Cr
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.Credential.set -> void
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableAdaptiveSampling.get -> bool
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableAdaptiveSampling.set -> void
-Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableDebugLogger.get -> bool
-Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableDebugLogger.set -> void
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableDependencyTrackingTelemetryModule.get -> bool
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableDependencyTrackingTelemetryModule.set -> void
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnablePerformanceCounterCollectionModule.get -> bool
