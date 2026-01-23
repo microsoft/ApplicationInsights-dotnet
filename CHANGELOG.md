@@ -11,7 +11,7 @@
   - OpenTelemetry.Instrumentation.Http 1.15.0
   - OpenTelemetry.Instrumentation.SqlClient 1.15.0-rc.1
   - OpenTelemetry.Resources.Azure 1.15.0-beta.1
-- [Added support to disable telemetry via TelemetryConfiguration.DisableTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/XXXX)
+- [Added support to disable telemetry via TelemetryConfiguration.DisableTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3084)
  
 ## Version 3.0.0-beta2
 ### Added
