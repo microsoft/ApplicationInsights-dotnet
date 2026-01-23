@@ -13,7 +13,7 @@ namespace Microsoft.ApplicationInsights.Internal
 
         internal const string Statsbeat_ConnectionString_EU = "InstrumentationKey=7dc56bab-3c0c-4e9f-9ebb-d1acadee8d0f;IngestionEndpoint=https://westeurope-5.in.applicationinsights.azure.com/;LiveEndpoint=https://westeurope.livediagnostics.monitor.azure.com/";
 
-        internal static readonly HashSet<string> s_EU_Endpoints = new()
+        internal static readonly HashSet<string> s_EU_Endpoints = new ()
         {
             "francecentral",
             "francesouth",
@@ -29,7 +29,7 @@ namespace Microsoft.ApplicationInsights.Internal
             "westeurope",
         };
 
-        internal static readonly HashSet<string> s_non_EU_Endpoints = new()
+        internal static readonly HashSet<string> s_non_EU_Endpoints = new ()
         {
             "australiacentral",
             "australiacentral2",
