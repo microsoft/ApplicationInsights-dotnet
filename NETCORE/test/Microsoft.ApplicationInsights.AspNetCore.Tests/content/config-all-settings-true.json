@@ -11,7 +11,6 @@
     "EnableEventCounterCollectionModule": true,
     "AddAutoCollectedMetricExtractor": true,
     "EnableQuickPulseMetricStream": true,
-    "EnableDebugLogger": true,
     "EnableHeartbeat": true,
     "EnableAuthenticationTrackingJavaScript": true,
     "EnableDiagnosticsTelemetryModule": true,

@@ -56,11 +56,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
         public string ApplicationVersion { get; set; } = Assembly.GetEntryAssembly()?.GetName().Version.ToString();
 
         /// <summary>
-        /// Gets or sets a value indicating whether a logger would be registered automatically in debug mode.
-        /// </summary>
-        public bool EnableDebugLogger { get; set; } = true;
-
-        /// <summary>
         /// Gets or sets a value indicating whether AutoCollectedMetricExtractors are added or not.
         /// Defaults to <value>true</value>.
         /// </summary>
@@ -98,7 +93,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
 
             target.ApplicationVersion = this.ApplicationVersion;
             target.EnableAdaptiveSampling = this.EnableAdaptiveSampling;
-            target.EnableDebugLogger = this.EnableDebugLogger;
             target.EnableQuickPulseMetricStream = this.EnableQuickPulseMetricStream;
             target.AddAutoCollectedMetricExtractor = this.AddAutoCollectedMetricExtractor;
             target.EnablePerformanceCounterCollectionModule = this.EnablePerformanceCounterCollectionModule;
