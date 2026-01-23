@@ -33,37 +33,37 @@ namespace Microsoft.ApplicationInsights.Internal
             new (new Dictionary<string, string>(), segmentSeparator, keywordValueSeparator);
 
         public string GetRequired(string keyword) =>
-            pairs.TryGetValue(keyword, out var value) ? value : throw new InvalidOperationException($"Required keyword '{keyword}' is missing in connection string.");
+            this.pairs.TryGetValue(keyword, out var value) ? value : throw new InvalidOperationException($"Required keyword '{keyword}' is missing in connection string.");
 
         public string? GetNonRequired(string keyword) =>
-            pairs.TryGetValue(keyword, out var value) ? value : null;
+            this.pairs.TryGetValue(keyword, out var value) ? value : null;
 
         public bool TryGetSegmentValue(string keyword, out string? value) =>
-            pairs.TryGetValue(keyword, out value);
+            this.pairs.TryGetValue(keyword, out value);
 
         public string? GetSegmentValueOrDefault(string keyword, string defaultValue) =>
-            pairs.TryGetValue(keyword, out var value) switch {
+            this.pairs.TryGetValue(keyword, out var value) switch {
                 false => defaultValue,
                 true => value
             };
 
         public bool ContainsSegmentKey(string keyword) =>
-            pairs.ContainsKey(keyword);
+            this.pairs.ContainsKey(keyword);
 
         public void Replace(string keyword, string value)
         {
-            if (pairs.ContainsKey(keyword))
+            if (this.pairs.ContainsKey(keyword))
             {
-                pairs[keyword] = value;
+                this.pairs[keyword] = value;
             }
         }
 
         public void Add(string keyword, string value) =>
-            pairs.Add(keyword, value);
+            this.pairs.Add(keyword, value);
 
         public override string ToString()
         {
-            if (pairs.Count == 0)
+            if (this.pairs.Count == 0)
             {
                 return string.Empty;
             }

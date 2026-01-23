@@ -28,13 +28,13 @@
     /// </remarks>
     public sealed class TelemetryConfiguration : IDisposable
     {
-        internal FeatureMetricEmissionHelper FeatureReporter;
-
         // internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
         internal const string ApplicationInsightsActivitySourceName = "Microsoft.ApplicationInsights";
         internal const string ApplicationInsightsMeterName = "Microsoft.ApplicationInsights";
         private static readonly Lazy<TelemetryConfiguration> DefaultInstance =
                                                         new Lazy<TelemetryConfiguration>(() => new TelemetryConfiguration(), LazyThreadSafetyMode.ExecutionAndPublication);
+        
+        internal FeatureMetricEmissionHelper FeatureReporter;
 
         private readonly object lockObject = new object();
         private readonly bool skipDefaultBuilderConfiguration;
@@ -351,8 +351,8 @@
         {
             var connectionString = Microsoft.ApplicationInsights.Internal.ConnectionString.Parse(this.ConnectionString);
             var ciKey = connectionString.GetNonRequired("InstrumentationKey");
-            FeatureReporter = FeatureMetricEmissionHelper.GetOrCreate(ciKey, this.extensionVersion);
-            return FeatureReporter;
+            this.FeatureReporter = FeatureMetricEmissionHelper.GetOrCreate(ciKey, this.extensionVersion);
+            return this.FeatureReporter;
         }
 
         /// <summary>

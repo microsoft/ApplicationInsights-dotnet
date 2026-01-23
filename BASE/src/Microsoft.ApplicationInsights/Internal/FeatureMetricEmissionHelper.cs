@@ -3,19 +3,19 @@
 
 namespace Microsoft.ApplicationInsights.Internal
 {
-    using Azure.Monitor.OpenTelemetry.Exporter.Internals.Diagnostics;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.Metrics;
     using System.Globalization;
     using System.Net.Http;
-    using System.Text.Json;
     using System.Runtime.InteropServices;
+    using System.Text.Json;
+    using Azure.Monitor.OpenTelemetry.Exporter.Internals.Diagnostics;
     using OpenTelemetry;
 
     internal sealed class FeatureMetricEmissionHelper : IDisposable
     {
-        private static readonly Dictionary<string, FeatureMetricEmissionHelper> helperRegistry = new ();
+        private static readonly Dictionary<string, FeatureMetricEmissionHelper> HelperRegistry = new ();
 
         private readonly string resourceProvider;
         private readonly string ciKey;
@@ -29,18 +29,18 @@ namespace Microsoft.ApplicationInsights.Internal
         private FeatureMetricEmissionHelper(string ciKey, string version)
         {
             this.os = GetOs();
-            this.resourceProvider = GetResourceProvider();
+            this.resourceProvider = this.GetResourceProvider();
             this.ciKey = ciKey;
             this.version = version;
 
-            this.featureMeter.CreateObservableGauge(StatsbeatConstants.FeatureStatsbeatMetricName, () => GetFeatureStatsbeat());
+            this.featureMeter.CreateObservableGauge(StatsbeatConstants.FeatureStatsbeatMetricName, () => this.GetFeatureStatsbeat());
         }
 
         public void Dispose()
         {
-            if (featureMeter != null)
+            if (this.featureMeter != null)
             {
-                featureMeter.Dispose();
+                this.featureMeter.Dispose();
             }
         }
 
@@ -48,14 +48,19 @@ namespace Microsoft.ApplicationInsights.Internal
         {
             string key = $"{ciKey};{version}";
 
-            if (FeatureMetricEmissionHelper.helperRegistry.TryGetValue(key, out FeatureMetricEmissionHelper helper))
+            if (FeatureMetricEmissionHelper.HelperRegistry.TryGetValue(key, out FeatureMetricEmissionHelper helper))
             {
                 return helper;
             }
 
             helper = new FeatureMetricEmissionHelper(ciKey, version);
-            helperRegistry.Add(key, helper);
+            HelperRegistry.Add(key, helper);
             return helper;
+        }
+
+        internal void MarkFeatureInUse(StatsbeatFeatures features)
+        {
+            observedFeatures |= features;
         }
 
         private static string GetOs()
@@ -100,14 +105,9 @@ namespace Microsoft.ApplicationInsights.Internal
             }
         }
 
-        internal void MarkFeatureInUse(StatsbeatFeatures features)
-        {
-            observedFeatures |= features;
-        }
-
         internal Measurement<int> GetFeatureStatsbeat()
         {
-            if (observedFeatures == 0)
+            if (this.observedFeatures == 0)
             {
                 // If no features have been observed, then skip sending the feature measurement
                 return new Measurement<int>();
@@ -117,15 +117,15 @@ namespace Microsoft.ApplicationInsights.Internal
             {
                 return
                     new Measurement<int>(1,
-                        new ("rp", resourceProvider),
+                        new ("rp", this.resourceProvider),
                         new ("attach", "Manual"),
-                        new ("cikey", ciKey),
-                        new ("feature", (ulong)observedFeatures),
+                        new ("cikey", this.ciKey),
+                        new ("feature", (ulong)this.observedFeatures),
                         new ("type", 0), // 0 = feature, 1 = instrumentation scopes
-                        new ("os", os),
+                        new ("os", this.os),
                         new ("language", "dotnet"),
                         new ("product", "appinsights"),
-                        new ("version", version));
+                        new ("version", this.version));
             }
             catch (Exception)
             {
@@ -167,13 +167,13 @@ namespace Microsoft.ApplicationInsights.Internal
                 if (vmMetadata.TryGetValue("osType", out var osType) && osType is string)
                 {
                     // osType takes precedence over the platform-observed OS.
-                    os = (osType as string).ToLower(CultureInfo.InvariantCulture);
+                    this.os = (osType as string).ToLower(CultureInfo.InvariantCulture);
                 }
                 else
                 {
                     // this code reproduces a logic error in the exporter where if the osType is not available, 
                     // we overwrite a good platform-observed OS. This is maintained to ensure a match with the exporter's data.
-                    os = "unknown";
+                    this.os = "unknown";
                 }
 
                 return "vm";

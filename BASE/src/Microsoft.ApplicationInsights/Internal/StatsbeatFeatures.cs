@@ -9,7 +9,7 @@ namespace Microsoft.ApplicationInsights.Internal
     /// This enum models the Application Insights feature mapping.
     /// </summary>
     [Flags]
-    enum StatsbeatFeatures : ulong
+    internal enum StatsbeatFeatures : ulong
     {
         /// <summary>
         /// Represents no features.
@@ -50,7 +50,7 @@ namespace Microsoft.ApplicationInsights.Internal
         /// This feature measures whether the TrackRequest API in Application Insights is used.
         /// </summary>
         TrackRequest = 1 << 6,
-        
+
         /// <summary>
         /// This feature measures whether the StartOperation API in Application Insights is used.
         /// </summary>
