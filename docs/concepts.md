@@ -65,11 +65,9 @@ Please review our full guide on [Sampling in Application Insights](https://docs.
 You can disable all telemetry collection using the `DisableTelemetry` property:
 
 ```C#
-var configuration = new TelemetryConfiguration
-{
-    ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000",
-    DisableTelemetry = true
-};
+var configuration = TelemetryConfiguration.CreateDefault();
+configuration.ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000";
+configuration.DisableTelemetry = true;
 var tc = new TelemetryClient(configuration);
 ```
 
