@@ -33,6 +33,7 @@ namespace Microsoft.ApplicationInsights
         public TelemetryClientExtensionAsyncTests()
         {
             var configuration = new TelemetryConfiguration();
+            configuration.SamplingRatio = 1.0f;
             this.sendItems = new List<ITelemetry>();
             this.traceItems = new List<Activity>();
             this.logItems = new List<LogRecord>();
