@@ -1,0 +1,18 @@
+using Azure.Monitor.OpenTelemetry.AspNetCore;
+using OpenTelemetry;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Enable Azure Monitor with connection string from configuration
+builder.Services.AddOpenTelemetry().UseAzureMonitor(options =>
+{
+    options.ConnectionString = builder.Configuration["AzureMonitor:ConnectionString"];
+});
+
+// Add your services
+builder.Services.AddControllers();
+
+var app = builder.Build();
+
+app.MapControllers();
+app.Run();

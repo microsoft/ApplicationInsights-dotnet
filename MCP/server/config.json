@@ -1,0 +1,104 @@
+{
+  "mcp_server": {
+    "name": "ApplicationInsights Migration Assistant",
+    "version": "1.0.0",
+    "description": "MCP server for Application Insights SDK migration and fresh OpenTelemetry onboarding",
+    
+    "scenarios": {
+      "fresh_aspnetcore_onboarding": {
+        "name": "Fresh ASP.NET Core Onboarding",
+        "description": "New ASP.NET Core app with no existing Application Insights SDK",
+        "conditions": {
+          "is_aspnetcore": true,
+          "has_legacy_ai_sdk": false,
+          "has_opentelemetry": false
+        },
+        "package": "Azure.Monitor.OpenTelemetry.AspNetCore",
+        "learning_resources": [
+          "common-scenarios/fresh-aspnetcore-onboarding.md",
+          "azure-monitor-exporter/connection-string.md",
+          "examples/configuration/basic-setup-aspnetcore.md",
+          "concepts/opentelemetry-pipeline.md"
+        ],
+        "templates": [
+          "templates/fresh-onboarding/minimal-program-cs.template",
+          "templates/fresh-onboarding/with-config-program-cs.template",
+          "templates/fresh-onboarding/launch-settings.template",
+          "templates/fresh-onboarding/appsettings.template"
+        ]
+      },
+      
+      "migration_aspnetcore_2x_to_3x": {
+        "name": "ASP.NET Core Migration (2.x → 3.x)",
+        "description": "Existing ASP.NET Core app with Application Insights SDK 2.x",
+        "conditions": {
+          "is_aspnetcore": true,
+          "has_legacy_ai_sdk": true
+        },
+        "learning_resources": [
+          "breaking-changes/**/*.md",
+          "transformations/**/*.md",
+          "examples/complete-migrations/*.md"
+        ]
+      },
+      
+      "already_configured": {
+        "name": "Already Configured",
+        "description": "Application already using OpenTelemetry with Azure Monitor",
+        "conditions": {
+          "has_opentelemetry": true
+        },
+        "action": "no_action_needed"
+      }
+    },
+    
+    "detection": {
+      "file_patterns": [
+        "**/*.csproj",
+        "**/Program.cs",
+        "**/Startup.cs",
+        "**/appsettings*.json",
+        "**/launchSettings.json"
+      ],
+      
+      "legacy_packages": [
+        "Microsoft.ApplicationInsights.AspNetCore",
+        "Microsoft.ApplicationInsights",
+        "Microsoft.ApplicationInsights.WorkerService",
+        "Microsoft.ApplicationInsights.Web",
+        "Microsoft.ApplicationInsights.WindowsServer"
+      ],
+      
+      "opentelemetry_packages": [
+        "Azure.Monitor.OpenTelemetry.AspNetCore",
+        "Azure.Monitor.OpenTelemetry.Exporter",
+        "OpenTelemetry.Instrumentation.AspNetCore"
+      ],
+      
+      "aspnetcore_indicators": [
+        "Microsoft.NET.Sdk.Web",
+        "Microsoft.AspNetCore"
+      ]
+    },
+    
+    "validation": {
+      "fresh_onboarding": {
+        "required": [
+          "package_azure_monitor_opentelemetry_aspnetcore",
+          "use_azure_monitor_called",
+          "connection_string_configured"
+        ],
+        "forbidden": [
+          "legacy_ai_packages",
+          "add_application_insights_telemetry_called"
+        ]
+      }
+    },
+    
+    "learning_library": {
+      "base_path": "../learn",
+      "index_file": "index.json",
+      "embedded": true
+    }
+  }
+}

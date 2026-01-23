@@ -1,0 +1,35 @@
+{
+  "name": "applicationinsights-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP Server for Application Insights SDK migration and OpenTelemetry onboarding",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch",
+    "test": "jest"
+  },
+  "keywords": [
+    "mcp",
+    "application-insights",
+    "opentelemetry",
+    "migration",
+    "azure-monitor"
+  ],
+  "author": "Microsoft",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0",
+    "@types/jest": "^29.5.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.0"
+  },
+  "bin": {
+    "applicationinsights-mcp": "./dist/index.js"
+  }
+}

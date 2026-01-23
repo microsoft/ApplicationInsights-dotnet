@@ -1,0 +1,15 @@
+using OpenTelemetry;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Enable Azure Monitor with OpenTelemetry
+// Reads connection string from APPLICATIONINSIGHTS_CONNECTION_STRING environment variable
+builder.Services.AddOpenTelemetry().UseAzureMonitor();
+
+// Add your services
+builder.Services.AddControllers();
+
+var app = builder.Build();
+
+app.MapControllers();
+app.Run();
