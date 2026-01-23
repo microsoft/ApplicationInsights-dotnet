@@ -4,7 +4,6 @@
 
 namespace Microsoft.ApplicationInsights.Internal
 {
-
     using System;
     using System.Collections.Generic;
 

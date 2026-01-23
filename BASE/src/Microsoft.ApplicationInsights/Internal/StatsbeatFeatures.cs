@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 
 namespace Microsoft.ApplicationInsights.Internal
 {
+    using System;
+    
     /// <summary>
     /// This enum models the Application Insights feature mapping.
     /// </summary>

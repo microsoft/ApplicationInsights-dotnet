@@ -29,7 +29,6 @@
     public sealed class TelemetryConfiguration : IDisposable
     {
         // internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
-
         internal const string ApplicationInsightsActivitySourceName = "Microsoft.ApplicationInsights";
         internal const string ApplicationInsightsMeterName = "Microsoft.ApplicationInsights";
         private static readonly Lazy<TelemetryConfiguration> DefaultInstance =

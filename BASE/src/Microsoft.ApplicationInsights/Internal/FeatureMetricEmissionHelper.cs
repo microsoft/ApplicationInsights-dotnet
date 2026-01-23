@@ -3,12 +3,12 @@
 
 namespace Microsoft.ApplicationInsights.Internal
 {
+    using Azure.Monitor.OpenTelemetry.Exporter.Internals.Diagnostics;
+    using OpenTelemetry;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.Metrics;
     using System.Globalization;
-    using OpenTelemetry;
-    using Azure.Monitor.OpenTelemetry.Exporter.Internals.Diagnostics;
     using System.Net.Http;
     using System.Text.Json;
     using System.Runtime.InteropServices;
@@ -76,8 +76,7 @@ namespace Microsoft.ApplicationInsights.Internal
                         new ("os", _os),
                         new ("language", "dotnet"),
                         new ("product", "appinsights"),
-                        new ("version", _version)
-                    );
+                        new ("version", _version));
             }
             catch (Exception)
             {
@@ -145,7 +144,7 @@ namespace Microsoft.ApplicationInsights.Internal
             {
                 return "linux";
             }
-            
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 return "osx";
