@@ -35,10 +35,12 @@
         private static readonly Lazy<TelemetryConfiguration> DefaultInstance =
                                                         new Lazy<TelemetryConfiguration>(() => new TelemetryConfiguration(), LazyThreadSafetyMode.ExecutionAndPublication);
 
+
         private readonly object lockObject = new object();
         private readonly bool skipDefaultBuilderConfiguration;
 
         private string connectionString;
+        internal FeatureMetricEmissionHelper featureReporter;
         private bool disableTelemetry = false;
         private bool isBuilt = false;
         private bool isDisposed = false;
@@ -220,9 +222,7 @@
                 this.extensionVersion = value;
             }
         }
-
-
-
+        
         /// <summary>
         /// Gets the default ActivitySource used by TelemetryClient.
         /// </summary>
@@ -346,6 +346,14 @@
                     }
                 });
             });
+        }
+
+        internal FeatureMetricEmissionHelper InitializeFeatureReporter()
+        {
+            var connectionString = Microsoft.ApplicationInsights.Internal.ConnectionString.Parse(this.ConnectionString);
+            var ciKey = connectionString.GetNonRequired("InstrumentationKey");
+            featureReporter = FeatureMetricEmissionHelper.GetOrCreate(ciKey, this.extensionVersion);
+            return featureReporter;
         }
 
         /// <summary>
@@ -474,11 +482,9 @@
                 // - All registered processors, exporters, etc.
                 this.openTelemetrySdk?.Dispose();
 
-                // Dispose the ActivitySource
                 this.defaultActivitySource?.Dispose();
-
-                // Dispose the MetricsManager
                 this.metricsManager?.Dispose();
+                this.featureReporter?.Dispose();
 
                 this.isDisposed = true;
 

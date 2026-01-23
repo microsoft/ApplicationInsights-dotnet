@@ -1,27 +1,27 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Metrics;
-using System.Globalization;
-using OpenTelemetry;
-using Azure.Monitor.OpenTelemetry.Exporter.Internals.Diagnostics;
-using System.Net.Http;
-using System.Text.Json;
-using System.Runtime.InteropServices;
-
 namespace Microsoft.ApplicationInsights.Internal
 {
-    sealed class FeatureMetricEmissionHelper
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics.Metrics;
+    using System.Globalization;
+    using OpenTelemetry;
+    using Azure.Monitor.OpenTelemetry.Exporter.Internals.Diagnostics;
+    using System.Net.Http;
+    using System.Text.Json;
+    using System.Runtime.InteropServices;
+
+    sealed class FeatureMetricEmissionHelper : IDisposable
     {
-        private static readonly Dictionary<string, FeatureMetricEmissionHelper> s_helperRegistry = new();
+        private static readonly Dictionary<string, FeatureMetricEmissionHelper> s_helperRegistry = new ();
 
         private readonly string _resourceProvider;
         private readonly string _ciKey;
         private readonly string _version;
 
-        private readonly Meter _featureMeter = new(StatsbeatConstants.FeatureStatsbeatMeterName, "1.0");
+        private readonly Meter _featureMeter = new (StatsbeatConstants.FeatureStatsbeatMeterName, "1.0");
 
         private string _os;
 
@@ -68,15 +68,15 @@ namespace Microsoft.ApplicationInsights.Internal
             {
                 return
                     new Measurement<int>(1,
-                        new("rp", _resourceProvider),
-                        new("attach", "Manual"),
-                        new("cikey", _ciKey),
-                        new("feature", (ulong)_observedFeatures),
-                        new("type", 0), // 0 = feature, 1 = instrumentation scopes
-                        new("os", _os),
-                        new("language", "dotnet"),
-                        new("product", "appinsights"),
-                        new("version", _version)
+                        new ("rp", _resourceProvider),
+                        new ("attach", "Manual"),
+                        new ("cikey", _ciKey),
+                        new ("feature", (ulong)_observedFeatures),
+                        new ("type", 0), // 0 = feature, 1 = instrumentation scopes
+                        new ("os", _os),
+                        new ("language", "dotnet"),
+                        new ("product", "appinsights"),
+                        new ("version", _version)
                     );
             }
             catch (Exception)
@@ -134,16 +134,18 @@ namespace Microsoft.ApplicationInsights.Internal
             return "unknown";
         }
 
-        private string GetOs()
+        private static string GetOs()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return "windows";
             }
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 return "linux";
             }
+            
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 return "osx";
@@ -163,7 +165,6 @@ namespace Microsoft.ApplicationInsights.Internal
                     {
                         httpClient.DefaultRequestHeaders.Add("Metadata", "True");
                         var responseString = httpClient.GetStringAsync(StatsbeatConstants.AMS_Url);
-                        Dictionary<string, object> vmMetadata;
                         return JsonSerializer.Deserialize<Dictionary<string, object>>(responseString.Result);
                     }
                 }
@@ -172,6 +173,14 @@ namespace Microsoft.ApplicationInsights.Internal
             {
                 // If the OS isn't available for any reason, return empty ("unknown")
                 return null;
+            }
+        }
+
+        public void Dispose()
+        {
+            if (_featureMeter != null)
+            {
+                _featureMeter.Dispose();
             }
         }
     }

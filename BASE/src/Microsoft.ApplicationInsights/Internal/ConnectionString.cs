@@ -4,12 +4,12 @@
 
 #nullable enable
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace Microsoft.ApplicationInsights.Internal
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Text;
+
     internal sealed class ConnectionString
     {
         private readonly Dictionary<string, string> _pairs;
@@ -23,7 +23,7 @@ namespace Microsoft.ApplicationInsights.Internal
         }
 
         public static ConnectionString Empty(string segmentSeparator = ";", string keywordValueSeparator = "=") =>
-            new(new Dictionary<string, string>(), segmentSeparator, keywordValueSeparator);
+            new (new Dictionary<string, string>(), segmentSeparator, keywordValueSeparator);
 
         private ConnectionString(Dictionary<string, string> pairs, string pairSeparator, string keywordValueSeparator)
         {
