@@ -31,14 +31,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
         public bool EnableDependencyTrackingTelemetryModule { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether telemetry processor that controls sampling is added to the service.
-        /// Setting EnableAdaptiveSampling to <value>false</value>, will disable sampling entirely. 
-        /// When <value>true</value> (default), enables rate-limit based sampling in Azure Monitor Exporter.
-        /// Defaults to <value>true</value>.
-        /// </summary>
-        public bool EnableAdaptiveSampling { get; set; } = true;
-
-        /// <summary>
         /// Gets or sets the connection string for the application.
         /// </summary>
         public string ConnectionString { get; set; }
@@ -92,7 +84,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
             }
 
             target.ApplicationVersion = this.ApplicationVersion;
-            target.EnableAdaptiveSampling = this.EnableAdaptiveSampling;
             target.EnableQuickPulseMetricStream = this.EnableQuickPulseMetricStream;
             target.AddAutoCollectedMetricExtractor = this.AddAutoCollectedMetricExtractor;
             target.EnablePerformanceCounterCollectionModule = this.EnablePerformanceCounterCollectionModule;

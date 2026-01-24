@@ -8,8 +8,6 @@ Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.Co
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.ConnectionString.set -> void
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.Credential.get -> Azure.Core.TokenCredential
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.Credential.set -> void
-Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableAdaptiveSampling.get -> bool
-Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableAdaptiveSampling.set -> void
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableDependencyTrackingTelemetryModule.get -> bool
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnableDependencyTrackingTelemetryModule.set -> void
 Microsoft.ApplicationInsights.WorkerService.ApplicationInsightsServiceOptions.EnablePerformanceCounterCollectionModule.get -> bool

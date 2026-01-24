@@ -595,7 +595,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             {
                 ApplicationVersion = "test",
                 DeveloperMode = true,
-                EnableAdaptiveSampling = false,
                 EnableAuthenticationTrackingJavaScript = false,
                 EnableDebugLogger = true,
                 EnableQuickPulseMetricStream = false,
@@ -1063,71 +1062,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         }
 
         [Fact]
-        public static void AddsAddaptiveSamplingServiceToTheConfigurationByDefault()
-        {
-            var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", null, false);
-            IServiceProvider serviceProvider = services.BuildServiceProvider();
-            var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-            var adaptiveSamplingProcessorCount = GetTelemetryProcessorsCountInConfigurationDefaultSink<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
-
-            // There will be 2 separate SamplingTelemetryProcessors - one for Events, and other for everything else.
-            Assert.Equal(2, adaptiveSamplingProcessorCount);
-        }
-
-        /// <summary>
-        /// User could enable or disable sampling by setting EnableAdaptiveSampling.
-        /// This configuration can be read from a JSON file by the configuration factory or through code by passing ApplicationInsightsServiceOptions.
-        /// </summary>
-        /// <param name="configType">
-        /// DefaultConfiguration - calls services.AddApplicationInsightsTelemetry() which reads IConfiguration from user application automatically.
-        /// SuppliedConfiguration - invokes services.AddApplicationInsightsTelemetry(configuration) where IConfiguration object is supplied by caller.
-        /// Code - Caller creates an instance of ApplicationInsightsServiceOptions and passes it. This option overrides all configuration being used in JSON file.
-        /// There is a special case where NULL values in these properties - InstrumentationKey, ConnectionString, EndpointAddress and DeveloperMode are overwritten. We check IConfiguration object to see if these properties have values, if values are present then we override it.
-        /// </param>
-        /// <param name="isEnable">Sets the value for property EnableAdaptiveSampling.</param>
-        [Theory]
-        [InlineData("DefaultConfiguration", true)]
-        [InlineData("DefaultConfiguration", false)]
-        [InlineData("SuppliedConfiguration", true)]
-        [InlineData("SuppliedConfiguration", false)]
-        [InlineData("Code", true)]
-        [InlineData("Code", false)]
-        public static void DoesNotAddSamplingToConfigurationIfExplicitlyControlledThroughParameter(string configType, bool isEnable)
-        {
-            // ARRANGE
-            Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
-
-            if (configType == "Code")
-            {
-                serviceOptions = o => { o.EnableAdaptiveSampling = isEnable; };
-                filePath = null;
-            }
-
-            // ACT
-            var services = CreateServicesAndAddApplicationinsightsTelemetry(filePath, null, serviceOptions, true, configType == "DefaultConfiguration" ? true : false);
-
-            // VALIDATE
-            IServiceProvider serviceProvider = services.BuildServiceProvider();
-            var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-            var qpProcessorCount = GetTelemetryProcessorsCountInConfigurationDefaultSink<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
-            // There will be 2 separate SamplingTelemetryProcessors - one for Events, and other for everything else.
-            Assert.Equal(isEnable ? 2 : 0, qpProcessorCount);
-        }
-
-        [Fact]
-        public static void AddsAddaptiveSamplingServiceToTheConfigurationWithServiceOptions()
-        {
-            Action<ApplicationInsightsServiceOptions> serviceOptions = options => options.EnableAdaptiveSampling = true;
-            var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
-            IServiceProvider serviceProvider = services.BuildServiceProvider();
-            var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-            var adaptiveSamplingProcessorCount = GetTelemetryProcessorsCountInConfigurationDefaultSink<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
-            // There will be 2 separate SamplingTelemetryProcessors - one for Events, and other for everything else.
-            Assert.Equal(2, adaptiveSamplingProcessorCount);
-        }
-
-        [Fact]
         public static void AddsServerTelemetryChannelByDefault()
         {
             var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", null, false);
@@ -1256,9 +1190,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             var metricExtractorProcessorCount = GetTelemetryProcessorsCountInConfiguration<AutocollectedMetricsExtractor>(telemetryConfiguration);
             Assert.Equal(0, metricExtractorProcessorCount);
-
-            var samplingProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
-            Assert.Equal(0, samplingProcessorCount);
 
             var passThroughProcessorCount = telemetryConfiguration.TelemetryProcessors.Count;
             Assert.Equal(1, passThroughProcessorCount);

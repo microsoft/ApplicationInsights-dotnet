@@ -8,8 +8,6 @@ Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOp
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.ConnectionString.set -> void
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.Credential.get -> Azure.Core.TokenCredential
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.Credential.set -> void
-Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableAdaptiveSampling.get -> bool
-Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableAdaptiveSampling.set -> void
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableAuthenticationTrackingJavaScript.get -> bool
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableAuthenticationTrackingJavaScript.set -> void
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableDependencyTrackingTelemetryModule.get -> bool

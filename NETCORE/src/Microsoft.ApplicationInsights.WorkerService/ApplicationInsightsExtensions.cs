@@ -199,12 +199,6 @@
                         exporterOptions.Credential = serviceOptions.Credential;
                     }
 
-                    if (!serviceOptions.EnableAdaptiveSampling)
-                    {
-                        exporterOptions.SamplingRatio = 1.0F;
-                        exporterOptions.TracesPerSecond = null;
-                    }
-
                     exporterOptions.EnableLiveMetrics = serviceOptions.EnableQuickPulseMetricStream;
 
                     // Configure standard metrics and performance counter collection using reflection

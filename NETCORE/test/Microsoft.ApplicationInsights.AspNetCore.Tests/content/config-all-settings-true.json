@@ -2,7 +2,6 @@
   "ApplicationInsights": {
     "InstrumentationKey": "22222222-2222-3333-4444-555555555555",
     "ConnectionString": "InstrumentationKey=22222222-2222-3333-4444-555555555555;IngestionEndpoint=http://testendpoint",
-    "EnableAdaptiveSampling": true,
     "EnablePerformanceCounterCollectionModule": true,
     "EnableAzureInstanceMetadataTelemetryModule": true,
     "EnableRequestTrackingTelemetryModule": true,

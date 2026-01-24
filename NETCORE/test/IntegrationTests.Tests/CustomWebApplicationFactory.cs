@@ -43,7 +43,6 @@ namespace IntegrationTests.Tests
                 {
                     options.AddAutoCollectedMetricExtractor = false;
                     options.EnableQuickPulseMetricStream = false;
-                    options.EnableAdaptiveSampling = false;
                     options.ConnectionString = "InstrumentationKey=ikey";
                 });
             });

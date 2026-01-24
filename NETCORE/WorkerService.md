@@ -119,7 +119,6 @@ builder.Services.AddApplicationInsightsTelemetryWorkerService(options =>
 {
     options.ConnectionString = "InstrumentationKey=...";
     options.EnableQuickPulseMetricStream = true;
-    options.EnableAdaptiveSampling = true;
 });
 ```
 

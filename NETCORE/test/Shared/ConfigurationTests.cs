@@ -14,6 +14,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
 #else
 namespace Microsoft.ApplicationInsights.WorkerService.Tests
 {
+    using System.Reflection;
     using Microsoft.ApplicationInsights.WorkerService;
 #endif
 
@@ -49,66 +50,6 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
             IServiceProvider serviceProvider = services.BuildServiceProvider();
             var options = serviceProvider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
             Assert.Equal(TestConnectionString, options.ConnectionString);
-        }
-
-        [Fact]
-        public void ReadsEnableAdaptiveSamplingFromApplicationInsightsSectionInConfig()
-        {
-            // ARRANGE
-            var jsonFullPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "config-all-settings-false.json");
-            this.output.WriteLine("json:" + jsonFullPath);
-            var config = new ConfigurationBuilder().AddJsonFile(jsonFullPath).Build();
-            
-            var services = new ServiceCollection();
-            services.AddSingleton<IConfiguration>(config);
-
-            // ACT
-#if AI_ASPNETCORE_WEB
-            services.AddApplicationInsightsTelemetry();
-#else
-            services.AddApplicationInsightsTelemetryWorkerService();
-#endif
-
-            // VALIDATE
-            IServiceProvider serviceProvider = services.BuildServiceProvider();
-            var options = serviceProvider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
-            Assert.False(options.EnableAdaptiveSampling);
-
-            // Verify underlying AzureMonitorExporterOptions
-            var exporterOptions = serviceProvider.GetRequiredService<IOptions<AzureMonitorExporterOptions>>().Value;
-            Assert.Equal(1.0F, exporterOptions.SamplingRatio);
-            Assert.Null(exporterOptions.TracesPerSecond);
-        }
-
-        [Fact]
-        public void DefaultEnableAdaptiveSampling_ExporterHasDefaultSamplingValues()
-        {
-            // ARRANGE - use config that doesn't specify EnableAdaptiveSampling
-            var jsonFullPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "config-connection-string.json");
-            this.output.WriteLine("json:" + jsonFullPath);
-            var config = new ConfigurationBuilder().AddJsonFile(jsonFullPath).Build();
-            
-            var services = new ServiceCollection();
-            services.AddSingleton<IConfiguration>(config);
-
-            // ACT
-        #if AI_ASPNETCORE_WEB
-            services.AddApplicationInsightsTelemetry();
-        #else
-            services.AddApplicationInsightsTelemetryWorkerService();
-        #endif
-
-            // VALIDATE
-            IServiceProvider serviceProvider = services.BuildServiceProvider();
-            
-            // Verify ApplicationInsightsServiceOptions has default EnableAdaptiveSampling = true
-            var options = serviceProvider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
-            Assert.True(options.EnableAdaptiveSampling);
-            
-            // Verify underlying AzureMonitorExporterOptions for adaptive sampling
-            var exporterOptions = serviceProvider.GetRequiredService<IOptions<AzureMonitorExporterOptions>>().Value;
-            Assert.Equal(1.0F, exporterOptions.SamplingRatio);
-            Assert.Equal(5.0, exporterOptions.TracesPerSecond);
         }
 
         [Fact]
@@ -183,13 +124,13 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
             // Verify ApplicationInsightsServiceOptions
             var aiOptions = serviceProvider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
             Assert.Equal("InstrumentationKey=22222222-2222-3333-4444-555555555555", aiOptions.ConnectionString);
-            Assert.False(aiOptions.EnableAdaptiveSampling);
             Assert.False(aiOptions.EnableQuickPulseMetricStream);
             
             // Verify AzureMonitorExporterOptions gets the values
             var exporterOptions = serviceProvider.GetRequiredService<IOptions<AzureMonitorExporterOptions>>().Value;
             Assert.Equal("InstrumentationKey=22222222-2222-3333-4444-555555555555", exporterOptions.ConnectionString);
-            Assert.Equal(1.0F, exporterOptions.SamplingRatio); // No sampling when EnableAdaptiveSampling is false
+            Assert.Equal(1.0F, exporterOptions.SamplingRatio);
+            Assert.Equal(5, exporterOptions.TracesPerSecond);
             Assert.False(exporterOptions.EnableLiveMetrics);
         }
 

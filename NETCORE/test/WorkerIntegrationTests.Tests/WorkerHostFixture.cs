@@ -57,7 +57,6 @@ namespace IntegrationTests.Tests
                 services.Configure<ApplicationInsightsServiceOptions>(options =>
                 {
                     options.ConnectionString = TestConnectionString;
-                    options.EnableAdaptiveSampling = false;
                     options.EnableQuickPulseMetricStream = false;
                     options.AddAutoCollectedMetricExtractor = false;
                 });
