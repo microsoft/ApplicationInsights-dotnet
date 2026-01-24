@@ -70,7 +70,7 @@ namespace Microsoft.ApplicationInsights.Internal
 
             var stringBuilder = new StringBuilder();
             var isFirst = true;
-            foreach (KeyValuePair<string, string> pair in pairs)
+            foreach (KeyValuePair<string, string> pair in this.pairs)
             {
                 if (isFirst)
                 {
@@ -78,13 +78,13 @@ namespace Microsoft.ApplicationInsights.Internal
                 }
                 else
                 {
-                    stringBuilder.Append(pairSeparator);
+                    stringBuilder.Append(this.pairSeparator);
                 }
 
                 stringBuilder.Append(pair.Key);
                 if (pair.Value != null)
                 {
-                    stringBuilder.Append(keywordValueSeparator).Append(pair.Value);
+                    stringBuilder.Append(this.keywordValueSeparator).Append(pair.Value);
                 }
             }
 

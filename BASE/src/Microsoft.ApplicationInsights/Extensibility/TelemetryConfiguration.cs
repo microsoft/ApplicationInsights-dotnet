@@ -31,11 +31,12 @@
         // internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
         internal const string ApplicationInsightsActivitySourceName = "Microsoft.ApplicationInsights";
         internal const string ApplicationInsightsMeterName = "Microsoft.ApplicationInsights";
-        private static readonly Lazy<TelemetryConfiguration> DefaultInstance =
-                                                        new Lazy<TelemetryConfiguration>(() => new TelemetryConfiguration(), LazyThreadSafetyMode.ExecutionAndPublication);
         
         internal FeatureMetricEmissionHelper FeatureReporter;
 
+        private static readonly Lazy<TelemetryConfiguration> DefaultInstance =
+                                                        new Lazy<TelemetryConfiguration>(() => new TelemetryConfiguration(), LazyThreadSafetyMode.ExecutionAndPublication);
+        
         private readonly object lockObject = new object();
         private readonly bool skipDefaultBuilderConfiguration;
 

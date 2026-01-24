@@ -60,7 +60,36 @@ namespace Microsoft.ApplicationInsights.Internal
 
         internal void MarkFeatureInUse(StatsbeatFeatures features)
         {
-            observedFeatures |= features;
+            this.observedFeatures |= features;
+        }
+
+        internal Measurement<int> GetFeatureStatsbeat()
+        {
+            if (this.observedFeatures == 0)
+            {
+                // If no features have been observed, then skip sending the feature measurement
+                return new Measurement<int>();
+            }
+
+            try
+            {
+                return
+                    new Measurement<int>(1,
+                        new ("rp", this.resourceProvider),
+                        new ("attach", "Manual"),
+                        new ("cikey", this.ciKey),
+                        new ("feature", (ulong)this.observedFeatures),
+                        new ("type", 0), // 0 = feature, 1 = instrumentation scopes
+                        new ("os", this.os),
+                        new ("language", "dotnet"),
+                        new ("product", "appinsights"),
+                        new ("version", this.version));
+            }
+            catch (Exception)
+            {
+                // feature SDK stats isn't critical, so just skip it
+                return new Measurement<int>();
+            }
         }
 
         private static string GetOs()
@@ -102,35 +131,6 @@ namespace Microsoft.ApplicationInsights.Internal
             {
                 // If the OS isn't available for any reason, return empty ("unknown")
                 return null;
-            }
-        }
-
-        internal Measurement<int> GetFeatureStatsbeat()
-        {
-            if (this.observedFeatures == 0)
-            {
-                // If no features have been observed, then skip sending the feature measurement
-                return new Measurement<int>();
-            }
-
-            try
-            {
-                return
-                    new Measurement<int>(1,
-                        new ("rp", this.resourceProvider),
-                        new ("attach", "Manual"),
-                        new ("cikey", this.ciKey),
-                        new ("feature", (ulong)this.observedFeatures),
-                        new ("type", 0), // 0 = feature, 1 = instrumentation scopes
-                        new ("os", this.os),
-                        new ("language", "dotnet"),
-                        new ("product", "appinsights"),
-                        new ("version", this.version));
-            }
-            catch (Exception)
-            {
-                // feature SDK stats isn't critical, so just skip it
-                return new Measurement<int>();
             }
         }
 
