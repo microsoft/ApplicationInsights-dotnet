@@ -224,7 +224,7 @@
 
             if (activity == null)
             {
-                throw new ArgumentNullException(nameof(activity));
+                return null;
             }
 
             // if already started activity, we just link it — not create a new one
