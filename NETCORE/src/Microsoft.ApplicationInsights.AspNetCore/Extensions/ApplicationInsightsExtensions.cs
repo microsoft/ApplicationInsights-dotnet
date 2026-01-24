@@ -193,15 +193,12 @@
                 {
                     var serviceOptions = aiOptions.Value;
 
-<<<<<<< HEAD
                     // Set OTEL_SDK_DISABLED in configuration if DisableTelemetry is true
                     if (telemetryConfig.DisableTelemetry)
                     {
                         config["OTEL_SDK_DISABLED"] = "true";
                     }
                     
-=======
->>>>>>> 0e79420b (obvious stuff)
                     // Copy connection string to Azure Monitor Exporter
                     if (!string.IsNullOrEmpty(serviceOptions.ConnectionString))
                     {
