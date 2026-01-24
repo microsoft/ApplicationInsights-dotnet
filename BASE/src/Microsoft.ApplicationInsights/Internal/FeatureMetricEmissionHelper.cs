@@ -4,6 +4,7 @@
 namespace Microsoft.ApplicationInsights.Internal
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics.Metrics;
     using System.Globalization;
@@ -15,7 +16,7 @@ namespace Microsoft.ApplicationInsights.Internal
 
     internal sealed class FeatureMetricEmissionHelper : IDisposable
     {
-        private static readonly Dictionary<string, FeatureMetricEmissionHelper> HelperRegistry = new ();
+        private static readonly ConcurrentDictionary<string, FeatureMetricEmissionHelper> HelperRegistry = new ();
 
         private readonly string resourceProvider;
         private readonly string ciKey;
@@ -48,19 +49,18 @@ namespace Microsoft.ApplicationInsights.Internal
         {
             string key = $"{ciKey};{version}";
 
-            if (FeatureMetricEmissionHelper.HelperRegistry.TryGetValue(key, out FeatureMetricEmissionHelper helper))
+            return HelperRegistry.GetOrAdd(key, _ => 
             {
-                return helper;
-            }
-
-            helper = new FeatureMetricEmissionHelper(ciKey, version);
-            HelperRegistry.Add(key, helper);
-            return helper;
+                return new FeatureMetricEmissionHelper(ciKey, version);
+            });
         }
 
         internal void MarkFeatureInUse(StatsbeatFeatures features)
         {
-            this.observedFeatures |= features;
+            lock(this)
+            {
+                this.observedFeatures |= features;
+            }
         }
 
         internal Measurement<int> GetFeatureStatsbeat()
