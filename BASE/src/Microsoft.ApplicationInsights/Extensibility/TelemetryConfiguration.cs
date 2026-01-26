@@ -36,7 +36,7 @@
 
         private static readonly Lazy<TelemetryConfiguration> DefaultInstance =
                                                         new Lazy<TelemetryConfiguration>(() => new TelemetryConfiguration(), LazyThreadSafetyMode.ExecutionAndPublication);
-        
+
         private readonly object lockObject = new object();
         private readonly bool skipDefaultBuilderConfiguration;
 
