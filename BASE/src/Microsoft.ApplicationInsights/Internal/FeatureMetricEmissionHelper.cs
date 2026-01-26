@@ -27,7 +27,6 @@ namespace Microsoft.ApplicationInsights.Internal
         private string os;
 
         private StatsbeatFeatures observedFeatures = StatsbeatFeatures.None;
-        private object observedFeaturesLock = new object { };
 
         private FeatureMetricEmissionHelper(string ciKey, string version)
         {
@@ -59,15 +58,15 @@ namespace Microsoft.ApplicationInsights.Internal
 
         internal void MarkFeatureInUse(StatsbeatFeatures features)
         {
-            lock (this.observedFeaturesLock)
-            {
-                this.observedFeatures |= features;
-            }
+            // This method can technically be called from multiple threads, and this method is not thread safe.
+            // However, the consequence of a race is that we might miss a single report of a feature being used.
+            // Over time, all features will be observed because this is an accumulation calculation.
+            this.observedFeatures |= features;
         }
 
         internal Measurement<int> GetFeatureStatsbeat()
         {
-            if (this.observedFeatures == 0)
+            if (this.observedFeatures == StatsbeatFeatures.None)
             {
                 // If no features have been observed, then skip sending the feature measurement
                 return new Measurement<int>();
