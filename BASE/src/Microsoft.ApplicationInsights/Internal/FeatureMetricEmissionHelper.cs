@@ -11,6 +11,7 @@ namespace Microsoft.ApplicationInsights.Internal
     using System.Net.Http;
     using System.Runtime.InteropServices;
     using System.Text.Json;
+    using System.Threading;
     using Azure.Monitor.OpenTelemetry.Exporter.Internals.Diagnostics;
     using OpenTelemetry;
 
@@ -26,7 +27,7 @@ namespace Microsoft.ApplicationInsights.Internal
         private string os;
 
         private StatsbeatFeatures observedFeatures = StatsbeatFeatures.None;
-        private object observedFeaturesLock;
+        private Lock observedFeaturesLock = new Lock();
 
         private FeatureMetricEmissionHelper(string ciKey, string version)
         {
