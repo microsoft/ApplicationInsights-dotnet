@@ -57,7 +57,7 @@ namespace Microsoft.ApplicationInsights.Internal
 
         internal void MarkFeatureInUse(StatsbeatFeatures features)
         {
-            lock(this)
+            lock (this)
             {
                 this.observedFeatures |= features;
             }
