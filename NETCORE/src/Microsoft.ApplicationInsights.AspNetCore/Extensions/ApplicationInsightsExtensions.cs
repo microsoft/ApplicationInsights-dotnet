@@ -230,12 +230,12 @@
                         {
                             AspNetCoreEventSource.Instance.LogError($"Invalid TracesPerSecond value '{serviceOptions.TracesPerSecond.Value}'. Value must be at least 0. Using default value.");     
                         }
-                        
                     }
 
                     if (serviceOptions.SamplingRatio.HasValue)
                     {
-                        if (serviceOptions.SamplingRatio.Value >= 0.0f && serviceOptions.SamplingRatio.Value <= 1.0f) {
+                        if (serviceOptions.SamplingRatio.Value >= 0.0f && serviceOptions.SamplingRatio.Value <= 1.0f) 
+                        {
                             exporterOptions.SamplingRatio = serviceOptions.SamplingRatio.Value;
                             if (!serviceOptions.TracesPerSecond.HasValue)
                             {
