@@ -27,7 +27,7 @@ namespace Microsoft.ApplicationInsights.Internal
         private string os;
 
         private StatsbeatFeatures observedFeatures = StatsbeatFeatures.None;
-        private Lock observedFeaturesLock = new Lock();
+        private object observedFeaturesLock = new object{};
 
         private FeatureMetricEmissionHelper(string ciKey, string version)
         {
