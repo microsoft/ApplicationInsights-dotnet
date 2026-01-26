@@ -232,6 +232,8 @@ The following extension methods remain with identical signatures:
 
 ### New Properties Added in 3.x
 - ✅ **`Credential`** (Azure.Core.TokenCredential) - Enables Azure Active Directory (AAD) authentication
+- ✅ **`TracesPerSecond`** (double?) - Gets or sets the number of traces per second for rate-limited sampling (default sampling mode). Replaces `EnableAdaptiveSampling`.
+- ✅ **`SamplingRatio`** (float?) - Gets or sets the sampling ratio for traces (0.0 to 1.0). A value of 1.0 means all telemetry is sent. Replaces `EnableAdaptiveSampling`.
 
 ### JavaScriptSnippet Constructor Change
 **2.x:**
@@ -293,6 +295,11 @@ The following extension methods remain with identical signatures:
 - ✅ **`EnableQuickPulseMetricStream`** - Maps to `AzureMonitorExporterOptions.EnableLiveMetrics`
 - ✅ **`EnableDebugLogger`** - Still configurable though has no effect
 - ✅ **`AddAutoCollectedMetricExtractor`** - Still configurable
+
+### New Properties Added in 3.x
+- ✅ **`Credential`** (Azure.Core.TokenCredential) - Enables Azure Active Directory (AAD) authentication
+- ✅ **`TracesPerSecond`** (double?) - Gets or sets the number of traces per second for rate-limited sampling (default sampling mode). Replaces `EnableAdaptiveSampling`.
+- ✅ **`SamplingRatio`** (float?) - Gets or sets the sampling ratio for traces (0.0 to 1.0). A value of 1.0 means all telemetry is sent. Replaces `EnableAdaptiveSampling`.
 
 ## Migration Impact
 - Any code depending on `InstrumentationKey` must migrate to `ConnectionString`
