@@ -63,9 +63,9 @@
             catch (Exception ex)
             {
 #if AI_ASPNETCORE_WEB
-                AspNetCoreEventSource.Instance.LogError(ex.ToInvariantString());
+                AspNetCoreEventSource.Instance.TelemetryConfigurationFailure(ex.ToInvariantString());
 #else
-                WorkerServiceEventSource.Instance.LogError(ex.ToInvariantString());
+                WorkerServiceEventSource.Instance.TelemetryConfigurationFailure(ex.ToInvariantString());
 #endif
             }
         }

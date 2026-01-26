@@ -105,7 +105,7 @@
             }
             catch (Exception e)
             {
-                AspNetCoreEventSource.Instance.LogError(e.ToInvariantString());
+                AspNetCoreEventSource.Instance.FailedToAddTelemetry(e.ToInvariantString());
                 return services;
             }
         }
@@ -228,7 +228,7 @@
                         }
                         else 
                         {
-                            AspNetCoreEventSource.Instance.LogError($"Invalid TracesPerSecond value '{serviceOptions.TracesPerSecond.Value}'. Value must be at least 0. Using default value.");     
+                            AspNetCoreEventSource.Instance.InvalidTracesPerSecondConfigured(serviceOptions.TracesPerSecond.Value);
                         }
                     }
 
@@ -244,7 +244,7 @@
                         }
                         else
                         {
-                            AspNetCoreEventSource.Instance.LogError($"Invalid SamplingRatio value '{serviceOptions.SamplingRatio.Value}'. Value must be between 0.0 and 1.0. Using default value.");
+                            AspNetCoreEventSource.Instance.InvalidSamplingRatioConfigured(serviceOptions.SamplingRatio.Value);
                         }
                     }
 
