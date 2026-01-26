@@ -53,6 +53,17 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
         /// </summary>
         public bool AddAutoCollectedMetricExtractor { get; set; } = true;
 
+        /// <summary>
+        /// Gets or sets the target number of traces per second to be collected.
+        /// </summary>
+        public double? TracesPerSecond { get; set; }
+
+        /// <summary>
+        /// Gets or sets the sampling ratio for telemetry.
+        /// Value must be between 0.0 and 1.0, where 1.0 means all telemetry is collected (no sampling).
+        /// </summary>
+        public float? SamplingRatio { get; set; }
+
 #if AI_ASPNETCORE_WEB
         /// <summary>
         /// Gets or sets a value indicating whether RequestTrackingTelemetryModule should be enabled.
@@ -88,6 +99,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
             target.AddAutoCollectedMetricExtractor = this.AddAutoCollectedMetricExtractor;
             target.EnablePerformanceCounterCollectionModule = this.EnablePerformanceCounterCollectionModule;
             target.EnableDependencyTrackingTelemetryModule = this.EnableDependencyTrackingTelemetryModule;
+            target.TracesPerSecond = this.TracesPerSecond;
+            target.SamplingRatio = this.SamplingRatio;
 
 #if AI_ASPNETCORE_WEB
             target.EnableAuthenticationTrackingJavaScript = this.EnableAuthenticationTrackingJavaScript;

@@ -135,6 +135,116 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
         }
 
         [Fact]
+        public void ReadsTracesPerSecondFromApplicationInsightsSectionInConfig()
+        {
+            // ARRANGE
+            var jsonFullPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "config-sampling-tracespersecond.json");
+            this.output.WriteLine("json:" + jsonFullPath);
+            var config = new ConfigurationBuilder().AddJsonFile(jsonFullPath).Build();
+            
+            var services = new ServiceCollection();
+            services.AddSingleton<IConfiguration>(config);
+
+            // ACT
+#if AI_ASPNETCORE_WEB
+            services.AddApplicationInsightsTelemetry();
+#else
+            services.AddApplicationInsightsTelemetryWorkerService();
+#endif
+
+            // VALIDATE
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+            var options = serviceProvider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
+            Assert.Equal(10.0, options.TracesPerSecond);
+
+            // Verify it flows to exporter options
+            var exporterOptions = serviceProvider.GetRequiredService<IOptions<AzureMonitorExporterOptions>>().Value;
+            Assert.Equal(10.0, exporterOptions.TracesPerSecond);
+        }
+
+        [Fact]
+        public void ReadsSamplingRatioFromApplicationInsightsSectionInConfig()
+        {
+            // ARRANGE
+            var jsonFullPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "config-samplingratio.json");
+            this.output.WriteLine("json:" + jsonFullPath);
+            var config = new ConfigurationBuilder().AddJsonFile(jsonFullPath).Build();
+            
+            var services = new ServiceCollection();
+            services.AddSingleton<IConfiguration>(config);
+
+            // ACT
+#if AI_ASPNETCORE_WEB
+            services.AddApplicationInsightsTelemetry();
+#else
+            services.AddApplicationInsightsTelemetryWorkerService();
+#endif
+
+            // VALIDATE
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+            var options = serviceProvider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
+            Assert.Equal(0.5f, options.SamplingRatio);
+
+            // Verify it flows to exporter options
+            var exporterOptions = serviceProvider.GetRequiredService<IOptions<AzureMonitorExporterOptions>>().Value;
+            Assert.Equal(0.5f, exporterOptions.SamplingRatio);
+        }
+
+        [Fact]
+        public void TracesPerSecondIgnoresNonPositiveValues()
+        {
+            // ARRANGE
+            var services = new ServiceCollection();
+            var config = new ConfigurationBuilder().AddInMemoryCollection().Build();
+            services.AddSingleton<IConfiguration>(config);
+
+            // ACT
+#if AI_ASPNETCORE_WEB
+            services.AddApplicationInsightsTelemetry(options =>
+#else
+            services.AddApplicationInsightsTelemetryWorkerService(options =>
+#endif
+            {
+                options.ConnectionString = "InstrumentationKey=11111111-2222-3333-4444-555555555555";
+                options.TracesPerSecond = -1.0; // Invalid value
+            });
+
+            // VALIDATE
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+            var exporterOptions = serviceProvider.GetRequiredService<IOptions<AzureMonitorExporterOptions>>().Value;
+
+            // TracesPerSecond should not be set to a negative value - it should remain at default
+            Assert.Equal(5.0, exporterOptions.TracesPerSecond);
+        }
+
+        [Fact]
+        public void SamplingRatioIgnoresInvalidValues()
+        {
+            // ARRANGE
+            var services = new ServiceCollection();
+            var config = new ConfigurationBuilder().AddInMemoryCollection().Build();
+            services.AddSingleton<IConfiguration>(config);
+
+            // ACT
+#if AI_ASPNETCORE_WEB
+            services.AddApplicationInsightsTelemetry(options =>
+#else
+            services.AddApplicationInsightsTelemetryWorkerService(options =>
+#endif
+            {
+                options.ConnectionString = "InstrumentationKey=11111111-2222-3333-4444-555555555555";
+                options.SamplingRatio = 1.5f; // Invalid value (> 1.0)
+            });
+
+            // VALIDATE
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+            var exporterOptions = serviceProvider.GetRequiredService<IOptions<AzureMonitorExporterOptions>>().Value;
+
+            // SamplingRatio should not be set to an invalid value
+            Assert.NotEqual(1.5f, exporterOptions.SamplingRatio);
+        }
+
+        [Fact]
         public void EnvironmentVariablesTakePrecedenceOverAppSettings()
         {
             // ARRANGE

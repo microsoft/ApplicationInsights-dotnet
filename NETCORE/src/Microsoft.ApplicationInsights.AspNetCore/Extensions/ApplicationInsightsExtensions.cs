@@ -213,6 +213,22 @@
                         exporterOptions.EnableLiveMetrics = false;
                     }
 
+                    if (serviceOptions.TracesPerSecond.HasValue && serviceOptions.TracesPerSecond.Value > 0)
+                    {
+                        exporterOptions.TracesPerSecond = serviceOptions.TracesPerSecond.Value;
+                    }
+
+                    if (serviceOptions.SamplingRatio.HasValue && serviceOptions.SamplingRatio.Value >= 0.0f && serviceOptions.SamplingRatio.Value <= 1.0f)
+                    {
+                        exporterOptions.SamplingRatio = serviceOptions.SamplingRatio.Value;
+                        if (!serviceOptions.TracesPerSecond.HasValue)
+                        {
+                            exporterOptions.TracesPerSecond = null;
+                        }
+                    }
+
+                    
+
                     // Configure standard metrics and performance counter collection using reflection
                     // Only set when false since the default is true
                     if (!serviceOptions.AddAutoCollectedMetricExtractor)

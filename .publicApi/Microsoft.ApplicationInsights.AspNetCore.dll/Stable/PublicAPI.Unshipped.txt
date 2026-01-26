@@ -16,6 +16,10 @@ Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOp
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnablePerformanceCounterCollectionModule.set -> void
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableQuickPulseMetricStream.get -> bool
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableQuickPulseMetricStream.set -> void
+Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.SamplingRatio.get -> float?
+Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.SamplingRatio.set -> void
+Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.TracesPerSecond.get -> double?
+Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.TracesPerSecond.set -> void
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableRequestTrackingTelemetryModule.get -> bool
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableRequestTrackingTelemetryModule.set -> void
 Microsoft.ApplicationInsights.AspNetCore.IJavaScriptSnippet

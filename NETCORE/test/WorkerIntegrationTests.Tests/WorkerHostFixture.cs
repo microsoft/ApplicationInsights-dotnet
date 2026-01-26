@@ -59,6 +59,7 @@ namespace IntegrationTests.Tests
                     options.ConnectionString = TestConnectionString;
                     options.EnableQuickPulseMetricStream = false;
                     options.AddAutoCollectedMetricExtractor = false;
+                    options.SamplingRatio = 1.0f; // 100% telemetry flow in tests
                 });
 
                 services.ConfigureOpenTelemetryTracerProvider(tracer =>
