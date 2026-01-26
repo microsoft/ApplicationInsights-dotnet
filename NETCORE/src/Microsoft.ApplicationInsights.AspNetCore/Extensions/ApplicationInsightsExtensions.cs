@@ -210,12 +210,6 @@
                     {
                         exporterOptions.Credential = serviceOptions.Credential;
                     }
-                    
-                    if (!serviceOptions.EnableAdaptiveSampling)
-                    {
-                        exporterOptions.SamplingRatio = 1.0F;
-                        exporterOptions.TracesPerSecond = null;
-                    }
 
                     if (serviceOptions.EnableQuickPulseMetricStream)
                     {
@@ -224,6 +218,34 @@
                     else
                     {
                         exporterOptions.EnableLiveMetrics = false;
+                    }
+
+                    if (serviceOptions.TracesPerSecond.HasValue)
+                    {
+                        if (serviceOptions.TracesPerSecond.Value >= 0)
+                        {
+                            exporterOptions.TracesPerSecond = serviceOptions.TracesPerSecond.Value;
+                        }
+                        else 
+                        {
+                            AspNetCoreEventSource.Instance.LogError($"Invalid TracesPerSecond value '{serviceOptions.TracesPerSecond.Value}'. Value must be at least 0. Using default value.");     
+                        }
+                    }
+
+                    if (serviceOptions.SamplingRatio.HasValue)
+                    {
+                        if (serviceOptions.SamplingRatio.Value >= 0.0f && serviceOptions.SamplingRatio.Value <= 1.0f) 
+                        {
+                            exporterOptions.SamplingRatio = serviceOptions.SamplingRatio.Value;
+                            if (!serviceOptions.TracesPerSecond.HasValue)
+                            {
+                                exporterOptions.TracesPerSecond = null;
+                            }
+                        }
+                        else
+                        {
+                            AspNetCoreEventSource.Instance.LogError($"Invalid SamplingRatio value '{serviceOptions.SamplingRatio.Value}'. Value must be between 0.0 and 1.0. Using default value.");
+                        }
                     }
 
                     // Configure standard metrics and performance counter collection using reflection

@@ -159,11 +159,6 @@ builder.Services.AddApplicationInsightsTelemetry(options =>
     
     // Enable or disable Live Metrics (default: true)
     options.EnableQuickPulseMetricStream = true;
-    
-    // Enable or disable adaptive sampling (default: true)
-    // When true, enables rate-limit based sampling in Azure Monitor Exporter
-    // When false, sampling is disabled (100% collection)
-    options.EnableAdaptiveSampling = true;
 });
 ```
 
@@ -367,17 +362,6 @@ builder.Services.AddApplicationInsightsTelemetry(options =>
 });
 ```
 
-#### Disabling Adaptive Sampling
-
-To collect 100% of telemetry (disable sampling):
-
-```csharp
-builder.Services.AddApplicationInsightsTelemetry(options =>
-{
-    options.EnableAdaptiveSampling = false;
-});
-```
-
 #### Dropping Specific Metrics Instruments
 
 To exclude specific instruments from being collected:
@@ -463,8 +447,6 @@ The following features are **no longer available** in version 3.x:
 2. **TelemetryClient** - Still available for backward compatibility, but is now a shim layer over OpenTelemetry APIs. For new code, consider using OpenTelemetry APIs directly (`ActivitySource`, `Meter`, `ILogger`).
 
 3. **Configuration** - Connection strings are now configured via `ApplicationInsightsServiceOptions.ConnectionString` or `APPLICATIONINSIGHTS_CONNECTION_STRING` environment variable.
-
-4. **Sampling** - Sampling is now controlled by the `EnableAdaptiveSampling` option, which configures the Azure Monitor Exporter's sampling behavior.
 
 5. **Live Metrics** - Still supported via the `EnableQuickPulseMetricStream` option.
 
@@ -898,7 +880,6 @@ After migrating, thoroughly test your application to ensure:
 - [ ] Remove all ITelemetryProcessor implementations
 - [ ] Remove all custom ITelemetryModule implementations
 - [ ] Replace RequestCollectionOptions with AspNetCoreTraceInstrumentationOptions
-- [ ] Update sampling configuration (use EnableAdaptiveSampling)
 - [ ] Test all custom telemetry collection
 - [ ] Verify Live Metrics is working (if enabled)
 - [ ] Verify all expected telemetry appears in Azure Monitor

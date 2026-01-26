@@ -206,13 +206,35 @@
                         exporterOptions.Credential = serviceOptions.Credential;
                     }
 
-                    if (!serviceOptions.EnableAdaptiveSampling)
+                    exporterOptions.EnableLiveMetrics = serviceOptions.EnableQuickPulseMetricStream;
+
+                    if (serviceOptions.TracesPerSecond.HasValue)
                     {
-                        exporterOptions.SamplingRatio = 1.0F;
-                        exporterOptions.TracesPerSecond = null;
+                        if (serviceOptions.TracesPerSecond.Value >= 0)
+                        {
+                            exporterOptions.TracesPerSecond = serviceOptions.TracesPerSecond.Value;
+                        }
+                        else 
+                        {
+                            WorkerServiceEventSource.Instance.LogError($"Invalid TracesPerSecond value '{serviceOptions.TracesPerSecond.Value}'. Value must be at least 0. Using default value.");     
+                        }    
                     }
 
-                    exporterOptions.EnableLiveMetrics = serviceOptions.EnableQuickPulseMetricStream;
+                    if (serviceOptions.SamplingRatio.HasValue)
+                    {
+                        if (serviceOptions.SamplingRatio.Value >= 0.0f && serviceOptions.SamplingRatio.Value <= 1.0f) 
+                        {
+                            exporterOptions.SamplingRatio = serviceOptions.SamplingRatio.Value;
+                            if (!serviceOptions.TracesPerSecond.HasValue)
+                            {
+                                exporterOptions.TracesPerSecond = null;
+                            }
+                        }
+                        else
+                        {
+                            WorkerServiceEventSource.Instance.LogError($"Invalid SamplingRatio value '{serviceOptions.SamplingRatio.Value}'. Value must be between 0.0 and 1.0. Using default value.");
+                        }
+                    }
 
                     // Configure standard metrics and performance counter collection using reflection
                     // Only set when false since the default is true

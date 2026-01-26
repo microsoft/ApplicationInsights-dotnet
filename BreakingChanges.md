@@ -217,12 +217,10 @@ The following extension methods remain with identical signatures:
 - ❌ **`EnableHeartbeat`** - Heartbeat configuration removed
 - ❌ **`RequestCollectionOptions`** - Removed (non-functional, use OpenTelemetry instrumentation options)
 - ❌ **`DependencyCollectionOptions`** - Removed (non-functional, use OpenTelemetry instrumentation options)
+- ❌ `EnableAdaptiveSampling`** - Removed, rate limited sampling is now the default.
 
 ### Properties Retained
 - ✅ **`ConnectionString`** - Primary configuration method
-- ✅ **`EnableAdaptiveSampling`** - Still configurable (but behavior changed)
-  - **2.x**: Controls traditional adaptive sampling
-  - **3.x**: Maps to rate-limit based sampling in Azure Monitor Exporter, set at 5 OpenTelemetry traces per second by default
 - ✅ **`ApplicationVersion`**
 - ✅ **`AddAutoCollectedMetricExtractor`**
 - ✅ **`EnableQuickPulseMetricStream`** 
@@ -234,6 +232,8 @@ The following extension methods remain with identical signatures:
 
 ### New Properties Added in 3.x
 - ✅ **`Credential`** (Azure.Core.TokenCredential) - Enables Azure Active Directory (AAD) authentication
+- ✅ **`TracesPerSecond`** (double?) - Gets or sets the number of traces per second for rate-limited sampling (default sampling mode). Replaces `EnableAdaptiveSampling`.
+- ✅ **`SamplingRatio`** (float?) - Gets or sets the sampling ratio for traces (0.0 to 1.0). A value of 1.0 means all telemetry is sent. Replaces `EnableAdaptiveSampling`.
 
 ### JavaScriptSnippet Constructor Change
 **2.x:**
@@ -285,16 +285,21 @@ The following extension methods remain with identical signatures:
 - ❌ **`DeveloperMode`** - No longer configurable
 - ❌ **`EndpointAddress`** - No longer configurable (`ConnectionString` contains endpoints)
 - ❌ **`DependencyCollectionOptions`** - Removed (non-functional, use OpenTelemetry instrumentation options)
+- ❌ **`EnableAdaptiveSampling`** - Removed, rate limited sampling is now the default.
 
 ### Properties Retained
 - ✅ **`ConnectionString`** - Primary configuration method (maps to `AzureMonitorExporterOptions.ConnectionString`)
 - ✅ **`ApplicationVersion`** - Still configurable
-- ✅ **`EnableAdaptiveSampling`** - When true the rate limited sampler is used at 5 traces per second.
 - ✅ **`EnableDependencyTrackingTelemetryModule`** - Still configurable
 - ✅ **`EnablePerformanceCounterCollectionModule`** - Still configurable
 - ✅ **`EnableQuickPulseMetricStream`** - Maps to `AzureMonitorExporterOptions.EnableLiveMetrics`
 - ✅ **`EnableDebugLogger`** - Still configurable though has no effect
 - ✅ **`AddAutoCollectedMetricExtractor`** - Still configurable
+
+### New Properties Added in 3.x
+- ✅ **`Credential`** (Azure.Core.TokenCredential) - Enables Azure Active Directory (AAD) authentication
+- ✅ **`TracesPerSecond`** (double?) - Gets or sets the number of traces per second for rate-limited sampling (default sampling mode). Replaces `EnableAdaptiveSampling`.
+- ✅ **`SamplingRatio`** (float?) - Gets or sets the sampling ratio for traces (0.0 to 1.0). A value of 1.0 means all telemetry is sent. Replaces `EnableAdaptiveSampling`.
 
 ## Migration Impact
 - Any code depending on `InstrumentationKey` must migrate to `ConnectionString`
