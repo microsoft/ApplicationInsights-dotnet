@@ -227,8 +227,6 @@
                         }
                     }
 
-                    
-
                     // Configure standard metrics and performance counter collection using reflection
                     // Only set when false since the default is true
                     if (!serviceOptions.AddAutoCollectedMetricExtractor)
