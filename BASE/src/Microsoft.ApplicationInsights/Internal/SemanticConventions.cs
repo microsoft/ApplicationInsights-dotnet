@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Internals
+﻿namespace Microsoft.ApplicationInsights.Internal
 {
     /// <summary>
     /// Constants for semantic attribute names outlined by the OpenTelemetry specifications.
