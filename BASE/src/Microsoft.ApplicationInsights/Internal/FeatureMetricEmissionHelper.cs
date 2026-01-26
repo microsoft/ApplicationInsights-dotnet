@@ -26,6 +26,7 @@ namespace Microsoft.ApplicationInsights.Internal
         private string os;
 
         private StatsbeatFeatures observedFeatures = StatsbeatFeatures.None;
+        private object observedFeaturesLock;
 
         private FeatureMetricEmissionHelper(string ciKey, string version)
         {
@@ -57,7 +58,7 @@ namespace Microsoft.ApplicationInsights.Internal
 
         internal void MarkFeatureInUse(StatsbeatFeatures features)
         {
-            lock (this)
+            lock (observedFeaturesLock)
             {
                 this.observedFeatures |= features;
             }
