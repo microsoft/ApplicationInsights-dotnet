@@ -38,17 +38,17 @@ namespace Microsoft.ApplicationInsights
             using var helper1 = FeatureMetricEmissionHelper.GetOrCreate("a", "b");
 
             var metric = helper1.GetFeatureStatsbeat();
-            
+
             // no features reported should not emit metric
             Assert.Equal(0, metric.Value);
             Assert.Empty(metric.Tags.ToArray());
 
             helper1.MarkFeatureInUse(StatsbeatFeatures.TrackEvent);
             helper1.MarkFeatureInUse(StatsbeatFeatures.TrackDependency);
-            
+
             metric = helper1.GetFeatureStatsbeat();
             var tags = metric.Tags.ToArray().ToDictionary(v => v.Key, v => v.Value);
-            
+
             Assert.Equal(1, metric.Value);
             AssertKey("rp", "unknown", tags);
             AssertKey("attach", "Manual", tags);

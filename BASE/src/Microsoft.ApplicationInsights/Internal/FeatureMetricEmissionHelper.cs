@@ -50,7 +50,7 @@ namespace Microsoft.ApplicationInsights.Internal
         {
             string key = $"{ciKey};{version}";
 
-            return HelperRegistry.GetOrAdd(key, _ => 
+            return HelperRegistry.GetOrAdd(key, _ =>
             {
                 return new FeatureMetricEmissionHelper(ciKey, version);
             });

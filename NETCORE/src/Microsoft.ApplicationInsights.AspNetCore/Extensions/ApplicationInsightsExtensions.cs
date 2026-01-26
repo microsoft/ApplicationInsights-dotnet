@@ -210,15 +210,6 @@
                     {
                         exporterOptions.Credential = serviceOptions.Credential;
                     }
-<<<<<<< HEAD
-=======
-
-                    if (!serviceOptions.EnableAdaptiveSampling)
-                    {
-                        exporterOptions.SamplingRatio = 1.0F;
-                        exporterOptions.TracesPerSecond = null;
-                    }
->>>>>>> 51eabb9a (obvious stuff)
 
                     if (serviceOptions.EnableQuickPulseMetricStream)
                     {

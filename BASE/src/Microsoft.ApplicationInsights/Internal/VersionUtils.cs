@@ -19,7 +19,7 @@ namespace Microsoft.ApplicationInsights.Internal
 
         /// <summary>Application Insights Web shim (Microsoft.ApplicationInsights.Web).</summary>
         internal const string ExtensionLabelShimWeb = "shf";
-        
+
         /// <summary>Application Insights NLog shim (Microsoft.ApplicationInsights.NLogTarget).</summary>
         internal const string ExtensionLabelShimNLog = "shn";
 
