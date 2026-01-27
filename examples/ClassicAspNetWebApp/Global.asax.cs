@@ -48,9 +48,6 @@ namespace ClassicAspNetWebApp
             // // AUTHENTICATION: Azure AD (Entra ID) token-based auth
             // // Requires: Install-Package Azure.Identity
             // // telemetryConfig.SetAzureTokenCredential(new Azure.Identity.DefaultAzureCredential());
-            //
-            // var telemetryClient = new TelemetryClient(telemetryConfig);
-            // telemetryClient.Context.Cloud.RoleName = "MyWebApp";
         }
     }
 }
