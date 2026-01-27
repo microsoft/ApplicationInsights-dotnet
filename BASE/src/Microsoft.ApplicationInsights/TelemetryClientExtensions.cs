@@ -53,10 +53,14 @@
      string parentOperationId = null)
      where T : OperationTelemetry, new()
         {
+#if NET6_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(telemetryClient);
+#else
             if (telemetryClient == null)
             {
                 throw new ArgumentNullException(nameof(telemetryClient));
             }
+#endif
 
             telemetryClient.Configuration.FeatureReporter.MarkFeatureInUse(Internal.StatsbeatFeatures.StartOperation);
 
@@ -137,6 +141,10 @@
             T operationTelemetry)
             where T : OperationTelemetry
         {
+#if NET6_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(telemetryClient);
+            ArgumentNullException.ThrowIfNull(operationTelemetry);
+#else
             if (telemetryClient == null)
             {
                 throw new ArgumentNullException(nameof(telemetryClient));
@@ -146,6 +154,7 @@
             {
                 throw new ArgumentNullException(nameof(operationTelemetry));
             }
+#endif
 
             if (string.IsNullOrEmpty(operationTelemetry.Name))
             {
@@ -221,10 +230,14 @@
             Activity activity)
             where T : OperationTelemetry, new()
         {
+#if NET6_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(telemetryClient);
+#else
             if (telemetryClient == null)
             {
                 throw new ArgumentNullException(nameof(telemetryClient));
             }
+#endif
 
             if (activity == null)
             {
@@ -275,10 +288,14 @@
             IOperationHolder<T> operation)
             where T : OperationTelemetry
         {
+#if NET6_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(telemetryClient);
+#else
             if (telemetryClient == null)
             {
                 throw new ArgumentNullException(nameof(telemetryClient));
             }
+#endif
 
             if (operation == null)
             {

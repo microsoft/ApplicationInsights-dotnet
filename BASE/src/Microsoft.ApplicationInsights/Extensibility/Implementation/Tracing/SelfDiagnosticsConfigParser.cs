@@ -74,8 +74,14 @@
                         this.configBuffer = buffer;
                     }
 
-                    file.Read(buffer, 0, buffer.Length);
-                    string configJson = Encoding.UTF8.GetString(buffer);
+                    int totalBytesRead = 0;
+                    int bytesRead;
+                    while (totalBytesRead < buffer.Length && (bytesRead = file.Read(buffer, totalBytesRead, buffer.Length - totalBytesRead)) > 0)
+                    {
+                        totalBytesRead += bytesRead;
+                    }
+
+                    string configJson = Encoding.UTF8.GetString(buffer, 0, totalBytesRead);
                     
                     if (logDirectory == null && !TryParseLogDirectory(configJson, out logDirectory))
                     {
@@ -102,7 +108,11 @@
                         return false;
                     }
 
+#if NETCOREAPP
+                    logLevel = Enum.Parse<EventLevel>(logLevelString);
+#else
                     logLevel = (EventLevel)Enum.Parse(typeof(EventLevel), logLevelString);
+#endif
                     return true;
                 }
             }
