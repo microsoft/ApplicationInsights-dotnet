@@ -22,6 +22,8 @@ Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOp
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.TracesPerSecond.set -> void
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableRequestTrackingTelemetryModule.get -> bool
 Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableRequestTrackingTelemetryModule.set -> void
+Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableTraceBasedLogsSampler.get -> bool?
+Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions.EnableTraceBasedLogsSampler.set -> void
 Microsoft.ApplicationInsights.AspNetCore.IJavaScriptSnippet
 Microsoft.ApplicationInsights.AspNetCore.IJavaScriptSnippet.FullScript.get -> string
 Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet
