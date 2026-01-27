@@ -55,6 +55,12 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient?.TelemetryConfiguration?.Dispose();
         }
 
+        [Fact]
+        public void TelemetryClientInitializesFeatureReporter()
+        {
+            Assert.NotNull(this.telemetryClient.Configuration.FeatureReporter);
+        }
+
         #region TrackEvent
 
         [Fact]

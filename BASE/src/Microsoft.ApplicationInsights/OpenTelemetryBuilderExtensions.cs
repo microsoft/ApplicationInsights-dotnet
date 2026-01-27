@@ -8,7 +8,7 @@ namespace Microsoft.ApplicationInsights
     using System.Collections.Generic;
     using Azure.Monitor.OpenTelemetry.Exporter;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Internals;
+    using Microsoft.ApplicationInsights.Internal;
     using OpenTelemetry;
     using OpenTelemetry.Resources;
 

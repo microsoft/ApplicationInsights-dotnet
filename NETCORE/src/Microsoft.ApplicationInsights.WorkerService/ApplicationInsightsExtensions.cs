@@ -8,7 +8,7 @@
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.Internals;
+    using Microsoft.ApplicationInsights.Internal;
     using Microsoft.ApplicationInsights.WorkerService;
     using Microsoft.ApplicationInsights.WorkerService.Implementation.Tracing;
     using Microsoft.Extensions.Configuration;
@@ -95,7 +95,7 @@
                             .WithApplicationInsights()
                             .UseApplicationInsightsTelemetry();
 
-                    AddTelemetryConfigAndClient(services);
+                    AddTelemetryConfigAndClient(services, VersionUtils.ExtensionLabelShimWorkerService + VersionUtils.GetVersion(typeof(ApplicationInsightsExtensions)));
                 }
 
                 return services;
@@ -199,7 +199,7 @@
                     {
                         exporterOptions.ConnectionString = serviceOptions.ConnectionString;
                     }
-                    
+
                     // Copy credential to Azure Monitor Exporter
                     if (serviceOptions.Credential != null)
                     {

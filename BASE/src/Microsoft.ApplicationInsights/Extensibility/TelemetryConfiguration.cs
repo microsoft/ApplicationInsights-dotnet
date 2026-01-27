@@ -12,6 +12,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics;
+    using Microsoft.ApplicationInsights.Internal;
     using Microsoft.ApplicationInsights.Metrics;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
@@ -31,6 +32,9 @@
 
         internal const string ApplicationInsightsActivitySourceName = "Microsoft.ApplicationInsights";
         internal const string ApplicationInsightsMeterName = "Microsoft.ApplicationInsights";
+
+        internal FeatureMetricEmissionHelper FeatureReporter;
+
         private static readonly Lazy<TelemetryConfiguration> DefaultInstance =
                                                         new Lazy<TelemetryConfiguration>(() => new TelemetryConfiguration(), LazyThreadSafetyMode.ExecutionAndPublication);
 
@@ -49,6 +53,7 @@
         private bool? disableOfflineStorage;
         private bool? enableLiveMetrics;
         private bool? enableTraceBasedLogsSampler;
+        private string extensionVersion = "sha" + VersionUtils.GetVersion(typeof(TelemetryClient));
 
         private Action<IOpenTelemetryBuilder> builderConfiguration;
         private OpenTelemetrySdk openTelemetrySdk;
@@ -207,6 +212,19 @@
         }
 
         /// <summary>
+        /// Gets or sets a value indicating the version string to report to SDK stats. Eg., "shc1.2.3".
+        /// </summary>
+        internal string ExtensionVersion
+        {
+            get => this.extensionVersion;
+            set
+            {
+                this.ThrowIfBuilt();
+                this.extensionVersion = value;
+            }
+        }
+
+        /// <summary>
         /// Gets the default ActivitySource used by TelemetryClient.
         /// </summary>
         internal ActivitySource ApplicationInsightsActivitySource => this.defaultActivitySource;
@@ -329,6 +347,14 @@
                     }
                 });
             });
+        }
+
+        internal FeatureMetricEmissionHelper InitializeFeatureReporter()
+        {
+            var connectionString = Microsoft.ApplicationInsights.Internal.ConnectionString.Parse(this.ConnectionString);
+            var ciKey = connectionString.GetNonRequired("InstrumentationKey");
+            this.FeatureReporter = FeatureMetricEmissionHelper.GetOrCreate(ciKey, this.extensionVersion);
+            return this.FeatureReporter;
         }
 
         /// <summary>
@@ -457,11 +483,9 @@
                 // - All registered processors, exporters, etc.
                 this.openTelemetrySdk?.Dispose();
 
-                // Dispose the ActivitySource
                 this.defaultActivitySource?.Dispose();
-
-                // Dispose the MetricsManager
                 this.metricsManager?.Dispose();
+                this.FeatureReporter?.Dispose();
 
                 this.isDisposed = true;
 

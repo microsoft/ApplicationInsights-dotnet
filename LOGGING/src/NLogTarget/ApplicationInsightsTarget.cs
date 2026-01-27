@@ -14,6 +14,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Internal;
     using NLog;
     using NLog.Common;
     using NLog.Config;
@@ -132,6 +133,8 @@ namespace Microsoft.ApplicationInsights.NLogTarget
 
             this.telemetryConfiguration = new TelemetryConfiguration();
             this.telemetryConfiguration.ConnectionString = connectionString;
+
+            this.telemetryConfiguration.ExtensionVersion = VersionUtils.ExtensionLabelShimNLog + VersionUtils.GetVersion(typeof(ApplicationInsightsTarget));
             
             // Configure OpenTelemetry resource with distro name
             this.telemetryConfiguration.ConfigureOpenTelemetryBuilder(builder =>
