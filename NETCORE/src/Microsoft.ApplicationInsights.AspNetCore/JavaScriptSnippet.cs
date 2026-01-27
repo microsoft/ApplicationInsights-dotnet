@@ -20,8 +20,10 @@
         /// <summary>JavaScript snippet.</summary>
         private static readonly string Snippet = Resources.JavaScriptSnippet;
 
+#if !NET6_0_OR_GREATER
         /// <summary>JavaScript authenticated user tracking snippet.</summary>
         private static readonly string AuthSnippet = Resources.JavaScriptAuthSnippet;
+#endif
 
         /// <summary> Http context accessor.</summary>
         private readonly IHttpContextAccessor httpContextAccessor;
@@ -47,10 +49,14 @@
             IHttpContextAccessor httpContextAccessor = null,
             JavaScriptEncoder encoder = null)
         {
+#if NET6_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(serviceOptions);
+#else
             if (serviceOptions == null)
             {
                 throw new ArgumentNullException(nameof(serviceOptions));
             }
+#endif
 
             this.telemetryConfiguration = telemetryConfiguration;
             this.httpContextAccessor = httpContextAccessor;
@@ -105,11 +111,19 @@
                     if (identity != null && identity.IsAuthenticated)
                     {
                         string escapedUserName = this.encoder.Encode(identity.Name);
+#if NET6_0_OR_GREATER
+                        insertAuthUserContext = string.Create(CultureInfo.InvariantCulture, $"appInsights.setAuthenticatedUserContext(\"{escapedUserName}\");");
+#else
                         insertAuthUserContext = string.Format(CultureInfo.InvariantCulture, AuthSnippet, escapedUserName);
+#endif
                     }
                 }
 
+#if NET6_0_OR_GREATER
+                var snippet = Snippet.Replace("connectionString: \"YOUR_CONNECTION_STRING\"", insertConfig, StringComparison.Ordinal);
+#else
                 var snippet = Snippet.Replace("connectionString: \"YOUR_CONNECTION_STRING\"", insertConfig);
+#endif
                 // Return snippet
                 return string.Concat(snippet, insertAuthUserContext);
             }

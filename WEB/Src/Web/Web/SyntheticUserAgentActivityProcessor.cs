@@ -17,6 +17,8 @@ namespace Microsoft.ApplicationInsights.Web
         // Default bot/synthetic traffic patterns
         private const string DefaultFilters = "search|spider|crawl|Bot|Monitor|BrowserMob|PhantomJS|HeadlessChrome|Selenium|URLNormalization";
         
+        private static readonly string[] PipeSeparator = new[] { "|" };
+        
         private string filters = string.Empty;
         private string[] filterPatterns;
 
@@ -47,7 +49,7 @@ namespace Microsoft.ApplicationInsights.Web
 
                     // We expect customers to configure the processor before they add it to active configuration
                     // So we will not protect it with locks (to improve perf)
-                    this.filterPatterns = value.Split(new[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
+                    this.filterPatterns = value.Split(PipeSeparator, StringSplitOptions.RemoveEmptyEntries);
                 }
             }
         }
@@ -65,7 +67,7 @@ namespace Microsoft.ApplicationInsights.Web
 
             // Only process if synthetic source is not already set
             var existingSyntheticSource = activity.GetTagItem("ai.operation.syntheticSource");
-            if (existingSyntheticSource == null || string.IsNullOrEmpty(existingSyntheticSource?.ToString()))
+            if (existingSyntheticSource == null || string.IsNullOrEmpty(existingSyntheticSource.ToString()))
             {
                 var context = HttpContext.Current;
                 if (context != null)

@@ -42,7 +42,7 @@ namespace Microsoft.ApplicationInsights.Web
 
             // Only process if session ID is not already set
             var existingSessionId = activity.GetTagItem("session.id");
-            if (existingSessionId == null || string.IsNullOrEmpty(existingSessionId?.ToString()))
+            if (existingSessionId == null || string.IsNullOrEmpty(existingSessionId.ToString()))
             {
                 // Try Unvalidated first, fall back to regular Cookies for test environments
                 var sessionCookie = context.Request.UnvalidatedGetCookie(WebSessionCookieName) ?? context.Request.Cookies[WebSessionCookieName];
