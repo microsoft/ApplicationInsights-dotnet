@@ -29,7 +29,7 @@
         /// <summary>
         /// Gets or sets the application-defined operation SyntheticSource.
         /// </summary>
-        public string SyntheticSource
+        internal string SyntheticSource
         {
             get { return string.IsNullOrEmpty(this.syntheticSource) ? null : this.syntheticSource; }
             set { this.syntheticSource = value; }

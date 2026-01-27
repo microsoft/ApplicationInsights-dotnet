@@ -31,16 +31,55 @@
         }
 
         /// <summary>
-        /// Logs an event for when generic error occur within the SDK.
+        /// Logs an event for when adding Application Insights telemetry fails.
         /// </summary>
         [Event(
             1,
             Keywords = Keywords.Diagnostics,
-            Message = "An error has occurred which may prevent application insights from functioning. Error message: '{0}' ",
+            Message = "Failed to add Application Insights telemetry. Error: '{0}'",
             Level = EventLevel.Error)]
-        public void LogError(string errorMessage, string appDomainName = "Incorrect")
+        public void FailedToAddTelemetry(string errorMessage, string appDomainName = "Incorrect")
         {
             this.WriteEvent(1, errorMessage, this.applicationNameProvider.Name);
+        }
+
+        /// <summary>
+        /// Logs an event for when an invalid TracesPerSecond value is configured.
+        /// </summary>
+        [Event(
+            2,
+            Keywords = Keywords.Diagnostics,
+            Message = "Invalid TracesPerSecond value '{0}'. Value must be at least 0. Using default value.",
+            Level = EventLevel.Warning)]
+        public void InvalidTracesPerSecondConfigured(double tracesPerSecond, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(2, tracesPerSecond, this.applicationNameProvider.Name);
+        }
+
+        /// <summary>
+        /// Logs an event for when an invalid SamplingRatio value is configured.
+        /// </summary>
+        [Event(
+            3,
+            Keywords = Keywords.Diagnostics,
+            Message = "Invalid SamplingRatio value '{0}'. Value must be between 0.0 and 1.0. Using default value.",
+            Level = EventLevel.Warning)]
+        public void InvalidSamplingRatioConfigured(float samplingRatio, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(3, samplingRatio, this.applicationNameProvider.Name);
+        }
+
+        /// <summary>
+        /// Logs an event for when telemetry configuration fails.
+        /// </summary>
+        [Event(
+            4,
+            Keywords = Keywords.Diagnostics,
+            Message = "Failed to configure telemetry. Error: '{0}'",
+            Level = EventLevel.Error)]
+        public void TelemetryConfigurationFailure(string errorMessage, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(4, errorMessage, this.applicationNameProvider.Name);
         }
 
         /// <summary>

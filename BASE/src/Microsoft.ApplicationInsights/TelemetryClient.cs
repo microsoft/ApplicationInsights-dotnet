@@ -645,6 +645,11 @@
                         dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMicrosoftDependencyResultCode, telemetry.ResultCode);
                     }
 
+                    if (!string.IsNullOrEmpty(telemetry.Context?.Operation?.Name))
+                    {
+                        dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMicrosoftOperationName, telemetry.Context.Operation.Name);
+                    }
+
                     // Add GlobalProperties first (lower priority)
                     if (this.Context?.GlobalPropertiesValue != null)
                     {
