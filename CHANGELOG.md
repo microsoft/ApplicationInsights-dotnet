@@ -13,6 +13,8 @@
   - OpenTelemetry.Resources.Azure 1.15.0-beta.1
 - [Added support to disable telemetry via TelemetryConfiguration.DisableTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3084)
 - [Removed `EnabledAdaptiveSampling` and replaced with `TracesPerSecond` and `SamplingRatio`](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3085)
+- [Added `EnableTraceBasedLogsSampler` property to `ApplicationInsightsServiceOptions` for ASP.NET Core and WorkerService packages](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3088)
+- [Added support for `StorageDirectory` and `DisableOfflineStorage` from `TelemetryConfiguration` in DI scenarios](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3088)
  
 ## Version 3.0.0-beta2
 ### Added
