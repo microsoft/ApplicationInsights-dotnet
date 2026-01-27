@@ -241,7 +241,7 @@ public class CustomResourceDetector : IResourceDetector
 }
 ```
 
-Resouce detectors are typically used to enrich telemetry by detecting the specific environment an application is running in - as an example, this SDK internally implements its own resource detector that determines whether it is an aspnetcore application and will decorate the telemetry accordingly.
+Resource detectors are typically used to enrich telemetry by detecting the specific environment an application is running in - as an example, this SDK internally implements its own resource detector that determines whether it is an aspnetcore application and will decorate the telemetry accordingly.
 
 **Register the detector:**
 

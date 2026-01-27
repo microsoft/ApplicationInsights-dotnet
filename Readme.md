@@ -16,8 +16,8 @@ Select the option that best describes your situation:
 
 - **Building an ASP.NET Core web application?** → Use the [ASP.NET Core SDK](../NETCORE/Readme.md) for automatic instrumentation
 - **Building a Worker Service, console app, or background service?** → Use the [Worker Service SDK](../NETCORE/WorkerService.md) for simplified configuration
-- **Need the core TelemetryClient API for custom scenarios?** → Use the [base SDK](/BASE/README.md)
-- **Need compatibility with NLog?** -> Use the [Logging SDK](/LOGGING/README.md)
+- **Need the core TelemetryClient API for custom scenarios?** → Use the [base SDK](../BASE/README.md)
+- **Need compatibility with NLog?** -> Use the [Logging SDK](../LOGGING/README.md)
 
 ### Understanding our SDK
 

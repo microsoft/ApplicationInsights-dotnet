@@ -142,7 +142,7 @@ telemetryClient.TrackMetric(
     });
 
 // Using MetricTelemetry object
-var metric = var metric = new MetricTelemetry("RequestDuration", 123.45);
+var metric = new MetricTelemetry("RequestDuration", 123.45);
 telemetryClient.TrackMetric(metric);
 ```
 
