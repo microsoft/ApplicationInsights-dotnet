@@ -39,17 +39,16 @@ See the [Migration Guide](#migrating-from-2x-to-3x) for detailed upgrade instruc
   - [Installation](#installation)
   - [Configuration](#configuration)
 - [Using TelemetryClient](#using-telemetryclient)
+  - [Recommended Pattern: Initialize in Global.asax.cs](#recommended-pattern-initialize-in-globalasaxcs)
+  - [Use the Shared Instance in Controllers](#use-the-shared-instance-in-controllers)
 - [Advanced Configuration](#advanced-configuration)
   - [Customizing Telemetry Collection](#customizing-telemetry-collection)
-  - [Adding Custom Properties](#adding-custom-properties)
+  - [Filtering Telemetry](#filtering-telemetry)
   - [Performance Counters](#performance-counters)
 - [Migrating from 2.x to 3.x](#migrating-from-2x-to-3x)
   - [Migration Steps](#migration-steps)
   - [Configuration Changes](#configuration-changes)
-  - [Replacing Telemetry Initializers](#replacing-telemetry-initializers)
-- [Architecture](#architecture)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
+  - [Replacing Telemetry Initializers and Processors](#replacing-telemetry-initializers-and-processors)
 
 ## Getting Started
 
@@ -179,8 +178,6 @@ public class MvcApplication : System.Web.HttpApplication
         TelemetryClient = new TelemetryClient(configuration);
         
         // Optionally set properties that apply to all telemetry
-        TelemetryClient.Context.Cloud.RoleName = "MyWebApp";
-        TelemetryClient.Context.Component.Version = "1.0.0";
         TelemetryClient.Context.GlobalProperties["Environment"] = "Production";
         
         // Your other startup code
@@ -269,8 +266,6 @@ protected void Application_Start()
     var telemetry = new TelemetryClient(configuration);
     
     // Set properties that apply to all telemetry
-    telemetry.Context.Cloud.RoleName = "MyWebApp";
-    telemetry.Context.Component.Version = "1.0.0";
     telemetry.Context.GlobalProperties["Environment"] = "Production";
 }
 ```
@@ -283,7 +278,7 @@ In version 3.x, telemetry filtering is handled through OpenTelemetry processors.
 
 To exclude specific URL patterns (like health checks), you would need to configure OpenTelemetry processors. For most ASP.NET Framework applications, the simplest approach is to handle filtering at the infrastructure level (load balancer health checks) rather than in code.
 
-If you need custom filtering logic, see the [BASE SDK documentation](../BASE/README.md#enriching-telemetry-with-activity-processors) for details on implementing Activity Processors.
+If you need custom filtering logic, see the [concepts documentation](../docs/concepts.md#filtering-telemetry) for details on implementing Activity Processors.
 
 ### Performance Counters
 
@@ -362,9 +357,7 @@ The internal instrumentation has changed significantly. Test your application to
 
 In 2.x, `ITelemetryInitializer` and `ITelemetryProcessor` were used to enrich and filter telemetry. In 3.x, these are replaced by OpenTelemetry Activity Processors.
 
-#### Simple Property Enrichment
-
-For basic property setting, use `TelemetryClient.Context` properties:
+#### Cloud Role Name example
 
 **2.x Telemetry Initializer:**
 ```csharp
@@ -386,11 +379,19 @@ using Microsoft.ApplicationInsights.Extensibility;
 protected void Application_Start()
 {
     var configuration = TelemetryConfiguration.CreateDefault();
+    
+    // Set cloud role via OpenTelemetry Resource attributes BEFORE creating TelemetryClient
+    configuration.ConfigureOpenTelemetryBuilder(builder =>
+    {
+        builder.ConfigureResource(resource => resource.AddAttributes(new[]
+        {
+            new KeyValuePair<string, object>("service.name", "WebApp"),           // Maps to Cloud.RoleName
+        }));
+    });
+    
     var telemetry = new TelemetryClient(configuration);
     
-    // Set properties that apply to all telemetry
-    telemetry.Context.Cloud.RoleName = "WebApp";
-    telemetry.Context.Component.Version = "1.0.0";
+    // GlobalProperties still work for custom properties on all telemetry
     telemetry.Context.GlobalProperties["Environment"] = "Production";
 }
 ```
@@ -486,8 +487,6 @@ public class MvcApplication : System.Web.HttpApplication
         // Create TelemetryClient with configured TelemetryConfiguration
         TelemetryClient = new TelemetryClient(configuration);
         
-        // Set common properties
-        TelemetryClient.Context.Cloud.RoleName = "MyWebApp";
     }
     
     protected void Application_End()
@@ -497,93 +496,3 @@ public class MvcApplication : System.Web.HttpApplication
     }
 }
 ```
-
-**Required NuGet Packages:**
-
-The `Microsoft.ApplicationInsights.Web` package already includes the necessary OpenTelemetry dependencies. No additional packages are required for basic Activity Processor functionality.
-
-**Key Differences:**
-- **2.x**: Used `ITelemetryProcessor` and `ITelemetryInitializer` with Application Insights SDK
-- **3.x**: Uses OpenTelemetry `BaseProcessor<Activity>` with Activity-based telemetry
-- **Filtering**: In 2.x, return early; in 3.x, clear `ActivityTraceFlags.Recorded` flag
-- **Enrichment**: In 2.x, set properties on `ITelemetry`; in 3.x, use `Activity.SetTag()`
-- **Registration**: In 2.x, configured in `ApplicationInsights.config`; in 3.x, registered via OpenTelemetry SDK builder
-
-> **Note:** For most scenarios, simple property enrichment using `TelemetryClient.Context` is sufficient. Only implement custom Activity Processors if you need complex filtering, sampling, or dynamic enrichment logic.
-
-See the [BASE SDK documentation](../BASE/README.md#enriching-telemetry-with-activity-processors) for more examples of Activity Processors.
-
-See [BreakingChanges.md](../../BreakingChanges.md) for additional migration details.
-
-## Architecture
-
-The 3.x SDK is built on [OpenTelemetry](https://opentelemetry.io/) and uses the following architecture:
-
-```
-┌─────────────────────────────────────────────────────────┐
-│  ASP.NET Framework Web Application                      │
-├─────────────────────────────────────────────────────────┤
-│  HTTP Modules (ApplicationInsightsHttpModule)           │
-│  ↓ Tracks incoming requests                             │
-├─────────────────────────────────────────────────────────┤
-│  TelemetryClient API (Compatibility Layer)              │
-│  ↓ Translates to OpenTelemetry primitives               │
-├─────────────────────────────────────────────────────────┤
-│  OpenTelemetry SDK                                      │
-│  • Activity (Traces/Spans)                              │
-│  • LogRecord (Logs)                                     │
-│  • Metrics                                              │
-├─────────────────────────────────────────────────────────┤
-│  OpenTelemetry Instrumentation                          │
-│  • ASP.NET (HTTP requests)                              │
-│  • SqlClient (SQL dependencies)                         │
-│  • HttpClient (HTTP dependencies)                       │
-├─────────────────────────────────────────────────────────┤
-│  Activity Processors                                    │
-│  • Enrichment (user, session, synthetic traffic)        │
-│  • Filtering                                            │
-│  • Sampling                                             │
-├─────────────────────────────────────────────────────────┤
-│  Azure Monitor Exporter                                 │
-│  ↓ Converts to Application Insights schema             │
-├─────────────────────────────────────────────────────────┤
-│  Azure Monitor / Application Insights                   │
-└─────────────────────────────────────────────────────────┘
-```
-
-**Key Components:**
-
-- **HTTP Modules**: Intercept HTTP requests and responses for automatic tracking
-- **OpenTelemetry Instrumentation**: Automatically collects HTTP requests, SQL dependencies, and outgoing HTTP calls
-- **Activity Processors**: Enrich telemetry with web-specific context (user ID, session ID, synthetic traffic detection)
-- **Azure Monitor Exporter**: Converts OpenTelemetry signals to Application Insights format and sends to Azure Monitor
-- **TelemetryClient API**: Compatibility layer for sending custom telemetry
-
-The SDK maintains backward compatibility with the TelemetryClient API while using OpenTelemetry internally for data collection and transmission.
-
-## Troubleshooting
-
-### Telemetry Not Appearing in Portal
-
-1. **Verify Connection String**: Check that ApplicationInsights.config contains the correct connection string with both InstrumentationKey and IngestionEndpoint.
-
-2. **Check HTTP Module Registration**: Ensure the HTTP modules are registered in web.config (should be added automatically by NuGet).
-
-3. **Verify Network Connectivity**: Ensure your server can reach the ingestion endpoint (typically `https://*.in.applicationinsights.azure.com`).
-
-4. **Check Application Pool Identity**: Ensure the application pool identity has network access to send telemetry.
-
-5. **Review IIS Logs**: Check IIS logs for any errors during module initialization.
-
-## Contributing
-
-We strongly welcome and encourage contributions to this project. Please read the general [contributor's guide][ContribGuide] located in the ApplicationInsights-Home repository. If making a large change we request that you open an [issue][GitHubIssue] first.
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
-
-> **Note:** For classic Application Insights SDK (version 2.x), refer to the [2.x branch documentation](https://github.com/microsoft/ApplicationInsights-dotnet/tree/2.x).
-
-[AILandingPage]: https://azure.microsoft.com/services/application-insights/
-[AzurePortal]: https://portal.azure.com/
-[ContribGuide]: https://github.com/Microsoft/ApplicationInsights-Home/blob/master/CONTRIBUTING.md
-[GitHubIssue]: https://github.com/Microsoft/ApplicationInsights-dotnet/issues/

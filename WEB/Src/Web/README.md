@@ -40,4 +40,4 @@ public class Global : HttpApplication
 For more information, see the [Azure.Identity documentation](https://learn.microsoft.com/dotnet/api/overview/azure/identity-readme).
 
 ### Sampling, Offline Storage, and other configuration
-Other options can also be set via the TelemetryConfiguration in the `Global.asax.cs` file. See [documentation for Microsoft.ApplicationInsights](../../../BASE/README.smd#azure-monitor-exporter-options).
+Other options can also be set via the TelemetryConfiguration in the `Global.asax.cs` file. See [documentation for Microsoft.ApplicationInsights](../../../BASE/README.md#telemetry-configuration-properties). These properties are also configurable via applicationinsights.config.

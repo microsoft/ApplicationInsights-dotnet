@@ -39,12 +39,11 @@ The Microsoft.ApplicationInsights.AspNetCore package is built on top of OpenTele
 
 #### Logs
 - Logs created with `Microsoft.Extensions.Logging`. See [Logging in .NET Core and ASP.NET Core](https://learn.microsoft.com/aspnet/core/fundamentals/logging) for more details on how to create and configure logging.
-- [Azure SDK logs](https://learn.microsoft.com/dotnet/azure/sdk/logging) are recorded as a subset of `Microsoft.Extensions.Logging`.
+
 
 #### Resource Detectors
 - **Azure App Service Resource Detector**: Adds resource attributes for applications running in Azure App Service.
 - **Azure VM Resource Detector**: Adds resource attributes for applications running in an Azure Virtual Machine.
-- **Azure Container Apps Resource Detector**: Adds resource attributes for applications running in Azure Container Apps.
 - **ASP.NET Core Environment Resource Detector**: Adds resource attributes from the ASP.NET Core environment configuration.
 
 > **Note**: Resource attributes are used to set the cloud role and role instance. Most other resource attributes are currently ignored.
@@ -137,16 +136,6 @@ In your `appsettings.json`:
 
 ## Configuration
 
-### Connection String
-
-The connection string can be configured in multiple ways (listed in order of precedence):
-
-1. `ApplicationInsightsServiceOptions.ConnectionString` property set in code
-2. `APPLICATIONINSIGHTS_CONNECTION_STRING` environment variable
-3. `ApplicationInsights:ConnectionString` configuration setting
-
-> **Important**: Version 3.x uses **ConnectionString** instead of InstrumentationKey. InstrumentationKey-based configuration is deprecated.
-
 ### ApplicationInsightsServiceOptions
 
 The following options are available when configuring Application Insights in version 3.x:
@@ -157,12 +146,45 @@ builder.Services.AddApplicationInsightsTelemetry(options =>
     // Connection string for the Application Insights resource
     options.ConnectionString = "InstrumentationKey=...";
     
+    // AAD authentication credential (optional)
+    // options.Credential = new DefaultAzureCredential();
+    
+    // Application version reported with telemetry
+    // options.ApplicationVersion = "1.0.0";
+    
     // Enable or disable Live Metrics (default: true)
     options.EnableQuickPulseMetricStream = true;
+    
+    // Rate-limited sampling: maximum traces per second (default: 5)
+    // Use this for rate-based sampling to limit telemetry volume
+    options.TracesPerSecond = 5.0;
+    
+    // Percentage-based sampling: ratio of telemetry to collect (0.0 to 1.0)
+    // Use this instead of TracesPerSecond for percentage-based sampling
+    // options.SamplingRatio = 0.5f;  // 50% of telemetry
+    
+    // Enable or disable Application Insights Standard Metrics (default: true)
+    options.AddAutoCollectedMetricExtractor = true;
+    
+    // Enable or disable performance counter collection (default: true)
+    options.EnablePerformanceCounterCollectionModule = true;
+    
+    // Enable or disable dependency tracking (default: true)
+    // When false, outbound HTTP, SQL, and other dependency calls are not tracked
+    options.EnableDependencyTrackingTelemetryModule = true;
+    
+    // Enable or disable request tracking (default: true) - ASP.NET Core only
+    // When false, incoming HTTP requests are not tracked
+    options.EnableRequestTrackingTelemetryModule = true;
+    
+    // Enable JavaScript snippet for authenticated user tracking (default: false)
+    options.EnableAuthenticationTrackingJavaScript = false;
+    
+    // Enable or disable trace-based log sampling (default: true)
+    // When true, logs are sampled based on the sampling decision of the associated trace
+    options.EnableTraceBasedLogsSampler = true;
 });
 ```
-
-> **Note**: In version 3.x, many properties from `ApplicationInsightsServiceOptions` in 2.x are no longer functional because they related to telemetry modules, processors, and channels that have been replaced by OpenTelemetry components. The properties shown above are the ones that are actively used in the 3.x OpenTelemetry-based implementation.
 
 ## Advanced Configuration
 
@@ -351,17 +373,6 @@ builder.Services.ConfigureOpenTelemetryTracerProvider((sp, builder) =>
 });
 ```
 
-#### Disabling Live Metrics
-
-By default, Live Metrics is enabled. To disable it:
-
-```csharp
-builder.Services.AddApplicationInsightsTelemetry(options =>
-{
-    options.EnableQuickPulseMetricStream = false;
-});
-```
-
 #### Dropping Specific Metrics Instruments
 
 To exclude specific instruments from being collected:
@@ -410,554 +421,12 @@ using (logger.BeginScope(scope))
 }
 ```
 
-## Migration from 2.x to 3.x
+### Custom OpenTelemetry Processor Registration
+Register any custom processors with:
 
-Version 3.x of the Application Insights SDK represents a significant architectural change. The SDK is now built on top of OpenTelemetry, which means many of the Application Insights-specific concepts and APIs have been replaced with OpenTelemetry equivalents.
-
-### Breaking Changes
-
-#### What Has Been Removed
-
-The following features are **no longer available** in version 3.x:
-
-1. **Telemetry Modules** - All telemetry modules have been removed. Telemetry collection is now handled by OpenTelemetry instrumentation libraries.
-
-2. **Telemetry Initializers** - Telemetry initializers are no longer supported. Use OpenTelemetry processors or resource detectors instead.
-
-3. **Telemetry Processors** - Custom telemetry processors are not supported. Use OpenTelemetry processors.
-
-4. **ITelemetryChannel** - Custom telemetry channels are not supported. The Azure Monitor OpenTelemetry Exporter handles telemetry transmission.
-
-5. **TelemetryConfiguration Builder Pattern** - Direct configuration of `TelemetryConfiguration` through builder pattern is no longer supported. Use `ApplicationInsightsServiceOptions` and OpenTelemetry configuration APIs.
-
-6. **RequestCollectionOptions properties** - Most properties in `RequestCollectionOptions` have been removed. Use OpenTelemetry instrumentation options instead (e.g., `AspNetCoreTraceInstrumentationOptions`).
-
-7. **InstrumentationKey** - Configuration via InstrumentationKey is deprecated. Use ConnectionString instead.
-
-8. **PerformanceCollectorModule** - Performance counter collection works differently in 3.x. Set `EnablePerformanceCounterCollectionModule = true` in options.
-
-9. **AutoCollectMetricExtractor** - Metric extraction has changed. Use `AddAutoCollectedMetricExtractor` option.
-
-10. **JavaScript Snippet Injection** - The way JavaScript snippet is injected has changed. Use `IJavaScriptSnippet` service.
-
-#### What Has Changed
-
-1. **AddApplicationInsightsTelemetry()** - Still the primary way to add Application Insights, but now configures OpenTelemetry under the hood.
-
-2. **TelemetryClient** - Still available for backward compatibility, but is now a shim layer over OpenTelemetry APIs. For new code, consider using OpenTelemetry APIs directly (`ActivitySource`, `Meter`, `ILogger`).
-
-3. **Configuration** - Connection strings are now configured via `ApplicationInsightsServiceOptions.ConnectionString` or `APPLICATIONINSIGHTS_CONNECTION_STRING` environment variable.
-
-5. **Live Metrics** - Still supported via the `EnableQuickPulseMetricStream` option.
-
-### Migration Steps
-
-#### Step 1: Update Package Reference
-
-Update your package reference to version 3.x:
-
-```xml
-<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="3.*" />
-```
-
-#### Step 2: Update Connection String Configuration
-
-Replace InstrumentationKey with ConnectionString:
-
-**Before (2.x):**
-```csharp
-services.AddApplicationInsightsTelemetry(options =>
-{
-    options.InstrumentationKey = "00000000-0000-0000-0000-000000000000";
-});
-```
-
-**After (3.x):**
-```csharp
-builder.Services.AddApplicationInsightsTelemetry(options =>
-{
-    options.ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://...";
-});
-```
-
-#### Step 3: Replace Telemetry Initializers and Processors with OpenTelemetry Processors
-
-**Important Difference:** In 2.x, ITelemetryInitializer and ITelemetryProcessor applied to **all telemetry types** (requests, dependencies, traces, events, metrics, exceptions). In 3.x, OpenTelemetry uses **separate mechanisms for different signal types**:
-
-- **Activity Processors** (`BaseProcessor<Activity>`) - Apply to traces (requests, dependencies, and custom activities)
-- **Log Processors** (`BaseProcessor<LogRecord>`) - Apply to logs (traces, events, exceptions logged via ILogger)
-- **Metric Views** - Transform/filter metrics (OpenTelemetry doesn't use processors for metrics; use `AddView()` instead)
-
-Here are common migration patterns:
-
-**Example: Adding Custom Properties to All Telemetry**
-
-**Before (2.x) - Using ITelemetryInitializer:**
-```csharp
-public class MyTelemetryInitializer : ITelemetryInitializer
-{
-    public void Initialize(ITelemetry telemetry)
-    {
-        telemetry.Context.GlobalProperties["Environment"] = "Production";
-        telemetry.Context.GlobalProperties["CustomerId"] = GetCustomerId();
-    }
-}
-
-// Registration
-services.AddApplicationInsightsTelemetry();
-services.AddSingleton<ITelemetryInitializer, MyTelemetryInitializer>();
-```
-
-**After (3.x) - Using OpenTelemetry Processor:**
-```csharp
-using System.Diagnostics;
-using OpenTelemetry;
-
-public class MyActivityProcessor : BaseProcessor<Activity>
-{
-    public override void OnStart(Activity activity)
-    {
-        activity.SetTag("Environment", "Production");
-        activity.SetTag("CustomerId", GetCustomerId());
-    }
-    
-    private string GetCustomerId()
-    {
-        // Your logic here
-        return "12345";
-    }
-}
-
-// Registration
-builder.Services.AddApplicationInsightsTelemetry();
+```C#
 builder.Services.ConfigureOpenTelemetryTracerProvider((sp, builder) =>
 {
     builder.AddProcessor<MyActivityProcessor>();
 });
-```
-
-**Example: Filtering Telemetry**
-
-**Before (2.x) - Using ITelemetryProcessor:**
-```csharp
-public class MyTelemetryProcessor : ITelemetryProcessor
-{
-    private ITelemetryProcessor Next { get; set; }
-
-    public MyTelemetryProcessor(ITelemetryProcessor next)
-    {
-        Next = next;
-    }
-
-    public void Process(ITelemetry item)
-    {
-        // Filter out requests to health check endpoint
-        if (item is RequestTelemetry request && 
-            request.Url.AbsolutePath.Contains("/health"))
-        {
-            return; // Don't send
-        }
-        
-        Next.Process(item);
-    }
-}
-
-// Registration
-services.Configure<TelemetryConfiguration>(config =>
-{
-    var builder = config.DefaultTelemetrySink.TelemetryProcessorChainBuilder;
-    builder.Use(next => new MyTelemetryProcessor(next));
-    builder.Build();
-});
-```
-
-**After (3.x) - Using OpenTelemetry Processor:**
-```csharp
-using System.Diagnostics;
-using OpenTelemetry;
-
-public class FilteringActivityProcessor : BaseProcessor<Activity>
-{
-    public override void OnEnd(Activity activity)
-    {
-        // Filter out requests to health check endpoint
-        if (activity.DisplayName.Contains("/health") || 
-            activity.GetTagItem("url.path")?.ToString()?.Contains("/health") == true)
-        {
-            // Mark as not recorded to prevent export
-            activity.ActivityTraceFlags &= ~ActivityTraceFlags.Recorded;
-        }
-    }
-}
-
-// Registration
-builder.Services.AddApplicationInsightsTelemetry();
-builder.Services.ConfigureOpenTelemetryTracerProvider((sp, builder) =>
-{
-    builder.AddProcessor<FilteringActivityProcessor>();
-});
-```
-
-> **Note**: For filtering, also consider using instrumentation options like `AspNetCoreTraceInstrumentationOptions.Filter` for better performance.
-
-**Example: Enriching with User Context**
-
-**Before (2.x) - Using ITelemetryInitializer:**
-```csharp
-public class UserTelemetryInitializer : ITelemetryInitializer
-{
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public UserTelemetryInitializer(IHttpContextAccessor httpContextAccessor)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
-
-    public void Initialize(ITelemetry telemetry)
-    {
-        var context = _httpContextAccessor.HttpContext;
-        if (context?.User?.Identity?.IsAuthenticated == true)
-        {
-            telemetry.Context.User.AuthenticatedUserId = context.User.Identity.Name;
-        }
-    }
-}
-```
-
-**After (3.x) - Using OpenTelemetry Processor:**
-```csharp
-using System.Diagnostics;
-using Microsoft.AspNetCore.Http;
-using OpenTelemetry;
-
-public class UserActivityProcessor : BaseProcessor<Activity>
-{
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public UserActivityProcessor(IHttpContextAccessor httpContextAccessor)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
-
-    public override void OnStart(Activity activity)
-    {
-        var context = _httpContextAccessor.HttpContext;
-        if (context?.User?.Identity?.IsAuthenticated == true)
-        {
-            activity.SetTag("enduser.id", context.User.Identity.Name);
-        }
-    }
-}
-
-// Registration (processor with dependencies)
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddApplicationInsightsTelemetry();
-builder.Services.ConfigureOpenTelemetryTracerProvider((sp, builder) =>
-{
-    var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
-    builder.AddProcessor(new UserActivityProcessor(httpContextAccessor));
-});
-```
-
-**Example: Processing Logs (Traces, Events, Exceptions)**
-
-**Before (2.x) - Using ITelemetryInitializer (applies to all types):**
-```csharp
-public class MyTelemetryInitializer : ITelemetryInitializer
-{
-    public void Initialize(ITelemetry telemetry)
-    {
-        // Applied to requests, dependencies, traces, events, exceptions, etc.
-        telemetry.Context.GlobalProperties["Version"] = "1.0.0";
-        
-        if (telemetry is TraceTelemetry trace)
-        {
-            trace.Properties["ProcessedBy"] = "MyInitializer";
-        }
-        
-        if (telemetry is EventTelemetry evt)
-        {
-            evt.Properties["ProcessedBy"] = "MyInitializer";
-        }
-    }
-}
-```
-
-**After (3.x) - Using Enrichment at Log Time:**
-```csharp
-using Microsoft.Extensions.Logging;
-
-// Define compile-time logging methods with structured properties
-internal static partial class LoggerExtensions
-{
-    [LoggerMessage(LogLevel.Information, "Processing request for CustomerId: `{customerId}`, Version: `{version}`")]
-    public static partial void LogProcessingRequest(this ILogger logger, string customerId, string version);
-}
-
-// Usage
-_logger.LogProcessingRequest(GetCustomerId(), "1.0.0");
-```
-
-**Alternative - Using Log Scopes for Context:**
-```csharp
-using Microsoft.Extensions.Logging;
-using OpenTelemetry.Logs;
-
-// Enable scopes
-builder.Services.Configure<OpenTelemetryLoggerOptions>(options =>
-{
-    options.IncludeScopes = true;
-});
-
-// Use scopes to add context to all logs
-List<KeyValuePair<string, object?>> scope =
-[
-    new("Version", "1.0.0"),
-    new("ProcessedBy", "MyLogProcessor")
-];
-
-// Define logging methods
-internal static partial class LoggerExtensions
-{
-    [LoggerMessage(LogLevel.Information, "This log will include scope properties")]
-    public static partial void LogWithScopeInfo(this ILogger logger);
-    
-    [LoggerMessage(LogLevel.Warning, "This log will also include scope properties")]
-    public static partial void LogWithScopeWarning(this ILogger logger);
-}
-
-// Usage
-using (_logger.BeginScope(scope))
-{
-    _logger.LogWithScopeInfo();
-    _logger.LogWithScopeWarning();
-}
-```
-
-> **Migration Tip**: If your 2.x initializer/processor handled multiple telemetry types, you'll need to create separate processors in 3.x:
-> - Activity Processor for Request/Dependency telemetry
-> - Log Processor for Trace/Event/Exception telemetry (logged via ILogger)
-> - Use TelemetryClient shim for backward compatibility with TrackEvent(), TrackTrace(), TrackException()
-```
-
-#### Step 4: Replace RequestCollectionOptions
-
-**Before (2.x):**
-```csharp
-services.AddApplicationInsightsTelemetry(options =>
-{
-    options.RequestCollectionOptions.TrackExceptions = true;
-    options.RequestCollectionOptions.InjectResponseHeaders = true;
-});
-```
-
-**After (3.x):**
-
-Use OpenTelemetry instrumentation options:
-
-```csharp
-builder.Services.AddApplicationInsightsTelemetry();
-
-builder.Services.Configure<AspNetCoreTraceInstrumentationOptions>(options =>
-{
-    options.RecordException = true;
-    options.Filter = (httpContext) => 
-    {
-        // Custom filtering logic
-        return true;
-    };
-});
-```
-
-#### Step 5: Update Custom Telemetry Code
-
-For new code, consider using OpenTelemetry APIs instead of TelemetryClient:
-
-**Custom Traces:**
-
-**Before (2.x):**
-```csharp
-_telemetryClient.TrackTrace("My trace message");
-```
-
-**After (3.x) - Using TelemetryClient (backward compatible):**
-```csharp
-_telemetryClient.TrackTrace("My trace message");
-```
-
-**After (3.x) - Using OpenTelemetry (recommended for new code):**
-```csharp
-// Define compile-time logging method
-internal static partial class LoggerExtensions
-{
-    [LoggerMessage(LogLevel.Information, "My trace message")]
-    public static partial void LogMyTrace(this ILogger logger);
-}
-
-// Usage
-_logger.LogMyTrace();
-```
-
-**Custom Metrics:**
-
-**Before (2.x):**
-```csharp
-_telemetryClient.TrackMetric("MyMetric", 42);
-```
-
-**After (3.x) - Using TelemetryClient (backward compatible):**
-```csharp
-_telemetryClient.TrackMetric("MyMetric", 42);
-```
-
-**After (3.x) - Using OpenTelemetry (recommended for new code):**
-```csharp
-// Create a Meter
-private static readonly Meter MyMeter = new Meter("MyCompany.MyProduct");
-private static readonly Counter<int> MyCounter = MyMeter.CreateCounter<int>("MyMetric");
-
-// Use it
-MyCounter.Add(42);
-```
-
-**Custom Activities/Spans:**
-
-**Before (2.x):**
-```csharp
-var operation = _telemetryClient.StartOperation<DependencyTelemetry>("MyOperation");
-try
-{
-    // Do work
-}
-finally
-{
-    _telemetryClient.StopOperation(operation);
-}
-```
-
-**After (3.x) - Using TelemetryClient (backward compatible):**
-```csharp
-var operation = _telemetryClient.StartOperation<DependencyTelemetry>("MyOperation");
-try
-{
-    // Do work
-}
-finally
-{
-    _telemetryClient.StopOperation(operation);
-}
-```
-
-**After (3.x) - Using OpenTelemetry (recommended for new code):**
-```csharp
-// Create an ActivitySource
-private static readonly ActivitySource MyActivitySource = new ActivitySource("MyCompany.MyProduct");
-
-// Register it with OpenTelemetry
-builder.Services.ConfigureOpenTelemetryTracerProvider((sp, builder) =>
-{
-    builder.AddSource("MyCompany.MyProduct");
-});
-
-// Use it
-using var activity = MyActivitySource.StartActivity("MyOperation");
-// Do work
-```
-
-#### Step 6: Test Thoroughly
-
-After migrating, thoroughly test your application to ensure:
-- Telemetry is being collected and sent to Azure Monitor
-- Custom telemetry is working as expected
-- Performance is acceptable
-- All required telemetry signals (traces, metrics, logs) are being captured
-
-### Migration Checklist
-
-- [ ] Update package reference to 3.x
-- [ ] Replace InstrumentationKey with ConnectionString
-- [ ] Remove all ITelemetryInitializer implementations
-- [ ] Remove all ITelemetryProcessor implementations
-- [ ] Remove all custom ITelemetryModule implementations
-- [ ] Replace RequestCollectionOptions with AspNetCoreTraceInstrumentationOptions
-- [ ] Test all custom telemetry collection
-- [ ] Verify Live Metrics is working (if enabled)
-- [ ] Verify all expected telemetry appears in Azure Monitor
-- [ ] Consider migrating custom telemetry to OpenTelemetry APIs for new code
-
-## Troubleshooting
-
-### Self-Diagnostics
-
-OpenTelemetry provides a [self-diagnostics feature](https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry/README.md#troubleshooting) to collect internal logs.
-
-To enable self-diagnostics, create a configuration file at your application's directory:
-
-**OTEL_DIAGNOSTICS.json**
-```json
-{
-    "LogDirectory": ".",
-    "FileSize": 1024,
-    "LogLevel": "Warning"
-}
-```
-
-### Azure SDK Instrumentation
-
-Azure SDK instrumentation is supported under the experimental feature flag which can be enabled using one of the following ways:
-
-* Set the `AZURE_EXPERIMENTAL_ENABLE_ACTIVITY_SOURCE` environment variable to `true`.
-
-* Set the Azure.Experimental.EnableActivitySource context switch to true in your app's code:
-    ```csharp
-    AppContext.SetSwitch("Azure.Experimental.EnableActivitySource", true);
-    ```
-
-* Add the RuntimeHostConfigurationOption setting to your project file:
-    ```xml
-    <ItemGroup>
-        <RuntimeHostConfigurationOption Include="Azure.Experimental.EnableActivitySource" Value="true" />
-    </ItemGroup>
-    ```
-
-## Repository Structure
-
-```
-NETCORE\
-    ApplicationInsights.AspNetCore.sln - Main Solution
-
-    src\
-        Microsoft.ApplicationInsights.AspNetCore - Application Insights for ASP.NET Core
-        Microsoft.ApplicationInsights.WorkerService - Application Insights for Worker Services
-        Shared - Shared code between packages
-
-    test\
-        Microsoft.ApplicationInsights.AspNetCore.Tests - Unit tests
-        FunctionalTestUtils - Test utilities for functional tests
-        MVCFramework.FunctionalTests - Functional tests for MVC applications
-        WebApi.FunctionalTests - Functional tests for Web API applications
-        EmptyApp.FunctionalTests - Functional tests for empty applications
-        PerfTest - Performance tests
-```
-
-## Contributing
-
-See [CONTRIBUTING.md](https://github.com/microsoft/ApplicationInsights-dotnet/blob/main/CONTRIBUTING.md) for details on contribution process.
-
-## Additional Resources
-
-- [Application Insights Documentation](https://docs.microsoft.com/azure/azure-monitor/app/asp-net-core)
-- [OpenTelemetry .NET Documentation](https://github.com/open-telemetry/opentelemetry-dotnet)
-- [Azure Monitor OpenTelemetry Exporter](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/monitor/Azure.Monitor.OpenTelemetry.Exporter)
-- [Migration Guide for OpenTelemetry](https://learn.microsoft.com/azure/azure-monitor/app/opentelemetry-dotnet-migrate?tabs=aspnetcore)
-
-## Support
-
-If you encounter any issues or have questions:
-- Check the [troubleshooting guide](https://learn.microsoft.com/azure/azure-monitor/app/asp-net-core#troubleshooting)
-- Review [GitHub Issues](https://github.com/microsoft/ApplicationInsights-dotnet/issues)
-- Consult [Microsoft Q&A](https://learn.microsoft.com/answers/tags/azure-monitor/)
-
 ---
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
