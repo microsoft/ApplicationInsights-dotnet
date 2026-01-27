@@ -206,4 +206,4 @@ Complete working examples are available in the repository:
 | HTTP Client Instrumentation | ✅ Included | ✅ Included |
 | SQL Client Instrumentation | ✅ Included | ✅ Included |
 | Live Metrics | ✅ Supported | ✅ Supported |
-| Custom Telemetry | ✅ TelemetryClient + OTel APIs | ✅ TelemetryClient + OTel APIs |
+| Custom Telemetry | ✅ TelemetryClient + OpenTelemetry APIs | ✅ TelemetryClient + OpenTelemetry APIs |

@@ -20,7 +20,7 @@ In addition, these settings are configurable via applicationinsights.config and 
 ## OpenTelemetry
 
 ### OpenTelemetry vocabulary
-- Traces/Spans: See [this documentation](https://opentelemetry.io/docs/concepts/signals/traces/). This is not to be confused with Application Insights traces, which are analogous to OTel logs in ApplicationInsights 3.x.
+- Traces/Spans: See [this documentation](https://opentelemetry.io/docs/concepts/signals/traces/). This is not to be confused with Application Insights traces, which are analogous to OpenTelemetry logs in ApplicationInsights 3.x.
 - ActivitySource: An `ActivitySource` is OpenTelemetry's mechanism for creating distributed trace spans (called `Activity` in .NET). Think of it as a factory that creates telemetry for a specific component or subsystem in your application. By default, OpenTelemetry only collects Activities from sources you explicitly register. When you create a custom `ActivitySource` in your code, you must register its name (or name pattern) so the SDK knows to collect telemetry from it.
 - [Logs](https://opentelemetry.io/docs/concepts/signals/logs/)
 - [Metrics](https://opentelemetry.io/docs/concepts/signals/metrics/)
