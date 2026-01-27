@@ -95,7 +95,7 @@
                             .WithApplicationInsights()
                             .UseApplicationInsightsTelemetry();
 
-                    AddTelemetryConfigAndClient(services, VersionUtils.ExtensionLabelShimAspNetCore + VersionUtils.GetVersion(typeof(ApplicationInsightsExtensions)));
+                    AddTelemetryConfigAndClient(services, VersionUtils.ExtensionLabelShimWorkerService + VersionUtils.GetVersion(typeof(ApplicationInsightsExtensions)));
                 }
 
                 return services;
