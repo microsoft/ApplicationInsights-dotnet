@@ -219,7 +219,7 @@
                     {
                         exporterOptions.ConnectionString = serviceOptions.ConnectionString;
                     }
-                    
+
                     // Copy credential to Azure Monitor Exporter
                     if (serviceOptions.Credential != null)
                     {
