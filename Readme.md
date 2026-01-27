@@ -3,12 +3,8 @@
 
 This is the .NET SDK for sending data to [Azure Monitor](https://docs.microsoft.com/azure/azure-monitor/overview) & [Application Insights](https://docs.microsoft.com/azure/azure-monitor/app/app-insights-overview).
 
-## What's New in Version 3.x
-
-Version 3.x represents a major architectural shift in the Application Insights SDK:
 
 - **Built on OpenTelemetry**: The SDK now uses [OpenTelemetry](https://opentelemetry.io/) as the underlying telemetry collection framework with the [Azure Monitor Exporter](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/monitor/Azure.Monitor.OpenTelemetry.Exporter) for transmission.
-- **TelemetryClient as Shim**: The familiar `TelemetryClient` API is preserved as a compatibility layer that translates calls into OpenTelemetry primitives (Activity, ActivityEvent, LogRecord).
 - **OpenTelemetry Extensibility**: You can extend telemetry collection using standard OpenTelemetry patterns (Activity Processors, Resource Detectors, custom instrumentation).
 - **Unified Observability**: Seamlessly integrates with the broader OpenTelemetry ecosystem, allowing you to send telemetry to multiple backends.
 
@@ -18,9 +14,9 @@ See [breaking changes](BreakingChanges.md) for more information on what has chan
 
 Select the option that best describes your situation:
 
-- **📦 Building an ASP.NET Core web application?** → Use the [ASP.NET Core SDK](../NETCORE/Readme.md) for automatic instrumentation
-- **⚙️ Building a Worker Service, console app, or background service?** → Use the [Worker Service SDK](../NETCORE/WorkerService.md) for simplified configuration
-- **🔧 Need the core TelemetryClient API for custom scenarios?** → Use the [base SDK](/BASE/README.md)
+- **Building an ASP.NET Core web application?** → Use the [ASP.NET Core SDK](../NETCORE/Readme.md) for automatic instrumentation
+- **Building a Worker Service, console app, or background service?** → Use the [Worker Service SDK](../NETCORE/WorkerService.md) for simplified configuration
+- **Need the core TelemetryClient API for custom scenarios?** → Use the [base SDK](/BASE/README.md)
 - **Need compatibility with NLog?** -> Use the [Logging SDK](/LOGGING/README.md)
 
 ### Understanding our SDK
@@ -35,6 +31,7 @@ Please review our [Contributing guide](.github/CONTRIBUTING.md).
 ## Branches
 
 - [main](https://github.com/Microsoft/ApplicationInsights-dotnet/tree/master) is the default branch for all development and releases.
+- [2.x] (https://github.com/microsoft/ApplicationInsights-dotnet/tree/2.x) is the branch for the previous 2.x release.
 
 ## Releases
 

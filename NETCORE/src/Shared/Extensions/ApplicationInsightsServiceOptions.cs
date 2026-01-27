@@ -31,14 +31,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
         public bool EnableDependencyTrackingTelemetryModule { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether telemetry processor that controls sampling is added to the service.
-        /// Setting EnableAdaptiveSampling to <value>false</value>, will disable sampling entirely. 
-        /// When <value>true</value> (default), enables rate-limit based sampling in Azure Monitor Exporter.
-        /// Defaults to <value>true</value>.
-        /// </summary>
-        public bool EnableAdaptiveSampling { get; set; } = true;
-
-        /// <summary>
         /// Gets or sets the connection string for the application.
         /// </summary>
         public string ConnectionString { get; set; }
@@ -56,15 +48,21 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
         public string ApplicationVersion { get; set; } = Assembly.GetEntryAssembly()?.GetName().Version.ToString();
 
         /// <summary>
-        /// Gets or sets a value indicating whether a logger would be registered automatically in debug mode.
-        /// </summary>
-        public bool EnableDebugLogger { get; set; } = true;
-
-        /// <summary>
         /// Gets or sets a value indicating whether AutoCollectedMetricExtractors are added or not.
         /// Defaults to <value>true</value>.
         /// </summary>
         public bool AddAutoCollectedMetricExtractor { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets the target number of traces per second to be collected.
+        /// </summary>
+        public double? TracesPerSecond { get; set; }
+
+        /// <summary>
+        /// Gets or sets the sampling ratio for telemetry.
+        /// Value must be between 0.0 and 1.0, where 1.0 means all telemetry is collected (no sampling).
+        /// </summary>
+        public float? SamplingRatio { get; set; }
 
 #if AI_ASPNETCORE_WEB
         /// <summary>
@@ -97,12 +95,12 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
             }
 
             target.ApplicationVersion = this.ApplicationVersion;
-            target.EnableAdaptiveSampling = this.EnableAdaptiveSampling;
-            target.EnableDebugLogger = this.EnableDebugLogger;
             target.EnableQuickPulseMetricStream = this.EnableQuickPulseMetricStream;
             target.AddAutoCollectedMetricExtractor = this.AddAutoCollectedMetricExtractor;
             target.EnablePerformanceCounterCollectionModule = this.EnablePerformanceCounterCollectionModule;
             target.EnableDependencyTrackingTelemetryModule = this.EnableDependencyTrackingTelemetryModule;
+            target.TracesPerSecond = this.TracesPerSecond;
+            target.SamplingRatio = this.SamplingRatio;
 
 #if AI_ASPNETCORE_WEB
             target.EnableAuthenticationTrackingJavaScript = this.EnableAuthenticationTrackingJavaScript;

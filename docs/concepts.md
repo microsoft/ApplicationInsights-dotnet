@@ -255,3 +255,37 @@ configuration.ConfigureOpenTelemetryBuilder(builder =>
 });
 ```
 ---
+Please review our full guide on [Sampling in Application Insights](https://docs.microsoft.com/azure/azure-monitor/app/sampling).
+
+
+## Disabling Telemetry
+
+You can disable all telemetry collection using the `DisableTelemetry` property:
+
+```C#
+var configuration = TelemetryConfiguration.CreateDefault();
+configuration.ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000";
+configuration.DisableTelemetry = true;
+var tc = new TelemetryClient(configuration);
+```
+
+When `DisableTelemetry` is set to `true`, the SDK internally sets the `OTEL_SDK_DISABLED` environment variable to `true` before building the OpenTelemetry SDK. This causes the OpenTelemetry SDK (version 1.15.0+) to return no-op implementations for all telemetry signals, preventing any telemetry data from being collected or exported.
+
+**Note:** The `DisableTelemetry` property must be set before the first `TelemetryClient` is created, as the OpenTelemetry SDK is built at that time.
+
+### Disabling Telemetry in DI Scenarios (ASP.NET Core / Worker Service)
+
+For dependency injection scenarios, you must configure `DisableTelemetry` **before** calling `AddApplicationInsightsTelemetry()`:
+
+```C#
+public void ConfigureServices(IServiceCollection services)
+{
+    // Configure DisableTelemetry BEFORE AddApplicationInsightsTelemetry
+    services.Configure<TelemetryConfiguration>(tc => tc.DisableTelemetry = true);
+
+    // Add and initialize the Application Insights SDK
+    services.AddApplicationInsightsTelemetry();
+}
+```
+
+This ensures the `OTEL_SDK_DISABLED` environment variable is set before the OpenTelemetry SDK is initialized.

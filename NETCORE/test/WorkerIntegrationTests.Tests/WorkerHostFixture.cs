@@ -57,9 +57,9 @@ namespace IntegrationTests.Tests
                 services.Configure<ApplicationInsightsServiceOptions>(options =>
                 {
                     options.ConnectionString = TestConnectionString;
-                    options.EnableAdaptiveSampling = false;
                     options.EnableQuickPulseMetricStream = false;
                     options.AddAutoCollectedMetricExtractor = false;
+                    options.SamplingRatio = 1.0f; // 100% telemetry flow in tests
                 });
 
                 services.ConfigureOpenTelemetryTracerProvider(tracer =>

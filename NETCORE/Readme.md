@@ -155,10 +155,13 @@ builder.Services.AddApplicationInsightsTelemetry(options =>
     // Enable or disable Live Metrics (default: true)
     options.EnableQuickPulseMetricStream = true;
     
-    // Enable or disable adaptive sampling (default: true)
-    // When true, enables rate-limit based sampling in Azure Monitor Exporter
-    // When false, sampling is disabled (100% collection)
-    options.EnableAdaptiveSampling = true;
+    // Rate-limited sampling: maximum traces per second (default: 5)
+    // Use this for rate-based sampling to limit telemetry volume
+    options.TracesPerSecond = 5.0;
+    
+    // Percentage-based sampling: ratio of telemetry to collect (0.0 to 1.0)
+    // Use this instead of TracesPerSecond for percentage-based sampling
+    // options.SamplingRatio = 0.5f;  // 50% of telemetry
     
     // Enable or disable Application Insights Standard Metrics (default: true)
     options.AddAutoCollectedMetricExtractor = true;
@@ -176,6 +179,10 @@ builder.Services.AddApplicationInsightsTelemetry(options =>
     
     // Enable JavaScript snippet for authenticated user tracking (default: false)
     options.EnableAuthenticationTrackingJavaScript = false;
+    
+    // Enable or disable trace-based log sampling (default: true)
+    // When true, logs are sampled based on the sampling decision of the associated trace
+    options.EnableTraceBasedLogsSampler = true;
 });
 ```
 

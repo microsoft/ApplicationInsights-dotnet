@@ -227,22 +227,6 @@
         }
 
         /// <summary>
-        /// Creates a new <see cref="TelemetryConfiguration"/> instance loaded from the specified configuration.
-        /// </summary>
-        /// <param name="config">An xml serialized configuration.</param>
-        /// <exception cref="ArgumentNullException">Throws if the config value is null or empty.</exception>
-        public static TelemetryConfiguration CreateFromConfiguration(string config)
-        {
-            if (string.IsNullOrWhiteSpace(config))
-            {
-                throw new ArgumentNullException(nameof(config));
-            }
-
-            var configuration = new TelemetryConfiguration();
-            return configuration;
-        }
-
-        /// <summary>
         /// Allows extending the OpenTelemetry builder configuration.
         /// </summary>
         /// <remarks>
@@ -364,6 +348,8 @@
                 {
                     return this.openTelemetrySdk;
                 }
+
+                Environment.SetEnvironmentVariable("OTEL_SDK_DISABLED", this.disableTelemetry ? "true" : "false");
 
                 this.openTelemetrySdk = OpenTelemetrySdk.Create(builder =>
                 {

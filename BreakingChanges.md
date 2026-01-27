@@ -106,11 +106,13 @@ This applies to all dimension combinations (1D, 2D, 3D, 4D).
 - ❌ `TelemetryConfiguration(string instrumentationKey)`
 - ❌ `TelemetryConfiguration(string instrumentationKey, ITelemetryChannel channel)`
 
+#### Methods
+- ❌ **`CreateFromConfiguration(string config)`** - Static method that created a TelemetryConfiguration from XML configuration string. Use `CreateDefault()` or the parameterless constructor and set properties directly.
+
 ### Properties with Changed Behavior
 - ✅ **`ConnectionString`** - Still exists but behavior differs
   - **2.x**: String property
   - **3.x**: Setting this calls OpenTelemetry configuration internally
-- ✅ **`DisableTelemetry`** - Still exists but does not disable flow of telemetry (will be fixed later)
 
 ### Methods with changed Behavior
 - CreateDefault() returns an internal static configuration instead of a new TelemetryConfiguration()
@@ -139,11 +141,8 @@ Most TelemetryContext modules have now been marked internal or removed. The prop
 ### Properties Retained
 
 The following remain **public**:
-- ✅ `Cloud` (RoleName, RoleInstance)
-    - Note: These are settable via resource attributes (service.name & service.instance.id) in OpenTelemetry; we are working on fixing functionality for setting the same via CloudContext.
 - ✅ `User` (Id, AuthenticatedUserId, UserAgent)
-- ✅ `Operation` (Name, SyntheticSource)
-    - Note: A future work item is to make sure SyntheticSource can be read from properly and emitted in the telemetry item.
+- ✅ `Operation` (Name)
 - ✅ `Location` (Ip)
 - ✅ `GlobalProperties`
 
@@ -197,6 +196,11 @@ The following extension methods remain with identical signatures:
 - ❌ **`ExceptionTrackingMiddleware`** - Middleware class removed
 - ❌ **`HostingDiagnosticListener`** - Diagnostic listener removed
 - ❌ **`HostingStartupOptions`** - Configuration class removed
+- ❌ **`Resources`** - Internal resource class removed from public API
+  - `Resources.Culture` (get/set)
+  - `Resources.JavaScriptAuthSnippet` (get)
+  - `Resources.JavaScriptSnippet` (get)
+  - `Resources.ResourceManager` (get)
 
 ### TelemetryInitializers Removed (All 7)
 - ❌ `AspNetCoreEnvironmentTelemetryInitializer`
@@ -217,16 +221,14 @@ The following extension methods remain with identical signatures:
 - ❌ **`EnableHeartbeat`** - Heartbeat configuration removed
 - ❌ **`RequestCollectionOptions`** - Removed (non-functional, use OpenTelemetry instrumentation options)
 - ❌ **`DependencyCollectionOptions`** - Removed (non-functional, use OpenTelemetry instrumentation options)
+- ❌ `EnableAdaptiveSampling`** - Removed, rate limited sampling is now the default.
+- ❌ **`EnableDebugLogger`** - Removed
 
 ### Properties Retained
 - ✅ **`ConnectionString`** - Primary configuration method
-- ✅ **`EnableAdaptiveSampling`** - Still configurable (but behavior changed)
-  - **2.x**: Controls traditional adaptive sampling
-  - **3.x**: Maps to rate-limit based sampling in Azure Monitor Exporter, set at 5 OpenTelemetry traces per second by default
 - ✅ **`ApplicationVersion`**
 - ✅ **`AddAutoCollectedMetricExtractor`**
 - ✅ **`EnableQuickPulseMetricStream`** 
-- ✅ **`EnableDebugLogger`** - Retained but has no effect
 - ✅ **`EnableAuthenticationTrackingJavaScript`** - JavaScript auth tracking config
 - ✅ **`EnableDependencyTrackingTelemetryModule`** - Dependency tracking toggle
 - ✅ **`EnablePerformanceCounterCollectionModule`** - Performance counter toggle
@@ -234,6 +236,9 @@ The following extension methods remain with identical signatures:
 
 ### New Properties Added in 3.x
 - ✅ **`Credential`** (Azure.Core.TokenCredential) - Enables Azure Active Directory (AAD) authentication
+- ✅ **`TracesPerSecond`** (double?) - Gets or sets the number of traces per second for rate-limited sampling (default sampling mode). Replaces `EnableAdaptiveSampling`.
+- ✅ **`SamplingRatio`** (float?) - Gets or sets the sampling ratio for traces (0.0 to 1.0). A value of 1.0 means all telemetry is sent. Replaces `EnableAdaptiveSampling`.
+- ✅ **`EnableTraceBasedLogsSampler`** (bool?) - Gets or sets whether trace-based log sampling is enabled (default: true). When enabled, logs are sampled based on the sampling decision of the associated trace.
 
 ### JavaScriptSnippet Constructor Change
 **2.x:**
@@ -285,16 +290,22 @@ The following extension methods remain with identical signatures:
 - ❌ **`DeveloperMode`** - No longer configurable
 - ❌ **`EndpointAddress`** - No longer configurable (`ConnectionString` contains endpoints)
 - ❌ **`DependencyCollectionOptions`** - Removed (non-functional, use OpenTelemetry instrumentation options)
+- ❌ **`EnableAdaptiveSampling`** - Removed, rate limited sampling is now the default.
+- ❌ **`EnableDebugLogger`** - Removed
 
 ### Properties Retained
 - ✅ **`ConnectionString`** - Primary configuration method (maps to `AzureMonitorExporterOptions.ConnectionString`)
 - ✅ **`ApplicationVersion`** - Still configurable
-- ✅ **`EnableAdaptiveSampling`** - When true the rate limited sampler is used at 5 traces per second.
 - ✅ **`EnableDependencyTrackingTelemetryModule`** - Still configurable
 - ✅ **`EnablePerformanceCounterCollectionModule`** - Still configurable
 - ✅ **`EnableQuickPulseMetricStream`** - Maps to `AzureMonitorExporterOptions.EnableLiveMetrics`
-- ✅ **`EnableDebugLogger`** - Still configurable though has no effect
 - ✅ **`AddAutoCollectedMetricExtractor`** - Still configurable
+
+### New Properties Added in 3.x
+- ✅ **`Credential`** (Azure.Core.TokenCredential) - Enables Azure Active Directory (AAD) authentication
+- ✅ **`TracesPerSecond`** (double?) - Gets or sets the number of traces per second for rate-limited sampling (default sampling mode). Replaces `EnableAdaptiveSampling`.
+- ✅ **`SamplingRatio`** (float?) - Gets or sets the sampling ratio for traces (0.0 to 1.0). A value of 1.0 means all telemetry is sent. Replaces `EnableAdaptiveSampling`.
+- ✅ **`EnableTraceBasedLogsSampler`** (bool?) - Gets or sets whether trace-based log sampling is enabled (default: true). When enabled, logs are sampled based on the sampling decision of the associated trace.
 
 ## Migration Impact
 - Any code depending on `InstrumentationKey` must migrate to `ConnectionString`

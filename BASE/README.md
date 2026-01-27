@@ -68,10 +68,8 @@ Initialize `TelemetryConfiguration` and `TelemetryClient` in your application:
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
 
-var configuration = new TelemetryConfiguration
-{
-    ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://..."
-};
+var configuration = TelemetryConfiguration.CreateDefault();
+configuration.ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://...";
 
 var telemetryClient = new TelemetryClient(configuration);
 
@@ -422,7 +420,7 @@ Note: Setting an OpenTelemetry Sampler via `builder.SetSampler()` is currently u
 
 ### Setting Context Properties
 
-In version 3.x, many context properties from 2.x (`Component`, `Device`, `Session`) have been internalized. The following properties remain publicly settable on telemetry items:
+In version 3.x, the following properties remain publicly settable on telemetry items:
 
 **Available Context Properties:**
 | Context | Properties | Notes |
@@ -431,8 +429,6 @@ In version 3.x, many context properties from 2.x (`Component`, `Device`, `Sessio
 | `Operation` | `Name`| |
 | `Location` | `Ip` | |
 | `GlobalProperties` | (dictionary) | Custom key-value pairs |
-
-Note: while Cloud.RoleName, Cloud.RoleInstance, and Operation.SyntheticSource are marked public, the values set via these properties do not propogate to the underlying exporter. There is a future work item to make sure that these properties can be propogated; in the mean time, please use resource attributes mentioned later in this section for the setting of Cloud.RoleName & Cloud.RoleInstance.
 
 **Example: Setting context on a telemetry item**
 

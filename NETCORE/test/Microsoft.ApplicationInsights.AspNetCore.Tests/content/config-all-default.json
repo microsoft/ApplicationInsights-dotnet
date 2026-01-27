@@ -2,7 +2,6 @@
   "ApplicationInsights": {
     "InstrumentationKey": "11111111-2222-3333-4444-555555555555",
     "ConnectionString": "InstrumentationKey=11111111-2222-3333-4444-555555555555;IngestionEndpoint=http://testendpoint",
-    "EnableAdaptiveSampling": false,
     "EnablePerformanceCounterCollectionModule": true,
     "EnableAzureInstanceMetadataTelemetryModule": true,
     "EnableRequestTrackingTelemetryModule": true,
@@ -11,7 +10,6 @@
     "EnableEventCounterCollectionModule": true,
     "AddAutoCollectedMetricExtractor": true,
     "EnableQuickPulseMetricStream": true,
-    "EnableDebugLogger": true,
     "EnableHeartbeat": true,
     "EnableAuthenticationTrackingJavaScript": false,
     "ApplicationVersion": "Version",

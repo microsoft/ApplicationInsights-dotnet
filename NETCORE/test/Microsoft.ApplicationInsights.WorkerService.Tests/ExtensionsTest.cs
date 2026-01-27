@@ -404,7 +404,6 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
 
             // TelemetryProcessors
             Assert.Contains(telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessors, proc => proc.GetType().Name.Contains("AutocollectedMetricsExtractor"));
-            Assert.Contains(telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessors, proc => proc.GetType().Name.Contains("AdaptiveSamplingTelemetryProcessor"));
             Assert.Contains(telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessors, proc => proc.GetType().Name.Contains("QuickPulseTelemetryProcessor"));
 
             // TelemetryInitializers
@@ -483,7 +482,6 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
             // ACT
             var aiOptions = new ApplicationInsightsServiceOptions();
             aiOptions.AddAutoCollectedMetricExtractor = false;
-            aiOptions.EnableAdaptiveSampling = false;
             aiOptions.EnableQuickPulseMetricStream = false;
             aiOptions.InstrumentationKey = "keyfromaioption";
             services.AddApplicationInsightsTelemetryWorkerService(aiOptions);
@@ -493,7 +491,6 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
             var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
             Assert.Equal("keyfromaioption", telemetryConfiguration.InstrumentationKey);
             Assert.DoesNotContain(telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessors, proc => proc.GetType().Name.Contains("AutocollectedMetricsExtractor"));
-            Assert.DoesNotContain(telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessors, proc => proc.GetType().Name.Contains("AdaptiveSamplingTelemetryProcessor"));
             Assert.DoesNotContain(telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessors, proc => proc.GetType().Name.Contains("QuickPulseTelemetryProcessor"));
         }
 
@@ -717,47 +714,6 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
             var module = modules.OfType<DiagnosticsTelemetryModule>().Single();
             Assert.True(module.IsInitialized, "module was not initialized");
             Assert.Equal(isEnable, module.IsHeartbeatEnabled);
-        }
-
-        /// <summary>
-        /// User could enable or disable sampling by setting EnableAdaptiveSampling.
-        /// This configuration can be read from a JSON file by the configuration factory or through code by passing ApplicationInsightsServiceOptions.
-        /// </summary>
-        /// <param name="configType">
-        /// DefaultConfiguration - calls services.AddApplicationInsightsTelemetryWorkerService() which reads IConfiguration from user application automatically.
-        /// SuppliedConfiguration - invokes services.AddApplicationInsightsTelemetryWorkerService(configuration) where IConfiguration object is supplied by caller.
-        /// Code - Caller creates an instance of ApplicationInsightsServiceOptions and passes it. This option overrides all configuration being used in JSON file.
-        /// There is a special case where NULL values in these properties - InstrumentationKey, ConnectionString, EndpointAddress and DeveloperMode are overwritten. We check IConfiguration object to see if these properties have values, if values are present then we override it.
-        /// </param>
-        /// <param name="isEnable">Sets the value for property EnableAdaptiveSampling.</param>
-        [Theory]
-        [InlineData("DefaultConfiguration", true)]
-        [InlineData("DefaultConfiguration", false)]
-        [InlineData("SuppliedConfiguration", true)]
-        [InlineData("SuppliedConfiguration", false)]
-        [InlineData("Code", true)]
-        [InlineData("Code", false)]
-        public static void DoesNotAddSamplingToConfigurationIfExplicitlyControlledThroughParameter(string configType, bool isEnable)
-        {
-            // ARRANGE
-            Action<ApplicationInsightsServiceOptions> serviceOptions = null;
-            var filePath = Path.Combine("content", "config-all-settings-" + isEnable.ToString().ToLower() + ".json");
-
-            if (configType == "Code")
-            {
-                serviceOptions = o => { o.EnableAdaptiveSampling = isEnable; };
-                filePath = null;
-            }
-
-            // ACT
-            var services = CreateServicesAndAddApplicationinsightsWorker(filePath, serviceOptions, configType == "DefaultConfiguration" ? true : false);
-
-            // VALIDATE
-            IServiceProvider serviceProvider = services.BuildServiceProvider();
-            var telemetryConfiguration = serviceProvider.GetRequiredService<IOptions<TelemetryConfiguration>>().Value;
-            var qpProcessorCount = GetTelemetryProcessorsCountInConfigurationDefaultSink<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
-            // There will be 2 separate SamplingTelemetryProcessors - one for Events, and other for everything else.
-            Assert.Equal(isEnable ? 2 : 0, qpProcessorCount);
         }
 
         /// <summary>

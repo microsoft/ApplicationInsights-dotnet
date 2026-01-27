@@ -357,9 +357,7 @@ The internal instrumentation has changed significantly. Test your application to
 
 In 2.x, `ITelemetryInitializer` and `ITelemetryProcessor` were used to enrich and filter telemetry. In 3.x, these are replaced by OpenTelemetry Activity Processors.
 
-#### Simple Property Enrichment
-
-For basic property setting, use `TelemetryClient.Context` properties:
+#### Cloud Role Name example
 
 **2.x Telemetry Initializer:**
 ```csharp

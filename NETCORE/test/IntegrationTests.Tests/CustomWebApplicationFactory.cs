@@ -43,8 +43,8 @@ namespace IntegrationTests.Tests
                 {
                     options.AddAutoCollectedMetricExtractor = false;
                     options.EnableQuickPulseMetricStream = false;
-                    options.EnableAdaptiveSampling = false;
                     options.ConnectionString = "InstrumentationKey=ikey";
+                    options.SamplingRatio = 1.0f; // 100% telemetry flow in tests
                 });
             });
         }

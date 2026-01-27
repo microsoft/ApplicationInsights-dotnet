@@ -92,7 +92,8 @@
         {
             services.AddOptions();
             
-            // Register TelemetryConfiguration as singleton with factory that creates it for DI scenarios
+            // Register TelemetryConfiguration singleton with factory that creates it for DI scenarios
+            // We use a factory to ensure skipDefaultBuilderConfiguration: true is passed
             services.AddSingleton<TelemetryConfiguration>(provider =>
             {
                 var options = provider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
@@ -104,6 +105,19 @@
                 if (!string.IsNullOrEmpty(options.ConnectionString))
                 {
                     configuration.ConnectionString = options.ConnectionString;
+                }
+
+                // Apply any Configure<TelemetryConfiguration> callbacks
+                var configureOptions = provider.GetServices<IConfigureOptions<TelemetryConfiguration>>();
+                foreach (var configure in configureOptions)
+                {
+                    configure.Configure(configuration);
+                }
+
+                var postConfigureOptions = provider.GetServices<IPostConfigureOptions<TelemetryConfiguration>>();
+                foreach (var postConfigure in postConfigureOptions)
+                {
+                    postConfigure.PostConfigure(Options.DefaultName, configuration);
                 }
                 
                 return configuration;

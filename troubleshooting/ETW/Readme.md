@@ -1,9 +1,5 @@
 # Event Tracing for Windows (ETW)
 
-> ⚠️ **Warning:** Most of the information in this document refers to Application Insights SDK 2.x and may be out of date. In version 3.x, many components (Web SDK, TelemetryChannel, etc.) have been replaced by OpenTelemetry. The `Microsoft-ApplicationInsights-Core` EventSource is still available, but most other providers listed below no longer exist in 3.x.
-
-<!-- TODO: Determine if this document needs to be updated for 3.x or removed entirely -->
-
 Event Tracing for Windows (ETW) provides application programmers the ability to start and stop event tracing sessions, instrument an application to provide trace events, and consume trace events. Trace events contain an event header and provider-defined data that describes the current state of an application or operation. You can use the events to debug an application and perform capacity and performance analysis. [Source](https://docs.microsoft.com/windows/desktop/etw/event-tracing-portal)
 
 The Application Insights .NET products use ETW to track exceptions and custom errors within our products.

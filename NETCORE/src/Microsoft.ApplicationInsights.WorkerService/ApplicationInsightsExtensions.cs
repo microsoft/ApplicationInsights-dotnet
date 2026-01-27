@@ -6,6 +6,7 @@
     using System.Reflection;
     using Azure.Monitor.OpenTelemetry.Exporter;
     using Microsoft.ApplicationInsights;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Internals;
     using Microsoft.ApplicationInsights.WorkerService;
@@ -183,9 +184,15 @@
 
             // Configure Azure Monitor Exporter with connection string and sampling from ApplicationInsightsServiceOptions
             builder.Services.AddOptions<AzureMonitorExporterOptions>()
-                .Configure<IOptions<ApplicationInsightsServiceOptions>>((exporterOptions, aiOptions) =>
+                .Configure<IOptions<ApplicationInsightsServiceOptions>, TelemetryConfiguration, IConfiguration>((exporterOptions, aiOptions, telemetryConfig, config) =>
                 {
                     var serviceOptions = aiOptions.Value;
+
+                    // Set OTEL_SDK_DISABLED in configuration if DisableTelemetry is true
+                    if (telemetryConfig.DisableTelemetry)
+                    {
+                        config["OTEL_SDK_DISABLED"] = "true";
+                    }
 
                     // Copy connection string to Azure Monitor Exporter
                     if (!string.IsNullOrEmpty(serviceOptions.ConnectionString))
@@ -199,13 +206,35 @@
                         exporterOptions.Credential = serviceOptions.Credential;
                     }
 
-                    if (!serviceOptions.EnableAdaptiveSampling)
+                    exporterOptions.EnableLiveMetrics = serviceOptions.EnableQuickPulseMetricStream;
+
+                    if (serviceOptions.TracesPerSecond.HasValue)
                     {
-                        exporterOptions.SamplingRatio = 1.0F;
-                        exporterOptions.TracesPerSecond = null;
+                        if (serviceOptions.TracesPerSecond.Value >= 0)
+                        {
+                            exporterOptions.TracesPerSecond = serviceOptions.TracesPerSecond.Value;
+                        }
+                        else 
+                        {
+                            WorkerServiceEventSource.Instance.LogError($"Invalid TracesPerSecond value '{serviceOptions.TracesPerSecond.Value}'. Value must be at least 0. Using default value.");     
+                        }    
                     }
 
-                    exporterOptions.EnableLiveMetrics = serviceOptions.EnableQuickPulseMetricStream;
+                    if (serviceOptions.SamplingRatio.HasValue)
+                    {
+                        if (serviceOptions.SamplingRatio.Value >= 0.0f && serviceOptions.SamplingRatio.Value <= 1.0f) 
+                        {
+                            exporterOptions.SamplingRatio = serviceOptions.SamplingRatio.Value;
+                            if (!serviceOptions.TracesPerSecond.HasValue)
+                            {
+                                exporterOptions.TracesPerSecond = null;
+                            }
+                        }
+                        else
+                        {
+                            WorkerServiceEventSource.Instance.LogError($"Invalid SamplingRatio value '{serviceOptions.SamplingRatio.Value}'. Value must be between 0.0 and 1.0. Using default value.");
+                        }
+                    }
 
                     // Configure standard metrics and performance counter collection using reflection
                     // Only set when false since the default is true
