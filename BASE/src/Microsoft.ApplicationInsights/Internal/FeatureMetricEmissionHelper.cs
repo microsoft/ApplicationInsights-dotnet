@@ -168,7 +168,9 @@ namespace Microsoft.ApplicationInsights.Internal
                 if (vmMetadata.TryGetValue("osType", out var osType) && osType is string)
                 {
                     // osType takes precedence over the platform-observed OS.
-                    this.os = (osType as string).ToUpperInvariant();
+#pragma warning disable CA1308 // Normalize strings to uppercase
+                    this.os = (osType as string).ToLowerInvariant();
+#pragma warning restore CA1308 // Normalize strings to uppercase
                 }
                 else
                 {
