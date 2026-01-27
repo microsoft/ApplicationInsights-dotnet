@@ -138,8 +138,6 @@ Microsoft.ApplicationInsights.Extensibility.Implementation.LocationContext.Ip.se
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationContext
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationContext.Name.get -> string
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationContext.Name.set -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.OperationContext.SyntheticSource.get -> string
-Microsoft.ApplicationInsights.Extensibility.Implementation.OperationContext.SyntheticSource.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.OperationTelemetry() -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Sanitize() -> void

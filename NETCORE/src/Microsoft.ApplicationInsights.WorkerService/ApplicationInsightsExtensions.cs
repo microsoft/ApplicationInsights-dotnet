@@ -102,7 +102,7 @@
             }
             catch (Exception e)
             {
-                WorkerServiceEventSource.Instance.LogError(e.ToInvariantString());
+                WorkerServiceEventSource.Instance.FailedToAddTelemetry(e.ToInvariantString());
                 return services;
             }
         }
@@ -231,7 +231,7 @@
                         }
                         else 
                         {
-                            WorkerServiceEventSource.Instance.LogError($"Invalid TracesPerSecond value '{serviceOptions.TracesPerSecond.Value}'. Value must be at least 0. Using default value.");     
+                            WorkerServiceEventSource.Instance.InvalidTracesPerSecondConfigured(serviceOptions.TracesPerSecond.Value);
                         }    
                     }
 
@@ -247,7 +247,7 @@
                         }
                         else
                         {
-                            WorkerServiceEventSource.Instance.LogError($"Invalid SamplingRatio value '{serviceOptions.SamplingRatio.Value}'. Value must be between 0.0 and 1.0. Using default value.");
+                            WorkerServiceEventSource.Instance.InvalidSamplingRatioConfigured(serviceOptions.SamplingRatio.Value);
                         }
                     }
 
