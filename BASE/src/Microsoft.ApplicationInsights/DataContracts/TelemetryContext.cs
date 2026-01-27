@@ -52,14 +52,6 @@
         }
 
         /// <summary>
-        /// Gets the object describing the cloud tracked by this <see cref="TelemetryContext"/>.
-        /// </summary>
-        public CloudContext Cloud
-        {
-            get { return LazyInitializer.EnsureInitialized(ref this.cloud, () => new CloudContext()); }
-        }
-
-        /// <summary>
         /// Gets the object describing a user tracked by this <see cref="TelemetryContext"/>.
         /// </summary>
         public UserContext User
@@ -82,6 +74,14 @@
         public LocationContext Location
         {
             get { return LazyInitializer.EnsureInitialized(ref this.location, () => new LocationContext()); }
+        }
+
+        /// <summary>
+        /// Gets the object describing the cloud tracked by this <see cref="TelemetryContext"/>.
+        /// </summary>
+        internal CloudContext Cloud
+        {
+            get { return LazyInitializer.EnsureInitialized(ref this.cloud, () => new CloudContext()); }
         }
 
         /// <summary>
