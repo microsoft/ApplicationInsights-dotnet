@@ -41,7 +41,7 @@ namespace Microsoft.ApplicationInsights.Web
 
             // Only process if synthetic source is not already set
             var existingSyntheticSource = activity.GetTagItem("ai.operation.syntheticSource");
-            if (existingSyntheticSource == null || string.IsNullOrEmpty(existingSyntheticSource?.ToString()))
+            if (existingSyntheticSource == null || string.IsNullOrEmpty(existingSyntheticSource.ToString()))
             {
                 var request = context.GetRequest();
                 if (request != null)

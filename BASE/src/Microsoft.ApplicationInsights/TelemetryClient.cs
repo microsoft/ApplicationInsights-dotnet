@@ -473,7 +473,7 @@
             this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackException);
             if (exception == null)
             {
-                exception = new Exception(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
+                exception = new InvalidOperationException(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
             }
 
             var state = new DictionaryLogState(this.Context, properties, exception.Message);
@@ -493,7 +493,7 @@
             // TODO investigate how problem id, custom message, etc should appear in portal
             if (telemetry == null)
             {
-                var exception = new Exception(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
+                var exception = new InvalidOperationException(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
                 telemetry = new ExceptionTelemetry(exception);
             }
 
@@ -702,10 +702,14 @@
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void Track(ITelemetry telemetry)
         {
+#if NET6_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(telemetry);
+#else
             if (telemetry == null)
             {
                 throw new ArgumentNullException(nameof(telemetry));
             }
+#endif
 
             switch (telemetry)
             {
@@ -1124,10 +1128,14 @@
         public Metric GetMetric(
                             MetricIdentifier metricIdentifier)
         {
+#if NET6_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(metricIdentifier);
+#else
             if (metricIdentifier == null)
             {
                 throw new ArgumentNullException(nameof(metricIdentifier));
             }
+#endif
 
             // Build dimension names array from MetricIdentifier
             string[] dimensionNames = null;
@@ -1236,10 +1244,14 @@
         /// <returns>A reconstructed Exception with all diagnostic details.</returns>
         private static Exception ConvertToException(ExceptionTelemetry telemetry)
         {
+#if NET6_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(telemetry);
+#else
             if (telemetry == null)
             {
                 throw new ArgumentNullException(nameof(telemetry));
             }
+#endif
 
             Exception rootException = null;
 
@@ -1257,7 +1269,9 @@
             else
             {
                 // Fallback: create a generic exception with the message
+#pragma warning disable CA2201 // Exception reconstruction requires generic Exception type
                 rootException = new Exception(telemetry.Message ?? "<no message>");
+#pragma warning restore CA2201
             }
 
             // Enrich the exception with metadata
@@ -1275,7 +1289,9 @@
         {
             if (exceptionDetailsList == null || exceptionDetailsList.Count == 0)
             {
+#pragma warning disable CA2201 // Exception reconstruction requires generic Exception type
                 return new Exception("<no exception details>");
+#pragma warning restore CA2201
             }
 
             // Process from innermost (index 0) to outermost (last index)
@@ -1292,6 +1308,7 @@
                 // Include the type name in the message since we can't safely create typed exceptions via reflection
                 Exception currentException;
 
+#pragma warning disable CA2201 // Exception reconstruction requires generic Exception type
                 if (innerException != null)
                 {
                     currentException = new Exception($"[{typeName}] {message}", innerException);
@@ -1300,6 +1317,7 @@
                 {
                     currentException = new Exception($"[{typeName}] {message}");
                 }
+#pragma warning restore CA2201
 
                 // Set the current exception as the inner for the next iteration
                 innerException = currentException;

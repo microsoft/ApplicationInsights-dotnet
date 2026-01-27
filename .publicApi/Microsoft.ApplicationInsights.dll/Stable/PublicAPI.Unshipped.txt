@@ -113,7 +113,6 @@ Microsoft.ApplicationInsights.DataContracts.SeverityLevel.Warning = 2 -> Microso
 Microsoft.ApplicationInsights.DataContracts.StackFrame
 Microsoft.ApplicationInsights.DataContracts.StackFrame.StackFrame(string assembly, string fileName, int level, int line, string method) -> void
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext
-Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Cloud.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.CloudContext
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.GlobalProperties.get -> System.Collections.Generic.IDictionary<string, string>
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Location.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.LocationContext
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Operation.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.OperationContext
@@ -133,11 +132,6 @@ Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Timestamp.set -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.TraceTelemetry() -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.TraceTelemetry(string message) -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.TraceTelemetry(string message, Microsoft.ApplicationInsights.DataContracts.SeverityLevel severityLevel) -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.CloudContext
-Microsoft.ApplicationInsights.Extensibility.Implementation.CloudContext.RoleInstance.get -> string
-Microsoft.ApplicationInsights.Extensibility.Implementation.CloudContext.RoleInstance.set -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.CloudContext.RoleName.get -> string
-Microsoft.ApplicationInsights.Extensibility.Implementation.CloudContext.RoleName.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.LocationContext
 Microsoft.ApplicationInsights.Extensibility.Implementation.LocationContext.Ip.get -> string
 Microsoft.ApplicationInsights.Extensibility.Implementation.LocationContext.Ip.set -> void
@@ -277,7 +271,7 @@ override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Success.ge
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Success.set -> void
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Timestamp.get -> System.DateTimeOffset
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Timestamp.set -> void
-override Microsoft.ApplicationInsights.Metrics.MetricIdentifier.Equals(object otherObj) -> bool
+override Microsoft.ApplicationInsights.Metrics.MetricIdentifier.Equals(object obj) -> bool
 override Microsoft.ApplicationInsights.Metrics.MetricIdentifier.GetHashCode() -> int
 override Microsoft.ApplicationInsights.Metrics.MetricIdentifier.ToString() -> string
 static Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.CreateDefault() -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration

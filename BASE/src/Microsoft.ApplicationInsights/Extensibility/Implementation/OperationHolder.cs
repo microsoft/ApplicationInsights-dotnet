@@ -36,18 +36,8 @@
         /// <param name="suppressedActivity">An ambient activity that was suppressed to create a root operation and should be restored on dispose.</param>
         public OperationHolder(TelemetryClient telemetryClient, T telemetry, Activity activity, Activity suppressedActivity)
         {
-            if (telemetryClient == null)
-            {
-                throw new ArgumentNullException(nameof(telemetryClient));
-            }
-
-            if (telemetry == null)
-            {
-                throw new ArgumentNullException(nameof(telemetry));
-            }
-
-            this.telemetryClient = telemetryClient;
-            this.Telemetry = telemetry;
+            this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
+            this.Telemetry = telemetry ?? throw new ArgumentNullException(nameof(telemetry));
             this.activity = activity;
             this.suppressedActivity = suppressedActivity;
         }

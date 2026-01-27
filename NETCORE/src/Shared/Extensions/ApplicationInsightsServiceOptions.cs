@@ -64,6 +64,12 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
         /// </summary>
         public float? SamplingRatio { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether trace-based log sampling is enabled.
+        /// When null, the Azure Monitor Exporter default of true is used.
+        /// </summary>
+        public bool? EnableTraceBasedLogsSampler { get; set; }
+
 #if AI_ASPNETCORE_WEB
         /// <summary>
         /// Gets or sets a value indicating whether RequestTrackingTelemetryModule should be enabled.
@@ -101,6 +107,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
             target.EnableDependencyTrackingTelemetryModule = this.EnableDependencyTrackingTelemetryModule;
             target.TracesPerSecond = this.TracesPerSecond;
             target.SamplingRatio = this.SamplingRatio;
+            target.EnableTraceBasedLogsSampler = this.EnableTraceBasedLogsSampler;
 
 #if AI_ASPNETCORE_WEB
             target.EnableAuthenticationTrackingJavaScript = this.EnableAuthenticationTrackingJavaScript;

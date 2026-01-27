@@ -40,7 +40,7 @@ namespace Microsoft.ApplicationInsights.Web
 
             // Only process if user ID is not already set (check for anonymous user ID)
             var existingUserId = activity.GetTagItem("ai.user.id");
-            if (existingUserId == null || string.IsNullOrEmpty(existingUserId?.ToString()))
+            if (existingUserId == null || string.IsNullOrEmpty(existingUserId.ToString()))
             {
                 // Try Unvalidated first, fall back to regular Cookies for test environments
                 var userCookie = context.Request.UnvalidatedGetCookie(WebUserCookieName) ?? context.Request.Cookies[WebUserCookieName];

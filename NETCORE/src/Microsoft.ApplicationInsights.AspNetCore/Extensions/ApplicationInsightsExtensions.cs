@@ -198,6 +198,21 @@
                     {
                         config["OTEL_SDK_DISABLED"] = "true";
                     }
+
+                    if (!string.IsNullOrEmpty(telemetryConfig.StorageDirectory))
+                    {
+                        exporterOptions.StorageDirectory = telemetryConfig.StorageDirectory;
+                    }
+
+                    if (telemetryConfig.DisableOfflineStorage.HasValue)
+                    {
+                        exporterOptions.DisableOfflineStorage = telemetryConfig.DisableOfflineStorage.Value;
+                    }
+
+                    if (serviceOptions.EnableTraceBasedLogsSampler.HasValue)
+                    {
+                        exporterOptions.EnableTraceBasedLogsSampler = serviceOptions.EnableTraceBasedLogsSampler.Value;
+                    }
                     
                     // Copy connection string to Azure Monitor Exporter
                     if (!string.IsNullOrEmpty(serviceOptions.ConnectionString))
