@@ -1,6 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.Metrics
 {
     using System;
+#if NET8_0_OR_GREATER
+    using System.Buffers;
+#endif
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
     using System.Text;
@@ -16,11 +19,20 @@
 
         private const string NoNamespaceIdentifierStringComponent = "<NoNamespace>";
 
+#if NET8_0_OR_GREATER
+        private static readonly SearchValues<char> InvalidMetricCharsSearchValues = SearchValues.Create(
+            new char[]
+            {
+                '\0', '"', '\'', '(', ')', '[', ']', '{', '}', '<', '>', '=', ',',
+                '`',  '~', '!',  '@', '#', '$', '%', '^', '&', '*', '+', '?',
+            });
+#else
         private static readonly char[] InvalidMetricChars = new char[]
             {
                         '\0', '"', '\'', '(', ')', '[', ']', '{', '}', '<', '>', '=', ',',
                         '`',  '~', '!',  '@', '#', '$', '%', '^', '&', '*', '+', '?',
             };
+#endif
 
         private static string defaultMetricNamespace = String.Empty;
 
@@ -65,7 +77,11 @@
                 }
             }
 
-            int pos = partName.IndexOfAny(InvalidMetricChars);
+#if NET8_0_OR_GREATER
+            int pos = partValue.AsSpan().IndexOfAny(InvalidMetricCharsSearchValues);
+#else
+            int pos = partValue.IndexOfAny(InvalidMetricChars);
+#endif
             if (pos >= 0)
             {
                 throw new ArgumentException(Invariant($"{partName} (\"{partValue}\") contains a disallowed character at position {pos}."));
@@ -501,17 +517,17 @@
         /// Determines whether the specified object is a <c>MetricIdentifier</c> that is equal to this <c>MetricIdentifier</c> based on the
         /// respective metric namespaces, metric IDs and the number and the names of dimensions.
         /// </summary>
-        /// <param name="otherObj">Another object.</param>
+        /// <param name="obj">Another object.</param>
         /// <returns>Whether the specified other object is equal to this object based on the respective namespaces, IDs and dimension names.</returns>
-        public override bool Equals(object otherObj)
+        public override bool Equals(object obj)
         {
-            if (otherObj is MetricIdentifier otherMetricIdentifier)
+            if (obj is MetricIdentifier otherMetricIdentifier)
             {
                 return this.Equals(otherMetricIdentifier);
             }
             else
             {
-                return base.Equals(otherObj);
+                return base.Equals(obj);
             }
         }
 
@@ -617,7 +633,11 @@
                                            + " they must contain at least 1 printable character.");
             }
 
+#if NET8_0_OR_GREATER
+            int pos = dimensionName.AsSpan().IndexOfAny(InvalidMetricCharsSearchValues);
+#else
             int pos = dimensionName.IndexOfAny(InvalidMetricChars);
+#endif
             if (pos >= 0)
             {
                 throw new ArgumentException(Invariant($"Name for dimension number {thisDimensionNumber} (\"{dimensionName}\")")

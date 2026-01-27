@@ -84,7 +84,7 @@ namespace Microsoft.ApplicationInsights.Web
 
             // Only process if client IP is not already set
             var existingIp = activity.GetTagItem("client.address") ?? activity.GetTagItem("microsoft.client.ip");
-            if (existingIp == null || string.IsNullOrEmpty(existingIp?.ToString()))
+            if (existingIp == null || string.IsNullOrEmpty(existingIp.ToString()))
             {
                 string resultIp = null;
                 foreach (var clientIpHeaderName in this.HeaderNames)

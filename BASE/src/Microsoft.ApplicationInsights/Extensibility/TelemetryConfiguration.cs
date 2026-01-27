@@ -256,11 +256,14 @@
         public void ConfigureOpenTelemetryBuilder(Action<IOpenTelemetryBuilder> configure)
         {
             this.ThrowIfBuilt();
-
+#if NET6_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(configure);
+#else
             if (configure == null)
             {
                 throw new ArgumentNullException(nameof(configure));
             }
+#endif
 
             // Chain the configurations
             var previousConfiguration = this.builderConfiguration;
@@ -291,11 +294,14 @@
         public void SetAzureTokenCredential(TokenCredential tokenCredential)
         {
             this.ThrowIfBuilt();
-
+#if NET6_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(tokenCredential);
+#else
             if (tokenCredential == null)
             {
                 throw new ArgumentNullException(nameof(tokenCredential));
             }
+#endif
 
             // Configure the OpenTelemetry builder to pass the credential to Azure Monitor Exporter
             this.ConfigureOpenTelemetryBuilder(builder =>

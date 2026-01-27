@@ -40,7 +40,7 @@ namespace Microsoft.ApplicationInsights.Web
 
             // Only process if account ID is not already set
             var existingAccountId = activity.GetTagItem("enduser.id");
-            if (existingAccountId == null || string.IsNullOrEmpty(existingAccountId?.ToString()))
+            if (existingAccountId == null || string.IsNullOrEmpty(existingAccountId.ToString()))
             {
                 var authUserCookie = context.Request.UnvalidatedGetCookie(RequestTrackingConstants.WebAuthenticatedUserCookieName);
                 if (authUserCookie != null && !string.IsNullOrEmpty(authUserCookie.Value))

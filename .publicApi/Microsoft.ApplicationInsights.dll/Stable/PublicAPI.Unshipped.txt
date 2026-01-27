@@ -279,7 +279,7 @@ override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Success.ge
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Success.set -> void
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Timestamp.get -> System.DateTimeOffset
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Timestamp.set -> void
-override Microsoft.ApplicationInsights.Metrics.MetricIdentifier.Equals(object otherObj) -> bool
+override Microsoft.ApplicationInsights.Metrics.MetricIdentifier.Equals(object obj) -> bool
 override Microsoft.ApplicationInsights.Metrics.MetricIdentifier.GetHashCode() -> int
 override Microsoft.ApplicationInsights.Metrics.MetricIdentifier.ToString() -> string
 static Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.CreateDefault() -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration

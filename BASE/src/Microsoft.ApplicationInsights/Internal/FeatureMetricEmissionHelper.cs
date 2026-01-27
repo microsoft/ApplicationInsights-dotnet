@@ -123,7 +123,7 @@ namespace Microsoft.ApplicationInsights.Internal
                     using (var httpClient = new HttpClient() { Timeout = TimeSpan.FromSeconds(2) })
                     {
                         httpClient.DefaultRequestHeaders.Add("Metadata", "True");
-                        var responseString = httpClient.GetStringAsync(StatsbeatConstants.AMSUrl);
+                        var responseString = httpClient.GetStringAsync(new Uri(StatsbeatConstants.AMSUrl));
                         return JsonSerializer.Deserialize<Dictionary<string, object>>(responseString.Result);
                     }
                 }
@@ -168,7 +168,7 @@ namespace Microsoft.ApplicationInsights.Internal
                 if (vmMetadata.TryGetValue("osType", out var osType) && osType is string)
                 {
                     // osType takes precedence over the platform-observed OS.
-                    this.os = (osType as string).ToLower(CultureInfo.InvariantCulture);
+                    this.os = (osType as string).ToUpperInvariant();
                 }
                 else
                 {
