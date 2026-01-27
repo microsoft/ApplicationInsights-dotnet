@@ -8,7 +8,7 @@
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.Internals;
+    using Microsoft.ApplicationInsights.Internal;
     using Microsoft.ApplicationInsights.WorkerService;
     using Microsoft.ApplicationInsights.WorkerService.Implementation.Tracing;
     using Microsoft.Extensions.Configuration;
@@ -95,7 +95,7 @@
                             .WithApplicationInsights()
                             .UseApplicationInsightsTelemetry();
 
-                    AddTelemetryConfigAndClient(services);
+                    AddTelemetryConfigAndClient(services, VersionUtils.ExtensionLabelShimWorkerService + VersionUtils.GetVersion(typeof(ApplicationInsightsExtensions)));
                 }
 
                 return services;
@@ -194,12 +194,27 @@
                         config["OTEL_SDK_DISABLED"] = "true";
                     }
 
+                    if (!string.IsNullOrEmpty(telemetryConfig.StorageDirectory))
+                    {
+                        exporterOptions.StorageDirectory = telemetryConfig.StorageDirectory;
+                    }
+
+                    if (telemetryConfig.DisableOfflineStorage.HasValue)
+                    {
+                        exporterOptions.DisableOfflineStorage = telemetryConfig.DisableOfflineStorage.Value;
+                    }
+
+                    if (serviceOptions.EnableTraceBasedLogsSampler.HasValue)
+                    {
+                        exporterOptions.EnableTraceBasedLogsSampler = serviceOptions.EnableTraceBasedLogsSampler.Value;
+                    }
+
                     // Copy connection string to Azure Monitor Exporter
                     if (!string.IsNullOrEmpty(serviceOptions.ConnectionString))
                     {
                         exporterOptions.ConnectionString = serviceOptions.ConnectionString;
                     }
-                    
+
                     // Copy credential to Azure Monitor Exporter
                     if (serviceOptions.Credential != null)
                     {

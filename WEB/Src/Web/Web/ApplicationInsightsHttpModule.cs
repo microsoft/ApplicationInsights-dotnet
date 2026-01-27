@@ -6,6 +6,7 @@
     using System.Web;
     using Azure.Monitor.OpenTelemetry.Exporter;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Internal;
     using Microsoft.ApplicationInsights.Web.Extensions;
     using Microsoft.ApplicationInsights.Web.Implementation;
     using Microsoft.Extensions.DependencyInjection;
@@ -58,6 +59,8 @@
                     System.Diagnostics.Debug.WriteLine("Performing first-time initialization");
 
                     sharedTelemetryConfiguration = TelemetryConfiguration.CreateDefault();
+
+                    sharedTelemetryConfiguration.ExtensionVersion = VersionUtils.ExtensionLabelShimWeb + VersionUtils.GetVersion(typeof(ApplicationInsightsExtensions));
                     
                     // Read all configuration options from applicationinsights.config
                     ApplicationInsightsConfigOptions configOptions = ApplicationInsightsConfigurationReader.GetConfigurationOptions();

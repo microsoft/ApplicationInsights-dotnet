@@ -305,5 +305,66 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
             var options = serviceProvider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
             Assert.Equal(explicitConnectionString, options.ConnectionString);
         }
+
+        [Fact]
+        public void EnableTraceBasedLogsSamplerFlowsToExporterOptions()
+        {
+            // ARRANGE
+            var services = new ServiceCollection();
+            var config = new ConfigurationBuilder().AddInMemoryCollection().Build();
+            services.AddSingleton<IConfiguration>(config);
+
+            // ACT
+#if AI_ASPNETCORE_WEB
+            services.AddApplicationInsightsTelemetry(options =>
+#else
+            services.AddApplicationInsightsTelemetryWorkerService(options =>
+#endif
+            {
+                options.ConnectionString = TestConnectionString;
+                options.EnableTraceBasedLogsSampler = false;
+            });
+
+            // VALIDATE
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+            var aiOptions = serviceProvider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
+            Assert.False(aiOptions.EnableTraceBasedLogsSampler);
+
+            var exporterOptions = serviceProvider.GetRequiredService<IOptions<AzureMonitorExporterOptions>>().Value;
+            Assert.False(exporterOptions.EnableTraceBasedLogsSampler);
+        }
+
+        [Fact]
+        public void StorageOptionsFlowFromTelemetryConfigurationToExporterOptions()
+        {
+            // ARRANGE
+            var services = new ServiceCollection();
+            var config = new ConfigurationBuilder().AddInMemoryCollection().Build();
+            services.AddSingleton<IConfiguration>(config);
+
+            // ACT
+#if AI_ASPNETCORE_WEB
+            services.AddApplicationInsightsTelemetry(options =>
+#else
+            services.AddApplicationInsightsTelemetryWorkerService(options =>
+#endif
+            {
+                options.ConnectionString = TestConnectionString;
+            });
+
+            // Configure TelemetryConfiguration with storage options
+            services.Configure<Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration>(tc =>
+            {
+                tc.StorageDirectory = @"C:\CustomStorage";
+                tc.DisableOfflineStorage = true;
+            });
+
+            // VALIDATE
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+            var exporterOptions = serviceProvider.GetRequiredService<IOptions<AzureMonitorExporterOptions>>().Value;
+
+            Assert.Equal(@"C:\CustomStorage", exporterOptions.StorageDirectory);
+            Assert.True(exporterOptions.DisableOfflineStorage);
+        }
     }
 }
