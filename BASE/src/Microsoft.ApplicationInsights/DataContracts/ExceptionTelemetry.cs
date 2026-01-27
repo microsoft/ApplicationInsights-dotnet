@@ -287,7 +287,9 @@
                 }
                 
                 // Create exception with inner if it exists
+#pragma warning disable CA2201 // Exception reconstruction requires generic Exception type
                 var exception = innerException != null ? new Exception(message, innerException) : new Exception(message);
+#pragma warning restore CA2201
                 exceptionDict[detail.Id] = exception;
             }
 

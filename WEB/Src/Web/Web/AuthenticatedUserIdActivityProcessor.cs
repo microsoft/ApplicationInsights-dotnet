@@ -38,7 +38,7 @@ namespace Microsoft.ApplicationInsights.Web
 
             // Only process if authenticated user ID is not already set
             var existingUserId = activity.GetTagItem("enduser.id");
-            if (existingUserId == null || string.IsNullOrEmpty(existingUserId?.ToString()))
+            if (existingUserId == null || string.IsNullOrEmpty(existingUserId.ToString()))
             {
                 var authUserCookie = context.Request.UnvalidatedGetCookie(RequestTrackingConstants.WebAuthenticatedUserCookieName);
                 if (authUserCookie != null && !string.IsNullOrEmpty(authUserCookie.Value))
