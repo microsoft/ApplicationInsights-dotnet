@@ -17,8 +17,7 @@
       "NETCORE\\test\\IntegrationTests.Tests\\IntegrationTests.Tests.csproj",
       "NETCORE\\test\\WorkerIntegrationTests.Tests\\WorkerIntegrationTests.Tests.csproj",
       "WEB\\Src\\Web\\Web\\Web.csproj",
-      "WEB\\Src\\Web\\Web.Tests\\Web.Tests.csproj",
-      "..\\azure-sdk-for-net\\sdk\\monitor\\Azure.Monitor.OpenTelemetry.Exporter\\src\\Azure.Monitor.OpenTelemetry.Exporter.csproj"
+      "WEB\\Src\\Web\\Web.Tests\\Web.Tests.csproj"
     ]
   }
 }
