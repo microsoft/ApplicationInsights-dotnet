@@ -4,7 +4,7 @@
 
 - [The JavaScript in `Microsoft.ApplicationInsights.AspNetCore` has been updated to version 10.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3078)
 - [Centralized package version management](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3080)
-- [Update OpenTelemetry dependencies](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3080)
+- [Update OpenTelemetry dependencies](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3080), [#3092](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3092)
   - OpenTelemetry 1.15.0
   - OpenTelemetry.Instrumentation.AspNetCore 1.15.0
   - OpenTelemetry.Instrumentation.AspNet 1.15.1
