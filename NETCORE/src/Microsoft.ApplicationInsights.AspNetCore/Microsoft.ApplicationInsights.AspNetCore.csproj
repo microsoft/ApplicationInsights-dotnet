@@ -3,9 +3,7 @@
 
   <PropertyGroup>
     <AssemblyName>Microsoft.ApplicationInsights.AspNetCore</AssemblyName>
-    <TargetFrameworks>net10.0;net9.0;net8.0;netstandard2.0;</TargetFrameworks>
-
-    <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net10.0;net9.0;net8.0</TargetFrameworks>
     <DefineConstants>$(DefineConstants);AI_ASPNETCORE_WEB;</DefineConstants>
 	<AutomaticallyUpdatePublicAPI>true</AutomaticallyUpdatePublicAPI>
   </PropertyGroup>
@@ -17,10 +15,6 @@
     <Title>Application Insights for ASP.NET Core Web Applications</Title>
     <Description>Application Insights for ASP.NET Core web applications. See https://azure.microsoft.com/documentation/articles/app-insights-asp-net-five/ for more information. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
     <PackageTags>$(PackageTags)aspnetcore;</PackageTags>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
-    <NoWarn>1701;1702</NoWarn>
   </PropertyGroup>
 
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
