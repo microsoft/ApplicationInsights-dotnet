@@ -5,7 +5,6 @@
     <RootNamespace>Microsoft.ApplicationInsights</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights</AssemblyName>
     <TargetFrameworks>net10.0;net9.0;net8.0;net462</TargetFrameworks>
-    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">net8.0;net9.0;net10.0</TargetFrameworks>
 	<LangVersion>9.0</LangVersion>
   </PropertyGroup>
 

@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- [Removed `netstandard2.0` target framework from `Microsoft.ApplicationInsights`, `Microsoft.ApplicationInsights.AspNetCore`, and `Microsoft.ApplicationInsights.WorkerService` packages.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/)
+- [Removed `netstandard2.0` target framework from `Microsoft.ApplicationInsights`, `Microsoft.ApplicationInsights.AspNetCore`, and `Microsoft.ApplicationInsights.WorkerService` packages.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3091)
 - [The JavaScript in `Microsoft.ApplicationInsights.AspNetCore` has been updated to version 10.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3078)
 - [Centralized package version management](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3080)
 - [Update OpenTelemetry dependencies](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3080)
