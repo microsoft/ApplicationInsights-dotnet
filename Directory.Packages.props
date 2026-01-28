@@ -28,9 +28,9 @@
 
   <ItemGroup Label="OpenTelemetry - Instrumentation">
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.0" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNet" Version="1.15.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNet" Version="1.15.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.15.0" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.15.0-rc.1" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.15.0" />
   </ItemGroup>
 
   <ItemGroup Label="OpenTelemetry - Resources (Beta)">

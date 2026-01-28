@@ -2,14 +2,15 @@
 
 ## Unreleased
 
+- [Removed `netstandard2.0` target framework from `Microsoft.ApplicationInsights`, `Microsoft.ApplicationInsights.AspNetCore`, and `Microsoft.ApplicationInsights.WorkerService` packages.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3091)
 - [The JavaScript in `Microsoft.ApplicationInsights.AspNetCore` has been updated to version 10.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3078)
 - [Centralized package version management](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3080)
-- [Update OpenTelemetry dependencies](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3080)
+- [Update OpenTelemetry dependencies](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3080), [#3092](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3092)
   - OpenTelemetry 1.15.0
   - OpenTelemetry.Instrumentation.AspNetCore 1.15.0
-  - OpenTelemetry.Instrumentation.AspNet 1.15.0
+  - OpenTelemetry.Instrumentation.AspNet 1.15.1
   - OpenTelemetry.Instrumentation.Http 1.15.0
-  - OpenTelemetry.Instrumentation.SqlClient 1.15.0-rc.1
+  - OpenTelemetry.Instrumentation.SqlClient 1.15.0
   - OpenTelemetry.Resources.Azure 1.15.0-beta.1
 - [Added support to disable telemetry via TelemetryConfiguration.DisableTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3084)
 - [Removed `EnabledAdaptiveSampling` and replaced with `TracesPerSecond` and `SamplingRatio`](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3085)

@@ -4,8 +4,8 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights</AssemblyName>
-    <TargetFrameworks>net10.0;net9.0;net8.0;netstandard2.0;net462</TargetFrameworks>
-    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard2.0;net8.0;net9.0;net10.0</TargetFrameworks>
+    <TargetFrameworks>net10.0;net9.0;net8.0;net462</TargetFrameworks>
+    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">net8.0;net9.0;net10.0</TargetFrameworks>
 	<LangVersion>9.0</LangVersion>
   </PropertyGroup>
 
@@ -31,10 +31,9 @@
     <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Condition="$(OS) == 'Windows_NT' And '$(TargetFramework)' != 'net8.0' And '$(TargetFramework)' != 'net9.0' And '$(TargetFramework)' != 'net10.0'">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <!--<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="$(SystemDiagnosticsDiagnosticSourcePkgVer)" />-->
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0' And '$(TargetFramework)' != 'net8.0' And '$(TargetFramework)' != 'net9.0' And '$(TargetFramework)' != 'net10.0'">
+  <ItemGroup Condition="'$(TargetFramework)' != 'net8.0' And '$(TargetFramework)' != 'net9.0' And '$(TargetFramework)' != 'net10.0'">
     <Reference Include="System.Net.Http" />
   </ItemGroup>
 

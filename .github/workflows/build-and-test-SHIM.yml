@@ -17,17 +17,29 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     env:
-      SOLUTION: ./Everything.sln
       TEST_RESULTS_DIRECTORY: ${{ github.workspace }}/TestResults
 
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        framework: [net462, net472, net480, net481, net8.0, net9.0, net10.0]
+        framework: [net8.0, net9.0, net10.0, net462, net472, net480, net481]
+        exclude:
+          # .NET Framework doesn't run on Linux
+          - os: ubuntu-latest
+            framework: net462
+          - os: ubuntu-latest
+            framework: net472
+          - os: ubuntu-latest
+            framework: net480
+          - os: ubuntu-latest
+            framework: net481
         include: 
           - os: ubuntu-latest
             args: "--filter TestCategory!=WindowsOnly"
+            solution: ./Everything.Linux.slnf
+          - os: windows-latest
+            solution: ./Everything.Windows.slnf
 
     steps:
     - uses: actions/checkout@v6
@@ -44,15 +56,15 @@ jobs:
             10.0.x
 
     - name: Restore
-      run: dotnet restore ${{ env.SOLUTION }}
+      run: dotnet restore ${{ matrix.solution }}
 
     - name: Build
-      run: dotnet build ${{ env.SOLUTION }} --configuration Release --no-restore
+      run: dotnet build ${{ matrix.solution }} --configuration Release --no-restore
 
     - name: Test
       id: test1
       continue-on-error: true
-      run: dotnet test ${{ env.SOLUTION }} --framework ${{ matrix.framework }} --configuration Release --no-build --results-directory ${{ env.TEST_RESULTS_DIRECTORY }} --logger:"console;verbosity=detailed" --logger:"trx;logfileprefix=testResults_" ${{ matrix.args }}
+      run: dotnet test ${{ matrix.solution }} --framework ${{ matrix.framework }} --configuration Release --no-build --results-directory ${{ env.TEST_RESULTS_DIRECTORY }} --logger:"console;verbosity=detailed" --logger:"trx;logfileprefix=testResults_" ${{ matrix.args }}
 
     - name: Retry tests
       if: steps.test1.outcome=='failure'

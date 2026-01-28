@@ -1,0 +1,23 @@
+{
+  "solution": {
+    "path": "Everything.sln",
+    "projects": [
+      "BASE\\src\\Microsoft.ApplicationInsights\\Microsoft.ApplicationInsights.csproj",
+      "BASE\\Test\\Microsoft.ApplicationInsights.Test\\Microsoft.ApplicationInsights.Tests\\Microsoft.ApplicationInsights.Tests.csproj",
+      "examples\\BasicConsoleApp\\BasicConsoleApp.csproj",
+      "examples\\NLogConsoleApp\\NLogConsoleApp.csproj",
+      "examples\\AspNetCoreWebApp\\AspNetCoreWebApp.csproj",
+      "examples\\WorkerService\\WorkerService.csproj",
+      "LOGGING\\src\\NLogTarget\\NLogTarget.csproj",
+      "LOGGING\\test\\NLogTarget.Tests\\NLogTarget.Tests.csproj",
+      "NETCORE\\src\\Microsoft.ApplicationInsights.AspNetCore\\Microsoft.ApplicationInsights.AspNetCore.csproj",
+      "NETCORE\\src\\Microsoft.ApplicationInsights.WorkerService\\Microsoft.ApplicationInsights.WorkerService.csproj",
+      "NETCORE\\test\\IntegrationTests.WebApp\\IntegrationTests.WebApp.csproj",
+      "NETCORE\\test\\IntegrationTests.WorkerApp\\IntegrationTests.WorkerApp.csproj",
+      "NETCORE\\test\\IntegrationTests.Tests\\IntegrationTests.Tests.csproj",
+      "NETCORE\\test\\WorkerIntegrationTests.Tests\\WorkerIntegrationTests.Tests.csproj",
+      "WEB\\Src\\Web\\Web\\Web.csproj",
+      "WEB\\Src\\Web\\Web.Tests\\Web.Tests.csproj"
+    ]
+  }
+}
