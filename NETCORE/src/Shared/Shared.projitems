@@ -13,5 +13,15 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\ApplicationInsightsExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\ApplicationInsightsServiceOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Internals\ApplicationNameProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\AppServiceResourceDetector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\AzureContainerAppsResourceDetector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\AzureResourceBuilderExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\AzureVmMetaDataRequestor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\AzureVmMetadataResponse.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\AzureVMResourceDetector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\Guard.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\ResourceAttributeConstants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\ResourceSemanticConventions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\SourceGenerationContext.cs" />
   </ItemGroup>
 </Project>
