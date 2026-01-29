@@ -24,7 +24,6 @@
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
     <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
     <PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" />
-    <PackageReference Include="OpenTelemetry.Resources.Azure" />
   </ItemGroup>
 
   <ItemGroup>

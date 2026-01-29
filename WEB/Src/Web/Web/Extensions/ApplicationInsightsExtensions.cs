@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using Microsoft.ApplicationInsights.Internal;
+    using Microsoft.ApplicationInsights.Shared.Vendoring.OpenTelemetry.Resources;
     using OpenTelemetry;
     using OpenTelemetry.Metrics;
     using OpenTelemetry.Resources;

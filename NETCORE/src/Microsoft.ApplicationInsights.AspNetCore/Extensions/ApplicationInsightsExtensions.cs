@@ -12,6 +12,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Internal;
+    using Microsoft.ApplicationInsights.Shared.Vendoring.OpenTelemetry.Resources;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
     using OpenTelemetry;
