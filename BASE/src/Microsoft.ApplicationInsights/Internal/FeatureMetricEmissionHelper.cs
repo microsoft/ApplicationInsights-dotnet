@@ -83,7 +83,6 @@ namespace Microsoft.ApplicationInsights.Internal
                         new ("type", 0), // 0 = feature, 1 = instrumentation scopes
                         new ("os", this.os),
                         new ("language", "dotnet"),
-                        new ("product", "appinsights"),
                         new ("version", this.version));
             }
             catch (Exception)
