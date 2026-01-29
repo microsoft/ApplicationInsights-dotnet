@@ -9,7 +9,8 @@
     <PreReleaseMilestone>beta3</PreReleaseMilestone>
     <VersionSuffix>$(PreReleaseMilestone)</VersionSuffix>
     <!-- Recalculate PackageVersion with the overridden PreReleaseMilestone -->
-    <PackageVersion>$(VersionPrefix)-$(PreReleaseMilestone)</PackageVersion>
+    <PackageVersion Condition="'$(PreReleaseMilestone)' != ''">$(VersionPrefix)-$(PreReleaseMilestone)</PackageVersion>
+    <PackageVersion Condition="'$(PreReleaseMilestone)' == ''">$(VersionPrefix)</PackageVersion>
     <PackageVersion Condition="'$(StableRelease)' != 'True'">$(PackageVersion)-build$(BuildNumber)</PackageVersion>
   </PropertyGroup>
 </Project>
