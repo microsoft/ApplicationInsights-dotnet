@@ -11,7 +11,7 @@
   - OpenTelemetry.Instrumentation.AspNet 1.15.1
   - OpenTelemetry.Instrumentation.Http 1.15.0
   - OpenTelemetry.Instrumentation.SqlClient 1.15.0
-  - OpenTelemetry.Resources.Azure 1.15.0-beta.1
+- [Vendored OpenTelemetry.Resources.Azure resource detectors to NETCORE shared folder, replaced package with vendored implementation](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3095)
 - [Added support to disable telemetry via TelemetryConfiguration.DisableTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3084)
 - [Removed `EnabledAdaptiveSampling` and replaced with `TracesPerSecond` and `SamplingRatio`](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3085)
 - [Added `EnableTraceBasedLogsSampler` property to `ApplicationInsightsServiceOptions` for ASP.NET Core and WorkerService packages](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3088)

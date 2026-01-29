@@ -26,7 +26,6 @@
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
     <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
     <PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" />
-    <PackageReference Include="OpenTelemetry.Resources.Azure" />
   </ItemGroup>
 
   <ItemGroup>
