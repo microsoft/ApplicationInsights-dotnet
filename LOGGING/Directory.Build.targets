@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- 
+    LOGGING packages have an independent release track.
+    This file runs AFTER the csproj and Product.props imports, so VersionPrefix is available.
+    To promote LOGGING to the same version as main packages, remove this PropertyGroup.
+  -->
+  <PropertyGroup Label="LOGGING Version Override">
+    <PreReleaseMilestone>beta3</PreReleaseMilestone>
+    <VersionSuffix>$(PreReleaseMilestone)</VersionSuffix>
+    <!-- Recalculate PackageVersion with the overridden PreReleaseMilestone -->
+    <PackageVersion>$(VersionPrefix)-$(PreReleaseMilestone)</PackageVersion>
+    <PackageVersion Condition="'$(StableRelease)' != 'True'">$(PackageVersion)-build$(BuildNumber)</PackageVersion>
+  </PropertyGroup>
+</Project>

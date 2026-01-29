@@ -6,6 +6,12 @@
 
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 
+  <!-- 
+    LOGGING packages have an independent release track.
+    The version override is in Directory.Build.targets because it must run AFTER Product.props imports _GlobalStaticVersion.props.
+    To promote LOGGING to the same version as main packages, remove the PropertyGroup from Directory.Build.targets.
+  -->
+
   <PropertyGroup>
     <!--  The common project structure looks like this:                                                               -->
     <!--  d:\DDGit\                                                                                                   -->
