@@ -13,7 +13,7 @@
     <SemanticVersionMajor>3</SemanticVersionMajor>
     <SemanticVersionMinor>0</SemanticVersionMinor> <!-- If changing the Minor version, also update the Date value. -->
     <SemanticVersionPatch>0</SemanticVersionPatch>
-    <PreReleaseMilestone>beta2</PreReleaseMilestone> <!--Valid values for an Application Insights release: beta1, beta2, EMPTY for stable. If you build your application locally, you can use any value. -->
+    <PreReleaseMilestone>rc1</PreReleaseMilestone> <!--Valid values for an Application Insights release: beta1, beta2, rc1, EMPTY for stable. Subdirectory Directory.Build.targets can override for independent release tracks. -->
     <PreReleaseMilestone Condition="'$(Redfield)' == 'True'">redfield</PreReleaseMilestone>
     <PreReleaseMilestone Condition="'$(NightlyBuild)' == 'True'">nightly</PreReleaseMilestone> <!-- Overwrite this property for nightly builds from the DEVELOP branch. -->
     <!--
