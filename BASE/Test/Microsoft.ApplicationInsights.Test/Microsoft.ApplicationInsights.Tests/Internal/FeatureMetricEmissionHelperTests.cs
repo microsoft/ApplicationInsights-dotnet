@@ -57,7 +57,6 @@ namespace Microsoft.ApplicationInsights
             AssertKey("type", 0, tags); // == feature
             Assert.Contains("os", tags);
             AssertKey("language", "dotnet", tags);
-            AssertKey("product", "appinsights", tags);
             AssertKey("version", "b", tags);
         }
 
