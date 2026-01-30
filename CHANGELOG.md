@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## Version 3.0.0-rc1
 
 - [Removed `netstandard2.0` target framework from `Microsoft.ApplicationInsights`, `Microsoft.ApplicationInsights.AspNetCore`, and `Microsoft.ApplicationInsights.WorkerService` packages.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3091)
 - [The JavaScript in `Microsoft.ApplicationInsights.AspNetCore` has been updated to version 10.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3078)
