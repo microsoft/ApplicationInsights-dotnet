@@ -1,7 +1,6 @@
 # Changelog
 
-## Unreleased
-
+## Version 3.0.0-rc1
 - [Removed `netstandard2.0` target framework from `Microsoft.ApplicationInsights`, `Microsoft.ApplicationInsights.AspNetCore`, and `Microsoft.ApplicationInsights.WorkerService` packages.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3091)
 - [The JavaScript in `Microsoft.ApplicationInsights.AspNetCore` has been updated to version 10.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3078)
 - [Centralized package version management](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3080)
@@ -11,7 +10,7 @@
   - OpenTelemetry.Instrumentation.AspNet 1.15.1
   - OpenTelemetry.Instrumentation.Http 1.15.0
   - OpenTelemetry.Instrumentation.SqlClient 1.15.0
-- [Vendored OpenTelemetry.Resources.Azure resource detectors to NETCORE shared folder, replaced package with vendored implementation](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3095)
+- [Vendored OpenTelemetry.Resources.Azure resource detectors to NETCORE shared folder, replaced package with vendored implementation](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3095), [#3093](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3093)
 - [Added support to disable telemetry via TelemetryConfiguration.DisableTelemetry](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3084)
 - [Removed `EnabledAdaptiveSampling` and replaced with `TracesPerSecond` and `SamplingRatio`](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3085)
 - [Added `EnableTraceBasedLogsSampler` property to `ApplicationInsightsServiceOptions` for ASP.NET Core and WorkerService packages](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3088)
