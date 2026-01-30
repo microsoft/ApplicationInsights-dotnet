@@ -107,6 +107,7 @@
   -->
 
   <ItemGroup Label="AspNetCore Testing">
+    <!-- Note: Version is overridden per-framework in test project files using VersionOverride -->
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.11" />
   </ItemGroup>
 
