@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## Version 3.0.0
 - [Replaced `netstandard2.0` with `net8.0` target framework in `Microsoft.ApplicationInsights.NLogTarget` package.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3102)
 
 ## Version 3.0.0-rc1
