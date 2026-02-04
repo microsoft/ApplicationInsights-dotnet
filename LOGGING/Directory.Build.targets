@@ -6,7 +6,7 @@
     To promote LOGGING to the same version as main packages, remove this PropertyGroup.
   -->
   <PropertyGroup Label="LOGGING Version Override">
-    <PreReleaseMilestone>beta3</PreReleaseMilestone>
+    <PreReleaseMilestone>beta4</PreReleaseMilestone>
     <VersionSuffix>$(PreReleaseMilestone)</VersionSuffix>
     <!-- Recalculate PackageVersion with the overridden PreReleaseMilestone -->
     <PackageVersion Condition="'$(PreReleaseMilestone)' != ''">$(VersionPrefix)-$(PreReleaseMilestone)</PackageVersion>
