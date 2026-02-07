@@ -114,6 +114,12 @@
         }
 
         /// <summary>
+        /// Gets the context tags built from TelemetryClient.Context public properties.
+        /// Computed fresh on each access to reflect the latest Context values.
+        /// </summary>
+        internal IReadOnlyDictionary<string, string> ContextTags => this.BuildContextTags();
+
+        /// <summary>
         /// Check to determine if the tracking is enabled.
         /// </summary>
         public bool IsEnabled()
@@ -144,7 +150,7 @@
             }
 
             properties.Add("microsoft.custom_event.name", eventName);
-            var state = new DictionaryLogState(this.Context, properties, String.Empty);
+            var state = new DictionaryLogState(this.Context, this.ContextTags, properties, String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -168,23 +174,10 @@
             var properties = telemetry.Properties ?? new Dictionary<string, string>();
             properties.Add("microsoft.custom_event.name", telemetry.Name);
 
-            // Map context properties to semantic conventions
-            if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
-            {
-                properties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
-            }
+            // Map item-level context properties to semantic conventions
+            this.ApplyContextToProperties(telemetry.Context, properties);
 
-            if (!string.IsNullOrEmpty(telemetry.Context?.User?.Id))
-            {
-                properties[SemanticConventions.AttributeEnduserPseudoId] = telemetry.Context.User.Id;
-            }
-
-            if (!string.IsNullOrEmpty(telemetry.Context?.User?.AuthenticatedUserId))
-            {
-                properties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
-            }
-
-            var state = new DictionaryLogState(telemetry.Context, properties, String.Empty);
+            var state = new DictionaryLogState(telemetry.Context, this.ContextTags, properties, String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -255,23 +248,10 @@
                 Utils.CopyDictionary(telemetry.Properties, properties);
             }
 
-            // Map context properties to semantic conventions
-            if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
-            {
-                properties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
-            }
+            // Map item-level context properties to semantic conventions
+            this.ApplyContextToProperties(telemetry.Context, properties);
 
-            if (!string.IsNullOrEmpty(telemetry.Context?.User?.Id))
-            {
-                properties[SemanticConventions.AttributeEnduserPseudoId] = telemetry.Context.User.Id;
-            }
-
-            if (!string.IsNullOrEmpty(telemetry.Context?.User?.AuthenticatedUserId))
-            {
-                properties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
-            }
-
-            var state = new DictionaryLogState(telemetry.Context, properties, telemetry.Message ?? String.Empty);
+            var state = new DictionaryLogState(telemetry.Context, this.ContextTags, properties, telemetry.Message ?? String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -285,7 +265,7 @@
         public void TrackTrace(string message)
         {
             this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
-            var state = new DictionaryLogState(this.Context, null, message);
+            var state = new DictionaryLogState(this.Context, this.ContextTags, null, message);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -301,7 +281,7 @@
         {
             this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
             LogLevel logLevel = GetLogLevel(severityLevel);
-            var state = new DictionaryLogState(this.Context, null, message);
+            var state = new DictionaryLogState(this.Context, this.ContextTags, null, message);
             this.Logger.Log(logLevel, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -316,7 +296,7 @@
         public void TrackTrace(string message, IDictionary<string, string> properties)
         {
             this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
-            var state = new DictionaryLogState(this.Context, properties, message);
+            var state = new DictionaryLogState(this.Context, this.ContextTags, properties, message);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -333,7 +313,7 @@
         {
             this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
             LogLevel logLevel = GetLogLevel(severityLevel);
-            var state = new DictionaryLogState(this.Context, properties, message);
+            var state = new DictionaryLogState(this.Context, this.ContextTags, properties, message);
             this.Logger.Log(logLevel, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -363,26 +343,12 @@
                 telemetry.SeverityLevel = SeverityLevel.Information;
             }
 
-            // Map context properties to semantic conventions that exporter understands
+            // Map item-level context properties to semantic conventions
             var properties = telemetry.Properties ?? new Dictionary<string, string>();
-
-            if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
-            {
-                properties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
-            }
-
-            if (!string.IsNullOrEmpty(telemetry.Context?.User?.Id))
-            {
-                properties[SemanticConventions.AttributeEnduserPseudoId] = telemetry.Context.User.Id;
-            }
-
-            if (!string.IsNullOrEmpty(telemetry.Context?.User?.AuthenticatedUserId))
-            {
-                properties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
-            }
+            this.ApplyContextToProperties(telemetry.Context, properties);
 
             LogLevel logLevel = GetLogLevel(telemetry.SeverityLevel.Value);
-            var state = new DictionaryLogState(telemetry.Context, properties, telemetry.Message);
+            var state = new DictionaryLogState(telemetry.Context, this.ContextTags, properties, telemetry.Message);
             this.Logger.Log(logLevel, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -403,21 +369,23 @@
             // Get or create histogram for this metric
             var histogram = this.Configuration.MetricsManager.GetOrCreateHistogram(name, null);
 
-            // Build tags from properties
-            if (properties != null && properties.Count > 0)
+            // Build tags from client-level context (lower priority), then properties (higher priority)
+            var tags = new TagList();
+
+            foreach (var tag in this.ContextTags)
             {
-                var tags = new TagList();
+                tags.Add(tag.Key, tag.Value);
+            }
+
+            if (properties != null)
+            {
                 foreach (var kvp in properties)
                 {
                     tags.Add(kvp.Key, kvp.Value);
                 }
+            }
 
-                histogram.Record(value, tags);
-            }
-            else
-            {
-                histogram.Record(value);
-            }
+            histogram.Record(value, tags);
         }
 
         /// <summary>
@@ -443,21 +411,23 @@
                 telemetry.Name,
                 telemetry.MetricNamespace);
 
-            // Build tags from properties
-            if (telemetry.Properties != null && telemetry.Properties.Count > 0)
+            // Build tags from client-level context (lower priority), then item properties (higher priority)
+            var tags = new TagList();
+
+            foreach (var tag in this.ContextTags)
             {
-                var tags = new TagList();
+                tags.Add(tag.Key, tag.Value);
+            }
+
+            if (telemetry.Properties != null)
+            {
                 foreach (var kvp in telemetry.Properties)
                 {
                     tags.Add(kvp.Key, kvp.Value);
                 }
+            }
 
-                histogram.Record(telemetry.Value, tags);
-            }
-            else
-            {
-                histogram.Record(telemetry.Value);
-            }
+            histogram.Record(telemetry.Value, tags);
         }
 
         /// <summary>
@@ -476,7 +446,7 @@
                 exception = new InvalidOperationException(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
             }
 
-            var state = new DictionaryLogState(this.Context, properties, exception.Message);
+            var state = new DictionaryLogState(this.Context, this.ContextTags, properties, exception.Message);
             this.Logger.Log(LogLevel.Error, 0, state, exception, (s, ex) => s.Message);
         }
 
@@ -499,25 +469,11 @@
 
             var reconstructedException = ConvertToException(telemetry);
 
-            // Map context properties to semantic conventions
+            // Map item-level context properties to semantic conventions
             var properties = telemetry.Properties ?? new Dictionary<string, string>();
+            this.ApplyContextToProperties(telemetry.Context, properties);
 
-            if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
-            {
-                properties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
-            }
-
-            if (!string.IsNullOrEmpty(telemetry.Context?.User?.Id))
-            {
-                properties[SemanticConventions.AttributeEnduserPseudoId] = telemetry.Context.User.Id;
-            }
-
-            if (!string.IsNullOrEmpty(telemetry.Context?.User?.AuthenticatedUserId))
-            {
-                properties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
-            }
-
-            var state = new DictionaryLogState(telemetry.Context, properties, reconstructedException.Message);
+            var state = new DictionaryLogState(telemetry.Context, this.ContextTags, properties, reconstructedException.Message);
             var logLevel = GetLogLevel(telemetry.SeverityLevel ?? SeverityLevel.Error);
             this.Logger.Log(logLevel, 0, state, reconstructedException, (s, ex) => s.Message);
         }
@@ -645,6 +601,12 @@
                         dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMicrosoftDependencyResultCode, telemetry.ResultCode);
                     }
 
+                    // Apply client-level context tags (lowest priority — applied first so higher layers override)
+                    foreach (var tag in this.ContextTags)
+                    {
+                        dependencyTelemetryActivity.SetTag(tag.Key, tag.Value);
+                    }
+
                     if (!string.IsNullOrEmpty(telemetry.Context?.Operation?.Name))
                     {
                         dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMicrosoftOperationName, telemetry.Context.Operation.Name);
@@ -677,21 +639,8 @@
                         }
                     }
 
-                    // Add context information
-                    if (!string.IsNullOrEmpty(telemetry.Context?.User?.Id))
-                    {
-                        dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeEnduserPseudoId, telemetry.Context.User.Id);
-                    }
-
-                    if (!string.IsNullOrEmpty(telemetry.Context?.User?.AuthenticatedUserId))
-                    {
-                        dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeEnduserId, telemetry.Context.User.AuthenticatedUserId);
-                    }
-
-                    if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
-                    {
-                        dependencyTelemetryActivity.SetTag("microsoft.client.ip", telemetry.Context.Location.Ip);
-                    }
+                    // Apply item-level context (overrides client-level context)
+                    this.ApplyContextToActivity(telemetry.Context, dependencyTelemetryActivity);
                 }
             }
         }
@@ -836,6 +785,12 @@
                         activity.SetTag(SemanticConventions.AttributeMicrosoftRequestResultCode, request.ResponseCode);
                     }
 
+                    // Apply client-level context tags (lowest priority — applied first so higher layers override)
+                    foreach (var tag in this.ContextTags)
+                    {
+                        activity.SetTag(tag.Key, tag.Value);
+                    }
+
                     if (!string.IsNullOrEmpty(request.Context?.Operation?.Name))
                     {
                         activity.SetTag(SemanticConventions.AttributeMicrosoftOperationName, request.Context.Operation.Name);
@@ -859,27 +814,6 @@
                         }
                     }
 
-                    // Add context information
-                    if (!string.IsNullOrEmpty(request.Context?.User?.Id))
-                    {
-                        activity.SetTag(SemanticConventions.AttributeEnduserPseudoId, request.Context.User.Id);
-                    }
-
-                    if (!string.IsNullOrEmpty(request.Context?.User?.AuthenticatedUserId))
-                    {
-                        activity.SetTag(SemanticConventions.AttributeEnduserId, request.Context.User.AuthenticatedUserId);
-                    }
-
-                    if (!string.IsNullOrEmpty(request.Context?.User?.UserAgent))
-                    {
-                        activity.SetTag(SemanticConventions.AttributeUserAgentOriginal, request.Context.User.UserAgent);
-                    }
-
-                    if (!string.IsNullOrEmpty(request.Context?.Location?.Ip))
-                    {
-                        activity.SetTag("microsoft.client.ip", request.Context.Location.Ip);
-                    }
-
                     // Add custom properties (these override GlobalProperties)
                     if (request.Properties != null)
                     {
@@ -888,6 +822,9 @@
                             activity.SetTag(property.Key, property.Value);
                         }
                     }
+
+                    // Apply item-level context (overrides client-level context)
+                    this.ApplyContextToActivity(request.Context, activity);
                 }
             }
         }
@@ -1392,6 +1329,119 @@
             }
         }
 
+        /// <summary>
+        /// Builds a frozen dictionary of context tags from public TelemetryClient.Context properties.
+        /// Called lazily on first Track* call and cached for the lifetime of this TelemetryClient.
+        /// Only includes properties that are not null or empty.
+        /// </summary>
+        private IReadOnlyDictionary<string, string> BuildContextTags()
+        {
+            var tags = new Dictionary<string, string>();
+
+            if (!string.IsNullOrEmpty(this.Context?.User?.Id))
+            {
+                tags[SemanticConventions.AttributeEnduserPseudoId] = this.Context.User.Id;
+            }
+
+            if (!string.IsNullOrEmpty(this.Context?.User?.AuthenticatedUserId))
+            {
+                tags[SemanticConventions.AttributeEnduserId] = this.Context.User.AuthenticatedUserId;
+            }
+
+            if (!string.IsNullOrEmpty(this.Context?.User?.UserAgent))
+            {
+                tags[SemanticConventions.AttributeUserAgentOriginal] = this.Context.User.UserAgent;
+            }
+
+            if (!string.IsNullOrEmpty(this.Context?.Operation?.Name))
+            {
+                tags[SemanticConventions.AttributeMicrosoftOperationName] = this.Context.Operation.Name;
+            }
+
+            if (!string.IsNullOrEmpty(this.Context?.Location?.Ip))
+            {
+                tags[SemanticConventions.AttributeMicrosoftClientIp] = this.Context.Location.Ip;
+            }
+
+            return tags;
+        }
+
+        /// <summary>
+        /// Applies item-level TelemetryContext properties to an Activity as tags.
+        /// These override any client-level context tags already set on the Activity.
+        /// Only includes properties that are not null or empty.
+        /// </summary>
+        private void ApplyContextToActivity(TelemetryContext context, Activity activity)
+        {
+            if (context == null || activity == null)
+            {
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(context.User?.Id))
+            {
+                activity.SetTag(SemanticConventions.AttributeEnduserPseudoId, context.User.Id);
+            }
+
+            if (!string.IsNullOrEmpty(context.User?.AuthenticatedUserId))
+            {
+                activity.SetTag(SemanticConventions.AttributeEnduserId, context.User.AuthenticatedUserId);
+            }
+
+            if (!string.IsNullOrEmpty(context.User?.UserAgent))
+            {
+                activity.SetTag(SemanticConventions.AttributeUserAgentOriginal, context.User.UserAgent);
+            }
+
+            if (!string.IsNullOrEmpty(context.Operation?.Name))
+            {
+                activity.SetTag(SemanticConventions.AttributeMicrosoftOperationName, context.Operation.Name);
+            }
+
+            if (!string.IsNullOrEmpty(context.Location?.Ip))
+            {
+                activity.SetTag(SemanticConventions.AttributeMicrosoftClientIp, context.Location.Ip);
+            }
+        }
+
+        /// <summary>
+        /// Applies item-level TelemetryContext properties to a properties dictionary.
+        /// These override any client-level context tags already present.
+        /// Only includes properties that are not null or empty.
+        /// </summary>
+        private void ApplyContextToProperties(TelemetryContext context, IDictionary<string, string> properties)
+        {
+            if (context == null || properties == null)
+            {
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(context.User?.Id))
+            {
+                properties[SemanticConventions.AttributeEnduserPseudoId] = context.User.Id;
+            }
+
+            if (!string.IsNullOrEmpty(context.User?.AuthenticatedUserId))
+            {
+                properties[SemanticConventions.AttributeEnduserId] = context.User.AuthenticatedUserId;
+            }
+
+            if (!string.IsNullOrEmpty(context.User?.UserAgent))
+            {
+                properties[SemanticConventions.AttributeUserAgentOriginal] = context.User.UserAgent;
+            }
+
+            if (!string.IsNullOrEmpty(context.Operation?.Name))
+            {
+                properties[SemanticConventions.AttributeMicrosoftOperationName] = context.Operation.Name;
+            }
+
+            if (!string.IsNullOrEmpty(context.Location?.Ip))
+            {
+                properties[SemanticConventions.AttributeMicrosoftClientIp] = context.Location.Ip;
+            }
+        }
+
         private readonly struct DictionaryLogState : IReadOnlyList<KeyValuePair<string, object>>
         {
             public readonly string Message;
@@ -1419,18 +1469,29 @@
             }
 
             /// <summary>
-            /// Constructor that merges TelemetryContext.GlobalProperties with item-level properties.
+            /// Constructor that merges TelemetryContext.GlobalProperties with client-level context tags and item-level properties.
             /// </summary>
             /// <param name="context">The telemetry context containing GlobalProperties.</param>
-            /// <param name="properties">Item-level properties (override GlobalProperties if keys conflict).</param>
+            /// <param name="clientContextTags">Client-level cached context tags (lowest priority).</param>
+            /// <param name="properties">Item-level properties (highest priority, override all).</param>
             /// <param name="message">The log message.</param>
-            public DictionaryLogState(TelemetryContext context, IDictionary<string, string> properties, string message)
+            public DictionaryLogState(TelemetryContext context, IReadOnlyDictionary<string, string> clientContextTags, IDictionary<string, string> properties, string message)
             {
                 this.Message = message ?? string.Empty;
 
-                // Merge GlobalProperties and properties
+                // Merge in priority order: clientContextTags (lowest) -> GlobalProperties -> properties (highest)
                 var allProperties = new Dictionary<string, string>();
 
+                // 1. Client-level cached context tags (lowest priority)
+                if (clientContextTags != null)
+                {
+                    foreach (var kvp in clientContextTags)
+                    {
+                        allProperties[kvp.Key] = kvp.Value;
+                    }
+                }
+
+                // 2. GlobalProperties from context (override client-level)
                 if (context?.GlobalProperties != null)
                 {
                     foreach (var kvp in context.GlobalProperties)
@@ -1439,11 +1500,12 @@
                     }
                 }
 
+                // 3. Item-level properties (highest priority, override all)
                 if (properties != null)
                 {
                     foreach (var kvp in properties)
                     {
-                        allProperties[kvp.Key] = kvp.Value; // Properties override GlobalProperties
+                        allProperties[kvp.Key] = kvp.Value; // Properties override everything
                     }
                 }
 

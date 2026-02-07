@@ -1,8 +1,10 @@
-﻿namespace Microsoft.ApplicationInsights
+namespace Microsoft.ApplicationInsights
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Internal;
 
     /// <summary>
     /// Represents a zero- or multi-dimensional metric.<br />
@@ -45,7 +47,21 @@
                 this.metricName,
                 this.metricNamespace);
 
-            histogram.Record(metricValue);
+            var contextTags = this.client.ContextTags;
+            if (contextTags.Count > 0)
+            {
+                var tags = new TagList();
+                foreach (var tag in contextTags)
+                {
+                    tags.Add(tag.Key, tag.Value);
+                }
+
+                histogram.Record(metricValue, tags);
+            }
+            else
+            {
+                histogram.Record(metricValue);
+            }
         }
 
         /// <summary>
@@ -90,10 +106,14 @@
                 this.metricName,
                 this.metricNamespace);
 
-            var tags = new TagList
+            var tags = new TagList();
+
+            foreach (var tag in this.client.ContextTags)
             {
-                { this.dimensionNames[0], dimension1Value },
-            };
+                tags.Add(tag.Key, tag.Value);
+            }
+
+            tags.Add(this.dimensionNames[0], dimension1Value);
 
             histogram.Record(metricValue, tags);
             return true;
@@ -148,11 +168,15 @@
                 this.metricName,
                 this.metricNamespace);
 
-            var tags = new TagList
+            var tags = new TagList();
+
+            foreach (var tag in this.client.ContextTags)
             {
-                { this.dimensionNames[0], dimension1Value },
-                { this.dimensionNames[1], dimension2Value },
-            };
+                tags.Add(tag.Key, tag.Value);
+            }
+
+            tags.Add(this.dimensionNames[0], dimension1Value);
+            tags.Add(this.dimensionNames[1], dimension2Value);
 
             histogram.Record(metricValue, tags);
             return true;
@@ -209,12 +233,16 @@
                 this.metricName,
                 this.metricNamespace);
 
-            var tags = new TagList
+            var tags = new TagList();
+
+            foreach (var tag in this.client.ContextTags)
             {
-                { this.dimensionNames[0], dimension1Value },
-                { this.dimensionNames[1], dimension2Value },
-                { this.dimensionNames[2], dimension3Value },
-            };
+                tags.Add(tag.Key, tag.Value);
+            }
+
+            tags.Add(this.dimensionNames[0], dimension1Value);
+            tags.Add(this.dimensionNames[1], dimension2Value);
+            tags.Add(this.dimensionNames[2], dimension3Value);
 
             histogram.Record(metricValue, tags);
             return true;
@@ -273,13 +301,17 @@
                 this.metricName,
                 this.metricNamespace);
 
-            var tags = new TagList
+            var tags = new TagList();
+
+            foreach (var tag in this.client.ContextTags)
             {
-                { this.dimensionNames[0], dimension1Value },
-                { this.dimensionNames[1], dimension2Value },
-                { this.dimensionNames[2], dimension3Value },
-                { this.dimensionNames[3], dimension4Value },
-            };
+                tags.Add(tag.Key, tag.Value);
+            }
+
+            tags.Add(this.dimensionNames[0], dimension1Value);
+            tags.Add(this.dimensionNames[1], dimension2Value);
+            tags.Add(this.dimensionNames[2], dimension3Value);
+            tags.Add(this.dimensionNames[3], dimension4Value);
 
             histogram.Record(metricValue, tags);
             return true;
@@ -346,14 +378,18 @@
                 this.metricName,
                 this.metricNamespace);
 
-            var tags = new TagList
+            var tags = new TagList();
+
+            foreach (var tag in this.client.ContextTags)
             {
-                { this.dimensionNames[0], dimension1Value },
-                { this.dimensionNames[1], dimension2Value },
-                { this.dimensionNames[2], dimension3Value },
-                { this.dimensionNames[3], dimension4Value },
-                { this.dimensionNames[4], dimension5Value },
-            };
+                tags.Add(tag.Key, tag.Value);
+            }
+
+            tags.Add(this.dimensionNames[0], dimension1Value);
+            tags.Add(this.dimensionNames[1], dimension2Value);
+            tags.Add(this.dimensionNames[2], dimension3Value);
+            tags.Add(this.dimensionNames[3], dimension4Value);
+            tags.Add(this.dimensionNames[4], dimension5Value);
 
             histogram.Record(metricValue, tags);
             return true;
@@ -429,15 +465,19 @@
                 this.metricName,
                 this.metricNamespace);
 
-            var tags = new TagList
+            var tags = new TagList();
+
+            foreach (var tag in this.client.ContextTags)
             {
-                { this.dimensionNames[0], dimension1Value },
-                { this.dimensionNames[1], dimension2Value },
-                { this.dimensionNames[2], dimension3Value },
-                { this.dimensionNames[3], dimension4Value },
-                { this.dimensionNames[4], dimension5Value },
-                { this.dimensionNames[5], dimension6Value },
-            };
+                tags.Add(tag.Key, tag.Value);
+            }
+
+            tags.Add(this.dimensionNames[0], dimension1Value);
+            tags.Add(this.dimensionNames[1], dimension2Value);
+            tags.Add(this.dimensionNames[2], dimension3Value);
+            tags.Add(this.dimensionNames[3], dimension4Value);
+            tags.Add(this.dimensionNames[4], dimension5Value);
+            tags.Add(this.dimensionNames[5], dimension6Value);
 
             histogram.Record(metricValue, tags);
             return true;
@@ -517,16 +557,20 @@
                 this.metricName,
                 this.metricNamespace);
 
-            var tags = new TagList
+            var tags = new TagList();
+
+            foreach (var tag in this.client.ContextTags)
             {
-                { this.dimensionNames[0], dimension1Value },
-                { this.dimensionNames[1], dimension2Value },
-                { this.dimensionNames[2], dimension3Value },
-                { this.dimensionNames[3], dimension4Value },
-                { this.dimensionNames[4], dimension5Value },
-                { this.dimensionNames[5], dimension6Value },
-                { this.dimensionNames[6], dimension7Value },
-            };
+                tags.Add(tag.Key, tag.Value);
+            }
+
+            tags.Add(this.dimensionNames[0], dimension1Value);
+            tags.Add(this.dimensionNames[1], dimension2Value);
+            tags.Add(this.dimensionNames[2], dimension3Value);
+            tags.Add(this.dimensionNames[3], dimension4Value);
+            tags.Add(this.dimensionNames[4], dimension5Value);
+            tags.Add(this.dimensionNames[5], dimension6Value);
+            tags.Add(this.dimensionNames[6], dimension7Value);
 
             histogram.Record(metricValue, tags);
             return true;
@@ -610,17 +654,21 @@
                 this.metricName,
                 this.metricNamespace);
 
-            var tags = new TagList
+            var tags = new TagList();
+
+            foreach (var tag in this.client.ContextTags)
             {
-                { this.dimensionNames[0], dimension1Value },
-                { this.dimensionNames[1], dimension2Value },
-                { this.dimensionNames[2], dimension3Value },
-                { this.dimensionNames[3], dimension4Value },
-                { this.dimensionNames[4], dimension5Value },
-                { this.dimensionNames[5], dimension6Value },
-                { this.dimensionNames[6], dimension7Value },
-                { this.dimensionNames[7], dimension8Value },
-            };
+                tags.Add(tag.Key, tag.Value);
+            }
+
+            tags.Add(this.dimensionNames[0], dimension1Value);
+            tags.Add(this.dimensionNames[1], dimension2Value);
+            tags.Add(this.dimensionNames[2], dimension3Value);
+            tags.Add(this.dimensionNames[3], dimension4Value);
+            tags.Add(this.dimensionNames[4], dimension5Value);
+            tags.Add(this.dimensionNames[5], dimension6Value);
+            tags.Add(this.dimensionNames[6], dimension7Value);
+            tags.Add(this.dimensionNames[7], dimension8Value);
 
             histogram.Record(metricValue, tags);
             return true;
@@ -708,18 +756,22 @@
                 this.metricName,
                 this.metricNamespace);
 
-            var tags = new TagList
+            var tags = new TagList();
+
+            foreach (var tag in this.client.ContextTags)
             {
-                { this.dimensionNames[0], dimension1Value },
-                { this.dimensionNames[1], dimension2Value },
-                { this.dimensionNames[2], dimension3Value },
-                { this.dimensionNames[3], dimension4Value },
-                { this.dimensionNames[4], dimension5Value },
-                { this.dimensionNames[5], dimension6Value },
-                { this.dimensionNames[6], dimension7Value },
-                { this.dimensionNames[7], dimension8Value },
-                { this.dimensionNames[8], dimension9Value },
-            };
+                tags.Add(tag.Key, tag.Value);
+            }
+
+            tags.Add(this.dimensionNames[0], dimension1Value);
+            tags.Add(this.dimensionNames[1], dimension2Value);
+            tags.Add(this.dimensionNames[2], dimension3Value);
+            tags.Add(this.dimensionNames[3], dimension4Value);
+            tags.Add(this.dimensionNames[4], dimension5Value);
+            tags.Add(this.dimensionNames[5], dimension6Value);
+            tags.Add(this.dimensionNames[6], dimension7Value);
+            tags.Add(this.dimensionNames[7], dimension8Value);
+            tags.Add(this.dimensionNames[8], dimension9Value);
 
             histogram.Record(metricValue, tags);
             return true;
@@ -811,19 +863,23 @@
                 this.metricName,
                 this.metricNamespace);
 
-            var tags = new TagList
+            var tags = new TagList();
+
+            foreach (var tag in this.client.ContextTags)
             {
-                { this.dimensionNames[0], dimension1Value },
-                { this.dimensionNames[1], dimension2Value },
-                { this.dimensionNames[2], dimension3Value },
-                { this.dimensionNames[3], dimension4Value },
-                { this.dimensionNames[4], dimension5Value },
-                { this.dimensionNames[5], dimension6Value },
-                { this.dimensionNames[6], dimension7Value },
-                { this.dimensionNames[7], dimension8Value },
-                { this.dimensionNames[8], dimension9Value },
-                { this.dimensionNames[9], dimension10Value },
-            };
+                tags.Add(tag.Key, tag.Value);
+            }
+
+            tags.Add(this.dimensionNames[0], dimension1Value);
+            tags.Add(this.dimensionNames[1], dimension2Value);
+            tags.Add(this.dimensionNames[2], dimension3Value);
+            tags.Add(this.dimensionNames[3], dimension4Value);
+            tags.Add(this.dimensionNames[4], dimension5Value);
+            tags.Add(this.dimensionNames[5], dimension6Value);
+            tags.Add(this.dimensionNames[6], dimension7Value);
+            tags.Add(this.dimensionNames[7], dimension8Value);
+            tags.Add(this.dimensionNames[8], dimension9Value);
+            tags.Add(this.dimensionNames[9], dimension10Value);
 
             histogram.Record(metricValue, tags);
             return true;
