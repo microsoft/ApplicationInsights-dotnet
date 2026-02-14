@@ -27,6 +27,7 @@ In addition, these settings are configurable via applicationinsights.config and 
 - [Processors](https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/docs/trace/extending-the-sdk#processor). These are meant to replace custom TelemetryInitializers/Modules & Filtering.
 - Samplers: Allow you to configure the amount of telemetry you can send. In this SDK, we have not yet implented the ability to use [baked-in OpenTelemetry samplers](https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/docs/trace/extending-the-sdk#sampler), though we provide settings via TelemetryConfiguration to use our Application Insights percentage based sampler or our custom rate-limited sampler.
 - [Resource detectors](https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/docs/resources/README.md)
+- [OpenTelemetry Exporters](https://opentelemetry.io/docs/languages/dotnet/exporters/)
 
 Application Insights 3.x is built on **OpenTelemetry**, an industry-standard observability framework. Understanding this foundation will help you make better decisions about when to use `TelemetryClient` versus native OpenTelemetry APIs.
 
@@ -146,7 +147,7 @@ Let's explore advanced scenarios for enriching, filtering, and optimizing your t
 
 #### Enriching Telemetry with Activity Processors
 
-Activity Processors replace `ITelemetryInitializer` from version 2.x. They enrich or modify telemetry before export:
+Activity Processors replace `ITelemetryInitializer` from version 2.x, for requests and dependencies. They enrich or modify telemetry before export:
 
 ```csharp
 using System.Diagnostics;
@@ -172,8 +173,9 @@ public class CustomEnrichmentProcessor : BaseProcessor<Activity>
 }
 ```
 
-**Register the processor:**
+##### Register the processor:
 
+**For the base and web packages**
 ```csharp
 configuration.ConfigureOpenTelemetryBuilder(builder =>
 {
@@ -181,7 +183,15 @@ configuration.ConfigureOpenTelemetryBuilder(builder =>
 });
 ```
 
-#### Filtering Telemetry
+**For AspNetCore & WorkerService**
+```csharp
+builder.Services.ConfigureOpenTelemetryTracerProvider((sp, tracerBuilder) =>
+{
+    tracerBuilder.AddProcessor<CustomEnrichmentProcessor>();
+});
+```
+
+#### Filtering Telemetry with Activity Processors
 
 Filter out unwanted telemetry to reduce volume and costs:
 
@@ -207,8 +217,9 @@ public class FilteringProcessor : BaseProcessor<Activity>
 }
 ```
 
-**Register the processor:**
+##### Register the processor:
 
+**For the base and web packages**
 ```csharp
 configuration.ConfigureOpenTelemetryBuilder(builder =>
 {
@@ -216,9 +227,63 @@ configuration.ConfigureOpenTelemetryBuilder(builder =>
 });
 ```
 
+**For AspNetCore & WorkerService**
+```csharp
+builder.Services.ConfigureOpenTelemetryTracerProvider((sp, tracerBuilder) =>
+{
+    tracerBuilder.AddProcessor<FilteringProcessor>();
+});
+```
+
+#### Log Processors
+It is also possible to add enrichment or filtering for log-based telemetry (exceptions, Application Insights traces, custom events) via log processors:
+
+```csharp
+using OpenTelemetry;
+using OpenTelemetry.Logs;
+
+public class CustomLogProcessor : BaseProcessor<LogRecord>
+{
+    public override void OnEnd(LogRecord logRecord)
+        {
+            var attributes = new List<KeyValuePair<string, object?>>
+            {
+                new("app.environment", "Production"),
+            };
+
+            if (logRecord.Attributes != null)
+            {
+                attributes.AddRange(logRecord.Attributes);
+            }
+
+            logRecord.Attributes = attributes;
+
+            System.Console.WriteLine($"[CustomLogProcessor] LogRecord processed. Attributes count: {logRecord.Attributes?.Count}");
+        }
+}
+```
+
+##### Register the processor:
+
+**For the base and web packages**
+```csharp
+configuration.ConfigureOpenTelemetryBuilder(builder =>
+{
+    builder.WithLogging(logging => logging.AddProcessor<CustomLogProcessor>());
+});
+```
+
+**For AspNetCore & WorkerService**
+```csharp
+builder.Services.ConfigureOpenTelemetryLoggerProvider((sp, loggerBuilder) =>
+{
+    loggerBuilder.AddProcessor<CustomLogProcessor>();
+});
+```
+
 #### Resource Detectors
 
-Resource Detectors can add contextual information to all telemetry:
+Resource Detectors can add contextual information which flow to an `_APPRESOURCEPREVIEW_` metric:
 
 ```csharp
 using OpenTelemetry.Resources;
@@ -241,7 +306,7 @@ public class CustomResourceDetector : IResourceDetector
 }
 ```
 
-Resource detectors are typically used to enrich telemetry by detecting the specific environment an application is running in - as an example, this SDK internally implements its own resource detector that determines whether it is an aspnetcore application and will decorate the telemetry accordingly.
+Resource detectors are typically used to enrich telemetry by detecting the specific environment an application is running in - as an example, this SDK internally implements its own resource detector that determines whether it is an aspnetcore application.
 
 **Register the detector:**
 
@@ -255,7 +320,6 @@ configuration.ConfigureOpenTelemetryBuilder(builder =>
 });
 ```
 ---
-Please review our full guide on [Sampling in Application Insights](https://docs.microsoft.com/azure/azure-monitor/app/sampling).
 
 
 ## Disabling Telemetry
