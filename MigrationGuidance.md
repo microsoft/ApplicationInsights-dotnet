@@ -161,6 +161,9 @@ config.ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-0000000000
 var client = new TelemetryClient(config);
 ```
 
+### Mutable Dictionary Requirement Resolved for Track* Methods
+In earlier 3.x pre-releases, several `Track*` methods mutated the `IDictionary<string, string> properties` parameter or the `Properties` dictionary on telemetry objects, which broke immutable dictionary implementations (e.g., F#'s `dict`/`Map`, `ReadOnlyDictionary`). This has been fixed — all `Track*` methods now create an internal copy before adding internal attributes. Immutable dictionaries are fully supported. No migration action is needed.
+
 ## Alternatives for Removed TelemetryConfiguration properties
 The [breaking changes](BreakingChanges.md#properties) defined which properties were removed. For some properties, further guidance is described below:
 

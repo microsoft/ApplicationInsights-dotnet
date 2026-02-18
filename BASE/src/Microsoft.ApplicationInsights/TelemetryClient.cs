@@ -138,13 +138,17 @@
                 return;
             }
 
-            if (properties == null)
+            var mergedProperties = new Dictionary<string, string>();
+            if (properties != null)
             {
-                properties = new Dictionary<string, string>();
+                foreach (var kvp in properties)
+                {
+                    mergedProperties[kvp.Key] = kvp.Value;
+                }
             }
 
-            properties.Add("microsoft.custom_event.name", eventName);
-            var state = new DictionaryLogState(this.Context, properties, String.Empty);
+            mergedProperties["microsoft.custom_event.name"] = eventName;
+            var state = new DictionaryLogState(this.Context, mergedProperties, String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -165,26 +169,34 @@
                 return;
             }
 
-            var properties = telemetry.Properties ?? new Dictionary<string, string>();
-            properties.Add("microsoft.custom_event.name", telemetry.Name);
+            var mergedProperties = new Dictionary<string, string>();
+            if (telemetry.Properties != null)
+            {
+                foreach (var kvp in telemetry.Properties)
+                {
+                    mergedProperties[kvp.Key] = kvp.Value;
+                }
+            }
+
+            mergedProperties["microsoft.custom_event.name"] = telemetry.Name;
 
             // Map context properties to semantic conventions
             if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
             {
-                properties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
+                mergedProperties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
             }
 
             if (!string.IsNullOrEmpty(telemetry.Context?.User?.Id))
             {
-                properties[SemanticConventions.AttributeEnduserPseudoId] = telemetry.Context.User.Id;
+                mergedProperties[SemanticConventions.AttributeEnduserPseudoId] = telemetry.Context.User.Id;
             }
 
             if (!string.IsNullOrEmpty(telemetry.Context?.User?.AuthenticatedUserId))
             {
-                properties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
+                mergedProperties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
             }
 
-            var state = new DictionaryLogState(telemetry.Context, properties, String.Empty);
+            var state = new DictionaryLogState(telemetry.Context, mergedProperties, String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -364,25 +376,32 @@
             }
 
             // Map context properties to semantic conventions that exporter understands
-            var properties = telemetry.Properties ?? new Dictionary<string, string>();
+            var mergedProperties = new Dictionary<string, string>();
+            if (telemetry.Properties != null)
+            {
+                foreach (var kvp in telemetry.Properties)
+                {
+                    mergedProperties[kvp.Key] = kvp.Value;
+                }
+            }
 
             if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
             {
-                properties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
+                mergedProperties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
             }
 
             if (!string.IsNullOrEmpty(telemetry.Context?.User?.Id))
             {
-                properties[SemanticConventions.AttributeEnduserPseudoId] = telemetry.Context.User.Id;
+                mergedProperties[SemanticConventions.AttributeEnduserPseudoId] = telemetry.Context.User.Id;
             }
 
             if (!string.IsNullOrEmpty(telemetry.Context?.User?.AuthenticatedUserId))
             {
-                properties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
+                mergedProperties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
             }
 
             LogLevel logLevel = GetLogLevel(telemetry.SeverityLevel.Value);
-            var state = new DictionaryLogState(telemetry.Context, properties, telemetry.Message);
+            var state = new DictionaryLogState(telemetry.Context, mergedProperties, telemetry.Message);
             this.Logger.Log(logLevel, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -500,24 +519,31 @@
             var reconstructedException = ConvertToException(telemetry);
 
             // Map context properties to semantic conventions
-            var properties = telemetry.Properties ?? new Dictionary<string, string>();
+            var mergedProperties = new Dictionary<string, string>();
+            if (telemetry.Properties != null)
+            {
+                foreach (var kvp in telemetry.Properties)
+                {
+                    mergedProperties[kvp.Key] = kvp.Value;
+                }
+            }
 
             if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
             {
-                properties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
+                mergedProperties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
             }
 
             if (!string.IsNullOrEmpty(telemetry.Context?.User?.Id))
             {
-                properties[SemanticConventions.AttributeEnduserPseudoId] = telemetry.Context.User.Id;
+                mergedProperties[SemanticConventions.AttributeEnduserPseudoId] = telemetry.Context.User.Id;
             }
 
             if (!string.IsNullOrEmpty(telemetry.Context?.User?.AuthenticatedUserId))
             {
-                properties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
+                mergedProperties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
             }
 
-            var state = new DictionaryLogState(telemetry.Context, properties, reconstructedException.Message);
+            var state = new DictionaryLogState(telemetry.Context, mergedProperties, reconstructedException.Message);
             var logLevel = GetLogLevel(telemetry.SeverityLevel ?? SeverityLevel.Error);
             this.Logger.Log(logLevel, 0, state, reconstructedException, (s, ex) => s.Message);
         }

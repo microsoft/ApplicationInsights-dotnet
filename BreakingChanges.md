@@ -57,6 +57,12 @@ The following packages are part of the shimmed 3.x release:
 - **2.x**: `TrackEvent(string eventName, IDictionary<string, string> properties, IDictionary<string, double> metrics)`
 - **3.x**: `TrackEvent(string eventName, IDictionary<string, string> properties)` **Metrics parameter removed**
 
+### Fixed: `TrackEvent` No Longer Mutates the `properties` Dictionary
+
+In earlier 3.x pre-releases, `TrackEvent(string eventName, IDictionary<string, string> properties)` mutated the caller's `properties` dictionary by calling `properties.Add("microsoft.custom_event.name", eventName)`. This caused `System.NotSupportedException` when passing immutable `IDictionary` implementations (such as F#'s `dict`/`Map`, `ReadOnlyDictionary<TKey, TValue>`, or `ImmutableDictionary<TKey, TValue>`), and could also cause `ArgumentException` on repeated calls with the same dictionary instance due to duplicate keys.
+
+This has been fixed. All `Track*` methods (`TrackEvent`, `TrackTrace`, `TrackException`, etc.) now create an internal copy of the properties dictionary before adding internal attributes. The caller's dictionary is never modified. Immutable and read-only dictionary implementations are fully supported.
+
 #### TrackAvailability
 - **2.x**: `TrackAvailability(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message, IDictionary<string, string> properties, IDictionary<string, double> metrics)`
 - **3.x**: `TrackAvailability(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message, IDictionary<string, string> properties)` **Metrics parameter removed**
