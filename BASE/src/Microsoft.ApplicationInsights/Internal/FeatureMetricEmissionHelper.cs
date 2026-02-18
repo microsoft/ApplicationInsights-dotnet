@@ -123,7 +123,16 @@ namespace Microsoft.ApplicationInsights.Internal
                     {
                         httpClient.DefaultRequestHeaders.Add("Metadata", "True");
                         var responseString = httpClient.GetStringAsync(new Uri(StatsbeatConstants.AMSUrl));
-                        return JsonSerializer.Deserialize<Dictionary<string, object>>(responseString.Result);
+                        using var document = JsonDocument.Parse(responseString.Result);
+                        var result = new Dictionary<string, object>();
+                        foreach (var property in document.RootElement.EnumerateObject())
+                        {
+                            result[property.Name] = property.Value.ValueKind == JsonValueKind.String
+                                ? property.Value.GetString()
+                                : property.Value.ToString();
+                        }
+
+                        return result;
                     }
                 }
             }
