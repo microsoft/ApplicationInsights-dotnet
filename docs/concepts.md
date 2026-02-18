@@ -187,9 +187,11 @@ configuration.ConfigureOpenTelemetryBuilder(builder =>
 ```csharp
 builder.Services.ConfigureOpenTelemetryTracerProvider((sp, tracerBuilder) =>
 {
-    tracerBuilder.AddProcessor<CustomEnrichmentProcessor>();
+    tracerBuilder.AddProcessor(new CustomEnrichmentProcessor());
 });
 ```
+
+> **Note:** The generic `AddProcessor<T>()` overload cannot be used inside `ConfigureOpenTelemetryTracerProvider` because the `ServiceProvider` has already been created at that point. Use the instance-based `AddProcessor(new T())` form instead.
 
 #### Filtering Telemetry with Activity Processors
 
@@ -231,7 +233,7 @@ configuration.ConfigureOpenTelemetryBuilder(builder =>
 ```csharp
 builder.Services.ConfigureOpenTelemetryTracerProvider((sp, tracerBuilder) =>
 {
-    tracerBuilder.AddProcessor<FilteringProcessor>();
+    tracerBuilder.AddProcessor(new FilteringProcessor());
 });
 ```
 
@@ -257,8 +259,6 @@ public class CustomLogProcessor : BaseProcessor<LogRecord>
             }
 
             logRecord.Attributes = attributes;
-
-            System.Console.WriteLine($"[CustomLogProcessor] LogRecord processed. Attributes count: {logRecord.Attributes?.Count}");
         }
 }
 ```
@@ -277,7 +277,7 @@ configuration.ConfigureOpenTelemetryBuilder(builder =>
 ```csharp
 builder.Services.ConfigureOpenTelemetryLoggerProvider((sp, loggerBuilder) =>
 {
-    loggerBuilder.AddProcessor<CustomLogProcessor>();
+    loggerBuilder.AddProcessor(new CustomLogProcessor());
 });
 ```
 

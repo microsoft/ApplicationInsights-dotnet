@@ -42,15 +42,15 @@ If one wishes to apply attributes to all telemetry, consider creating a [custom 
 - `DeviceTelemetryInitializer`
 - `DomainNameRoleInstanceTelemetryInitializer`: Was previously marked obsolete and now completely removed.
 
-In 3.x, these modules and initialzers are all removed. 
+In 3.x, these modules and initializers are all removed. 
 
 ## Initialization Guidance and InstrumentationKey removal
 This section highlights changes to initialization of TelemetryConfiguration and TelemetryClient, and defines how to set the connection string once references to instrumentation key are removed.
 
-### Use TelemetryConfig.CreateDefault() to create a configuration
+### Use TelemetryConfiguration.CreateDefault() to create a configuration
 This is the recommended way to create a telemetry configuration in 3.x.
 ```csharp
-TelemetryConfig.CreateDefault()
+TelemetryConfiguration.CreateDefault()
 ```
 ### Replace InstrumentationKey with ConnectionString
 InstrumentationKey configuration is not supported anymore in 3.x. Customers are advised to use their full connection string instead, as that contains endpoint information that is useful for the exporter. 
@@ -365,19 +365,21 @@ builder.Services.ConfigureOpenTelemetryLoggerProvider((sp, loggerBuilder) =>
 ```
 If one wishes to set service attributes only on specific telemetry items, that can be done via Track* overloads that take in custom properties, or via setting the property on the telemetry item before passing it to a Track* call.
 
-[!Note] There is a future work item to enable the setting of CloudContext and ComponetVersion properties without having to explicitely configure opentelemetry providers.
+> [!NOTE]
+> There is a future work item to enable the setting of CloudContext and ComponentVersion properties without having to explicitly configure OpenTelemetry providers.
 
 ### Device and Session Context & User.AccountId
-Currently, the Azure Monitor Exporter does not contain the mapping for these context attributes to appear in the correct part of the payload if a customer explicitely specifies it.
+Currently, the Azure Monitor Exporter does not contain the mapping for these context attributes to appear in the correct part of the payload if a customer explicitly specifies it.
 The current workaround is to add custom dimensions to your telemetry items instead. 
 For individual items, this can be done via Track* overloads that take in custom properties, or it can be set on the individual telemetry item via `Properties` before being passed to Track* calls.
 To add dimensions to all telemetry items, consider this [alternative](#familiar-api-alternative) or a [custom OpenTelemetry processor](#creating-a-custom-opentelemetry-processor).
 
-[!Note] There is a future work item to enable the setting of these context properties via their original Context attributes.
+> [!NOTE]
+> There is a future work item to enable the setting of these context properties via their original Context attributes.
 
 ### Setting TelemetryContext via TelemetryClient
 In 2.x it was possible to set TelemetryContext on the TelemetryClient, such that the context appeared on every telemetry item.
-In 3.x, this functionality is not completely implemented - ie, only the `GlobalProperties` will propogate. We are working on a fix to ensure other properties will also propogate.
+In 3.x, this functionality is not completely implemented - ie, only the `GlobalProperties` will propagate. We are working on a fix to ensure other properties will also propagate.
 
 Intended syntax:
 

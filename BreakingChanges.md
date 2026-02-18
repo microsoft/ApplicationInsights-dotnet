@@ -69,7 +69,7 @@ The following packages are part of the shimmed 3.x release:
 - **2.x**: `TrackDependency(string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, bool success)` [Obsolete]
 - **3.x**: **Overload removed entirely**
 
-Recommendation for metrics: Track metrics separately via GetMetric(..).TrackValue() or TrackMetric().
+Recommendation for metrics: Track metrics separately via `TrackMetric()`.
 
 #### GetMetric Overloads
 All `GetMetric` overloads have been simplified:
@@ -239,7 +239,7 @@ The `ConfigureTelemetryModule<T>()` extension method has also been removed. Use 
 
 ### Properties Removed
 - **`InstrumentationKey`** - Obsolete property removed (use `ConnectionString`)
-- **`DeveloperMode`** - Batching of telemetry is now internally managed by the underlying exporter. However, TelemetryClient.Flush() can still be used.
+- **`DeveloperMode`** - Batching of telemetry is now internally managed by the underlying exporter, with no equivalent toggle. However, TelemetryClient.Flush() can still be used in testing scenarios to flush telemetry.
 - **`EndpointAddress`** - No longer needed (`ConnectionString` contains endpoint information)
 - **`TelemetryInitializers`** - See detailed migration guidance [here](MigrationGuidance.md#telemetryinitializers-1)
 - **`EnableHeartbeat`** - Heartbeat configuration removed as the 3.x internally maintains its own heartbeating mechanism.
@@ -263,6 +263,8 @@ The `ConfigureTelemetryModule<T>()` extension method has also been removed. Use 
 - **`TracesPerSecond`** (double?) - Gets or sets the number of traces per second for rate-limited sampling (default sampling mode). Replaces `EnableAdaptiveSampling`.
 - **`SamplingRatio`** (float?) - Gets or sets the sampling ratio for traces (0.0 to 1.0). A value of 1.0 means all telemetry is sent. 
 - **`EnableTraceBasedLogsSampler`** (bool?) - Gets or sets whether trace-based log sampling is enabled (default: true). When enabled, logs are sampled based on the sampling decision of the associated trace.
+
+Please see our [migration guide](MigrationGuidance.md#sampling) for detailed guidance on sampling.
 
 ### JavaScriptSnippet Constructor Change
 **2.x:**
@@ -318,7 +320,7 @@ The `ConfigureTelemetryModule<T>()` extension method has also been removed. Use 
 - **`EnableAzureInstanceMetadataTelemetryModule`** - 3.x internally calls a resource detector that emits resource attributes to an internal resource metric.
 - **`EnableHeartbeat`** - 3.x internally emits a heartbeat metric by default.
 - **`EnableDiagnosticsTelemetryModule`** - Removed in favor of self diagnostics and internally implemented heartbeat.
-- **`DeveloperMode`** - Batching of telemetry is now internally managed by the underlying exporter. However, TelemetryClient.Flush() can still be used.
+- **`DeveloperMode`** - Batching of telemetry is now internally managed by the underlying exporter, with no equivalent toggle. However, TelemetryClient.Flush() can still be used in testing scenarios to flush telemetry.
 - **`EndpointAddress`** - No longer configurable (`ConnectionString` contains endpoints)
 - **`DependencyCollectionOptions`** - See detailed migration guidance [here](MigrationGuidance.md#dependencycollectionoptions)
 - **`EnableAdaptiveSampling`** - Removed in favor of our internal rate limited sampler, which is now the default sampling mechanism.
