@@ -9,6 +9,8 @@ namespace Microsoft.ApplicationInsights
     using Azure.Monitor.OpenTelemetry.Exporter;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Internal;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
     using OpenTelemetry;
     using OpenTelemetry.Resources;
 
@@ -34,8 +36,10 @@ namespace Microsoft.ApplicationInsights
                 .WithMetrics(metrics => metrics.AddMeter(TelemetryConfiguration.ApplicationInsightsMeterName))
                 .WithTracing(tracing => tracing.AddSource(TelemetryConfiguration.ApplicationInsightsActivitySourceName));
 
-            // Note: Connection string should be set via UseAzureMonitor() 
-            // when TelemetryConfiguration.ConnectionString is provided
+            // Ensure that all log severity levels (including Verbose/Debug) pass through
+            // the internal LoggerFactory. Without this, the default MinLevel of Information
+            // silently drops TrackTrace calls with SeverityLevel.Verbose.
+            builder.Services.Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Trace);
 
             return builder;
         }
