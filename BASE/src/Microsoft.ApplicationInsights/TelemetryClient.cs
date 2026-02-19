@@ -138,15 +138,7 @@
                 return;
             }
 
-            var mergedProperties = new Dictionary<string, string>();
-            if (properties != null)
-            {
-                foreach (var kvp in properties)
-                {
-                    mergedProperties[kvp.Key] = kvp.Value;
-                }
-            }
-
+            var mergedProperties = EnsureMutable(properties);
             mergedProperties["microsoft.custom_event.name"] = eventName;
             var state = new DictionaryLogState(this.Context, mergedProperties, String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
@@ -169,15 +161,7 @@
                 return;
             }
 
-            var mergedProperties = new Dictionary<string, string>();
-            if (telemetry.Properties != null)
-            {
-                foreach (var kvp in telemetry.Properties)
-                {
-                    mergedProperties[kvp.Key] = kvp.Value;
-                }
-            }
-
+            var mergedProperties = EnsureMutable(telemetry.Properties);
             mergedProperties["microsoft.custom_event.name"] = telemetry.Name;
 
             // Map context properties to semantic conventions
@@ -376,14 +360,7 @@
             }
 
             // Map context properties to semantic conventions that exporter understands
-            var mergedProperties = new Dictionary<string, string>();
-            if (telemetry.Properties != null)
-            {
-                foreach (var kvp in telemetry.Properties)
-                {
-                    mergedProperties[kvp.Key] = kvp.Value;
-                }
-            }
+            var mergedProperties = EnsureMutable(telemetry.Properties);
 
             if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
             {
@@ -519,14 +496,7 @@
             var reconstructedException = ConvertToException(telemetry);
 
             // Map context properties to semantic conventions
-            var mergedProperties = new Dictionary<string, string>();
-            if (telemetry.Properties != null)
-            {
-                foreach (var kvp in telemetry.Properties)
-                {
-                    mergedProperties[kvp.Key] = kvp.Value;
-                }
-            }
+            var mergedProperties = EnsureMutable(telemetry.Properties);
 
             if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
             {
@@ -1398,6 +1368,24 @@
                 // Silently ignore any issues enriching the exception
                 // The core exception object is still valid
             }
+        }
+
+        /// <summary>
+        /// Returns the dictionary as-is if it is mutable, or creates a mutable copy if it is read-only or null.
+        /// </summary>
+        private static IDictionary<string, string> EnsureMutable(IDictionary<string, string> properties)
+        {
+            if (properties == null)
+            {
+                return new Dictionary<string, string>();
+            }
+
+            if (properties.IsReadOnly)
+            {
+                return new Dictionary<string, string>(properties);
+            }
+
+            return properties;
         }
 
         /// <summary>

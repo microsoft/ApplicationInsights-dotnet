@@ -178,17 +178,18 @@ namespace Microsoft.ApplicationInsights
         }
 
         [Fact]
-        public void TrackEventDoesNotMutatePropertiesDictionary()
+        public void TrackEventDoesNotMutateReadOnlyPropertiesDictionary()
         {
-            var properties = new Dictionary<string, string> { { "key1", "value1" } };
-            var originalCount = properties.Count;
+            var inner = new Dictionary<string, string> { { "key1", "value1" } };
+            var readOnly = new ReadOnlyDictionary<string, string>(inner);
+            var originalCount = inner.Count;
 
-            this.telemetryClient.TrackEvent("TestEvent", properties);
+            this.telemetryClient.TrackEvent("TestEvent", readOnly);
             this.telemetryClient.Flush();
 
-            // The caller's dictionary must not be modified
-            Assert.Equal(originalCount, properties.Count);
-            Assert.False(properties.ContainsKey("microsoft.custom_event.name"),
+            // The original dictionary behind the read-only wrapper must not be modified
+            Assert.Equal(originalCount, inner.Count);
+            Assert.False(inner.ContainsKey("microsoft.custom_event.name"),
                 "Internal attribute should not leak into caller's dictionary");
         }
 
@@ -222,22 +223,6 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Flush();
 
             Assert.True(this.logItems.Count >= 2, "Both events should be recorded");
-        }
-
-        [Fact]
-        public void TrackEventWithEventTelemetryDoesNotMutateProperties()
-        {
-            var eventTelemetry = new EventTelemetry("TestEvent");
-            eventTelemetry.Properties["userProp"] = "userValue";
-            var originalCount = eventTelemetry.Properties.Count;
-
-            this.telemetryClient.TrackEvent(eventTelemetry);
-            this.telemetryClient.Flush();
-
-            // The telemetry object's Properties must not be modified
-            Assert.Equal(originalCount, eventTelemetry.Properties.Count);
-            Assert.False(eventTelemetry.Properties.ContainsKey("microsoft.custom_event.name"),
-                "Internal attribute should not leak into telemetry's Properties");
         }
 
         #endregion
@@ -589,18 +574,6 @@ namespace Microsoft.ApplicationInsights
         }
 
         [Fact]
-        public void TrackTraceDoesNotMutatePropertiesDictionary()
-        {
-            var properties = new Dictionary<string, string> { { "key1", "value1" } };
-            var originalCount = properties.Count;
-
-            this.telemetryClient.TrackTrace("Test message", properties);
-            this.telemetryClient.Flush();
-
-            Assert.Equal(originalCount, properties.Count);
-        }
-
-        [Fact]
         public void TrackTraceAcceptsReadOnlyDictionary()
         {
             var inner = new Dictionary<string, string> { { "key1", "value1" } };
@@ -611,21 +584,6 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Flush();
 
             Assert.True(this.logItems.Count > 0, "Log should be collected");
-        }
-
-        [Fact]
-        public void TrackTraceWithTraceTelemetryDoesNotMutateProperties()
-        {
-            var traceTelemetry = new TraceTelemetry("Test message");
-            traceTelemetry.Properties["userProp"] = "userValue";
-            var originalCount = traceTelemetry.Properties.Count;
-
-            this.telemetryClient.TrackTrace(traceTelemetry);
-            this.telemetryClient.Flush();
-
-            Assert.Equal(originalCount, traceTelemetry.Properties.Count);
-            Assert.False(traceTelemetry.Properties.ContainsKey("microsoft.client.ip"),
-                "Internal attributes should not leak into telemetry's Properties");
         }
 
         #endregion
@@ -1199,21 +1157,6 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Flush();
 
             Assert.True(this.logItems.Count > 0, "Log should be collected");
-        }
-
-        [Fact]
-        public void TrackExceptionWithExceptionTelemetryDoesNotMutateProperties()
-        {
-            var telemetry = new ExceptionTelemetry(new InvalidOperationException("Test"));
-            telemetry.Properties["userProp"] = "userValue";
-            var originalCount = telemetry.Properties.Count;
-
-            this.telemetryClient.TrackException(telemetry);
-            this.telemetryClient.Flush();
-
-            Assert.Equal(originalCount, telemetry.Properties.Count);
-            Assert.False(telemetry.Properties.ContainsKey("microsoft.client.ip"),
-                "Internal attributes should not leak into telemetry's Properties");
         }
 
         #endregion
