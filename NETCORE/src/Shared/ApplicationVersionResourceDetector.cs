@@ -5,6 +5,7 @@ namespace Microsoft.ApplicationInsights.WorkerService
 #endif
 {
     using System.Collections.Generic;
+    using Microsoft.ApplicationInsights.Internal;
     using OpenTelemetry.Resources;
 
     /// <summary>
@@ -21,9 +22,9 @@ namespace Microsoft.ApplicationInsights.WorkerService
 
         public Resource Detect()
         {
-            return string.IsNullOrEmpty(this.applicationVersion)
+            return string.IsNullOrWhiteSpace(this.applicationVersion)
                 ? Resource.Empty
-                : new Resource([new KeyValuePair<string, object>("service.version", this.applicationVersion)]);
+                : new Resource([new KeyValuePair<string, object>(SemanticConventions.AttributeServiceVersion, this.applicationVersion)]);
         }
     }
 }

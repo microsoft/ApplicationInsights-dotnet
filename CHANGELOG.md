@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- [Fix `ApplicationVersion` ignored: `ApplicationInsightsServiceOptions.ApplicationVersion` is now applied as `service.version` on the OpenTelemetry Resource for both AspNetCore and WorkerService packages](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3124)
+
 ## Version 3.0.0
 - [Replaced `netstandard2.0` with `net8.0` target framework in `Microsoft.ApplicationInsights.NLogTarget` package.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3102)
 

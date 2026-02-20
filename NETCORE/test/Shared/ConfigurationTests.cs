@@ -101,40 +101,29 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
             Assert.Equal("1.0.0", options.ApplicationVersion);
         }
 
-        [Fact]
-        public void ApplicationVersionResourceDetectorReturnsServiceVersion()
+        [Theory]
+        [InlineData("2.5.0", "2.5.0")]
+        [InlineData(null, null)]
+        [InlineData("", null)]
+        [InlineData("   ", null)]
+        public void ApplicationVersionResourceDetectorReturnsExpectedResource(string inputVersion, string expectedVersion)
         {
             // ARRANGE & ACT
-            var detector = new ApplicationVersionResourceDetector("2.5.0");
+            var detector = new ApplicationVersionResourceDetector(inputVersion);
             var resource = detector.Detect();
 
             // VALIDATE
-            Assert.NotEqual(OpenTelemetry.Resources.Resource.Empty, resource);
-            var attributes = resource.Attributes.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-            Assert.True(attributes.ContainsKey("service.version"));
-            Assert.Equal("2.5.0", attributes["service.version"]);
-        }
-
-        [Fact]
-        public void ApplicationVersionResourceDetectorReturnsEmptyWhenVersionIsNull()
-        {
-            // ARRANGE & ACT
-            var detector = new ApplicationVersionResourceDetector(null);
-            var resource = detector.Detect();
-
-            // VALIDATE
-            Assert.Equal(OpenTelemetry.Resources.Resource.Empty, resource);
-        }
-
-        [Fact]
-        public void ApplicationVersionResourceDetectorReturnsEmptyWhenVersionIsEmpty()
-        {
-            // ARRANGE & ACT
-            var detector = new ApplicationVersionResourceDetector(string.Empty);
-            var resource = detector.Detect();
-
-            // VALIDATE
-            Assert.Equal(OpenTelemetry.Resources.Resource.Empty, resource);
+            if (expectedVersion == null)
+            {
+                Assert.Equal(OpenTelemetry.Resources.Resource.Empty, resource);
+            }
+            else
+            {
+                Assert.NotEqual(OpenTelemetry.Resources.Resource.Empty, resource);
+                var attributes = resource.Attributes.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                Assert.True(attributes.ContainsKey("service.version"));
+                Assert.Equal(expectedVersion, attributes["service.version"]);
+            }
         }
 
         [Fact]
