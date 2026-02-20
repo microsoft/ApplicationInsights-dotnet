@@ -57,7 +57,6 @@ namespace Microsoft.ApplicationInsights.NLogTarget.Tests
                            options.Transport = transport;
                            options.DisableOfflineStorage = true;
                        });
-                builder.Services.Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Trace);
                 builder.WithLogging(logging =>
                     logging.AddProcessor(new SimpleLogRecordExportProcessor(
                         new AzureMonitorRecordingLogExporter(this.collector, () => this.instrumentationKey))));
