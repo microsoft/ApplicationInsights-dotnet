@@ -1,7 +1,7 @@
 # Changelog
 
 ## Unreleased
-- [Fix bug where Debug/Trace level logs from TelemetryClient or NlogTarget were not emitted to AppInsights](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3121/changes)
+- [Fix bug where Debug/Trace level logs from TrackTrace API were not emitted to Application Insights](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3121/changes)
 
 ## Version 3.0.0
 - [Replaced `netstandard2.0` with `net8.0` target framework in `Microsoft.ApplicationInsights.NLogTarget` package.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3102)
