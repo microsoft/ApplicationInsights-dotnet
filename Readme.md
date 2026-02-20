@@ -8,16 +8,16 @@ This is the .NET SDK for sending data to [Azure Monitor](https://docs.microsoft.
 - **OpenTelemetry Extensibility**: You can extend telemetry collection using standard OpenTelemetry patterns (Activity Processors, Resource Detectors, custom instrumentation).
 - **Unified Observability**: Seamlessly integrates with the broader OpenTelemetry ecosystem, allowing you to send telemetry to multiple backends.
 
-See [breaking changes](BreakingChanges.md) for more information on what has changed between versions 2.x and 3.x.
+See [breaking changes](BreakingChanges.md) for more information on what has changed between versions 2.x and 3.x. See [this](MigrationGuidance.md) for detailed migration guidance.
 
 ## Quick Start: Choose Your Path
 
 Select the option that best describes your situation:
 
-- **Building an ASP.NET Core web application?** → Use the [ASP.NET Core SDK](../NETCORE/Readme.md) for automatic instrumentation
-- **Building a Worker Service, console app, or background service?** → Use the [Worker Service SDK](../NETCORE/WorkerService.md) for simplified configuration
-- **Need the core TelemetryClient API for custom scenarios?** → Use the [base SDK](../BASE/README.md)
-- **Need compatibility with NLog?** -> Use the [Logging SDK](../LOGGING/README.md)
+- **Building an ASP.NET Core web application?** → Use the [ASP.NET Core SDK](NETCORE/Readme.md) for automatic instrumentation
+- **Building a Worker Service, console app, or background service?** → Use the [Worker Service SDK](NETCORE/WorkerService.md) for simplified configuration
+- **Need the core TelemetryClient API for custom scenarios?** → Use the [base SDK](BASE/README.md)
+- **Need compatibility with NLog?** -> Use the [Logging SDK](LOGGING/README.md)
 
 ### Understanding our SDK
 
@@ -67,4 +67,3 @@ A guide on common troubleshooting topics is available [here](troubleshooting).
 
 For immediate support relating to the Application Insights .NET SDK we encourage you to file an [Azure Support Request](https://docs.microsoft.com/azure/azure-portal/supportability/how-to-create-azure-support-request) with Microsoft Azure instead of filing a GitHub Issue in this repository. 
 You can do so by going online to the [Azure portal](https://portal.azure.com/) and submitting a support request. Access to subscription management and billing support is included with your Microsoft Azure subscription, and technical support is provided through one of the [Azure Support Plans](https://azure.microsoft.com/support/plans/). For step-by-step guidance for the Azure portal, see [How to create an Azure support request](https://docs.microsoft.com/azure/azure-portal/supportability/how-to-create-azure-support-request). Alternatively, you can create and manage your support tickets programmatically using the [Azure Support ticket REST API](https://docs.microsoft.com/rest/api/support/).
-

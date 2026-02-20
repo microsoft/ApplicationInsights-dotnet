@@ -14,6 +14,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Internal;
     using Microsoft.ApplicationInsights.Metrics;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using OpenTelemetry;
     using OpenTelemetry.Logs;
@@ -28,6 +29,7 @@
     {
         internal readonly TelemetryConfiguration Configuration;
         private readonly ActivitySource activitySource;
+        private readonly IServiceProvider serviceProvider;
         private OpenTelemetrySdk sdk;
         private ILogger<TelemetryClient> logger;
 
@@ -74,6 +76,19 @@
             : this(configuration, isFromDependencyInjection: true)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TelemetryClient" /> class for DI scenarios with logger and service provider injection.
+        /// </summary>
+        /// <param name="configuration">The telemetry configuration.</param>
+        /// <param name="logger">The logger instance from DI container.</param>
+        /// <param name="serviceProvider">The service provider for resolving OTel providers at flush time.</param>
+        internal TelemetryClient(TelemetryConfiguration configuration, ILogger<TelemetryClient> logger, IServiceProvider serviceProvider)
+            : this(configuration, isFromDependencyInjection: true)
+        {
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
         /// <summary>
@@ -144,13 +159,9 @@
                 return;
             }
 
-            if (properties == null)
-            {
-                properties = new Dictionary<string, string>();
-            }
-
-            properties.Add("microsoft.custom_event.name", eventName);
-            var state = new DictionaryLogState(this.Context, this.ContextTags, properties, String.Empty);
+            var mergedProperties = EnsureMutable(properties);
+            mergedProperties["microsoft.custom_event.name"] = eventName;
+            var state = new DictionaryLogState(this.Context, this.ContextTags, mergedProperties, String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -171,13 +182,13 @@
                 return;
             }
 
-            var properties = telemetry.Properties ?? new Dictionary<string, string>();
-            properties.Add("microsoft.custom_event.name", telemetry.Name);
+            var mergedProperties = EnsureMutable(telemetry.Properties);
+            mergedProperties["microsoft.custom_event.name"] = telemetry.Name;
 
             // Map item-level context properties to semantic conventions
-            this.ApplyContextToProperties(telemetry.Context, properties);
+            this.ApplyContextToProperties(telemetry.Context, mergedProperties);
 
-            var state = new DictionaryLogState(telemetry.Context, this.ContextTags, properties, String.Empty);
+            var state = new DictionaryLogState(telemetry.Context, this.ContextTags, mergedProperties, String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -344,11 +355,11 @@
             }
 
             // Map item-level context properties to semantic conventions
-            var properties = telemetry.Properties ?? new Dictionary<string, string>();
-            this.ApplyContextToProperties(telemetry.Context, properties);
+            var mergedProperties = EnsureMutable(telemetry.Properties);
+            this.ApplyContextToProperties(telemetry.Context, mergedProperties);
 
             LogLevel logLevel = GetLogLevel(telemetry.SeverityLevel.Value);
-            var state = new DictionaryLogState(telemetry.Context, this.ContextTags, properties, telemetry.Message);
+            var state = new DictionaryLogState(telemetry.Context, this.ContextTags, mergedProperties, telemetry.Message);
             this.Logger.Log(logLevel, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -369,20 +380,38 @@
             // Get or create histogram for this metric
             var histogram = this.Configuration.MetricsManager.GetOrCreateHistogram(name, null);
 
-            // Build tags from client-level context (lower priority), then properties (higher priority)
-            var tags = new TagList();
+            // Merge all tag sources into a dictionary (lowest priority first, last-write-wins)
+            var allTags = new Dictionary<string, string>();
 
+            // 1. Client-level context tags (lowest priority)
             foreach (var tag in this.ContextTags)
             {
-                tags.Add(tag.Key, tag.Value);
+                allTags[tag.Key] = tag.Value;
             }
 
+            // 2. GlobalProperties from client context
+            if (this.Context?.GlobalPropertiesValue != null)
+            {
+                foreach (var property in this.Context.GlobalPropertiesValue)
+                {
+                    allTags[property.Key] = property.Value;
+                }
+            }
+
+            // 3. Caller-provided properties (highest priority)
             if (properties != null)
             {
                 foreach (var kvp in properties)
                 {
-                    tags.Add(kvp.Key, kvp.Value);
+                    allTags[kvp.Key] = kvp.Value;
                 }
+            }
+
+            // Convert to TagList for OTel histogram recording
+            var tags = new TagList();
+            foreach (var kvp in allTags)
+            {
+                tags.Add(kvp.Key, kvp.Value);
             }
 
             histogram.Record(value, tags);
@@ -411,20 +440,50 @@
                 telemetry.Name,
                 telemetry.MetricNamespace);
 
-            // Build tags from client-level context (lower priority), then item properties (higher priority)
-            var tags = new TagList();
+            // Merge all tag sources into a dictionary (lowest priority first, last-write-wins)
+            var allTags = new Dictionary<string, string>();
 
+            // 1. Client-level context tags (lowest priority)
             foreach (var tag in this.ContextTags)
             {
-                tags.Add(tag.Key, tag.Value);
+                allTags[tag.Key] = tag.Value;
             }
 
+            // 2. GlobalProperties from client context
+            if (this.Context?.GlobalPropertiesValue != null)
+            {
+                foreach (var property in this.Context.GlobalPropertiesValue)
+                {
+                    allTags[property.Key] = property.Value;
+                }
+            }
+
+            // 3. GlobalProperties from item context
+            if (telemetry.Context?.GlobalPropertiesValue != null)
+            {
+                foreach (var property in telemetry.Context.GlobalPropertiesValue)
+                {
+                    allTags[property.Key] = property.Value;
+                }
+            }
+
+            // 4. Item custom properties
             if (telemetry.Properties != null)
             {
                 foreach (var kvp in telemetry.Properties)
                 {
-                    tags.Add(kvp.Key, kvp.Value);
+                    allTags[kvp.Key] = kvp.Value;
                 }
+            }
+
+            // 5. Item-level context (highest priority)
+            this.ApplyContextToProperties(telemetry.Context, allTags);
+
+            // Convert to TagList for OTel histogram recording
+            var tags = new TagList();
+            foreach (var kvp in allTags)
+            {
+                tags.Add(kvp.Key, kvp.Value);
             }
 
             histogram.Record(telemetry.Value, tags);
@@ -470,10 +529,10 @@
             var reconstructedException = ConvertToException(telemetry);
 
             // Map item-level context properties to semantic conventions
-            var properties = telemetry.Properties ?? new Dictionary<string, string>();
-            this.ApplyContextToProperties(telemetry.Context, properties);
+            var mergedProperties = EnsureMutable(telemetry.Properties);
+            this.ApplyContextToProperties(telemetry.Context, mergedProperties);
 
-            var state = new DictionaryLogState(telemetry.Context, this.ContextTags, properties, reconstructedException.Message);
+            var state = new DictionaryLogState(telemetry.Context, this.ContextTags, mergedProperties, reconstructedException.Message);
             var logLevel = GetLogLevel(telemetry.SeverityLevel ?? SeverityLevel.Error);
             this.Logger.Log(logLevel, 0, state, reconstructedException, (s, ex) => s.Message);
         }
@@ -839,10 +898,20 @@
         {
             CoreEventSource.Log.TelemetlyClientFlush();
 
-            // Force flush all providers
-            this.sdk.TracerProvider?.ForceFlush();
-            this.sdk.MeterProvider?.ForceFlush();
-            this.sdk.LoggerProvider?.ForceFlush();
+            if (this.sdk != null)
+            {
+                // Non-DI scenario: flush via the SDK we built
+                this.sdk.TracerProvider?.ForceFlush();
+                this.sdk.MeterProvider?.ForceFlush();
+                this.sdk.LoggerProvider?.ForceFlush();
+            }
+            else if (this.serviceProvider != null)
+            {
+                // DI scenario: resolve providers from the service provider
+                this.serviceProvider.GetService<TracerProvider>()?.ForceFlush();
+                this.serviceProvider.GetService<MeterProvider>()?.ForceFlush();
+                this.serviceProvider.GetService<LoggerProvider>()?.ForceFlush();
+            }
         }
 
         /// <summary>
@@ -879,19 +948,36 @@
                         return false;
                     }
 
-                    bool tracerResult = this.sdk.TracerProvider?.ForceFlush() ?? true;
+                    TracerProvider tracerProvider = null;
+                    MeterProvider meterProvider = null;
+                    LoggerProvider loggerProvider = null;
+
+                    if (this.sdk != null)
+                    {
+                        tracerProvider = this.sdk.TracerProvider;
+                        meterProvider = this.sdk.MeterProvider;
+                        loggerProvider = this.sdk.LoggerProvider;
+                    }
+                    else if (this.serviceProvider != null)
+                    {
+                        tracerProvider = this.serviceProvider.GetService<TracerProvider>();
+                        meterProvider = this.serviceProvider.GetService<MeterProvider>();
+                        loggerProvider = this.serviceProvider.GetService<LoggerProvider>();
+                    }
+
+                    bool tracerResult = tracerProvider?.ForceFlush() ?? true;
                     if (cancellationToken.IsCancellationRequested)
                     {
                         return false;
                     }
 
-                    bool meterResult = this.sdk.MeterProvider?.ForceFlush() ?? true;
+                    bool meterResult = meterProvider?.ForceFlush() ?? true;
                     if (cancellationToken.IsCancellationRequested)
                     {
                         return false;
                     }
 
-                    bool loggerResult = this.sdk.LoggerProvider?.ForceFlush() ?? true;
+                    bool loggerResult = loggerProvider?.ForceFlush() ?? true;
 
                     return tracerResult && meterResult && loggerResult;
                 }, cancellationToken).ConfigureAwait(false);
@@ -1309,6 +1395,24 @@
                 // Silently ignore any issues enriching the exception
                 // The core exception object is still valid
             }
+        }
+
+        /// <summary>
+        /// Returns the dictionary as-is if it is mutable, or creates a mutable copy if it is read-only or null.
+        /// </summary>
+        private static IDictionary<string, string> EnsureMutable(IDictionary<string, string> properties)
+        {
+            if (properties == null)
+            {
+                return new Dictionary<string, string>();
+            }
+
+            if (properties.IsReadOnly)
+            {
+                return new Dictionary<string, string>(properties);
+            }
+
+            return properties;
         }
 
         /// <summary>

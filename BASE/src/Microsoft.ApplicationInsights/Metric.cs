@@ -47,13 +47,14 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
-            var contextTags = this.client.ContextTags;
-            if (contextTags.Count > 0)
+            var allTags = this.BuildMetricTags();
+
+            if (allTags.Count > 0)
             {
                 var tags = new TagList();
-                foreach (var tag in contextTags)
+                foreach (var kvp in allTags)
                 {
-                    tags.Add(tag.Key, tag.Value);
+                    tags.Add(kvp.Key, kvp.Value);
                 }
 
                 histogram.Record(metricValue, tags);
@@ -106,14 +107,17 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
+            var allTags = this.BuildMetricTags();
+
+            // Dimension values (highest priority)
+            allTags[this.dimensionNames[0]] = dimension1Value;
+
+            // Convert to TagList for OTel histogram recording
             var tags = new TagList();
-
-            foreach (var tag in this.client.ContextTags)
+            foreach (var kvp in allTags)
             {
-                tags.Add(tag.Key, tag.Value);
+                tags.Add(kvp.Key, kvp.Value);
             }
-
-            tags.Add(this.dimensionNames[0], dimension1Value);
 
             histogram.Record(metricValue, tags);
             return true;
@@ -168,15 +172,18 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
+            var allTags = this.BuildMetricTags();
+
+            // Dimension values (highest priority)
+            allTags[this.dimensionNames[0]] = dimension1Value;
+            allTags[this.dimensionNames[1]] = dimension2Value;
+
+            // Convert to TagList for OTel histogram recording
             var tags = new TagList();
-
-            foreach (var tag in this.client.ContextTags)
+            foreach (var kvp in allTags)
             {
-                tags.Add(tag.Key, tag.Value);
+                tags.Add(kvp.Key, kvp.Value);
             }
-
-            tags.Add(this.dimensionNames[0], dimension1Value);
-            tags.Add(this.dimensionNames[1], dimension2Value);
 
             histogram.Record(metricValue, tags);
             return true;
@@ -233,16 +240,19 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
+            var allTags = this.BuildMetricTags();
+
+            // Dimension values (highest priority)
+            allTags[this.dimensionNames[0]] = dimension1Value;
+            allTags[this.dimensionNames[1]] = dimension2Value;
+            allTags[this.dimensionNames[2]] = dimension3Value;
+
+            // Convert to TagList for OTel histogram recording
             var tags = new TagList();
-
-            foreach (var tag in this.client.ContextTags)
+            foreach (var kvp in allTags)
             {
-                tags.Add(tag.Key, tag.Value);
+                tags.Add(kvp.Key, kvp.Value);
             }
-
-            tags.Add(this.dimensionNames[0], dimension1Value);
-            tags.Add(this.dimensionNames[1], dimension2Value);
-            tags.Add(this.dimensionNames[2], dimension3Value);
 
             histogram.Record(metricValue, tags);
             return true;
@@ -301,17 +311,20 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
+            var allTags = this.BuildMetricTags();
+
+            // Dimension values (highest priority)
+            allTags[this.dimensionNames[0]] = dimension1Value;
+            allTags[this.dimensionNames[1]] = dimension2Value;
+            allTags[this.dimensionNames[2]] = dimension3Value;
+            allTags[this.dimensionNames[3]] = dimension4Value;
+
+            // Convert to TagList for OTel histogram recording
             var tags = new TagList();
-
-            foreach (var tag in this.client.ContextTags)
+            foreach (var kvp in allTags)
             {
-                tags.Add(tag.Key, tag.Value);
+                tags.Add(kvp.Key, kvp.Value);
             }
-
-            tags.Add(this.dimensionNames[0], dimension1Value);
-            tags.Add(this.dimensionNames[1], dimension2Value);
-            tags.Add(this.dimensionNames[2], dimension3Value);
-            tags.Add(this.dimensionNames[3], dimension4Value);
 
             histogram.Record(metricValue, tags);
             return true;
@@ -378,18 +391,21 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
+            var allTags = this.BuildMetricTags();
+
+            // Dimension values (highest priority)
+            allTags[this.dimensionNames[0]] = dimension1Value;
+            allTags[this.dimensionNames[1]] = dimension2Value;
+            allTags[this.dimensionNames[2]] = dimension3Value;
+            allTags[this.dimensionNames[3]] = dimension4Value;
+            allTags[this.dimensionNames[4]] = dimension5Value;
+
+            // Convert to TagList for OTel histogram recording
             var tags = new TagList();
-
-            foreach (var tag in this.client.ContextTags)
+            foreach (var kvp in allTags)
             {
-                tags.Add(tag.Key, tag.Value);
+                tags.Add(kvp.Key, kvp.Value);
             }
-
-            tags.Add(this.dimensionNames[0], dimension1Value);
-            tags.Add(this.dimensionNames[1], dimension2Value);
-            tags.Add(this.dimensionNames[2], dimension3Value);
-            tags.Add(this.dimensionNames[3], dimension4Value);
-            tags.Add(this.dimensionNames[4], dimension5Value);
 
             histogram.Record(metricValue, tags);
             return true;
@@ -465,19 +481,22 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
+            var allTags = this.BuildMetricTags();
+
+            // Dimension values (highest priority)
+            allTags[this.dimensionNames[0]] = dimension1Value;
+            allTags[this.dimensionNames[1]] = dimension2Value;
+            allTags[this.dimensionNames[2]] = dimension3Value;
+            allTags[this.dimensionNames[3]] = dimension4Value;
+            allTags[this.dimensionNames[4]] = dimension5Value;
+            allTags[this.dimensionNames[5]] = dimension6Value;
+
+            // Convert to TagList for OTel histogram recording
             var tags = new TagList();
-
-            foreach (var tag in this.client.ContextTags)
+            foreach (var kvp in allTags)
             {
-                tags.Add(tag.Key, tag.Value);
+                tags.Add(kvp.Key, kvp.Value);
             }
-
-            tags.Add(this.dimensionNames[0], dimension1Value);
-            tags.Add(this.dimensionNames[1], dimension2Value);
-            tags.Add(this.dimensionNames[2], dimension3Value);
-            tags.Add(this.dimensionNames[3], dimension4Value);
-            tags.Add(this.dimensionNames[4], dimension5Value);
-            tags.Add(this.dimensionNames[5], dimension6Value);
 
             histogram.Record(metricValue, tags);
             return true;
@@ -557,20 +576,23 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
+            var allTags = this.BuildMetricTags();
+
+            // Dimension values (highest priority)
+            allTags[this.dimensionNames[0]] = dimension1Value;
+            allTags[this.dimensionNames[1]] = dimension2Value;
+            allTags[this.dimensionNames[2]] = dimension3Value;
+            allTags[this.dimensionNames[3]] = dimension4Value;
+            allTags[this.dimensionNames[4]] = dimension5Value;
+            allTags[this.dimensionNames[5]] = dimension6Value;
+            allTags[this.dimensionNames[6]] = dimension7Value;
+
+            // Convert to TagList for OTel histogram recording
             var tags = new TagList();
-
-            foreach (var tag in this.client.ContextTags)
+            foreach (var kvp in allTags)
             {
-                tags.Add(tag.Key, tag.Value);
+                tags.Add(kvp.Key, kvp.Value);
             }
-
-            tags.Add(this.dimensionNames[0], dimension1Value);
-            tags.Add(this.dimensionNames[1], dimension2Value);
-            tags.Add(this.dimensionNames[2], dimension3Value);
-            tags.Add(this.dimensionNames[3], dimension4Value);
-            tags.Add(this.dimensionNames[4], dimension5Value);
-            tags.Add(this.dimensionNames[5], dimension6Value);
-            tags.Add(this.dimensionNames[6], dimension7Value);
 
             histogram.Record(metricValue, tags);
             return true;
@@ -654,21 +676,24 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
+            var allTags = this.BuildMetricTags();
+
+            // Dimension values (highest priority)
+            allTags[this.dimensionNames[0]] = dimension1Value;
+            allTags[this.dimensionNames[1]] = dimension2Value;
+            allTags[this.dimensionNames[2]] = dimension3Value;
+            allTags[this.dimensionNames[3]] = dimension4Value;
+            allTags[this.dimensionNames[4]] = dimension5Value;
+            allTags[this.dimensionNames[5]] = dimension6Value;
+            allTags[this.dimensionNames[6]] = dimension7Value;
+            allTags[this.dimensionNames[7]] = dimension8Value;
+
+            // Convert to TagList for OTel histogram recording
             var tags = new TagList();
-
-            foreach (var tag in this.client.ContextTags)
+            foreach (var kvp in allTags)
             {
-                tags.Add(tag.Key, tag.Value);
+                tags.Add(kvp.Key, kvp.Value);
             }
-
-            tags.Add(this.dimensionNames[0], dimension1Value);
-            tags.Add(this.dimensionNames[1], dimension2Value);
-            tags.Add(this.dimensionNames[2], dimension3Value);
-            tags.Add(this.dimensionNames[3], dimension4Value);
-            tags.Add(this.dimensionNames[4], dimension5Value);
-            tags.Add(this.dimensionNames[5], dimension6Value);
-            tags.Add(this.dimensionNames[6], dimension7Value);
-            tags.Add(this.dimensionNames[7], dimension8Value);
 
             histogram.Record(metricValue, tags);
             return true;
@@ -756,22 +781,25 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
+            var allTags = this.BuildMetricTags();
+
+            // Dimension values (highest priority)
+            allTags[this.dimensionNames[0]] = dimension1Value;
+            allTags[this.dimensionNames[1]] = dimension2Value;
+            allTags[this.dimensionNames[2]] = dimension3Value;
+            allTags[this.dimensionNames[3]] = dimension4Value;
+            allTags[this.dimensionNames[4]] = dimension5Value;
+            allTags[this.dimensionNames[5]] = dimension6Value;
+            allTags[this.dimensionNames[6]] = dimension7Value;
+            allTags[this.dimensionNames[7]] = dimension8Value;
+            allTags[this.dimensionNames[8]] = dimension9Value;
+
+            // Convert to TagList for OTel histogram recording
             var tags = new TagList();
-
-            foreach (var tag in this.client.ContextTags)
+            foreach (var kvp in allTags)
             {
-                tags.Add(tag.Key, tag.Value);
+                tags.Add(kvp.Key, kvp.Value);
             }
-
-            tags.Add(this.dimensionNames[0], dimension1Value);
-            tags.Add(this.dimensionNames[1], dimension2Value);
-            tags.Add(this.dimensionNames[2], dimension3Value);
-            tags.Add(this.dimensionNames[3], dimension4Value);
-            tags.Add(this.dimensionNames[4], dimension5Value);
-            tags.Add(this.dimensionNames[5], dimension6Value);
-            tags.Add(this.dimensionNames[6], dimension7Value);
-            tags.Add(this.dimensionNames[7], dimension8Value);
-            tags.Add(this.dimensionNames[8], dimension9Value);
 
             histogram.Record(metricValue, tags);
             return true;
@@ -863,23 +891,26 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
+            var allTags = this.BuildMetricTags();
+
+            // Dimension values (highest priority)
+            allTags[this.dimensionNames[0]] = dimension1Value;
+            allTags[this.dimensionNames[1]] = dimension2Value;
+            allTags[this.dimensionNames[2]] = dimension3Value;
+            allTags[this.dimensionNames[3]] = dimension4Value;
+            allTags[this.dimensionNames[4]] = dimension5Value;
+            allTags[this.dimensionNames[5]] = dimension6Value;
+            allTags[this.dimensionNames[6]] = dimension7Value;
+            allTags[this.dimensionNames[7]] = dimension8Value;
+            allTags[this.dimensionNames[8]] = dimension9Value;
+            allTags[this.dimensionNames[9]] = dimension10Value;
+
+            // Convert to TagList for OTel histogram recording
             var tags = new TagList();
-
-            foreach (var tag in this.client.ContextTags)
+            foreach (var kvp in allTags)
             {
-                tags.Add(tag.Key, tag.Value);
+                tags.Add(kvp.Key, kvp.Value);
             }
-
-            tags.Add(this.dimensionNames[0], dimension1Value);
-            tags.Add(this.dimensionNames[1], dimension2Value);
-            tags.Add(this.dimensionNames[2], dimension3Value);
-            tags.Add(this.dimensionNames[3], dimension4Value);
-            tags.Add(this.dimensionNames[4], dimension5Value);
-            tags.Add(this.dimensionNames[5], dimension6Value);
-            tags.Add(this.dimensionNames[6], dimension7Value);
-            tags.Add(this.dimensionNames[7], dimension8Value);
-            tags.Add(this.dimensionNames[8], dimension9Value);
-            tags.Add(this.dimensionNames[9], dimension10Value);
 
             histogram.Record(metricValue, tags);
             return true;
@@ -928,6 +959,33 @@ namespace Microsoft.ApplicationInsights
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Builds a dictionary of metric tags by merging client-level context tags and GlobalProperties.
+        /// Context tags have lowest priority; GlobalProperties override them.
+        /// Callers should add dimension values after calling this method (highest priority).
+        /// </summary>
+        private Dictionary<string, string> BuildMetricTags()
+        {
+            var allTags = new Dictionary<string, string>();
+
+            // 1. Client-level context tags (lowest priority)
+            foreach (var tag in this.client.ContextTags)
+            {
+                allTags[tag.Key] = tag.Value;
+            }
+
+            // 2. GlobalProperties from client context
+            if (this.client.Context?.GlobalPropertiesValue != null)
+            {
+                foreach (var property in this.client.Context.GlobalPropertiesValue)
+                {
+                    allTags[property.Key] = property.Value;
+                }
+            }
+
+            return allTags;
         }
     }
 }
