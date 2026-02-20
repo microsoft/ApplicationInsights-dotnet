@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- [Fix `HttpRequestExtensions.UnvalidatedGetHeader` always returning empty string instead of the actual header value. Restored max-length enforcement to guard against oversized header values.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/)
+
 ## Version 3.0.0
 - [Replaced `netstandard2.0` with `net8.0` target framework in `Microsoft.ApplicationInsights.NLogTarget` package.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3102)
 

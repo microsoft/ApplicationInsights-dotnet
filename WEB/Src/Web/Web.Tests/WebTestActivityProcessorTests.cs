@@ -5,6 +5,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
     using System.Diagnostics;
     using System.Web;
     using Microsoft.ApplicationInsights.Web.Helpers;
+    using Microsoft.ApplicationInsights.Web.Implementation;
     using Xunit;
 
     public class WebTestActivityProcessorTests : ActivityProcessorTestBase
@@ -201,6 +202,29 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             var syntheticSource = activity.GetTagItem("ai.operation.syntheticSource");
             Assert.NotNull(syntheticSource);
             Assert.Equal("Application Insights Availability Monitoring", syntheticSource.ToString());
+        }
+
+        [Fact]
+        public void OnEnd_TruncatesHeaderExceedingMaxLength()
+        {
+            var longRunId = new string('X', RequestTrackingConstants.RequestHeaderMaxLength + 100);
+            var headers = new Dictionary<string, string>
+            {
+                { "SyntheticTest-Location", "LOC" },
+                { "SyntheticTest-RunId", longRunId }
+            };
+            var context = HttpModuleHelper.GetFakeHttpContext(headers);
+            SetupTracerProvider(new WebTestActivityProcessor());
+
+            Activity activity;
+            using (activity = StartTestActivity())
+            {
+                Assert.NotNull(activity);
+            }
+
+            var sessionId = activity.GetTagItem("session.id")?.ToString();
+            Assert.NotNull(sessionId);
+            Assert.Equal(RequestTrackingConstants.RequestHeaderMaxLength, sessionId.Length);
         }
     }
 }
