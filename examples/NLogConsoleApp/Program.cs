@@ -4,7 +4,7 @@ Console.WriteLine("NLog Console App - Application Insights Example");
 Console.WriteLine("================================================\n");
 
 NLog.Common.InternalLogger.LogToConsole = true;
-NLog.Common.InternalLogger.LogLevel = NLog.LogLevel.Warn;
+NLog.Common.InternalLogger.LogLevel = NLog.LogLevel.Trace;
 
 /*
 // Optional: Configure Azure Active Directory (AAD) authentication

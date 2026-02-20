@@ -517,9 +517,10 @@ namespace Microsoft.ApplicationInsights
         [Fact]
         public void TrackTraceWithTraceTelemetryAndAllSeverityLevels()
         {
-            // Test all severity levels in sequence (Note: Verbose/Trace may be filtered by default logger configuration)
+            // Test all severity levels 
             var testData = new[]
             {
+                (SeverityLevel.Verbose, LogLevel.Debug, "Trace-Verbose"),
                 (SeverityLevel.Information, LogLevel.Information, "Trace-Information"),
                 (SeverityLevel.Warning, LogLevel.Warning, "Trace-Warning"),
                 (SeverityLevel.Error, LogLevel.Error, "Trace-Error"),
@@ -537,7 +538,7 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Flush();
             
             // Verify all logs were collected
-            Assert.True(this.logItems.Count >= 4, $"Expected at least 4 logs, but got {this.logItems.Count}");
+            Assert.True(this.logItems.Count >= 5, $"Expected at least 5 logs, but got {this.logItems.Count}");
             
             // Verify each severity level was logged correctly
             foreach (var (severity, expectedLogLevel, message) in testData)
