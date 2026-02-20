@@ -125,14 +125,15 @@
                 return configuration;
             });
             
-            // Register TelemetryClient with factory that injects the logger from DI
+            // Register TelemetryClient with factory that injects the logger and service provider from DI
             services.AddSingleton<TelemetryClient>(provider =>
             {
                 var configuration = provider.GetRequiredService<TelemetryConfiguration>();
                 var logger = provider.GetRequiredService<ILogger<TelemetryClient>>();
                 
-                // Use the internal constructor that accepts logger
-                return new TelemetryClient(configuration, logger);
+                // Use the internal constructor that accepts logger and service provider
+                // The service provider is needed so Flush/FlushAsync can resolve DI-managed OTel providers
+                return new TelemetryClient(configuration, logger, provider);
             });
         }
     }
