@@ -1,7 +1,11 @@
 # Changelog
 
 ## Unreleased
+<<<<<<< harskaur/nlogMinLevel
 - [Fix bug where Debug/Trace level logs from TrackTrace API were not emitted to Application Insights](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3121/changes)
+=======
+- [Fix Track API calls to not mutate the passed in dictionary if it is readonly](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3119)
+>>>>>>> main
 
 ## Version 3.0.0
 - [Replaced `netstandard2.0` with `net8.0` target framework in `Microsoft.ApplicationInsights.NLogTarget` package.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3102)
