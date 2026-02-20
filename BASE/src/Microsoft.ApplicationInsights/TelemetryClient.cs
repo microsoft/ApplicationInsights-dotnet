@@ -14,6 +14,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Internal;
     using Microsoft.ApplicationInsights.Metrics;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using OpenTelemetry;
     using OpenTelemetry.Logs;
@@ -28,6 +29,7 @@
     {
         internal readonly TelemetryConfiguration Configuration;
         private readonly ActivitySource activitySource;
+        private readonly IServiceProvider serviceProvider;
         private OpenTelemetrySdk sdk;
         private ILogger<TelemetryClient> logger;
 
@@ -74,6 +76,19 @@
             : this(configuration, isFromDependencyInjection: true)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TelemetryClient" /> class for DI scenarios with logger and service provider injection.
+        /// </summary>
+        /// <param name="configuration">The telemetry configuration.</param>
+        /// <param name="logger">The logger instance from DI container.</param>
+        /// <param name="serviceProvider">The service provider for resolving OTel providers at flush time.</param>
+        internal TelemetryClient(TelemetryConfiguration configuration, ILogger<TelemetryClient> logger, IServiceProvider serviceProvider)
+            : this(configuration, isFromDependencyInjection: true)
+        {
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
         /// <summary>
@@ -138,13 +153,9 @@
                 return;
             }
 
-            if (properties == null)
-            {
-                properties = new Dictionary<string, string>();
-            }
-
-            properties.Add("microsoft.custom_event.name", eventName);
-            var state = new DictionaryLogState(this.Context, properties, String.Empty);
+            var mergedProperties = EnsureMutable(properties);
+            mergedProperties["microsoft.custom_event.name"] = eventName;
+            var state = new DictionaryLogState(this.Context, mergedProperties, String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -165,26 +176,26 @@
                 return;
             }
 
-            var properties = telemetry.Properties ?? new Dictionary<string, string>();
-            properties.Add("microsoft.custom_event.name", telemetry.Name);
+            var mergedProperties = EnsureMutable(telemetry.Properties);
+            mergedProperties["microsoft.custom_event.name"] = telemetry.Name;
 
             // Map context properties to semantic conventions
             if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
             {
-                properties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
+                mergedProperties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
             }
 
             if (!string.IsNullOrEmpty(telemetry.Context?.User?.Id))
             {
-                properties[SemanticConventions.AttributeEnduserPseudoId] = telemetry.Context.User.Id;
+                mergedProperties[SemanticConventions.AttributeEnduserPseudoId] = telemetry.Context.User.Id;
             }
 
             if (!string.IsNullOrEmpty(telemetry.Context?.User?.AuthenticatedUserId))
             {
-                properties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
+                mergedProperties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
             }
 
-            var state = new DictionaryLogState(telemetry.Context, properties, String.Empty);
+            var state = new DictionaryLogState(telemetry.Context, mergedProperties, String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -364,25 +375,25 @@
             }
 
             // Map context properties to semantic conventions that exporter understands
-            var properties = telemetry.Properties ?? new Dictionary<string, string>();
+            var mergedProperties = EnsureMutable(telemetry.Properties);
 
             if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
             {
-                properties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
+                mergedProperties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
             }
 
             if (!string.IsNullOrEmpty(telemetry.Context?.User?.Id))
             {
-                properties[SemanticConventions.AttributeEnduserPseudoId] = telemetry.Context.User.Id;
+                mergedProperties[SemanticConventions.AttributeEnduserPseudoId] = telemetry.Context.User.Id;
             }
 
             if (!string.IsNullOrEmpty(telemetry.Context?.User?.AuthenticatedUserId))
             {
-                properties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
+                mergedProperties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
             }
 
             LogLevel logLevel = GetLogLevel(telemetry.SeverityLevel.Value);
-            var state = new DictionaryLogState(telemetry.Context, properties, telemetry.Message);
+            var state = new DictionaryLogState(telemetry.Context, mergedProperties, telemetry.Message);
             this.Logger.Log(logLevel, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -500,24 +511,24 @@
             var reconstructedException = ConvertToException(telemetry);
 
             // Map context properties to semantic conventions
-            var properties = telemetry.Properties ?? new Dictionary<string, string>();
+            var mergedProperties = EnsureMutable(telemetry.Properties);
 
             if (!string.IsNullOrEmpty(telemetry.Context?.Location?.Ip))
             {
-                properties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
+                mergedProperties["microsoft.client.ip"] = telemetry.Context.Location.Ip;
             }
 
             if (!string.IsNullOrEmpty(telemetry.Context?.User?.Id))
             {
-                properties[SemanticConventions.AttributeEnduserPseudoId] = telemetry.Context.User.Id;
+                mergedProperties[SemanticConventions.AttributeEnduserPseudoId] = telemetry.Context.User.Id;
             }
 
             if (!string.IsNullOrEmpty(telemetry.Context?.User?.AuthenticatedUserId))
             {
-                properties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
+                mergedProperties[SemanticConventions.AttributeEnduserId] = telemetry.Context.User.AuthenticatedUserId;
             }
 
-            var state = new DictionaryLogState(telemetry.Context, properties, reconstructedException.Message);
+            var state = new DictionaryLogState(telemetry.Context, mergedProperties, reconstructedException.Message);
             var logLevel = GetLogLevel(telemetry.SeverityLevel ?? SeverityLevel.Error);
             this.Logger.Log(logLevel, 0, state, reconstructedException, (s, ex) => s.Message);
         }
@@ -902,10 +913,20 @@
         {
             CoreEventSource.Log.TelemetlyClientFlush();
 
-            // Force flush all providers
-            this.sdk.TracerProvider?.ForceFlush();
-            this.sdk.MeterProvider?.ForceFlush();
-            this.sdk.LoggerProvider?.ForceFlush();
+            if (this.sdk != null)
+            {
+                // Non-DI scenario: flush via the SDK we built
+                this.sdk.TracerProvider?.ForceFlush();
+                this.sdk.MeterProvider?.ForceFlush();
+                this.sdk.LoggerProvider?.ForceFlush();
+            }
+            else if (this.serviceProvider != null)
+            {
+                // DI scenario: resolve providers from the service provider
+                this.serviceProvider.GetService<TracerProvider>()?.ForceFlush();
+                this.serviceProvider.GetService<MeterProvider>()?.ForceFlush();
+                this.serviceProvider.GetService<LoggerProvider>()?.ForceFlush();
+            }
         }
 
         /// <summary>
@@ -942,19 +963,36 @@
                         return false;
                     }
 
-                    bool tracerResult = this.sdk.TracerProvider?.ForceFlush() ?? true;
+                    TracerProvider tracerProvider = null;
+                    MeterProvider meterProvider = null;
+                    LoggerProvider loggerProvider = null;
+
+                    if (this.sdk != null)
+                    {
+                        tracerProvider = this.sdk.TracerProvider;
+                        meterProvider = this.sdk.MeterProvider;
+                        loggerProvider = this.sdk.LoggerProvider;
+                    }
+                    else if (this.serviceProvider != null)
+                    {
+                        tracerProvider = this.serviceProvider.GetService<TracerProvider>();
+                        meterProvider = this.serviceProvider.GetService<MeterProvider>();
+                        loggerProvider = this.serviceProvider.GetService<LoggerProvider>();
+                    }
+
+                    bool tracerResult = tracerProvider?.ForceFlush() ?? true;
                     if (cancellationToken.IsCancellationRequested)
                     {
                         return false;
                     }
 
-                    bool meterResult = this.sdk.MeterProvider?.ForceFlush() ?? true;
+                    bool meterResult = meterProvider?.ForceFlush() ?? true;
                     if (cancellationToken.IsCancellationRequested)
                     {
                         return false;
                     }
 
-                    bool loggerResult = this.sdk.LoggerProvider?.ForceFlush() ?? true;
+                    bool loggerResult = loggerProvider?.ForceFlush() ?? true;
 
                     return tracerResult && meterResult && loggerResult;
                 }, cancellationToken).ConfigureAwait(false);
@@ -1372,6 +1410,24 @@
                 // Silently ignore any issues enriching the exception
                 // The core exception object is still valid
             }
+        }
+
+        /// <summary>
+        /// Returns the dictionary as-is if it is mutable, or creates a mutable copy if it is read-only or null.
+        /// </summary>
+        private static IDictionary<string, string> EnsureMutable(IDictionary<string, string> properties)
+        {
+            if (properties == null)
+            {
+                return new Dictionary<string, string>();
+            }
+
+            if (properties.IsReadOnly)
+            {
+                return new Dictionary<string, string>(properties);
+            }
+
+            return properties;
         }
 
         /// <summary>

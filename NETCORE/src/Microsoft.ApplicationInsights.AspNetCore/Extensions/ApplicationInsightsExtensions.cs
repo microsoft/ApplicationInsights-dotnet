@@ -133,6 +133,7 @@
                 })
                 .AddAzureAppServiceDetector()
                 .AddAzureVMDetector()
+                .AddDetector(sp => new ApplicationVersionResourceDetector(sp.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value.ApplicationVersion))
                 .AddDetector(sp => new AspNetCoreEnvironmentResourceDetector(sp.GetService<IConfiguration>()));
 
             builder.ConfigureResource(configureResource);

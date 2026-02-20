@@ -2,6 +2,7 @@ namespace Microsoft.ApplicationInsights
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
@@ -174,6 +175,54 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.TrackEvent((string)null);
             this.telemetryClient.Flush();
             // Note: This test verifies error handling
+        }
+
+        [Fact]
+        public void TrackEventDoesNotMutateReadOnlyPropertiesDictionary()
+        {
+            var inner = new Dictionary<string, string> { { "key1", "value1" } };
+            var readOnly = new ReadOnlyDictionary<string, string>(inner);
+            var originalCount = inner.Count;
+
+            this.telemetryClient.TrackEvent("TestEvent", readOnly);
+            this.telemetryClient.Flush();
+
+            // The original dictionary behind the read-only wrapper must not be modified
+            Assert.Equal(originalCount, inner.Count);
+            Assert.False(inner.ContainsKey("microsoft.custom_event.name"),
+                "Internal attribute should not leak into caller's dictionary");
+        }
+
+        [Fact]
+        public void TrackEventAcceptsReadOnlyDictionary()
+        {
+            var inner = new Dictionary<string, string> { { "key1", "value1" } };
+            var readOnly = new ReadOnlyDictionary<string, string>(inner);
+
+            // Must not throw NotSupportedException
+            this.telemetryClient.TrackEvent("TestEvent", readOnly);
+            this.telemetryClient.Flush();
+
+            var logRecord = this.logItems.FirstOrDefault(l =>
+                l.Attributes != null && l.Attributes.Any(a =>
+                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "TestEvent"));
+            Assert.NotNull(logRecord);
+
+            // Verify user property is still present
+            Assert.True(logRecord.Attributes.Any(a => a.Key == "key1" && a.Value?.ToString() == "value1"));
+        }
+
+        [Fact]
+        public void TrackEventCanBeCalledTwiceWithSameDictionary()
+        {
+            var properties = new Dictionary<string, string> { { "key1", "value1" } };
+
+            // Both calls should succeed without ArgumentException from duplicate keys
+            this.telemetryClient.TrackEvent("Event1", properties);
+            this.telemetryClient.TrackEvent("Event2", properties);
+            this.telemetryClient.Flush();
+
+            Assert.True(this.logItems.Count >= 2, "Both events should be recorded");
         }
 
         #endregion
@@ -468,9 +517,10 @@ namespace Microsoft.ApplicationInsights
         [Fact]
         public void TrackTraceWithTraceTelemetryAndAllSeverityLevels()
         {
-            // Test all severity levels in sequence (Note: Verbose/Trace may be filtered by default logger configuration)
+            // Test all severity levels 
             var testData = new[]
             {
+                (SeverityLevel.Verbose, LogLevel.Debug, "Trace-Verbose"),
                 (SeverityLevel.Information, LogLevel.Information, "Trace-Information"),
                 (SeverityLevel.Warning, LogLevel.Warning, "Trace-Warning"),
                 (SeverityLevel.Error, LogLevel.Error, "Trace-Error"),
@@ -488,7 +538,7 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Flush();
             
             // Verify all logs were collected
-            Assert.True(this.logItems.Count >= 4, $"Expected at least 4 logs, but got {this.logItems.Count}");
+            Assert.True(this.logItems.Count >= 5, $"Expected at least 5 logs, but got {this.logItems.Count}");
             
             // Verify each severity level was logged correctly
             foreach (var (severity, expectedLogLevel, message) in testData)
@@ -522,6 +572,19 @@ namespace Microsoft.ApplicationInsights
             Assert.True(this.logItems.Count > 0, "Log should be collected even with empty message");
             var logRecord = this.logItems[0];
             Assert.NotNull(logRecord);
+        }
+
+        [Fact]
+        public void TrackTraceAcceptsReadOnlyDictionary()
+        {
+            var inner = new Dictionary<string, string> { { "key1", "value1" } };
+            var readOnly = new ReadOnlyDictionary<string, string>(inner);
+
+            // Must not throw NotSupportedException
+            this.telemetryClient.TrackTrace("Test message", readOnly);
+            this.telemetryClient.Flush();
+
+            Assert.True(this.logItems.Count > 0, "Log should be collected");
         }
 
         #endregion
@@ -1068,6 +1131,33 @@ namespace Microsoft.ApplicationInsights
             // The exception should have inner exception
             Assert.NotNull(logRecord.Exception.InnerException);
             Assert.Equal("Inner exception message", logRecord.Exception.InnerException.Message);
+        }
+
+        [Fact]
+        public void TrackExceptionDoesNotMutatePropertiesDictionary()
+        {
+            var properties = new Dictionary<string, string> { { "key1", "value1" } };
+            var originalCount = properties.Count;
+            var exception = new InvalidOperationException("Test");
+
+            this.telemetryClient.TrackException(exception, properties);
+            this.telemetryClient.Flush();
+
+            Assert.Equal(originalCount, properties.Count);
+        }
+
+        [Fact]
+        public void TrackExceptionAcceptsReadOnlyDictionary()
+        {
+            var inner = new Dictionary<string, string> { { "key1", "value1" } };
+            var readOnly = new ReadOnlyDictionary<string, string>(inner);
+            var exception = new InvalidOperationException("Test");
+
+            // Must not throw NotSupportedException
+            this.telemetryClient.TrackException(exception, readOnly);
+            this.telemetryClient.Flush();
+
+            Assert.True(this.logItems.Count > 0, "Log should be collected");
         }
 
         #endregion
