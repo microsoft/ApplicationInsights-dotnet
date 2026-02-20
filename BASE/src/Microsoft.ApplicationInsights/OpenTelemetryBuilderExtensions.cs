@@ -37,9 +37,18 @@ namespace Microsoft.ApplicationInsights
                 .WithTracing(tracing => tracing.AddSource(TelemetryConfiguration.ApplicationInsightsActivitySourceName));
 
             // Ensure that all log severity levels (including Verbose/Debug) pass through
-            // the internal LoggerFactory. Without this, the default MinLevel of Information
-            // silently drops TrackTrace calls with SeverityLevel.Verbose.
-            builder.Services.Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Trace);
+            // the internal LoggerFactory for the TelemetryClient category. Without this,
+            // the default MinLevel of Information silently drops TrackTrace calls with
+            // SeverityLevel.Verbose. We target only the TelemetryClient category to avoid
+            // lowering the minimum level globally for other loggers in the pipeline.
+            builder.Services.Configure<LoggerFilterOptions>(options =>
+            {
+                options.Rules.Add(new LoggerFilterRule(
+                    providerName: null,
+                    categoryName: "Microsoft.ApplicationInsights.TelemetryClient",
+                    logLevel: LogLevel.Trace,
+                    filter: null));
+            });
 
             return builder;
         }
