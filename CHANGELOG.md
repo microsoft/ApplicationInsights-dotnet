@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- [Fix Track API calls to not mutate the passed in dictionary if it is readonly](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3119)
 - [Fix `NullReferenceException` in `TelemetryClient.Flush()` and `FlushAsync()` when called from DI scenarios](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3125)
 
 ## Version 3.0.0
