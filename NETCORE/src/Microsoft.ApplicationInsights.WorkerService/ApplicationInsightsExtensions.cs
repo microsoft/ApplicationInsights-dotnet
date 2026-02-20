@@ -129,7 +129,8 @@
                     new KeyValuePair<string, object>("telemetry.distro.version", VersionUtils.GetVersion(typeof(ApplicationInsightsExtensions))),
                 })
                 .AddAzureAppServiceDetector()
-                .AddAzureVMDetector();
+                .AddAzureVMDetector()
+                .AddDetector(sp => new ApplicationVersionResourceDetector(sp.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value.ApplicationVersion));
 
             builder.ConfigureResource(configureResource);
 

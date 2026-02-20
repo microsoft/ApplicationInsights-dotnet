@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using Azure.Monitor.OpenTelemetry.Exporter;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -98,6 +99,42 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
             IServiceProvider serviceProvider = services.BuildServiceProvider();
             var options = serviceProvider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value;
             Assert.Equal("1.0.0", options.ApplicationVersion);
+        }
+
+        [Fact]
+        public void ApplicationVersionResourceDetectorReturnsServiceVersion()
+        {
+            // ARRANGE & ACT
+            var detector = new ApplicationVersionResourceDetector("2.5.0");
+            var resource = detector.Detect();
+
+            // VALIDATE
+            Assert.NotEqual(OpenTelemetry.Resources.Resource.Empty, resource);
+            var attributes = resource.Attributes.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            Assert.True(attributes.ContainsKey("service.version"));
+            Assert.Equal("2.5.0", attributes["service.version"]);
+        }
+
+        [Fact]
+        public void ApplicationVersionResourceDetectorReturnsEmptyWhenVersionIsNull()
+        {
+            // ARRANGE & ACT
+            var detector = new ApplicationVersionResourceDetector(null);
+            var resource = detector.Detect();
+
+            // VALIDATE
+            Assert.Equal(OpenTelemetry.Resources.Resource.Empty, resource);
+        }
+
+        [Fact]
+        public void ApplicationVersionResourceDetectorReturnsEmptyWhenVersionIsEmpty()
+        {
+            // ARRANGE & ACT
+            var detector = new ApplicationVersionResourceDetector(string.Empty);
+            var resource = detector.Detect();
+
+            // VALIDATE
+            Assert.Equal(OpenTelemetry.Resources.Resource.Empty, resource);
         }
 
         [Fact]
