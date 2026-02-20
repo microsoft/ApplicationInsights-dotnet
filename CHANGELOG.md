@@ -5,6 +5,7 @@
 - [Fix Track API calls to not mutate the passed in dictionary if it is readonly](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3119)
 - [Fix `NullReferenceException` in `TelemetryClient.Flush()` and `FlushAsync()` when called from DI scenarios](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3125)
 - [Fix `ApplicationVersion` ignored: `ApplicationInsightsServiceOptions.ApplicationVersion` is now applied as `service.version` on the OpenTelemetry Resource for both AspNetCore and WorkerService packages](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3124)
+- [Fix `HttpRequestExtensions.UnvalidatedGetHeader` always returning empty string instead of the actual header value. Restored max-length enforcement to guard against oversized header values.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3126)
 
 ## Version 3.0.0
 - [Replaced `netstandard2.0` with `net8.0` target framework in `Microsoft.ApplicationInsights.NLogTarget` package.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3102)
