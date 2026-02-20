@@ -14,6 +14,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Internal;
     using Microsoft.ApplicationInsights.Metrics;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using OpenTelemetry;
     using OpenTelemetry.Logs;
@@ -28,6 +29,7 @@
     {
         internal readonly TelemetryConfiguration Configuration;
         private readonly ActivitySource activitySource;
+        private readonly IServiceProvider serviceProvider;
         private OpenTelemetrySdk sdk;
         private ILogger<TelemetryClient> logger;
 
@@ -74,6 +76,19 @@
             : this(configuration, isFromDependencyInjection: true)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TelemetryClient" /> class for DI scenarios with logger and service provider injection.
+        /// </summary>
+        /// <param name="configuration">The telemetry configuration.</param>
+        /// <param name="logger">The logger instance from DI container.</param>
+        /// <param name="serviceProvider">The service provider for resolving OTel providers at flush time.</param>
+        internal TelemetryClient(TelemetryConfiguration configuration, ILogger<TelemetryClient> logger, IServiceProvider serviceProvider)
+            : this(configuration, isFromDependencyInjection: true)
+        {
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
         /// <summary>
@@ -898,10 +913,20 @@
         {
             CoreEventSource.Log.TelemetlyClientFlush();
 
-            // Force flush all providers
-            this.sdk.TracerProvider?.ForceFlush();
-            this.sdk.MeterProvider?.ForceFlush();
-            this.sdk.LoggerProvider?.ForceFlush();
+            if (this.sdk != null)
+            {
+                // Non-DI scenario: flush via the SDK we built
+                this.sdk.TracerProvider?.ForceFlush();
+                this.sdk.MeterProvider?.ForceFlush();
+                this.sdk.LoggerProvider?.ForceFlush();
+            }
+            else if (this.serviceProvider != null)
+            {
+                // DI scenario: resolve providers from the service provider
+                this.serviceProvider.GetService<TracerProvider>()?.ForceFlush();
+                this.serviceProvider.GetService<MeterProvider>()?.ForceFlush();
+                this.serviceProvider.GetService<LoggerProvider>()?.ForceFlush();
+            }
         }
 
         /// <summary>
@@ -938,19 +963,36 @@
                         return false;
                     }
 
-                    bool tracerResult = this.sdk.TracerProvider?.ForceFlush() ?? true;
+                    TracerProvider tracerProvider = null;
+                    MeterProvider meterProvider = null;
+                    LoggerProvider loggerProvider = null;
+
+                    if (this.sdk != null)
+                    {
+                        tracerProvider = this.sdk.TracerProvider;
+                        meterProvider = this.sdk.MeterProvider;
+                        loggerProvider = this.sdk.LoggerProvider;
+                    }
+                    else if (this.serviceProvider != null)
+                    {
+                        tracerProvider = this.serviceProvider.GetService<TracerProvider>();
+                        meterProvider = this.serviceProvider.GetService<MeterProvider>();
+                        loggerProvider = this.serviceProvider.GetService<LoggerProvider>();
+                    }
+
+                    bool tracerResult = tracerProvider?.ForceFlush() ?? true;
                     if (cancellationToken.IsCancellationRequested)
                     {
                         return false;
                     }
 
-                    bool meterResult = this.sdk.MeterProvider?.ForceFlush() ?? true;
+                    bool meterResult = meterProvider?.ForceFlush() ?? true;
                     if (cancellationToken.IsCancellationRequested)
                     {
                         return false;
                     }
 
-                    bool loggerResult = this.sdk.LoggerProvider?.ForceFlush() ?? true;
+                    bool loggerResult = loggerProvider?.ForceFlush() ?? true;
 
                     return tracerResult && meterResult && loggerResult;
                 }, cancellationToken).ConfigureAwait(false);
