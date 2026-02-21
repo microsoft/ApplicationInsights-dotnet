@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- [Fix `TelemetryClient.Context.Cloud.RoleName` set after construction now applies to all telemetry.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/)
 - [Fix bug where Debug/Trace level logs from TrackTrace API were not emitted to Application Insights](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3121/changes)
 - [Fix Track API calls to not mutate the passed in dictionary if it is readonly](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3119)
 - [Fix `NullReferenceException` in `TelemetryClient.Flush()` and `FlushAsync()` when called from DI scenarios](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3125)
