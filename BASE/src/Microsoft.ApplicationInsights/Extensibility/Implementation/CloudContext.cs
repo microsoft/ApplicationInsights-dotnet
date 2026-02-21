@@ -10,12 +10,12 @@
         /// <summary>
         /// Environment variable key used to communicate cloud role name override to the exporter.
         /// </summary>
-        internal const string CloudRoleNameEnvironmentVariable = "MICROSOFT_APPLICATIONINSIGHTS_CLOUD_ROLE_NAME";
+        internal const string CloudRoleNameEnvironmentVariable = "APPLICATIONINSIGHTS_CLOUD_ROLE_NAME";
 
         /// <summary>
         /// Environment variable key used to communicate cloud role instance override to the exporter.
         /// </summary>
-        internal const string CloudRoleInstanceEnvironmentVariable = "MICROSOFT_APPLICATIONINSIGHTS_CLOUD_ROLE_INSTANCE";
+        internal const string CloudRoleInstanceEnvironmentVariable = "APPLICATIONINSIGHTS_CLOUD_ROLE_INSTANCE";
 
         private string roleName;
         private string roleInstance;

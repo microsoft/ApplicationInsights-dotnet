@@ -2157,15 +2157,15 @@ namespace Microsoft.ApplicationInsights
             try
             {
                 this.telemetryClient.Context.Cloud.RoleName = "TestRoleName";
-                Assert.Equal("TestRoleName", Environment.GetEnvironmentVariable("MICROSOFT_APPLICATIONINSIGHTS_CLOUD_ROLE_NAME"));
+                Assert.Equal("TestRoleName", Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CLOUD_ROLE_NAME"));
 
                 this.telemetryClient.Context.Cloud.RoleInstance = "TestRoleInstance";
-                Assert.Equal("TestRoleInstance", Environment.GetEnvironmentVariable("MICROSOFT_APPLICATIONINSIGHTS_CLOUD_ROLE_INSTANCE"));
+                Assert.Equal("TestRoleInstance", Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CLOUD_ROLE_INSTANCE"));
             }
             finally
             {
-                Environment.SetEnvironmentVariable("MICROSOFT_APPLICATIONINSIGHTS_CLOUD_ROLE_NAME", null);
-                Environment.SetEnvironmentVariable("MICROSOFT_APPLICATIONINSIGHTS_CLOUD_ROLE_INSTANCE", null);
+                Environment.SetEnvironmentVariable("APPLICATIONINSIGHTS_CLOUD_ROLE_NAME", null);
+                Environment.SetEnvironmentVariable("APPLICATIONINSIGHTS_CLOUD_ROLE_INSTANCE", null);
             }
         }
 
