@@ -2151,6 +2151,24 @@ namespace Microsoft.ApplicationInsights
 
         #endregion
 
+        [Fact]
+        public void CloudContextRoleNameSetsEnvironmentVariable()
+        {
+            try
+            {
+                this.telemetryClient.Context.Cloud.RoleName = "TestRoleName";
+                Assert.Equal("TestRoleName", Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CLOUD_ROLE_NAME"));
+
+                this.telemetryClient.Context.Cloud.RoleInstance = "TestRoleInstance";
+                Assert.Equal("TestRoleInstance", Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CLOUD_ROLE_INSTANCE"));
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable("APPLICATIONINSIGHTS_CLOUD_ROLE_NAME", null);
+                Environment.SetEnvironmentVariable("APPLICATIONINSIGHTS_CLOUD_ROLE_INSTANCE", null);
+            }
+        }
+
         private double ComputeSomethingHeavy()
         {
             var random = new Random();

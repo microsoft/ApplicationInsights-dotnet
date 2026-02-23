@@ -1,10 +1,22 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
+    using System;
+
     /// <summary>
     /// Encapsulates information about a cloud where an application is running.
     /// </summary>
     internal sealed class CloudContext
     {
+        /// <summary>
+        /// Environment variable key used to communicate cloud role name override to the exporter.
+        /// </summary>
+        internal const string CloudRoleNameEnvironmentVariable = "APPLICATIONINSIGHTS_CLOUD_ROLE_NAME";
+
+        /// <summary>
+        /// Environment variable key used to communicate cloud role instance override to the exporter.
+        /// </summary>
+        internal const string CloudRoleInstanceEnvironmentVariable = "APPLICATIONINSIGHTS_CLOUD_ROLE_INSTANCE";
+
         private string roleName;
         private string roleInstance;
 
@@ -17,8 +29,16 @@
         /// </summary>
         public string RoleName
         {
-            get { return string.IsNullOrEmpty(this.roleName) ? null : this.roleName; }
-            set { this.roleName = value; }
+            get
+            {
+                return string.IsNullOrEmpty(this.roleName) ? null : this.roleName;
+            }
+
+            set
+            {
+                this.roleName = value;
+                Environment.SetEnvironmentVariable(CloudRoleNameEnvironmentVariable, value);
+            }
         }
 
         /// <summary>
@@ -26,8 +46,16 @@
         /// </summary>
         public string RoleInstance
         {
-            get { return string.IsNullOrEmpty(this.roleInstance) ? null : this.roleInstance; }
-            set { this.roleInstance = value; }
+            get
+            {
+                return string.IsNullOrEmpty(this.roleInstance) ? null : this.roleInstance;
+            }
+
+            set
+            {
+                this.roleInstance = value;
+                Environment.SetEnvironmentVariable(CloudRoleInstanceEnvironmentVariable, value);
+            }
         }
     }
 }
