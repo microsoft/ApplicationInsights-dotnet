@@ -47,7 +47,7 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
-            var allTags = this.BuildMetricTags();
+            var allTags = this.client.BuildBaseMetricTags();
 
             if (allTags.Count > 0)
             {
@@ -107,7 +107,7 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
-            var allTags = this.BuildMetricTags();
+            var allTags = this.client.BuildBaseMetricTags();
 
             // Dimension values (highest priority)
             allTags[this.dimensionNames[0]] = dimension1Value;
@@ -172,7 +172,7 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
-            var allTags = this.BuildMetricTags();
+            var allTags = this.client.BuildBaseMetricTags();
 
             // Dimension values (highest priority)
             allTags[this.dimensionNames[0]] = dimension1Value;
@@ -240,7 +240,7 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
-            var allTags = this.BuildMetricTags();
+            var allTags = this.client.BuildBaseMetricTags();
 
             // Dimension values (highest priority)
             allTags[this.dimensionNames[0]] = dimension1Value;
@@ -311,7 +311,7 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
-            var allTags = this.BuildMetricTags();
+            var allTags = this.client.BuildBaseMetricTags();
 
             // Dimension values (highest priority)
             allTags[this.dimensionNames[0]] = dimension1Value;
@@ -391,7 +391,7 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
-            var allTags = this.BuildMetricTags();
+            var allTags = this.client.BuildBaseMetricTags();
 
             // Dimension values (highest priority)
             allTags[this.dimensionNames[0]] = dimension1Value;
@@ -481,7 +481,7 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
-            var allTags = this.BuildMetricTags();
+            var allTags = this.client.BuildBaseMetricTags();
 
             // Dimension values (highest priority)
             allTags[this.dimensionNames[0]] = dimension1Value;
@@ -576,7 +576,7 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
-            var allTags = this.BuildMetricTags();
+            var allTags = this.client.BuildBaseMetricTags();
 
             // Dimension values (highest priority)
             allTags[this.dimensionNames[0]] = dimension1Value;
@@ -676,7 +676,7 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
-            var allTags = this.BuildMetricTags();
+            var allTags = this.client.BuildBaseMetricTags();
 
             // Dimension values (highest priority)
             allTags[this.dimensionNames[0]] = dimension1Value;
@@ -781,7 +781,7 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
-            var allTags = this.BuildMetricTags();
+            var allTags = this.client.BuildBaseMetricTags();
 
             // Dimension values (highest priority)
             allTags[this.dimensionNames[0]] = dimension1Value;
@@ -891,7 +891,7 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
-            var allTags = this.BuildMetricTags();
+            var allTags = this.client.BuildBaseMetricTags();
 
             // Dimension values (highest priority)
             allTags[this.dimensionNames[0]] = dimension1Value;
@@ -959,33 +959,6 @@ namespace Microsoft.ApplicationInsights
             }
 
             return false;
-        }
-
-        /// <summary>
-        /// Builds a dictionary of metric tags by merging client-level context tags and GlobalProperties.
-        /// Context tags have lowest priority; GlobalProperties override them.
-        /// Callers should add dimension values after calling this method (highest priority).
-        /// </summary>
-        private Dictionary<string, string> BuildMetricTags()
-        {
-            var allTags = new Dictionary<string, string>();
-
-            // 1. Client-level context tags (lowest priority)
-            foreach (var tag in this.client.ContextTags)
-            {
-                allTags[tag.Key] = tag.Value;
-            }
-
-            // 2. GlobalProperties from client context
-            if (this.client.Context?.GlobalPropertiesValue != null)
-            {
-                foreach (var property in this.client.Context.GlobalPropertiesValue)
-                {
-                    allTags[property.Key] = property.Value;
-                }
-            }
-
-            return allTags;
         }
     }
 }

@@ -380,25 +380,10 @@
             // Get or create histogram for this metric
             var histogram = this.Configuration.MetricsManager.GetOrCreateHistogram(name, null);
 
-            // Merge all tag sources into a dictionary (lowest priority first, last-write-wins)
-            var allTags = new Dictionary<string, string>();
+            // Merge: client context tags + GlobalProperties (lowest) → caller properties (highest)
+            var allTags = this.BuildBaseMetricTags();
 
-            // 1. Client-level context tags (lowest priority)
-            foreach (var tag in this.ContextTags)
-            {
-                allTags[tag.Key] = tag.Value;
-            }
-
-            // 2. GlobalProperties from client context
-            if (this.Context?.GlobalPropertiesValue != null)
-            {
-                foreach (var property in this.Context.GlobalPropertiesValue)
-                {
-                    allTags[property.Key] = property.Value;
-                }
-            }
-
-            // 3. Caller-provided properties (highest priority)
+            // Caller-provided properties (highest priority)
             if (properties != null)
             {
                 foreach (var kvp in properties)
@@ -407,14 +392,20 @@
                 }
             }
 
-            // Convert to TagList for OTel histogram recording
-            var tags = new TagList();
-            foreach (var kvp in allTags)
+            if (allTags.Count > 0)
             {
-                tags.Add(kvp.Key, kvp.Value);
-            }
+                var tags = new TagList();
+                foreach (var kvp in allTags)
+                {
+                    tags.Add(kvp.Key, kvp.Value);
+                }
 
-            histogram.Record(value, tags);
+                histogram.Record(value, tags);
+            }
+            else
+            {
+                histogram.Record(value);
+            }
         }
 
         /// <summary>
@@ -440,23 +431,8 @@
                 telemetry.Name,
                 telemetry.MetricNamespace);
 
-            // Merge all tag sources into a dictionary (lowest priority first, last-write-wins)
-            var allTags = new Dictionary<string, string>();
-
-            // 1. Client-level context tags (lowest priority)
-            foreach (var tag in this.ContextTags)
-            {
-                allTags[tag.Key] = tag.Value;
-            }
-
-            // 2. GlobalProperties from client context
-            if (this.Context?.GlobalPropertiesValue != null)
-            {
-                foreach (var property in this.Context.GlobalPropertiesValue)
-                {
-                    allTags[property.Key] = property.Value;
-                }
-            }
+            // Merge: client context tags + GlobalProperties (lowest) → item layers (highest)
+            var allTags = this.BuildBaseMetricTags();
 
             // 3. GlobalProperties from item context
             if (telemetry.Context?.GlobalPropertiesValue != null)
@@ -479,14 +455,20 @@
             // 5. Item-level context (highest priority)
             this.ApplyContextToProperties(telemetry.Context, allTags);
 
-            // Convert to TagList for OTel histogram recording
-            var tags = new TagList();
-            foreach (var kvp in allTags)
+            if (allTags.Count > 0)
             {
-                tags.Add(kvp.Key, kvp.Value);
-            }
+                var tags = new TagList();
+                foreach (var kvp in allTags)
+                {
+                    tags.Add(kvp.Key, kvp.Value);
+                }
 
-            histogram.Record(telemetry.Value, tags);
+                histogram.Record(telemetry.Value, tags);
+            }
+            else
+            {
+                histogram.Record(telemetry.Value);
+            }
         }
 
         /// <summary>
@@ -1174,6 +1156,33 @@
             return new Metric(this, metricIdentifier.MetricId, metricIdentifier.MetricNamespace, dimensionNames);
         }
 
+        /// <summary>
+        /// Builds a dictionary of metric tags by merging client-level context tags and GlobalProperties.
+        /// Context tags have lowest priority; GlobalProperties override them.
+        /// Used by both <see cref="TrackMetric(string, double, IDictionary{string, string})"/> and <see cref="Metric"/> to avoid duplicating merge logic.
+        /// </summary>
+        internal Dictionary<string, string> BuildBaseMetricTags()
+        {
+            var allTags = new Dictionary<string, string>();
+
+            // 1. Client-level context tags (lowest priority)
+            foreach (var tag in this.ContextTags)
+            {
+                allTags[tag.Key] = tag.Value;
+            }
+
+            // 2. GlobalProperties from client context
+            if (this.Context.GlobalPropertiesValue != null)
+            {
+                foreach (var property in this.Context.GlobalPropertiesValue)
+                {
+                    allTags[property.Key] = property.Value;
+                }
+            }
+
+            return allTags;
+        }
+
         private static LogLevel GetLogLevel(SeverityLevel severityLevel)
         {
             return severityLevel switch
@@ -1434,35 +1443,35 @@
         }
 
         /// <summary>
-        /// Builds a frozen dictionary of context tags from public TelemetryClient.Context properties.
-        /// Called lazily on first Track* call and cached for the lifetime of this TelemetryClient.
+        /// Builds a dictionary of context tags from public TelemetryClient.Context properties.
+        /// Computed fresh on each call to reflect the latest Context values.
         /// Only includes properties that are not null or empty.
         /// </summary>
         private IReadOnlyDictionary<string, string> BuildContextTags()
         {
             var tags = new Dictionary<string, string>();
 
-            if (!string.IsNullOrEmpty(this.Context?.User?.Id))
+            if (!string.IsNullOrEmpty(this.Context.User?.Id))
             {
                 tags[SemanticConventions.AttributeEnduserPseudoId] = this.Context.User.Id;
             }
 
-            if (!string.IsNullOrEmpty(this.Context?.User?.AuthenticatedUserId))
+            if (!string.IsNullOrEmpty(this.Context.User?.AuthenticatedUserId))
             {
                 tags[SemanticConventions.AttributeEnduserId] = this.Context.User.AuthenticatedUserId;
             }
 
-            if (!string.IsNullOrEmpty(this.Context?.User?.UserAgent))
+            if (!string.IsNullOrEmpty(this.Context.User?.UserAgent))
             {
                 tags[SemanticConventions.AttributeUserAgentOriginal] = this.Context.User.UserAgent;
             }
 
-            if (!string.IsNullOrEmpty(this.Context?.Operation?.Name))
+            if (!string.IsNullOrEmpty(this.Context.Operation?.Name))
             {
                 tags[SemanticConventions.AttributeMicrosoftOperationName] = this.Context.Operation.Name;
             }
 
-            if (!string.IsNullOrEmpty(this.Context?.Location?.Ip))
+            if (!string.IsNullOrEmpty(this.Context.Location?.Ip))
             {
                 tags[SemanticConventions.AttributeMicrosoftClientIp] = this.Context.Location.Ip;
             }
