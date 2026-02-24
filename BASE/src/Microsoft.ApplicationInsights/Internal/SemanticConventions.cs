@@ -225,5 +225,11 @@
         /// When present, takes precedence over computed result code from semantic conventions.
         /// </summary>
         public const string AttributeMicrosoftRequestResultCode = "microsoft.request.resultCode";
+
+        /// <summary>
+        /// Override attribute for client IP field.
+        /// When present, maps to ai.location.ip context tag.
+        /// </summary>
+        public const string AttributeMicrosoftClientIp = "microsoft.client.ip";
     }
 }
