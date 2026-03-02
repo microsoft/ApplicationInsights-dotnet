@@ -186,7 +186,7 @@
             mergedProperties["microsoft.custom_event.name"] = telemetry.Name;
 
             // Map item-level context properties to semantic conventions
-            this.ApplyContextToProperties(telemetry.Context, mergedProperties);
+            ApplyContextToProperties(telemetry.Context, mergedProperties);
 
             var state = new DictionaryLogState(telemetry.Context, this.ContextTags, mergedProperties, String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
@@ -260,7 +260,7 @@
             }
 
             // Map item-level context properties to semantic conventions
-            this.ApplyContextToProperties(telemetry.Context, properties);
+            ApplyContextToProperties(telemetry.Context, properties);
 
             var state = new DictionaryLogState(telemetry.Context, this.ContextTags, properties, telemetry.Message ?? String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
@@ -356,7 +356,7 @@
 
             // Map item-level context properties to semantic conventions
             var mergedProperties = EnsureMutable(telemetry.Properties);
-            this.ApplyContextToProperties(telemetry.Context, mergedProperties);
+            ApplyContextToProperties(telemetry.Context, mergedProperties);
 
             LogLevel logLevel = GetLogLevel(telemetry.SeverityLevel.Value);
             var state = new DictionaryLogState(telemetry.Context, this.ContextTags, mergedProperties, telemetry.Message);
@@ -453,7 +453,7 @@
             }
 
             // 5. Item-level context (highest priority)
-            this.ApplyContextToProperties(telemetry.Context, allTags);
+            ApplyContextToProperties(telemetry.Context, allTags);
 
             if (allTags.Count > 0)
             {
@@ -512,7 +512,7 @@
 
             // Map item-level context properties to semantic conventions
             var mergedProperties = EnsureMutable(telemetry.Properties);
-            this.ApplyContextToProperties(telemetry.Context, mergedProperties);
+            ApplyContextToProperties(telemetry.Context, mergedProperties);
 
             var state = new DictionaryLogState(telemetry.Context, this.ContextTags, mergedProperties, reconstructedException.Message);
             var logLevel = GetLogLevel(telemetry.SeverityLevel ?? SeverityLevel.Error);
@@ -681,7 +681,7 @@
                     }
 
                     // Apply item-level context (overrides client-level context)
-                    this.ApplyContextToActivity(telemetry.Context, dependencyTelemetryActivity);
+                    ApplyContextToActivity(telemetry.Context, dependencyTelemetryActivity);
                 }
             }
         }
@@ -865,7 +865,7 @@
                     }
 
                     // Apply item-level context (overrides client-level context)
-                    this.ApplyContextToActivity(request.Context, activity);
+                    ApplyContextToActivity(request.Context, activity);
                 }
             }
         }
@@ -1425,61 +1425,6 @@
         }
 
         /// <summary>
-        /// Applies CloudContext (RoleName/RoleInstance) and ComponentContext (Version) to the OpenTelemetry Resource if set.
-        /// </summary>
-        private void ApplyCloudContextToResource()
-        {
-            var roleName = this.Context.Cloud.RoleName;
-            var roleInstance = this.Context.Cloud.RoleInstance;
-            var componentVersion = this.Context.Component.Version;
-
-            if (!string.IsNullOrEmpty(roleName) || !string.IsNullOrEmpty(roleInstance) || !string.IsNullOrEmpty(componentVersion))
-            {
-                this.Configuration.SetCloudRole(
-                    serviceName: roleName,
-                    serviceInstanceId: roleInstance,
-                    serviceVersion: componentVersion);
-            }
-        }
-
-        /// <summary>
-        /// Builds a dictionary of context tags from public TelemetryClient.Context properties.
-        /// Computed fresh on each call to reflect the latest Context values.
-        /// Only includes properties that are not null or empty.
-        /// </summary>
-        private Dictionary<string, string> BuildContextTags()
-        {
-            var tags = new Dictionary<string, string>();
-
-            if (!string.IsNullOrEmpty(this.Context.User?.Id))
-            {
-                tags[SemanticConventions.AttributeEnduserPseudoId] = this.Context.User.Id;
-            }
-
-            if (!string.IsNullOrEmpty(this.Context.User?.AuthenticatedUserId))
-            {
-                tags[SemanticConventions.AttributeEnduserId] = this.Context.User.AuthenticatedUserId;
-            }
-
-            if (!string.IsNullOrEmpty(this.Context.User?.UserAgent))
-            {
-                tags[SemanticConventions.AttributeUserAgentOriginal] = this.Context.User.UserAgent;
-            }
-
-            if (!string.IsNullOrEmpty(this.Context.Operation?.Name))
-            {
-                tags[SemanticConventions.AttributeMicrosoftOperationName] = this.Context.Operation.Name;
-            }
-
-            if (!string.IsNullOrEmpty(this.Context.Location?.Ip))
-            {
-                tags[SemanticConventions.AttributeMicrosoftClientIp] = this.Context.Location.Ip;
-            }
-
-            return tags;
-        }
-
-        /// <summary>
         /// Applies item-level TelemetryContext properties to an Activity as tags.
         /// These override any client-level context tags already set on the Activity.
         /// Only includes properties that are not null or empty.
@@ -1553,6 +1498,61 @@
             {
                 properties[SemanticConventions.AttributeMicrosoftClientIp] = context.Location.Ip;
             }
+        }
+
+        /// <summary>
+        /// Applies CloudContext (RoleName/RoleInstance) and ComponentContext (Version) to the OpenTelemetry Resource if set.
+        /// </summary>
+        private void ApplyCloudContextToResource()
+        {
+            var roleName = this.Context.Cloud.RoleName;
+            var roleInstance = this.Context.Cloud.RoleInstance;
+            var componentVersion = this.Context.Component.Version;
+
+            if (!string.IsNullOrEmpty(roleName) || !string.IsNullOrEmpty(roleInstance) || !string.IsNullOrEmpty(componentVersion))
+            {
+                this.Configuration.SetCloudRole(
+                    serviceName: roleName,
+                    serviceInstanceId: roleInstance,
+                    serviceVersion: componentVersion);
+            }
+        }
+
+        /// <summary>
+        /// Builds a dictionary of context tags from public TelemetryClient.Context properties.
+        /// Computed fresh on each call to reflect the latest Context values.
+        /// Only includes properties that are not null or empty.
+        /// </summary>
+        private Dictionary<string, string> BuildContextTags()
+        {
+            var tags = new Dictionary<string, string>();
+
+            if (!string.IsNullOrEmpty(this.Context.User?.Id))
+            {
+                tags[SemanticConventions.AttributeEnduserPseudoId] = this.Context.User.Id;
+            }
+
+            if (!string.IsNullOrEmpty(this.Context.User?.AuthenticatedUserId))
+            {
+                tags[SemanticConventions.AttributeEnduserId] = this.Context.User.AuthenticatedUserId;
+            }
+
+            if (!string.IsNullOrEmpty(this.Context.User?.UserAgent))
+            {
+                tags[SemanticConventions.AttributeUserAgentOriginal] = this.Context.User.UserAgent;
+            }
+
+            if (!string.IsNullOrEmpty(this.Context.Operation?.Name))
+            {
+                tags[SemanticConventions.AttributeMicrosoftOperationName] = this.Context.Operation.Name;
+            }
+
+            if (!string.IsNullOrEmpty(this.Context.Location?.Ip))
+            {
+                tags[SemanticConventions.AttributeMicrosoftClientIp] = this.Context.Location.Ip;
+            }
+
+            return tags;
         }
 
         private readonly struct DictionaryLogState : IReadOnlyList<KeyValuePair<string, object>>
