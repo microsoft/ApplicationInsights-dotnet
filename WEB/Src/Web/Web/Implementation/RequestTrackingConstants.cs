@@ -14,5 +14,10 @@
         /// The name of the cookie which holds authenticated user context information.
         /// </summary>
         internal const string WebAuthenticatedUserCookieName = "ai_authUser";
+
+        /// <summary>
+        /// Max length for a request header value to guard against injection attacks.
+        /// </summary>
+        internal const int RequestHeaderMaxLength = 1024;
     }
 }

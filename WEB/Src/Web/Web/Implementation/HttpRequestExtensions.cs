@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Specialized;
+    using System.Diagnostics;
+    using System.Globalization;
     using System.Web;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
@@ -18,7 +20,7 @@
         public static string UnvalidatedGetHeader(this HttpRequest httpRequest, string headerName)
         {
             string value = httpRequest.Unvalidated.Headers[headerName];
-            return string.Empty;
+            return EnforceMaxLength(value, RequestTrackingConstants.RequestHeaderMaxLength);
         }
 
         public static Uri UnvalidatedGetUrl(this HttpRequest httpRequest)
@@ -61,6 +63,20 @@
                 WebEventSource.Log.UserHostNotCollectedWarning(exp.ToInvariantString());
                 return null;
             }
+        }
+
+        private static string EnforceMaxLength(string input, int maxLength)
+        {
+            Debug.Assert(
+                maxLength > 0,
+                string.Format(CultureInfo.CurrentCulture, "{0} must be greater than 0", nameof(maxLength)));
+
+            if (input != null && input.Length > maxLength)
+            {
+                input = input.Substring(0, maxLength);
+            }
+
+            return input;
         }
     }
 }
