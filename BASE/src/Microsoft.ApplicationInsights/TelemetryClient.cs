@@ -1447,7 +1447,7 @@
         /// Computed fresh on each call to reflect the latest Context values.
         /// Only includes properties that are not null or empty.
         /// </summary>
-        private IReadOnlyDictionary<string, string> BuildContextTags()
+        private Dictionary<string, string> BuildContextTags()
         {
             var tags = new Dictionary<string, string>();
 
@@ -1484,7 +1484,7 @@
         /// These override any client-level context tags already set on the Activity.
         /// Only includes properties that are not null or empty.
         /// </summary>
-        private void ApplyContextToActivity(TelemetryContext context, Activity activity)
+        private static void ApplyContextToActivity(TelemetryContext context, Activity activity)
         {
             if (context == null || activity == null)
             {
@@ -1522,7 +1522,7 @@
         /// These override any client-level context tags already present.
         /// Only includes properties that are not null or empty.
         /// </summary>
-        private void ApplyContextToProperties(TelemetryContext context, IDictionary<string, string> properties)
+        private static void ApplyContextToProperties(TelemetryContext context, IDictionary<string, string> properties)
         {
             if (context == null || properties == null)
             {

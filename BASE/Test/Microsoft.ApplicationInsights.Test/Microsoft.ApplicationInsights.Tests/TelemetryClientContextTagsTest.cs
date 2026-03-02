@@ -651,6 +651,8 @@ namespace Microsoft.ApplicationInsights
                 }
                 // TagList appends in order; OTel should use the last value for duplicate keys
                 // Context tags are added first, then properties, so properties win
+                Assert.NotNull(userId);
+                Assert.Equal("prop-user", userId);
                 Assert.NotNull(custom);
                 Assert.Equal("value", custom);
                 break;
