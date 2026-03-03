@@ -128,6 +128,11 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             string connectionString = this.connectionStringLayout.Render(LogEventInfo.CreateNullEvent());
             if (string.IsNullOrWhiteSpace(connectionString))
             {
+                connectionString = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
+            }
+
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
                 throw new NLogConfigurationException(ConnectionStringRequiredMessage);
             }
 
