@@ -48,7 +48,7 @@
         /// <summary>
         /// Gets or sets the ID of an application-defined account associated with the user.
         /// </summary>
-        internal string AccountId
+        public string AccountId
         {
             get { return string.IsNullOrEmpty(this.accountId) ? null : this.accountId; }
             set { this.accountId = value; }

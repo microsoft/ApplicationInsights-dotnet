@@ -77,6 +77,24 @@
         }
 
         /// <summary>
+        /// Gets the object describing the device tracked by this <see cref="TelemetryContext"/>.
+        /// </summary>
+        public DeviceContext Device
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            get { return LazyInitializer.EnsureInitialized(ref this.device, () => new DeviceContext(default)); }
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
+
+        /// <summary>
+        /// Gets the object describing a user session tracked by this <see cref="TelemetryContext"/>.
+        /// </summary>
+        public SessionContext Session
+        {
+            get { return LazyInitializer.EnsureInitialized(ref this.session, () => new SessionContext()); }
+        }
+
+        /// <summary>
         /// Gets the object describing the cloud tracked by this <see cref="TelemetryContext"/>.
         /// </summary>
         internal CloudContext Cloud
@@ -90,24 +108,6 @@
         internal ComponentContext Component
         {
             get { return LazyInitializer.EnsureInitialized(ref this.component, () => new ComponentContext()); }
-        }
-
-        /// <summary>
-        /// Gets the object describing the device tracked by this <see cref="TelemetryContext"/>.
-        /// </summary>
-        internal DeviceContext Device
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            get { return LazyInitializer.EnsureInitialized(ref this.device, () => new DeviceContext(default)); }
-#pragma warning restore CS0618 // Type or member is obsolete
-        }
-
-        /// <summary>
-        /// Gets the object describing a user session tracked by this <see cref="TelemetryContext"/>.
-        /// </summary>
-        internal SessionContext Session
-        {
-            get { return LazyInitializer.EnsureInitialized(ref this.session, () => new SessionContext()); }
         }
     }
 }

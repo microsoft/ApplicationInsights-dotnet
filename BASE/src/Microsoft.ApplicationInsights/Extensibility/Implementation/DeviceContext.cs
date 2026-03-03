@@ -5,7 +5,7 @@
     /// <summary>
     /// Encapsulates information about a device where an application is running.
     /// </summary>
-    internal sealed class DeviceContext
+    public sealed class DeviceContext
     {
         private readonly IDictionary<string, string> properties;
 

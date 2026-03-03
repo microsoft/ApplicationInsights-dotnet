@@ -1460,6 +1460,46 @@
             {
                 activity.SetTag(SemanticConventions.AttributeMicrosoftClientIp, context.Location.Ip);
             }
+
+            if (!string.IsNullOrEmpty(context.Session?.Id))
+            {
+                activity.SetTag(SemanticConventions.AttributeMicrosoftSessionId, context.Session.Id);
+            }
+
+            if (context.Session?.IsFirst != null)
+            {
+                activity.SetTag(SemanticConventions.AttributeAiSessionIsFirst, context.Session.IsFirst.Value.ToString());
+            }
+
+            if (!string.IsNullOrEmpty(context.Device?.Id))
+            {
+                activity.SetTag(SemanticConventions.AttributeAiDeviceId, context.Device.Id);
+            }
+
+            if (!string.IsNullOrEmpty(context.Device?.Model))
+            {
+                activity.SetTag(SemanticConventions.AttributeAiDeviceModel, context.Device.Model);
+            }
+
+            if (!string.IsNullOrEmpty(context.Device?.OemName))
+            {
+                activity.SetTag(SemanticConventions.AttributeAiDeviceOemName, context.Device.OemName);
+            }
+
+            if (!string.IsNullOrEmpty(context.Device?.Type))
+            {
+                activity.SetTag(SemanticConventions.AttributeAiDeviceType, context.Device.Type);
+            }
+
+            if (!string.IsNullOrEmpty(context.Operation?.SyntheticSource))
+            {
+                activity.SetTag(SemanticConventions.AttributeMicrosoftSyntheticSource, context.Operation.SyntheticSource);
+            }
+
+            if (!string.IsNullOrEmpty(context.User?.AccountId))
+            {
+                activity.SetTag(SemanticConventions.AttributeMicrosoftUserAccountId, context.User.AccountId);
+            }
         }
 
         /// <summary>
@@ -1497,6 +1537,46 @@
             if (!string.IsNullOrEmpty(context.Location?.Ip))
             {
                 properties[SemanticConventions.AttributeMicrosoftClientIp] = context.Location.Ip;
+            }
+
+            if (!string.IsNullOrEmpty(context.Session?.Id))
+            {
+                properties[SemanticConventions.AttributeMicrosoftSessionId] = context.Session.Id;
+            }
+
+            if (context.Session?.IsFirst != null)
+            {
+                properties[SemanticConventions.AttributeAiSessionIsFirst] = context.Session.IsFirst.Value.ToString();
+            }
+
+            if (!string.IsNullOrEmpty(context.Device?.Id))
+            {
+                properties[SemanticConventions.AttributeAiDeviceId] = context.Device.Id;
+            }
+
+            if (!string.IsNullOrEmpty(context.Device?.Model))
+            {
+                properties[SemanticConventions.AttributeAiDeviceModel] = context.Device.Model;
+            }
+
+            if (!string.IsNullOrEmpty(context.Device?.OemName))
+            {
+                properties[SemanticConventions.AttributeAiDeviceOemName] = context.Device.OemName;
+            }
+
+            if (!string.IsNullOrEmpty(context.Device?.Type))
+            {
+                properties[SemanticConventions.AttributeAiDeviceType] = context.Device.Type;
+            }
+
+            if (!string.IsNullOrEmpty(context.Operation?.SyntheticSource))
+            {
+                properties[SemanticConventions.AttributeMicrosoftSyntheticSource] = context.Operation.SyntheticSource;
+            }
+
+            if (!string.IsNullOrEmpty(context.User?.AccountId))
+            {
+                properties[SemanticConventions.AttributeMicrosoftUserAccountId] = context.User.AccountId;
             }
         }
 
@@ -1550,6 +1630,46 @@
             if (!string.IsNullOrEmpty(this.Context.Location?.Ip))
             {
                 tags[SemanticConventions.AttributeMicrosoftClientIp] = this.Context.Location.Ip;
+            }
+
+            if (!string.IsNullOrEmpty(this.Context.Session?.Id))
+            {
+                tags[SemanticConventions.AttributeMicrosoftSessionId] = this.Context.Session.Id;
+            }
+
+            if (this.Context.Session?.IsFirst != null)
+            {
+                tags[SemanticConventions.AttributeAiSessionIsFirst] = this.Context.Session.IsFirst.Value.ToString();
+            }
+
+            if (!string.IsNullOrEmpty(this.Context.Device?.Id))
+            {
+                tags[SemanticConventions.AttributeAiDeviceId] = this.Context.Device.Id;
+            }
+
+            if (!string.IsNullOrEmpty(this.Context.Device?.Model))
+            {
+                tags[SemanticConventions.AttributeAiDeviceModel] = this.Context.Device.Model;
+            }
+
+            if (!string.IsNullOrEmpty(this.Context.Device?.OemName))
+            {
+                tags[SemanticConventions.AttributeAiDeviceOemName] = this.Context.Device.OemName;
+            }
+
+            if (!string.IsNullOrEmpty(this.Context.Device?.Type))
+            {
+                tags[SemanticConventions.AttributeAiDeviceType] = this.Context.Device.Type;
+            }
+
+            if (!string.IsNullOrEmpty(this.Context.Operation?.SyntheticSource))
+            {
+                tags[SemanticConventions.AttributeMicrosoftSyntheticSource] = this.Context.Operation.SyntheticSource;
+            }
+
+            if (!string.IsNullOrEmpty(this.Context.User?.AccountId))
+            {
+                tags[SemanticConventions.AttributeMicrosoftUserAccountId] = this.Context.User.AccountId;
             }
 
             return tags;

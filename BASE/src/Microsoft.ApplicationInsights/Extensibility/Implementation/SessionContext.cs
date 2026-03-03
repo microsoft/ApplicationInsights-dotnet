@@ -3,7 +3,7 @@
     /// <summary>
     /// Encapsulates information about a user session.
     /// </summary>
-    internal sealed class SessionContext
+    public sealed class SessionContext
     {
         private string id;
         private bool? isFirst;

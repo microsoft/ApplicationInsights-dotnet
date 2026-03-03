@@ -109,22 +109,38 @@ namespace Microsoft.ApplicationInsights
         }
 
         [Fact]
-        public void BuildContextTags_AllPropertiesSet_ContainsAllFiveAttributes()
+        public void BuildContextTags_AllPropertiesSet_ContainsAllAttributes()
         {
             this.telemetryClient.Context.User.Id = "user-1";
             this.telemetryClient.Context.User.AuthenticatedUserId = "auth-1";
             this.telemetryClient.Context.User.UserAgent = "TestAgent/1.0";
+            this.telemetryClient.Context.User.AccountId = "acct-1";
             this.telemetryClient.Context.Operation.Name = "TestOp";
+            this.telemetryClient.Context.Operation.SyntheticSource = "bot";
             this.telemetryClient.Context.Location.Ip = "192.168.1.1";
+            this.telemetryClient.Context.Session.Id = "session-1";
+            this.telemetryClient.Context.Session.IsFirst = true;
+            this.telemetryClient.Context.Device.Id = "device-1";
+            this.telemetryClient.Context.Device.Model = "Surface Pro";
+            this.telemetryClient.Context.Device.OemName = "Microsoft";
+            this.telemetryClient.Context.Device.Type = "Tablet";
 
             var tags = this.telemetryClient.ContextTags;
 
-            Assert.Equal(5, tags.Count);
+            Assert.Equal(13, tags.Count);
             Assert.Equal("user-1", tags["enduser.pseudo.id"]);
             Assert.Equal("auth-1", tags["enduser.id"]);
             Assert.Equal("TestAgent/1.0", tags["user_agent.original"]);
             Assert.Equal("TestOp", tags["microsoft.operation_name"]);
             Assert.Equal("192.168.1.1", tags["microsoft.client.ip"]);
+            Assert.Equal("session-1", tags["microsoft.session.id"]);
+            Assert.Equal("True", tags["ai.session.isFirst"]);
+            Assert.Equal("device-1", tags["ai.device.id"]);
+            Assert.Equal("Surface Pro", tags["ai.device.model"]);
+            Assert.Equal("Microsoft", tags["ai.device.oemName"]);
+            Assert.Equal("Tablet", tags["ai.device.type"]);
+            Assert.Equal("bot", tags["microsoft.synthetic_source"]);
+            Assert.Equal("acct-1", tags["microsoft.user.account_id"]);
         }
 
         #endregion
@@ -149,8 +165,15 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Context.User.Id = string.Empty;
             this.telemetryClient.Context.User.AuthenticatedUserId = "";
             this.telemetryClient.Context.User.UserAgent = "";
+            this.telemetryClient.Context.User.AccountId = "";
             this.telemetryClient.Context.Operation.Name = "";
+            this.telemetryClient.Context.Operation.SyntheticSource = "";
             this.telemetryClient.Context.Location.Ip = "";
+            this.telemetryClient.Context.Session.Id = "";
+            this.telemetryClient.Context.Device.Id = "";
+            this.telemetryClient.Context.Device.Model = "";
+            this.telemetryClient.Context.Device.OemName = "";
+            this.telemetryClient.Context.Device.Type = "";
 
             var tags = this.telemetryClient.ContextTags;
 
@@ -212,6 +235,47 @@ namespace Microsoft.ApplicationInsights
         }
 
         [Fact]
+        public void TrackEvent_IncludesAllClientContextTags()
+        {
+            this.telemetryClient.Context.User.Id = "evt-user";
+            this.telemetryClient.Context.User.AuthenticatedUserId = "evt-auth";
+            this.telemetryClient.Context.User.UserAgent = "EvtAgent/1.0";
+            this.telemetryClient.Context.User.AccountId = "evt-acct";
+            this.telemetryClient.Context.Operation.Name = "EvtOp";
+            this.telemetryClient.Context.Operation.SyntheticSource = "evt-bot";
+            this.telemetryClient.Context.Location.Ip = "10.0.0.2";
+            this.telemetryClient.Context.Session.Id = "evt-session";
+            this.telemetryClient.Context.Session.IsFirst = true;
+            this.telemetryClient.Context.Device.Id = "evt-device";
+            this.telemetryClient.Context.Device.Model = "Phone";
+            this.telemetryClient.Context.Device.OemName = "Samsung";
+            this.telemetryClient.Context.Device.Type = "Mobile";
+
+            this.telemetryClient.TrackEvent("AllContextEvent");
+            this.telemetryClient.Flush();
+
+            var logRecord = this.logItems.FirstOrDefault(l =>
+                l.Attributes != null && l.Attributes.Any(a =>
+                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "AllContextEvent"));
+            Assert.NotNull(logRecord);
+
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.Equal("evt-user", attributes["enduser.pseudo.id"]);
+            Assert.Equal("evt-auth", attributes["enduser.id"]);
+            Assert.Equal("EvtAgent/1.0", attributes["user_agent.original"]);
+            Assert.Equal("EvtOp", attributes["microsoft.operation_name"]);
+            Assert.Equal("10.0.0.2", attributes["microsoft.client.ip"]);
+            Assert.Equal("evt-session", attributes["microsoft.session.id"]);
+            Assert.Equal("True", attributes["ai.session.isFirst"]);
+            Assert.Equal("evt-device", attributes["ai.device.id"]);
+            Assert.Equal("Phone", attributes["ai.device.model"]);
+            Assert.Equal("Samsung", attributes["ai.device.oemName"]);
+            Assert.Equal("Mobile", attributes["ai.device.type"]);
+            Assert.Equal("evt-bot", attributes["microsoft.synthetic_source"]);
+            Assert.Equal("evt-acct", attributes["microsoft.user.account_id"]);
+        }
+
+        [Fact]
         public void TrackTrace_String_IncludesClientContextTags()
         {
             this.telemetryClient.Context.User.Id = "trace-user";
@@ -241,10 +305,59 @@ namespace Microsoft.ApplicationInsights
         }
 
         [Fact]
-        public void TrackException_Exception_IncludesClientContextTags()
+        public void TrackTrace_IncludesAllClientContextTags()
+        {
+            this.telemetryClient.Context.User.Id = "trc-user";
+            this.telemetryClient.Context.User.AuthenticatedUserId = "trc-auth";
+            this.telemetryClient.Context.User.UserAgent = "TrcAgent/1.0";
+            this.telemetryClient.Context.User.AccountId = "trc-acct";
+            this.telemetryClient.Context.Operation.Name = "TrcOp";
+            this.telemetryClient.Context.Operation.SyntheticSource = "trc-bot";
+            this.telemetryClient.Context.Location.Ip = "10.0.0.3";
+            this.telemetryClient.Context.Session.Id = "trc-session";
+            this.telemetryClient.Context.Session.IsFirst = false;
+            this.telemetryClient.Context.Device.Id = "trc-device";
+            this.telemetryClient.Context.Device.Model = "Desktop";
+            this.telemetryClient.Context.Device.OemName = "HP";
+            this.telemetryClient.Context.Device.Type = "PC";
+
+            this.telemetryClient.TrackTrace("AllContextTrace");
+            this.telemetryClient.Flush();
+
+            Assert.True(this.logItems.Count > 0);
+            var logRecord = this.logItems.Last();
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.Equal("trc-user", attributes["enduser.pseudo.id"]);
+            Assert.Equal("trc-auth", attributes["enduser.id"]);
+            Assert.Equal("TrcAgent/1.0", attributes["user_agent.original"]);
+            Assert.Equal("TrcOp", attributes["microsoft.operation_name"]);
+            Assert.Equal("10.0.0.3", attributes["microsoft.client.ip"]);
+            Assert.Equal("trc-session", attributes["microsoft.session.id"]);
+            Assert.Equal("False", attributes["ai.session.isFirst"]);
+            Assert.Equal("trc-device", attributes["ai.device.id"]);
+            Assert.Equal("Desktop", attributes["ai.device.model"]);
+            Assert.Equal("HP", attributes["ai.device.oemName"]);
+            Assert.Equal("PC", attributes["ai.device.type"]);
+            Assert.Equal("trc-bot", attributes["microsoft.synthetic_source"]);
+            Assert.Equal("trc-acct", attributes["microsoft.user.account_id"]);
+        }
+
+        [Fact]
+        public void TrackException_IncludesAllClientContextTags()
         {
             this.telemetryClient.Context.User.Id = "exc-user";
+            this.telemetryClient.Context.User.AuthenticatedUserId = "exc-auth";
+            this.telemetryClient.Context.User.UserAgent = "ExcAgent/1.0";
+            this.telemetryClient.Context.User.AccountId = "exc-acct";
+            this.telemetryClient.Context.Operation.Name = "ExcOp";
+            this.telemetryClient.Context.Operation.SyntheticSource = "exc-bot";
             this.telemetryClient.Context.Location.Ip = "172.16.0.1";
+            this.telemetryClient.Context.Session.Id = "exc-session";
+            this.telemetryClient.Context.Session.IsFirst = true;
+            this.telemetryClient.Context.Device.Id = "exc-device";
+            this.telemetryClient.Context.Device.Model = "Tablet";
+            this.telemetryClient.Context.Device.OemName = "Asus";
+            this.telemetryClient.Context.Device.Type = "Portable";
 
             this.telemetryClient.TrackException(new InvalidOperationException("boom"));
             this.telemetryClient.Flush();
@@ -253,7 +366,18 @@ namespace Microsoft.ApplicationInsights
             Assert.NotNull(logRecord);
             var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
             Assert.Equal("exc-user", attributes["enduser.pseudo.id"]);
+            Assert.Equal("exc-auth", attributes["enduser.id"]);
+            Assert.Equal("ExcAgent/1.0", attributes["user_agent.original"]);
+            Assert.Equal("ExcOp", attributes["microsoft.operation_name"]);
             Assert.Equal("172.16.0.1", attributes["microsoft.client.ip"]);
+            Assert.Equal("exc-session", attributes["microsoft.session.id"]);
+            Assert.Equal("True", attributes["ai.session.isFirst"]);
+            Assert.Equal("exc-device", attributes["ai.device.id"]);
+            Assert.Equal("Tablet", attributes["ai.device.model"]);
+            Assert.Equal("Asus", attributes["ai.device.oemName"]);
+            Assert.Equal("Portable", attributes["ai.device.type"]);
+            Assert.Equal("exc-bot", attributes["microsoft.synthetic_source"]);
+            Assert.Equal("exc-acct", attributes["microsoft.user.account_id"]);
         }
 
         [Fact]
@@ -444,11 +568,19 @@ namespace Microsoft.ApplicationInsights
         #region Activity-based Telemetry — Context Tags Applied
 
         [Fact]
-        public void TrackRequest_IncludesClientContextTags()
+        public void TrackRequest_IncludesAllClientContextTags()
         {
             this.telemetryClient.Context.User.Id = "req-user";
             this.telemetryClient.Context.User.AuthenticatedUserId = "req-auth";
+            this.telemetryClient.Context.User.AccountId = "req-acct";
             this.telemetryClient.Context.Location.Ip = "10.0.0.1";
+            this.telemetryClient.Context.Session.Id = "req-session";
+            this.telemetryClient.Context.Session.IsFirst = true;
+            this.telemetryClient.Context.Device.Id = "req-device";
+            this.telemetryClient.Context.Device.Model = "Laptop";
+            this.telemetryClient.Context.Device.OemName = "Dell";
+            this.telemetryClient.Context.Device.Type = "PC";
+            this.telemetryClient.Context.Operation.SyntheticSource = "test-runner";
 
             var request = new RequestTelemetry("GET /api", DateTimeOffset.UtcNow, TimeSpan.FromMilliseconds(50), "200", true);
             this.telemetryClient.TrackRequest(request);
@@ -459,13 +591,32 @@ namespace Microsoft.ApplicationInsights
             Assert.True(activity.Tags.Any(t => t.Key == "enduser.pseudo.id" && t.Value == "req-user"));
             Assert.True(activity.Tags.Any(t => t.Key == "enduser.id" && t.Value == "req-auth"));
             Assert.True(activity.Tags.Any(t => t.Key == "microsoft.client.ip" && t.Value == "10.0.0.1"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.session.id" && t.Value == "req-session"));
+            Assert.True(activity.Tags.Any(t => t.Key == "ai.session.isFirst" && t.Value == "True"));
+            Assert.True(activity.Tags.Any(t => t.Key == "ai.device.id" && t.Value == "req-device"));
+            Assert.True(activity.Tags.Any(t => t.Key == "ai.device.model" && t.Value == "Laptop"));
+            Assert.True(activity.Tags.Any(t => t.Key == "ai.device.oemName" && t.Value == "Dell"));
+            Assert.True(activity.Tags.Any(t => t.Key == "ai.device.type" && t.Value == "PC"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.synthetic_source" && t.Value == "test-runner"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.user.account_id" && t.Value == "req-acct"));
         }
 
         [Fact]
-        public void TrackDependency_IncludesClientContextTags()
+        public void TrackDependency_IncludesAllClientContextTags()
         {
             this.telemetryClient.Context.User.Id = "dep-user";
+            this.telemetryClient.Context.User.AuthenticatedUserId = "dep-auth";
+            this.telemetryClient.Context.User.UserAgent = "DepAgent/1.0";
+            this.telemetryClient.Context.User.AccountId = "dep-acct";
             this.telemetryClient.Context.Operation.Name = "ParentOp";
+            this.telemetryClient.Context.Operation.SyntheticSource = "dep-bot";
+            this.telemetryClient.Context.Location.Ip = "10.0.0.4";
+            this.telemetryClient.Context.Session.Id = "dep-session";
+            this.telemetryClient.Context.Session.IsFirst = true;
+            this.telemetryClient.Context.Device.Id = "dep-device";
+            this.telemetryClient.Context.Device.Model = "Watch";
+            this.telemetryClient.Context.Device.OemName = "Apple";
+            this.telemetryClient.Context.Device.Type = "Wearable";
 
             var dep = new DependencyTelemetry
             {
@@ -480,7 +631,18 @@ namespace Microsoft.ApplicationInsights
             Assert.Equal(1, this.activityItems.Count);
             var activity = this.activityItems[0];
             Assert.True(activity.Tags.Any(t => t.Key == "enduser.pseudo.id" && t.Value == "dep-user"));
+            Assert.True(activity.Tags.Any(t => t.Key == "enduser.id" && t.Value == "dep-auth"));
+            Assert.True(activity.Tags.Any(t => t.Key == "user_agent.original" && t.Value == "DepAgent/1.0"));
             Assert.True(activity.Tags.Any(t => t.Key == "microsoft.operation_name" && t.Value == "ParentOp"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.client.ip" && t.Value == "10.0.0.4"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.session.id" && t.Value == "dep-session"));
+            Assert.True(activity.Tags.Any(t => t.Key == "ai.session.isFirst" && t.Value == "True"));
+            Assert.True(activity.Tags.Any(t => t.Key == "ai.device.id" && t.Value == "dep-device"));
+            Assert.True(activity.Tags.Any(t => t.Key == "ai.device.model" && t.Value == "Watch"));
+            Assert.True(activity.Tags.Any(t => t.Key == "ai.device.oemName" && t.Value == "Apple"));
+            Assert.True(activity.Tags.Any(t => t.Key == "ai.device.type" && t.Value == "Wearable"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.synthetic_source" && t.Value == "dep-bot"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.user.account_id" && t.Value == "dep-acct"));
         }
 
         #endregion
@@ -594,31 +756,50 @@ namespace Microsoft.ApplicationInsights
         #region Metric Telemetry — Context Tags Applied
 
         [Fact]
-        public void TrackMetric_String_IncludesClientContextTags()
+        public void TrackMetric_IncludesAllClientContextTags()
         {
             this.telemetryClient.Context.User.Id = "metric-user";
+            this.telemetryClient.Context.User.AuthenticatedUserId = "metric-auth";
+            this.telemetryClient.Context.User.UserAgent = "MetricAgent/1.0";
+            this.telemetryClient.Context.User.AccountId = "metric-acct";
+            this.telemetryClient.Context.Operation.Name = "MetricOp";
+            this.telemetryClient.Context.Operation.SyntheticSource = "metric-bot";
             this.telemetryClient.Context.Location.Ip = "10.0.0.5";
+            this.telemetryClient.Context.Session.Id = "metric-session";
+            this.telemetryClient.Context.Session.IsFirst = true;
+            this.telemetryClient.Context.Device.Id = "metric-device";
+            this.telemetryClient.Context.Device.Model = "Server";
+            this.telemetryClient.Context.Device.OemName = "Lenovo";
+            this.telemetryClient.Context.Device.Type = "Rack";
 
-            this.telemetryClient.TrackMetric("TestMetric", 42.0);
+            this.telemetryClient.TrackMetric("AllContextMetric", 42.0);
             this.telemetryClient.Flush();
 
             Assert.True(this.metricItems.Count > 0);
-            var metric = this.metricItems.FirstOrDefault(m => m.Name == "TestMetric");
+            var metric = this.metricItems.FirstOrDefault(m => m.Name == "AllContextMetric");
             Assert.NotNull(metric);
 
             foreach (var point in metric.GetMetricPoints())
             {
-                bool hasUserId = false;
-                bool hasIp = false;
+                var tagDict = new Dictionary<string, string>();
                 foreach (var tag in point.Tags)
                 {
-                    if (tag.Key == "enduser.pseudo.id" && tag.Value?.ToString() == "metric-user")
-                        hasUserId = true;
-                    if (tag.Key == "microsoft.client.ip" && tag.Value?.ToString() == "10.0.0.5")
-                        hasIp = true;
+                    tagDict[tag.Key] = tag.Value?.ToString();
                 }
-                Assert.True(hasUserId, "Context tag enduser.pseudo.id should be on metric");
-                Assert.True(hasIp, "Context tag microsoft.client.ip should be on metric");
+
+                Assert.Equal("metric-user", tagDict["enduser.pseudo.id"]);
+                Assert.Equal("metric-auth", tagDict["enduser.id"]);
+                Assert.Equal("MetricAgent/1.0", tagDict["user_agent.original"]);
+                Assert.Equal("MetricOp", tagDict["microsoft.operation_name"]);
+                Assert.Equal("10.0.0.5", tagDict["microsoft.client.ip"]);
+                Assert.Equal("metric-session", tagDict["microsoft.session.id"]);
+                Assert.Equal("True", tagDict["ai.session.isFirst"]);
+                Assert.Equal("metric-device", tagDict["ai.device.id"]);
+                Assert.Equal("Server", tagDict["ai.device.model"]);
+                Assert.Equal("Lenovo", tagDict["ai.device.oemName"]);
+                Assert.Equal("Rack", tagDict["ai.device.type"]);
+                Assert.Equal("metric-bot", tagDict["microsoft.synthetic_source"]);
+                Assert.Equal("metric-acct", tagDict["microsoft.user.account_id"]);
                 break;
             }
         }
@@ -660,27 +841,51 @@ namespace Microsoft.ApplicationInsights
         }
 
         [Fact]
-        public void GetMetric_TrackValue_ZeroDimensions_IncludesContextTags()
+        public void GetMetric_TrackValue_IncludesAllClientContextTags()
         {
             this.telemetryClient.Context.User.Id = "getmetric-user";
+            this.telemetryClient.Context.User.AuthenticatedUserId = "getmetric-auth";
+            this.telemetryClient.Context.User.UserAgent = "GetMetricAgent/1.0";
+            this.telemetryClient.Context.User.AccountId = "getmetric-acct";
+            this.telemetryClient.Context.Operation.Name = "GetMetricOp";
+            this.telemetryClient.Context.Operation.SyntheticSource = "getmetric-bot";
+            this.telemetryClient.Context.Location.Ip = "10.0.0.6";
+            this.telemetryClient.Context.Session.Id = "getmetric-session";
+            this.telemetryClient.Context.Session.IsFirst = true;
+            this.telemetryClient.Context.Device.Id = "getmetric-device";
+            this.telemetryClient.Context.Device.Model = "VM";
+            this.telemetryClient.Context.Device.OemName = "Azure";
+            this.telemetryClient.Context.Device.Type = "Cloud";
 
-            var metric = this.telemetryClient.GetMetric("ZeroDimMetric");
+            var metric = this.telemetryClient.GetMetric("AllContextGetMetric");
             metric.TrackValue(5.0);
 
             this.telemetryClient.Flush();
 
-            var collected = this.metricItems.FirstOrDefault(m => m.Name == "ZeroDimMetric");
+            var collected = this.metricItems.FirstOrDefault(m => m.Name == "AllContextGetMetric");
             Assert.NotNull(collected);
 
             foreach (var point in collected.GetMetricPoints())
             {
-                bool hasUserId = false;
+                var tagDict = new Dictionary<string, string>();
                 foreach (var tag in point.Tags)
                 {
-                    if (tag.Key == "enduser.pseudo.id" && tag.Value?.ToString() == "getmetric-user")
-                        hasUserId = true;
+                    tagDict[tag.Key] = tag.Value?.ToString();
                 }
-                Assert.True(hasUserId, "Context tag should appear on GetMetric().TrackValue()");
+
+                Assert.Equal("getmetric-user", tagDict["enduser.pseudo.id"]);
+                Assert.Equal("getmetric-auth", tagDict["enduser.id"]);
+                Assert.Equal("GetMetricAgent/1.0", tagDict["user_agent.original"]);
+                Assert.Equal("GetMetricOp", tagDict["microsoft.operation_name"]);
+                Assert.Equal("10.0.0.6", tagDict["microsoft.client.ip"]);
+                Assert.Equal("getmetric-session", tagDict["microsoft.session.id"]);
+                Assert.Equal("True", tagDict["ai.session.isFirst"]);
+                Assert.Equal("getmetric-device", tagDict["ai.device.id"]);
+                Assert.Equal("VM", tagDict["ai.device.model"]);
+                Assert.Equal("Azure", tagDict["ai.device.oemName"]);
+                Assert.Equal("Cloud", tagDict["ai.device.type"]);
+                Assert.Equal("getmetric-bot", tagDict["microsoft.synthetic_source"]);
+                Assert.Equal("getmetric-acct", tagDict["microsoft.user.account_id"]);
                 break;
             }
         }
@@ -772,6 +977,14 @@ namespace Microsoft.ApplicationInsights
             Assert.False(attributes.ContainsKey("user_agent.original"));
             Assert.False(attributes.ContainsKey("microsoft.operation_name"));
             Assert.False(attributes.ContainsKey("microsoft.client.ip"));
+            Assert.False(attributes.ContainsKey("microsoft.session.id"));
+            Assert.False(attributes.ContainsKey("ai.session.isFirst"));
+            Assert.False(attributes.ContainsKey("ai.device.id"));
+            Assert.False(attributes.ContainsKey("ai.device.model"));
+            Assert.False(attributes.ContainsKey("ai.device.oemName"));
+            Assert.False(attributes.ContainsKey("ai.device.type"));
+            Assert.False(attributes.ContainsKey("microsoft.synthetic_source"));
+            Assert.False(attributes.ContainsKey("microsoft.user.account_id"));
         }
 
         [Fact]
@@ -825,6 +1038,14 @@ namespace Microsoft.ApplicationInsights
             Assert.False(activity.Tags.Any(t => t.Key == "enduser.id"));
             Assert.False(activity.Tags.Any(t => t.Key == "user_agent.original"));
             Assert.False(activity.Tags.Any(t => t.Key == "microsoft.client.ip"));
+            Assert.False(activity.Tags.Any(t => t.Key == "microsoft.session.id"));
+            Assert.False(activity.Tags.Any(t => t.Key == "ai.session.isFirst"));
+            Assert.False(activity.Tags.Any(t => t.Key == "ai.device.id"));
+            Assert.False(activity.Tags.Any(t => t.Key == "ai.device.model"));
+            Assert.False(activity.Tags.Any(t => t.Key == "ai.device.oemName"));
+            Assert.False(activity.Tags.Any(t => t.Key == "ai.device.type"));
+            Assert.False(activity.Tags.Any(t => t.Key == "microsoft.synthetic_source"));
+            Assert.False(activity.Tags.Any(t => t.Key == "microsoft.user.account_id"));
         }
 
         [Fact]

@@ -231,5 +231,29 @@
         /// When present, maps to ai.location.ip context tag.
         /// </summary>
         public const string AttributeMicrosoftClientIp = "microsoft.client.ip";
+
+        /// <summary>Attribute for session ID.</summary>
+        public const string AttributeMicrosoftSessionId = "microsoft.session.id";
+
+        /// <summary>Attribute for first session flag.</summary>
+        public const string AttributeAiSessionIsFirst = "ai.session.isFirst";
+
+        /// <summary>Attribute for device ID.</summary>
+        public const string AttributeAiDeviceId = "ai.device.id";
+
+        /// <summary>Attribute for device model.</summary>
+        public const string AttributeAiDeviceModel = "ai.device.model";
+
+        /// <summary>Attribute for device OEM name.</summary>
+        public const string AttributeAiDeviceOemName = "ai.device.oemName";
+
+        /// <summary>Attribute for device type.</summary>
+        public const string AttributeAiDeviceType = "ai.device.type";
+
+        /// <summary>Attribute for synthetic source.</summary>
+        public const string AttributeMicrosoftSyntheticSource = "microsoft.synthetic_source";
+
+        /// <summary>Attribute for user account ID.</summary>
+        public const string AttributeMicrosoftUserAccountId = "microsoft.user.account_id";
     }
 }
