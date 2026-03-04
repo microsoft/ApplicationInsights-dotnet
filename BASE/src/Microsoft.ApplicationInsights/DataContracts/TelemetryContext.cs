@@ -95,19 +95,19 @@
         }
 
         /// <summary>
+        /// Gets the object describing the component tracked by this <see cref="TelemetryContext"/>.
+        /// </summary>
+        public ComponentContext Component
+        {
+            get { return LazyInitializer.EnsureInitialized(ref this.component, () => new ComponentContext()); }
+        }
+
+        /// <summary>
         /// Gets the object describing the cloud tracked by this <see cref="TelemetryContext"/>.
         /// </summary>
         internal CloudContext Cloud
         {
             get { return LazyInitializer.EnsureInitialized(ref this.cloud, () => new CloudContext()); }
-        }
-
-        /// <summary>
-        /// Gets the object describing the component tracked by this <see cref="TelemetryContext"/>.
-        /// </summary>
-        internal ComponentContext Component
-        {
-            get { return LazyInitializer.EnsureInitialized(ref this.component, () => new ComponentContext()); }
         }
     }
 }
