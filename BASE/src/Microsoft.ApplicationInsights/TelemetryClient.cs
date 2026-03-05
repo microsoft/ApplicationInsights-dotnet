@@ -1491,6 +1491,11 @@
                 activity.SetTag(SemanticConventions.AttributeAiDeviceType, context.Device.Type);
             }
 
+            if (!string.IsNullOrEmpty(context.Device?.OperatingSystem))
+            {
+                activity.SetTag(SemanticConventions.AttributeAiDeviceOsVersion, context.Device.OperatingSystem);
+            }
+
             if (!string.IsNullOrEmpty(context.Operation?.SyntheticSource))
             {
                 activity.SetTag(SemanticConventions.AttributeMicrosoftSyntheticSource, context.Operation.SyntheticSource);
@@ -1567,6 +1572,11 @@
             if (!string.IsNullOrEmpty(context.Device?.Type))
             {
                 properties[SemanticConventions.AttributeAiDeviceType] = context.Device.Type;
+            }
+
+            if (!string.IsNullOrEmpty(context.Device?.OperatingSystem))
+            {
+                properties[SemanticConventions.AttributeAiDeviceOsVersion] = context.Device.OperatingSystem;
             }
 
             if (!string.IsNullOrEmpty(context.Operation?.SyntheticSource))
@@ -1660,6 +1670,11 @@
             if (!string.IsNullOrEmpty(this.Context.Device?.Type))
             {
                 tags[SemanticConventions.AttributeAiDeviceType] = this.Context.Device.Type;
+            }
+
+            if (!string.IsNullOrEmpty(this.Context.Device?.OperatingSystem))
+            {
+                tags[SemanticConventions.AttributeAiDeviceOsVersion] = this.Context.Device.OperatingSystem;
             }
 
             if (!string.IsNullOrEmpty(this.Context.Operation?.SyntheticSource))

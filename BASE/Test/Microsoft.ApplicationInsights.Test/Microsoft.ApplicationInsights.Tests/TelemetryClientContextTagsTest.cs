@@ -124,10 +124,11 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Context.Device.Model = "Surface Pro";
             this.telemetryClient.Context.Device.OemName = "Microsoft";
             this.telemetryClient.Context.Device.Type = "Tablet";
+            this.telemetryClient.Context.Device.OperatingSystem = "Windows 11";
 
             var tags = this.telemetryClient.ContextTags;
 
-            Assert.Equal(13, tags.Count);
+            Assert.Equal(14, tags.Count);
             Assert.Equal("user-1", tags["enduser.pseudo.id"]);
             Assert.Equal("auth-1", tags["enduser.id"]);
             Assert.Equal("TestAgent/1.0", tags["user_agent.original"]);
@@ -139,6 +140,7 @@ namespace Microsoft.ApplicationInsights
             Assert.Equal("Surface Pro", tags["ai.device.model"]);
             Assert.Equal("Microsoft", tags["ai.device.oemName"]);
             Assert.Equal("Tablet", tags["ai.device.type"]);
+            Assert.Equal("Windows 11", tags["ai.device.osVersion"]);
             Assert.Equal("bot", tags["microsoft.synthetic_source"]);
             Assert.Equal("acct-1", tags["microsoft.user.account_id"]);
         }
@@ -174,6 +176,7 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Context.Device.Model = "";
             this.telemetryClient.Context.Device.OemName = "";
             this.telemetryClient.Context.Device.Type = "";
+            this.telemetryClient.Context.Device.OperatingSystem = "";
 
             var tags = this.telemetryClient.ContextTags;
 
@@ -250,6 +253,7 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Context.Device.Model = "Phone";
             this.telemetryClient.Context.Device.OemName = "Samsung";
             this.telemetryClient.Context.Device.Type = "Mobile";
+            this.telemetryClient.Context.Device.OperatingSystem = "Android 14";
 
             this.telemetryClient.TrackEvent("AllContextEvent");
             this.telemetryClient.Flush();
@@ -271,6 +275,7 @@ namespace Microsoft.ApplicationInsights
             Assert.Equal("Phone", attributes["ai.device.model"]);
             Assert.Equal("Samsung", attributes["ai.device.oemName"]);
             Assert.Equal("Mobile", attributes["ai.device.type"]);
+            Assert.Equal("Android 14", attributes["ai.device.osVersion"]);
             Assert.Equal("evt-bot", attributes["microsoft.synthetic_source"]);
             Assert.Equal("evt-acct", attributes["microsoft.user.account_id"]);
         }
@@ -320,6 +325,7 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Context.Device.Model = "Desktop";
             this.telemetryClient.Context.Device.OemName = "HP";
             this.telemetryClient.Context.Device.Type = "PC";
+            this.telemetryClient.Context.Device.OperatingSystem = "Windows 10";
 
             this.telemetryClient.TrackTrace("AllContextTrace");
             this.telemetryClient.Flush();
@@ -338,6 +344,7 @@ namespace Microsoft.ApplicationInsights
             Assert.Equal("Desktop", attributes["ai.device.model"]);
             Assert.Equal("HP", attributes["ai.device.oemName"]);
             Assert.Equal("PC", attributes["ai.device.type"]);
+            Assert.Equal("Windows 10", attributes["ai.device.osVersion"]);
             Assert.Equal("trc-bot", attributes["microsoft.synthetic_source"]);
             Assert.Equal("trc-acct", attributes["microsoft.user.account_id"]);
         }
@@ -358,6 +365,7 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Context.Device.Model = "Tablet";
             this.telemetryClient.Context.Device.OemName = "Asus";
             this.telemetryClient.Context.Device.Type = "Portable";
+            this.telemetryClient.Context.Device.OperatingSystem = "Linux 6.1";
 
             this.telemetryClient.TrackException(new InvalidOperationException("boom"));
             this.telemetryClient.Flush();
@@ -376,6 +384,7 @@ namespace Microsoft.ApplicationInsights
             Assert.Equal("Tablet", attributes["ai.device.model"]);
             Assert.Equal("Asus", attributes["ai.device.oemName"]);
             Assert.Equal("Portable", attributes["ai.device.type"]);
+            Assert.Equal("Linux 6.1", attributes["ai.device.osVersion"]);
             Assert.Equal("exc-bot", attributes["microsoft.synthetic_source"]);
             Assert.Equal("exc-acct", attributes["microsoft.user.account_id"]);
         }
@@ -580,6 +589,7 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Context.Device.Model = "Laptop";
             this.telemetryClient.Context.Device.OemName = "Dell";
             this.telemetryClient.Context.Device.Type = "PC";
+            this.telemetryClient.Context.Device.OperatingSystem = "macOS 14";
             this.telemetryClient.Context.Operation.SyntheticSource = "test-runner";
 
             var request = new RequestTelemetry("GET /api", DateTimeOffset.UtcNow, TimeSpan.FromMilliseconds(50), "200", true);
@@ -597,6 +607,7 @@ namespace Microsoft.ApplicationInsights
             Assert.True(activity.Tags.Any(t => t.Key == "ai.device.model" && t.Value == "Laptop"));
             Assert.True(activity.Tags.Any(t => t.Key == "ai.device.oemName" && t.Value == "Dell"));
             Assert.True(activity.Tags.Any(t => t.Key == "ai.device.type" && t.Value == "PC"));
+            Assert.True(activity.Tags.Any(t => t.Key == "ai.device.osVersion" && t.Value == "macOS 14"));
             Assert.True(activity.Tags.Any(t => t.Key == "microsoft.synthetic_source" && t.Value == "test-runner"));
             Assert.True(activity.Tags.Any(t => t.Key == "microsoft.user.account_id" && t.Value == "req-acct"));
         }
@@ -617,6 +628,7 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Context.Device.Model = "Watch";
             this.telemetryClient.Context.Device.OemName = "Apple";
             this.telemetryClient.Context.Device.Type = "Wearable";
+            this.telemetryClient.Context.Device.OperatingSystem = "watchOS 10";
 
             var dep = new DependencyTelemetry
             {
@@ -641,6 +653,7 @@ namespace Microsoft.ApplicationInsights
             Assert.True(activity.Tags.Any(t => t.Key == "ai.device.model" && t.Value == "Watch"));
             Assert.True(activity.Tags.Any(t => t.Key == "ai.device.oemName" && t.Value == "Apple"));
             Assert.True(activity.Tags.Any(t => t.Key == "ai.device.type" && t.Value == "Wearable"));
+            Assert.True(activity.Tags.Any(t => t.Key == "ai.device.osVersion" && t.Value == "watchOS 10"));
             Assert.True(activity.Tags.Any(t => t.Key == "microsoft.synthetic_source" && t.Value == "dep-bot"));
             Assert.True(activity.Tags.Any(t => t.Key == "microsoft.user.account_id" && t.Value == "dep-acct"));
         }

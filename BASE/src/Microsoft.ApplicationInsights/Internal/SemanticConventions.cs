@@ -250,6 +250,9 @@
         /// <summary>Attribute for device type.</summary>
         public const string AttributeAiDeviceType = "ai.device.type";
 
+        /// <summary>Attribute for device OS version.</summary>
+        public const string AttributeAiDeviceOsVersion = "ai.device.osVersion";
+
         /// <summary>Attribute for synthetic source.</summary>
         public const string AttributeMicrosoftSyntheticSource = "microsoft.synthetic_source";
 
