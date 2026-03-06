@@ -105,7 +105,7 @@
         /// <summary>
         /// Gets the object describing the cloud tracked by this <see cref="TelemetryContext"/>.
         /// </summary>
-        internal CloudContext Cloud
+        public CloudContext Cloud
         {
             get { return LazyInitializer.EnsureInitialized(ref this.cloud, () => new CloudContext()); }
         }

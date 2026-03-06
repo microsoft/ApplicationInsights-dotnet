@@ -24,3 +24,9 @@ Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Component.get -> Mi
 Microsoft.ApplicationInsights.Extensibility.Implementation.ComponentContext
 Microsoft.ApplicationInsights.Extensibility.Implementation.ComponentContext.Version.get -> string
 Microsoft.ApplicationInsights.Extensibility.Implementation.ComponentContext.Version.set -> void
+Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Cloud.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.CloudContext
+Microsoft.ApplicationInsights.Extensibility.Implementation.CloudContext
+Microsoft.ApplicationInsights.Extensibility.Implementation.CloudContext.RoleName.get -> string
+Microsoft.ApplicationInsights.Extensibility.Implementation.CloudContext.RoleName.set -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.CloudContext.RoleInstance.get -> string
+Microsoft.ApplicationInsights.Extensibility.Implementation.CloudContext.RoleInstance.set -> void
