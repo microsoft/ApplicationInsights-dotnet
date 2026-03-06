@@ -17,9 +17,16 @@
 
         static void Main(string[] args)
         {
+            var connectionString = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                Console.Error.WriteLine("ERROR: Set the APPLICATIONINSIGHTS_CONNECTION_STRING environment variable.");
+                Console.Error.WriteLine("  Example: export APPLICATIONINSIGHTS_CONNECTION_STRING=\"InstrumentationKey=...;IngestionEndpoint=...\"");
+                return;
+            }
 
             var telemetryConfig = TelemetryConfiguration.CreateDefault();
-            telemetryConfig.ConnectionString = "";
+            telemetryConfig.ConnectionString = connectionString;
 
             telemetryConfig.ConfigureOpenTelemetryBuilder(builder => builder.WithTracing(tracing => tracing.AddSource("MyCompany.MyProduct.MyLibrary").AddConsoleExporter())
                                                                      .WithLogging(logging => logging.AddConsoleExporter())
@@ -99,13 +106,20 @@
                 ActivityKind.Server, // or Client, Consumer, Producer — depending on scenario
                 parentContext);
 
-            using (var op = telemetryClient.StartOperation<RequestTelemetry>(existingActivity))
+            if (existingActivity != null)
             {
-                Console.WriteLine("Processing external activity...");
-                telemetryClient.TrackTrace("Message consumed under existing trace context.");
-            }
+                using (var op = telemetryClient.StartOperation<RequestTelemetry>(existingActivity))
+                {
+                    Console.WriteLine("Processing external activity...");
+                    telemetryClient.TrackTrace("Message consumed under existing trace context.");
+                }
 
-            existingActivity.Stop();
+                existingActivity.Stop();
+            }
+            else
+            {
+                Console.WriteLine("Skipping external activity (no listener registered for ActivitySource).");
+            }
 
 
             // Explicitly call Flush() followed by sleep is required in Console Apps.
