@@ -5,8 +5,6 @@ Microsoft.ApplicationInsights.Extensibility.Implementation.DeviceContext.Id.get 
 Microsoft.ApplicationInsights.Extensibility.Implementation.DeviceContext.Id.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.DeviceContext.Model.get -> string
 Microsoft.ApplicationInsights.Extensibility.Implementation.DeviceContext.Model.set -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.DeviceContext.OemName.get -> string
-Microsoft.ApplicationInsights.Extensibility.Implementation.DeviceContext.OemName.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.DeviceContext.OperatingSystem.get -> string
 Microsoft.ApplicationInsights.Extensibility.Implementation.DeviceContext.OperatingSystem.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.DeviceContext.Type.get -> string
@@ -16,8 +14,6 @@ Microsoft.ApplicationInsights.Extensibility.Implementation.OperationContext.Synt
 Microsoft.ApplicationInsights.Extensibility.Implementation.SessionContext
 Microsoft.ApplicationInsights.Extensibility.Implementation.SessionContext.Id.get -> string
 Microsoft.ApplicationInsights.Extensibility.Implementation.SessionContext.Id.set -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.SessionContext.IsFirst.get -> bool?
-Microsoft.ApplicationInsights.Extensibility.Implementation.SessionContext.IsFirst.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext.AccountId.get -> string
 Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext.AccountId.set -> void
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Component.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.ComponentContext

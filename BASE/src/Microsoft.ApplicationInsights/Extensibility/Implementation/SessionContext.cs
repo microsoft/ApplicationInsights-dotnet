@@ -24,7 +24,7 @@
         /// <summary>
         /// Gets or sets the IsFirst Session for the user.
         /// </summary>
-        public bool? IsFirst
+        internal bool? IsFirst
         {
             get { return this.isFirst; }
             set { this.isFirst = value; }

@@ -50,7 +50,7 @@
         /// <summary>
         /// Gets or sets the device OEM for the current device.
         /// </summary>
-        public string OemName
+        internal string OemName
         {
             get { return string.IsNullOrEmpty(this.oemName) ? null : this.oemName; }
             set { this.oemName = value; }

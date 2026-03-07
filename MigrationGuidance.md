@@ -394,7 +394,6 @@ client.Context.GlobalProperties["MyCustomGlobalProperty"] = "Production";
 // Once fixed, setting them here will apply to all telemetry sent by this client:
 client.Context.User.Id = "anonymous-user-id";
 client.Context.User.AuthenticatedUserId = "authenticated-user-id";
-client.Context.User.UserAgent = "MyApp/1.0";
 client.Context.Operation.Name = "MyOperation";
 client.Context.Location.Ip = "127.0.0.1";
 ```
