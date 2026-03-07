@@ -5,7 +5,7 @@
     /// <summary>
     /// Encapsulates information about a device where an application is running.
     /// </summary>
-    internal sealed class DeviceContext
+    public sealed class DeviceContext
     {
         private readonly IDictionary<string, string> properties;
 
@@ -50,7 +50,7 @@
         /// <summary>
         /// Gets or sets the device OEM for the current device.
         /// </summary>
-        public string OemName
+        internal string OemName
         {
             get { return string.IsNullOrEmpty(this.oemName) ? null : this.oemName; }
             set { this.oemName = value; }

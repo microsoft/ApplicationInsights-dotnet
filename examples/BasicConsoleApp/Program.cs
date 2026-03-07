@@ -28,6 +28,22 @@
             // Initialize the TelemetryClient
             var telemetryClient = new TelemetryClient(telemetryConfig);
 
+            // Set all public TelemetryContext properties to verify context tag propagation
+            telemetryClient.Context.User.Id = "test-user-123";
+            telemetryClient.Context.User.AuthenticatedUserId = "auth-user-456";
+            telemetryClient.Context.User.AccountId = "account-789";
+            telemetryClient.Context.Session.Id = "session-abc";
+            telemetryClient.Context.Device.Id = "device-xyz";
+            telemetryClient.Context.Device.Model = "Surface Pro";
+            telemetryClient.Context.Device.Type = "PC";
+            telemetryClient.Context.Device.OperatingSystem = "Windows 11";
+            telemetryClient.Context.Operation.Name = "TestOperation";
+            telemetryClient.Context.Operation.SyntheticSource = "test-bot";
+            telemetryClient.Context.Location.Ip = "10.0.0.1";
+            telemetryClient.Context.Cloud.RoleName = "TestRole";
+            telemetryClient.Context.Cloud.RoleInstance = "TestInstance";
+            telemetryClient.Context.Component.Version = "2.0.0";
+
             // **The following lines are examples of tracking different telemetry types.**
 
             telemetryClient.TrackEvent("SampleEvent");

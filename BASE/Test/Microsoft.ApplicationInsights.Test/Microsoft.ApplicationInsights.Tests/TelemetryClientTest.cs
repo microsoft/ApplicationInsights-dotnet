@@ -2169,6 +2169,20 @@ namespace Microsoft.ApplicationInsights
             }
         }
 
+        [Fact]
+        public void ComponentContextVersionSetsEnvironmentVariable()
+        {
+            try
+            {
+                this.telemetryClient.Context.Component.Version = "1.2.3";
+                Assert.Equal("1.2.3", Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_COMPONENT_VERSION"));
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable("APPLICATIONINSIGHTS_COMPONENT_VERSION", null);
+            }
+        }
+
         private double ComputeSomethingHeavy()
         {
             var random = new Random();

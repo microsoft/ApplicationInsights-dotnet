@@ -380,22 +380,10 @@
             // Get or create histogram for this metric
             var histogram = this.Configuration.MetricsManager.GetOrCreateHistogram(name, null);
 
-            // Merge: client context tags + GlobalProperties (lowest) → caller properties (highest)
-            var allTags = this.BuildBaseMetricTags();
-
-            // Caller-provided properties (highest priority)
-            if (properties != null)
-            {
-                foreach (var kvp in properties)
-                {
-                    allTags[kvp.Key] = kvp.Value;
-                }
-            }
-
-            if (allTags.Count > 0)
+            if (properties != null && properties.Count > 0)
             {
                 var tags = new TagList();
-                foreach (var kvp in allTags)
+                foreach (var kvp in properties)
                 {
                     tags.Add(kvp.Key, kvp.Value);
                 }
@@ -431,34 +419,10 @@
                 telemetry.Name,
                 telemetry.MetricNamespace);
 
-            // Merge: client context tags + GlobalProperties (lowest) → item layers (highest)
-            var allTags = this.BuildBaseMetricTags();
-
-            // 3. GlobalProperties from item context
-            if (telemetry.Context?.GlobalPropertiesValue != null)
-            {
-                foreach (var property in telemetry.Context.GlobalPropertiesValue)
-                {
-                    allTags[property.Key] = property.Value;
-                }
-            }
-
-            // 4. Item custom properties
-            if (telemetry.Properties != null)
-            {
-                foreach (var kvp in telemetry.Properties)
-                {
-                    allTags[kvp.Key] = kvp.Value;
-                }
-            }
-
-            // 5. Item-level context (highest priority)
-            ApplyContextToProperties(telemetry.Context, allTags);
-
-            if (allTags.Count > 0)
+            if (telemetry.Properties != null && telemetry.Properties.Count > 0)
             {
                 var tags = new TagList();
-                foreach (var kvp in allTags)
+                foreach (var kvp in telemetry.Properties)
                 {
                     tags.Add(kvp.Key, kvp.Value);
                 }
@@ -1156,32 +1120,7 @@
             return new Metric(this, metricIdentifier.MetricId, metricIdentifier.MetricNamespace, dimensionNames);
         }
 
-        /// <summary>
-        /// Builds a dictionary of metric tags by merging client-level context tags and GlobalProperties.
-        /// Context tags have lowest priority; GlobalProperties override them.
-        /// Used by both <see cref="TrackMetric(string, double, IDictionary{string, string})"/> and <see cref="Metric"/> to avoid duplicating merge logic.
-        /// </summary>
-        internal Dictionary<string, string> BuildBaseMetricTags()
-        {
-            var allTags = new Dictionary<string, string>();
-
-            // 1. Client-level context tags (lowest priority)
-            foreach (var tag in this.ContextTags)
-            {
-                allTags[tag.Key] = tag.Value;
-            }
-
-            // 2. GlobalProperties from client context
-            if (this.Context.GlobalPropertiesValue != null)
-            {
-                foreach (var property in this.Context.GlobalPropertiesValue)
-                {
-                    allTags[property.Key] = property.Value;
-                }
-            }
-
-            return allTags;
-        }
+   
 
         private static LogLevel GetLogLevel(SeverityLevel severityLevel)
         {
@@ -1446,11 +1385,6 @@
                 activity.SetTag(SemanticConventions.AttributeEnduserId, context.User.AuthenticatedUserId);
             }
 
-            if (!string.IsNullOrEmpty(context.User?.UserAgent))
-            {
-                activity.SetTag(SemanticConventions.AttributeUserAgentOriginal, context.User.UserAgent);
-            }
-
             if (!string.IsNullOrEmpty(context.Operation?.Name))
             {
                 activity.SetTag(SemanticConventions.AttributeMicrosoftOperationName, context.Operation.Name);
@@ -1459,6 +1393,41 @@
             if (!string.IsNullOrEmpty(context.Location?.Ip))
             {
                 activity.SetTag(SemanticConventions.AttributeMicrosoftClientIp, context.Location.Ip);
+            }
+
+            if (!string.IsNullOrEmpty(context.Session?.Id))
+            {
+                activity.SetTag(SemanticConventions.AttributeMicrosoftSessionId, context.Session.Id);
+            }
+
+            if (!string.IsNullOrEmpty(context.Device?.Id))
+            {
+                activity.SetTag(SemanticConventions.AttributeAiDeviceId, context.Device.Id);
+            }
+
+            if (!string.IsNullOrEmpty(context.Device?.Model))
+            {
+                activity.SetTag(SemanticConventions.AttributeAiDeviceModel, context.Device.Model);
+            }
+
+            if (!string.IsNullOrEmpty(context.Device?.Type))
+            {
+                activity.SetTag(SemanticConventions.AttributeAiDeviceType, context.Device.Type);
+            }
+
+            if (!string.IsNullOrEmpty(context.Device?.OperatingSystem))
+            {
+                activity.SetTag(SemanticConventions.AttributeAiDeviceOsVersion, context.Device.OperatingSystem);
+            }
+
+            if (!string.IsNullOrEmpty(context.Operation?.SyntheticSource))
+            {
+                activity.SetTag(SemanticConventions.AttributeMicrosoftSyntheticSource, context.Operation.SyntheticSource);
+            }
+
+            if (!string.IsNullOrEmpty(context.User?.AccountId))
+            {
+                activity.SetTag(SemanticConventions.AttributeMicrosoftUserAccountId, context.User.AccountId);
             }
         }
 
@@ -1484,11 +1453,6 @@
                 properties[SemanticConventions.AttributeEnduserId] = context.User.AuthenticatedUserId;
             }
 
-            if (!string.IsNullOrEmpty(context.User?.UserAgent))
-            {
-                properties[SemanticConventions.AttributeUserAgentOriginal] = context.User.UserAgent;
-            }
-
             if (!string.IsNullOrEmpty(context.Operation?.Name))
             {
                 properties[SemanticConventions.AttributeMicrosoftOperationName] = context.Operation.Name;
@@ -1497,6 +1461,41 @@
             if (!string.IsNullOrEmpty(context.Location?.Ip))
             {
                 properties[SemanticConventions.AttributeMicrosoftClientIp] = context.Location.Ip;
+            }
+
+            if (!string.IsNullOrEmpty(context.Session?.Id))
+            {
+                properties[SemanticConventions.AttributeMicrosoftSessionId] = context.Session.Id;
+            }
+
+            if (!string.IsNullOrEmpty(context.Device?.Id))
+            {
+                properties[SemanticConventions.AttributeAiDeviceId] = context.Device.Id;
+            }
+
+            if (!string.IsNullOrEmpty(context.Device?.Model))
+            {
+                properties[SemanticConventions.AttributeAiDeviceModel] = context.Device.Model;
+            }
+
+            if (!string.IsNullOrEmpty(context.Device?.Type))
+            {
+                properties[SemanticConventions.AttributeAiDeviceType] = context.Device.Type;
+            }
+
+            if (!string.IsNullOrEmpty(context.Device?.OperatingSystem))
+            {
+                properties[SemanticConventions.AttributeAiDeviceOsVersion] = context.Device.OperatingSystem;
+            }
+
+            if (!string.IsNullOrEmpty(context.Operation?.SyntheticSource))
+            {
+                properties[SemanticConventions.AttributeMicrosoftSyntheticSource] = context.Operation.SyntheticSource;
+            }
+
+            if (!string.IsNullOrEmpty(context.User?.AccountId))
+            {
+                properties[SemanticConventions.AttributeMicrosoftUserAccountId] = context.User.AccountId;
             }
         }
 
@@ -1537,11 +1536,6 @@
                 tags[SemanticConventions.AttributeEnduserId] = this.Context.User.AuthenticatedUserId;
             }
 
-            if (!string.IsNullOrEmpty(this.Context.User?.UserAgent))
-            {
-                tags[SemanticConventions.AttributeUserAgentOriginal] = this.Context.User.UserAgent;
-            }
-
             if (!string.IsNullOrEmpty(this.Context.Operation?.Name))
             {
                 tags[SemanticConventions.AttributeMicrosoftOperationName] = this.Context.Operation.Name;
@@ -1550,6 +1544,41 @@
             if (!string.IsNullOrEmpty(this.Context.Location?.Ip))
             {
                 tags[SemanticConventions.AttributeMicrosoftClientIp] = this.Context.Location.Ip;
+            }
+
+            if (!string.IsNullOrEmpty(this.Context.Session?.Id))
+            {
+                tags[SemanticConventions.AttributeMicrosoftSessionId] = this.Context.Session.Id;
+            }
+
+            if (!string.IsNullOrEmpty(this.Context.Device?.Id))
+            {
+                tags[SemanticConventions.AttributeAiDeviceId] = this.Context.Device.Id;
+            }
+
+            if (!string.IsNullOrEmpty(this.Context.Device?.Model))
+            {
+                tags[SemanticConventions.AttributeAiDeviceModel] = this.Context.Device.Model;
+            }
+
+            if (!string.IsNullOrEmpty(this.Context.Device?.Type))
+            {
+                tags[SemanticConventions.AttributeAiDeviceType] = this.Context.Device.Type;
+            }
+
+            if (!string.IsNullOrEmpty(this.Context.Device?.OperatingSystem))
+            {
+                tags[SemanticConventions.AttributeAiDeviceOsVersion] = this.Context.Device.OperatingSystem;
+            }
+
+            if (!string.IsNullOrEmpty(this.Context.Operation?.SyntheticSource))
+            {
+                tags[SemanticConventions.AttributeMicrosoftSyntheticSource] = this.Context.Operation.SyntheticSource;
+            }
+
+            if (!string.IsNullOrEmpty(this.Context.User?.AccountId))
+            {
+                tags[SemanticConventions.AttributeMicrosoftUserAccountId] = this.Context.User.AccountId;
             }
 
             return tags;

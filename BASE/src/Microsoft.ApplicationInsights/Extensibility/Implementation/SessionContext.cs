@@ -3,7 +3,7 @@
     /// <summary>
     /// Encapsulates information about a user session.
     /// </summary>
-    internal sealed class SessionContext
+    public sealed class SessionContext
     {
         private string id;
         private bool? isFirst;
@@ -24,7 +24,7 @@
         /// <summary>
         /// Gets or sets the IsFirst Session for the user.
         /// </summary>
-        public bool? IsFirst
+        internal bool? IsFirst
         {
             get { return this.isFirst; }
             set { this.isFirst = value; }

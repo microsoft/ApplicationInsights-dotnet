@@ -5,7 +5,7 @@
     /// <summary>
     /// Encapsulates information about a cloud where an application is running.
     /// </summary>
-    internal sealed class CloudContext
+    public sealed class CloudContext
     {
         /// <summary>
         /// Environment variable key used to communicate cloud role name override to the exporter.

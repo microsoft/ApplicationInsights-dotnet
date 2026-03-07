@@ -153,6 +153,7 @@ See detailed migration guidance [here](MigrationGuidance.md#telemetry-context)
 
 ### Sub-Context Properties Made Internal
 The following properties on **still-public** sub-context classes have been made internal:
+- **`User.UserAgent`** — Was public in 2.x, now internal. The Application Insights ingestion service does not surface this field in workspace-based resources.
 - **`User.AccountId`** — Was public in 2.x, now internal. This can be set via adding properties to Track() calls or creating custom OpenTelemetry processors.
 - **`Operation.Id`** — Was public in 2.x, now internal. Correlation IDs are managed automatically by OpenTelemetry.
 - **`Operation.ParentId`** — Was public in 2.x, now internal. Correlation IDs are managed automatically by OpenTelemetry.
@@ -161,12 +162,10 @@ The following properties on **still-public** sub-context classes have been made 
 
 ### Properties Retained
 The following remain **public**:
-- `User` (`Id`, `AuthenticatedUserId`, `UserAgent`)
+- `User` (`Id`, `AuthenticatedUserId`)
 - `Operation` (`Name`)
 - `Location` (`Ip`)
 - `GlobalProperties`
-
-Note that these properties are currently settable on individual telemetry items; there is future work planned to make these settable via TelemetryClient.
 ---
 
 # 2. Microsoft.ApplicationInsights.AspNetCore
