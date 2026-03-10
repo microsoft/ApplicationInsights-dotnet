@@ -425,7 +425,7 @@ In version 3.x, the following properties remain publicly settable on telemetry i
 **Available Context Properties:**
 | Context | Properties | Notes |
 |---------|-----------|-------|
-| `User` | `Id`, `AuthenticatedUserId`, `UserAgent` | Be mindful of PII |
+| `User` | `Id`, `AuthenticatedUserId` | Be mindful of PII |
 | `Operation` | `Name`| |
 | `Location` | `Ip` | |
 | `GlobalProperties` | (dictionary) | Custom key-value pairs |
