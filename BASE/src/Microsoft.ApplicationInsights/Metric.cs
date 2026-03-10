@@ -47,7 +47,7 @@ namespace Microsoft.ApplicationInsights
                 this.metricName,
                 this.metricNamespace);
 
-                histogram.Record(metricValue);
+            histogram.Record(metricValue);
         }
 
         /// <summary>

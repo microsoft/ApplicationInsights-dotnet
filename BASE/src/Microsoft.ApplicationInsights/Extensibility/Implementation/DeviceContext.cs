@@ -48,21 +48,21 @@
         }
 
         /// <summary>
-        /// Gets or sets the device OEM for the current device.
-        /// </summary>
-        internal string OemName
-        {
-            get { return string.IsNullOrEmpty(this.oemName) ? null : this.oemName; }
-            set { this.oemName = value; }
-        }
-
-        /// <summary>
         /// Gets or sets the device model for the current device.
         /// </summary>
         public string Model
         {
             get { return string.IsNullOrEmpty(this.model) ? null : this.model; }
             set { this.model = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the device OEM for the current device.
+        /// </summary>
+        internal string OemName
+        {
+            get { return string.IsNullOrEmpty(this.oemName) ? null : this.oemName; }
+            set { this.oemName = value; }
         }
     }
 }

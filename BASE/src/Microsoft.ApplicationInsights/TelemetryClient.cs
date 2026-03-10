@@ -1120,8 +1120,6 @@
             return new Metric(this, metricIdentifier.MetricId, metricIdentifier.MetricNamespace, dimensionNames);
         }
 
-   
-
         private static LogLevel GetLogLevel(SeverityLevel severityLevel)
         {
             return severityLevel switch
