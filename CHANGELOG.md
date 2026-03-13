@@ -1,7 +1,7 @@
 # Changelog
 
 ## Unreleased
-- [Added `netstandard2.0` target framework to `Microsoft.ApplicationInsights` package to support customers with shared libraries targeting netstandard2.0.]()
+- [Added `netstandard2.0` target framework to `Microsoft.ApplicationInsights` package to support customers with shared libraries targeting netstandard2.0.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3142)
 - [Fix `TelemetryClient.Context.Cloud.RoleName` set after construction now applies to all telemetry.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3129)
 - [Fix bug where Debug/Trace level logs from TrackTrace API were not emitted to Application Insights](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3121)
 - [Fix Track API calls to not mutate the passed in dictionary if it is readonly](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3119)
