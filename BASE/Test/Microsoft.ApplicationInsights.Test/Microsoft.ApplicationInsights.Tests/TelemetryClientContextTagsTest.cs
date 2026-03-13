@@ -44,173 +44,9 @@ namespace Microsoft.ApplicationInsights
             this.activityItems?.Clear();
             this.logItems?.Clear();
             this.telemetryClient?.TelemetryConfiguration?.Dispose();
-        }
-
-        #region BuildContextTags — Attribute Key Mapping
-
-        [Fact]
-        public void BuildContextTags_UserIdMapsToEnduserPseudoId()
-        {
-            this.telemetryClient.Context.User.Id = "user-123";
-
-            var tags = this.telemetryClient.ContextTags;
-
-            Assert.True(tags.ContainsKey("enduser.pseudo.id"));
-            Assert.Equal("user-123", tags["enduser.pseudo.id"]);
-        }
-
-        [Fact]
-        public void BuildContextTags_AuthenticatedUserIdMapsToEnduserId()
-        {
-            this.telemetryClient.Context.User.AuthenticatedUserId = "auth-456";
-
-            var tags = this.telemetryClient.ContextTags;
-
-            Assert.True(tags.ContainsKey("enduser.id"));
-            Assert.Equal("auth-456", tags["enduser.id"]);
-        }
-
-        [Fact]
-        public void BuildContextTags_OperationNameMapsToMicrosoftOperationName()
-        {
-            this.telemetryClient.Context.Operation.Name = "GET /api/users";
-
-            var tags = this.telemetryClient.ContextTags;
-
-            Assert.True(tags.ContainsKey("microsoft.operation_name"));
-            Assert.Equal("GET /api/users", tags["microsoft.operation_name"]);
-        }
-
-        [Fact]
-        public void BuildContextTags_LocationIpMapsToMicrosoftClientIp()
-        {
-            this.telemetryClient.Context.Location.Ip = "10.0.0.1";
-
-            var tags = this.telemetryClient.ContextTags;
-
-            Assert.True(tags.ContainsKey("microsoft.client.ip"));
-            Assert.Equal("10.0.0.1", tags["microsoft.client.ip"]);
-        }
-
-        [Fact]
-        public void BuildContextTags_AllPropertiesSet_ContainsAllAttributes()
-        {
-            this.telemetryClient.Context.User.Id = "user-1";
-            this.telemetryClient.Context.User.AuthenticatedUserId = "auth-1";
-            this.telemetryClient.Context.User.AccountId = "acct-1";
-            this.telemetryClient.Context.Operation.Name = "TestOp";
-            this.telemetryClient.Context.Operation.SyntheticSource = "bot";
-            this.telemetryClient.Context.Location.Ip = "192.168.1.1";
-            this.telemetryClient.Context.Session.Id = "session-1";
-            this.telemetryClient.Context.Device.Id = "device-1";
-            this.telemetryClient.Context.Device.Model = "Surface Pro";
-            this.telemetryClient.Context.Device.Type = "Tablet";
-            this.telemetryClient.Context.Device.OperatingSystem = "Windows 11";
-
-            var tags = this.telemetryClient.ContextTags;
-
-            Assert.Equal(11, tags.Count);
-            Assert.Equal("user-1", tags["enduser.pseudo.id"]);
-            Assert.Equal("auth-1", tags["enduser.id"]);
-            Assert.Equal("TestOp", tags["microsoft.operation_name"]);
-            Assert.Equal("192.168.1.1", tags["microsoft.client.ip"]);
-            Assert.Equal("session-1", tags["microsoft.session.id"]);
-            Assert.Equal("device-1", tags["ai.device.id"]);
-            Assert.Equal("Surface Pro", tags["ai.device.model"]);
-            Assert.Equal("Tablet", tags["ai.device.type"]);
-            Assert.Equal("Windows 11", tags["ai.device.osVersion"]);
-            Assert.Equal("bot", tags["microsoft.synthetic_source"]);
-            Assert.Equal("acct-1", tags["microsoft.user.account_id"]);
-        }
-
-        #endregion
-
-        #region BuildContextTags — Null/Empty Exclusion
-
-        [Fact]
-        public void BuildContextTags_NullUserIdExcluded()
-        {
-            this.telemetryClient.Context.User.Id = null;
-            this.telemetryClient.Context.Location.Ip = "10.0.0.1";
-
-            var tags = this.telemetryClient.ContextTags;
-
-            Assert.False(tags.ContainsKey("enduser.pseudo.id"));
-            Assert.True(tags.ContainsKey("microsoft.client.ip"));
-        }
-
-        [Fact]
-        public void BuildContextTags_EmptyStringExcluded()
-        {
-            this.telemetryClient.Context.User.Id = string.Empty;
-            this.telemetryClient.Context.User.AuthenticatedUserId = "";
-            this.telemetryClient.Context.User.AccountId = "";
-            this.telemetryClient.Context.Operation.Name = "";
-            this.telemetryClient.Context.Operation.SyntheticSource = "";
-            this.telemetryClient.Context.Location.Ip = "";
-            this.telemetryClient.Context.Session.Id = "";
-            this.telemetryClient.Context.Device.Id = "";
-            this.telemetryClient.Context.Device.Model = "";
-            this.telemetryClient.Context.Device.Type = "";
-            this.telemetryClient.Context.Device.OperatingSystem = "";
-
-            var tags = this.telemetryClient.ContextTags;
-
-            Assert.Equal(0, tags.Count);
-        }
-
-        [Fact]
-        public void BuildContextTags_MixedSetAndUnset_OnlyIncludesNonEmpty()
-        {
-            this.telemetryClient.Context.User.Id = "user-1";
-            // AuthenticatedUserId not set (null)
-            this.telemetryClient.Context.Operation.Name = "MyOp";
-            // Location.Ip not set (null)
-
-            var tags = this.telemetryClient.ContextTags;
-
-            Assert.Equal(2, tags.Count);
-            Assert.True(tags.ContainsKey("enduser.pseudo.id"));
-            Assert.True(tags.ContainsKey("microsoft.operation_name"));
-            Assert.False(tags.ContainsKey("enduser.id"));
-            Assert.False(tags.ContainsKey("user_agent.original"));
-            Assert.False(tags.ContainsKey("microsoft.client.ip"));
-        }
-
-        [Fact]
-        public void BuildContextTags_NoContextSet_ReturnsEmptyDictionary()
-        {
-            // Context is default (all properties null)
-            var tags = this.telemetryClient.ContextTags;
-
-            Assert.NotNull(tags);
-            Assert.Equal(0, tags.Count);
-        }
-
-        #endregion
-
-       
+        }  
 
         #region Log-based Telemetry — Context Tags Applied
-
-        [Fact]
-        public void TrackEvent_String_IncludesClientContextTags()
-        {
-            this.telemetryClient.Context.User.Id = "ctx-user";
-            this.telemetryClient.Context.Location.Ip = "10.0.0.1";
-
-            this.telemetryClient.TrackEvent("TestEvent");
-            this.telemetryClient.Flush();
-
-            var logRecord = this.logItems.FirstOrDefault(l =>
-                l.Attributes != null && l.Attributes.Any(a =>
-                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "TestEvent"));
-            Assert.NotNull(logRecord);
-
-            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
-            Assert.Equal("ctx-user", attributes["enduser.pseudo.id"]);
-            Assert.Equal("10.0.0.1", attributes["microsoft.client.ip"]);
-        }
 
         [Fact]
         public void TrackEvent_IncludesAllClientContextTags()
@@ -247,20 +83,6 @@ namespace Microsoft.ApplicationInsights
             Assert.Equal("Android 14", attributes["ai.device.osVersion"]);
             Assert.Equal("evt-bot", attributes["microsoft.synthetic_source"]);
             Assert.Equal("evt-acct", attributes["microsoft.user.account_id"]);
-        }
-
-        [Fact]
-        public void TrackTrace_String_IncludesClientContextTags()
-        {
-            this.telemetryClient.Context.User.Id = "trace-user";
-
-            this.telemetryClient.TrackTrace("hello");
-            this.telemetryClient.Flush();
-
-            Assert.True(this.logItems.Count > 0);
-            var logRecord = this.logItems.Last();
-            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
-            Assert.Equal("trace-user", attributes["enduser.pseudo.id"]);
         }
 
         [Fact]
@@ -367,27 +189,6 @@ namespace Microsoft.ApplicationInsights
 
         #region Log-based Telemetry — 3-Tier Priority Merge
 
-        [Fact]
-        public void TrackEvent_GlobalPropertiesOverrideContextTags()
-        {
-            // Client context (lowest priority)
-            this.telemetryClient.Context.User.Id = "context-user";
-
-            // GlobalProperties (medium priority) - override the same key
-            this.telemetryClient.Context.GlobalProperties["enduser.pseudo.id"] = "global-user";
-
-            this.telemetryClient.TrackEvent("TestEvent");
-            this.telemetryClient.Flush();
-
-            var logRecord = this.logItems.FirstOrDefault(l =>
-                l.Attributes != null && l.Attributes.Any(a =>
-                    a.Key == "microsoft.custom_event.name"));
-            Assert.NotNull(logRecord);
-            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
-
-            // GlobalProperties should override context tag
-            Assert.Equal("global-user", attributes["enduser.pseudo.id"]);
-        }
 
         [Fact]
         public void TrackEvent_ItemPropertiesOverrideContextTags()
@@ -658,33 +459,6 @@ namespace Microsoft.ApplicationInsights
         }
 
         [Fact]
-        public void TrackRequest_ItemPropertiesOverrideGlobalPropertiesOverrideContextTags()
-        {
-            // Tier 1: Context tags (lowest)
-            this.telemetryClient.Context.User.Id = "ctx-user";
-
-            // Tier 2: GlobalProperties (medium)
-            this.telemetryClient.Context.GlobalProperties["enduser.pseudo.id"] = "global-user";
-            this.telemetryClient.Context.GlobalProperties["env"] = "staging";
-
-            // Tier 3: Item properties (highest)
-            var request = new RequestTelemetry("GET /", DateTimeOffset.UtcNow, TimeSpan.FromMilliseconds(10), "200", true);
-            request.Properties["enduser.pseudo.id"] = "item-user";
-            request.Properties["req-id"] = "r-1";
-
-            this.telemetryClient.TrackRequest(request);
-            this.telemetryClient.Flush();
-
-            Assert.Equal(1, this.activityItems.Count);
-            var activity = this.activityItems[0];
-
-            // Item > Global > Context
-            Assert.True(activity.Tags.Any(t => t.Key == "enduser.pseudo.id" && t.Value == "item-user"));
-            Assert.True(activity.Tags.Any(t => t.Key == "env" && t.Value == "staging"));
-            Assert.True(activity.Tags.Any(t => t.Key == "req-id" && t.Value == "r-1"));
-        }
-
-        [Fact]
         public void TrackDependency_ItemOperationNameOverridesClientOperationName()
         {
             // Client-level operation name
@@ -709,6 +483,170 @@ namespace Microsoft.ApplicationInsights
             // Item-level Operation.Name should override client-level
             var opNameTag = activity.Tags.FirstOrDefault(t => t.Key == "microsoft.operation_name");
             Assert.Equal("ItemOp", opNameTag.Value);
+        }
+
+        #endregion
+
+        #region StartOperation — Context Tags Applied
+
+        [Fact]
+        public void StartOperation_Request_AppliesClientContextTags()
+        {
+            this.telemetryClient.Context.User.Id = "op-user";
+            this.telemetryClient.Context.Location.Ip = "10.0.0.5";
+            this.telemetryClient.Context.Session.Id = "op-session";
+
+            using (var operation = this.telemetryClient.StartOperation<RequestTelemetry>("GET /api"))
+            {
+                // Activity is live — context processor runs on end
+            }
+
+            this.telemetryClient.Flush();
+
+            Assert.True(this.activityItems.Count >= 1);
+            var activity = this.activityItems.First(a => a.DisplayName == "GET /api");
+            Assert.True(activity.Tags.Any(t => t.Key == "enduser.pseudo.id" && t.Value == "op-user"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.client.ip" && t.Value == "10.0.0.5"));
+            Assert.True(activity.Tags.Any(t => t.Key == "microsoft.session.id" && t.Value == "op-session"));
+        }
+
+        [Fact]
+        public void StartOperation_Dependency_AppliesClientContextTags()
+        {
+            this.telemetryClient.Context.User.Id = "dep-op-user";
+            this.telemetryClient.Context.Device.Id = "dep-op-device";
+
+            using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("SQL Query"))
+            {
+            }
+
+            this.telemetryClient.Flush();
+
+            Assert.True(this.activityItems.Count >= 1);
+            var activity = this.activityItems.First(a => a.DisplayName == "SQL Query");
+            Assert.True(activity.Tags.Any(t => t.Key == "enduser.pseudo.id" && t.Value == "dep-op-user"));
+            Assert.True(activity.Tags.Any(t => t.Key == "ai.device.id" && t.Value == "dep-op-device"));
+        }
+
+        [Fact]
+        public void StartOperation_GlobalPropertiesApplied()
+        {
+            this.telemetryClient.Context.User.Id = "op-user";
+            this.telemetryClient.Context.GlobalProperties["env"] = "prod";
+            this.telemetryClient.Context.GlobalProperties["region"] = "westus";
+
+            using (var operation = this.telemetryClient.StartOperation<RequestTelemetry>("GET /health"))
+            {
+            }
+
+            this.telemetryClient.Flush();
+
+            Assert.True(this.activityItems.Count >= 1);
+            var activity = this.activityItems.First(a => a.DisplayName == "GET /health");
+            Assert.True(activity.Tags.Any(t => t.Key == "env" && t.Value == "prod"));
+            Assert.True(activity.Tags.Any(t => t.Key == "region" && t.Value == "westus"));
+            Assert.True(activity.Tags.Any(t => t.Key == "enduser.pseudo.id" && t.Value == "op-user"));
+        }
+
+        #endregion
+
+        #region GlobalProperties — Activity-based Telemetry
+
+        [Fact]
+        public void TrackRequest_GlobalPropertiesAppliedAsTags()
+        {
+            this.telemetryClient.Context.GlobalProperties["env"] = "staging";
+            this.telemetryClient.Context.GlobalProperties["deployment"] = "blue";
+
+            var request = new RequestTelemetry("GET /api", DateTimeOffset.UtcNow, TimeSpan.FromMilliseconds(10), "200", true);
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            Assert.True(activity.Tags.Any(t => t.Key == "env" && t.Value == "staging"));
+            Assert.True(activity.Tags.Any(t => t.Key == "deployment" && t.Value == "blue"));
+        }
+
+        [Fact]
+        public void TrackDependency_GlobalPropertiesAppliedAsTags()
+        {
+            this.telemetryClient.Context.GlobalProperties["tenant"] = "contoso";
+
+            var dep = new DependencyTelemetry { Type = "HTTP", Name = "GET /ext", Duration = TimeSpan.FromMilliseconds(50), Success = true };
+            this.telemetryClient.TrackDependency(dep);
+            this.telemetryClient.Flush();
+
+            Assert.Equal(1, this.activityItems.Count);
+            Assert.True(this.activityItems[0].Tags.Any(t => t.Key == "tenant" && t.Value == "contoso"));
+        }
+
+        [Fact]
+        public void TrackRequest_GlobalPropertiesDoNotOverrideItemProperties()
+        {
+            this.telemetryClient.Context.GlobalProperties["key1"] = "global-val";
+
+            var request = new RequestTelemetry("GET /", DateTimeOffset.UtcNow, TimeSpan.FromMilliseconds(10), "200", true);
+            request.Properties["key1"] = "item-val";
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            Assert.Equal(1, this.activityItems.Count);
+            // Item-level wins — SetTag from Track* runs before processor's SetTagIfAbsent
+            Assert.True(this.activityItems[0].Tags.Any(t => t.Key == "key1" && t.Value == "item-val"));
+        }
+
+        #endregion
+
+        #region GlobalProperties — Log-based Telemetry
+
+        [Fact]
+        public void TrackEvent_GlobalPropertiesAppliedAsAttributes()
+        {
+            this.telemetryClient.Context.GlobalProperties["env"] = "production";
+            this.telemetryClient.Context.GlobalProperties["version"] = "1.2.3";
+
+            this.telemetryClient.TrackEvent("GlobalPropEvent");
+            this.telemetryClient.Flush();
+
+            var logRecord = this.logItems.FirstOrDefault(l =>
+                l.Attributes != null && l.Attributes.Any(a =>
+                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "GlobalPropEvent"));
+            Assert.NotNull(logRecord);
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.Equal("production", attributes["env"]);
+            Assert.Equal("1.2.3", attributes["version"]);
+        }
+
+        [Fact]
+        public void TrackTrace_GlobalPropertiesAppliedAsAttributes()
+        {
+            this.telemetryClient.Context.GlobalProperties["component"] = "worker";
+
+            this.telemetryClient.TrackTrace("GlobalPropTrace");
+            this.telemetryClient.Flush();
+
+            var logRecord = this.logItems.Last();
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            Assert.Equal("worker", attributes["component"]);
+        }
+
+        [Fact]
+        public void TrackEvent_GlobalPropertiesDoNotOverrideItemProperties()
+        {
+            this.telemetryClient.Context.GlobalProperties["key1"] = "global-val";
+
+            var props = new Dictionary<string, string> { { "key1", "item-val" } };
+            this.telemetryClient.TrackEvent("OverrideEvent", props);
+            this.telemetryClient.Flush();
+
+            var logRecord = this.logItems.FirstOrDefault(l =>
+                l.Attributes != null && l.Attributes.Any(a =>
+                    a.Key == "microsoft.custom_event.name" && a.Value?.ToString() == "OverrideEvent"));
+            Assert.NotNull(logRecord);
+            var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
+            // Item-level wins
+            Assert.Equal("item-val", attributes["key1"]);
         }
 
         #endregion

@@ -314,6 +314,23 @@
         }
 
         /// <summary>
+        /// Prepends an additional OpenTelemetry builder configuration that runs before
+        /// any previously registered configurations. Used to ensure context processors
+        /// are registered before exporters so their OnEnd runs first.
+        /// </summary>
+        internal void PrependOpenTelemetryBuilder(Action<IOpenTelemetryBuilder> configure)
+        {
+            this.ThrowIfBuilt();
+
+            var previousConfiguration = this.builderConfiguration;
+            this.builderConfiguration = builder =>
+            {
+                configure(builder);
+                previousConfiguration(builder);
+            };
+        }
+
+        /// <summary>
         /// Sets the cloud role name and role instance for telemetry.
         /// This configures the OpenTelemetry Resource with service.name, service.namespace, service.instance.id, and service.version attributes
         /// which map to Cloud.RoleName, Cloud.RoleInstance, and Application.Ver in Application Insights.

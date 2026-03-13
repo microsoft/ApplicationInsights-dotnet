@@ -50,8 +50,18 @@ namespace Microsoft.ApplicationInsights.Processors
                 }
             }
 
-            // Build list of context attributes to add (only those not already present)
+            // Apply client-level GlobalProperties (lowest priority — will not overwrite existing keys)
             var contextAttributes = new List<KeyValuePair<string, object>>();
+            var globalProperties = this.context.GlobalPropertiesValue;
+            if (globalProperties != null)
+            {
+                foreach (var kvp in globalProperties)
+                {
+                    AddIfAbsent(contextAttributes, existingKeys, kvp.Key, kvp.Value);
+                }
+            }
+
+            // Build list of structured context attributes to add (only those not already present)
             AddIfAbsent(contextAttributes, existingKeys, SemanticConventions.AttributeEnduserPseudoId, this.context.User?.Id);
             AddIfAbsent(contextAttributes, existingKeys, SemanticConventions.AttributeEnduserId, this.context.User?.AuthenticatedUserId);
             AddIfAbsent(contextAttributes, existingKeys, SemanticConventions.AttributeMicrosoftOperationName, this.context.Operation?.Name);
@@ -94,7 +104,7 @@ namespace Microsoft.ApplicationInsights.Processors
             string key,
             string value)
         {
-            if (!string.IsNullOrEmpty(value) && !existingKeys.Contains(key))
+            if (!string.IsNullOrEmpty(value) && existingKeys.Add(key))
             {
                 contextAttributes.Add(new KeyValuePair<string, object>(key, value));
             }

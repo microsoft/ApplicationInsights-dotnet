@@ -38,6 +38,16 @@ namespace Microsoft.ApplicationInsights.Processors
                 return;
             }
 
+            // Apply client-level GlobalProperties (lowest priority — will not overwrite existing tags)
+            var globalProperties = this.context.GlobalPropertiesValue;
+            if (globalProperties != null)
+            {
+                foreach (var kvp in globalProperties)
+                {
+                    SetTagIfAbsent(activity, kvp.Key, kvp.Value);
+                }
+            }
+
             SetTagIfAbsent(activity, SemanticConventions.AttributeEnduserPseudoId, this.context.User?.Id);
             SetTagIfAbsent(activity, SemanticConventions.AttributeEnduserId, this.context.User?.AuthenticatedUserId);
             SetTagIfAbsent(activity, SemanticConventions.AttributeMicrosoftOperationName, this.context.Operation?.Name);
