@@ -76,14 +76,14 @@ namespace Microsoft.ApplicationInsights
         }
 
         [Fact]
-        public void BuildContextTags_UserAgentMapsToUserAgentOriginal()
+        public void BuildContextTags_UserAgentDoesNotMapToUserAgentOriginal()
         {
             this.telemetryClient.Context.User.UserAgent = "Mozilla/5.0";
 
             var tags = this.telemetryClient.ContextTags;
 
-            Assert.True(tags.ContainsKey("user_agent.original"));
-            Assert.Equal("Mozilla/5.0", tags["user_agent.original"]);
+            // UserAgent should NOT be in context tags — it is only applied to TrackRequest
+            Assert.False(tags.ContainsKey("user_agent.original"));
         }
 
         [Fact]
@@ -119,10 +119,9 @@ namespace Microsoft.ApplicationInsights
 
             var tags = this.telemetryClient.ContextTags;
 
-            Assert.Equal(5, tags.Count);
+            Assert.Equal(4, tags.Count);
             Assert.Equal("user-1", tags["enduser.pseudo.id"]);
             Assert.Equal("auth-1", tags["enduser.id"]);
-            Assert.Equal("TestAgent/1.0", tags["user_agent.original"]);
             Assert.Equal("TestOp", tags["microsoft.operation_name"]);
             Assert.Equal("192.168.1.1", tags["microsoft.client.ip"]);
         }

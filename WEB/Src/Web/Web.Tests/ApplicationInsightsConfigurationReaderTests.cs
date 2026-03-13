@@ -6,6 +6,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
     using Microsoft.ApplicationInsights.Web.Implementation;
     using Xunit;
 
+    [Collection("ApplicationInsightsHttpModule")] // Prevent parallel execution - shares ApplicationInsights.config file with other test classes
     public class ApplicationInsightsConfigurationReaderTests : IDisposable
     {
         private readonly string configFilePath;

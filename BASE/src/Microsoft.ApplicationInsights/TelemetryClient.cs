@@ -866,6 +866,13 @@
 
                     // Apply item-level context (overrides client-level context)
                     ApplyContextToActivity(request.Context, activity);
+
+                    // UserAgent is only semantically relevant for requests (HTTP user_agent.original)
+                    var userAgent = request.Context?.User?.UserAgent ?? this.Context?.User?.UserAgent;
+                    if (!string.IsNullOrEmpty(userAgent))
+                    {
+                        activity.SetTag(SemanticConventions.AttributeUserAgentOriginal, userAgent);
+                    }
                 }
             }
         }
@@ -1446,11 +1453,6 @@
                 activity.SetTag(SemanticConventions.AttributeEnduserId, context.User.AuthenticatedUserId);
             }
 
-            if (!string.IsNullOrEmpty(context.User?.UserAgent))
-            {
-                activity.SetTag(SemanticConventions.AttributeUserAgentOriginal, context.User.UserAgent);
-            }
-
             if (!string.IsNullOrEmpty(context.Operation?.Name))
             {
                 activity.SetTag(SemanticConventions.AttributeMicrosoftOperationName, context.Operation.Name);
@@ -1482,11 +1484,6 @@
             if (!string.IsNullOrEmpty(context.User?.AuthenticatedUserId))
             {
                 properties[SemanticConventions.AttributeEnduserId] = context.User.AuthenticatedUserId;
-            }
-
-            if (!string.IsNullOrEmpty(context.User?.UserAgent))
-            {
-                properties[SemanticConventions.AttributeUserAgentOriginal] = context.User.UserAgent;
             }
 
             if (!string.IsNullOrEmpty(context.Operation?.Name))
@@ -1535,11 +1532,6 @@
             if (!string.IsNullOrEmpty(this.Context.User?.AuthenticatedUserId))
             {
                 tags[SemanticConventions.AttributeEnduserId] = this.Context.User.AuthenticatedUserId;
-            }
-
-            if (!string.IsNullOrEmpty(this.Context.User?.UserAgent))
-            {
-                tags[SemanticConventions.AttributeUserAgentOriginal] = this.Context.User.UserAgent;
             }
 
             if (!string.IsNullOrEmpty(this.Context.Operation?.Name))
