@@ -50,7 +50,7 @@ namespace Microsoft.ApplicationInsights
             var tags = metric.Tags.ToArray().ToDictionary(v => v.Key, v => v.Value);
 
             Assert.Equal(1, metric.Value);
-            AssertKey("rp", "unknown", tags);
+            Assert.Contains("rp", tags); // value is environment-dependent (e.g., "unknown", "vm", "appsvc")
             AssertKey("attach", "Manual", tags);
             AssertKey("cikey", "a", tags);
             AssertKey("feature", (ulong)1 + 32, tags); // == TrackEvent + TrackDependency

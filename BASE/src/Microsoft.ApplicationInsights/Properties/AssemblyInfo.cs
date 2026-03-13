@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.NLogTarget, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.AspNetCore, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.WorkerService, PublicKey=" + AssemblyInfo.PublicKey)]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2, PublicKey=" + AssemblyInfo.MoqPublicKey)]
 
 internal static class AssemblyInfo
 {
