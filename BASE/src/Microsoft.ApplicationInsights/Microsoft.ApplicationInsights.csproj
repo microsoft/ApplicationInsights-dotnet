@@ -4,8 +4,8 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights</AssemblyName>
-    <TargetFrameworks>net10.0;net9.0;net8.0;net462</TargetFrameworks>
-    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">net8.0;net9.0;net10.0</TargetFrameworks>
+    <TargetFrameworks>net10.0;net9.0;net8.0;netstandard2.0;net462</TargetFrameworks>
+    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">net8.0;net9.0;net10.0;netstandard2.0</TargetFrameworks>
 	<LangVersion>9.0</LangVersion>
   </PropertyGroup>
 
@@ -28,12 +28,12 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Monitor.OpenTelemetry.Exporter" />
-    <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Condition="$(OS) == 'Windows_NT' And '$(TargetFramework)' != 'net8.0' And '$(TargetFramework)' != 'net9.0' And '$(TargetFramework)' != 'net10.0'">
+    <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Condition="$(OS) == 'Windows_NT' And '$(TargetFramework)' != 'net8.0' And '$(TargetFramework)' != 'net9.0' And '$(TargetFramework)' != 'net10.0' And '$(TargetFramework)' != 'netstandard2.0'">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != 'net8.0' And '$(TargetFramework)' != 'net9.0' And '$(TargetFramework)' != 'net10.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
     <Reference Include="System.Net.Http" />
   </ItemGroup>
 
