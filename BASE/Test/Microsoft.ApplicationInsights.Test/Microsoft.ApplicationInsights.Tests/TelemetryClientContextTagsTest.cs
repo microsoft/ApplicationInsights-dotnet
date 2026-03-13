@@ -109,7 +109,7 @@ namespace Microsoft.ApplicationInsights
         }
 
         [Fact]
-        public void BuildContextTags_AllPropertiesSet_ContainsAllFiveAttributes()
+        public void BuildContextTags_AllPropertiesSet_ContainsAllFourAttributes()
         {
             this.telemetryClient.Context.User.Id = "user-1";
             this.telemetryClient.Context.User.AuthenticatedUserId = "auth-1";
