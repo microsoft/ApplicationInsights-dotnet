@@ -372,8 +372,9 @@ Please see our [migration guide](MigrationGuidance.md#sampling) for detailed gui
 
 ### Target Framework Changes
 - **2.x**: `net452`, `netstandard2.0`
-- **3.x**: `net462`, `netstandard2.0`
+- **3.x**: `net462`, `net8.0`
 - **Breaking**: Minimum .NET Framework version raised from **4.5.2** → **4.6.2**
+- **Breaking**: `netstandard2.0` replaced with `net8.0`
 
 ## Migration Checklist
 
