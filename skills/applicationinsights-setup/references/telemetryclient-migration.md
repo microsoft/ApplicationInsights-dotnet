@@ -1,4 +1,4 @@
-# TelemetryClient Breaking Changes (2.x → 3.x)
+# TelemetryClient Migration (2.x → 3.x)
 
 ## Overview
 
@@ -50,6 +50,16 @@ client.TrackPageView(pageViewTelemetry);
 // 3.x:
 client.TrackEvent("PageView", new Dictionary<string, string> { ["page"] = "HomePage" });
 // Or use TrackRequest for page timing
+```
+
+### TrackDependency — obsolete 5-param overload removed
+
+```csharp
+// 2.x (removed — was already [Obsolete]):
+client.TrackDependency(dependencyName, data, startTime, duration, success);
+
+// 3.x — use the full overload instead:
+client.TrackDependency(dependencyTypeName, dependencyName, data, startTime, duration, success);
 ```
 
 ### GetMetric — simplified

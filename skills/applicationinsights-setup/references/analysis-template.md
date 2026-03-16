@@ -36,7 +36,8 @@ These must be converted to `BaseProcessor<Activity>` with `OnEnd`. See [processo
 
 ## Section 4: TelemetryClient Usage
 
-Search for `TelemetryClient` usage including:
+Search for `TelemetryClient` usage that has **breaking changes** in 3.x:
+
 - `TrackEvent` — check for 3-param overload with `IDictionary<string, double>` (removed)
 - `TrackException` — check for 3-param overload (removed)
 - `TrackAvailability` — check for 8-param overload (removed)
@@ -45,7 +46,10 @@ Search for `TelemetryClient` usage including:
 - `new TelemetryClient()` — parameterless constructor removed, use DI
 - `.InstrumentationKey` — removed, use `TelemetryConfiguration.ConnectionString`
 
-See [custom-events-migration.md](custom-events-migration.md).
+The following `TelemetryClient` methods are **unchanged in 3.x** and do not need migration:
+`TrackTrace`, `TrackMetric`, `TrackRequest`, `TrackDependency` (full overload), `TrackEvent` (2-param), `TrackException` (2-param), `Flush`.
+
+See [telemetryclient-migration.md](telemetryclient-migration.md) for breaking change details.
 
 ## Section 5: Sampling Configuration
 

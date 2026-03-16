@@ -34,7 +34,7 @@ First, check the `<Project Sdk="...">` attribute in the `.csproj`:
 | `Sdk="Microsoft.NET.Sdk"` with `<OutputType>Exe</OutputType>` | **Console App** |
 | `Sdk="Microsoft.NET.Sdk"` with `<OutputType>Library</OutputType>` or no OutputType | **Library** — does not get pipeline setup (no `AddApplicationInsightsTelemetry()` / `UseAzureMonitor()`), but may need **migration** if it uses `TelemetryClient`, `ITelemetryInitializer`, `ITelemetryProcessor`, or other 2.x APIs. Check for existing Application Insights package references and apply migration guidance if found. |
 
-For ASP.NET Core / Worker Service, read `Program.cs` to confirm hosting pattern:
+For ASP.NET Core / Worker Service, read `Program.cs` (or `Startup.cs` in older projects) to confirm hosting pattern:
 - `WebApplication.CreateBuilder` → ASP.NET Core minimal APIs
 - `Host.CreateDefaultBuilder` or `Host.CreateApplicationBuilder` → Generic Host
 - `CreateWebHostBuilder` / `WebHost.CreateDefaultBuilder` → Legacy ASP.NET Core host
@@ -107,7 +107,7 @@ Based on findings, read the applicable migration references:
 - **ITelemetryProcessor found** → [references/processor-migration.md](references/processor-migration.md)
 - **Custom sampling** → [references/sampling-migration.md](references/sampling-migration.md)
 - **ILogger / logging config** → [references/ilogger-migration.md](references/ilogger-migration.md)
-- **TelemetryClient direct usage** → [references/custom-events-migration.md](references/custom-events-migration.md)
+- **TelemetryClient breaking changes** → [references/telemetryclient-migration.md](references/telemetryclient-migration.md)
 - **Dependency tracking config** → [references/dependency-tracking.md](references/dependency-tracking.md)
 - **AAD / Token Credential authentication** → [references/aad-authentication-migration.md](references/aad-authentication-migration.md)
 - **Live Metrics config** → [references/live-metrics-migration.md](references/live-metrics-migration.md)
