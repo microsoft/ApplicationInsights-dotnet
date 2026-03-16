@@ -43,7 +43,11 @@ The `skills/applicationinsights-setup/` folder contains a portable skill that he
 ### Installation by Agent
 
 **GitHub Copilot:**
-Copilot coding agent reads `AGENTS.md` automatically. For path-specific instructions, reference the skill content from `.github/instructions/` files in your project.
+Copilot natively supports Agent Skills. Copy the skill folder to your project:
+```bash
+cp -r skills/applicationinsights-setup .github/skills/applicationinsights-setup
+```
+Copilot discovers skills in `.github/skills/` (and `.claude/skills/`) automatically. Works with Copilot coding agent, GitHub Copilot CLI, and agent mode in VS Code.
 
 **Cursor:**
 Cursor reads `AGENTS.md` automatically. Alternatively, copy skill references into `.cursor/rules/` as rule files:
