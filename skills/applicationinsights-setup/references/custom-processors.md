@@ -81,3 +81,57 @@ Useful properties on `Activity` for processor logic:
 - `SetTag("key", value)` — set/overwrite a tag
 - `Events` — span events
 - `TraceId`, `SpanId`, `ParentId` — correlation IDs
+
+## Log Processors
+
+Use `BaseProcessor<LogRecord>` to enrich or process log records. Traces and logs are separate pipelines — a trace processor never sees logs and vice versa.
+
+### Log Enrichment
+
+```csharp
+using OpenTelemetry;
+using OpenTelemetry.Logs;
+
+public class LogEnrichmentProcessor : BaseProcessor<LogRecord>
+{
+    public override void OnEnd(LogRecord data)
+    {
+        var attributes = new List<KeyValuePair<string, object?>>(data.Attributes ?? [])
+        {
+            new("deployment.environment", "production")
+        };
+        data.Attributes = attributes;
+    }
+}
+```
+
+### Log Filtering
+
+For filtering logs by severity or category, prefer `ILoggingBuilder.AddFilter` over a processor:
+
+```csharp
+builder.Logging.AddFilter<OpenTelemetryLoggerProvider>("Microsoft", LogLevel.Warning);
+```
+
+### Log Processor Registration
+
+```csharp
+// DI (ASP.NET Core / Worker Service)
+builder.Services.ConfigureOpenTelemetryLoggerProvider(logging =>
+    logging.AddProcessor<LogEnrichmentProcessor>());
+
+// Non-DI (Console / Classic ASP.NET)
+config.ConfigureOpenTelemetryBuilder(otel =>
+    otel.WithLogging(l => l.AddProcessor<LogEnrichmentProcessor>()));
+```
+
+### LogRecord Properties
+
+Useful properties on `LogRecord` for processor logic:
+- `LogLevel` — severity (Trace, Debug, Information, Warning, Error, Critical)
+- `CategoryName` — logger category (typically the class name)
+- `FormattedMessage` — the formatted log message
+- `Attributes` — structured log parameters
+- `EventId` — the log event ID
+- `Exception` — attached exception (if any)
+- `TraceId`, `SpanId` — correlation with the parent trace

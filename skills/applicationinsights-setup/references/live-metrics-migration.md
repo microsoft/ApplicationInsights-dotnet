@@ -28,12 +28,3 @@ services.AddApplicationInsightsTelemetry(options =>
     options.EnableQuickPulseMetricStream = false;
 });
 ```
-
-Or with the Distro:
-
-```csharp
-builder.Services.AddOpenTelemetry().UseAzureMonitor(options =>
-{
-    options.EnableLiveMetrics = false;
-});
-```

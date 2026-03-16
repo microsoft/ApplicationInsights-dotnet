@@ -32,15 +32,24 @@ Key conventions:
 
 ## AI-Assisted Instrumentation Skills
 
-The `skills/applicationinsights-setup/` folder contains a portable skill that helps developers set up, migrate, or enhance Application Insights in their .NET applications.
+The `skills/applicationinsights-setup/` folder contains a portable skill that helps developers set up, migrate, or enhance Application Insights 3.x SDK in their .NET applications.
 
 ### What It Does
 
-- **Greenfield**: Guides new setup for ASP.NET Core, Worker Service, ASP.NET Classic, and Console apps
+- **Greenfield**: Guides new setup for ASP.NET Core, Worker Service, ASP.NET Classic, and Console apps using Application Insights 3.x SDK
 - **Migration**: Walks through 2.x → 3.x upgrade with code change detection and step-by-step fixes
-- **Enhancement**: Adds Entity Framework, Redis, SQL, OTLP, custom processors, and custom metrics to apps already on 3.x
+- **Enhancement**: Adds Entity Framework, Redis, SQL, HTTP, OTLP, custom processors, activities, logging, and custom metrics to apps already on 3.x
 
 ### Installation by Agent
+
+**GitHub Copilot:**
+Copilot coding agent reads `AGENTS.md` automatically. For path-specific instructions, reference the skill content from `.github/instructions/` files in your project.
+
+**Cursor:**
+Cursor reads `AGENTS.md` automatically. Alternatively, copy skill references into `.cursor/rules/` as rule files:
+```bash
+cp -r skills/applicationinsights-setup/references/*.md .cursor/rules/
+```
 
 **Claude Code:**
 ```bash
@@ -54,14 +63,8 @@ cp -r skills/applicationinsights-setup ~/.claude/skills/
 cp -r skills/applicationinsights-setup .claude/skills/
 ```
 
-**Cursor:**
-Copy `skills/applicationinsights-setup/` into your project and reference from Cursor rules.
-
-**GitHub Copilot:**
-The skill content in `skills/applicationinsights-setup/references/` can be referenced from `.github/instructions/` files in your project.
-
-**Any agent:**
-Copy the `skills/applicationinsights-setup/` folder alongside your project. Point your agent to the `SKILL.md` file or reference the `references/` content in your agent's instruction mechanism.
+**Codex / Other agents:**
+Copy the `skills/applicationinsights-setup/` folder alongside your project. Point your agent to the `SKILL.md` file or reference the `references/` content in your agent's instruction mechanism. Most agents also read `AGENTS.md` from the project root automatically.
 
 ### Usage
 

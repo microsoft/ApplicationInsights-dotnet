@@ -2,18 +2,18 @@
 
 ## Overview
 
-Add Azure Monitor / Application Insights to a new ASP.NET Core application using the Azure Monitor OpenTelemetry Distro.
+Add Application Insights telemetry to a new ASP.NET Core application using `Microsoft.ApplicationInsights.AspNetCore` 3.x.
 
 ## Step 1: Add Package
 
 ```bash
-dotnet add package Azure.Monitor.OpenTelemetry.AspNetCore
+dotnet add package Microsoft.ApplicationInsights.AspNetCore
 ```
 
 Or in `.csproj`:
 
 ```xml
-<PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.3.0" />
+<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="3.*" />
 ```
 
 ## Step 2: Configure in Program.cs
@@ -21,12 +21,12 @@ Or in `.csproj`:
 ### Minimal Setup
 
 ```csharp
-using Azure.Monitor.OpenTelemetry.AspNetCore;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add Azure Monitor — one line
-builder.Services.AddOpenTelemetry().UseAzureMonitor();
+// Add Application Insights telemetry
+builder.Services.AddApplicationInsightsTelemetry();
 
 builder.Services.AddControllers();
 
@@ -39,19 +39,17 @@ app.Run();
 ### With Configuration Options
 
 ```csharp
-using Azure.Monitor.OpenTelemetry.AspNetCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenTelemetry().UseAzureMonitor(options =>
+builder.Services.AddApplicationInsightsTelemetry(options =>
 {
-    options.ConnectionString = builder.Configuration["AzureMonitor:ConnectionString"];
+    options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
 
-    // Sample 50% of requests in production
-    if (!builder.Environment.IsDevelopment())
-    {
-        options.SamplingRatio = 0.5f;
-    }
+    // Rate-limited sampling (default is 5 traces/sec)
+    options.TracesPerSecond = 10.0;
 });
 
 builder.Services.AddControllers();
@@ -74,7 +72,7 @@ export APPLICATIONINSIGHTS_CONNECTION_STRING="InstrumentationKey=xxx;IngestionEn
 
 ```json
 {
-  "AzureMonitor": {
+  "ApplicationInsights": {
     "ConnectionString": "InstrumentationKey=xxx;IngestionEndpoint=https://..."
   }
 }
@@ -83,7 +81,7 @@ export APPLICATIONINSIGHTS_CONNECTION_STRING="InstrumentationKey=xxx;IngestionEn
 ### Option C: User Secrets (Development)
 
 ```bash
-dotnet user-secrets set "AzureMonitor:ConnectionString" "InstrumentationKey=xxx;..."
+dotnet user-secrets set "ApplicationInsights:ConnectionString" "InstrumentationKey=xxx;..."
 ```
 
 ## What You Get Automatically

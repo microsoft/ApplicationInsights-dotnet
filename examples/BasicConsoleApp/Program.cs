@@ -25,6 +25,7 @@
                                                                      .WithLogging(logging => logging.AddConsoleExporter())
                                                                      .WithMetrics(metrics => metrics.AddConsoleExporter()));
 
+
             // Initialize the TelemetryClient
             var telemetryClient = new TelemetryClient(telemetryConfig);
 

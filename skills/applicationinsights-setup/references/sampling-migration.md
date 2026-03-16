@@ -21,12 +21,14 @@ services.AddApplicationInsightsTelemetry(options =>
 services.AddApplicationInsightsTelemetry(options =>
 {
     options.SamplingRatio = 1.0f;
+    options.TracesPerSecond = null; // Must clear when using SamplingRatio
 });
 
 // OR fixed-rate 50% sampling:
 services.AddApplicationInsightsTelemetry(options =>
 {
     options.SamplingRatio = 0.5f;
+    options.TracesPerSecond = null; // Must clear when using SamplingRatio
 });
 
 // OR rate-limited (default behavior, 5 traces/sec):
@@ -34,6 +36,20 @@ services.AddApplicationInsightsTelemetry(options =>
 {
     options.TracesPerSecond = 5.0;
 });
+```
+
+**Important:** When using `SamplingRatio`, set `TracesPerSecond = null` — otherwise rate-limited sampling takes precedence.
+
+### Via Environment Variables
+
+```bash
+# Rate-limited:
+OTEL_TRACES_SAMPLER=microsoft.rate_limited
+OTEL_TRACES_SAMPLER_ARG=10
+
+# Fixed percentage:
+OTEL_TRACES_SAMPLER=microsoft.fixed_percentage
+OTEL_TRACES_SAMPLER_ARG=0.5
 ```
 
 ## Comparison

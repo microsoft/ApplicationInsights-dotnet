@@ -8,14 +8,19 @@ dotnet add package OpenTelemetry.Instrumentation.SqlClient
 
 ## Setup
 
+The SDK already registers SQL client instrumentation. To customize options, use the DI options pattern:
+
 ```csharp
-builder.Services.ConfigureOpenTelemetryTracerProvider(tracing =>
-    tracing.AddSqlClientInstrumentation(options =>
-    {
-        options.SetDbStatementForText = true;   // Include SQL text
-        options.RecordException = true;          // Record exception details on spans
-    }));
+using OpenTelemetry.Instrumentation.SqlClient;
+
+builder.Services.Configure<SqlClientTraceInstrumentationOptions>(options =>
+{
+    options.SetDbStatementForText = true;   // Include SQL text
+    options.RecordException = true;          // Record exception details on spans
+});
 ```
+
+**Do not call `AddSqlClientInstrumentation()` again** — the SDK already registers it. Use `services.Configure<SqlClientTraceInstrumentationOptions>` to customize options without duplicating instrumentation.
 
 ## Options
 
@@ -36,7 +41,13 @@ For apps using `TelemetryConfiguration` directly:
 var config = TelemetryConfiguration.CreateDefault();
 config.ConnectionString = "InstrumentationKey=...;IngestionEndpoint=...";
 config.ConfigureOpenTelemetryBuilder(otel =>
-    otel.WithTracing(t => t.AddSqlClientInstrumentation()));
+{
+    otel.Services.Configure<SqlClientTraceInstrumentationOptions>(options =>
+    {
+        options.SetDbStatementForText = true;
+        options.RecordException = true;
+    });
+});
 ```
 
 ## Notes

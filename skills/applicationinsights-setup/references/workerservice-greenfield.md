@@ -7,13 +7,13 @@ Add Application Insights telemetry to a .NET Worker Service (background services
 ## Step 1: Add Package
 
 ```bash
-dotnet add package Microsoft.ApplicationInsights.WorkerService --version 3.0.0-rc1
+dotnet add package Microsoft.ApplicationInsights.WorkerService
 ```
 
 Or in `.csproj`:
 
 ```xml
-<PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="3.0.0-rc1" />
+<PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="3.*" />
 ```
 
 ## Step 2: Configure in Program.cs
@@ -87,17 +87,18 @@ export APPLICATIONINSIGHTS_CONNECTION_STRING="InstrumentationKey=xxx;IngestionEn
 
 ## Adding Custom Telemetry
 
-Inject `TelemetryClient` into your worker:
+Use `ActivitySource` for custom distributed tracing (preferred over `TelemetryClient`):
 
 ```csharp
+using System.Diagnostics;
+
 public class Worker : BackgroundService
 {
-    private readonly TelemetryClient _telemetryClient;
+    private static readonly ActivitySource _activitySource = new("MyApp.Worker");
     private readonly ILogger<Worker> _logger;
 
-    public Worker(TelemetryClient telemetryClient, ILogger<Worker> logger)
+    public Worker(ILogger<Worker> logger)
     {
-        _telemetryClient = telemetryClient;
         _logger = logger;
     }
 
@@ -105,18 +106,29 @@ public class Worker : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            _telemetryClient.TrackEvent("WorkerIteration");
-            _telemetryClient.TrackMetric("ItemsProcessed", processedCount);
+            using var activity = _activitySource.StartActivity("ProcessBatch", ActivityKind.Internal);
+            activity?.SetTag("batch.size", batchSize);
 
+            // ... do work ...
+
+            activity?.SetStatus(ActivityStatusCode.Ok);
             await Task.Delay(1000, stoppingToken);
         }
     }
 }
 ```
 
+Register the source:
+```csharp
+builder.Services.ConfigureOpenTelemetryTracerProvider(tracing =>
+    tracing.AddSource("MyApp.Worker"));
+```
+
+For custom metrics, use `System.Diagnostics.Metrics.Meter`. See [custom-activities.md](custom-activities.md) and [custom-metrics.md](custom-metrics.md) for full details.
+
 ## Best Practices
 
 1. **Use structured logging**: ILogger integration sends logs to Application Insights automatically
-2. **Track operation context**: Use `TelemetryClient.StartOperation` for long-running operations
+2. **Track operation context**: Use `ActivitySource.StartActivity` for long-running operations (preferred over `TelemetryClient.StartOperation`)
 3. **Flush on shutdown**: Call `TelemetryClient.Flush()` before application exits
-4. **Configure sampling**: For high-volume services, configure adaptive sampling to control costs
+4. **Configure sampling**: For high-volume services, configure rate-limited (`TracesPerSecond`) or fixed-rate (`SamplingRatio`) sampling to control costs

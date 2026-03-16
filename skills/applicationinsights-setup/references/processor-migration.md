@@ -98,6 +98,37 @@ config.ConfigureOpenTelemetryBuilder(otel =>
 
 This replaces the 2.x pattern of `AddApplicationInsightsTelemetryProcessor<T>()` or adding processors via `TelemetryConfiguration.TelemetryProcessorChainBuilder`.
 
-## If Processor Also Filters Logs
+## If Your Processor Touches Both Traces and Logs
 
-If your 2.x processor checked `if (telemetry is TraceTelemetry)` to filter logs, use `ILoggingBuilder.AddFilter<OpenTelemetryLoggerProvider>()` instead — log filtering is separate from trace processing in 3.x.
+In 2.x, one `ITelemetryProcessor` handled all signal types. In 3.x, traces, logs, and metrics are separate pipelines. If the old processor checked for `TraceTelemetry`, `EventTelemetry`, or log severity, you need separate handling:
+
+**For log filtering** (e.g., dropping logs by severity or category):
+```csharp
+// Use ILoggingBuilder filters — not a processor
+builder.Logging.AddFilter<OpenTelemetryLoggerProvider>("Microsoft", LogLevel.Warning);
+```
+
+**For log enrichment or custom log processing** — use `BaseProcessor<LogRecord>`:
+```csharp
+public class LogEnrichmentProcessor : BaseProcessor<LogRecord>
+{
+    public override void OnEnd(LogRecord data)
+    {
+        var attributes = new List<KeyValuePair<string, object?>>(data.Attributes ?? [])
+        {
+            new("deployment.environment", "production")
+        };
+        data.Attributes = attributes;
+    }
+}
+
+// Registration (DI):
+builder.Services.ConfigureOpenTelemetryLoggerProvider(logging =>
+    logging.AddProcessor<LogEnrichmentProcessor>());
+
+// Registration (Non-DI):
+config.ConfigureOpenTelemetryBuilder(otel =>
+    otel.WithLogging(l => l.AddProcessor<LogEnrichmentProcessor>()));
+```
+
+If the old processor only touched trace types (`RequestTelemetry`, `DependencyTelemetry`), a single `BaseProcessor<Activity>` is sufficient — no log processor needed.

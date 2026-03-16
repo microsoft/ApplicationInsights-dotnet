@@ -39,6 +39,22 @@ builder.Services.ConfigureOpenTelemetryTracerProvider(tracing =>
 | `Enrich` | `null` | `Action<Activity, IProfiledCommand>` for custom tags |
 | `FlushInterval` | 1 second | How often to flush profiling sessions |
 
+## Metrics
+
+StackExchange.Redis 2.7.10+ emits built-in metrics via the `StackExchange.Redis` event source. To collect Redis metrics, register the meter:
+
+```csharp
+// DI
+builder.Services.ConfigureOpenTelemetryMeterProvider(metrics =>
+    metrics.AddMeter("StackExchange.Redis"));
+
+// Non-DI
+config.ConfigureOpenTelemetryBuilder(otel =>
+    otel.WithMetrics(m => m.AddMeter("StackExchange.Redis")));
+```
+
+This captures connection pool metrics, command counts, and latency alongside the trace spans.
+
 ## Non-DI Usage (Console / Classic ASP.NET)
 
 For apps using `TelemetryConfiguration` directly, pass the connection explicitly:

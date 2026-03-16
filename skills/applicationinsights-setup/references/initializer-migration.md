@@ -42,13 +42,16 @@ builder.Services.ConfigureOpenTelemetryTracerProvider(tracing =>
     tracing.AddProcessor<MyEnrichmentProcessor>());
 ```
 
-For cloud role name, use resource configuration instead of a processor:
+For cloud role name, `telemetry.Context.Cloud.RoleName` is still supported in 3.x. Alternatively, you can set it via OpenTelemetry resource configuration:
 ```csharp
-// DI (ASP.NET Core / Worker Service)
+// Option 1: TelemetryClient (still works in 3.x)
+client.Context.Cloud.RoleName = "MyService";
+
+// Option 2: OpenTelemetry Resource (DI)
 builder.Services.ConfigureOpenTelemetryTracerProvider(tracing =>
     tracing.ConfigureResource(r => r.AddService("MyService")));
 
-// Non-DI (Console / Classic ASP.NET)
+// Option 2: OpenTelemetry Resource (Non-DI)
 config.ConfigureOpenTelemetryBuilder(otel =>
     otel.ConfigureResource(r => r.AddService("MyService")));
 ```
@@ -59,9 +62,8 @@ config.ConfigureOpenTelemetryBuilder(otel =>
 |---|---|
 | `telemetry.Context.GlobalProperties["key"]` | `data.SetTag("key", value)` |
 | `telemetry.Properties["key"]` | `data.SetTag("key", value)` |
-| `telemetry.Context.Cloud.RoleName` | `ConfigureResource(r => r.AddService("name"))` |
-| `telemetry.Context.User.AuthenticatedUserId` | `data.SetTag("enduser.id", value)` |
-| `telemetry.Context.Operation.Id` | `data.TraceId` (read-only) |
+| `telemetry.Context.Cloud.RoleName` | Still works in 3.x. Also: `ConfigureResource(r => r.AddService("name"))` |
+| `telemetry.Context.User.AuthenticatedUserId` | Still works in 3.x. Also: `data.SetTag("enduser.id", value)` |
 
 ## If Your Initializer Touches Both Traces and Logs
 
@@ -72,7 +74,12 @@ public class LogEnrichmentProcessor : BaseProcessor<LogRecord>
 {
     public override void OnEnd(LogRecord data)
     {
-        // Enrich log records
+        // Example: add a custom attribute to all log records
+        var attributes = new List<KeyValuePair<string, object?>>(data.Attributes ?? [])
+        {
+            new("deployment.environment", "production")
+        };
+        data.Attributes = attributes;
     }
 }
 ```

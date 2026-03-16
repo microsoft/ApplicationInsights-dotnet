@@ -36,6 +36,7 @@ builder.Services.AddApplicationInsightsTelemetry(options =>
 {
     options.ConnectionString = "InstrumentationKey=...;IngestionEndpoint=...";
     options.SamplingRatio = 1.0f;       // No sampling (collect everything)
+    options.TracesPerSecond = null;      // Must clear when using SamplingRatio
     // DeveloperMode — no replacement, remove the line
 });
 ```
@@ -156,7 +157,7 @@ var client = new TelemetryClient();
 
 **3.x**
 ```csharp
-var config = TelemetryConfiguration.CreateDefault();
+using var config = TelemetryConfiguration.CreateDefault();
 config.ConnectionString = "InstrumentationKey=...;IngestionEndpoint=...";
 config.ConfigureOpenTelemetryBuilder(otel =>
 {

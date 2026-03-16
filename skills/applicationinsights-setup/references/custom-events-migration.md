@@ -35,8 +35,9 @@ client.TrackMetric("ErrorProcessingTime", elapsed); // Track metrics separately
 // 2.x (removed):
 client.TrackAvailability(name, timestamp, duration, location, success, message, properties, metrics);
 
-// 3.x (7-param):
+// 3.x (7-param — track metrics separately):
 client.TrackAvailability(name, timestamp, duration, location, success, message, properties);
+client.TrackMetric("AvailabilityResponseTime", responseTime); // Track metrics separately
 ```
 
 ### TrackPageView — removed entirely

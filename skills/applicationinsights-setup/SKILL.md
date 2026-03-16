@@ -11,6 +11,7 @@ description: >
 metadata:
   author: Microsoft
   version: 1.0.0
+compatibility: Requires filesystem access to read .csproj files and source code. Works in GitHub Copilot, Cursor, Codex, Claude Code, Claude.ai with code execution, and any agent with file read capability.
 ---
 
 # Application Insights Setup
@@ -31,7 +32,7 @@ First, check the `<Project Sdk="...">` attribute in the `.csproj`:
 | `Sdk="Microsoft.NET.Sdk.Worker"` | **Worker Service** |
 | `Microsoft.Azure.Functions.Worker` or `Microsoft.NET.Sdk.Functions` in PackageReference | **Azure Functions** — not supported by this skill; refer to Azure Functions monitoring docs |
 | `Sdk="Microsoft.NET.Sdk"` with `<OutputType>Exe</OutputType>` | **Console App** |
-| `Sdk="Microsoft.NET.Sdk"` with `<OutputType>Library</OutputType>` or no OutputType | **Library** — skip; libraries are not instrumented directly |
+| `Sdk="Microsoft.NET.Sdk"` with `<OutputType>Library</OutputType>` or no OutputType | **Library** — does not get pipeline setup (no `AddApplicationInsightsTelemetry()` / `UseAzureMonitor()`), but may need **migration** if it uses `TelemetryClient`, `ITelemetryInitializer`, `ITelemetryProcessor`, or other 2.x APIs. Check for existing Application Insights package references and apply migration guidance if found. |
 
 For ASP.NET Core / Worker Service, read `Program.cs` to confirm hosting pattern:
 - `WebApplication.CreateBuilder` → ASP.NET Core minimal APIs
@@ -66,11 +67,11 @@ Check multiple sources for evidence of existing instrumentation:
 
 **Source 2 — Config files**: Check for `applicationinsights.config` (its presence indicates existing Classic SDK). Scan `appsettings*.json` for `InstrumentationKey` or `ApplicationInsights` sections.
 
-**Detection priority** (if multiple types found): Azure Monitor Distro > Application Insights SDK > plain OpenTelemetry.
+**Detection priority** (if multiple types found): Application Insights SDK > plain OpenTelemetry.
 
 | Package Found | Version | State |
 |---|---|---|
-| `Azure.Monitor.OpenTelemetry.AspNetCore` or `Azure.Monitor.OpenTelemetry.Exporter` | any | **Already on Distro** → go to Enhancement |
+| `Azure.Monitor.OpenTelemetry.AspNetCore` or `Azure.Monitor.OpenTelemetry.Exporter` | any | **Azure Monitor Distro** — not covered by this skill. This skill covers Application Insights 3.x SDK only. Inform the user and refer to Azure Monitor OpenTelemetry Distro documentation. |
 | `Microsoft.ApplicationInsights.AspNetCore` | ≥ 3.0 | **Already on 3.x** → go to Enhancement |
 | `Microsoft.ApplicationInsights.AspNetCore` | < 3.0 | **Brownfield 2.x** → go to Migration |
 | `Microsoft.ApplicationInsights.WorkerService` | ≥ 3.0 | **Already on 3.x** → go to Enhancement |
@@ -86,9 +87,9 @@ Check multiple sources for evidence of existing instrumentation:
 
 ### Greenfield (No existing Application Insights)
 
-Before making any code changes, read [references/opentelemetry-pipeline.md](references/opentelemetry-pipeline.md) and [references/azure-monitor-distro.md](references/azure-monitor-distro.md) to understand the architecture.
+Before making any code changes, read [references/opentelemetry-pipeline.md](references/opentelemetry-pipeline.md) to understand the architecture.
 
-Then follow the guide for your app type:
+Then follow the guide for your app type (all greenfield paths use Application Insights 3.x SDK):
 - **ASP.NET Core** → read [references/aspnetcore-greenfield.md](references/aspnetcore-greenfield.md)
 - **Worker Service** → read [references/workerservice-greenfield.md](references/workerservice-greenfield.md)
 - **ASP.NET Classic** → read [references/aspnet-classic-greenfield.md](references/aspnet-classic-greenfield.md)
@@ -130,18 +131,20 @@ Ask the user what they want to add, then read the relevant reference.
 - **Entity Framework Core** → [references/entity-framework.md](references/entity-framework.md)
 - **Redis (StackExchange.Redis)** → [references/redis-cache.md](references/redis-cache.md)
 - **SQL Client** → [references/sql-client.md](references/sql-client.md)
-- **HTTP Client/Server Enrichment** → `OpenTelemetry.Instrumentation.Http` package, customize with enrichment callbacks and filters
+- **HTTP Client/Server Enrichment** → [references/http-instrumentation.md](references/http-instrumentation.md)
 - **OTLP Exporter** → [references/otlp-exporter.md](references/otlp-exporter.md)
 - **Console Exporter** (dev/debug only) → `OpenTelemetry.Exporter.Console` package, `.AddConsoleExporter()` on each signal
 - **Sampling Configuration** → [references/sampling-migration.md](references/sampling-migration.md) (applies to enhancement too)
 - **Custom Processors** (filtering/enrichment) → [references/custom-processors.md](references/custom-processors.md)
+- **Custom Activities** (distributed tracing) → [references/custom-activities.md](references/custom-activities.md)
+- **Custom Logging** (ILogger best practices) → [references/custom-logging.md](references/custom-logging.md)
 - **Custom Metrics** → [references/custom-metrics.md](references/custom-metrics.md)
 
 ## Important Rules
 
 1. **Learn first, act second**: Always read the relevant concept or migration reference BEFORE making code changes.
 2. **Connection string, not instrumentation key**: Always use `ConnectionString`, never `InstrumentationKey`. The environment variable is `APPLICATIONINSIGHTS_CONNECTION_STRING`. For Classic ASP.NET, connection string goes in `ApplicationInsights.config`, not `appsettings.json`.
-3. **Do not mix approaches**: Use either the Azure Monitor Distro (`Azure.Monitor.OpenTelemetry.AspNetCore`) OR the classic SDK (`Microsoft.ApplicationInsights.AspNetCore`), not both.
+3. **Application Insights 3.x SDK only**: This skill covers `Microsoft.ApplicationInsights.AspNetCore` / `.WorkerService` / `.Web`. The Azure Monitor OpenTelemetry Distro (`Azure.Monitor.OpenTelemetry.AspNetCore`) is a separate product — do not mix them, and do not use this skill for Distro-based apps.
 4. **Classic ASP.NET uses Package Manager Console**: Use `Install-Package` in Visual Studio, not `dotnet add package`.
 5. **Verify after changes**: Build the project, run it, and confirm telemetry appears in Azure Portal (Live Metrics for immediate feedback, Transaction Search for 2-5 minute delayed data).
 6. **Unsupported app types**: If the detected type is WCF Service, OWIN App, or Azure Functions, inform the user that automated setup is not available and point them to the Azure Monitor documentation for manual onboarding.

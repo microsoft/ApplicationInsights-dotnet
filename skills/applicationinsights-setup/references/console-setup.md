@@ -2,22 +2,87 @@
 
 ## Overview
 
-Add Application Insights telemetry to a .NET Console application that does not use the Generic Host (`Host.CreateDefaultBuilder`). If your console app uses the Generic Host, use the Worker Service setup instead.
+For console applications, the **recommended approach** is to use the Worker Service package with the Generic Host. This gives you automatic dependency injection, lifecycle management, telemetry flushing, and auto-collected dependencies — the same experience as ASP.NET Core.
 
-## Step 1: Add Package
+For console apps that cannot use the Generic Host (simple scripts, class libraries with standalone telemetry), a manual `TelemetryConfiguration` + `TelemetryClient` approach is available below.
+
+## Recommended: Worker Service Package with Generic Host
+
+### Step 1: Add Package
+
+```bash
+dotnet add package Microsoft.ApplicationInsights.WorkerService
+```
+
+### Step 2: Configure in Program.cs
+
+```csharp
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+var builder = Host.CreateApplicationBuilder(args);
+
+builder.Services.AddApplicationInsightsTelemetryWorkerService();
+builder.Services.AddHostedService<MyWorker>();
+
+var host = builder.Build();
+await host.RunAsync();
+```
+
+Or with `Host.CreateDefaultBuilder`:
+
+```csharp
+var host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices((context, services) =>
+    {
+        services.AddApplicationInsightsTelemetryWorkerService();
+        services.AddHostedService<MyWorker>();
+    })
+    .Build();
+
+await host.RunAsync();
+```
+
+### Step 3: Configure Connection String
+
+Set via environment variable (recommended):
+```bash
+export APPLICATIONINSIGHTS_CONNECTION_STRING="InstrumentationKey=xxx;IngestionEndpoint=https://..."
+```
+
+Or in `appsettings.json`:
+```json
+{
+  "ApplicationInsights": {
+    "ConnectionString": "InstrumentationKey=xxx;IngestionEndpoint=https://..."
+  }
+}
+```
+
+This provides automatic dependency tracking (HTTP, SQL), performance counters, exception tracking, ILogger integration, and graceful telemetry flushing on shutdown.
+
+For full Worker Service details, see [workerservice-greenfield.md](workerservice-greenfield.md).
+
+---
+
+## Alternative: Manual Setup (No Generic Host)
+
+Use this approach for simple console scripts or class libraries that need standalone telemetry without hosting infrastructure.
+
+### Step 1: Add Package
 
 ```bash
 dotnet add package Microsoft.ApplicationInsights --version 3.*
 ```
 
-## Step 2: Configure TelemetryClient
+### Step 2: Configure TelemetryClient
 
 ```csharp
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
 
 // Create configuration
-var config = TelemetryConfiguration.CreateDefault();
+using var config = TelemetryConfiguration.CreateDefault();
 config.ConnectionString = "InstrumentationKey=xxx;IngestionEndpoint=https://...";
 
 // Or use environment variable: APPLICATIONINSIGHTS_CONNECTION_STRING
@@ -30,10 +95,10 @@ try
     client.TrackEvent("AppStarted");
     client.TrackMetric("ItemsProcessed", count);
 
-    // Track dependencies manually
-    using var operation = client.StartOperation<DependencyTelemetry>("ProcessBatch");
+    // Use ActivitySource for operation tracking
+    using var activity = activitySource.StartActivity("ProcessBatch", ActivityKind.Internal);
     // ... do work ...
-    operation.Telemetry.Success = true;
+    activity?.SetStatus(ActivityStatusCode.Ok);
 }
 catch (Exception ex)
 {
@@ -42,44 +107,18 @@ catch (Exception ex)
 }
 finally
 {
-    // Flush before exit — critical for console apps
+    // Flush before exit — critical for console apps without hosting
     client.Flush();
-    // Give the channel time to send
-    await Task.Delay(TimeSpan.FromSeconds(5));
 }
 ```
 
-## Step 3: Configure Connection String
+### Important: Flush Before Exit
 
-### Option A: Environment Variable
+Without the Generic Host, there is no automatic shutdown hook. You **must** call `client.Flush()` before exiting, otherwise buffered telemetry will be lost.
 
-```bash
-export APPLICATIONINSIGHTS_CONNECTION_STRING="InstrumentationKey=xxx;IngestionEndpoint=https://..."
-```
+### Limitations of Manual Setup
 
-### Option B: In Code
-
-```csharp
-config.ConnectionString = "InstrumentationKey=xxx;IngestionEndpoint=https://...";
-```
-
-## Important: Flush Before Exit
-
-Console applications must call `client.Flush()` before exiting. Without this, buffered telemetry will be lost. Add a short delay after flush to allow the channel to transmit.
-
-## For Generic Host Console Apps
-
-If your console app uses `Host.CreateDefaultBuilder` or `Host.CreateApplicationBuilder`, use the Worker Service package instead:
-
-```bash
-dotnet add package Microsoft.ApplicationInsights.WorkerService --version 3.0.0-rc1
-```
-
-```csharp
-var builder = Host.CreateApplicationBuilder(args);
-builder.Services.AddApplicationInsightsTelemetryWorkerService();
-var host = builder.Build();
-await host.RunAsync();
-```
-
-This provides automatic dependency injection, lifecycle management, and telemetry flushing.
+- No automatic dependency tracking (HTTP, SQL) — you must track dependencies manually or add OpenTelemetry instrumentation via `config.ConfigureOpenTelemetryBuilder(...)`
+- No automatic ILogger integration
+- No graceful shutdown / flush — you must handle it yourself
+- No DI — services like `TelemetryClient` are created manually

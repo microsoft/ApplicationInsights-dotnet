@@ -31,14 +31,13 @@ services.AddApplicationInsightsTelemetry();
 
 ## Customizing Dependency Collection
 
-To customize (e.g., capture SQL text), use OpenTelemetry instrumentation packages:
+To customize (e.g., capture SQL text), configure the existing SQL instrumentation options — do not call `AddSqlClientInstrumentation()` again as the SDK already registers it:
 
 ```csharp
-builder.Services.ConfigureOpenTelemetryTracerProvider(tracing =>
-    tracing.AddSqlClientInstrumentation(options =>
-    {
-        options.SetDbStatementForText = true;
-    }));
+builder.Services.Configure<SqlClientTraceInstrumentationOptions>(options =>
+{
+    options.SetDbStatementForText = true;
+});
 ```
 
 See [sql-client.md](sql-client.md) for full details.
