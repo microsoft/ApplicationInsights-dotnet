@@ -50,25 +50,30 @@ cp -r skills/applicationinsights-setup .github/skills/applicationinsights-setup
 Copilot discovers skills in `.github/skills/` (and `.claude/skills/`) automatically. Works with Copilot coding agent, GitHub Copilot CLI, and agent mode in VS Code.
 
 **Cursor:**
-Cursor reads `AGENTS.md` automatically. Alternatively, copy skill references into `.cursor/rules/` as rule files:
+Cursor natively supports Agent Skills. Copy the skill folder to your project:
 ```bash
-cp -r skills/applicationinsights-setup/references/*.md .cursor/rules/
+cp -r skills/applicationinsights-setup .cursor/skills/applicationinsights-setup
 ```
+Cursor discovers skills in `.cursor/skills/`, `.agents/skills/`, `.claude/skills/`, and `.codex/skills/` automatically.
 
 **Claude Code:**
+Claude Code natively supports Agent Skills. Copy the skill folder to your project:
 ```bash
-# Option 1: Add as additional directory
+cp -r skills/applicationinsights-setup .claude/skills/applicationinsights-setup
+```
+Or add as an additional directory without copying:
+```bash
 claude --add-dir /path/to/ApplicationInsights-dotnet/skills/applicationinsights-setup
-
-# Option 2: Copy to personal skills
-cp -r skills/applicationinsights-setup ~/.claude/skills/
-
-# Option 3: Copy to project skills
-cp -r skills/applicationinsights-setup .claude/skills/
 ```
 
-**Codex / Other agents:**
-Copy the `skills/applicationinsights-setup/` folder alongside your project. Point your agent to the `SKILL.md` file or reference the `references/` content in your agent's instruction mechanism. Most agents also read `AGENTS.md` from the project root automatically.
+**Codex:**
+```bash
+cp -r skills/applicationinsights-setup .agents/skills/applicationinsights-setup
+```
+Codex scans `.agents/skills/` from the current directory up to the repo root.
+
+**Other agents:**
+Copy the `skills/applicationinsights-setup/` folder into your project's agent skills directory (commonly `.agents/skills/`). If your agent doesn't support the Agent Skills standard, copy the `references/` markdown files into whatever instruction mechanism your agent uses.
 
 ### Usage
 
