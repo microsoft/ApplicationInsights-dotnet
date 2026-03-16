@@ -314,11 +314,11 @@
         }
 
         /// <summary>
-        /// Prepends an additional OpenTelemetry builder configuration that runs before
-        /// any previously registered configurations. Used to ensure context processors
-        /// are registered before exporters so their OnEnd runs first.
+        /// Prepends a configuration action so it runs before any user-registered configuration.
+        /// This ensures that enrichment processors (e.g., TelemetryContextLogProcessor) execute
+        /// before export processors, regardless of the order users call ConfigureOpenTelemetryBuilder.
         /// </summary>
-        internal void PrependOpenTelemetryBuilder(Action<IOpenTelemetryBuilder> configure)
+        internal void PrependOpenTelemetryBuilderConfiguration(Action<IOpenTelemetryBuilder> configure)
         {
             this.ThrowIfBuilt();
 

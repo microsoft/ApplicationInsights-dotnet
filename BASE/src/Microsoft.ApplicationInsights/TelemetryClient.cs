@@ -55,15 +55,14 @@
             // Use the shared ActivitySource from configuration
             this.activitySource = configuration.ApplicationInsightsActivitySource;
 
-            // Apply CloudContext to Resource if set
-            this.ApplyCloudContextToResource();
-
             // For non-DI scenarios: Register context processors and build SDK eagerly
             // For DI scenarios: SDK will be built by configuration when accessed;
             // processors are registered via UseApplicationInsightsTelemetry() in NETCORE
             if (!isFromDependencyInjection)
             {
-                configuration.ConfigureOpenTelemetryBuilder(builder =>
+                // Prepend context processors so they run BEFORE any user-registered exporters.
+                // This ensures LogRecords/Activities are enriched with context tags before export.
+                configuration.PrependOpenTelemetryBuilderConfiguration(builder =>
                 {
                     builder.WithTracing(tracing => tracing.AddProcessor(new TelemetryContextActivityProcessor(this.Context)));
                     builder.WithLogging(logging => logging.AddProcessor(new TelemetryContextLogProcessor(this.Context)));
@@ -1466,24 +1465,6 @@
             if (!string.IsNullOrEmpty(context.User?.AccountId))
             {
                 properties[SemanticConventions.AttributeMicrosoftUserAccountId] = context.User.AccountId;
-            }
-        }
-
-        /// <summary>
-        /// Applies CloudContext (RoleName/RoleInstance) and ComponentContext (Version) to the OpenTelemetry Resource if set.
-        /// </summary>
-        private void ApplyCloudContextToResource()
-        {
-            var roleName = this.Context.Cloud.RoleName;
-            var roleInstance = this.Context.Cloud.RoleInstance;
-            var componentVersion = this.Context.Component.Version;
-
-            if (!string.IsNullOrEmpty(roleName) || !string.IsNullOrEmpty(roleInstance) || !string.IsNullOrEmpty(componentVersion))
-            {
-                this.Configuration.SetCloudRole(
-                    serviceName: roleName,
-                    serviceInstanceId: roleInstance,
-                    serviceVersion: componentVersion);
             }
         }
 

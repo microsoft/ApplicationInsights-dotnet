@@ -19,8 +19,8 @@
         {
 
             var telemetryConfig = TelemetryConfiguration.CreateDefault();
-            telemetryConfig.ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://westus2-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus2.livediagnostics.monitor.azure.com/";
-            telemetryConfig.SamplingRatio = 1.0; // Set to 100% for testing; adjust as needed for production
+            telemetryConfig.ConnectionString = "";
+            telemetryConfig.SamplingRatio = 1.0f; // Set to 100% for testing; adjust as needed for production
 
             telemetryConfig.ConfigureOpenTelemetryBuilder(builder => builder.WithTracing(tracing => tracing.AddSource("MyCompany.MyProduct.MyLibrary").AddConsoleExporter())
                                                                      .WithLogging(logging => logging.AddConsoleExporter())
@@ -44,6 +44,7 @@
             telemetryClient.Context.Cloud.RoleName = "TestRole";
             telemetryClient.Context.Cloud.RoleInstance = "TestInstance";
             telemetryClient.Context.Component.Version = "2.0.0";
+            telemetryClient.Context.GlobalProperties["GlobalKey"] = "GlobalValue";
 
             // **The following lines are examples of tracking different telemetry types.**
 

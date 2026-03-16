@@ -1,5 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
+    using System.ComponentModel;
+
     /// <summary>
     /// Encapsulates information about an operation. Operation normally reflects an end to end scenario that starts from a user action (e.g. button click).
     /// </summary>
@@ -34,7 +36,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the application-defined operation ID.
+        /// Gets or sets the application-defined operation ID for the topmost operation.
         /// </summary>
         internal string Id
         {
@@ -43,7 +45,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the application-defined parent operation ID.
+        /// Gets or sets the parent operation ID.
         /// </summary>
         internal string ParentId
         {
@@ -52,8 +54,9 @@
         }
 
         /// <summary>
-        /// Gets or sets the application-defined correlation vector.
+        /// Gets or sets the correlation vector for the current telemetry item.
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         internal string CorrelationVector
         {
             get { return string.IsNullOrEmpty(this.correlationVector) ? null : this.correlationVector; }

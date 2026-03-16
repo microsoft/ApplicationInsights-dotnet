@@ -134,7 +134,10 @@ Migration note: TelemetryConfiguration.CreateDefault is the recommended way to i
 
 ## TelemetryContext Breaking Changes
 
-Several TelemetryContext sub-context classes have been made internal, and some properties on the remaining public sub-contexts have also been made internal.
+Several TelemetryContext sub-context properties have been made internal, and some previously public properties have been removed.
+
+> [!IMPORTANT]
+> Context properties set on `TelemetryClient.Context` are applied to all **traces and logs** (TrackRequest, TrackDependency, TrackTrace, TrackEvent, TrackException, TrackAvailability). **Metrics are not enriched** with context properties.
 
 ### TelemetryContext Properties Removed
 - **`InstrumentationKey`** - Removed. Use `TelemetryConfiguration.ConnectionString` instead.
@@ -142,30 +145,27 @@ Several TelemetryContext sub-context classes have been made internal, and some p
 - **`Properties`** (obsolete) - Was obsoleted in 2.x in favor of `GlobalProperties`.
 - **`TryGetRawObject()`** / **`StoreRawObject()`** - Removed. These methods were used to pass raw objects between collectors and initializers, which no longer exist.
 
-### Sub-Context Classes Made Internal
-The following sub-context classes were **public** in 2.x and are now **internal** in 3.x. Their properties are no longer accessible:
-- **`Cloud`** (`CloudContext`) — Had `RoleName`, `RoleInstance`. 
-- **`Component`** (`ComponentContext`) — Had `Version`. 
-- **`Device`** (`DeviceContext`) — Had `Type`, `Id`, `OperatingSystem`, `OemName`, `Model`. 
-- **`Session`** (`SessionContext`) — Had `Id`, `IsFirst`. 
+### Sub-Context Properties Made Internal
+The following properties on sub-context classes have been made internal:
+- **`User.UserAgent`** — Now internal. The Application Insights ingestion service does not surface this field in workspace-based resources.
+- **`Device.OemName`** — Now internal. The Application Insights ingestion service does not surface this field in workspace-based resources.
+- **`Session.IsFirst`** — Now internal. The Application Insights ingestion service does not surface this field in workspace-based resources.
+- **`Operation.Id`** — Now internal. Correlation IDs are managed automatically by OpenTelemetry.
+- **`Operation.ParentId`** — Now internal. Correlation IDs are managed automatically by OpenTelemetry.
+- **`Operation.CorrelationVector`** — Now internal. No longer needed due to shift to OpenTelemetry correlation.
+
+### Properties Retained (Public)
+All sub-context classes remain **public**. The following properties remain **public** and can be set on `TelemetryClient.Context` (applies to all non-metric telemetry) or on individual telemetry items:
+- `Cloud` (`RoleName`, `RoleInstance`)
+- `Component` (`Version`)
+- `User` (`Id`, `AuthenticatedUserId`, `AccountId`)
+- `Operation` (`Name`, `SyntheticSource`)
+- `Location` (`Ip`)
+- `Session` (`Id`)
+- `Device` (`Type`, `Id`, `OperatingSystem`, `Model`)
+- `GlobalProperties`
 
 See detailed migration guidance [here](MigrationGuidance.md#telemetry-context)
-
-### Sub-Context Properties Made Internal
-The following properties on **still-public** sub-context classes have been made internal:
-- **`User.UserAgent`** — Was public in 2.x, now internal. The Application Insights ingestion service does not surface this field in workspace-based resources.
-- **`User.AccountId`** — Was public in 2.x, now internal. This can be set via adding properties to Track() calls or creating custom OpenTelemetry processors.
-- **`Operation.Id`** — Was public in 2.x, now internal. Correlation IDs are managed automatically by OpenTelemetry.
-- **`Operation.ParentId`** — Was public in 2.x, now internal. Correlation IDs are managed automatically by OpenTelemetry.
-- **`Operation.CorrelationVector`** — No longer needed due to shift to OpenTelemetry correlation.
-- **`Operation.SyntheticSource`** — There is future work planned to reset this to public.
-
-### Properties Retained
-The following remain **public**:
-- `User` (`Id`, `AuthenticatedUserId`)
-- `Operation` (`Name`)
-- `Location` (`Ip`)
-- `GlobalProperties`
 ---
 
 # 2. Microsoft.ApplicationInsights.AspNetCore
