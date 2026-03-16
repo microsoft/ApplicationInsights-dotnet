@@ -53,11 +53,20 @@ await host.RunAsync();
 ### With Configuration Options
 
 ```csharp
-services.AddApplicationInsightsTelemetryWorkerService(options =>
-{
-    options.ConnectionString = configuration["ApplicationInsights:ConnectionString"];
-    options.EnableDependencyTrackingTelemetryModule = true;
-});
+var host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices((context, services) =>
+    {
+        services.AddApplicationInsightsTelemetryWorkerService(options =>
+        {
+            options.ConnectionString = context.Configuration["ApplicationInsights:ConnectionString"];
+            options.EnableDependencyTrackingTelemetryModule = true;
+        });
+
+        services.AddHostedService<Worker>();
+    })
+    .Build();
+
+await host.RunAsync();
 ```
 
 ## Step 3: Configure Connection String

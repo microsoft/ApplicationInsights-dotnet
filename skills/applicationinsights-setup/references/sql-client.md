@@ -8,7 +8,7 @@ dotnet add package OpenTelemetry.Instrumentation.SqlClient
 
 ## Setup
 
-The SDK already registers SQL client instrumentation. To customize options, use the DI options pattern:
+When using the ASP.NET Core, Worker Service, or Web Application Insights packages, the SDK already registers SQL client instrumentation. To customize options, use the DI options pattern:
 
 ```csharp
 using OpenTelemetry.Instrumentation.SqlClient;
@@ -20,7 +20,7 @@ builder.Services.Configure<SqlClientTraceInstrumentationOptions>(options =>
 });
 ```
 
-**Do not call `AddSqlClientInstrumentation()` again** — the SDK already registers it. Use `services.Configure<SqlClientTraceInstrumentationOptions>` to customize options without duplicating instrumentation.
+**Do not call `AddSqlClientInstrumentation()` again in these hosted scenarios** — the SDK already registers it. Use `services.Configure<SqlClientTraceInstrumentationOptions>` to customize options without duplicating instrumentation.
 
 ## Options
 
@@ -33,15 +33,23 @@ builder.Services.Configure<SqlClientTraceInstrumentationOptions>(options =>
 | `Enrich` | `null` | `Action<Activity, string, object>` for custom tags |
 | `Filter` | `null` | `Func<object, bool>` — return `false` to suppress |
 
-## Non-DI Usage (Console / Classic ASP.NET)
+## Non-DI Usage (Console / Library)
 
-For apps using `TelemetryConfiguration` directly:
+For non-DI console apps or libraries using `TelemetryConfiguration` directly (base `Microsoft.ApplicationInsights` without a host), you must install the package and explicitly add SQL client instrumentation. Classic ASP.NET apps already include it by default.
+
+```bash
+dotnet add package OpenTelemetry.Instrumentation.SqlClient
+```
 
 ```csharp
+using OpenTelemetry.Instrumentation.SqlClient;
+
 var config = TelemetryConfiguration.CreateDefault();
 config.ConnectionString = "InstrumentationKey=...;IngestionEndpoint=...";
 config.ConfigureOpenTelemetryBuilder(otel =>
 {
+    otel.WithTracing(t => t.AddSqlClientInstrumentation());
+
     otel.Services.Configure<SqlClientTraceInstrumentationOptions>(options =>
     {
         options.SetDbStatementForText = true;

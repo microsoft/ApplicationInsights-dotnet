@@ -12,6 +12,7 @@ dotnet add package OpenTelemetry.Instrumentation.Http
 
 ```csharp
 using OpenTelemetry.Instrumentation.Http;
+using System.Net.Http;
 
 builder.Services.Configure<HttpClientTraceInstrumentationOptions>(options =>
 {
@@ -19,12 +20,14 @@ builder.Services.Configure<HttpClientTraceInstrumentationOptions>(options =>
     options.FilterHttpRequestMessage = (httpRequestMessage) =>
     {
         // Only collect telemetry about HTTP GET requests
-        return HttpMethods.IsGet(httpRequestMessage.Method.Method);
+        return httpRequestMessage.Method == HttpMethod.Get;
     };
     options.EnrichWithHttpRequestMessage = (activity, httpRequestMessage) =>
     {
-        activity.SetTag("http.request.header.x-request-id",
-            httpRequestMessage.Headers.GetValues("x-request-id").FirstOrDefault());
+        if (httpRequestMessage.Headers.TryGetValues("x-request-id", out var values))
+        {
+            activity.SetTag("http.request.header.x-request-id", values.FirstOrDefault());
+        }
     };
 });
 ```
@@ -70,13 +73,21 @@ builder.Services.Configure<AspNetCoreTraceInstrumentationOptions>(options =>
 | `EnrichWithHttpResponse` | `null` | `Action<Activity, HttpResponse>` to add custom tags from the response |
 | `EnrichWithException` | `null` | `Action<Activity, Exception>` to add custom tags on failure |
 
-## Non-DI Usage (Console / Classic ASP.NET)
+## Non-DI Usage (Console / Library)
+
+For non-DI console apps or libraries using `TelemetryConfiguration` directly (base `Microsoft.ApplicationInsights` without a host), you must install the package and explicitly add HTTP client instrumentation to capture outgoing HTTP calls. Classic ASP.NET apps already include HTTP client instrumentation by default.
+
+```bash
+dotnet add package OpenTelemetry.Instrumentation.Http
+```
 
 ```csharp
 var config = TelemetryConfiguration.CreateDefault();
 config.ConnectionString = "InstrumentationKey=...;IngestionEndpoint=...";
 config.ConfigureOpenTelemetryBuilder(otel =>
 {
+    otel.WithTracing(t => t.AddHttpClientInstrumentation());
+
     otel.Services.Configure<HttpClientTraceInstrumentationOptions>(options =>
     {
         options.RecordException = true;

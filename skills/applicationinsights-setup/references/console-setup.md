@@ -80,6 +80,7 @@ dotnet add package Microsoft.ApplicationInsights --version 3.*
 ```csharp
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
+using System.Diagnostics;
 
 // Create configuration
 using var config = TelemetryConfiguration.CreateDefault();
@@ -88,6 +89,7 @@ config.ConnectionString = "InstrumentationKey=xxx;IngestionEndpoint=https://..."
 // Or use environment variable: APPLICATIONINSIGHTS_CONNECTION_STRING
 
 var client = new TelemetryClient(config);
+var activitySource = new ActivitySource("MyConsoleApp");
 
 try
 {
