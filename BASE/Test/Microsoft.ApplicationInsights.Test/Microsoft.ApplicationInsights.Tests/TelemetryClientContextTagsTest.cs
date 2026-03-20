@@ -54,6 +54,7 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Context.User.Id = "evt-user";
             this.telemetryClient.Context.User.AuthenticatedUserId = "evt-auth";
             this.telemetryClient.Context.User.AccountId = "evt-acct";
+            this.telemetryClient.Context.User.UserAgent = "evt-agent";
             this.telemetryClient.Context.Operation.Name = "EvtOp";
             this.telemetryClient.Context.Operation.SyntheticSource = "evt-bot";
             this.telemetryClient.Context.Location.Ip = "10.0.0.2";
@@ -83,6 +84,7 @@ namespace Microsoft.ApplicationInsights
             Assert.Equal("Android 14", attributes["ai.device.osVersion"]);
             Assert.Equal("evt-bot", attributes["microsoft.synthetic_source"]);
             Assert.Equal("evt-acct", attributes["microsoft.user.account_id"]);
+            Assert.Equal("evt-agent", attributes["user_agent.original"]);
         }
 
         [Fact]
@@ -106,6 +108,7 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Context.User.Id = "trc-user";
             this.telemetryClient.Context.User.AuthenticatedUserId = "trc-auth";
             this.telemetryClient.Context.User.AccountId = "trc-acct";
+            this.telemetryClient.Context.User.UserAgent = "trc-agent";
             this.telemetryClient.Context.Operation.Name = "TrcOp";
             this.telemetryClient.Context.Operation.SyntheticSource = "trc-bot";
             this.telemetryClient.Context.Location.Ip = "10.0.0.3";
@@ -132,6 +135,7 @@ namespace Microsoft.ApplicationInsights
             Assert.Equal("Windows 10", attributes["ai.device.osVersion"]);
             Assert.Equal("trc-bot", attributes["microsoft.synthetic_source"]);
             Assert.Equal("trc-acct", attributes["microsoft.user.account_id"]);
+            Assert.Equal("trc-agent", attributes["user_agent.original"]);
         }
 
         [Fact]
@@ -140,6 +144,7 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Context.User.Id = "exc-user";
             this.telemetryClient.Context.User.AuthenticatedUserId = "exc-auth";
             this.telemetryClient.Context.User.AccountId = "exc-acct";
+            this.telemetryClient.Context.User.UserAgent = "exc-agent";
             this.telemetryClient.Context.Operation.Name = "ExcOp";
             this.telemetryClient.Context.Operation.SyntheticSource = "exc-bot";
             this.telemetryClient.Context.Location.Ip = "172.16.0.1";
@@ -166,6 +171,7 @@ namespace Microsoft.ApplicationInsights
             Assert.Equal("Linux 6.1", attributes["ai.device.osVersion"]);
             Assert.Equal("exc-bot", attributes["microsoft.synthetic_source"]);
             Assert.Equal("exc-acct", attributes["microsoft.user.account_id"]);
+            Assert.Equal("exc-agent", attributes["user_agent.original"]);
         }
 
         [Fact]
@@ -340,6 +346,7 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Context.User.Id = "req-user";
             this.telemetryClient.Context.User.AuthenticatedUserId = "req-auth";
             this.telemetryClient.Context.User.AccountId = "req-acct";
+            this.telemetryClient.Context.User.UserAgent = "req-agent";
             this.telemetryClient.Context.Location.Ip = "10.0.0.1";
             this.telemetryClient.Context.Session.Id = "req-session";
             this.telemetryClient.Context.Device.Id = "req-device";
@@ -364,6 +371,7 @@ namespace Microsoft.ApplicationInsights
             Assert.True(activity.Tags.Any(t => t.Key == "ai.device.osVersion" && t.Value == "macOS 14"));
             Assert.True(activity.Tags.Any(t => t.Key == "microsoft.synthetic_source" && t.Value == "test-runner"));
             Assert.True(activity.Tags.Any(t => t.Key == "microsoft.user.account_id" && t.Value == "req-acct"));
+            Assert.True(activity.Tags.Any(t => t.Key == "user_agent.original" && t.Value == "req-agent"));
         }
 
         [Fact]
@@ -372,6 +380,7 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.Context.User.Id = "dep-user";
             this.telemetryClient.Context.User.AuthenticatedUserId = "dep-auth";
             this.telemetryClient.Context.User.AccountId = "dep-acct";
+            this.telemetryClient.Context.User.UserAgent = "dep-agent";
             this.telemetryClient.Context.Operation.Name = "ParentOp";
             this.telemetryClient.Context.Operation.SyntheticSource = "dep-bot";
             this.telemetryClient.Context.Location.Ip = "10.0.0.4";
@@ -404,6 +413,7 @@ namespace Microsoft.ApplicationInsights
             Assert.True(activity.Tags.Any(t => t.Key == "ai.device.osVersion" && t.Value == "watchOS 10"));
             Assert.True(activity.Tags.Any(t => t.Key == "microsoft.synthetic_source" && t.Value == "dep-bot"));
             Assert.True(activity.Tags.Any(t => t.Key == "microsoft.user.account_id" && t.Value == "dep-acct"));
+            Assert.True(activity.Tags.Any(t => t.Key == "user_agent.original" && t.Value == "dep-agent"));
         }
 
         #endregion
@@ -677,6 +687,7 @@ namespace Microsoft.ApplicationInsights
             Assert.False(attributes.ContainsKey("ai.device.type"));
             Assert.False(attributes.ContainsKey("microsoft.synthetic_source"));
             Assert.False(attributes.ContainsKey("microsoft.user.account_id"));
+            Assert.False(attributes.ContainsKey("user_agent.original"));
         }
 
         [Fact]
@@ -711,8 +722,7 @@ namespace Microsoft.ApplicationInsights
             Assert.False(activity.Tags.Any(t => t.Key == "ai.device.type"));
             Assert.False(activity.Tags.Any(t => t.Key == "microsoft.synthetic_source"));
             Assert.False(activity.Tags.Any(t => t.Key == "microsoft.user.account_id"));
+            Assert.False(activity.Tags.Any(t => t.Key == "user_agent.original"));
         }
-
-        #endregion
     }
 }

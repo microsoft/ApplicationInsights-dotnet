@@ -73,6 +73,7 @@ namespace Microsoft.ApplicationInsights.Processors
             AddIfAbsent(contextAttributes, existingKeys, SemanticConventions.AttributeAiDeviceOsVersion, this.context.Device?.OperatingSystem);
             AddIfAbsent(contextAttributes, existingKeys, SemanticConventions.AttributeMicrosoftSyntheticSource, this.context.Operation?.SyntheticSource);
             AddIfAbsent(contextAttributes, existingKeys, SemanticConventions.AttributeMicrosoftUserAccountId, this.context.User?.AccountId);
+            AddIfAbsent(contextAttributes, existingKeys, SemanticConventions.AttributeUserAgentOriginal, this.context.User?.UserAgent);
 
             if (contextAttributes.Count == 0)
             {

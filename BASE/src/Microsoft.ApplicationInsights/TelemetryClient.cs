@@ -1398,6 +1398,11 @@
             {
                 activity.SetTag(SemanticConventions.AttributeMicrosoftUserAccountId, context.User.AccountId);
             }
+
+            if (!string.IsNullOrEmpty(context.User?.UserAgent))
+            {
+                activity.SetTag(SemanticConventions.AttributeUserAgentOriginal, context.User.UserAgent);
+            }
         }
 
         /// <summary>
@@ -1465,6 +1470,11 @@
             if (!string.IsNullOrEmpty(context.User?.AccountId))
             {
                 properties[SemanticConventions.AttributeMicrosoftUserAccountId] = context.User.AccountId;
+            }
+
+            if (!string.IsNullOrEmpty(context.User?.UserAgent))
+            {
+                properties[SemanticConventions.AttributeUserAgentOriginal] = context.User.UserAgent;
             }
         }
 

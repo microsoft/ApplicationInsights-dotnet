@@ -48,7 +48,7 @@
         /// <summary>
         /// Gets or sets the UserAgent of an application-defined account associated with the user.
         /// </summary>
-        internal string UserAgent
+        public string UserAgent
         {
             get { return string.IsNullOrEmpty(this.userAgent) ? null : this.userAgent; }
             set { this.userAgent = value; }

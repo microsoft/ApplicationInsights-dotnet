@@ -59,6 +59,7 @@ namespace Microsoft.ApplicationInsights.Processors
             SetTagIfAbsent(activity, SemanticConventions.AttributeAiDeviceOsVersion, this.context.Device?.OperatingSystem);
             SetTagIfAbsent(activity, SemanticConventions.AttributeMicrosoftSyntheticSource, this.context.Operation?.SyntheticSource);
             SetTagIfAbsent(activity, SemanticConventions.AttributeMicrosoftUserAccountId, this.context.User?.AccountId);
+            SetTagIfAbsent(activity, SemanticConventions.AttributeUserAgentOriginal, this.context.User?.UserAgent);
 
             base.OnEnd(activity);
         }
