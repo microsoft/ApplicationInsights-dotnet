@@ -1,6 +1,9 @@
 namespace Microsoft.ApplicationInsights.Processors
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Runtime.CompilerServices;
+    using System.Threading;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Internal;
     using OpenTelemetry;
@@ -12,9 +15,41 @@ namespace Microsoft.ApplicationInsights.Processors
     /// This ensures context attributes are applied universally — to Track* calls
     /// and any <see cref="Microsoft.Extensions.Logging.ILogger"/> calls from customer code.
     /// </summary>
+    /// <remarks>
+    /// Performance optimization: after a warmup period (<see cref="WarmupCountThreshold"/> calls),
+    /// context properties are frozen into a compact snapshot array. This eliminates per-call
+    /// allocations of <see cref="HashSet{T}"/> and intermediate <see cref="List{T}"/> buffers,
+    /// and avoids repeatedly navigating the <see cref="TelemetryContext"/> object graph.
+    /// This relies on the documented pattern that customers set TelemetryClient.Context
+    /// properties once during initialization.
+    /// </remarks>
     internal sealed class TelemetryContextLogProcessor : BaseProcessor<LogRecord>
     {
+        /// <summary>
+        /// Minimum number of OnEnd calls before the context snapshot can be frozen.
+        /// </summary>
+        internal const int WarmupCountThreshold = 10;
+
+        /// <summary>
+        /// Minimum time (in milliseconds) after construction before the context snapshot
+        /// can be frozen. This guards against high-throughput apps where activities
+        /// complete before async initialization has had a chance to set TelemetryContext properties.
+        /// </summary>
+        internal const long WarmupTimeThresholdMs = 5_000;
+
         private readonly TelemetryContext context;
+        private readonly long constructedTimestamp;
+
+        /// <summary>
+        /// Frozen snapshot of non-null context attributes, built after warmup.
+        /// Once set, this array is immutable and read lock-free.
+        /// </summary>
+        private volatile KeyValuePair<string, object>[] frozenAttributes;
+
+        /// <summary>
+        /// Counter tracking the number of OnEnd calls during warmup.
+        /// </summary>
+        private int warmupCounter;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryContextLogProcessor"/> class.
@@ -23,6 +58,7 @@ namespace Microsoft.ApplicationInsights.Processors
         public TelemetryContextLogProcessor(TelemetryContext context)
         {
             this.context = context;
+            this.constructedTimestamp = Stopwatch.GetTimestamp();
         }
 
         /// <summary>
@@ -40,75 +76,237 @@ namespace Microsoft.ApplicationInsights.Processors
                 return;
             }
 
-            // Collect existing attribute keys to check for presence
-            var existingKeys = new HashSet<string>();
-            if (logRecord.Attributes != null)
+            var snapshot = this.frozenAttributes;
+            if (snapshot != null)
             {
-                foreach (var attr in logRecord.Attributes)
+                // Fast path: apply pre-computed snapshot (no HashSet, no intermediate List, no object graph)
+                ApplySnapshot(logRecord, snapshot);
+            }
+            else
+            {
+                // Slow path: full context evaluation during warmup
+                this.SlowPathOnEnd(logRecord);
+            }
+
+            base.OnEnd(logRecord);
+        }
+
+        /// <summary>
+        /// Fast path: merges the frozen snapshot attributes into the log record,
+        /// skipping any keys already present.
+        /// Zero-allocation when the log record has no pre-existing attributes.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void ApplySnapshot(LogRecord logRecord, KeyValuePair<string, object>[] snapshot)
+        {
+            if (snapshot.Length == 0)
+            {
+                return;
+            }
+
+            var existing = logRecord.Attributes;
+            int existingCount = existing?.Count ?? 0;
+
+            if (existingCount == 0)
+            {
+                // Most common case: no pre-existing attributes.
+                // Assign the snapshot array directly — T[] implements IReadOnlyList<T>.
+                // Zero allocation.
+                logRecord.Attributes = snapshot;
+                return;
+            }
+
+            // Count how many snapshot keys are NOT already present, to avoid
+            // allocating a merged list when all keys conflict.
+            int newCount = 0;
+            for (int i = 0; i < snapshot.Length; i++)
+            {
+                if (!ContainsKey(existing, snapshot[i].Key))
                 {
-                    existingKeys.Add(attr.Key);
+                    newCount++;
                 }
             }
 
-            // Apply client-level GlobalProperties (lowest priority — will not overwrite existing keys)
+            if (newCount == 0)
+            {
+                return;
+            }
+
+            // Only allocate when we actually have new attributes to merge.
+            var merged = new List<KeyValuePair<string, object>>(existingCount + newCount);
+            foreach (var attr in existing)
+            {
+                merged.Add(attr);
+            }
+
+            for (int i = 0; i < snapshot.Length; i++)
+            {
+                ref readonly var kvp = ref snapshot[i];
+                if (!ContainsKey(existing, kvp.Key))
+                {
+                    merged.Add(kvp);
+                }
+            }
+
+            logRecord.Attributes = merged;
+        }
+
+        /// <summary>
+        /// Checks whether the attribute collection contains the specified key.
+        /// Uses linear scan — attribute lists are typically small (&lt;20 items).
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool ContainsKey(IReadOnlyList<KeyValuePair<string, object>> attributes, string key)
+        {
+            if (attributes == null || attributes.Count == 0)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < attributes.Count; i++)
+            {
+                if (attributes[i].Key == key)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static void AddIfAbsent(
+            List<KeyValuePair<string, object>> contextAttributes,
+            IReadOnlyList<KeyValuePair<string, object>> existingAttributes,
+            string key,
+            string value)
+        {
+            if (!string.IsNullOrEmpty(value)
+                && !ContainsKey(existingAttributes, key)
+                && !ContainsKey(contextAttributes, key))
+            {
+                contextAttributes.Add(new KeyValuePair<string, object>(key, value));
+            }
+        }
+
+        private static void AddIfNotEmpty(List<KeyValuePair<string, object>> list, string key, string value)
+        {
+            if (!string.IsNullOrEmpty(value) && !ContainsKey(list, key))
+            {
+                list.Add(new KeyValuePair<string, object>(key, value));
+            }
+        }
+
+        /// <summary>
+        /// Full context evaluation path used during warmup. After both thresholds are met,
+        /// builds and freezes the snapshot for all subsequent calls.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void SlowPathOnEnd(LogRecord logRecord)
+        {
+            var existing = logRecord.Attributes;
+
+            // Build list of context attributes to add (only those not already present).
+            // No HashSet needed — linear scan on the small attributes list is faster and allocation-free.
             var contextAttributes = new List<KeyValuePair<string, object>>();
             var globalProperties = this.context.GlobalPropertiesValue;
             if (globalProperties != null)
             {
                 foreach (var kvp in globalProperties)
                 {
-                    AddIfAbsent(contextAttributes, existingKeys, kvp.Key, kvp.Value);
+                    AddIfAbsent(contextAttributes, existing, kvp.Key, kvp.Value);
                 }
             }
 
             // Build list of structured context attributes to add (only those not already present)
-            AddIfAbsent(contextAttributes, existingKeys, SemanticConventions.AttributeEnduserPseudoId, this.context.User?.Id);
-            AddIfAbsent(contextAttributes, existingKeys, SemanticConventions.AttributeEnduserId, this.context.User?.AuthenticatedUserId);
-            AddIfAbsent(contextAttributes, existingKeys, SemanticConventions.AttributeMicrosoftOperationName, this.context.Operation?.Name);
-            AddIfAbsent(contextAttributes, existingKeys, SemanticConventions.AttributeMicrosoftClientIp, this.context.Location?.Ip);
-            AddIfAbsent(contextAttributes, existingKeys, SemanticConventions.AttributeMicrosoftSessionId, this.context.Session?.Id);
-            AddIfAbsent(contextAttributes, existingKeys, SemanticConventions.AttributeAiDeviceId, this.context.Device?.Id);
-            AddIfAbsent(contextAttributes, existingKeys, SemanticConventions.AttributeAiDeviceModel, this.context.Device?.Model);
-            AddIfAbsent(contextAttributes, existingKeys, SemanticConventions.AttributeAiDeviceType, this.context.Device?.Type);
-            AddIfAbsent(contextAttributes, existingKeys, SemanticConventions.AttributeAiDeviceOsVersion, this.context.Device?.OperatingSystem);
-            AddIfAbsent(contextAttributes, existingKeys, SemanticConventions.AttributeMicrosoftSyntheticSource, this.context.Operation?.SyntheticSource);
-            AddIfAbsent(contextAttributes, existingKeys, SemanticConventions.AttributeMicrosoftUserAccountId, this.context.User?.AccountId);
-            AddIfAbsent(contextAttributes, existingKeys, SemanticConventions.AttributeUserAgentOriginal, this.context.User?.UserAgent);
+            AddIfAbsent(contextAttributes, existing, SemanticConventions.AttributeEnduserPseudoId, this.context.User?.Id);
+            AddIfAbsent(contextAttributes, existing, SemanticConventions.AttributeEnduserId, this.context.User?.AuthenticatedUserId);
+            AddIfAbsent(contextAttributes, existing, SemanticConventions.AttributeMicrosoftOperationName, this.context.Operation?.Name);
+            AddIfAbsent(contextAttributes, existing, SemanticConventions.AttributeMicrosoftClientIp, this.context.Location?.Ip);
+            AddIfAbsent(contextAttributes, existing, SemanticConventions.AttributeMicrosoftSessionId, this.context.Session?.Id);
+            AddIfAbsent(contextAttributes, existing, SemanticConventions.AttributeAiDeviceId, this.context.Device?.Id);
+            AddIfAbsent(contextAttributes, existing, SemanticConventions.AttributeAiDeviceModel, this.context.Device?.Model);
+            AddIfAbsent(contextAttributes, existing, SemanticConventions.AttributeAiDeviceType, this.context.Device?.Type);
+            AddIfAbsent(contextAttributes, existing, SemanticConventions.AttributeAiDeviceOsVersion, this.context.Device?.OperatingSystem);
+            AddIfAbsent(contextAttributes, existing, SemanticConventions.AttributeMicrosoftSyntheticSource, this.context.Operation?.SyntheticSource);
+            AddIfAbsent(contextAttributes, existing, SemanticConventions.AttributeMicrosoftUserAccountId, this.context.User?.AccountId);
+            AddIfAbsent(contextAttributes, existing, SemanticConventions.AttributeUserAgentOriginal, this.context.User?.UserAgent);
 
-            if (contextAttributes.Count == 0)
+            if (contextAttributes.Count > 0)
             {
-                base.OnEnd(logRecord);
-                return;
+                int existingCount = existing?.Count ?? 0;
+                var merged = new List<KeyValuePair<string, object>>(existingCount + contextAttributes.Count);
+
+                if (existing != null)
+                {
+                    foreach (var attr in existing)
+                    {
+                        merged.Add(attr);
+                    }
+                }
+
+                merged.AddRange(contextAttributes);
+                logRecord.Attributes = merged;
             }
 
-            // Merge original attributes with context attributes into a new list
-            var mergedAttributes = new List<KeyValuePair<string, object>>(
-                (logRecord.Attributes?.Count ?? 0) + contextAttributes.Count);
-
-            if (logRecord.Attributes != null)
+            // Freeze the snapshot once BOTH conditions are met:
+            //   1. At least WarmupCountThreshold calls have occurred.
+            //   2. At least WarmupTimeThresholdMs has elapsed since construction.
+            int count = Interlocked.Increment(ref this.warmupCounter);
+            if (count >= WarmupCountThreshold && this.HasTimeThresholdElapsed())
             {
-                foreach (var attr in logRecord.Attributes)
+                if (this.frozenAttributes == null)
                 {
-                    mergedAttributes.Add(attr);
+                    Interlocked.CompareExchange(ref this.frozenAttributes, this.BuildSnapshot(), null);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Builds an immutable snapshot array of all non-null/non-empty context attributes.
+        /// Called once after warmup completes.
+        /// </summary>
+        private KeyValuePair<string, object>[] BuildSnapshot()
+        {
+            var list = new List<KeyValuePair<string, object>>();
+
+            var globalProperties = this.context.GlobalPropertiesValue;
+            if (globalProperties != null)
+            {
+                foreach (var kvp in globalProperties)
+                {
+                    if (!string.IsNullOrEmpty(kvp.Value))
+                    {
+                        list.Add(new KeyValuePair<string, object>(kvp.Key, kvp.Value));
+                    }
                 }
             }
 
-            mergedAttributes.AddRange(contextAttributes);
-            logRecord.Attributes = mergedAttributes;
-
-            base.OnEnd(logRecord);
+            AddIfNotEmpty(list, SemanticConventions.AttributeEnduserPseudoId, this.context.User?.Id);
+            AddIfNotEmpty(list, SemanticConventions.AttributeEnduserId, this.context.User?.AuthenticatedUserId);
+            AddIfNotEmpty(list, SemanticConventions.AttributeMicrosoftOperationName, this.context.Operation?.Name);
+            AddIfNotEmpty(list, SemanticConventions.AttributeMicrosoftClientIp, this.context.Location?.Ip);
+            AddIfNotEmpty(list, SemanticConventions.AttributeMicrosoftSessionId, this.context.Session?.Id);
+            AddIfNotEmpty(list, SemanticConventions.AttributeAiDeviceId, this.context.Device?.Id);
+            AddIfNotEmpty(list, SemanticConventions.AttributeAiDeviceModel, this.context.Device?.Model);
+            AddIfNotEmpty(list, SemanticConventions.AttributeAiDeviceType, this.context.Device?.Type);
+            AddIfNotEmpty(list, SemanticConventions.AttributeAiDeviceOsVersion, this.context.Device?.OperatingSystem);
+            AddIfNotEmpty(list, SemanticConventions.AttributeMicrosoftSyntheticSource, this.context.Operation?.SyntheticSource);
+            AddIfNotEmpty(list, SemanticConventions.AttributeMicrosoftUserAccountId, this.context.User?.AccountId);
+            AddIfNotEmpty(list, SemanticConventions.AttributeUserAgentOriginal, this.context.User?.UserAgent);
+            
+            return list.ToArray();
         }
 
-        private static void AddIfAbsent(
-            List<KeyValuePair<string, object>> contextAttributes,
-            HashSet<string> existingKeys,
-            string key,
-            string value)
+        /// <summary>
+        /// Returns true if at least <see cref="WarmupTimeThresholdMs"/> milliseconds
+        /// have elapsed since this processor was constructed.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool HasTimeThresholdElapsed()
         {
-            if (!string.IsNullOrEmpty(value) && existingKeys.Add(key))
-            {
-                contextAttributes.Add(new KeyValuePair<string, object>(key, value));
-            }
+            long elapsedTicks = Stopwatch.GetTimestamp() - this.constructedTimestamp;
+            long elapsedMs = (elapsedTicks * 1000) / Stopwatch.Frequency;
+            return elapsedMs >= WarmupTimeThresholdMs;
         }
     }
 }

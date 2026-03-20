@@ -385,6 +385,7 @@ client.Context.GlobalProperties["Environment"] = "Production";
 client.Context.User.Id = "anonymous-user-id";
 client.Context.User.AuthenticatedUserId = "authenticated-user-id";
 client.Context.User.AccountId = "account-123";
+client.Context.User.UserAgent = "MyApp/1.0";
 client.Context.Operation.Name = "MyOperation";
 client.Context.Operation.SyntheticSource = "BotTraffic";
 client.Context.Location.Ip = "127.0.0.1";
@@ -403,6 +404,7 @@ Item-level context overrides client-level context for that item. This works for 
 // Activity-based: set context on the telemetry item before passing to Track*
 var request = new RequestTelemetry("GET /api/orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(150), "200", true);
 request.Context.User.Id = "specific-user";
+request.Context.User.UserAgent = "CustomAgent/2.0";
 request.Context.Session.Id = "specific-session";
 client.TrackRequest(request);
 

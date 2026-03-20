@@ -724,5 +724,7 @@ namespace Microsoft.ApplicationInsights
             Assert.False(activity.Tags.Any(t => t.Key == "microsoft.user.account_id"));
             Assert.False(activity.Tags.Any(t => t.Key == "user_agent.original"));
         }
+
+        #endregion
     }
 }

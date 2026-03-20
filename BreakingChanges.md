@@ -147,7 +147,6 @@ Several TelemetryContext sub-context properties have been made internal, and som
 
 ### Sub-Context Properties Made Internal
 The following properties on sub-context classes have been made internal:
-- **`User.UserAgent`** — Now internal. The Application Insights ingestion service does not surface this field in workspace-based resources.
 - **`Device.OemName`** — Now internal. The Application Insights ingestion service does not surface this field in workspace-based resources.
 - **`Session.IsFirst`** — Now internal. The Application Insights ingestion service does not surface this field in workspace-based resources.
 - **`Operation.Id`** — Now internal. Correlation IDs are managed automatically by OpenTelemetry.
@@ -158,7 +157,7 @@ The following properties on sub-context classes have been made internal:
 All sub-context classes remain **public**. The following properties remain **public** and can be set on `TelemetryClient.Context` (applies to all non-metric telemetry) or on individual telemetry items:
 - `Cloud` (`RoleName`, `RoleInstance`)
 - `Component` (`Version`)
-- `User` (`Id`, `AuthenticatedUserId`, `AccountId`)
+- `User` (`Id`, `AuthenticatedUserId`, `AccountId`, `UserAgent`)
 - `Operation` (`Name`, `SyntheticSource`)
 - `Location` (`Ip`)
 - `Session` (`Id`)

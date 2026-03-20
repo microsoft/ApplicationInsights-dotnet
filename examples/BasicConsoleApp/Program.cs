@@ -19,7 +19,7 @@
         {
 
             var telemetryConfig = TelemetryConfiguration.CreateDefault();
-            telemetryConfig.ConnectionString = "";
+            telemetryConfig.ConnectionString = "InstrumentationKey=cfd11a0c-b911-4de5-885d-659e2317e020;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/;LiveEndpoint=https://westus2.livediagnostics.monitor.azure.com/;ApplicationId=50c16cf6-ec05-41ce-a7e7-c377548d53ef";
             telemetryConfig.SamplingRatio = 1.0f; // Set to 100% for testing; adjust as needed for production
 
             telemetryConfig.ConfigureOpenTelemetryBuilder(builder => builder.WithTracing(tracing => tracing.AddSource("MyCompany.MyProduct.MyLibrary").AddConsoleExporter())
@@ -33,6 +33,7 @@
             telemetryClient.Context.User.Id = "test-user-123";
             telemetryClient.Context.User.AuthenticatedUserId = "auth-user-456";
             telemetryClient.Context.User.AccountId = "account-789";
+            telemetryClient.Context.User.UserAgent = "curl/8.0";
             telemetryClient.Context.Session.Id = "session-abc";
             telemetryClient.Context.Device.Id = "device-xyz";
             telemetryClient.Context.Device.Model = "Surface Pro";
