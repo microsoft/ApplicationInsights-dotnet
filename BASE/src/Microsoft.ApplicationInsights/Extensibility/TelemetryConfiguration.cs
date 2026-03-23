@@ -374,6 +374,11 @@
 
         internal FeatureMetricEmissionHelper InitializeFeatureReporter()
         {
+            if (string.IsNullOrEmpty(this.connectionString))
+            {
+                return this.FeatureReporter;
+            }
+
             var connectionString = Microsoft.ApplicationInsights.Internal.ConnectionString.Parse(this.ConnectionString);
             var ciKey = connectionString.GetNonRequired("InstrumentationKey");
             this.FeatureReporter = FeatureMetricEmissionHelper.GetOrCreate(ciKey, this.extensionVersion);
@@ -398,6 +403,16 @@
                     return this.openTelemetrySdk;
                 }
 
+                // If no connection string was explicitly set, fall back to the environment variable.
+                if (string.IsNullOrEmpty(this.connectionString))
+                {
+                    var envConnectionString = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
+                    if (!string.IsNullOrEmpty(envConnectionString))
+                    {
+                        this.connectionString = envConnectionString;
+                    }
+                }
+
                 Environment.SetEnvironmentVariable("OTEL_SDK_DISABLED", this.disableTelemetry ? "true" : "false");
 
                 this.openTelemetrySdk = OpenTelemetrySdk.Create(builder =>
@@ -405,7 +420,10 @@
                     this.builderConfiguration(builder);
                     builder.SetAzureMonitorExporter(options =>
                     {
-                        options.ConnectionString = this.connectionString;
+                        if (!string.IsNullOrEmpty(this.connectionString))
+                        {
+                            options.ConnectionString = this.connectionString;
+                        }
 
                         if (this.tracesPerSecond.HasValue)
                         {
