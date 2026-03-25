@@ -5,6 +5,7 @@
 - `EnableQuickPulseMetricStream` is **unchanged** (default `true`) — no action needed
 - Live Metrics continues to work in 3.x
 - The underlying implementation uses OpenTelemetry but the behavior is the same
+- The 2.x built-in `QuickPulseTelemetryProcessor` and `QuickPulseTelemetryModule` are no longer needed — 3.x handles Live Metrics internally. Remove any manual registrations of these types.
 
 ## Typical Scenario
 

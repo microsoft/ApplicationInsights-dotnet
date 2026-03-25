@@ -21,7 +21,9 @@ For each initializer found, note:
 - What it does (adds tags? modifies properties?)
 - Which telemetry types it touches (requests, dependencies, traces, all?)
 
-These must be converted to `BaseProcessor<Activity>` with `OnStart`. See [initializer-migration.md](initializer-migration.md).
+**Important:** Built-in initializers shipped with the 2.x SDK (e.g., `AzureRoleEnvironmentTelemetryInitializer`, `AzureWebAppRoleEnvironmentTelemetryInitializer`, `BuildInfoConfigComponentVersionTelemetryInitializer`, `DeviceTelemetryInitializer`, `DomainNameRoleInstanceTelemetryInitializer`) should **not** be manually migrated — they are either handled automatically by 3.x or are no longer applicable. Only **custom** initializers written by your team need conversion.
+
+Custom initializers must be converted to `BaseProcessor<Activity>` with `OnStart`. See [initializer-migration.md](initializer-migration.md).
 
 ## Section 3: Telemetry Processors
 
@@ -32,7 +34,9 @@ For each processor found, note:
 - Whether it filters (drops telemetry) or enriches (adds data)
 - Which telemetry types it checks (`RequestTelemetry`, `DependencyTelemetry`, `TraceTelemetry`, etc.)
 
-These must be converted to `BaseProcessor<Activity>` with `OnEnd`. See [processor-migration.md](processor-migration.md).
+**Important:** Built-in processors and telemetry modules shipped with the 2.x SDK (e.g., `SamplingTelemetryProcessor`, `AdaptiveSamplingTelemetryProcessor`, `QuickPulseTelemetryProcessor`, `AutocollectedMetricsExtractor`) should **not** be manually migrated — their functionality is handled automatically by 3.x. Only **custom** processors written by your team need conversion.
+
+Custom processors must be converted to `BaseProcessor<Activity>` with `OnEnd`. See [processor-migration.md](processor-migration.md).
 
 ## Section 4: TelemetryClient Usage
 
@@ -41,7 +45,7 @@ Search for `TelemetryClient` usage that has **breaking changes** in 3.x:
 - `TrackEvent` — check for 3-param overload with `IDictionary<string, double>` (removed)
 - `TrackException` — check for 3-param overload (removed)
 - `TrackAvailability` — check for 8-param overload (removed)
-- `TrackPageView` — removed entirely, replace with `TrackEvent` or `TrackRequest`
+- `TrackPageView` — removed entirely, no replacement available
 - `GetMetric` — check for `MetricConfiguration` or `MetricAggregationScope` params (removed)
 - `new TelemetryClient()` — parameterless constructor removed, use DI
 - `.InstrumentationKey` — removed, use `TelemetryConfiguration.ConnectionString`

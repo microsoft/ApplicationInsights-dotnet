@@ -2,7 +2,9 @@
 
 ## What Changed
 
-`ITelemetryProcessor` is removed in 3.x. Convert to `BaseProcessor<Activity>` with `OnEnd` for filtering/enrichment.
+`ITelemetryProcessor` is removed in 3.x. Convert **custom** processors to `BaseProcessor<Activity>` with `OnEnd` for filtering/enrichment.
+
+**Note:** Built-in 2.x processors (e.g., `SamplingTelemetryProcessor`, `AdaptiveSamplingTelemetryProcessor`, `QuickPulseTelemetryProcessor`, `AutocollectedMetricsExtractor`) do **not** need manual migration — their functionality is handled automatically by 3.x. Remove any manual registrations of these built-in types.
 
 ## Before (2.x)
 

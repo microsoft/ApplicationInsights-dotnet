@@ -58,14 +58,4 @@ OTEL_TRACES_SAMPLER_ARG=0.5
 |---|---|
 | `EnableAdaptiveSampling = true` (default) | `TracesPerSecond = 5` (default) — no config needed |
 | `EnableAdaptiveSampling = false` | `SamplingRatio = 1.0f` |
-| Custom `ITelemetryProcessorFactory` for sampling | `SamplingRatio` or custom `Sampler` via OpenTelemetry |
-
-## Advanced: Custom OpenTelemetry Sampler
-
-For complex sampling needs (e.g., always sample errors, sample by route):
-
-```csharp
-builder.Services.ConfigureOpenTelemetryTracerProvider(tracing =>
-    tracing.SetSampler(new ParentBasedSampler(
-        new TraceIdRatioBasedSampler(0.1)))); // 10%
-```
+| Custom `ITelemetryProcessorFactory` for sampling | `SamplingRatio` or `TracesPerSecond` — custom `Sampler` via OpenTelemetry is not supported |
