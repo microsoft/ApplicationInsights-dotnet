@@ -103,7 +103,7 @@ These apply only to `AddApplicationInsightsTelemetryWorkerService()`:
 | `TrackEvent` | 3-param overload (with `IDictionary<string,double>`) **removed**. Use 2-param and track metrics separately via `TrackMetric()` |
 | `TrackException` | 3-param overload with metrics dict **removed**. Use 2-param |
 | `TrackAvailability` | 8-param overload with metrics dict **removed**. Use 7-param |
-| `TrackPageView` | **Removed entirely**. Use `TrackEvent` or `TrackRequest` |
+| `TrackPageView` | **Removed entirely** — no equivalent in 3.x. Remove these API calls |
 | `GetMetric` | `MetricConfiguration` and `MetricAggregationScope` params **removed**. Use simplified `GetMetric(metricId, ...)` |
 | `new TelemetryClient()` | Parameterless constructor **removed**. Use `TelemetryClient(TelemetryConfiguration)` via DI |
 | `client.InstrumentationKey` | **Removed**. Use `TelemetryConfiguration.ConnectionString` |

@@ -43,13 +43,11 @@ client.TrackMetric("AvailabilityResponseTime", responseTime); // Track metrics s
 ### TrackPageView — removed entirely
 
 ```csharp
-// 2.x (removed):
+// 2.x (removed — no equivalent in 3.x):
 client.TrackPageView("HomePage");
 client.TrackPageView(pageViewTelemetry);
 
-// 3.x:
-client.TrackEvent("PageView", new Dictionary<string, string> { ["page"] = "HomePage" });
-// Or use TrackRequest for page timing
+// 3.x: Remove these API calls. There is no equivalent.
 ```
 
 ### TrackDependency — obsolete 5-param overload removed
