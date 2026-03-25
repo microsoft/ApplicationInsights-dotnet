@@ -53,7 +53,7 @@ See [telemetryclient-migration.md](telemetryclient-migration.md) for breaking ch
 
 ## Section 5: Sampling Configuration
 
-Search for `EnableAdaptiveSampling`, `SamplingPercentage`, or custom `ITelemetryProcessorFactory` for sampling.
+Search for `EnableAdaptiveSampling`, `SamplingPercentage`, `SamplingTelemetryProcessor`, `AdaptiveSamplingTelemetryProcessor`, or custom `ITelemetryProcessorFactory` for sampling.
 
 3.x uses `TracesPerSecond` (default 5) or `SamplingRatio` instead. See [sampling-migration.md](sampling-migration.md).
 

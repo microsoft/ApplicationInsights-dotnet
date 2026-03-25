@@ -72,6 +72,8 @@ client.GetMetric("Latency", metricConfiguration, metricAggregationScope);
 client.GetMetric("Latency"); // Simplified, no configuration/scope params
 ```
 
+> **Note:** Metric names and namespace parameters must not contain spaces or special characters. Use alphanumeric characters, `.`, `-`, or `_` only.
+
 ### Constructor — parameterless removed
 
 ```csharp
@@ -97,7 +99,7 @@ client.InstrumentationKey = "xxx";
 
 These work identically in 2.x and 3.x:
 - `TrackTrace(string message, ...)`
-- `TrackMetric(string name, double value, ...)`
+- `TrackMetric(string name, double value, ...)` — **Note:** metric names must not contain spaces or special characters; use alphanumeric, `.`, `-`, or `_` only.
 - `TrackRequest(string name, ...)`
 - `TrackDependency(string type, string target, ...)` (full overload)
 - `Flush()`
