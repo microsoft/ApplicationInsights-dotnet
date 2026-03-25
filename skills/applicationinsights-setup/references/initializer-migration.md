@@ -56,6 +56,59 @@ config.ConfigureOpenTelemetryBuilder(otel =>
     otel.ConfigureResource(r => r.AddService("MyService")));
 ```
 
+## Migrating TelemetryInitializerBase (HttpContext Access)
+
+In 2.x ASP.NET Core apps, `TelemetryInitializerBase` provided access to `HttpContext` inside initializers. In 3.x, use `IHttpContextAccessor` injected into a `BaseProcessor<Activity>`:
+
+**Before (2.x)**
+```csharp
+public sealed class MyInitializer : TelemetryInitializerBase
+{
+    protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
+    {
+        telemetry.Context.GlobalProperties["user"] = platformContext.User?.Identity?.Name;
+    }
+}
+```
+
+**After (3.x)**
+```csharp
+public sealed class UserTelemetryEnrichment : BaseProcessor<Activity>
+{
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public UserTelemetryEnrichment(IHttpContextAccessor httpContextAccessor)
+    {
+        _httpContextAccessor = httpContextAccessor;
+    }
+
+    public override void OnEnd(Activity data)
+    {
+        var httpContext = _httpContextAccessor.HttpContext;
+        if (httpContext is null)
+        {
+            return;
+        }
+
+        var userName = httpContext.User?.Identity?.Name;
+        if (!string.IsNullOrEmpty(userName))
+        {
+            data.SetTag("enduser.id", userName);
+        }
+
+        if (httpContext.Request.Headers.TryGetValue("X-Tenant-Id", out var tenantId))
+        {
+            data.SetTag("tenant.id", tenantId.ToString());
+        }
+    }
+}
+
+// Registration:
+builder.Services.AddHttpContextAccessor();
+builder.Services.ConfigureOpenTelemetryTracerProvider(tracing =>
+    tracing.AddProcessor<UserTelemetryEnrichment>());
+```
+
 ## Property Mapping
 
 | 2.x Property | 3.x Equivalent |
