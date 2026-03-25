@@ -21,14 +21,12 @@ services.AddApplicationInsightsTelemetry(options =>
 services.AddApplicationInsightsTelemetry(options =>
 {
     options.SamplingRatio = 1.0f;
-    // The shim automatically clears TracesPerSecond when SamplingRatio is set
 });
 
 // OR fixed-rate 50% sampling:
 services.AddApplicationInsightsTelemetry(options =>
 {
     options.SamplingRatio = 0.5f;
-    // The shim automatically clears TracesPerSecond when SamplingRatio is set
 });
 
 // OR rate-limited (default behavior, 5 traces/sec):
