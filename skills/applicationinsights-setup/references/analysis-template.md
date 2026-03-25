@@ -21,7 +21,7 @@ For each initializer found, note:
 - What it does (adds tags? modifies properties?)
 - Which telemetry types it touches (requests, dependencies, traces, all?)
 
-**Important:** Built-in initializers shipped with the 2.x SDK (e.g., `AzureRoleEnvironmentTelemetryInitializer`, `AzureWebAppRoleEnvironmentTelemetryInitializer`, `BuildInfoConfigComponentVersionTelemetryInitializer`, `DeviceTelemetryInitializer`, `DomainNameRoleInstanceTelemetryInitializer`) should **not** be manually migrated — they are either handled automatically by 3.x or are no longer applicable. Only **custom** initializers written by your team need conversion.
+**Important:** Built-in initializers shipped with the 2.x SDK (e.g., `AzureRoleEnvironmentTelemetryInitializer`, `AzureWebAppRoleEnvironmentTelemetryInitializer`, `BuildInfoConfigComponentVersionTelemetryInitializer`, `DeviceTelemetryInitializer`, `DomainNameRoleInstanceTelemetryInitializer`) should **not** be manually migrated — they are either handled automatically by 3.x or are no longer applicable. Only **custom** initializers written by your team need conversion. For the full list of built-in initializers, see the [TelemetryInitializers section in MigrationGuidance.md](https://github.com/microsoft/ApplicationInsights-dotnet/blob/main/MigrationGuidance.md#telemetryinitializers).
 
 Custom initializers must be converted to `BaseProcessor<Activity>` with `OnStart`. See [initializer-migration.md](initializer-migration.md).
 
