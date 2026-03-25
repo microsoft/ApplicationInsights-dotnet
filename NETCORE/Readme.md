@@ -56,7 +56,7 @@ The Microsoft.ApplicationInsights.AspNetCore package is built on top of OpenTele
 
 ### Migrating from Application Insights SDK 2.x?
 
-If you are currently using the Application Insights SDK 2.x and want to migrate to the OpenTelemetry-based 3.x version, please see the [Migration Guidance](#migration-from-2x-to-3x) section below.
+If you are currently using the Application Insights SDK 2.x and want to migrate to the OpenTelemetry-based 3.x version, please see the [Migration Guidance](../MigrationGuidance.md).
 
 ### Install the Package
 
