@@ -36,8 +36,6 @@ services.AddApplicationInsightsTelemetry(options =>
 });
 ```
 
-**Note (exporter only):** When using the Azure Monitor exporter directly (without the shim), set `TracesPerSecond = null` when using `SamplingRatio` — otherwise rate-limited sampling takes precedence. The shim handles this automatically.
-
 ### Via Environment Variables
 
 ```bash
