@@ -557,6 +557,21 @@ builder.Services.ConfigureOpenTelemetryMeterProvider((sp, meterBuilder) =>
         MetricStreamConfiguration.Drop);
 });
 ```
+## Metric Name and Namespace Conventions
+In 3.x, Application Insights uses OpenTelemetry internally to emit metrics. The `name` parameter in `TrackMetric` and the `metricId` / `metricNamespace` parameters in `GetMetric` and `MetricIdentifier` must adhere to the [OpenTelemetry Instrument Name Syntax](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/metrics/api.md#instrument-name-syntax):
+
+- Must not be null or empty.
+- Must be case-insensitive, ASCII strings.
+- The first character must be an alphabetic character (`A-Z` or `a-z`).
+- Subsequent characters must be alphanumeric (`A-Z`, `a-z`, `0-9`), `_`, `.`, `-`, or `/`.
+- Maximum length of 255 characters.
+
+This applies to:
+- `TrackMetric(string name, double value, ...)` — the `name` parameter
+- `GetMetric(string metricId, ...)` — the `metricId` parameter
+- `MetricIdentifier(string metricNamespace, string metricId, ...)` — both `metricNamespace` and `metricId` parameters
+
+If existing metric names contain characters not permitted by this syntax (e.g., spaces, `$`, `#`, etc.), they must be renamed before migrating to 3.x.
 
 ## Appendix
 ### QuickPulse Configuration
