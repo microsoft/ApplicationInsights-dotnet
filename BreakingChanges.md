@@ -86,6 +86,20 @@ Metrics configuration and aggregation is now internally managed by OpenTelemetry
 
 This applies to all dimension combinations (1D, 2D, 3D, 4D).
 
+#### Metric Name and Namespace Conventions
+In 3.x, Application Insights uses OpenTelemetry internally to emit metrics. As a result, the `name` parameter in `TrackMetric` and the `metricId` / `metricNamespace` parameters in `GetMetric` and `MetricIdentifier` must now adhere to the [OpenTelemetry Instrument Name Syntax](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/metrics/api.md#instrument-name-syntax):
+
+- Must not be null or empty.
+- Must be case-insensitive, ASCII strings.
+- The first character must be an alphabetic character (`A-Z` or `a-z`).
+- Subsequent characters must be alphanumeric (`A-Z`, `a-z`, `0-9`), `_`, `.`, `-`, or `/`.
+- Maximum length of 255 characters.
+
+This applies to:
+- `TrackMetric(string name, double value, ...)` — the `name` parameter
+- `GetMetric(string metricId, ...)` — the `metricId` parameter
+- `MetricIdentifier(string metricNamespace, string metricId, ...)` — both `metricNamespace` and `metricId` parameters
+
 #### Methods with changed internal implementation
 - `Track(ITelemetry telemetry)` - Still exists with `[EditorBrowsable(EditorBrowsableState.Never)]` attribute. In 3.x, it routes to specific Track methods (TrackRequest, TrackDependency, etc.) instead of using the telemetry processor pipeline.
 - `StartOperation<T>` and `StopOperation<T>` - Extension methods in `TelemetryClientExtensions` now use OpenTelemetry Activities instead of the legacy correlation system.
