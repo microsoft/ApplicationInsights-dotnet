@@ -504,7 +504,7 @@ builder.Services.AddApplicationInsightsTelemetryWorkerService(options =>
 ```
 
 ## Autocollected Metrics
-In 3.x, the SDK automatically collects HTTP server and client metrics via OpenTelemetry instrumentation. The specific meters registered depend on the target runtime and package:
+In 3.x, the SDK automatically collects HTTP server and client metrics using built-in .NET runtime meters on .NET 8.0+ and via OpenTelemetry instrumentation on .NET 7.0 and below. The specific meters or instrumentation registered depend on the target runtime and package:
 
 ### Microsoft.ApplicationInsights.AspNetCore
 | Meter | Instruments | Runtime |
