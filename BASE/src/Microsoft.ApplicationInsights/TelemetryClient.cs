@@ -253,6 +253,11 @@
                 properties.Add("microsoft.availability.message", telemetry.Message);
             }
 
+            if (telemetry.Timestamp != default)
+            {
+                properties.Add("microsoft.availability.testTimestamp", telemetry.Timestamp.ToString("o"));
+            }
+
             // Add custom properties from telemetry
             if (telemetry.Properties != null && telemetry.Properties.Count > 0)
             {

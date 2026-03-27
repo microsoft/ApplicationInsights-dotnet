@@ -256,6 +256,7 @@ namespace Microsoft.ApplicationInsights
             Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.success" && a.Value?.ToString() == success.ToString());
             Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.runLocation" && a.Value?.ToString() == runLocation);
             Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.message" && a.Value?.ToString() == message);
+            Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.testTimestamp" && a.Value?.ToString() == timeStamp.ToString("o"));
             Assert.Contains(logRecord.Attributes, a => a.Key == "Environment" && a.Value?.ToString() == "Production");
         }
 
@@ -286,7 +287,8 @@ namespace Microsoft.ApplicationInsights
         [Fact]
         public void TrackAvailabilityWithAvailabilityTelemetryObject()
         {
-            var availabilityTelemetry = new AvailabilityTelemetry("TestWithObject", DateTimeOffset.UtcNow, TimeSpan.FromSeconds(3), "North Europe", true, "Success");
+            var timeStamp = DateTimeOffset.UtcNow;
+            var availabilityTelemetry = new AvailabilityTelemetry("TestWithObject", timeStamp, TimeSpan.FromSeconds(3), "North Europe", true, "Success");
             availabilityTelemetry.Properties["CustomProp"] = "CustomValue";
 
             this.telemetryClient.TrackAvailability(availabilityTelemetry);
@@ -300,6 +302,9 @@ namespace Microsoft.ApplicationInsights
             
             // Verify custom property
             Assert.Contains(logRecord.Attributes, a => a.Key == "CustomProp" && a.Value?.ToString() == "CustomValue");
+
+            // Verify timestamp is preserved
+            Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.testTimestamp" && a.Value?.ToString() == timeStamp.ToString("o"));
         }
 
         [Fact]
@@ -355,6 +360,48 @@ namespace Microsoft.ApplicationInsights
             var idAttr = logRecord.Attributes.FirstOrDefault(a => a.Key == "microsoft.availability.id");
             Assert.NotNull(idAttr.Value);
             Assert.True(Guid.TryParse(idAttr.Value?.ToString(), out _), "ID should be a valid GUID");
+        }
+
+        [Fact]
+        public void TrackAvailabilityPreservesUserSpecifiedTimestamp()
+        {
+            // Use a specific past timestamp to verify it's not overwritten by the current time
+            var specificTimestamp = new DateTimeOffset(2025, 4, 19, 12, 10, 59, 993, TimeSpan.Zero);
+            var availabilityTelemetry = new AvailabilityTelemetry("TimestampTest", specificTimestamp, TimeSpan.FromMilliseconds(19.3), "Sweden Central", true);
+
+            this.telemetryClient.TrackAvailability(availabilityTelemetry);
+            this.telemetryClient.Flush();
+
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l =>
+                l.Attributes != null && l.Attributes.Any(a =>
+                    a.Key == "microsoft.availability.name" && a.Value?.ToString() == "TimestampTest"));
+            Assert.NotNull(logRecord);
+
+            // Verify the user-specified timestamp is included as a property
+            var timestampAttr = logRecord.Attributes.FirstOrDefault(a => a.Key == "microsoft.availability.testTimestamp");
+            Assert.NotNull(timestampAttr.Value);
+            Assert.Equal(specificTimestamp.ToString("o"), timestampAttr.Value?.ToString());
+        }
+
+        [Fact]
+        public void TrackAvailabilityOmitsTimestampWhenDefault()
+        {
+            var availabilityTelemetry = new AvailabilityTelemetry();
+            availabilityTelemetry.Name = "DefaultTimestampTest";
+            // Don't set Timestamp, it should remain default
+
+            this.telemetryClient.TrackAvailability(availabilityTelemetry);
+            this.telemetryClient.Flush();
+
+            Assert.True(this.logItems.Count > 0, "At least one log should be collected");
+            var logRecord = this.logItems.FirstOrDefault(l =>
+                l.Attributes != null && l.Attributes.Any(a =>
+                    a.Key == "microsoft.availability.name" && a.Value?.ToString() == "DefaultTimestampTest"));
+            Assert.NotNull(logRecord);
+
+            // Verify that no testTimestamp attribute is present when timestamp is default
+            Assert.DoesNotContain(logRecord.Attributes, a => a.Key == "microsoft.availability.testTimestamp");
         }
 
         #endregion
