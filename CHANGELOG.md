@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- [Fix `TrackAvailability` ignoring user-specified `Timestamp` on `AvailabilityTelemetry`. The timestamp is now emitted as `microsoft.availability.testTimestamp` so downstream exporters can use the correct event time.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3153)
 - [Added `netstandard2.0` target framework to `Microsoft.ApplicationInsights` package to support customers with shared libraries targeting netstandard2.0.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3142)
 - [Fix `TelemetryClient.Context.Cloud.RoleName` set after construction now applies to all telemetry.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3129)
 - [Fix bug where Debug/Trace level logs from TrackTrace API were not emitted to Application Insights](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3121)
