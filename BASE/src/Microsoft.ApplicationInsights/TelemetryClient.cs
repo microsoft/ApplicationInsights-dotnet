@@ -255,7 +255,7 @@
 
             if (telemetry.Timestamp != default)
             {
-                properties.Add("microsoft.availability.testTimestamp", telemetry.Timestamp.ToString("o"));
+                properties.Add("microsoft.availability.testTimestamp", telemetry.Timestamp.UtcDateTime.ToString("o"));
             }
 
             // Add custom properties from telemetry

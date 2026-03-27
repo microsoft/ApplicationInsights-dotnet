@@ -256,7 +256,7 @@ namespace Microsoft.ApplicationInsights
             Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.success" && a.Value?.ToString() == success.ToString());
             Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.runLocation" && a.Value?.ToString() == runLocation);
             Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.message" && a.Value?.ToString() == message);
-            Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.testTimestamp" && a.Value?.ToString() == timeStamp.ToString("o"));
+            Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.testTimestamp" && a.Value?.ToString() == timeStamp.UtcDateTime.ToString("o"));
             Assert.Contains(logRecord.Attributes, a => a.Key == "Environment" && a.Value?.ToString() == "Production");
         }
 
@@ -304,7 +304,7 @@ namespace Microsoft.ApplicationInsights
             Assert.Contains(logRecord.Attributes, a => a.Key == "CustomProp" && a.Value?.ToString() == "CustomValue");
 
             // Verify timestamp is preserved
-            Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.testTimestamp" && a.Value?.ToString() == timeStamp.ToString("o"));
+            Assert.Contains(logRecord.Attributes, a => a.Key == "microsoft.availability.testTimestamp" && a.Value?.ToString() == timeStamp.UtcDateTime.ToString("o"));
         }
 
         [Fact]
@@ -381,7 +381,7 @@ namespace Microsoft.ApplicationInsights
             // Verify the user-specified timestamp is included as a property
             var timestampAttr = logRecord.Attributes.FirstOrDefault(a => a.Key == "microsoft.availability.testTimestamp");
             Assert.NotNull(timestampAttr.Value);
-            Assert.Equal(specificTimestamp.ToString("o"), timestampAttr.Value?.ToString());
+            Assert.Equal(specificTimestamp.UtcDateTime.ToString("o"), timestampAttr.Value?.ToString());
         }
 
         [Fact]
