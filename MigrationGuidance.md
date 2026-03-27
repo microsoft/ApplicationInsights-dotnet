@@ -320,28 +320,30 @@ There is not a direct replacement for the InMemoryChannel. However, OpenTelemetr
 Customers who implemented custom `ITelemetryChannel` for sending telemetry to additional backends should use OpenTelemetry exporters instead. See the [TelemetrySinks](#telemetrysinks) section for a console exporter example.
 
 ## Telemetry Context
-As mentioned in [breaking changes](BreakingChanges.md#telemetrycontext-breaking-changes), many context classes and properties have been marked as internal. For each of the removed classes, workarounds are listed:
+As mentioned in [breaking changes](BreakingChanges.md#telemetrycontext-breaking-changes), many context classes and properties have been marked as internal. The sections below describe how to set context in 3.x.
 
-### Cloud: RoleName, RoleInstance & Component Version
-To set these values on all telemetry items, configure the OpenTelemetry service attributes `service.name` (maps to Cloud RoleName) and `service.instance.id` (maps to Cloud RoleInstance) and `service.version` (maps to application version). 
+### Cloud RoleName, RoleInstance & Component Version
+
+These values map to OpenTelemetry Resource attributes (`service.name`, `service.instance.id`, `service.version`). Because Resource attributes are immutable after the OpenTelemetry SDK is built, the mechanism differs between non-DI and DI scenarios.
 
 #### Microsoft.ApplicationInsights (Base SDK) & Microsoft.ApplicationInsights.Web
-```csharp
-var configuration = TelemetryConfiguration.CreateDefault();
-configuration.ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://...";
 
-configuration.ConfigureOpenTelemetryBuilder(builder =>
-{
-    builder.ConfigureResource(r => r
-        .AddService(
-            serviceName: "MyRoleName",                   // Maps to Cloud.RoleName
-            serviceInstanceId: Environment.MachineName,  // Maps to Cloud.RoleInstance
-            serviceVersion: "1.0.0")                     // Maps to Component.Version
-    );
-});
+In non-DI scenarios, set these directly on the `TelemetryClient.Context` before sending telemetry.
+
+```csharp
+var config = TelemetryConfiguration.CreateDefault();
+config.ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://...";
+
+var client = new TelemetryClient(config);
+client.Context.Cloud.RoleName = "MyRoleName";              // Maps to Cloud.RoleName
+client.Context.Cloud.RoleInstance = Environment.MachineName; // Maps to Cloud.RoleInstance
+client.Context.Component.Version = "1.0.0";                 // Maps to Component.Version
 ```
 
 #### Microsoft.ApplicationInsights.AspNetCore & Microsoft.ApplicationInsights.WorkerService
+
+In DI scenarios, the OpenTelemetry SDK is built by the host before user code runs, so the `Context.Cloud` setters cannot influence the Resource in time. Instead, configure the Resource via the OpenTelemetry builder:
+
 ```csharp
 builder.Services.ConfigureOpenTelemetryTracerProvider((sp, tracerBuilder) =>
 {
@@ -363,40 +365,54 @@ builder.Services.ConfigureOpenTelemetryLoggerProvider((sp, loggerBuilder) =>
     );
 });
 ```
-If one wishes to set service attributes only on specific telemetry items, that can be done via Track* overloads that take in custom properties, or via setting the property on the telemetry item before passing it to a Track* call.
 
-> [!NOTE]
-> There is a future work item to enable the setting of CloudContext and ComponentVersion properties without having to explicitly configure OpenTelemetry providers.
+### User, Operation, Location, Device & Session Context
 
-### Device and Session Context & User.AccountId
-Currently, the Azure Monitor Exporter does not contain the mapping for these context attributes to appear in the correct part of the payload if a customer explicitly specifies it.
-The current workaround is to add custom dimensions to your telemetry items instead. 
-For individual items, this can be done via Track* overloads that take in custom properties, or it can be set on the individual telemetry item via `Properties` before being passed to Track* calls.
-To add dimensions to all telemetry items, consider this [alternative](#familiar-api-alternative) or a [custom OpenTelemetry processor](#creating-a-custom-opentelemetry-processor).
+These context properties can be set in two ways: on individual telemetry items, or on the `TelemetryClient.Context` to apply to all telemetry sent by that client.
 
-> [!NOTE]
-> There is a future work item to enable the setting of these context properties via their original Context attributes.
+> [!IMPORTANT]
+> Context set on `TelemetryClient.Context` applies to all **traces and logs**. **Metrics are not enriched** with these context properties.
 
-### Setting TelemetryContext via TelemetryClient
-In 2.x it was possible to set TelemetryContext on the TelemetryClient, such that the context appeared on every telemetry item.
-In 3.x, this functionality is not completely implemented - ie, only the `GlobalProperties` will propagate. We are working on a fix to ensure other properties will also propagate.
-
-Intended syntax:
+#### Setting context via TelemetryClient
 
 ```csharp
 var client = new TelemetryClient(config);
 
-// GlobalProperties - this works today and will appear in customDimensions on all telemetry
-client.Context.GlobalProperties["MyCustomGlobalProperty"] = "Production";
+// GlobalProperties appear in customDimensions
+client.Context.GlobalProperties["Environment"] = "Production";
 
-// The following are public and settable on individual telemetry items today.
-// There is a known issue where these do not yet propagate when set on TelemetryClient.Context.
-// Once fixed, setting them here will apply to all telemetry sent by this client:
+// These context properties are applied to all traces and logs sent by this client:
 client.Context.User.Id = "anonymous-user-id";
 client.Context.User.AuthenticatedUserId = "authenticated-user-id";
+client.Context.User.AccountId = "account-123";
 client.Context.User.UserAgent = "MyApp/1.0";
 client.Context.Operation.Name = "MyOperation";
+client.Context.Operation.SyntheticSource = "BotTraffic";
 client.Context.Location.Ip = "127.0.0.1";
+client.Context.Session.Id = "session-abc";
+client.Context.Device.Id = "device-xyz";
+client.Context.Device.Model = "Surface Pro";
+client.Context.Device.Type = "PC";
+client.Context.Device.OperatingSystem = "Windows 11";
+```
+
+#### Setting context on an individual telemetry item
+
+Item-level context overrides client-level context for that item. This works for both activity-based telemetry (Request, Dependency) and log-based telemetry (Trace, Event, Exception, Availability).
+
+```csharp
+// Activity-based: set context on the telemetry item before passing to Track*
+var request = new RequestTelemetry("GET /api/orders", DateTimeOffset.Now, TimeSpan.FromMilliseconds(150), "200", true);
+request.Context.User.Id = "specific-user";
+request.Context.User.UserAgent = "CustomAgent/2.0";
+request.Context.Session.Id = "specific-session";
+client.TrackRequest(request);
+
+// Log-based: set context on the telemetry item before passing to Track*
+var trace = new TraceTelemetry("Processing order");
+trace.Context.User.Id = "specific-user";
+trace.Context.Operation.Name = "OrderProcessing";
+client.TrackTrace(trace);
 ```
 
 ## Changes to ApplicationInsightsServiceOptions

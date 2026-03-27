@@ -146,8 +146,6 @@ Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext.Authentic
 Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext.AuthenticatedUserId.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext.Id.get -> string
 Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext.Id.set -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext.UserAgent.get -> string
-Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext.UserAgent.set -> void
 Microsoft.ApplicationInsights.Extensibility.IOperationHolder<T>
 Microsoft.ApplicationInsights.Extensibility.IOperationHolder<T>.Telemetry.get -> T
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration

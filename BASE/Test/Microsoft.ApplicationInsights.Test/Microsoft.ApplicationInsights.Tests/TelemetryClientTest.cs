@@ -2131,7 +2131,7 @@ namespace Microsoft.ApplicationInsights
         }
 
         [Fact]
-        public void TrackDependency_UserAgent_DoesNotMapToUserAgentOriginal()
+        public void TrackDependency_UserAgent_MapsToUserAgentOriginal()
         {
             // Arrange
             var dependency = new DependencyTelemetry
@@ -2147,14 +2147,14 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.TrackDependency(dependency);
             this.telemetryClient.Flush();
 
-            // Assert - UserAgent should NOT be mapped for non-request telemetry
+            // Assert - UserAgent is mapped for all activity-based telemetry
             Assert.Equal(1, this.activityItems.Count);
             var activity = this.activityItems[0];
-            Assert.False(activity.Tags.Any(t => t.Key == "user_agent.original"));
+            Assert.True(activity.Tags.Any(t => t.Key == "user_agent.original" && t.Value == "TestAgent/1.0"));
         }
 
         [Fact]
-        public void TrackEvent_UserAgent_DoesNotMapToUserAgentOriginal()
+        public void TrackEvent_UserAgent_MapsToUserAgentOriginal()
         {
             // Arrange
             var eventTelemetry = new EventTelemetry("TestEvent");
@@ -2164,11 +2164,11 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient.TrackEvent(eventTelemetry);
             this.telemetryClient.Flush();
 
-            // Assert - UserAgent should NOT be mapped for events
+            // Assert - UserAgent is mapped for all telemetry types
             var logRecord = this.logItems.FirstOrDefault(l => l.Attributes != null && l.Attributes.Any(a => a.Key == "microsoft.custom_event.name"));
             Assert.NotNull(logRecord);
             var attributes = logRecord.Attributes.ToDictionary(a => a.Key, a => a.Value?.ToString());
-            Assert.False(attributes.ContainsKey("user_agent.original"));
+            Assert.Equal("TestAgent/2.0", attributes["user_agent.original"]);
         }
 
         [Fact]
@@ -2213,6 +2213,20 @@ namespace Microsoft.ApplicationInsights
             {
                 Environment.SetEnvironmentVariable("APPLICATIONINSIGHTS_CLOUD_ROLE_NAME", null);
                 Environment.SetEnvironmentVariable("APPLICATIONINSIGHTS_CLOUD_ROLE_INSTANCE", null);
+            }
+        }
+
+        [Fact]
+        public void ComponentContextVersionSetsEnvironmentVariable()
+        {
+            try
+            {
+                this.telemetryClient.Context.Component.Version = "1.2.3";
+                Assert.Equal("1.2.3", Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_COMPONENT_VERSION"));
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable("APPLICATIONINSIGHTS_COMPONENT_VERSION", null);
             }
         }
 

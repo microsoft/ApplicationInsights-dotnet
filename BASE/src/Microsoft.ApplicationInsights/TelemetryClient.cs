@@ -14,6 +14,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Internal;
     using Microsoft.ApplicationInsights.Metrics;
+    using Microsoft.ApplicationInsights.Processors;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using OpenTelemetry;
@@ -54,13 +55,19 @@
             // Use the shared ActivitySource from configuration
             this.activitySource = configuration.ApplicationInsightsActivitySource;
 
-            // Apply CloudContext to Resource if set
-            this.ApplyCloudContextToResource();
-
-            // For non-DI scenarios: Build SDK eagerly to ensure TracerProvider is ready
-            // For DI scenarios: SDK will be built by configuration when accessed
+            // For non-DI scenarios: Register context processors and build SDK eagerly
+            // For DI scenarios: SDK will be built by configuration when accessed;
+            // processors are registered via UseApplicationInsightsTelemetry() in NETCORE
             if (!isFromDependencyInjection)
             {
+                // Prepend context processors so they run BEFORE any user-registered exporters.
+                // This ensures LogRecords/Activities are enriched with context tags before export.
+                configuration.PrependOpenTelemetryBuilderConfiguration(builder =>
+                {
+                    builder.WithTracing(tracing => tracing.AddProcessor(new TelemetryContextActivityProcessor(this.Context)));
+                    builder.WithLogging(logging => logging.AddProcessor(new TelemetryContextLogProcessor(this.Context)));
+                });
+
                 this.sdk = configuration.Build();
             }
 
@@ -129,12 +136,6 @@
         }
 
         /// <summary>
-        /// Gets the context tags built from TelemetryClient.Context public properties.
-        /// Computed fresh on each access to reflect the latest Context values.
-        /// </summary>
-        internal IReadOnlyDictionary<string, string> ContextTags => this.BuildContextTags();
-
-        /// <summary>
         /// Check to determine if the tracking is enabled.
         /// </summary>
         public bool IsEnabled()
@@ -161,7 +162,7 @@
 
             var mergedProperties = EnsureMutable(properties);
             mergedProperties["microsoft.custom_event.name"] = eventName;
-            var state = new DictionaryLogState(this.Context, this.ContextTags, mergedProperties, String.Empty);
+            var state = new DictionaryLogState(mergedProperties, String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -188,7 +189,7 @@
             // Map item-level context properties to semantic conventions
             ApplyContextToProperties(telemetry.Context, mergedProperties);
 
-            var state = new DictionaryLogState(telemetry.Context, this.ContextTags, mergedProperties, String.Empty);
+            var state = new DictionaryLogState(telemetry.Context, mergedProperties, String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -267,7 +268,7 @@
             // Map item-level context properties to semantic conventions
             ApplyContextToProperties(telemetry.Context, properties);
 
-            var state = new DictionaryLogState(telemetry.Context, this.ContextTags, properties, telemetry.Message ?? String.Empty);
+            var state = new DictionaryLogState(telemetry.Context, properties, telemetry.Message ?? String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -281,7 +282,7 @@
         public void TrackTrace(string message)
         {
             this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
-            var state = new DictionaryLogState(this.Context, this.ContextTags, null, message);
+            var state = new DictionaryLogState(null, message);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -297,7 +298,7 @@
         {
             this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
             LogLevel logLevel = GetLogLevel(severityLevel);
-            var state = new DictionaryLogState(this.Context, this.ContextTags, null, message);
+            var state = new DictionaryLogState(null, message);
             this.Logger.Log(logLevel, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -312,7 +313,7 @@
         public void TrackTrace(string message, IDictionary<string, string> properties)
         {
             this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
-            var state = new DictionaryLogState(this.Context, this.ContextTags, properties, message);
+            var state = new DictionaryLogState(properties, message);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -329,7 +330,7 @@
         {
             this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
             LogLevel logLevel = GetLogLevel(severityLevel);
-            var state = new DictionaryLogState(this.Context, this.ContextTags, properties, message);
+            var state = new DictionaryLogState(properties, message);
             this.Logger.Log(logLevel, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -364,7 +365,7 @@
             ApplyContextToProperties(telemetry.Context, mergedProperties);
 
             LogLevel logLevel = GetLogLevel(telemetry.SeverityLevel.Value);
-            var state = new DictionaryLogState(telemetry.Context, this.ContextTags, mergedProperties, telemetry.Message);
+            var state = new DictionaryLogState(telemetry.Context, mergedProperties, telemetry.Message);
             this.Logger.Log(logLevel, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -385,22 +386,10 @@
             // Get or create histogram for this metric
             var histogram = this.Configuration.MetricsManager.GetOrCreateHistogram(name, null);
 
-            // Merge: client context tags + GlobalProperties (lowest) → caller properties (highest)
-            var allTags = this.BuildBaseMetricTags();
-
-            // Caller-provided properties (highest priority)
-            if (properties != null)
-            {
-                foreach (var kvp in properties)
-                {
-                    allTags[kvp.Key] = kvp.Value;
-                }
-            }
-
-            if (allTags.Count > 0)
+            if (properties != null && properties.Count > 0)
             {
                 var tags = new TagList();
-                foreach (var kvp in allTags)
+                foreach (var kvp in properties)
                 {
                     tags.Add(kvp.Key, kvp.Value);
                 }
@@ -436,34 +425,10 @@
                 telemetry.Name,
                 telemetry.MetricNamespace);
 
-            // Merge: client context tags + GlobalProperties (lowest) → item layers (highest)
-            var allTags = this.BuildBaseMetricTags();
-
-            // 3. GlobalProperties from item context
-            if (telemetry.Context?.GlobalPropertiesValue != null)
-            {
-                foreach (var property in telemetry.Context.GlobalPropertiesValue)
-                {
-                    allTags[property.Key] = property.Value;
-                }
-            }
-
-            // 4. Item custom properties
-            if (telemetry.Properties != null)
-            {
-                foreach (var kvp in telemetry.Properties)
-                {
-                    allTags[kvp.Key] = kvp.Value;
-                }
-            }
-
-            // 5. Item-level context (highest priority)
-            ApplyContextToProperties(telemetry.Context, allTags);
-
-            if (allTags.Count > 0)
+            if (telemetry.Properties != null && telemetry.Properties.Count > 0)
             {
                 var tags = new TagList();
-                foreach (var kvp in allTags)
+                foreach (var kvp in telemetry.Properties)
                 {
                     tags.Add(kvp.Key, kvp.Value);
                 }
@@ -492,7 +457,7 @@
                 exception = new InvalidOperationException(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
             }
 
-            var state = new DictionaryLogState(this.Context, this.ContextTags, properties, exception.Message);
+            var state = new DictionaryLogState(properties, exception.Message);
             this.Logger.Log(LogLevel.Error, 0, state, exception, (s, ex) => s.Message);
         }
 
@@ -519,7 +484,7 @@
             var mergedProperties = EnsureMutable(telemetry.Properties);
             ApplyContextToProperties(telemetry.Context, mergedProperties);
 
-            var state = new DictionaryLogState(telemetry.Context, this.ContextTags, mergedProperties, reconstructedException.Message);
+            var state = new DictionaryLogState(telemetry.Context, mergedProperties, reconstructedException.Message);
             var logLevel = GetLogLevel(telemetry.SeverityLevel ?? SeverityLevel.Error);
             this.Logger.Log(logLevel, 0, state, reconstructedException, (s, ex) => s.Message);
         }
@@ -647,24 +612,9 @@
                         dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMicrosoftDependencyResultCode, telemetry.ResultCode);
                     }
 
-                    // Apply client-level context tags (lowest priority — applied first so higher layers override)
-                    foreach (var tag in this.ContextTags)
-                    {
-                        dependencyTelemetryActivity.SetTag(tag.Key, tag.Value);
-                    }
-
                     if (!string.IsNullOrEmpty(telemetry.Context?.Operation?.Name))
                     {
                         dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMicrosoftOperationName, telemetry.Context.Operation.Name);
-                    }
-
-                    // Add GlobalProperties first (lower priority)
-                    if (this.Context?.GlobalPropertiesValue != null)
-                    {
-                        foreach (var property in this.Context.GlobalPropertiesValue)
-                        {
-                            dependencyTelemetryActivity.SetTag(property.Key, property.Value);
-                        }
                     }
 
                     // Add telemetry context GlobalProperties
@@ -831,24 +781,9 @@
                         activity.SetTag(SemanticConventions.AttributeMicrosoftRequestResultCode, request.ResponseCode);
                     }
 
-                    // Apply client-level context tags (lowest priority — applied first so higher layers override)
-                    foreach (var tag in this.ContextTags)
-                    {
-                        activity.SetTag(tag.Key, tag.Value);
-                    }
-
                     if (!string.IsNullOrEmpty(request.Context?.Operation?.Name))
                     {
                         activity.SetTag(SemanticConventions.AttributeMicrosoftOperationName, request.Context.Operation.Name);
-                    }
-
-                    // Add GlobalProperties first (lower priority)
-                    if (this.Context?.GlobalPropertiesValue != null)
-                    {
-                        foreach (var property in this.Context.GlobalPropertiesValue)
-                        {
-                            activity.SetTag(property.Key, property.Value);
-                        }
                     }
 
                     // Add request context GlobalProperties
@@ -1161,33 +1096,6 @@
             return new Metric(this, metricIdentifier.MetricId, metricIdentifier.MetricNamespace, dimensionNames);
         }
 
-        /// <summary>
-        /// Builds a dictionary of metric tags by merging client-level context tags and GlobalProperties.
-        /// Context tags have lowest priority; GlobalProperties override them.
-        /// Used by both <see cref="TrackMetric(string, double, IDictionary{string, string})"/> and <see cref="Metric"/> to avoid duplicating merge logic.
-        /// </summary>
-        internal Dictionary<string, string> BuildBaseMetricTags()
-        {
-            var allTags = new Dictionary<string, string>();
-
-            // 1. Client-level context tags (lowest priority)
-            foreach (var tag in this.ContextTags)
-            {
-                allTags[tag.Key] = tag.Value;
-            }
-
-            // 2. GlobalProperties from client context
-            if (this.Context.GlobalPropertiesValue != null)
-            {
-                foreach (var property in this.Context.GlobalPropertiesValue)
-                {
-                    allTags[property.Key] = property.Value;
-                }
-            }
-
-            return allTags;
-        }
-
         private static LogLevel GetLogLevel(SeverityLevel severityLevel)
         {
             return severityLevel switch
@@ -1451,11 +1359,6 @@
                 activity.SetTag(SemanticConventions.AttributeEnduserId, context.User.AuthenticatedUserId);
             }
 
-            if (!string.IsNullOrEmpty(context.User?.UserAgent))
-            {
-                activity.SetTag(SemanticConventions.AttributeUserAgentOriginal, context.User.UserAgent);
-            }
-
             if (!string.IsNullOrEmpty(context.Operation?.Name))
             {
                 activity.SetTag(SemanticConventions.AttributeMicrosoftOperationName, context.Operation.Name);
@@ -1464,6 +1367,46 @@
             if (!string.IsNullOrEmpty(context.Location?.Ip))
             {
                 activity.SetTag(SemanticConventions.AttributeMicrosoftClientIp, context.Location.Ip);
+            }
+
+            if (!string.IsNullOrEmpty(context.Session?.Id))
+            {
+                activity.SetTag(SemanticConventions.AttributeMicrosoftSessionId, context.Session.Id);
+            }
+
+            if (!string.IsNullOrEmpty(context.Device?.Id))
+            {
+                activity.SetTag(SemanticConventions.AttributeAiDeviceId, context.Device.Id);
+            }
+
+            if (!string.IsNullOrEmpty(context.Device?.Model))
+            {
+                activity.SetTag(SemanticConventions.AttributeAiDeviceModel, context.Device.Model);
+            }
+
+            if (!string.IsNullOrEmpty(context.Device?.Type))
+            {
+                activity.SetTag(SemanticConventions.AttributeAiDeviceType, context.Device.Type);
+            }
+
+            if (!string.IsNullOrEmpty(context.Device?.OperatingSystem))
+            {
+                activity.SetTag(SemanticConventions.AttributeAiDeviceOsVersion, context.Device.OperatingSystem);
+            }
+
+            if (!string.IsNullOrEmpty(context.Operation?.SyntheticSource))
+            {
+                activity.SetTag(SemanticConventions.AttributeMicrosoftSyntheticSource, context.Operation.SyntheticSource);
+            }
+
+            if (!string.IsNullOrEmpty(context.User?.AccountId))
+            {
+                activity.SetTag(SemanticConventions.AttributeMicrosoftUserAccountId, context.User.AccountId);
+            }
+
+            if (!string.IsNullOrEmpty(context.User?.UserAgent))
+            {
+                activity.SetTag(SemanticConventions.AttributeUserAgentOriginal, context.User.UserAgent);
             }
         }
 
@@ -1489,11 +1432,6 @@
                 properties[SemanticConventions.AttributeEnduserId] = context.User.AuthenticatedUserId;
             }
 
-            if (!string.IsNullOrEmpty(context.User?.UserAgent))
-            {
-                properties[SemanticConventions.AttributeUserAgentOriginal] = context.User.UserAgent;
-            }
-
             if (!string.IsNullOrEmpty(context.Operation?.Name))
             {
                 properties[SemanticConventions.AttributeMicrosoftOperationName] = context.Operation.Name;
@@ -1503,61 +1441,46 @@
             {
                 properties[SemanticConventions.AttributeMicrosoftClientIp] = context.Location.Ip;
             }
-        }
 
-        /// <summary>
-        /// Applies CloudContext (RoleName/RoleInstance) and ComponentContext (Version) to the OpenTelemetry Resource if set.
-        /// </summary>
-        private void ApplyCloudContextToResource()
-        {
-            var roleName = this.Context.Cloud.RoleName;
-            var roleInstance = this.Context.Cloud.RoleInstance;
-            var componentVersion = this.Context.Component.Version;
-
-            if (!string.IsNullOrEmpty(roleName) || !string.IsNullOrEmpty(roleInstance) || !string.IsNullOrEmpty(componentVersion))
+            if (!string.IsNullOrEmpty(context.Session?.Id))
             {
-                this.Configuration.SetCloudRole(
-                    serviceName: roleName,
-                    serviceInstanceId: roleInstance,
-                    serviceVersion: componentVersion);
-            }
-        }
-
-        /// <summary>
-        /// Builds a dictionary of context tags from public TelemetryClient.Context properties.
-        /// Computed fresh on each call to reflect the latest Context values.
-        /// Only includes properties that are not null or empty.
-        /// </summary>
-        private Dictionary<string, string> BuildContextTags()
-        {
-            var tags = new Dictionary<string, string>();
-
-            if (!string.IsNullOrEmpty(this.Context.User?.Id))
-            {
-                tags[SemanticConventions.AttributeEnduserPseudoId] = this.Context.User.Id;
+                properties[SemanticConventions.AttributeMicrosoftSessionId] = context.Session.Id;
             }
 
-            if (!string.IsNullOrEmpty(this.Context.User?.AuthenticatedUserId))
+            if (!string.IsNullOrEmpty(context.Device?.Id))
             {
-                tags[SemanticConventions.AttributeEnduserId] = this.Context.User.AuthenticatedUserId;
+                properties[SemanticConventions.AttributeAiDeviceId] = context.Device.Id;
             }
 
-            if (!string.IsNullOrEmpty(this.Context.User?.UserAgent))
+            if (!string.IsNullOrEmpty(context.Device?.Model))
             {
-                tags[SemanticConventions.AttributeUserAgentOriginal] = this.Context.User.UserAgent;
+                properties[SemanticConventions.AttributeAiDeviceModel] = context.Device.Model;
             }
 
-            if (!string.IsNullOrEmpty(this.Context.Operation?.Name))
+            if (!string.IsNullOrEmpty(context.Device?.Type))
             {
-                tags[SemanticConventions.AttributeMicrosoftOperationName] = this.Context.Operation.Name;
+                properties[SemanticConventions.AttributeAiDeviceType] = context.Device.Type;
             }
 
-            if (!string.IsNullOrEmpty(this.Context.Location?.Ip))
+            if (!string.IsNullOrEmpty(context.Device?.OperatingSystem))
             {
-                tags[SemanticConventions.AttributeMicrosoftClientIp] = this.Context.Location.Ip;
+                properties[SemanticConventions.AttributeAiDeviceOsVersion] = context.Device.OperatingSystem;
             }
 
-            return tags;
+            if (!string.IsNullOrEmpty(context.Operation?.SyntheticSource))
+            {
+                properties[SemanticConventions.AttributeMicrosoftSyntheticSource] = context.Operation.SyntheticSource;
+            }
+
+            if (!string.IsNullOrEmpty(context.User?.AccountId))
+            {
+                properties[SemanticConventions.AttributeMicrosoftUserAccountId] = context.User.AccountId;
+            }
+
+            if (!string.IsNullOrEmpty(context.User?.UserAgent))
+            {
+                properties[SemanticConventions.AttributeUserAgentOriginal] = context.User.UserAgent;
+            }
         }
 
         private readonly struct DictionaryLogState : IReadOnlyList<KeyValuePair<string, object>>
@@ -1587,29 +1510,20 @@
             }
 
             /// <summary>
-            /// Constructor that merges TelemetryContext.GlobalProperties with client-level context tags and item-level properties.
+            /// Constructor that merges TelemetryContext.GlobalProperties with item-level properties.
+            /// Client-level context tags are handled by <see cref="Processors.TelemetryContextLogProcessor"/>.
             /// </summary>
             /// <param name="context">The telemetry context containing GlobalProperties.</param>
-            /// <param name="clientContextTags">Client-level cached context tags (lowest priority).</param>
-            /// <param name="properties">Item-level properties (highest priority, override all).</param>
+            /// <param name="properties">Item-level properties (highest priority, override GlobalProperties).</param>
             /// <param name="message">The log message.</param>
-            public DictionaryLogState(TelemetryContext context, IReadOnlyDictionary<string, string> clientContextTags, IDictionary<string, string> properties, string message)
+            public DictionaryLogState(TelemetryContext context, IDictionary<string, string> properties, string message)
             {
                 this.Message = message ?? string.Empty;
 
-                // Merge in priority order: clientContextTags (lowest) -> GlobalProperties -> properties (highest)
+                // Merge in priority order: GlobalProperties (lower) -> properties (higher)
                 var allProperties = new Dictionary<string, string>();
 
-                // 1. Client-level cached context tags (lowest priority)
-                if (clientContextTags != null)
-                {
-                    foreach (var kvp in clientContextTags)
-                    {
-                        allProperties[kvp.Key] = kvp.Value;
-                    }
-                }
-
-                // 2. GlobalProperties from context (override client-level)
+                // 1. GlobalProperties from context
                 if (context?.GlobalProperties != null)
                 {
                     foreach (var kvp in context.GlobalProperties)
@@ -1618,12 +1532,12 @@
                     }
                 }
 
-                // 3. Item-level properties (highest priority, override all)
+                // 2. Item-level properties (highest priority, override GlobalProperties)
                 if (properties != null)
                 {
                     foreach (var kvp in properties)
                     {
-                        allProperties[kvp.Key] = kvp.Value; // Properties override everything
+                        allProperties[kvp.Key] = kvp.Value;
                     }
                 }
 

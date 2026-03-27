@@ -314,6 +314,23 @@
         }
 
         /// <summary>
+        /// Prepends a configuration action so it runs before any user-registered configuration.
+        /// This ensures that enrichment processors (e.g., TelemetryContextLogProcessor) execute
+        /// before export processors, regardless of the order users call ConfigureOpenTelemetryBuilder.
+        /// </summary>
+        internal void PrependOpenTelemetryBuilderConfiguration(Action<IOpenTelemetryBuilder> configure)
+        {
+            this.ThrowIfBuilt();
+
+            var previousConfiguration = this.builderConfiguration;
+            this.builderConfiguration = builder =>
+            {
+                configure(builder);
+                previousConfiguration(builder);
+            };
+        }
+
+        /// <summary>
         /// Sets the cloud role name and role instance for telemetry.
         /// This configures the OpenTelemetry Resource with service.name, service.namespace, service.instance.id, and service.version attributes
         /// which map to Cloud.RoleName, Cloud.RoleInstance, and Application.Ver in Application Insights.
