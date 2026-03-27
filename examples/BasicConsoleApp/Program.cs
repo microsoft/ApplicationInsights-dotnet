@@ -19,7 +19,7 @@
         {
 
             var telemetryConfig = TelemetryConfiguration.CreateDefault();
-            telemetryConfig.ConnectionString = "InstrumentationKey=cfd11a0c-b911-4de5-885d-659e2317e020;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/;LiveEndpoint=https://westus2.livediagnostics.monitor.azure.com/;ApplicationId=50c16cf6-ec05-41ce-a7e7-c377548d53ef";
+            telemetryConfig.ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000";
             telemetryConfig.SamplingRatio = 1.0f; // Set to 100% for testing; adjust as needed for production
 
             telemetryConfig.ConfigureOpenTelemetryBuilder(builder => builder.WithTracing(tracing => tracing.AddSource("MyCompany.MyProduct.MyLibrary").AddConsoleExporter())
