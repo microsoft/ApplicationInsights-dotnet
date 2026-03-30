@@ -15,15 +15,15 @@
   <!-- 
     ==============================================================================
     OPENTELEMETRY PACKAGES
-    Core packages using stable version 1.15.0 with some RC/Beta components
+    Core packages using stable version 1.15.1 with some RC/Beta components
     ==============================================================================
   -->
 
-  <ItemGroup Label="OpenTelemetry - Core (Stable 1.15.0)">
-    <PackageVersion Include="OpenTelemetry" Version="1.15.0" />
-    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.15.0" />
-    <PackageVersion Include="OpenTelemetry.Exporter.InMemory" Version="1.15.0" />
-    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.15.0" />
+  <ItemGroup Label="OpenTelemetry - Core (Stable 1.15.1)">
+    <PackageVersion Include="OpenTelemetry" Version="1.15.1" />
+    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.15.1" />
+    <PackageVersion Include="OpenTelemetry.Exporter.InMemory" Version="1.15.1" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.15.1" />
   </ItemGroup>
 
   <ItemGroup Label="OpenTelemetry - Instrumentation">
@@ -40,22 +40,22 @@
   -->
 
   <ItemGroup Label="Azure Monitor">
-    <PackageVersion Include="Azure.Monitor.OpenTelemetry.Exporter" Version="1.6.0" />
+    <PackageVersion Include="Azure.Monitor.OpenTelemetry.Exporter" Version="1.7.0" />
   </ItemGroup>
 
   <!-- 
     ==============================================================================
     MICROSOFT.EXTENSIONS PACKAGES
-    Using consistent 10.0.2 for .NET 8.0/9.0/10.0 targets
+    Most packages on 10.0.2; Microsoft.Extensions.Options on 10.0.3 (required by Azure Monitor Exporter 1.7.0)
     ==============================================================================
   -->
 
-  <ItemGroup Label="Microsoft.Extensions (10.0.2)">
+  <ItemGroup Label="Microsoft.Extensions (10.0.x)">
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.2" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.2" />
-    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.3" />
   </ItemGroup>
 
   <!-- 
@@ -96,7 +96,7 @@
   -->
 
   <ItemGroup Label="System">
-    <PackageVersion Include="System.Diagnostics.DiagnosticSource" Version="10.0.2" />
+    <PackageVersion Include="System.Diagnostics.DiagnosticSource" Version="10.0.3" />
   </ItemGroup>
 
   <!-- 

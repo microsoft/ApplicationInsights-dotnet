@@ -23,6 +23,17 @@ Select the option that best describes your situation:
 
 We've gathered a list of concepts [here](docs/concepts.md).
 
+## AI-Assisted Setup
+
+The [`skills/applicationinsights-setup/`](skills/applicationinsights-setup/) folder contains a portable AI skill that guides developers through setting up, migrating, or enhancing Application Insights. It works with Claude Code, Cursor, GitHub Copilot, Codex, and other AI coding agents.
+
+**Quick install (Claude Code):**
+```bash
+cp -r skills/applicationinsights-setup ~/.claude/skills/
+```
+
+Then ask your agent: *"Add Application Insights to my app"* — it will detect your app type and provide step-by-step guidance. See [AGENTS.md](AGENTS.md) for installation instructions for other agents.
+
 ## Contributing
 
 We strongly welcome and encourage contributions to this project.
