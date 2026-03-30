@@ -21,8 +21,8 @@
 
   <ItemGroup Label="OpenTelemetry - Core (Stable 1.15.1)">
     <PackageVersion Include="OpenTelemetry" Version="1.15.1" />
-    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.15.0" />
-    <PackageVersion Include="OpenTelemetry.Exporter.InMemory" Version="1.15.0" />
+    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.15.1" />
+    <PackageVersion Include="OpenTelemetry.Exporter.InMemory" Version="1.15.1" />
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.15.1" />
   </ItemGroup>
 
