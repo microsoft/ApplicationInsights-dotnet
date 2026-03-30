@@ -21,9 +21,6 @@
             this._logger = logger;
             this._telemetryClient = telemetryClient;
             telemetryClient.Context.User.Id = "TestUserId";
-            telemetryClient.Context.Cloud.RoleName = "TestRoleName";
-            telemetryClient.Context.Cloud.RoleInstance = "TestRoleInstance";
-            telemetryClient.Context.Component.Version = "2.0.0";
             telemetryClient.Context.User.UserAgent = "curl/8.0";
 
             // In a real app, you wouldn't need the TelemetryConfiguration here.

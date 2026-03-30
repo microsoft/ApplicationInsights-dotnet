@@ -549,7 +549,7 @@ namespace Microsoft.ApplicationInsights.Processors
                 }
             }
 
-            Assert.Fail($"Attribute '{key}' not found in log record.");
+            Assert.True(false, $"Attribute '{key}' not found in log record.");
         }
 
         private static void ForceWarmupComplete(TelemetryContextLogProcessor processor)
