@@ -77,6 +77,22 @@
         }
 
         /// <summary>
+        /// Gets the object describing the cloud tracked by this <see cref="TelemetryContext"/>.
+        /// </summary>
+        public CloudContext Cloud
+        {
+            get { return LazyInitializer.EnsureInitialized(ref this.cloud, () => new CloudContext()); }
+        }
+
+        /// <summary>
+        /// Gets the object describing the component tracked by this <see cref="TelemetryContext"/>.
+        /// </summary>
+        public ComponentContext Component
+        {
+            get { return LazyInitializer.EnsureInitialized(ref this.component, () => new ComponentContext()); }
+        }
+
+        /// <summary>
         /// Gets the object describing the device tracked by this <see cref="TelemetryContext"/>.
         /// </summary>
         public DeviceContext Device
@@ -90,22 +106,6 @@
         public SessionContext Session
         {
             get { return LazyInitializer.EnsureInitialized(ref this.session, () => new SessionContext()); }
-        }
-
-        /// <summary>
-        /// Gets the object describing the component tracked by this <see cref="TelemetryContext"/>.
-        /// </summary>
-        public ComponentContext Component
-        {
-            get { return LazyInitializer.EnsureInitialized(ref this.component, () => new ComponentContext()); }
-        }
-
-        /// <summary>
-        /// Gets the object describing the cloud tracked by this <see cref="TelemetryContext"/>.
-        /// </summary>
-        public CloudContext Cloud
-        {
-            get { return LazyInitializer.EnsureInitialized(ref this.cloud, () => new CloudContext()); }
         }
     }
 }

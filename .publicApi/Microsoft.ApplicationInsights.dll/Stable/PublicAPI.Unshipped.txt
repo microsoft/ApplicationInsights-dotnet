@@ -16,8 +16,6 @@ Microsoft.ApplicationInsights.Extensibility.Implementation.SessionContext.Id.get
 Microsoft.ApplicationInsights.Extensibility.Implementation.SessionContext.Id.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext.AccountId.get -> string
 Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext.AccountId.set -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext.UserAgent.get -> string
-Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext.UserAgent.set -> void
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Component.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.ComponentContext
 Microsoft.ApplicationInsights.Extensibility.Implementation.ComponentContext
 Microsoft.ApplicationInsights.Extensibility.Implementation.ComponentContext.Version.get -> string
