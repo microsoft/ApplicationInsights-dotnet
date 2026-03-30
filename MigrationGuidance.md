@@ -503,6 +503,76 @@ builder.Services.AddApplicationInsightsTelemetryWorkerService(options =>
 }
 ```
 
+## Autocollected Metrics
+In 3.x, the SDK automatically collects HTTP server and client metrics using built-in .NET runtime meters on .NET 8.0+ and via OpenTelemetry instrumentation on .NET 7.0 and below. The specific meters or instrumentation registered depend on the target runtime and package:
+
+### Microsoft.ApplicationInsights.AspNetCore
+| Meter | Instruments | Runtime |
+|---|---|---|
+| `Microsoft.AspNetCore.Hosting` | `http.server.request.duration`, `http.server.active_requests` | .NET 8.0+ |
+| `System.Net.Http` | `http.client.request.duration`, `http.client.active_requests`, `http.client.open_connections`, `http.client.connection.duration`, `http.client.request.time_in_queue`, `dns.lookup.duration` | .NET 8.0+ |
+
+On .NET 7.0 and below, equivalent metrics are collected via [OpenTelemetry ASP.NET Core Instrumentation](https://github.com/open-telemetry/opentelemetry-dotnet-contrib/tree/main/src/OpenTelemetry.Instrumentation.AspNetCore/README.md#list-of-metrics-produced) and [OpenTelemetry HTTP Client Instrumentation](https://github.com/open-telemetry/opentelemetry-dotnet-contrib/blob/main/src/OpenTelemetry.Instrumentation.Http/README.md#list-of-metrics-produced).
+
+For a full list of instruments, see the .NET documentation for [Microsoft.AspNetCore.Hosting](https://learn.microsoft.com/dotnet/core/diagnostics/built-in-metrics-aspnetcore#microsoftaspnetcorehosting) and [System.Net.Http](https://learn.microsoft.com/dotnet/core/diagnostics/built-in-metrics-system-net#systemnethttp).
+
+### Microsoft.ApplicationInsights.WorkerService
+| Meter | Instruments | Runtime |
+|---|---|---|
+| `System.Net.Http` | `http.client.request.duration`, `http.client.active_requests`, `http.client.open_connections`, `http.client.connection.duration`, `http.client.request.time_in_queue`, `dns.lookup.duration` | .NET 8.0+ |
+
+WorkerService does not collect server metrics since there is no HTTP server in a worker context.
+
+### Dropping Autocollected Metrics
+If these metrics are not needed or are contributing to data volume concerns, they can be dropped using [OpenTelemetry Views](https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/docs/metrics/customizing-the-sdk#drop-an-instrument).
+
+**Drop all `System.Net.Http` (HTTP client) metrics:**
+```csharp
+builder.Services.ConfigureOpenTelemetryMeterProvider((sp, meterBuilder) =>
+{
+    meterBuilder.AddView(
+        instrument => instrument.Meter.Name == "System.Net.Http"
+            ? MetricStreamConfiguration.Drop
+            : null);
+});
+```
+
+**Drop all `Microsoft.AspNetCore.Hosting` (HTTP server) metrics:**
+```csharp
+builder.Services.ConfigureOpenTelemetryMeterProvider((sp, meterBuilder) =>
+{
+    meterBuilder.AddView(
+        instrument => instrument.Meter.Name == "Microsoft.AspNetCore.Hosting"
+            ? MetricStreamConfiguration.Drop
+            : null);
+});
+```
+
+**Drop a specific instrument by name:**
+```csharp
+builder.Services.ConfigureOpenTelemetryMeterProvider((sp, meterBuilder) =>
+{
+    meterBuilder.AddView(
+        instrumentName: "http.client.request.duration",
+        MetricStreamConfiguration.Drop);
+});
+```
+## Metric Name and Namespace Conventions
+In 3.x, Application Insights uses OpenTelemetry internally to emit metrics. The `name` parameter in `TrackMetric` and the `metricId` / `metricNamespace` parameters in `GetMetric` and `MetricIdentifier` must adhere to the [OpenTelemetry Instrument Name Syntax](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/metrics/api.md#instrument-name-syntax):
+
+- Must not be null or empty.
+- Must be case-insensitive, ASCII strings.
+- The first character must be an alphabetic character (`A-Z` or `a-z`).
+- Subsequent characters must be alphanumeric (`A-Z`, `a-z`, `0-9`), `_`, `.`, `-`, or `/`.
+- Maximum length of 255 characters.
+
+This applies to:
+- `TrackMetric(string name, double value, ...)` — the `name` parameter
+- `GetMetric(string metricId, ...)` — the `metricId` parameter
+- `MetricIdentifier(string metricNamespace, string metricId, ...)` — both `metricNamespace` and `metricId` parameters
+
+If existing metric names contain characters not permitted by this syntax (e.g., spaces, `$`, `#`, etc.), they must be renamed before migrating to 3.x.
+
 ## Appendix
 ### QuickPulse Configuration
 This section describes configuration related to quickpulse:
