@@ -48,9 +48,5 @@
     <AppxPackageDir>$(OutputPath)</AppxPackageDir>
 
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(EnlistmentRoot)\</SolutionDir>
-
-    <!-- Forces EventRegister target to generate ETW manifest file -->
-    <EtwManifestForceAll Condition="$(OS) == 'Windows_NT'">true</EtwManifestForceAll>
-    <EtwManifestOutDir>$(BinRoot)\$(Configuration)\ETW\$(TargetFramework)\</EtwManifestOutDir>
   </PropertyGroup>
 </Project>
