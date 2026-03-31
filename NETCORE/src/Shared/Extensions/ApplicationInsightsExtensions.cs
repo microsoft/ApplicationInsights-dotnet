@@ -19,6 +19,7 @@
 #endif
 
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
 
@@ -91,6 +92,14 @@
         private static void AddTelemetryConfigAndClient(IServiceCollection services, string extensionVersion)
         {
             services.AddOptions();
+
+            // Insert a hosted service at position 0 so it runs BEFORE OpenTelemetry's TelemetryHostedService.
+            // This ensures TelemetryConfiguration.DisableTelemetry is evaluated and OTEL_SDK_DISABLED is set
+            // in IConfiguration before the OTel SDK constructs its providers (which check OTEL_SDK_DISABLED).
+            if (!services.Any(d => d.ServiceType == typeof(IHostedService) && d.ImplementationType == typeof(DisableTelemetryInitializerHostedService)))
+            {
+                services.Insert(0, ServiceDescriptor.Singleton<IHostedService, DisableTelemetryInitializerHostedService>());
+            }
             
             // Register TelemetryConfiguration singleton with factory that creates it for DI scenarios
             // We use a factory to ensure skipDefaultBuilderConfiguration: true is passed
