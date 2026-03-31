@@ -20,6 +20,7 @@
 
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Logging.Abstractions;
     using Microsoft.Extensions.Options;
 
     /// <summary>
@@ -91,6 +92,17 @@
         private static void AddTelemetryConfigAndClient(IServiceCollection services, string extensionVersion)
         {
             services.AddOptions();
+
+            // Register a no-op ILoggerProvider at position 0 that depends on TelemetryConfiguration.
+            // ILoggerFactory resolves all ILoggerProvider instances in registration order during host
+            // construction. By inserting this first, TelemetryConfiguration is resolved (which sets
+            // OTEL_SDK_DISABLED in IConfiguration) before OpenTelemetry's LoggerProvider factory runs.
+            // Without this, LoggerProvider checks IConfiguration before OTEL_SDK_DISABLED is set.
+            services.Insert(0, ServiceDescriptor.Singleton<ILoggerProvider>(sp =>
+            {
+                _ = sp.GetRequiredService<TelemetryConfiguration>();
+                return NullLoggerProvider.Instance;
+            }));
 
             // Register TelemetryConfiguration singleton with factory that creates it for DI scenarios
             // We use a factory to ensure skipDefaultBuilderConfiguration: true is passed
