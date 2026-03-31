@@ -19,7 +19,8 @@
         {
 
             var telemetryConfig = TelemetryConfiguration.CreateDefault();
-            telemetryConfig.ConnectionString = "";
+            telemetryConfig.ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000";
+            telemetryConfig.SamplingRatio = 1.0f; // Set to 100% for testing; adjust as needed for production
 
             telemetryConfig.ConfigureOpenTelemetryBuilder(builder => builder.WithTracing(tracing => tracing.AddSource("MyCompany.MyProduct.MyLibrary").AddConsoleExporter())
                                                                      .WithLogging(logging => logging.AddConsoleExporter())
@@ -27,6 +28,24 @@
 
             // Initialize the TelemetryClient
             var telemetryClient = new TelemetryClient(telemetryConfig);
+
+            // Set all public TelemetryContext properties to verify context tag propagation
+            telemetryClient.Context.User.Id = "test-user-123";
+            telemetryClient.Context.User.AuthenticatedUserId = "auth-user-456";
+            telemetryClient.Context.User.AccountId = "account-789";
+            telemetryClient.Context.User.UserAgent = "curl/8.0";
+            telemetryClient.Context.Session.Id = "session-abc";
+            telemetryClient.Context.Device.Id = "device-xyz";
+            telemetryClient.Context.Device.Model = "Surface Pro";
+            telemetryClient.Context.Device.Type = "PC";
+            telemetryClient.Context.Device.OperatingSystem = "Windows 11";
+            telemetryClient.Context.Operation.Name = "TestOperation";
+            telemetryClient.Context.Operation.SyntheticSource = "test-bot";
+            telemetryClient.Context.Location.Ip = "10.0.0.1";
+            telemetryClient.Context.Cloud.RoleName = "TestRole";
+            telemetryClient.Context.Cloud.RoleInstance = "TestInstance";
+            telemetryClient.Context.Component.Version = "2.0.0";
+            telemetryClient.Context.GlobalProperties["GlobalKey"] = "GlobalValue";
 
             // **The following lines are examples of tracking different telemetry types.**
 

@@ -418,66 +418,6 @@ Note: Setting an OpenTelemetry Sampler via `builder.SetSampler()` is currently u
 
 
 
-### Setting Context Properties
-
-In version 3.x, the following properties remain publicly settable on telemetry items:
-
-**Available Context Properties:**
-| Context | Properties | Notes |
-|---------|-----------|-------|
-| `User` | `Id`, `AuthenticatedUserId`, `UserAgent` | Be mindful of PII |
-| `Operation` | `Name`| |
-| `Location` | `Ip` | |
-| `GlobalProperties` | (dictionary) | Custom key-value pairs |
-
-**Example: Setting context on a telemetry item**
-
-```csharp
-var request = new RequestTelemetry
-{
-    Name = "ProcessOrder",
-    Timestamp = DateTimeOffset.UtcNow,
-    Duration = TimeSpan.FromMilliseconds(150),
-    ResponseCode = "200",
-    Success = true
-};
-
-// Set user context (be mindful of PII)
-request.Context.User.Id = userId;
-request.Context.User.AuthenticatedUserId = authenticatedUserId;
-
-// Set operation context
-request.Context.Operation.Name = "ProcessOrder";
-
-// Set location context
-request.Context.Location.Ip = clientIpAddress;
-
-// Set custom properties via GlobalProperties
-request.Context.GlobalProperties["Environment"] = "Production";
-request.Context.GlobalProperties["DataCenter"] = "WestUS";
-
-telemetryClient.TrackRequest(request);
-```
-
-**Recommended: Use OpenTelemetry Resource Attributes**
-
-For service-level context (cloud role, version, environment), the recommended approach in 3.x is to use OpenTelemetry Resource attributes, which apply to all telemetry automatically:
-
-```csharp
-configuration.ConfigureOpenTelemetryBuilder(builder =>
-{
-    builder.ConfigureResource(r => r
-        .AddService(
-            serviceName: "OrderProcessingService",       // Maps to Cloud.RoleName
-            serviceVersion: "1.2.3",                     // Maps to Application Version
-            serviceInstanceId: Environment.MachineName)  // Maps to Cloud.RoleInstance
-        .AddAttributes(new Dictionary<string, object>
-        {
-            ["deployment.environment"] = "Production"
-        }));
-});
-```
-
 ### Dependency Injection
 
 In applications using Microsoft.Extensions.DependencyInjection:

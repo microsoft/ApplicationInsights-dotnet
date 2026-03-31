@@ -32,9 +32,9 @@ namespace Microsoft.ApplicationInsights
                     new KeyValuePair<string, object>("telemetry.distro.name", "Microsoft.ApplicationInsights"),
                     new KeyValuePair<string, object>("telemetry.distro.version", VersionUtils.GetVersion(typeof(OpenTelemetryBuilderExtensions))),
                 }))
-                .WithLogging()
                 .WithMetrics(metrics => metrics.AddMeter(TelemetryConfiguration.ApplicationInsightsMeterName))
-                .WithTracing(tracing => tracing.AddSource(TelemetryConfiguration.ApplicationInsightsActivitySourceName));
+                .WithTracing(tracing => tracing.AddSource(TelemetryConfiguration.ApplicationInsightsActivitySourceName))
+                .WithLogging();
 
             // Ensure that all log severity levels (including Verbose/Debug) pass through
             // the internal LoggerFactory for the TelemetryClient category. Without this,

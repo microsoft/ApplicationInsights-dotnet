@@ -27,15 +27,6 @@
         }
 
         /// <summary>
-        /// Gets or sets the UserAgent of an application-defined account associated with the user.
-        /// </summary>
-        public string UserAgent
-        {
-            get { return string.IsNullOrEmpty(this.userAgent) ? null : this.userAgent; }
-            set { this.userAgent = value; }
-        }
-
-        /// <summary>
         /// Gets or sets the authenticated user id.
         /// Authenticated user id should be a persistent string that uniquely represents each authenticated user in the application or service.
         /// </summary>
@@ -48,10 +39,19 @@
         /// <summary>
         /// Gets or sets the ID of an application-defined account associated with the user.
         /// </summary>
-        internal string AccountId
+        public string AccountId
         {
             get { return string.IsNullOrEmpty(this.accountId) ? null : this.accountId; }
             set { this.accountId = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the UserAgent of an application-defined account associated with the user.
+        /// </summary>
+        public string UserAgent
+        {
+            get { return string.IsNullOrEmpty(this.userAgent) ? null : this.userAgent; }
+            set { this.userAgent = value; }
         }
     }
 }
