@@ -1,6 +1,5 @@
 namespace Microsoft.Extensions.DependencyInjection
 {
-    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -14,20 +13,22 @@ namespace Microsoft.Extensions.DependencyInjection
     /// </summary>
     internal sealed class DisableTelemetryInitializerHostedService : IHostedService
     {
-        private readonly IServiceProvider serviceProvider;
+        private readonly TelemetryConfiguration telemetryConfiguration;
+        private readonly IConfiguration configuration;
 
-        public DisableTelemetryInitializerHostedService(IServiceProvider serviceProvider)
+        public DisableTelemetryInitializerHostedService(
+            TelemetryConfiguration telemetryConfiguration,
+            IConfiguration configuration)
         {
-            this.serviceProvider = serviceProvider;
+            this.telemetryConfiguration = telemetryConfiguration;
+            this.configuration = configuration;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            var telemetryConfig = this.serviceProvider.GetService<TelemetryConfiguration>();
-            if (telemetryConfig != null && telemetryConfig.DisableTelemetry)
+            if (this.telemetryConfiguration.DisableTelemetry)
             {
-                var config = this.serviceProvider.GetRequiredService<IConfiguration>();
-                config["OTEL_SDK_DISABLED"] = "true";
+                this.configuration["OTEL_SDK_DISABLED"] = "true";
             }
 
             return Task.CompletedTask;
