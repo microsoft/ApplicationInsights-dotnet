@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- [Fix `DisableTelemetry` not disabling metrics export: `OTEL_SDK_DISABLED` was set in IConfiguration too late (during options callback) after the OTel MeterProvider had already been constructed. Moved the check to a hosted service that runs before OpenTelemetry's TelemetryHostedService.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3156)
 - [Fix `TrackAvailability` ignoring user-specified `Timestamp` on `AvailabilityTelemetry`. The timestamp is now emitted as `microsoft.availability.testTimestamp` so downstream exporters can use the correct event time.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3153)
 - [Added `netstandard2.0` target framework to `Microsoft.ApplicationInsights` package to support customers with shared libraries targeting netstandard2.0.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3142)
 - [Fix `TelemetryClient.Context.Cloud.RoleName` set after construction now applies to all telemetry.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3129)
