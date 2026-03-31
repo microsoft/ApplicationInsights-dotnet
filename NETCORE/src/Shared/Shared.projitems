@@ -13,7 +13,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)ApplicationVersionResourceDetector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\ApplicationInsightsExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\ApplicationInsightsServiceOptions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensions\DisableTelemetryInitializerHostedService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Internals\ApplicationNameProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\AppServiceResourceDetector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\AzureContainerAppsResourceDetector.cs" />

@@ -19,7 +19,6 @@
 #endif
 
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
 
@@ -93,14 +92,6 @@
         {
             services.AddOptions();
 
-            // Insert a hosted service at position 0 so it runs BEFORE OpenTelemetry's TelemetryHostedService.
-            // This ensures TelemetryConfiguration.DisableTelemetry is evaluated and OTEL_SDK_DISABLED is set
-            // in IConfiguration before the OTel SDK constructs its providers (which check OTEL_SDK_DISABLED).
-            if (!services.Any(d => d.ServiceType == typeof(IHostedService) && d.ImplementationType == typeof(DisableTelemetryInitializerHostedService)))
-            {
-                services.Insert(0, ServiceDescriptor.Singleton<IHostedService, DisableTelemetryInitializerHostedService>());
-            }
-            
             // Register TelemetryConfiguration singleton with factory that creates it for DI scenarios
             // We use a factory to ensure skipDefaultBuilderConfiguration: true is passed
             services.AddSingleton<TelemetryConfiguration>(provider =>
@@ -130,7 +121,18 @@
                 {
                     postConfigure.PostConfigure(Options.DefaultName, configuration);
                 }
-                
+
+                // Set OTEL_SDK_DISABLED in IConfiguration so the OTel SDK's MeterProvider/TracerProvider
+                // factories see it when they check IsOtelSdkDisabled(). This must happen here (during
+                // TelemetryConfiguration resolution) rather than in a hosted service, because the
+                // MeterProvider singleton factory can be triggered during the DI build phase
+                // (e.g., via UseAzureMonitorExporter -> options resolution) before any hosted service runs.
+                if (configuration.DisableTelemetry)
+                {
+                    var iconfig = provider.GetRequiredService<IConfiguration>();
+                    iconfig["OTEL_SDK_DISABLED"] = "true";
+                }
+
                 return configuration;
             });
             
