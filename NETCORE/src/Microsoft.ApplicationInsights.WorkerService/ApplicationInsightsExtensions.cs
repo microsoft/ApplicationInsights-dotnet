@@ -200,6 +200,12 @@
                 {
                     var serviceOptions = aiOptions.Value;
 
+                    // Set OTEL_SDK_DISABLED in configuration if DisableTelemetry is true
+                    if (telemetryConfig.DisableTelemetry)
+                    {
+                        config["OTEL_SDK_DISABLED"] = "true";
+                    }
+
                     if (!string.IsNullOrEmpty(telemetryConfig.StorageDirectory))
                     {
                         exporterOptions.StorageDirectory = telemetryConfig.StorageDirectory;
