@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## Version 3.1.0
+- [Make `TelemetryContext` properties public and propagate them via `TelemetryClient`.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3137)
+- [Add fallback to `APPLICATIONINSIGHTS_CONNECTION_STRING` environment variable for Base, Web, and NLog packages when connection string is not set via code.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3134)
+- [Update Azure.Monitor.OpenTelemetry.Exporter to 1.7.0. This includes updated mappings for telemetry context.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3154)
 - [Fix `OTEL_SDK_DISABLED` not being honored when `TelemetryConfiguration.DisableTelemetry` is set in DI scenarios.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3156), [#3157](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3157)
 - [Fix `TrackAvailability` ignoring user-specified `Timestamp` on `AvailabilityTelemetry`. The timestamp is now emitted as `microsoft.availability.testTimestamp` so downstream exporters can use the correct event time.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3153)
 - [Added `netstandard2.0` target framework to `Microsoft.ApplicationInsights` package to support customers with shared libraries targeting netstandard2.0.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3142)
