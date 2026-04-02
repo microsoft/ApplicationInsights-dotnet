@@ -133,33 +133,4 @@
             Task.Delay(5000).Wait();
         }
     }
-
-    /*internal class MyCustomTelemetryInitializer : ITelemetryInitializer
-    {
-        public void Initialize(ITelemetry telemetry)
-        {
-            // Replace with actual properties.
-            (telemetry as ISupportProperties).Properties["MyCustomKey"] = "MyCustomValue";
-        }
-    }
-
-    internal class MyCustomTelemetryProcessor : ITelemetryProcessor
-    {
-        ITelemetryProcessor next;
-            
-        public MyCustomTelemetryProcessor(ITelemetryProcessor next)
-            {
-            this.next = next;
-
-        }
-            
-        public void Process(ITelemetry item)
-        {
-            // Example: Filter out all RequestTelemetry items.
-            if (item is not RequestTelemetry)
-            {
-                this.next.Process(item);
-        }
-    }
-}*/
 }
