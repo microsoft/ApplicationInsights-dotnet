@@ -1,0 +1,77 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            // Debug a specific Web.Tests test by name (prompts for filter)
+            "name": "Debug Web.Tests (with filter)",
+            "type": "coreclr",                // dotnet test always uses CoreCLR even for net462 projects
+            "request": "launch",
+            "program": "dotnet",
+            "args": [
+                "test",
+                "${workspaceFolder}/WEB/Src/Web/Web.Tests/Web.Tests.csproj",
+                "-c", "Debug",                // Build configuration - Debug includes symbols for breakpoints
+                "--filter", "${input:testFilter}"  // Run only tests matching this filter
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",     // Output goes to Debug Console panel
+            "stopAtEntry": false,             // Don't stop at program entry point
+            "env": {
+                "VSTEST_HOST_DEBUG": "1"      // Pauses testhost.exe and waits for debugger attach
+            }
+        },
+        {
+            // Debug all Web.Tests
+            "name": "Debug Web.Tests (all)",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "dotnet",
+            "args": [
+                "test",
+                "${workspaceFolder}/WEB/Src/Web/Web.Tests/Web.Tests.csproj",
+                "-c", "Debug"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "stopAtEntry": false,
+            "env": {
+                "VSTEST_HOST_DEBUG": "1"
+            }
+        },
+        {
+            // Debug BASE tests (supports multiple frameworks)
+            "name": "Debug Base Tests (net10.0)",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "dotnet",
+            "args": [
+                "test",
+                "${workspaceFolder}/BASE/Test/Microsoft.ApplicationInsights.Test/Microsoft.ApplicationInsights.Tests/Microsoft.ApplicationInsights.Tests.csproj",
+                "-c", "Debug",
+                "-f", "net10.0",              // Target specific framework
+                "--filter", "${input:testFilter}"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "stopAtEntry": false,
+            "env": {
+                "VSTEST_HOST_DEBUG": "1"
+            }
+        },
+        {
+            // Attach to running testhost process
+            "name": "Attach to testhost",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:pickProcess}"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "testFilter",
+            "type": "promptString",
+            "description": "Enter test name filter (e.g., GetConfigurationOptions_ReturnsNull)",
+            "default": ""
+        }
+    ]
+}
