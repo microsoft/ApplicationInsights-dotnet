@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights
+namespace Microsoft.ApplicationInsights
 {
     using System;
     using System.ComponentModel;
@@ -62,7 +62,7 @@
             }
 #endif
 
-            telemetryClient.Configuration.FeatureReporter.MarkFeatureInUse(Internal.StatsbeatFeatures.StartOperation);
+            telemetryClient.Configuration.FeatureReporter?.MarkFeatureInUse(Internal.StatsbeatFeatures.StartOperation);
 
             var effectiveName = string.IsNullOrEmpty(operationName) ? typeof(T).Name : operationName;
             var kind = ResolveActivityKind<T>();
@@ -161,7 +161,7 @@
                 operationTelemetry.Name = typeof(T).Name;
             }
 
-            telemetryClient.Configuration.FeatureReporter.MarkFeatureInUse(Internal.StatsbeatFeatures.StartOperation);
+            telemetryClient.Configuration.FeatureReporter?.MarkFeatureInUse(Internal.StatsbeatFeatures.StartOperation);
 
             var kind = ResolveActivityKind<T>();
             var source = telemetryClient.TelemetryConfiguration.ApplicationInsightsActivitySource;
@@ -244,7 +244,7 @@
                 return null;
             }
 
-            telemetryClient.Configuration.FeatureReporter.MarkFeatureInUse(Internal.StatsbeatFeatures.StartOperation);
+            telemetryClient.Configuration.FeatureReporter?.MarkFeatureInUse(Internal.StatsbeatFeatures.StartOperation);
 
             // if already started activity, we just link it — not create a new one
             if (activity.Id == null)

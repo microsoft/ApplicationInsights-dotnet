@@ -61,73 +61,78 @@
                     sharedTelemetryConfiguration = TelemetryConfiguration.CreateDefault();
 
                     sharedTelemetryConfiguration.ExtensionVersion = VersionUtils.ExtensionLabelShimWeb + VersionUtils.GetVersion(typeof(ApplicationInsightsExtensions));
-                    
-                    // Read all configuration options from applicationinsights.config
-                    ApplicationInsightsConfigOptions configOptions = ApplicationInsightsConfigurationReader.GetConfigurationOptions();
-                    
-                    if (configOptions != null)
+
+                    // If user code (e.g., Global.asax) already built the config by creating
+                    // a TelemetryClient, skip reconfiguration — the config is sealed.
+                    if (!sharedTelemetryConfiguration.IsBuilt)
                     {
-                        // Apply Group 1: Direct TelemetryConfiguration properties (before Build)
-                        if (!string.IsNullOrEmpty(configOptions.ConnectionString))
+                        // Read all configuration options from applicationinsights.config
+                        ApplicationInsightsConfigOptions configOptions = ApplicationInsightsConfigurationReader.GetConfigurationOptions();
+                    
+                        if (configOptions != null)
                         {
-                            sharedTelemetryConfiguration.ConnectionString = configOptions.ConnectionString;
-                            WebEventSource.Log.ConnectionStringLoadedFromConfig(configOptions.ConnectionString);
+                            // Apply Group 1: Direct TelemetryConfiguration properties (before Build)
+                            if (!string.IsNullOrEmpty(configOptions.ConnectionString))
+                            {
+                                sharedTelemetryConfiguration.ConnectionString = configOptions.ConnectionString;
+                                WebEventSource.Log.ConnectionStringLoadedFromConfig(configOptions.ConnectionString);
+                            }
+                            else
+                            {
+                                WebEventSource.Log.NoConnectionStringFoundInConfig();
+                            }
+
+                            if (configOptions.DisableTelemetry.HasValue)
+                            {
+                                sharedTelemetryConfiguration.DisableTelemetry = configOptions.DisableTelemetry.Value;
+                            }
+
+                            if (configOptions.TracesPerSecond.HasValue)
+                            {
+                                sharedTelemetryConfiguration.TracesPerSecond = configOptions.TracesPerSecond.Value;
+                            }
+
+                            if (configOptions.SamplingRatio.HasValue)
+                            {
+                                sharedTelemetryConfiguration.SamplingRatio = configOptions.SamplingRatio.Value;
+                                if (!configOptions.TracesPerSecond.HasValue)
+                                {
+                                    sharedTelemetryConfiguration.TracesPerSecond = null;
+                                }
+                            }
+
+                            if (!string.IsNullOrEmpty(configOptions.StorageDirectory))
+                            {
+                                sharedTelemetryConfiguration.StorageDirectory = configOptions.StorageDirectory;
+                            }
+
+                            if (configOptions.DisableOfflineStorage.HasValue)
+                            {
+                                sharedTelemetryConfiguration.DisableOfflineStorage = configOptions.DisableOfflineStorage.Value;
+                            }
+
+                            if (configOptions.EnableTraceBasedLogsSampler.HasValue)
+                            {
+                                sharedTelemetryConfiguration.EnableTraceBasedLogsSampler = configOptions.EnableTraceBasedLogsSampler.Value;
+                            }
+
+                            // EnableQuickPulseMetricStream -> EnableLiveMetrics (TelemetryConfiguration property)
+                            if (configOptions.EnableQuickPulseMetricStream.HasValue)
+                            {
+                                sharedTelemetryConfiguration.EnableLiveMetrics = configOptions.EnableQuickPulseMetricStream.Value;
+                            }
+
+                            // Configure OpenTelemetry builder for properties that require OpenTelemetry API
+                            sharedTelemetryConfiguration.ConfigureOpenTelemetryBuilder(
+                                builder => ConfigureOpenTelemetryWithOptions(builder, configOptions));
                         }
                         else
                         {
                             WebEventSource.Log.NoConnectionStringFoundInConfig();
+
+                            sharedTelemetryConfiguration.ConfigureOpenTelemetryBuilder(
+                                builder => builder.UseApplicationInsightsAspNetTelemetry());
                         }
-
-                        if (configOptions.DisableTelemetry.HasValue)
-                        {
-                            sharedTelemetryConfiguration.DisableTelemetry = configOptions.DisableTelemetry.Value;
-                        }
-
-                        if (configOptions.TracesPerSecond.HasValue)
-                        {
-                            sharedTelemetryConfiguration.TracesPerSecond = configOptions.TracesPerSecond.Value;
-                        }
-
-                        if (configOptions.SamplingRatio.HasValue)
-                        {
-                            sharedTelemetryConfiguration.SamplingRatio = configOptions.SamplingRatio.Value;
-                            if (!configOptions.TracesPerSecond.HasValue)
-                            {
-                                sharedTelemetryConfiguration.TracesPerSecond = null;
-                            }
-                        }
-
-                        if (!string.IsNullOrEmpty(configOptions.StorageDirectory))
-                        {
-                            sharedTelemetryConfiguration.StorageDirectory = configOptions.StorageDirectory;
-                        }
-
-                        if (configOptions.DisableOfflineStorage.HasValue)
-                        {
-                            sharedTelemetryConfiguration.DisableOfflineStorage = configOptions.DisableOfflineStorage.Value;
-                        }
-
-                        if (configOptions.EnableTraceBasedLogsSampler.HasValue)
-                        {
-                            sharedTelemetryConfiguration.EnableTraceBasedLogsSampler = configOptions.EnableTraceBasedLogsSampler.Value;
-                        }
-
-                        // EnableQuickPulseMetricStream -> EnableLiveMetrics (TelemetryConfiguration property)
-                        if (configOptions.EnableQuickPulseMetricStream.HasValue)
-                        {
-                            sharedTelemetryConfiguration.EnableLiveMetrics = configOptions.EnableQuickPulseMetricStream.Value;
-                        }
-
-                        // Configure OpenTelemetry builder for properties that require OpenTelemetry API
-                        sharedTelemetryConfiguration.ConfigureOpenTelemetryBuilder(
-                            builder => ConfigureOpenTelemetryWithOptions(builder, configOptions));
-                    }
-                    else
-                    {
-                        WebEventSource.Log.NoConnectionStringFoundInConfig();
-
-                        sharedTelemetryConfiguration.ConfigureOpenTelemetryBuilder(
-                            builder => builder.UseApplicationInsightsAspNetTelemetry());
                     }
 
                     isInitialized = true;
