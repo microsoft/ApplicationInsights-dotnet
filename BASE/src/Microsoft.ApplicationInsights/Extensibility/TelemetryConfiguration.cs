@@ -14,10 +14,13 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics;
     using Microsoft.ApplicationInsights.Internal;
     using Microsoft.ApplicationInsights.Metrics;
+    using Microsoft.ApplicationInsights.Processors;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using OpenTelemetry;
+    using OpenTelemetry.Logs;
     using OpenTelemetry.Resources;
+    using OpenTelemetry.Trace;
 
     /// <summary>
     /// Encapsulates the global telemetry configuration typically loaded from the ApplicationInsights.config file.
@@ -59,6 +62,7 @@
         private OpenTelemetrySdk openTelemetrySdk;
         private ActivitySource defaultActivitySource;
         private MetricsManager metricsManager;
+        private TelemetryContext telemetryContext;
 
         /// <summary>
         /// Initializes a new instance of the TelemetryConfiguration class.
@@ -219,7 +223,6 @@
             get => this.extensionVersion;
             set
             {
-                this.ThrowIfBuilt();
                 this.extensionVersion = value;
             }
         }
@@ -228,6 +231,28 @@
         /// Gets the default ActivitySource used by TelemetryClient.
         /// </summary>
         internal ActivitySource ApplicationInsightsActivitySource => this.defaultActivitySource;
+
+        /// <summary>
+        /// Gets a value indicating whether the configuration has been built.
+        /// </summary>
+        internal bool IsBuilt => this.isBuilt;
+
+        /// <summary>
+        /// Gets the shared TelemetryContext for this configuration.
+        /// All TelemetryClient instances sharing this configuration use the same context.
+        /// </summary>
+        internal TelemetryContext Context
+        {
+            get
+            {
+                if (this.telemetryContext == null)
+                {
+                    this.telemetryContext = new TelemetryContext();
+                }
+
+                return this.telemetryContext;
+            }
+        }
 
         /// <summary>
         /// Gets the MetricsManager used by TelemetryClient for metrics tracking.
@@ -314,23 +339,6 @@
         }
 
         /// <summary>
-        /// Prepends a configuration action so it runs before any user-registered configuration.
-        /// This ensures that enrichment processors (e.g., TelemetryContextLogProcessor) execute
-        /// before export processors, regardless of the order users call ConfigureOpenTelemetryBuilder.
-        /// </summary>
-        internal void PrependOpenTelemetryBuilderConfiguration(Action<IOpenTelemetryBuilder> configure)
-        {
-            this.ThrowIfBuilt();
-
-            var previousConfiguration = this.builderConfiguration;
-            this.builderConfiguration = builder =>
-            {
-                configure(builder);
-                previousConfiguration(builder);
-            };
-        }
-
-        /// <summary>
         /// Sets the cloud role name and role instance for telemetry.
         /// This configures the OpenTelemetry Resource with service.name, service.namespace, service.instance.id, and service.version attributes
         /// which map to Cloud.RoleName, Cloud.RoleInstance, and Application.Ver in Application Insights.
@@ -376,6 +384,15 @@
         {
             if (string.IsNullOrEmpty(this.connectionString))
             {
+                var envConnectionString = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
+                if (!string.IsNullOrEmpty(envConnectionString))
+                {
+                    this.connectionString = envConnectionString;
+                }
+            }
+
+            if (string.IsNullOrEmpty(this.connectionString))
+            {
                 return this.FeatureReporter;
             }
 
@@ -417,6 +434,12 @@
 
                 this.openTelemetrySdk = OpenTelemetrySdk.Create(builder =>
                 {
+                    // Register context processors first so they run before exporters.
+                    // This ensures TelemetryContext properties are stamped on all
+                    // Activities and LogRecords before they are exported.
+                    builder.WithTracing(tracing => tracing.AddProcessor(new TelemetryContextActivityProcessor(this.Context)));
+                    builder.WithLogging(logging => logging.AddProcessor(new TelemetryContextLogProcessor(this.Context)));
+
                     this.builderConfiguration(builder);
                     builder.SetAzureMonitorExporter(options =>
                     {
