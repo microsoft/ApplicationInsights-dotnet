@@ -28,7 +28,7 @@ The following packages are part of the shimmed 3.x release:
 # 1. Microsoft.ApplicationInsights (Core SDK)
 
 ## Connection String Breaking Change
-3.x will throw an exception if a connection string is not provided. For test scenarios, one could supply a dummy string like: `InstrumentationKey=00000000-0000-0000-0000-000000000000`.
+3.x will throw an exception if a connection string is not provided. For test scenarios, one could supply a dummy string and disable telemetry. See [Disabling Telemetry](https://github.com/microsoft/ApplicationInsights-dotnet/blob/main/docs/concepts.md#disabling-telemetry) for more details.
 
 ## TelemetryClient Breaking Changes
 
@@ -264,7 +264,7 @@ The `ConfigureTelemetryModule<T>()` extension method has also been removed. Use 
 - **`ConnectionString`** - Primary configuration method
 - **`ApplicationVersion`**
 - **`AddAutoCollectedMetricExtractor`**
-- **`EnableQuickPulseMetricStream`** 
+- **`EnableQuickPulseMetricStream`**
 - **`EnableAuthenticationTrackingJavaScript`** - JavaScript auth tracking config
 - **`EnableDependencyTrackingTelemetryModule`** - Dependency tracking toggle
 - **`EnablePerformanceCounterCollectionModule`** - Performance counter toggle
@@ -273,7 +273,7 @@ The `ConfigureTelemetryModule<T>()` extension method has also been removed. Use 
 ### New Properties Added in 3.x
 - **`Credential`** (Azure.Core.TokenCredential) - Enables Azure Active Directory (AAD) authentication
 - **`TracesPerSecond`** (double?) - Gets or sets the number of traces per second for rate-limited sampling (default sampling mode). Replaces `EnableAdaptiveSampling`.
-- **`SamplingRatio`** (float?) - Gets or sets the sampling ratio for traces (0.0 to 1.0). A value of 1.0 means all telemetry is sent. 
+- **`SamplingRatio`** (float?) - Gets or sets the sampling ratio for traces (0.0 to 1.0). A value of 1.0 means all telemetry is sent.
 - **`EnableTraceBasedLogsSampler`** (bool?) - Gets or sets whether trace-based log sampling is enabled (default: true). When enabled, logs are sampled based on the sampling decision of the associated trace.
 
 Please see our [migration guide](MigrationGuidance.md#sampling) for detailed guidance on sampling.
@@ -339,7 +339,7 @@ The `ConfigureTelemetryModule<T>()` extension method has also been removed. Use 
 - **`EnableDebugLogger`** - Removed in favor of self diagnostics. Learn how to enable [here](MigrationGuidance.md#enabledebuglogger).
 
 ### Properties Retained
-- **`ConnectionString`** 
+- **`ConnectionString`**
 - **`ApplicationVersion`**
 - **`EnableDependencyTrackingTelemetryModule`** - Enabled by default
 - **`EnablePerformanceCounterCollectionModule`** - Enabled by default
@@ -412,8 +412,8 @@ Note that the applicationinsights.config configuration for <TelemetryModule> and
 All public **TelemetryInitializers** from 2.x are **REMOVED from the public API** in 3.x. Please refer to the [migration guidance](MigrationGuidance.md#telemetryinitializers) for the list previous initalizers and their replacements.
 
 ## Base Classes REMOVED
-- `WebTelemetryInitializerBase` 
-- `WebTelemetryModuleBase` 
+- `WebTelemetryInitializerBase`
+- `WebTelemetryModuleBase`
 OpenTelemetry Processors are meant to provide extensibility. See more detailed guidance in [migration documentation](MigrationGuidance.md#creating-a-custom-opentelemetry-processor).
 
 ## Extension Methods Changes
@@ -428,7 +428,7 @@ See [migration guidance](MigrationGuidance.md#creating-a-custom-opentelemetry-pr
 ```xml
 <ApplicationInsights>
   <InstrumentationKey>your-key-here</InstrumentationKey>
-  
+
   <TelemetryInitializers>
     <Add Type="Microsoft.ApplicationInsights.Web.WebTestTelemetryInitializer, Microsoft.AI.Web" />
     <Add Type="Microsoft.ApplicationInsights.Web.SyntheticUserAgentTelemetryInitializer, Microsoft.AI.Web">
@@ -437,7 +437,7 @@ See [migration guidance](MigrationGuidance.md#creating-a-custom-opentelemetry-pr
     <Add Type="Microsoft.ApplicationInsights.Web.ClientIpHeaderTelemetryInitializer, Microsoft.AI.Web" />
     <!-- ... 7 more initializers ... -->
   </TelemetryInitializers>
-  
+
   <TelemetryModules>
     <Add Type="Microsoft.ApplicationInsights.Web.RequestTrackingTelemetryModule, Microsoft.AI.Web">
       <Handlers>...</Handlers>
