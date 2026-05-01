@@ -19,18 +19,18 @@
     ==============================================================================
   -->
 
-  <ItemGroup Label="OpenTelemetry - Core (Stable 1.15.1)">
-    <PackageVersion Include="OpenTelemetry" Version="1.15.1" />
-    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.15.1" />
-    <PackageVersion Include="OpenTelemetry.Exporter.InMemory" Version="1.15.1" />
-    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.15.1" />
+  <ItemGroup Label="OpenTelemetry - Core (Stable 1.15.3)">
+    <PackageVersion Include="OpenTelemetry" Version="1.15.3" />
+    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.15.3" />
+    <PackageVersion Include="OpenTelemetry.Exporter.InMemory" Version="1.15.3" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.15.3" />
   </ItemGroup>
 
   <ItemGroup Label="OpenTelemetry - Instrumentation">
-    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.0" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNet" Version="1.15.1" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.15.0" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.15.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.2" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNet" Version="1.15.2" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.15.1" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.15.2" />
   </ItemGroup>
 
   <!-- 
@@ -40,13 +40,13 @@
   -->
 
   <ItemGroup Label="Azure Monitor">
-    <PackageVersion Include="Azure.Monitor.OpenTelemetry.Exporter" Version="1.7.0" />
+    <PackageVersion Include="Azure.Monitor.OpenTelemetry.Exporter" Version="1.8.0" />
   </ItemGroup>
 
   <!-- 
     ==============================================================================
     MICROSOFT.EXTENSIONS PACKAGES
-    Most packages on 10.0.2; Microsoft.Extensions.Options on 10.0.3 (required by Azure Monitor Exporter 1.7.0)
+    Most packages on 10.0.2; Microsoft.Extensions.Options on 10.0.3 (required by Azure Monitor Exporter 1.8.0)
     ==============================================================================
   -->
 

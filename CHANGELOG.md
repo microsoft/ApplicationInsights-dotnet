@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+- Update OpenTelemetry and Azure Monitor dependencies to address known security advisories (e.g. [GHSA-g94r-2vxg-569j](https://github.com/advisories/GHSA-g94r-2vxg-569j) in `OpenTelemetry.Api` 1.15.1).
+  - OpenTelemetry 1.15.3
+  - OpenTelemetry.Exporter.Console 1.15.3
+  - OpenTelemetry.Exporter.InMemory 1.15.3
+  - OpenTelemetry.Extensions.Hosting 1.15.3
+  - OpenTelemetry.Instrumentation.AspNetCore 1.15.2
+  - OpenTelemetry.Instrumentation.AspNet 1.15.2
+  - OpenTelemetry.Instrumentation.Http 1.15.1
+  - OpenTelemetry.Instrumentation.SqlClient 1.15.2
+  - Azure.Monitor.OpenTelemetry.Exporter 1.8.0
+
 ## Version 3.1.0
 - [Make `TelemetryContext` properties public and propagate them via `TelemetryClient`.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3137)
 - [Add fallback to `APPLICATIONINSIGHTS_CONNECTION_STRING` environment variable for Base, Web, and NLog packages when connection string is not set via code.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3134)
