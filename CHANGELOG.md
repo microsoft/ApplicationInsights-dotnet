@@ -1,7 +1,7 @@
 # Changelog
 
 ## Unreleased
-- Update OpenTelemetry and Azure Monitor dependencies to address known security advisories (e.g. [GHSA-g94r-2vxg-569j](https://github.com/advisories/GHSA-g94r-2vxg-569j) in `OpenTelemetry.Api` 1.15.1).
+- [Update OpenTelemetry and Azure Monitor dependencies to address known security advisories (e.g. [GHSA-g94r-2vxg-569j](https://github.com/advisories/GHSA-g94r-2vxg-569j) in `OpenTelemetry.Api` 1.15.1).](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3174)
   - OpenTelemetry 1.15.3
   - OpenTelemetry.Exporter.Console 1.15.3
   - OpenTelemetry.Exporter.InMemory 1.15.3
