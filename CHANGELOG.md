@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## Version 3.1.1
 - [Update OpenTelemetry and Azure Monitor dependencies to address known security advisories (e.g. [GHSA-g94r-2vxg-569j](https://github.com/advisories/GHSA-g94r-2vxg-569j) in `OpenTelemetry.Api` 1.15.1).](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3174)
   - OpenTelemetry 1.15.3
   - OpenTelemetry.Exporter.Console 1.15.3
@@ -45,7 +47,7 @@
 - [Added `EnableTraceBasedLogsSampler` property to `ApplicationInsightsServiceOptions` for ASP.NET Core and WorkerService packages](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3088)
 - [Added support for `StorageDirectory` and `DisableOfflineStorage` from `TelemetryConfiguration` in DI scenarios](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3088)
 - [Update Azure.Monitor.OpenTelemetry.Exporter dependency to 1.6.0](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3094)
- 
+
 ## Version 3.0.0-beta2
 - [Automatic configuration binding from "ApplicationInsights" section in appsettings.json for both AspNetCore and WorkerService packages with configuration precedence: environment variables > explicit configuration > appsettings.json](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3064)
 - [Added support for Entra ID (Azure Active Directory) authentication using Azure.Core.TokenCredential](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3054)
