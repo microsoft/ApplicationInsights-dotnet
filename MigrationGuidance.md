@@ -227,6 +227,11 @@ Previously, ITelemetryInitializer and the base classes provided an extensibility
 - [Activity Processor (enrichment)](docs/concepts.md#enriching-telemetry-with-activity-processors)
 - [LogRecord Processor (enrichment)](docs/concepts.md#log-processors)
 
+#### ILogger Scopes (`BeginScope`) Are Disabled by Default
+In 2.x, properties added via `ILogger.BeginScope(...)` automatically appeared as custom dimensions on log telemetry. In 3.x, logging scopes are **disabled by default** because the underlying OpenTelemetry logger integration does not capture them unless explicitly configured. As a result, values set with `BeginScope` will be silently dropped unless `IncludeScopes` is enabled.
+
+For the required configuration and the recommended scope state shapes for performance, see the [`IncludeScopes` guidance in `NETCORE/Readme.md`](NETCORE/Readme.md).
+
 ### TelemetryProcessors
 In 2.x, this property represent a collection of telemetry processors to apply to the configuration. The built in ones in 2.x are listed below:
 - `SamplingTelemetryProcessor`: Please refer to the [sampling section](#sampling) to understand the replacement.

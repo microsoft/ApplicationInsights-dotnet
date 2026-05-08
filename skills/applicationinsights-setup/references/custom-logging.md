@@ -129,6 +129,15 @@ using (_logger.BeginScope(new Dictionary<string, object>
 }
 ```
 
+> **Important:** Logging scopes are **disabled by default** in the 3.x SDK. Without the following configuration, `BeginScope` properties are silently dropped:
+>
+> ```csharp
+> builder.Services.Configure<OpenTelemetryLoggerOptions>(options =>
+> {
+>     options.IncludeScopes = true;
+> });
+> ```
+
 ## How Logs Map to Application Insights
 
 | ILogger | Application Insights |
