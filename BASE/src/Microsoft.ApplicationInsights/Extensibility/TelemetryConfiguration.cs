@@ -14,10 +14,13 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics;
     using Microsoft.ApplicationInsights.Internal;
     using Microsoft.ApplicationInsights.Metrics;
+    using Microsoft.ApplicationInsights.Processors;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using OpenTelemetry;
+    using OpenTelemetry.Logs;
     using OpenTelemetry.Resources;
+    using OpenTelemetry.Trace;
 
     /// <summary>
     /// Encapsulates the global telemetry configuration typically loaded from the ApplicationInsights.config file.
@@ -59,6 +62,7 @@
         private OpenTelemetrySdk openTelemetrySdk;
         private ActivitySource defaultActivitySource;
         private MetricsManager metricsManager;
+        private TelemetryContext processorContext;
 
         /// <summary>
         /// Initializes a new instance of the TelemetryConfiguration class.
@@ -219,7 +223,6 @@
             get => this.extensionVersion;
             set
             {
-                this.ThrowIfBuilt();
                 this.extensionVersion = value;
             }
         }
@@ -314,20 +317,17 @@
         }
 
         /// <summary>
-        /// Prepends a configuration action so it runs before any user-registered configuration.
-        /// This ensures that enrichment processors (e.g., TelemetryContextLogProcessor) execute
-        /// before export processors, regardless of the order users call ConfigureOpenTelemetryBuilder.
+        /// Registers a TelemetryContext to be used by context processors during Build().
+        /// Thread-safe, first-write-wins: subsequent calls are no-ops.
         /// </summary>
-        internal void PrependOpenTelemetryBuilderConfiguration(Action<IOpenTelemetryBuilder> configure)
+        internal void RegisterProcessorContext(TelemetryContext context)
         {
-            this.ThrowIfBuilt();
-
-            var previousConfiguration = this.builderConfiguration;
-            this.builderConfiguration = builder =>
+            if (context == null)
             {
-                configure(builder);
-                previousConfiguration(builder);
-            };
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            Interlocked.CompareExchange(ref this.processorContext, context, null);
         }
 
         /// <summary>
@@ -417,6 +417,15 @@
 
                 this.openTelemetrySdk = OpenTelemetrySdk.Create(builder =>
                 {
+                    // Register context processors first so they run before exporters.
+                    // This ensures TelemetryContext properties are stamped on all
+                    // Activities and LogRecords before they are exported.
+                    if (this.processorContext != null)
+                    {
+                        builder.WithTracing(tracing => tracing.AddProcessor(new TelemetryContextActivityProcessor(this.processorContext)));
+                        builder.WithLogging(logging => logging.AddProcessor(new TelemetryContextLogProcessor(this.processorContext)));
+                    }
+
                     this.builderConfiguration(builder);
                     builder.SetAzureMonitorExporter(options =>
                     {

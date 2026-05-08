@@ -2241,6 +2241,31 @@ namespace Microsoft.ApplicationInsights
 
             return res;
         }
+
+        #region RegisterProcessorContext
+
+        [Fact]
+        public void MultipleTelemetryClients_HaveIndependentContexts()
+        {
+            // Verify that each TelemetryClient has its own TelemetryContext
+            // (no shared context breaking change).
+            var config = new TelemetryConfiguration();
+            config.ConnectionString = "InstrumentationKey=" + Guid.NewGuid().ToString();
+
+            var client1 = new TelemetryClient(config);
+            var client2 = new TelemetryClient(config);
+
+            client1.Context.User.Id = "user1";
+            client2.Context.User.Id = "user2";
+
+            // Each client should retain its own context value
+            Assert.Equal("user1", client1.Context.User.Id);
+            Assert.Equal("user2", client2.Context.User.Id);
+
+            config.Dispose();
+        }
+
+        #endregion
     }
 }
 
