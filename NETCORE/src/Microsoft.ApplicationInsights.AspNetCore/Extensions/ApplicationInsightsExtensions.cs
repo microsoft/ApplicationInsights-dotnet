@@ -12,6 +12,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Internal;
+    using Microsoft.ApplicationInsights.Processors;
     using Microsoft.ApplicationInsights.Shared.Vendoring.OpenTelemetry.Resources;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
@@ -158,10 +159,21 @@
 
                                 return true;
                             })
-                            .AddProcessor<ActivityFilterProcessor>());
+                            .AddProcessor<ActivityFilterProcessor>()
+                            .AddProcessor(sp =>
+                                new TelemetryContextActivityProcessor(sp.GetRequiredService<TelemetryConfiguration>().DefaultContext)));
 
             // Register ActivityFilterProcessor in DI
             builder.Services.AddSingleton<ActivityFilterProcessor>();
+
+            // Register TelemetryContextLogProcessor against TelemetryConfiguration.DefaultContext so that
+            // telemetry produced outside any TelemetryClient (direct ILogger usage, etc.) is enriched
+            // with DefaultContext tags. Per-client enrichment is applied at the source in TelemetryClient.Track*.
+            builder.Services.ConfigureOpenTelemetryLoggerProvider((sp, loggerBuilder) =>
+            {
+                loggerBuilder.AddProcessor(
+                    new TelemetryContextLogProcessor(sp.GetRequiredService<TelemetryConfiguration>().DefaultContext));
+            });
 
             builder.WithMetrics(b => b.AddHttpClientAndServerMetrics());
 

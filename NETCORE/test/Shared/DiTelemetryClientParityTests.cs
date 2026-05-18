@@ -41,7 +41,6 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
         public void DiResolvedTelemetryClient_AppliesItsOwnContext_NotDefault()
         {
             using var serviceProvider = this.BuildServiceProvider(defaultRoleName: "default-role");
-            _ = new TelemetryClient(serviceProvider.GetRequiredService<TelemetryConfiguration>());
             var client = serviceProvider.GetRequiredService<TelemetryClient>();
 
             client.Context.Cloud.RoleName = "client-role";
@@ -75,7 +74,6 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
         public void DiPipeline_RegistersDefaultContextProcessors()
         {
             using var serviceProvider = this.BuildServiceProvider(defaultOperationName: "default-op");
-            _ = new TelemetryClient(serviceProvider.GetRequiredService<TelemetryConfiguration>());
             using var activitySource = new ActivitySource(ApplicationInsightsActivitySourceName);
 
             using (var activity = activitySource.StartActivity("bare-activity"))
@@ -144,15 +142,24 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
                 {
                     defaultContext.Operation.Name = defaultOperationName;
                 }
-
-                EnsureBuilderConfiguration(configuration);
-                configuration.ConfigureOpenTelemetryBuilder(builder =>
-                {
-                    builder.WithTracing(tracing => tracing.AddProcessor(this.captureProcessor));
-                });
             });
 
-            return services.BuildServiceProvider();
+            // Wire the capture processor directly into the DI-owned OpenTelemetry pipeline so
+            // these tests validate the actual DI registration (not a parallel non-DI Build()
+            // pipeline). Register as the LAST processor so it observes activities after
+            // TelemetryContextActivityProcessor has applied DefaultContext enrichment.
+            services.ConfigureOpenTelemetryTracerProvider((sp, tracing) =>
+            {
+                tracing.AddSource(ApplicationInsightsActivitySourceName);
+                tracing.AddProcessor(this.captureProcessor);
+            });
+
+            var provider = services.BuildServiceProvider();
+
+            // Resolve TracerProvider eagerly so the DI-owned pipeline starts listening on the
+            // ApplicationInsights ActivitySource before tests start activities on it.
+            _ = provider.GetRequiredService<TracerProvider>();
+            return provider;
         }
 
         private Activity GetActivity(string name)
@@ -165,18 +172,6 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
             var property = typeof(TelemetryConfiguration).GetProperty("DefaultContext", BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.NotNull(property);
             return Assert.IsType<TelemetryContext>(property.GetValue(configuration));
-        }
-
-        private static void EnsureBuilderConfiguration(TelemetryConfiguration configuration)
-        {
-            var field = typeof(TelemetryConfiguration).GetField("builderConfiguration", BindingFlags.Instance | BindingFlags.NonPublic);
-            Assert.NotNull(field);
-
-            if (field.GetValue(configuration) == null)
-            {
-                field.SetValue(configuration, (Action<IOpenTelemetryBuilder>)(builder =>
-                    builder.WithTracing(tracing => tracing.AddSource(ApplicationInsightsActivitySourceName))));
-            }
         }
 
         private sealed class CaptureActivityProcessor : BaseProcessor<Activity>
