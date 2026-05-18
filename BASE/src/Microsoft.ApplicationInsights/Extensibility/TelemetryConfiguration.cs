@@ -465,7 +465,7 @@
                             logging.AddProcessor(new TelemetryContextLogProcessor(this.DefaultContext)));
                     }
 
-                    this.builderConfiguration(builder);
+                    this.builderConfiguration?.Invoke(builder);
                     builder.SetAzureMonitorExporter(options =>
                     {
                         if (!string.IsNullOrEmpty(this.connectionString))

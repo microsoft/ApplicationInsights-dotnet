@@ -529,6 +529,21 @@ namespace Microsoft.ApplicationInsights.Tests
         }
 
         [Fact]
+        public void Build_WithSkipDefaultBuilderConfiguration_DoesNotThrow()
+        {
+            // Regression test: TelemetryConfiguration created with skipDefaultBuilderConfiguration: true
+            // (the DI path) leaves builderConfiguration null. Build() must tolerate that without NRE
+            // so that `new TelemetryClient(diResolvedConfig)` works (the contract advertised by the
+            // migration guidance and exercised by NETCORE DiTelemetryClientParityTests).
+            using var configuration = new TelemetryConfiguration(skipDefaultBuilderConfiguration: true);
+            configuration.ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000";
+
+            var sdk = configuration.Build();
+
+            Assert.NotNull(sdk);
+        }
+
+        [Fact]
         public void TelemetryConfiguration_DefaultContext_IsNonNullAndStableReference()
         {
             using var firstConfiguration = new TelemetryConfiguration();
