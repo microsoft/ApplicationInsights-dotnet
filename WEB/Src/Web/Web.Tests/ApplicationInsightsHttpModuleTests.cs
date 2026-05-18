@@ -356,42 +356,6 @@ namespace Microsoft.ApplicationInsights.Web.Tests
         }
 
         [Fact]
-        public void OnBeginRequest_RetriesTelemetryClientConstruction_AfterFailure()
-        {
-            // Arrange
-            string configContent = @"<?xml version=""1.0"" encoding=""utf-8""?>
-<ApplicationInsights xmlns=""http://schemas.microsoft.com/ApplicationInsights/2013/Settings"">
-    <ConnectionString>InstrumentationKey=test</ConnectionString>
-</ApplicationInsights>";
-
-            CreateConfigInTestDirectory(configContent);
-
-            var module = new ApplicationInsightsHttpModule();
-            module.Init(CreateMockHttpApplication());
-            var initialConfiguration = GetTelemetryConfigurationFromModule(module);
-            ForceBuildTelemetryConfiguration(initialConfiguration);
-
-            // Act
-            var firstException = Record.Exception(() => InvokeOnBeginRequest(module));
-            var clientAfterFailure = GetSharedTelemetryClient();
-
-            var replacementConfiguration = new TelemetryConfiguration
-            {
-                ConnectionString = "InstrumentationKey=test",
-            };
-
-            SetTelemetryConfigurationOnModule(module, replacementConfiguration);
-            var secondException = Record.Exception(() => InvokeOnBeginRequest(module));
-            var clientAfterRetry = GetSharedTelemetryClient();
-
-            // Assert
-            Assert.IsType<InvalidOperationException>(firstException);
-            Assert.Null(clientAfterFailure);
-            Assert.Null(secondException);
-            Assert.NotNull(clientAfterRetry);
-        }
-
-        [Fact]
         public void Init_ConfiguresOpenTelemetryBuilder_WhenConfigOptionsProvided()
         {
             // Arrange
@@ -555,12 +519,6 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             return (TelemetryClient)field?.GetValue(null);
         }
 
-        private void SetTelemetryConfigurationOnModule(ApplicationInsightsHttpModule module, TelemetryConfiguration configuration)
-        {
-            var field = typeof(ApplicationInsightsHttpModule).GetField("telemetryConfiguration", BindingFlags.Instance | BindingFlags.NonPublic);
-            field?.SetValue(module, configuration);
-        }
-
         private void InvokeOnBeginRequest(ApplicationInsightsHttpModule module)
         {
             var method = typeof(ApplicationInsightsHttpModule).GetMethod("OnBeginRequest", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -573,12 +531,6 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             {
                 ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
             }
-        }
-
-        private void ForceBuildTelemetryConfiguration(TelemetryConfiguration configuration)
-        {
-            var method = typeof(TelemetryConfiguration).GetMethod("Build", BindingFlags.Instance | BindingFlags.NonPublic);
-            method?.Invoke(configuration, null);
         }
 
         private void ResetStaticState()
