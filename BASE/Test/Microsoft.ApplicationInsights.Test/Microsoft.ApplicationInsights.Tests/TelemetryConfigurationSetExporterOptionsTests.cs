@@ -544,6 +544,43 @@ namespace Microsoft.ApplicationInsights.Tests
         }
 
         [Fact]
+        public void Build_AfterConfigureOpenTelemetryBuilderOnSkipDefaultConfig_DoesNotThrow()
+        {
+            // Regression test: when builderConfiguration starts null (skipDefaultBuilderConfiguration: true),
+            // calling ConfigureOpenTelemetryBuilder / Prepend / TryPrepend must not capture that null
+            // and dereference it later inside the composite delegate during Build(). The public API
+            // ConfigureOpenTelemetryBuilder (and its callers like SetAzureTokenCredential) must be
+            // safe to call on a DI-resolved configuration.
+            using var configuration = new TelemetryConfiguration(skipDefaultBuilderConfiguration: true);
+            configuration.ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000";
+
+            var userActionInvoked = false;
+            configuration.ConfigureOpenTelemetryBuilder(_ => userActionInvoked = true);
+
+            var sdk = configuration.Build();
+
+            Assert.NotNull(sdk);
+            Assert.True(userActionInvoked, "User ConfigureOpenTelemetryBuilder action should have run during Build().");
+        }
+
+        [Fact]
+        public void Build_AfterTryPrependOnSkipDefaultConfig_DoesNotThrow()
+        {
+            // Regression test: same as above but via TryPrependOpenTelemetryBuilderConfiguration.
+            using var configuration = new TelemetryConfiguration(skipDefaultBuilderConfiguration: true);
+            configuration.ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000";
+
+            var prependInvoked = false;
+            var prepended = configuration.TryPrependOpenTelemetryBuilderConfiguration(_ => prependInvoked = true);
+            Assert.True(prepended);
+
+            var sdk = configuration.Build();
+
+            Assert.NotNull(sdk);
+            Assert.True(prependInvoked, "TryPrependOpenTelemetryBuilderConfiguration action should have run during Build().");
+        }
+
+        [Fact]
         public void TelemetryConfiguration_DefaultContext_IsNonNullAndStableReference()
         {
             using var firstConfiguration = new TelemetryConfiguration();

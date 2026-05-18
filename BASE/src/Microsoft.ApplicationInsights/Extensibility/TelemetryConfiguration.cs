@@ -277,7 +277,7 @@
             var previousConfiguration = this.builderConfiguration;
             this.builderConfiguration = builder =>
             {
-                previousConfiguration(builder);
+                previousConfiguration?.Invoke(builder);
                 configure(builder);
             };
         }
@@ -334,7 +334,7 @@
             this.builderConfiguration = builder =>
             {
                 configure(builder);
-                previousConfiguration(builder);
+                previousConfiguration?.Invoke(builder);
             };
         }
 
@@ -365,7 +365,7 @@
                 this.builderConfiguration = builder =>
                 {
                     configure(builder);
-                    previousConfiguration(builder);
+                    previousConfiguration?.Invoke(builder);
                 };
                 return true;
             }
