@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Fix [#3163](https://github.com/microsoft/ApplicationInsights-dotnet/issues/3163): constructing a second `TelemetryClient` from the same `TelemetryConfiguration` no longer throws in classic ASP.NET, and `TelemetryClient.Context` is now scoped to the client instance instead of applying AppDomain-wide.
 
 ## Version 3.1.1
 - [Update OpenTelemetry and Azure Monitor dependencies to address known security advisories (e.g. [GHSA-g94r-2vxg-569j](https://github.com/advisories/GHSA-g94r-2vxg-569j) in `OpenTelemetry.Api` 1.15.1).](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3174)

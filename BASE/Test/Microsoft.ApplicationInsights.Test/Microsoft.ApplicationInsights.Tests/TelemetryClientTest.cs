@@ -12,6 +12,7 @@ namespace Microsoft.ApplicationInsights
     using System.Net.Http;
     using System.Reflection;
     using System.Text;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -56,10 +57,101 @@ namespace Microsoft.ApplicationInsights
             this.telemetryClient?.TelemetryConfiguration?.Dispose();
         }
 
+        private static TelemetryConfiguration CreateTelemetryConfiguration()
+        {
+            var configuration = new TelemetryConfiguration();
+            configuration.ConnectionString = "InstrumentationKey=" + Guid.NewGuid();
+            return configuration;
+        }
+
         [Fact]
         public void TelemetryClientInitializesFeatureReporter()
         {
             Assert.NotNull(this.telemetryClient.Configuration.FeatureReporter);
+        }
+
+        [Fact]
+        public void NewTelemetryClient_AgainstBuiltConfig_DoesNotThrow()
+        {
+            var configuration = CreateTelemetryConfiguration();
+
+            try
+            {
+                _ = configuration.Build();
+
+                var exception = Record.Exception(() =>
+                {
+                    var client = new TelemetryClient(configuration);
+                    client.TrackEvent("e");
+                });
+
+                Assert.Null(exception);
+            }
+            finally
+            {
+                configuration.Dispose();
+            }
+        }
+
+        [Fact]
+        public async Task TwoConcurrentConstructions_NoCrash()
+        {
+            for (var iteration = 0; iteration < 50; iteration++)
+            {
+                var configuration = CreateTelemetryConfiguration();
+
+                try
+                {
+                    TelemetryClient[] clients = null;
+                    var exception = await Record.ExceptionAsync(async () =>
+                    {
+                        clients = await Task.WhenAll(
+                            Task.Run(() => new TelemetryClient(configuration)),
+                            Task.Run(() => new TelemetryClient(configuration)));
+                    });
+
+                    Assert.Null(exception);
+                    Assert.NotNull(clients);
+                    Assert.Equal(2, clients.Length);
+
+                    foreach (var client in clients)
+                    {
+                        client.TrackEvent("e");
+                    }
+                }
+                finally
+                {
+                    configuration.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public async Task NewClientConcurrentlyWithBuild_NoCrash()
+        {
+            var configuration = CreateTelemetryConfiguration();
+
+            try
+            {
+                OpenTelemetrySdk sdk = null;
+                TelemetryClient client = null;
+                var exception = await Record.ExceptionAsync(async () =>
+                {
+                    await Task.WhenAll(
+                        Task.Run(() => sdk = configuration.Build()),
+                        Task.Run(() => client = new TelemetryClient(configuration)));
+                });
+
+                Assert.Null(exception);
+                Assert.NotNull(sdk);
+                Assert.NotNull(client);
+
+                client.TrackEvent("e");
+            }
+            finally
+            {
+                configuration.Dispose();
+            }
         }
 
         #region TrackEvent

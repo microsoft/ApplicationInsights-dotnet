@@ -14,10 +14,13 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.SelfDiagnostics;
     using Microsoft.ApplicationInsights.Internal;
     using Microsoft.ApplicationInsights.Metrics;
+    using Microsoft.ApplicationInsights.Processors;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using OpenTelemetry;
+    using OpenTelemetry.Logs;
     using OpenTelemetry.Resources;
+    using OpenTelemetry.Trace;
 
     /// <summary>
     /// Encapsulates the global telemetry configuration typically loaded from the ApplicationInsights.config file.
@@ -212,6 +215,11 @@
         }
 
         /// <summary>
+        /// Gets the shared context used to enrich telemetry produced outside of any TelemetryClient (e.g., user code using the Microsoft.ApplicationInsights ActivitySource directly, or logs flowing through Microsoft.Extensions.Logging). Per-client TelemetryClient.Context enrichment takes precedence and is applied at the source.
+        /// </summary>
+        internal TelemetryContext DefaultContext { get; } = new TelemetryContext();
+
+        /// <summary>
         /// Gets or sets a value indicating the version string to report to SDK stats. Eg., "shc1.2.3".
         /// </summary>
         internal string ExtensionVersion
@@ -331,6 +339,39 @@
         }
 
         /// <summary>
+        /// Atomically prepends a configuration action so it runs before any user-registered configuration.
+        /// Race-safe: takes the configuration lock and checks the built state atomically.
+        /// Returns false if the configuration is already built (caller's mutation was not applied).
+        /// </summary>
+        internal bool TryPrependOpenTelemetryBuilderConfiguration(Action<IOpenTelemetryBuilder> configure)
+        {
+#if NET6_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(configure);
+#else
+            if (configure == null)
+            {
+                throw new ArgumentNullException(nameof(configure));
+            }
+#endif
+
+            lock (this.lockObject)
+            {
+                if (this.isBuilt)
+                {
+                    return false;
+                }
+
+                var previousConfiguration = this.builderConfiguration;
+                this.builderConfiguration = builder =>
+                {
+                    configure(builder);
+                    previousConfiguration(builder);
+                };
+                return true;
+            }
+        }
+
+        /// <summary>
         /// Sets the cloud role name and role instance for telemetry.
         /// This configures the OpenTelemetry Resource with service.name, service.namespace, service.instance.id, and service.version attributes
         /// which map to Cloud.RoleName, Cloud.RoleInstance, and Application.Ver in Application Insights.
@@ -391,11 +432,6 @@
         /// </summary>
         internal OpenTelemetrySdk Build()
         {
-            if (this.isBuilt)
-            {
-                return this.openTelemetrySdk;
-            }
-
             lock (this.lockObject)
             {
                 if (this.isBuilt)
@@ -417,6 +453,18 @@
 
                 this.openTelemetrySdk = OpenTelemetrySdk.Create(builder =>
                 {
+                    // Register default-context enrichment processors before invoking the user builder
+                    // configuration. These ConfigureOpenTelemetry* callbacks are applied in registration
+                    // order, so registering them first ensures downstream user processors/exporters observe
+                    // already-enriched telemetry.
+                    if (this.DefaultContext != null)
+                    {
+                        builder.Services.ConfigureOpenTelemetryTracerProvider(tracing =>
+                            tracing.AddProcessor(new TelemetryContextActivityProcessor(this.DefaultContext)));
+                        builder.Services.ConfigureOpenTelemetryLoggerProvider(logging =>
+                            logging.AddProcessor(new TelemetryContextLogProcessor(this.DefaultContext)));
+                    }
+
                     this.builderConfiguration(builder);
                     builder.SetAzureMonitorExporter(options =>
                     {

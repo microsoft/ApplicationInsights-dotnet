@@ -161,6 +161,22 @@ config.ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-0000000000
 var client = new TelemetryClient(config);
 ```
 
+#### TelemetryClient.Context scope and multiple client instances
+In 3.1.0, setting `TelemetryClient.Context` on one client could unintentionally affect telemetry sent by other clients that shared the same `TelemetryConfiguration`. This was a 3.1.0 quirk, not a supported AppDomain-wide enrichment mechanism.
+
+Starting in 3.2, `TelemetryClient.Context` is scoped to the client instance. Context set on one client applies only to telemetry sent by that client's `Track*` and `StartOperation*` calls.
+
+If you rely on app-wide role name, component version, or similar defaults, continue configuring them via `applicationinsights.config` in classic ASP.NET or `ApplicationInsightsServiceOptions` in ASP.NET Core / Worker Service. That remains the documented approach, and no action is needed for the common case.
+
+Constructing multiple clients from the same configuration is also supported again:
+
+```csharp
+var client1 = new TelemetryClient(config);
+var client2 = new TelemetryClient(config); // Safe in 3.2+
+```
+
+This fixes the crash reported in #3163 and restores the 2.x expectation that `new TelemetryClient(config)` can be called multiple times safely.
+
 ## Alternatives for Removed TelemetryConfiguration properties
 The [breaking changes](BreakingChanges.md#properties) defined which properties were removed. For some properties, further guidance is described below:
 

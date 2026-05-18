@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Reflection;
+    using System.Threading;
     using System.Web;
     using Azure.Monitor.OpenTelemetry.Exporter;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -23,11 +24,10 @@
         private static readonly object StaticLockObject = new object();
         private static int initializationCount = 0;
         private static TelemetryConfiguration sharedTelemetryConfiguration;
+        private static TelemetryClient sharedTelemetryClient;
         private static bool isInitialized = false;
 
-        private readonly object lockObject = new object();
         private TelemetryConfiguration telemetryConfiguration;
-        private TelemetryClient telemetryClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApplicationInsightsHttpModule"/> class.
@@ -50,14 +50,10 @@
             lock (StaticLockObject)
             {
                 initializationCount++;
-                System.Diagnostics.Debug.WriteLine($"Module Init called #{initializationCount} at {DateTime.Now:HH:mm:ss.fff}");
-                System.Diagnostics.Debug.WriteLine($"AppDomain: {AppDomain.CurrentDomain.Id}");
 
                 // Only initialize the shared configuration once per AppDomain
                 if (!isInitialized)
                 {
-                    System.Diagnostics.Debug.WriteLine("Performing first-time initialization");
-
                     sharedTelemetryConfiguration = TelemetryConfiguration.CreateDefault();
 
                     sharedTelemetryConfiguration.ExtensionVersion = VersionUtils.ExtensionLabelShimWeb + VersionUtils.GetVersion(typeof(ApplicationInsightsExtensions));
@@ -118,6 +114,11 @@
                             sharedTelemetryConfiguration.EnableLiveMetrics = configOptions.EnableQuickPulseMetricStream.Value;
                         }
 
+                        if (!string.IsNullOrEmpty(configOptions.ApplicationVersion))
+                        {
+                            sharedTelemetryConfiguration.DefaultContext.Component.Version = configOptions.ApplicationVersion;
+                        }
+
                         // Configure OpenTelemetry builder for properties that require OpenTelemetry API
                         sharedTelemetryConfiguration.ConfigureOpenTelemetryBuilder(
                             builder => ConfigureOpenTelemetryWithOptions(builder, configOptions));
@@ -131,10 +132,6 @@
                     }
 
                     isInitialized = true;
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine("Skipping duplicate initialization - using shared configuration");
                 }
 
                 // Use the shared configuration for this instance
@@ -154,7 +151,6 @@
             // It will be cleaned up when the AppDomain unloads
 
             // Note: If you need to dispose, you'd need a reference counting mechanism
-            System.Diagnostics.Debug.WriteLine("Dispose called");
         }
 
         /// <summary>
@@ -232,14 +228,17 @@
 
         private void OnBeginRequest(object sender, EventArgs eventArgs)
         {
-            // Ensure TelemetryClient is created only once per module instance using double-check locking pattern
-            if (this.telemetryClient == null)
+            var client = Volatile.Read(ref sharedTelemetryClient);
+            if (client == null)
             {
-                lock (this.lockObject)
+                lock (StaticLockObject)
                 {
-                    if (this.telemetryClient == null)
+                    client = sharedTelemetryClient;
+                    if (client == null)
                     {
-                        this.telemetryClient = new TelemetryClient(this.telemetryConfiguration);
+                        var newClient = new TelemetryClient(this.telemetryConfiguration);
+                        Volatile.Write(ref sharedTelemetryClient, newClient);
+                        client = newClient;
                     }
                 }
             }

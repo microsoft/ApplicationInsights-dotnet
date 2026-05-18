@@ -12,7 +12,6 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Internal;
-    using Microsoft.ApplicationInsights.Processors;
     using Microsoft.ApplicationInsights.Shared.Vendoring.OpenTelemetry.Resources;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
@@ -159,18 +158,10 @@
 
                                 return true;
                             })
-                            .AddProcessor<ActivityFilterProcessor>()
-                            .AddProcessor(sp =>
-                                new TelemetryContextActivityProcessor(sp.GetRequiredService<TelemetryClient>().Context)));
+                            .AddProcessor<ActivityFilterProcessor>());
 
             // Register ActivityFilterProcessor in DI
             builder.Services.AddSingleton<ActivityFilterProcessor>();
-
-            builder.Services.ConfigureOpenTelemetryLoggerProvider((sp, loggerBuilder) =>
-            {
-                loggerBuilder.AddProcessor(
-                    new TelemetryContextLogProcessor(sp.GetRequiredService<TelemetryClient>().Context));
-            });
 
             builder.WithMetrics(b => b.AddHttpClientAndServerMetrics());
 

@@ -134,6 +134,11 @@
                     postConfigure.PostConfigure(Options.DefaultName, configuration);
                 }
 
+                if (!string.IsNullOrEmpty(options.ApplicationVersion))
+                {
+                    configuration.DefaultContext.Component.Version = options.ApplicationVersion;
+                }
+
                 // Set OTEL_SDK_DISABLED in IConfiguration so the OTel SDK's MeterProvider/TracerProvider
                 // factories see it when they check IsOtelSdkDisabled(). This must happen here (during
                 // TelemetryConfiguration resolution) rather than in a hosted service, because the

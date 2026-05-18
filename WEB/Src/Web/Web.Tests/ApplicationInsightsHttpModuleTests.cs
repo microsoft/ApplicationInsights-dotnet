@@ -1,9 +1,13 @@
 namespace Microsoft.ApplicationInsights.Web.Tests
 {
     using System;
+    using System.Collections.Concurrent;
     using System.IO;
+    using System.Linq;
     using System.Reflection;
+    using System.Runtime.ExceptionServices;
     using System.Threading;
+    using System.Threading.Tasks;
     using System.Web;
     using Azure.Monitor.OpenTelemetry.Exporter;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -284,6 +288,110 @@ namespace Microsoft.ApplicationInsights.Web.Tests
         }
 
         [Fact]
+        public void OnBeginRequest_ReusesSharedTelemetryClient_AcrossModuleInstances()
+        {
+            // Arrange
+            string configContent = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<ApplicationInsights xmlns=""http://schemas.microsoft.com/ApplicationInsights/2013/Settings"">
+    <ConnectionString>InstrumentationKey=test</ConnectionString>
+</ApplicationInsights>";
+
+            CreateConfigInTestDirectory(configContent);
+
+            var module1 = new ApplicationInsightsHttpModule();
+            var module2 = new ApplicationInsightsHttpModule();
+            module1.Init(CreateMockHttpApplication());
+            module2.Init(CreateMockHttpApplication());
+
+            // Act
+            var firstException = Record.Exception(() => InvokeOnBeginRequest(module1));
+            var clientAfterFirstRequest = GetSharedTelemetryClient();
+            var secondException = Record.Exception(() => InvokeOnBeginRequest(module2));
+            var clientAfterSecondRequest = GetSharedTelemetryClient();
+
+            // Assert
+            Assert.Null(firstException);
+            Assert.Null(secondException);
+            Assert.NotNull(clientAfterFirstRequest);
+            Assert.Same(clientAfterFirstRequest, clientAfterSecondRequest);
+        }
+
+        [Fact]
+        public void OnBeginRequest_PublishesOneSharedTelemetryClient_UnderParallelLoad()
+        {
+            // Arrange
+            string configContent = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<ApplicationInsights xmlns=""http://schemas.microsoft.com/ApplicationInsights/2013/Settings"">
+    <ConnectionString>InstrumentationKey=test</ConnectionString>
+</ApplicationInsights>";
+
+            CreateConfigInTestDirectory(configContent);
+
+            var modules = Enumerable.Range(0, 16)
+                .Select(_ =>
+                {
+                    var module = new ApplicationInsightsHttpModule();
+                    module.Init(CreateMockHttpApplication());
+                    return module;
+                })
+                .ToArray();
+            var observedClients = new ConcurrentBag<TelemetryClient>();
+
+            // Act
+            var exception = Record.Exception(() =>
+                Parallel.For(0, 64, i =>
+                {
+                    InvokeOnBeginRequest(modules[i % modules.Length]);
+                    observedClients.Add(GetSharedTelemetryClient());
+                }));
+
+            var sharedClient = GetSharedTelemetryClient();
+
+            // Assert
+            Assert.Null(exception);
+            Assert.NotNull(sharedClient);
+            Assert.Single(observedClients.Distinct());
+            var trackException = Record.Exception(() => sharedClient.TrackEvent("ParallelRace"));
+            Assert.Null(trackException);
+        }
+
+        [Fact]
+        public void OnBeginRequest_RetriesTelemetryClientConstruction_AfterFailure()
+        {
+            // Arrange
+            string configContent = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<ApplicationInsights xmlns=""http://schemas.microsoft.com/ApplicationInsights/2013/Settings"">
+    <ConnectionString>InstrumentationKey=test</ConnectionString>
+</ApplicationInsights>";
+
+            CreateConfigInTestDirectory(configContent);
+
+            var module = new ApplicationInsightsHttpModule();
+            module.Init(CreateMockHttpApplication());
+            var initialConfiguration = GetTelemetryConfigurationFromModule(module);
+            ForceBuildTelemetryConfiguration(initialConfiguration);
+
+            // Act
+            var firstException = Record.Exception(() => InvokeOnBeginRequest(module));
+            var clientAfterFailure = GetSharedTelemetryClient();
+
+            var replacementConfiguration = new TelemetryConfiguration
+            {
+                ConnectionString = "InstrumentationKey=test",
+            };
+
+            SetTelemetryConfigurationOnModule(module, replacementConfiguration);
+            var secondException = Record.Exception(() => InvokeOnBeginRequest(module));
+            var clientAfterRetry = GetSharedTelemetryClient();
+
+            // Assert
+            Assert.IsType<InvalidOperationException>(firstException);
+            Assert.Null(clientAfterFailure);
+            Assert.Null(secondException);
+            Assert.NotNull(clientAfterRetry);
+        }
+
+        [Fact]
         public void Init_ConfiguresOpenTelemetryBuilder_WhenConfigOptionsProvided()
         {
             // Arrange
@@ -441,6 +549,38 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             return (TelemetryConfiguration)field?.GetValue(module);
         }
 
+        private TelemetryClient GetSharedTelemetryClient()
+        {
+            var field = typeof(ApplicationInsightsHttpModule).GetField("sharedTelemetryClient", BindingFlags.Static | BindingFlags.NonPublic);
+            return (TelemetryClient)field?.GetValue(null);
+        }
+
+        private void SetTelemetryConfigurationOnModule(ApplicationInsightsHttpModule module, TelemetryConfiguration configuration)
+        {
+            var field = typeof(ApplicationInsightsHttpModule).GetField("telemetryConfiguration", BindingFlags.Instance | BindingFlags.NonPublic);
+            field?.SetValue(module, configuration);
+        }
+
+        private void InvokeOnBeginRequest(ApplicationInsightsHttpModule module)
+        {
+            var method = typeof(ApplicationInsightsHttpModule).GetMethod("OnBeginRequest", BindingFlags.Instance | BindingFlags.NonPublic);
+
+            try
+            {
+                method?.Invoke(module, new object[] { module, EventArgs.Empty });
+            }
+            catch (TargetInvocationException ex) when (ex.InnerException != null)
+            {
+                ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+            }
+        }
+
+        private void ForceBuildTelemetryConfiguration(TelemetryConfiguration configuration)
+        {
+            var method = typeof(TelemetryConfiguration).GetMethod("Build", BindingFlags.Instance | BindingFlags.NonPublic);
+            method?.Invoke(configuration, null);
+        }
+
         private void ResetStaticState()
         {
             // Use reflection to reset static state for test isolation
@@ -450,6 +590,12 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             if (sharedConfigField != null)
             {
                 sharedConfigField.SetValue(null, null);
+            }
+
+            var sharedClientField = type.GetField("sharedTelemetryClient", BindingFlags.Static | BindingFlags.NonPublic);
+            if (sharedClientField != null)
+            {
+                sharedClientField.SetValue(null, null);
             }
 
             var isInitializedField = type.GetField("isInitialized", BindingFlags.Static | BindingFlags.NonPublic);

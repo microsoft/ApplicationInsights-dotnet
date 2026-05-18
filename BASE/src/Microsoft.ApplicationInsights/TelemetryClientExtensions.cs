@@ -7,6 +7,8 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Internal;
+    using Microsoft.ApplicationInsights.Processors;
 
     /// <summary>
     /// Extension class providing operation lifecycle helpers for <see cref="TelemetryClient"/>.
@@ -103,6 +105,17 @@
                     telemetryClient,
                     new T { Name = effectiveName, Timestamp = DateTimeOffset.UtcNow },
                     null);
+            }
+
+            TelemetryContextEnricher.ApplyToActivity(activity, telemetryClient.Context);
+            if (!string.IsNullOrEmpty(telemetryClient.Context.Cloud?.RoleName) && activity.GetTagItem(SemanticConventions.AttributeServiceName) == null)
+            {
+                activity.SetTag(SemanticConventions.AttributeServiceName, telemetryClient.Context.Cloud.RoleName);
+            }
+
+            if (!string.IsNullOrEmpty(telemetryClient.Context.Cloud?.RoleInstance) && activity.GetTagItem(SemanticConventions.AttributeServiceInstance) == null)
+            {
+                activity.SetTag(SemanticConventions.AttributeServiceInstance, telemetryClient.Context.Cloud.RoleInstance);
             }
 
             // Store the operation name as a tag for retrieval
@@ -202,6 +215,17 @@
                 return new OperationHolder<T>(telemetryClient, operationTelemetry, null);
             }
 
+            TelemetryContextEnricher.ApplyToActivity(activity, telemetryClient.Context);
+            if (!string.IsNullOrEmpty(telemetryClient.Context.Cloud?.RoleName) && activity.GetTagItem(SemanticConventions.AttributeServiceName) == null)
+            {
+                activity.SetTag(SemanticConventions.AttributeServiceName, telemetryClient.Context.Cloud.RoleName);
+            }
+
+            if (!string.IsNullOrEmpty(telemetryClient.Context.Cloud?.RoleInstance) && activity.GetTagItem(SemanticConventions.AttributeServiceInstance) == null)
+            {
+                activity.SetTag(SemanticConventions.AttributeServiceInstance, telemetryClient.Context.Cloud.RoleInstance);
+            }
+
             // Store the operation name as a tag for retrieval
             activity.SetOperationName(operationTelemetry.Name);
 
@@ -251,6 +275,17 @@
             {
                 activity.SetIdFormat(ActivityIdFormat.W3C);
                 activity.Start();
+            }
+
+            TelemetryContextEnricher.ApplyToActivity(activity, telemetryClient.Context);
+            if (!string.IsNullOrEmpty(telemetryClient.Context.Cloud?.RoleName) && activity.GetTagItem(SemanticConventions.AttributeServiceName) == null)
+            {
+                activity.SetTag(SemanticConventions.AttributeServiceName, telemetryClient.Context.Cloud.RoleName);
+            }
+
+            if (!string.IsNullOrEmpty(telemetryClient.Context.Cloud?.RoleInstance) && activity.GetTagItem(SemanticConventions.AttributeServiceInstance) == null)
+            {
+                activity.SetTag(SemanticConventions.AttributeServiceInstance, telemetryClient.Context.Cloud.RoleInstance);
             }
 
             var telemetry = new T

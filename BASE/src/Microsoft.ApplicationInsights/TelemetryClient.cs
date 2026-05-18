@@ -55,19 +55,9 @@
             // Use the shared ActivitySource from configuration
             this.activitySource = configuration.ApplicationInsightsActivitySource;
 
-            // For non-DI scenarios: Register context processors and build SDK eagerly
-            // For DI scenarios: SDK will be built by configuration when accessed;
-            // processors are registered via UseApplicationInsightsTelemetry() in NETCORE
+            // For non-DI scenarios, build SDK eagerly. DI scenarios resolve OTel providers from the container.
             if (!isFromDependencyInjection)
             {
-                // Prepend context processors so they run BEFORE any user-registered exporters.
-                // This ensures LogRecords/Activities are enriched with context tags before export.
-                configuration.PrependOpenTelemetryBuilderConfiguration(builder =>
-                {
-                    builder.WithTracing(tracing => tracing.AddProcessor(new TelemetryContextActivityProcessor(this.Context)));
-                    builder.WithLogging(logging => logging.AddProcessor(new TelemetryContextLogProcessor(this.Context)));
-                });
-
                 this.sdk = configuration.Build();
             }
 
@@ -162,6 +152,7 @@
 
             var mergedProperties = EnsureMutable(properties);
             mergedProperties["microsoft.custom_event.name"] = eventName;
+            ApplyContextToProperties(this.Context, mergedProperties);
             var state = new DictionaryLogState(mergedProperties, String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
@@ -188,6 +179,7 @@
 
             // Map item-level context properties to semantic conventions
             ApplyContextToProperties(telemetry.Context, mergedProperties);
+            ApplyContextToProperties(this.Context, mergedProperties);
 
             var state = new DictionaryLogState(telemetry.Context, mergedProperties, String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
@@ -267,6 +259,7 @@
 
             // Map item-level context properties to semantic conventions
             ApplyContextToProperties(telemetry.Context, properties);
+            ApplyContextToProperties(this.Context, properties);
 
             var state = new DictionaryLogState(telemetry.Context, properties, telemetry.Message ?? String.Empty);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
@@ -282,7 +275,9 @@
         public void TrackTrace(string message)
         {
             this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
-            var state = new DictionaryLogState(null, message);
+            var mergedProperties = EnsureMutable(null);
+            ApplyContextToProperties(this.Context, mergedProperties);
+            var state = new DictionaryLogState(mergedProperties, message);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -298,7 +293,9 @@
         {
             this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
             LogLevel logLevel = GetLogLevel(severityLevel);
-            var state = new DictionaryLogState(null, message);
+            var mergedProperties = EnsureMutable(null);
+            ApplyContextToProperties(this.Context, mergedProperties);
+            var state = new DictionaryLogState(mergedProperties, message);
             this.Logger.Log(logLevel, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -313,7 +310,9 @@
         public void TrackTrace(string message, IDictionary<string, string> properties)
         {
             this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
-            var state = new DictionaryLogState(properties, message);
+            var mergedProperties = EnsureMutable(properties);
+            ApplyContextToProperties(this.Context, mergedProperties);
+            var state = new DictionaryLogState(mergedProperties, message);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -330,7 +329,9 @@
         {
             this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
             LogLevel logLevel = GetLogLevel(severityLevel);
-            var state = new DictionaryLogState(properties, message);
+            var mergedProperties = EnsureMutable(properties);
+            ApplyContextToProperties(this.Context, mergedProperties);
+            var state = new DictionaryLogState(mergedProperties, message);
             this.Logger.Log(logLevel, 0, state, null, (s, ex) => s.Message);
         }
 
@@ -363,6 +364,7 @@
             // Map item-level context properties to semantic conventions
             var mergedProperties = EnsureMutable(telemetry.Properties);
             ApplyContextToProperties(telemetry.Context, mergedProperties);
+            ApplyContextToProperties(this.Context, mergedProperties);
 
             LogLevel logLevel = GetLogLevel(telemetry.SeverityLevel.Value);
             var state = new DictionaryLogState(telemetry.Context, mergedProperties, telemetry.Message);
@@ -385,11 +387,13 @@
             this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackMetric);
             // Get or create histogram for this metric
             var histogram = this.Configuration.MetricsManager.GetOrCreateHistogram(name, null);
+            var mergedProperties = EnsureMutable(properties);
+            ApplyContextToProperties(this.Context, mergedProperties);
 
-            if (properties != null && properties.Count > 0)
+            if (mergedProperties.Count > 0)
             {
                 var tags = new TagList();
-                foreach (var kvp in properties)
+                foreach (var kvp in mergedProperties)
                 {
                     tags.Add(kvp.Key, kvp.Value);
                 }
@@ -424,11 +428,14 @@
             var histogram = this.Configuration.MetricsManager.GetOrCreateHistogram(
                 telemetry.Name,
                 telemetry.MetricNamespace);
+            var mergedProperties = EnsureMutable(telemetry.Properties);
+            ApplyContextToProperties(telemetry.Context, mergedProperties);
+            ApplyContextToProperties(this.Context, mergedProperties);
 
-            if (telemetry.Properties != null && telemetry.Properties.Count > 0)
+            if (mergedProperties.Count > 0)
             {
                 var tags = new TagList();
-                foreach (var kvp in telemetry.Properties)
+                foreach (var kvp in mergedProperties)
                 {
                     tags.Add(kvp.Key, kvp.Value);
                 }
@@ -457,7 +464,9 @@
                 exception = new InvalidOperationException(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
             }
 
-            var state = new DictionaryLogState(properties, exception.Message);
+            var mergedProperties = EnsureMutable(properties);
+            ApplyContextToProperties(this.Context, mergedProperties);
+            var state = new DictionaryLogState(mergedProperties, exception.Message);
             this.Logger.Log(LogLevel.Error, 0, state, exception, (s, ex) => s.Message);
         }
 
@@ -483,6 +492,7 @@
             // Map item-level context properties to semantic conventions
             var mergedProperties = EnsureMutable(telemetry.Properties);
             ApplyContextToProperties(telemetry.Context, mergedProperties);
+            ApplyContextToProperties(this.Context, mergedProperties);
 
             var state = new DictionaryLogState(telemetry.Context, mergedProperties, reconstructedException.Message);
             var logLevel = GetLogLevel(telemetry.SeverityLevel ?? SeverityLevel.Error);
@@ -580,6 +590,9 @@
             {
                 if (dependencyTelemetryActivity != null)
                 {
+                    TelemetryContextEnricher.ApplyToActivity(dependencyTelemetryActivity, this.Context);
+                    ApplyCloudContextToActivity(this.Context, dependencyTelemetryActivity, overwrite: false);
+
                     // Set timing information
                     dependencyTelemetryActivity.SetStartTime(telemetry.Timestamp.UtcDateTime);
                     dependencyTelemetryActivity.SetEndTime(telemetry.Timestamp.Add(telemetry.Duration).UtcDateTime);
@@ -755,6 +768,9 @@
             {
                 if (activity != null)
                 {
+                    TelemetryContextEnricher.ApplyToActivity(activity, this.Context);
+                    ApplyCloudContextToActivity(this.Context, activity, overwrite: false);
+
                     activity.SetStartTime(request.Timestamp.UtcDateTime);
                     activity.SetEndTime(request.Timestamp.Add(request.Duration).UtcDateTime);
                     activity.SetStatus(request.Success == true ? ActivityStatusCode.Ok : ActivityStatusCode.Error);
@@ -1349,6 +1365,8 @@
                 return;
             }
 
+            ApplyCloudContextToActivity(context, activity, overwrite: true);
+
             if (!string.IsNullOrEmpty(context.User?.Id))
             {
                 activity.SetTag(SemanticConventions.AttributeEnduserPseudoId, context.User.Id);
@@ -1422,64 +1440,60 @@
                 return;
             }
 
-            if (!string.IsNullOrEmpty(context.User?.Id))
+            var globalProperties = context.GlobalPropertiesValue;
+            if (globalProperties != null)
             {
-                properties[SemanticConventions.AttributeEnduserPseudoId] = context.User.Id;
+                foreach (var kvp in globalProperties)
+                {
+                    AddPropertyIfAbsent(properties, kvp.Key, kvp.Value);
+                }
             }
 
-            if (!string.IsNullOrEmpty(context.User?.AuthenticatedUserId))
+            AddPropertyIfAbsent(properties, SemanticConventions.AttributeEnduserPseudoId, context.User?.Id);
+            AddPropertyIfAbsent(properties, SemanticConventions.AttributeEnduserId, context.User?.AuthenticatedUserId);
+            AddPropertyIfAbsent(properties, SemanticConventions.AttributeMicrosoftOperationName, context.Operation?.Name);
+            AddPropertyIfAbsent(properties, SemanticConventions.AttributeMicrosoftClientIp, context.Location?.Ip);
+            AddPropertyIfAbsent(properties, SemanticConventions.AttributeMicrosoftSessionId, context.Session?.Id);
+            AddPropertyIfAbsent(properties, SemanticConventions.AttributeAiDeviceId, context.Device?.Id);
+            AddPropertyIfAbsent(properties, SemanticConventions.AttributeAiDeviceModel, context.Device?.Model);
+            AddPropertyIfAbsent(properties, SemanticConventions.AttributeAiDeviceType, context.Device?.Type);
+            AddPropertyIfAbsent(properties, SemanticConventions.AttributeAiDeviceOsVersion, context.Device?.OperatingSystem);
+            AddPropertyIfAbsent(properties, SemanticConventions.AttributeMicrosoftSyntheticSource, context.Operation?.SyntheticSource);
+            AddPropertyIfAbsent(properties, SemanticConventions.AttributeMicrosoftUserAccountId, context.User?.AccountId);
+            AddPropertyIfAbsent(properties, SemanticConventions.AttributeUserAgentOriginal, context.User?.UserAgent);
+            AddPropertyIfAbsent(properties, SemanticConventions.AttributeServiceName, context.Cloud?.RoleName);
+            AddPropertyIfAbsent(properties, SemanticConventions.AttributeServiceInstance, context.Cloud?.RoleInstance);
+        }
+
+        private static void ApplyCloudContextToActivity(TelemetryContext context, Activity activity, bool overwrite)
+        {
+            if (context == null || activity == null)
             {
-                properties[SemanticConventions.AttributeEnduserId] = context.User.AuthenticatedUserId;
+                return;
             }
 
-            if (!string.IsNullOrEmpty(context.Operation?.Name))
+            SetActivityTag(activity, SemanticConventions.AttributeServiceName, context.Cloud?.RoleName, overwrite);
+            SetActivityTag(activity, SemanticConventions.AttributeServiceInstance, context.Cloud?.RoleInstance, overwrite);
+        }
+
+        private static void SetActivityTag(Activity activity, string key, string value, bool overwrite)
+        {
+            if (string.IsNullOrEmpty(value))
             {
-                properties[SemanticConventions.AttributeMicrosoftOperationName] = context.Operation.Name;
+                return;
             }
 
-            if (!string.IsNullOrEmpty(context.Location?.Ip))
+            if (overwrite || activity.GetTagItem(key) == null)
             {
-                properties[SemanticConventions.AttributeMicrosoftClientIp] = context.Location.Ip;
+                activity.SetTag(key, value);
             }
+        }
 
-            if (!string.IsNullOrEmpty(context.Session?.Id))
+        private static void AddPropertyIfAbsent(IDictionary<string, string> properties, string key, string value)
+        {
+            if (!string.IsNullOrEmpty(value) && !properties.ContainsKey(key))
             {
-                properties[SemanticConventions.AttributeMicrosoftSessionId] = context.Session.Id;
-            }
-
-            if (!string.IsNullOrEmpty(context.Device?.Id))
-            {
-                properties[SemanticConventions.AttributeAiDeviceId] = context.Device.Id;
-            }
-
-            if (!string.IsNullOrEmpty(context.Device?.Model))
-            {
-                properties[SemanticConventions.AttributeAiDeviceModel] = context.Device.Model;
-            }
-
-            if (!string.IsNullOrEmpty(context.Device?.Type))
-            {
-                properties[SemanticConventions.AttributeAiDeviceType] = context.Device.Type;
-            }
-
-            if (!string.IsNullOrEmpty(context.Device?.OperatingSystem))
-            {
-                properties[SemanticConventions.AttributeAiDeviceOsVersion] = context.Device.OperatingSystem;
-            }
-
-            if (!string.IsNullOrEmpty(context.Operation?.SyntheticSource))
-            {
-                properties[SemanticConventions.AttributeMicrosoftSyntheticSource] = context.Operation.SyntheticSource;
-            }
-
-            if (!string.IsNullOrEmpty(context.User?.AccountId))
-            {
-                properties[SemanticConventions.AttributeMicrosoftUserAccountId] = context.User.AccountId;
-            }
-
-            if (!string.IsNullOrEmpty(context.User?.UserAgent))
-            {
-                properties[SemanticConventions.AttributeUserAgentOriginal] = context.User.UserAgent;
+                properties.Add(key, value);
             }
         }
 
@@ -1510,8 +1524,8 @@
             }
 
             /// <summary>
-            /// Constructor that merges TelemetryContext.GlobalProperties with item-level properties.
-            /// Client-level context tags are handled by <see cref="Processors.TelemetryContextLogProcessor"/>.
+            /// Constructor that merges TelemetryContext.GlobalProperties with already-enriched item properties.
+            /// Source-level callers are responsible for applying item/client context precedence before constructing the state.
             /// </summary>
             /// <param name="context">The telemetry context containing GlobalProperties.</param>
             /// <param name="properties">Item-level properties (highest priority, override GlobalProperties).</param>
