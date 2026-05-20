@@ -494,7 +494,7 @@ namespace Microsoft.ApplicationInsights.Processors
             var field = typeof(TelemetryContextActivityProcessor)
                 .GetField("frozenTags", BindingFlags.NonPublic | BindingFlags.Instance);
             Assert.NotNull(field);
-            return (KeyValuePair<string, string>[]?)field.GetValue(processor);
+            return (KeyValuePair<string, string>[])field.GetValue(processor);
         }
 
         #endregion

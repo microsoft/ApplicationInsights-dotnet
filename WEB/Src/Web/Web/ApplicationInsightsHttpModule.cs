@@ -244,7 +244,12 @@
             {
                 lock (StaticLockObject)
                 {
+                    // Double-check pattern: another thread may have assigned
+                    // sharedTelemetryClient between the outer null check and acquiring
+                    // the lock. The analyzer doesn't model that across thread boundaries.
+#pragma warning disable CA1508 // Avoid dead conditional code
                     if (sharedTelemetryClient == null)
+#pragma warning restore CA1508
                     {
                         sharedTelemetryClient = new TelemetryClient(this.telemetryConfiguration);
                     }
