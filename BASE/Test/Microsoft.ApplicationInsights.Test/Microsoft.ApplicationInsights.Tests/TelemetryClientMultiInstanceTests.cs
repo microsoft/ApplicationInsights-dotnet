@@ -204,5 +204,37 @@ namespace Microsoft.ApplicationInsights
             Assert.Equal("op-A", actA.GetTagItem("microsoft.operation_name"));
             Assert.Equal("op-B", actB.GetTagItem("microsoft.operation_name"));
         }
+
+        /// <summary>
+        /// StartOperation&lt;T&gt; must enrich the started Activity with the calling client's
+        /// per-instance Context. Two clients starting operations through the same shared
+        /// configuration must each tag their Activity with their own Context values.
+        /// </summary>
+        [Fact]
+        public void StartOperation_FromDifferentClients_CarriesEachClientsContext()
+        {
+            var clientA = new TelemetryClient(this.configuration);
+            var clientB = new TelemetryClient(this.configuration);
+            clientA.Context.User.Id = "user-A";
+            clientB.Context.User.Id = "user-B";
+
+            using (clientA.StartOperation<DependencyTelemetry>("op-A"))
+            {
+            }
+
+            using (clientB.StartOperation<DependencyTelemetry>("op-B"))
+            {
+            }
+
+            clientA.Flush();
+
+            var actA = this.activityItems.FirstOrDefault(a => a.DisplayName == "op-A");
+            var actB = this.activityItems.FirstOrDefault(a => a.DisplayName == "op-B");
+            Assert.NotNull(actA);
+            Assert.NotNull(actB);
+
+            Assert.Equal("user-A", actA.GetTagItem("enduser.pseudo.id"));
+            Assert.Equal("user-B", actB.GetTagItem("enduser.pseudo.id"));
+        }
     }
 }
