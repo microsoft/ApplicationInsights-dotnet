@@ -108,6 +108,10 @@
             // Store the operation name as a tag for retrieval
             activity.SetOperationName(effectiveName);
 
+            // Enrich the activity with the calling TelemetryClient's per-instance Context
+            // (skip-if-present so any tags set by the ActivitySource start callback win).
+            TelemetryClient.EnrichActivityWithClientContext(telemetryClient.Context, activity);
+
             var telemetry = new T
             {
                 Name = effectiveName,
@@ -205,6 +209,10 @@
             // Store the operation name as a tag for retrieval
             activity.SetOperationName(operationTelemetry.Name);
 
+            // Enrich the activity with the calling TelemetryClient's per-instance Context
+            // (skip-if-present so any tags set by the ActivitySource start callback win).
+            TelemetryClient.EnrichActivityWithClientContext(telemetryClient.Context, activity);
+
             operationTelemetry.Timestamp = DateTimeOffset.UtcNow;
             operationTelemetry.Id = activity.SpanId.ToHexString();
             operationTelemetry.Context.Operation.Id = activity.TraceId.ToHexString();
@@ -252,6 +260,10 @@
                 activity.SetIdFormat(ActivityIdFormat.W3C);
                 activity.Start();
             }
+
+            // Enrich the activity with the calling TelemetryClient's per-instance Context
+            // (skip-if-present so any tags already set on the activity by the caller win).
+            TelemetryClient.EnrichActivityWithClientContext(telemetryClient.Context, activity);
 
             var telemetry = new T
             {

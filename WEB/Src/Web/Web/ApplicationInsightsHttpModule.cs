@@ -23,9 +23,9 @@
         private static readonly object StaticLockObject = new object();
         private static int initializationCount = 0;
         private static TelemetryConfiguration sharedTelemetryConfiguration;
+        private static TelemetryClient sharedTelemetryClient;
         private static bool isInitialized = false;
 
-        private readonly object lockObject = new object();
         private TelemetryConfiguration telemetryConfiguration;
         private TelemetryClient telemetryClient;
 
@@ -137,7 +137,9 @@
                     System.Diagnostics.Debug.WriteLine("Skipping duplicate initialization - using shared configuration");
                 }
 
-                // Use the shared configuration for this instance
+                // Use the shared configuration for this instance. The shared TelemetryClient is
+                // created lazily on the first request below, so that Init() never triggers an
+                // OpenTelemetry SDK Build (which can fail when no connection string is configured).
                 this.telemetryConfiguration = sharedTelemetryConfiguration;
             }
 
@@ -232,17 +234,24 @@
 
         private void OnBeginRequest(object sender, EventArgs eventArgs)
         {
-            // Ensure TelemetryClient is created only once per module instance using double-check locking pattern
-            if (this.telemetryClient == null)
+            // Lazily create the single, AppDomain-shared TelemetryClient on first request.
+            // All module instances share this single client (host-blessed singleton). User code may
+            // safely create additional TelemetryClient instances against sharedTelemetryConfiguration
+            // after this point: TelemetryClient's constructor only calls the idempotent
+            // TelemetryConfiguration.Build() and no longer mutates the pipeline, so post-Build
+            // construction does not throw (fix for issue #3163).
+            if (sharedTelemetryClient == null)
             {
-                lock (this.lockObject)
+                lock (StaticLockObject)
                 {
-                    if (this.telemetryClient == null)
+                    if (sharedTelemetryClient == null)
                     {
-                        this.telemetryClient = new TelemetryClient(this.telemetryConfiguration);
+                        sharedTelemetryClient = new TelemetryClient(this.telemetryConfiguration);
                     }
                 }
             }
+
+            this.telemetryClient = sharedTelemetryClient;
         }
     }
 }

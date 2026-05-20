@@ -283,6 +283,73 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             Assert.Same(config1, config2); // Should be the same instance
         }
 
+        /// <summary>
+        /// Regression for issue #3163: after the HttpModule has initialized (and therefore built the
+        /// shared TelemetryConfiguration), creating additional TelemetryClient instances against the
+        /// same configuration must not throw InvalidOperationException. Prior to the fix, the non-DI
+        /// TelemetryClient constructor unconditionally called PrependOpenTelemetryBuilderConfiguration,
+        /// which threw because the configuration was already built.
+        /// </summary>
+        [Fact]
+        public void Init_AllowsAdditionalTelemetryClientsToBeConstructedAfterInit()
+        {
+            // Arrange
+            string configContent = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<ApplicationInsights xmlns=""http://schemas.microsoft.com/ApplicationInsights/2013/Settings"">
+    <ConnectionString>InstrumentationKey=test</ConnectionString>
+</ApplicationInsights>";
+
+            CreateConfigInTestDirectory(configContent);
+
+            var module = new ApplicationInsightsHttpModule();
+            module.Init(CreateMockHttpApplication());
+
+            var sharedConfig = GetTelemetryConfigurationFromModule(module);
+            Assert.NotNull(sharedConfig);
+
+            // Act + Assert — must not throw.
+            var extra1 = new TelemetryClient(sharedConfig);
+            var extra2 = new TelemetryClient(sharedConfig);
+
+            Assert.NotNull(extra1);
+            Assert.NotNull(extra2);
+            Assert.NotSame(extra1, extra2);
+            Assert.Same(extra1.TelemetryConfiguration, extra2.TelemetryConfiguration);
+            Assert.Same(sharedConfig, extra1.TelemetryConfiguration);
+        }
+
+        /// <summary>
+        /// Each TelemetryClient constructed against the module's shared configuration must have its
+        /// own isolated TelemetryContext. Mutating one client's Context must not affect another's.
+        /// </summary>
+        [Fact]
+        public void Init_AdditionalTelemetryClients_HaveIsolatedContext()
+        {
+            // Arrange
+            string configContent = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<ApplicationInsights xmlns=""http://schemas.microsoft.com/ApplicationInsights/2013/Settings"">
+    <ConnectionString>InstrumentationKey=test</ConnectionString>
+</ApplicationInsights>";
+
+            CreateConfigInTestDirectory(configContent);
+
+            var module = new ApplicationInsightsHttpModule();
+            module.Init(CreateMockHttpApplication());
+
+            var sharedConfig = GetTelemetryConfigurationFromModule(module);
+            var clientA = new TelemetryClient(sharedConfig);
+            var clientB = new TelemetryClient(sharedConfig);
+
+            // Act
+            clientA.Context.User.Id = "user-A";
+            clientB.Context.User.Id = "user-B";
+
+            // Assert
+            Assert.NotSame(clientA.Context, clientB.Context);
+            Assert.Equal("user-A", clientA.Context.User.Id);
+            Assert.Equal("user-B", clientB.Context.User.Id);
+        }
+
         [Fact]
         public void Init_ConfiguresOpenTelemetryBuilder_WhenConfigOptionsProvided()
         {
@@ -450,6 +517,12 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             if (sharedConfigField != null)
             {
                 sharedConfigField.SetValue(null, null);
+            }
+
+            var sharedClientField = type.GetField("sharedTelemetryClient", BindingFlags.Static | BindingFlags.NonPublic);
+            if (sharedClientField != null)
+            {
+                sharedClientField.SetValue(null, null);
             }
 
             var isInitializedField = type.GetField("isInitialized", BindingFlags.Static | BindingFlags.NonPublic);
