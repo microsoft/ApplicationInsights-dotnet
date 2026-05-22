@@ -1,0 +1,2 @@
+Microsoft.ApplicationInsights.Web.WebApplicationInsightsInitializer
+static Microsoft.ApplicationInsights.Web.WebApplicationInsightsInitializer.Initialize() -> void

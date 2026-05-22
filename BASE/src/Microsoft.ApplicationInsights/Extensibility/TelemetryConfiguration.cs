@@ -320,14 +320,15 @@
         /// </summary>
         internal void PrependOpenTelemetryBuilderConfiguration(Action<IOpenTelemetryBuilder> configure)
         {
-            this.ThrowIfBuilt();
-
-            var previousConfiguration = this.builderConfiguration;
-            this.builderConfiguration = builder =>
+            if (!this.isBuilt)
             {
-                configure(builder);
-                previousConfiguration(builder);
-            };
+                var previousConfiguration = this.builderConfiguration;
+                this.builderConfiguration = builder =>
+                {
+                    configure(builder);
+                    previousConfiguration(builder);
+                };
+            }
         }
 
         /// <summary>
