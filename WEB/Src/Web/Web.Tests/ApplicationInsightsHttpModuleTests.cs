@@ -443,36 +443,24 @@ namespace Microsoft.ApplicationInsights.Web.Tests
 
         private void ResetStaticState()
         {
-            // Use reflection to reset static state for test isolation
-            var type = typeof(ApplicationInsightsHttpModule);
-            
-            var sharedConfigField = type.GetField("sharedTelemetryConfiguration", BindingFlags.Static | BindingFlags.NonPublic);
-            if (sharedConfigField != null)
-            {
-                sharedConfigField.SetValue(null, null);
-            }
-
-            var isInitializedField = type.GetField("isInitialized", BindingFlags.Static | BindingFlags.NonPublic);
+            // Use reflection to reset static state for test isolation.
+            // The HTTP module no longer carries its own static state; configuration loading
+            // moved to WebApplicationInsightsInitializer, which has its own one-shot guard.
+            var initializerType = typeof(WebApplicationInsightsInitializer);
+            var isInitializedField = initializerType.GetField("isInitialized", BindingFlags.Static | BindingFlags.NonPublic);
             if (isInitializedField != null)
             {
                 isInitializedField.SetValue(null, false);
             }
 
-            var initCountField = type.GetField("initializationCount", BindingFlags.Static | BindingFlags.NonPublic);
-            if (initCountField != null)
-            {
-                initCountField.SetValue(null, 0);
-            }
-
             // This next block is added because of tests that check the value of exporter options for sampling settings.
-            // Also reset the TelemetryConfiguration.DefaultInstance static Lazy field
-            // This is necessary because CreateDefault() returns a singleton that can only be built once
+            // Also reset the TelemetryConfiguration.DefaultInstance static Lazy field.
+            // This is necessary because CreateDefault() returns a singleton that can only be built once.
             var telemetryConfigType = typeof(TelemetryConfiguration);
             var defaultInstanceField = telemetryConfigType.GetField("DefaultInstance", BindingFlags.Static | BindingFlags.NonPublic);
             if (defaultInstanceField != null)
             {
-                // Create a new Lazy<TelemetryConfiguration> instance to replace the existing one
-                var lazyType = typeof(Lazy<TelemetryConfiguration>);
+                // Create a new Lazy<TelemetryConfiguration> instance to replace the existing one.
                 var newLazy = new Lazy<TelemetryConfiguration>(() => new TelemetryConfiguration(), LazyThreadSafetyMode.ExecutionAndPublication);
                 defaultInstanceField.SetValue(null, newLazy);
             }

@@ -65,25 +65,38 @@ namespace Microsoft.ApplicationInsights.Web
                     return;
                 }
 
-                // Materialize the singleton. Any subsequent call to
-                // TelemetryConfiguration.CreateDefault() returns this same instance.
-                TelemetryConfiguration cfg = TelemetryConfiguration.CreateDefault();
-
-                cfg.ExtensionVersion = VersionUtils.ExtensionLabelShimWeb
-                    + VersionUtils.GetVersion(typeof(ApplicationInsightsExtensions));
-
-                ApplicationInsightsConfigOptions configOptions =
-                    ApplicationInsightsConfigurationReader.GetConfigurationOptions();
-
-                if (configOptions != null)
+                try
                 {
-                    ApplyConfigOptions(cfg, configOptions);
+                    // Materialize the singleton. Any subsequent call to
+                    // TelemetryConfiguration.CreateDefault() returns this same instance.
+                    TelemetryConfiguration cfg = TelemetryConfiguration.CreateDefault();
+
+                    cfg.ExtensionVersion = VersionUtils.ExtensionLabelShimWeb
+                        + VersionUtils.GetVersion(typeof(ApplicationInsightsExtensions));
+
+                    ApplicationInsightsConfigOptions configOptions =
+                        ApplicationInsightsConfigurationReader.GetConfigurationOptions();
+
+                    if (configOptions != null)
+                    {
+                        ApplyConfigOptions(cfg, configOptions);
+                    }
+                    else
+                    {
+                        WebEventSource.Log.NoConnectionStringFoundInConfig();
+                        cfg.ConfigureOpenTelemetryBuilder(
+                            builder => builder.UseApplicationInsightsAspNetTelemetry());
+                    }
                 }
-                else
+                catch (InvalidOperationException ex)
                 {
-                    WebEventSource.Log.NoConnectionStringFoundInConfig();
-                    cfg.ConfigureOpenTelemetryBuilder(
-                        builder => builder.UseApplicationInsightsAspNetTelemetry());
+                    // The singleton TelemetryConfiguration was already built by user code
+                    // (e.g., a TelemetryClient was constructed before PreApplicationStartMethod
+                    // ran). Property setters and builder-config registrations throw in that
+                    // state. There is nothing we can apply at this point — surface a
+                    // diagnostic and move on. Subsequent calls become no-ops via isInitialized.
+                    WebEventSource.Log.ApplicationInsightsConfigReadError(
+                        "WebApplicationInsightsInitializer skipped: TelemetryConfiguration was already built. " + ex.Message);
                 }
 
                 isInitialized = true;
@@ -217,10 +230,15 @@ namespace Microsoft.ApplicationInsights.Web
                     property.SetValue(target, value);
                 }
             }
-            catch
+            catch (Exception ex) when (
+                ex is AmbiguousMatchException
+                || ex is TargetException
+                || ex is TargetInvocationException
+                || ex is ArgumentException
+                || ex is MethodAccessException)
             {
-                // Silently ignore if property doesn't exist or can't be set.
-                // This allows forward/backward compatibility across versions.
+                // Silently ignore if the property is missing or cannot be set.
+                // This allows forward/backward compatibility across exporter versions.
             }
         }
     }

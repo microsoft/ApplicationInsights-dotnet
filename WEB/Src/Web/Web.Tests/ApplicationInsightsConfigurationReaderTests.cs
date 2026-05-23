@@ -6,6 +6,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
     using Microsoft.ApplicationInsights.Web.Implementation;
     using Xunit;
 
+    [Collection("ApplicationInsightsHttpModule")] // Same collection as ApplicationInsightsHttpModuleTests; both write the same ApplicationInsights.config file in the test base directory.
     public class ApplicationInsightsConfigurationReaderTests : IDisposable
     {
         private readonly string configFilePath;
