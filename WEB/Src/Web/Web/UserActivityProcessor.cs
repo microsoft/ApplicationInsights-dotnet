@@ -33,7 +33,8 @@ namespace Microsoft.ApplicationInsights.Web
             }
 
             var context = HttpContext.Current;
-            if (context == null)
+            var request = context.GetRequest();
+            if (request == null)
             {
                 return;
             }
@@ -43,7 +44,7 @@ namespace Microsoft.ApplicationInsights.Web
             if (existingUserId == null || string.IsNullOrEmpty(existingUserId.ToString()))
             {
                 // Try Unvalidated first, fall back to regular Cookies for test environments
-                var userCookie = context.Request.UnvalidatedGetCookie(WebUserCookieName) ?? context.Request.Cookies[WebUserCookieName];
+                var userCookie = request.UnvalidatedGetCookie(WebUserCookieName) ?? request.Cookies[WebUserCookieName];
                 if (userCookie != null && !string.IsNullOrEmpty(userCookie.Value))
                 {
                     var cookieParts = userCookie.Value.Split('|');

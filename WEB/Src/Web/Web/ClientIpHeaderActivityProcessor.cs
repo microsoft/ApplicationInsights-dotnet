@@ -77,7 +77,8 @@ namespace Microsoft.ApplicationInsights.Web
             }
 
             var context = HttpContext.Current;
-            if (context == null)
+            var request = context.GetRequest();
+            if (request == null)
             {
                 return;
             }
@@ -90,10 +91,10 @@ namespace Microsoft.ApplicationInsights.Web
                 foreach (var clientIpHeaderName in this.HeaderNames)
                 {
                     // Try Unvalidated first, fall back to regular Headers for test environments
-                    var clientIpsFromHeader = context.Request.UnvalidatedGetHeader(clientIpHeaderName);
+                    var clientIpsFromHeader = request.UnvalidatedGetHeader(clientIpHeaderName);
                     if (string.IsNullOrWhiteSpace(clientIpsFromHeader))
                     {
-                        clientIpsFromHeader = context.Request.Headers[clientIpHeaderName];
+                        clientIpsFromHeader = request.Headers[clientIpHeaderName];
                     }
 
                     if (!string.IsNullOrWhiteSpace(clientIpsFromHeader))
@@ -111,7 +112,7 @@ namespace Microsoft.ApplicationInsights.Web
 
                 if (string.IsNullOrEmpty(resultIp))
                 {
-                    resultIp = context.Request.GetUserHostAddress();
+                    resultIp = request.GetUserHostAddress();
                 }
 
                 if (!string.IsNullOrEmpty(resultIp))

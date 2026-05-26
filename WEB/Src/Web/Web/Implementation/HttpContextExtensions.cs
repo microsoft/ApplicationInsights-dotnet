@@ -11,12 +11,28 @@ namespace Microsoft.ApplicationInsights.Web.Implementation
     {
         /// <summary>
         /// Gets the HttpRequest from the HttpContext.
+        /// Returns null if no request is available (e.g., when called outside of a
+        /// request context such as during <c>Application_Start</c>), in which case
+        /// <see cref="HttpContext.Request"/> throws <see cref="HttpException"/>.
         /// </summary>
         /// <param name="context">The HttpContext.</param>
-        /// <returns>The HttpRequest.</returns>
+        /// <returns>The HttpRequest, or null if not available.</returns>
         public static HttpRequest GetRequest(this HttpContext context)
         {
-            return context?.Request;
+            if (context == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                return context.Request;
+            }
+            catch (HttpException)
+            {
+                // "Request is not available in this context" — e.g., Application_Start.
+                return null;
+            }
         }
 
         /// <summary>
@@ -26,12 +42,12 @@ namespace Microsoft.ApplicationInsights.Web.Implementation
         /// <returns>The request name in format "VERB Controller/Action" or "VERB Path".</returns>
         public static string CreateRequestNamePrivate(this HttpContext context)
         {
-            if (context?.Request == null)
+            var request = context.GetRequest();
+            if (request == null)
             {
                 return string.Empty;
             }
 
-            var request = context.Request;
             string verb = request.HttpMethod ?? "GET";
             
             // Try to get controller and action from route data

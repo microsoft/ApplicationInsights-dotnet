@@ -33,7 +33,8 @@ namespace Microsoft.ApplicationInsights.Web
             }
 
             var context = HttpContext.Current;
-            if (context == null)
+            var request = context.GetRequest();
+            if (request == null)
             {
                 return;
             }
@@ -42,7 +43,7 @@ namespace Microsoft.ApplicationInsights.Web
             var existingAccountId = activity.GetTagItem("enduser.id");
             if (existingAccountId == null || string.IsNullOrEmpty(existingAccountId.ToString()))
             {
-                var authUserCookie = context.Request.UnvalidatedGetCookie(RequestTrackingConstants.WebAuthenticatedUserCookieName);
+                var authUserCookie = request.UnvalidatedGetCookie(RequestTrackingConstants.WebAuthenticatedUserCookieName);
                 if (authUserCookie != null && !string.IsNullOrEmpty(authUserCookie.Value))
                 {
                     var authUserCookieString = HttpUtility.UrlDecode(authUserCookie.Value);
