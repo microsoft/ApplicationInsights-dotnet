@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+
+## Version 3.1.2
+- [Fix `HttpException: Request is not available in this context` in the WEB package when calling `TrackDependency` from `Application_Start` in classic ASP.NET. The WEB activity processors now safely handle the case where `HttpContext.Request` is not yet available.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3184)
 - [Fix #3163: `TelemetryConfiguration.CreateDefault()` on classic ASP.NET now returns a configuration already populated from `ApplicationInsights.config` (connection string, sampling, storage, live metrics, request/dependency tracking, etc.). A new `PreApplicationStartMethod` (`WebApplicationInsightsInitializer`) materializes and populates the singleton before `Application_Start` runs, so customer code calling `TelemetryConfiguration.CreateDefault()` from `Global.asax.cs` no longer gets an empty configuration. The `ApplicationInsightsHttpModule` no longer carries the config-reading bookkeeping. `TelemetryConfiguration.PrependOpenTelemetryBuilderConfiguration` no longer throws if the configuration was already built — it silently skips, so a second `TelemetryClient` constructed against an already-built configuration no longer throws `InvalidOperationException`.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3183)
 
 ## Version 3.1.1
