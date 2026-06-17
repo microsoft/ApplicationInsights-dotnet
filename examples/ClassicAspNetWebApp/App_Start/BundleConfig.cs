@@ -44,8 +44,8 @@ namespace ClassicAspNetWebApp
                 {
                     Path = "~/scripts/jquery-3.7.0.min.js",
                     DebugPath = "~/scripts/jquery-3.7.0.js",
-                    CdnPath = "https://code.jquery.com/jquery-3.7.1.min.js",
-                    CdnDebugPath = "https://code.jquery.com/jquery-3.7.1.js"
+                    CdnPath = "https://code.jquery.com/jquery-3.7.0.min.js",
+                    CdnDebugPath = "https://code.jquery.com/jquery-3.7.0.js"
                 });
         }
     }
