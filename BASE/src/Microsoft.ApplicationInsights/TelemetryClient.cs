@@ -153,7 +153,7 @@
         /// <param name="properties">Named string values you can use to search and classify events.</param>
         public void TrackEvent(string eventName, IDictionary<string, string> properties = null)
         {
-            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackEvent);
+            this.Configuration.FeatureReporter?.MarkFeatureInUse(StatsbeatFeatures.TrackEvent);
             if (string.IsNullOrEmpty(eventName))
             {
                 CoreEventSource.Log.TrackEventInvalidName();
@@ -176,7 +176,7 @@
         /// <param name="telemetry">An event log item.</param>
         public void TrackEvent(EventTelemetry telemetry)
         {
-            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackEvent);
+            this.Configuration.FeatureReporter?.MarkFeatureInUse(StatsbeatFeatures.TrackEvent);
             if (telemetry == null)
             {
                 CoreEventSource.Log.TrackEventTelemetryIsNull();
@@ -208,7 +208,7 @@
         /// </remarks>
         public void TrackAvailability(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message = null, IDictionary<string, string> properties = null)
         {
-            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackAvailability);
+            this.Configuration.FeatureReporter?.MarkFeatureInUse(StatsbeatFeatures.TrackAvailability);
             var availabilityTelemetry = new AvailabilityTelemetry(name, timeStamp, duration, runLocation, success, message);
 
             if (properties != null && properties.Count > 0)
@@ -229,7 +229,7 @@
         /// <param name="telemetry">An availability telemetry item.</param>
         public void TrackAvailability(AvailabilityTelemetry telemetry)
         {
-            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackAvailability);
+            this.Configuration.FeatureReporter?.MarkFeatureInUse(StatsbeatFeatures.TrackAvailability);
             if (telemetry == null)
             {
                 CoreEventSource.Log.TrackAvailabilityTelemetryIsNull();
@@ -281,7 +281,7 @@
         /// <param name="message">Message to display.</param>
         public void TrackTrace(string message)
         {
-            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
+            this.Configuration.FeatureReporter?.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
             var state = new DictionaryLogState(null, message);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
@@ -296,7 +296,7 @@
         /// <param name="severityLevel">Trace severity level.</param>
         public void TrackTrace(string message, SeverityLevel severityLevel)
         {
-            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
+            this.Configuration.FeatureReporter?.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
             LogLevel logLevel = GetLogLevel(severityLevel);
             var state = new DictionaryLogState(null, message);
             this.Logger.Log(logLevel, 0, state, null, (s, ex) => s.Message);
@@ -312,7 +312,7 @@
         /// <param name="properties">Named string values you can use to search and classify events.</param>
         public void TrackTrace(string message, IDictionary<string, string> properties)
         {
-            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
+            this.Configuration.FeatureReporter?.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
             var state = new DictionaryLogState(properties, message);
             this.Logger.Log(LogLevel.Information, 0, state, null, (s, ex) => s.Message);
         }
@@ -328,7 +328,7 @@
         /// <param name="properties">Named string values you can use to search and classify events.</param>
         public void TrackTrace(string message, SeverityLevel severityLevel, IDictionary<string, string> properties)
         {
-            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
+            this.Configuration.FeatureReporter?.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
             LogLevel logLevel = GetLogLevel(severityLevel);
             var state = new DictionaryLogState(properties, message);
             this.Logger.Log(logLevel, 0, state, null, (s, ex) => s.Message);
@@ -344,7 +344,7 @@
         /// <param name="telemetry">Message with optional properties.</param>
         public void TrackTrace(TraceTelemetry telemetry)
         {
-            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
+            this.Configuration.FeatureReporter?.MarkFeatureInUse(StatsbeatFeatures.TrackTrace);
             if (telemetry == null)
             {
                 telemetry = new TraceTelemetry();
@@ -379,10 +379,10 @@
         /// </summary>
         /// <param name="name">Metric name.</param>
         /// <param name="value">Metric value.</param>
-        /// <param name="properties">Named string values you can use to classify and filter metrics.</param>        
+        /// <param name="properties">Named string values you can use to classify and filter metrics.</param>
         public void TrackMetric(string name, double value, IDictionary<string, string> properties = null)
         {
-            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackMetric);
+            this.Configuration.FeatureReporter?.MarkFeatureInUse(StatsbeatFeatures.TrackMetric);
             // Get or create histogram for this metric
             var histogram = this.Configuration.MetricsManager.GetOrCreateHistogram(name, null);
 
@@ -410,10 +410,10 @@
         /// If your application requires sending a separate telemetry item at every occasion without aggregation across time,
         /// you likely have a use case for event telemetry; see <see cref="TrackEvent(EventTelemetry)"/>.
         /// </summary>
-        /// <param name="telemetry">The metric telemetry item.</param>        
+        /// <param name="telemetry">The metric telemetry item.</param>
         public void TrackMetric(MetricTelemetry telemetry)
         {
-            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackMetric);
+            this.Configuration.FeatureReporter?.MarkFeatureInUse(StatsbeatFeatures.TrackMetric);
             if (telemetry == null)
             {
                 CoreEventSource.Log.TrackMetricTelemetryIsNull();
@@ -451,7 +451,7 @@
         /// </remarks>
         public void TrackException(Exception exception, IDictionary<string, string> properties = null)
         {
-            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackException);
+            this.Configuration.FeatureReporter?.MarkFeatureInUse(StatsbeatFeatures.TrackException);
             if (exception == null)
             {
                 exception = new InvalidOperationException(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
@@ -470,7 +470,7 @@
         /// </remarks>
         public void TrackException(ExceptionTelemetry telemetry)
         {
-            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackException);
+            this.Configuration.FeatureReporter?.MarkFeatureInUse(StatsbeatFeatures.TrackException);
             // TODO investigate how problem id, custom message, etc should appear in portal
             if (telemetry == null)
             {
@@ -531,7 +531,7 @@
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This method implements a shim layer that converts Application Insights DependencyTelemetry objects 
+        /// This method implements a shim layer that converts Application Insights DependencyTelemetry objects
         /// into OpenTelemetry Activities. The Azure Monitor Exporter then processes these Activities to emit telemetry.
         /// </para>
         /// <para>
@@ -560,14 +560,14 @@
         /// </list>
         /// <para>
         /// These override attributes ensure backward compatibility and prevent data loss during the OpenTelemetry migration.
-        /// For Activities created by OpenTelemetry instrumentation (without override attributes), the exporter will map 
+        /// For Activities created by OpenTelemetry instrumentation (without override attributes), the exporter will map
         /// semantic convention attributes (url.full, db.system, messaging.system, etc.) to Application Insights fields.
         /// </para>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackdependency">Learn more</a>
         /// </remarks>
         public void TrackDependency(DependencyTelemetry telemetry)
         {
-            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackDependency);
+            this.Configuration.FeatureReporter?.MarkFeatureInUse(StatsbeatFeatures.TrackDependency);
             if (telemetry == null)
             {
                 return;
@@ -707,7 +707,7 @@
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This method implements a shim layer that converts Application Insights RequestTelemetry objects 
+        /// This method implements a shim layer that converts Application Insights RequestTelemetry objects
         /// into OpenTelemetry Activities. The Azure Monitor Exporter then processes these Activities to emit telemetry.
         /// </para>
         /// <para>
@@ -735,14 +735,14 @@
         /// </list>
         /// <para>
         /// These override attributes ensure backward compatibility and prevent data loss during the OpenTelemetry migration.
-        /// For Activities created by OpenTelemetry instrumentation (without override attributes), the exporter will map 
+        /// For Activities created by OpenTelemetry instrumentation (without override attributes), the exporter will map
         /// semantic convention attributes (url.full, http.response.status_code, messaging.system, etc.) to Application Insights fields.
         /// </para>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackrequest">Learn more</a>
         /// </remarks>
         public void TrackRequest(RequestTelemetry request)
         {
-            this.Configuration.FeatureReporter.MarkFeatureInUse(StatsbeatFeatures.TrackRequest);
+            this.Configuration.FeatureReporter?.MarkFeatureInUse(StatsbeatFeatures.TrackRequest);
             if (request == null)
             {
                 return;

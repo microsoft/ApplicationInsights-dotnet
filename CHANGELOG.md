@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- [Fix `NullReferenceException` when using TelemetryClient APIs when no connection string is provided](TODO)
 
 ## Version 3.1.2
 - [Fix `HttpException: Request is not available in this context` in the WEB package when calling `TrackDependency` from `Application_Start` in classic ASP.NET. The WEB activity processors now safely handle the case where `HttpContext.Request` is not yet available.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3184)
