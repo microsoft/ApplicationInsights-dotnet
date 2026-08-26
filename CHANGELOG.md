@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- [Fix #3179: Skip Azure VM resource detection on Azure App Service to prevent unnecessary IMDS requests.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/3179)
 - [Fix #3197: `NullReferenceException` when using TelemetryClient APIs when no connection string is provided.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3199)
 
 ## Version 3.1.2
