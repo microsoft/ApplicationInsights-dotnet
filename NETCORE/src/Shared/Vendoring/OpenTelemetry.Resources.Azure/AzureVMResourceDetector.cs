@@ -4,6 +4,7 @@
 
 namespace Microsoft.ApplicationInsights.Shared.Vendoring.OpenTelemetry.Resources.Azure
 {
+    using System;
     using System.Collections.Generic;
     using global::OpenTelemetry;
     using global::OpenTelemetry.Resources;
@@ -36,6 +37,11 @@ namespace Microsoft.ApplicationInsights.Shared.Vendoring.OpenTelemetry.Resources
         {
             try
             {
+                if (Environment.GetEnvironmentVariable(ResourceAttributeConstants.AppServiceSiteNameEnvVar) != null)
+                {
+                    return Resource.Empty;
+                }
+
                 if (vmResource != null)
                 {
                     return vmResource;
