@@ -4,8 +4,12 @@ using Microsoft.ApplicationInsights.Shared.Vendoring.OpenTelemetry.Resources.Azu
 using OpenTelemetry.Resources;
 using Xunit;
 
-namespace Microsoft.ApplicationInsights.AspNetCore.Tests
+namespace IntegrationTests.Tests
 {
+    [CollectionDefinition("AzureVMResourceDetectorTests", DisableParallelization = true)]
+    public class AzureVMResourceDetectorTestsCollectionDefinition { }
+
+    [Collection("AzureVMResourceDetectorTests")]
     public class AzureVMResourceDetectorTests : IDisposable
     {
         private readonly string? originalWebsiteSiteName;
