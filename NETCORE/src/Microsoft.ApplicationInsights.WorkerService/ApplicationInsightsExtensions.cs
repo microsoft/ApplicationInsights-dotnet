@@ -285,6 +285,11 @@
         {
             return Environment.Version.Major >= 8 ?
                 meterProviderBuilder.AddMeter("System.Net.Http")
+                    .AddView(instrument =>
+                        string.Equals(instrument.Meter.Name, "System.Net.Http", StringComparison.Ordinal)
+                        && !string.Equals(instrument.Name, "http.client.request.duration", StringComparison.Ordinal)
+                            ? MetricStreamConfiguration.Drop
+                            : null)
                 : meterProviderBuilder.AddHttpClientInstrumentation();
         }
 
