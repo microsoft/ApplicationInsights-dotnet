@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics.Metrics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Sockets;
+using System.Threading.Tasks;
 using Azure.Monitor.OpenTelemetry.Exporter;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -140,6 +144,8 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
             dnsMeter.CreateHistogram<double>("dns.lookup.duration").Record(0.1);
 
             meterProvider.ForceFlush();
+
+            // Meter version isolates this test's synthetic instruments from any real System.Net.Http meter in the process.
             var httpMetrics = exportedMetrics.Where(metric => metric.MeterName == meter.Name && metric.MeterVersion == meter.Version).ToList();
             Assert.Equal(configuration == "all" ? 6 : configuration == "one" ? 2 : configuration == "drop" ? 0 : 1, httpMetrics.Count);
             if (configuration != "drop")
@@ -171,6 +177,65 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
 #else
             Assert.DoesNotContain(exportedMetrics, metric => metric.MeterName == serverMeter.Name);
 #endif
+        }
+
+        [Fact]
+        public async Task HttpClientMetricsCollectOnlyRequestDurationFromRealRequests()
+        {
+            using var server = new HttpListener();
+            var probe = new TcpListener(IPAddress.Loopback, 0);
+            probe.Start();
+            var port = ((IPEndPoint)probe.LocalEndpoint).Port;
+            probe.Stop();
+            server.Prefixes.Add($"http://localhost:{port}/");
+            server.Start();
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var context = await server.GetContextAsync();
+                    context.Response.StatusCode = 200;
+                    context.Response.Close();
+                }
+                catch
+                {
+                    // The listener is stopped at the end of the test.
+                }
+            });
+
+            var exportedMetrics = new List<OpenTelemetry.Metrics.Metric>();
+            var services = new ServiceCollection();
+            services.AddLogging();
+            services.AddSingleton<IConfiguration>(new ConfigurationBuilder().AddInMemoryCollection().Build());
+#if AI_ASPNETCORE_WEB
+            services.AddApplicationInsightsTelemetry(options =>
+#else
+            services.AddApplicationInsightsTelemetryWorkerService(options =>
+#endif
+            {
+                options.ConnectionString = TestConnectionString;
+                options.EnableQuickPulseMetricStream = false;
+            });
+
+            services.ConfigureOpenTelemetryMeterProvider(metrics => metrics
+                .SetResourceBuilder(ResourceBuilder.CreateEmpty())
+                .AddReader(new BaseExportingMetricReader(new CollectingMetricExporter(exportedMetrics))));
+
+            using var serviceProvider = services.BuildServiceProvider();
+            var meterProvider = serviceProvider.GetRequiredService<MeterProvider>();
+
+            using (var httpClient = new HttpClient())
+            {
+                using var response = await httpClient.GetAsync($"http://localhost:{port}/probe");
+            }
+
+            meterProvider.ForceFlush();
+            server.Stop();
+
+            // Catches the SDK's instrument name drifting from the name the runtime actually emits.
+            Assert.Equal(
+                new[] { "http.client.request.duration" },
+                exportedMetrics.Where(metric => metric.MeterName == "System.Net.Http").Select(metric => metric.Name).Distinct().ToArray());
         }
 
         private sealed class CollectingMetricExporter : BaseExporter<OpenTelemetry.Metrics.Metric>
