@@ -1376,6 +1376,46 @@ namespace Microsoft.ApplicationInsights
             Assert.Equal(0, this.activityItems.Count);
         }
 
+        [Fact]
+        public void TrackRequestWithoutTimestampDefaultsToUtcNow()
+        {
+            var request = new RequestTelemetry
+            {
+                Name = "GET /api/items",
+                ResponseCode = "200",
+                Duration = TimeSpan.FromMilliseconds(75),
+                Success = true,
+            };
+            Assert.Equal(default, request.Timestamp);
+
+            var before = DateTime.UtcNow;
+            this.telemetryClient.TrackRequest(request);
+            var after = DateTime.UtcNow;
+            this.telemetryClient.Flush();
+
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            Assert.InRange(activity.StartTimeUtc, before, after);
+            Assert.Equal(TimeSpan.FromMilliseconds(75), activity.Duration);
+            Assert.Equal(activity.StartTimeUtc, request.Timestamp.UtcDateTime);
+        }
+
+        [Fact]
+        public void TrackRequestWithExplicitTimestampPreservesTimestamp()
+        {
+            var startTime = new DateTimeOffset(2025, 1, 2, 3, 4, 5, TimeSpan.Zero);
+            var request = new RequestTelemetry("GET /api/items", startTime, TimeSpan.FromMilliseconds(123), "200", true);
+
+            this.telemetryClient.TrackRequest(request);
+            this.telemetryClient.Flush();
+
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            Assert.Equal(startTime.UtcDateTime, activity.StartTimeUtc);
+            Assert.Equal(TimeSpan.FromMilliseconds(123), activity.Duration);
+            Assert.Equal(startTime, request.Timestamp);
+        }
+
         #endregion
 
         #region TrackDependency
@@ -1541,6 +1581,43 @@ namespace Microsoft.ApplicationInsights
 
             // Should not throw exception and should not create any activity
             Assert.Equal(0, this.activityItems.Count);
+        }
+
+        [Fact]
+        public void TrackDependencyWithoutTimestampDefaultsToUtcNow()
+        {
+            var dependency = new DependencyTelemetry("MyApp", "MyTarget", "Failure", string.Empty)
+            {
+                Duration = TimeSpan.FromMilliseconds(50),
+            };
+            Assert.Equal(default, dependency.Timestamp);
+
+            var before = DateTime.UtcNow;
+            this.telemetryClient.TrackDependency(dependency);
+            var after = DateTime.UtcNow;
+            this.telemetryClient.Flush();
+
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            Assert.InRange(activity.StartTimeUtc, before, after);
+            Assert.Equal(TimeSpan.FromMilliseconds(50), activity.Duration);
+            Assert.Equal(activity.StartTimeUtc, dependency.Timestamp.UtcDateTime);
+        }
+
+        [Fact]
+        public void TrackDependencyWithExplicitTimestampPreservesTimestamp()
+        {
+            var startTime = new DateTimeOffset(2025, 1, 2, 3, 4, 5, TimeSpan.Zero);
+            var dependency = new DependencyTelemetry("Http", "api.example.com", "GET /", "https://api.example.com/", startTime, TimeSpan.FromMilliseconds(123), "200", true);
+
+            this.telemetryClient.TrackDependency(dependency);
+            this.telemetryClient.Flush();
+
+            Assert.Equal(1, this.activityItems.Count);
+            var activity = this.activityItems[0];
+            Assert.Equal(startTime.UtcDateTime, activity.StartTimeUtc);
+            Assert.Equal(TimeSpan.FromMilliseconds(123), activity.Duration);
+            Assert.Equal(startTime, dependency.Timestamp);
         }
 
         [Fact]

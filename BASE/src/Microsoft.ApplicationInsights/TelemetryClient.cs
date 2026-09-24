@@ -573,6 +573,12 @@
                 return;
             }
 
+            // Preserve 2.x behavior: default an unset Timestamp to now to avoid emitting 0001-01-01.
+            if (telemetry.Timestamp == default)
+            {
+                telemetry.Timestamp = DateTimeOffset.UtcNow;
+            }
+
             // Determine the appropriate ActivityKind based on dependency type
             ActivityKind activityKind = GetActivityKindForDependency(telemetry.Type);
 
@@ -746,6 +752,12 @@
             if (request == null)
             {
                 return;
+            }
+
+            // Preserve 2.x behavior: default an unset Timestamp to now to avoid emitting 0001-01-01.
+            if (request.Timestamp == default)
+            {
+                request.Timestamp = DateTimeOffset.UtcNow;
             }
 
             // Determine ActivityKind based on request properties
