@@ -3,6 +3,7 @@
 ## Unreleased
 - **Breaking change:** Reduce default HTTP client metric volume in ASP.NET Core and Worker Service on .NET 8+ while retaining request latency, count, and failure dimensions through `http.client.request.duration`. Other `System.Net.Http` metrics are now opt-in through OpenTelemetry `AddView`; dashboards and alerts using them must [explicitly enable collection](MigrationGuidance.md#enabling-additional-http-client-metrics). HTTP dependency tracing and server metrics are unchanged. No new public API is introduced. Addresses the HTTP metric-volume concern in [#3192](https://github.com/microsoft/ApplicationInsights-dotnet/issues/3192).
 - [Fix #3197: `NullReferenceException` when using TelemetryClient APIs when no connection string is provided.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3199)
+- [Fix #3211: `TelemetryClient.TrackDependency(DependencyTelemetry)` and `TelemetryClient.TrackRequest(RequestTelemetry)` now default an unset `Timestamp` to `DateTimeOffset.UtcNow` (restoring 2.x behavior) instead of emitting `0001-01-01T00:00:00Z`, which ingestion rejects.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3219)
 
 ## Version 3.1.2
 - [Fix `HttpException: Request is not available in this context` in the WEB package when calling `TrackDependency` from `Application_Start` in classic ASP.NET. The WEB activity processors now safely handle the case where `HttpContext.Request` is not yet available.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3184)
