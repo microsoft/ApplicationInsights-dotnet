@@ -531,7 +531,7 @@ In 3.x, the SDK automatically collects HTTP server and client metrics using buil
 | Meter | Instruments | Runtime |
 |---|---|---|
 | `Microsoft.AspNetCore.Hosting` | `http.server.request.duration`, `http.server.active_requests` | .NET 8.0+ |
-| `System.Net.Http` | `http.client.request.duration`, `http.client.active_requests`, `http.client.open_connections`, `http.client.connection.duration`, `http.client.request.time_in_queue`, `dns.lookup.duration` | .NET 8.0+ |
+| `System.Net.Http` | `http.client.request.duration` | .NET 8.0+ |
 
 On .NET 7.0 and below, equivalent metrics are collected via [OpenTelemetry ASP.NET Core Instrumentation](https://github.com/open-telemetry/opentelemetry-dotnet-contrib/tree/main/src/OpenTelemetry.Instrumentation.AspNetCore/README.md#list-of-metrics-produced) and [OpenTelemetry HTTP Client Instrumentation](https://github.com/open-telemetry/opentelemetry-dotnet-contrib/blob/main/src/OpenTelemetry.Instrumentation.Http/README.md#list-of-metrics-produced).
 
@@ -540,9 +540,30 @@ For a full list of instruments, see the .NET documentation for [Microsoft.AspNet
 ### Microsoft.ApplicationInsights.WorkerService
 | Meter | Instruments | Runtime |
 |---|---|---|
-| `System.Net.Http` | `http.client.request.duration`, `http.client.active_requests`, `http.client.open_connections`, `http.client.connection.duration`, `http.client.request.time_in_queue`, `dns.lookup.duration` | .NET 8.0+ |
+| `System.Net.Http` | `http.client.request.duration` | .NET 8.0+ |
 
 WorkerService does not collect server metrics since there is no HTTP server in a worker context.
+
+### Enabling Additional HTTP Client Metrics
+
+Only `http.client.request.duration` is collected from `System.Net.Http` by default, retaining request latency, count, and failure dimensions while reducing telemetry volume. `http.client.active_requests`, `http.client.open_connections`, `http.client.connection.duration`, `http.client.request.time_in_queue`, and future instruments from this meter are opt-in. Dashboards and alerts using those metrics must explicitly enable them. HTTP dependency tracing and server metrics are unchanged.
+
+After registering Application Insights, configure a view before the provider is built:
+
+```csharp
+using OpenTelemetry.Metrics;
+
+builder.Services.ConfigureOpenTelemetryMeterProvider(metrics =>
+  metrics.AddView(instrument =>
+    instrument.Meter.Name == "System.Net.Http"
+    && instrument.Name == "http.client.open_connections"
+      ? new MetricStreamConfiguration()
+      : null));
+```
+
+To restore all metrics from this meter, remove the `instrument.Name` condition. Views are additive: a matching non-drop view collects a metric even when the SDK's drop view also matches, regardless of registration order. Existing broad non-drop views can therefore re-enable these metrics. Calling `AddMeter("System.Net.Http")` again does not override the drop view. Views affect all exporters on the same meter provider.
+
+Request duration can still be customized or dropped with a view. Older-runtime HTTP instrumentation already emits request duration only and is unchanged. `dns.lookup.duration` belongs to the separate `System.Net.NameResolution` meter, not `System.Net.Http`. This change does not affect `_APPRESOURCEPREVIEW_` resource-metric emission.
 
 ### Dropping Autocollected Metrics
 If these metrics are not needed or are contributing to data volume concerns, they can be dropped using [OpenTelemetry Views](https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/docs/metrics/customizing-the-sdk#drop-an-instrument).
