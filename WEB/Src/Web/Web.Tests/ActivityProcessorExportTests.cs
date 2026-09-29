@@ -61,8 +61,8 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             // Arrange
             string now = DateTimeOffset.Now.ToString("O", CultureInfo.InvariantCulture);
             var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string> { { "User-Agent", "YandexBot 123" } });
-            context.AddRequestCookie(new HttpCookie("ai_user", "anonUser|" + now));
-            context.AddRequestCookie(new HttpCookie("ai_session", "session123|" + now + "|" + now));
+            context.AddRequestCookie(new HttpCookie("ai_user", "anonUser|" + now) { HttpOnly = true, Secure = true });
+            context.AddRequestCookie(new HttpCookie("ai_session", "session123|" + now + "|" + now) { HttpOnly = true, Secure = true });
             context.WithAuthCookie("authUser123|account456");
 
             // Act
@@ -89,8 +89,8 @@ namespace Microsoft.ApplicationInsights.Web.Tests
                 { "SyntheticTest-Location", "LOCATION" },
                 { "SyntheticTest-RunId", "RUNID" },
             });
-            context.AddRequestCookie(new HttpCookie("ai_user", "anonUser|" + now));
-            context.AddRequestCookie(new HttpCookie("ai_session", "session123|" + now + "|" + now));
+            context.AddRequestCookie(new HttpCookie("ai_user", "anonUser|" + now) { HttpOnly = true, Secure = true });
+            context.AddRequestCookie(new HttpCookie("ai_session", "session123|" + now + "|" + now) { HttpOnly = true, Secure = true });
 
             // Act
             var envelope = ExportSingleRequest();
