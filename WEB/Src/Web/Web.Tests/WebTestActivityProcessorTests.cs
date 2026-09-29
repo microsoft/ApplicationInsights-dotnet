@@ -51,7 +51,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             }
 
             // Assert
-            var syntheticSource = activity.GetTagItem("ai.operation.syntheticSource");
+            var syntheticSource = activity.GetTagItem("microsoft.synthetic_source");
             Assert.NotNull(syntheticSource);
             Assert.Equal("Application Insights Availability Monitoring", syntheticSource.ToString());
         }
@@ -73,11 +73,11 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             using (activity = StartTestActivity())
             {
                 Assert.NotNull(activity);
-                activity.SetTag("ai.operation.syntheticSource", "ExistingSource");
+                activity.SetTag("microsoft.synthetic_source", "ExistingSource");
             }
 
             // Assert
-            var syntheticSource = activity.GetTagItem("ai.operation.syntheticSource");
+            var syntheticSource = activity.GetTagItem("microsoft.synthetic_source");
             Assert.Equal("ExistingSource", syntheticSource.ToString());
         }
 
@@ -101,7 +101,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             }
 
             // Assert
-            var userId = activity.GetTagItem("ai.user.id");
+            var userId = activity.GetTagItem("enduser.pseudo.id");
             Assert.NotNull(userId);
             Assert.Equal("LOCATION_ID", userId.ToString());
         }
@@ -126,7 +126,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             }
 
             // Assert
-            var sessionId = activity.GetTagItem("session.id");
+            var sessionId = activity.GetTagItem("microsoft.session.id");
             Assert.NotNull(sessionId);
             Assert.Equal("ID", sessionId.ToString());
         }
@@ -150,9 +150,9 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             }
 
             // Assert
-            Assert.Null(activity.GetTagItem("ai.user.id"));
-            Assert.Null(activity.GetTagItem("session.id"));
-            Assert.Null(activity.GetTagItem("ai.operation.syntheticSource"));
+            Assert.Null(activity.GetTagItem("enduser.pseudo.id"));
+            Assert.Null(activity.GetTagItem("microsoft.session.id"));
+            Assert.Null(activity.GetTagItem("microsoft.synthetic_source"));
         }
 
         [Fact]
@@ -174,9 +174,9 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             }
 
             // Assert
-            Assert.Null(activity.GetTagItem("ai.user.id"));
-            Assert.Null(activity.GetTagItem("session.id"));
-            Assert.Null(activity.GetTagItem("ai.operation.syntheticSource"));
+            Assert.Null(activity.GetTagItem("enduser.pseudo.id"));
+            Assert.Null(activity.GetTagItem("microsoft.session.id"));
+            Assert.Null(activity.GetTagItem("microsoft.synthetic_source"));
         }
 
         [Fact]
@@ -199,7 +199,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             }
 
             // Assert
-            var syntheticSource = activity.GetTagItem("ai.operation.syntheticSource");
+            var syntheticSource = activity.GetTagItem("microsoft.synthetic_source");
             Assert.NotNull(syntheticSource);
             Assert.Equal("Application Insights Availability Monitoring", syntheticSource.ToString());
         }
@@ -222,7 +222,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
                 Assert.NotNull(activity);
             }
 
-            var sessionId = activity.GetTagItem("session.id")?.ToString();
+            var sessionId = activity.GetTagItem("microsoft.session.id")?.ToString();
             Assert.NotNull(sessionId);
             Assert.Equal(RequestTrackingConstants.RequestHeaderMaxLength, sessionId.Length);
         }

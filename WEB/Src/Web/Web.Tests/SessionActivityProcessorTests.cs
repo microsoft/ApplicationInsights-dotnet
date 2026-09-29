@@ -48,7 +48,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             } // Activity ends, processor OnEnd is called
 
             // Assert
-            var sessionId = activity.GetTagItem("session.id");
+            var sessionId = activity.GetTagItem("microsoft.session.id");
             Assert.NotNull(sessionId);
             Assert.Equal("session123", sessionId.ToString());
         }
@@ -68,7 +68,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             } // Activity ends
 
             // Assert
-            var sessionId = activity.GetTagItem("session.id");
+            var sessionId = activity.GetTagItem("microsoft.session.id");
             Assert.Null(sessionId);
         }
 
@@ -88,7 +88,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             } // Activity ends
 
             // Assert
-            var sessionId = activity.GetTagItem("session.id");
+            var sessionId = activity.GetTagItem("microsoft.session.id");
             Assert.Null(sessionId);
         }
 
@@ -106,11 +106,11 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             using (activity = StartTestActivity())
             {
                 Assert.NotNull(activity);
-                activity.SetTag("session.id", "existingSession");
+                activity.SetTag("microsoft.session.id", "existingSession");
             } // Activity ends, processor should not override
 
             // Assert
-            var sessionId = activity.GetTagItem("session.id");
+            var sessionId = activity.GetTagItem("microsoft.session.id");
             Assert.Equal("existingSession", sessionId.ToString());
         }
 
@@ -130,15 +130,15 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             } // Activity ends
 
             // Assert
-            var sessionId = activity.GetTagItem("session.id");
+            var sessionId = activity.GetTagItem("microsoft.session.id");
             Assert.NotNull(sessionId);
             Assert.Equal("session123", sessionId.ToString());
         }
 
         [Fact]
-        public void OnEnd_SetsIsFirstWhenAcquisitionAndRenewalDatesMatch()
+        public void OnEnd_DoesNotSetUnmappedSessionTags()
         {
-            // Arrange
+            // Arrange - matching acquisition/renewal dates used to produce a session.isFirst tag
             string now = DateTimeOffset.Now.ToString("O", CultureInfo.InvariantCulture);
             var context = HttpModuleHelper.GetFakeHttpContext();
             context.AddRequestCookie(new HttpCookie("ai_session", $"session123|{now}|{now}") { HttpOnly = true, Secure = true });
@@ -151,61 +151,10 @@ namespace Microsoft.ApplicationInsights.Web.Tests
                 Assert.NotNull(activity);
             } // Activity ends
 
-            // Assert
-            var sessionId = activity.GetTagItem("session.id");
-            var isFirst = activity.GetTagItem("session.isFirst");
-            
-            Assert.Equal("session123", sessionId.ToString());
-            Assert.NotNull(isFirst);
-            Assert.True((bool)isFirst);
-        }
-
-        [Fact]
-        public void OnEnd_DoesNotSetIsFirstWhenAcquisitionAndRenewalDatesDiffer()
-        {
-            // Arrange
-            string acquisitionDate = DateTimeOffset.Now.AddHours(-1).ToString("O", CultureInfo.InvariantCulture);
-            string renewalDate = DateTimeOffset.Now.ToString("O", CultureInfo.InvariantCulture);
-            var context = HttpModuleHelper.GetFakeHttpContext();
-            context.AddRequestCookie(new HttpCookie("ai_session", $"session123|{acquisitionDate}|{renewalDate}") { HttpOnly = true, Secure = true });
-            SetupTracerProvider(new SessionActivityProcessor());
-
-            // Act
-            Activity activity;
-            using (activity = StartTestActivity())
-            {
-                Assert.NotNull(activity);
-            } // Activity ends
-
-            // Assert
-            var sessionId = activity.GetTagItem("session.id");
-            var isFirst = activity.GetTagItem("session.isFirst");
-            
-            Assert.Equal("session123", sessionId.ToString());
-            Assert.Null(isFirst); // Should not be set if dates differ
-        }
-
-        [Fact]
-        public void OnEnd_DoesNotSetIsFirstWhenCookieHasOnlySessionId()
-        {
-            // Arrange
-            var context = HttpModuleHelper.GetFakeHttpContext();
-            context.AddRequestCookie(new HttpCookie("ai_session", "session123") { HttpOnly = true, Secure = true });
-            SetupTracerProvider(new SessionActivityProcessor());
-
-            // Act
-            Activity activity;
-            using (activity = StartTestActivity())
-            {
-                Assert.NotNull(activity);
-            } // Activity ends
-
-            // Assert
-            var sessionId = activity.GetTagItem("session.id");
-            var isFirst = activity.GetTagItem("session.isFirst");
-            
-            Assert.Equal("session123", sessionId.ToString());
-            Assert.Null(isFirst); // Should not be set without dates
+            // Assert - only the key mapped by the Azure Monitor exporter is written
+            Assert.Equal("session123", activity.GetTagItem("microsoft.session.id")?.ToString());
+            Assert.Null(activity.GetTagItem("session.id"));
+            Assert.Null(activity.GetTagItem("session.isFirst"));
         }
     }
 }
