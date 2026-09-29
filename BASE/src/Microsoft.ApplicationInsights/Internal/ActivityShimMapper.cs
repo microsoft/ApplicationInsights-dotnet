@@ -41,17 +41,16 @@
 
         private static void ApplyCommon(Activity activity, OperationTelemetry telemetry, IDictionary<string, string> properties)
         {
-            // The exporter falls back to the activity's display name, so a renamed operation is picked up from there.
-            if (!string.IsNullOrEmpty(telemetry.Name))
-            {
-                activity.DisplayName = telemetry.Name;
-            }
-
             if (properties != null)
             {
                 foreach (var property in properties)
                 {
-                    activity.SetTag(property.Key, property.Value);
+                    // Don't overwrite tags already on the activity: StartOperation(Activity) seeds Properties from the
+                    // activity's own tags, which instrumentation may have updated since.
+                    if (activity.GetTagItem(property.Key) == null)
+                    {
+                        activity.SetTag(property.Key, property.Value);
+                    }
                 }
             }
 

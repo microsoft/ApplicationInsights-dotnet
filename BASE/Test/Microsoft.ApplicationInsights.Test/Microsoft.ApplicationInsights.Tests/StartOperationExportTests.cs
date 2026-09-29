@@ -118,18 +118,6 @@ namespace Microsoft.ApplicationInsights
         }
 
         [Fact]
-        public void StartOperationDependencyExportsRenamedOperation()
-        {
-            using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("StartOpExportOriginalName"))
-            {
-                operation.Telemetry.Name = "StartOpExportRenamed";
-            }
-
-            var baseData = GetBaseData(this.ExportSingle("RemoteDependency"));
-            Assert.Equal("StartOpExportRenamed", GetString(baseData, "name"));
-        }
-
-        [Fact]
         public void StartOperationRequestExportsTelemetryFields()
         {
             using (var operation = this.telemetryClient.StartOperation<RequestTelemetry>("GET /startop-export/orders"))
@@ -137,6 +125,7 @@ namespace Microsoft.ApplicationInsights
                 operation.Telemetry.ResponseCode = "404";
                 operation.Telemetry.Success = false;
                 operation.Telemetry.Url = new Uri("https://myapp/orders?id=1");
+                operation.Telemetry.Source = "startop-export-source";
                 operation.Telemetry.Properties["reqProp"] = "reqValue";
             }
 
@@ -147,6 +136,7 @@ namespace Microsoft.ApplicationInsights
             Assert.Equal("404", GetString(baseData, "responseCode"));
             Assert.False(baseData.GetProperty("success").GetBoolean());
             Assert.Equal("https://myapp/orders?id=1", GetString(baseData, "url"));
+            Assert.Equal("startop-export-source", GetString(baseData, "source"));
             Assert.Equal("reqValue", GetString(baseData.GetProperty("properties"), "reqProp"));
             AssertNoUnmappedKeys(baseData);
         }
@@ -187,6 +177,31 @@ namespace Microsoft.ApplicationInsights
             Assert.Equal("custom-target", GetString(baseData, "target"));
             Assert.Equal("500", GetString(baseData, "resultCode"));
             Assert.False(baseData.GetProperty("success").GetBoolean());
+        }
+
+        [Fact]
+        public void StartOperationWithCallerActivityKeepsInstrumentationUpdatesMadeAfterStart()
+        {
+            using (var activity = CallerActivitySource.StartActivity("InitialName", ActivityKind.Client))
+            {
+                Assert.NotNull(activity);
+                activity.SetTag("instrumentation.tag", "initial");
+
+                using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(activity))
+                {
+                    // Instrumentation updates the activity after StartOperation seeded the telemetry from it.
+                    activity.DisplayName = "UpdatedName";
+                    activity.SetTag("instrumentation.tag", "updated");
+                    operation.Telemetry.Properties["callerProp"] = "callerValue";
+                }
+            }
+
+            var baseData = GetBaseData(this.ExportSingle("RemoteDependency"));
+            Assert.Equal("UpdatedName", GetString(baseData, "name"));
+
+            var properties = baseData.GetProperty("properties");
+            Assert.Equal("updated", GetString(properties, "instrumentation.tag"));
+            Assert.Equal("callerValue", GetString(properties, "callerProp"));
         }
 
         [Fact]
