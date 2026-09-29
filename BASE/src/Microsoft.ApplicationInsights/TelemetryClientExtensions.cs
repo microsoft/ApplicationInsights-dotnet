@@ -119,7 +119,7 @@
                 : null;
             telemetry.Context.Operation.Name = effectiveName;
 
-            return new OperationHolder<T>(telemetryClient, telemetry, activity, savedActivity, ownsActivity: true, defaultOperationName: effectiveName);
+            return new OperationHolder<T>(telemetryClient, telemetry, activity, savedActivity);
         }
 
         /// <summary>
@@ -205,16 +205,9 @@
             operationTelemetry.Context.Operation.ParentId = activity.ParentSpanId != default
                 ? activity.ParentSpanId.ToHexString()
                 : null;
+            operationTelemetry.Context.Operation.Name = operationTelemetry.Name;
 
-            // Preserve a caller-provided operation name (e.g. the parent operation's name); only default it when empty.
-            string defaultOperationName = null;
-            if (string.IsNullOrEmpty(operationTelemetry.Context.Operation.Name))
-            {
-                defaultOperationName = operationTelemetry.Name;
-                operationTelemetry.Context.Operation.Name = defaultOperationName;
-            }
-
-            return new OperationHolder<T>(telemetryClient, operationTelemetry, activity, savedActivity, ownsActivity: true, defaultOperationName: defaultOperationName);
+            return new OperationHolder<T>(telemetryClient, operationTelemetry, activity, savedActivity);
         }
 
         /// <summary>

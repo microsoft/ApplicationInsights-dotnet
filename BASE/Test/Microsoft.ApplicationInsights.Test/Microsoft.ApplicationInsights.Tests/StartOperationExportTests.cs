@@ -118,55 +118,15 @@ namespace Microsoft.ApplicationInsights
         }
 
         [Fact]
-        public void StartOperationDependencyExportsOnlyExplicitlyAssignedOperationName()
+        public void StartOperationDependencyExportsRenamedOperation()
         {
-            using (this.telemetryClient.StartOperation<DependencyTelemetry>("DefaultOperationName"))
+            using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("StartOpExportOriginalName"))
             {
+                operation.Telemetry.Name = "StartOpExportRenamed";
             }
 
-            using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("AssignedOperationName"))
-            {
-                operation.Telemetry.Context.Operation.Name = "GET /parent";
-            }
-
-            this.telemetryClient.Flush();
-            var envelopes = this.transport.Envelopes.Where(e => e.GetProperty("name").GetString() == "RemoteDependency").ToList();
-
-            var defaultDependency = envelopes.Single(e => GetString(GetBaseData(e), "name") == "DefaultOperationName");
-            Assert.Null(GetString(defaultDependency.GetProperty("tags"), "ai.operation.name"));
-
-            var assignedDependency = envelopes.Single(e => GetString(GetBaseData(e), "name") == "AssignedOperationName");
-            Assert.Equal("GET /parent", GetString(assignedDependency.GetProperty("tags"), "ai.operation.name"));
-        }
-
-        [Fact]
-        public void StartOperationDependencyWithTelemetryObjectPreservesPrepopulatedOperationName()
-        {
-            var dependency = new DependencyTelemetry { Name = "StartOpExportPrepopulated", Type = "Custom" };
-            dependency.Context.Operation.Name = "GET /parent";
-
-            using (var operation = this.telemetryClient.StartOperation(dependency))
-            {
-                Assert.Equal("GET /parent", operation.Telemetry.Context.Operation.Name);
-            }
-
-            var envelope = this.ExportSingle("RemoteDependency");
-            Assert.Equal("StartOpExportPrepopulated", GetString(GetBaseData(envelope), "name"));
-            Assert.Equal("GET /parent", GetString(envelope.GetProperty("tags"), "ai.operation.name"));
-        }
-
-        [Fact]
-        public void StartOperationDependencyWithTelemetryObjectDoesNotExportDefaultedOperationName()
-        {
-            var dependency = new DependencyTelemetry { Name = "StartOpExportDefaulted", Type = "Custom" };
-
-            using (var operation = this.telemetryClient.StartOperation(dependency))
-            {
-                Assert.Equal("StartOpExportDefaulted", operation.Telemetry.Context.Operation.Name);
-            }
-
-            var envelope = this.ExportSingle("RemoteDependency");
-            Assert.Null(GetString(envelope.GetProperty("tags"), "ai.operation.name"));
+            var baseData = GetBaseData(this.ExportSingle("RemoteDependency"));
+            Assert.Equal("StartOpExportRenamed", GetString(baseData, "name"));
         }
 
         [Fact]
@@ -178,7 +138,6 @@ namespace Microsoft.ApplicationInsights
                 operation.Telemetry.Success = false;
                 operation.Telemetry.Url = new Uri("https://myapp/orders?id=1");
                 operation.Telemetry.Properties["reqProp"] = "reqValue";
-                operation.Telemetry.Context.User.Id = "user1";
             }
 
             var envelope = this.ExportSingle("Request");
@@ -189,10 +148,6 @@ namespace Microsoft.ApplicationInsights
             Assert.False(baseData.GetProperty("success").GetBoolean());
             Assert.Equal("https://myapp/orders?id=1", GetString(baseData, "url"));
             Assert.Equal("reqValue", GetString(baseData.GetProperty("properties"), "reqProp"));
-
-            var tags = envelope.GetProperty("tags");
-            Assert.Equal("GET /startop-export/orders", GetString(tags, "ai.operation.name"));
-            Assert.Equal("user1", GetString(tags, "ai.user.id"));
             AssertNoUnmappedKeys(baseData);
         }
 
