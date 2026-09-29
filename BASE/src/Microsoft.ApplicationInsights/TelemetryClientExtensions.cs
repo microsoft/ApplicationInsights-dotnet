@@ -105,9 +105,6 @@
                     null);
             }
 
-            // Store the operation name as a tag for retrieval
-            activity.SetOperationName(effectiveName);
-
             var telemetry = new T
             {
                 Name = effectiveName,
@@ -122,7 +119,7 @@
                 : null;
             telemetry.Context.Operation.Name = effectiveName;
 
-            return new OperationHolder<T>(telemetryClient, telemetry, activity, savedActivity);
+            return new OperationHolder<T>(telemetryClient, telemetry, activity, savedActivity, applyTelemetryOnDispose: true);
         }
 
         /// <summary>
@@ -202,9 +199,6 @@
                 return new OperationHolder<T>(telemetryClient, operationTelemetry, null);
             }
 
-            // Store the operation name as a tag for retrieval
-            activity.SetOperationName(operationTelemetry.Name);
-
             operationTelemetry.Timestamp = DateTimeOffset.UtcNow;
             operationTelemetry.Id = activity.SpanId.ToHexString();
             operationTelemetry.Context.Operation.Id = activity.TraceId.ToHexString();
@@ -213,7 +207,7 @@
                 : null;
             operationTelemetry.Context.Operation.Name = operationTelemetry.Name;
 
-            return new OperationHolder<T>(telemetryClient, operationTelemetry, activity, savedActivity);
+            return new OperationHolder<T>(telemetryClient, operationTelemetry, activity, savedActivity, applyTelemetryOnDispose: true);
         }
 
         /// <summary>

@@ -591,58 +591,7 @@
                     dependencyTelemetryActivity.SetEndTime(telemetry.Timestamp.Add(telemetry.Duration).UtcDateTime);
                     dependencyTelemetryActivity.SetStatus(telemetry.Success == true ? ActivityStatusCode.Ok : ActivityStatusCode.Error);
 
-                    // Set override attributes to preserve Application Insights semantics
-                    // The Azure Monitor Exporter will use these to populate RemoteDependencyData
-                    if (!string.IsNullOrEmpty(telemetry.Type))
-                    {
-                        dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMicrosoftDependencyType, telemetry.Type);
-                    }
-
-                    if (!string.IsNullOrEmpty(telemetry.Data))
-                    {
-                        dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMicrosoftDependencyData, telemetry.Data);
-                    }
-
-                    if (!string.IsNullOrEmpty(telemetry.Name))
-                    {
-                        dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMicrosoftDependencyName, telemetry.Name);
-                    }
-
-                    if (!string.IsNullOrEmpty(telemetry.Target))
-                    {
-                        dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMicrosoftDependencyTarget, telemetry.Target);
-                    }
-
-                    if (!string.IsNullOrEmpty(telemetry.ResultCode))
-                    {
-                        dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMicrosoftDependencyResultCode, telemetry.ResultCode);
-                    }
-
-                    if (!string.IsNullOrEmpty(telemetry.Context?.Operation?.Name))
-                    {
-                        dependencyTelemetryActivity.SetTag(SemanticConventions.AttributeMicrosoftOperationName, telemetry.Context.Operation.Name);
-                    }
-
-                    // Add telemetry context GlobalProperties
-                    if (telemetry.Context?.GlobalPropertiesValue != null)
-                    {
-                        foreach (var property in telemetry.Context.GlobalPropertiesValue)
-                        {
-                            dependencyTelemetryActivity.SetTag(property.Key, property.Value);
-                        }
-                    }
-
-                    // Add custom properties (these override GlobalProperties)
-                    if (telemetry.Properties != null)
-                    {
-                        foreach (var property in telemetry.Properties)
-                        {
-                            dependencyTelemetryActivity.SetTag(property.Key, property.Value);
-                        }
-                    }
-
-                    // Apply item-level context (overrides client-level context)
-                    ApplyContextToActivity(telemetry.Context, dependencyTelemetryActivity);
+                    ApplyDependencyTelemetryToActivity(telemetry, dependencyTelemetryActivity, includeOperationName: true);
                 }
             }
         }
@@ -771,53 +720,7 @@
                     activity.SetEndTime(request.Timestamp.Add(request.Duration).UtcDateTime);
                     activity.SetStatus(request.Success == true ? ActivityStatusCode.Ok : ActivityStatusCode.Error);
 
-                    // Set override attributes to preserve Application Insights semantics
-                    // The Azure Monitor Exporter will use these to populate RequestData
-                    if (!string.IsNullOrEmpty(request.Name))
-                    {
-                        activity.SetTag(SemanticConventions.AttributeMicrosoftRequestName, request.Name);
-                    }
-
-                    if (request.Url != null)
-                    {
-                        activity.SetTag(SemanticConventions.AttributeMicrosoftRequestUrl, request.Url.ToString());
-                    }
-
-                    if (!string.IsNullOrEmpty(request.Source))
-                    {
-                        activity.SetTag(SemanticConventions.AttributeMicrosoftRequestSource, request.Source);
-                    }
-
-                    if (!string.IsNullOrEmpty(request.ResponseCode))
-                    {
-                        activity.SetTag(SemanticConventions.AttributeMicrosoftRequestResultCode, request.ResponseCode);
-                    }
-
-                    if (!string.IsNullOrEmpty(request.Context?.Operation?.Name))
-                    {
-                        activity.SetTag(SemanticConventions.AttributeMicrosoftOperationName, request.Context.Operation.Name);
-                    }
-
-                    // Add request context GlobalProperties
-                    if (request.Context?.GlobalPropertiesValue != null)
-                    {
-                        foreach (var property in request.Context.GlobalPropertiesValue)
-                        {
-                            activity.SetTag(property.Key, property.Value);
-                        }
-                    }
-
-                    // Add custom properties (these override GlobalProperties)
-                    if (request.Properties != null)
-                    {
-                        foreach (var property in request.Properties)
-                        {
-                            activity.SetTag(property.Key, property.Value);
-                        }
-                    }
-
-                    // Apply item-level context (overrides client-level context)
-                    ApplyContextToActivity(request.Context, activity);
+                    ApplyRequestTelemetryToActivity(request, activity);
                 }
             }
         }
@@ -1108,6 +1011,81 @@
             return new Metric(this, metricIdentifier.MetricId, metricIdentifier.MetricNamespace, dimensionNames);
         }
 
+        /// <summary>
+        /// Applies a <see cref="DependencyTelemetry"/> to an Activity using the Microsoft override attributes the
+        /// Azure Monitor exporter maps to RemoteDependencyData, followed by global/custom properties and item-level context.
+        /// Used by both <see cref="TrackDependency(DependencyTelemetry)"/> and <c>StartOperation</c>/<c>StopOperation</c>.
+        /// </summary>
+        internal static void ApplyDependencyTelemetryToActivity(DependencyTelemetry telemetry, Activity activity, bool includeOperationName)
+        {
+            if (telemetry == null || activity == null)
+            {
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(telemetry.Type))
+            {
+                activity.SetTag(SemanticConventions.AttributeMicrosoftDependencyType, telemetry.Type);
+            }
+
+            if (!string.IsNullOrEmpty(telemetry.Data))
+            {
+                activity.SetTag(SemanticConventions.AttributeMicrosoftDependencyData, telemetry.Data);
+            }
+
+            if (!string.IsNullOrEmpty(telemetry.Name))
+            {
+                activity.SetTag(SemanticConventions.AttributeMicrosoftDependencyName, telemetry.Name);
+            }
+
+            if (!string.IsNullOrEmpty(telemetry.Target))
+            {
+                activity.SetTag(SemanticConventions.AttributeMicrosoftDependencyTarget, telemetry.Target);
+            }
+
+            if (!string.IsNullOrEmpty(telemetry.ResultCode))
+            {
+                activity.SetTag(SemanticConventions.AttributeMicrosoftDependencyResultCode, telemetry.ResultCode);
+            }
+
+            ApplyPropertiesAndContextToActivity(telemetry.Context, telemetry.Properties, activity, includeOperationName);
+        }
+
+        /// <summary>
+        /// Applies a <see cref="RequestTelemetry"/> to an Activity using the Microsoft override attributes the
+        /// Azure Monitor exporter maps to RequestData, followed by global/custom properties and item-level context.
+        /// Used by both <see cref="TrackRequest(RequestTelemetry)"/> and <c>StartOperation</c>/<c>StopOperation</c>.
+        /// </summary>
+        internal static void ApplyRequestTelemetryToActivity(RequestTelemetry request, Activity activity)
+        {
+            if (request == null || activity == null)
+            {
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(request.Name))
+            {
+                activity.SetTag(SemanticConventions.AttributeMicrosoftRequestName, request.Name);
+            }
+
+            if (request.Url != null)
+            {
+                activity.SetTag(SemanticConventions.AttributeMicrosoftRequestUrl, request.Url.ToString());
+            }
+
+            if (!string.IsNullOrEmpty(request.Source))
+            {
+                activity.SetTag(SemanticConventions.AttributeMicrosoftRequestSource, request.Source);
+            }
+
+            if (!string.IsNullOrEmpty(request.ResponseCode))
+            {
+                activity.SetTag(SemanticConventions.AttributeMicrosoftRequestResultCode, request.ResponseCode);
+            }
+
+            ApplyPropertiesAndContextToActivity(request.Context, request.Properties, activity, includeOperationName: true);
+        }
+
         private static LogLevel GetLogLevel(SeverityLevel severityLevel)
         {
             return severityLevel switch
@@ -1349,12 +1327,35 @@
             return properties;
         }
 
+        private static void ApplyPropertiesAndContextToActivity(TelemetryContext context, IDictionary<string, string> properties, Activity activity, bool includeOperationName)
+        {
+            // GlobalProperties first so that custom properties override them.
+            if (context?.GlobalPropertiesValue != null)
+            {
+                foreach (var property in context.GlobalPropertiesValue)
+                {
+                    activity.SetTag(property.Key, property.Value);
+                }
+            }
+
+            if (properties != null)
+            {
+                foreach (var property in properties)
+                {
+                    activity.SetTag(property.Key, property.Value);
+                }
+            }
+
+            // Apply item-level context (overrides client-level context)
+            ApplyContextToActivity(context, activity, includeOperationName);
+        }
+
         /// <summary>
         /// Applies item-level TelemetryContext properties to an Activity as tags.
         /// These override any client-level context tags already set on the Activity.
         /// Only includes properties that are not null or empty.
         /// </summary>
-        private static void ApplyContextToActivity(TelemetryContext context, Activity activity)
+        private static void ApplyContextToActivity(TelemetryContext context, Activity activity, bool includeOperationName)
         {
             if (context == null || activity == null)
             {
@@ -1371,7 +1372,7 @@
                 activity.SetTag(SemanticConventions.AttributeEnduserId, context.User.AuthenticatedUserId);
             }
 
-            if (!string.IsNullOrEmpty(context.Operation?.Name))
+            if (includeOperationName && !string.IsNullOrEmpty(context.Operation?.Name))
             {
                 activity.SetTag(SemanticConventions.AttributeMicrosoftOperationName, context.Operation.Name);
             }
