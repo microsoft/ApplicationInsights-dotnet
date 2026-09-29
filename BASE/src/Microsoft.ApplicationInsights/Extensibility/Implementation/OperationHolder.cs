@@ -7,7 +7,7 @@
 
     /// <summary>
     /// Represents an ongoing telemetry operation that wraps a telemetry item and its associated Activity.
-    /// In the OpenTelemetry-based shim, this class simply stops the underlying Activity on dispose.
+    /// In the OpenTelemetry-based shim, disposing copies the telemetry item onto the Activity and stops it.
     /// </summary>
     internal sealed class OperationHolder<T> : IOperationHolder<T> where T : OperationTelemetry
     {
@@ -72,6 +72,10 @@
                 if (this.Telemetry is DependencyTelemetry dep)
                 {
                     ActivityShimMapper.ApplyDependencyTags(this.activity, dep);
+                }
+                else if (this.Telemetry is RequestTelemetry request)
+                {
+                    ActivityShimMapper.ApplyRequestTags(this.activity, request);
                 }
 
                 this.activity.Stop();
