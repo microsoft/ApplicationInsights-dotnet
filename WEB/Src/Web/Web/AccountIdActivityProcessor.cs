@@ -3,6 +3,7 @@ namespace Microsoft.ApplicationInsights.Web
     using System;
     using System.Diagnostics;
     using System.Web;
+    using Microsoft.ApplicationInsights.Internal;
     using Microsoft.ApplicationInsights.Web.Implementation;
     using OpenTelemetry;
 
@@ -40,7 +41,7 @@ namespace Microsoft.ApplicationInsights.Web
             }
 
             // Only process if account ID is not already set
-            var existingAccountId = activity.GetTagItem("enduser.id");
+            var existingAccountId = activity.GetTagItem(SemanticConventions.AttributeMicrosoftUserAccountId);
             if (existingAccountId == null || string.IsNullOrEmpty(existingAccountId.ToString()))
             {
                 var authUserCookie = request.UnvalidatedGetCookie(RequestTrackingConstants.WebAuthenticatedUserCookieName);
@@ -54,8 +55,8 @@ namespace Microsoft.ApplicationInsights.Web
                         var accountId = cookieParts[1];
                         if (!string.IsNullOrEmpty(accountId))
                         {
-                            // Set as OpenTelemetry semantic convention for user account
-                            activity.SetTag("enduser.account", accountId);
+                            // The exporter maps microsoft.user.account_id to the ai.user.accountId envelope tag.
+                            activity.SetTag(SemanticConventions.AttributeMicrosoftUserAccountId, accountId);
                         }
                     }
                 }

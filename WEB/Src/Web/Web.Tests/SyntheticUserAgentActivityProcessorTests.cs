@@ -47,11 +47,11 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             using (activity = StartTestActivity())
             {
                 Assert.NotNull(activity);
-                activity.SetTag("ai.operation.syntheticSource", "ExistingSource");
+                activity.SetTag("microsoft.synthetic_source", "ExistingSource");
             }
 
             // Assert
-            var syntheticSource = activity.GetTagItem("ai.operation.syntheticSource");
+            var syntheticSource = activity.GetTagItem("microsoft.synthetic_source");
             Assert.Equal("ExistingSource", syntheticSource.ToString());
         }
 
@@ -74,7 +74,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             }
 
             // Assert
-            var syntheticSource = activity.GetTagItem("ai.operation.syntheticSource");
+            var syntheticSource = activity.GetTagItem("microsoft.synthetic_source");
             Assert.Null(syntheticSource);
         }
 
@@ -125,7 +125,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             }
 
             // Assert
-            var syntheticSource = activity.GetTagItem("ai.operation.syntheticSource");
+            var syntheticSource = activity.GetTagItem("microsoft.synthetic_source");
             Assert.NotNull(syntheticSource);
             Assert.Equal("Bot", syntheticSource.ToString());
         }
@@ -154,8 +154,8 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             }
 
             // Assert
-            var syntheticSource1 = activity1.GetTagItem("ai.operation.syntheticSource");
-            var syntheticSource2 = activity2.GetTagItem("ai.operation.syntheticSource");
+            var syntheticSource1 = activity1.GetTagItem("microsoft.synthetic_source");
+            var syntheticSource2 = activity2.GetTagItem("microsoft.synthetic_source");
             
             Assert.Equal("Bot", syntheticSource1.ToString());
             Assert.Equal("Bot", syntheticSource2.ToString());
@@ -180,7 +180,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             }
 
             // Assert
-            var syntheticSource = activity.GetTagItem("ai.operation.syntheticSource");
+            var syntheticSource = activity.GetTagItem("microsoft.synthetic_source");
             Assert.NotNull(syntheticSource);
             Assert.Equal("Bot", syntheticSource.ToString());
         }
@@ -204,7 +204,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             }
 
             // Assert
-            var syntheticSource = activity.GetTagItem("ai.operation.syntheticSource");
+            var syntheticSource = activity.GetTagItem("microsoft.synthetic_source");
             Assert.NotNull(syntheticSource);
             Assert.Equal("Bot", syntheticSource.ToString());
         }

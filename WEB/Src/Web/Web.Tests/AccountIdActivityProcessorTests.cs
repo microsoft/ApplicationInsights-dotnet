@@ -45,7 +45,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             }
 
             // Assert
-            var accountId = activity.GetTagItem("enduser.account");
+            var accountId = activity.GetTagItem("microsoft.user.account_id");
             Assert.NotNull(accountId);
             Assert.Equal("account456", accountId.ToString());
         }
@@ -65,7 +65,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             }
 
             // Assert
-            var accountId = activity.GetTagItem("enduser.account");
+            var accountId = activity.GetTagItem("microsoft.user.account_id");
             Assert.Null(accountId);
         }
 
@@ -85,7 +85,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             }
 
             // Assert
-            var accountId = activity.GetTagItem("enduser.account");
+            var accountId = activity.GetTagItem("microsoft.user.account_id");
             Assert.Null(accountId);
         }
 
@@ -105,7 +105,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             }
 
             // Assert
-            var accountId = activity.GetTagItem("enduser.account");
+            var accountId = activity.GetTagItem("microsoft.user.account_id");
             Assert.Null(accountId);
         }
 
@@ -125,7 +125,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             }
 
             // Assert
-            var accountId = activity.GetTagItem("enduser.account");
+            var accountId = activity.GetTagItem("microsoft.user.account_id");
             Assert.Null(accountId);
         }
 
@@ -145,7 +145,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             }
 
             // Assert
-            var accountId = activity.GetTagItem("enduser.account");
+            var accountId = activity.GetTagItem("microsoft.user.account_id");
             Assert.NotNull(accountId);
             Assert.Equal("account456א", accountId.ToString());
         }
@@ -166,9 +166,51 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             }
 
             // Assert
-            var accountId = activity.GetTagItem("enduser.account");
+            var accountId = activity.GetTagItem("microsoft.user.account_id");
             Assert.NotNull(accountId);
             Assert.Equal("$#@!!!!", accountId.ToString());
+        }
+
+        [Fact]
+        public void OnEnd_SetsAccountIdWhenAuthenticatedUserIdIsAlreadySet()
+        {
+            // Arrange - AuthenticatedUserIdActivityProcessor runs first and sets enduser.id from the same cookie
+            var context = HttpModuleHelper.GetFakeHttpContext();
+            context.WithAuthCookie("authUser123|account456");
+            SetupTracerProvider(new AccountIdActivityProcessor());
+
+            // Act
+            Activity activity;
+            using (activity = StartTestActivity())
+            {
+                Assert.NotNull(activity);
+                activity.SetTag("enduser.id", "authUser123");
+            }
+
+            // Assert
+            Assert.Equal("account456", activity.GetTagItem("microsoft.user.account_id")?.ToString());
+            Assert.Equal("authUser123", activity.GetTagItem("enduser.id")?.ToString());
+            Assert.Null(activity.GetTagItem("enduser.account"));
+        }
+
+        [Fact]
+        public void OnEnd_DoesNotOverrideExistingAccountId()
+        {
+            // Arrange
+            var context = HttpModuleHelper.GetFakeHttpContext();
+            context.WithAuthCookie("authUser123|account456");
+            SetupTracerProvider(new AccountIdActivityProcessor());
+
+            // Act
+            Activity activity;
+            using (activity = StartTestActivity())
+            {
+                Assert.NotNull(activity);
+                activity.SetTag("microsoft.user.account_id", "existingAccount");
+            }
+
+            // Assert
+            Assert.Equal("existingAccount", activity.GetTagItem("microsoft.user.account_id")?.ToString());
         }
     }
 }

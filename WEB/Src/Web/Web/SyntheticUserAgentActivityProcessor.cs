@@ -3,6 +3,7 @@ namespace Microsoft.ApplicationInsights.Web
     using System;
     using System.Diagnostics;
     using System.Web;
+    using Microsoft.ApplicationInsights.Internal;
     using Microsoft.ApplicationInsights.Web.Implementation;
     using OpenTelemetry;
 
@@ -66,7 +67,7 @@ namespace Microsoft.ApplicationInsights.Web
             }
 
             // Only process if synthetic source is not already set
-            var existingSyntheticSource = activity.GetTagItem("ai.operation.syntheticSource");
+            var existingSyntheticSource = activity.GetTagItem(SemanticConventions.AttributeMicrosoftSyntheticSource);
             if (existingSyntheticSource == null || string.IsNullOrEmpty(existingSyntheticSource.ToString()))
             {
                 var context = HttpContext.Current;
@@ -75,7 +76,7 @@ namespace Microsoft.ApplicationInsights.Web
                     if (context.Items.Contains(SyntheticSourceNameKey))
                     {
                         // The value does not really matter.
-                        activity.SetTag("ai.operation.syntheticSource", SyntheticSourceName);
+                        activity.SetTag(SemanticConventions.AttributeMicrosoftSyntheticSource, SyntheticSourceName);
                     }
                     else
                     {
@@ -89,7 +90,7 @@ namespace Microsoft.ApplicationInsights.Web
                             {
                                 if (userAgent.IndexOf(this.filterPatterns[i], StringComparison.OrdinalIgnoreCase) != -1)
                                 {
-                                    activity.SetTag("ai.operation.syntheticSource", SyntheticSourceName);
+                                    activity.SetTag(SemanticConventions.AttributeMicrosoftSyntheticSource, SyntheticSourceName);
                                     context.Items.Add(SyntheticSourceNameKey, SyntheticSourceName);
                                     break;
                                 }
