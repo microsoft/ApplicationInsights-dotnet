@@ -16,7 +16,7 @@
         private readonly Activity suppressedActivity;
         private readonly bool ownsActivity;
         private readonly string initialName;
-        private readonly string initialOperationName;
+        private readonly string defaultOperationName;
         private bool isDisposed;
 
         /// <summary>
@@ -26,7 +26,7 @@
         /// <param name="telemetry">Telemetry item created for this operation.</param>
         /// <param name="activity">Activity that represents the operation context. May be null if sampled out or no listener.</param>
         public OperationHolder(TelemetryClient telemetryClient, T telemetry, Activity activity)
-            : this(telemetryClient, telemetry, activity, null, ownsActivity: false)
+            : this(telemetryClient, telemetry, activity, null, ownsActivity: false, defaultOperationName: null)
         {
         }
 
@@ -42,7 +42,12 @@
         /// is fully copied onto the activity on dispose. False when wrapping a caller-owned activity: only fields the caller
         /// explicitly set on the telemetry item are applied, so the activity's own instrumentation is not overwritten.
         /// </param>
-        public OperationHolder(TelemetryClient telemetryClient, T telemetry, Activity activity, Activity suppressedActivity, bool ownsActivity)
+        /// <param name="defaultOperationName">
+        /// The value the SDK assigned to <c>Context.Operation.Name</c> as a default (the operation's own name), or null if the
+        /// caller provided it. For dependencies, the operation name is only exported when it differs from this default, since a
+        /// child dependency's own name is not its operation name.
+        /// </param>
+        public OperationHolder(TelemetryClient telemetryClient, T telemetry, Activity activity, Activity suppressedActivity, bool ownsActivity, string defaultOperationName)
         {
             this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
             this.Telemetry = telemetry ?? throw new ArgumentNullException(nameof(telemetry));
@@ -50,11 +55,7 @@
             this.suppressedActivity = suppressedActivity;
             this.ownsActivity = ownsActivity;
             this.initialName = telemetry.Name;
-
-            // StartOperation defaults Context.Operation.Name to the operation's own name. Remember it so that, for
-            // dependencies, only an explicitly assigned operation name is exported (a child dependency's own name
-            // is not its operation name).
-            this.initialOperationName = telemetry.Context?.Operation?.Name;
+            this.defaultOperationName = defaultOperationName;
         }
 
         /// <summary>
@@ -107,7 +108,8 @@
             switch (this.Telemetry)
             {
                 case DependencyTelemetry dependency when this.ownsActivity:
-                    bool operationNameAssigned = !string.Equals(dependency.Context?.Operation?.Name, this.initialOperationName, StringComparison.Ordinal);
+                    string operationName = dependency.Context?.Operation?.Name;
+                    bool operationNameAssigned = !string.IsNullOrEmpty(operationName) && !string.Equals(operationName, this.defaultOperationName, StringComparison.Ordinal);
                     TelemetryClient.ApplyDependencyTelemetryToActivity(dependency, this.activity, includeOperationName: operationNameAssigned);
                     break;
 

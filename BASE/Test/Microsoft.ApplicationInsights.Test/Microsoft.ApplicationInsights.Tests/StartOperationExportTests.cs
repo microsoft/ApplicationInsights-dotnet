@@ -140,6 +140,36 @@ namespace Microsoft.ApplicationInsights
         }
 
         [Fact]
+        public void StartOperationDependencyWithTelemetryObjectPreservesPrepopulatedOperationName()
+        {
+            var dependency = new DependencyTelemetry { Name = "StartOpExportPrepopulated", Type = "Custom" };
+            dependency.Context.Operation.Name = "GET /parent";
+
+            using (var operation = this.telemetryClient.StartOperation(dependency))
+            {
+                Assert.Equal("GET /parent", operation.Telemetry.Context.Operation.Name);
+            }
+
+            var envelope = this.ExportSingle("RemoteDependency");
+            Assert.Equal("StartOpExportPrepopulated", GetString(GetBaseData(envelope), "name"));
+            Assert.Equal("GET /parent", GetString(envelope.GetProperty("tags"), "ai.operation.name"));
+        }
+
+        [Fact]
+        public void StartOperationDependencyWithTelemetryObjectDoesNotExportDefaultedOperationName()
+        {
+            var dependency = new DependencyTelemetry { Name = "StartOpExportDefaulted", Type = "Custom" };
+
+            using (var operation = this.telemetryClient.StartOperation(dependency))
+            {
+                Assert.Equal("StartOpExportDefaulted", operation.Telemetry.Context.Operation.Name);
+            }
+
+            var envelope = this.ExportSingle("RemoteDependency");
+            Assert.Null(GetString(envelope.GetProperty("tags"), "ai.operation.name"));
+        }
+
+        [Fact]
         public void StartOperationRequestExportsTelemetryFields()
         {
             using (var operation = this.telemetryClient.StartOperation<RequestTelemetry>("GET /startop-export/orders"))
