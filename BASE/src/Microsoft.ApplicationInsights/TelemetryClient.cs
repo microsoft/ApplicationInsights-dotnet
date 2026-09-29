@@ -1023,6 +1023,20 @@
                 return;
             }
 
+            ApplyDependencyOverrideAttributes(telemetry, activity, includeName: true);
+            ApplyPropertiesAndContextToActivity(telemetry.Context, telemetry.Properties, activity, includeOperationName);
+        }
+
+        /// <summary>
+        /// Sets only the Microsoft dependency override attributes (type, data, name, target, result code) that have a value.
+        /// </summary>
+        internal static void ApplyDependencyOverrideAttributes(DependencyTelemetry telemetry, Activity activity, bool includeName)
+        {
+            if (telemetry == null || activity == null)
+            {
+                return;
+            }
+
             if (!string.IsNullOrEmpty(telemetry.Type))
             {
                 activity.SetTag(SemanticConventions.AttributeMicrosoftDependencyType, telemetry.Type);
@@ -1033,7 +1047,7 @@
                 activity.SetTag(SemanticConventions.AttributeMicrosoftDependencyData, telemetry.Data);
             }
 
-            if (!string.IsNullOrEmpty(telemetry.Name))
+            if (includeName && !string.IsNullOrEmpty(telemetry.Name))
             {
                 activity.SetTag(SemanticConventions.AttributeMicrosoftDependencyName, telemetry.Name);
             }
@@ -1047,8 +1061,6 @@
             {
                 activity.SetTag(SemanticConventions.AttributeMicrosoftDependencyResultCode, telemetry.ResultCode);
             }
-
-            ApplyPropertiesAndContextToActivity(telemetry.Context, telemetry.Properties, activity, includeOperationName);
         }
 
         /// <summary>
@@ -1063,7 +1075,21 @@
                 return;
             }
 
-            if (!string.IsNullOrEmpty(request.Name))
+            ApplyRequestOverrideAttributes(request, activity, includeName: true);
+            ApplyPropertiesAndContextToActivity(request.Context, request.Properties, activity, includeOperationName: true);
+        }
+
+        /// <summary>
+        /// Sets only the Microsoft request override attributes (name, url, source, result code) that have a value.
+        /// </summary>
+        internal static void ApplyRequestOverrideAttributes(RequestTelemetry request, Activity activity, bool includeName)
+        {
+            if (request == null || activity == null)
+            {
+                return;
+            }
+
+            if (includeName && !string.IsNullOrEmpty(request.Name))
             {
                 activity.SetTag(SemanticConventions.AttributeMicrosoftRequestName, request.Name);
             }
@@ -1082,8 +1108,6 @@
             {
                 activity.SetTag(SemanticConventions.AttributeMicrosoftRequestResultCode, request.ResponseCode);
             }
-
-            ApplyPropertiesAndContextToActivity(request.Context, request.Properties, activity, includeOperationName: true);
         }
 
         private static LogLevel GetLogLevel(SeverityLevel severityLevel)

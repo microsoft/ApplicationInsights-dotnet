@@ -2,6 +2,7 @@ namespace Microsoft.ApplicationInsights
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.IO.Compression;
     using System.Linq;
@@ -16,6 +17,8 @@ namespace Microsoft.ApplicationInsights
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.Extensions.DependencyInjection;
+    using OpenTelemetry;
+    using OpenTelemetry.Trace;
     using Xunit;
 
     /// <summary>
@@ -37,6 +40,9 @@ namespace Microsoft.ApplicationInsights
     {
         private static readonly string[] UnmappedKeys = { "OperationName", "messaging.destination", "http.method", "url.full" };
 
+        private const string CallerActivitySourceName = "Microsoft.ApplicationInsights.Tests.StartOperationExport";
+        private static readonly ActivitySource CallerActivitySource = new ActivitySource(CallerActivitySourceName);
+
         private readonly CapturingTransport transport = new CapturingTransport();
         private readonly TelemetryConfiguration configuration;
         private readonly TelemetryClient telemetryClient;
@@ -50,7 +56,11 @@ namespace Microsoft.ApplicationInsights
 
             // The exporter caches its transmitter (and transport) per connection string, so use a unique one per test.
             this.configuration.ConnectionString = "InstrumentationKey=" + Guid.NewGuid().ToString();
-            this.configuration.ConfigureOpenTelemetryBuilder(b => b.Services.Configure<AzureMonitorExporterOptions>(o => o.Transport = this.transport));
+            this.configuration.ConfigureOpenTelemetryBuilder(b =>
+            {
+                b.Services.Configure<AzureMonitorExporterOptions>(o => o.Transport = this.transport);
+                b.WithTracing(t => t.AddSource(CallerActivitySourceName));
+            });
             this.telemetryClient = new TelemetryClient(this.configuration);
         }
 
@@ -66,7 +76,7 @@ namespace Microsoft.ApplicationInsights
         [InlineData("Custom", "custom-data", "custom-target", "custom-rc")]
         public void StartOperationDependencyExportsTelemetryFields(string type, string data, string target, string resultCode)
         {
-            using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("MyDependency"))
+            using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("StartOpExportDependency"))
             {
                 operation.Telemetry.Type = type;
                 operation.Telemetry.Data = data;
@@ -78,7 +88,7 @@ namespace Microsoft.ApplicationInsights
             var envelope = this.ExportSingle("RemoteDependency");
             var baseData = GetBaseData(envelope);
 
-            Assert.Equal("MyDependency", GetString(baseData, "name"));
+            Assert.Equal("StartOpExportDependency", GetString(baseData, "name"));
             Assert.Equal(type, GetString(baseData, "type"));
             Assert.Equal(data, GetString(baseData, "data"));
             Assert.Equal(target, GetString(baseData, "target"));
@@ -91,14 +101,14 @@ namespace Microsoft.ApplicationInsights
         [Fact]
         public void StartOperationDependencyWithTelemetryObjectExportsTelemetryFields()
         {
-            var dependency = new DependencyTelemetry("Http", "example.com", "GET /api", "https://example.com/api") { ResultCode = "500", Success = false };
+            var dependency = new DependencyTelemetry("Http", "example.com", "GET /startop-export/dependency", "https://example.com/api") { ResultCode = "500", Success = false };
 
             using (this.telemetryClient.StartOperation(dependency))
             {
             }
 
             var baseData = GetBaseData(this.ExportSingle("RemoteDependency"));
-            Assert.Equal("GET /api", GetString(baseData, "name"));
+            Assert.Equal("GET /startop-export/dependency", GetString(baseData, "name"));
             Assert.Equal("Http", GetString(baseData, "type"));
             Assert.Equal("https://example.com/api", GetString(baseData, "data"));
             Assert.Equal("example.com", GetString(baseData, "target"));
@@ -132,7 +142,7 @@ namespace Microsoft.ApplicationInsights
         [Fact]
         public void StartOperationRequestExportsTelemetryFields()
         {
-            using (var operation = this.telemetryClient.StartOperation<RequestTelemetry>("GET /orders"))
+            using (var operation = this.telemetryClient.StartOperation<RequestTelemetry>("GET /startop-export/orders"))
             {
                 operation.Telemetry.ResponseCode = "404";
                 operation.Telemetry.Success = false;
@@ -144,14 +154,14 @@ namespace Microsoft.ApplicationInsights
             var envelope = this.ExportSingle("Request");
             var baseData = GetBaseData(envelope);
 
-            Assert.Equal("GET /orders", GetString(baseData, "name"));
+            Assert.Equal("GET /startop-export/orders", GetString(baseData, "name"));
             Assert.Equal("404", GetString(baseData, "responseCode"));
             Assert.False(baseData.GetProperty("success").GetBoolean());
             Assert.Equal("https://myapp/orders?id=1", GetString(baseData, "url"));
             Assert.Equal("reqValue", GetString(baseData.GetProperty("properties"), "reqProp"));
 
             var tags = envelope.GetProperty("tags");
-            Assert.Equal("GET /orders", GetString(tags, "ai.operation.name"));
+            Assert.Equal("GET /startop-export/orders", GetString(tags, "ai.operation.name"));
             Assert.Equal("user1", GetString(tags, "ai.user.id"));
             AssertNoUnmappedKeys(baseData);
         }
@@ -159,13 +169,62 @@ namespace Microsoft.ApplicationInsights
         [Fact]
         public void StartOperationRequestWithoutSuccessIsExportedAsSuccessful()
         {
-            using (this.telemetryClient.StartOperation<RequestTelemetry>("GET /health"))
+            using (this.telemetryClient.StartOperation<RequestTelemetry>("GET /startop-export/no-success"))
             {
             }
 
             var baseData = GetBaseData(this.ExportSingle("Request"));
             Assert.True(baseData.GetProperty("success").GetBoolean());
             AssertNoUnmappedKeys(baseData);
+        }
+
+        [Fact]
+        public void StartOperationWithCallerActivityAppliesExplicitDependencyFields()
+        {
+            using (var activity = CallerActivitySource.StartActivity("CallerDependency", ActivityKind.Client))
+            {
+                Assert.NotNull(activity);
+
+                using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(activity))
+                {
+                    operation.Telemetry.Type = "Custom";
+                    operation.Telemetry.Data = "custom-data";
+                    operation.Telemetry.Target = "custom-target";
+                    operation.Telemetry.ResultCode = "500";
+                    operation.Telemetry.Success = false;
+                }
+            }
+
+            var baseData = GetBaseData(this.ExportSingle("RemoteDependency"));
+            Assert.Equal("CallerDependency", GetString(baseData, "name"));
+            Assert.Equal("Custom", GetString(baseData, "type"));
+            Assert.Equal("custom-data", GetString(baseData, "data"));
+            Assert.Equal("custom-target", GetString(baseData, "target"));
+            Assert.Equal("500", GetString(baseData, "resultCode"));
+            Assert.False(baseData.GetProperty("success").GetBoolean());
+        }
+
+        [Fact]
+        public void StartOperationWithCallerActivityKeepsInstrumentationWhenTelemetryIsUntouched()
+        {
+            using (var activity = CallerActivitySource.StartActivity("GET", ActivityKind.Client))
+            {
+                Assert.NotNull(activity);
+                activity.SetTag("http.request.method", "GET");
+                activity.SetTag("url.full", "https://example.com/api/items");
+                activity.SetTag("server.address", "example.com");
+                activity.SetTag("http.response.status_code", 200);
+
+                using (this.telemetryClient.StartOperation<DependencyTelemetry>(activity))
+                {
+                }
+            }
+
+            var baseData = GetBaseData(this.ExportSingle("RemoteDependency"));
+            Assert.Equal("Http", GetString(baseData, "type"));
+            Assert.Equal("https://example.com/api/items", GetString(baseData, "data"));
+            Assert.Equal("example.com", GetString(baseData, "target"));
+            Assert.Equal("200", GetString(baseData, "resultCode"));
         }
 
         private static JsonElement GetBaseData(JsonElement envelope)

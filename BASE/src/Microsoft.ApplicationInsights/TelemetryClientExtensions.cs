@@ -119,7 +119,7 @@
                 : null;
             telemetry.Context.Operation.Name = effectiveName;
 
-            return new OperationHolder<T>(telemetryClient, telemetry, activity, savedActivity, applyTelemetryOnDispose: true);
+            return new OperationHolder<T>(telemetryClient, telemetry, activity, savedActivity, ownsActivity: true);
         }
 
         /// <summary>
@@ -207,7 +207,7 @@
                 : null;
             operationTelemetry.Context.Operation.Name = operationTelemetry.Name;
 
-            return new OperationHolder<T>(telemetryClient, operationTelemetry, activity, savedActivity, applyTelemetryOnDispose: true);
+            return new OperationHolder<T>(telemetryClient, operationTelemetry, activity, savedActivity, ownsActivity: true);
         }
 
         /// <summary>

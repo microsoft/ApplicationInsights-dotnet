@@ -6,26 +6,27 @@
 
     /// <summary>
     /// Represents an ongoing telemetry operation that wraps a telemetry item and its associated Activity.
-    /// In the OpenTelemetry-based shim, disposing copies the telemetry item onto the Activity (when the SDK created it)
-    /// and stops the Activity so that the exporter emits it.
+    /// In the OpenTelemetry-based shim, disposing copies the telemetry item onto the Activity and stops the Activity
+    /// so that the exporter emits it.
     /// </summary>
     internal sealed class OperationHolder<T> : IOperationHolder<T> where T : OperationTelemetry
     {
         private readonly TelemetryClient telemetryClient;
         private readonly Activity activity;
         private readonly Activity suppressedActivity;
-        private readonly bool applyTelemetryOnDispose;
+        private readonly bool ownsActivity;
+        private readonly string initialName;
         private readonly string initialOperationName;
         private bool isDisposed;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="OperationHolder{T}"/> class.
+        /// Initializes a new instance of the <see cref="OperationHolder{T}"/> class for a caller-owned activity.
         /// </summary>
         /// <param name="telemetryClient">Telemetry client associated with this operation.</param>
         /// <param name="telemetry">Telemetry item created for this operation.</param>
         /// <param name="activity">Activity that represents the operation context. May be null if sampled out or no listener.</param>
         public OperationHolder(TelemetryClient telemetryClient, T telemetry, Activity activity)
-            : this(telemetryClient, telemetry, activity, null, applyTelemetryOnDispose: false)
+            : this(telemetryClient, telemetry, activity, null, ownsActivity: false)
         {
         }
 
@@ -36,17 +37,19 @@
         /// <param name="telemetry">Telemetry item created for this operation.</param>
         /// <param name="activity">Activity that represents the operation context. May be null if sampled out or no listener.</param>
         /// <param name="suppressedActivity">An ambient activity that was suppressed to create a root operation and should be restored on dispose.</param>
-        /// <param name="applyTelemetryOnDispose">
-        /// True when the SDK created <paramref name="activity"/> for this operation, in which case the telemetry item is the
-        /// source of truth and its fields are copied onto the activity on dispose. False when wrapping a caller-owned activity.
+        /// <param name="ownsActivity">
+        /// True when the SDK created <paramref name="activity"/> for this operation: the telemetry item is the source of truth and
+        /// is fully copied onto the activity on dispose. False when wrapping a caller-owned activity: only fields the caller
+        /// explicitly set on the telemetry item are applied, so the activity's own instrumentation is not overwritten.
         /// </param>
-        public OperationHolder(TelemetryClient telemetryClient, T telemetry, Activity activity, Activity suppressedActivity, bool applyTelemetryOnDispose)
+        public OperationHolder(TelemetryClient telemetryClient, T telemetry, Activity activity, Activity suppressedActivity, bool ownsActivity)
         {
             this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
             this.Telemetry = telemetry ?? throw new ArgumentNullException(nameof(telemetry));
             this.activity = activity;
             this.suppressedActivity = suppressedActivity;
-            this.applyTelemetryOnDispose = applyTelemetryOnDispose;
+            this.ownsActivity = ownsActivity;
+            this.initialName = telemetry.Name;
 
             // StartOperation defaults Context.Operation.Name to the operation's own name. Remember it so that, for
             // dependencies, only an explicitly assigned operation name is exported (a child dependency's own name
@@ -81,11 +84,7 @@
 
             if (this.activity != null)
             {
-                if (this.applyTelemetryOnDispose)
-                {
-                    this.ApplyTelemetryToActivity();
-                }
-
+                this.ApplyTelemetryToActivity();
                 this.activity.Stop();
             }
 
@@ -103,15 +102,25 @@
         /// </summary>
         private void ApplyTelemetryToActivity()
         {
+            bool nameChanged = !string.Equals(this.Telemetry.Name, this.initialName, StringComparison.Ordinal);
+
             switch (this.Telemetry)
             {
-                case DependencyTelemetry dependency:
+                case DependencyTelemetry dependency when this.ownsActivity:
                     bool operationNameAssigned = !string.Equals(dependency.Context?.Operation?.Name, this.initialOperationName, StringComparison.Ordinal);
                     TelemetryClient.ApplyDependencyTelemetryToActivity(dependency, this.activity, includeOperationName: operationNameAssigned);
                     break;
 
-                case RequestTelemetry request:
+                case DependencyTelemetry dependency:
+                    TelemetryClient.ApplyDependencyOverrideAttributes(dependency, this.activity, includeName: nameChanged);
+                    break;
+
+                case RequestTelemetry request when this.ownsActivity:
                     TelemetryClient.ApplyRequestTelemetryToActivity(request, this.activity);
+                    break;
+
+                case RequestTelemetry request:
+                    TelemetryClient.ApplyRequestOverrideAttributes(request, this.activity, includeName: nameChanged);
                     break;
 
                 default:
