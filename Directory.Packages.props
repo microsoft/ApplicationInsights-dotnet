@@ -15,7 +15,7 @@
   <!-- 
     ==============================================================================
     OPENTELEMETRY PACKAGES
-    Core packages using stable version 1.19.1 with some RC/Beta components
+    OpenTelemetry packages use stable 1.19.x versions
     ==============================================================================
   -->
 
