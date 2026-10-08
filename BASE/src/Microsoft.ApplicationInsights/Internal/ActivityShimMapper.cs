@@ -1,9 +1,15 @@
 ﻿namespace Microsoft.ApplicationInsights.Internal
 {
-    using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
+    /// <summary>
+    /// Copies an operation's telemetry item onto its Activity when the operation is stopped, using the Microsoft override
+    /// attributes that the Azure Monitor exporter maps to the Application Insights fields (the same keys TrackDependency
+    /// and TrackRequest use). Only values that are set are applied.
+    /// </summary>
     internal static class ActivityShimMapper
     {
         public static void ApplyDependencyTags(Activity activity, DependencyTelemetry dep)
@@ -13,57 +19,54 @@
                 return;
             }
 
-            // Map core AI DependencyTelemetry → OpenTelemetry semantic conventions
-            if (!string.IsNullOrEmpty(dep.Type))
-            {
-                if (string.Equals(dep.Type, "Http", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (!string.IsNullOrEmpty(dep.Data) &&
-                        Uri.TryCreate(dep.Data, UriKind.Absolute, out var uri))
-                    {
-                        activity.SetTag("url.full", uri.ToString());
-                        activity.SetTag("http.method", "_OTHER");
-                        activity.SetTag("server.address", uri.Host);
-                        activity.SetTag("server.port", uri.Port);
-                    }
-                }
-                else if (string.Equals(dep.Type, "SQL", StringComparison.OrdinalIgnoreCase))
-                {
-                    activity.SetTag("db.system", "mssql");
-                    activity.SetTag("db.statement", dep.Data);
-                    if (!string.IsNullOrEmpty(dep.Target))
-                    {
-                        activity.SetTag("server.address", dep.Target);
-                    }
-                }
-                else if (string.Equals(dep.Type, "Queue Message", StringComparison.OrdinalIgnoreCase))
-                {
-                    activity.SetTag("messaging.system", "queue");
-                    activity.SetTag("messaging.destination", dep.Data);
+            SetTagIfNotEmpty(activity, SemanticConventions.AttributeMicrosoftDependencyType, dep.Type);
+            SetTagIfNotEmpty(activity, SemanticConventions.AttributeMicrosoftDependencyData, dep.Data);
+            SetTagIfNotEmpty(activity, SemanticConventions.AttributeMicrosoftDependencyTarget, dep.Target);
+            SetTagIfNotEmpty(activity, SemanticConventions.AttributeMicrosoftDependencyResultCode, dep.ResultCode);
+            ApplyCommon(activity, dep, dep.Properties);
+        }
 
-                    if (!string.IsNullOrEmpty(dep.Target) &&
-                        Uri.TryCreate(dep.Target, UriKind.Absolute, out var uri))
-                    {
-                        activity.SetTag("server.address", uri.Host);
-                    }
-                }
-                else
+        public static void ApplyRequestTags(Activity activity, RequestTelemetry request)
+        {
+            if (activity == null || request == null)
+            {
+                return;
+            }
+
+            SetTagIfNotEmpty(activity, SemanticConventions.AttributeMicrosoftRequestUrl, request.Url?.ToString());
+            SetTagIfNotEmpty(activity, SemanticConventions.AttributeMicrosoftRequestSource, request.Source);
+            SetTagIfNotEmpty(activity, SemanticConventions.AttributeMicrosoftRequestResultCode, request.ResponseCode);
+            ApplyCommon(activity, request, request.Properties);
+        }
+
+        private static void ApplyCommon(Activity activity, OperationTelemetry telemetry, IDictionary<string, string> properties)
+        {
+            if (properties != null)
+            {
+                foreach (var property in properties)
                 {
-                    activity.SetTag("microsoft.dependency.type", dep.Type);
+                    // Don't overwrite tags already on the activity: StartOperation(Activity) seeds Properties from the
+                    // activity's own tags, which instrumentation may have updated since.
+                    if (activity.GetTagItem(property.Key) == null)
+                    {
+                        activity.SetTag(property.Key, property.Value);
+                    }
                 }
             }
 
-            if (!string.IsNullOrEmpty(dep.ResultCode))
+            // Leave the status untouched when Success is not set, so an unset value is not reported as a failure.
+            if (telemetry.Success.HasValue)
             {
-                activity.SetTag("http.response.status_code", dep.ResultCode);
+                activity.SetStatus(telemetry.Success.Value ? ActivityStatusCode.Ok : ActivityStatusCode.Error);
             }
+        }
 
-            if (!string.IsNullOrEmpty(dep.Target))
+        private static void SetTagIfNotEmpty(Activity activity, string key, string value)
+        {
+            if (!string.IsNullOrEmpty(value))
             {
-                activity.SetTag("microsoft.dependency.target", dep.Target);
+                activity.SetTag(key, value);
             }
-
-            activity.SetStatus(dep.Success == true ? ActivityStatusCode.Ok : ActivityStatusCode.Error);
         }
     }
 }

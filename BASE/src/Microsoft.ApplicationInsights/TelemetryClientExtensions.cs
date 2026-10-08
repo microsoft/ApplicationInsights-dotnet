@@ -105,9 +105,6 @@
                     null);
             }
 
-            // Store the operation name as a tag for retrieval
-            activity.SetOperationName(effectiveName);
-
             var telemetry = new T
             {
                 Name = effectiveName,
@@ -201,9 +198,6 @@
             {
                 return new OperationHolder<T>(telemetryClient, operationTelemetry, null);
             }
-
-            // Store the operation name as a tag for retrieval
-            activity.SetOperationName(operationTelemetry.Name);
 
             operationTelemetry.Timestamp = DateTimeOffset.UtcNow;
             operationTelemetry.Id = activity.SpanId.ToHexString();

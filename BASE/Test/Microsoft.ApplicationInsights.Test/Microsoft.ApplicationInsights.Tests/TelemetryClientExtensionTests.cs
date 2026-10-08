@@ -145,13 +145,13 @@ namespace Microsoft.ApplicationInsights
             {
                 var currentActivity = Activity.Current;
                 Assert.Equal(operation.Telemetry.Id, currentActivity.SpanId.ToHexString());
-                Assert.Equal(operation.Telemetry.Context.Operation.Name, this.GetOperationName(currentActivity));
+                Assert.Equal("OperationName", operation.Telemetry.Context.Operation.Name);
 
                 using (var childOperation = this.telemetryClient.StartOperation<DependencyTelemetry>("OperationName"))
                 {
                     var childActivity = Activity.Current;
                     Assert.Equal(childOperation.Telemetry.Id, childActivity.SpanId.ToHexString());
-                    Assert.Equal(childOperation.Telemetry.Context.Operation.Name, this.GetOperationName(currentActivity));
+                    Assert.Equal("OperationName", childOperation.Telemetry.Context.Operation.Name);
 
                     Assert.Null(currentActivity.Parent);
                     Assert.Equal(currentActivity, childActivity.Parent);
@@ -196,11 +196,14 @@ namespace Microsoft.ApplicationInsights
         }
 
         [Fact]
-        public void StartDependencyTrackingStoresTheArgumentOperationNameInCurrentActivity()
+        public void StartDependencyTrackingSetsOperationNameWithoutAddingUnmappedActivityTag()
         {
             using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("TestOperationName"))
             {
-                Assert.Equal("TestOperationName", this.GetOperationName(Activity.Current));
+                Assert.Equal("TestOperationName", operation.Telemetry.Context.Operation.Name);
+
+                // The exporter does not map an "OperationName" tag; it would only surface as a custom dimension.
+                Assert.Null(Activity.Current.GetTagItem("OperationName"));
             }
         }
 
@@ -550,10 +553,6 @@ namespace Microsoft.ApplicationInsights
         {
             Assert.Equal(rootOperationTelemetry.Id, childTelemetry.Context.Operation.ParentId);
             Assert.Equal(rootOperationTelemetry.Context.Operation.Id, childTelemetry.Context.Operation.Id);
-        }
-        private string GetOperationName(Activity activity)
-        {
-            return activity.Tags.FirstOrDefault(tag => tag.Key == "OperationName").Value;
         }
     }
 }
