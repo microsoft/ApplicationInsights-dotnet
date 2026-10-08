@@ -3,6 +3,7 @@ namespace Microsoft.ApplicationInsights.Web
     using System;
     using System.Diagnostics;
     using System.Web;
+    using Microsoft.ApplicationInsights.Internal;
     using Microsoft.ApplicationInsights.Web.Implementation;
     using OpenTelemetry;
 
@@ -14,7 +15,6 @@ namespace Microsoft.ApplicationInsights.Web
     {
         private const string WebSessionCookieName = "ai_session";
         private const int SessionCookieSessionIdIndex = 0;
-        private const int SessionCookieAcquisitionDateIndex = 1;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SessionActivityProcessor"/> class.
@@ -42,7 +42,7 @@ namespace Microsoft.ApplicationInsights.Web
             }
 
             // Only process if session ID is not already set
-            var existingSessionId = activity.GetTagItem("session.id");
+            var existingSessionId = activity.GetTagItem(SemanticConventions.AttributeMicrosoftSessionId);
             if (existingSessionId == null || string.IsNullOrEmpty(existingSessionId.ToString()))
             {
                 // Try Unvalidated first, fall back to regular Cookies for test environments
@@ -56,23 +56,8 @@ namespace Microsoft.ApplicationInsights.Web
                         var sessionId = parts[SessionCookieSessionIdIndex];
                         if (!string.IsNullOrEmpty(sessionId))
                         {
-                            // Set as OpenTelemetry semantic convention for session
-                            activity.SetTag("session.id", sessionId);
-
-                            // Check if this is the first session (acquisition date matches last activity date)
-                            if (parts.Length > SessionCookieAcquisitionDateIndex + 1)
-                            {
-                                var acquisitionDate = parts[SessionCookieAcquisitionDateIndex];
-                                var renewalDate = parts[SessionCookieAcquisitionDateIndex + 1];
-                                
-                                if (!string.IsNullOrEmpty(acquisitionDate) && !string.IsNullOrEmpty(renewalDate))
-                                {
-                                    if (acquisitionDate == renewalDate)
-                                    {
-                                        activity.SetTag("session.isFirst", true);
-                                    }
-                                }
-                            }
+                            // The exporter maps microsoft.session.id to the ai.session.id envelope tag.
+                            activity.SetTag(SemanticConventions.AttributeMicrosoftSessionId, sessionId);
                         }
                     }
                 }

@@ -45,7 +45,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             } // Activity ends
 
             // Assert
-            var userId = activity.GetTagItem("ai.user.id");
+            var userId = activity.GetTagItem("enduser.pseudo.id");
             Assert.NotNull(userId);
             Assert.Equal("user123", userId.ToString());
         }
@@ -65,7 +65,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             } // Activity ends
 
             // Assert
-            var userId = activity.GetTagItem("ai.user.id");
+            var userId = activity.GetTagItem("enduser.pseudo.id");
             Assert.Null(userId);
         }
 
@@ -85,7 +85,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             } // Activity ends
 
             // Assert
-            var userId = activity.GetTagItem("ai.user.id");
+            var userId = activity.GetTagItem("enduser.pseudo.id");
             Assert.Null(userId);
         }
 
@@ -102,11 +102,11 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             using (activity = StartTestActivity())
             {
                 Assert.NotNull(activity);
-                activity.SetTag("ai.user.id", "existingUser");
+                activity.SetTag("enduser.pseudo.id", "existingUser");
             } // Activity ends, processor should not override
 
             // Assert
-            var userId = activity.GetTagItem("ai.user.id");
+            var userId = activity.GetTagItem("enduser.pseudo.id");
             Assert.Equal("existingUser", userId.ToString());
         }
 
@@ -126,7 +126,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             } // Activity ends
 
             // Assert
-            var userId = activity.GetTagItem("ai.user.id");
+            var userId = activity.GetTagItem("enduser.pseudo.id");
             Assert.Null(userId); // Should not set if cookie format is incomplete
         }
 
@@ -147,7 +147,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             } // Activity ends
 
             // Assert
-            var userId = activity.GetTagItem("ai.user.id");
+            var userId = activity.GetTagItem("enduser.pseudo.id");
             Assert.NotNull(userId);
             Assert.Equal("user123", userId.ToString());
         }
@@ -168,7 +168,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             } // Activity ends
 
             // Assert
-            var userId = activity.GetTagItem("ai.user.id");
+            var userId = activity.GetTagItem("enduser.pseudo.id");
             Assert.Null(userId); // Should not set if timestamp is invalid
         }
 
@@ -189,7 +189,7 @@ namespace Microsoft.ApplicationInsights.Web.Tests
             } // Activity ends
 
             // Assert
-            var userId = activity.GetTagItem("ai.user.id");
+            var userId = activity.GetTagItem("enduser.pseudo.id");
             Assert.NotNull(userId);
             Assert.Equal("user123", userId.ToString());
         }

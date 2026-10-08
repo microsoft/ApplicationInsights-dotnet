@@ -3,6 +3,7 @@ namespace Microsoft.ApplicationInsights.Web
     using System;
     using System.Diagnostics;
     using System.Web;
+    using Microsoft.ApplicationInsights.Internal;
     using Microsoft.ApplicationInsights.Web.Implementation;
     using OpenTelemetry;
 
@@ -40,7 +41,7 @@ namespace Microsoft.ApplicationInsights.Web
             }
 
             // Only process if user ID is not already set (check for anonymous user ID)
-            var existingUserId = activity.GetTagItem("ai.user.id");
+            var existingUserId = activity.GetTagItem(SemanticConventions.AttributeEnduserPseudoId);
             if (existingUserId == null || string.IsNullOrEmpty(existingUserId.ToString()))
             {
                 // Try Unvalidated first, fall back to regular Cookies for test environments
@@ -57,8 +58,8 @@ namespace Microsoft.ApplicationInsights.Web
                         // Validate timestamp format (should be ISO 8601 DateTime)
                         if (!string.IsNullOrEmpty(userId) && DateTimeOffset.TryParse(timestamp, out _))
                         {
-                            // Set as Application Insights convention for anonymous user
-                            activity.SetTag("ai.user.id", userId);
+                            // The exporter maps enduser.pseudo.id to the ai.user.id envelope tag.
+                            activity.SetTag(SemanticConventions.AttributeEnduserPseudoId, userId);
                         }
                         else
                         {
