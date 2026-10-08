@@ -3,6 +3,7 @@ namespace Microsoft.ApplicationInsights.Web
     using System;
     using System.Diagnostics;
     using System.Web;
+    using Microsoft.ApplicationInsights.Internal;
     using Microsoft.ApplicationInsights.Web.Implementation;
     using OpenTelemetry;
 
@@ -40,7 +41,7 @@ namespace Microsoft.ApplicationInsights.Web
             }
 
             // Only process if synthetic source is not already set
-            var existingSyntheticSource = activity.GetTagItem("ai.operation.syntheticSource");
+            var existingSyntheticSource = activity.GetTagItem(SemanticConventions.AttributeMicrosoftSyntheticSource);
             if (existingSyntheticSource == null || string.IsNullOrEmpty(existingSyntheticSource.ToString()))
             {
                 var request = context.GetRequest();
@@ -61,12 +62,12 @@ namespace Microsoft.ApplicationInsights.Web
 
                     if (!string.IsNullOrEmpty(runIdHeader) && !string.IsNullOrEmpty(locationHeader))
                     {
-                        activity.SetTag("ai.operation.syntheticSource", GsmSource);
+                        activity.SetTag(SemanticConventions.AttributeMicrosoftSyntheticSource, GsmSource);
 
                         // User id will be Pop location name and RunId (We cannot use just location because of sampling)
                         var userId = locationHeader + "_" + runIdHeader;
-                        activity.SetTag("ai.user.id", userId);
-                        activity.SetTag("session.id", runIdHeader);
+                        activity.SetTag(SemanticConventions.AttributeEnduserPseudoId, userId);
+                        activity.SetTag(SemanticConventions.AttributeMicrosoftSessionId, runIdHeader);
                     }
                 }
             }
