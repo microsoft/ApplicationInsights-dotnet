@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-## Version 3.1.3
+## Version 3.2.0
 - Update OpenTelemetry core packages to 1.19.1, instrumentation packages to 1.19.0, and Azure Monitor OpenTelemetry Exporter to 1.10.0.
 - **Breaking change:** Reduce default HTTP client metric volume in ASP.NET Core and Worker Service on .NET 8+ while retaining request latency, count, and failure dimensions through `http.client.request.duration`. Other `System.Net.Http` metrics are now opt-in through OpenTelemetry `AddView`; dashboards and alerts using them must [explicitly enable collection](MigrationGuidance.md#enabling-additional-http-client-metrics). HTTP dependency tracing and server metrics are unchanged. No new public API is introduced. Addresses the HTTP metric-volume concern in [#3192](https://github.com/microsoft/ApplicationInsights-dotnet/issues/3192).
 - [Fix #3197: `NullReferenceException` when using TelemetryClient APIs when no connection string is provided.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3199)
