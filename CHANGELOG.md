@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- [Fix #3232: Constructing the first `TelemetryClient` no longer blocks for up to 2 seconds on the Azure VM instance metadata (IMDS) lookup used for feature statsbeat. The lookup now happens lazily the first time feature statsbeat is reported, instead of in the constructor.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3235)
 
 ## Version 3.2.0
 - Update OpenTelemetry core packages to 1.19.1, instrumentation packages to 1.19.0, and Azure Monitor OpenTelemetry Exporter to 1.10.0.
