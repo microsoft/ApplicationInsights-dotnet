@@ -19,19 +19,28 @@ namespace Microsoft.ApplicationInsights.Internal
     {
         private static readonly ConcurrentDictionary<string, FeatureMetricEmissionHelper> HelperRegistry = new ();
 
-        private readonly string resourceProvider;
+        // Resolved on first use (metric callback) so the constructor never blocks on IMDS.
+        private readonly Lazy<(string ResourceProvider, string Os)> environment;
         private readonly string ciKey;
         private readonly string version;
         private readonly Meter featureMeter = new (StatsbeatConstants.FeatureStatsbeatMeterName, "1.0");
 
-        private string os;
-
         private StatsbeatFeatures observedFeatures = StatsbeatFeatures.None;
 
         private FeatureMetricEmissionHelper(string ciKey, string version)
+            : this(ciKey, version, GetVmMetadata)
         {
-            this.os = GetOs();
-            this.resourceProvider = this.GetResourceProvider();
+        }
+
+        // Test seam: lets tests observe when (and whether) the IMDS lookup happens.
+        internal FeatureMetricEmissionHelper(string ciKey, string version, Func<Dictionary<string, object>> getVmMetadata)
+        {
+            if (getVmMetadata == null)
+            {
+                throw new ArgumentNullException(nameof(getVmMetadata));
+            }
+
+            this.environment = new Lazy<(string, string)>(() => GetEnvironment(getVmMetadata));
             this.ciKey = ciKey;
             this.version = version;
 
@@ -74,14 +83,15 @@ namespace Microsoft.ApplicationInsights.Internal
 
             try
             {
+                var (resourceProvider, os) = this.environment.Value;
                 return
                     new Measurement<int>(1,
-                        new ("rp", this.resourceProvider),
+                        new ("rp", resourceProvider),
                         new ("attach", "Manual"),
                         new ("cikey", this.ciKey),
                         new ("feature", (ulong)this.observedFeatures),
                         new ("type", 0), // 0 = feature, 1 = instrumentation scopes
-                        new ("os", this.os),
+                        new ("os", os),
                         new ("language", "dotnet"),
                         new ("version", this.version));
             }
@@ -134,13 +144,22 @@ namespace Microsoft.ApplicationInsights.Internal
             }
         }
 
+        private static (string ResourceProvider, string Os) GetEnvironment(Func<Dictionary<string, object>> getVmMetadata)
+        {
+            var os = GetOs();
+            var resourceProvider = GetResourceProvider(ref os, getVmMetadata);
+            return (resourceProvider, os);
+        }
+
         /// <summary>
         /// Inspect environment variables and VM instance metadata service (IMDS) for the azure resource provider name (eg., "aks").
         ///
-        /// As a side effect, also updates the OS field if that info is available from IMDS.
+        /// As a side effect, also updates <paramref name="os"/> if that info is available from IMDS.
         /// </summary>
+        /// <param name="getVmMetadata">IMDS lookup.</param>
+        /// <param name="os">the platform-observed OS, overridden by IMDS when available.</param>
         /// <returns>the resource provider.</returns>
-        private string GetResourceProvider()
+        private static string GetResourceProvider(ref string os, Func<Dictionary<string, object>> getVmMetadata)
         {
             var functionsWorkerRuntime = Environment.GetEnvironmentVariable("FUNCTIONS_WORKER_RUNTIME");
             if (functionsWorkerRuntime != null)
@@ -160,7 +179,7 @@ namespace Microsoft.ApplicationInsights.Internal
                 return "aks";
             }
 
-            var vmMetadata = GetVmMetadata();
+            var vmMetadata = getVmMetadata();
 
             if (vmMetadata != null)
             {
@@ -168,14 +187,14 @@ namespace Microsoft.ApplicationInsights.Internal
                 {
                     // osType takes precedence over the platform-observed OS.
 #pragma warning disable CA1308 // Normalize strings to uppercase
-                    this.os = (osType as string).ToLowerInvariant();
+                    os = (osType as string).ToLowerInvariant();
 #pragma warning restore CA1308 // Normalize strings to uppercase
                 }
                 else
                 {
                     // this code reproduces a logic error in the exporter where if the osType is not available, 
                     // we overwrite a good platform-observed OS. This is maintained to ensure a match with the exporter's data.
-                    this.os = "unknown";
+                    os = "unknown";
                 }
 
                 return "vm";

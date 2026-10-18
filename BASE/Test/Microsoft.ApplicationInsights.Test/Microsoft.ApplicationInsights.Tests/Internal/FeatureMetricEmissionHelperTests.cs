@@ -60,6 +60,62 @@ namespace Microsoft.ApplicationInsights
             AssertKey("version", "b", tags);
         }
 
+        [Fact]
+        public void Constructor_RejectsNullVmMetadataLookup()
+        {
+            Assert.Throws<ArgumentNullException>(() => new FeatureMetricEmissionHelper("a", "b", null));
+        }
+
+        [Fact]
+        public void Constructor_DoesNotLookUpVmMetadata()
+        {
+            int calls = 0;
+            using var helper = new FeatureMetricEmissionHelper("a", "b", () => { calls++; return null; });
+
+            Assert.Equal(0, calls);
+
+            // nothing observed => still no lookup
+            helper.GetFeatureStatsbeat();
+            Assert.Equal(0, calls);
+        }
+
+        [Fact]
+        public void VmMetadataIsLookedUpOnceOnFirstReport_AndUsedForRpAndOs()
+        {
+            // These make the helper pick functions/appsvc/aks and skip the VM lookup, so clear them for this test.
+            string[] azureEnvVars = { "FUNCTIONS_WORKER_RUNTIME", "WEBSITE_SITE_NAME", "AKS_ARM_NAMESPACE_ID" };
+            string[] originalValues = azureEnvVars.Select(Environment.GetEnvironmentVariable).ToArray();
+            try
+            {
+                foreach (var name in azureEnvVars)
+                {
+                    Environment.SetEnvironmentVariable(name, null);
+                }
+
+                int calls = 0;
+                using var helper = new FeatureMetricEmissionHelper("a", "b", () =>
+                {
+                    calls++;
+                    return new Dictionary<string, object> { ["osType"] = "Linux" };
+                });
+                helper.MarkFeatureInUse(StatsbeatFeatures.TrackEvent);
+
+                var first = helper.GetFeatureStatsbeat().Tags.ToArray().ToDictionary(v => v.Key, v => v.Value);
+                helper.GetFeatureStatsbeat();
+
+                Assert.Equal(1, calls);
+                AssertKey("rp", "vm", first);
+                AssertKey("os", "linux", first);
+            }
+            finally
+            {
+                for (int i = 0; i < azureEnvVars.Length; i++)
+                {
+                    Environment.SetEnvironmentVariable(azureEnvVars[i], originalValues[i]);
+                }
+            }
+        }
+
         private void AssertKey<V, T>(string key, T value, IDictionary<string, V> dictionary) where T: V
         {
             Assert.Contains(key, dictionary);
