@@ -51,12 +51,19 @@
     <Compile Include="..\..\..\..\NETCORE\src\Shared\Vendoring\OpenTelemetry.Resources.Azure\AppServiceResourceDetector.cs" Link="Implementation\Vendoring\AppServiceResourceDetector.cs" />
     <Compile Include="..\..\..\..\NETCORE\src\Shared\Vendoring\OpenTelemetry.Resources.Azure\AzureContainerAppsResourceDetector.cs" Link="Implementation\Vendoring\AzureContainerAppsResourceDetector.cs" />
     <Compile Include="..\..\..\..\NETCORE\src\Shared\Vendoring\OpenTelemetry.Resources.Azure\AzureResourceBuilderExtensions.cs" Link="Implementation\Vendoring\AzureResourceBuilderExtensions.cs" />
+    <Compile Include="..\..\..\..\NETCORE\src\Shared\Vendoring\OpenTelemetry.Resources.Azure\AzureResourcesEventSource.cs" Link="Implementation\Vendoring\AzureResourcesEventSource.cs" />
+    <Compile Include="..\..\..\..\NETCORE\src\Shared\Vendoring\OpenTelemetry.Resources.Azure\AzureVmImageReference.cs" Link="Implementation\Vendoring\AzureVmImageReference.cs" />
     <Compile Include="..\..\..\..\NETCORE\src\Shared\Vendoring\OpenTelemetry.Resources.Azure\AzureVmMetaDataRequestor.cs" Link="Implementation\Vendoring\AzureVmMetaDataRequestor.cs" />
     <Compile Include="..\..\..\..\NETCORE\src\Shared\Vendoring\OpenTelemetry.Resources.Azure\AzureVmMetadataResponse.cs" Link="Implementation\Vendoring\AzureVmMetadataResponse.cs" />
     <Compile Include="..\..\..\..\NETCORE\src\Shared\Vendoring\OpenTelemetry.Resources.Azure\AzureVMResourceDetector.cs" Link="Implementation\Vendoring\AzureVMResourceDetector.cs" />
+    <Compile Include="..\..\..\..\NETCORE\src\Shared\Vendoring\OpenTelemetry.Resources.Azure\AzureVmStorageProfile.cs" Link="Implementation\Vendoring\AzureVmStorageProfile.cs" />
+    <Compile Include="..\..\..\..\NETCORE\src\Shared\Vendoring\OpenTelemetry.Resources.Azure\ExceptionExtensions.cs" Link="Implementation\Vendoring\ExceptionExtensions.cs" />
     <Compile Include="..\..\..\..\NETCORE\src\Shared\Vendoring\OpenTelemetry.Resources.Azure\Guard.cs" Link="Implementation\Vendoring\Guard.cs" />
+    <Compile Include="..\..\..\..\NETCORE\src\Shared\Vendoring\OpenTelemetry.Resources.Azure\HttpClientHelpers.cs" Link="Implementation\Vendoring\HttpClientHelpers.cs" />
     <Compile Include="..\..\..\..\NETCORE\src\Shared\Vendoring\OpenTelemetry.Resources.Azure\ResourceAttributeConstants.cs" Link="Implementation\Vendoring\ResourceAttributeConstants.cs" />
     <Compile Include="..\..\..\..\NETCORE\src\Shared\Vendoring\OpenTelemetry.Resources.Azure\ResourceSemanticConventions.cs" Link="Implementation\Vendoring\ResourceSemanticConventions.cs" />
+    <Compile Include="..\..\..\..\NETCORE\src\Shared\Vendoring\OpenTelemetry.Resources.Azure\SchemaUrls.cs" Link="Implementation\Vendoring\SchemaUrls.cs" />
     <Compile Include="..\..\..\..\NETCORE\src\Shared\Vendoring\OpenTelemetry.Resources.Azure\SourceGenerationContext.cs" Link="Implementation\Vendoring\SourceGenerationContext.cs" />
+    <Compile Include="..\..\..\..\NETCORE\src\Shared\Vendoring\OpenTelemetry.Resources.Azure\StopwatchExtensions.cs" Link="Implementation\Vendoring\StopwatchExtensions.cs" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,11 @@
+# Vendored from open-telemetry/opentelemetry-dotnet-contrib. Upstream is formatted with a newer StyleCop that
+# understands target-typed `new(...)` and collection expressions; the StyleCop version pinned in this repository
+# reports them as spacing violations. Disable only those rules here so the vendored code can stay identical to
+# upstream. See README.md in this folder.
+root = false
+
+[*.cs]
+# The keyword 'new' should be followed by a space (target-typed new).
+dotnet_diagnostic.SA1000.severity = none
+# Opening square brackets should not be preceded by a space (collection expressions).
+dotnet_diagnostic.SA1010.severity = none
