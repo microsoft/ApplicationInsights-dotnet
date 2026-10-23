@@ -3,6 +3,7 @@
 
 namespace Microsoft.ApplicationInsights.Shared.Vendoring.OpenTelemetry.Resources
 {
+    using System;
     using global::OpenTelemetry.Resources;
     using Microsoft.ApplicationInsights.Shared.Vendoring.OpenTelemetry.Resources.Azure;
 
@@ -11,6 +12,8 @@ namespace Microsoft.ApplicationInsights.Shared.Vendoring.OpenTelemetry.Resources
     /// </summary>
     internal static class AzureResourceBuilderExtensions
     {
+        internal static readonly Version SemanticConventionsVersion = new(1, 44, 0);
+
         /// <summary>
         /// Enables Azure App Service resource detector.
         /// </summary>

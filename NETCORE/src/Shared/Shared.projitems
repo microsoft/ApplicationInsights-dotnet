@@ -17,12 +17,19 @@
     <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\AppServiceResourceDetector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\AzureContainerAppsResourceDetector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\AzureResourceBuilderExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\AzureResourcesEventSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\AzureVmImageReference.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\AzureVmMetaDataRequestor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\AzureVmMetadataResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\AzureVMResourceDetector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\AzureVmStorageProfile.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\ExceptionExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\Guard.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\HttpClientHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\ResourceAttributeConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\ResourceSemanticConventions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\SchemaUrls.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\SourceGenerationContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Vendoring\OpenTelemetry.Resources.Azure\StopwatchExtensions.cs" />
   </ItemGroup>
 </Project>
