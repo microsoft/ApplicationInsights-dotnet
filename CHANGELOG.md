@@ -1,12 +1,7 @@
 # Changelog
 
 ## Unreleased
-- **Breaking change:** Update the vendored Azure resource detectors used by `Microsoft.ApplicationInsights.AspNetCore`, `Microsoft.ApplicationInsights.WorkerService`, and `Microsoft.ApplicationInsights.Web` to `OpenTelemetry.Resources.Azure` `1.20.1-beta.1`, which aligns the detected resource attributes with OpenTelemetry Semantic Conventions v1.44.0. Cloud Role Name, Cloud Role Instance, and Application Version are unchanged. The following changes are visible in the resource attributes exported on the `_OTELRESOURCE_` metric:
-  - `cloud.platform` values changed from `azure_app_service` and `azure_vm` to `azure.app_service` and `azure.vm`.
-  - The App Service slot name is now reported as `deployment.environment.name` instead of `deployment.environment`.
-  - The Azure VM detector no longer reports `azure.vm.sku`, and `os.type` is now lowercase (for example `windows` instead of `Windows`).
-  - The Azure App Service and VM detectors now also report `cloud.account.id` and `azure.resource_group.name`, and the VM detector reports `host.image.id`, `host.image.name`, and `host.image.version`.
-- The vendored Azure VM resource detector now limits how much of the Azure Instance Metadata Service response is read ([GHSA-vc24-j8c5-2vw4](https://github.com/open-telemetry/opentelemetry-dotnet-contrib/security/advisories/GHSA-vc24-j8c5-2vw4)), applies its two second timeout to reading the response body, skips detection on Azure App Service (avoiding a metadata request at startup there), and retries detection after a failure instead of remembering the failure for the lifetime of the process.
+- **Breaking change:** Synced the vendored `OpenTelemetry.Resources.Azure` resource detectors to `1.20.1-beta.1`; resource attributes now follow semantic conventions v1.44.0 (`cloud.platform` values `azure_app_service`/`azure_vm` are now `azure.app_service`/`azure.vm`, and the App Service slot is reported as `deployment.environment.name` instead of `deployment.environment`).
 
 ## Version 3.2.0
 - Update OpenTelemetry core packages to 1.19.1, instrumentation packages to 1.19.0, and Azure Monitor OpenTelemetry Exporter to 1.10.0.
