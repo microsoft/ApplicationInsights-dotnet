@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+Update OpenTelemetry core packages to 1.20.1.
 - **Breaking change:** Synced the vendored `OpenTelemetry.Resources.Azure` resource detectors to `1.20.1-beta.1`; resource attributes now follow semantic conventions v1.44.0 (`cloud.platform` values `azure_app_service`/`azure_vm` are now `azure.app_service`/`azure.vm`, and the App Service slot is reported as `deployment.environment.name` instead of `deployment.environment`).
 
 ## Version 3.2.0

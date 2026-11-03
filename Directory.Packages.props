@@ -15,15 +15,15 @@
   <!-- 
     ==============================================================================
     OPENTELEMETRY PACKAGES
-    OpenTelemetry packages use stable 1.19.x versions
+    OpenTelemetry packages use stable 1.20.x versions
     ==============================================================================
   -->
 
-  <ItemGroup Label="OpenTelemetry - Core (Stable 1.19.1)">
-    <PackageVersion Include="OpenTelemetry" Version="1.19.1" />
-    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.19.1" />
-    <PackageVersion Include="OpenTelemetry.Exporter.InMemory" Version="1.19.1" />
-    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.19.1" />
+  <ItemGroup Label="OpenTelemetry - Core (Stable 1.20.1)">
+    <PackageVersion Include="OpenTelemetry" Version="1.20.1" />
+    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.20.1" />
+    <PackageVersion Include="OpenTelemetry.Exporter.InMemory" Version="1.20.1" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.20.1" />
   </ItemGroup>
 
   <ItemGroup Label="OpenTelemetry - Instrumentation">
