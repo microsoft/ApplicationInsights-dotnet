@@ -3,6 +3,7 @@
 ## Unreleased
 Update OpenTelemetry core packages to 1.20.1.
 - **Breaking change:** Synced the vendored `OpenTelemetry.Resources.Azure` resource detectors to `1.20.1-beta.1`; resource attributes now follow semantic conventions v1.44.0 (`cloud.platform` values `azure_app_service`/`azure_vm` are now `azure.app_service`/`azure.vm`, and the App Service slot is reported as `deployment.environment.name` instead of `deployment.environment`).
+- [Fix #3232: Constructing the first `TelemetryClient` no longer blocks for up to 2 seconds on the Azure VM instance metadata (IMDS) lookup used for feature statsbeat. The lookup now happens lazily the first time feature statsbeat is reported, instead of in the constructor.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3235)
 
 ## Version 3.2.0
 - Update OpenTelemetry core packages to 1.19.1, instrumentation packages to 1.19.0, and Azure Monitor OpenTelemetry Exporter to 1.10.0.
