@@ -13,6 +13,9 @@
     <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
     <TargetFrameworks>net11.0;net10.0;net9.0;net8.0;</TargetFrameworks>
     <DefineConstants>$(DefineConstants);AI_ASPNETCORE_WEB</DefineConstants>
+    <!-- Starting with the .NET 11 SDK, Debug builds of web projects emit a Hot Reload browser tools JS initializer. Both this
+         project and the referenced IntegrationTests.WebApp would emit it, which fails static web asset endpoint validation. -->
+    <EnableHotReloadInRuntimeConfigDevFile>false</EnableHotReloadInRuntimeConfigDevFile>
   </PropertyGroup>
 
   <ItemGroup>
