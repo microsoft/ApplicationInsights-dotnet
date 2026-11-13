@@ -11,8 +11,11 @@
 
   <PropertyGroup>
     <!-- TargetFrameworks are defined in Test.props, but can be overridden here if needed. -->
-    <TargetFrameworks>net10.0;net9.0;net8.0;</TargetFrameworks>
+    <TargetFrameworks>net11.0;net10.0;net9.0;net8.0;</TargetFrameworks>
     <DefineConstants>$(DefineConstants);AI_ASPNETCORE_WEB</DefineConstants>
+    <!-- Starting with the .NET 11 SDK, Debug builds of web projects emit a Hot Reload browser tools JS initializer. Both this
+         project and the referenced IntegrationTests.WebApp would emit it, which fails static web asset endpoint validation. -->
+    <EnableHotReloadInRuntimeConfigDevFile>false</EnableHotReloadInRuntimeConfigDevFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -43,6 +46,10 @@
     <None Update="content\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" VersionOverride="[11.*-*,12.0)" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">

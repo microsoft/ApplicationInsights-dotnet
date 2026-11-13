@@ -23,7 +23,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        framework: [net8.0, net9.0, net10.0, net462, net472, net480, net481]
+        framework: [net8.0, net9.0, net10.0, net11.0, net462, net472, net480, net481]
         exclude:
           # .NET Framework doesn't run on Linux
           - os: ubuntu-latest
@@ -54,6 +54,7 @@ jobs:
             8.0.x
             9.0.x
             10.0.x
+            11.0.x
 
     - name: Restore
       run: dotnet restore ${{ matrix.solution }}
