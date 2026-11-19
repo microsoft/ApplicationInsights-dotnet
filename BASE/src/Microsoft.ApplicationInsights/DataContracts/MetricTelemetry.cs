@@ -22,6 +22,7 @@
         {
             this.Name = metricName;
             this.Value = metricValue;
+            this.Properties = new Dictionary<string, string>();
         }
 
         /// <summary>
