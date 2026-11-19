@@ -2,8 +2,9 @@
 
 ## Unreleased
 - [Add `net11.0` target framework to `Microsoft.ApplicationInsights`, `Microsoft.ApplicationInsights.AspNetCore` and `Microsoft.ApplicationInsights.WorkerService`.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3250)
-Update OpenTelemetry core packages to 1.20.1.
+- Update OpenTelemetry core packages to 1.20.1.
 - **Breaking change:** Synced the vendored `OpenTelemetry.Resources.Azure` resource detectors to `1.20.1-beta.1`; resource attributes now follow semantic conventions v1.44.0 (`cloud.platform` values `azure_app_service`/`azure_vm` are now `azure.app_service`/`azure.vm`, and the App Service slot is reported as `deployment.environment.name` instead of `deployment.environment`).
+- [Fix #3243: Allow MetricTelemetry.Properties to be set](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3251)
 
 ## Version 3.2.0
 - Update OpenTelemetry core packages to 1.19.1, instrumentation packages to 1.19.0, and Azure Monitor OpenTelemetry Exporter to 1.10.0.
