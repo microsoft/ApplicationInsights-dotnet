@@ -49,7 +49,7 @@ jobs:
         include:
         - language: csharp
           build-mode: manual
-        
+
         # CodeQL supports the following values keywords for 'language': 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
         # Use `c-cpp` to analyze code written in C, C++ or both
         # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
@@ -72,7 +72,7 @@ jobs:
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@1c5b675653bb5c22dbe9b12b556ec555138e09fd # v4.38.1
+      uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
       with:
         languages: ${{ matrix.language }}
         build-mode: ${{ matrix.build-mode }}
@@ -93,7 +93,7 @@ jobs:
     - name: Dotnet Restore
       if: matrix.build-mode == 'manual'
       run: dotnet restore ${{ matrix.solution }}
-      
+
     - name: Dotnet Build
       if: matrix.build-mode == 'manual'
       run: dotnet build ${{ matrix.solution }}
