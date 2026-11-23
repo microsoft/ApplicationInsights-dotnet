@@ -5,6 +5,7 @@
 - Update OpenTelemetry core packages to 1.20.1.
 - **Breaking change:** Synced the vendored `OpenTelemetry.Resources.Azure` resource detectors to `1.20.1-beta.1`; resource attributes now follow semantic conventions v1.44.0 (`cloud.platform` values `azure_app_service`/`azure_vm` are now `azure.app_service`/`azure.vm`, and the App Service slot is reported as `deployment.environment.name` instead of `deployment.environment`).
 - [Fix #3243: Allow MetricTelemetry.Properties to be set](https://github.com/microsoft/ApplicationInsights-dotnet/pull/3251)
+- Update `Microsoft.SourceLink.GitHub` to 10.0.404 to address CVE-2026-62900 in the transitive `Microsoft.Build.Tasks.Git` dependency.
 
 ## Version 3.2.0
 - Update OpenTelemetry core packages to 1.19.1, instrumentation packages to 1.19.0, and Azure Monitor OpenTelemetry Exporter to 1.10.0.
