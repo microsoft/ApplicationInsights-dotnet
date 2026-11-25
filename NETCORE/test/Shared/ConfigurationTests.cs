@@ -38,6 +38,34 @@ namespace Microsoft.ApplicationInsights.WorkerService.Tests
             this.output = output;
         }
 
+        /// <summary>
+        /// Regression test for #3252: TelemetryClient must not resolve ILogger&lt;TelemetryClient&gt; during construction,
+        /// otherwise a logging provider that depends on TelemetryClient causes a circular dependency.
+        /// </summary>
+        [Fact]
+        public void TelemetryClientCanBeResolvedWhenLoggerProviderDependsOnIt()
+        {
+            var services = new ServiceCollection();
+            services.AddLogging();
+            services.AddSingleton<IConfiguration>(new ConfigurationBuilder().AddInMemoryCollection().Build());
+            services.AddSingleton<Microsoft.Extensions.Logging.ILoggerProvider>(sp =>
+            {
+                _ = sp.GetRequiredService<TelemetryClient>();
+                return Microsoft.Extensions.Logging.Abstractions.NullLoggerProvider.Instance;
+            });
+#if AI_ASPNETCORE_WEB
+            services.AddApplicationInsightsTelemetry(o => o.ConnectionString = TestConnectionString);
+#else
+            services.AddApplicationInsightsTelemetryWorkerService(o => o.ConnectionString = TestConnectionString);
+#endif
+
+            using var serviceProvider = services.BuildServiceProvider();
+            var client = serviceProvider.GetRequiredService<TelemetryClient>();
+
+            Assert.NotNull(client);
+            client.TrackEvent("test");
+        }
+
         [Theory]
         [InlineData("default", false)]
         [InlineData("one", false)]

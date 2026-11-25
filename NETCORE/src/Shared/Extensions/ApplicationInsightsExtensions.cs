@@ -152,11 +152,11 @@
             services.AddSingleton<TelemetryClient>(provider =>
             {
                 var configuration = provider.GetRequiredService<TelemetryConfiguration>();
-                var logger = provider.GetRequiredService<ILogger<TelemetryClient>>();
-                
-                // Use the internal constructor that accepts logger and service provider
-                // The service provider is needed so Flush/FlushAsync can resolve DI-managed OTel providers
-                return new TelemetryClient(configuration, logger, provider);
+
+                // The logger is resolved lazily by TelemetryClient (not here) to avoid a circular dependency
+                // when ILoggerFactory construction pulls in OpenTelemetry logging, which depends on TelemetryClient.
+                // The service provider is also used so Flush/FlushAsync can resolve DI-managed OTel providers
+                return new TelemetryClient(configuration, provider);
             });
         }
     }
