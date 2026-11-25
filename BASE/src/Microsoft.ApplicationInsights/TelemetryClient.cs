@@ -17,6 +17,7 @@
     using Microsoft.ApplicationInsights.Processors;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Logging.Abstractions;
     using OpenTelemetry;
     using OpenTelemetry.Logs;
     using OpenTelemetry.Metrics;
@@ -75,26 +76,17 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TelemetryClient" /> class for DI scenarios with logger injection.
+        /// Initializes a new instance of the <see cref="TelemetryClient" /> class for DI scenarios.
         /// </summary>
         /// <param name="configuration">The telemetry configuration.</param>
-        /// <param name="logger">The logger instance from DI container.</param>
-        internal TelemetryClient(TelemetryConfiguration configuration, ILogger<TelemetryClient> logger)
+        /// <param name="serviceProvider">The service provider for resolving OTel providers at flush time and the logger lazily.</param>
+        /// <remarks>
+        /// The logger is intentionally not injected: resolving <c>ILogger&lt;TelemetryClient&gt;</c> while constructing
+        /// <see cref="TelemetryClient"/> can create a circular dependency (TelemetryClient -> ILoggerFactory -> OpenTelemetry logging -> TelemetryClient).
+        /// </remarks>
+        internal TelemetryClient(TelemetryConfiguration configuration, IServiceProvider serviceProvider)
             : this(configuration, isFromDependencyInjection: true)
         {
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TelemetryClient" /> class for DI scenarios with logger and service provider injection.
-        /// </summary>
-        /// <param name="configuration">The telemetry configuration.</param>
-        /// <param name="logger">The logger instance from DI container.</param>
-        /// <param name="serviceProvider">The service provider for resolving OTel providers at flush time.</param>
-        internal TelemetryClient(TelemetryConfiguration configuration, ILogger<TelemetryClient> logger, IServiceProvider serviceProvider)
-            : this(configuration, isFromDependencyInjection: true)
-        {
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
@@ -120,7 +112,7 @@
         }
 
         /// <summary>
-        /// Gets the logger instance, creating it lazily if needed (non-DI scenario).
+        /// Gets the logger instance, creating it lazily on first use.
         /// </summary>
         internal ILogger<TelemetryClient> Logger
         {
@@ -128,7 +120,11 @@
             {
                 if (this.logger == null)
                 {
-                    this.logger = this.sdk.GetLoggerFactory().CreateLogger<TelemetryClient>();
+                    var loggerFactory = this.sdk != null
+                        ? this.sdk.GetLoggerFactory()
+                        : this.serviceProvider?.GetService<ILoggerFactory>();
+
+                    this.logger = (ILogger<TelemetryClient>)loggerFactory?.CreateLogger<TelemetryClient>() ?? NullLogger<TelemetryClient>.Instance;
                 }
 
                 return this.logger;
